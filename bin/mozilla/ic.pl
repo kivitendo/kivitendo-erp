@@ -1197,14 +1197,15 @@ sub generate_report {
   # ...
   # also it doesn't make sense without bsooqr. disable and issue a warning too
   my @bsooqr = qw(sold bought onorder ordered rfq quoted);
-  if ($form->{l_subtotal} && 1 < grep { $form->{$_} } @bsooqr) {
+  my $bsooqr_mode = grep { $form->{$_} } @bsooqr;
+  if ($form->{l_subtotal} && 1 < $bsooqr_mode) {
     my $enabled       = first { $form->{$_} } @bsooqr;
     $form->{$_}       = ''   for @bsooqr;
     $form->{$enabled} = 'Y';
 
     push @options, $::locale->text('Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1', $optiontexts{$enabled});
   }
-  if ($form->{l_soldtotal} && !grep { $form->{$_} } @bsooqr) {
+  if ($form->{l_soldtotal} && !$bsooqr_mode) {
     delete $form->{l_soldtotal};
 
     flash('warning', $::locale->text('Soldtotal does not make sense without any bsooqr options'));
@@ -1323,7 +1324,7 @@ sub generate_report {
     $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
-    my $soldtotal = $ref->{soldtotal};
+    my $soldtotal = $bsooqr_mode ? $ref->{soldtotal} : $ref->{onhand};
 
     if ($ref->{assemblyitem}) {
       $row->{partnumber}{align}   = 'right';
