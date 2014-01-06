@@ -45,7 +45,7 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
 __Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
-__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden 
+__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden
 __meist nur für die Mahngebührenrechnungen verwendet, da ist das nicht so
 __interessant, aber bei Kreditorenbuchungen werden oft Sachen gebucht, die
 __nichts mit Wareneinkauf zu tun haben, und nicht jeder sehen soll. Für diesen
@@ -103,6 +103,8 @@ Wichtige Änderungen:
 - Perl v5.10.1 oder neuer und PostgreSQL v8.4 oder neuer werden
   zwingend vorausgesetzt.
 
+Bugfixes:
+ - Punkt in Belegnummer korrekt für WebDAV File Feature escapt (Bug 2394)
 
 
 2012-12-10 - Release 3.0.0
