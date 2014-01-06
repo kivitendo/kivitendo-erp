@@ -1194,6 +1194,8 @@ sub generate_report {
 
   # soldtotal doesn't make sense with more than one bsooqr option.
   # so reset it to sold (the most common option), and issue a warning
+  # ...
+  # also it doesn't make sense without bsooqr. disable and issue a warning too
   my @bsooqr = qw(sold bought onorder ordered rfq quoted);
   if ($form->{l_subtotal} && 1 < grep { $form->{$_} } @bsooqr) {
     my $enabled       = first { $form->{$_} } @bsooqr;
@@ -1201,6 +1203,11 @@ sub generate_report {
     $form->{$enabled} = 'Y';
 
     push @options, $::locale->text('Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1', $optiontexts{$enabled});
+  }
+  if ($form->{l_soldtotal} && !grep { $form->{$_} } @bsooqr) {
+    delete $form->{l_soldtotal};
+
+    flash('warning', $::locale->text('Soldtotal does not make sense without any bsooqr options'));
   }
 
   IC->all_parts(\%myconfig, \%$form);
@@ -1266,7 +1273,7 @@ sub generate_report {
     'assembly' => $locale->text('assembly_list'),
   );
 
-  $report->set_options('top_info_text'         => $locale->text('Options') . ': ' . join(', ', grep $_, @options),
+  $report->set_options('raw_top_info_text'     => $form->parse_html_template('ic/generate_report_top', { options => \@options }),
                        'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},

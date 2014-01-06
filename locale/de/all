@@ -1948,6 +1948,7 @@ $self->{texts} = {
   'Skonto Terms'                => 'Zahlungsziel Skonto',
   'So far you could use one partnumber for severel parts, for example a service and an article.' => 'Bisher war es möglich eine Artikelnummer für mehrere Artikel zu verwenden, zum Beispiel eine Artikelnummer für eine Dienstleistung, eine Ware und ein Erzeugnis.',
   'Sold'                        => 'Verkauft',
+  'Soldtotal does not make sense without any bsooqr options' => 'Option "Menge in gewählten Belegen" ohne gewählte Belege wird ignoriert.',
   'Solution'                    => 'Lösung',
   'Sort By'                     => 'Sortiert nach',
   'Source'                      => 'Beleg',
