@@ -328,7 +328,7 @@ sub form_header {
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids show_details gldate
-    callback draft_id draft_description vendor_discount
+    rowcount callback draft_id draft_description vendor_discount
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
