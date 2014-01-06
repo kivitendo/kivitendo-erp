@@ -3,7 +3,7 @@
 [%- PROCESS 'amcvar/render_inputs_block.html' %]
 <tr>
  <td>
-  <input type="button" id="cb_show_details" name="show_details_button" value='[% 'Show details blubb' | $T8 %]'>
+  <input type="button" id="cb_show_details" name="show_details_button" value='[% 'Show details' | $T8 %]'>
   <script type="text/javascript">
    $('#cb_show_details').click(function(){ $('[id^="row2"]').toggle();
                                            if ( $('[id^="row2"]').is(":visible") ) {
