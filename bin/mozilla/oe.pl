@@ -441,7 +441,8 @@ sub form_header {
         max_dunning_level dunning_amount shiptoname shiptostreet shiptozipcode
         shiptocity shiptocountry shiptocontact shiptophone shiptofax
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
-        message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus),
+        message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
+        show_details),
         @custom_hiddens,
         map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
 
