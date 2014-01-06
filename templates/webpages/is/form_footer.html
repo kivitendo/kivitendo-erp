@@ -164,7 +164,7 @@
 [% IF id && !is_type_credit_note %]
     <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]">
 [% END %]
-[% IF show_delete %]
+[% IF show_delete && !storno %]
     <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
     <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
 [% END %]

@@ -56,7 +56,9 @@ BEGIN {
 );
 
 @developer_modules = (
+  { name => "DBIx::Log4perl",                      url => "http://search.cpan.org/~mjevans/", },
   { name => "Devel::REPL",                         url => "http://search.cpan.org/~doy/",       debian => 'libdevel-repl-perl' },
+  { name => "Log::Log4perl",                       url => "http://search.cpan.org/~mschilli/",  debian => 'liblog-log4perl-perl' },
   { name => "LWP::Simple",                         url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Moose::Role",                         url => "http://search.cpan.org/~doy/",       debian => 'libmoose-role-perl' },
   { name => "Perl::Tags",                          url => "http://search.cpan.org/~osfameron/", debian => 'libperl-tags-perl' },
