@@ -725,6 +725,8 @@ sub order_details {
   my @partsgroup = ();
   my $partsgroup;
   my $position = 0;
+  my $subtotal_header = 0;
+  my $subposition = 0;
 
   my (@project_ids, %projectnumbers, %projectdescriptions);
 
@@ -797,8 +799,6 @@ sub order_details {
 
     next if (!$form->{"id_$i"});
 
-    $position++;
-
     if ($item->[1] ne $sameitem) {
       push(@{ $form->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
@@ -809,6 +809,19 @@ sub order_details {
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
     # add number, description and qty to $form->{number}, ....
+    if ($form->{"subtotal_$i"} && !$subtotal_header) {
+      $subtotal_header = $i;
+      $position = int($position);
+      $subposition = 0;
+      $position++;
+    } elsif ($subtotal_header) {
+      $subposition += 1;
+      $position = int($position);
+      $position = $position.".".$subposition;
+    } else {
+      $position = int($position);
+      $position++;
+    }
 
     my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
 
@@ -825,6 +838,10 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
     push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} },
       $projectdescriptions{$form->{"project_id_$i"}};
+
+    if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
+      $subtotal_header     = 0;
+    }
 
     my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
     $totalweight += $lineweight;

@@ -327,12 +327,13 @@ sub save_dunning {
 
   $form->{DUNNING_PDFS_EMAIL} = [];
 
+  $form->{dunning_id} = $dunning_id;
+
   $self->create_invoice_for_fees($myconfig, $form, $dbh, $dunning_id);
 
   $self->print_invoice_for_fees($myconfig, $form, $dunning_id, $dbh);
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
-  $form->{dunning_id} = $dunning_id;
 
   if ($send_email) {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
