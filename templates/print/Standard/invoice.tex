@@ -37,7 +37,7 @@
 \newcommand{\employeeemail}{$(employee_email)$}
 \newcommand{\employeecoustid}{$(employee_co_ustid)$}
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
-\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+\newcommand{\employeetable}{$(template_meta.tmpfile NOESCAPE)$.table.tex}
 
 % ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ----------
 % \newcommand{\companybank}{$(company_bank)$}
@@ -98,11 +98,10 @@
 \newcommand{\shiptofax}{$(shiptofax)$}
 
 % ---------- Währungszeichen ----------
-\newcommand{\currency}{$(currency)$}
-\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
-\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
-\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
-\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+\newcommand{\currency}{\euro}
+\ifthenelse{\equal{$(currency)$}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{$(currency)$}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{$(currency)$}{USD}}{\let\currency\$}{}
 
 % ---------- Ende Reportvariablen-Umsetzung ----------
 
@@ -142,10 +141,10 @@
 % ---------- Begrüßung und Bemerkungen ----------
 \vspace{ 5mm}
 \lettergreeting
-Hiermit erlauben wir uns, Ihnen die nachfolgenden Positionen $(if orddate)$gemäß 
+Hiermit erlauben wir uns, Ihnen die nachfolgenden Positionen $(if orddate)$gemäß
 Ihrem Auftrag vom \orddate{ }$(end)$in Rechnung zu stellen.\\
 
-Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) 
+Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel)
 oder per E-Mail (\employeeemail) gerne zur Verfügung.\\[1\baselineskip]
 \ifthenelse{\isempty{$(notes)$}}{}{
       $(notes)$\\[1\baselineskip]
@@ -207,7 +206,7 @@ $(foreach number)$
 	\ifthenelse{\isempty{$(sellprice)$}}{&}{
 		\numprint{$(sellprice)$}
 		\ifthenelse{\equal{$(p_discount)$}{0}}{}{ -$(p_discount)$\%} &
-		\numprint{$(linetotal)$}\Wert{$(linetotal NOFORMAT)$}  
+		\numprint{$(linetotal)$}\Wert{$(linetotal NOFORMAT)$}
 	}\\ %
   $(end number)$
 
@@ -228,7 +227,7 @@ $(foreach number)$
 %       {$(taxdescription)$ auf }\numprint{$(taxbase)$}~\currency: & \numprint{$(tax)$}& \\
 		{$(taxdescription)$}:  & \numprint{$(tax)$}& \currency\\
    $(end tax)$
-   \midrule  
+   \midrule
    {\textbf{Rechnungsbetrag:}} & \bfseries\numprint{\invtotal} & \textbf{\currency}\\
 % ---------- Wenn bereits etwas gezahlt wurde ----------
 $(if invtotal != total)$
@@ -270,7 +269,7 @@ $(end)$
 % ---------- Nachbemerkung mit max. Abstand nach unten ----------
 $(if payment_terms)$
 \vspace*{0.5em}
-\textbf{Zahlungsbedingungen:}\hfill\parbox[t]{0.7\textwidth}{$(payment_terms)$}\\ 
+\textbf{Zahlungsbedingungen:}\hfill\parbox[t]{0.7\textwidth}{$(payment_terms)$}\\
 $(end)$
 \vspace*{0.5em}
 %Bitte überweisen Sie den Rechnungsbetrag in Höhe von

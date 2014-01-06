@@ -37,7 +37,7 @@
 \newcommand{\employeeemail}{$(employee_email)$}
 \newcommand{\employeecoustid}{$(employee_co_ustid)$}
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
-\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+\newcommand{\employeetable}{$(template_meta.tmpfile NOESCAPE)$.table.tex}
 
 % ---------- eigene Bankverbindung falls nicht im Briefkopf ----------
 % \newcommand{\companybank}{$(company_bank)$}
@@ -91,11 +91,10 @@
 \newcommand{\shiptofax}{$(shiptofax)$}
 
 % ---------- Währung setzen  ----------
-\newcommand{\currency}{$(currency)$}
-\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
-\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
-\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
-\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+\newcommand{\currency}{\euro}
+\ifthenelse{\equal{$(currency)$}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{$(currency)$}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{$(currency)$}{USD}}{\let\currency\$}{}
 
 % ---------- Ende Reportvariablen-Umsetzung ----------
 
@@ -199,7 +198,7 @@ nachfolgend aufgeführte Bestellung auf das unten angegebene Konto.
 	\ifthenelse{\isempty{$(sellprice)$}}{&}{
 		\numprint{$(sellprice)$}
 		\ifthenelse{\equal{$(p_discount)$}{0}}{}{ -$(p_discount)$\%} &
-		\numprint{$(linetotal)$}\Wert{$(linetotal NOFORMAT)$}  
+		\numprint{$(linetotal)$}\Wert{$(linetotal NOFORMAT)$}
 	}\\ %
   $(end number)$
 
