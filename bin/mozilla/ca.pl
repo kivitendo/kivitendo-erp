@@ -153,8 +153,8 @@ sub list {
   $::lxdebug->enter_sub;
   $::auth->assert('report');
 
-  $::form->{title} = $::locale->text('List Transactions') . " - " . $::locale->text('Account') . " $::form->{accno}" . " - " . $::form->{description};
-  
+  $::form->{title} = $::locale->text('List Transactions') . " - " . $::locale->text('Account') . " $::form->{accno}";
+
   $::form->header;
   print $::form->parse_html_template('ca/list', {
     year => DateTime->today->year,
@@ -183,8 +183,6 @@ sub format_debit_credit {
 
 sub list_transactions {
   $main::lxdebug->enter_sub();
-
-use Data::Dumper;
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
