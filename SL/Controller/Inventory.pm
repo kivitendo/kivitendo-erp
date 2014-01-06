@@ -44,27 +44,33 @@ sub action_stock_in {
 sub action_stock {
   my ($self) = @_;
 
-  # do stock
-  WH->transfer({
-    parts         => $self->part,
-    dst_bin       => $self->bin,
-    dst_wh        => $self->warehouse,
-    qty           => $::form->parse_amount(\%::myconfig, $::form->{qty}),
-    unit          => $self->unit,
-    transfer_type => 'stock',
-    chargenumber  => $::form->{chargenumber},
-    ean           => $::form->{ean},
-    comment       => $::form->{comment},
-  });
+  my $qty = $::form->parse_amount(\%::myconfig, $::form->{qty});
 
-  if ($::form->{write_default_bin}) {
-    $self->part->load;   # onhand is calculated in between. don't mess that up
-    $self->part->bin($self->bin);
-    $self->part->warehouse($self->warehouse);
-    $self->part->save;
+  if ($qty < 0) {
+    flash_later('error', t8('Cannot stock negative amounts'));
+  } else {
+    # do stock
+    WH->transfer({
+      parts         => $self->part,
+      dst_bin       => $self->bin,
+      dst_wh        => $self->warehouse,
+      qty           => $qty,
+      unit          => $self->unit,
+      transfer_type => 'stock',
+      chargenumber  => $::form->{chargenumber},
+      ean           => $::form->{ean},
+      comment       => $::form->{comment},
+    });
+
+    if ($::form->{write_default_bin}) {
+      $self->part->load;   # onhand is calculated in between. don't mess that up
+      $self->part->bin($self->bin);
+      $self->part->warehouse($self->warehouse);
+      $self->part->save;
+    }
+
+    flash_later('info', t8('Transfer successful'));
   }
-
-  flash_later('info', t8('Transfer successful'));
 
   # redirect
   $self->redirect_to(
