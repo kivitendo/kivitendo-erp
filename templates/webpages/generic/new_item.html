@@ -19,7 +19,10 @@
 
       <input type="hidden" name="action" value="dispatcher">
       <input class="submit" type="submit" name="action_add" value="[% 'Continue' | $T8 %]">
-      <input class="submit" type="submit" name="action_back_to_record" value="[% 'Back' | $T8 %]">
+      <input id='back_button' type='button' class="submit" value="[% 'Back' | $T8 %]">
     </form>
+<script type='text/javascript'>
+  $(function(){ $('#back_button').click(function(){ window.history.back(-1) }) })
+</script>
 
 
