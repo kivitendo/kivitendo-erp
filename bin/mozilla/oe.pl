@@ -434,12 +434,14 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $form->header;
-
+  if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {
+      $form->{shipto_id} = $form->{CFDD_shipto_id};
+  }
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
      qw(id action type vc formname media format proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
         max_dunning_level dunning_amount shiptoname shiptostreet shiptozipcode
-        shiptocity shiptocountry shiptocontact shiptophone shiptofax
+        CFDD_shipto shipto_id CFDD_shipto_id shiptocity shiptocountry shiptocontact shiptophone shiptofax
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
         show_details),
@@ -1670,6 +1672,7 @@ sub check_for_direct_delivery_yes {
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
   $form->{shipto} = 1;
+  $form->{CFDD_shipto} = 1;
   purchase_order();
   $main::lxdebug->leave_sub();
 }
@@ -1683,6 +1686,7 @@ sub check_for_direct_delivery_no {
 
   $form->{direct_delivery_checked} = 1;
   delete @{$form}{grep /^shipto/, keys %{ $form }};
+  $form->{CFDD_shipto} = 0;
   purchase_order();
 
   $main::lxdebug->leave_sub();
