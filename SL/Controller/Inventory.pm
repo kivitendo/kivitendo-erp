@@ -45,8 +45,9 @@ sub action_stock {
   my ($self) = @_;
 
   my $qty = $::form->parse_amount(\%::myconfig, $::form->{qty});
-
-  if ($qty < 0) {
+  if (!$qty) {
+    flash_later('error', t8('Cannot stock without amount'));
+  } elsif ($qty < 0) {
     flash_later('error', t8('Cannot stock negative amounts'));
   } else {
     # do stock

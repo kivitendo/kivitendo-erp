@@ -407,6 +407,7 @@ $self->{texts} = {
   'Cannot save preferences!'    => 'Einstellungen können nicht gespeichert werden!',
   'Cannot save quotation!'      => 'Angebot kann nicht gespeichert werden!',
   'Cannot stock negative amounts' => 'Negative Mengen können nicht eingelagert werden!',
+  'Cannot stock without amount' => 'Kann nicht ohne Menge einlagern!',
   'Cannot storno invoice for a closed period!' => 'Das Rechnungsdatum der zu stornierenden Rechnung fällt in einen abgeschlossenen Zeitraum!',
   'Cannot storno storno invoice!' => 'Kann eine Stornorechnung nicht stornieren',
   'Cannot transfer. <br> Reason:<br>#1' => 'Kann nicht auslagern. <br>Grund:<br>#1',
