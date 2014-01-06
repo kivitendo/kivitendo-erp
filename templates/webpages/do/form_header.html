@@ -116,6 +116,7 @@
        <tr>
         <input type="hidden" name="[% vc %]_id" value="[% HTML.escape(the_vc_id) %]">
         <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
+        <input type="hidden" name="tradediscount" value="[% HTML.escape(tradediscount) %]">
         <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
         <td>
          [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]

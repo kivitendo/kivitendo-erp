@@ -37,7 +37,7 @@ sub grouped_record_list {
   $output .= _purchase_order_list(         $self, $groups{purchase_orders},          %params) if $groups{purchase_orders};
   $output .= _purchase_delivery_order_list($self, $groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
-  $output .= _ar_transaction_list(         $self, $groups{ar_transactions},          %params) if $groups{ar_transactions};
+  $output .= _ap_transaction_list(         $self, $groups{ap_transactions},          %params) if $groups{ap_transactions};
 
   $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
   $output .= _sepa_transfer_list(          $self, $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
