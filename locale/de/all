@@ -1496,6 +1496,7 @@ $self->{texts} = {
   'Outputformat'                => 'Ausgabeformat',
   'Overdue sales quotations and requests for quotations' => 'Überfällige Angebote und Preisanfragen',
   'Override invoice language'   => 'Diese Sprache verwenden',
+  'Owner of account'            => 'Kontoinhaber',
   'PAYMENT POSTED'              => 'Rechung gebucht',
   'PDF'                         => 'PDF',
   'PDF (OpenDocument/OASIS)'    => 'PDF (OpenDocument/OASIS)',
