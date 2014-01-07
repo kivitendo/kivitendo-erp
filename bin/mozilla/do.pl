@@ -491,7 +491,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber	cusordnumber
+    ordnumber               customernumber          cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
