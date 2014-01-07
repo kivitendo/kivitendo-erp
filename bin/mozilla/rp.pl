@@ -397,8 +397,9 @@ sub generate_balance_sheet {
 
   my $data = RP->balance_sheet(\%::myconfig, $::form);
 
-  $::form->{asofdate} ||= $::form->current_date;
-  $::form->{period}     = $::locale->date(\%::myconfig, $::form->current_date, 1);
+  $::form->{asofdate}    ||= $::form->current_date;
+  $::form->{report_title}  = $::locale->text('Balance Sheet');
+  $::form->{report_date} ||= $::form->current_date;
 
   ($::form->{department}) = split /--/, $::form->{department};
 
@@ -409,6 +410,8 @@ sub generate_balance_sheet {
   $::form->{this_period} = $::locale->date(\%::myconfig, $::form->{asofdate}, 0);
   $::form->{last_period} = $::locale->date(\%::myconfig, $::form->{compareasofdate}, 0);
 
+#  balance sheet isn't read from print templates anymore,
+#  instead use template in rp
 #  $::form->{IN} = "balance_sheet.html";
 
   $::form->header;
