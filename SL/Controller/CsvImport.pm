@@ -165,16 +165,16 @@ sub action_report {
   my $pages = {};
   $pages->{per_page}        = $::form->{per_page} || 20;
   $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows, $pages->{per_page}) || 1;
-  $pages->{cur}             = $page < 1 ? 1
+  $pages->{page}             = $page < 1 ? 1
                             : $page > $pages->{max} ? $pages->{max}
                             : $page;
-  $pages->{common}          = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{cur}, $pages->{max}) } ];
+  $pages->{common}          = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
 
   $self->{report_numheaders} = $self->{report}->numheaders;
   my $first_row_header = 0;
   my $last_row_header  = $self->{report_numheaders} - 1;
-  my $first_row_data   = $pages->{per_page} * ($pages->{cur}-1) + $self->{report_numheaders};
-  my $last_row_data    = min($pages->{per_page} * $pages->{cur}, $num_rows) + $self->{report_numheaders} - 1;
+  my $first_row_data   = $pages->{per_page} * ($pages->{page}-1) + $self->{report_numheaders};
+  my $last_row_data    = min($pages->{per_page} * $pages->{page}, $num_rows) + $self->{report_numheaders} - 1;
   $self->{display_rows} = [
     $first_row_header
       ..
