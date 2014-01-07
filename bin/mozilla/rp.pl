@@ -1648,10 +1648,6 @@ sub generate_bwa {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $defaults = SL::DB::Default->get;
-  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $form->{templates} = $defaults->templates;
-
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -1839,9 +1835,20 @@ sub generate_bwa {
       . qq| $longtodate|;
   }
 
-  $form->{IN} = "bwa.html";
+  $form->{report_date} = $locale->text('Report date') . ": " . $form->current_date;
 
-  $form->parse_template;
+  if ( $form->{method} eq 'cash' ) {
+    $form->{accounting_method} = $locale->text('Cash accounting');
+  } elsif ( $form->{method} eq 'accrual' ) {
+    $form->{accounting_method} = $locale->text('Accrual accounting');
+  } else {
+    $form->{accounting_method} = "";
+  };
+
+  $form->{title} = $locale->text('BWA');
+
+  $form->header;
+  print $form->parse_html_template('rp/bwa');
 
   $main::lxdebug->leave_sub();
 }
