@@ -386,8 +386,8 @@ INSERT INTO tax                                                     VALUES ((SEL
 INSERT INTO tax                                                     VALUES ((SELECT id FROM chart WHERE accno = '1401'),'0.07','1401','8','Vorsteuer');
 INSERT INTO tax                                                     VALUES ((SELECT id FROM chart WHERE accno = '1405'),'0.16','1405','7','Vorsteuer');
 INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM CHART WHERE accno='1406'), 0.19, '1406', 9, 'Vorsteuer');
-INSERT INTO tax (taxkey, taxdescription)                            VALUES ('10','Im anderen EG-Staat steuerpfl. Lieferung');
-INSERT INTO tax (taxkey, taxdescription)                            VALUES ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
+INSERT INTO tax (rate, taxkey, taxdescription)                      VALUES (0, '10','Im anderen EG-Staat steuerpfl. Lieferung');
+INSERT INTO tax (rate, taxkey, taxdescription)                      VALUES (0, '11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
 INSERT INTO tax (chart_id, rate,taxnumber, taxkey, taxdescription)  VALUES ((SELECT id FROM chart WHERE accno = '3802'),'0.07','3802','12','Steuerpflicht. EG-Lieferungen');
 INSERT INTO tax (chart_id,rate,taxnumber, taxkey, taxdescription)   VALUES ((SELECT id FROM chart WHERE accno = '3804'),'0.19','3804','13','Steuerpflicht. EG-Lieferungen%');
 INSERT INTO tax (chart_id,rate,taxnumber, taxkey, taxdescription)   VALUES ((SELECT id FROM chart WHERE accno = '3803'),'0.16','3803','15','Steuerpflicht. EG-Lieferungen%');
