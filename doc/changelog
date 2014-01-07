@@ -108,6 +108,8 @@ Bugfixes:
  - Stornierte Rechnungen (sowohl die Stornorechnung als auch das Storno nicht
    Buchen oder Löschen, egal was in der Mandantenkonfiguration steht)
  - Wiederkehrende Rechnung mit Steuer inklusive buchen Erlöse falsch (Bug 2314)
+ - manuelle Lieferadresse im Auftrag wird nicht in wiederkehrende Rechung übernommen (Bug 2296)
+
 
 2012-12-10 - Release 3.0.0
 
