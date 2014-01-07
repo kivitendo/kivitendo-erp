@@ -167,6 +167,17 @@ sub _save {
 sub action_save {
   my ($self) = @_;
 
+  my $pattern = '[ \t\n\r]+';
+  my $name = $self->{cv}->name;
+  $name =~ s/^$pattern//;
+  $name =~ s/$pattern$//;
+  $name =~ s/$pattern/ /g;
+  if ( $name eq '' ) {
+    $::form->dberror( $::locale->text('Customer missing!') );
+  } else {
+    $self->{cv}->name($name);
+  }
+
   $self->_save();
 
   my @redirect_params = (
