@@ -2137,10 +2137,22 @@ sub _get_taxzones {
 sub _get_employees {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $default_key, $key) = @_;
+  my ($self, $dbh, $params) = @_;
 
-  $key = $default_key unless ($key);
-  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY lower(name)|);
+  my $deleted = 0;
+
+  my $key;
+  if (ref $params eq 'HASH') {
+    $key     = $params->{key};
+    $deleted = $params->{deleted};
+
+  } else {
+    $key = $params;
+  }
+
+  $key     ||= "all_employees";
+  my $filter = $deleted ? '' : 'WHERE NOT COALESCE(deleted, FALSE)';
+  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee $filter ORDER BY lower(name)|);
 
   $main::lxdebug->leave_sub();
 }
@@ -2380,7 +2392,7 @@ sub get_lists {
   }
 
   if ($params{"employees"}) {
-    $self->_get_employees($dbh, "all_employees", $params{"employees"});
+    $self->_get_employees($dbh, $params{"employees"});
   }
 
   if ($params{"salesmen"}) {
