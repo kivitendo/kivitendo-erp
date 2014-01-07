@@ -1918,7 +1918,7 @@ sub save {
       } else {
         $i = $form->{assembly_rows};
       }
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"} > 0);
 
       $form->{sellprice} -= $form->{"sellprice_$i"} * $form->{"qty_$i"};
       $form->{weight}    -= $form->{"weight_$i"} * $form->{"qty_$i"};
@@ -1935,7 +1935,7 @@ sub save {
 
       # set values for last invoice/order item
       $i = $form->{rowcount};
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"} > 0);
 
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice lastcost price_factor_id);
       map { $form->{"ic_${_}_$i"} = $newform{$_} } @ic_cvar_fields;

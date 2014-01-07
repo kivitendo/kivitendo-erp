@@ -1,9 +1,8 @@
 -- @tag: delete_close_follow_ups_when_order_is_deleted_closed
 -- @description: Wiedervorlagen löschen/schließen, wenn dazugehörige Belege gelöscht/geschlossen werden
--- @depends: release_3_0_0
+-- @depends: delete_close_follow_ups_when_order_is_deleted_closed_fkey_deletion
 
-ALTER TABLE follow_up_links DROP CONSTRAINT follow_up_links_follow_up_id_fkey;
-ALTER TABLE follow_up_links ADD FOREIGN KEY (follow_up_id) REFERENCES follow_ups (id) ON DELETE CASCADE;
+ALTER TABLE follow_up_links ADD CONSTRAINT follow_up_links_follow_up_id_fkey FOREIGN KEY (follow_up_id) REFERENCES follow_ups (id) ON DELETE CASCADE;
 
 CREATE OR REPLACE FUNCTION follow_up_delete_notes_trigger()
 RETURNS TRIGGER AS $$
