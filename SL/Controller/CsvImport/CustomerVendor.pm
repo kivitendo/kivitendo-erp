@@ -89,7 +89,7 @@ sub check_objects {
       # Update existing customer/vendor records.
       $entry->{object_to_save} = $existing_vc;
 
-      $existing_vc->$_( $entry->{object}->$_ ) for @{ $methods };
+      $existing_vc->$_( $entry->{object}->$_ ) for @{ $methods }, keys %{ $self->clone_methods };
 
       push @{ $entry->{information} }, $::locale->text('Updating existing entry in database');
 
@@ -153,6 +153,9 @@ sub check_language {
     }
 
     $object->language_id($language->id);
+
+    # register language_id for method copying later
+    $self->clone_methods->{language_id} = 1;
   }
 
   return 1;
@@ -179,6 +182,9 @@ sub check_business {
     }
 
     $object->business_id($business->id);
+
+    # register business_id for method copying later
+    $self->clone_methods->{business_id} = 1;
   }
 
   return 1;

@@ -18,7 +18,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_vc vc_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_vc vc_by clone_methods) ],
 );
 
 sub run {
@@ -159,6 +159,10 @@ sub init_all_vc {
 
   return { customers => SL::DB::Manager::Customer->get_all,
            vendors   => SL::DB::Manager::Vendor->get_all };
+}
+
+sub init_clone_methods {
+  {}
 }
 
 sub force_allow_columns {
@@ -385,6 +389,9 @@ sub check_payment {
     }
 
     $object->payment_id($terms->id);
+
+    # register payment_id for method copying later
+    $self->clone_methods->{payment_id} = 1;
   }
 
   return 1;
@@ -411,6 +418,9 @@ sub check_delivery_term {
     }
 
     $object->delivery_term_id($terms->id);
+
+    # register delivery_term_id for method copying later
+    $self->clone_methods->{delivery_term_id} = 1;
   }
 
   return 1;

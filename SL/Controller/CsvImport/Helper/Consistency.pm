@@ -34,6 +34,9 @@ sub check_currency {
     }
 
     $object->currency_id($currency->id);
+
+    # register currency_id for method copying later
+    $self->clone_methods->{currency_id} = 1;
   }
 
   # Set default currency if none was given and take_default is true.
