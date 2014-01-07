@@ -1,11 +1,13 @@
-<body>
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
 
-<h2 align=center> <%income_statement_title%></h2>
+<h3 align=center> [% title %]</h3>
 <h3 align=center>
-<%period%><br>
-<%accounting_method%><br>
+[% period %]<br>
+[% accounting_method %]<br>
 
-<br><%report_date%>
+<br>[% report_date %]
 </h3>
 
 <table width=100% border=0>
@@ -19,7 +21,7 @@
 	Umsatzerl&ouml;se  
   </td>
   <td>
-	<%eur1%>
+	[% eur1 %]
   </td>
 </tr>
 <tr>
@@ -27,7 +29,7 @@
 	sonstige Erl&ouml;se  
   </td>
   <td>
-	<%eur2%>  
+	[% eur2 %]  
   </td>
 </tr>
 <tr>
@@ -35,7 +37,7 @@
 	Privatanteile
   </td>
   <td>
-	<%eur3%>  
+	[% eur3 %]  
   </td>
 </tr>
 <tr>
@@ -43,7 +45,7 @@
 	Zinsertr&auml;ge
   </td>
   <td>
-	<%eur4%>  
+	[% eur4 %]  
   </td>
 </tr>
 <tr>
@@ -51,7 +53,7 @@
 	Au&szlig;erordentliche Ertr&auml;ge
   </td>
   <td>
-	<%eur5%>  
+	[% eur5 %]  
   </td>
 </tr>
 <tr>
@@ -59,7 +61,7 @@
 	Vereinnahmte Umsatzsteuer
   </td>
   <td>
-	<%eur6%>  
+	[% eur6 %]  
   </td>
 </tr>
 <tr>
@@ -67,7 +69,7 @@
 	Umsatzsteuererstattungen
   </td>
   <td>
-	<%eur7%>  
+	[% eur7 %]  
   </td>
 </tr>
 
@@ -79,7 +81,7 @@
 
 <tr valign=top>
   <th align=left><b>Summe Einnahmen</b></th>
-  <td align=right><%sumeura%><hr noshade size=2></td>
+  <td align=right>[% sumeura %]<hr noshade size=2></td>
 </tr>
 <tr>
   <td></td>
@@ -95,7 +97,7 @@
 	Wareneing&auml;nge
   </td>
   <td>
-	<%eur8%>  
+	[% eur8 %]  
   </td>
 </tr>
 <tr>
@@ -103,7 +105,7 @@
 	L&ouml;hne und Geh&auml;ter
   </td>
   <td>
-	<%eur9%>  
+	[% eur9 %]  
   </td>
 </tr>
 <tr>
@@ -111,7 +113,7 @@
 	Gesetzlicher sozialer Aufwand
   </td>
   <td>
-	<%eur10%>  
+	[% eur10 %]  
   </td>
 </tr>
 <tr>
@@ -119,7 +121,7 @@
 	Mieten
   </td>
   <td>
-	<%eur11%>  
+	[% eur11 %]  
   </td>
 </tr>
 <tr>
@@ -127,7 +129,7 @@
 	Gas, Strom, Wasser
   </td>
   <td>
-	<%eur12%>  
+	[% eur12 %]  
   </td>
 </tr>
 <tr>
@@ -135,7 +137,7 @@
 	Instandhaltung
   </td>
   <td>
-	<%eur13%>  
+	[% eur13 %]  
   </td>
 </tr>
 <tr>
@@ -143,7 +145,7 @@
 	Steuern, Versicherungen, Beitr&auml;ge
   </td>
   <td>
-	<%eur14%>  
+	[% eur14 %]  
   </td>
 </tr>
 <tr>
@@ -151,119 +153,119 @@
 	Kfz-Steuern
   </td>
   <td>
-	<%eur15%>  
+	[% eur15 %]  
   </td>
 </tr><tr>
   <td>
 	Kfz-Versicherungen
   </td>
   <td>
-	<%eur16%>  
+	[% eur16 %]  
   </td>
 </tr><tr>
   <td>
 	Sonstige Fahrzeugkosten
   </td>
   <td>
-	<%eur17%>  
+	[% eur17 %]  
   </td>
 </tr><tr>
   <td>
 	Werbe- und Reisekosten
   </td>
   <td>
-	<%eur18%>  
+	[% eur18 %]  
   </td>
 </tr><tr>
   <td>
 	Instandhaltung und Werkzeuge
   </td>
   <td>
-	<%eur19%>  
+	[% eur19 %]  
   </td>
 </tr><tr>
   <td>
 	Fachzeitschriften, B&uuml;cher
   </td>
   <td>
-	<%eur20%>  
+	[% eur20 %]  
   </td>
 </tr><tr>
   <td>
 	Miete f&uuml;r Einrichtungen
   </td>
   <td>
-	<%eur21%>  
+	[% eur21 %]  
   </td>
 </tr><tr>
   <td>
 	Rechts- und Beratungskosten
   </td>
   <td>
-	<%eur22%>  
+	[% eur22 %]  
   </td>
 </tr><tr>
   <td>
 	B&uuml;robedarf, Porto, Telefon
   </td>
   <td>
-	<%eur23%>  
+	[% eur23 %]  
   </td>
 </tr><tr>
   <td>
 	Sonstige Aufwendungen
   </td>
   <td>
-	<%eur24%>  
+	[% eur24 %]  
   </td>
 </tr><tr>
   <td>
 	Abschreibungen auf Anlageverm&ouml;gen
   </td>
   <td>
-	<%eur25%>  
+	[% eur25 %]  
   </td>
 </tr><tr>
   <td>
 	Abschreibungen auf GWG
   </td>
   <td>
-	<%eur26%>  
+	[% eur26 %]  
   </td>
 </tr><tr>
   <td>
 	Vorsteuer
   </td>
   <td>
-	<%eur27%>  
+	[% eur27 %]  
   </td>
 </tr><tr>
   <td>
 	Umsatzsteuerzahlungen
   </td>
   <td>
-	<%eur28%>  
+	[% eur28 %]  
   </td>
 </tr><tr>
   <td>
 	Zinsaufwand
   </td>
   <td>
-	<%eur29%>  
+	[% eur29 %]  
   </td>
 </tr><tr>
   <td>
 	Au&szlig;erordentlicher Aufwand
   </td>
   <td>
-	<%eur30%>  
+	[% eur30 %]  
   </td>
 </tr><tr>
   <td>
 	Betriebliche Steuern
   </td>
   <td>
-	<%eur31%>  
+	[% eur31 %]  
   </td>
 </tr>
 
@@ -275,7 +277,7 @@
 
 <tr valign=top>
   <th align=left><b>Summe Ausgaben</b></th>
-  <td align=right><%sumeurb%> <br><hr noshade size=2</td>
+  <td align=right>[% sumeurb %] <br><hr noshade size=2</td>
 </tr>
 <tr>
   <td></td>
@@ -283,7 +285,7 @@
 </tr>
 <tr valign=top>
   <td align=left>GEWINN / VERLUST</td>
-  <td align=right><%guvsumme%><br><hr noshade size=2></td>
+  <td align=right>[% guvsumme %]<br><hr noshade size=2></td>
 </tr>
 
 </table>

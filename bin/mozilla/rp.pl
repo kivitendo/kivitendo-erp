@@ -376,11 +376,11 @@ sub generate_income_statement {
   }
 
   if ( $::instance_conf->get_profit_determination eq 'balance' ) {
-    $form->{income_statement_title} = $locale->text('Income Statement');
+    $form->{title} = $locale->text('Income Statement');
   } elsif ( $::instance_conf->get_profit_determination eq 'income' ) {
-    $form->{income_statement_title} = $locale->text('Net Income Statement');
+    $form->{title} = $locale->text('Net Income Statement');
   } else {
-    $form->{income_statement_title} = "";
+    $form->{title} = "";
   };
 
   if ( $form->{method} eq 'cash' ) {
@@ -391,11 +391,10 @@ sub generate_income_statement {
     $form->{accounting_method} = "";
   };
 
-  $::form->{report_date} = $locale->text('Report date') . ": " . $::form->current_date;
+  $form->{report_date} = $locale->text('Report date') . ": " . $form->current_date;
 
-  $form->{IN} = "income_statement.html";
-
-  $form->parse_template;
+  $form->header;
+  print $form->parse_html_template('rp/income_statement');
 
   $main::lxdebug->leave_sub();
 }

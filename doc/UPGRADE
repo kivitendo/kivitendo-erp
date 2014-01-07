@@ -59,7 +59,9 @@ Upgrade auf v3.x.0
 * Die alten ungepflegten Druckvorlagenvarianten French und Service
   wurden entfernt.
 
-
+* Die Druckvorlage für GuV/EÜR wird jetzt wie die Bilanz zentral in den
+  Webvorlagen verwaltet, es gibt keine benutzerangepassten Version in den
+  Druckvorlage mehr.
 
 Upgrade auf v3.0.0
 ==================
