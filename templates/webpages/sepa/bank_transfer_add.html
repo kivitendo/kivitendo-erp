@@ -77,7 +77,7 @@
        <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="60">
       </td>
       <td align="right">
-       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, -2) %]" style="text-align: right" size="12">
+       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, 2) %]" style="text-align: right" size="12">
       </td>
      </tr>
     [%- END %]
