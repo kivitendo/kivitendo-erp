@@ -53,7 +53,8 @@ sub get_next_trans_number {
   require SL::DB::Default;
   require SL::DB::Business;
 
-  my %conditions = ( query => [ $scoping_conditions ? $scoping_conditions->($spec_type) : () ] );
+  my %conditions            = ( query => [ $scoping_conditions ? $scoping_conditions->($spec_type) : () ] );
+  my %conditions_for_in_use = ( query => [ $scoping_conditions ? $scoping_conditions->($spec_type) : () ] );
 
   my $business;
   if ($spec_type =~ m{^(?:customer|vendor)$}) {
@@ -69,15 +70,17 @@ sub get_next_trans_number {
     }
   }
 
-  my @numbers        = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
-  my %numbers_in_use = map { ( $_ => 1 )        } @numbers;
+  my %numbers_in_use = map { ( $_->$number_column => 1 ) } @{ $self->_get_manager_class->get_all(%conditions_for_in_use) };
 
   my $range_table    = $business ? $business : SL::DB::Default->get;
   my $start_number   = $range_table->$number_range_column;
   $start_number      = $range_table->articlenumber if ($number_range_column eq 'assemblynumber') && (length($start_number) < 1);
   my $sequence       = SL::PrefixedNumber->new(number => $start_number);
 
-  $sequence->set_to_max(@numbers) if !$fill_holes_in_range;
+  if (!$fill_holes_in_range) {
+    my @numbers = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
+    $sequence->set_to_max(@numbers) ;
+  }
 
   my $new_number = $sequence->get_next;
   $new_number    = $sequence->get_next while $numbers_in_use{$new_number};
