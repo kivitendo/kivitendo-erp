@@ -49,6 +49,7 @@
      <th class="listheading">[% 'Bank' | $T8 %]</th>
      [% IF vc == 'customer' %]
       <th class="listheading">[% 'Mandator ID' | $T8 %]</th>
+      <th class="listheading">[% 'Mandate Date of Signature' | $T8 %]</th>
      [%- END %]
     </tr>
 
@@ -64,6 +65,7 @@
      <td><input name="vc_bank_info[].bank" size="30" value="[% HTML.escape(vbi.bank) %]"></td>
      [% IF vc == 'customer' %]
       <td><input name="vc_bank_info[].mandator_id" size="30" value="[% HTML.escape(vbi.mandator_id) %]"></td>
+      <td>[% L.date_tag("vc_bank_info[].mandate_date_of_signature", vbi.mandate_date_of_signature) %]</td>
      [%- END %]
     </tr>
     [%- END %]

@@ -89,8 +89,10 @@
     <sup>(1)</sup>
     [%- IF is_vendor %]
      [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN and the BIC." | $T8 %]
     [%- ELSE %]
      [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
     [%- END %]
    </p>
   [%- END %]

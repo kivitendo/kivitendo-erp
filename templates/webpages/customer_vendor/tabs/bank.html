@@ -12,10 +12,17 @@
         [% L.input_tag('cv.depositor', SELF.cv.depositor, size = 20) %]
       </td>
 
+    [%- IF ( SELF.is_customer ) %]
       <th align="right">[% 'Mandator ID' | $T8 %]</th>
       <td>
         [% L.input_tag('cv.mandator_id', SELF.cv.mandator_id, size = 20) %]
       </td>
+
+      <th align="right">[% 'Mandate Date of Signature' | $T8 %]</th>
+      <td>
+        [% L.date_tag('cv.mandate_date_of_signature', SELF.cv.mandate_date_of_signature) %]
+      </td>
+    [%- END %]
     </tr>
 
     <tr>

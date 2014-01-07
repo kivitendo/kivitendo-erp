@@ -36,7 +36,6 @@ __PACKAGE__->meta->columns(
   itime            => { type => 'timestamp', default => 'now()' },
   language         => { type => 'varchar', length => 5 },
   language_id      => { type => 'integer' },
-  mandator_id      => { type => 'text' },
   mtime            => { type => 'timestamp' },
   name             => { type => 'varchar', length => 75, not_null => 1 },
   notes            => { type => 'text' },

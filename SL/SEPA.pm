@@ -19,12 +19,14 @@ sub retrieve_open_invoices {
   my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
   my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
 
+  my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
+
   my $query =
     qq|
        SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
          vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${arap}.direct_debit,
 
-         COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' AS vc_bank_info_ok,
+         COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' ${mandate} AS vc_bank_info_ok,
 
          ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount
 
@@ -76,14 +78,16 @@ sub create_export {
 
   my $q_item_id = qq|SELECT nextval('id')|;
   my $h_item_id = prepare_query($form, $dbh, $q_item_id);
+  my $c_mandate = $params{vc} eq 'customer' ? ', vc_mandator_id, vc_mandate_date_of_signature' : '';
+  my $p_mandate = $params{vc} eq 'customer' ? ', ?, ?' : '';
 
   my $q_insert =
     qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
                                       amount,      requested_execution_date, reference,   end_to_end_id,
-                                      our_iban,    our_bic,                  vc_iban,     vc_bic)
+                                      our_iban,    our_bic,                  vc_iban,     vc_bic ${c_mandate})
        VALUES                        (?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
-                                      ?,           ?,                        ?,           ?)|;
+                                      ?,           ?,                        ?,           ? ${p_mandate})|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
 
   my $q_reference =
@@ -129,6 +133,8 @@ sub create_export {
                   $transfer->{amount},               conv_date($transfer->{requested_execution_date}),
                   $transfer->{reference},            $end_to_end_id,
                   map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vc));
+
+    push @values, $transfer->{vc_mandator_id}, conv_date($transfer->{vc_mandate_date_of_signature}) if $params{vc} eq 'customer';
 
     do_statement($form, $h_insert, $q_insert, @values);
   }
@@ -177,10 +183,10 @@ sub retrieve_export {
   if ($export->{id}) {
     my ($columns, $joins);
 
-    my $mandator_id = $params{vc} eq 'customer' ? ', mandator_id' : '';
+    my $mandator_id = $params{vc} eq 'customer' ? ', mandator_id, mandate_date_of_signature' : '';
 
     if ($params{details}) {
-      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description, ${mandator_id}|;
+      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description ${mandator_id}|;
       $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
                     LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
                     LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
