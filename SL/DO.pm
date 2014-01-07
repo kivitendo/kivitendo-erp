@@ -728,7 +728,7 @@ sub order_details {
   my $subtotal_header = 0;
   my $subposition = 0;
 
-  my (@project_ids, %projectnumbers, %projectdescriptions);
+  my (@project_ids);
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
@@ -742,21 +742,21 @@ sub order_details {
     push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
 
+  my $projects = [];
+  my %projects_by_id;
   if (@project_ids) {
-    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
-      join(", ", map("?", @project_ids)) . ")";
-    $sth = prepare_execute_query($form, $dbh, $query, @project_ids);
-    while (my $ref = $sth->fetchrow_hashref()) {
-      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
-      $projectdescriptions{$ref->{id}} = $ref->{description};
-    }
-    $sth->finish();
+    $projects = SL::DB::Manager::Project->get_all(query => [ id => \@project_ids ]);
+    %projects_by_id = map { $_->id => $_ } @$projects;
   }
 
-  $form->{"globalprojectnumber"} =
-    $projectnumbers{$form->{"globalproject_id"}};
-  $form->{"globalprojectdescription"} =
-      $projectdescriptions{$form->{"globalproject_id"}};
+  $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
+  $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
+
+  if ($projects_by_id{$form->{"globalproject_id"}}) {
+    for (@{ $projects_by_id{$form->{"globalproject_id"}}->cvars_by_config }) {
+      $form->{"project_cvar_" . $_->config->name} = $_->value_as_text;
+    }
+  }
 
   my $q_pg     = qq|SELECT p.partnumber, p.description, p.unit, a.qty, pg.partsgroup
                     FROM assembly a
@@ -775,6 +775,7 @@ sub order_details {
   my $num_si   = 0;
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  my $project_cvar_configs = CVar->get_configs(module => 'Projects');
 
   $form->{TEMPLATE_ARRAYS} = { };
   IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
@@ -788,6 +789,7 @@ sub order_details {
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+  push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
@@ -824,6 +826,7 @@ sub order_details {
     }
 
     my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
+    my $project = $projects_by_id{$form->{"project_id_$i"}} || SL::DB::Project->new;
 
     push @{ $form->{TEMPLATE_ARRAYS}{runningnumber} },   $position;
     push @{ $form->{TEMPLATE_ARRAYS}{number} },          $form->{"partnumber_$i"};
@@ -835,9 +838,8 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{partnotes} },       $form->{"partnotes_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
-    push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
-    push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} },
-      $projectdescriptions{$form->{"project_id_$i"}};
+    push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $project->projectnumber;
+    push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} }, $project->description;
 
     if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
       $subtotal_header     = 0;
@@ -901,6 +903,8 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
       CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
         for @{ $ic_cvar_configs };
+
+    push @{ $form->{TEMPLATE_ARRAYS}->{"project_cvar_" . $_->config->name} }, $_->value_as_text for @{ $project->cvars_by_config };
   }
 
   $form->{totalweight}       = $form->format_amount($myconfig, $totalweight, 3);
