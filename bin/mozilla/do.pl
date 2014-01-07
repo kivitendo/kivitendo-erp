@@ -491,7 +491,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber
+    ordnumber               customernumber	cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -508,7 +508,7 @@ sub orders {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber
+  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id);
 
@@ -522,6 +522,7 @@ sub orders {
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
+    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
@@ -867,6 +868,8 @@ sub invoice_multi {
   # Hinweis: delete gibt den wert zurueck und loescht danach das element (nett und einfach)
   # $shell: perldoc perlunc; /delete EXPR
   $form->{donumber}            = delete $form->{donumber_array};
+  $form->{ordnumber}           = delete $form->{ordnumber_array};
+  $form->{cusordnumber}        = delete $form->{cusordnumber_array};
   $form->{deliverydate}        = $form->{transdate};
   $form->{transdate}           = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);

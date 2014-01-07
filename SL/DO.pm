@@ -63,7 +63,7 @@ sub transactions {
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
   my $query =
-    qq|SELECT dord.id, dord.donumber, dord.ordnumber,
+    qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.cusordnumber,
          dord.transdate, dord.reqdate,
          ct.${vc}number, ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
@@ -415,7 +415,9 @@ sub save {
   my $rc = $dbh->commit();
 
   $form->{saved_donumber} = $form->{donumber};
-
+  $form->{saved_ordnumber} = $form->{ordnumber};
+  $form->{saved_cusordnumber} = $form->{cusordnumber};
+  
   Common::webdav_folder($form);
 
   $main::lxdebug->leave_sub();
@@ -604,6 +606,9 @@ sub retrieve {
   $sth = prepare_execute_query($form, $dbh, $query, @do_ids);
 
   delete $form->{"${vc}_id"};
+  my $pos = 0;
+  $form->{ordnumber_array} = ' ';
+  $form->{cusordnumber_array} = ' ';
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     if ($form->{"${vc}_id"} && ($ref->{"${vc}_id"} != $form->{"${vc}_id"})) {
       $sth->finish();
@@ -614,12 +619,26 @@ sub retrieve {
 
     map { $form->{$_} = $ref->{$_} } keys %$ref if ($ref);
     $form->{donumber_array} .= $form->{donumber} . ' ';
+    $pos = index($form->{ordnumber_array},' ' . $form->{ordnumber} . ' ');
+    if ($pos == -1) {
+      $form->{ordnumber_array} .= $form->{ordnumber} . ' ';
+    }
+    $pos = index($form->{cusordnumber_array},' ' . $form->{cusordnumber} . ' ');
+    if ($pos == -1) {
+      $form->{cusordnumber_array} .= $form->{cusordnumber} . ' ';
+    }
   }
   $sth->finish();
 
   $form->{donumber_array} =~ s/\s*$//g;
+  $form->{ordnumber_array} =~ s/ //;
+  $form->{ordnumber_array} =~ s/\s*$//g;
+  $form->{cusordnumber_array} =~ s/ //;
+  $form->{cusordnumber_array} =~ s/\s*$//g;
 
   $form->{saved_donumber} = $form->{donumber};
+  $form->{saved_ordnumber} = $form->{ordnumber};
+  $form->{saved_cusordnumber} = $form->{cusordnumber};
 
   # if not given, fill transdate with current_date
   $form->{transdate} = $form->current_date($myconfig) unless $form->{transdate};
