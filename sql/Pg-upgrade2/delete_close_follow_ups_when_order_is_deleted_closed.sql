@@ -1,5 +1,5 @@
 -- @tag: delete_close_follow_ups_when_order_is_deleted_closed
--- @description: Wiedervorlagen lößchen/schließen, wenn dazugehörige Belege gelöscht/geschlossen werden
+-- @description: Wiedervorlagen löschen/schließen, wenn dazugehörige Belege gelöscht/geschlossen werden
 -- @depends: release_3_0_0
 
 ALTER TABLE follow_up_links DROP CONSTRAINT follow_up_links_follow_up_id_fkey;
