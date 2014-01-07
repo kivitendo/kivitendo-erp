@@ -54,7 +54,7 @@ namespace('kivi.CustomerVendor', function(ns) {
 
         var cvars = data.contact_cvars;
         for(var key in cvars)
-          $(document.getElementById('contact_cvar_'+ key)).val(cvars[key]);
+          $(document.getElementById('contact_cvars_'+ key)).val(cvars[key]);
 
         $('#action_delete_contact').show();
 
