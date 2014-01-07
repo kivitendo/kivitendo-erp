@@ -99,10 +99,10 @@ sub invoice_details {
     %projects_by_id = map { $_->id => $_ } @$projects;
   }
 
-  $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
-  $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
-
   if ($projects_by_id{$form->{"globalproject_id"}}) {
+    $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
+    $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
+
     for (@{ $projects_by_id{$form->{"globalproject_id"}}->cvars_by_config }) {
       $form->{"project_cvar_" . $_->config->name} = $_->value_as_text;
     }
