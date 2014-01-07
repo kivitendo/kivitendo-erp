@@ -1196,12 +1196,17 @@ sub print {
     }
     $form->{print_and_save} = 1;
     my $formname = $form->{formname};
-    &save();
+    save();
     $form->{formname} = $formname;
-    &edit();
+    edit();
     $::lxdebug->leave_sub();
     ::end_of_request();
   }
+  elsif (($form->{type} =~ /_order$/) || ($form->{type} =~ /_quotation$/)) {
+    $form->{print_and_save} = 1;
+    save();
+  }
+
 
   &print_form($old_form);
 
