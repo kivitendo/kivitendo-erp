@@ -403,9 +403,6 @@ sub generate_balance_sheet {
   $::lxdebug->enter_sub;
   $::auth->assert('report');
 
-  my $defaults = SL::DB::Default->get;
-  $::form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $::form->{templates}     = $defaults->templates;
   $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
   $::form->{padding}       = "&nbsp;&nbsp;";
   $::form->{bold}          = "<b>";

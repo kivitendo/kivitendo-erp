@@ -68,7 +68,7 @@ sub invoice_details {
   my $query = qq|SELECT date | . conv_dateq($form->{duedate}) . qq| - date | . conv_dateq($form->{invdate}) . qq| AS terms|;
   ($form->{terms}) = selectrow_query($form, $dbh, $query);
 
-  my (@project_ids, %projectnumbers, %projectdescriptions);
+  my (@project_ids);
   $form->{TEMPLATE_ARRAYS} = {};
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
@@ -92,23 +92,21 @@ sub invoice_details {
     push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
 
+  my $projects = [];
+  my %projects_by_id;
   if (@project_ids) {
-    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
-      join(", ", map({ "?" } @project_ids)) . ")";
-    $sth = $dbh->prepare($query);
-    $sth->execute(@project_ids) ||
-      $form->dberror($query . " (" . join(", ", @project_ids) . ")");
-    while (my $ref = $sth->fetchrow_hashref()) {
-      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
-      $projectdescriptions{$ref->{id}} = $ref->{description};
-    }
-    $sth->finish();
+    $projects = SL::DB::Manager::Project->get_all(query => [ id => \@project_ids ]);
+    %projects_by_id = map { $_->id => $_ } @$projects;
   }
 
-  $form->{"globalprojectnumber"} =
-    $projectnumbers{$form->{"globalproject_id"}};
-  $form->{"globalprojectdescription"} =
-    $projectdescriptions{$form->{"globalproject_id"}};
+  $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
+  $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
+
+  if ($projects_by_id{$form->{"globalproject_id"}}) {
+    for (@{ $projects_by_id{$form->{"globalproject_id"}}->cvars_by_config }) {
+      $form->{"project_cvar_" . $_->config->name} = $_->value_as_text;
+    }
+  }
 
   my $tax = 0;
   my $item;
@@ -146,6 +144,7 @@ sub invoice_details {
   IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  my $project_cvar_configs = CVar->get_configs(module => 'Projects');
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
@@ -156,6 +155,7 @@ sub invoice_details {
        price_factor price_factor_name partsgroup weight lineweight);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+  push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
@@ -277,8 +277,10 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
 
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
+      my $project = $projects_by_id{$form->{"project_id_$i"}} || SL::DB::Project->new;
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $project->projectnumber;
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $project->description;
 
       my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
       $totalweight += $lineweight;
@@ -370,6 +372,8 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
         CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
           for @{ $ic_cvar_configs };
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{"project_cvar_" . $_->config->name} }, $_->value_as_text for @{ $project->cvars_by_config };
     }
   }
 

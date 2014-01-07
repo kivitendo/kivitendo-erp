@@ -8,7 +8,7 @@ use SL::DB::MetaSetup::Project;
 use SL::DB::Manager::Project;
 
 use SL::DB::Helper::CustomVariables(
-  module      => 'Project',
+  module      => 'Projects',
   cvars_alias => 1,
 );
 
