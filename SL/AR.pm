@@ -509,8 +509,8 @@ sub ar_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
-    qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)| .
+    qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
+    qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN business b ON (b.id = c.business_id)| .
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
