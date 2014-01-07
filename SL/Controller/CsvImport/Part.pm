@@ -234,14 +234,13 @@ sub check_existing {
 sub handle_prices {
   my ($self, $entry) = @_;
 
-  foreach my $column (qw(sellprice listprice lastcost)) {
-    next unless $self->controller->headers->{used}->{ $column };
-
+  foreach my $column (qw(sellprice)) {
+    my $object     = $entry->{object_to_save} || $entry->{object};
     my $adjustment = $self->settings->{sellprice_adjustment};
-    my $value      = $entry->{object}->$column;
+    my $value      = $object->$column;
 
     $value = $self->settings->{sellprice_adjustment_type} eq 'percent' ? $value * (100 + $adjustment) / 100 : $value + $adjustment;
-    $entry->{object}->$column($::form->round_amount($value, $self->settings->{sellprice_places}));
+    $object->$column($::form->round_amount($value, $self->settings->{sellprice_places}));
   }
 }
 
