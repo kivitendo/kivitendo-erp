@@ -2101,10 +2101,10 @@ sub _get_taxcharts {
   if (ref $params eq 'HASH') {
     $key = $params->{key} if ($params->{key});
     if ($params->{module} eq 'AR') {
-      push @where, 'taxkey NOT IN (8, 9, 18, 19)';
+      push @where, 'chart_categories ~ \'[ACILQ]\'';
 
     } elsif ($params->{module} eq 'AP') {
-      push @where, 'taxkey NOT IN (1, 2, 3, 12, 13)';
+      push @where, 'chart_categories ~ \'[ACELQ]\'';
     }
 
   } elsif ($params) {

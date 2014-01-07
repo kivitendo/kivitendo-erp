@@ -36,7 +36,7 @@
 \newcommand{\employeeemail}{$(employee_email)$}
 \newcommand{\employeecoustid}{$(employee_co_ustid)$}
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
-\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+\newcommand{\employeetable}{$(template_meta.tmpfile NOESCAPE)$.table.tex}
 
 % ---------- Adressat ----------
 \newcommand{\name}{$(name)$}
@@ -83,11 +83,10 @@
 \newcommand{\shiptofax}{$(shiptofax)$}
 
 % ---------- Währungszeichen ----------
-\newcommand{\currency}{$(currency)$}
-\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
-\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
-\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
-\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+\newcommand{\currency}{\euro}
+\ifthenelse{\equal{$(currency)$}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{$(currency)$}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{$(currency)$}{USD}}{\let\currency\$}{}
 
 % ---------- Ende Reportvariablen-Umsetzung ----------
 

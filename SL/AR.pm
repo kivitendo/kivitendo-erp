@@ -638,7 +638,7 @@ sub setup_form {
   my ($self, $form, $for_post_payments) = @_;
 
   my ($exchangerate, $akey, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff, $totalwithholding, $withholdingrate,
-      $totalamount, $taxincluded, $tax);
+      $totalamount, $tax);
 
   # forex
   $form->{forex} = $form->{exchangerate};
@@ -722,7 +722,6 @@ sub setup_form {
     }
   }
 
-  $form->{taxincluded}  = $taxincluded if ($form->{id});
   $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
 
   if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {

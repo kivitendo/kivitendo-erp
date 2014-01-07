@@ -4,7 +4,7 @@
 % Version 2.5 vom 15.Oktober 2011
 % Basiert auf der Arbeit von kmk@lilalaser.de / 2007
 % Diese Vorlage steht unter der GPL-Lizenz, Version 3
-% siehe http://www.gnu.de/licenses/gpl-3.0.html             
+% siehe http://www.gnu.de/licenses/gpl-3.0.html
 % ----------
 % config: tag-style=$( )$
 % ----------
@@ -12,9 +12,9 @@
 \usepackage{fancyhdr}       % Für den Seitenkopf und -Fuß
 \usepackage{ifpdf}          % Erlaubt eine Code-Weiche für PDF, oder DVI Ausgabe
 \usepackage{xifthen}        % Allgemeine Code-Weiche
-\usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
+\usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik
 \usepackage{german}         % Deutsche Trenn-Tabelle
-\usepackage[utf8]{inputenc} % Umlaute direkt eingeben 
+\usepackage[utf8]{inputenc} % Umlaute direkt eingeben
 \usepackage{textcomp}       % Sonderzeichen
 \usepackage{lastpage}       % Fuer die Angabe "Seite 2 von 5"
 \usepackage{filecontents}   % Um von latex aus eine Datei schreiben zu koennen
@@ -24,8 +24,8 @@
 \newcommand*{\sperren}[1]{\normalsize\textls*[200]{#1}} %Sperrung Überrschriften
 
 
-% ---------- Report-Variablen zur Verwendung in kivitendobriefkopf.tex ---------- 
-% ----------  Die eigenen Daten ---------- 
+% ---------- Report-Variablen zur Verwendung in kivitendobriefkopf.tex ----------
+% ----------  Die eigenen Daten ----------
 \newcommand{\employeename}{$(employee_name)$}
 \newcommand{\employeecompany}{$(employee_company)$}
 \newcommand{\employeeaddress}{$(employee_address)$}
@@ -34,14 +34,14 @@
 \newcommand{\employeeemail}{$(employee_email)$}
 \newcommand{\employeecoustid}{$(employee_co_ustid)$}
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
-\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+\newcommand{\employeetable}{$(template_meta.tmpfile NOESCAPE)$.table.tex}
 
-% ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ---------- 
+% ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ----------
 % \newcommand{\companybank}{$(company_bank)$}
 % \newcommand{\companybankcode}{$(company_bank_code)$}
 % \newcommand{\companyaccountnumber}{$(company_account_number)$}
 
-% ---------- Adressat ---------- 
+% ---------- Adressat ----------
 \newcommand{\name}{$(name)$}
 \newcommand{\departmentone}{$(department_1)$}
 \newcommand{\departmenttwo}{$(department_2)$}
@@ -56,7 +56,7 @@
 \newcommand{\phone}{$(customerphone)$}
 \newcommand{\fax}{$(customerfax)$}
 \newcommand{\lettergreeting}{
-	\ifthenelse{\equal{$(cp_gender)$}{f}} 
+	\ifthenelse{\equal{$(cp_gender)$}{f}}
 	 {Sehr geehrte Frau $(cp_name)$,}
 	{\ifthenelse{\equal{$(cp_gender)$}{m}}
 	  {Sehr geehrter Herr $(cp_name)$,}
@@ -64,7 +64,7 @@
 	}\\[0.3em]
 }
 
-% ---------- Bestellvariablen ---------- 
+% ---------- Bestellvariablen ----------
 \newcommand{\ordnumber}{$(ordnumber)$}
 \newcommand{\donumber}{$(donumber)$}
 %\newcommand{\donumber}{Lieferschein zu Auftrag Nr. \ordnumber}
@@ -74,7 +74,7 @@
 \newcommand{\reqdate}{$(reqdate)$}
 \newcommand{\kundennummer}{$(customernumber)$}
 
-% ---------- Lieferadresse ---------- 
+% ---------- Lieferadresse ----------
 \newcommand{\shiptoname}{$(shiptoname)$}
 \newcommand{\shiptocontact}{$(shiptocontact)$}
 \newcommand{\shiptodepartmentone}{$(shiptodepartment_1)$}
@@ -86,28 +86,27 @@
 \newcommand{\shiptozipcode}{$(shiptozipcode)$}
 \newcommand{\shiptofax}{$(shiptofax)$}
 
-% ---------- Währungszeichen ---------- 
-\newcommand{\currency}{$(currency)$}
-\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
-\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
-\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
-\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+% ---------- Währungszeichen ----------
+\newcommand{\currency}{\euro}
+\ifthenelse{\equal{$(currency)$}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{$(currency)$}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{$(currency)$}{USD}}{\let\currency\$}{}
 
 % ---------- Ende Reportvariablen-Umsetzung ----------
 
-% ---------- Briefkopf dazuladen ---------- 
+% ---------- Briefkopf dazuladen ----------
 \input{kivitendobriefkopf}
 
 \begin{document}
-% ---------- Schrift Hauptdokuments (Computermodern-sanserif)  ---------- 
+% ---------- Schrift Hauptdokuments (Computermodern-sanserif)  ----------
 % \fontfamily{cmss}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
 % ---------- Schrift Helvetica ------------------------
 \fontfamily{phv}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
-% ---------- Firmenlogo nur erste Seite ---------- 
-\thispagestyle{briefkopf}  				
-% ---------- Datum und Nummern ---------- 
+% ---------- Firmenlogo nur erste Seite ----------
+\thispagestyle{briefkopf}
+% ---------- Datum und Nummern ----------
 % Position unterhalb des Briefkopfs
-\vspace*{\vlogospacing}   	
+\vspace*{\vlogospacing}
 \renewcommand{\arraystretch}{0.9}
 \begin{minipage}[b]{177mm}
 \sperren{\textbf{Lieferschein Nr. \donumber}}
@@ -120,27 +119,27 @@
 		\textbf{Auftrag Nr.} & \ordnumber\\
 		\textbf{Lieferschein Nr.} & \donumber\\
 		\nonemptyline{\textbf{Vorraussichtl. Lieferdatum:} &}{\reqdate}
-		\textbf{Ansprechpartner} & \employeename\\		
+		\textbf{Ansprechpartner} & \employeename\\
 		\nonemptyline{\textbf{Durchwahl} &}{\employeetel}
-		\nonemptyline{\textbf{E-Mail} &}{\employeeemail}						
+		\nonemptyline{\textbf{E-Mail} &}{\employeeemail}
 	\end{tabular}\\[10mm plus 20mm minus 10mm]
 \end{minipage}
-\renewcommand{\arraystretch}{1}	
+\renewcommand{\arraystretch}{1}
 \normalsize
-% ---------- Begrüßung und Bemerkungen ---------- 
+% ---------- Begrüßung und Bemerkungen ----------
 \vspace{ 5mm}
 %\lettergreeting
 Wir liefern Ihnen gemäß Ihrem Auftrag %
-\ifthenelse{\equal{\orddate}{\leer}}{}{vom \orddate{ }}% 
+\ifthenelse{\equal{\orddate}{\leer}}{}{vom \orddate{ }}%
 die unten aufgeführten Positionen.\\
 Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) oder per E-Mail (\employeeemail) gerne zur Verfügnung.\par
-      
-% ---------- Die eigentliche-Tabelle ---------- 
-% ---------- Tabelle puffern ---------- 
+
+% ---------- Die eigentliche-Tabelle ----------
+% ---------- Tabelle puffern ----------
 \begin{filecontents}{\employeetable}
-% ---------- Spaltendefinition ---------- 
+% ---------- Spaltendefinition ----------
 \begin{longtable}{@{}rlX@{ }rl@{}}
-% ---------- Kopfzeile der Tabelle ---------- 
+% ---------- Kopfzeile der Tabelle ----------
 		\textbf{Pos} &
 	\textbf{Art.Nr.} &
 	\textbf{Bezeichnung} &
@@ -148,7 +147,7 @@ Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) oder per 
 	\textbf{ME}  \\
 	\midrule
   \endfirsthead
-% ---------- Tabellenkopf nach dem Umbruch ---------- 
+% ---------- Tabellenkopf nach dem Umbruch ----------
 		\textbf{Pos} &
 	\textbf{Art.Nr.} &
 	\textbf{Bezeichnung} &
@@ -156,25 +155,25 @@ Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) oder per 
 	\textbf{ME} \\
         \midrule
   \endhead
-% ---------- Fuss der Teiltabellen ---------- 
+% ---------- Fuss der Teiltabellen ----------
         \midrule
   \endfoot
-% ---------- Das Ende der Tabelle ---------- 
+% ---------- Das Ende der Tabelle ----------
   	\midrule
   \endlastfoot
-% ---------- Positionen ---------- 
+% ---------- Positionen ----------
   $(foreach number)$
 	$(runningnumber)$ &
 	$(number)$ &
 	$(description)$ &
 	$(qty)$ &
-	$(unit)$ 
-       \\ %       
+	$(unit)$
+       \\ %
   $(end number)$
 \end{longtable}
-% ----------  Ende der Hilfsdatei ---------- 
-\end{filecontents} 
-% ---------- Puffertabelle öffnen ---------- 
+% ----------  Ende der Hilfsdatei ----------
+\end{filecontents}
+% ---------- Puffertabelle öffnen ----------
 \LTXtable{\textwidth}{\employeetable}
 
 \vfill
