@@ -375,6 +375,24 @@ sub generate_income_statement {
       . qq| $longcomparetodate|;
   }
 
+  if ( $::instance_conf->get_profit_determination eq 'balance' ) {
+    $form->{income_statement_title} = $locale->text('Income Statement');
+  } elsif ( $::instance_conf->get_profit_determination eq 'income' ) {
+    $form->{income_statement_title} = $locale->text('Net Income Statement');
+  } else {
+    $form->{income_statement_title} = "";
+  };
+
+  if ( $form->{method} eq 'cash' ) {
+    $form->{accounting_method} = $locale->text('Cash accounting');
+  } elsif ( $form->{method} eq 'accrual' ) {
+    $form->{accounting_method} = $locale->text('Accrual accounting');
+  } else {
+    $form->{accounting_method} = "";
+  };
+
+  $::form->{report_date} = $locale->text('Report date') . ": " . $::form->current_date;
+
   $form->{IN} = "income_statement.html";
 
   $form->parse_template;
