@@ -40,6 +40,7 @@ my %check;
 Getopt::Long::Configure ("bundling");
 GetOptions(
   "v|verbose"   => \ my $v,
+  "V|no-verbose"   => \ my $nv,
   "a|all"       => \ $check{a},
   "o|optional!" => \ $check{o},
   "d|devel!"    => \ $check{d},
@@ -48,6 +49,15 @@ GetOptions(
   "h|help"      => sub { pod2usage(-verbose => 2) },
   "c|color!"    => \ ( my $c = 1 ),
 );
+
+# verbos is default
+if ( $v && $nv ){
+  $v = 1;
+}elsif ($nv){
+  undef $v;
+}else{
+  $v = 1;
+}
 
 # if nothing is requested check "required"
 my $default_run;
@@ -308,9 +318,13 @@ Probe for LaTeX documentclasses and packages in master templates.
 
 Don't probe for LaTeX document classes and packages in master templates. (Useful in combination with --all)
 
-=item C<-v. --verbose>
+=item C<-v, --verbose>
 
-Print additional info for missing dependancies
+Print additional info for missing dependancies (enabled by default)
+
+=item C<-V, --no-verbose>
+
+Disable verbosity
 
 =back
 

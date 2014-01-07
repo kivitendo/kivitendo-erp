@@ -457,6 +457,22 @@ sub save {
 
   # add assembly records
   if ($form->{item} eq 'assembly') {
+    # check additional assembly row
+    my $i = $form->{assembly_rows};
+    # if last row is not empty add them
+    if ($form->{"partnumber_$i"} ne "") {
+	$query = qq|SELECT id FROM parts WHERE partnumber = ?|;
+	my ($partid) = selectrow_query($form, $dbh, $query,$form->{"partnumber_$i"} );
+	if ( $partid ) {
+	    $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+	    $form->{"id_$i"} = $partid;
+	    $form->{"bom_$i"} = 0;
+	    $form->{assembly_rows}++;
+	}
+	else {
+	    $::form->error($::locale->text("uncorrect partnumber ").$form->{"partnumber_$i"});
+	}
+    }
 
     for my $i (1 .. $form->{assembly_rows}) {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -469,7 +485,6 @@ sub save {
         do_query($form, $dbh, $query, @values);
       }
     }
-
     my @a = localtime;
     $a[5] += 1900;
     $a[4]++;

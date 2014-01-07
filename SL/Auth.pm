@@ -1067,6 +1067,7 @@ sub all_rights_full {
     ["sales_all_edit",                 $locale->text("View/edit all employees sales documents")],
     ["edit_prices",                    $locale->text("Edit prices and discount (if not used, textfield is ONLY set readonly)")],
     ["show_ar_transactions",           $locale->text("Show AR transactions as part of AR invoice report")],
+    ["delivery_plan",                  $locale->text("Show delivery plan")],
     ["--ap",                           $locale->text("AP")],
     ["request_quotation_edit",         $locale->text("Create and edit RFQs")],
     ["purchase_order_edit",            $locale->text("Create and edit purchase orders")],

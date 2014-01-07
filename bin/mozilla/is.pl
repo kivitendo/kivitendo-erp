@@ -818,6 +818,7 @@ sub use_as_new {
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
+  $form->{employee_id} = SL::DB::Manager::Employee->current->id;
 
   # remember pricegroups for "use as new"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);

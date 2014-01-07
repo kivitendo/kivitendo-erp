@@ -11,10 +11,10 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right) ],
 );
 
-__PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
+__PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
 
 my %sort_columns = (
   reqdate           => t8('Reqdate'),
@@ -26,78 +26,6 @@ my %sort_columns = (
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
 );
-
-my $delivery_plan_query = [
-  'order.customer_id' => { gt => 0 },
-  'order.closed' => 0,
-  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
-
-  # filter by shipped_qty < qty, read from innermost to outermost
-  'id' => [ \"
-    -- 3. resolve the desired information about those
-    SELECT oi.id FROM (
-      -- 2. slice only part, orderitem and both quantities from it
-      SELECT parts_id, trans_id, qty, SUM(doi_qty) AS doi_qty FROM (
-        -- 1. join orderitems and deliverorder items via record_links.
-        --    also add customer data to filter for sales_orders
-        SELECT oi.parts_id, oi.trans_id, oi.id, oi.qty, doi.qty AS doi_qty
-        FROM orderitems oi, oe, record_links rl, delivery_order_items doi
-        WHERE
-          oe.id = oi.trans_id AND
-          oe.customer_id IS NOT NULL AND
-          (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-          NOT oe.closed AND
-          rl.from_id = oe.id AND
-          rl.from_id = oi.trans_id AND
-          oe.id = oi.trans_id AND
-          rl.from_table = 'oe' AND
-          rl.to_table = 'delivery_orders' AND
-          rl.to_id = doi.delivery_order_id AND
-          oi.parts_id = doi.parts_id
-      ) tuples GROUP BY parts_id, trans_id, qty
-    ) partials
-    LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
-    WHERE oi.qty > doi_qty
-
-    UNION ALL
-
-    -- 4. since the join over record_links fails for sales_orders wihtout any delivery order
-    --    retrieve those without record_links at all
-    SELECT oi.id FROM orderitems oi, oe
-    WHERE
-      oe.id = oi.trans_id AND
-      oe.customer_id IS NOT NULL AND
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-      NOT oe.closed AND
-      oi.trans_id NOT IN (
-        SELECT from_id
-        FROM record_links rl
-        WHERE
-          rl.from_table ='oe' AND
-          rl.to_table = 'delivery_orders'
-      )
-
-    UNION ALL
-
-    -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
-    --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
-    SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
-    WHERE
-      rl.from_table = 'oe' AND
-      rl.to_table = 'delivery_orders' AND
-
-      oi.trans_id = rl.from_id AND
-      oi.parts_id NOT IN (
-        SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
-      ) AND
-
-      oe.id = oi.trans_id AND
-
-      oe.customer_id IS NOT NULL AND
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-      NOT oe.closed
-  " ],
-];
 
 sub action_list {
   my ($self) = @_;
@@ -194,6 +122,85 @@ sub make_filter_summary {
   $self->{filter_summary} = join ', ', @filter_strings;
 }
 
+sub delivery_plan_query {
+  my $employee_id = SL::DB::Manager::Employee->current->id;
+  my $oe_owner = $_[0]->all_edit_right ? '' : " oe.eployee_id = $employee_id AND";
+  [
+  'order.customer_id' => { gt => 0 },
+  'order.closed' => 0,
+  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
+
+  # filter by shipped_qty < qty, read from innermost to outermost
+  'id' => [ \"
+    -- 3. resolve the desired information about those
+    SELECT oi.id FROM (
+      -- 2. slice only part, orderitem and both quantities from it
+      SELECT parts_id, trans_id, qty, SUM(doi_qty) AS doi_qty FROM (
+        -- 1. join orderitems and deliverorder items via record_links.
+        --    also add customer data to filter for sales_orders
+        SELECT oi.parts_id, oi.trans_id, oi.id, oi.qty, doi.qty AS doi_qty
+        FROM orderitems oi, oe, record_links rl, delivery_order_items doi
+        WHERE
+          oe.id = oi.trans_id AND
+          oe.customer_id IS NOT NULL AND
+          (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+          NOT oe.closed AND
+          $oe_owner
+          rl.from_id = oe.id AND
+          rl.from_id = oi.trans_id AND
+          oe.id = oi.trans_id AND
+          rl.from_table = 'oe' AND
+          rl.to_table = 'delivery_orders' AND
+          rl.to_id = doi.delivery_order_id AND
+          oi.parts_id = doi.parts_id
+      ) tuples GROUP BY parts_id, trans_id, qty
+    ) partials
+    LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
+    WHERE oi.qty > doi_qty
+
+    UNION ALL
+
+    -- 4. since the join over record_links fails for sales_orders wihtout any delivery order
+    --    retrieve those without record_links at all
+    SELECT oi.id FROM orderitems oi, oe
+    WHERE
+      oe.id = oi.trans_id AND
+      oe.customer_id IS NOT NULL AND
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      NOT oe.closed AND
+      $oe_owner
+      oi.trans_id NOT IN (
+        SELECT from_id
+        FROM record_links rl
+        WHERE
+          rl.from_table ='oe' AND
+          rl.to_table = 'delivery_orders'
+      )
+
+    UNION ALL
+
+    -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
+    --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
+    SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
+    WHERE
+      rl.from_table = 'oe' AND
+      rl.to_table = 'delivery_orders' AND
+
+      oi.trans_id = rl.from_id AND
+      oi.parts_id NOT IN (
+        SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
+      ) AND
+
+      oe.id = oi.trans_id AND
+
+      oe.customer_id IS NOT NULL AND
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      $oe_owner
+      NOT oe.closed
+  " ],
+  ]
+}
+
 sub init_models {
   my ($self) = @_;
 
@@ -207,9 +214,13 @@ sub init_models {
       },
       %sort_columns,
     },
-    query        => $delivery_plan_query,
+    query        => $self->delivery_plan_query,
     with_objects => [ 'order', 'order.customer', 'part' ],
   );
+}
+
+sub init_all_edit_right {
+  $::auth->assert('sales_all_edit', 1)
 }
 
 sub link_to {

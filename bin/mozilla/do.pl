@@ -293,16 +293,16 @@ sub form_header {
   $form->{oldvcname}         =  $form->{"old$form->{vc}"};
   $form->{oldvcname}         =~ s/--.*//;
 
-  if ($form->{resubmit}) {
-    my $dispatch_to_popup = '';
-    if ($form->{format} eq "html") {
-      $dispatch_to_popup .= "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
-    }
-    # emulate click for resubmitting actions
-    $dispatch_to_popup .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
+  my $dispatch_to_popup = '';
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+    $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
     $dispatch_to_popup .= "document.do.submit();";
-    $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
+  } elsif ($form->{resubmit}) {
+    # emulate click for resubmitting actions
+    $dispatch_to_popup  = "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
   }
+  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
+
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
   $follow_up_vc                   =~ s/--\d*\s*$//;
@@ -491,7 +491,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber
+    ordnumber               customernumber	cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -508,7 +508,7 @@ sub orders {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber
+  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id);
 
@@ -522,6 +522,7 @@ sub orders {
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
+    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
@@ -867,6 +868,8 @@ sub invoice_multi {
   # Hinweis: delete gibt den wert zurueck und loescht danach das element (nett und einfach)
   # $shell: perldoc perlunc; /delete EXPR
   $form->{donumber}            = delete $form->{donumber_array};
+  $form->{ordnumber}           = delete $form->{ordnumber_array};
+  $form->{cusordnumber}        = delete $form->{cusordnumber_array};
   $form->{deliverydate}        = $form->{transdate};
   $form->{transdate}           = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);

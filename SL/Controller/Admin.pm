@@ -129,6 +129,12 @@ sub action_edit_user {
   $self->edit_user_form(title => t8('Edit User'));
 }
 
+sub action_save_newuser {
+  my ($self) = @_;
+  $::form->{user}{clients} = 0;
+  $self->action_save_user();
+}
+
 sub action_save_user {
   my ($self) = @_;
   my $params = delete($::form->{user})          || { };
