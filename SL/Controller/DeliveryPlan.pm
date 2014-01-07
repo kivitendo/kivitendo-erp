@@ -179,24 +179,45 @@ sub delivery_plan_query {
 
     UNION ALL
 
-    -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
-    --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
-    SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
+    -- 5. now for the really nasty cases.
+    --    If someone partially delivered an order in several delivery orders,
+    --    there will be lots of record_links (4 doesn't catch those) but those
+    --    won't have matching part_ids in delivery_order_items, so 1-3 can't
+    --    find anything
+    --    In this case aggreg record_links - delivery_order - delivery_order_items
+    --    slice only oe.id, parts_id and sum of of qty
+    --    left join that onto orderitems to get matching qtys in doi while retaining
+    --    entrys without matches and then throw out those without record_links
+    --    TODO: join this and 1-3 into a general case
+                  -- need debug info? uncomment these:
+    SELECT oi.id  -- ,oi.trans_id, oi.parts_id, coalesce(sum, 0), agg.parts_id
+    FROM orderitems oi LEFT JOIN (
+      SELECT rl.from_id as oid, doi.parts_id, sum(doi.qty) FROM (
+        SELECT from_id, to_id
+        FROM record_links rl
+        LEFT JOIN oe ON oe.id = from_id
+        WHERE
+          rl.from_table = 'oe' AND
+          rl.to_table = 'delivery_orders' AND
+
+          oe.customer_id IS NOT NULL AND
+          $oe_owner
+          (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
+      ) rl
+      LEFT JOIN delivery_order_items doi ON (rl.to_id = doi.delivery_order_id)
+      GROUP BY rl.from_id, doi.parts_id
+    ) agg ON (agg.oid = oi.trans_id AND agg.parts_id = oi.parts_id)
+    LEFT JOIN oe ON oe.id = oi.trans_id
     WHERE
-      rl.from_table = 'oe' AND
-      rl.to_table = 'delivery_orders' AND
-
-      oi.trans_id = rl.from_id AND
-      oi.parts_id NOT IN (
-        SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
+      EXISTS (
+        SELECT to_id
+        FROM record_links rl
+        WHERE oi.trans_id = rl.from_id AND rl.from_table = 'oe' AND rl.to_table = 'delivery_orders'
       ) AND
-
-      oe.id = oi.trans_id AND
-
+      coalesce(sum, 0) < oi.qty AND
       oe.customer_id IS NOT NULL AND
-      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
       $oe_owner
-      NOT oe.closed
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
   " ],
   ]
 }
