@@ -278,6 +278,7 @@ $self->{texts} = {
   'Bank Code Number'            => 'Bankleitzahl',
   'Bank Connection Tax Office'  => 'Bankverbindung des Finanzamts',
   'Bank Connections'            => 'Bankverbindungen',
+  'Bank account'                => 'Bankkonto',
   'Bank accounts'               => 'Bankkonten',
   'Bank code'                   => 'Bankleitzahl',
   'Bank collection amount'      => 'Einzugsbetrag',
