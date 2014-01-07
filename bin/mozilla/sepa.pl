@@ -1,7 +1,7 @@
 use strict;
 
 use List::MoreUtils qw(any none uniq);
-use List::Util qw(first);
+use List::Util qw(sum first);
 use POSIX qw(strftime);
 
 use SL::BankAccount;
@@ -105,14 +105,19 @@ sub bank_transfer_create {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
 
+  my $total_trans = sum map { $_->{open_amount} } @bank_transfers;
+
   my ($vc_bank_info);
   my $error_message;
+
+  my @bank_columns    = qw(iban bic);
+  push @bank_columns, qw(mandator_id mandate_date_of_signature) if $vc eq 'customer';
 
   if ($form->{confirmation}) {
     $vc_bank_info = { map { $_->{id} => $_ } @{ $form->{vc_bank_info} || [] } };
 
     foreach my $info (values %{ $vc_bank_info }) {
-      if (any { !$info->{$_} } qw(iban bic)) {
+      if (any { !$info->{$_} } @bank_columns) {
         $error_message = $locale->text('The bank information must not be empty.');
         last;
       }
@@ -136,11 +141,12 @@ sub bank_transfer_create {
                                        'bank_account_label' => $bank_account_label_sub,
                                        'error_message'      => $error_message,
                                        'vc'                 => $vc,
+                                       'total_trans'        => $total_trans,
                                      });
 
   } else {
     foreach my $bank_transfer (@bank_transfers) {
-      foreach (qw(iban bic)) {
+      foreach (@bank_columns) {
         $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{vc_id} }->{$_};
         $bank_transfer->{"our_${_}"} = $bank_account->{$_};
       }
@@ -493,6 +499,7 @@ sub bank_transfer_download_sepa_xml {
 
   foreach my $item (@items) {
     my $requested_execution_date;
+    my $mandator_id;
     if ($item->{requested_execution_date}) {
       my ($yy, $mm, $dd)        = $locale->parse_date($myconfig, $item->{requested_execution_date});
       $requested_execution_date = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
@@ -501,6 +508,11 @@ sub bank_transfer_download_sepa_xml {
     if ($vc eq 'customer') {
       my ($yy, $mm, $dd)      = $locale->parse_date($myconfig, $item->{reference_date});
       $item->{reference_date} = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
+      $mandator_id = $item->{mandator_id};
+      if ($item->{mandate_date_of_signature}) {
+        ($yy, $mm, $dd)                    = $locale->parse_date($myconfig, $item->{mandate_date_of_signature});
+        $item->{mandate_date_of_signature} = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
+      }
     }
 
     $sepa_xml->add_transaction({ 'src_iban'       => $item->{our_iban},
@@ -511,9 +523,11 @@ sub bank_transfer_download_sepa_xml {
                                  'company_number' => $item->{vc_number},
                                  'amount'         => $item->{amount},
                                  'reference'      => $item->{reference},
+                                 'mandator_id'    => $mandator_id,
                                  'reference_date' => $item->{reference_date},
                                  'execution_date' => $requested_execution_date,
-                                 'end_to_end_id'  => $item->{end_to_end_id} });
+                                 'end_to_end_id'  => $item->{end_to_end_id},
+                                 'date_of_signature' => $item->{mandate_date_of_signature}, });
   }
 
   my $xml = $sepa_xml->to_xml();

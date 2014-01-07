@@ -246,50 +246,15 @@
       [%- END %]
     </tr>
 
+  [% IF ( SELF.all_currencies.size ) %]
     <tr>
-      <th align="right">[% 'Account Number' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.account_number', SELF.cv.account_number, size = 20, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'Bank Code Number' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.bank_code', SELF.cv.bank_code, size = 20, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'Bank' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.bank', SELF.cv.bank, size = 20) %]
-      </td>
-    </tr>
-
-    <tr>
-      <th align="right">[% 'IBAN' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.iban', SELF.cv.iban, size = 34, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'BIC' | $T8 %]</th>
-      <td>
-        [% L.input_tag('cv.bic', SELF.cv.bic, size = 11, maxlength = 100) %]
-      </td>
-
-
-      [% IF ( SELF.all_currencies.size ) %]
         <th align="right">[% 'Currency' | $T8 %]</th>
 
         <td>
           [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
         </td>
-      [% END %]
     </tr>
+  [% END %]
 
     <tr>
       [% IF ( !INSTANCE_CONF.get_vertreter ) %]
