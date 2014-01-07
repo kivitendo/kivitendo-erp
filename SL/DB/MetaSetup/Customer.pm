@@ -39,6 +39,7 @@ __PACKAGE__->meta->columns(
   klass               => { type => 'integer', default => '0' },
   language            => { type => 'varchar', length => 5 },
   language_id         => { type => 'integer' },
+  mandator_id         => { type => 'text' },
   mtime               => { type => 'timestamp' },
   name                => { type => 'text', not_null => 1 },
   notes               => { type => 'text' },

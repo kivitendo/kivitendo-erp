@@ -1286,6 +1286,7 @@ $self->{texts} = {
   'Make default profile'        => 'Zu Standardprofil machen',
   'Manage Custom Variables'     => 'Benutzerdefinierte Variablen',
   'Mandantennummer'             => 'Mandantennummer',
+  'Mandator ID'                 => 'Mandanten-ID',
   'Mandatory Departments'       => 'Benutzer muss Abteilungen vergeben',
   'Map'                         => 'Karte',
   'Mar'                         => 'März',

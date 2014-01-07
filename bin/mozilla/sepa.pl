@@ -496,6 +496,7 @@ sub bank_transfer_download_sepa_xml {
 
   foreach my $item (@items) {
     my $requested_execution_date;
+    my $mandator_id;
     if ($item->{requested_execution_date}) {
       my ($yy, $mm, $dd)        = $locale->parse_date($myconfig, $item->{requested_execution_date});
       $requested_execution_date = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
@@ -504,6 +505,7 @@ sub bank_transfer_download_sepa_xml {
     if ($vc eq 'customer') {
       my ($yy, $mm, $dd)      = $locale->parse_date($myconfig, $item->{reference_date});
       $item->{reference_date} = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
+      $mandator_id = $item->{mandator_id};
     }
 
     $sepa_xml->add_transaction({ 'src_iban'       => $item->{our_iban},
@@ -514,6 +516,7 @@ sub bank_transfer_download_sepa_xml {
                                  'company_number' => $item->{vc_number},
                                  'amount'         => $item->{amount},
                                  'reference'      => $item->{reference},
+                                 'mandator_id'    => $mandator_id,
                                  'reference_date' => $item->{reference_date},
                                  'execution_date' => $requested_execution_date,
                                  'end_to_end_id'  => $item->{end_to_end_id} });
