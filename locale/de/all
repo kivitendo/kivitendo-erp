@@ -2763,6 +2763,7 @@ $self->{texts} = {
   'transferred out'             => 'ausgelagert',
   'trial_balance'               => 'susa',
   'unconfigured'                => 'unkonfiguriert',
+  'uncorrect partnumber '       => 'Unbekannte Teilenummer ',
   'up'                          => 'hoch',
   'use program settings'        => 'benutze Programmeinstellungen',
   'use user config'             => 'Verwende Benutzereinstellung',
