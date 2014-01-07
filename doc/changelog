@@ -107,6 +107,7 @@ Bugfixes:
  - Punkt in Belegnummer korrekt für WebDAV File Feature escapt (Bug 2394)
  - Stornierte Rechnungen (sowohl die Stornorechnung als auch das Storno nicht
    Buchen oder Löschen, egal was in der Mandantenkonfiguration steht)
+ - Wiederkehrende Rechnung mit Steuer inklusive buchen Erlöse falsch (Bug 2314)
 
 2012-12-10 - Release 3.0.0
 
