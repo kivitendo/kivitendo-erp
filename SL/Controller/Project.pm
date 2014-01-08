@@ -126,6 +126,13 @@ sub display_form {
   $params{ALL_CUSTOMERS}     = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
   $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
+
+  if ($params{keep_cvars}) {
+    for my $cvar (@{ $params{CUSTOM_VARIABLES} }) {
+      $cvar->{value} = $::form->{"cvar_$cvar->{name}"} if $::form->{"cvar_$cvar->{name}"};
+    }
+  }
+
   CVar->render_inputs(variables => $params{CUSTOM_VARIABLES}) if @{ $params{CUSTOM_VARIABLES} };
 
   $self->render('project/form', %params);
@@ -144,7 +151,8 @@ sub create_or_update {
   if (@errors) {
     flash('error', @errors);
     $self->display_form(title    => $is_new ? $::locale->text('Create a new project') : $::locale->text('Edit project'),
-                        callback => $::form->{callback});
+                        callback => $::form->{callback},
+                        keep_cvars => 1);
     return;
   }
 
