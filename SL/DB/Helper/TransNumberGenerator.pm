@@ -22,18 +22,18 @@ sub parts_scoping {
   SL::DB::Manager::Part->type_filter($_[0]);
 }
 
-my %specs = ( ar                      => { number_column => 'invnumber',                                                                        fill_holes_in_range => 1 },
-              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,                          },
-              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,                          },
-              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,                          },
-              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,                          },
-              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
-              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
-              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                                                   },
-              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                     },
-              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
-              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping                        },
-              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping                        },
+my %specs = ( ar                      => { number_column => 'invnumber',                                                                           },
+              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,    },
+              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,    },
+              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,    },
+              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,    },
+              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => \&do_scoping,    },
+              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => \&do_scoping,    },
+              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                             },
+              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                               },
+              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping, },
+              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping, },
+              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping, },
             );
 
 sub get_next_trans_number {
@@ -46,7 +46,7 @@ sub get_next_trans_number {
   my $number              = $self->$number_column;
   my $number_range_column = $spec->{number_range_column} || $number_column;
   my $scoping_conditions  = $spec->{scoping};
-  my $fill_holes_in_range = $spec->{fill_holes_in_range};
+  my $fill_holes_in_range = !$spec->{keep_holes_in_range};
 
   return $number if $self->id && $number;
 
