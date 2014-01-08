@@ -73,7 +73,7 @@ sub payment {
   $form->{"select$form->{vc}"} = "";
 
   if ($form->{"all_$form->{vc}"}) {
-	$form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
+    $form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
