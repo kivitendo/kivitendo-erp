@@ -147,23 +147,23 @@ sub get_openinvoices {
 
   my $buysell = $form->{vc} eq 'customer' ? "buy" : "sell";
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
-  my $invnumber = $form->{invnumber};
-  $invnumber =~ s/^\s+//m;
-  $invnumber =~ s/\s+$//m;
-  
-  my $whereinvoice = $invnumber ? qq| AND a.invnumber LIKE '| . $invnumber . qq|' | : undef;
+
+  my @values = (conv_i($form->{"${vc}_id"}), "$form->{currency}");
+  my $whereinvoice = '';
+  if ($::form->{invnumber}) {
+    $whereinvoice = ' AND a.invnumber LIKE ? ';
+    push @values, $::form->{invnumber};
+  }
 
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, cu.name AS curr | .
      qq|FROM $arap a | .
      qq|LEFT JOIN currencies cu ON (cu.id=a.currency_id)| .
      qq|WHERE (a.${vc}_id = ?) AND cu.name = ? AND NOT (a.amount = a.paid)| .
-	 $whereinvoice .
+     $whereinvoice .
      qq|ORDER BY a.id|;
-	 
-  my $sth = prepare_execute_query($form, $dbh, $query,
-                                  conv_i($form->{"${vc}_id"}),
-                                  "$form->{currency}");
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   $form->{PR} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
