@@ -221,10 +221,6 @@ sub generate_income_statement {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $defaults = SL::DB::Default->get;
-  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $form->{templates} = $defaults->templates;
-
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
