@@ -44,32 +44,25 @@ namespace('kivi.CustomerVendor', function(ns) {
   this.selectContact = function(params) {
     var contactId = $('#contact_cp_id').val();
 
-    if( contactId ) {
-      var url = 'controller.pl?action=CustomerVendor/ajaj_get_contact&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&contact_id='+ contactId;
+	  var url = 'controller.pl?action=CustomerVendor/ajaj_get_contact&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&contact_id='+ contactId;
 
-      $.getJSON(url, function(data) {
-        var contact = data.contact;
-        for(var key in contact)
-          $(document.getElementById('contact_'+ key)).val(contact[key])
+    $.getJSON(url, function(data) {
+      var contact = data.contact;
+      for(var key in contact)
+        $(document.getElementById('contact_'+ key)).val(contact[key])
 
-        var cvars = data.contact_cvars;
-        for(var key in cvars)
-          $(document.getElementById('contact_cvar_'+ key)).val(cvars[key]);
+      var cvars = data.contact_cvars;
+      for(var key in cvars)
+        $(document.getElementById('contact_cvars_'+ key)).val(cvars[key]);
 
+      if ( contactId )
         $('#action_delete_contact').show();
+      else
+        $('#action_delete_contact').hide();
 
-        if( params.onFormSet )
-          params.onFormSet();
-      });
-    }
-    else {
-      $('#contacts :input').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
-
-      $('#action_delete_contact').hide();
-
-      if( params.onFormSet )
+      if ( params.onFormSet )
         params.onFormSet();
-    }
+    });
 
     $('#contact_cp_title_select, #contact_cp_abteilung_select').val('');
   };

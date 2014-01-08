@@ -1327,6 +1327,8 @@ sub transfer_in {
         $request->{parts_id}  = $form->{"id_$i"};
         $row_sum_base_qty    += $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
 
+        $request->{project_id} = $form->{"project_id_$i"} || $form->{globalproject_id};
+
         push @all_requests, $request;
       }
 

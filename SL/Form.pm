@@ -3465,6 +3465,16 @@ sub prepare_for_printing {
     $self->reformat_numbers($output_numberformat, $precision, @{ $field_list });
   }
 
+  $self->{template_meta} = {
+    formname  => $self->{formname},
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $self->{language_id} || undef),
+    format    => $self->{format},
+    media     => $self->{media},
+    extension => $extension,
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $self->{printer_id} || undef),
+    today     => DateTime->today,
+  };
+
   return $self;
 }
 

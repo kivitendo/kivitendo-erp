@@ -1023,6 +1023,10 @@ sub yes {
   $main::lxdebug->leave_sub();
 }
 
+sub post_and_e_mail {
+  e_mail();
+};
+
 sub e_mail {
   $main::lxdebug->enter_sub();
 

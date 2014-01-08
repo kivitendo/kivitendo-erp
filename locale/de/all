@@ -1608,6 +1608,7 @@ $self->{texts} = {
   'Portrait'                    => 'Hochformat',
   'Post'                        => 'Buchen',
   'Post Payment'                => 'Zahlung buchen',
+  'Post and E-mail'             => 'Buchen und E-Mail',
   'Post payments'               => 'Zahlungen buchen',
   'Posting Configuration'       => 'Buchungskonfiguration',
   'Postscript'                  => 'Postscript',
