@@ -1355,8 +1355,7 @@ sub invoice {
     $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $orddate, $buysell);
 
     if (!$exchangerate) {
-      &backorder_exchangerate($orddate, $buysell);
-      ::end_of_request();
+      $exchangerate = 0;
     }
   }
 
@@ -1443,75 +1442,6 @@ sub invoice {
   set_pricegroup($_) for 1 .. $form->{rowcount};
 
   &display_form;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub backorder_exchangerate {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  check_oe_access();
-
-  my ($orddate, $buysell) = @_;
-
-  $form->header;
-
-  print qq|
-<form method=post action=$form->{script}>
-|;
-
-  # delete action variable
-  map { delete $form->{$_} } qw(action header exchangerate);
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
-  }
-
-  $form->{title} = $locale->text('Add Exchangerate');
-
-  print qq|
-
-<input type=hidden name=exchangeratedate value=$orddate>
-<input type=hidden name=buysell value=$buysell>
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Currency') . qq|</th>
-          <td>$form->{currency}</td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Date') . qq|</th>
-          <td>$orddate</td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Exchangerate') . qq|</th>
-          <td><input name=exchangerate size=11></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
-<hr size=3 noshade>
-
-<br>
-<input type=hidden name=nextsub value=save_exchangerate>
-
-<input name=action class=submit type=submit value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-|;
 
   $main::lxdebug->leave_sub();
 }
