@@ -44,6 +44,7 @@ use SL::MoreCommon;
 use SL::Template;
 use SL::DB::Printer;
 use SL::DB::Language;
+use SL::TransNumber;
 
 use strict;
 
@@ -205,6 +206,7 @@ sub create_invoice_for_fees {
 
   my ($ar_id) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
   my $curr = $form->get_default_currency($myconfig);
+  my $trans_number = SL::TransNumber->new(type => 'invoice', dbh => $dbh);
 
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
@@ -235,7 +237,7 @@ sub create_invoice_for_fees {
          (SELECT id FROM employee WHERE login = ?)
        )|;
   @values = ($ar_id,            # id
-             $form->update_defaults($myconfig, 'invnumber', $dbh), # invnumber
+             $trans_number->create_unique, # invnumber
              $dunning_id,       # customer_id
              $amount,
              $amount,

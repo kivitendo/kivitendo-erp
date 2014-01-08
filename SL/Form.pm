@@ -3173,81 +3173,6 @@ sub get_history {
   return 0;
 }
 
-sub update_defaults {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $fld, $provided_dbh) = @_;
-
-  my $dbh;
-  if ($provided_dbh) {
-    $dbh = $provided_dbh;
-  } else {
-    $dbh = $self->dbconnect_noauto($myconfig);
-  }
-  my $query = qq|SELECT $fld FROM defaults FOR UPDATE|;
-  my $sth   = $dbh->prepare($query);
-
-  $sth->execute || $self->dberror($query);
-  my ($var) = $sth->fetchrow_array;
-  $sth->finish;
-
-  $var   = 0 if !defined($var) || ($var eq '');
-  $var   = SL::PrefixedNumber->new(number => $var)->get_next;
-  $query = qq|UPDATE defaults SET $fld = ?|;
-  do_query($self, $dbh, $query, $var);
-
-  if (!$provided_dbh) {
-    $dbh->commit;
-    $dbh->disconnect;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $var;
-}
-
-sub update_business {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $business_id, $provided_dbh) = @_;
-
-  my $dbh;
-  if ($provided_dbh) {
-    $dbh = $provided_dbh;
-  } else {
-    $dbh = $self->dbconnect_noauto($myconfig);
-  }
-  my $query =
-    qq|SELECT customernumberinit FROM business
-       WHERE id = ? FOR UPDATE|;
-  my ($var) = selectrow_query($self, $dbh, $query, $business_id);
-
-  return undef unless $var;
-
-  if ($var =~ m/\d+$/) {
-    my $new_var  = (substr $var, $-[0]) * 1 + 1;
-    my $len_diff = length($var) - $-[0] - length($new_var);
-    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
-
-  } else {
-    $var = $var . '1';
-  }
-
-  $query = qq|UPDATE business
-              SET customernumberinit = ?
-              WHERE id = ?|;
-  do_query($self, $dbh, $query, $var, $business_id);
-
-  if (!$provided_dbh) {
-    $dbh->commit;
-    $dbh->disconnect;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $var;
-}
-
 sub get_partsgroup {
   $main::lxdebug->enter_sub();
 
@@ -3593,18 +3518,6 @@ Points of interest for a beginner are:
  - $form->get_standard_dbh - returns a database connection for the
 
 =head1 SPECIAL FUNCTIONS
-
-=head2 C<update_business> PARAMS
-
-PARAMS (not named):
- \%config,     - config hashref
- $business_id, - business id
- $dbh          - optional database handle
-
-handles business (thats customer/vendor types) sequences.
-
-special behaviour for empty strings in customerinitnumber field:
-will in this case not increase the value, and return undef.
 
 =head2 C<redirect_header> $url
 

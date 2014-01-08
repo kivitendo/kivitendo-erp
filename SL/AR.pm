@@ -40,6 +40,7 @@ use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::TransNumber;
 
 use strict;
 
@@ -136,7 +137,10 @@ sub post_transaction {
       ($form->{id}) = selectrow_query($form, $dbh, $query);
       $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?))|;
       do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency});
-      $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh) unless $form->{invnumber};
+      if (!$form->{invnumber}) {
+        my $trans_number   = SL::TransNumber->new(type => 'invoice', dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
+        $form->{invnumber} = $trans_number->create_unique;
+      }
     }
   }
 
@@ -800,4 +804,3 @@ sub storno {
 
 
 1;
-

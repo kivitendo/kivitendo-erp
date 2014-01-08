@@ -46,6 +46,7 @@ use SL::DB::Status;
 use SL::DB::Tax;
 use SL::DBUtils;
 use SL::IC;
+use SL::TransNumber;
 
 use strict;
 
@@ -313,6 +314,10 @@ sub save {
   }
 
   my $ml = ($form->{type} eq 'sales_order') ? 1 : -1;
+
+  my $number_field         = $form->{type} =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $trans_number         = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{$number_field}, id => $form->{id});
+  $form->{$number_field} ||= $trans_number->create_unique;
 
   if ($form->{id}) {
     $query = qq|DELETE FROM custom_variables
