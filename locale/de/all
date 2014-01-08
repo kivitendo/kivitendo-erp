@@ -10,6 +10,7 @@ use utf8;
 # run locales.pl from this directory to rebuild the translation files
 
 $self->{texts} = {
+  ' (in use so no change allowed)' => ' (Faktor wird verwendet, keine Änderung erlaubt)',
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
@@ -131,7 +132,6 @@ $self->{texts} = {
   'Add Delivery Note'           => 'Lieferschein erfassen',
   'Add Delivery Order'          => 'Lieferschein erfassen',
   'Add Dunning'                 => 'Mahnung erzeugen',
-  'Add Exchangerate'            => 'Wechselkurs erfassen',
   'Add Follow-Up'               => 'Wiedervorlage erstellen',
   'Add Follow-Up for #1'        => 'Wiedervorlage f&uuml;r #1 erstellen',
   'Add General Ledger Transaction' => 'Dialogbuchen',
