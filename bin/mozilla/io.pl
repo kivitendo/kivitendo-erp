@@ -1342,31 +1342,7 @@ sub print_form {
   # $locale->text('Quotation Number missing!')
   # $locale->text('Quotation Date missing!')
 
-  # assign number
   $form->{what_done} = $form->{formname};
-  if (!$form->{"${inv}number"} && !$form->{preview} && !$form->{id}) {
-    $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
-    if ($form->{media} ne 'email') {
-
-      # get pricegroups for parts
-      IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-      # build up html code for prices_$i
-      set_pricegroup($form->{rowcount});
-
-      $form->{rowcount}--;
-
-      call_sub($display_form);
-      # saving the history
-      if(!exists $form->{addition}) {
-        $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
-        $form->{addition} = "PRINTED";
-        $form->save_history;
-      }
-      # /saving the history
-      ::end_of_request();
-    }
-  }
 
   &validate_items;
 
