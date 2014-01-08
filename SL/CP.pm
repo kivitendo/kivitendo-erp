@@ -147,8 +147,11 @@ sub get_openinvoices {
 
   my $buysell = $form->{vc} eq 'customer' ? "buy" : "sell";
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
+  my $invnumber = $form->{invnumber};
+  $invnumber =~ s/^\s+//m;
+  $invnumber =~ s/\s+$//m;
   
-  my $whereinvoice = $form->{invnumber} ? qq| AND a.invnumber = '| . $form->{invnumber} . qq|' | : undef;
+  my $whereinvoice = $invnumber ? qq| AND a.invnumber LIKE '| . $invnumber . qq|' | : undef;
 
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, cu.name AS curr | .

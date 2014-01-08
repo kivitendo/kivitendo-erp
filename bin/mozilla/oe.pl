@@ -1122,10 +1122,8 @@ sub save_and_close {
 
   }
 
-  # get new number in sequence if no number is given or if saveasnew was requested
-  if (!$form->{$ordnumber} || $form->{saveasnew}) {
-    $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld);
-  }
+  # get new number in sequence if saveasnew was requested
+  delete $form->{$ordnumber} if $form->{saveasnew};
 
   relink_accounts();
 
@@ -1231,10 +1229,6 @@ sub save {
     $err = $locale->text('Cannot save quotation!');
 
   }
-
-  # value of $ordnumber is ordnumber or quonumber
-  $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld)
-    unless $form->{$ordnumber};
 
   relink_accounts();
 
