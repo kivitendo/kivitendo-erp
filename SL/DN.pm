@@ -248,19 +248,21 @@ sub create_invoice_for_fees {
   do_query($form, $dbh, $query, @values);
 
   $query =
-    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey)
-       VALUES (?, ?, ?, current_date, current_date, 0)|;
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey, tax_id, chart_link)
+       VALUES (?, ?, ?, current_date, current_date, 0,
+               (SELECT id   FROM tax   WHERE (taxkey = 0) AND (rate = 0)),
+               (SELECT link FROM chart WHERE id = ?))|;
   $sth = prepare_query($form, $dbh, $query);
 
-  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining);
+  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining, conv_i($form->{AR_amount_fee}));
   do_statement($form, $sth, $query, @values);
 
   if ($interest_remaining) {
-    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining);
+    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining, conv_i($form->{AR_amount_interest}));
     do_statement($form, $sth, $query, @values);
   }
 
-  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount);
+  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount, conv_i($form->{AR}));
   do_statement($form, $sth, $query, @values);
 
   $sth->finish();
