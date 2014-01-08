@@ -421,7 +421,9 @@ sub display_row {
 
     if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
-      push @hidden_vars, qw(sellprice discount not_discountable price_factor_id lastcost pricegroup_id);
+      $form->{"pricegroup_id_$i"} = $form->{"pricegroup_old_$i"} if $form->{"pricegroup_old_$i"};
+      $form->{"sellprice_pg_$i"}  = $form->{"hidden_prices_$i"}  if $form->{"hidden_prices_$i"};
+      push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost pricegroup_id sellprice_pg);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
@@ -483,6 +485,10 @@ sub set_pricegroup {
       $form->{"sellprice_$j"}      = $item->{price}           if $item->{selected} &&  $item->{pricegroup_id};
       $form->{"price_new_$j"}      = $form->{"sellprice_$j"}  if $item->{selected} || !$item->{pricegroup_id};
     }
+
+    # save hidden pricegroups for delivery_orders
+    next unless my @selected_prices = grep { $_->{selected} } @{ $form->{PRICES}{$j} };
+    $form->{"hidden_prices_$j"} = $selected_prices[-1]{price} . "--" . $selected_prices[-1]{pricegroup_id};
   }
   $main::lxdebug->leave_sub();
 }
