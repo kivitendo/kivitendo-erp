@@ -72,9 +72,8 @@ sub payment {
   # für bugfix 1771 (doppelte Leerzeichen werden nicht 'gepostet')
   $form->{"select$form->{vc}"} = "";
 
-  $form->{selectcustomer} .= "<option value=\"\"></option>\n" if $form->{vc} eq "customer";
-
   if ($form->{"all_$form->{vc}"}) {
+	$form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
