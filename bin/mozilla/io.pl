@@ -225,6 +225,10 @@ sub display_row {
       qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
 
+    if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
+      $form->{"sellprice_$i"} = $form->{"price_new_$i"};
+    }
+
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
     $form->{"selected_unit_$i"} ||= $form->{"unit_$i"};
