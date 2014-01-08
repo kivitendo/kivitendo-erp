@@ -137,7 +137,7 @@ sub form_header {
 
   # sometimes it happens that values in customer arrive without the signs '--'
   # but in order to select the right option field we need values with '--'
-  if ($form->{vc} eq "customer"){
+  if ($form->{vc} eq "customer" && $form->{"all_$form->{vc}"}){
     my ($customername) = split /--/, $form->{ $form->{vc} };
     $form->{ $form->{vc} } = $customername . "--" . $form->{customer_id};
   }
