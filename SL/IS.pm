@@ -50,6 +50,7 @@ use SL::IO;
 use SL::TransNumber;
 use SL::DB::Default;
 use SL::DB::Tax;
+use SL::TransNumber;
 use Data::Dumper;
 
 use strict;
@@ -582,9 +583,8 @@ sub post_invoice {
       do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency});
 
       if (!$form->{invnumber}) {
-        $form->{invnumber} =
-          $form->update_defaults($myconfig, $form->{type} eq "credit_note" ?
-                                 "cnnumber" : "invnumber", $dbh);
+        my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, id => $form->{id});
+        $form->{invnumber} = $trans_number->create_unique;
       }
     }
   }
