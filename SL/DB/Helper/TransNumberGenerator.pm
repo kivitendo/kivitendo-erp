@@ -139,8 +139,7 @@ prefix, if present, will be kept intact.
 Now the number itself is increased as often as neccessary to create a
 unique one by comparing the generated numbers with the existing ones
 retrieved in the first step. In this step gaps in the assigned numbers
-are filled for some tables (e.g. invoices) but not for others
-(e.g. sales orders).
+are filled for all currently supported tables.
 
 After creating the unique record number this function can update
 C<$self> and the C<defaults> table if requested. This is controlled
