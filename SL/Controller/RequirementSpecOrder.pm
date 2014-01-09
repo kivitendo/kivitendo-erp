@@ -242,8 +242,10 @@ sub create_order_item {
   my $longdescription = $translation->{longdescription} || $part->notes;
 
   if (!$section->{keep_description}) {
+    $description     = '<%fb_number%> <%title%>' unless $description =~ m{<%};
+    $longdescription = '<%description%>'         unless $longdescription =~ m{<%};
+
     foreach my $field (\$description, \$longdescription) {
-      $$field =  '<%fb_number%> <%title%>' unless $$field =~ m{<%};
       $$field =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
     }
   }
