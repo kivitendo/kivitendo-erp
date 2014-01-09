@@ -806,7 +806,7 @@ sub get_accounts_ustva {
   my $arwhere  = "";
   my $item;
 
-    my $gltaxkey_where = "(tk.pos_ustva>=59 AND tk.pos_ustva<=66)";
+    my $gltaxkey_where = "((tk.pos_ustva>=59 AND tk.pos_ustva<=66) or (tk.pos_ustva>=89 AND tk.pos_ustva<=93))";
 
   if ($fromdate) {
     if ($form->{method} eq 'cash') {
