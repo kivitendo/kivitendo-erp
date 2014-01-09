@@ -75,7 +75,7 @@ sub get_next_trans_number {
   my $range_table    = $business ? $business : SL::DB::Default->get;
   my $start_number   = $range_table->$number_range_column;
   $start_number      = $range_table->articlenumber if ($number_range_column eq 'assemblynumber') && (length($start_number) < 1);
-  my $sequence       = SL::PrefixedNumber->new(number => $start_number);
+  my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
 
   if (!$fill_holes_in_range) {
     my @numbers = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
