@@ -63,13 +63,20 @@ sub action_create {
 
   # 2. Create actual quotation/order.
   my $order = $self->create_order(sections => $sections);
-  $order->save;
+  $order->db->with_transaction(sub {
+    $order->save;
 
-  $self->requirement_spec->orders(
-    @{ $self->requirement_spec->orders },
-    SL::DB::RequirementSpecOrder->new(order => $order, version => $self->requirement_spec->version)
-  );
-  $self->requirement_spec->save;
+    $self->requirement_spec->orders(
+      @{ $self->requirement_spec->orders },
+      SL::DB::RequirementSpecOrder->new(order => $order, version => $self->requirement_spec->version)
+    );
+    $self->requirement_spec->save;
+
+    $self->requirement_spec->link_to_record($order);
+  }) or do {
+    $::lxdebug->message(LXDebug::WARN(), "Error creating the order object: $@");
+  };
+
   $self->init_requirement_spec;
 
   # 3. Notify the user and return to list.
@@ -135,7 +142,13 @@ sub action_do_update {
   $order->orderitems([ @{ $order->orderitems }, @new_orderitems ]) if @new_orderitems;
 
   $order->calculate_prices_and_taxes;
-  $order->save;
+
+  $order->db->with_transaction(sub {
+    $order->save;
+    $self->requirement_spec->link_to_record($order);
+  }) or do {
+    $::lxdebug->message(LXDebug::WARN(), "Error updating the order object: $@");
+  };
 
   $self->init_requirement_spec;
 
