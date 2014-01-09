@@ -25,4 +25,8 @@ sub _sort_spec {
     });
 }
 
+sub working_copy_filter {
+  return (working_copy_id => undef);
+}
+
 1;

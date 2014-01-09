@@ -32,7 +32,7 @@ my %link_type_defaults = (
 );
 
 my @link_type_specifics = (
-  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => undef, },
+  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => 'working_copy_filter', },
   { title => t8('Sales quotation'),         type => 'sales_quotation',         model => 'Order',           number => 'quonumber', },
   { title => t8('Sales Order'),             type => 'sales_order',             model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales delivery order'),    type => 'sales_delivery_order',    model => 'DeliveryOrder',   number => 'donumber',  },
