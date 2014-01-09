@@ -485,7 +485,7 @@ sub setup_displayable_columns {
                                  { name => 'not_discountable',   description => $::locale->text('Not Discountable')                                     },
                                  { name => 'notes',              description => $::locale->text('Notes')                                                },
                                  { name => 'obsolete',           description => $::locale->text('Obsolete')                                             },
-                                 { name => 'onhand',             description => $::locale->text('On Hand')                                              },
+                                 { name => 'onhand',             description => $::locale->text('On Hand') . ' [2]'                                     },
                                  { name => 'partnumber',         description => $::locale->text('Part Number')                                          },
                                  { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')                             },
                                  { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')                                    },

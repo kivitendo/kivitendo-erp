@@ -1450,6 +1450,7 @@ $self->{texts} = {
   'On Hand'                     => 'Auf Lager',
   'On Order'                    => 'Ist bestellt',
   'One or more Perl modules missing' => 'Ein oder mehr Perl-Module fehlen',
+  'Onhand only sets the quantity in master data, not in inventory. This is only a legacy info field and will be overwritten as soon as a inventory transfer happens.' => 'Das Import-Feld Auf Lager setzt nur die Menge in den Stammdaten, nicht im Lagerbereich. Dies ist historisch gewachsen nur ein Informationsfeld was mit dem tatsächlichen Wert überschrieben wird, sobald eine wirkliche Lagerbewegung stattfindet (DB-Trigger).',
   'Only Warnings and Errors'    => 'Nur Warnungen und Fehler',
   'Only due follow-ups'         => 'Nur f&auml;llige Wiedervorlagen',
   'Only groups that have been configured for the client the user logs in to will be considered.' => 'Allerdings werden nur diejenigen Gruppen herangezogen, die für den Mandanten konfiguriert sind.',
