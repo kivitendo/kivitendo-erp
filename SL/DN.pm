@@ -44,6 +44,7 @@ use SL::MoreCommon;
 use SL::Template;
 use SL::DB::Printer;
 use SL::DB::Language;
+use SL::TransNumber;
 
 use strict;
 
@@ -205,6 +206,7 @@ sub create_invoice_for_fees {
 
   my ($ar_id) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
   my $curr = $form->get_default_currency($myconfig);
+  my $trans_number = SL::TransNumber->new(type => 'invoice', dbh => $dbh);
 
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
@@ -235,7 +237,7 @@ sub create_invoice_for_fees {
          (SELECT id FROM employee WHERE login = ?)
        )|;
   @values = ($ar_id,            # id
-             $form->update_defaults($myconfig, 'invnumber', $dbh), # invnumber
+             $trans_number->create_unique, # invnumber
              $dunning_id,       # customer_id
              $amount,
              $amount,
@@ -246,19 +248,21 @@ sub create_invoice_for_fees {
   do_query($form, $dbh, $query, @values);
 
   $query =
-    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey)
-       VALUES (?, ?, ?, current_date, current_date, 0)|;
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey, tax_id, chart_link)
+       VALUES (?, ?, ?, current_date, current_date, 0,
+               (SELECT id   FROM tax   WHERE (taxkey = 0) AND (rate = 0)),
+               (SELECT link FROM chart WHERE id = ?))|;
   $sth = prepare_query($form, $dbh, $query);
 
-  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining);
+  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining, conv_i($form->{AR_amount_fee}));
   do_statement($form, $sth, $query, @values);
 
   if ($interest_remaining) {
-    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining);
+    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining, conv_i($form->{AR_amount_interest}));
     do_statement($form, $sth, $query, @values);
   }
 
-  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount);
+  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount, conv_i($form->{AR}));
   do_statement($form, $sth, $query, @values);
 
   $sth->finish();

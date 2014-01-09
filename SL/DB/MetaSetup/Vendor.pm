@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   delivery_term_id => { type => 'integer' },
   department_1     => { type => 'varchar', length => 75 },
   department_2     => { type => 'varchar', length => 75 },
+  depositor        => { type => 'text' },
   direct_debit     => { type => 'boolean', default => 'false' },
   discount         => { type => 'float', precision => 4 },
   email            => { type => 'text' },

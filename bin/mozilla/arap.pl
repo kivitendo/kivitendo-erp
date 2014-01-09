@@ -61,7 +61,7 @@ sub check_name {
 
   $name = $name eq "customer" ? "customer" : "vendor";
 
-  my ($new_name, $new_id) = split /--/, $form->{$name};
+  my ($new_name,$new_id) = $form->{$name} =~ /^(.*?)--(\d+)$/;
   my $i = 0;
   # if we use a selection
   if ($form->{"select$name"}) {

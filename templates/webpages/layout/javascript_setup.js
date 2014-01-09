@@ -27,8 +27,8 @@ $(function() {
 [% END %]
 });
 
-function fokus() {
 [%- IF focus -%]
+function fokus() {
   $('[% focus %]').focus();
-[%- END -%]
 }
+[%- END -%]

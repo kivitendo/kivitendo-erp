@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::JSON;
 use SL::DBUtils;
 use SL::Helper::Flash;
+use SL::Locale::String;
 
 use SL::DB::Customer;
 use SL::DB::Vendor;
@@ -28,7 +29,6 @@ __PACKAGE__->run_before(
     $::auth->assert('customer_vendor_edit');
   }
 );
-
 __PACKAGE__->run_before(
   '_instantiate_args',
   only => [
@@ -61,6 +61,9 @@ __PACKAGE__->run_before(
     'add',
   ]
 );
+
+__PACKAGE__->run_before('normalize_name');
+
 
 sub action_add {
   my ($self) = @_;
@@ -167,34 +170,34 @@ sub _save {
 sub action_save {
   my ($self) = @_;
 
-  my $pattern = '[ \t\n\r]+';
-  my $name = $self->{cv}->name;
-  $name =~ s/^$pattern//;
-  $name =~ s/$pattern$//;
-  $name =~ s/$pattern/ /g;
-  if ( $name eq '' ) {
-    $::form->dberror( $::locale->text('Customer missing!') );
+  if (!$self->{cv}->name) {
+    flash('error', t8('Customer missing!'));
+    $self->_pre_render();
+    $self->render(
+      'customer_vendor/form',
+      title => ($self->is_vendor() ? t8('Edit Vendor') : t8('Edit Customer')),
+      %{$self->{template_args}}
+    );
   } else {
-    $self->{cv}->name($name);
+
+    $self->_save();
+
+    my @redirect_params = (
+      action => 'edit',
+      id     => $self->{cv}->id,
+      db     => ($self->is_vendor() ? 'vendor' : 'customer'),
+    );
+
+    if ( $self->{contact}->cp_id ) {
+      push(@redirect_params, contact_id => $self->{contact}->cp_id);
+    }
+
+    if ( $self->{shipto}->shipto_id ) {
+      push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+    }
+
+    $self->redirect_to(@redirect_params);
   }
-
-  $self->_save();
-
-  my @redirect_params = (
-    action => 'edit',
-    id     => $self->{cv}->id,
-    db     => ($self->is_vendor() ? 'vendor' : 'customer'),
-  );
-
-  if ( $self->{contact}->cp_id ) {
-    push(@redirect_params, contact_id => $self->{contact}->cp_id);
-  }
-
-  if ( $self->{shipto}->shipto_id ) {
-    push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
-  }
-
-  $self->redirect_to(@redirect_params);
 }
 
 sub action_save_and_close {
@@ -857,6 +860,17 @@ sub _pre_render {
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
+}
+
+sub normalize_name {
+  my ($self) = @_;
+
+  return unless $self->{cv};
+  my $name = $self->{cv}->name;
+  $name =~ s/\s+$//;
+  $name =~ s/^\s+//;
+  $name =~ s/\s+/ /g;
+  $self->{cv}->name($name);
 }
 
 1;

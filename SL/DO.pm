@@ -44,6 +44,7 @@ use SL::DB::Status;
 use SL::DBUtils;
 use SL::RecordLinks;
 use SL::IC;
+use SL::TransNumber;
 
 use strict;
 
@@ -224,7 +225,8 @@ sub save {
   my $ic_cvar_configs = CVar->get_configs(module => 'IC',
                                           dbh    => $dbh);
 
-  $form->{donumber}    = $form->update_defaults($myconfig, $form->{type} eq 'sales_delivery_order' ? 'sdonumber' : 'pdonumber', $dbh) unless $form->{donumber};
+  my $trans_number     = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{donumber}, id => $form->{id});
+  $form->{donumber}  ||= $trans_number->create_unique;
   $form->{employee_id} = (split /--/, $form->{employee})[1] if !$form->{employee_id};
   $form->get_employee($dbh) unless ($form->{employee_id});
 

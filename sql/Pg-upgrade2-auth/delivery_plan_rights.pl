@@ -16,7 +16,7 @@ sub run {
   my $groups = $main::auth->read_groups();
 
   foreach my $group (values %{$groups}) {
-    $group->{rights}->{delivery_plan_rights} = $group->{rights}->{sales_order_edit};
+    $group->{rights}->{delivery_plan} = $group->{rights}->{sales_order_edit};
     $main::auth->save_group($group);
   }
 

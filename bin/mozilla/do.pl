@@ -38,6 +38,7 @@ use SL::DB::DeliveryOrder;
 use SL::DO;
 use SL::IR;
 use SL::IS;
+use SL::MoreCommon qw(ary_diff);
 use SL::ReportGenerator;
 use SL::WH;
 require "bin/mozilla/arap.pl";
@@ -415,6 +416,12 @@ sub update_delivery_order {
         $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"} * (1 - $form->{tradediscount}));
         $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+        # build up html code for prices_$i
+        &set_pricegroup($i);
       }
 
       display_form();
@@ -491,7 +498,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber	cusordnumber
+    ordnumber               customernumber          cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -687,8 +694,8 @@ sub save {
 
   $form->{simple_save} = 1;
   if (!$params{no_redirect} && !$form->{print_and_save}) {
-    set_headings("edit");
-    update();
+    delete @{$form}{ary_diff([keys %{ $form }], [qw(login id script type cursor_fokus)])};
+    edit();
     ::end_of_request();
   }
   $main::lxdebug->leave_sub();
@@ -829,7 +836,7 @@ sub invoice {
     $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
   }
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  set_pricegroup($_) for 1 .. $form->{rowcount};
+  set_pricegroup($form->{rowcount});
 
   display_form();
 
@@ -1319,6 +1326,8 @@ sub transfer_in {
       foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_in_$i"}) }) {
         $request->{parts_id}  = $form->{"id_$i"};
         $row_sum_base_qty    += $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
+
+        $request->{project_id} = $form->{"project_id_$i"} || $form->{globalproject_id};
 
         push @all_requests, $request;
       }
