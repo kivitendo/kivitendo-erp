@@ -149,6 +149,7 @@ sub sort_linked_records {
                   'SL::DB::DeliveryOrder'   => sub { $_[0]->donumber },
                   'SL::DB::Invoice'         => sub { $_[0]->invnumber },
                   'SL::DB::PurchaseInvoice' => sub { $_[0]->invnumber },
+                  'SL::DB::RequirementSpec' => sub { $_[0]->id },
                   UNKNOWN                   => '9999999999999999',
                 );
   my $number_xtor = sub {
@@ -165,6 +166,7 @@ sub sort_linked_records {
 
   my %scores;
   %scores = ( 'SL::DB::SalesProcess'    =>  10,
+              'SL::DB::RequirementSpec' =>  15,
               'SL::DB::Order'           =>  sub { $scores{ $_[0]->type } },
               sales_quotation           =>  20,
               sales_order               =>  30,

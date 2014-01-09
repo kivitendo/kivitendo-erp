@@ -27,6 +27,7 @@ sub grouped_record_list {
   my %groups = _sort_grouped_lists(_group_records($list));
   my $output = '';
 
+  $output .= _requirement_spec_list(       $self, $groups{requirement_specs},        %params) if $groups{requirement_specs};
   $output .= _sales_quotation_list(        $self, $groups{sales_quotations},         %params) if $groups{sales_quotations};
   $output .= _sales_order_list(            $self, $groups{sales_orders},             %params) if $groups{sales_orders};
   $output .= _sales_delivery_order_list(   $self, $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
@@ -142,6 +143,7 @@ sub _group_records {
   my ($list) = @_;
 
   my %matchers = (
+    requirement_specs        => sub { (ref($_[0]) eq 'SL::DB::RequirementSpec')                                         },
     sales_quotations         => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_quotation')   },
     sales_orders             => sub { (ref($_[0]) eq 'SL::DB::Order')           &&  $_[0]->is_type('sales_order')       },
     sales_delivery_orders    => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   &&  $_[0]->is_sales                     },
@@ -180,6 +182,24 @@ sub _sort_grouped_lists {
   }
 
   return %groups;
+}
+
+sub _requirement_spec_list {
+  my ($self, $list, %params) = @_;
+
+  return $self->record_list(
+    $list,
+    title   => $::locale->text('Requirement specs'),
+    type    => 'requirement_spec',
+    columns => [
+      [ $::locale->text('Requirement spec number'), sub { $self->requirement_spec($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Customer'),                'customer'                                                      ],
+      [ $::locale->text('Title'),                   'title'                                                         ],
+      [ $::locale->text('Project'),                 'project',                                                      ],
+      [ $::locale->text('Status'),                  sub { $_[0]->status->description }                              ],
+    ],
+    %params,
+  );
 }
 
 sub _sales_quotation_list {

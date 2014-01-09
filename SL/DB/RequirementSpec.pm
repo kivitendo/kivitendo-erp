@@ -302,6 +302,12 @@ sub invalidate_version {
   );
 }
 
+sub compare_to {
+  my ($self, $other) = @_;
+
+  return $self->id <=> $other->id;
+}
+
 1;
 __END__
 

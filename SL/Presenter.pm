@@ -15,6 +15,7 @@ use SL::Presenter::Order;
 use SL::Presenter::Part;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
+use SL::Presenter::RequirementSpec;
 use SL::Presenter::RequirementSpecItem;
 use SL::Presenter::RequirementSpecTextBlock;
 use SL::Presenter::SepaExport;

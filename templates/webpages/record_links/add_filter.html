@@ -10,7 +10,7 @@
  <table>
   <tr>
    <td>[%- LxERP.t8("Link to") %]:</td>
-   <td>[% L.select_tag('link_type', LINK_TYPES, default=DEFAULT_LINK_TYPE, style=style) %]</td>
+   <td>[% L.select_tag('link_type', LINK_TYPES, default=DEFAULT_LINK_TYPE, style=style, id='record_links_add_filter_link_type') %]</td>
   </tr>
 
   <tr>
@@ -37,7 +37,7 @@
   </tr>
 
   <tr>
-   <td>[%- LxERP.t8("Transaction description") %]:</td>
+   <td><span id="record_links_add_filter_title">[%- LxERP.t8("Transaction description") %]</span>:</td>
    <td>[% L.input_tag('transaction_description', '', style=style) %]</td>
   </tr>
  </table>
@@ -59,6 +59,10 @@
 <!--
 $(function() {
   $('#record_links_add input[name=vc_name]').focus();
+  $('#record_links_add_filter_link_type').change(function() {
+    var title = $('#record_links_add_filter_link_type').val() == 'requirement_spec' ? kivi.t8('Title') : kivi.t8('Transaction description');
+    $('#record_links_add_filter_title').html(title);
+  });
 });
 
 function record_links_reset_form() {

@@ -12,6 +12,7 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
+use SL::DB::RequirementSpec;
 use SL::JSON;
 use SL::Locale::String;
 
@@ -23,7 +24,15 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_object_params', only => [ qw(ajax_list ajax_delete ajax_add_select_type ajax_add_filter ajax_add_list ajax_add_do) ]);
 __PACKAGE__->run_before('check_link_params',   only => [ qw(                                                           ajax_add_list ajax_add_do) ]);
 
-my @link_types = (
+my %link_type_defaults = (
+  filter      => 'type_filter',
+  project     => 'globalproject',
+  description => 'transaction_description',
+  date        => 'transdate',
+);
+
+my @link_type_specifics = (
+  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => undef, },
   { title => t8('Sales quotation'),         type => 'sales_quotation',         model => 'Order',           number => 'quonumber', },
   { title => t8('Sales Order'),             type => 'sales_order',             model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales delivery order'),    type => 'sales_delivery_order',    model => 'DeliveryOrder',   number => 'donumber',  },
@@ -34,6 +43,7 @@ my @link_types = (
   { title => t8('Purchase Invoice'),        type => 'purchase_invoice',        model => 'PurchaseInvoice', number => 'invnumber', },
 );
 
+my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;
 
 #
 # actions
@@ -103,22 +113,28 @@ sub action_ajax_add_filter {
 sub action_ajax_add_list {
   my ($self) = @_;
 
-  my $manager = 'SL::DB::Manager::' . $self->link_type_desc->{model};
-  my $vc      = $self->link_type =~ m/sales_|^invoice$/ ? 'customer' : 'vendor';
+  my $manager     = 'SL::DB::Manager::' . $self->link_type_desc->{model};
+  my $vc          = $self->link_type =~ m/sales_|^invoice|requirement_spec$/ ? 'customer' : 'vendor';
+  my $project     = $self->link_type_desc->{project};
+  my $description = $self->link_type_desc->{description};
+  my $filter      = $self->link_type_desc->{filter};
 
-  my @where = $manager->type_filter($self->link_type);
+  my @where = $filter ? $manager->$filter($self->link_type) : ();
   push @where, ("${vc}.${vc}number"     => { ilike => '%' . $::form->{vc_number} . '%' })               if $::form->{vc_number};
   push @where, ("${vc}.name"            => { ilike => '%' . $::form->{vc_name}   . '%' })               if $::form->{vc_name};
-  push @where, (transaction_description => { ilike => '%' . $::form->{transaction_description} . '%' }) if $::form->{transaction_description};
-  push @where, (globalproject_id        => $::form->{globalproject_id})                                 if $::form->{globalproject_id};
+  push @where, ($description            => { ilike => '%' . $::form->{transaction_description} . '%' }) if $::form->{transaction_description};
+  push @where, ("${project}_id"         => $::form->{globalproject_id})                                 if $::form->{globalproject_id};
 
-  my $objects = $manager->get_all_sorted(where => \@where, with_objects => [ $vc, 'globalproject' ]);
+  my $objects = $manager->get_all_sorted(where => \@where, with_objects => [ $vc, $project ]);
   my $output  = $self->render(
     'record_links/add_list',
-    { output      => 0 },
-    OBJECTS       => $objects,
-    vc            => $vc,
-    number_column => $self->link_type_desc->{number},
+    { output => 0 },
+    OBJECTS            => $objects,
+    vc                 => $vc,
+    number_column      => $self->link_type_desc->{number},
+    description_column => $description,
+    project_column     => $project,
+    date_column        => $self->link_type_desc->{date},
   );
 
   my %result = ( count => scalar(@{ $objects }), html => $output );

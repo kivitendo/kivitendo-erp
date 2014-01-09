@@ -7,8 +7,10 @@
   <th>[% L.checkbox_tag('record_links_check_all') %]</th>
   <th>[% IF vc == 'customer' %][%- LxERP.t8("Customer") %][%- ELSE %][%- LxERP.t8("Vendor") %][%- END %]</th>
   <th>[%- LxERP.t8("Number") %]</th>
-  <th>[%- LxERP.t8("Date") %]</th>
-  <th>[%- LxERP.t8("Transaction description") %]</th>
+  [% IF date_column %]
+   <th>[%- LxERP.t8("Date") %]</th>
+  [% END %]
+  <th>[% IF SELF.link_type == 'requirement_spec' %][%- LxERP.t8("Title") %][% ELSE %][%- LxERP.t8("Transaction description") %][% END %]</th>
   <th>[%- LxERP.t8("Project") %]</th>
  </tr>
 
@@ -17,9 +19,11 @@
   <td>[% L.checkbox_tag('link_id[]', value=object.id) %]</td>
   <td>[%- HTML.escape(object.$vc.name) %]</td>
   <td>[%- HTML.escape(object.$number_column) %]</td>
-  <td>[%- HTML.escape(object.transdate.to_kivitendo) %]</td>
-  <td>[%- HTML.escape(object.transaction_description) %]</td>
-  <td>[%- P.project(object.globalproject, no_link=1) %]</td>
+  [% IF date_column %]
+   <td>[%- HTML.escape(object.$date_column.to_kivitendo) %]</td>
+  [% END %]
+  <td>[%- HTML.escape(object.$description_column) %]</td>
+  <td>[%- P.project(object.$project_column, no_link=1) %]</td>
  </tr>
  [%- END %]
 </table>

@@ -57,7 +57,9 @@ namespace("kivi").setupLocale({
 "The selected database is still configured for client \"#1\". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?":"Die auswählte Datenbank ist noch für Mandant \"#1\" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Wollen Sie die Datenbank trotzdem löschen?",
 "There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"Es gibt einen oder mehrere Abschnitte ohne Artikelzuweisung; daher kann der neue Beleg noch nicht erstellt werden.",
 "Time/cost estimate actions":"Aktionen für Kosten-/Zeitabschätzung",
+"Title":"Titel",
 "Toggle marker":"Markierung umschalten",
+"Transaction description":"Vorgangsbezeichnung",
 "Update":"Erneuern",
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
 "Version actions":"Aktionen für Versionen"
