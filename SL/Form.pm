@@ -1926,17 +1926,24 @@ sub get_employee_data {
   my $myconfig = \%main::myconfig;
   my $dbh      = $params{dbh} || $self->get_standard_dbh($myconfig);
 
-  my ($login)  = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, conv_i($params{id}));
+  my ($login, $deleted)  = selectrow_query($self, $dbh, qq|SELECT login,deleted FROM employee WHERE id = ?|, conv_i($params{id}));
 
   if ($login) {
-    my $user = User->new(login => $login);
-    $self->{$params{prefix} . "_${_}"}    = $user->{$_}   for qw(email fax name signature tel);
+    # login already fetched and still the same client (mandant) | same for both cases (delete|!delete)
+    $self->{$params{prefix} . '_login'}   = $login;
     $self->{$params{prefix} . "_${_}"}    = $defaults->$_ for qw(address businessnumber co_ustid company duns taxnumber);
 
-    $self->{$params{prefix} . '_login'}   = $login;
-    $self->{$params{prefix} . '_name'}  ||= $login;
-  }
-
+    if (!$deleted) {
+      # get employee data from auth.user_config
+      my $user = User->new(login => $login);
+      $self->{$params{prefix} . "_${_}"} = $user->{$_} for qw(email fax name signature tel);
+    } else {
+      # get saved employee data from employee
+      my $employee = SL::DB::Manager::Employee->find_by(id => conv_i($params{id}));
+      $self->{$params{prefix} . "_${_}"} = $employee->{"deleted_$_"} for qw(email fax signature tel);
+      $self->{$params{prefix} . "_name"} = $employee->name;
+    }
+ }
   $main::lxdebug->leave_sub();
 }
 

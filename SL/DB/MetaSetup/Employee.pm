@@ -9,22 +9,19 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('employee');
 
 __PACKAGE__->meta->columns(
-  addr1     => { type => 'text' },
-  addr2     => { type => 'text' },
-  addr3     => { type => 'text' },
-  addr4     => { type => 'text' },
-  deleted   => { type => 'boolean', default => 'false' },
-  enddate   => { type => 'date' },
-  homephone => { type => 'text' },
-  id        => { type => 'integer', not_null => 1, sequence => 'id' },
-  itime     => { type => 'timestamp', default => 'now()' },
-  login     => { type => 'text' },
-  mtime     => { type => 'timestamp' },
-  name      => { type => 'text' },
-  notes     => { type => 'text' },
-  sales     => { type => 'boolean', default => 'true' },
-  startdate => { type => 'date', default => 'now' },
-  workphone => { type => 'text' },
+  deleted           => { type => 'boolean', default => 'false' },
+  deleted_email     => { type => 'text' },
+  deleted_fax       => { type => 'text' },
+  deleted_signature => { type => 'text' },
+  deleted_tel       => { type => 'text' },
+  enddate           => { type => 'date' },
+  id                => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime             => { type => 'timestamp', default => 'now()' },
+  login             => { type => 'text' },
+  mtime             => { type => 'timestamp' },
+  name              => { type => 'text' },
+  sales             => { type => 'boolean', default => 'true' },
+  startdate         => { type => 'date', default => 'now' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

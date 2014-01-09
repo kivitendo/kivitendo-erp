@@ -172,6 +172,10 @@ sub action_delete_user {
 
   my @clients = @{ $self->user->clients || [] };
 
+  # backup user metadata (email, name, etc)
+  my $user_config_values_ref = $self->user->config_values();
+  my $login =$self->user->login;
+
   if (!$self->user->delete) {
     flash('error', t8('The user could not be deleted.'));
     $self->edit_user_form(title => t8('Edit User'));
@@ -179,9 +183,15 @@ sub action_delete_user {
   }
 
   # Flag corresponding entries in 'employee' as deleted.
+  # and restore the most important user data in employee
+  # TODO try and catch the whole transaction {user->delete; update employee} {exception}
   foreach my $client (@clients) {
     my $dbh = $client->dbconnect(AutoCommit => 1) || next;
-    $dbh->do(qq|UPDATE employee SET deleted = TRUE WHERE login = ?|, undef, $self->user->login);
+    $dbh->do(qq|UPDATE employee SET deleted = TRUE, name = ?, deleted_email = ?,
+                deleted_tel = ?, deleted_fax = ?, deleted_signature = ? WHERE login = ?|,undef,
+              $user_config_values_ref->{name}, $user_config_values_ref->{email},
+              $user_config_values_ref->{tel}, $user_config_values_ref->{fax},
+              $user_config_values_ref->{signature}, $self->user->login);
     $dbh->disconnect;
   }
 
