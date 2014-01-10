@@ -4,6 +4,7 @@ use strict;
 use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor;
+use Text::Wrap;
 our $master_templates;
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
@@ -21,9 +22,10 @@ unless (eval { require Config::Std; 1 }){
   Debian: you may install the needed *.deb package with:
     apt-get install libconfig-std-perl
 
-  RPM: There is a rpm package "perl-Config-Std"
+  Red Hat/Fedora/CentOS: you may install the needed *.rpm package with:
+    yum install perl-Config-Std
 
-  Suse: you may install the needed *.rpm package with:
+  SUSE: you may install the needed *.rpm package with:
     zypper install perl-Config-Std
 
 +------------------------------------------------------------------------------+
@@ -35,7 +37,7 @@ EOL
 use SL::InstallationCheck;
 use SL::LxOfficeConf;
 
-
+my @missing_modules;
 my %check;
 Getopt::Long::Configure ("bundling");
 GetOptions(
@@ -48,6 +50,14 @@ GetOptions(
   "r|required!" => \ $check{r},
   "h|help"      => sub { pod2usage(-verbose => 2) },
   "c|color!"    => \ ( my $c = 1 ),
+  "i|install!"  => \ my $apt,
+);
+
+my %install_methods = (
+  apt    => { key => 'debian', install => 'sudo apt-get install', system => "Debian, Ubuntu" },
+  yum    => { key => 'fedora', install => 'sudo yum install',     system => "RHEL, Fedora, CentOS" },
+  zypper => { key => 'suse',   install => 'sudo zypper install',  system => "SLES, openSUSE" },
+  cpan   => { key => 'name',   install => "sudo cpan",            system => "CPAN" },
 );
 
 # verbos is default
@@ -99,6 +109,20 @@ if ($check{d}) {
 }
 if ($check{l}) {
   check_latex();
+}
+
+if (@missing_modules && $apt) {
+  print "\nHere are some sample installation lines, choose one apporpriate for your system:\n\n";
+  local $Text::Wrap::separator = " \\\n";
+
+  for (keys %install_methods) {
+    my $method = $install_methods{$_};
+    if (my @install_candidates = grep $_, map { $_->{$method->{key}} } @missing_modules) {
+      print "$method->{system}:\n";
+      print wrap("  ", "    ",  $method->{install}, @install_candidates);
+      print $/;
+    }
+  }
 }
 
 sub check_latex {
@@ -176,6 +200,8 @@ sub check_module {
 
 
   return if $res;
+
+  push @missing_modules, $module;
 
   my $needed_text =
       $role{optional} ? 'It is OPTIONAL for kivitendo but RECOMMENDED for improved functionality.'
@@ -325,6 +351,12 @@ Print additional info for missing dependancies (enabled by default)
 =item C<-V, --no-verbose>
 
 Disable verbosity
+
+=item C<-i, --install>
+
+Tries to generate installation commands for the most common package managers.
+Note that these lists can be slightly off, but it should still save you a lot
+of typing.
 
 =back
 
