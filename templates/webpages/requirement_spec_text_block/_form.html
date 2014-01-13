@@ -36,7 +36,7 @@
 
   <tr>
    <th align="right" valign="top">[%- LxERP.t8("Description") %]:</th>
-   <td valign="top">[% L.textarea_tag(id_base _ '.text', SELF.text_block.text, style = style, rows = 10) %]</td>
+   <td valign="top">[% L.textarea_tag(id_base _ '.text_as_restricted_html', SELF.text_block.text_as_restricted_html, id = id_base _ '_text', style = style _ '; height: 200px', class='texteditor') %]</td>
   </tr>
  </table>
 
@@ -72,14 +72,8 @@ function insert_selected_predefined_text() {
           || confirm('[%- LxERP.t8("Do you want to overwrite your current title?") %]')))
     title_ctrl.val(pt.title);
 
-  if ((pt.text || '') != '') {
-    var text_ctrl = $('#[% id_base %]_text');
-    var text      = text_ctrl.val() || '';
-    if (text != '')
-      text += "\n\n";
-
-    text_ctrl.val(text + pt.text);
-  }
+  if ((pt.text || '') != '')
+    $('#[% id_base %]_text').ckeditorGet().insertHtml(pt.text);
 
   return false;
 }

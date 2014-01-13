@@ -11,6 +11,7 @@ use SL::Common ();
 use SL::DB::MetaSetup::RequirementSpecTextBlock;
 use SL::DB::Manager::RequirementSpecTextBlock;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::AttrHTML;
 use SL::Locale::String;
 
 __PACKAGE__->meta->add_relationship(
@@ -24,6 +25,7 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id output_position)]);
+__PACKAGE__->attr_html('text');
 
 __PACKAGE__->before_save(\  &_before_save_invalidate_requirement_spec_version);
 __PACKAGE__->before_delete(\&_before_delete_invalidate_requirement_spec_version);
@@ -69,7 +71,7 @@ sub pictures_sorted {
 sub content_excerpt {
   my ($self) = @_;
 
-  return Common::truncate($self->text // '', at => 200);
+  return Common::truncate($self->text_as_stripped_html // '', at => 200);
 }
 
 1;

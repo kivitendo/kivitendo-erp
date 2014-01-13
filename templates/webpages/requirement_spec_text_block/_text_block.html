@@ -8,7 +8,7 @@
   </div>
  [% ELSE %]
   <div class="requirement-spec-text-block-text">
-   [% L.simple_format(text_block.text) %]
+   [% text_block.text_as_restricted_html %]
   </div>
  [% END %]
 

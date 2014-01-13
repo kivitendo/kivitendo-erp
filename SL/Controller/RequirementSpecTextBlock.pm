@@ -85,6 +85,7 @@ sub action_ajax_edit {
      ->insertAfter($html, '#text-block-' . $self->text_block->id)
      ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
      ->focus('#edit_text_block_' . $self->text_block->id . '_title')
+     ->reinit_widgets
      ->render($self);
 }
 
@@ -456,6 +457,7 @@ sub add_new_text_block_form {
 
   $self->js
      ->action($params{insert_after_id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($params{insert_after_id} || 'list'))
+     ->reinit_widgets
      ->focus('#' . $id_base . '_title');
 }
 
