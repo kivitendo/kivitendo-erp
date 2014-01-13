@@ -76,6 +76,12 @@ sub finalize {
   my %sort_params     = $self->read_params;
   my $sort_spec       = $self->specs->{ $sort_params{sort_by} };
 
+  if (!$sort_spec) {
+    no warnings 'once';
+    $::lxdebug->show_backtrace(1);
+    die "Unknown sort spec '$sort_params{sort_by}'";
+  }
+
   $params{sort_by}    = "SL::DB::Manager::$sort_spec->{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{sort_dir});
 
   %params;
