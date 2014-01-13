@@ -1076,8 +1076,12 @@ sub generate_ustva {
 
   } else
   {
+    #$form->parse_template(\%myconfig, $::lx_office_conf{paths}{userspath});
+   $form->{title} = $locale->text('Advance turnover tax return');
 
-    $form->parse_template(\%myconfig, $::lx_office_conf{paths}{userspath});
+   $form->header;
+   print $form->parse_html_template('ustva/ustva');
+
 
   }
 
