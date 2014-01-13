@@ -39,6 +39,11 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Die bwa.html und ustva.html werden jetzt zentral gepflegt und nicht mehr als benutzerdefinierte
+  Druckvorlage. Falls hier jmd. Anpassungen gemacht hat, müssten diese in templates/rp/$VORLAGE.html
+  nachgepflegt werden
+- Für UstVa: Winston, Taxbird und Pdf-Export werden nicht mehr unterstützt. Die UstVa muss sowieso mittlerweile
+  per Elster erfolgen
 - Lieferbedingungen analog zu Zahlungsbedingungen eingeführt.
   Sie können angelegt, beim Benutzer voreingestellt und in allen Ein- und Ver-
   kaufsmasken gesetzt werden.
