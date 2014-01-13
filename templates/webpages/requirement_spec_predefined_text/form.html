@@ -8,7 +8,7 @@
   <table>
    <tr>
     <td>[% LxERP.t8("Description") %]</sup></td>
-    <td>[% L.input_tag("requirement_spec_predefined_text.description", SELF.requirement_spec_predefined_text.description, size=60) %]</td>
+    <td>[% L.input_tag("requirement_spec_predefined_text.description", SELF.requirement_spec_predefined_text.description, size=60, class='initial_focus') %]</td>
    </tr>
 
    <tr>
@@ -16,9 +16,9 @@
     <td>[% L.input_tag("requirement_spec_predefined_text.title", SELF.requirement_spec_predefined_text.title, size=60) %]</td>
    </tr>
 
-   <tr>
+   <tr valign="top">
     <td>[% LxERP.t8("Content") %]</td>
-    <td>[% L.textarea_tag("requirement_spec_predefined_text.text", SELF.requirement_spec_predefined_text.text, rows=10, cols=80) %]</td>
+    <td>[% L.textarea_tag("requirement_spec_predefined_text.text_as_restricted_html", SELF.requirement_spec_predefined_text.text_as_restricted_html, class='texteditor', style='width: 800px; height: 300px') %]</td>
    </tr>
   </table>
 

@@ -5,9 +5,12 @@ use strict;
 use SL::DB::MetaSetup::RequirementSpecPredefinedText;
 use SL::DB::Manager::RequirementSpecPredefinedText;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::AttrHTML;
 use SL::Locale::String;
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_html('text');
 
 sub validate {
   my ($self) = @_;

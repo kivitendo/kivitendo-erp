@@ -32,7 +32,7 @@
      </td>
 
      <td>[% HTML.escape(requirement_spec_predefined_text.title) %]</td>
-     <td>[% HTML.escape(L.truncate(requirement_spec_predefined_text.text)) %]</td>
+     <td>[% HTML.escape(L.truncate(requirement_spec_predefined_text.text_as_stripped_html)) %]</td>
     </tr>
     [%- END %]
     </tbody>

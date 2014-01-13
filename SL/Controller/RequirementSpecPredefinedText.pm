@@ -14,6 +14,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('setup');
 __PACKAGE__->run_before('load_requirement_spec_predefined_text', only => [ qw(edit update destroy) ]);
 
 #
@@ -78,6 +79,10 @@ sub action_reorder {
 
 sub check_auth {
   $::auth->assert('config');
+}
+
+sub setup {
+  $::request->layout->use_javascript("${_}.js")  for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
 }
 
 #
