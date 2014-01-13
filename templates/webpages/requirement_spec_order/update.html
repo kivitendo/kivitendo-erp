@@ -31,7 +31,7 @@
     <tr class="listrow">
      [% L.hidden_tag("orderitems[+].id", item.item.id, no_id=1) %]
      <td>[% HTML.escape(item.item.part.partnumber) %]</td>
-     <td>[% HTML.escape(item.item.description) %]</td>
+     <td>[% HTML.escape(item.item.description_as_stripped_html) %]</td>
      <td align="right">[% LxERP.format_amount(item.item.qty * 1) %] [% HTML.escape(item.item.unit) %]</td>
      <td align="right">[% LxERP.format_amount(item.item.qty * 1) %] [% HTML.escape(item.item.unit) %]</td>
      <td>[% L.select_tag('orderitems[].section_id', sections, default=item.section.id, title_sub=\make_section_title, style=style, no_id=1, with_empty=1, empty_title=LxERP.t8('Do not modify this position')) %]</td>

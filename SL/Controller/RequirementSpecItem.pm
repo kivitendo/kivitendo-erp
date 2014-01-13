@@ -155,6 +155,7 @@ sub action_ajax_add_section {
     ->hide('#column-content > *')
     ->appendTo($html, '#column-content')
     ->focus('#new_section_title')
+    ->reinit_widgets
     ->render($self);
 }
 
@@ -241,9 +242,10 @@ sub action_ajax_edit {
       ->remove("#edit_section_form")
       ->insertAfter($html, '#section-header-' . $self->item->id)
       ->jstree->select_node('#tree', '#fb-' . $self->item->id)
-      ->focus("#edit_section_title")
       ->val('#current_content_type', 'section')
       ->val('#current_content_id',   $self->item->id)
+      ->reinit_widgets
+      ->focus("#edit_section_title")
       ->render($self);
     return;
   }
@@ -262,9 +264,10 @@ sub action_ajax_edit {
     ->insertAfter($html, $content_top_id)
     ->run('kivi.requirement_spec.init_function_block_keypress_events', "${id_base}_form")
     ->jstree->select_node('#tree', '#fb-' . $self->item->id)
-    ->focus("#${id_base}_description")
     ->val('#current_content_type', $self->item->item_type)
     ->val('#current_content_id', $self->item->id)
+    ->reinit_widgets
+    ->focus("#${id_base}_description")
     ->render($self);
 }
 
@@ -559,7 +562,7 @@ sub select_node {
 
 sub create_dependency_item {
   my $self = shift;
-  [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ];
+  [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description_as_stripped_html))) ];
 }
 
 sub create_dependencies {
@@ -611,6 +614,7 @@ sub add_new_item_form {
     ->action($params{insert_position}, $html, $params{display_reference})
     ->action_if($self->item->item_type eq 'sub-function-block', 'show', '#sub-function-block-container-' . $self->item->parent_id)
     ->run('kivi.requirement_spec.init_function_block_keypress_events', "${id_base}_form")
+    ->reinit_widgets
     ->focus("#${id_base}_description");
 }
 

@@ -13,7 +13,7 @@
 <div class="section-description" id="section-description">
  <div class="section-description-heading">[%- LxERP.t8("Preamble") %]</div>
  [% IF requirement_spec_item.description %]
-  [%- L.simple_format(requirement_spec_item.description) -%]
+  [%- requirement_spec_item.description_as_restricted_html -%]
  [%- ELSE %]
   <span class="dimmed-text">[%- LxERP.t8("No text has been entered yet.") %]</span>
  [%- END %]

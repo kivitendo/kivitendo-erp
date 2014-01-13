@@ -28,7 +28,7 @@
 [%- ELSE -%]
     [%- LxERP.t8("Add sub function block") %]
 [%- END -%]:<br>
-    [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, style="width: 100%") %]
+    [% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, style="width: 100%", class='texteditor') %]
    </div>
 
    <div style="margin-top: 10px">

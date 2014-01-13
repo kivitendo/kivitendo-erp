@@ -40,7 +40,7 @@
     [% L.hidden_tag("sections[+].id", section.id, no_id=1) %]
     <td>[% HTML.escape(section.fb_number) %]</td>
     <td>[% HTML.escape(section.title) %]</td>
-    <td>[% HTML.escape(P.truncate(section.description)) %]</td>
+    <td>[% HTML.escape(P.truncate(section.description_as_stripped_html)) %]</td>
     <td>[% P.part_picker('sections[].order_part_id', section.order_part_id, convertible_unit=SELF.h_unit_name, id='quotations_and_orders_sections_order_pard_id_' _ loop.count, style=style) %]</td>
    </tr>
    [% END %]

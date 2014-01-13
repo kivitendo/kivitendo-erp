@@ -12,6 +12,7 @@ use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::AttrDuration;
+use SL::DB::Helper::AttrHTML;
 use SL::DB::Default;
 use SL::Locale::String;
 use SL::PrefixedNumber;
@@ -40,6 +41,7 @@ __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id parent_id)]);
 __PACKAGE__->attr_duration(qw(time_estimation));
+__PACKAGE__->attr_html('description');
 
 __PACKAGE__->before_save(\&_before_save_create_fb_number);
 __PACKAGE__->before_save(\&_before_save_invalidate_requirement_spec_version);
@@ -128,7 +130,7 @@ sub child_type {
 sub content_excerpt {
   my ($self) = @_;
 
-  return Common::truncate($self->description // '', at => 200);
+  return Common::truncate($self->description_as_stripped_html // '', at => 200);
 }
 
 

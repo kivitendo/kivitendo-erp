@@ -12,7 +12,7 @@ use Carp;
 sub requirement_spec_item_tree_node_title {
   my ($self, $item) = @_;
 
-  return join(' ', map { $_ || '' } ($item->fb_number, $self->truncate($item->parent_id ? $item->description : $item->title, at => 30)));
+  return join(' ', map { $_ || '' } ($item->fb_number, $self->truncate($item->parent_id ? $item->description_as_stripped_html : $item->title, at => 30)));
 }
 
 sub requirement_spec_item_jstree_data {

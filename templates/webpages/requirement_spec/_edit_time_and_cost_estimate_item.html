@@ -3,7 +3,7 @@
  [% L.hidden_tag("requirement_spec_items[+].id", item.id, id = id_prefix _ '_item_id') %]
 
  <td style="padding-left: [%- level * 50 -%]px">
-  [%- P.simple_format(item.fb_number _ ": " _ item.description) -%]
+  [%- item.fb_number _ ": " _ item.description_as_restricted_html -%]
  </td>
  <td>
   [%- L.select_tag('requirement_spec_items[].complexity_id', SELF.complexities, id=id_prefix _ '_complexity_id_' _ item.id, title_key='description', default=item.complexity_id, style="width: 100%") %]<br>

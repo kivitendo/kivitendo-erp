@@ -23,7 +23,7 @@
     <tr class="listrow">
      <td>[% HTML.escape(section.fb_number) %]</td>
      <td>[% HTML.escape(section.title) %]</td>
-     <td>[% HTML.escape(P.truncate(section.description)) %]</td>
+     <td>[% HTML.escape(P.truncate(section.description_as_stripped_html)) %]</td>
      <td>
       [% IF section.order_part %]
        [% HTML.escape(section.order_part.partnumber) %] [% HTML.escape(section.order_part.description) %]

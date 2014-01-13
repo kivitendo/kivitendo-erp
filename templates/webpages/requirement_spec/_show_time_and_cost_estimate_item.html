@@ -1,7 +1,7 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE P -%]
 <tr class="listrow">
  <td style="padding-left: [%- level * 50 -%]px">
-  [%- P.simple_format(item.fb_number _ ": " _ item.description) -%]
+  [%- item.fb_number _ ": " _ item.description_as_restricted_html -%]
  </td>
  <td>[%- HTML.escape(item.complexity.description) -%]</td>
  <td>[%- HTML.escape(item.risk.description) -%]</td>
