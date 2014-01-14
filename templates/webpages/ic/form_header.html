@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE LxERP %][%- USE L -%]
+[%- USE LxERP %][%- USE L -%][%- USE P -%]
 [% PROCESS 'common/select_warehouse_bin.html' %]
  <p><div class="listtop">[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</div></p>
 
@@ -133,9 +133,9 @@
               <th align="left">[% 'Part Notes' | $T8 %]</th>
               <th align="left">[% 'Formula' | $T8 %]</th>
              </tr>
-             <tr>
+             <tr valign="top">
               <td>
-               <textarea name="notes" rows="[% HTML.escape(notes_rows) %]" cols="45" wrap="soft">[% HTML.escape(notes) %]</textarea>
+               [% L.textarea_tag("notes", P.restricted_html(notes), class="texteditor", style="width: 600px; height: 200px") %]
               </td>
               <td>
                <ilayer>

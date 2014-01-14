@@ -40,6 +40,7 @@ use YAML;
 
 use SL::CVar;
 use SL::DBUtils;
+use SL::HTML::Restrict;
 use SL::TransNumber;
 
 use strict;
@@ -227,6 +228,7 @@ sub save {
   my @values;
   # connect to database, turn off AutoCommit
   my $dbh = $form->get_standard_dbh;
+  my $restricter = SL::HTML::Restrict->create;
 
   # save the part
   # make up a unique handle and store in partnumber field
@@ -371,7 +373,7 @@ sub save {
              $form->{lastcost},
              $form->{weight},
              $form->{unit},
-             $form->{notes},
+             $restricter->process($form->{notes}),
              $form->{formel},
              $form->{rop},
              conv_i($form->{warehouse_id}),
@@ -405,7 +407,7 @@ sub save {
     $sth   = $dbh->prepare($query);
 
     foreach my $translation (@translations) {
-      do_statement($form, $sth, $query, conv_i($form->{id}), conv_i($translation->{language_id}), $translation->{translation}, $translation->{longdescription});
+      do_statement($form, $sth, $query, conv_i($form->{id}), conv_i($translation->{language_id}), $translation->{translation}, $restricter->process($translation->{longdescription}));
     }
 
     $sth->finish();
