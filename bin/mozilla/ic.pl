@@ -1608,6 +1608,8 @@ sub form_header {
     $form->{bin_id}       ||= $default_bin_id       ||  $form->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
   }
 
+  $form->{LANGUAGES}        = SL::DB::Manager::Language->get_all_sorted;
+  $form->{translations_map} = { map { ($_->{language_id} => $_) } @{ $form->{translations} || [] } };
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
@@ -2059,50 +2061,6 @@ sub price_row {
   }, 1 .. $numrows;
 
   print $form->parse_html_template('ic/price_row', { PRICES => \@PRICES });
-
-  $lxdebug->leave_sub();
-}
-
-sub parts_language_selection {
-  $lxdebug->enter_sub();
-
-  $auth->assert('part_service_assembly_edit');
-
-  my $languages = IC->retrieve_languages(\%myconfig, $form);
-
-  if ($form->{language_values} ne "") {
-    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
-      my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
-
-      foreach my $language (@{ $languages }) {
-        next unless ($language->{id} == $language_id);
-
-        $language->{translation}     = $translation;
-        $language->{longdescription} = $longdescription;
-
-        $language->{translation_area}     = ($language->{translation_rows} = $form->numtextrows($language->{translation}, 40)) > 1;
-        $language->{longdescription_rows} = max 4, $form->numtextrows($language->{longdescription}, 40);
-
-        last;
-      }
-    }
-  }
-
-  my @header_sort = qw(name longdescription);
-  my %header_title = ( "name" => $locale->text("Name"),
-                       "longdescription" => $locale->text("Long Description"),
-                       );
-
-  my @header =
-    map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-         },
-        @header_sort);
-
-  $form->{"title"} = $locale->text("Language Values");
-  $form->header();
-  print $form->parse_html_template("ic/parts_language_selection", { "HEADER"    => \@header,
-                                                                    "LANGUAGES" => $languages, });
 
   $lxdebug->leave_sub();
 }
