@@ -887,7 +887,8 @@ sub generate_ustva {
 
   } else
   {
-    #$form->parse_template(\%myconfig, $::lx_office_conf{paths}{userspath});
+   # add a prefix for ustva pos numbers, i.e.: 81 ->  post_ustva_81
+   $form->{"pos_ustva_$_"} = $form->{$_} for grep { m{^\d+} } keys %{ $form };
    $form->{title} = $locale->text('Advance turnover tax return');
 
    $form->header;
