@@ -2,10 +2,12 @@ package SL::Presenter::Tag;
 
 use strict;
 
+use SL::HTML::Restrict;
+
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag man_days_tag name_to_id select_tag stringify_attributes);
+our @EXPORT = qw(html_tag input_tag man_days_tag name_to_id select_tag stringify_attributes restricted_html);
 
 use Carp;
 
@@ -195,6 +197,15 @@ sub _set_id_attribute {
   return %{ $attributes };
 }
 
+my $html_restricter;
+
+sub restricted_html {
+  my ($self, $value) = @_;
+
+  $html_restricter ||= SL::HTML::Restrict->create;
+  return $html_restricter->process($value);
+}
+
 1;
 __END__
 
@@ -263,6 +274,10 @@ Converts a name to a HTML id by replacing various characters.
 Creates a string from all elements in C<%items> suitable for usage as
 HTML tag attributes. Keys and values are HTML escaped even though keys
 must not contain non-ASCII characters for browsers to accept them.
+
+=item C<restricted_html $html>
+
+Returns HTML stripped of unknown tags. See L<SL::HTML::Restrict>.
 
 =back
 

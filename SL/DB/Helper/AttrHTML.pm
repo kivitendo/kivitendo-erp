@@ -5,30 +5,6 @@ use strict;
 use parent qw(Exporter);
 our @EXPORT = qw(attr_html);
 
-use utf8;
-use Carp;
-use Encode ();
-use HTML::Restrict ();
-use HTML::Parser;
-
-my %stripper;
-
-sub _strip_html {
-  my ($value) = @_;
-
-  if (!%stripper) {
-    %stripper = ( parser => HTML::Parser->new );
-
-    $stripper{parser}->handler(text => sub { $stripper{text} .= $_[1]; });
-  }
-
-  $stripper{text} = '';
-  $stripper{parser}->parse($value);
-  $stripper{parser}->eof;
-
-  return delete $stripper{text};
-}
-
 sub attr_html {
   my ($package, $attributes, %params) = @_;
 
@@ -49,12 +25,13 @@ sub _make_stripped {
   my ($package, $attribute, %params) = @_;
 
   no strict 'refs';
+  require SL::HTML::Util;
 
   *{ $package . '::' . $attribute . '_as_stripped_html' } = sub {
     my ($self, $value) = @_;
 
-    return $self->$attribute(_strip_html($value)) if @_ > 1;
-    return _strip_html($self->$attribute);
+    return $self->$attribute(SL::HTML::Util->strip($value)) if @_ > 1;
+    return SL::HTML::Util->strip($self->$attribute);
   };
 }
 
@@ -62,8 +39,9 @@ sub _make_restricted {
   my ($package, $attribute, %params) = @_;
 
   no strict 'refs';
+  require SL::HTML::Restrict;
 
-  my $cleaner = HTML::Restrict->new(rules => $params{allowed_tags});
+  my $cleaner = SL::HTML::Restrict->create(%params);
 
   *{ $package . '::' . $attribute . '_as_restricted_html' } = sub {
     my ($self, $value) = @_;
