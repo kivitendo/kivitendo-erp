@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE LxERP %]
+[%- USE LxERP %][%- USE L -%]
 [% PROCESS 'common/select_warehouse_bin.html' %]
  <p><div class="listtop">[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</div></p>
 
@@ -18,13 +18,15 @@
   <input name="taxaccounts" type="hidden" value="[% HTML.escape(taxaccounts) %]">
   <input name="rowcount" type="hidden" value="[% HTML.escape(rowcount) %]">
   <input name="eur" type="hidden" value="[% HTML.escape(eur) %]">
-  <input name="language_values" type="hidden" value="[% HTML.escape(language_values) %]">
   <input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
   <input name="currow" type="hidden" value="[% HTML.escape(currow) %]">
 
   <div class="tabwidget">
    <ul>
     <li><a href="#master_data">[% 'Basic Data' | $T8 %]</a></li>
+[% IF LANGUAGES.size %]
+    <li><a href="#translations_tab">[% 'Translations' | $T8 %]</a></li>
+[% END %]
     [%- IF id %]
     <li><a href="#sales_price_information">[% 'Price information' | $T8 %]</a></li>
     [%- END %]
@@ -119,12 +121,6 @@
               </td>
              </tr>
             </table>
-           </td>
-          </tr>
-
-          <tr>
-           <td>
-            <button type="button" onclick="parts_language_selection_window('language_values')">[% 'Set Language Values' | $T8 %]</button>
            </td>
           </tr>
 

@@ -26,6 +26,10 @@
  </table>
 </div>
 
+[%- IF LANGUAGES.size %]
+ [% PROCESS 'ic/tabs/_edit_translations.html' %]
+[%- END %]
+
 [%- IF id %]
 <div id="sales_price_information">
   [% PROCESS ic/sales_price_information.html id=id %]

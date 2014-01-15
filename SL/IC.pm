@@ -146,15 +146,10 @@ SQL
   }
 
   # get translations
-  $form->{language_values} = "";
   $query = qq|SELECT language_id, translation, longdescription
               FROM translation
               WHERE parts_id = ?|;
-  my $trq = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while (my $tr = $trq->fetchrow_hashref("NAME_lc")) {
-    $form->{language_values} .= "---+++---" . join('--++--', @{$tr}{qw(language_id translation longdescription)});
-  }
-  $trq->finish;
+  $form->{translations} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
 
   # is it an orphan
   my @referencing_tables = qw(invoice orderitems inventory);
@@ -401,16 +396,17 @@ sub save {
   # delete translation records
   do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
 
-  if ($form->{language_values} ne "") {
-    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
-      my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
-      if ($translation ne "") {
-        $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription)
-                    VALUES ( ?, ?, ?, ? )|;
-        @values = (conv_i($form->{id}), conv_i($language_id), $translation, $longdescription);
-        do_query($form, $dbh, $query, @values);
-      }
+  my @translations = grep { $_->{language_id} && $_->{translation} } @{ $form->{translations} || [] };
+  if (@translations) {
+    $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription)
+                VALUES ( ?, ?, ?, ? )|;
+    $sth   = $dbh->prepare($query);
+
+    foreach my $translation (@translations) {
+      do_statement($form, $sth, $query, conv_i($form->{id}), conv_i($translation->{language_id}), $translation->{translation}, $translation->{longdescription});
     }
+
+    $sth->finish();
   }
 
   # delete price records
