@@ -865,6 +865,9 @@ sub _pre_render {
 sub normalize_name {
   my ($self) = @_;
 
+  # check if feature is enabled (select normalize_vc_names from defaults)
+  return unless ($::instance_conf->get_normalize_vc_names);
+
   return unless $self->{cv};
   my $name = $self->{cv}->name;
   $name =~ s/\s+$//;
