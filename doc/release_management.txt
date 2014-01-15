@@ -20,12 +20,12 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 1. KONSISTENZ DES PROGRAMMS
 ===========================
 
-* Testlauf t/test.sh
+* Testlauf mit t/test.pl
+  Benutzer und Mandant muss hierfür entsprechend in kivitendo.conf > Abschnitt testing
+  konfiguriert sein.
 
   - Im Moment sind 3 Fehler optimal (die sind noch nicht angegangen):
-    o  bin/mozilla/ic.pl contains at least 130 html tags.
-    o  bin/mozilla/ap.pl contains at least 183 html tags.
-    o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
+    o  bin/mozilla/ic.pl contains at least 123 html tags.
   - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
     TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
     TODO: Dokumentieren wie der Releasemanager sich so eine DB baut, die
