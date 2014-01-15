@@ -190,7 +190,12 @@ namespace("kivi", function(ns) {
 
     if (!params.url) {
       // Use existing DOM element and show it. No AJAX call.
-      dialog = $('#' + id).dialog(dialog_params);
+      dialog =
+        $('#' + id)
+        .bind('dialogopen', function() {
+          ns.run_once_for('.texteditor-in-dialog,.texteditor-dialog', 'texteditor', kivi.init_text_editor);
+        })
+        .dialog(dialog_params);
       return true;
     }
 

@@ -22,7 +22,8 @@ namespace('kivi.SalesPurchase', function(ns) {
     kivi.popup_dialog({
       id:    'edit_longdescription_dialog',
       dialog: {
-        title: kivi.t8('Enter longdescription')
+        title: kivi.t8('Enter longdescription'),
+        open:  function() { kivi.set_focus('#popup_edit_longdescription_input'); }
       }
     });
   };

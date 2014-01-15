@@ -45,6 +45,7 @@ use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::Status;
 use SL::DB::Tax;
 use SL::DBUtils;
+use SL::HTML::Restrict;
 use SL::IC;
 use SL::TransNumber;
 
@@ -330,6 +331,7 @@ sub save {
 
   # connect to database, turn off autocommit
   my $dbh = $form->get_standard_dbh;
+  my $restricter = SL::HTML::Restrict->create;
 
   my ($query, @values, $sth, $null);
   my $exchangerate = 0;
@@ -500,7 +502,7 @@ sub save {
                           (SELECT factor FROM price_factors WHERE id = ?), ?)|;
       push(@values,
            conv_i($orderitems_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
-           $form->{"description_$i"}, $form->{"longdescription_$i"},
+           $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),

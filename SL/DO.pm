@@ -42,6 +42,7 @@ use SL::CVar;
 use SL::DB::DeliveryOrder;
 use SL::DB::Status;
 use SL::DBUtils;
+use SL::HTML::Restrict;
 use SL::RecordLinks;
 use SL::IC;
 use SL::TransNumber;
@@ -216,6 +217,7 @@ sub save {
 
   # connect to database, turn off autocommit
   my $dbh = $form->get_standard_dbh($myconfig);
+  my $restricter = SL::HTML::Restrict->create;
 
   my ($query, @values, $sth, $null);
 
@@ -323,7 +325,7 @@ sub save {
 
     # save detail record in delivery_order_items table
     @values = (conv_i($item_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
-               $form->{"description_$i"}, $form->{"longdescription_$i"},
+               $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
                $form->{"qty_$i"}, $baseqty,
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
                $form->{"unit_$i"}, conv_date($items_reqdate), conv_i($form->{"project_id_$i"}),

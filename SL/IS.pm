@@ -44,6 +44,7 @@ use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
+use SL::HTML::Restrict;
 use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
@@ -546,6 +547,7 @@ sub post_invoice {
 
   # connect to database, turn off autocommit
   my $dbh = $provided_dbh ? $provided_dbh : $form->get_standard_dbh;
+  my $restricter = SL::HTML::Restrict->create;
 
   my ($query, $sth, $null, $project_id, @values);
   my $exchangerate = 0;
@@ -749,7 +751,7 @@ sub post_invoice {
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
 
       @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
-                 $form->{"description_$i"}, $form->{"longdescription_$i"}, $form->{"qty_$i"},
+                 $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
                  $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
