@@ -343,21 +343,6 @@ sub calculate_qty {
 
 # -------------------------------------------------------------------------
 
-sub set_longdescription {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->{title} = $locale->text("Enter longdescription");
-  $form->header(no_layout => 1);
-  print $form->parse_html_template("generic/set_longdescription");
-
-  $main::lxdebug->leave_sub();
-}
-
-# -------------------------------------------------------------------------
-
 sub H {
   return $main::locale->quote_special_chars('HTML', $_[0]);
 }

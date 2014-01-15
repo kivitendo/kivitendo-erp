@@ -332,20 +332,20 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 
-  scripts/rose_create_model.pl --client name-or-id table1 [table2 ...]
-  scripts/rose_create_model.pl --client name-or-id [--all|-a]
+  scripts/rose_auto_create_model.pl --client name-or-id table1 [table2 ...]
+  scripts/rose_auto_create_model.pl --client name-or-id [--all|-a]
 
   # updates all models
-  scripts/rose_create_model.pl --client name-or-id --all
+  scripts/rose_auto_create_model.pl --client name-or-id --all
 
   # updates only customer table, login taken from config
-  scripts/rose_create_model.pl customer
+  scripts/rose_auto_create_model.pl customer
 
   # updates only parts table, package will be Part
-  scripts/rose_create_model.pl parts=Part
+  scripts/rose_auto_create_model.pl parts=Part
 
   # try to update parts, but don't do it. tell what would happen in detail
-  scripts/rose_create_model.pl --no-commit parts
+  scripts/rose_auto_create_model.pl --no-commit parts
 
 =head1 DESCRIPTION
 

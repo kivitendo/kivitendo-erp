@@ -33,17 +33,6 @@ function centerParms(width,height,extra) {
   return string;
 }
 
-function set_longdescription_window(input_name) {
-  var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
-  var name = document.getElementsByName(input_name)[0].value;
-  url = "common.pl?" +
-    "INPUT_ENCODING=UTF-8&" +
-    "action=set_longdescription&" +
-    "longdescription=" + encodeURIComponent(document.getElementsByName(input_name)[0].value) + "&" +
-    "input_name=" + encodeURIComponent(input_name) + "&"
-  window.open(url, "_new_generic", parm);
-  }
-
 function check_right_number_format(input_name) {
   if(decpoint && thpoint && thpoint == decpoint) {
     return show_alert_and_focus(input_name, wrongNumberFormat);

@@ -274,12 +274,12 @@ sub display_row {
     my $linetotal      = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
     my $rows            = $form->numtextrows($form->{"description_$i"}, 30, 6);
 
-    $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
-    $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
+    $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
+    $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
-                                ? $cgi->textarea( -name => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
-                                : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->{"description_$i"}))
-                                . $cgi->button(-value => $locale->text('L'), -onClick => "set_longdescription_window('longdescription_$i')");
+                                ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
+                                : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))
+                                . $cgi->button(-value => $locale->text('L'), -onClick => "kivi.SalesPurchase.edit_longdescription($i)");
 
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
@@ -434,7 +434,7 @@ sub display_row {
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
-          map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
+          map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)

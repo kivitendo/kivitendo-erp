@@ -3,6 +3,7 @@ namespace("kivi").setupLocale({
 "Are you sure?":"Sind Sie sicher?",
 "Database Connection Test":"Test der Datenbankverbindung",
 "Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?":"Soll die Kontonummer \"#1\" zu \"#2\" und den Name \"#3\" zu \"#4\" geändert werden?",
+"Enter longdescription":"Langtext eingeben",
 "Map":"Karte",
 "Part picker":"Artikelauswahl",
 "The description is missing.":"Die Beschreibung fehlt.",
