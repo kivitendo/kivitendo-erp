@@ -383,6 +383,8 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase));
+
   $form->header();
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);
