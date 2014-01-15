@@ -432,6 +432,7 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase));
 
   $form->header;
   if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {

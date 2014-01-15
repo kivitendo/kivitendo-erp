@@ -1,25 +1,29 @@
-[%- USE T8 %]
-[%- USE HTML %]
- <form name="Form">
+[%- USE L -%][%- USE LxERP -%]
 
-  <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+<div id="edit_longdescription_dialog" style="display: none">
+ <p>
+  <table>
+   <tr>
+    <th align="right">[% LxERP.t8("Row") %]:</th>
+    <td id="popup_edit_longdescription_runningnumber"></td>
+   </tr>
 
-  <div class="listtop">[% title %]</div>
+   <tr>
+    <th align="right">[% LxERP.t8("Part Number") %]:</th>
+    <td id="popup_edit_longdescription_partnumber"></td>
+   </tr>
 
-  <p>[% 'Please insert your longdescription below' | $T8 %]</p>
+   <tr>
+    <th align="right">[% LxERP.t8("Description") %]:</th>
+    <td id="popup_edit_longdescription_description"></td>
+   </tr>
+  </table>
+ </p>
 
-  <p><textarea id="longdescription" name="longdescription" rows="15" cols="45" wrap="soft">[% HTML.escape(longdescription) %]</textarea></p>
+ <p>[% L.textarea_tag("popup_edit_longdescription_input", "", wrap="soft", style="width: 750px; height: 240px;") %]</p>
 
-  <p><input type="submit" onclick="longdescription_updated()" value="[% 'Close' | $T8 %]"></p>
- </form>
-
- <script type="text/javascript">
-  <!--
-      function longdescription_updated() {
-        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = document.getElementsByName("longdescription")[0].value;
-
-        self.close();
-      }
-    -->
- </script>
-
+ <p>
+  [% L.button_tag("kivi.SalesPurchase.set_longdescription()", LxERP.t8("Close")) %]
+  <a onclick="$('#edit_longdescription_dialog').dialog('close');" href="#">[% LxERP.t8("Abort") %]</a>
+ </p>
+</div>
