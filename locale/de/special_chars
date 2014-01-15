@@ -1,12 +1,5 @@
 [HTML]
-order=& ä ö ü Ä Ö Ü ß " < >
-ä=&auml;
-ö=&ouml;
-ü=&uuml;
-Ä=&Auml;
-Ö=&Ouml;
-Ü=&Uuml;
-ß=&szlig;
+order=& " < >
 "=&quot;
 &=&amp;
 <=&lt;
