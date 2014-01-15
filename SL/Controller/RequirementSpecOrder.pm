@@ -256,11 +256,13 @@ sub create_order_item {
 
   if (!$section->{keep_description}) {
     $description     = '<%fb_number%> <%title%>' unless $description =~ m{<%};
-    $longdescription = '<%description%>'         unless $longdescription =~ m{<%};
+    $longdescription = '&lt;%description%&gt;'   unless $longdescription =~ m{&lt;%};
 
-    foreach my $field (\$description, \$longdescription) {
-      $$field =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
-    }
+    $description     =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
+    $longdescription =~ s{\&lt;\% description \%\&gt;}{!!!!DESCRIPTION!!!!}gx;
+    $longdescription =~ s{<[pP]> !!!!DESCRIPTION!!!! </[pP]>}{!!!!DESCRIPTION!!!!}gx;
+    $longdescription =~ s{\&lt;\% (.+?) \%\&gt;}{ $section->can($1) ? $::locale->quote_special_chars('HTML', $section->$1 // '') : '<' . t8('Invalid variable #1', $1) . '>' }egx;
+    $longdescription =~ s{!!!!DESCRIPTION!!!!}{ $section->description // '' }egx;
   }
 
   $item->assign_attributes(
