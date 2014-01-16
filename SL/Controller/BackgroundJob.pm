@@ -167,6 +167,9 @@ sub init_models {
       last_run_at  => t8('Last run at'),
       next_run_at  => t8('Next run at'),
     },
+    query => [
+      package_name => [ SL::BackgroundJob::Base->get_known_job_classes ],
+    ],
   );
 }
 

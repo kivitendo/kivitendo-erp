@@ -22,18 +22,18 @@ sub parts_scoping {
   SL::DB::Manager::Part->type_filter($_[0]);
 }
 
-my %specs = ( ar                      => { number_column => 'invnumber',                                                                        fill_holes_in_range => 1 },
-              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,                          },
-              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,                          },
-              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,                          },
-              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,                          },
-              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
-              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
-              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                                                   },
-              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                     },
-              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
-              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping                        },
-              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping                        },
+my %specs = ( ar                      => { number_column => 'invnumber',                                                                           },
+              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,    },
+              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,    },
+              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,    },
+              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,    },
+              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => \&do_scoping,    },
+              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => \&do_scoping,    },
+              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                             },
+              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                               },
+              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping, },
+              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping, },
+              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping, },
             );
 
 sub get_next_trans_number {
@@ -46,26 +46,47 @@ sub get_next_trans_number {
   my $number              = $self->$number_column;
   my $number_range_column = $spec->{number_range_column} || $number_column;
   my $scoping_conditions  = $spec->{scoping};
-  my $fill_holes_in_range = $spec->{fill_holes_in_range};
+  my $fill_holes_in_range = !$spec->{keep_holes_in_range};
 
   return $number if $self->id && $number;
 
-  my %conditions     = $scoping_conditions ? ( query => [ $scoping_conditions->($spec_type) ] ) : ();
-  my @numbers        = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
-  my %numbers_in_use = map { ( $_ => 1 )        } @numbers;
-
   require SL::DB::Default;
-  my $defaults       = SL::DB::Default->get;
-  $number_range_column = 'articlenumber' if $number_range_column eq 'assemblynumber' and length($defaults->$number_range_column) < 1;
-  my $sequence       = SL::PrefixedNumber->new(number => ($defaults->$number_range_column || 1));
+  require SL::DB::Business;
 
-  $sequence->set_to_max(@numbers) if !$fill_holes_in_range;
+  my %conditions            = ( query => [ $scoping_conditions ? $scoping_conditions->($spec_type) : () ] );
+  my %conditions_for_in_use = ( query => [ $scoping_conditions ? $scoping_conditions->($spec_type) : () ] );
+
+  my $business;
+  if ($spec_type =~ m{^(?:customer|vendor)$}) {
+    $business = $self->business_id ? SL::DB::Business->new(id => $self->business_id)->load : $self->business;
+    if ($business && (($business->customernumberinit // '') ne '')) {
+      $number_range_column = 'customernumberinit';
+      push @{ $conditions{query} }, ( business_id => $business->id );
+
+    } else {
+      undef $business;
+      push @{ $conditions{query} }, ( business_id => undef );
+
+    }
+  }
+
+  my %numbers_in_use = map { ( $_->$number_column => 1 ) } @{ $self->_get_manager_class->get_all(%conditions_for_in_use) };
+
+  my $range_table    = $business ? $business : SL::DB::Default->get;
+  my $start_number   = $range_table->$number_range_column;
+  $start_number      = $range_table->articlenumber if ($number_range_column eq 'assemblynumber') && (length($start_number) < 1);
+  my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
+
+  if (!$fill_holes_in_range) {
+    my @numbers = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
+    $sequence->set_to_max(@numbers) ;
+  }
 
   my $new_number = $sequence->get_next;
   $new_number    = $sequence->get_next while $numbers_in_use{$new_number};
 
-  $defaults->update_attributes($number_range_column => $new_number) if $params{update_defaults};
-  $self->$number_column($new_number)                                if $params{update_record};
+  $range_table->update_attributes($number_range_column => $new_number) if $params{update_defaults};
+  $self->$number_column($new_number)                                   if $params{update_record};
 
   return $new_number;
 }
@@ -118,8 +139,7 @@ prefix, if present, will be kept intact.
 Now the number itself is increased as often as neccessary to create a
 unique one by comparing the generated numbers with the existing ones
 retrieved in the first step. In this step gaps in the assigned numbers
-are filled for some tables (e.g. invoices) but not for others
-(e.g. sales orders).
+are filled for all currently supported tables.
 
 After creating the unique record number this function can update
 C<$self> and the C<defaults> table if requested. This is controlled

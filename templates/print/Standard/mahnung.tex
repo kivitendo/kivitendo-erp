@@ -36,7 +36,7 @@
 \newcommand{\employeeemail}{$(employee_email)$}
 \newcommand{\employeecoustid}{$(employee_co_ustid)$}
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
-\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+\newcommand{\employeetable}{$(template_meta.tmpfile NOESCAPE)$.table.tex}
 
 % ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ----------
 % \newcommand{\companybank}{$(company_bank)$}
@@ -101,11 +101,10 @@
 \newcommand{\shiptofax}{$(shiptofax)$}
 
 % ---------- Währungszeichen ----------
-\newcommand{\currency}{$(currency)$}
-\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
-\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
-\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
-\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+\newcommand{\currency}{\euro}
+\ifthenelse{\equal{$(currency)$}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{$(currency)$}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{$(currency)$}{USD}}{\let\currency\$}{}
 
 % ---------- Ende Reportvariablen-Umsetzung ----------
 
@@ -164,7 +163,7 @@ $(foreach dn_invnumber)$
   $(dn_amount)$ \euro & $(dn_fee)$  \euro & $(dn_interest)$  \euro & $(dn_linetotal)$   \euro \\[1pt]
 $(end dn_invnumber)$
 \cline{1-7}\\
- Insgesamt: & & & $(total_open_amount)$ \euro & $(fee)$ \euro & $(total_interest)$ \euro & \textbf{$(total_amount)$  \euro} 
+ Insgesamt: & & & $(total_open_amount)$ \euro & $(fee)$ \euro & $(total_interest)$ \euro & \textbf{$(total_amount)$  \euro}
 \end{tabular*}
 \rule{\textwidth}{0.5pt}
 

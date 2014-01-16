@@ -81,7 +81,12 @@ for (@gd_images) {
 
   for (@gd_images) {
     my $name = fileparse($_->{filename}, ".png");
-    $name =~ s/ /-/g;
+
+    # the full grammar for valid css class names is completely bonkers (to put it mildly).
+    # so instead of trying to punch filenames into those class names, we'll
+    # just reduce them to a nice minimal set of lower case /[a-z0-9_-]*/
+    $name = lc $name;
+    $name =~ s/[^a-z0-9_-]/-/g;
     print $file ".$class_for_map.$name { background-position: -$_->{h_offset}px 0px; }\n";
   }
 }

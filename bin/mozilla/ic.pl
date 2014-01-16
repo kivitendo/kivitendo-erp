@@ -1194,13 +1194,21 @@ sub generate_report {
 
   # soldtotal doesn't make sense with more than one bsooqr option.
   # so reset it to sold (the most common option), and issue a warning
+  # ...
+  # also it doesn't make sense without bsooqr. disable and issue a warning too
   my @bsooqr = qw(sold bought onorder ordered rfq quoted);
-  if ($form->{l_subtotal} && 1 < grep { $form->{$_} } @bsooqr) {
+  my $bsooqr_mode = grep { $form->{$_} } @bsooqr;
+  if ($form->{l_subtotal} && 1 < $bsooqr_mode) {
     my $enabled       = first { $form->{$_} } @bsooqr;
     $form->{$_}       = ''   for @bsooqr;
     $form->{$enabled} = 'Y';
 
     push @options, $::locale->text('Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1', $optiontexts{$enabled});
+  }
+  if ($form->{l_soldtotal} && !$bsooqr_mode) {
+    delete $form->{l_soldtotal};
+
+    flash('warning', $::locale->text('Soldtotal does not make sense without any bsooqr options'));
   }
 
   IC->all_parts(\%myconfig, \%$form);
@@ -1266,7 +1274,7 @@ sub generate_report {
     'assembly' => $locale->text('assembly_list'),
   );
 
-  $report->set_options('top_info_text'         => $locale->text('Options') . ': ' . join(', ', grep $_, @options),
+  $report->set_options('raw_top_info_text'     => $form->parse_html_template('ic/generate_report_top', { options => \@options }),
                        'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
@@ -1316,7 +1324,7 @@ sub generate_report {
     $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
-    my $soldtotal = $ref->{soldtotal};
+    my $soldtotal = $bsooqr_mode ? $ref->{soldtotal} : $ref->{onhand};
 
     if ($ref->{assemblyitem}) {
       $row->{partnumber}{align}   = 'right';
@@ -1600,6 +1608,8 @@ sub form_header {
     $form->{bin_id}       ||= $default_bin_id       ||  $form->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
   }
 
+  $form->{LANGUAGES}        = SL::DB::Manager::Language->get_all_sorted;
+  $form->{translations_map} = { map { ($_->{language_id} => $_) } @{ $form->{translations} || [] } };
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
@@ -1910,7 +1920,7 @@ sub save {
       } else {
         $i = $form->{assembly_rows};
       }
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"} > 0);
 
       $form->{sellprice} -= $form->{"sellprice_$i"} * $form->{"qty_$i"};
       $form->{weight}    -= $form->{"weight_$i"} * $form->{"qty_$i"};
@@ -1927,7 +1937,7 @@ sub save {
 
       # set values for last invoice/order item
       $i = $form->{rowcount};
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"} > 0);
 
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice lastcost price_factor_id);
       map { $form->{"ic_${_}_$i"} = $newform{$_} } @ic_cvar_fields;
@@ -2051,50 +2061,6 @@ sub price_row {
   }, 1 .. $numrows;
 
   print $form->parse_html_template('ic/price_row', { PRICES => \@PRICES });
-
-  $lxdebug->leave_sub();
-}
-
-sub parts_language_selection {
-  $lxdebug->enter_sub();
-
-  $auth->assert('part_service_assembly_edit');
-
-  my $languages = IC->retrieve_languages(\%myconfig, $form);
-
-  if ($form->{language_values} ne "") {
-    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
-      my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
-
-      foreach my $language (@{ $languages }) {
-        next unless ($language->{id} == $language_id);
-
-        $language->{translation}     = $translation;
-        $language->{longdescription} = $longdescription;
-
-        $language->{translation_area}     = ($language->{translation_rows} = $form->numtextrows($language->{translation}, 40)) > 1;
-        $language->{longdescription_rows} = max 4, $form->numtextrows($language->{longdescription}, 40);
-
-        last;
-      }
-    }
-  }
-
-  my @header_sort = qw(name longdescription);
-  my %header_title = ( "name" => $locale->text("Name"),
-                       "longdescription" => $locale->text("Long Description"),
-                       );
-
-  my @header =
-    map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-         },
-        @header_sort);
-
-  $form->{"title"} = $locale->text("Language Values");
-  $form->header();
-  print $form->parse_html_template("ic/parts_language_selection", { "HEADER"    => \@header,
-                                                                    "LANGUAGES" => $languages, });
 
   $lxdebug->leave_sub();
 }

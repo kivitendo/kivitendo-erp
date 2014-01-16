@@ -213,7 +213,7 @@
       <th align="right">[% 'Discount' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, size = 4) %]
+        [% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, size = 4) %]%
       </td>
     </tr>
 
@@ -246,50 +246,15 @@
       [%- END %]
     </tr>
 
+  [% IF ( SELF.all_currencies.size ) %]
     <tr>
-      <th align="right">[% 'Account Number' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.account_number', SELF.cv.account_number, size = 20, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'Bank Code Number' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.bank_code', SELF.cv.bank_code, size = 20, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'Bank' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.bank', SELF.cv.bank, size = 20) %]
-      </td>
-    </tr>
-
-    <tr>
-      <th align="right">[% 'IBAN' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.iban', SELF.cv.iban, size = 34, maxlength = 100) %]
-      </td>
-
-
-      <th align="right">[% 'BIC' | $T8 %]</th>
-      <td>
-        [% L.input_tag('cv.bic', SELF.cv.bic, size = 11, maxlength = 100) %]
-      </td>
-
-
-      [% IF ( SELF.all_currencies.size ) %]
         <th align="right">[% 'Currency' | $T8 %]</th>
 
         <td>
           [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
         </td>
-      [% END %]
     </tr>
+  [% END %]
 
     <tr>
       [% IF ( !INSTANCE_CONF.get_vertreter ) %]
@@ -313,13 +278,12 @@
         [% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
       </td>
 
-      [% IF ( SELF.is_customer() ) %]
-        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+      <th align="right">[% 'Delivery Terms' | $T8 %]</th>
 
-        <td>
-          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
-        </td>
-      [% END  %]
+      <td>
+        [% L.select_tag('cv.delivery_term_id', SELF.all_delivery_terms, default = SELF.cv.delivery_term_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+      </td>
+
     </tr>
 
     <tr>
@@ -339,6 +303,15 @@
       <td>
         [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit, for_submit=1) %]
       </td>
+
+      [% IF ( SELF.is_customer() ) %]
+        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+
+        <td>
+          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
+        </td>
+      [% END  %]
+
     </tr>
 
     <tr>

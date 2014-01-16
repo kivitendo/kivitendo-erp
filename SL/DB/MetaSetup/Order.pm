@@ -17,6 +17,7 @@ __PACKAGE__->meta->columns(
   customer_id             => { type => 'integer' },
   delivered               => { type => 'boolean', default => 'false' },
   delivery_customer_id    => { type => 'integer' },
+  delivery_term_id        => { type => 'integer' },
   delivery_vendor_id      => { type => 'integer' },
   department_id           => { type => 'integer' },
   employee_id             => { type => 'integer' },
@@ -70,6 +71,11 @@ __PACKAGE__->meta->foreign_keys(
   delivery_customer => {
     class       => 'SL::DB::Customer',
     key_columns => { delivery_customer_id => 'id' },
+  },
+
+  delivery_term => {
+    class       => 'SL::DB::DeliveryTerm',
+    key_columns => { delivery_term_id => 'id' },
   },
 
   delivery_vendor => {

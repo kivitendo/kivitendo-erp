@@ -46,6 +46,7 @@ use SL::DB::Status;
 use SL::DB::Tax;
 use SL::DBUtils;
 use SL::IC;
+use SL::TransNumber;
 
 use strict;
 
@@ -88,7 +89,8 @@ sub transactions {
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id  | .
+    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
+    qq|  tz.description AS taxzone | .
     $periodic_invoices_columns .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
@@ -97,6 +99,7 @@ sub transactions {
     qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
+    qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|$periodic_invoices_joins | .
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
@@ -192,6 +195,16 @@ SQL
     push(@values, conv_date($form->{reqdateto}));
   }
 
+  if ($form->{shippingpoint}) {
+    $query .= qq| AND o.shippingpoint ILIKE ?|;
+    push(@values, '%' . $form->{shippingpoint} . '%');
+  }
+
+  if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
+    $query .= qq| AND tz.id = ?|;
+    push(@values, $form->{taxzone_id});
+  }
+
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
     push(@values, '%' . $form->{transaction_description} . '%');
@@ -214,7 +227,9 @@ SQL
     "employee"                => "e.name",
     "salesman"                => "s.name",
     "shipvia"                 => "o.shipvia",
-    "transaction_description" => "o.transaction_description"
+    "transaction_description" => "o.transaction_description",
+    "shippingpoint"           => "o.shippingpoint",
+    "taxzone"                 => "tz.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}";
@@ -299,6 +314,10 @@ sub save {
   }
 
   my $ml = ($form->{type} eq 'sales_order') ? 1 : -1;
+
+  my $number_field         = $form->{type} =~ m{order} ? 'ordnumber' : 'quonumber';
+  my $trans_number         = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{$number_field}, id => $form->{id});
+  $form->{$number_field} ||= $trans_number->create_unique;
 
   if ($form->{id}) {
     $query = qq|DELETE FROM custom_variables
@@ -504,7 +523,7 @@ sub save {
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
-         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,
+         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
        WHERE id = ?|;
 
@@ -521,6 +540,7 @@ sub save {
              conv_i($form->{shipto_id}), conv_i($form->{payment_id}),
              conv_i($form->{delivery_vendor_id}),
              conv_i($form->{delivery_customer_id}),
+             conv_i($form->{delivery_term_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
@@ -754,7 +774,7 @@ sub retrieve {
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
-           o.globalproject_id, o.delivered, o.transaction_description
+           o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
@@ -1017,7 +1037,7 @@ sub order_details {
   my $tax_rate;
   my $taxamount;
 
-  my (@project_ids, %projectnumbers, %projectdescriptions);
+  my (@project_ids);
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
@@ -1048,19 +1068,21 @@ sub order_details {
     push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
 
+  my $projects = [];
+  my %projects_by_id;
   if (@project_ids) {
-    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
-      join(", ", map("?", @project_ids)) . ")";
-    $sth = prepare_execute_query($form, $dbh, $query, @project_ids);
-    while (my $ref = $sth->fetchrow_hashref()) {
-      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
-      $projectdescriptions{$ref->{id}} = $ref->{description};
-    }
-    $sth->finish();
+    $projects = SL::DB::Manager::Project->get_all(query => [ id => \@project_ids ]);
+    %projects_by_id = map { $_->id => $_ } @$projects;
   }
 
-  $form->{"globalprojectnumber"} = $projectnumbers{$form->{"globalproject_id"}};
-  $form->{"globalprojectdescription"} = $projectdescriptions{$form->{"globalproject_id"}};
+  if ($projects_by_id{$form->{"globalproject_id"}}) {
+    $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
+    $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
+
+    for (@{ $projects_by_id{$form->{"globalproject_id"}}->cvars_by_config }) {
+      $form->{"project_cvar_" . $_->config->name} = $_->value_as_text;
+    }
+  }
 
   $form->{discount} = [];
 
@@ -1068,6 +1090,7 @@ sub order_details {
   IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  my $project_cvar_configs = CVar->get_configs(module => 'Projects');
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
@@ -1077,6 +1100,7 @@ sub order_details {
        price_factor price_factor_name partsgroup weight lineweight);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+  push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
@@ -1190,12 +1214,14 @@ sub order_details {
         $nodiscount += $linetotal;
       }
 
+      my $project = $projects_by_id{$form->{"project_id_$i"}} || SL::DB::Project->new;
+
       push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} },                  $form->format_amount($myconfig, $linetotal, 2);
       push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },            $linetotal_exact;
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $project->projectnumber;
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $project->description;
 
       my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
       $totalweight += $lineweight;
@@ -1267,6 +1293,8 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
         CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
           for @{ $ic_cvar_configs };
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{"project_cvar_" . $_->config->name} }, $_->value_as_text for @{ $project->cvars_by_config };
     }
   }
 
@@ -1319,6 +1347,9 @@ sub order_details {
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;
+
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $main::lxdebug->leave_sub();
 }

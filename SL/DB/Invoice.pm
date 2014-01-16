@@ -7,6 +7,7 @@ use strict;
 
 use Carp;
 use List::Util qw(first);
+use List::MoreUtils qw(pairwise);
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
@@ -15,6 +16,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::CustomVariable;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -117,7 +119,7 @@ sub new_from {
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber quonumber
                                                 department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
-                                                globalproject_id transaction_description currency_id)),
+                                                globalproject_id transaction_description currency_id delivery_term_id)),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => DateTime->today_local->add(days => $terms * 1),
@@ -146,6 +148,14 @@ sub new_from {
                             deliverydate => $source_item->reqdate,
                             fxsellprice  => $source_item->sellprice,);
   } @{ $source->items_sorted };
+
+  my $i = 0;
+  foreach my $item (@items) {
+    my $source_cvars = $source->items_sorted->[$i]->cvars_by_config;
+    my $target_cvars = $item->cvars_by_config;
+    pairwise { $a->value($b->value) } @{ $target_cvars }, @{ $source_cvars };
+    $i++;
+  }
 
   $invoice->invoiceitems(\@items);
 

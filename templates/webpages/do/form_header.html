@@ -38,6 +38,7 @@
  <div class="listtop">[% title %]</div>
 
 [%- INCLUDE 'common/flash.html' %]
+[%- INCLUDE 'generic/set_longdescription.html' %]
 
  [%- IF ERRORS && ERRORS.size %]
  <p><font color="#ff0000">[% ERRORS.join('<br>') %]</font></p>
@@ -99,6 +100,7 @@
   <input type="hidden" name="shiptostreet" value="[% HTML.escape(shiptostreet) %]">
   <input type="hidden" name="shiptozipcode" value="[% HTML.escape(shiptozipcode) %]">
   <input type="hidden" name="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
+  <input type="hidden" name="show_details" value="[% HTML.escape(show_details) %]">
   <input type="hidden" name="subject" value="[% HTML.escape(subject) %]">
   <input type="hidden" name="taxincluded" value="[% HTML.escape(taxincluded) %]">
   <input type="hidden" name="taxzone_id" value="[% HTML.escape(taxzone_id) %]">
@@ -115,6 +117,7 @@
        <tr>
         <input type="hidden" name="[% vc %]_id" value="[% HTML.escape(the_vc_id) %]">
         <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
+        <input type="hidden" name="tradediscount" value="[% HTML.escape(tradediscount) %]">
         <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
         <td>
          [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]

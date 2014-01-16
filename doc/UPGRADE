@@ -50,6 +50,18 @@ Upgrade auf v3.x.0
   - scripts/dbupgrade2_tool.pl
   - scripts/rose_auto_create_model.pl
 
+* Neue Benutzerrechte
+  Diese muessen bei vorhandenen Gruppen eventuell nachgepfl;egt werden. Z.B. bei der Gruppe Vollzugriff
+
+  - Stammdaten -> Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Alle Kunden bearbeiten
+  - Konfiguration -> Verändern der kivitendo-Installationseinstellungen (die meisten Menüpunkte unterhalb von 'System')
+
+* Die alten ungepflegten Druckvorlagenvarianten French und Service
+  wurden entfernt.
+
+* Die Druckvorlage für GuV/EÜR wird jetzt wie die Bilanz zentral in den
+  Webvorlagen verwaltet, es gibt keine benutzerangepassten Version in den
+  Druckvorlage mehr.
 
 Upgrade auf v3.0.0
 ==================

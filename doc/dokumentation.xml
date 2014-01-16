@@ -1395,24 +1395,30 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
       <sect2 id="Vorlagenverzeichnis-anlegen" xreflabel="Vorlagenverzeichnis anlegen">
         <title>Vorlagenverzeichnis anlegen</title>
-        <para>Im Administrationsbereich lässt sich bei einem Benutzer/Mandanten einer dieser Vorlagensätze als Basis für die zu
-        druckenden Dokumente auswählen. Rufen Sie dazu die <guimenu>Benutzerverwaltung</guimenu> auf.</para>
+        <para>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</para>
 
-        <para>Wählen Sie dort einen Benutzer aus oder legen Sie einen neuen an. In der Benutzerbearbeiten-Maske müssen Sie zwei Dinge
-        angeben:</para>
+        <programlisting>./scripts/installation_check.pl -lv</programlisting>
+
+	<para>Der Angemmeldete Benutzer muss in einer Gruppe sein, die über das
+              Recht "Konfiguration -> Mandantenverwaltung" verfügt. Siehe auch <xref linkend="Gruppen-anlegen"/>.
+        </para>
+        <para>Im Userbereich lässt sich unter:
+        "<guimenu>System</guimenu> -&gt;
+        <guisubmenu>Mandantenverwaltung</guisubmenu> -&gt; <guimenuitem>Verschiedenes</guimenuitem>" die Option
+        "Neue Druckvorlagen aus Vorlagensatz erstellen" auswählen.</para>
 
         <orderedlist>
-          <listitem><para><option>Name</option>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
-          Bedingungen für Verzeichnisnamen frei gewählt werden.</para></listitem>
           <listitem><para><option>Vorlagen auswählen</option>: Wählen Sie hier den Vorlagensatz aus, der kopiert werden soll
           (<filename>Standard</filename>, <filename>f-tex</filename> oder <filename>RB</filename>.)</para></listitem>
+          <listitem><para><option>Neuer Name</option>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
+          Bedingungen für Verzeichnisnamen frei gewählt werden.</para></listitem>
         </orderedlist>
 
-        <para>Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Benutzern verwendet werden.</para>
+        <para>Nach dem Speichern wird das Vorlagenverzeichnis angelegt und ist für den aktuellen Mandanten ausgewählt.
+           Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Mandanten verwendet werden.
+           Eventuell muessen Anpassungen (Logo, Erscheinungsbild, etc) noch vorgenommen werden. Den Ordner findet man im Dateisistem unter
+           <filename>./templates/[Neuer Name]</filename></para>
 
-        <para>Die Abhängigkeiten kann man prüfen mit:</para>
-
-        <programlisting>/scripts/installation_check.pl -l</programlisting>
 
       </sect2>
       <sect2 id="Vorlagen-Standard">
@@ -3219,7 +3225,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.allgemein-verkaeufer">
-          <title>Informationen über den Bearbeiter</title>
+          <title>Informationen über den Verkäufer</title>
 
           <variablelist>
             <varlistentry>
@@ -3346,6 +3352,25 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <listitem>
                 <para>Steuersatz</para>
               </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemein-lieferbedingungen">
+          <title>Variablen für Lieferbedingungen</title>
+
+          <variablelist>
+            <varlistentry>
+              <term><varname>delivery_term</varname></term>
+              <listitem><para>Datenbank-Objekt der Lieferbedingung</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><varname>delivery_term.description</varname></term>
+              <listitem><para>Beschreibung der Lieferbedingung</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><varname>delivery_term.long_description</varname></term>
+              <listitem><para>Langtext bzw. übersetzter Langtext der Lieferbedingung</para></listitem>
             </varlistentry>
           </variablelist>
         </sect3>

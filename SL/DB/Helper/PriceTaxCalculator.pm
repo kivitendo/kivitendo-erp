@@ -124,6 +124,7 @@ sub _calculate_item {
   my $chart = $item->part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
   $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, tax_id => $taxkey->tax_id, amount => 0 };
   $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
+  $data->{amounts}->{ $chart->id }->{amount}  -= $tax_amount if $self->taxincluded;
 
   push @{ $data->{assembly_items} }, [];
   if ($item->part->is_assembly) {

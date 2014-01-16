@@ -77,7 +77,7 @@
        <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="60">
       </td>
       <td align="right">
-       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, -2) %]" style="text-align: right" size="12">
+       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, 2) %]" style="text-align: right" size="12">
       </td>
      </tr>
     [%- END %]
@@ -89,8 +89,10 @@
     <sup>(1)</sup>
     [%- IF is_vendor %]
      [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN and the BIC." | $T8 %]
     [%- ELSE %]
      [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
     [%- END %]
    </p>
   [%- END %]

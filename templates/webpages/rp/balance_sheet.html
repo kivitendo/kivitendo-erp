@@ -1,18 +1,19 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-<h2 align="center">
+<h3 align="center">
 [% company %]
 <br>[% address %]
 <p>[% 'BALANCE SHEET' | $T8 %]
-<br>[% period %]
-</h2>
+<br>[% 'Balance sheet date' | $T8 %]: [% this_period %]
+<br>[% 'Report date' | $T8 %]: [% report_date %]
+</h3>
 
 <table border="0">
   <tr>
     <th align="left" width="400" colspan="2">[% 'ASSETS' | $T8 %]<br><hr align="left" width="250" size="5" noshade></th>
-    <th>[% this_period %]</th>
-    <th>[% last_period %]</th>
+    <th><b>[% this_period %]<b></th>
+    <th><b>[% last_period %]<b></th>
   </tr>
 
   [% FOREACH row = A %]

@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::Deep;
 use Data::Dumper;
 
@@ -281,3 +281,15 @@ test {
   query => [ 'customer.description' => 'test' ],
   with_objects => [ 'customer' ]
 }, 'with_objects: no duplicates', with_objects => [ 'customer' ];
+
+test {
+  part => {
+   'partnumber:substr::ilike' => '1',
+  },
+}, {
+  query => [
+   'part.partnumber', {
+     ilike => '%1%'
+   }
+ ]
+}, 'Regression check: prefixing of fallback filtering in relation with custom filters', class => 'SL::DB::Manager::OrderItem';

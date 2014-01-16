@@ -36,6 +36,7 @@ use SL::IS;
 use SL::PE;
 use SL::OE;
 use Data::Dumper;
+use DateTime;
 use List::Util qw(max sum);
 
 use SL::DB::Default;
@@ -149,8 +150,11 @@ sub invoice_links {
 
   my $editing = $form->{id};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded currency cp_id intnotes id shipto_id));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id
+                        taxincluded currency cp_id intnotes id shipto_id
+                        delivery_term_id));
 
+  $form->{shipto} = 1 if $editing || $form->{convert_from_oe_ids} || $form->{convert_from_do_ids};
   IS->get_customer(\%myconfig, \%$form);
 
   #quote all_customer Bug 133
@@ -161,7 +165,8 @@ sub invoice_links {
   $form->restore_vars(qw(id));
 
   IS->retrieve_invoice(\%myconfig, \%$form);
-  $form->restore_vars(qw(payment_id language_id taxzone_id currency intnotes cp_id shipto_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id currency intnotes
+                         cp_id shipto_id delivery_term_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
 
@@ -374,8 +379,11 @@ sub form_header {
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2  shiptocp_gender message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids
+    show_details
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
+
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase));
 
   $form->header();
 
@@ -459,6 +467,8 @@ sub form_footer {
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
+
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('is/form_footer', {
     is_type_credit_note => ($form->{type} eq "credit_note"),
@@ -811,6 +821,7 @@ sub use_as_new {
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
+  $form->{employee_id} = SL::DB::Manager::Employee->current->id;
 
   # remember pricegroups for "use as new"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -837,6 +848,9 @@ sub storno {
   if (IS->has_storno(\%myconfig, $form, "ar")) {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
+  if ($form->datetonum($form->{invdate},  \%myconfig) <= $form->datetonum($form->{closedto}, \%myconfig)) {
+    $form->error($locale->text('Cannot storno invoice for a closed period!'));
+  }
 
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
@@ -852,6 +866,7 @@ sub storno {
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
+  $form->{invdate}   = DateTime->today->to_lxoffice;
   $form->{rowcount}++;
 
   post();
@@ -1010,6 +1025,10 @@ sub yes {
 
   $main::lxdebug->leave_sub();
 }
+
+sub post_and_e_mail {
+  e_mail();
+};
 
 sub e_mail {
   $main::lxdebug->enter_sub();

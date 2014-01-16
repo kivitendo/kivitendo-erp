@@ -24,6 +24,7 @@
 <p><div class="listtop" width="100%">[% title %]</div></p>
 
 [%- INCLUDE 'common/flash.html' %]
+[%- INCLUDE 'generic/set_longdescription.html' %]
 
 <div class="tabwidget">
  <ul>
@@ -224,5 +225,4 @@
      }
    //-->
   </script>
-
-  <input type="hidden" name="webdav" value="[% webdav %]">
+  <input type="hidden" name="webdav" value="[% webdav | html %]">

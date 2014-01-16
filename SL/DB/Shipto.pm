@@ -3,6 +3,7 @@ package SL::DB::Shipto;
 use strict;
 
 use SL::DB::MetaSetup::Shipto;
+use Rose::DB::Object::Helpers qw(clone_and_reset clone);
 
 our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
                            shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2);

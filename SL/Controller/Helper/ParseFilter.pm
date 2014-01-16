@@ -101,14 +101,29 @@ sub _parse_filter {
   my @result;
   for (my $i = 0; $i < scalar @$flattened; $i += 2) {
     my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+    my ($type, $op)   = $key =~ m{:(.+)::(.+)};
 
     ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
     ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
+    ($key, $value) = _apply_value_filters($key, $value, $type, $op);
 
     push @result, $key, $value if defined $key;
   }
   return \@result;
+}
+
+sub _apply_value_filters {
+  my ($key, $value, $type, $op) = @_;
+
+  return ($key, $value) unless $key && $value && $type && $op && (ref($value) eq 'HASH');
+
+  if (($type eq 'date') && ($op eq 'le')) {
+    my $date     = delete $value->{le};
+    $value->{lt} = $date->add(days => 1);
+  }
+
+  return ($key, $value);
 }
 
 sub _dispatch_custom_filters {

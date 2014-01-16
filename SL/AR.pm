@@ -40,6 +40,7 @@ use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::TransNumber;
 
 use strict;
 
@@ -136,7 +137,10 @@ sub post_transaction {
       ($form->{id}) = selectrow_query($form, $dbh, $query);
       $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?))|;
       do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency});
-      $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh) unless $form->{invnumber};
+      if (!$form->{invnumber}) {
+        my $trans_number   = SL::TransNumber->new(type => 'invoice', dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
+        $form->{invnumber} = $trans_number->create_unique;
+      }
     }
   }
 
@@ -509,8 +513,8 @@ sub ar_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
-    qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)| .
+    qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
+    qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN business b ON (b.id = c.business_id)| .
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
@@ -638,7 +642,7 @@ sub setup_form {
   my ($self, $form, $for_post_payments) = @_;
 
   my ($exchangerate, $akey, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff, $totalwithholding, $withholdingrate,
-      $totalamount, $taxincluded, $tax);
+      $totalamount, $tax);
 
   # forex
   $form->{forex} = $form->{exchangerate};
@@ -722,7 +726,6 @@ sub setup_form {
     }
   }
 
-  $form->{taxincluded}  = $taxincluded if ($form->{id});
   $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
 
   if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {
@@ -801,4 +804,3 @@ sub storno {
 
 
 1;
-

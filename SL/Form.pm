@@ -1032,6 +1032,12 @@ sub parse_template {
   $self->{"myconfig_${_}"} = $myconfig->{$_} for grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
   $self->{$_}              = $defaults->$_   for qw(co_ustid);
   $self->{"myconfig_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
+  $self->{AUTH}            = $::auth;
+  $self->{INSTANCE_CONF}   = $::instance_conf;
+  $self->{LOCALE}          = $::locale;
+  $self->{LXCONFIG}        = $::lx_office_conf;
+  $self->{LXDEBUG}         = $::lxdebug;
+  $self->{MYCONFIG}        = \%::myconfig;
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
@@ -1920,17 +1926,24 @@ sub get_employee_data {
   my $myconfig = \%main::myconfig;
   my $dbh      = $params{dbh} || $self->get_standard_dbh($myconfig);
 
-  my ($login)  = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, conv_i($params{id}));
+  my ($login, $deleted)  = selectrow_query($self, $dbh, qq|SELECT login,deleted FROM employee WHERE id = ?|, conv_i($params{id}));
 
   if ($login) {
-    my $user = User->new(login => $login);
-    $self->{$params{prefix} . "_${_}"}    = $user->{$_}   for qw(email fax name signature tel);
+    # login already fetched and still the same client (mandant) | same for both cases (delete|!delete)
+    $self->{$params{prefix} . '_login'}   = $login;
     $self->{$params{prefix} . "_${_}"}    = $defaults->$_ for qw(address businessnumber co_ustid company duns taxnumber);
 
-    $self->{$params{prefix} . '_login'}   = $login;
-    $self->{$params{prefix} . '_name'}  ||= $login;
-  }
-
+    if (!$deleted) {
+      # get employee data from auth.user_config
+      my $user = User->new(login => $login);
+      $self->{$params{prefix} . "_${_}"} = $user->{$_} for qw(email fax name signature tel);
+    } else {
+      # get saved employee data from employee
+      my $employee = SL::DB::Manager::Employee->find_by(id => conv_i($params{id}));
+      $self->{$params{prefix} . "_${_}"} = $employee->{"deleted_$_"} for qw(email fax signature tel);
+      $self->{$params{prefix} . "_name"} = $employee->name;
+    }
+ }
   $main::lxdebug->leave_sub();
 }
 
@@ -2095,10 +2108,10 @@ sub _get_taxcharts {
   if (ref $params eq 'HASH') {
     $key = $params->{key} if ($params->{key});
     if ($params->{module} eq 'AR') {
-      push @where, 'taxkey NOT IN (8, 9, 18, 19)';
+      push @where, 'chart_categories ~ \'[ACILQ]\'';
 
     } elsif ($params->{module} eq 'AP') {
-      push @where, 'taxkey NOT IN (1, 2, 3, 12, 13)';
+      push @where, 'chart_categories ~ \'[ACELQ]\'';
     }
 
   } elsif ($params) {
@@ -2131,10 +2144,22 @@ sub _get_taxzones {
 sub _get_employees {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $default_key, $key) = @_;
+  my ($self, $dbh, $params) = @_;
 
-  $key = $default_key unless ($key);
-  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY lower(name)|);
+  my $deleted = 0;
+
+  my $key;
+  if (ref $params eq 'HASH') {
+    $key     = $params->{key};
+    $deleted = $params->{deleted};
+
+  } else {
+    $key = $params;
+  }
+
+  $key     ||= "all_employees";
+  my $filter = $deleted ? '' : 'WHERE NOT COALESCE(deleted, FALSE)';
+  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee $filter ORDER BY lower(name)|);
 
   $main::lxdebug->leave_sub();
 }
@@ -2374,7 +2399,7 @@ sub get_lists {
   }
 
   if ($params{"employees"}) {
-    $self->_get_employees($dbh, "all_employees", $params{"employees"});
+    $self->_get_employees($dbh, $params{"employees"});
   }
 
   if ($params{"salesmen"}) {
@@ -3155,81 +3180,6 @@ sub get_history {
   return 0;
 }
 
-sub update_defaults {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $fld, $provided_dbh) = @_;
-
-  my $dbh;
-  if ($provided_dbh) {
-    $dbh = $provided_dbh;
-  } else {
-    $dbh = $self->dbconnect_noauto($myconfig);
-  }
-  my $query = qq|SELECT $fld FROM defaults FOR UPDATE|;
-  my $sth   = $dbh->prepare($query);
-
-  $sth->execute || $self->dberror($query);
-  my ($var) = $sth->fetchrow_array;
-  $sth->finish;
-
-  $var   = 0 if !defined($var) || ($var eq '');
-  $var   = SL::PrefixedNumber->new(number => $var)->get_next;
-  $query = qq|UPDATE defaults SET $fld = ?|;
-  do_query($self, $dbh, $query, $var);
-
-  if (!$provided_dbh) {
-    $dbh->commit;
-    $dbh->disconnect;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $var;
-}
-
-sub update_business {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $business_id, $provided_dbh) = @_;
-
-  my $dbh;
-  if ($provided_dbh) {
-    $dbh = $provided_dbh;
-  } else {
-    $dbh = $self->dbconnect_noauto($myconfig);
-  }
-  my $query =
-    qq|SELECT customernumberinit FROM business
-       WHERE id = ? FOR UPDATE|;
-  my ($var) = selectrow_query($self, $dbh, $query, $business_id);
-
-  return undef unless $var;
-
-  if ($var =~ m/\d+$/) {
-    my $new_var  = (substr $var, $-[0]) * 1 + 1;
-    my $len_diff = length($var) - $-[0] - length($new_var);
-    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
-
-  } else {
-    $var = $var . '1';
-  }
-
-  $query = qq|UPDATE business
-              SET customernumberinit = ?
-              WHERE id = ?|;
-  do_query($self, $dbh, $query, $var, $business_id);
-
-  if (!$provided_dbh) {
-    $dbh->commit;
-    $dbh->disconnect;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $var;
-}
-
 sub get_partsgroup {
   $main::lxdebug->enter_sub();
 
@@ -3447,6 +3397,16 @@ sub prepare_for_printing {
     $self->reformat_numbers($output_numberformat, $precision, @{ $field_list });
   }
 
+  $self->{template_meta} = {
+    formname  => $self->{formname},
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $self->{language_id} || undef),
+    format    => $self->{format},
+    media     => $self->{media},
+    extension => $extension,
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $self->{printer_id} || undef),
+    today     => DateTime->today,
+  };
+
   return $self;
 }
 
@@ -3565,18 +3525,6 @@ Points of interest for a beginner are:
  - $form->get_standard_dbh - returns a database connection for the
 
 =head1 SPECIAL FUNCTIONS
-
-=head2 C<update_business> PARAMS
-
-PARAMS (not named):
- \%config,     - config hashref
- $business_id, - business id
- $dbh          - optional database handle
-
-handles business (thats customer/vendor types) sequences.
-
-special behaviour for empty strings in customerinitnumber field:
-will in this case not increase the value, and return undef.
 
 =head2 C<redirect_header> $url
 

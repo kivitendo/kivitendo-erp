@@ -26,7 +26,6 @@ sub update_entries_for_authorized_users {
 
     $employee->update_attributes(
       name      => $user_config->{name},
-      workphone => $user_config->{tel},
       deleted   => 0,
     );
   }

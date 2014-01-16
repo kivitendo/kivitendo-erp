@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('csv_import_reports');
 __PACKAGE__->meta->columns(
   file       => { type => 'text', not_null => 1 },
   id         => { type => 'serial', not_null => 1 },
+  numheaders => { type => 'integer', not_null => 1 },
   numrows    => { type => 'integer', not_null => 1 },
   profile_id => { type => 'integer', not_null => 1 },
   session_id => { type => 'text', not_null => 1 },

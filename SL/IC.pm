@@ -146,15 +146,10 @@ SQL
   }
 
   # get translations
-  $form->{language_values} = "";
   $query = qq|SELECT language_id, translation, longdescription
               FROM translation
               WHERE parts_id = ?|;
-  my $trq = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while (my $tr = $trq->fetchrow_hashref("NAME_lc")) {
-    $form->{language_values} .= "---+++---" . join('--++--', @{$tr}{qw(language_id translation longdescription)});
-  }
-  $trq->finish;
+  $form->{translations} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
 
   # is it an orphan
   my @referencing_tables = qw(invoice orderitems inventory);
@@ -329,6 +324,8 @@ sub save {
     $subq_expense = "NULL";
   }
 
+  normalize_text_blocks();
+
   $query =
     qq|UPDATE parts SET
          partnumber = ?,
@@ -401,16 +398,17 @@ sub save {
   # delete translation records
   do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
 
-  if ($form->{language_values} ne "") {
-    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
-      my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
-      if ($translation ne "") {
-        $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription)
-                    VALUES ( ?, ?, ?, ? )|;
-        @values = (conv_i($form->{id}), conv_i($language_id), $translation, $longdescription);
-        do_query($form, $dbh, $query, @values);
-      }
+  my @translations = grep { $_->{language_id} && $_->{translation} } @{ $form->{translations} || [] };
+  if (@translations) {
+    $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription)
+                VALUES ( ?, ?, ?, ? )|;
+    $sth   = $dbh->prepare($query);
+
+    foreach my $translation (@translations) {
+      do_statement($form, $sth, $query, conv_i($form->{id}), conv_i($translation->{language_id}), $translation->{translation}, $translation->{longdescription});
     }
+
+    $sth->finish();
   }
 
   # delete price records
@@ -457,6 +455,22 @@ sub save {
 
   # add assembly records
   if ($form->{item} eq 'assembly') {
+    # check additional assembly row
+    my $i = $form->{assembly_rows};
+    # if last row is not empty add them
+    if ($form->{"partnumber_$i"} ne "") {
+      $query = qq|SELECT id FROM parts WHERE partnumber = ?|;
+      my ($partid) = selectrow_query($form, $dbh, $query,$form->{"partnumber_$i"} );
+      if ( $partid ) {
+        $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+        $form->{"id_$i"} = $partid;
+        $form->{"bom_$i"} = 0;
+        $form->{assembly_rows}++;
+      }
+      else {
+        $::form->error($::locale->text("uncorrect partnumber ").$form->{"partnumber_$i"});
+      }
+    }
 
     for my $i (1 .. $form->{assembly_rows}) {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -469,7 +483,6 @@ sub save {
         do_query($form, $dbh, $query, @values);
       }
     }
-
     my @a = localtime;
     $a[5] += 1900;
     $a[4]++;
@@ -1684,6 +1697,25 @@ sub prepare_parts_for_printing {
   }
 
   $main::lxdebug->leave_sub();
+}
+
+sub normalize_text_blocks {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $form     = $params{form}     || $main::form;
+
+  # check if feature is enabled (select normalize_part_descriptions from defaults)
+  return unless ($::instance_conf->get_normalize_part_descriptions);
+
+  foreach (qw(description notes)) {
+    $form->{$_} =~ s/\s+$//s;
+    $form->{$_} =~ s/^\s+//s;
+    $form->{$_} =~ s/ {2,}/ /g;
+  }
+   $main::lxdebug->leave_sub();
 }
 
 

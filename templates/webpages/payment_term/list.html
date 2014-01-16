@@ -14,7 +14,7 @@
    <table id="payment_term_list">
     <thead>
     <tr class="listheading">
-     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[%- 'Description' | $T8 %]</th>
      <th>[%- 'Long Description' | $T8 %]</th>
      <th align="right">[%- 'Netto Terms' | $T8 %]</th>
@@ -26,7 +26,7 @@
     <tbody>
     [%- FOREACH payment_term = PAYMENT_TERMS %]
     <tr class="listrow[% loop.count % 2 %]" id="payment_term_id_[% payment_term.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td>
       <a href="[% SELF.url_for(action => 'edit', id => payment_term.id) %]">
        [%- HTML.escape(payment_term.description) %]

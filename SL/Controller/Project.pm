@@ -16,6 +16,7 @@ use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
+use SL::DB::ProjectType;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
@@ -26,7 +27,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_project', only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('load_project',       only => [ qw(edit update destroy) ]);
 
 #
 # actions
@@ -37,7 +38,8 @@ sub action_search {
 
   my %params;
 
-  $params{CUSTOM_VARIABLES} = CVar->get_configs(module => 'Projects');
+  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
+  $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
   ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
     = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
                                   include_prefix => 'l_',
@@ -121,8 +123,16 @@ sub check_auth {
 sub display_form {
   my ($self, %params) = @_;
 
-  $params{ALL_CUSTOMERS}    = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
-  $params{CUSTOM_VARIABLES} = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
+  $params{ALL_CUSTOMERS}     = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
+  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
+  $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
+
+  if ($params{keep_cvars}) {
+    for my $cvar (@{ $params{CUSTOM_VARIABLES} }) {
+      $cvar->{value} = $::form->{"cvar_$cvar->{name}"} if $::form->{"cvar_$cvar->{name}"};
+    }
+  }
+
   CVar->render_inputs(variables => $params{CUSTOM_VARIABLES}) if @{ $params{CUSTOM_VARIABLES} };
 
   $self->render('project/form', %params);
@@ -141,7 +151,8 @@ sub create_or_update {
   if (@errors) {
     flash('error', @errors);
     $self->display_form(title    => $is_new ? $::locale->text('Create a new project') : $::locale->text('Edit project'),
-                        callback => $::form->{callback});
+                        callback => $::form->{callback},
+                        keep_cvars => 1);
     return;
   }
 
@@ -171,7 +182,7 @@ sub setup_db_args_from_filter {
   $self->{filter} = {};
   my %args = parse_filter(
     $self->_pre_parse_filter($::form->{filter}, $self->{filter}),
-    with_objects => [ 'customer' ],
+    with_objects => [ 'customer', 'project_type' ],
     launder_to   => $self->{filter},
   );
 
@@ -186,13 +197,13 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(projectnumber description customer active valid type);
-  my @sortable    = qw(projectnumber description customer              type);
+  my @columns     = qw(projectnumber description customer active valid project_type);
+  my @sortable    = qw(projectnumber description customer              project_type);
 
   my %column_defs = (
     projectnumber => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     description   => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
-    type          => { },
+    project_type  => { sub  => sub { $_[0]->project_type->description } },
     customer      => { sub  => sub { $_[0]->customer ? $_[0]->customer->name     : '' } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
@@ -235,7 +246,7 @@ sub init_models {
       customer      => t8('Customer'),
       description   => t8('Description'),
       projectnumber => t8('Project Number'),
-      type          => t8('Type'),
+      project_type  => t8('Project Type'),
     },
     with_objects => [ 'customer' ],
   );

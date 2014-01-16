@@ -343,21 +343,6 @@ sub calculate_qty {
 
 # -------------------------------------------------------------------------
 
-sub set_longdescription {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->{title} = $locale->text("Enter longdescription");
-  $form->header(no_layout => 1);
-  print $form->parse_html_template("generic/set_longdescription");
-
-  $main::lxdebug->leave_sub();
-}
-
-# -------------------------------------------------------------------------
-
 sub H {
   return $main::locale->quote_special_chars('HTML', $_[0]);
 }
@@ -455,6 +440,7 @@ sub show_vc_details {
                  $locale->text("No vendor has been selected yet."));
 
   Common->get_vc_details(\%myconfig, $form, $form->{vc}, $form->{vc_id});
+  $form->{discount_as_percent} = $form->format_amount(\%::myconfig, $form->parse_amount(\%::myconfig, $form->{discount}) * 100, 2);
 
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
@@ -510,6 +496,10 @@ sub mark_as_paid_common {
       $referer =~ /^(.*)\?action\=[^\&]*(\&.*)$/;
       $script = $1;
       $callback = $2;
+    } elsif ($referer =~ /RESTORE_FORM_FROM_SESSION_ID/){
+      $referer =~ /^(.*)\?RESTORE_FORM_FROM_SESSION_ID\=(.*)$/;
+      $script = $1;
+      $callback = "";
     } else {
       $script = $referer;
       $callback = "";

@@ -27,8 +27,8 @@
     </tr>
 
     <tr>
-     <th align="right">[% 'Type' | $T8 %]</th>
-     <td>[% L.input_tag('filter.type:substr::ilike', filter.type_substr__ilike, size=20) %]</td>
+     <th align="right">[% 'Project Type' | $T8 %]</th>
+     <td>[% L.select_tag('filter.project_type_id', ALL_PROJECT_TYPES, default=filter.project_type_id, title_key='description', with_empty=1) %]</td>
     </tr>
 
     [% CUSTOM_VARIABLES_FILTER_CODE %]

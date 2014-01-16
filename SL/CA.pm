@@ -1,4 +1,4 @@
-  #=====================================================================
+#=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -366,8 +366,8 @@ sub all_transactions {
   }
 
   my $sort = grep({ $form->{sort} eq $_ } qw(transdate reference description)) ? $form->{sort} : 'transdate';
-
-  $query .= qq|ORDER BY $sort|;
+  my $sort2 = ($sort eq 'reference')?'transdate':'reference';
+  $query .= qq|ORDER BY $sort , $sort2 |;
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   #get detail information for each transaction

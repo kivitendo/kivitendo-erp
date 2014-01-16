@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::JSON;
 use SL::DBUtils;
 use SL::Helper::Flash;
+use SL::Locale::String;
 
 use SL::DB::Customer;
 use SL::DB::Vendor;
@@ -28,7 +29,6 @@ __PACKAGE__->run_before(
     $::auth->assert('customer_vendor_edit');
   }
 );
-
 __PACKAGE__->run_before(
   '_instantiate_args',
   only => [
@@ -61,6 +61,9 @@ __PACKAGE__->run_before(
     'add',
   ]
 );
+
+__PACKAGE__->run_before('normalize_name');
+
 
 sub action_add {
   my ($self) = @_;
@@ -147,6 +150,19 @@ sub _save {
       employee_id => SL::DB::Manager::Employee->current->id,
       addition => 'SAVED',
     )->save();
+
+    if ( $::form->{delete_notes} ) {
+      foreach my $note_id (@{ $::form->{delete_notes} }) {
+        my $note = SL::DB::Note->new(id => $note_id)->load();
+        if ( $note->follow_up ) {
+          if ( $note->follow_up->follow_up_link ) {
+            $note->follow_up->follow_up_link->delete(cascade => 'delete');
+          }
+          $note->follow_up->delete(cascade => 'delete');
+        }
+        $note->delete(cascade => 'delete');
+      }
+    }
   }) || die($db->error);
 
 }
@@ -154,27 +170,34 @@ sub _save {
 sub action_save {
   my ($self) = @_;
 
-  $self->_save();
+  if (!$self->{cv}->name) {
+    flash('error', t8('Customer missing!'));
+    $self->_pre_render();
+    $self->render(
+      'customer_vendor/form',
+      title => ($self->is_vendor() ? t8('Edit Vendor') : t8('Edit Customer')),
+      %{$self->{template_args}}
+    );
+  } else {
 
-  my @redirect_params = (
-    action => 'edit',
-    id     => $self->{cv}->id,
-    db     => ($self->is_vendor() ? 'vendor' : 'customer'),
-  );
+    $self->_save();
 
-  if ( $self->{contact}->cp_id ) {
-    push(@redirect_params, contact_id => $self->{contact}->cp_id);
+    my @redirect_params = (
+      action => 'edit',
+      id     => $self->{cv}->id,
+      db     => ($self->is_vendor() ? 'vendor' : 'customer'),
+    );
+
+    if ( $self->{contact}->cp_id ) {
+      push(@redirect_params, contact_id => $self->{contact}->cp_id);
+    }
+
+    if ( $self->{shipto}->shipto_id ) {
+      push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+    }
+
+    $self->redirect_to(@redirect_params);
   }
-
-  if ( $self->{shipto}->shipto_id ) {
-    push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
-  }
-
-  if ( $self->{note}->id ) {
-    push(@redirect_params, note_id => $self->{note}->id);
-  }
-
-  $self->redirect_to(@redirect_params);
 }
 
 sub action_save_and_close {
@@ -385,6 +408,8 @@ sub action_search_contact {
 sub action_get_delivery {
   my ($self) = @_;
 
+  $::auth->assert('sales_all_edit');
+
   my $dbh = $::form->get_standard_dbh();
 
   my ($arap, $db, $qty_sign);
@@ -398,21 +423,24 @@ sub action_get_delivery {
     $qty_sign = '';
   }
 
-  my $where = ' WHERE 1=1 ';
+  my $where = ' WHERE 1=1';
   my @values;
 
   if ( !$self->is_vendor() && $::form->{shipto_id} && $::form->{shipto_id} ne 'all' ) {
-    $where .= "AND ${arap}.shipto_id = ?";
+    $where .= " AND ${arap}.shipto_id = ?";
     push(@values, $::form->{shipto_id});
+  } else {
+    $where .= " AND ${arap}.${db}_id = ?";
+    push(@values, $::form->{id});
   }
 
   if ( $::form->{delivery_from} ) {
-    $where .= "AND ${arap}.transdate >= ?";
+    $where .= " AND ${arap}.transdate >= ?";
     push(@values, conv_date($::form->{delivery_from}));
   }
 
   if ( $::form->{delivery_to} ) {
-    $where .= "AND ${arap}.transdate <= ?";
+    $where .= " AND ${arap}.transdate <= ?";
     push(@values, conv_date($::form->{delivery_to}));
   }
 
@@ -626,17 +654,8 @@ sub _instantiate_args {
 
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
-
-    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
-      query => [
-        'follow_up.note_id' => $self->{note}->id,
-        trans_id => $self->{cv}->id,
-        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
-      ],
-      with_objects => ['follow_up'],
-    )->[0];
-
-    $self->{note_followup} = $self->{note_followup_link}->follow_up;
+    $self->{note_followup} = $self->{note}->follow_up;
+    $self->{note_followup_link} = $self->{note_followup}->follow_up_link;
   } else {
     $self->{note} = SL::DB::Note->new();
     $self->{note_followup} = SL::DB::FollowUp->new();
@@ -691,17 +710,8 @@ sub _load_customer_vendor {
 
   if ( $::form->{note_id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note_id})->load();
-
-    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
-      query => [
-        'follow_up.note_id' => $self->{note}->id,
-        trans_id => $self->{cv}->id,
-        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
-      ],
-      with_objects => ['follow_up'],
-    )->[0];
-
-    $self->{note_followup} = $self->{note_followup_link}->follow_up;
+    $self->{note_followup} = $self->{note}->follow_up;
+    $self->{note_followup_link} = $self->{note_followup}->follow_up_link;
   } else {
     $self->{note} = SL::DB::Note->new();
     $self->{note_followup} = SL::DB::FollowUp->new();
@@ -816,6 +826,8 @@ sub _pre_render {
 
   $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all();
 
+  $self->{all_delivery_terms} = SL::DB::Manager::DeliveryTerm->get_all();
+
   $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all();
 
   $query =
@@ -836,10 +848,32 @@ sub _pre_render {
   $self->{shiptos} = $self->{cv}->shipto;
   $self->{shiptos} ||= [];
 
+  $self->{notes} = SL::DB::Manager::Note->get_all(
+    query => [
+      trans_id => $self->{cv}->id,
+      trans_module => 'ct',
+    ],
+    with_objects => ['follow_up'],
+  );
+
   $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
+}
+
+sub normalize_name {
+  my ($self) = @_;
+
+  # check if feature is enabled (select normalize_vc_names from defaults)
+  return unless ($::instance_conf->get_normalize_vc_names);
+
+  return unless $self->{cv};
+  my $name = $self->{cv}->name;
+  $name =~ s/\s+$//;
+  $name =~ s/^\s+//;
+  $name =~ s/\s+/ /g;
+  $self->{cv}->name($name);
 }
 
 1;

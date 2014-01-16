@@ -4,6 +4,7 @@ use strict;
 use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor;
+use Text::Wrap;
 our $master_templates;
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
@@ -21,9 +22,10 @@ unless (eval { require Config::Std; 1 }){
   Debian: you may install the needed *.deb package with:
     apt-get install libconfig-std-perl
 
-  RPM: There is a rpm package "perl-Config-Std"
+  Red Hat/Fedora/CentOS: you may install the needed *.rpm package with:
+    yum install perl-Config-Std
 
-  Suse: you may install the needed *.rpm package with:
+  SUSE: you may install the needed *.rpm package with:
     zypper install perl-Config-Std
 
 +------------------------------------------------------------------------------+
@@ -35,7 +37,7 @@ EOL
 use SL::InstallationCheck;
 use SL::LxOfficeConf;
 
-
+my @missing_modules;
 my %check;
 Getopt::Long::Configure ("bundling");
 GetOptions(
@@ -47,6 +49,14 @@ GetOptions(
   "r|required!" => \ $check{r},
   "h|help"      => sub { pod2usage(-verbose => 2) },
   "c|color!"    => \ ( my $c = 1 ),
+  "i|install-command!"  => \ my $apt,
+);
+
+my %install_methods = (
+  apt    => { key => 'debian', install => 'sudo apt-get install', system => "Debian, Ubuntu" },
+  yum    => { key => 'fedora', install => 'sudo yum install',     system => "RHEL, Fedora, CentOS" },
+  zypper => { key => 'suse',   install => 'sudo zypper install',  system => "SLES, openSUSE" },
+  cpan   => { key => 'name',   install => "sudo cpan",            system => "CPAN" },
 );
 
 # if nothing is requested check "required"
@@ -77,7 +87,6 @@ if (!SL::LxOfficeConf->read(undef, 'may fail')) {
 if ($check{r}) {
   print_header('Checking Required Modules');
   check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
-  print_header('Standard check for required modules done. See additional parameters for more checks (--help)') if $default_run;
 }
 if ($check{o}) {
   print_header('Checking Optional Modules');
@@ -89,6 +98,42 @@ if ($check{d}) {
 }
 if ($check{l}) {
   check_latex();
+}
+
+my $fail = @missing_modules;
+print_header('Result');
+print_line('All', $fail ? 'NOT ok' : 'OK', $fail ? 'red' : 'green');
+
+if ($default_run) {
+  if (@missing_modules) {
+    $apt = 1;
+  print <<"EOL";
+
+HEY! It seems there are modules MISSING! Look for the red lines with "NOT ok"
+above. You'll want to fix those, I've enabled --install-command for you...
+EOL
+  } else {
+  print <<"EOL";
+
+Standard check done, everything is OK and up to date. Have a look at the --help
+section of this script to see some more advanced checks for developer and
+optional dependancies, as well as LaTeX packages you might need.
+EOL
+  }
+}
+
+if (@missing_modules && $apt) {
+  print "\nHere are some sample installation lines, choose one appropriate for your system:\n\n";
+  local $Text::Wrap::separator = " \\\n";
+
+  for (keys %install_methods) {
+    my $method = $install_methods{$_};
+    if (my @install_candidates = grep $_, map { $_->{$method->{key}} } @missing_modules) {
+      print "$method->{system}:\n";
+      print wrap("  ", "    ",  $method->{install}, @install_candidates);
+      print $/;
+    }
+  }
 }
 
 sub check_latex {
@@ -167,6 +212,8 @@ sub check_module {
 
   return if $res;
 
+  push @missing_modules, $module;
+
   my $needed_text =
       $role{optional} ? 'It is OPTIONAL for kivitendo but RECOMMENDED for improved functionality.'
     : $role{required} ? 'It is NEEDED by kivitendo and must be installed.'
@@ -192,20 +239,17 @@ EOL
 sub module_source_texts {
   my ($module) = @_;
   my @texts;
-  push @texts, <<EOL;
-  - You can get it from CPAN:
-      perl -MCPAN -e "install $module->{name}"
+  for my $key (keys %install_methods) {
+    my $method = $install_methods{$key};
+    push @texts, <<"EOL" if $module->{$method->{key}};
+  - Using $method->{system} you can install it with $key:
+      $method->{install} $module->{$method->{key}}
 EOL
+  }
   push @texts, <<EOL if $module->{url};
   - You can download it from this URL and install it manually:
       $module->{url}
 EOL
-  push @texts, <<EOL if $module->{debian};
-  - On Debian, Ubuntu and other distros you can install it with apt-get:
-      sudo apt-get install $module->{debian}
-    Note: These may be out of date as well if your system is old.
-EOL
- # TODO: SuSE and Fedora packaging. Windows packaging.
 
   return @texts;
 }
@@ -311,6 +355,12 @@ Don't probe for LaTeX document classes and packages in master templates. (Useful
 =item C<-v. --verbose>
 
 Print additional info for missing dependancies
+
+=item C<-i, --install-command>
+
+Tries to generate installation commands for the most common package managers.
+Note that these lists can be slightly off, but it should still save you a lot
+of typing.
 
 =back
 

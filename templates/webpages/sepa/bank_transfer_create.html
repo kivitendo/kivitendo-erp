@@ -47,6 +47,10 @@
      <th class="listheading">[% 'IBAN' | $T8 %]</th>
      <th class="listheading">[% 'BIC' | $T8 %]</th>
      <th class="listheading">[% 'Bank' | $T8 %]</th>
+     [% IF vc == 'customer' %]
+      <th class="listheading">[% 'Mandator ID' | $T8 %]</th>
+      <th class="listheading">[% 'Mandate Date of Signature' | $T8 %]</th>
+     [%- END %]
     </tr>
 
     [%- FOREACH vbi = VC_BANK_INFO %]
@@ -59,6 +63,10 @@
      <td><input name="vc_bank_info[].iban" size="34" value="[% HTML.escape(vbi.iban.substr(0, 34)) %]" maxlength="34"></td>
      <td><input name="vc_bank_info[].bic" size="20" value="[% HTML.escape(vbi.bic.substr(0, 20)) %]" maxlength="20"></td>
      <td><input name="vc_bank_info[].bank" size="30" value="[% HTML.escape(vbi.bank) %]"></td>
+     [% IF vc == 'customer' %]
+      <td><input name="vc_bank_info[].mandator_id" size="30" value="[% HTML.escape(vbi.mandator_id) %]"></td>
+      <td>[% L.date_tag("vc_bank_info[].mandate_date_of_signature", vbi.mandate_date_of_signature) %]</td>
+     [%- END %]
     </tr>
     [%- END %]
    </table>
@@ -111,6 +119,10 @@
      </tr>
     [%- END %]
    </table>
+  </p>
+
+  <p>
+   [% 'Sum open amount' | $T8 %]: [% LxERP.format_amount(total_trans, -2) %]
   </p>
 
   <p>

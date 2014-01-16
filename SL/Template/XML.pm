@@ -30,13 +30,8 @@ sub format_string {
 sub get_mime_type() {
   my ($self) = @_;
 
-  if ($self->{"form"}->{"format"} =~ /elsterwinston/i) {
-    return "application/xml ";
-  } elsif ($self->{"form"}->{"format"} =~ /elstertaxbird/i) {
-    return "application/x-taxbird";
-  } else {
-    return "text";
-  }
+  return "text";
+
 }
 
 sub uses_temp_file {

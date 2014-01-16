@@ -72,9 +72,8 @@ sub payment {
   # für bugfix 1771 (doppelte Leerzeichen werden nicht 'gepostet')
   $form->{"select$form->{vc}"} = "";
 
-  $form->{selectcustomer} .= "<option value=\"\"></option>\n" if $form->{vc} eq "customer";
-
   if ($form->{"all_$form->{vc}"}) {
+    $form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
@@ -138,7 +137,7 @@ sub form_header {
 
   # sometimes it happens that values in customer arrive without the signs '--'
   # but in order to select the right option field we need values with '--'
-  if ($form->{vc} eq "customer"){
+  if ($form->{vc} eq "customer" && $form->{"all_$form->{vc}"}){
     my ($customername) = split /--/, $form->{ $form->{vc} };
     $form->{ $form->{vc} } = $customername . "--" . $form->{customer_id};
   }
@@ -324,13 +323,13 @@ sub update {
     $updated = &check_name($form->{vc});
   };
 
-  if ($new_name_selected || $updated) {
+  # if ($new_name_selected || $updated) {
     # get open invoices from ar/ap using $form->{vc} and a.${vc}_id, i.e. customer_id
     CP->get_openinvoices(\%myconfig, \%$form);
     ($newvc) = split /--/, $form->{ $form->{vc} };
     $form->{"old$form->{vc}"} = qq|$newvc--$form->{"$form->{vc}_id"}|;
     $updated = 1;
-  }
+  # }
 
   if ($form->{currency} ne $form->{oldcurrency}) {
     $form->{oldcurrency} = $form->{currency};

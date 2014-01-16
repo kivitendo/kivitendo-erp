@@ -50,6 +50,7 @@ use SL::IO;
 use SL::TransNumber;
 use SL::DB::Default;
 use SL::DB::Tax;
+use SL::TransNumber;
 use Data::Dumper;
 
 use strict;
@@ -68,7 +69,7 @@ sub invoice_details {
   my $query = qq|SELECT date | . conv_dateq($form->{duedate}) . qq| - date | . conv_dateq($form->{invdate}) . qq| AS terms|;
   ($form->{terms}) = selectrow_query($form, $dbh, $query);
 
-  my (@project_ids, %projectnumbers, %projectdescriptions);
+  my (@project_ids);
   $form->{TEMPLATE_ARRAYS} = {};
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
@@ -92,23 +93,21 @@ sub invoice_details {
     push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
 
+  my $projects = [];
+  my %projects_by_id;
   if (@project_ids) {
-    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
-      join(", ", map({ "?" } @project_ids)) . ")";
-    $sth = $dbh->prepare($query);
-    $sth->execute(@project_ids) ||
-      $form->dberror($query . " (" . join(", ", @project_ids) . ")");
-    while (my $ref = $sth->fetchrow_hashref()) {
-      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
-      $projectdescriptions{$ref->{id}} = $ref->{description};
-    }
-    $sth->finish();
+    $projects = SL::DB::Manager::Project->get_all(query => [ id => \@project_ids ]);
+    %projects_by_id = map { $_->id => $_ } @$projects;
   }
 
-  $form->{"globalprojectnumber"} =
-    $projectnumbers{$form->{"globalproject_id"}};
-  $form->{"globalprojectdescription"} =
-    $projectdescriptions{$form->{"globalproject_id"}};
+  if ($projects_by_id{$form->{"globalproject_id"}}) {
+    $form->{globalprojectnumber} = $projects_by_id{$form->{"globalproject_id"}}->projectnumber;
+    $form->{globalprojectdescription} = $projects_by_id{$form->{"globalproject_id"}}->description;
+
+    for (@{ $projects_by_id{$form->{"globalproject_id"}}->cvars_by_config }) {
+      $form->{"project_cvar_" . $_->config->name} = $_->value_as_text;
+    }
+  }
 
   my $tax = 0;
   my $item;
@@ -146,6 +145,7 @@ sub invoice_details {
   IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  my $project_cvar_configs = CVar->get_configs(module => 'Projects');
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
@@ -156,6 +156,7 @@ sub invoice_details {
        price_factor price_factor_name partsgroup weight lineweight);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+  push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
@@ -277,8 +278,10 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
 
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
+      my $project = $projects_by_id{$form->{"project_id_$i"}} || SL::DB::Project->new;
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $project->projectnumber;
+      push @{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $project->description;
 
       my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
       $totalweight += $lineweight;
@@ -370,6 +373,8 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
         CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
           for @{ $ic_cvar_configs };
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{"project_cvar_" . $_->config->name} }, $_->value_as_text for @{ $project->cvars_by_config };
     }
   }
 
@@ -428,6 +433,9 @@ sub invoice_details {
   $form->{paid}     = $form->format_amount($myconfig, $form->{paid}, 2);
 
   $form->set_payment_options($myconfig, $form->{invdate});
+
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $form->{username} = $myconfig->{name};
 
@@ -575,9 +583,8 @@ sub post_invoice {
       do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency});
 
       if (!$form->{invnumber}) {
-        $form->{invnumber} =
-          $form->update_defaults($myconfig, $form->{type} eq "credit_note" ?
-                                 "cnnumber" : "invnumber", $dbh);
+        my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, id => $form->{id});
+        $form->{invnumber} = $trans_number->create_unique;
       }
     }
   }
@@ -1104,7 +1111,8 @@ sub post_invoice {
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
-                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?
+                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?,
+                delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
@@ -1118,6 +1126,7 @@ sub post_invoice {
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
                        $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f',
+                conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -1593,7 +1602,7 @@ sub retrieve_invoice {
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
-           a.marge_total, a.marge_percent, a.direct_debit,
+           a.marge_total, a.marge_percent, a.direct_debit, a.delivery_term_id,
            e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)
@@ -1763,7 +1772,7 @@ sub get_customer {
   $query =
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
-         c.email, c.cc, c.bcc, c.language_id, c.payment_id,
+         c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,

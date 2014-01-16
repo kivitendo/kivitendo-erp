@@ -16,6 +16,11 @@
         <td><textarea name="notes" rows="[% LxERP.numtextrows(notes, 25, 8, 2) %]" cols="25" wrap="soft"[% RO %]>[% HTML.escape(notes) %]</textarea></td>
         <td><textarea name="intnotes" rows="[% LxERP.numtextrows(intnotes, 35, 8, 2) %]" cols="35" wrap="soft"[% RO %]>[% HTML.escape(intnotes) %]</textarea></td>
        </tr>
+
+       <tr>
+         <th align="right">[% 'Delivery Terms' | $T8 %]</th>
+         <td>[% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default = delivery_term_id, with_empty = 1, title_key = 'description') %]</td>
+       </tr>
       </table>
 
      </td>

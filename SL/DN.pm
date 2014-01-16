@@ -44,6 +44,7 @@ use SL::MoreCommon;
 use SL::Template;
 use SL::DB::Printer;
 use SL::DB::Language;
+use SL::TransNumber;
 
 use strict;
 
@@ -205,6 +206,7 @@ sub create_invoice_for_fees {
 
   my ($ar_id) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
   my $curr = $form->get_default_currency($myconfig);
+  my $trans_number = SL::TransNumber->new(type => 'invoice', dbh => $dbh);
 
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
@@ -235,7 +237,7 @@ sub create_invoice_for_fees {
          (SELECT id FROM employee WHERE login = ?)
        )|;
   @values = ($ar_id,            # id
-             $form->update_defaults($myconfig, 'invnumber', $dbh), # invnumber
+             $trans_number->create_unique, # invnumber
              $dunning_id,       # customer_id
              $amount,
              $amount,
@@ -246,19 +248,21 @@ sub create_invoice_for_fees {
   do_query($form, $dbh, $query, @values);
 
   $query =
-    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey)
-       VALUES (?, ?, ?, current_date, current_date, 0)|;
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey, tax_id, chart_link)
+       VALUES (?, ?, ?, current_date, current_date, 0,
+               (SELECT id   FROM tax   WHERE (taxkey = 0) AND (rate = 0)),
+               (SELECT link FROM chart WHERE id = ?))|;
   $sth = prepare_query($form, $dbh, $query);
 
-  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining);
+  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining, conv_i($form->{AR_amount_fee}));
   do_statement($form, $sth, $query, @values);
 
   if ($interest_remaining) {
-    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining);
+    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining, conv_i($form->{AR_amount_interest}));
     do_statement($form, $sth, $query, @values);
   }
 
-  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount);
+  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount, conv_i($form->{AR}));
   do_statement($form, $sth, $query, @values);
 
   $sth->finish();
@@ -327,12 +331,13 @@ sub save_dunning {
 
   $form->{DUNNING_PDFS_EMAIL} = [];
 
+  $form->{dunning_id} = $dunning_id;
+
   $self->create_invoice_for_fees($myconfig, $form, $dbh, $dunning_id);
 
   $self->print_invoice_for_fees($myconfig, $form, $dunning_id, $dbh);
   $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
 
-  $form->{dunning_id} = $dunning_id;
 
   if ($send_email) {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
@@ -751,6 +756,16 @@ sub print_dunning {
 
   $dunning_id =~ s|[^\d]||g;
 
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($form->{"language_id"}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
+      AM->get_language_details($myconfig, $form, $form->{language_id});
+  } else {
+    $output_dateformat = $myconfig->{dateformat};
+    $output_numberformat = $myconfig->{numberformat};
+    $output_longdates = 1;
+  }
+
   my $query =
     qq|SELECT
          da.fee, da.interest,
@@ -836,6 +851,17 @@ sub print_dunning {
   $form->{total_interest}    = $form->format_amount($myconfig, $form->round_amount($ref->{total_interest}, 2), 2);
   $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
   $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
+
+  $::form->format_dates($output_dateformat, $output_longdates,
+    qw(dn_dunning_date dn_dunning_duedate dn_transdate dn_duedate
+          dunning_date    dunning_duedate    transdate    duedate)
+  );
+  $::form->reformat_numbers($output_numberformat, 2, qw(
+    dn_amount dn_netamount dn_paid dn_open_amount dn_fee dn_interest dn_linetotal
+       amount    netamount    paid    open_amount    fee    interest    linetotal
+    total_interest total_open_interest total_amount total_open_amount
+  ));
+  $::form->reformat_numbers($output_numberformat, undef, qw(interest_rate));
 
   $self->set_customer_cvars($myconfig, $form);
   $self->set_template_options($myconfig, $form);

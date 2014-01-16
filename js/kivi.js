@@ -59,11 +59,16 @@ namespace("kivi", function(ns) {
     return namespace(parts[1])[ parts[2] ];
   };
 
-  // Open a modal jQuery UI popup dialog. The content is loaded via AJAX.
+  // Open a modal jQuery UI popup dialog. The content can be either
+  // loaded via AJAX (if the parameter 'url' is given) or simply
+  // displayed if it exists in the DOM already (referenced via
+  // 'id'). If an existing DOM div should be used then the element
+  // won't be removed upon closing the dialog which allows re-opening
+  // it later on.
   //
   // Parameters:
   // - id: dialog DIV ID (optional; defaults to 'jqueryui_popup_dialog')
-  // - url, data, type: passed as the first three arguments to the $.ajax() call
+  // - url, data, type: passed as the first three arguments to the $.ajax() call if an AJAX call is made, otherwise ignored.
   // - dialog: an optional object of options passed to the $.dialog() call
   ns.popup_dialog = function(params) {
     var dialog;
@@ -79,8 +84,14 @@ namespace("kivi", function(ns) {
         // User supplied options:
       params.dialog || { },
       { // Options that must not be changed:
-        close: function(event, ui) { dialog.remove(); }
+        close: function(event, ui) { if (params.url) dialog.remove(); else dialog.dialog('close'); }
       });
+
+    if (!params.url) {
+      // Use existing DOM element and show it. No AJAX call.
+      dialog = $('#' + id).dialog(dialog_params);
+      return true;
+    }
 
     $('#' + id).remove();
 

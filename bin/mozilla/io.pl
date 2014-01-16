@@ -225,6 +225,10 @@ sub display_row {
       qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
 
+    if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
+      $form->{"sellprice_$i"} = $form->{"price_new_$i"};
+    }
+
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
     $form->{"selected_unit_$i"} ||= $form->{"unit_$i"};
@@ -270,12 +274,12 @@ sub display_row {
     my $linetotal      = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
     my $rows            = $form->numtextrows($form->{"description_$i"}, 30, 6);
 
-    $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
-    $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
+    $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
+    $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
-                                ? $cgi->textarea( -name => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
-                                : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->{"description_$i"}))
-                                . $cgi->button(-value => $locale->text('L'), -onClick => "set_longdescription_window('longdescription_$i')");
+                                ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
+                                : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))
+                                . $cgi->button(-value => $locale->text('L'), -onClick => "kivi.SalesPurchase.edit_longdescription($i)");
 
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
@@ -421,14 +425,16 @@ sub display_row {
 
     if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
-      push @hidden_vars, qw(sellprice discount not_discountable price_factor_id lastcost pricegroup_id);
+      $form->{"pricegroup_id_$i"} = $form->{"pricegroup_old_$i"} if $form->{"pricegroup_old_$i"};
+      $form->{"sellprice_pg_$i"}  = $form->{"hidden_prices_$i"}  if $form->{"hidden_prices_$i"};
+      push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost pricegroup_id sellprice_pg);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
-          map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
+          map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
@@ -483,6 +489,10 @@ sub set_pricegroup {
       $form->{"sellprice_$j"}      = $item->{price}           if $item->{selected} &&  $item->{pricegroup_id};
       $form->{"price_new_$j"}      = $form->{"sellprice_$j"}  if $item->{selected} || !$item->{pricegroup_id};
     }
+
+    # save hidden pricegroups for delivery_orders
+    next unless my @selected_prices = grep { $_->{selected} } @{ $form->{PRICES}{$j} };
+    $form->{"hidden_prices_$j"} = $selected_prices[-1]{price} . "--" . $selected_prices[-1]{pricegroup_id};
   }
   $main::lxdebug->leave_sub();
 }
@@ -1196,12 +1206,17 @@ sub print {
     }
     $form->{print_and_save} = 1;
     my $formname = $form->{formname};
-    &save();
+    save();
     $form->{formname} = $formname;
-    &edit();
+    edit();
     $::lxdebug->leave_sub();
     ::end_of_request();
   }
+  elsif (($form->{type} =~ /_order$/) || ($form->{type} =~ /_quotation$/)) {
+    $form->{print_and_save} = 1;
+    save();
+  }
+
 
   &print_form($old_form);
 
@@ -1331,31 +1346,7 @@ sub print_form {
   # $locale->text('Quotation Number missing!')
   # $locale->text('Quotation Date missing!')
 
-  # assign number
   $form->{what_done} = $form->{formname};
-  if (!$form->{"${inv}number"} && !$form->{preview} && !$form->{id}) {
-    $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
-    if ($form->{media} ne 'email') {
-
-      # get pricegroups for parts
-      IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-      # build up html code for prices_$i
-      set_pricegroup($form->{rowcount});
-
-      $form->{rowcount}--;
-
-      call_sub($display_form);
-      # saving the history
-      if(!exists $form->{addition}) {
-        $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
-        $form->{addition} = "PRINTED";
-        $form->save_history;
-      }
-      # /saving the history
-      ::end_of_request();
-    }
-  }
 
   &validate_items;
 
@@ -1365,6 +1356,7 @@ sub print_form {
 
   my $language_saved = $form->{language_id};
   my $payment_id_saved = $form->{payment_id};
+  my $delivery_term_id_saved = $form->{delivery_term_id};
   my $salesman_id_saved = $form->{salesman_id};
   my $cp_id_saved = $form->{cp_id};
   my $taxzone_id_saved = $form->{taxzone_id};
@@ -1374,6 +1366,7 @@ sub print_form {
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
+  $form->{delivery_term_id} = $delivery_term_id_saved;
   $form->{taxzone_id} = $taxzone_id_saved;
   $form->{currency} = $currency_saved;
 
@@ -1918,6 +1911,13 @@ sub _remove_billed_or_delivered_rows {
   my @fields = map { s/_1$//; $_ } grep { m/_1$/ } keys %{ $::form };
   my @new_rows;
 
+  my $make_key = sub {
+    my ($row) = @_;
+    return $::form->{"id_${row}"} unless $::form->{"serialnumber_${row}"};
+    my $key = $::form->{"id_${row}"} . ':' . $::form->{"serialnumber_${row}"};
+    return exists $params{quantities}->{$key} ? $key : $::form->{"id_${row}"};
+  };
+
   my $removed_rows = 0;
   my $row          = 0;
   while ($row < $::form->{rowcount}) {
@@ -1927,8 +1927,9 @@ sub _remove_billed_or_delivered_rows {
     my $parts_id                      = $::form->{"id_$row"};
     my $base_qty                      = $::form->parse_amount(\%::myconfig, $::form->{"qty_$row"}) * SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor;
 
-    my $sub_qty                       = min($base_qty, $params{quantities}->{$parts_id});
-    $params{quantities}->{$parts_id} -= $sub_qty;
+    my $key                           = $make_key->($row);
+    my $sub_qty                       = min($base_qty, $params{quantities}->{$key});
+    $params{quantities}->{$key}      -= $sub_qty;
 
     if (!$sub_qty || ($sub_qty != $base_qty)) {
       $::form->{"qty_${row}"} = $::form->format_amount(\%::myconfig, ($base_qty - $sub_qty) / SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor);

@@ -9,7 +9,7 @@ __PACKAGE__->meta->add_relationship(
   inventory_account => {
     type          => 'many to one',
     class         => 'SL::DB::Chart',
-    column_map    => { income_accno_id_0 => 'id' },
+    column_map    => { inventory_accno_id => 'id' },
   },
   income_account_0 => {
     type         => 'many to one',

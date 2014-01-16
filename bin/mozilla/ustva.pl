@@ -21,6 +21,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #======================================================================
 # German Tax authority Module and later ELSTER Interface
+# 08.01.14  ELSTER Interface software (taxbird/winston) removed
 #======================================================================
 
 use strict;
@@ -502,28 +503,9 @@ sub show_options {
   my $media  = qq|      <input type=hidden name="media" value="screen">|;
   my $format =
       qq|       <option value=html selected>|
-    . $::locale->text('Preview')
+    . $::locale->text('HTML')
     . qq|</option>|;
-  if ($::lx_office_conf{print_templates}{latex}) {
-    $format .=
-        qq|    <option value=pdf>|
-      . $::locale->text('UStVA (PDF-Dokument)')
-      . qq|</option>|;
-  }
 
-  #my $disabled= qq|disabled="disabled"|;
-  #$disabled='' if ($form->{elster} eq '1' );
-  if ($::form->{elster} eq '1') {
-    $format .=
-        qq|<option value=elsterwinston>|
-      . $::locale->text('ELSTER Export (Winston)')
-      . qq|</option>|
-      . qq|<option value=elstertaxbird>|
-      . $::locale->text('ELSTER Export (Taxbird)')
-      . qq|</option>|;
-  }
-
-  #$format .= qq|<option value=elster>|.$locale->text('ELSTER Export nach Winston').qq|</option>|;
   my $show_options = qq|
     $type
     $media
@@ -833,177 +815,6 @@ sub generate_ustva {
       foreach my $number (@category_euro) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '0');
       }
-
-    } elsif ( $form->{format} eq 'elsterwinston' ) {
-
-      $form->{IN} = 'winston.xml';
-
-      #
-      # Build Winston filename
-      #
-
-      my $file = 'U';     # 1. char 'U' = USTVA
-      $file .= $form->{period};
-      #4. and 5. char = year modulo 100
-      $file .= sprintf("%02d", $form->{year} % 100);
-      #6. to 18. char = Elstersteuernummer
-      #Beispiel: Steuernummer in Bayern
-      #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
-      $file .= $form->{elsterFFFF};
-      $file .= $form->{elstersteuernummer};
-      #file suffix
-      $file .= '.xml';
-      $file =~ s|.*/||;
-
-      $form->{attachment_filename} = $file;
-
-      # Zahlenformatierung für Winston
-
-      my $temp_numberformat = $myconfig{numberformat};
-
-      # Numberformat must be '1000,00' for Winston
-
-      $myconfig{numberformat} = '1000,00';
-
-      foreach my $number (@category_cent) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
-      }
-
-      foreach my $number (@category_euro) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
-      }
-      # Re-set Numberformat
-      $myconfig{numberformat} = $temp_numberformat;
-
-      # push Kennziffern to <%foreach Array fo easyer
-      # output in xml format. Thx to Moritz.
-      my %winston_id_for = (
-         # No Winston remap?!
-      );
-
-      foreach my $kennziffer (@category_cent, @category_euro) {
-
-        next if ( $kennziffer =~ m/Z\d\d/);
-        next if (   $form->{$kennziffer} == 0 );
-
-        if (defined $winston_id_for{$kennziffer} ) {
-          push(@{ $form->{id}}, $winston_id_for{$kennziffer});
-        } else {
-          push(@{ $form->{id}}, "Kz$kennziffer");
-        }
-        push(@{ $form->{amount}}, $form->{$kennziffer});
-      }
-
-    } elsif ( $form->{format} eq 'elstertaxbird' ) {
-
-      # Define serveral filenames
-      $form->{IN} = 'taxbird.txb';
-
-      $form->{attachment_filename} = "USTVA-" . ($form->{period} * 1) . sprintf("%02d", $form->{year} % 100) . ".txb";
-
-      $form->{attachment_filename} =~ s|.*/||;
-
-      if ($form->{period} =~ /^[4]\d$/ ){
-        my %periods = ( # Lx => taxbird
-                     '41' => '12',
-                     '42' => '13',
-                     '43' => '14',
-                     '44' => '15',
-                   );
-
-        foreach my $quarter ( keys %periods ) {
-          $form->{taxbird_period} = $periods{$quarter} if ( $form->{period} eq $quarter);
-        }
-      } elsif ($form->{period} =~ /^\d+$/ ) {
-        $form->{period} =~ s/^0//g;
-        my $period = $form->{period};
-        $period *= 1;
-        $period--;
-        $form->{taxbird_period} = $period;
-      } else {
-        $form->header;
-        USTVA::error( $locale->text('Wrong Period' ));
-        ::end_of_request();
-      }
-
-      # heuristics for address splitting
-      # lx-office holds the entire address in a single field.
-      # taxbird expects it to be splitted into street, zipcode and city
-      if ($form->{co_street} =~ /\n/) {
-        my $new_co_street;
-        for (split /\n/, $form->{co_street}) {
-          if (/(\d{3,5})\s+(\w+)/) {
-            $form->{co_zip}  = $1;
-            $form->{co_city} = $2;
-          } else {
-            $new_co_street .= $_;
-          }
-        }
-        $form->{co_street} = $new_co_street;
-      } else {
-        $form->{co_zip} = $form->{co_city};
-        $form->{co_zip} =~ s/\D//g;
-        $form->{co_city} =~ s/\d//g;
-        $form->{co_city} =~ s/^\s//g;
-      }
-
-      my $tax_office           = first { $_->{name} eq $form->{elsterland} } @{ $ustva->{tax_office_information} };
-      $form->{taxbird_land_nr} = $tax_office->{taxbird_nr} if $tax_office;
-
-      ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
-      $form->{co_phone_prefix} =~ s/\s//g;
-      $form->{co_phone} =~ s/\s//g;
-
-       $form->{taxbird_steuernummer} = $form->{steuernummer};
-      #      $form->{taxbird_steuernummer} =~ s/\D//g;
-#      $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
-
-      # Numberformatting for Taxbird
-      my $temp_numberformat = $myconfig{numberformat};
-      # Numberformat must be '1000,00' for Taxbird ?!
-      $myconfig{numberformat} = '1000,00';
-      foreach my $number (@category_cent) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
-      }
-
-      foreach my $number (@category_euro) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
-      }
-      # Re-set Numberformat
-      $myconfig{numberformat} = $temp_numberformat;
-
-      # push Kennziffern to <%foreach Array fo easyer
-      # output in xml format. Thx to Moritz.
-      my %taxbird_id_for = (
-
-          '511'  =>  'Kz51-calc',
-          '861'  =>  'Kz86-calc',
-          '971'  =>  'Kz97-calc',
-          '931'  =>  'Kz93-calc',
-          '811'  =>  'Kz81-calc',
-          '891'  =>  'Kz89-calc',
-          'Z45'  =>  'uebertrag',
-          'Z53'  =>  'ust-sum',
-          'Z62'  =>  'ust-minus-vost',
-          'Z65'  =>  'ust-sum+69',
-          'Z67'  =>  'ust-vz',
-      );
-
-
-      for my $kennziffer (@category_cent, @category_euro) {
-
-        next if ($kennziffer eq 'Z43');
-
-        if ($form->{$kennziffer} != 0){
-          if (defined $taxbird_id_for{$kennziffer}) {
-            push(@{ $form->{id}}, $taxbird_id_for{$kennziffer});
-          } else {
-            push(@{ $form->{id}}, "Kz$kennziffer");
-          }
-          push(@{ $form->{amount}}, $form->{$kennziffer});
-        }
-      }
-
     } elsif ( $form->{format} eq '' ){ # No format error.
       $form->header;
       USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
@@ -1076,8 +887,13 @@ sub generate_ustva {
 
   } else
   {
+   # add a prefix for ustva pos numbers, i.e.: 81 ->  post_ustva_81
+   $form->{"pos_ustva_$_"} = $form->{$_} for grep { m{^\d+} } keys %{ $form };
+   $form->{title} = $locale->text('Advance turnover tax return');
 
-    $form->parse_template(\%myconfig, $::lx_office_conf{paths}{userspath});
+   $form->header;
+   print $form->parse_html_template('ustva/ustva');
+
 
   }
 

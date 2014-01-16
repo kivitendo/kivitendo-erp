@@ -221,10 +221,6 @@ sub generate_income_statement {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $defaults = SL::DB::Default->get;
-  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $form->{templates} = $defaults->templates;
-
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -375,9 +371,26 @@ sub generate_income_statement {
       . qq| $longcomparetodate|;
   }
 
-  $form->{IN} = "income_statement.html";
+  if ( $::instance_conf->get_profit_determination eq 'balance' ) {
+    $form->{title} = $locale->text('Income Statement');
+  } elsif ( $::instance_conf->get_profit_determination eq 'income' ) {
+    $form->{title} = $locale->text('Net Income Statement');
+  } else {
+    $form->{title} = "";
+  };
 
-  $form->parse_template;
+  if ( $form->{method} eq 'cash' ) {
+    $form->{accounting_method} = $locale->text('Cash accounting');
+  } elsif ( $form->{method} eq 'accrual' ) {
+    $form->{accounting_method} = $locale->text('Accrual accounting');
+  } else {
+    $form->{accounting_method} = "";
+  };
+
+  $form->{report_date} = $locale->text('Report date') . ": " . $form->current_date;
+
+  $form->header;
+  print $form->parse_html_template('rp/income_statement');
 
   $main::lxdebug->leave_sub();
 }
@@ -386,9 +399,6 @@ sub generate_balance_sheet {
   $::lxdebug->enter_sub;
   $::auth->assert('report');
 
-  my $defaults = SL::DB::Default->get;
-  $::form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $::form->{templates}     = $defaults->templates;
   $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
   $::form->{padding}       = "&nbsp;&nbsp;";
   $::form->{bold}          = "<b>";
@@ -397,8 +407,9 @@ sub generate_balance_sheet {
 
   my $data = RP->balance_sheet(\%::myconfig, $::form);
 
-  $::form->{asofdate} ||= $::form->current_date;
-  $::form->{period}     = $::locale->date(\%::myconfig, $::form->current_date, 1);
+  $::form->{asofdate}    ||= $::form->current_date;
+  $::form->{report_title}  = $::locale->text('Balance Sheet');
+  $::form->{report_date} ||= $::form->current_date;
 
   ($::form->{department}) = split /--/, $::form->{department};
 
@@ -409,6 +420,8 @@ sub generate_balance_sheet {
   $::form->{this_period} = $::locale->date(\%::myconfig, $::form->{asofdate}, 0);
   $::form->{last_period} = $::locale->date(\%::myconfig, $::form->{compareasofdate}, 0);
 
+#  balance sheet isn't read from print templates anymore,
+#  instead use template in rp
 #  $::form->{IN} = "balance_sheet.html";
 
   $::form->header;
@@ -577,7 +590,7 @@ sub generate_trial_balance {
   my $attachment_basename = $locale->text('trial_balance');
   my $report              = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @hidden_variables    = qw(fromdate todate year cash);
+  my @hidden_variables    = qw(fromdate todate year method);
 
   my $href                = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
 
@@ -1631,10 +1644,6 @@ sub generate_bwa {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $defaults = SL::DB::Default->get;
-  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $form->{templates} = $defaults->templates;
-
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -1822,9 +1831,20 @@ sub generate_bwa {
       . qq| $longtodate|;
   }
 
-  $form->{IN} = "bwa.html";
+  $form->{report_date} = $locale->text('Report date') . ": " . $form->current_date;
 
-  $form->parse_template;
+  if ( $form->{method} eq 'cash' ) {
+    $form->{accounting_method} = $locale->text('Cash accounting');
+  } elsif ( $form->{method} eq 'accrual' ) {
+    $form->{accounting_method} = $locale->text('Accrual accounting');
+  } else {
+    $form->{accounting_method} = "";
+  };
+
+  $form->{title} = $locale->text('BWA');
+
+  $form->header;
+  print $form->parse_html_template('rp/bwa');
 
   $main::lxdebug->leave_sub();
 }

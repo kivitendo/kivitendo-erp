@@ -5,10 +5,10 @@ use strict;
 use List::MoreUtils qw(pairwise any);
 
 use SL::Helper::Csv;
-use SL::DB::Currency;
 use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
+use SL::DB::DeliveryTerm;
 use SL::DB::Vendor;
 use SL::DB::Contact;
 use SL::DB::History;
@@ -18,7 +18,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_currencies default_currency_id all_vc vc_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_vc vc_by clone_methods) ],
 );
 
 sub run {
@@ -31,8 +31,7 @@ sub run {
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
-                                  class                  => $self->class,
-                                  profile                => $profile,
+                                  profile                => [{ profile => $profile, class => $self->class }],
                                   ignore_unknown_columns => 1,
                                   strict_profile         => 1,
                                   case_insensitive_header => 1,
@@ -141,18 +140,6 @@ sub init_all_languages {
   return SL::DB::Manager::Language->get_all;
 }
 
-sub init_all_currencies {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Currency->get_all;
-}
-
-sub init_default_currency_id {
-  my ($self) = @_;
-
-  return SL::DB::Default->get->currency_id;
-}
-
 sub init_payment_terms_by {
   my ($self) = @_;
 
@@ -160,11 +147,22 @@ sub init_payment_terms_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_payment_terms } } ) } qw(id description) };
 }
 
+sub init_delivery_terms_by {
+  my ($self) = @_;
+
+  my $all_delivery_terms = SL::DB::Manager::DeliveryTerm->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_delivery_terms } } ) } qw(id description) };
+}
+
 sub init_all_vc {
   my ($self) = @_;
 
   return { customers => SL::DB::Manager::Customer->get_all,
            vendors   => SL::DB::Manager::Vendor->get_all };
+}
+
+sub init_clone_methods {
+  {}
 }
 
 sub force_allow_columns {
@@ -308,6 +306,8 @@ sub init_manager_class {
   $self->manager_class("SL::DB::Manager::" . $1);
 }
 
+sub is_multiplexed { 0 }
+
 sub check_objects {
 }
 
@@ -389,6 +389,38 @@ sub check_payment {
     }
 
     $object->payment_id($terms->id);
+
+    # register payment_id for method copying later
+    $self->clone_methods->{payment_id} = 1;
+  }
+
+  return 1;
+}
+
+sub check_delivery_term {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not delivery term ID is valid.
+  if ($object->delivery_term_id && !$self->delivery_terms_by->{id}->{ $object->delivery_term_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid delivery terms');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->delivery_term_id && $entry->{raw_data}->{delivery_term}) {
+    my $terms = $self->delivery_terms_by->{description}->{ $entry->{raw_data}->{delivery_term} };
+
+    if (!$terms) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid delivery terms');
+      return 0;
+    }
+
+    $object->delivery_term_id($terms->id);
+
+    # register delivery_term_id for method copying later
+    $self->clone_methods->{delivery_term_id} = 1;
   }
 
   return 1;
@@ -413,7 +445,10 @@ sub save_objects {
 
     my $object = $entry->{object_to_save} || $entry->{object};
 
-    if ( !$object->save(cascade => !!$self->save_with_cascade()) ) {
+    my $ret;
+    if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
+      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $@);
+    } elsif ( !$ret ) {
       push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
     } else {
       $self->_save_history($object);
@@ -462,17 +497,22 @@ sub clean_fields {
 sub _save_history {
   my ($self, $object) = @_;
 
-  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors)) {
+  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors orders)) {
     my $snumbers = $self->controller->{type} eq 'parts'             ? 'partnumber_' . $object->partnumber
                  : $self->controller->{type} eq 'customers_vendors' ?
                      ($self->table eq 'customer' ? 'customernumber_' . $object->customernumber : 'vendornumber_' . $object->vendornumber)
+                 : $self->controller->{type} eq 'orders'            ? 'ordnumber_' . $object->ordnumber
                  : '';
+
+    my $what_done = $self->controller->{type} eq 'orders' ? 'sales_order'
+                  : '';
 
     SL::DB::History->new(
       trans_id    => $object->id,
       snumbers    => $snumbers,
       employee_id => $self->controller->{employee_id},
       addition    => 'SAVED',
+      what_done   => $what_done,
     )->save();
   }
 }

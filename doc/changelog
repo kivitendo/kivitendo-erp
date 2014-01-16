@@ -35,13 +35,22 @@ Größere neue Features:
   WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
   Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
-
+- CSV-Import von Aufträgen
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Die bwa.html und ustva.html werden jetzt zentral gepflegt und nicht mehr als benutzerdefinierte
+  Druckvorlage. Falls hier jmd. Anpassungen gemacht hat, müssten diese in templates/rp/$VORLAGE.html
+  nachgepflegt werden
+- Für UstVa: Winston, Taxbird und Pdf-Export werden nicht mehr unterstützt. Die UstVa muss sowieso mittlerweile
+  per Elster erfolgen
+- Lieferbedingungen analog zu Zahlungsbedingungen eingeführt.
+  Sie können angelegt, beim Benutzer voreingestellt und in allen Ein- und Ver-
+  kaufsmasken gesetzt werden.
+
 - Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
 __Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
-__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden 
+__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden
 __meist nur für die Mahngebührenrechnungen verwendet, da ist das nicht so
 __interessant, aber bei Kreditorenbuchungen werden oft Sachen gebucht, die
 __nichts mit Wareneinkauf zu tun haben, und nicht jeder sehen soll. Für diesen
@@ -99,6 +108,12 @@ Wichtige Änderungen:
 - Perl v5.10.1 oder neuer und PostgreSQL v8.4 oder neuer werden
   zwingend vorausgesetzt.
 
+Bugfixes:
+ - Punkt in Belegnummer korrekt für WebDAV File Feature escapt (Bug 2394)
+ - Stornierte Rechnungen (sowohl die Stornorechnung als auch das Storno nicht
+   Buchen oder Löschen, egal was in der Mandantenkonfiguration steht)
+ - Wiederkehrende Rechnung mit Steuer inklusive buchen Erlöse falsch (Bug 2314)
+ - manuelle Lieferadresse im Auftrag wird nicht in wiederkehrende Rechung übernommen (Bug 2296)
 
 
 2012-12-10 - Release 3.0.0

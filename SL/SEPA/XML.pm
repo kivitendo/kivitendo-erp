@@ -223,8 +223,8 @@ sub to_xml {
         $xml->startTag('DrctDbtTx');
 
         $xml->startTag('MndtRltdInf');
-        $xml->dataElement('MndtId', $self->_restricted_identification_sepa2($transaction->get('company_number')));
-        $xml->dataElement('DtOfSgntr', $transaction->get('reference_date', 2010-12-02));
+        $xml->dataElement('MndtId', $self->_restricted_identification_sepa2($transaction->get('mandator_id')));
+        $xml->dataElement('DtOfSgntr', $self->_restricted_identification_sepa2($transaction->get('date_of_signature')));
         $xml->endTag('MndtRltdInf');
 
         $xml->startTag('CdtrSchmeId');

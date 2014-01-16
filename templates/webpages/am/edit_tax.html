@@ -41,7 +41,7 @@
 
    <tr>
     <td>[% 'tax_chartaccno' | $T8 %]</td>
-    <td><select name="chart_id"><option value="0">[% 'None' | $T8 %]</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
+    <td><select name="chart_id"><option value="">[% 'None' | $T8 %]</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
    </tr>
 
     <td>[% 'Account categories' | $T8 %]</td>

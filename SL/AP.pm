@@ -163,32 +163,24 @@ sub post_transaction {
       do_query($form, $dbh, $query, $form->{id});
 
     } else {
-      my $uid = rand() . time;
 
-      $uid .= $form->{login};
-
-      $uid = substr($uid, 2, 75);
-
+      ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
+ 
       $query =
-        qq|INSERT INTO ap (invnumber, employee_id,currency_id) | .
-        qq|VALUES (?, (SELECT e.id FROM employee e WHERE e.login = ?),
+        qq|INSERT INTO ap (id, invnumber, employee_id,currency_id) | .
+        qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),
                       (SELECT id FROM currencies WHERE name = ?) )|;
-      do_query($form, $dbh, $query, $uid, $form->{login}, $form->{currency});
+      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $form->{login}, $form->{currency});
 
-      $query = qq|SELECT a.id FROM ap a
-                  WHERE a.invnumber = ?|;
-      ($form->{id}) = selectrow_query($form, $dbh, $query, $uid);
     }
 
-    $form->{invnumber} = $form->{id} unless $form->{invnumber};
-
     $query = qq|UPDATE ap SET
-                invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
+                transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, paid = ?, netamount = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
                 globalproject_id = ?, direct_debit = ?
                WHERE id = ?|;
-    @values = ($form->{invnumber}, conv_date($form->{transdate}),
+    @values = (conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
                   $form->{taxincluded} ? 't' : 'f', $form->{invtotal},
                   conv_date($form->{duedate}), $form->{invpaid},
@@ -703,7 +695,7 @@ sub setup_form {
   my ($self, $form, $for_post_payments) = @_;
 
   my ($exchangerate, $i, $j, $k, $key, $akey, $ref, $index, $taxamount, $totalamount, $totaltax, $totalwithholding, $withholdingrate,
-      $taxincluded, $tax, $diff);
+      $tax, $diff);
 
   # forex
   $form->{forex} = $form->{exchangerate};
@@ -807,7 +799,6 @@ sub setup_form {
     }
   }
 
-  $form->{taxincluded}  = $taxincluded if ($form->{id});
   $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
 
   if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {

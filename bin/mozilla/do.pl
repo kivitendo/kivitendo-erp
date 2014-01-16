@@ -38,6 +38,7 @@ use SL::DB::DeliveryOrder;
 use SL::DO;
 use SL::IR;
 use SL::IS;
+use SL::MoreCommon qw(ary_diff);
 use SL::ReportGenerator;
 use SL::WH;
 require "bin/mozilla/arap.pl";
@@ -172,7 +173,7 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes delivery_term_id currency));
   $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
@@ -184,7 +185,7 @@ sub order_links {
     $form->{discount} = $form->{customer_discount};
   }
 
-  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id delivery_term_id));
   $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
@@ -293,21 +294,23 @@ sub form_header {
   $form->{oldvcname}         =  $form->{"old$form->{vc}"};
   $form->{oldvcname}         =~ s/--.*//;
 
-  if ($form->{resubmit}) {
-    my $dispatch_to_popup = '';
-    if ($form->{format} eq "html") {
-      $dispatch_to_popup .= "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
-    }
-    # emulate click for resubmitting actions
-    $dispatch_to_popup .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
+  my $dispatch_to_popup = '';
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+    $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
     $dispatch_to_popup .= "document.do.submit();";
-    $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
+  } elsif ($form->{resubmit}) {
+    # emulate click for resubmitting actions
+    $dispatch_to_popup  = "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
   }
+  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
+
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
   $follow_up_vc                   =~ s/--\d*\s*$//;
 
   $form->{follow_up_trans_info} = $form->{donumber} .'('. $follow_up_vc .')';
+
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase));
 
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
@@ -335,6 +338,7 @@ sub form_footer {
   my $form     = $main::form;
 
   $form->{PRINT_OPTIONS} = print_options('inline' => 1);
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('do/form_footer',
     {transfer_default         => ($::instance_conf->get_transfer_default)});
@@ -411,9 +415,15 @@ sub update_delivery_order {
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
-        $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
+        $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"} * (1 - $form->{tradediscount}));
         $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+        # build up html code for prices_$i
+        &set_pricegroup($i);
       }
 
       display_form();
@@ -490,7 +500,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate               reqdate
     id                      donumber
-    ordnumber               customernumber
+    ordnumber               customernumber          cusordnumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description department
@@ -507,19 +517,21 @@ sub orders {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber
-                                          transaction_description transdatefrom transdateto type vc employee_id salesman_id project_id);
+  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
+                                          transaction_description transdatefrom transdateto reqdatefrom reqdateto
+                                          type vc employee_id salesman_id project_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
     'ids'                     => { 'text' => '', },
-    'transdate'               => { 'text' => $locale->text('Date'), },
+    'transdate'               => { 'text' => $locale->text('Delivery Order Date'), },
     'reqdate'                 => { 'text' => $locale->text('Reqdate'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
+    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
@@ -569,12 +581,16 @@ sub orders {
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }
-  if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
+  if ( $form->{transdatefrom} or $form->{transdateto} ) {
+    push @options, $locale->text('Delivery Order Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)     if $form->{transdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)     if $form->{transdateto};
+  };
+  if ( $form->{reqdatefrom} or $form->{reqdateto} ) {
+    push @options, $locale->text('Reqdate');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{reqdatefrom}, 1)       if $form->{reqdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{reqdateto},   1)       if $form->{reqdateto};
+  };
   if ($form->{open}) {
     push @options, $locale->text('Open');
   }
@@ -680,8 +696,8 @@ sub save {
 
   $form->{simple_save} = 1;
   if (!$params{no_redirect} && !$form->{print_and_save}) {
-    set_headings("edit");
-    update();
+    delete @{$form}{ary_diff([keys %{ $form }], [qw(login id script type cursor_fokus)])};
+    edit();
     ::end_of_request();
   }
   $main::lxdebug->leave_sub();
@@ -822,7 +838,7 @@ sub invoice {
     $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
   }
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  set_pricegroup($_) for 1 .. $form->{rowcount};
+  set_pricegroup($form->{rowcount});
 
   display_form();
 
@@ -861,6 +877,8 @@ sub invoice_multi {
   # Hinweis: delete gibt den wert zurueck und loescht danach das element (nett und einfach)
   # $shell: perldoc perlunc; /delete EXPR
   $form->{donumber}            = delete $form->{donumber_array};
+  $form->{ordnumber}           = delete $form->{ordnumber_array};
+  $form->{cusordnumber}        = delete $form->{cusordnumber_array};
   $form->{deliverydate}        = $form->{transdate};
   $form->{transdate}           = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
@@ -1310,6 +1328,8 @@ sub transfer_in {
       foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_in_$i"}) }) {
         $request->{parts_id}  = $form->{"id_$i"};
         $row_sum_base_qty    += $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
+
+        $request->{project_id} = $form->{"project_id_$i"} || $form->{globalproject_id};
 
         push @all_requests, $request;
       }

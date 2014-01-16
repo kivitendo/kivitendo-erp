@@ -9,7 +9,7 @@
   <table width="100%" id="price_factor_list">
    <thead>
    <tr class="listheading">
-    <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+    <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
     <th width="80%">[% 'Description' | $T8 %]</th>
     <th width="20%">[% 'Factor' | $T8 %]</th>
    </tr>
@@ -18,7 +18,7 @@
    <tbody>
    [% FOREACH factor = PRICE_FACTORS %]
    <tr class="listrow[% loop.count % 2 %]" id="price_factor_id_[% factor.id %]">
-    <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+    <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
     <td><a href="[% url_base %]&action=edit_price_factor&id=[% HTML.url(factor.id) %]">[% HTML.escape(factor.description) %]</a></td>
     <td>[% HTML.escape(factor.factor) %]</td>
    </tr>
