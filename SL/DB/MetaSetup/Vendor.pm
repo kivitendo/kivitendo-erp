@@ -85,6 +85,11 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::PaymentTerm',
     key_columns => { payment_id => 'id' },
   },
+
+  salesman => {
+    class       => 'SL::DB::Employee',
+    key_columns => { salesman_id => 'id' },
+  },
 );
 
 1;
