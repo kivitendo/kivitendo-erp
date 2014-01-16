@@ -30,12 +30,9 @@ sub new {
 }
 
 sub _init {
-  my $self = shift;
+  my ($self, %params) = @_;
 
-  $self->{source}    = shift;
-  $self->{form}      = shift;
-  $self->{myconfig}  = shift;
-  $self->{userspath} = shift;
+  $self->{$_} = $params{$_} for keys %params;
 
   $self->{error}     = undef;
   $self->{quot_re}   = '"';

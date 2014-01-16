@@ -25,7 +25,13 @@ sub create {
   my %params  = @_;
   my $package = "SL::Template::" . $params{type};
 
-  $package->new($params{file_name}, $params{form}, $params{myconfig} || \%::myconfig, $params{userspath} || $::lx_office_conf{paths}->{userspath});
+  $package->new(
+    %params,
+    source    => $params{file_name},
+    form      => $params{form},
+    myconfig  => $params{myconfig}  || \%::myconfig,
+    userspath => $params{userspath} || $::lx_office_conf{paths}->{userspath},
+  );
 }
 
 sub available_templates {
