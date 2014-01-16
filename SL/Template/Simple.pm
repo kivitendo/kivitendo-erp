@@ -34,6 +34,10 @@ sub _init {
 
   $self->{$_} = $params{$_} for keys %params;
 
+  $self->{variable_content_types}        ||= {};
+  $self->{variable_content_types}->{$_}    = lc $self->{variable_content_types}->{$_} for keys %{ $self->{variable_content_types} };
+  $self->{default_variable_content_type}   = 'text';
+
   $self->{error}     = undef;
   $self->{quot_re}   = '"';
 
@@ -135,7 +139,7 @@ sub substitute_vars {
 
     my $value               = $self->_get_loop_variable($var, 0, @indices);
     $value                  = $form->parse_amount({ numberformat => $::myconfig{output_numberformat} || $::myconfig{numberformat} }, $value) if     $options{NOFORMAT};
-    $value                  = $self->format_string($value)                                                                                   unless $options{NOESCAPE};
+    $value                  = $self->format_string($value, $var)                                                                             unless $options{NOESCAPE};
 
     substr($text, $tag_pos, $tag_len, $value);
   }

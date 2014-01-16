@@ -1019,7 +1019,8 @@ sub parse_template {
                                       file_name => $self->{IN},
                                       form      => $self,
                                       myconfig  => $myconfig,
-                                      userspath => $userspath);
+                                      userspath => $userspath,
+                                      %{ $self->{TEMPLATE_DRIVER_OPTIONS} || {} });
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
