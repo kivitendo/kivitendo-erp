@@ -55,7 +55,7 @@ __PACKAGE__->meta->columns(
   language_id                             => { type => 'integer' },
   max_future_booking_interval             => { type => 'integer', default => 360 },
   mtime                                   => { type => 'timestamp' },
-  # normalize_part_descriptions             => { type => 'boolean', default => 'true' },
+  normalize_part_descriptions             => { type => 'boolean', default => 'true' },
   normalize_vc_names                      => { type => 'boolean', default => 'true' },
   parts_image_css                         => { type => 'text', default => 'border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;' },
   parts_listing_image                     => { type => 'boolean', default => 'true' },
