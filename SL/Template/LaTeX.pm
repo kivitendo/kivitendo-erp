@@ -71,7 +71,7 @@ sub _format_html {
 
   $content =~ s{ \r+ }{}gx;
   $content =~ s{ \n+ }{ }gx;
-  $content =~ s{ \s+ }{ }gx;
+  $content =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
 
   my @parts = map {
     if (substr($_, 0, 1) eq '<') {

@@ -73,7 +73,7 @@ sub _format_html {
   $content                      =~ s{ ^<p> | </p>$ }{}gx;
   $content                      =~ s{ \r+ }{}gx;
   $content                      =~ s{ \n+ }{ }gx;
-  $content                      =~ s{ \s+ }{ }gx;
+  $content                      =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
 
   my $in_p                      = 1;
   my $p_start_tag               = qq|<text:p text:style-name="@{[ $self->{current_text_style} ]}">|;
