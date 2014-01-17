@@ -4,9 +4,11 @@ use parent qw(SL::Template::Simple);
 
 use Archive::Zip;
 use Encode;
+use HTML::Entities;
 use POSIX 'setsid';
 
 use SL::Iconv;
+use SL::Template::OpenDocument::Styles;
 
 use Cwd;
 # use File::Copy;
@@ -16,12 +18,119 @@ use IO::File;
 
 use strict;
 
+my %text_markup_replace = (
+  b   => "BOLD",
+  i   => "ITALIC",
+  s   => "STRIKETHROUGH",
+  u   => "UNDERLINE",
+  sup => "SUPER",
+  sub => "SUB",
+);
+
+sub _format_text {
+  my ($self, $content, %params) = @_;
+
+  $content = $::locale->quote_special_chars('Template/OpenDocument', $content);
+
+  # Allow some HTML markup to be converted into the output format's
+  # corresponding markup code, e.g. bold or italic.
+  foreach my $key (keys(%text_markup_replace)) {
+    my $value = $text_markup_replace{$key};
+    $content =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TKIVITENDO${value}\">|gi; #"
+    $content =~ s|\&lt;/${key}\&gt;|</text:span>|gi;
+  }
+
+  return $content;
+}
+
+my %html_replace = (
+  '</ul>'     => '</text:list>',
+  '</ol>'     => '</text:list>',
+  '</li>'     => '</text:p></text:list-item>',
+  '<b>'       => '<text:span text:style-name="TKIVITENDOBOLD">',
+  '</b>'      => '</text:span>',
+  '<strong>'  => '<text:span text:style-name="TKIVITENDOBOLD">',
+  '</strong>' => '</text:span>',
+  '<i>'       => '<text:span text:style-name="TKIVITENDOITALIC">',
+  '</i>'      => '</text:span>',
+  '<em>'      => '<text:span text:style-name="TKIVITENDOITALIC">',
+  '</em>'     => '</text:span>',
+  '<u>'       => '<text:span text:style-name="TKIVITENDOUNDERLINE">',
+  '</u>'      => '</text:span>',
+  '<s>'       => '<text:span text:style-name="TKIVITENDOSTRIKETHROUGH">',
+  '</s>'      => '</text:span>',
+  '<sub>'     => '<text:span text:style-name="TKIVITENDOSUB">',
+  '</sub>'    => '</text:span>',
+  '<sup>'     => '<text:span text:style-name="TKIVITENDOSUPER">',
+  '</sup>'    => '</text:span>',
+  '<br/>'     => '<text:line-break/>',
+  '<br>'      => '<text:line-break/>',
+);
+
+sub _format_html {
+  my ($self, $content, %params) = @_;
+
+  $content                      =~ s{ ^<p> | </p>$ }{}gx;
+  $content                      =~ s{ \r+ }{}gx;
+  $content                      =~ s{ \n+ }{ }gx;
+  $content                      =~ s{ \s+ }{ }gx;
+
+  my $in_p                      = 1;
+  my $p_start_tag               = qq|<text:p text:style-name="@{[ $self->{current_text_style} ]}">|;
+  my $ul_start_tag              = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
+  my $ol_start_tag              = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
+  my $ul_li_start_tag           = qq|<text:list-item><text:p text:style-name="PKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
+  my $ol_li_start_tag           = qq|<text:list-item><text:p text:style-name="PKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
+
+  my @parts = map {
+    if (substr($_, 0, 1) eq '<') {
+      s{ +}{}g;
+      if ($_ eq '</p>') {
+        $in_p--;
+        '</text:p>';
+
+      } elsif ($_ eq '<p>') {
+        if (!$in_p) {
+          $in_p = 1;
+          $p_start_tag;
+        }
+
+      } elsif ($_ eq '<ul>') {
+        $self->{used_list_styles}->{itemize}->{$self->{current_text_style}}   = 1;
+        $html_replace{'<li>'}                                                 = $ul_li_start_tag;
+        $ul_start_tag;
+
+      } elsif ($_ eq '<ol>') {
+        $self->{used_list_styles}->{enumerate}->{$self->{current_text_style}} = 1;
+        $html_replace{'<li>'}                                                 = $ol_li_start_tag;
+        $ol_start_tag;
+
+      } else {
+        $html_replace{$_} || '';
+      }
+
+    } else {
+      $::locale->quote_special_chars('Template/OpenDocument', HTML::Entities::decode_entities($_));
+    }
+  } split(m{(<.*?>)}x, $content);
+
+  my $out  = join('', @parts);
+  $out    .= $p_start_tag if !$in_p;
+
+  # $::lxdebug->message(0, "out $out");
+
+  return $out;
+}
+
+my %formatters = (
+  html => \&_format_html,
+  text => \&_format_text,
+);
+
 sub new {
   my $type = shift;
 
   my $self = $type->SUPER::new(@_);
-
-  $self->{"rnd"}   = int(rand(1000000));
 
   $self->set_tag_style('&lt;%', '%&gt;');
   $self->{quot_re} = '&quot;';
@@ -104,6 +213,8 @@ sub parse_block {
       $contents =~ m|^<[^>]+>|;
       my $tag = $&;
       substr($contents, 0, length($&)) = "";
+
+      $self->{current_text_style} = $1 if $tag =~ m|text:style-name\s*=\s*"([^"]+)"|;
 
       if ($tag =~ m|<table:table-row|) {
         $contents =~ m|^(.*?)(</table:table-row[^>]*>)|;
@@ -235,29 +346,11 @@ sub parse {
     return 0;
   }
 
-  my $rnd = $self->{"rnd"};
-  my $new_styles = qq|<style:style style:name="TLXO${rnd}BOLD" style:family="text">
-<style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
-</style:style>
-<style:style style:name="TLXO${rnd}ITALIC" style:family="text">
-<style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
-</style:style>
-<style:style style:name="TLXO${rnd}UNDERLINE" style:family="text">
-<style:text-properties style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/>
-</style:style>
-<style:style style:name="TLXO${rnd}STRIKETHROUGH" style:family="text">
-<style:text-properties style:text-line-through-style="solid"/>
-</style:style>
-<style:style style:name="TLXO${rnd}SUPER" style:family="text">
-<style:text-properties style:text-position="super 58%"/>
-</style:style>
-<style:style style:name="TLXO${rnd}SUB" style:family="text">
-<style:text-properties style:text-position="sub 58%"/>
-</style:style>
-|;
-
-  $contents =~ s|</office:automatic-styles>|${new_styles}</office:automatic-styles>|;
-  $contents =~ s|[\n\r]||gm;
+  $self->{current_text_style} =  '';
+  $self->{used_list_styles}   =  {
+    itemize                   => {},
+    enumerate                 => {},
+  };
 
   my $new_contents;
   if ($self->{use_template_toolkit}) {
@@ -271,6 +364,20 @@ sub parse {
     $main::lxdebug->leave_sub();
     return 0;
   }
+
+  my $new_styles = SL::Template::OpenDocument::Styles->get_style('text_basic');
+
+  foreach my $type (qw(itemize enumerate)) {
+    foreach my $parent (sort { $a cmp $b } keys %{ $self->{used_list_styles}->{$type} }) {
+      $new_styles .= SL::Template::OpenDocument::Styles->get_style('text_list_item', TYPE => $type, PARENT => $parent)
+                   .  SL::Template::OpenDocument::Styles->get_style("list_${type}",  TYPE => $type, PARENT => $parent);
+    }
+  }
+
+  # $::lxdebug->dump(0, "new_Styles", $new_styles);
+
+  $new_contents =~ s|</office:automatic-styles>|${new_styles}</office:automatic-styles>|;
+  $new_contents =~ s|[\n\r]||gm;
 
 #   $new_contents =~ s|>|>\n|g;
 
@@ -572,24 +679,14 @@ sub convert_to_pdf {
 }
 
 sub format_string {
-  my ($self, $variable) = @_;
-  my $form = $self->{"form"};
+  my ($self, $content, $variable) = @_;
 
-  $variable = $main::locale->quote_special_chars('Template/OpenDocument', $variable);
+  my $formatter =
+       $formatters{ $self->{variable_content_types}->{$variable} }
+    // $formatters{ $self->{default_content_type} }
+    // $formatters{ text };
 
-  # Allow some HTML markup to be converted into the output format's
-  # corresponding markup code, e.g. bold or italic.
-  my $rnd = $self->{"rnd"};
-  my %markup_replace = ("b" => "BOLD", "i" => "ITALIC", "s" => "STRIKETHROUGH",
-                        "u" => "UNDERLINE", "sup" => "SUPER", "sub" => "SUB");
-
-  foreach my $key (keys(%markup_replace)) {
-    my $value = $markup_replace{$key};
-    $variable =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TLXO${rnd}${value}\">|gi; #"
-    $variable =~ s|\&lt;/${key}\&gt;|</text:span>|gi;
-  }
-
-  return $variable;
+  return $formatter->($self, $content, variable => $variable);
 }
 
 sub get_mime_type() {
