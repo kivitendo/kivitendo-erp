@@ -18,6 +18,8 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::RequirementSpec;
 use SL::DB::Customer;
 use SL::DB::Project;
+use SL::DB::ProjectStatus;
+use SL::DB::ProjectType;
 use SL::DB::RequirementSpecComplexity;
 use SL::DB::RequirementSpecRisk;
 use SL::DB::RequirementSpecStatus;
@@ -29,12 +31,12 @@ use SL::Template::LaTeX;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(requirement_spec_item customers types statuses visible_item visible_section) ],
-  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js current_text_block_output_position) ],
+  scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
+  'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
+                                  current_text_block_output_position) ],
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_select_options',  only => [ qw(new ajax_edit create update list) ]);
 
 __PACKAGE__->make_filtered(
   MODEL      => 'RequirementSpec',
@@ -103,6 +105,17 @@ sub action_ajax_edit {
   my ($self) = @_;
 
   my $html   = $self->render('requirement_spec/_form', { output => 0 }, submit_as => 'ajax');
+
+  $self->js
+    ->hide('#basic_settings')
+    ->after('#basic_settings', $html)
+    ->render($self);
+}
+
+sub action_ajax_edit_project_link {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec/_project_link_form', { output => 0 }, submit_as => 'ajax');
 
   $self->js
     ->hide('#basic_settings')
@@ -184,6 +197,17 @@ sub action_create {
 sub action_update {
   my ($self) = @_;
   $self->create_or_update;
+}
+
+sub action_update_project_link {
+  my $self   = shift;
+  my $action = delete($::form->{project_link_action}) || 'keep';
+
+  return $self->update_project_link_none_keep_existing($action) if $action =~ m{none|keep|existing};
+  return $self->update_project_link_new($action)                if $action eq 'new';
+  return $self->update_project_link_create($action)             if $action eq 'create';
+
+  die "Unknown project link action '$action'";
 }
 
 sub action_destroy {
@@ -273,19 +297,24 @@ sub setup {
   return 1;
 }
 
-sub init_complexities {
-  my ($self) = @_;
-  return SL::DB::Manager::RequirementSpecComplexity->get_all_sorted;
-}
+sub init_js                     { SL::ClientJS->new                                           }
+sub init_complexities           { SL::DB::Manager::RequirementSpecComplexity->get_all_sorted  }
+sub init_default_project_status { SL::DB::Manager::ProjectStatus->find_by(name => 'planning') }
+sub init_default_project_type   { SL::DB::ProjectType->new(id => 1)->load                     }
+sub init_project_statuses       { SL::DB::Manager::ProjectStatus->get_all_sorted              }
+sub init_project_types          { SL::DB::Manager::ProjectType->get_all_sorted                }
+sub init_projects               { SL::DB::Manager::Project->get_all_sorted                    }
+sub init_risks                  { SL::DB::Manager::RequirementSpecRisk->get_all_sorted        }
+sub init_statuses               { SL::DB::Manager::RequirementSpecStatus->get_all_sorted      }
+sub init_types                  { SL::DB::Manager::RequirementSpecType->get_all_sorted        }
 
-sub init_risks {
+sub init_customers {
   my ($self) = @_;
-  return SL::DB::Manager::RequirementSpecRisk->get_all_sorted;
-}
 
-sub init_projects {
-  my ($self) = @_;
-  $self->projects(SL::DB::Manager::Project->get_all_sorted);
+  my @filter = ('!obsolete' => 1);
+  @filter    = ( or => [ @filter, id => $self->requirement_spec->customer_id ] ) if $self->requirement_spec && $self->requirement_spec->customer_id;
+
+  return SL::DB::Manager::Customer->get_all_sorted(where => \@filter);
 }
 
 sub init_requirement_spec {
@@ -298,25 +327,9 @@ sub init_copy_source {
   $self->copy_source(SL::DB::RequirementSpec->new(id => $::form->{copy_source_id})->load) if $::form->{copy_source_id};
 }
 
-sub init_js {
-  my ($self) = @_;
-  $self->js(SL::ClientJS->new);
-}
-
 sub init_current_text_block_output_position {
   my ($self) = @_;
   $self->current_text_block_output_position($::form->{current_content_type} !~ m/^(?:text-blocks|tb)-(front|back)/ ? -1 : $1 eq 'front' ? 0 : 1);
-}
-
-sub load_select_options {
-  my ($self) = @_;
-
-  my @filter = ('!obsolete' => 1);
-  @filter    = ( or => [ @filter, id => $self->requirement_spec->customer_id ] ) if $self->requirement_spec && $self->requirement_spec->customer_id;
-
-  $self->customers(SL::DB::Manager::Customer->get_all_sorted(where => \@filter));
-  $self->statuses( SL::DB::Manager::RequirementSpecStatus->get_all_sorted);
-  $self->types(    SL::DB::Manager::RequirementSpecType->get_all_sorted);
 }
 
 #
@@ -500,6 +513,58 @@ sub prepare_pictures_for_printing {
   }
 
   return @files;
+}
+
+sub update_project_link_none_keep_existing {
+  my ($self, $action) = @_;
+
+  $self->requirement_spec->update_attributes(project_id => undef)                     if $action eq 'none';
+  $self->requirement_spec->update_attributes(project_id => $::form->{new_project_id}) if $action eq 'existing';
+
+  return $self->invalidate_version
+    ->replaceWith('#basic_settings', $self->render('requirement_spec/_show_basic_settings', { output => 0 }))
+    ->remove('#project_link_form')
+    ->flash('info', t8('The project link has been updated.'))
+    ->render($self);
+}
+
+sub update_project_link_new {
+  my ($self) = @_;
+
+  return $self->js
+    ->replaceWith('#project_link_form', $self->render('requirement_spec/_new_project_form', { output => 0 }))
+    ->render($self);
+}
+
+sub update_project_link_create {
+  my ($self)  = @_;
+  my $params  = delete($::form->{project}) || {};
+  my $project = SL::DB::Project->new(
+    %{ $params },
+    valid  => 1,
+    active => 1,
+  );
+
+  my @errors = $project->validate;
+
+  return $self->js->error(@errors)->render($self) if @errors;
+
+  my $db = $self->requirement_spec->db;
+  if (!$db->do_transaction(sub {
+    $project->save;
+    $self->requirement_spec->update_attributes(project_id => $project->id);
+
+  })) {
+    $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
+    return $self->js->error(t8('Saving failed. Error message from the database: #1', $db->error))->render($self);
+  }
+
+  return $self->invalidate_version
+    ->replaceWith('#basic_settings', $self->render('requirement_spec/_show_basic_settings', { output => 0 }))
+    ->remove('#project_link_form')
+    ->flash('info', t8('The project has been created.'))
+    ->flash('info', t8('The project link has been updated.'))
+    ->render($self);
 }
 
 1;

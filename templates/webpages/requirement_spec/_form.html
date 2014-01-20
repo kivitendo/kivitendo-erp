@@ -3,6 +3,8 @@
             submit_as = 'post'
 %]
 <form method="post" action="controller.pl" id="[% id_prefix %]"[% UNLESS submit_as == 'post' %] class="edit-basic-settings-context-menu"[% END %]>
+ <h2>[% LxERP.t8("Edit general settings") %]</h2>
+
  [% L.hidden_tag("id", SELF.requirement_spec.id, id=id_prefix _ '_id') %]
  [% L.hidden_tag("requirement_spec.is_template", SELF.requirement_spec.is_template, id=id_prefix _ '_is_template') %]
 

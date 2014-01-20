@@ -444,7 +444,7 @@ ns.standard_basic_settings_ajax_call = function(key, opt) {
   if (key == 'cancel') {
     if (confirm(kivi.t8('Do you really want to cancel?'))) {
       $('#basic_settings').show();
-      $('#basic_settings_form').remove();
+      $('#basic_settings_form,#project_link_form').remove();
     }
     return true;
   }
@@ -684,6 +684,14 @@ ns.create_context_menus = function(is_template) {
       , delete_reqspec:  { name: kivi.t8('Delete template'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
     };
 
+    $.contextMenu({
+      selector: '.basic-settings-context-menu',
+      items:    $.extend({
+          heading: { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
+        , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+      }, general_actions)
+    });
+
   } else {                      // if (is_template)
     var general_actions = {
         sep98:              "---------"
@@ -702,6 +710,24 @@ ns.create_context_menus = function(is_template) {
           heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
         , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
         , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
+      }, general_actions)
+    });
+
+    $.contextMenu({
+      selector: '.basic-settings-context-menu',
+      items:    $.extend({
+          heading:           { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
+        , edit:              { name: kivi.t8('Edit'),              icon: "edit", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+        , edit_project_link: { name: kivi.t8('Edit project link'),               callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+      }, general_actions)
+    });
+
+    $.contextMenu({
+      selector: '.edit-project-link-context-menu',
+      items:    $.extend({
+          heading: { name: kivi.t8('Project link actions'), className: 'context-menu-heading' }
+        , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+        , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
       }, general_actions)
     });
 
@@ -744,14 +770,6 @@ ns.create_context_menus = function(is_template) {
       , sep2:             "---------"
       , copy_picture:     { name: kivi.t8('Copy'),             icon: "copy",        callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
       , paste_picture:    { name: kivi.t8('Paste'),            icon: "paste",       callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
-    }, general_actions)
-  });
-
-  $.contextMenu({
-    selector: '.basic-settings-context-menu',
-    items:    $.extend({
-        heading: { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
-      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
     }, general_actions)
   });
 
