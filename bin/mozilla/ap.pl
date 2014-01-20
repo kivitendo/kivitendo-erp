@@ -375,6 +375,10 @@ sub form_header {
   if ( $form->{'paid_'. $form->{paidaccounts}} ) {
     $form->{paidaccounts}++;
   }
+
+  # default account for current assets (i.e. 1801 - SKR04)
+  $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{totalpaid} += $form->{"paid_$i"};
 

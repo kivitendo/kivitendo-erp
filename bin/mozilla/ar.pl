@@ -409,12 +409,15 @@ sub form_header {
       gldate           => $form->{"gldate_$i"},
     };
 
+  # default account for current assets (i.e. 1801 - SKR04)
+  $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+
     $payment->{selectAR_paid} =
       NTI($cgi->popup_menu('-name' => "AR_paid_$i",
                            '-id' => "AR_paid_$i",
                            '-values' => \@AR_paid_values,
                            '-labels' => \%chart_labels,
-                           '-default' => $payment->{AR_paid}));
+                           '-default' => $form->{accno_arap}));
 
 
 

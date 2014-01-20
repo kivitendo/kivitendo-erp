@@ -21,6 +21,8 @@ my (%uselines, %modules, %supplied, %requires);
    'Rose::DB::Object::ConventionManager' => 1,
    'Rose::DB::Object::Manager'           => 1,
    'Rose::DB::Object::Metadata'          => 1,
+   'Rose::DB::Object::Helpers'           => 1,
+   'Rose::DB::Object::Util'              => 1,
   },
   'Rose::Object' => {
     'Rose::Object::MakeMethods::Generic' => 1,
@@ -32,6 +34,7 @@ my (%uselines, %modules, %supplied, %requires);
     'Template::Plugin'                   => 1,
     'Template::Plugin::Filter'           => 1,
     'Template::Plugin::HTML'             => 1,
+    'Template::Stash'                    => 1,
   },
   'Devel::REPL' => {
     'namespace::clean'                   => 1,
@@ -43,6 +46,9 @@ my (%uselines, %modules, %supplied, %requires);
     'TAP::Parser'                        => 1,
     'TAP::Parser::Aggregator'            => 1,
   },
+  'Archive::Zip' => {
+    'Archive::Zip::Member'               => 1,
+  }
 );
 
 GetOptions(
