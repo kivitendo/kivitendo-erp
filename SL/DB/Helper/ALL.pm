@@ -4,7 +4,6 @@ use strict;
 
 use SL::DB::AccTransaction;
 use SL::DB::Assembly;
-use SL::DB::AuditTrail;
 use SL::DB::AuthClient;
 use SL::DB::AuthClientUser;
 use SL::DB::AuthClientGroup;
