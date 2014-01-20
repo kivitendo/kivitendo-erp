@@ -24,6 +24,12 @@
 
   <%name%>
 
+  <%department_1%>
+
+  <%department_2%>
+
+  <%cp_givenname%> <%cp_name%>
+
   <%street%>
 
   ~
@@ -67,8 +73,12 @@
 \ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
   \ifthenelse{\equal{<%cp_gender%>}{f}}
     {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+%\rechnungsformel\\
 
-\rechnungsformel\\
+<%if notes%>
+        <%notes%>
+<%end if%>
+
 
 \vspace{0.5cm}
 
@@ -83,16 +93,16 @@
 %
 \setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
 \setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
+\begin{longtable}{@{}rrp{9cm}@{\extracolsep{\fill}}rrr@{}}
 % Tabellenkopf
 \hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\textbf{\position} & & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
 \hline\\
 \endhead
 
 % Tabellenkopf erste Seite
 \hline
-\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\textbf{\position} & & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
 \hline\\[-0.5em]
 \endfirsthead
 
@@ -114,7 +124,7 @@
 % eigentliche Tabelle
 <%foreach number%>
           <%runningnumber%> &
-          <%number%> &
+          &
           \textbf{<%description%>} &
           \raggedleft <%qty%> <%unit%> &
           <%sellprice%> \currency &
@@ -134,12 +144,6 @@
 
 
 \vspace{0.2cm}
-
-<%if notes%>
-        \vspace{5mm}
-        <%notes%>
-        \vspace{5mm}
-<%end if%>
 
 \ifthenelse{\equal{<%deliverydate%>}{}}{\leistungsdatumGleichRechnungsdatum}{\lieferungErfolgtAm ~<%deliverydate%>.} \\
 
