@@ -93,16 +93,16 @@
 %
 \setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
 \setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{9cm}@{\extracolsep{\fill}}rrr@{}}
+\begin{longtable}{@{}rrp{7cm}@{\extracolsep{\fill}}rrr@{}}
 % Tabellenkopf
 \hline
-\textbf{\position} & & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
 \hline\\
 \endhead
 
 % Tabellenkopf erste Seite
 \hline
-\textbf{\position} & & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
+\textbf{\position} & \textbf{\artikelnummer} & \textbf{\bezeichnung} & \textbf{\menge} & \textbf{\einzelpreis} & \textbf{\gesamtpreis} \\
 \hline\\[-0.5em]
 \endfirsthead
 
@@ -124,7 +124,7 @@
 % eigentliche Tabelle
 <%foreach number%>
           <%runningnumber%> &
-          &
+          <%number%> &
           \textbf{<%description%>} &
           \raggedleft <%qty%> <%unit%> &
           <%sellprice%> \currency &
