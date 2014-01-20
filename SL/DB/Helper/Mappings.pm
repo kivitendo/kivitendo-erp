@@ -84,7 +84,6 @@ my @kivitendo_blacklist = (@kivitendo_blacklist_permanent, @kivitendo_blacklist_
 my %kivitendo_package_names = (
   # TABLE                           # MODEL (given in C style)
   acc_trans                      => 'acc_transaction',
-  audittrail                     => 'audit_trail',
   'auth.clients'                 => 'auth_client',
   'auth.clients_users'           => 'auth_client_user',
   'auth.clients_groups'          => 'auth_client_group',
