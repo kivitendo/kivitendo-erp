@@ -10,27 +10,6 @@
     [% LxERP.t8('Show Transfer via default') %]<br>
    </td>
   </tr>
-  <tr>
-   <td align="right">[% LxERP.t8('Default Transfer with Master Bin') %]</td>
-   <td>
-    [% L.yes_no_tag('defaults.transfer_default_use_master_default_bin', SELF.defaults.transfer_default_use_master_default_bin) %]
-   </td>
-   <td>
-    [% LxERP.t8('Use master default bin for Default Transfer, if no default bin for the part is configured') %]<br>
-   </td>
-  </tr>
-  <tr>
-   <td align="right">[% LxERP.t8('Default Transfer Out with negative inventory') %]</td>
-   <td>
-    [% L.yes_no_tag('defaults.transfer_default_ignore_onhand', SELF.defaults.transfer_default_ignore_onhand) %]
-   </td>
-   <td>
-    [% LxERP.t8('Default Transfer Out always succeed. The current part onhand is ignored and the inventory can have negative stocks (not recommended).') %]<br>
-   </td>
-  </tr>
-
-  <tr> </tr>
-  <tr>
    <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse') %]</td>
    <td>
     [% L.select_tag('defaults.warehouse_id', SELF.all_warehouses, id='warehouse_id', with_empty=1, default=SELF.defaults.warehouse_id, title_key='description',
@@ -46,6 +25,27 @@
    <td>[% L.select_tag('defaults.bin_id', [], id='bin_id', with_empty=1) %]</td>
   </tr>
   <tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer with Master Bin') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default_use_master_default_bin', SELF.defaults.transfer_default_use_master_default_bin) %]
+   </td>
+   <td>
+    [% LxERP.t8('Use master default bin for Default Transfer, if no default bin for the part is configured') %]<br>
+   </td>
+  </tr>
+  <tr><td colspan="3"><hr /></td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer Out with negative inventory') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default_ignore_onhand', SELF.defaults.transfer_default_ignore_onhand) %]
+   </td>
+   <td>
+    [% LxERP.t8('Default Transfer Out always succeed. The current part onhand is ignored and the inventory can have negative stocks (not recommended).') %]<br>
+   </td>
+  </tr>
+
+ <tr>
    <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse with ignoring on hand') %]</td>
    <td>
     [% L.select_tag('defaults.warehouse_id_ignore_onhand', SELF.all_warehouses, id='warehouse_id_ignore_onhand', with_empty=1, default=SELF.defaults.warehouse_id_ignore_onhand, title_key='description',
@@ -60,6 +60,8 @@
    <td align="right" nowrap="true">[% LxERP.t8('Default Bin with ignoring onhand') %]</td>
    <td>[% L.select_tag('defaults.bin_id_ignore_onhand', [], id='bin_id_ignore_onhand', with_empty=1) %]</td>
   </tr>
+  <tr><td colspan="3"><hr /></td></tr>
+  <tr>
   <tr>
    <td align="right">[% LxERP.t8('Show Bestbefore') %]</td>
    <td>
