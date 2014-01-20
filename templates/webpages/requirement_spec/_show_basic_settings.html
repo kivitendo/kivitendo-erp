@@ -1,16 +1,14 @@
 [%- USE HTML -%][%- USE LxERP -%]
 <div id="basic_settings" class="basic-settings-context-menu">
- <table>
-  <tr class="listheading">
-   <th colspan="2">
-    [% IF SELF.requirement_spec.is_template %]
-     [% LxERP.t8("Basic Settings for the Requirement Spec Template") %]
-    [% ELSE %]
-     [% LxERP.t8("Basic Settings for the Requirement Spec") %]
-    [% END %]
-   </th>
-  </tr>
+ <h2>
+  [% IF SELF.requirement_spec.is_template %]
+   [% LxERP.t8("Basic Settings for the Requirement Spec Template") %]
+  [% ELSE %]
+   [% LxERP.t8("Basic Settings for the Requirement Spec") %]
+  [% END %]
+ </h2>
 
+ <table>
   <tr class="listrow">
    <td>[% LxERP.t8("Title") %]:</td>
    <td>[% HTML.escape(SELF.requirement_spec.title) %]</td>
@@ -41,4 +39,42 @@
 [%- END %]
 
  </table>
+
+[% UNLESS SELF.requirement_spec.is_template %]
+
+ <h2>[% LxERP.t8("Project Link") %]</h2>
+
+ [% IF !SELF.requirement_spec.project_id %]
+  <p>[% LxERP.t8("This requirement spec is currently not linked to a project.") %]</p>
+
+ [% ELSE %]
+  <table>
+   <tr class="listrow">
+    <td>[% LxERP.t8("Project Number") %]:</td>
+    <td>[% HTML.escape(SELF.requirement_spec.project.projectnumber) %]</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% LxERP.t8("Description") %]:</td>
+    <td>[% HTML.escape(SELF.requirement_spec.project.description) %]</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% LxERP.t8("Customer") %]:</td>
+    <td>[% HTML.escape(SELF.requirement_spec.project.customer.name) %]</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% LxERP.t8("Type") %]:</td>
+    <td>[% HTML.escape(SELF.requirement_spec.project.project_type.description) %]</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% LxERP.t8("Status") %]:</td>
+    <td>[% HTML.escape(SELF.requirement_spec.project.project_status.description) %]</td>
+   </tr>
+  </table>
+
+ [% END %]
+[% END %]
 </div>
