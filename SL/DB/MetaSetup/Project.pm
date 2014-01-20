@@ -20,7 +20,7 @@ __PACKAGE__->meta->columns(
   itime                => { type => 'timestamp', default => 'now()' },
   mtime                => { type => 'timestamp' },
   order_value          => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
-  project_status_id    => { type => 'integer' },
+  project_status_id    => { type => 'integer', not_null => 1 },
   project_type_id      => { type => 'integer', not_null => 1 },
   projectnumber        => { type => 'text' },
   start_date           => { type => 'date' },
