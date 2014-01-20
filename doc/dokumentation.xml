@@ -71,7 +71,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
+        <para>Anfang 2014 sind das folgende Systeme, von denen bekannt ist,
         dass kivitendo auf ihnen läuft:</para>
 
         <itemizedlist>
@@ -351,15 +351,14 @@ tar xvzf kivitendo-erp-3.0.0.tgz</programlisting>
 
           <listitem><para><literal>system</literal></para></listitem>
 
-          <listitem><para><literal>features</literal> (siehe Kapitel "<xref linkend="features"/>")</para></listitem>
-
           <listitem><para><literal>paths</literal></para></listitem>
+
+          <listitem><para><literal>mail_delivery</literal> (siehe Abschnitt "<xref linkend="config.sending-email.smtp"/>)</para></listitem>
 
           <listitem><para><literal>applications</literal></para></listitem>
 
           <listitem><para><literal>environment</literal></para></listitem>
 
-          <listitem><para><literal>mail_delivery</literal> (siehe Abschnitt "<xref linkend="config.sending-email.smtp"/>)</para></listitem>
 
           <listitem><para><literal>print_templates</literal></para></listitem>
 
@@ -367,7 +366,13 @@ tar xvzf kivitendo-erp-3.0.0.tgz</programlisting>
 
           <listitem><para><literal>periodic_invoices</literal></para></listitem>
 
+          <listitem><para><literal>self_tests</literal></para></listitem>
+
           <listitem><para><literal>console</literal></para></listitem>
+
+          <listitem><para><literal>testing</literal></para></listitem>
+
+          <listitem><para><literal>testing/database</literal></para></listitem>
 
           <listitem><para><literal>debug</literal></para></listitem>
         </itemizedlist>
@@ -1170,8 +1175,8 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         Authentifizierungsdatenbank gespeichert. Dies ist diejenige Datenbank, deren Verbindungsparameter in der Konfigurationsdatei
         <filename>config/kivitendo.conf</filename> gespeichert werden.</para>
 
-        <para>Das zweite Set besteht aus den eigentlichen Verkehrsdaten eines Mandanten: Stammdaten (Kunden, Lieferanten, Waren), Belege
-        (Angebote, Liferscheine, Rechnungen), Einstellungen. Diese werden in einer Mandantendatenbank gespeichert. Die
+        <para>Das zweite Set besteht aus den eigentlichen Verkehrsdaten eines Mandanten, wie beispielsweise die Stammdaten (Kunden, Lieferanten, Waren) und Belege
+        (Angebote, Lieferscheine, Rechnungen). Diese werden in einer Mandantendatenbank gespeichert. Die
         Verbindungsinformationen einer solchen Mandantendatenbank werden im Administrationsbereich konfiguriert, indem man einen Mandanten
         anlegt und dort die Parameter einträgt. Dabei hat jeder Mandant eine eigene Datenbank.</para>
 
@@ -1179,16 +1184,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         Mandantendatenbanken in ein und derselben Datenbank zu speichern. Arbeitet man hingegen mit mehr als einem Mandanten, wird
         empfohlen, für die Authentifizierungsdatenbank eine eigene Datenbank zu verwenden, die nicht gleichzeitig für einen Mandanten
         verwendet wird.</para>
-
-        <para>kivitendo verwendet eine Datenbank zum Speichern all seiner
-        Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
-        mit kivitendo arbeiten zu können, muss eine Person einen
-        Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
-        Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
-        möglich und normal, dass mehreren Benutzern die selbe Datenbank
-        zugewiesen wird, sodass sie alle mit den selben Daten arbeiten
-        können.</para>
-      </sect2>
+     </sect2>
 
       <sect2 id="Mandanten-Benutzer-Gruppen">
         <title>Mandanten, Benutzer und Gruppen</title>
@@ -1589,6 +1585,9 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <title>RB</title>
 
         <para>Vollständiger Dokumentensatz mit alternativem Design</para>
+        <para>Die konzeptionelle Idee wird <ulink
+          url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
+          auf Folie 5 bis 10 vorgestellt, Detaileinstellungen dann im Readme.tex im Vorlagenverzeichnis.</para>
 
       </sect2>
 
@@ -2257,8 +2256,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         manuell über den Workflow.</para>
       </sect2>
     </sect1>
-
-    <sect1 id="dokumentenvorlagen-und-variablen">
+        <sect1 id="dokumentenvorlagen-und-variablen">
       <title>Dokumentenvorlagen und verfügbare Variablen</title>
 
       <sect2 id="dokumentenvorlagen-und-variablen.einführung">
@@ -4802,6 +4800,41 @@ Beschreibung: &lt;%description%&gt;
         <constant>&lt;&lt;</constant> und <constant>&gt;&gt;</constant>
         gewechselt.</para>
       </sect2>
+    </sect1>
+    <sect1 id="features.warehouse">
+    <title>Mandantenkonfiguration Lager</title>
+        Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt:
+        Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die Möglichkeit hier über den
+        Menüpunkt Lager entsprechende Warenbewegungen durchzuführen. Ferner kann
+        jede Position eines Lieferscheins ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf).
+        Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet werden.
+        Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und
+        das Auswählen dieser Position zu einem Lager mit Lagerplatz.
+        Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in
+        der Mandatenkonfiguration gesetzt werden.
+       <itemizedlist>
+          <listitem>
+            <para><option>Auslagern über Standardlagerplatz</option> Hier wird ein zusätzlicher Knopf (Auslagern über Standard-Lagerplatz)
+            in dem Lieferschein-Beleg hinzugefügt, der dann alle Lagerbewegungen über den Standardlagerplatz (konfigurierbar pro Ware) durchführt.
+            </para>
+          </listitem>
+          <listitem>
+            <para><option>Auslagern ohne Bestandsprüfung</option>Das obige Auslagern schlägt fehl, wenn die entsprechende Menge für
+            die Lagerbewegung nicht vorhanden ist, möchte man dies auch ignorieren und ggf. dann nachpflegen, so kann man eine Negativ-Warenmenge mit dieser Option
+            erlauben. Hierfür muss ein entsprechender Lagerplatz (Fehlbestand, o.ä.) konfiguriert sein.</para>
+          </listitem>
+       </itemizedlist>
+        Zusätzliche Funktionshinweise:
+         <itemizedlist>
+          <listitem><para><option>Standard-Lagerplatz</option>Ist dieser konfiguriert, wird dies auch als Standard-Voreinstellung bei der Neuerfassung von
+          Stammdaten-> Waren / Dienstleistung / Erzeugnis verwendet.
+          </para>
+          </listitem>
+          <listitem><para><option>Standard-Lagerplatz verwenden, falls keiner in Stammdaten definiert</option>Wird beim 'Auslagern über Standardlagerplatz'
+          keine Standardlagerplatz zu der Ware gefunden, so wird mit dieser Option einfach der Standardlagerplatz verwendet.
+          </para>
+          </listitem>
+       </itemizedlist>
     </sect1>
   </chapter>
 
