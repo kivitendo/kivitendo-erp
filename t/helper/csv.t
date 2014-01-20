@@ -1,4 +1,4 @@
-use Test::More tests => 71;
+use Test::More tests => 75;
 
 use lib 't';
 use utf8;
@@ -548,6 +548,55 @@ EOL
   ignore_unknown_columns => 1,
 );
 ok !$csv->_check_multiplexed, 'multiplex check detects empty header';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;longdescription;datatype
+name;customernumber;datatype
+Kaffee;"lecker Kaffee";P
+Meier;1;C
+Bier;"kühles Bier";P
+Mueller;2;C
+EOL
+# " # make emacs happy
+  profile => [
+              {class  => 'SL::DB::Part',     row_ident => 'P'},
+              {class  => 'SL::DB::Customer', row_ident => 'C'},
+             ],
+  ignore_unknown_columns => 1,
+);
+$csv->parse;
+is $csv->_multiplex_datatype_position, 2, 'multiplex check detects datatype field position right';
+
+is_deeply $csv->get_data, [ { datatype => 'P', description => 'Kaffee', longdescription => 'lecker Kaffee' },
+                            { datatype => 'C', name => 'Meier', customernumber => 1},
+                            { datatype => 'P', description => 'Bier', longdescription => 'kühles Bier' },
+                            { datatype => 'C', name => 'Mueller', customernumber => 2}
+                          ],
+                          'multiplex: datatype not at first position works';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+datatype;description;longdescription
+name;datatype;customernumber
+P;Kaffee;"lecker Kaffee"
+Meier;C;1
+P;Bier;"kühles Bier"
+Mueller;C;2
+EOL
+# " # make emacs happy
+  profile => [
+              {class  => 'SL::DB::Part',     row_ident => 'P'},
+              {class  => 'SL::DB::Customer', row_ident => 'C'},
+             ],
+  ignore_unknown_columns => 1,
+);
+ok !$csv->parse, 'multiplex check detects incosistent datatype field position';
+is_deeply( ($csv->errors)[0], [ 0, 'datatype field must be at the same position for all datatypes for multiplexed data', 0, 0 ], 'multiplex data with inconsistent datatype field posiotion throws error');
 
 #####
 
