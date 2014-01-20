@@ -54,6 +54,10 @@ sub action_new {
 sub action_create {
   my ($self)         = @_;
 
+  if (!$::auth->assert($::form->{quotation} ? 'sales_quotation_edit' : 'sales_order_edit', 1)) {
+    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render($self);
+  }
+
   # 1. Update sections with selected part IDs.
   my $section_attrs  = $::form->{sections} || [];
   my $sections       = SL::DB::Manager::RequirementSpecItem->get_all(where => [ id => [ map { $_->{id} } @{ $section_attrs } ] ]);
@@ -92,6 +96,10 @@ sub action_update {
 
   my $order    = $self->rs_order->order;
   my $sections = $self->requirement_spec->sections_sorted;
+
+  if (!$::auth->assert($order->quotation ? 'sales_quotation_edit' : 'sales_order_edit', 1)) {
+    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render($self);
+  }
 
   my (@orderitems, %sections_seen);
   foreach my $item (@{ $order->items_sorted }) {
@@ -204,7 +212,7 @@ sub action_delete {
 sub setup {
   my ($self) = @_;
 
-  $::auth->assert('sales_quotation_edit');
+  $::auth->assert('requirement_spec_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec autocomplete_part);
   $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
 

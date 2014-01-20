@@ -1059,6 +1059,7 @@ sub all_rights_full {
     ["part_service_assembly_details",  $locale->text("Show details and reports of parts, services, assemblies")],
     ["project_edit",                   $locale->text("Create and edit projects")],
     ["--ar",                           $locale->text("AR")],
+    ["requirement_spec_edit",          $locale->text("Create and edit requirement specs")],
     ["sales_quotation_edit",           $locale->text("Create and edit sales quotations")],
     ["sales_order_edit",               $locale->text("Create and edit sales orders")],
     ["sales_delivery_order_edit",      $locale->text("Create and edit sales delivery orders")],
@@ -1479,7 +1480,7 @@ Returns C<$self>.
 Nothing here yet.
 
 =head1 AUTHOR
-
+pp
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 =cut

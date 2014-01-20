@@ -496,7 +496,7 @@ sub action_ajax_paste {
 
 sub check_auth {
   my ($self) = @_;
-  $::auth->assert('sales_quotation_edit');
+  $::auth->assert('requirement_spec_edit');
 }
 
 sub load_requirement_spec_item {

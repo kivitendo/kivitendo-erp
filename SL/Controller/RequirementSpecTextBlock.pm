@@ -26,6 +26,7 @@ use Rose::Object::MakeMethods::Generic
   'scalar --get_set_init' => [ qw(predefined_texts js picture) ],
 );
 
+__PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy ajax_add_picture)]);
 
 #
@@ -397,6 +398,11 @@ sub action_reorder_pictures {
 #
 # filters
 #
+
+sub check_auth {
+  my ($self) = @_;
+  $::auth->assert('requirement_spec_edit');
+}
 
 sub load_requirement_spec_text_block {
   my ($self) = @_;

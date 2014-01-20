@@ -95,7 +95,7 @@ sub action_create {
 
 sub check_auth {
   my ($self, %params) = @_;
-  $::auth->assert('sales_quotation_edit');
+  $::auth->assert('requirement_spec_edit');
 }
 
 #
