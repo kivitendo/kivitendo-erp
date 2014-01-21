@@ -6,7 +6,7 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->table('project_status');
+__PACKAGE__->meta->table('project_statuses');
 
 __PACKAGE__->meta->columns(
   description => { type => 'text', not_null => 1 },

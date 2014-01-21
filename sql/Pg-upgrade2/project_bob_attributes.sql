@@ -5,7 +5,6 @@
 -- changes over bob:
 -- no scon/support_contract values here
 -- no include or expclude flags for workload
--- statuses renamed to status (we dont use rails weird plurals)
 -- created_at/updated_at renamed to itime/mtime,
 -- varchars retyped to text
 -- hours (numeric) changed to minutes (integer) since the code already calculates in minutes
