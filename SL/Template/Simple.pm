@@ -32,6 +32,9 @@ sub new {
 sub _init {
   my ($self, %params) = @_;
 
+  $params{myconfig}  ||= \%::myconfig;
+  $params{userspath} ||= $::lx_office_conf{paths}->{userspath};
+
   $self->{$_} = $params{$_} for keys %params;
 
   $self->{variable_content_types}        ||= {};

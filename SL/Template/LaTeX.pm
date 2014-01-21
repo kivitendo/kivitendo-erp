@@ -589,7 +589,7 @@ sub parse_and_create_pdf {
 
   my $error;
   eval {
-    my $template = SL::Template::LaTeX->new($template_file_name, $local_form, \%::myconfig, $::lx_office_conf{paths}->{userspath});
+    my $template = SL::Template::LaTeX->new(file_name => $template_file_name, form => $local_form);
     my $result   = $template->parse($tex_fh) && $template->convert_to_pdf;
 
     die $template->{error} unless $result;
