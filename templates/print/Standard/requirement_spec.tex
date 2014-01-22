@@ -108,7 +108,7 @@ $( USE P )$
 
     \subsection{$( LxLatex.filter(text_block.title) )$}
 
-$( LxLatex.filter(text_block.text) )$
+$( LxLatex.filter_html(text_block.text_as_restricted_html) )$
 
 %      $( FOREACH picture = text_block.pictures_sorted.as_list )$
 $( PROCESS picture_outputter picture=picture )$
@@ -134,7 +134,7 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
   \subsection{Abschnitt $( LxLatex.filter(top_item.fb_number) )$: $( LxLatex.filter(top_item.title) )$}
 
 %  $( IF top_item.description )$
-    $( LxLatex.filter(top_item.description.replace('\r', '').replace('\n+\Z', '')) )$
+    $( LxLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '').replace('\n+\Z', '')) )$
 
     \vspace{0.5cm}
 %  $( END )$
@@ -143,7 +143,7 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \parbox[t]{15.0cm}{%
 \begin{longtable}{p{2.8cm}p{11.7cm}}
   Funktionsblock & $( LxLatex.filter(item.fb_number) )$\\
-  Beschreibung & $( LxLatex.filter(item.description) )$\\
+  Beschreibung & $( LxLatex.filter_html(item.description_as_restricted_html) )$\\
   Abhängigkeiten & $( LxLatex.filter(P.requirement_spec_item_dependency_list(item)) )$
 \end{longtable}}
 
@@ -153,7 +153,7 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \parbox[t]{15.0cm}{%
 \begin{longtable}{p{2.8cm}p{11.7cm}}
   Unterfunktionsblock & $( LxLatex.filter(sub_item.fb_number) )$\\
-  Beschreibung & $( LxLatex.filter(sub_item.description) )$\\
+  Beschreibung & $( LxLatex.filter_html(sub_item.description_as_restricted_html) )$\\
   Abhängigkeiten & $( LxLatex.filter(P.requirement_spec_item_dependency_list(sub_item)) )$
 \end{longtable}}
 
