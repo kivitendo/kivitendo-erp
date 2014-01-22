@@ -181,7 +181,7 @@ sub action_show {
   my ($self) = @_;
 
   my $title  = $self->requirement_spec->is_template ? t8('Show requirement spec template') : t8('Show requirement spec');
-  my $item   = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections }[0];
+  my $item   = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections_sorted }[0];
   $self->requirement_spec_item($item);
 
   $self->render('requirement_spec/show', title => $title);

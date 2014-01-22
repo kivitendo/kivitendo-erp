@@ -1,4 +1,5 @@
 [%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%]
+[% SET sections = SELF.requirement_spec.sections_sorted || [] %]
 
 [%- INCLUDE 'common/flash.html' %]
 
@@ -62,7 +63,7 @@ $(function() {
       metadata: { type: "sections" },
       attr:     { id: "sections", class: "section-context-menu" },
       children: [
-[% FOREACH section = SELF.requirement_spec.sections %]
+[% FOREACH section = sections %]
  [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
 [% END %]
       ]},
@@ -78,7 +79,7 @@ $(function() {
   ];
 
   var initially_open = ['tb-front', 'tb-back', 'sections'
-[%- FOREACH section = SELF.requirement_spec.sections -%]
+[%- FOREACH section = sections -%]
         , "fb-[% section.id %]"
  [%- FOREACH function_block = section.children -%]
         , "fb-[% function_block.id -%]"
