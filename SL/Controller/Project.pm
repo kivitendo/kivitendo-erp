@@ -183,19 +183,6 @@ sub get_linked_records {
     )]);
 }
 
-sub setup_db_args_from_filter {
-  my ($self) = @_;
-
-  $self->{filter} = {};
-  my %args = parse_filter(
-    $self->_pre_parse_filter($::form->{filter}, $self->{filter}),
-    with_objects => [ 'customer', 'project_type' ],
-    launder_to   => $self->{filter},
-  );
-
-  $self->db_args(\%args);
-}
-
 sub prepare_report {
   my ($self)      = @_;
 
