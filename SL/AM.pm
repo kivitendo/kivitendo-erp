@@ -1120,16 +1120,14 @@ sub closebooks {
 
   my ($query, @values);
 
-  if ($form->{revtrans}) {
-    $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '1'|;
+  # is currently NEVER trueish (no more hidden revtrans in $form)
+  # if ($form->{revtrans}) {
+  #   $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '1'|;
+  # -> therefore you can only set this to false (which is already the default)
+  # and this flag is currently only checked in gl.pl. TOOD Can probably be removed
 
-  } elsif ($form->{closedto}) {
     $query = qq|UPDATE defaults SET closedto = ?, max_future_booking_interval = ?, revtrans = '0'|;
-    @values = (conv_date($form->{closedto}), conv_date($form->{max_future_booking_interval}));
-
-  } else {
-    $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '0'|;
-  }
+    @values = (conv_date($form->{closedto}), conv_i($form->{max_future_booking_interval}));
 
   # set close in defaults
   do_query($form, $dbh, $query, @values);

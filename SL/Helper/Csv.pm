@@ -7,12 +7,13 @@ use version 0.77;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
-use List::MoreUtils qw(all pairwise);
+use List::MoreUtils qw(all pairwise firstidx);
 use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile
   numberformat dateformat ignore_unknown_columns strict_profile is_multiplexed
   _row_header _io _csv _objects _parsed _data _errors all_cvar_configs case_insensitive_header
+  _multiplex_datatype_position
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
@@ -59,6 +60,7 @@ sub parse {
   $self->_open_file;
   return if ! $self->_check_multiplexed;
   return if ! $self->_check_header;
+  return if ! $self->_check_multiplex_datatype_position;
   return if ! $self->dispatcher->parse_profile;
   return if ! $self->_parse_data;
 
@@ -216,6 +218,25 @@ sub _check_header {
   return $self->header($header);
 }
 
+sub _check_multiplex_datatype_position {
+  my ($self) = @_;
+
+  return 1 if !$self->is_multiplexed; # ok if if not multiplexed
+
+  my @positions = map { firstidx { 'datatype' eq lc($_) } @{ $_ } } @{ $self->header };
+  my $first_pos = $positions[0];
+  if (all { $first_pos == $_ } @positions) {
+    $self->_multiplex_datatype_position($first_pos);
+    return 1;
+  } else {
+    $self->_push_error([0,
+                        "datatype field must be at the same position for all datatypes for multiplexed data",
+                        0,
+                        0]);
+    return 0;
+  }
+}
+
 sub _parse_data {
   my ($self, %params) = @_;
   my (@data, @errors);
@@ -261,7 +282,7 @@ sub _header_by_row {
   }
 
   if ($self->is_multiplexed) {
-    return $self->_row_header->{$row->[0]}
+    return $self->_row_header->{$row->[$self->_multiplex_datatype_position]}
   } else {
     return $self->header;
   }
@@ -380,7 +401,7 @@ nothing more.
 This module can handle multiplexed data of different class types. In that case
 multiple profiles with classes and row identifiers must be given. Multiple
 headers may also be given or read from csv data. Data must contain the row
-identifier in the first column and it's field name must be 'datatype'.
+identifier in the column named 'datatype'.
 
 =back
 
@@ -446,15 +467,16 @@ in objects.
 If not given, headers are taken from the first n lines of data, where n is the
 number of different class types.
 
-In case of multiplexed data the first column must be named 'datatype'. This
-name must be given in the header.
+In case of multiplexed data there must be a column named 'datatype'. This
+column must be given in each header and must be at the same position in each
+header.
 
 Examples:
 
   classic data of one type:
   [ 'name', 'street', 'zipcode', 'city' ]
 
-  multiplexed data with two different types
+  multiplexed data with two different types:
   [ [ 'datatype', 'ordernumber', 'customer', 'transdate' ],
     [ 'datatype', 'partnumber', 'qty', 'sellprice' ] ]
 
