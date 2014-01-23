@@ -25,13 +25,11 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project linked_records) ],
- 'scalar --get_set_init' => [ qw(models) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_project',        only => [ qw(edit update destroy) ]);
-__PACKAGE__->run_before('load_project_types',  only => [ qw(search edit new list) ]);
-__PACKAGE__->run_before('load_project_status', only => [ qw(search edit new list) ]);
 
 #
 # actions
@@ -115,10 +113,19 @@ sub check_auth {
 # helpers
 #
 
+sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
+sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
+
+sub init_customers {
+  my ($self)      = @_;
+  my @customer_id = $self->project && $self->project->customer_id ? (id => $self->project->customer_id) : ();
+
+  return SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, @customer_id ]]);
+}
+
 sub display_form {
   my ($self, %params) = @_;
 
-  $params{ALL_CUSTOMERS}     = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
 
   if ($params{keep_cvars}) {
@@ -199,7 +206,7 @@ sub prepare_report {
     description   => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     project_type  => { sub  => sub { $_[0]->project_type->description } },
     project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Status') },
-    customer      => { raw_data  => sub { $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) } },
+    customer      => { raw_data  => sub { $_[0]->customer_id ? $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) : '' } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
     valid         => { sub  => sub { $_[0]->valid    ? $::locale->text('Valid')  : $::locale->text('Invalid')  },
@@ -281,13 +288,4 @@ sub make_filter_summary {
 
   $self->{filter_summary} = join ', ', @filter_strings;
 }
-
-sub load_project_types {
-  $_[0]{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
-}
-
-sub load_project_status {
-  $_[0]{ALL_PROJECT_STATUS} = SL::DB::Manager::ProjectStatus->get_all_sorted;
-}
-
 1;

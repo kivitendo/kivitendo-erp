@@ -11,7 +11,7 @@
 
  <tr>
   <th align="right">[% 'Description' | $T8 %]</th>
-  <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size=60) %]</td>
+  <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size=60, class='initial_focus') %]</td>
  </tr>
 
  <tr>
@@ -21,12 +21,12 @@
 
  <tr>
   <th align="right">[% 'Project Type' | $T8 %]</th>
-  <td>[% L.select_tag('filter.project_type_id', SELF.ALL_PROJECT_TYPES, default=filter.project_type_id, title_key='description', with_empty=1) %]</td>
+  <td>[% L.select_tag('filter.project_type_id', SELF.project_types, default=filter.project_type_id, title_key='description', with_empty=1, style="width: 200px") %]</td>
  </tr>
 
  <tr>
   <th align="right">[% 'Project Status' | $T8 %]</th>
-  <td>[% L.select_tag('filter.project_status_id', SELF.ALL_PROJECT_STATUS, default=filter.project_status_id, title_key='description', with_empty=1) %]</td>
+  <td>[% L.select_tag('filter.project_status_id', SELF.project_statuses, default=filter.project_status_id, title_key='description', with_empty=1, style="width: 200px") %]</td>
  </tr>
 
  [% CUSTOM_VARIABLES_FILTER_CODE %]
