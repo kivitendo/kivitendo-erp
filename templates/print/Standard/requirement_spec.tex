@@ -1,6 +1,6 @@
 % config: use-template-toolkit=1
 % config: tag-style=$( )$
-$( USE LxLatex )$
+$( USE KiviLatex )$
 $( USE P )$
 \documentclass{scrartcl}
 
@@ -14,7 +14,7 @@ $( USE P )$
 \renewcommand{\kivitendosecondfoot}{%
   \parbox{12cm}{%
     \defaultfont\scriptsize%
-    $( LxLatex.filter(rspec.displayable_name) )$\\
+    $( KiviLatex.filter(rspec.displayable_name) )$\\
     $( !rspec.version ? "Arbeitskopie ohne Version" : "Version " _ rspec.version.version_number _ " vom " _ rspec.version.itime.to_kivitendo(precision='minute') )$
 
     \vspace*{0.2cm}%
@@ -35,18 +35,18 @@ $( USE P )$
   \put(3.5,-5){%
     \begin{minipage}[t][6cm]{12cm}
       \Large
-      \textcolor{kivitendodarkred}{$( LxLatex.filter(rspec.type.description) )$}
+      \textcolor{kivitendodarkred}{$( KiviLatex.filter(rspec.type.description) )$}
 
       \huge
-      $( LxLatex.filter(rspec.customer.name) )$
+      $( KiviLatex.filter(rspec.customer.name) )$
 
       \vspace*{0.5cm}
       \Large
-      $( LxLatex.filter(rspec.title) )$
+      $( KiviLatex.filter(rspec.title) )$
       \normalsize
 %$( IF rspec.version )$
 
-    Version $( LxLatex.filter(rspec.version.version_number) )$
+    Version $( KiviLatex.filter(rspec.version.version_number) )$
 %$( END )$
     \end{minipage}%
   }
@@ -77,9 +77,9 @@ $( USE P )$
   \small Beschreibung\\
   \hline
 %$( FOREACH versioned_copy = versioned_copies )$
-   \multicolumn{1}{|r}{\small $( LxLatex.filter(versioned_copy.version.version_number) )$} &
-   \multicolumn{1}{|r|}{\small $( LxLatex.filter(versioned_copy.version.itime.to_kivitendo(precision='minute')) )$} &
-   \small $( LxLatex.filter(versioned_copy.version.description) )$\\
+   \multicolumn{1}{|r}{\small $( KiviLatex.filter(versioned_copy.version.version_number) )$} &
+   \multicolumn{1}{|r|}{\small $( KiviLatex.filter(versioned_copy.version.itime.to_kivitendo(precision='minute')) )$} &
+   \small $( KiviLatex.filter(versioned_copy.version.description) )$\\
 %$( END )$
   \hline
 \end{longtable}
@@ -92,7 +92,7 @@ $( USE P )$
   \centering
   \includegraphics[width=$( width_cm )$cm,keepaspectratio]{$( picture.print_file_name )$}
 
-\mbox{Abbildung $( picture.number )$: $( LxLatex.filter(picture.description ? picture.description : picture.picture_file_name) )$}
+\mbox{Abbildung $( picture.number )$: $( KiviLatex.filter(picture.description ? picture.description : picture.picture_file_name) )$}
 \end{figure}
 %$( END )$
 
@@ -106,9 +106,9 @@ $( USE P )$
 
 %    $( FOREACH text_block = text_blocks )$
 
-    \subsection{$( LxLatex.filter(text_block.title) )$}
+    \subsection{$( KiviLatex.filter(text_block.title) )$}
 
-$( LxLatex.filter_html(text_block.text_as_restricted_html) )$
+$( KiviLatex.filter_html(text_block.text_as_restricted_html) )$
 
 %      $( FOREACH picture = text_block.pictures_sorted.as_list )$
 $( PROCESS picture_outputter picture=picture )$
@@ -131,10 +131,10 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 
 %$( FOREACH top_item = rspec.sections_sorted )$
 
-  \subsection{Abschnitt $( LxLatex.filter(top_item.fb_number) )$: $( LxLatex.filter(top_item.title) )$}
+  \subsection{Abschnitt $( KiviLatex.filter(top_item.fb_number) )$: $( KiviLatex.filter(top_item.title) )$}
 
 %  $( IF top_item.description )$
-    $( LxLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '').replace('\n+\Z', '')) )$
+    $( KiviLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '').replace('\n+\Z', '')) )$
 
     \vspace{0.5cm}
 %  $( END )$
@@ -142,9 +142,9 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \parbox[t]{1.0cm}{\textcolor{kivitendodarkred}{$>>>$}}%
 \parbox[t]{15.0cm}{%
 \begin{longtable}{p{2.8cm}p{11.7cm}}
-  Funktionsblock & $( LxLatex.filter(item.fb_number) )$\\
-  Beschreibung & $( LxLatex.filter_html(item.description_as_restricted_html) )$\\
-  Abhängigkeiten & $( LxLatex.filter(P.requirement_spec_item_dependency_list(item)) )$
+  Funktionsblock & $( KiviLatex.filter(item.fb_number) )$\\
+  Beschreibung & $( KiviLatex.filter_html(item.description_as_restricted_html) )$\\
+  Abhängigkeiten & $( KiviLatex.filter(P.requirement_spec_item_dependency_list(item)) )$
 \end{longtable}}
 
 %    $( FOREACH sub_item = item.children_sorted )$
@@ -152,9 +152,9 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \hspace*{1.0cm}%
 \parbox[t]{15.0cm}{%
 \begin{longtable}{p{2.8cm}p{11.7cm}}
-  Unterfunktionsblock & $( LxLatex.filter(sub_item.fb_number) )$\\
-  Beschreibung & $( LxLatex.filter_html(sub_item.description_as_restricted_html) )$\\
-  Abhängigkeiten & $( LxLatex.filter(P.requirement_spec_item_dependency_list(sub_item)) )$
+  Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$\\
+  Beschreibung & $( KiviLatex.filter_html(sub_item.description_as_restricted_html) )$\\
+  Abhängigkeiten & $( KiviLatex.filter(P.requirement_spec_item_dependency_list(sub_item)) )$
 \end{longtable}}
 
 %    $( END )$

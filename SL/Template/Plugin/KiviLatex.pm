@@ -1,4 +1,4 @@
-package SL::Template::Plugin::LxLatex;
+package SL::Template::Plugin::KiviLatex;
 
 use strict;
 use parent qw( Template::Plugin::Filter );
@@ -14,7 +14,7 @@ sub new {
 sub init {
   my $self = shift;
 
-  $self->install_filter($self->{ _ARGS }->[0] || 'LxLatex');
+  $self->install_filter($self->{ _ARGS }->[0] || 'KiviLatex');
 
   return $self;
 }
@@ -72,4 +72,4 @@ sub filter_html {
   return join('', @parts);
 }
 
-return 'SL::Template::Plugin::LxLatex';
+return 'SL::Template::Plugin::KiviLatex';
