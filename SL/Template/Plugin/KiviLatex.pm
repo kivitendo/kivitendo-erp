@@ -40,7 +40,7 @@ my %html_replace = (
   '</i>'      => "}",
   '<em>'      => "\\textit{",
   '</em>'     => "}",
-  '<u>'       => "\\underline{",
+  '<u>'       => "\\uline{",
   '</u>'      => "}",
   '<s>'       => "\\sout{",
   '</s>'      => "}",
@@ -70,6 +70,14 @@ sub filter_html {
   } split(m{(<.*?>)}x, $text);
 
   return join('', @parts);
+}
+
+sub required_packages_for_html {
+  my ($self) = @_;
+
+  return <<EOLATEX;
+\\usepackage{ulem}
+EOLATEX
 }
 
 return 'SL::Template::Plugin::KiviLatex';
