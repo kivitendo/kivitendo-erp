@@ -816,12 +816,14 @@ sub use_as_new {
 
   $main::auth->assert('invoice_edit');
 
-  delete @{ $form }{qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
-  $form->{paidaccounts} = 1;
+  delete @{ $form }{qw(printed emailed queued invnumber invdate exchangerate forex deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
   $form->{rowcount}--;
-  $form->{invdate} = $form->current_date(\%myconfig);
-  $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
-  $form->{employee_id} = SL::DB::Manager::Employee->current->id;
+  $form->{paidaccounts} = 1;
+  $form->{invdate}      = $form->current_date(\%myconfig);
+  $form->{duedate}      = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
+  $form->{employee_id}  = SL::DB::Manager::Employee->current->id;
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   # remember pricegroups for "use as new"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
