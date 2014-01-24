@@ -18,7 +18,6 @@ __PACKAGE__->meta->columns(
   ar_show_mark_as_paid                    => { type => 'boolean', default => 'true' },
   articlenumber                           => { type => 'text' },
   assemblynumber                          => { type => 'text' },
-  audittrail                              => { type => 'boolean', default => 'false' },
   bin_id                                  => { type => 'integer' },
   bin_id_ignore_onhand                    => { type => 'integer' },
   businessnumber                          => { type => 'text' },

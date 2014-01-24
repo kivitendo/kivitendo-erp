@@ -24,6 +24,12 @@
 
   <%name%>
 
+  <%department_1%>
+
+  <%department_2%>
+
+  <%cp_givenname%> <%cp_name%>
+
   <%street%>
 
   ~
@@ -67,8 +73,12 @@
 \ifthenelse{\equal{<%cp_name%>}{}}{\anrede}{
   \ifthenelse{\equal{<%cp_gender%>}{f}}
     {\anredefrau}{\anredeherr} <%cp_title%> <%cp_name%>,}\\
+%\rechnungsformel\\
 
-\rechnungsformel\\
+<%if notes%>
+        <%notes%>
+<%end if%>
+
 
 \vspace{0.5cm}
 
@@ -134,12 +144,6 @@
 
 
 \vspace{0.2cm}
-
-<%if notes%>
-        \vspace{5mm}
-        <%notes%>
-        \vspace{5mm}
-<%end if%>
 
 \ifthenelse{\equal{<%deliverydate%>}{}}{\leistungsdatumGleichRechnungsdatum}{\lieferungErfolgtAm ~<%deliverydate%>.} \\
 

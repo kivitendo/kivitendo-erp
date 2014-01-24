@@ -3,6 +3,7 @@
 ###############################
 
 
+2014-01-xx - Release 3.1.0beta
 
 Größere neue Features:
 
@@ -49,12 +50,12 @@ Kleinere neue Features und Detailverbesserungen:
   kaufsmasken gesetzt werden.
 
 - Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
-__Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
-__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden
-__meist nur für die Mahngebührenrechnungen verwendet, da ist das nicht so
-__interessant, aber bei Kreditorenbuchungen werden oft Sachen gebucht, die
-__nichts mit Wareneinkauf zu tun haben, und nicht jeder sehen soll. Für diesen
-__Fall kann man diese Buchungen also per neuem Recht herausfiltern.
+  Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
+  auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden
+  meist nur für die Mahngebührenrechnungen verwendet, da ist das nicht so
+  interessant, aber bei Kreditorenbuchungen werden oft Sachen gebucht, die
+  nichts mit Wareneinkauf zu tun haben, und nicht jeder sehen soll. Für diesen
+  Fall kann man diese Buchungen also per neuem Recht herausfiltern.
 
 - Recht für die Anzeige von Details und Berichte von Waren, Dienstleistungen und Erzeugnissen
   Statt nur ein Recht für die Bearbeitung von Artikeln zu haben, das gleichzeitig auch das Recht
@@ -73,18 +74,18 @@ __Fall kann man diese Buchungen also per neuem Recht herausfiltern.
 
 - Stückliste für Lieferschein ausdrucken
   Stücklisten-Details (Haken bei Warenliste) für Erzeugnisse wurden seit 2009
-  (TEMPLATE_ARRAY Änderung) nicht mehr ausgedruckt,
-  da hier die Code-Anpassungen vergessen wurde.
+  (TEMPLATE_ARRAY Änderung) nicht mehr ausgedruckt,  da hier die Code-Anpassungen vergessen wurde.
+
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
 
 - Lagerbestand anzeigen, zeigt auch die Filteroptionen an
 
-- #1897 implementiert. Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
-  maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
+- Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
+  maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
 
-- #2300 Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt
-- #2301 Dokumentenbelege optional in WebDAV-Ordner speichern
+- Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt (s.a. #2300)
+- Dokumentenbelege optional in WebDAV-Ordner speichern (s.a. #2301)
 
 Wichtige Änderungen:
 
@@ -109,11 +110,234 @@ Wichtige Änderungen:
   zwingend vorausgesetzt.
 
 Bugfixes:
- - Punkt in Belegnummer korrekt für WebDAV File Feature escapt (Bug 2394)
- - Stornierte Rechnungen (sowohl die Stornorechnung als auch das Storno nicht
-   Buchen oder Löschen, egal was in der Mandantenkonfiguration steht)
- - Wiederkehrende Rechnung mit Steuer inklusive buchen Erlöse falsch (Bug 2314)
- - manuelle Lieferadresse im Auftrag wird nicht in wiederkehrende Rechung übernommen (Bug 2296)
+
+- Bugfix #182: Bug in bin/mozilla/gl.pl - Keine Steuerautomatik möglich!
+- Bugfix #476: Umwandlung Kundenauftrag in Lieferantenauftrag: fehlerhafte Zahlenformatierung
+- Bugfix #593: Flag für Jahresabschlussbuchungen einführen
+- Bugfix #671: OpenOffice Daemon Modus nicht funktionsfähig
+- Bugfix #708: Zahlungsverkehr - Kontenabgleich riesige Differenz
+- Bugfix #806: Kontenbezeichnungen von neuen Konten nicht bei Datev Export
+- Bugfix #1181: Gutschriftenerstellung aus Rechnung: Zahlungsausgaenge werden mit uebertragen
+- Bugfix #1225: Gutschriften - Variable fuer Rechnungsnummer
+- Bugfix #1396: Stammdaten-Lagerplatz -> Lagerplatz default
+- Bugfix #1464: Vorschlag für neues Login-Fenster
+- Bugfix #1510: Lastschriftvereinbarung f. Lieferanten bei SEPA beruecksichtigen
+- Bugfix #1615: Einkaufsrechnungen mit Fremdwährungen lassen sich nicht per "Zahlung buchen" bezahlen
+- Bugfix #1655: Neuanlegen mit östereichischen Kontorahmen, gibt Update-Fehler
+- Bugfix #1695: Adminbereich: Benutzer "als neu speichern" fügt neuen Nutzer direkt in employee der DB ein
+- Bugfix #1772: systemd script(s) are missing for task server
+- Bugfix #1784: Sammelrechnung nimmt nur 1 Auftragsnummer auf
+- Bugfix #1795: Aktualisierung des Einkaufspreises berücksichtigt Einheit und Rabatt nicht richtig
+- Bugfix #1800: Benutzer anlegen bei Neuinstallation mit bestehenden Mandanten und Verbindung zur DB testen schlägt fehl
+- Bugfix #1838: Lieferantennamen mit Bindstrich am Ende des Namens erzeugen Fehlermeldung bei Kreditorenbuchung
+- Bugfix #1859: Nicht gespeichertes Angebot/Auftrag/Rechnung... -> Drucken -> "Keine Aktion definiert"
+- Bugfix #1897: Datumsfehleingaben bei Rechnungen unterbinden
+- Bugfix #1925: Bei SEPA-Lastschrift wird datepaid in ar nicht gesetzt
+- Bugfix #1966: Konten als neu speichern, einige DB-Felder werden "immer" noch nicht übernommen
+- Bugfix #1998: CSV-Importer sollte in die History eintragen ...
+- Bugfix #2001: "Steuer im Preis inbegriffen": Wird bei manueller Eingabe nach Neuaufruf zurueckgesetzt
+- Bugfix #2010: Verkauf-Auftragsnummer mit TransNumberGenerator
+- Bugfix #2011: Zeilenumbrüche als letztes Zeichen bei part.description, part.notes beim Speichern in DB verhindern
+- Bugfix #2015: Zahlungsbedingungen lassen sich nicht mehr ändern
+- Bugfix #2040: direktes speichern beim zufuegen eines Artikels zum Erzeugnis uebernimmt die Daten nicht
+- Bugfix #2042: Unterschiedliche Anzeige Debitorenbuchung/Kreditorenbuchung
+- Bugfix #2052: Kontenübersicht falsche Zahlen bei Konto 1400
+- Bugfix #2058: Geloeschte User werden in VK-Belegen weiterhin angezeigt/zur Auswahl angeboten
+- Bugfix #2068: Lieferplan enthält bereits gelieferte Artikel
+- Bugfix #2072: Eigene Rechte fuer Lieferplan-Ansicht
+- Bugfix #2080: Verzögerte Aktualisierung von Zwischensumme bei Änderung von Preisgruppen
+- Bugfix #2081: Rechnung -> "als neu bearbeiten" sollte Eintrag "Bearbeiter" aktualisieren
+- Bugfix #2084: Klick auf eMail-Button beim Erfassen einer Rechnung bucht diese
+- Bugfix #2085: Bankkonto löschen schlägt wegen fehlender Funktion fehl
+- Bugfix #2096: Mit Chrome wird Menue innerhalb der CRM nicht richtig geparst
+- Bugfix #2098: Zahlungsverkehr - Zahlungseingang: Suchfeld Rechnungsnummer bringt alle Rechnungen des Kunden
+- Bugfix #2099: Zahlungsverkehr - Zahlungseingang: Dropdown-Feld fuer Kd ist leer
+- Bugfix #2105: Ansprechpersonensuche wird nicht ausgelöst
+- Bugfix #2109: Spalte oe_id in der Tabelle inventory irreführend
+- Bugfix #2111: OpenDocument zu PDF schlägt mit FCGI 0.74 fehl
+- Bugfix #2112: Auswahllistenbegrenzung wird erreicht
+- Bugfix #2113: Top100-Bericht kaputt
+- Bugfix #2114: Abspeichern Kreditorenbuchung
+- Bugfix #2115: Keine taxkey_id in Konten
+- Bugfix #2116: Wiedervorlage, Pulldown-Menü zeigt gelöschte Benutzer
+- Bugfix #2127: Vorlagensystem wird nicht gespeichert
+- Bugfix #2128: Schlüssel (tax_id)=(0) ist nicht in Tabelle 'tax' vorhanden. => Fehler beim Datenbankupgrade von 3.0.0. auf aktuelle git-Version
+- Bugfix #2129: release-3.0.0-7-g357d134 erzeugt in Tabelle acc_trans Einträge in die neue Spalte tax_id, die nicht in der Tabelle tax existieren.
+- Bugfix #2130: Kontorahmen SKR4 enthält doppelte Steuerschlüssel
+- Bugfix #2131: Preigruppe des Kunden wird in der Rechnung nicht eingestellt
+- Bugfix #2132: Buchen von EK-Rechnungen schlaegt fehl
+- Bugfix #2133: Berichte Konten Reihenfolge der Buchungen am selben Tag stimmt nicht
+- Bugfix #2134: Zahlungsverkehr - Zahlungseingang - Feld fuer Kunde funktioniert nicht
+- Bugfix #2136: Interne Bemerkung aus Auftrag gehen beim Workflow hinter Lieferschein verloren, nicht mehr in Rechnung drin
+- Bugfix #2138: SL::DB::Helper::TransNumberGenerator behandelt Kundentypnummernkreise nicht
+- Bugfix #2139: Rose-Beziehungstypen sind oft falsch
+- Bugfix #2141: Workflow Lieferantenauftrag -> Einkaufsrechnung - Abfrage nach Wechselkurs unangebracht
+- Bugfix #2142: Beim Erstellen eines Lieferantenauftrags wird der Rabatt doppelt verrechnet.
+- Bugfix #2145: Einträge in taxkeys sind NULL
+- Bugfix #2146: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch ( altes Ticket #1584 )
+- Bugfix #2150: Erstellen von EK-Auftraegen aus VK-Auftraegen: Preise falsch
+- Bugfix #2156: Steuern übersetzen
+- Bugfix #2157: Fehler beim Erstellen von Rechnungen
+- Bugfix #2158: Einkaufsrechnung erfassen: Lastschrift-Haken
+- Bugfix #2162: Update on "demo.kivitendo.org/beta/" broken
+- Bugfix #2167: Kundenmaske erscheint nicht mehr
+- Bugfix #2169: Fehlermeldung beim Buchen von SEPA-Überweisungen aufgrund neuer Spalte "tax_id" in Tabelle "acc_trans"
+- Bugfix #2170: Zwei Module im Installationscheck ergänzt
+- Bugfix #2173: Fehler beim Storno
+- Bugfix #2175: CSV-Import zeigt im Report nicht alle Zeilen
+- Bugfix #2176: CSV-Import blättert nicht richtig im Report
+- Bugfix #2177: CSV-Import von Lieferadressen fehlerhaft
+- Bugfix #2179: SEPA "Zahlung buchen" - Datumsfelder werden nicht mehr aktualisiert.
+- Bugfix #2181: Steuern festsetzen
+- Bugfix #2182: uri_decode: get parameter 0 wird nicht korrekt übergeben
+- Bugfix #2184: Lieferschein lässt sich nicht abschließen
+- Bugfix #2185: dpt_trans ist überflüssig
+- Bugfix #2186: Tabelle partstax überflüssig
+- Bugfix #2189: add_chart_link_to_acc_trans.sql macht bei Update Probleme
+- Bugfix #2190: Einlagern -> Lieferschein mit Projektnummer: project_id wird nicht in inventory geschrieben
+- Bugfix #2191: Tabelle vendortax scheint überflüssig
+- Bugfix #2195: Kontenabgleich rechnet Falsch
+- Bugfix #2197: Debitorenbuchung Datenbankfehler
+- Bugfix #2201: Kunden können nicht gelöscht werden.
+- Bugfix #2202: kein Icon bei Rechnungen der Menü-Variante "Links (HTML)"
+- Bugfix #2203: CSV-Import zeigt Fehler beim Speichern eines Objektes nicht
+- Bugfix #2204: Neuangelegte Projekte lassen sich nicht wieder aufrufen
+- Bugfix #2205: Projekte: Feste Verknuepfung mit einem Kunden nicht immer gewuenscht/Auswahllistenbegrenzung greift nicht bei Projekten
+- Bugfix #2207: Loeschen von Auftraegen schlaegt fehl
+- Bugfix #2208: Berichte ueber Rechnungen: Default-Vorbelegung Dropdownfeld macht keinen Sinn
+- Bugfix #2209: gifi_accno exisiert nicht bei SL::DB::Manager::Chart->get_all
+- Bugfix #2210: Neue Lieferanten lassen sich nicht anlegen
+- Bugfix #2211: Rechnungen implizit über Preisfaktoren änderbar
+- Bugfix #2213: Benutzer in employee auf ungültig setzen
+- Bugfix #2216: Lieferschein wird bei Minuszeichen am Ende eines Kundennamens nicht gespeichert
+- Bugfix #2217: einmal bebuchte Steuern nicht mehr an der Oberfläche ändern
+- Bugfix #2219: Benutzer- bzw Programmeinstellungen "Steuer im preis inbegriffen" ueberschreiben manuelle Aenderungen
+- Bugfix #2220: Auswahlliste springt auf ersten Eintrag zurück
+- Bugfix #2222: Abteilungen lassen sich nicht ändern
+- Bugfix #2223: Fehler beim Anlegen eines neuen Kontos
+- Bugfix #2224: Steuerzone in Verkauf/Berichte/Rechnungen ist falsch.
+- Bugfix #2226: Zahlungsziel
+- Bugfix #2227: Buchungsjournal Auswahl nach Rechnungsdatum filtert nach höchstem transdate (nicht invnumber)
+- Bugfix #2228: Zahlungsein- ausgänge buchen über Zahlungsverkehr wirft SQL Fehler
+- Bugfix #2230: Layout: Felder und Ueberschriften bei Erzeugnissen verschoben
+- Bugfix #2232: Erzeugnisse: Einheit wird bei Fertigung ignoriert
+- Bugfix #2234: Fehler beim Bearbeiten von Lieferantenaufträgen
+- Bugfix #2235: periodische Rechnungen: kein Bearbeiter und Verkäufer bei automatischem Ausdruck
+- Bugfix #2237: Benutzerdefinierte Variablen von Projekten stehen nicht zum Druck bereit
+- Bugfix #2238: Bei Erzeugnis erfassen kann man identische Erzeugnisnummern speichern
+- Bugfix #2239: Kontonamen werden nicht angezeigt.
+- Bugfix #2240: Periodische Rechnungen nur an bestimmten Tagen ausführen
+- Bugfix #2241: Bestandteil zu einem Erzeugnis hinzufügen fehlerhaft
+- Bugfix #2243: Verkaufsbericht-Design in unstable verhunzt
+- Bugfix #2244: Fehler bei automatischen Auftragsbuchungen (Widerkehrende Rechnungen)
+- Bugfix #2245: Fehler beim Anlegen von Angeboten und Aufträgen (Nummernkreis)
+- Bugfix #2246: wiederkehrende Rechnungen: automatische Druck liefert Fehler
+- Bugfix #2247: wiederkehrende Rechnungen: automatischer Druck enthält nicht alle Variablen
+- Bugfix #2248: Buchungsjournal filtert nicht nach Bearbeiter
+- Bugfix #2249: Vorsteuer-/Umsatzsteuer-Verwechslungen vorbeugen
+- Bugfix #2250: Neue Steuer anlegen nicht möglich
+- Bugfix #2252: Fehler beim DB-Update auf HEAD - steuerfilterung.pl
+- Bugfix #2258: EK-Rechnungen lassen sich nicht buchen oder stornieren /
+- Bugfix #2259: Historie in kreditorenbuchung aufrufen erzeugt Fehler im Hauptfenster
+- Bugfix #2260: Falsche oder keine Summen bei 'Stammdaten -> Berichte -> Waren'
+- Bugfix #2261: Lieferschein -> Rechnung: Gruppenrabatte werden nicht übernommen
+- Bugfix #2272: Bei Dienstleistungsposition sind Preis und Rabatt nicht änderbar
+- Bugfix #2275: Verkäuferinformationen im Druck kommen aus der Authdatenbank
+- Bugfix #2277: Sammelkonten nicht in Aufklappmenü aufnehmen
+- Bugfix #2279: Druckvorlagen werden ohne Nachfrage gelöscht (admin)
+- Bugfix #2280: Druckvorlagenverzeichnis wird nicht vollständig gelöscht (admin)
+- Bugfix #2281: Artikelmenge ist nach hinzufügen Null
+- Bugfix #2282: CSV-Import Kunden geht nicht mehr wg. currency_id NOT NULL
+- Bugfix #2285: im SMTP-Modus wird bcc herausgefiltert
+- Bugfix #2286: Belege kann man nicht mehr löschen
+- Bugfix #2287: CSV-Import Kunden und Lieferanten kann Zahlungsbedingungen nicht aktualisieren ...
+- Bugfix #2288: Zahlungskonto sortieren: Praeferenzsortierung statt alphabetischer/numerischer Sortierung
+- Bugfix #2290: Neue Rechte für Produktivität
+- Bugfix #2292: DB-Error chart_categories Finanzbuchhaltung -> Dialogbuchen
+- Bugfix #2293: Rechnung löschen currency_id nicht beachtet
+- Bugfix #2294: Farben kaputt bei Menü-Variante Oben (mit CSS) im lx-office.erp-Stil
+- Bugfix #2296: manuelle Lieferadresse im Auftrag wird nicht in wiederkehrende Rechung übernommen
+- Bugfix #2301: Dokumentenbelege optional in webdav-Ordner speichern
+- Bugfix #2307: Nachkommastellen gehen bei der Eingabe verloren
+- Bugfix #2308: CSV-Import
+- Bugfix #2310: Gelöschte Aufträge in Aufgabenliste
+- Bugfix #2311: Anlegen von Gruppen schläg fehl
+- Bugfix #2312: Löschen von Mandanten-DBs
+- Bugfix #2313: Fehlermeldung bei Updatescript custom_variable_configs_column_type_text.sql
+- Bugfix #2314: Wiederkehrende Rechnung mit Steuer inklusive buchen Erlöse falsch
+- Bugfix #2315: Konten FA Bad Homburg
+- Bugfix #2319: Konto speichern / Konto als neu speichern leicht fehleranfällig
+- Bugfix #2320: SEPA Export enthält unzureichende/fehlerhafte Daten
+- Bugfix #2321: latex fehlermeldung non-utf8, bessere Nutzerrückmeldung
+- Bugfix #2323: Druckvorlagen funktionieren nicht mehr
+- Bugfix #2324: Spontane Redefinition der Lagerplätze / Nicht reproduzierbarer Lagerschwund
+- Bugfix #2325: Doubletten bei der Anlage von Lagerplätzen
+- Bugfix #2328: CRM ignoriert Umstelung der Benutzersprache auf Englisch
+- Bugfix #2329: CRM: Menu wird von der ERP nicht korrekt ausgeliefert
+- Bugfix #2331: Fehlemeldung beim Buchen von Zahlungen in Fremdwährung
+- Bugfix #2332: Lieferplan: Suchfilter nach Sortieren nicht mehr aktiv
+- Bugfix #2333: Einkaufspreis beim Lieferantenauftrag nicht richtig angezeigt
+- Bugfix #2334: show_no_warehouses_error
+- Bugfix #2335: falsche Lagerbestandsanzeige in Verkaufsdokumenten und Stammdaten
+- Bugfix #2336: Lieferanten anlegen schlägt fehl
+- Bugfix #2337: Updatescript zeigt bei "Neue Filter für Steuerkonten" falschen Steuersatz
+- Bugfix #2339: Perl Pakete in Ubuntu 10.04.4 LTS reichen nicht mehr für Unstable, Doku nicht mehr aktuell
+- Bugfix #2340: Erstellen von neuem Benutzer als Duplikat eines bestehenden enthält unnötige Abfrage
+- Bugfix #2341: Waren erfasse > Kommastellen im Listen- u. Verkaufspreis
+- Bugfix #2344: Ist-Versteuerung - Unterschiedliche Werte bei Bildschirmausgabe und Dateiexport
+- Bugfix #2346: Fehlerhafte Auswahlliste "Steuerschlüssel" in Debitor- und Kreditorbuchungsmaske
+- Bugfix #2347: Chaos in Benutzerdefinierte Variablen
+- Bugfix #2348: Rechnung als neu verwenden liefert Fehlermeldung, ...
+- Bugfix #2349: Hänger beim schnellen Buchen mehrerer Rechnungen
+- Bugfix #2350: Die Liste der Lieferungen (Kundenstamm, Reiter Lieferungen) zeigt falsche Dokumente
+- Bugfix #2351: Druck von HTML-Seiten bringt Fehlermeldung im Browser.
+- Bugfix #2352: Belege in WebDAV-Ablage speichern ergibt Fehlermeldung beim Erstellen von GUV und BWA
+- Bugfix #2359: sub get_warehouse takes ages
+- Bugfix #2361: Kunden anlegen bei neuer Datenbank
+- Bugfix #2365: Überlagerte benutzerdefinierte Variablen werden in wiederkehrende Rechnungen nicht übernommen
+- Bugfix #2366: Löschen und Ändern von Einkaufsrechnungen nicht möglich
+- Bugfix #2367: Lieferplan: längere Antwortzeiten mit steigendem Datenbestand
+- Bugfix #2368: Race Condition: Report-Abfrage blockiert Buchung
+- Bugfix #2369: kleiner Anzeigefehler beim Einlagern bei Menü-Variante Links (HTML)
+- Bugfix #2374: Benutzerdefinierte Variablen vom Typ Ware oder Lieferant lassen sich bei Kunden nicht speichern
+- Bugfix #2376: Fehler bei Einlagern in Lager mit nur einem Lagerplatz in aktueller beta
+- Bugfix #2377: Einlagern in ungültige Lagerplätze ist möglich
+- Bugfix #2378: Einlagern mit negativen Mengen ist möglich
+- Bugfix #2379: VK-Lieferscheine: Vorbelegung laesst sich nicht zuruecknehmen wenn Artikelmenge auf 0 sinkt
+- Bugfix #2381: parse / format amount Problem bei Lagerbewegung > 1.000
+- Bugfix #2382: bei Vorlagendruck fehlt dbname in titlebar
+- Bugfix #2383: Debitorenbuchungen erscheinen doppelt in verknüpften Belegen
+- Bugfix #2384: In Lieferplan wird kein Link für Kunde mehr angezeigt
+- Bugfix #2385: Standardkonto fuer Umlaufvermoegen sollte auch fuer EK-Rechnungen/Debitorenbuchungen gelten
+- Bugfix #2386: Checkbox auf leer setzen bei Kunde bearbeiten wird nicht gespeichert
+- Bugfix #2387: Buchen von Korrekturen an Stornorechnungen
+- Bugfix #2388: Wiedervorlagen / Notizen bei Kunde editieren kaputt
+- Bugfix #2390: Übersetzungen von Zahlungsbedingungen werden nicht gelöscht
+- Bugfix #2393: Stammdaten > Kunden > Tab "Lieferungen", falsche Zuordnungen
+- Bugfix #2394: Menu render Fehler bei WebDav und Belegen mit Punkt in Belegnummer
+- Bugfix #2396: Keine Unternummerierung der Zwischensummen in Lieferscheinen
+- Bugfix #2397: Überschriebene Summen/Zeilen in PDF-Export
+- Bugfix #2398: Mahnungsnummern sind mal im Ausdruck, mal nicht
+- Bugfix #2399: Lieferungen-Tab bei Kunden erlaubt Einsicht in Rechnungen ohne Rechnungsrechte
+- Bugfix #2400: Lieferadresse wird bei der Auswahl eines neuen Lieferanten überschrieben
+- Bugfix #2401: Rabatt im Pop-Up-Fenster Kundendetails falsch, bei den Kundenstammdaten fehlt das %-Zeichen
+- Bugfix #2403: Lieferbedingungen
+- Bugfix #2404: Verlauf der Hintergrund-Jobs: Filter für einen Tag liefert keine Ergebnisse
+- Bugfix #2407: Stornieren von Rechnungen in geschloßenen Perioden erlaubt
+- Bugfix #2409: Detailsanzeige klappt bei Eingabe von neuen Artikel auf
+- Bugfix #2410: Lieferscheindruck nicht möglich - Tex-Fehler
+- Bugfix #2411: Fehler bei VK Rechnung "Als bezahlt markieren": action= nicht definiert
+- Bugfix #2413: "scripts/locales.pl" nutzt "modules/fallback" nicht
+- Bugfix #2420: Benutzerdefinierte Variablen ist falsch
+- Bugfix #2421: Benutzerdefinierte Variablen wird nicht gespeichert
+- Bugfix #2422: neue Ansprechpersonen-CVar: kein Std-Wert
+- Bugfix #2424: Input-Fokus falsch in select_part, select_name
+- Bugfix #2426: Bei Kreditorenbuchungen wird nicht mehr auf vorhandene Rechnungsnummer geprüft
+- Bugfix #2428: CSV Import Waren Menge aktualisiert nur parts.onhand
+- Bugfix #2429: Partpicker aktualisiert bei bestimmten Aktionen nicht
+- Bugfix #2430: installaton_check.pl: bitte -D pushen
+- Bugfix #2432: Neuer Mandant - Kunde oder Lieferant speichern schlägt fehl bei Nummernkreis
+- Bugfix #2433: HTML UStVA-Bericht funktioniert nicht wenn WebDAV Belege speichern aktiv ist
 
 
 2012-12-10 - Release 3.0.0

@@ -7,20 +7,13 @@
       <code class="filename">config/kivitendo.conf</code> eingetragen haben.</p><div class="sect2" title="2.9.1. Zusammenhänge"><div class="titlepage"><div><div><h3 class="title"><a name="Zusammenh%C3%A4nge"></a>2.9.1. Zusammenhänge</h3></div></div></div><p>kivitendo verwaltet zwei Sets von Daten, die je nach Einrichtung in einer oder zwei Datenbanken gespeichert werden.</p><p>Das erste Set besteht aus Anmeldeinformationen: welche Benutzer und Mandanten gibt es, welche Gruppen, welche BenutzerIn hat
         Zugriff auf welche Mandanten, und welche Gruppe verfügt über welche Rechte. Diese Informationen werden in der
         Authentifizierungsdatenbank gespeichert. Dies ist diejenige Datenbank, deren Verbindungsparameter in der Konfigurationsdatei
-        <code class="filename">config/kivitendo.conf</code> gespeichert werden.</p><p>Das zweite Set besteht aus den eigentlichen Verkehrsdaten eines Mandanten: Stammdaten (Kunden, Lieferanten, Waren), Belege
-        (Angebote, Liferscheine, Rechnungen), Einstellungen. Diese werden in einer Mandantendatenbank gespeichert. Die
+        <code class="filename">config/kivitendo.conf</code> gespeichert werden.</p><p>Das zweite Set besteht aus den eigentlichen Verkehrsdaten eines Mandanten, wie beispielsweise die Stammdaten (Kunden, Lieferanten, Waren) und Belege
+        (Angebote, Lieferscheine, Rechnungen). Diese werden in einer Mandantendatenbank gespeichert. Die
         Verbindungsinformationen einer solchen Mandantendatenbank werden im Administrationsbereich konfiguriert, indem man einen Mandanten
         anlegt und dort die Parameter einträgt. Dabei hat jeder Mandant eine eigene Datenbank.</p><p>Aufgrund des Datenbankdesigns ist es für einfache Fälle möglich, die Authentifizierungsdatenbank und eine der
         Mandantendatenbanken in ein und derselben Datenbank zu speichern. Arbeitet man hingegen mit mehr als einem Mandanten, wird
         empfohlen, für die Authentifizierungsdatenbank eine eigene Datenbank zu verwenden, die nicht gleichzeitig für einen Mandanten
-        verwendet wird.</p><p>kivitendo verwendet eine Datenbank zum Speichern all seiner
-        Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
-        mit kivitendo arbeiten zu können, muss eine Person einen
-        Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
-        Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
-        möglich und normal, dass mehreren Benutzern die selbe Datenbank
-        zugewiesen wird, sodass sie alle mit den selben Daten arbeiten
-        können.</p></div><div class="sect2" title="2.9.2. Mandanten, Benutzer und Gruppen"><div class="titlepage"><div><div><h3 class="title"><a name="Mandanten-Benutzer-Gruppen"></a>2.9.2. Mandanten, Benutzer und Gruppen</h3></div></div></div><p>kivitendos Administration kennt Mandanten, Benutzer und Gruppen, die sich frei zueinander zuordnen lassen.</p><p>kivitendo kann mehrere Mandaten aus einer Installation heraus verwalten. Welcher Mandant benutzt wird, kann direkt beim Login
+        verwendet wird.</p></div><div class="sect2" title="2.9.2. Mandanten, Benutzer und Gruppen"><div class="titlepage"><div><div><h3 class="title"><a name="Mandanten-Benutzer-Gruppen"></a>2.9.2. Mandanten, Benutzer und Gruppen</h3></div></div></div><p>kivitendos Administration kennt Mandanten, Benutzer und Gruppen, die sich frei zueinander zuordnen lassen.</p><p>kivitendo kann mehrere Mandaten aus einer Installation heraus verwalten. Welcher Mandant benutzt wird, kann direkt beim Login
         ausgewählt werden. Für jeden Mandanten wird ein eindeutiger Name vergeben, der beim Login angezeigt wird. Weiterhin benötigt der
         Mandant Datenbankverbindungsparameter für seine Mandantendatenbank. Diese sollte über die <a class="link" href="ch02s09.html#Datenbanken-anlegen" title="2.9.3. Datenbanken anlegen">Datenbankverwaltung</a> geschehen.</p><p>Ein Benutzer ist eine Person, die Zugriff auf kivitendo erhalten soll. Sie erhält einen Loginnamen sowie ein
         Passwort. Weiterhin legt der Administrator fest, an welchen Mandanten sich ein Benutzer anmelden kann, was beim Login verifiziert

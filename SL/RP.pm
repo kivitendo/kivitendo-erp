@@ -516,7 +516,7 @@ sub get_accounts_g {
   if ($form->{method} eq 'cash') {
     $query =
       qq|
-       SELECT SUM( ac.amount * CASE WHEN COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id), 0) != 0 THEN
+       SELECT SUM( ac.amount * CASE WHEN COALESCE((SELECT amount FROM ar a WHERE id = ac.trans_id $dpt_where), 0) != 0 THEN
             /* ar amount is not zero, so we can divide by amount   */
                     (SELECT SUM(acc.amount) * -1
                      FROM acc_trans acc
