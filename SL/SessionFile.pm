@@ -21,6 +21,10 @@ sub new {
 
   my $self   = $class->SUPER::new;
 
+  if ($params{session_id}) {
+    $self->session_id($params{session_id})
+  }
+
   my $path   = $self->prepare_path;
   $file_name =~ s:.*/::g;
   $file_name =  "${path}/${file_name}";

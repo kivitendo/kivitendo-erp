@@ -414,17 +414,17 @@ sub char_map {
 }
 
 sub save_report {
-  my ($self, $report_id) = @_;
+  my ($self, %params) = @_;
 
   if ($self->worker->is_multiplexed) {
-    return $self->save_report_multi($report_id);
+    return $self->save_report_multi(%params);
   } else {
-    return $self->save_report_single($report_id);
+    return $self->save_report_single(%params);
   }
 }
 
 sub save_report_single {
-  my ($self, $report_id) = @_;
+  my ($self, %params) = @_;
 
   $self->track_progress(phase => 'building report', progress => 0);
 
@@ -432,7 +432,7 @@ sub save_report_single {
   $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
 
   my $report = SL::DB::CsvImportReport->new(
-    session_id => $::auth->create_or_refresh_session,
+    session_id => $params{session_id},
     profile    => $clone_profile,
     type       => $self->type,
     file       => '',
@@ -494,7 +494,7 @@ sub save_report_single {
 }
 
 sub save_report_multi {
-  my ($self, $report_id) = @_;
+  my ($self, %params) = @_;
 
   $self->track_progress(phase => 'building report', progress => 0);
 
@@ -502,7 +502,7 @@ sub save_report_multi {
   $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
 
   my $report = SL::DB::CsvImportReport->new(
-    session_id => $::auth->create_or_refresh_session,
+    session_id => $params{session_id},
     profile    => $clone_profile,
     type       => $self->type,
     file       => '',

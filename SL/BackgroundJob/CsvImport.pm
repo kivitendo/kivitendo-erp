@@ -82,8 +82,9 @@ sub do_import {
   );
   $c->add_progress_tracker($self);
 
+  my $session_id = $job->data_as_hash->{session_id};
 
-  $c->test_and_import(test => $test, session_id => $job->data_as_hash->{session_id});
+  $c->test_and_import(test => $test, session_id => $session_id);
 
   if ($c->errors) {
     $job->set_data(
@@ -91,7 +92,7 @@ sub do_import {
     )->save;
   } else {
 
-    my $report_id = $c->save_report;
+    my $report_id = $c->save_report(session_id => $session_id);
     $job->set_data(report_id => $report_id)->save;
 
     $c->track_progress(finished => 1);
