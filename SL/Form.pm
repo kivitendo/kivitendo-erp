@@ -1105,15 +1105,16 @@ sub parse_template {
     $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
     $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
     $mail->{fileid} = time() . '.' . $$ . '.';
-    $myconfig->{signature} =~ s/\r//g;
+    my $full_signature     =  $self->create_email_signature();
+    $full_signature        =~ s/\r//g;
 
     # if we send html or plain text inline
     if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
       $mail->{contenttype}    =  "text/html";
       $mail->{message}        =~ s/\r//g;
       $mail->{message}        =~ s/\n/<br>\n/g;
-      $myconfig->{signature}  =~ s/\n/<br>\n/g;
-      $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
+      $full_signature         =~ s/\n/<br>\n/g;
+      $mail->{message}       .=  $full_signature;
 
       open(IN, "<", $self->{tmpfile})
         or $self->error($self->cleanup . "$self->{tmpfile} : $!");
@@ -1129,9 +1130,7 @@ sub parse_template {
                                    "name"     => $attachment_name }];
       }
 
-      $mail->{message}  =~ s/\r//g;
-      $mail->{message} .=  "\n-- \n$myconfig->{signature}";
-
+      $mail->{message} .= $full_signature;
     }
 
     my $err = $mail->send();
@@ -3483,6 +3482,21 @@ sub reformat_numbers {
 
   $::myconfig{numberformat} = $saved_numberformat;
 }
+
+sub create_email_signature {
+
+  my $client_signature = $::instance_conf->get_signature;
+  my $user_signature   = $::myconfig{signature};
+
+  my $signature = '';
+  if ( $client_signature or $user_signature ) {
+    $signature  = "\n\n-- \n";
+    $signature .= $user_signature   . "\n" if $user_signature;
+    $signature .= $client_signature . "\n" if $client_signature;
+  };
+  return $signature;
+
+};
 
 sub layout {
   my ($self) = @_;

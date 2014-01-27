@@ -1037,6 +1037,9 @@ sub config {
   $form->{title}               = $locale->text('Edit Preferences for #1', $form->{login});
 
   $form->header();
+
+  $form->{full_signature} = $form->create_email_signature();
+
   print $form->parse_html_template('am/config');
 
   $main::lxdebug->leave_sub();

@@ -75,6 +75,7 @@ __PACKAGE__->meta->columns(
   servicenumber                           => { type => 'text' },
   show_bestbefore                         => { type => 'boolean', default => 'false' },
   show_weight                             => { type => 'boolean', default => 'false', not_null => 1 },
+  signature                               => { type => 'text' },
   sonumber                                => { type => 'text' },
   sqnumber                                => { type => 'text' },
   taxnumber                               => { type => 'text' },

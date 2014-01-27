@@ -379,9 +379,7 @@ sub send_email {
   $mail->{subject} = $template->parse_block($ref->{email_subject});
   $mail->{message} = $template->parse_block($ref->{email_body});
 
-  if ($myconfig->{signature}) {
-    $mail->{message} .= "\n-- \n$myconfig->{signature}";
-  }
+  $mail->{message} .= $form->create_email_signature();
 
   $mail->{message} =~ s/\r\n/\n/g;
 
