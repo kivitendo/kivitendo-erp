@@ -873,7 +873,7 @@ sub print_dunning {
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
-                                           'name'     => "dunning_${dunning_id}.pdf" };
+                                           'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
   $form->parse_template($myconfig);
 
