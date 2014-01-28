@@ -71,7 +71,7 @@ namespace('kivi', function(k){
       state = STATES.PICKED;
       last_real = $real.val();
       last_dummy = $dummy.val();
-      $real.trigger('change');
+      $real.trigger('change').trigger('set_item:PartPicker', item);
     }
 
     function make_defined_state () {

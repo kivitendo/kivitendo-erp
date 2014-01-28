@@ -50,6 +50,7 @@ sub action_ajax_autocomplete {
      partnumber  => $_->partnumber,
      description => $_->description,
      type        => $_->type,
+     unit        => $_->unit,
     }
   } @{ $self->parts }; # neato: if exact match triggers we don't even need the init_parts
 
