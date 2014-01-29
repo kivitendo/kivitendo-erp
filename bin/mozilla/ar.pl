@@ -409,7 +409,7 @@ sub form_header {
       gldate           => $form->{"gldate_$i"},
     };
 
-  # default account for current assets (i.e. 1801 - SKR04)
+  # default account for current assets (i.e. 1801 - SKR04) if no account is selected
   $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
     $payment->{selectAR_paid} =
@@ -417,7 +417,7 @@ sub form_header {
                            '-id' => "AR_paid_$i",
                            '-values' => \@AR_paid_values,
                            '-labels' => \%chart_labels,
-                           '-default' => $form->{accno_arap}));
+                           '-default' => $payment->{AR_paid} || $form->{accno_arap}));
 
 
 
