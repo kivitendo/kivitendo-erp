@@ -276,16 +276,18 @@ $(function() {
 </fieldset>
 <hr size="3" noshade>
 
-<script type="text/javascript">
-function callback_save() {
-  var prev_desc = "[% description | html %]";
-  var prev_accno = "[% accno | html %]";
-  var cur_desc = $("#description").val();
-  var cur_accno = $("#accno").val();
+[% IF ( id ) %]
+  <script type="text/javascript">
+  function callback_save() {
+    var prev_desc = "[% description | html %]";
+    var prev_accno = "[% accno | html %]";
+    var cur_desc = $("#description").val();
+    var cur_accno = $("#accno").val();
 
-  if ( prev_desc != cur_desc || prev_accno != cur_accno )
-    return confirm(kivi.t8("Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?", [prev_accno, cur_accno, prev_desc, cur_desc]));
-  else
-    return true;
-}
-</script>
+    if ( prev_desc != cur_desc || prev_accno != cur_accno )
+      return confirm(kivi.t8("Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?", [prev_accno, cur_accno, prev_desc, cur_desc]));
+    else
+      return true;
+  }
+  </script>
+[% END %]
