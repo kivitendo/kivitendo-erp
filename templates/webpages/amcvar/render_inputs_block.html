@@ -1,45 +1,72 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
-[%- USE LxERP %]
-[%- BLOCK cvar_name %][% HTML.escape(cvar.name_prefix) _ "cvar_" _ HTML.escape(cvar.var.name) _ HTML.escape(cvar.name_postfix) -%][% END %]
+[%- USE LxERP %][%- USE P -%]
 [%- BLOCK cvar_inputs %]
-[% render_input_blocks__cvar_name = PROCESS cvar_name %]
-[%- %]
+[%- SET render_cvar_tag_options = {};
+    render_cvar_tag_options.import(cvar_tag_options) IF cvar_tag_options;
+    SET cvar_tag_name = HTML.escape(cvar.name_prefix) _ "cvar_" _ HTML.escape(cvar.var.name) _ HTML.escape(cvar.name_postfix);
+    IF !render_cvar_tag_options.id && (cvar.var.type != 'select');
+      SET render_cvar_tag_options.no_id = 1;
+    END;
+%]
 [%- IF cvar.hide_non_editable && !cvar.var.flag_editable %]
-<input type="hidden" name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.var.value) %]">
+[%- L.hidden_tag(cvar_tag_name, cvar.var.value, render_cvar_tag_options) %]
 [%- ELSIF !cvar.valid %]
   [%- IF show_disabled_message %]
 <i>[% 'Element disabled' | $T8 %]</i>
   [%- END %]
+
 [%- ELSIF cvar.var.type == 'bool' %]
-<input type="checkbox" name="[% PROCESS cvar_name %]" value="1"[% IF cvar.value %] checked[% END %]>
+[%- render_cvar_tag_options.import(checked=cvar.value, value=1);
+    L.checkbox_tag(cvar_tag_name, render_cvar_tag_options) %]
+
 [%- ELSIF cvar.var.type == 'textfield' %]
-[% L.textarea_tag(render_input_blocks__cvar_name, cvar.value, cols=cvar.var.width, rows=cvar.var.height) %]
+[% render_cvar_tag_options.import(cols=cvar.var.width, rows=cvar.var.height);
+   L.textarea_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+
 [%- ELSIF cvar.var.type == 'date' %]
-[%- L.date_tag(render_input_blocks__cvar_name, cvar.value) %]
+[%- L.date_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'timestamp' %]
-<input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]">
+[%- L.input_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+
 [%- ELSIF cvar.var.type == 'select' %]
-<select name="[% PROCESS cvar_name %]">
- [%- FOREACH option = cvar.var.OPTIONS %]
- <option[% IF option.value == cvar.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+[%- render_cvar_tag_options.name=cvar_tag_name %]
+<select [% P.stringify_attributes(render_cvar_tag_options) %]>
+ [%- IF LxERP.is_rdbo(cvar.var, 'CustomVariableConfig') %]
+  [%- FOREACH option = cvar.var.processed_options %]
+   [%- SET render_cvar_opts = {
+        value = option
+       };
+       render_cvar_opts.selected = 'selected' IF option == cvar.value;
+       L.html_tag('option', option, render_cvar_opts) %]
+  [%- END %]
+ [%- ELSE %]
+  [%- FOREACH option = cvar.var.OPTIONS %]
+   [%- SET render_cvar_opts = {
+        value = option.value
+       };
+       render_cvar_opts.selected = 'selected' IF option.value == cvar.value;
+       L.html_tag('option', option.value, render_cvar_opts) %]
+  [%- END %]
  [%- END %]
 </select>
+
 [%- ELSIF cvar.var.type == 'customer' %]
-[%- L.customer_picker(render_input_blocks__cvar_name, cvar.value) %]
+[%- L.customer_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'vendor' %]
-[% L.vendor_selector(render_input_blocks__cvar_name, cvar.value) %]
+[% L.vendor_selector(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'part' %]
-[% L.part_selector(render_input_blocks__cvar_name, cvar.value) %]
+[% L.part_selector(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'number' %]
-[%- L.input_tag(render_input_blocks__cvar_name, LxERP.format_amount(cvar.value, -2)) %]
+[%- L.input_tag(cvar_tag_name, LxERP.format_amount(cvar.value, -2), render_cvar_tag_options) %]
 
 [%- ELSE %]
-<input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]" [%- IF cvar.var.maxlength %] maxlength="[% HTML.escape(cvar.var.maxlength) %]"[% END -%]>
+[% render_cvar_tag_options.maxlength=cvar.var.maxlength IF cvar.var.maxlength;
+   L.input_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 [%- END %]
 [%- END %]
