@@ -36,9 +36,9 @@ Größere neue Features:
   WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
   Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
-__Zusätzlich zu der Benutzersignatur kann man nun auch eine mandantenweite
-__Firmensignatur konfigurieren. Beim E-Mailversand von Belegen wird die
-__Firmensignatur, falls vorhanden, an die Benutzersignatur angehängt.
+  Zusätzlich zu der Benutzersignatur kann man nun auch eine mandantenweite
+  Firmensignatur konfigurieren. Beim E-Mailversand von Belegen wird die
+  Firmensignatur, falls vorhanden, an die Benutzersignatur angehängt.
 
 - CSV-Import von Aufträgen
 
@@ -47,7 +47,7 @@ Kleinere neue Features und Detailverbesserungen:
 - Die bwa.html und ustva.html werden jetzt zentral gepflegt und nicht mehr als benutzerdefinierte
   Druckvorlage. Falls hier jmd. Anpassungen gemacht hat, müssten diese in templates/rp/$VORLAGE.html
   nachgepflegt werden
-- Für UstVa: Winston, Taxbird und Pdf-Export werden nicht mehr unterstützt. Die UstVa muss sowieso mittlerweile
+- Für UStVA: Winston, Taxbird und Pdf-Export werden nicht mehr unterstützt. Die UStVA muss sowieso mittlerweile
   per Elster erfolgen
 - Lieferbedingungen analog zu Zahlungsbedingungen eingeführt.
   Sie können angelegt, beim Benutzer voreingestellt und in allen Ein- und Ver-
@@ -70,11 +70,11 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Recht für Produktivität und für Anzeige des Links zum Administrationsmenü
   Man kann den gesamten Produktivitätsbereich jetzt nur noch nutzen, wenn man die entsprechenden Rechte hat.
-  Auch der Link Unter dem Menü-Punkt Programm zum Administrationsmenü wird jetzt nur noch
-  angezeigt, wenn man entsprechendes Recht hat.
-  Durch ein Upgrade wird allerdings bei schon bestehenden Benutzern automatisch die oben genannten beiden Rechte
-  gesetzt, so dass alle die Produktivität vorher nutzen durften auch weiterhin nutzen dürfen, bzw. so dass
-  bei allen, bei denen der Link auf das Admin-Menü angezeigt wurde, er auch weiterhin angezeigt wird.
+  Auch der Link unter dem Menü-Punkt Programm zum Administrationsmenü wird jetzt nur noch
+  angezeigt, wenn man das entsprechende Recht hat.
+  Durch ein Upgrade werden allerdings bei schon bestehenden Benutzern automatisch die oben genannten beiden Rechte
+  gesetzt, so dass alle, die Produktivität vorher nutzen durften, dies auch weiterhin nutzen dürfen, bzw. so dass
+  bei allen, bei denen der Link auf das Admin-Menü angezeigt wurde, dieser auch weiterhin angezeigt wird.
 
 - Stückliste für Lieferschein ausdrucken
   Stücklisten-Details (Haken bei Warenliste) für Erzeugnisse wurden seit 2009
@@ -86,14 +86,14 @@ Kleinere neue Features und Detailverbesserungen:
 - Lagerbestand anzeigen, zeigt auch die Filteroptionen an
 
 - Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
-  maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
+  maximalen Zeitraum, in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
 
 - Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt (s.a. #2300)
 
 - Dokumentenbelege optional in WebDAV-Ordner speichern (s.a. #2301)
 
 - Die Bestimmung des Startdatums für die Bilanz kann jetzt in der
-__Mandantenkonfiguration einstellt werden.
+  Mandantenkonfiguration einstellt werden.
 
 Wichtige Änderungen:
 
