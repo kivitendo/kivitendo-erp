@@ -50,15 +50,90 @@ use strict;
 # - proper testing for heading charts
 # - transmission from $form to TMPL realm is not as clear as i'd like
 
-sub get_openbalance_date {
-  my ($closedto, $target) = map { $::locale->parse_date_to_object(\%::myconfig, $_) } @_;
+sub get_balance_starting_date {
 
-  return unless $closedto;
+  # determine date from which the balance is calculated. The method is
+  # configured in the client configuration.
 
-  $closedto->subtract(years => 1) while ($target - $closedto)->is_negative;
-  $closedto->add(days => 1);
-  return $::locale->format_date(\%::myconfig, $closedto);
-}
+  my $asofdate = shift;
+  return unless $asofdate;
+
+  $asofdate = $::locale->parse_date_to_object(\%::myconfig, $asofdate);
+
+  my $form = $main::form;
+  my $dbh  = $::form->get_standard_dbh;
+
+  my $startdate_method = $::instance_conf->get_balance_startdate_method;
+
+  # We could use the following objects to determine the starting date for
+  # calculating the balance from asofdate (the reference date for the balance):
+  # * start_of_year - 1.1., no deviating fiscal year supported
+  # * closed_to - all transactions since the books were last closed
+  # * last_ob - all transactions since last opening balance transaction (usually 1.1.)
+  # * mindate - all transactions in database
+
+  my $start_of_year = $asofdate->clone();
+  $start_of_year->set_day(1);
+  $start_of_year->set_month(1);
+
+  # closedto assumes that we only close the books at the end of a fiscal year,
+  # never during the fiscal year. If this assumption is valid closedto should
+  # also work for deviating fiscal years. But as the trial balance (SuSa)
+  # doesn't yet deal with deviating fiscal years, and is useful to also close
+  # the books after a month has been exported via DATEV, so this method of
+  # determining the starting date isn't recommended and has been removed as
+  # default.
+  my ($closedto) = selectfirst_array_query($form, $dbh, 'SELECT closedto FROM defaults');
+  if ($closedto) {
+    $closedto = $::locale->parse_date_to_object(\%::myconfig, $closedto);
+    $closedto->subtract(years => 1) while ($asofdate - $closedto)->is_negative;
+    $closedto->add(days => 1);
+  };
+
+  my ($query, $startdate, $last_ob, $mindate);
+  $query = qq|select max(transdate) from acc_trans where ob_transaction is true and transdate <= ?|;                                                                         
+  ($last_ob) = selectrow_query($::form, $dbh, $query, $::locale->format_date(\%::myconfig, $asofdate));
+  $last_ob = $::locale->parse_date_to_object(\%::myconfig, $last_ob) if $last_ob;
+ 
+  $query = qq|select min(transdate) from acc_trans|;                                                                                                                       
+  ($mindate) = selectrow_query($::form, $dbh, $query);
+  $mindate = $::locale->parse_date_to_object(\%::myconfig, $mindate);
+
+  # the default method is to use all transactions ($mindate)
+
+  if ( $startdate_method eq 'closed_to' and $closedto ) {
+    # if no closedto is configured use default
+    return $::locale->format_date(\%::myconfig, $closedto);
+
+  } elsif ( $startdate_method eq 'start_of_year' ) {
+
+    return $::locale->format_date(\%::myconfig, $start_of_year);
+
+  } elsif ( $startdate_method eq 'all_transactions' ) {
+
+    return $::locale->format_date(\%::myconfig, $mindate);
+
+  } elsif ( $startdate_method eq 'last_ob_or_all_transactions' and $last_ob ) {
+    # use default if there are no ob transactions
+
+    return $::locale->format_date(\%::myconfig, $last_ob);
+
+  } elsif ( $startdate_method eq 'last_ob_or_start_of_year' ) {
+
+    if ( $last_ob ) {
+      return $::locale->format_date(\%::myconfig, $last_ob);
+    } else {
+      return $::locale->format_date(\%::myconfig, $start_of_year);
+    };
+
+  } else {
+    # default action, also used for closedto and last_ob_or_all_transactions if
+    # there are no valid dates
+
+    return $::locale->format_date(\%::myconfig, $mindate);
+  };
+     
+};               
 
 sub balance_sheet {
   $main::lxdebug->enter_sub();
@@ -75,21 +150,18 @@ sub balance_sheet {
     $form->{period} = $form->{this_period} = conv_dateq($form->{asofdate});
   }
 
-  # get end of financial year and convert to Date format
-  my ($closedto) = selectfirst_array_query($form, $dbh, 'SELECT closedto FROM defaults');
+  # get starting date for calculating balance 
+  $form->{this_startdate} = get_balance_starting_date($form->{asofdate});
 
-  # get date of last opening balance
-  my $startdate = get_openbalance_date($closedto, $form->{asofdate});
-
-  get_accounts($dbh, $last_period, $startdate, $form->{asofdate}, $form, \@categories);
+  get_accounts($dbh, $last_period, $form->{this_startdate}, $form->{asofdate}, $form, \@categories);
 
   # if there are any compare dates
   if ($form->{compareasofdate}) {
     $last_period = 1;
 
-    $startdate = get_openbalance_date($closedto, $form->{compareasofdate});
+    $form->{last_startdate} = get_balance_starting_date($form->{compareasofdate});
 
-    get_accounts($dbh, $last_period, $startdate, $form->{compareasofdate}, $form, \@categories);
+    get_accounts($dbh, $last_period, $form->{last_startdate} , $form->{compareasofdate}, $form, \@categories);
     $form->{last_period} = conv_dateq($form->{compareasofdate});
   }
 

@@ -81,5 +81,10 @@
    <td>[% L.select_tag('defaults.profit_determination', SELF.profit_options, value_key = 'value', title_key = 'title', default = SELF.defaults.profit_determination) %]</td>
    <td>[% LxERP.t8('This option controls the method used for profit determination.') %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Balance startdate method') %]</td>
+   <td>[% L.select_tag('defaults.balance_startdate_method', SELF.balance_startdate_method_options, value_key = 'value', title_key = 'title', default = SELF.defaults.balance_startdate_method) %]</td>
+   <td>[% LxERP.t8('This option controls the method used for determining the startdate for the balance report.') %]</td>
+  </tr>
  </table>
 </div>

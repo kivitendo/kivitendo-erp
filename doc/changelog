@@ -85,7 +85,11 @@ Kleinere neue Features und Detailverbesserungen:
   maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
 
 - Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt (s.a. #2300)
+
 - Dokumentenbelege optional in WebDAV-Ordner speichern (s.a. #2301)
+
+- Die Bestimmung des Startdatums für die Bilanz kann jetzt in der
+__Mandantenkonfiguration einstellt werden.
 
 Wichtige Änderungen:
 
@@ -338,6 +342,7 @@ Bugfixes:
 - Bugfix #2430: installaton_check.pl: bitte -D pushen
 - Bugfix #2432: Neuer Mandant - Kunde oder Lieferant speichern schlägt fehl bei Nummernkreis
 - Bugfix #2433: HTML UStVA-Bericht funktioniert nicht wenn WebDAV Belege speichern aktiv ist
+- Bugfix #2444: Datum aus "Bücher abschließen zum" wird als Basis für Startdatum der Bilanz benutzt
 
 
 2012-12-10 - Release 3.0.0

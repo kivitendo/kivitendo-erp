@@ -18,7 +18,7 @@ use SL::Template;
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates posting_options payment_options accounting_options inventory_options profit_options accounts) ],
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
 );
 
 sub action_edit {
@@ -165,6 +165,14 @@ sub init_inventory_options {
 sub init_profit_options {
   [ { title => t8("balance"),         value => "balance"   },
     { title => t8("income"),          value => "income"    }, ]
+}
+
+sub init_balance_startdate_method_options {
+  [ { title => t8("After closed period"),                       value => "closed_to"                   },
+    { title => t8("Start of year"),                             value => "start_of_year"               },
+    { title => t8("All transactions"),                          value => "all_transactions"            },
+    { title => t8("Last opening balance or all transactions"),  value => "last_ob_or_all_transactions" },
+    { title => t8("Last opening balance or start of year"),     value => "last_ob_or_start_of_year"    }, ]
 }
 
 sub init_accounts {
