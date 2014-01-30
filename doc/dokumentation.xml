@@ -2,7 +2,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.0.0: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.1.0: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -60,7 +60,7 @@
       </orderedlist>
 
       <para>
-        Alle weiteren Unterkapitel in diesem Kapitel sind ebenfalls wichtig und dienen sollten vor einer ernsthaften Inbetriebnahme gelesen
+        Alle weiteren Unterkapitel in diesem Kapitel sind ebenfalls wichtig und sollten vor einer ernsthaften Inbetriebnahme gelesen
         werden.
       </para>
     </sect1>
@@ -622,7 +622,7 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
             </listitem>
 
             <listitem>
-              <para>Apache 2.2.11 (Ubuntu) und mod_fastcgi.</para>
+              <para>Apache 2.2.11 / 2.2.22 (Ubuntu) und mod_fastcgi.</para>
             </listitem>
           </itemizedlist>
 
@@ -1993,7 +1993,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
     Bis Version 3.0 wurde "closedto" ("Bücher schließen zum") als Grundlage für das
     Startdatum benutzt. Schließt man die Bücher allerdings monatsweise führt dies
     zu falschen Werten.</para>
-    <para>In der Mandantenkonfiguration kann man dieses Verhalten genau einstellen:</para>
+    <para>In der Mandantenkonfiguration kann man dieses Verhalten genau einstellen indem man:</para>
   <itemizedlist>
    <listitem>
     <para>weiterhin closed_to benutzt (Default, es ändert sich nichts zu vorher)</para>
@@ -2003,9 +2003,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
   </listitem>
    <listitem>
     <para>immer die letzte Eröffnungsbuchung als Startdatum nimmt</para>
+       <para>- mit Jahresanfang als Alternative wenn es keine EB-Buchungen gibt</para>
+      <para>- oder mit "alle Buchungen" als Alternative"</para>
    </listitem>
    <listitem>
-     <para>mit Jahresanfang als Alternative wenn es keine EB-Buchungen gibt</para>
+     <para>mit Jahresanfang als Alternative wenn es keine EB-Buchungen gibt </para>
   </listitem>
    <listitem>
     <para>immer alle Buchungen seit Beginn der Datenbank nimmt</para>
