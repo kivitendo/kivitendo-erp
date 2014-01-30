@@ -64,9 +64,6 @@ sub show_form {
     split m/;/, ($self->config->flags || '')
   });
 
-  $::lxdebug->dump(0, "cflags", $self->config->flags);
-  $::lxdebug->dump(0, "flags", $self->flags);
-
   $self->render('custom_variable_config/form', %params);
 }
 
