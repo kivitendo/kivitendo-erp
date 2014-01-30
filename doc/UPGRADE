@@ -51,17 +51,22 @@ Upgrade auf v3.x.0
   - scripts/rose_auto_create_model.pl
 
 * Neue Benutzerrechte
-  Diese muessen bei vorhandenen Gruppen eventuell nachgepfl;egt werden. Z.B. bei der Gruppe Vollzugriff
 
-  - Stammdaten -> Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Alle Kunden bearbeiten
-  - Konfiguration -> Verändern der kivitendo-Installationseinstellungen (die meisten Menüpunkte unterhalb von 'System')
+  Diese müssen bei vorhandenen Gruppen eventuell nachgepflegt werden. Z.B. bei
+  der Gruppe Vollzugriff
+
+  - Stammdaten -> Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten.
+    Alle Kunden bearbeiten
+  - Konfiguration -> Verändern der kivitendo-Installationseinstellungen (die
+    meisten Menüpunkte unterhalb von 'System')
 
 * Die alten ungepflegten Druckvorlagenvarianten French und Service
   wurden entfernt.
 
-* Die Druckvorlage für GuV/EÜR wird jetzt wie die Bilanz zentral in den
-  Webvorlagen verwaltet, es gibt keine benutzerangepassten Version in den
-  Druckvorlage mehr.
+* Die HTML-Druckvorlagen der Berichte (GuV, Bilanz, SuSa, BWA, UStVA) werden
+  jetzt alle zentral in den Webvorlagen verwaltet, es werden keine
+  benutzerangepasste Versionen der Druckvorlagen im Druckvorlagenverzeichnis
+  mehr unterstützt.
 
 Upgrade auf v3.0.0
 ==================
@@ -87,8 +92,8 @@ Upgrade auf v3.0.0
   * GD 2.00
 
 * Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
-  Rechnungen sind jetzt standardmässig deaktiviert und müssen unter "System"
-  -> "Mandantenkonfiguration" aktiviert werden.
+  Rechnungen sind jetzt standardmässig deaktiviert und müssen unter "System" ->
+  "Mandantenkonfiguration" aktiviert werden.
 
 * Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
   französische Version respektive wurden entfernt. Es bleiben offiziell

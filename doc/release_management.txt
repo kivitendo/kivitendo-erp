@@ -1,5 +1,5 @@
 Dieses Dokument listet die Arbeiten die für ein Lx-Office Release nötig sind,
-als freundliche Checkliste zum ausdrucken und erweitern.
+als freundliche Checkliste zum Ausdrucken und Erweitern.
 
 0. IM VORFELD
 =============
@@ -34,7 +34,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Testinstallation aus dem git mit neuer auth Datenbank.
 
-  - Änderungen die die auth Systeme betreffen zerreissen gerne mal die initiale
+  - Änderungen, die die auth Systeme betreffen, zerreissen gerne mal die initiale
     Installation.
 
 * Testupgrade auf einer Vorversion.
@@ -78,7 +78,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     o copy&paste in eine Datei
     o perl -pale '$_="  - Bugfix $F[0]: @F[1..$#F]"' oder awk/sed drüber
 
-    Achtung: Trac hat im Moment noch Probleme, sodass Bugs zum Teil mit nicht
+    Achtung: Trac hat im Moment noch Probleme, so dass Bugs zum Teil mit nicht
     existenten Lösungen geschlossen werden.  Besser ist es, sich die Lösung als
     eigene Spalte anzeigen zu lassen, die Lösungen zu filtern, die nicht
     erwünscht sind, und den Rest zu formatieren (TODO: Script erweitern)
@@ -113,7 +113,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     - CPAN-Devel-Version?
 
   2. Welche Mindestversion funktioniert sicher?
-    - zuindest deine aktuelle. ansonsten auch mal im CPAN changelog schauen, wie
+    - zumindest deine aktuelle. Ansonsten auch mal im CPAN Changelog schauen, wie
       alt die ist, und was alles dazugekommen ist.
 
   3. Das Modul in SL/InstallationCheck.pm eintragen. Testen.
@@ -138,7 +138,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
   - Alle Datenbank Upgrades seit der letzten Version müssen eingepflegt werden.
   - Alle noch nicht normalisierten Tabellen müssen weiterhin ignoriert werden.
-  - Alle Felder die von der crm, von bob, von lx-cars oder sonstwo in die
+  - Alle Felder, die von der crm, von bob, von lx-cars oder sonstwo in die
     Datenbank gekommen sind, müssen ignoriert werden.
   - Wenn die Reihenfolge der Spalten in der Datenbank moniert wird, dann sollte
     das auch ignoriert werden. (Kann passieren, wenn DB Upgrades in
@@ -150,11 +150,11 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
   Zum Prüfen was sich geändert hat eignen sich folgende Befehle:
 
-  # listet alle Dateien in denen sich etwas Ändern würde
-  $ scripts/rose_auto_create_model.pl --user=<login> -n --all
+  # listet alle Dateien in denen sich etwas ändern würde
+  $ scripts/rose_auto_create_model.pl --client=<name-or-id> -n --all
 
   # listet die entsprechenden Diffs:
-  $ scripts/rose_auto_create_model.pl --user=<login> --diff -n --all
+  $ scripts/rose_auto_create_model.pl --client=<name-or-id> --diff -n --all
 
 * Locales auf Vollständigkeit prüfen
 
@@ -212,11 +212,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Tarball erstellen
 
-  $ git archive --format=tar --remote=git@vc.linet-services.de:public/lx-office-erp.git \
-        --prefix=kivitendo-erp-3.0.0/ release-3.0.0 | gzip  \
-        > kivitendo-erp-3.0.0.tgz
-
-  (der trailing slash bei prefix ist wichtig)
+  Commits mit Tags können von github als Archiv heruntergeladen werden:
+  https://github.com/kivitendo/kivitendo-erp/releases
 
 * Tarball testen, wird das richtig entpackt?
 
@@ -240,6 +237,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 3. POST RELEASE
 ===============
 
-* Im Trac die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden können.
+* Im Trac die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden
+  können.
 
-* Nach einem Major Release alle Bugs die den Milestone hatten und nicht gefixt wurden zurücksetzen
+* Nach einem Major Release alle Bugs, die den Milestone hatten und nicht gefixt
+  wurden, zurücksetzen
