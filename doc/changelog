@@ -3,7 +3,7 @@
 ###############################
 
 
-2014-01-xx - Release 3.1.0beta
+2014-01-30 - Release 3.1.0beta
 
 Größere neue Features:
 
@@ -206,6 +206,7 @@ Bugfixes:
 - Bugfix #2191: Tabelle vendortax scheint überflüssig
 - Bugfix #2195: Kontenabgleich rechnet Falsch
 - Bugfix #2197: Debitorenbuchung Datenbankfehler
+- Bugfix #2198: CSV Import Uploads werden in der Session des Taskserver-Startenen gespeichert (war "Kundenimport .csv ohne Funktion")
 - Bugfix #2201: Kunden können nicht gelöscht werden.
 - Bugfix #2202: kein Icon bei Rechnungen der Menü-Variante "Links (HTML)"
 - Bugfix #2203: CSV-Import zeigt Fehler beim Speichern eines Objektes nicht
@@ -265,6 +266,7 @@ Bugfixes:
 - Bugfix #2293: Rechnung löschen currency_id nicht beachtet
 - Bugfix #2294: Farben kaputt bei Menü-Variante Oben (mit CSS) im lx-office.erp-Stil
 - Bugfix #2296: manuelle Lieferadresse im Auftrag wird nicht in wiederkehrende Rechung übernommen
+- Bugfix #2300: Weitere Funktionen aus der kivitendo.conf in die Mandatenkonfiguration verlagern
 - Bugfix #2301: Dokumentenbelege optional in webdav-Ordner speichern
 - Bugfix #2307: Nachkommastellen gehen bei der Eingabe verloren
 - Bugfix #2308: CSV-Import
@@ -341,11 +343,15 @@ Bugfixes:
 - Bugfix #2422: neue Ansprechpersonen-CVar: kein Std-Wert
 - Bugfix #2424: Input-Fokus falsch in select_part, select_name
 - Bugfix #2426: Bei Kreditorenbuchungen wird nicht mehr auf vorhandene Rechnungsnummer geprüft
+- Bugfix #2427: GuV und Ist-Versteuerung und Abteilungsfilter fehlerhaft
 - Bugfix #2428: CSV Import Waren Menge aktualisiert nur parts.onhand
 - Bugfix #2429: Partpicker aktualisiert bei bestimmten Aktionen nicht
 - Bugfix #2430: installaton_check.pl: bitte -D pushen
 - Bugfix #2432: Neuer Mandant - Kunde oder Lieferant speichern schlägt fehl bei Nummernkreis
 - Bugfix #2433: HTML UStVA-Bericht funktioniert nicht wenn WebDAV Belege speichern aktiv ist
+- Bugfix #2436: Darstellungs- und Rechenfehler in vorandenen Latex-Vorlagen
+- Bugfix #2440: Fehler bei Fälligkeitsdatum in VK-Rechnung
+- Bugfix #2443: Löschen von Konten nicht möglich
 - Bugfix #2444: Datum aus "Bücher abschließen zum" wird als Basis für Startdatum der Bilanz benutzt
 
 
