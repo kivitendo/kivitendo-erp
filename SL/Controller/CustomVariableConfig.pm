@@ -59,10 +59,13 @@ sub action_new {
 sub show_form {
   my ($self, %params) = @_;
 
-  $self->flags([
-    map { split m/=/, 2 }
+  $self->flags({
+    map { split m/=/, $_, 2 }
     split m/;/, ($self->config->flags || '')
-  ]);
+  });
+
+  $::lxdebug->dump(0, "cflags", $self->config->flags);
+  $::lxdebug->dump(0, "flags", $self->flags);
 
   $self->render('custom_variable_config/form', %params);
 }
