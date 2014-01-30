@@ -1987,7 +1987,45 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         </screenshot>
       </sect2>
     </sect1>
-
+    <sect1 id="bilanz">
+     <title>Verhalten des Bilanzberichts</title>
+      <para>
+    Bis Version 3.0 wurde "closedto" ("Bücher schließen zum") als Grundlage für das
+    Startdatum benutzt. Schließt man die Bücher allerdings monatsweise führt dies
+    zu falschen Werten.</para>
+    <para>In der Mandantenkonfiguration kann man dieses Verhalten genau einstellen:</para>
+  <itemizedlist>
+   <listitem>
+    <para>weiterhin closed_to benutzt (Default, es ändert sich nichts zu vorher)</para>
+  </listitem>
+   <listitem>
+    <para>immer den Jahresanfang nimmt (1.1. relativ zum Stichtag)</para>
+  </listitem>
+   <listitem>
+    <para>immer die letzte Eröffnungsbuchung als Startdatum nimmt</para>
+   </listitem>
+   <listitem>
+     <para>mit Jahresanfang als Alternative wenn es keine EB-Buchungen gibt</para>
+  </listitem>
+   <listitem>
+    <para>immer alle Buchungen seit Beginn der Datenbank nimmt</para>
+  </listitem>
+  </itemizedlist>
+   Folgende Hinweise zu den Optionen:
+    Das "Bücher schließen Datum" ist sinnvoll, wenn man nur komplette Jahre
+    schließt. Bei Wirtschaftsjahr = Kalendarjahr entspricht dies aber auch
+    Jahresanfang.
+    "Alle Buchungen" kann z.B. sinnvoll sein wenn man ohne Jahresabschluß
+    durchbucht.
+    Eröffnungsbuchung mit "alle Buchungen" als Fallback ist z.B. sinnvoll, wenn man
+    am sich Anfang des zweiten Buchungsjahres befindet, und noch keinen
+    Jahreswechsel und auch noch keine EB-Buchungen hat.
+    Bei den Optionen mit EB-Buchungen wird vorausgesetzt, daß diese immer am 1. Tag
+    des Wirtschaftsjahres gebucht werden.
+    Zur Sicherheit wird das Startdatum im Bilanzbericht jetzt zusätzlich zum
+    Stichtag mit angezeigt. Das hilft auch bei der Kontrolle für den
+    Abgleich mit der GuV.
+    </sect1>
     <sect1 id="config.client">
       <title>Einstellungen pro Mandant</title>
 
