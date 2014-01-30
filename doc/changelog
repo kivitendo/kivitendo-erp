@@ -36,6 +36,10 @@ Größere neue Features:
   WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
   Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
+__Zusätzlich zu der Benutzersignatur kann man nun auch eine mandantenweite
+__Firmensignatur konfigurieren. Beim E-Mailversand von Belegen wird die
+__Firmensignatur, falls vorhanden, an die Benutzersignatur angehängt.
+
 - CSV-Import von Aufträgen
 
 Kleinere neue Features und Detailverbesserungen:
