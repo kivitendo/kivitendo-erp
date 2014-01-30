@@ -482,14 +482,16 @@ sub delete_account {
               WHERE chart_id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
-  # delete chart of account record
-  $query = qq|DELETE FROM chart
-              WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
   # delete account taxkeys
   $query = qq|DELETE FROM taxkeys
               WHERE chart_id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
+
+  # delete chart of account record
+  # last step delete chart, because we have a constraint
+  # to taxkeys
+  $query = qq|DELETE FROM chart
+              WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
   # commit and redirect
