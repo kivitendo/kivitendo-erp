@@ -271,8 +271,8 @@ sub form_header {
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
 
-  $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
-  $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
+  $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $::form->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all(query => [
     or => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
@@ -466,7 +466,7 @@ sub search {
                                        "all" => 1 },
                    "departments"  => "ALL_DEPARTMENTS",
                    "$form->{vc}s" => "ALL_VC");
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{title}             = $locale->text('Delivery Orders');

@@ -847,7 +847,7 @@ sub search {
                    "departments"    => "ALL_DEPARTMENTS",
                    "customers"      => "ALL_VC",
                    "business_types" => "ALL_BUSINESS_TYPES");
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   # constants and subs for template

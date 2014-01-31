@@ -403,7 +403,7 @@ sub edit_access_rights {
 
   my $access = FU->retrieve_access_rights();
 
-  $form->{EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $form->{EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   map { $_->{access} = $access->{$_->{id}} } @{ $form->{EMPLOYEES} };
 

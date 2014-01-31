@@ -3,11 +3,22 @@ package SL::DB::Manager::Employee;
 use strict;
 
 use SL::DB::Helper::Manager;
+use SL::DB::Helper::Sorted;
 use base qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::Employee' }
 
 __PACKAGE__->make_manager_methods;
+
+sub _sort_spec {
+  (
+    default  => [ 'name', 1 ],
+    columns  => {
+      SIMPLE => 'ALL',
+      map { +($_ => "lower(employee.$_)") } qw(deleted_email deleted_fax deleted_signature deleted_tel login name)
+    },
+  );
+}
 
 sub current {
   return undef unless $::form && $::form->{login};

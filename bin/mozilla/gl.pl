@@ -218,7 +218,7 @@ sub search {
   $::form->get_lists(
     projects  => { key => "ALL_PROJECTS", all => 1 },
   );
-  $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   $::form->header;
   print $::form->parse_html_template('gl/search', {

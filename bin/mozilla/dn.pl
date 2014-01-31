@@ -298,7 +298,7 @@ sub search {
 
   $form->get_lists("customers"   => "ALL_CUSTOMERS",
                    "departments" => "ALL_DEPARTMENTS");
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   DN->get_config(\%myconfig, \%$form);
 
