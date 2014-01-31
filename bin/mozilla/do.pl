@@ -273,7 +273,7 @@ sub form_header {
 
   $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
-  $::form->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all(query => [
+  $::form->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
     or => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
   $::form->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [

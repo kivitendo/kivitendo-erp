@@ -3,14 +3,13 @@ package SL::DB::Shipto;
 use strict;
 
 use SL::DB::MetaSetup::Shipto;
+use SL::DB::Manager::Shipto;
 use Rose::DB::Object::Helpers qw(clone_and_reset clone);
 
 our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
                            shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2);
 
 __PACKAGE__->meta->initialize;
-
-__PACKAGE__->meta->make_manager_class;
 
 sub displayable_id {
   my $self = shift;
