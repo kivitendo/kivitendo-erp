@@ -415,7 +415,7 @@ sub form_header {
     $::request->{layout}->add_javascripts_inline("alert('$credittext');");
   }
 
-  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
+  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
