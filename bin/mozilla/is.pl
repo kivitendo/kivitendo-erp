@@ -322,7 +322,7 @@ sub form_header {
   $TMPL_VAR{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all(query => [
     or => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
-  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
+  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
       and      => [
