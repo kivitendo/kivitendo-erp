@@ -70,8 +70,8 @@ sub value_as_text {
     require SL::DB::Part;
 
     my $id = int($self->number_value);
-    my $vendor = $id ? SL::DB::Part->new(id => $id)->load() : 0;
-    return $vendor ? $vendor->name : '';
+    my $part = $id ? SL::DB::Part->new(id => $id)->load() : 0;
+    return $part ? $part->description : '';
   }
 
   goto &text_value; # text, textfield, date and select
