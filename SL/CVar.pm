@@ -589,7 +589,7 @@ sub get_custom_variables_validity {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT COUNT(*) FROM custom_variables_validity WHERE config_id = ? AND trans_id = ?|;
+  my $query    = qq|SELECT id FROM custom_variables_validity WHERE config_id = ? AND trans_id = ? LIMIT 1|;
 
   my ($invalid) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
 
@@ -611,9 +611,9 @@ sub custom_variables_validity_by_trans_id {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT config_id, COUNT(*) FROM custom_variables_validity WHERE trans_id = ? GROUP BY config_id|;
+  my $query    = qq|SELECT DISTINCT config_id FROM custom_variables_validity WHERE trans_id = ?|;
 
-  my %invalids = selectall_as_map($form, $dbh, $query, 'config_id', 'count', $params{trans_id});
+  my %invalids = map { +($_->{config_id} => 1) } selectall_hashref_query($form, $dbh, $query, $params{trans_id});
 
   $main::lxdebug->leave_sub(2);
 
