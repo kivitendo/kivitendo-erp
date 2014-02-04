@@ -149,10 +149,11 @@ sub convert_to_delivery_order {
   my ($delivery_order, $custom_shipto);
   if (!$self->db->with_transaction(sub {
     require SL::DB::DeliveryOrder;
-    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self);
+    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self, %params);
     $delivery_order->save;
     $custom_shipto->save if $custom_shipto;
     $self->link_to_record($delivery_order);
+    $self->update_attributes(delivered => 1);
     1;
   })) {
     return wantarray ? () : undef;
@@ -212,7 +213,9 @@ Returns true if the order is of the given type.
 
 Creates a new delivery order with C<$self> as the basis by calling
 L<SL::DB::DeliveryOrder::new_from>. That delivery order is saved, and
-C<$self> is linked to the new invoice via L<SL::DB::RecordLink>.
+C<$self> is linked to the new invoice via
+L<SL::DB::RecordLink>. C<$self>'s C<delivered> attribute is set to
+C<true>, and C<$self> is saved.
 
 The arguments in C<%params> are passed to
 L<SL::DB::DeliveryOrder::new_from>.
