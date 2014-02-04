@@ -6,6 +6,7 @@ use Carp;
 
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
+use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
 
