@@ -34,7 +34,7 @@ sub _sort_spec {
     },
     columns                   => {
       SIMPLE                  => 'ALL',
-      customer                => 'customer.name',
+      customer                => 'lower(customer.name)',
       globalprojectnumber     => 'lower(globalproject.projectnumber)',
 
       # Bug in Rose::DB::Object: the next should be
