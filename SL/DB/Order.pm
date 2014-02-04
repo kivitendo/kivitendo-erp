@@ -131,6 +131,7 @@ sub convert_to_invoice {
 
   my $invoice;
   if (!$self->db->do_transaction(sub {
+    require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
     $self->link_to_record($invoice);
     $self->update_attributes(closed => 1);
