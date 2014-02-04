@@ -130,12 +130,12 @@ sub convert_to_invoice {
   croak("Conversion to invoices is only supported for sales records") unless $self->customer_id;
 
   my $invoice;
-  if (!$self->db->do_transaction(sub {
+  if (!$self->db->with_transaction(sub {
     require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
     $self->link_to_record($invoice);
     $self->update_attributes(closed => 1);
-    # die;
+    1;
   })) {
     return undef;
   }
@@ -147,15 +147,15 @@ sub convert_to_delivery_order {
   my ($self, %params) = @_;
 
   my ($delivery_order, $custom_shipto);
-  if (!$self->db->do_transaction(sub {
+  if (!$self->db->with_transaction(sub {
     require SL::DB::DeliveryOrder;
     ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self);
     $delivery_order->save;
     $custom_shipto->save if $custom_shipto;
     $self->link_to_record($delivery_order);
-    # die;
+    1;
   })) {
-    return undef;
+    return wantarray ? () : undef;
   }
 
   return wantarray ? ($delivery_order, $custom_shipto) : $delivery_order;
