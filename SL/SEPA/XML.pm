@@ -67,6 +67,7 @@ sub _replace_special_chars {
     'Ü' => 'Ue',
     'ß' => 'ss',
     '&' => '+',
+    '`' => '\'',
     );
 
   map { $text =~ s/$_/$special_chars{$_}/g; } keys %special_chars;
