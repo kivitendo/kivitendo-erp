@@ -142,6 +142,24 @@ sub convert_to_invoice {
   return $invoice;
 }
 
+sub convert_to_delivery_order {
+  my ($self, %params) = @_;
+
+  my ($delivery_order, $custom_shipto);
+  if (!$self->db->do_transaction(sub {
+    require SL::DB::DeliveryOrder;
+    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self);
+    $delivery_order->save;
+    $custom_shipto->save if $custom_shipto;
+    $self->link_to_record($delivery_order);
+    # die;
+  })) {
+    return undef;
+  }
+
+  return wantarray ? ($delivery_order, $custom_shipto) : $delivery_order;
+}
+
 sub number {
   my $self = shift;
 
@@ -188,6 +206,26 @@ Returns one of the following string types:
 =head2 C<is_type TYPE>
 
 Returns true if the order is of the given type.
+
+=head2 C<convert_to_delivery_order %params>
+
+Creates a new delivery order with C<$self> as the basis by calling
+L<SL::DB::DeliveryOrder::new_from>. That delivery order is saved, and
+C<$self> is linked to the new invoice via L<SL::DB::RecordLink>.
+
+The arguments in C<%params> are passed to
+L<SL::DB::DeliveryOrder::new_from>.
+
+Returns C<undef> on failure. Otherwise the return value depends on the
+context. In list context the new delivery order and a shipto instance
+will be returned. In scalar instance only the delivery order instance
+is returned.
+
+Custom shipto addresses (the ones specific to the sales/purchase
+record and not to the customer/vendor) are only linked from C<shipto>
+to C<delivery_orders>. Meaning C<delivery_orders.shipto_id> will not
+be filled in that case. That's why a separate shipto object is created
+and returned.
 
 =head2 C<convert_to_invoice %params>
 
