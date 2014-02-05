@@ -1993,6 +1993,7 @@ sub _oe_remove_delivered_or_billed_rows {
   my %handled_base_qtys;
   foreach my $record (@{ $ord_quot->linked_records(%args) }) {
     next if $ord_quot->is_sales != $record->is_sales;
+    next if $record->type eq 'invoice' && $record->storno;
 
     foreach my $item (@{ $record->items }) {
       my $key  = $item->parts_id;
