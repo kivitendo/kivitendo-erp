@@ -27,7 +27,7 @@
 
  [% IF DATA_PRESENT %]
  <p>
-  <table width="100%">
+  <table [% IF TABLE_CLASS %]class="[% TABLE_CLASS %]"[% END %] width="100%">
    [%- FOREACH row = HEADER_ROWS %]
    <tr>
     [% FOREACH col = row %]
@@ -76,9 +76,8 @@
     [% END %]
    [% END %]
 
-   <tr><td colspan="[% NUM_COLUMNS %]"><hr size="3" noshade></td></tr>
-
   </table>
+  <hr size="3" noshade>
  </p>
  [% ELSE %]
   <p class="message_hint">[% 'No data was found.' | $T8 %]</p>

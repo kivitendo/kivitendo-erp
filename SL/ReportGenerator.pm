@@ -401,6 +401,7 @@ sub prepare_html_content {
     'EXPORT_NEXTSUB'       => $self->{export}->{nextsub},
     'DATA_PRESENT'         => $self->{data_present},
     'CONTROLLER_DISPATCH'  => $opts->{controller_class},
+    'TABLE_CLASS'          => $opts->{table_class},
   };
 
   return $variables;
