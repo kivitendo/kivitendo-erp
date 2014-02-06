@@ -154,7 +154,7 @@ SL::DB::DeliveryOrder - Rose model for delivery orders (table
 
 =item C<date>
 
-An alias for L</transdate> for compatibility with other sales/purchase models.
+An alias for C<transdate> for compatibility with other sales/purchase models.
 
 =item C<displayable_state>
 
@@ -163,7 +163,7 @@ closed and delivered.
 
 =item C<items>
 
-An alias for L</deliver_orer_items> for compatibility with other
+An alias for C<deliver_orer_items> for compatibility with other
 sales/purchase models.
 
 =item C<items_sorted>
