@@ -23,6 +23,12 @@ __PACKAGE__->meta->add_relationship(
     column_map      => { id => 'ap_id' },
     manager_args    => { with_objects => [ 'sepa_export' ] }
   },
+  custom_shipto     => {
+    type            => 'one to one',
+    class           => 'SL::DB::Shipto',
+    column_map      => { id => 'trans_id' },
+    query_args      => [ module => 'AP' ],
+  },
 );
 
 __PACKAGE__->meta->initialize;

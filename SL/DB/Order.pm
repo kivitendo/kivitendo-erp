@@ -30,6 +30,12 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::PeriodicInvoicesConfig',
     column_map             => { id => 'oe_id' },
   },
+  custom_shipto            => {
+    type                   => 'one to one',
+    class                  => 'SL::DB::Shipto',
+    column_map             => { id => 'trans_id' },
+    query_args             => [ module => 'OE' ],
+  },
 );
 
 __PACKAGE__->meta->initialize;
