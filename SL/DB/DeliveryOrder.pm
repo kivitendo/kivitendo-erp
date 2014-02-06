@@ -106,9 +106,7 @@ sub new_from {
   # save it, too.
   my $custom_shipto;
   if (!$source->shipto_id && $source->id) {
-    require SL::DB::Shipto;
-
-    my $old = SL::DB::Manager::Shipto->find_by(trans_id => $source->id);
+    my $old = $source->custom_shipto;
     if ($old) {
       $custom_shipto = SL::DB::Shipto->new(
         map  { +($_ => $old->$_) }
@@ -116,6 +114,7 @@ sub new_from {
         map  { $_->name }
         @{ $old->meta->columns }
       );
+      $custom_shipto->module('DO');
     }
 
   } else {
