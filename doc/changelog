@@ -117,6 +117,8 @@ Wichtige Änderungen:
 - Perl v5.10.1 oder neuer und PostgreSQL v8.4 oder neuer werden
   zwingend vorausgesetzt.
 
+- Rundungsfehler bei periodischen Rechnungen mit Rabatt und glatten Einzelpreisen behoben
+
 Bugfixes:
 
 - Bugfix #182: Bug in bin/mozilla/gl.pl - Keine Steuerautomatik möglich!
