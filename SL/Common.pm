@@ -623,6 +623,16 @@ sub copy_file_to_webdav_folder {
   }
 
   $complete_path =  File::Spec->catfile($form->{cwd},  $webdav_folder);
+
+  # maybe the path does not exist (automatic printing), see #2446
+  if (!-d $complete_path) {
+    # we need a chdir and  restore old dir
+    my $current_dir = POSIX::getcwd();
+    chdir("$form->{cwd}");
+    mkdir_with_parents($webdav_folder);
+    chdir($current_dir);
+  }
+
   opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
 
   my ($newest_name, $newest_time);
