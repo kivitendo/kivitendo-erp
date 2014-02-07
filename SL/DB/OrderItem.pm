@@ -17,14 +17,6 @@ use SL::DB::Helper::CustomVariables (
   },
 );
 
-__PACKAGE__->meta->add_relationship(
-  unit_obj       => {
-    type         => 'many to one',
-    class        => 'SL::DB::Unit',
-    column_map   => { unit => 'name' },
-  },
-);
-
 __PACKAGE__->meta->initialize;
 
 sub is_price_update_available {

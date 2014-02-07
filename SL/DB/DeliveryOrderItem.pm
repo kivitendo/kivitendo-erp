@@ -15,13 +15,6 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->make_manager_class;
-__PACKAGE__->meta->add_relationship(
-  unit_obj       => {
-    type         => 'many to one',
-    class        => 'SL::DB::Unit',
-    column_map   => { unit => 'name' },
-  },
-);
 
 __PACKAGE__->meta->initialize;
 
