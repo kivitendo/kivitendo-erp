@@ -14,8 +14,21 @@ use SL::DB::Helper::CustomVariables (
   },
 );
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
+
+__PACKAGE__->meta->add_relationships(
+  invoice          => {
+    type           => 'one to one',
+    class          => 'SL::DB::Invoice',
+    column_map     => { trans_id => 'id' },
+  },
+
+  purchase_invoice => {
+    type           => 'one to one',
+    class          => 'SL::DB::PurchaseInvoice',
+    column_map     => { trans_id => 'id' },
+  },
+);
 
 __PACKAGE__->meta->initialize;
 
