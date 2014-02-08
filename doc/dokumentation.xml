@@ -5304,7 +5304,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           verfügbar:</para>
 
           <programlisting>[debug]
-file = /tmp/kivitendo-debug.log</programlisting>
+file_name = /tmp/kivitendo-debug.log</programlisting>
 
           <para>ist der Key <varname>file</varname> im Programm als
           <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
