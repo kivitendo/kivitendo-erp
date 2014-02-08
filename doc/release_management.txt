@@ -175,6 +175,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   - Der Standardpfad ist kivitendo-<version>
   - Der git tag ist "release-<version>"
   - Das DB Upgradescript ist "release_<snake_case_version>"
+  - Die Datei VERSION anpassen
 
   Zu den Versionierungen vor 3.0.0:
 
