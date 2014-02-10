@@ -13,6 +13,7 @@ use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
 use SL::Controller::CsvImport::Part;
+use SL::Controller::CsvImport::Inventory;
 use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
 use SL::Controller::CsvImport::Order;
@@ -221,7 +222,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts customers_vendors addresses contacts projects orders);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders);
   $self->type($::form->{profile}->{type});
 }
 
@@ -263,6 +264,7 @@ sub render_inputs {
             : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
             : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
             : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
+            : $self->type eq 'inventories'       ? $::locale->text('CSV import: inventories')
             : $self->type eq 'projects'          ? $::locale->text('CSV import: projects')
             : $self->type eq 'orders'            ? $::locale->text('CSV import: orders')
             : die;
@@ -608,6 +610,7 @@ sub init_worker {
        : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(@args)
        : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(@args)
        : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(@args)
+       : $self->{type} eq 'inventories'       ? SL::Controller::CsvImport::Inventory->new(@args)
        : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(@args)
        : $self->{type} eq 'orders'            ? SL::Controller::CsvImport::Order->new(@args)
        :                                        die "Program logic error";

@@ -130,6 +130,11 @@
     [% LxERP.t8("Assemblies can not be imported (yet). But the type column is used for sanity checks on price updates in order to prevent that articles with the wrong type will be updated.") %]
    </p>
 
+[%- ELSIF SELF.type == 'inventories' %]
+   <p>
+    [%- LxERP.t8('One of the columns "qty" or "target_qty" must be given. If "target_qty" is given, the quantity to transfer for each transfer will be calculate, so that the quantity for this part, warehouse and bin will result in the given "target_qty" after each transfer.') %]
+   </p>
+
 [%- ELSIF SELF.type == 'orders' %]
    <p>
     [1]:
@@ -251,6 +256,8 @@
  [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
 [%- ELSIF SELF.type == 'contacts' %]
  [%- INCLUDE 'csv_import/_form_contacts.html' %]
+[%- ELSIF SELF.type == 'inventories' %]
+ [%- INCLUDE 'csv_import/_form_inventories.html' %]
 [%- ELSIF SELF.type == 'orders' %]
  [%- INCLUDE 'csv_import/_form_orders.html' %]
 [%- END %]
