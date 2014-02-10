@@ -132,7 +132,7 @@ sub new_from {
     $args{shipto_id} = $source->shipto_id;
   }
 
-  my $delivery_order = $class->new(%args, %params);
+  my $delivery_order = $class->new(%args, %{ $params{attributes} || {} });
 
   my @items = map {
     my $source_item      = $_;
@@ -145,6 +145,8 @@ sub new_from {
                                    custom_variables => \@custom_variables);
 
   } @{ $source->items_sorted };
+
+  @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
 
   $delivery_order->items(\@items);
 
@@ -186,7 +188,7 @@ sales/purchase models.
 Returns the delivery order items sorted by their ID (same order they
 appear in the frontend delivery order masks).
 
-=item C<new_from $source>
+=item C<new_from $source, %params>
 
 Creates a new C<SL::DB::DeliveryOrder> instance and copies as much
 information from C<$source> as possible. At the moment only instances
@@ -208,6 +210,22 @@ be filled in that case. That's why a separate shipto object is created
 and returned.
 
 The objects returned are not saved.
+
+C<%params> can include the following options:
+
+=over 2
+
+=item C<skip_items_zero_qty>
+
+If trueish then items with a quantity of 0 are skipped.
+
+=item C<attributes>
+
+An optional hash reference. If it exists then it is passed to C<new>
+allowing the caller to set certain attributes for the new delivery
+order.
+
+=back
 
 =item C<sales_order>
 

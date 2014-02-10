@@ -150,12 +150,12 @@ sub convert_to_invoice {
 }
 
 sub convert_to_delivery_order {
-  my ($self, %params) = @_;
+  my ($self, @args) = @_;
 
   my ($delivery_order, $custom_shipto);
   if (!$self->db->with_transaction(sub {
     require SL::DB::DeliveryOrder;
-    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self, %params);
+    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self, @args);
     $delivery_order->save;
     $custom_shipto->save if $custom_shipto;
     $self->link_to_record($delivery_order);
