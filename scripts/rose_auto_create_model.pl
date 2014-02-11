@@ -185,7 +185,7 @@ CODE
     my $old_md5     = md5_hex($orig_file);
     my $new_size    = length $full_definition;
     my $new_md5     = md5_hex($full_definition);
-    if ($old_size == $new_size && $old_md5 == $new_md5) {
+    if ($old_size == $new_size && $old_md5 eq $new_md5) {
       notice("No changes in $meta_file, skipping.") unless $config{quiet};
       return;
     }
