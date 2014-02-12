@@ -324,13 +324,13 @@ sub update {
     $updated = &check_name($form->{vc});
   };
 
-  # if ($new_name_selected || $updated) {
+  if ($new_name_selected || $updated) {
     # get open invoices from ar/ap using $form->{vc} and a.${vc}_id, i.e. customer_id
     CP->get_openinvoices(\%myconfig, \%$form);
     ($newvc) = split /--/, $form->{ $form->{vc} };
     $form->{"old$form->{vc}"} = qq|$newvc--$form->{"$form->{vc}_id"}|;
     $updated = 1;
-  # }
+  }
 
   if ($form->{currency} ne $form->{oldcurrency}) {
     $form->{oldcurrency} = $form->{currency};
