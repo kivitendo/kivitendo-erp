@@ -76,7 +76,8 @@ sub payment {
     $form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
-    map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
+    # hotfix for 2450. TODO remove legacy code and use L
+    map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">" . H($_->{name}) . "--$_->{id}</option>\n" }
       @{ $form->{"all_$form->{vc}"} };
   }
   CP->paymentaccounts(\%myconfig, \%$form);
