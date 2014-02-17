@@ -1,4 +1,4 @@
-#=====================================================================
+=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -91,11 +91,11 @@ sub get_balance_starting_date {
   };
 
   my ($query, $startdate, $last_ob, $mindate);
-  $query = qq|select max(transdate) from acc_trans where ob_transaction is true and transdate <= ?|;                                                                         
+  $query = qq|select max(transdate) from acc_trans where ob_transaction is true and transdate <= ?|;
   ($last_ob) = selectrow_query($::form, $dbh, $query, $::locale->format_date(\%::myconfig, $asofdate));
   $last_ob = $::locale->parse_date_to_object(\%::myconfig, $last_ob) if $last_ob;
- 
-  $query = qq|select min(transdate) from acc_trans|;                                                                                                                       
+
+  $query = qq|select min(transdate) from acc_trans|;
   ($mindate) = selectrow_query($::form, $dbh, $query);
   $mindate = $::locale->parse_date_to_object(\%::myconfig, $mindate);
 
@@ -132,8 +132,8 @@ sub get_balance_starting_date {
 
     return $::locale->format_date(\%::myconfig, $mindate);
   };
-     
-};               
+
+};
 
 sub balance_sheet {
   $main::lxdebug->enter_sub();
@@ -150,7 +150,7 @@ sub balance_sheet {
     $form->{period} = $form->{this_period} = conv_dateq($form->{asofdate});
   }
 
-  # get starting date for calculating balance 
+  # get starting date for calculating balance
   $form->{this_startdate} = get_balance_starting_date($form->{asofdate});
 
   get_accounts($dbh, $last_period, $form->{this_startdate}, $form->{asofdate}, $form, \@categories);
