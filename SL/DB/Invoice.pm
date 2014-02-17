@@ -8,6 +8,8 @@ use strict;
 use Carp;
 use List::Util qw(first);
 
+use Rose::DB::Object::Helpers ();
+
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::FlattenToForm;
@@ -111,6 +113,15 @@ sub closed {
   return $self->paid >= $self->amount;
 }
 
+sub _clone_orderitem_delivery_order_item_cvar {
+  my ($cvar) = @_;
+
+  my $cloned = Rose::DB::Object::Helpers::clone_and_reset($_);
+  $cloned->sub_module('invoice');
+
+  return $cloned;
+}
+
 sub new_from {
   my ($class, $source, %params) = @_;
 
@@ -152,12 +163,17 @@ sub new_from {
   my $invoice = $class->new(%args, %params);
 
   my @items = map {
-    my $source_item = $_;
+    my $source_item      = $_;
+    my @custom_variables = map { _clone_orderitem_delivery_order_item_cvar($_) } @{ $source_item->custom_variables };
+
     SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
                                  qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id ordnumber transdate cusordnumber unit
                                     base_qty longdescription lastcost price_factor_id), @item_columns),
-                            deliverydate => $source_item->reqdate,
-                            fxsellprice  => $source_item->sellprice,);
+                             deliverydate     => $source_item->reqdate,
+                             fxsellprice      => $source_item->sellprice,
+                             custom_variables => \@custom_variables,
+                           );
+
   } @{ $source->items_sorted };
 
   $invoice->invoiceitems(\@items);

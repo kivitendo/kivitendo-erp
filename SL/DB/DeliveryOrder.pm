@@ -4,6 +4,8 @@ use strict;
 
 use Carp;
 
+use Rose::DB::Object::Helpers ();
+
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
 use SL::DB::Helper::FlattenToForm;
@@ -81,6 +83,15 @@ sub date {
   goto &transdate;
 }
 
+sub _clone_orderitem_cvar {
+  my ($cvar) = @_;
+
+  my $cloned = Rose::DB::Object::Helpers::clone_and_reset($_);
+  $cloned->sub_module('delivery_order_items');
+
+  return $cloned;
+}
+
 sub new_from {
   my ($class, $source, %params) = @_;
 
@@ -124,11 +135,15 @@ sub new_from {
   my $delivery_order = $class->new(%args, %params);
 
   my @items = map {
-    my $source_item = $_;
+    my $source_item      = $_;
+    my @custom_variables = map { _clone_orderitem_cvar($_) } @{ $source_item->custom_variables };
+
     SL::DB::DeliveryOrderItem->new(map({ ( $_ => $source_item->$_ ) }
-                                   qw(base_qty cusordnumber description discount lastcost longdescription marge_price_factor ordnumber parts_id price_factor price_factor_id
-                                      project_id qty reqdate sellprice serialnumber transdate unit
-                                   )));
+                                         qw(base_qty cusordnumber description discount lastcost longdescription marge_price_factor ordnumber parts_id price_factor price_factor_id
+                                            project_id qty reqdate sellprice serialnumber transdate unit
+                                         )),
+                                   custom_variables => \@custom_variables);
+
   } @{ $source->items_sorted };
 
   $delivery_order->items(\@items);
