@@ -122,10 +122,18 @@ sub new_from {
   require SL::DB::Employee;
 
   my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
+  my (@columns, @item_columns);
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber quonumber
-                                                department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
-                                                globalproject_id transaction_description currency_id delivery_term_id)),
+  if (ref($source) eq 'SL::DB::Order') {
+    @columns      = qw(quonumber payment_id delivery_customer_id delivery_vendor_id);
+    @item_columns = qw(subtotal);
+
+  } else {
+    @columns      = qw(donumber);
+  }
+
+  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
+                                                cp_id language_id taxzone_id shipto_id globalproject_id transaction_description currency_id delivery_term_id), @columns),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => DateTime->today_local->add(days => $terms * 1),
@@ -148,9 +156,8 @@ sub new_from {
   my @items = map {
     my $source_item = $_;
     SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
-                                 qw(parts_id description qty sellprice discount project_id
-                                    serialnumber pricegroup_id ordnumber transdate cusordnumber unit
-                                    base_qty subtotal longdescription lastcost price_factor_id)),
+                                 qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id ordnumber transdate cusordnumber unit
+                                    base_qty longdescription lastcost price_factor_id), @item_columns),
                             deliverydate => $source_item->reqdate,
                             fxsellprice  => $source_item->sellprice,);
   } @{ $source->items_sorted };
