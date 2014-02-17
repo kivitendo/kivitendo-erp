@@ -484,7 +484,7 @@ exit </programlisting>
         <para>In der Datei <filename>pg_hba.conf</filename>, die im gleichen
         Verzeichnis wie die <filename>postgresql.conf</filename> zu finden
         sein sollte, müssen die Berichtigungen für den Zugriff geändert
-	werden. Hier gibt es mehrere Möglichkeiten. sinnvoll ist es nur die
+	werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
 	nögiten Verbindungen immer zuzulassen, für eine lokal laufenden
 	Datenbank zum Beispiel:</para>
 
