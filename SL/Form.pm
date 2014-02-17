@@ -3326,6 +3326,13 @@ sub prepare_for_printing {
   # compatibility.
   $self->{$_} = $defaults->$_ for qw(company address taxnumber co_ustid duns sepa_creditor_id);
 
+  $self->{"myconfig_${_}"} = $::myconfig{$_} for grep { $_ ne 'dbpasswd' } keys %::myconfig;
+
+  if (!$self->{employee_id}) {
+    $self->{"employee_${_}"} = $::myconfig{$_} for qw(email tel fax name signature);
+    $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
+  }
+
   # set shipto from billto unless set
   my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
   if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
@@ -3343,6 +3350,10 @@ sub prepare_for_printing {
     $output_numberformat = $::myconfig{numberformat};
     $output_longdates    = 1;
   }
+
+  $self->{myconfig_output_dateformat}   = $output_dateformat;
+  $self->{myconfig_output_longdates}    = $output_longdates;
+  $self->{myconfig_output_numberformat} = $output_numberformat;
 
   # Retrieve accounts for tax calculation.
   IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
