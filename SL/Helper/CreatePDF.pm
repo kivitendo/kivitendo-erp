@@ -1,4 +1,4 @@
-package SL::Controller::Helper::CreatePDF;
+package SL::Helper::CreatePDF;
 
 use strict;
 
@@ -15,10 +15,13 @@ use SL::Template;
 use SL::Template::LaTeX;
 
 use Exporter 'import';
-our @EXPORT = qw(create_pdf merge_pdfs);
+our @EXPORT_OK = qw(create_pdf merge_pdfs);
+our %EXPORT_TAGS = (
+  all => \@EXPORT_OK,
+);
 
 sub create_pdf {
-  my ($self, %params) = @_;
+  my ($class, %params) = @_;
 
   my $userspath       = $::lx_office_conf{paths}->{userspath};
   my $form            = Form->new('');
@@ -73,7 +76,7 @@ sub create_pdf {
 }
 
 sub merge_pdfs {
-  my ($self, %params) = @_;
+  my ($class, %params) = @_;
 
   return scalar(File::Slurp::read_file($params{file_names}->[0])) if scalar(@{ $params{file_names} }) < 2;
 
