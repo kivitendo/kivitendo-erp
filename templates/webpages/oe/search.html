@@ -53,6 +53,12 @@
      <th align="right">[% HTML.escape(ordlabel) %]</th>
      <td colspan="3"><input name="[% HTML.escape(ordnrname) %]" style="width: 250px"></td>
     </tr>
+[% IF is_order %]
+    <tr>
+     <th align="right">[% LxERP.t8("Customer Order Number") %]</th>
+     <td colspan="3">[% L.input_tag("cusordnumber", '', style="width: 250px") %]</td>
+    </tr>
+[% END %]
     <tr>
      <th align="right">[% 'Employee' | $T8 %]</th>
      <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key='safe_name', with_empty=1, style='width:250px') %]</td>
@@ -161,6 +167,12 @@
          <input name="l_[% HTML.escape(ordnrname) %]" id="l_[% HTML.escape(ordnrname) %]" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_[% HTML.escape(ordnrname) %]">[% HTML.escape(ordlabel) %]</label>
         </td>
+[% IF is_order %]
+        <td>
+         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_cusordnumber">[% LxERP.t8("Customer Order Number") %]</label>
+        </td>
+[% END %]
        </tr>
        <tr>
         <td>

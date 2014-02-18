@@ -787,7 +787,7 @@ sub orders {
   my @columns = (
     "transdate",               "reqdate",
     "id",                      $ordnumber,
-    "customernumber",
+    "cusordnumber",            "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
     "curr",                    "employee",
@@ -834,7 +834,7 @@ sub orders {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
+  push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id);
@@ -851,6 +851,7 @@ sub orders {
     'id'                      => { 'text' => $locale->text('ID'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
+    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
     'netamount'               => { 'text' => $locale->text('Amount'), },
@@ -874,7 +875,7 @@ sub orders {
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -897,6 +898,7 @@ sub orders {
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                          if $form->{vendor};
   push @options, $locale->text('Department')              . " : $department"                              if $form->{department};
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
+  push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
   push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};

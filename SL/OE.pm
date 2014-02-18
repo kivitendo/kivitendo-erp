@@ -83,7 +83,7 @@ sub transactions {
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
     qq|  o.amount, ct.${vc}number, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
-    qq|  o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia, | .
+    qq|  o.closed, o.delivered, o.quonumber, o.cusordnumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
     qq|  o.marge_total, o.marge_percent, | .
     qq|  ex.$rate AS exchangerate, | .
@@ -175,6 +175,11 @@ SQL
     push(@values, '%' . $form->{$ordnumber} . '%');
   }
 
+  if ($form->{cusordnumber}) {
+    $query .= qq| AND o.cusordnumber ILIKE ?|;
+    push(@values, '%' . $form->{cusordnumber} . '%');
+  }
+
   if($form->{transdatefrom}) {
     $query .= qq| AND o.transdate >= ?|;
     push(@values, conv_date($form->{transdatefrom}));
@@ -222,6 +227,7 @@ SQL
     "reqdate"                 => "o.reqdate",
     "id"                      => "o.id",
     "ordnumber"               => "o.ordnumber",
+    "cusordnumber"            => "o.cusordnumber",
     "quonumber"               => "o.quonumber",
     "name"                    => "ct.name",
     "employee"                => "e.name",
