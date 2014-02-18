@@ -2,20 +2,25 @@ package SL::Helper::CreatePDF;
 
 use strict;
 
+use Carp;
 use Cwd;
 use English qw(-no_match_vars);
 use File::Slurp ();
 use File::Temp ();
+use List::MoreUtils qw(uniq);
+use List::Util qw(first);
 use String::ShellQuote ();
 
 use SL::Form;
 use SL::Common;
+use SL::DB::Language;
+use SL::DB::Printer;
 use SL::MoreCommon;
 use SL::Template;
 use SL::Template::LaTeX;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(create_pdf merge_pdfs);
+our @EXPORT_OK = qw(create_pdf merge_pdfs find_template);
 our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
@@ -96,6 +101,54 @@ sub merge_pdfs {
   die $output                       if $? != 0;
 
   return scalar File::Slurp::read_file($temp_name);
+}
+
+sub find_template {
+  my ($class, %params) = @_;
+
+  $params{name} or croak "Missing parameter 'name'";
+
+  my $path                 = $::instance_conf->get_templates;
+  my $extension            = $params{extension} || "tex";
+  my ($printer, $language) = ('', '');
+
+  if ($params{printer} || $params{printer_id}) {
+    if ($params{printer} && !ref $params{printer}) {
+      $printer = '_' . $params{printer};
+    } else {
+      $printer = $params{printer} || SL::DB::Printer->new(id => $params{printer_id})->load;
+      $printer = $printer->template_code ? '_' . $printer->template_code : '';
+    }
+  }
+
+  if ($params{language} || $params{language_id}) {
+    if ($params{language} && !ref $params{language}) {
+      $language = '_' . $params{language};
+    } else {
+      $language = $params{language} || SL::DB::Language->new(id => $params{language_id})->load;
+      $language = $language->template_code ? '_' . $language->template_code : '';
+    }
+  }
+
+  my @template_files = (
+    $params{name} . "${language}${printer}",
+    $params{name} . "${language}",
+    $params{name},
+    "default",
+  );
+
+  if ($params{email}) {
+    unshift @template_files, (
+      $params{name} . "_email${language}${printer}",
+      $params{name} . "_email${language}",
+    );
+  }
+
+  @template_files = map { "${_}.${extension}" } uniq grep { $_ } @template_files;
+
+  my $template = first { -f ($path . "/$_") } @template_files;
+
+  return wantarray ? ($template, @template_files) : $template;
 }
 
 1;
