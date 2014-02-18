@@ -33,8 +33,9 @@ sub create_pdf {
   $form->{format}     = 'pdf';
   $form->{cwd}        = getcwd();
   $form->{templates}  = $::instance_conf->get_templates;
-  $form->{IN}         = $params{template} . '.tex';
+  $form->{IN}         = $params{template};
   $form->{tmpdir}     = $form->{cwd} . '/' . $userspath;
+  my ($suffix)        = $params{template} =~ m{\.(.+)};
 
   my $vars            = $params{variables} || {};
   $form->{$_}         = $vars->{$_} for keys %{ $vars };
@@ -42,7 +43,7 @@ sub create_pdf {
   my $temp_fh;
   ($temp_fh, $form->{tmpfile}) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
-    SUFFIX => '.tex',
+    SUFFIX => ".${suffix}",
     DIR    => $userspath,
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
