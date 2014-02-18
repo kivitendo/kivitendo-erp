@@ -51,6 +51,10 @@
       <td colspan=3><input name=ordnumber size=20></td>
      </tr>
      <tr>
+      <th align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
+      <td colspan=3><input name="cusordnumber" size="20"></td>
+     </tr>
+     <tr>
       <th align="right">[% 'Employee' | $T8 %]</th>
       <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style = 'width:250px') %]</td>
      </tr>
@@ -132,10 +136,12 @@
            <td nowrap>[% 'Invoice Number' | $T8 %]</td>
            <td align=right><input name="l_ordnumber" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Order Number' | $T8 %]</td>
-           <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Invoice Date' | $T8 %]</td>
+           <td align=right><input name="l_cusordnumber" class=checkbox type=checkbox value=Y checked></td>
+           <td nowrap>[% 'Customer Order Number' | $T8 %]</td>
           </tr>
           <tr>
+           <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
+           <td nowrap>[% 'Invoice Date' | $T8 %]</td>
            <td align=right><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
            <td nowrap>[% 'Customer' | $T8 %]</td>
            <td align=right><input name="l_customernumber" class=checkbox type=checkbox value=Y></td>
