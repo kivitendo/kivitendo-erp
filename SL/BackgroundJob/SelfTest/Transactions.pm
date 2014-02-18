@@ -15,12 +15,13 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 16);
+  $self->tester->plan(tests => 17);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
   $self->check_balanced_individual_transactions;
   $self->check_verwaiste_acc_trans_eintraege;
+  $self->check_verwaiste_invoice_eintraege;
   $self->check_netamount_laut_invoice_ar;
   $self->check_invnumbers_unique;
   $self->check_summe_stornobuchungen;
@@ -126,6 +127,23 @@ sub check_verwaiste_acc_trans_eintraege {
   } else {
      $self->tester->ok(1, "Keine verwaisten acc-trans Einträge (wo ar/ap/gl-Eintrag fehlt)");
   }
+}
+
+sub check_verwaiste_invoice_eintraege {
+ # taxincluded is null sollte nie passieren:
+ # select sum(sellprice*qty) from invoice i where trans_id in (select id from ar where taxincluded is null);
+  my ($self) = @_;
+  my $query = qq|
+     select * from invoice
+       where trans_id not in (select id from ar union select id from ap order by id)
+      and a.transdate >= ? and a.transdate <= ? ;|;
+
+  my $verwaiste_invoice = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);                                                              
+  if (@$verwaiste_invoice) {                                                                                                                                                 
+     $self->tester->ok(0, "Es gibt verwaiste invoice Einträge! (wo ar/ap-Eintrag fehlt)");                                                                                   
+     $self->tester->diag($_) for @$verwaiste_acs;                                                                                                                            
+  } else {                                                                                                                                                                   
+     $self->tester->ok(1, "Keine verwaisten invoice Einträge (wo ar/ap-Eintrag fehlt)");                                                                                       }                                                                                                                                                                          
 }
 
 sub check_netamount_laut_invoice_ar {
