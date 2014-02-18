@@ -50,6 +50,7 @@ use SL::IO;
 use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
@@ -1505,17 +1506,19 @@ sub print_form {
   }
 
   # search for the template
-  my @template_files;
-  push @template_files, "$form->{formname}_email$form->{language}$printer_code.$extension" if $form->{media} eq 'email';
-  push @template_files, "$form->{formname}$form->{language}$printer_code.$extension";
-  push @template_files, "$form->{formname}.$extension";
-  push @template_files, "default.$extension";
-  @template_files = uniq @template_files;
-  $form->{IN}     = first { -f ($defaults->templates . "/$_") } @template_files;
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $form->{formname},
+    email       => $form->{media} eq 'email',
+    language_id => $form->{language_id},
+    printer_id  => $form->{printer_id},
+    extension   => $extension,
+  );
 
-  if (!defined $form->{IN}) {
+  if (!defined $template_file) {
     $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
   }
+
+  $form->{IN} = $template_file;
 
   delete $form->{OUT};
 
