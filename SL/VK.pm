@@ -55,7 +55,8 @@ sub invoice_transactions {
   # so we extract both versions in our query and later overwrite the description in article mode
 
   my $query =
-    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight | .
+    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight, ar.taxincluded | .
+    qq|, COALESCE((SELECT e.buy FROM exchangerate e WHERE e.transdate = ar.transdate and ar.currency_id = e.currency_id),1) as exchangerate | .
     qq|FROM invoice i | .
     qq|JOIN ar on (i.trans_id = ar.id) | .
     qq|JOIN parts p on (i.parts_id = p.id) | .

@@ -110,16 +110,18 @@ sub invoice_transactions {
   };
 
   if ( $form->{customer} =~ /--/ ) {
-    # Felddaten kommen aus Dropdownbox
+    # field data comes from dropdown box
     ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
   } elsif ($form->{customer}) {
-    # es wurde ein Wert im Freitextfeld übergeben, auf Eindeutigkeit überprüfen
 
-    # check_name wird mit no_select => 1 ausgeführt, ist die Abfrage nicht eindeutig kommt ein Fehler
-    # und die Abfrage muß erneut ausgeführt werden
+    # a value was added in the input box, we only want to filter for one
+    # customer, so check that a unique customer can be found
 
-    # Ohne no_select kommt bei Auswahl des Kunden ein Aufruf von update der ins
-    # Nichts führt, daher diese Zwischenlösung
+    # check_name is executed with no_select => 1, if the result isn't unique
+    # quit with an error message, the user has to enter a new name
+
+    # Without no_select selecting a customer causes an update which doesn't
+    # return anything, which is the reason for this workaround
 
     &check_name('customer', no_select => 1);
 
@@ -163,16 +165,16 @@ sub invoice_transactions {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
 
-  # hidden variables für pdf/csv export übergeben
-  # einmal mit l_ um zu bestimmen welche Spalten ausgegeben werden sollen
-  # einmal optionen für die Überschrift (z.B. transdatefrom, partnumber, ...)
+  # pass hidden variables for pdf/csv export
+  # first with l_ to determine which columns to show
+  # then with the options for headings (such as transdatefrom, partnumber, ...)
   my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
       "$form->{db}number",
       map({ "cvar_$_->{name}" } @searchable_custom_variables),
       map { "l_$_" } @columns
       );
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
-  # Variablen werden dann als Hidden Variable mitgegeben, z.B.
+  # variables are passed as hiddens, e.g.
   # <input type="hidden" name="report_generator_hidden_transdateto" value="21.05.2010">
 
   $href = build_std_url('action=invoice_transactions', grep { $form->{$_} } @hidden_variables);
@@ -222,7 +224,7 @@ sub invoice_transactions {
   push @options, $locale->text('Description')             . " : $form->{description}"                                                       if $form->{description};
   push @options, $locale->text('Customer')                . " : $form->{customername}"                                                      if $form->{customer};
   push @options, $locale->text('Customer Number')         . " : $form->{customernumber}"                                                    if $form->{customernumber};
-  # TODO: es wird nur id übergeben
+  # TODO: only customer id is passed
   push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0]                                    if $form->{department};
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                                                         if $form->{invnumber};
   push @options, $locale->text('Invoice Date')            . " : $form->{invdate}"                                                           if $form->{invdate};
@@ -304,26 +306,49 @@ sub invoice_transactions {
     $basefactor = 1 unless $basefactor;
 
     $ar->{price_factor} = 1 unless $ar->{price_factor};
-    # calculate individual sellprice
-    # discount was already accounted for in db sellprice
-    $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor;
-    $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;
-    $ar->{sellprice_total} = $form->round_amount( $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor}, $form->{"decimalplaces"});
-    $ar->{lastcost_total}  = $form->round_amount( $ar->{qty} * $ar->{lastcost} * $basefactor, $form->{"decimalplaces"});
-    # marge_percent wird neu berechnet, da Wert in invoice leer ist (Bug)
-    $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total} * 100) : 0;
-    # marge_total neu berechnen
-    $ar->{marge_total} = $ar->{sellprice_total} ? $ar->{sellprice_total}-$ar->{lastcost_total}  : 0;
-    $ar->{discount} *= 100;  # für Ausgabe formatieren, 10% stored as 0.1 in db
 
-    #adapt qty to the chosen unit
+    # calculate individual sellprice, discount is already accounted for in column sellprice in db
+
+    # The sellprice total can be calculated from sellprice or fxsellprice (the
+    # value that was actually entered in the sellprice field and is always
+    # stored seperately).  However, for fxsellprice this method only works when
+    # the tax is not included, because otherwise fxsellprice includes the tax
+    # and there is no simple way to extract the tax rate of the article from
+    # the big query. 
+    #
+    # Using fxsellprice is potentially more accurate (certainly for tax
+    # included), because we can use the same method as is used while the
+    # invoice is generated.
+    #
+    # sellprice however has already been converted to the net value (but
+    # rounded in the process, which leads to rounding errors when calculating
+    # the linetotal from the rounded sellprice in the report.  These rounding
+    # errors can quickly amount to several cents when qty is large)
+    #
+    # For calculating sellprice_total from fxsellprice, you would use:
+    # sellprice_total_including_tax = qty * fxsellprice * (1-discount) /  price_factor * exchangerate
+    # $ar->{sellprice_total_including_tax} =  $form->round_amount( $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor}, $form->{"decimalplaces"});
+
+    $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor; 
+    $ar->{sellprice_total} = $form->round_amount( $ar->{qty} * $ar->{sellprice} / $ar->{price_factor} , $form->{"decimalplaces"});
+
+    $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;
+    $ar->{lastcost_total}  = $form->round_amount( $ar->{qty} * $ar->{lastcost} / $ar->{price_factor}, $form->{"decimalplaces"});
+
+    # marge_percent is recalculated, because the value in invoice used to be empty
+    $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total} * 100) : 0;
+    # also recalculate marge_total
+    $ar->{marge_total} = $ar->{sellprice_total} ? $ar->{sellprice_total}-$ar->{lastcost_total}  : 0;
+    $ar->{discount} *= 100;  # format discount value for output, 10% is stored as 0.1 in db
+
+    # adapt qty to the chosen unit
     $ar->{qty} *= $basefactor;
 
-    #weight is the still the weight per part, but here we want the total weight
+    # weight is the still the weight per part, but here we want the total weight
     $ar->{weight} *= $ar->{qty};
 
-    # Anfangshauptüberschrift
-    if ( $form->{l_headers_mainsort} eq "Y" && ( $idx == 0 or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} } )) {
+    # Main header
+    if ( $form->{l_headers_mainsort} eq "Y" && ( $idx == 1 or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} } )) {
       my $headerrow = {
         # use $emptyname for mainsort header if mainsort is empty
         data    => $ar->{$form->{'mainsort'}} || $locale->text('empty'),
@@ -339,7 +364,7 @@ sub invoice_transactions {
 #      $report->add_data($emptyheaderrow_set) if $form->{l_headers} eq "Y";
     };
 
-    # subsort überschriften
+    # subsort headers
     # special case: subsort headers only makes (aesthetical) sense if we show individual parts
     if ((   $idx == 0
          or $ar->{ $form->{'subsort'} }  ne $form->{AR}->[$idx - 1]->{ $form->{'subsort'} }
@@ -385,20 +410,21 @@ sub invoice_transactions {
       $subtotals2{lastcost}  = 0;
     };
 
-    # Ertrag prozentual in den Summen: (summe VK - summe Ertrag) / summe VK
+    # marge percent as sums: (sum VK - sum Ertrag) / sum VK
     $subtotals1{marge_percent} = $subtotals1{sellprice_total} ? (($subtotals1{sellprice_total} - $subtotals1{lastcost_total}) / $subtotals1{sellprice_total}) * 100 : 0;
     $subtotals2{marge_percent} = $subtotals2{sellprice_total} ? (($subtotals2{sellprice_total} - $subtotals2{lastcost_total}) / $subtotals2{sellprice_total}) *100 : 0;
 
-    # Ertrag prozentual:  (Summe VK betrag - Summe EK betrag) / Summe VK betrag
-    # wird laufend bei jeder Position neu berechnet
+    # total marge percent:  (sum VK betrag - sum EK betrag) / sum VK betrag
+    # is recalculated after each position
     $totals{marge_percent}    = $totals{sellprice_total}    ? ( ($totals{sellprice_total} - $totals{lastcost_total}) / $totals{sellprice_total}   ) * 100 : 0;
 
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_percent qty);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 3) } qw(weight);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total marge_total);
 
-    # Einzelzeilen nur zeigen wenn l_parts gesetzt ist, nützlich, wenn man nur
-    # Subtotals und Totals sehen möchte
+    # only show individual lines when l_parts is set, this is useful, if you
+    # only want to see subtotals and totals
+
     if ($form->{l_parts}) {
       my %row = (
         map { ($_ => { data => $ar->{$_}, align => $column_alignment{$_} }) } @columns
@@ -412,8 +438,8 @@ sub invoice_transactions {
       $report->add_data(\%row);
     }
 
-    # hier wird bei l_subtotal nicht differenziert zwischen mainsort und subsort
-    # macht man l_subtotal_mainsort aus wird l_subtotal_subsort auch nicht ausgeführt
+    # choosing l_subtotal doesn't make a distinction between mainsort and subsort
+    # if l_subtotal_mainsort is not selected l_subtotal_subsort isn't run either
     if (   ($form->{l_subtotal_mainsort} eq 'Y')
         && ($form->{l_subtotal_subsort}  eq 'Y')
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
@@ -432,7 +458,7 @@ sub invoice_transactions {
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
             || ($ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'mainsort'} })
             )) {   # if value that is sorted by changes, print subtotal
-        # subtotal is overriden if mainsort and subsort are equal, don't print
+        # subtotal is overridden if mainsort and subsort are equal, don't print
         # subtotal line even if it is selected
       $report->add_data(create_subtotal_row_invoice(\%subtotals1, \@columns, \%column_alignment, \@subtotal_columns, 'listsubtotal', $ar->{$form->{mainsort}}));
       $report->add_data({ %empty_row }) if $addemptylines; # insert empty row after mainsort
