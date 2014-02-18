@@ -50,6 +50,11 @@
      <td colspan="3"><input name="ordnumber" class="fixed_width"></td>
     </tr>
 
+    <tr>
+     <th align="right">[% 'Customer Order Number' | $T8 %]</th>
+     <td colspan="3"><input name="cusordnumber" class="fixed_width"></td>
+    </tr>
+
     [%- IF ALL_DEPARTMENTS.size %]
     <tr>
      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
@@ -79,11 +84,6 @@
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>
      <td colspan="3"><input name="transaction_description" class="fixed_width"></td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Customer Order Number' | $T8 %]</th>
-     <td colspan="3"><input name="cusordnumber" class="fixed_width"></td>
     </tr>
 
     <tr>
@@ -169,7 +169,7 @@
         </td>
 
         <td>
-         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y">
+         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_cusordnumber">[% 'Customer Order Number' | $T8 %]</label>
         </td>
        </tr>
