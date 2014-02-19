@@ -673,6 +673,7 @@ sub init_template {
      'COMPILE_EXT'  => '.tcc',
      'COMPILE_DIR'  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
      'ERROR'        => 'templates/webpages/generic/exception.html',
+     'ENCODING'     => 'utf8',
   })) || die;
 }
 
