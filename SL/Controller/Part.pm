@@ -14,7 +14,8 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 # safety
-__PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') });
+__PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') },
+                        except => [ qw(ajax_autocomplete part_picker_search part_picker_result) ]);
 
 sub action_ajax_autocomplete {
   my ($self, %params) = @_;
