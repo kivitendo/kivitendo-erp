@@ -130,20 +130,20 @@ sub check_verwaiste_acc_trans_eintraege {
 }
 
 sub check_verwaiste_invoice_eintraege {
- # taxincluded is null sollte nie passieren:
- # select sum(sellprice*qty) from invoice i where trans_id in (select id from ar where taxincluded is null);
+  # this check is always run for all invoice entries in the entire database
   my ($self) = @_;
   my $query = qq|
-     select * from invoice
-       where trans_id not in (select id from ar union select id from ap order by id)
-      and a.transdate >= ? and a.transdate <= ? ;|;
+     select * from invoice i
+      where trans_id not in (select id from ar union select id from ap order by id) |;
 
-  my $verwaiste_invoice = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);                                                              
-  if (@$verwaiste_invoice) {                                                                                                                                                 
-     $self->tester->ok(0, "Es gibt verwaiste invoice Einträge! (wo ar/ap-Eintrag fehlt)");                                                                                   
-     $self->tester->diag($_) for @$verwaiste_acs;                                                                                                                            
-  } else {                                                                                                                                                                   
-     $self->tester->ok(1, "Keine verwaisten invoice Einträge (wo ar/ap-Eintrag fehlt)");                                                                                       }                                                                                                                                                                          
+  my $verwaiste_invoice = selectall_hashref_query($::form, $self->dbh, $query);
+  if (@$verwaiste_invoice) {
+     $self->tester->ok(0, "Es gibt verwaiste invoice Einträge! (wo ar/ap-Eintrag fehlt)");
+     for my $invoice ( @{ $verwaiste_invoice }) {
+        $self->tester->diag("invoice: id: $invoice->{id}  trans_id: $invoice->{trans_id}   description: $invoice->{description}  itime: $invoice->{itime}");
+     };
+  } else {
+     $self->tester->ok(1, "Keine verwaisten invoice Einträge (wo ar/ap-Eintrag fehlt)");                                                                                       }
 }
 
 sub check_netamount_laut_invoice_ar {
