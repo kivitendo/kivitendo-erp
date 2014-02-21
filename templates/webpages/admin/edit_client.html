@@ -46,7 +46,7 @@
    <th align="right">[% LxERP.t8('Database user and password') %]</th>
    <td>
     [% L.input_tag("client.dbuser",   SELF.client.dbuser, class="contains_dbsettings") %]
-    [% L.input_tag("client.dbpasswd", SELF.client.dbpasswd, class="contains_dbsettings") %]
+    [% L.input_tag("client.dbpasswd", SELF.client.dbpasswd, class="contains_dbsettings", type="password") %]
    </td>
   </tr>
  </table>
