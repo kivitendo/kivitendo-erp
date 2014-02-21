@@ -3,7 +3,7 @@
 ###############################
 
 
-2014-01-30 - Release 3.1.0beta
+2014-02-21 - Release 3.1.0-rc1
 
 Größere neue Features:
 
@@ -155,6 +155,7 @@ Bugfixes:
 - Bugfix #2058: Geloeschte User werden in VK-Belegen weiterhin angezeigt/zur Auswahl angeboten
 - Bugfix #2068: Lieferplan enthält bereits gelieferte Artikel
 - Bugfix #2072: Eigene Rechte fuer Lieferplan-Ansicht
+- Bugfix #2078: Fehler im Verkaufsbericht
 - Bugfix #2080: Verzögerte Aktualisierung von Zwischensumme bei Änderung von Preisgruppen
 - Bugfix #2081: Rechnung -> "als neu bearbeiten" sollte Eintrag "Bearbeiter" aktualisieren
 - Bugfix #2084: Klick auf eMail-Button beim Erfassen einer Rechnung bucht diese
@@ -186,6 +187,7 @@ Bugfixes:
 - Bugfix #2145: Einträge in taxkeys sind NULL
 - Bugfix #2146: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch ( altes Ticket #1584 )
 - Bugfix #2150: Erstellen von EK-Auftraegen aus VK-Auftraegen: Preise falsch
+- Bugfix #2155: Vorschlag: Berichts Monats Anreihung quartalsweise
 - Bugfix #2156: Steuern übersetzen
 - Bugfix #2157: Fehler beim Erstellen von Rechnungen
 - Bugfix #2158: Einkaufsrechnung erfassen: Lastschrift-Haken
@@ -355,7 +357,10 @@ Bugfixes:
 - Bugfix #2440: Fehler bei Fälligkeitsdatum in VK-Rechnung
 - Bugfix #2443: Löschen von Konten nicht möglich
 - Bugfix #2444: Datum aus "Bücher abschließen zum" wird als Basis für Startdatum der Bilanz benutzt
-
+- Bugfix #2446: Fehler beim Generieren und Drucken wiederkehrender Rechnungen mit eingeschaltetem Webav-Feature
+- Bugfix #2449: Zahlungsverkehr - Zahlungseingang löscht bei Erneuern jeweils die eingegebenen Beträge
+- Bugfix #2450: &-Zeichen in Kundennamen führt zu falschen Darstellungen
+- Bugfix #2451: Lager->Einlagern (mit Part-Picker) prüft auf falsches Recht
 
 2012-12-10 - Release 3.0.0
 
