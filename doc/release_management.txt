@@ -129,7 +129,9 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   - Bekannte Probleme die im testing auftraten dokumentieren.
 
 * doc/kivitendo-Dokumentation.pdf erstellen
- (TODO: commands)
+  - ggf. muss hier noch dobudish installiert werden, s.a. Entwicklerdokumentation ->
+    Dokumentation erstellen. Ansonsten reicht dieser Aufruf:
+  $ scripts/build_doc.sh
 
 * scripts/rose_auto_create_model.pl update machen.
 
