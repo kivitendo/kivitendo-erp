@@ -270,7 +270,8 @@ cpan Rose::Db::Object</programlisting>
     <sect1 id="Manuelle-Installation-des-Programmpaketes"
            xreflabel="Manuelle Installation des Programmpaketes">
       <title>Manuelle Installation des Programmpaketes</title>
-
+      <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github gehostet und kann
+ <ulink url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink> heruntergeladen werden.</para>
       <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.1.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
       (z.B.  <filename>/var/www/html/</filename>, <filename>/srv/www/htdocs</filename> oder <filename>/var/www/</filename>) entpackt:</para>
 
