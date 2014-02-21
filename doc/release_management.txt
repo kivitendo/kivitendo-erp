@@ -197,7 +197,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 
 * Finaler Testlauf:
 
-  t/test.sh
+  t/test.pl
 
   Siehe oben für mögliche Ergebnisse.
 
