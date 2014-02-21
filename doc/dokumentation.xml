@@ -1291,6 +1291,28 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         C gültig").</para>
       </sect2>
     </sect1>
+    <sect1 id="Drucker--Systemverwaltung">
+      <title>Drucker- und Systemverwaltung</title>
+      <para>Im Administrationsmenü gibt es ferner noch die beiden Menüpunkte Druckeradministration und System.</para>
+      <sect2 id="Druckeradministration">
+        <title>Druckeradministration</title>
+      <para>Unter dem Menüpunkt Druckeradministration lassen sich beliebig viele "Druckbefehle" im System verwalten. Diese Befehle werden mandantenweise
+      zugeordnet. Unter Druckerbeschreibung wird der Namen des Druckbefehls festgelegt, der dann in der Druckerauswahl des Belegs angezeigt wird.</para>
+      <para>Unter Druckbefehl definiert man den eigentlichen Druckbefehl, der direkt auf dem Webserver ausgeführt wird, bspw. 'lpr -P meinDrucker' oder ein
+      kompletter Pfad zu einem Skript (/usr/local/src/kivitendo/scripts/pdf_druck_in_verzeichnis.sh).
+      Wird ferner noch ein optionales Vorlagenkürzel verwendet, wird dieses Kürzel bei der Auswahl der Druckvorlagendatei mit einem Unterstrich ergänzt, ist
+      bspw. das Kürzel 'epson_drucker' definiert, so wird beim Ausdruck eines Angebots folgende Vorlage geparst: sales_quotation_epson_drucker.tex.</para>
+     </sect2>
+      <sect2 id="System">
+        <title>System sperren / entsperren</title>
+
+        <para>Unter dem Menüpunkt System, gibt es den Eintrag 'Installation sperren/entsperren'. Setz man diese Sperre so ist der Zugang zu der gesamten kivitendo Installation gesperrt.</para>
+        <para>Falls die Sperre gesetzt ist, erscheint anstelle der Anmeldemaske die Information: 'kivitendo ist momentan zwecks Wartungsarbeiten nicht zugänglich.'.
+        </para>
+        <para>Wichtig zu erwähnen ist hierbei noch, dass sich kivitendo sich automatisch 'sperrt', falls es bei einem Versionsupdate zu einem Datenbankfehler kam. Somit kann hier nicht aus Versehen
+        mit einem inskosistenten Datenbestand weitergearbeitet werden.</para>
+     </sect2>
+    </sect1>
 
     <sect1 id="config.sending-email" xreflabel="E-Mail-Versand aus kivitendo heraus">
       <title>E-Mail-Versand aus kivitendo heraus</title>
