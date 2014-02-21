@@ -1306,11 +1306,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="System">
         <title>System sperren / entsperren</title>
 
-        <para>Unter dem Menüpunkt System, gibt es den Eintrag 'Installation sperren/entsperren'. Setz man diese Sperre so ist der Zugang zu der gesamten kivitendo Installation gesperrt.</para>
+        <para>Unter dem Menüpunkt System gibt es den Eintrag 'Installation sperren/entsperren'. Setz man diese Sperre so ist der Zugang zu der gesamten kivitendo Installation gesperrt.</para>
         <para>Falls die Sperre gesetzt ist, erscheint anstelle der Anmeldemaske die Information: 'kivitendo ist momentan zwecks Wartungsarbeiten nicht zugänglich.'.
         </para>
-        <para>Wichtig zu erwähnen ist hierbei noch, dass sich kivitendo sich automatisch 'sperrt', falls es bei einem Versionsupdate zu einem Datenbankfehler kam. Somit kann hier nicht aus Versehen
-        mit einem inskosistenten Datenbestand weitergearbeitet werden.</para>
+        <para>Wichtig zu erwähnen ist hierbei noch, dass sich kivitendo automatisch 'sperrt', falls es bei einem Versionsupdate zu einem Datenbankfehler kam. Somit kann hier nicht aus Versehen
+        mit einem inkonsistenten Datenbestand weitergearbeitet werden.</para>
      </sect2>
     </sect1>
 
