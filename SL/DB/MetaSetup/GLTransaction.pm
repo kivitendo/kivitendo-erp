@@ -42,11 +42,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { employee_id => 'id' },
   },
 
-  employee_obj => {
-    class       => 'SL::DB::Employee',
-    key_columns => { employee_id => 'id' },
-  },
-
   storno_obj => {
     class       => 'SL::DB::GLTransaction',
     key_columns => { storno_id => 'id' },
