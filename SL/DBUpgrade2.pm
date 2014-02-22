@@ -147,9 +147,6 @@ sub process_query {
     # Remove DOS and Unix style line endings.
     chomp;
 
-    # remove comments
-    s/--.*$//;
-
     for (my $i = 0; $i < length($_); $i++) {
       my $char = substr($_, $i, 1);
 
@@ -176,6 +173,11 @@ sub process_query {
              &&  $tag      =~ /^ (?= [A-Za-z_] [A-Za-z0-9_]* | ) $/x) {  # tag is identifier
           push @quote_chars, $char = '$' . $tag . '$';
           $i = $tag_end;
+        } elsif ($char eq "-") {
+          if ( substr($_, $i+1, 1) eq "-") {
+            # found a comment outside quote
+            last;
+          }
         } elsif ($char eq ";") {
 
           # Query is complete. Send it.
