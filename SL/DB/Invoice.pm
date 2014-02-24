@@ -177,6 +177,8 @@ sub new_from {
 
   } @{ $items };
 
+  @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
+
   $invoice->invoiceitems(\@items);
 
   return $invoice;
@@ -334,6 +336,10 @@ An optional array reference of RDBO instances for the items to use. If
 missing then the method C<items_sorted> will be called on
 C<$source>. This option can be used to override the sorting, to
 exclude certain positions or to add additional ones.
+
+=item C<skip_items_zero_qty>
+
+If trueish then items with a quantity of 0 are skipped.
 
 =item C<attributes>
 
