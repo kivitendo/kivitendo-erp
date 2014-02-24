@@ -160,7 +160,7 @@ sub new_from {
     $args{quodate}      = $source->transdate;
   }
 
-  my $invoice = $class->new(%args, %params);
+  my $invoice = $class->new(%args, %{ $params{attributes} || {} });
 
   my @items = map {
     my $source_item      = $_;
@@ -313,7 +313,7 @@ SL::DB::Invoice: Rose model for invoices (table "ar")
 
 =over 4
 
-=item C<new_from $source>
+=item C<new_from $source, %params>
 
 Creates a new C<SL::DB::Invoice> instance and copies as much
 information from C<$source> as possible. At the moment only sales
@@ -322,6 +322,18 @@ orders and sales quotations are supported as sources.
 The conversion copies order items into invoice items. Dates are copied
 as appropriate, e.g. the C<transdate> field from an order will be
 copied into the invoice's C<orddate> field.
+
+C<%params> can include the following options:
+
+=over 2
+
+=item C<attributes>
+
+An optional hash reference. If it exists then it is passed to C<new>
+allowing the caller to set certain attributes for the new delivery
+order.
+
+=back
 
 Amounts, prices and taxes are not
 calculated. L<SL::DB::Helper::PriceTaxCalculator::calculate_prices_and_taxes>
