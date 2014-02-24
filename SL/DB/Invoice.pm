@@ -131,14 +131,20 @@ sub new_from {
   require SL::DB::Employee;
 
   my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
-  my (@columns, @item_columns);
+  my (@columns, @item_columns, $item_parent_id_column, $item_parent_column);
 
   if (ref($source) eq 'SL::DB::Order') {
     @columns      = qw(quonumber payment_id delivery_customer_id delivery_vendor_id);
     @item_columns = qw(subtotal);
 
+    $item_parent_id_column = 'trans_id';
+    $item_parent_column    = 'order';
+
   } else {
     @columns      = qw(donumber);
+
+    $item_parent_id_column = 'delivery_order_id';
+    $item_parent_column    = 'delivery_order';
   }
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
@@ -162,17 +168,24 @@ sub new_from {
 
   my $invoice = $class->new(%args, %{ $params{attributes} || {} });
   my $items   = delete($params{items}) || $source->items_sorted;
+  my %item_parents;
 
   my @items = map {
     my $source_item      = $_;
+    my $source_item_id   = $_->$item_parent_id_column;
     my @custom_variables = map { _clone_orderitem_delivery_order_item_cvar($_) } @{ $source_item->custom_variables };
 
+    $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
+    my $item_parent                  = $item_parents{$source_item_id};
+
     SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
-                                 qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id ordnumber transdate cusordnumber unit
+                                 qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id transdate cusordnumber unit
                                     base_qty longdescription lastcost price_factor_id), @item_columns),
                              deliverydate     => $source_item->reqdate,
                              fxsellprice      => $source_item->sellprice,
                              custom_variables => \@custom_variables,
+                             ordnumber        => ref($item_parent) eq 'SL::DB::Order'         ? $item_parent->ordnumber : $source_item->ordnumber,
+                             donumber         => ref($item_parent) eq 'SL::DB::DeliveryOrder' ? $item_parent->donumber  : $source_item->can('donumber') ? $source_item->donumber : '',
                            );
 
   } @{ $items };
