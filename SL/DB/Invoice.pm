@@ -7,7 +7,6 @@ use strict;
 
 use Carp;
 use List::Util qw(first);
-use List::MoreUtils qw(pairwise);
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
@@ -16,7 +15,6 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::CustomVariable;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -161,14 +159,6 @@ sub new_from {
                             deliverydate => $source_item->reqdate,
                             fxsellprice  => $source_item->sellprice,);
   } @{ $source->items_sorted };
-
-  my $i = 0;
-  foreach my $item (@items) {
-    my $source_cvars = $source->items_sorted->[$i]->cvars_by_config;
-    my $target_cvars = $item->cvars_by_config;
-    pairwise { $a->value($b->value) } @{ $target_cvars }, @{ $source_cvars };
-    $i++;
-  }
 
   $invoice->invoiceitems(\@items);
 
