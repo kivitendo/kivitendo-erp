@@ -437,7 +437,7 @@ sub display_row {
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
-                income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
+                income_accno expense_accno listprice assembly taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
 
@@ -750,7 +750,7 @@ sub remove_emptied_rows {
                 taxaccounts bin assembly weight projectnumber project_id
                 oldprojectnumber runningnumber serialnumber partsgroup payment_id
                 not_discountable shop ve gv buchungsgruppen_id language_values
-                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
+                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber donumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate);

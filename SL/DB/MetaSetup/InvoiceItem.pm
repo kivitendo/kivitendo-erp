@@ -17,6 +17,7 @@ __PACKAGE__->meta->columns(
   description        => { type => 'text' },
   discount           => { type => 'float', precision => 4 },
   fxsellprice        => { type => 'numeric', precision => 5, scale => 15 },
+  donumber           => { type => 'text' },
   id                 => { type => 'integer', not_null => 1, sequence => 'invoiceid' },
   itime              => { type => 'timestamp', default => 'now()' },
   lastcost           => { type => 'numeric', precision => 5, scale => 15 },

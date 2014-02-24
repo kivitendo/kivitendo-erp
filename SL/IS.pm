@@ -149,7 +149,7 @@ sub invoice_details {
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
-       deliverydate_oe ordnumber_oe transdate_oe validuntil
+       deliverydate_oe ordnumber_oe donumber_do transdate_oe validuntil
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber projectdescription
@@ -210,6 +210,7 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       push @{ $form->{TEMPLATE_ARRAYS}->{ordnumber_oe} },      $form->{"ordnumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{donumber_do} },       $form->{"donumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{transdate_oe} },      $form->{"transdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{invnumber} },         $form->{"invnumber"};
       push @{ $form->{TEMPLATE_ARRAYS}->{invdate} },           $form->{"invdate"};
@@ -741,10 +742,10 @@ sub post_invoice {
         qq|INSERT INTO invoice (id, trans_id, parts_id, description, longdescription, qty,
                                 sellprice, fxsellprice, discount, allocated, assemblyitem,
                                 unit, deliverydate, project_id, serialnumber, pricegroup_id,
-                                ordnumber, transdate, cusordnumber, base_qty, subtotal,
+                                ordnumber, donumber, transdate, cusordnumber, base_qty, subtotal,
                                 marge_percent, marge_total, lastcost,
                                 price_factor_id, price_factor, marge_price_factor)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
 
       @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
@@ -753,7 +754,7 @@ sub post_invoice {
                  $form->{"discount_$i"}, $allocated, 'f',
                  $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
                  $form->{"serialnumber_$i"}, $pricegroup_id,
-                 $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
+                 $form->{"ordnumber_$i"}, $form->{"donumber_$i"}, conv_date($form->{"transdate_$i"}),
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"},
@@ -1652,7 +1653,7 @@ sub retrieve_invoice {
 
            i.id AS invoice_id,
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
-           i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
+           i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor,
            p.partnumber, p.assembly, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel, p.listprice,
            pr.projectnumber, pg.partsgroup, prg.pricegroup

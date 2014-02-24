@@ -775,6 +775,7 @@ sub invoice {
       }
     }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
+    $form->{"donumber_$i"} = $form->{donumber};
   }
 
   $form->{type} = "invoice";

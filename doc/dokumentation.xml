@@ -3774,6 +3774,15 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>donumber_do</varname></term>
+
+              <listitem>
+                <para>Lieferscheinnummer desjenigen Lieferscheins, aus dem die Position stammt, sofern die Rechnung aus einem oder
+                mehreren Lieferscheinen erstellt wurde</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>p_discount</varname></term>
 
               <listitem>
