@@ -161,6 +161,7 @@ sub new_from {
   }
 
   my $invoice = $class->new(%args, %{ $params{attributes} || {} });
+  my $items   = delete($params{items}) || $source->items_sorted;
 
   my @items = map {
     my $source_item      = $_;
@@ -174,7 +175,7 @@ sub new_from {
                              custom_variables => \@custom_variables,
                            );
 
-  } @{ $source->items_sorted };
+  } @{ $items };
 
   $invoice->invoiceitems(\@items);
 
@@ -326,6 +327,13 @@ copied into the invoice's C<orddate> field.
 C<%params> can include the following options:
 
 =over 2
+
+=item C<items>
+
+An optional array reference of RDBO instances for the items to use. If
+missing then the method C<items_sorted> will be called on
+C<$source>. This option can be used to override the sorting, to
+exclude certain positions or to add additional ones.
 
 =item C<attributes>
 
