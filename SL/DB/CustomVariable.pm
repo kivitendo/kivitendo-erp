@@ -118,7 +118,7 @@ sub is_valid {
   require SL::DB::CustomVariableValidity;
 
   my $query = [config_id => $self->config_id, trans_id => $self->trans_id];
-  return SL::DB::Manager::CustomVariableValidity->get_all_count(query => $query) == 0;
+  return (SL::DB::Manager::CustomVariableValidity->get_all_count(query => $query) == 0) ? 1 : 0;
 }
 
 1;
