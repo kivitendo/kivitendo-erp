@@ -8,6 +8,14 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v3.1.0
 ==================
 
+
+* BEVOR ein Aufruf im Administrationsbereich erfolgt, muss zwingend der
+  webdav Ordner im Installationspfad vorhanden sein!
+   -  mkdir webdav/
+   -  Rechte für webserver setzen ($ chmod www-data webdav/)
+  Dieses "Feature" war in vorhergehenden Versionen optional, wird aber
+  für das Upgrade auf Mandantenfähigkeit vorausgesetzt.
+
 * Neue Softwarevoraussetzungen: Perl v5.10.1 oder neuer sowie
   PostgreSQL 8.4 oder neuer werden zwingend vorausgesetzt. Ein Betrieb
   mit älteren Versionen ist nicht mehr möglich.
