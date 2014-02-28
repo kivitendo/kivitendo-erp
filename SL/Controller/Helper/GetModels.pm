@@ -27,6 +27,13 @@ sub get {
   return $self->manager->get_all(%params);
 }
 
+sub count {
+  my ($self) = @_;
+  my %params = $self->finalize;
+
+  return $self->manager->get_all_count(%params);
+}
+
 sub disable_plugin {
   my ($self, $plugin) = @_;
   die 'cannot change internal state after finalize was called' if $self->finalized;
