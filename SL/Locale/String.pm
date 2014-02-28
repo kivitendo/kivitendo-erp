@@ -25,6 +25,10 @@ sub t8 {
   return SL::Locale::String->new(untranslated => $string, args => \@_);
 }
 
+sub TO_JSON {
+  return $_[0]->translated;
+}
+
 1;
 __END__
 
