@@ -240,8 +240,9 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, | .
-        qq|  a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
+        qq|  pt.description as payment | .
+        $pg_select .
+        qq|, a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
         qq|  (a.amount = a.paid) AS closed | .
         qq|FROM $cv ct | .
@@ -249,6 +250,7 @@ sub search {
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        $pg_join .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
 
@@ -257,14 +259,16 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, | .
-        qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
+        qq|  pt.description as payment | .
+        $pg_select .
+        qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        $pg_join .
         qq|WHERE $where AND (o.quotation = '0')|;
     }
 
@@ -273,14 +277,16 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, | .
-        qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
+        qq|  pt.description as payment | .
+        $pg_select .
+        qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+        $pg_join .
         qq|WHERE $where AND (o.quotation = '1')|;
     }
   }
