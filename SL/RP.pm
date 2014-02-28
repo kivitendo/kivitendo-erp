@@ -884,7 +884,7 @@ sub trial_balance {
   my $glwhere       = '';
   my $glsumwhere    = '';
   my $tofrom;
-  my ($fromdate, $todate);
+  my ($fromdate, $todate, $hotfix_query);
 
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {
@@ -921,6 +921,16 @@ sub trial_balance {
     $where .= $tofrom . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
     $saldowhere .= $glsaldowhere . " AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
     $sumwhere .= $glsumwhere . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
+
+    # get all entries before fromdate, which are not yet fetched
+    # TODO dpt_where_without_arapgl and project
+    $hotfix_query = qq|SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
+                       FROM acc_trans ac JOIN chart c ON (c.id = ac.chart_id) WHERE 1 = 1 AND (ac.transdate <= $fromdate)
+                        AND (ac.transdate >= (SELECT date_trunc('YEAR', | . $fromdate . qq|::date)))
+                       AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)
+                       AND c.accno NOT IN (SELECT c.accno FROM acc_trans ac JOIN chart c ON (c.id = ac.chart_id) WHERE 1 = 1 AND (ac.transdate >= $fromdate) AND (ac.transdate <= $todate)
+                       AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL))
+                       GROUP BY c.accno, c.description, c.category ORDER BY accno|;
   }
 
   $query = qq|
@@ -977,6 +987,17 @@ sub trial_balance {
     $trb{ $ref->{accno} }{amount} += $ref->{amount};
   }
   $sth->finish;
+
+  if (! $form->{method} eq "cash") {
+    $sth = prepare_execute_query($form, $dbh, $hotfix_query);
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
+      $trb{ $ref->{accno} }{description} = $ref->{description};
+      $trb{ $ref->{accno} }{charttype}   = 'A';
+      $trb{ $ref->{accno} }{category}    = $ref->{category};
+      $trb{ $ref->{accno} }{amount} += $ref->{amount};
+    }
+    $sth->finish;
+  }
 
   # prepare query for each account
   my ($q_drcr, $drcr, $q_project_drcr, $project_drcr);
