@@ -8,7 +8,7 @@ use SL::Controller::Helper::ParseFilter ();
 use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(filter_args filter_params orig_filter) ],
+  scalar => [ qw(filter_args filter_params orig_filter filter) ],
   'scalar --get_set_init' => [ qw(form_params launder_to) ],
 );
 
@@ -31,7 +31,7 @@ sub read_params {
   return %{ $self->filter_params } if $self->filter_params;
   my $source = $self->get_models->source;
 
-  my $filter            = $params{filter} // $source->{ $self->form_params } // {};
+  my $filter            = $self->filter // $source->{ $self->form_params } // {};
   $self->orig_filter($filter);
 
   my %filter_args       = $self->_get_filter_args;
