@@ -455,7 +455,39 @@ namespace('kivi.CustomerVendor', function(ns) {
     ns.reinit_widgets();
   }
 
+  ns.get_price_report = function(target, source, data) {
+    $.ajax({
+      url:        source,
+      success:    function (rsp) {
+        $(target).html(rsp);
+        $(target).find('a.report-generator-header-link').click(function(event){ ns.price_report_redirect_event(event, target) });
+      },
+    });
+  };
+
+  ns.price_report_redirect_event = function (event, target) {
+    event.preventDefault();
+    ns.get_price_report(target, event.target + '');
+  };
+
+  ns.price_list_init = function () {
+    $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
+      if (ui.newPanel.attr('id') == 'price_list') {
+        ns.get_price_report('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+      }
+      return 1;
+    });
+
+    $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
+      if (ui.panel.attr('id') == 'price_list') {
+        ns.get_price_report('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+      }
+      return 1;
+    });
+  }
+
   $(function(){
     ns.init();
+    ns.price_list_init();
   });
 });

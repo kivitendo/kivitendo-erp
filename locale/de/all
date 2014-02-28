@@ -2387,6 +2387,7 @@ $self->{texts} = {
   'Price #1'                    => 'Preis #1',
   'Price Factor'                => 'Preisfaktor',
   'Price Factors'               => 'Preisfaktoren',
+  'Price List'                  => 'Preisliste',
   'Price Rule'                  => 'Preisregel',
   'Price Rules'                 => 'Preisregeln',
   'Price Source'                => 'Preisquelle',

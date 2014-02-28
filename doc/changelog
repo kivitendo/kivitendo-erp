@@ -29,6 +29,11 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Mahnungen nach Abteilung filtern
 
+- Anzeige einer Kundenpreisliste in den Kundenstammdaten als Reiter.
+  Hier werden die Preisgruppenpreise angezeigt, falls einem Kunden eine
+  Preisgruppe zugeordnet ist.
+
+
 2019-08-07 - Release 3.5.4
 
 

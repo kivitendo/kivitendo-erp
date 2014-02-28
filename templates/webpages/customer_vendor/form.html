@@ -37,6 +37,10 @@
         <li><a href="#price_rules">[% 'Price Rules' | $T8 %]</a></li>
       [% END %]
 
+      [% IF ( SELF.cv.id && SELF.cv.pricegroup_id && AUTH.assert('part_service_assembly_details', 1) ) %]
+        <li><a href="#price_list">[% 'Price List' | $T8 %]</a></li>
+      [% END %]
+
       [% IF SELF.cv.id %]
         [% IF ( FORM.db == 'customer' && AUTH.assert('show_extra_record_tab_customer',1) ) %]
           <li><a href="[% 'controller.pl?action=CustomerVendorTurnover/list_turnover&id=' _ SELF.cv.id _ '&db=' _ FORM.db %]">[% LxERP.t8('Records') %]
@@ -65,6 +69,9 @@
     [% END %]
     [% IF SELF.cv.id %]
       [% PROCESS "customer_vendor/tabs/price_rules.html" %]
+    [% END %]
+    [% IF ( SELF.cv.id && SELF.cv.pricegroup_id && AUTH.assert('part_service_assembly_details', 1) ) %]
+      [% PROCESS "customer_vendor/tabs/price_list.html" %]
     [% END %]
   </div>
 </form>

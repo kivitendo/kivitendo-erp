@@ -22,6 +22,7 @@ use SL::DB::TaxZone;
 use SL::DB::Note;
 use SL::DB::PaymentTerm;
 use SL::DB::Pricegroup;
+use SL::DB::Price;
 use SL::DB::Contact;
 use SL::DB::FollowUp;
 use SL::DB::FollowUpLink;
@@ -69,6 +70,7 @@ __PACKAGE__->run_before(
     'update',
     'ajaj_get_shipto',
     'ajaj_get_contact',
+    'ajax_list_prices',
   ]
 );
 
@@ -658,6 +660,62 @@ sub action_ajaj_autocomplete {
 
 sub action_test_page {
   $_[0]->render('customer_vendor/test_page');
+}
+
+sub action_ajax_list_prices {
+  my ($self, %params) = @_;
+
+  my $report   = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my @columns  = qw(partnumber description price);
+  my @visible  = qw(partnumber description price);
+  my @sortable = qw(partnumber description price);
+
+  my %column_defs = (
+    partnumber  => { text => $::locale->text('Part Number'),      sub => sub { $_[0]->parts->partnumber  } },
+    description => { text => $::locale->text('Part Description'), sub => sub { $_[0]->parts->description } },
+    price       => { text => $::locale->text('Price'),            sub => sub { $::form->format_amount(\%::myconfig, $_[0]->price, 2) }, align => 'right' },
+  );
+
+  $::form->{sort_by}  ||= 'partnumber';
+  $::form->{sort_dir} //= 1;
+
+  for my $col (@sortable) {
+    $column_defs{$col}{link} = $self->url_for(
+      action   => 'ajax_list_prices',
+      callback => $::form->{callback},
+      db       => $::form->{db},
+      id       => $self->{cv}->id,
+      sort_by  => $col,
+      sort_dir => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir})
+    );
+  }
+
+  map { $column_defs{$_}{visible} = 1 } @visible;
+
+  my $pricegroup;
+  $pricegroup = $self->{cv}->pricegroup->pricegroup if $self->{cv}->pricegroup;
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+  $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
+  $report->set_sort_indicator($::form->{sort_by}, $::form->{sort_dir});
+  $report->set_export_options(@{ $params{report_generator_export_options} || [] });
+  $report->set_options(
+    %{ $params{report_generator_options} || {} },
+    output_format        => 'HTML',
+    top_info_text        => $::locale->text('Pricegroup') . ': ' . $pricegroup,
+    title                => $::locale->text('Price List'),
+  );
+
+  my $sort_param = $::form->{sort_by} eq 'price'       ? 'price'             :
+                   $::form->{sort_by} eq 'description' ? 'parts.description' :
+                   'parts.partnumber';
+  $sort_param .= ' ' . ($::form->{sort_dir} ? 'ASC' : 'DESC');
+  my $prices = SL::DB::Manager::Price->get_all(where        => [ pricegroup_id => $self->{cv}->pricegroup_id ],
+                                               sort_by      => $sort_param,
+                                               with_objects => 'parts');
+
+  $self->report_generator_list_objects(report => $report, objects => $prices, layout => 0, header => 0);
 }
 
 sub is_vendor {
