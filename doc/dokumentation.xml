@@ -286,6 +286,10 @@ tar xvzf kivitendo-erp-3.1.0.tgz</programlisting>
       Webserverkonfiguration benutzen, um auf das tatsächliche
       Installationsverzeichnis zu verweisen.</para>
 
+      <para>Bei einer Neuinstallation der Version 3.1.0 muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+
+      <programlisting>mkdir webdav</programlisting>
+
       <para>Die Verzeichnisse <filename>users</filename>, <filename>spool</filename> und <filename>webdav</filename> müssen für den Benutzer
       beschreibbar sein, unter dem der Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer- und
       Gruppennamen sind bei verschiedenen Distributionen unterschiedlich (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
@@ -1612,12 +1616,12 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       </sect2>
 
       <sect2 id="Vorlagen-RB">
-        <title>RB</title>
+        <title>Der Druckvorlagensatz RB</title>
 
-        <para>Vollständiger Dokumentensatz mit alternativem Design</para>
-        <para>Die konzeptionelle Idee wird <ulink
+        <para>Hierbei handelt es sich um einen vollständigen Dokumentensatz mit alternativem Design.</para>
+        <para>Die konzeptionelle Idee der Vorlagen wird <ulink
           url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
-          auf Folie 5 bis 10 vorgestellt, Detaileinstellungen dann im Readme.tex im Vorlagenverzeichnis.</para>
+          auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</para>
 
       </sect2>
 

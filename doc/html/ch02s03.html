@@ -5,7 +5,7 @@
       (z.B.  <code class="filename">/var/www/html/</code>, <code class="filename">/srv/www/htdocs</code> oder <code class="filename">/var/www/</code>) entpackt:</p><pre class="programlisting">cd /var/www
 tar xvzf kivitendo-erp-3.1.0.tgz</pre><p>Wechseln Sie in das entpackte Verzeichnis:</p><pre class="programlisting">cd kivitendo-erp</pre><p>Alternativ können Sie auch einen Alias in der
       Webserverkonfiguration benutzen, um auf das tatsächliche
-      Installationsverzeichnis zu verweisen.</p><p>Die Verzeichnisse <code class="filename">users</code>, <code class="filename">spool</code> und <code class="filename">webdav</code> müssen für den Benutzer
+      Installationsverzeichnis zu verweisen.</p><p>Bei einer Neuinstallation der Version 3.1.0 muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</p><pre class="programlisting">mkdir webdav</pre><p>Die Verzeichnisse <code class="filename">users</code>, <code class="filename">spool</code> und <code class="filename">webdav</code> müssen für den Benutzer
       beschreibbar sein, unter dem der Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer- und
       Gruppennamen sind bei verschiedenen Distributionen unterschiedlich (z.B. bei Debian/Ubuntu <code class="constant">www-data</code>, bei Fedora
       core <code class="constant">apache</code> oder bei OpenSUSE <code class="constant">wwwrun</code>).</p><p>Der folgende Befehl ändert den Besitzer für die oben genannten
