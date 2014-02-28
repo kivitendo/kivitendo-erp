@@ -2,11 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-
-2014-02-21 - Release 3.1.0-rc1
-
-Dies ist der Release-Candidate für die Version 3.1.0. Der voraussichtliche
-Termin für den Release ist der 28.02.2014.
+2014-02-28 - Release 3.1.0
 
 Größere neue Features:
 
@@ -120,7 +116,10 @@ Wichtige Änderungen:
 - Perl v5.10.1 oder neuer und PostgreSQL v8.4 oder neuer werden
   zwingend vorausgesetzt.
 
-- Rundungsfehler bei periodischen Rechnungen mit Rabatt und glatten Einzelpreisen behoben
+- Bei einer Neuinstallation der Version 3.1.0 muß das
+  webdav-Verzeichnis derzeit manuell angelegt werden, da es sich
+  nicht mehr im git Repository befindet. Es gibt einen Eintrag
+  hierfür in der Dokumentation (Kap. 2.3).
 
 Bugfixes:
 
@@ -196,6 +195,7 @@ Bugfixes:
 - Bugfix #2158: Einkaufsrechnung erfassen: Lastschrift-Haken
 - Bugfix #2162: Update on "demo.kivitendo.org/beta/" broken
 - Bugfix #2167: Kundenmaske erscheint nicht mehr
+- Bugfix #2168: Gläubiger-Identifikationsnummer gehoert nicht in die Programmkonfiguration
 - Bugfix #2169: Fehlermeldung beim Buchen von SEPA-Überweisungen aufgrund neuer Spalte "tax_id" in Tabelle "acc_trans"
 - Bugfix #2170: Zwei Module im Installationscheck ergänzt
 - Bugfix #2173: Fehler beim Storno
@@ -364,6 +364,8 @@ Bugfixes:
 - Bugfix #2449: Zahlungsverkehr - Zahlungseingang löscht bei Erneuern jeweils die eingegebenen Beträge
 - Bugfix #2450: &-Zeichen in Kundennamen führt zu falschen Darstellungen
 - Bugfix #2451: Lager->Einlagern (mit Part-Picker) prüft auf falsches Recht
+- Rundungsfehler bei periodischen Rechnungen mit Rabatt und glatten Einzelpreisen behoben
+
 
 2012-12-10 - Release 3.0.0
 

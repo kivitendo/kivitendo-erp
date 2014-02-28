@@ -5,7 +5,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
-Upgrade auf v3.x.0
+Upgrade auf v3.1.0
 ==================
 
 * Neue Softwarevoraussetzungen: Perl v5.10.1 oder neuer sowie
