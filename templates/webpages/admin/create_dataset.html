@@ -32,17 +32,17 @@
   </tr>
 
   <tr>
-   <th valign="top" align="right" nowrap>[% LxERP.t8('Accounting method') %] *</th>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Accounting method') %]</th>
    <td>[% L.select_tag('accounting_method', SELF.all_accounting_methods, title_key='name', default=(FORM.accounting_method || 'cash')) %]</td>
   </tr>
 
   <tr>
-   <th valign="top" align="right" nowrap>[% LxERP.t8('Inventory system') %] *</th>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Inventory system') %]</th>
    <td>[% L.select_tag('inventory_system', SELF.all_inventory_systems, title_key='name', default=(FORM.inventory_system || 'periodic')) %]</td>
   </tr>
 
   <tr>
-   <th valign="top" align="right" nowrap>[% LxERP.t8('Profit determination') %] *</th>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Profit determination') %]</th>
    <td>[% L.select_tag('profit_determination', SELF.all_profit_determinations, title_key='name', default=(FORM.profit_determination || 'income')) %]</td>
   </tr>
  </table>
