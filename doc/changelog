@@ -6,7 +6,13 @@
 
 Größere neue Features:
 
-- Lagerverwaltung sinnvoller mit Stammdaten verknüpft
+- Verknüpfte Belege
+  Ein neue Reiter befindet sich in allen Belegen, der die Verknüpfungen zu Vorgänger- und Nachfolgerbeleg
+  beinhaltet. In der Übersicht wird auch die Vorgangsbezeichnung und das Projekt erwähnt.
+  Ferner kann man Verknüpfungen hinzufügen und löschen.
+
+
+- Lagerverwaltung sinnvoller mit Stammdaten verknüpft und automatisches Auslagern implementiert
   Freitextfeld-Lagerplatz in Stammdaten durch Lager und Lagerplatz ersetzt.
   Entsprechende Vorauswahl beim Einkaufslieferschein. Der Standardlagerplatz wird
   schon direkt vorausgewählt.
@@ -39,10 +45,32 @@ Größere neue Features:
   Firmensignatur konfigurieren. Beim E-Mailversand von Belegen wird die
   Firmensignatur, falls vorhanden, an die Benutzersignatur angehängt.
 
+
+- Partpicker für Lagereingang mit Kurzhistorie
+
+- Finanzcontrolling
+  Dieser Bericht ermöglich eine Nachkalkulation von Aufträgen, der u.a. auch die Nebenkosten
+  berücksichtigt und dynamisch mit einem Klick
+
 - CSV-Import von Aufträgen
 
 Kleinere neue Features und Detailverbesserungen:
 
+
+- Lieferplan und Projekte auf get_models umgestellt
+
+- Steuernamen übersetzbar gemacht
+
+- Suche nach Ansprechpartner
+
+- Kunden und Lieferantenmaske ist auf Controller-Code umgestellt
+
+- Projekte haben ein neues Attribut Projekttyp und können Kunden zugewiesen werden
+  Projekte können jetzt besser verknüpft werden (Kunden und Projekttyp).
+
+- Zusätzliche Eigenschaft Projekttypen
+  Standardmässig werden drei Projekttypen definiert (Standard, Support und Festpreis) und
+  diese können beliebig unter System->Projekttypen erweitert werden.
 - Die bwa.html und ustva.html werden jetzt zentral gepflegt und nicht mehr als benutzerdefinierte
   Druckvorlage. Falls hier jmd. Anpassungen gemacht hat, müssten diese in templates/rp/$VORLAGE.html
   nachgepflegt werden
@@ -82,10 +110,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
 
-- Lagerbestand anzeigen, zeigt auch die Filteroptionen an
-
-- Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
-  maximalen Zeitraum, in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
+- Zukunfts-Buchungen können verhindert werden
+  Es gibt einen konfigurierbaren  maximalen Zeitraum,
+  in dem in die Zukunft gebucht werden darf (default 360 Tage) (s.a. #1987)
 
 - Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt (s.a. #2300)
 
@@ -93,6 +120,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Die Bestimmung des Startdatums für die Bilanz kann jetzt in der
   Mandantenkonfiguration einstellt werden.
+
+- Verbesserung der Lagerfunktion
 
 Wichtige Änderungen:
 
