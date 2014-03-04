@@ -80,6 +80,28 @@ sub transactions {
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
+  my %billed_amount;
+  my %billed_netamount;
+  if ($form->{l_remaining_amount} || $form->{l_remaining_netamount}) {
+    $query = <<'';
+      SELECT from_id, ar.amount, ar.netamount FROM (
+        SELECT from_id, to_id
+        FROM record_links
+        WHERE from_table = 'oe' AND to_table = 'ar'
+        UNION
+        SELECT rl1.from_id, rl2.to_id
+        FROM record_links rl1
+        LEFT JOIN record_links rl2 ON (rl1.to_table = rl2.from_table AND rl1.to_id = rl2.from_id)
+        WHERE rl1.from_table = 'oe' AND rl2.to_table = 'ar'
+      ) rl
+      LEFT JOIN ar ON ar.id = rl.to_id
+
+    for my $ref (@{ selectall_hashref_query($form, $dbh, $query) }) {
+      $billed_amount{   $ref->{from_id}} += $ref->{amount};
+      $billed_netamount{$ref->{from_id}} += $ref->{netamount};
+    }
+  }
+
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
     qq|  o.amount, ct.${vc}number, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
@@ -249,6 +271,10 @@ SQL
   my %id = ();
   $form->{OE} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    $ref->{billed_amount}    = $billed_amount{$ref->{id}};
+    $ref->{billed_netamount} = $billed_netamount{$ref->{id}};
+    $ref->{remaining_amount} = $ref->{amount} - $ref->{billed_amount};
+    $ref->{remaining_netamount} = $ref->{netamount} - $ref->{billed_netamount};
     $ref->{exchangerate} = 1 unless $ref->{exchangerate};
     push @{ $form->{OE} }, $ref if $ref->{id} != $id{ $ref->{id} };
     $id{ $ref->{id} } = $ref->{id};

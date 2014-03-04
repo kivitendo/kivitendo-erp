@@ -790,6 +790,7 @@ sub orders {
     "cusordnumber",            "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
+    "remaining_netamount",     "remaining_amount",
     "curr",                    "employee",
     "salesman",
     "shipvia",                 "globalprojectnumber",
@@ -857,6 +858,8 @@ sub orders {
     'netamount'               => { 'text' => $locale->text('Amount'), },
     'tax'                     => { 'text' => $locale->text('Tax'), },
     'amount'                  => { 'text' => $locale->text('Total'), },
+    'remaining_amount'        => { 'text' => $locale->text('Remaining Amount'), },
+    'remaining_netamount'     => { 'text' => $locale->text('Remaining Net Amount'), },
     'curr'                    => { 'text' => $locale->text('Curr'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
@@ -880,7 +883,7 @@ sub orders {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount);
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
@@ -942,7 +945,7 @@ sub orders {
   # escape callback for href
   my $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount marge_total marge_percent);
+  my @subtotal_columns = qw(netamount amount marge_total marge_percent remaining_amount remaining_netamount);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -965,7 +968,7 @@ sub orders {
     $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
     $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
-    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent);
+    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent remaining_amount remaining_netamount);
 
     my $row = { };
 
