@@ -63,6 +63,11 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Project',
     key_columns => { project_id => 'id' },
   },
+
+  unit_obj => {
+    class       => 'SL::DB::Unit',
+    key_columns => { unit => 'name' },
+  },
 );
 
 1;

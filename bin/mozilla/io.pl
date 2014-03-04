@@ -50,6 +50,7 @@ use SL::IO;
 use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
@@ -436,7 +437,7 @@ sub display_row {
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
-                income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
+                income_accno expense_accno listprice assembly taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
 
@@ -749,7 +750,7 @@ sub remove_emptied_rows {
                 taxaccounts bin assembly weight projectnumber project_id
                 oldprojectnumber runningnumber serialnumber partsgroup payment_id
                 not_discountable shop ve gv buchungsgruppen_id language_values
-                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
+                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber donumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate);
@@ -1505,17 +1506,19 @@ sub print_form {
   }
 
   # search for the template
-  my @template_files;
-  push @template_files, "$form->{formname}_email$form->{language}$printer_code.$extension" if $form->{media} eq 'email';
-  push @template_files, "$form->{formname}$form->{language}$printer_code.$extension";
-  push @template_files, "$form->{formname}.$extension";
-  push @template_files, "default.$extension";
-  @template_files = uniq @template_files;
-  $form->{IN}     = first { -f ($defaults->templates . "/$_") } @template_files;
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $form->{formname},
+    email       => $form->{media} eq 'email',
+    language_id => $form->{language_id},
+    printer_id  => $form->{printer_id},
+    extension   => $extension,
+  );
 
-  if (!defined $form->{IN}) {
+  if (!defined $template_file) {
     $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
   }
+
+  $form->{IN} = $template_file;
 
   delete $form->{OUT};
 

@@ -116,6 +116,7 @@ sub get_template {
                     COMPILE_EXT  => '.tcc',
                     COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
                     ERROR        => 'templates/webpages/generic/exception.html',
+                    ENCODING     => 'utf8',
                   }) || croak;
 
   return $self->{template};

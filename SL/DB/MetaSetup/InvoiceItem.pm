@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   deliverydate       => { type => 'date' },
   description        => { type => 'text' },
   discount           => { type => 'float', scale => 4 },
+  donumber           => { type => 'text' },
   fxsellprice        => { type => 'numeric', precision => 15, scale => 5 },
   id                 => { type => 'integer', not_null => 1, sequence => 'invoiceid' },
   itime              => { type => 'timestamp', default => 'now()' },
@@ -63,6 +64,11 @@ __PACKAGE__->meta->foreign_keys(
   project => {
     class       => 'SL::DB::Project',
     key_columns => { project_id => 'id' },
+  },
+
+  unit_obj => {
+    class       => 'SL::DB::Unit',
+    key_columns => { unit => 'name' },
   },
 );
 

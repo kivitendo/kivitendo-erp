@@ -7,7 +7,8 @@ use strict;
 
 use Carp;
 use List::Util qw(first);
-use List::MoreUtils qw(pairwise);
+
+use Rose::DB::Object::Helpers ();
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
@@ -16,7 +17,6 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::CustomVariable;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -37,6 +37,12 @@ __PACKAGE__->meta->add_relationship(
     class           => 'SL::DB::SepaExportItem',
     column_map      => { id => 'ar_id' },
     manager_args    => { with_objects => [ 'sepa_export' ] }
+  },
+  custom_shipto     => {
+    type            => 'one to one',
+    class           => 'SL::DB::Shipto',
+    column_map      => { id => 'trans_id' },
+    query_args      => [ module => 'AR' ],
   },
 );
 
@@ -107,6 +113,15 @@ sub closed {
   return $self->paid >= $self->amount;
 }
 
+sub _clone_orderitem_delivery_order_item_cvar {
+  my ($cvar) = @_;
+
+  my $cloned = Rose::DB::Object::Helpers::clone_and_reset($_);
+  $cloned->sub_module('invoice');
+
+  return $cloned;
+}
+
 sub new_from {
   my ($class, $source, %params) = @_;
 
@@ -116,10 +131,24 @@ sub new_from {
   require SL::DB::Employee;
 
   my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
+  my (@columns, @item_columns, $item_parent_id_column, $item_parent_column);
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber quonumber
-                                                department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
-                                                globalproject_id transaction_description currency_id delivery_term_id)),
+  if (ref($source) eq 'SL::DB::Order') {
+    @columns      = qw(quonumber payment_id delivery_customer_id delivery_vendor_id);
+    @item_columns = qw(subtotal);
+
+    $item_parent_id_column = 'trans_id';
+    $item_parent_column    = 'order';
+
+  } else {
+    @columns      = qw(donumber);
+
+    $item_parent_id_column = 'delivery_order_id';
+    $item_parent_column    = 'delivery_order';
+  }
+
+  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
+                                                cp_id language_id taxzone_id shipto_id globalproject_id transaction_description currency_id delivery_term_id), @columns),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => DateTime->today_local->add(days => $terms * 1),
@@ -137,25 +166,31 @@ sub new_from {
     $args{quodate}      = $source->transdate;
   }
 
-  my $invoice = $class->new(%args, %params);
+  my $invoice = $class->new(%args, %{ $params{attributes} || {} });
+  my $items   = delete($params{items}) || $source->items_sorted;
+  my %item_parents;
 
   my @items = map {
-    my $source_item = $_;
-    SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
-                                 qw(parts_id description qty sellprice discount project_id
-                                    serialnumber pricegroup_id ordnumber transdate cusordnumber unit
-                                    base_qty subtotal longdescription lastcost price_factor_id)),
-                            deliverydate => $source_item->reqdate,
-                            fxsellprice  => $source_item->sellprice,);
-  } @{ $source->items_sorted };
+    my $source_item      = $_;
+    my $source_item_id   = $_->$item_parent_id_column;
+    my @custom_variables = map { _clone_orderitem_delivery_order_item_cvar($_) } @{ $source_item->custom_variables };
 
-  my $i = 0;
-  foreach my $item (@items) {
-    my $source_cvars = $source->items_sorted->[$i]->cvars_by_config;
-    my $target_cvars = $item->cvars_by_config;
-    pairwise { $a->value($b->value) } @{ $target_cvars }, @{ $source_cvars };
-    $i++;
-  }
+    $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
+    my $item_parent                  = $item_parents{$source_item_id};
+
+    SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
+                                 qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id transdate cusordnumber unit
+                                    base_qty longdescription lastcost price_factor_id), @item_columns),
+                             deliverydate     => $source_item->reqdate,
+                             fxsellprice      => $source_item->sellprice,
+                             custom_variables => \@custom_variables,
+                             ordnumber        => ref($item_parent) eq 'SL::DB::Order'         ? $item_parent->ordnumber : $source_item->ordnumber,
+                             donumber         => ref($item_parent) eq 'SL::DB::DeliveryOrder' ? $item_parent->donumber  : $source_item->can('donumber') ? $source_item->donumber : '',
+                           );
+
+  } @{ $items };
+
+  @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
 
   $invoice->invoiceitems(\@items);
 
@@ -294,7 +329,7 @@ SL::DB::Invoice: Rose model for invoices (table "ar")
 
 =over 4
 
-=item C<new_from $source>
+=item C<new_from $source, %params>
 
 Creates a new C<SL::DB::Invoice> instance and copies as much
 information from C<$source> as possible. At the moment only sales
@@ -303,6 +338,29 @@ orders and sales quotations are supported as sources.
 The conversion copies order items into invoice items. Dates are copied
 as appropriate, e.g. the C<transdate> field from an order will be
 copied into the invoice's C<orddate> field.
+
+C<%params> can include the following options:
+
+=over 2
+
+=item C<items>
+
+An optional array reference of RDBO instances for the items to use. If
+missing then the method C<items_sorted> will be called on
+C<$source>. This option can be used to override the sorting, to
+exclude certain positions or to add additional ones.
+
+=item C<skip_items_zero_qty>
+
+If trueish then items with a quantity of 0 are skipped.
+
+=item C<attributes>
+
+An optional hash reference. If it exists then it is passed to C<new>
+allowing the caller to set certain attributes for the new delivery
+order.
+
+=back
 
 Amounts, prices and taxes are not
 calculated. L<SL::DB::Helper::PriceTaxCalculator::calculate_prices_and_taxes>

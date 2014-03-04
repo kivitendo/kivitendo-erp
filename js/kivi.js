@@ -36,6 +36,10 @@ namespace("kivi", function(ns) {
       ns.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
         kivi.PartPicker($(elt));
       });
+
+    var func = kivi.get_function_by_name('local_reinit_widgets');
+    if (func)
+      func();
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {

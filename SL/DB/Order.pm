@@ -30,6 +30,12 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::PeriodicInvoicesConfig',
     column_map             => { id => 'oe_id' },
   },
+  custom_shipto            => {
+    type                   => 'one to one',
+    class                  => 'SL::DB::Shipto',
+    column_map             => { id => 'trans_id' },
+    query_args             => [ module => 'OE' ],
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -130,16 +136,36 @@ sub convert_to_invoice {
   croak("Conversion to invoices is only supported for sales records") unless $self->customer_id;
 
   my $invoice;
-  if (!$self->db->do_transaction(sub {
+  if (!$self->db->with_transaction(sub {
+    require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
     $self->link_to_record($invoice);
     $self->update_attributes(closed => 1);
-    # die;
+    1;
   })) {
     return undef;
   }
 
   return $invoice;
+}
+
+sub convert_to_delivery_order {
+  my ($self, @args) = @_;
+
+  my ($delivery_order, $custom_shipto);
+  if (!$self->db->with_transaction(sub {
+    require SL::DB::DeliveryOrder;
+    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self, @args);
+    $delivery_order->save;
+    $custom_shipto->save if $custom_shipto;
+    $self->link_to_record($delivery_order);
+    $self->update_attributes(delivered => 1);
+    1;
+  })) {
+    return wantarray ? () : undef;
+  }
+
+  return wantarray ? ($delivery_order, $custom_shipto) : $delivery_order;
 }
 
 sub number {
@@ -188,6 +214,28 @@ Returns one of the following string types:
 =head2 C<is_type TYPE>
 
 Returns true if the order is of the given type.
+
+=head2 C<convert_to_delivery_order %params>
+
+Creates a new delivery order with C<$self> as the basis by calling
+L<SL::DB::DeliveryOrder::new_from>. That delivery order is saved, and
+C<$self> is linked to the new invoice via
+L<SL::DB::RecordLink>. C<$self>'s C<delivered> attribute is set to
+C<true>, and C<$self> is saved.
+
+The arguments in C<%params> are passed to
+L<SL::DB::DeliveryOrder::new_from>.
+
+Returns C<undef> on failure. Otherwise the return value depends on the
+context. In list context the new delivery order and a shipto instance
+will be returned. In scalar instance only the delivery order instance
+is returned.
+
+Custom shipto addresses (the ones specific to the sales/purchase
+record and not to the customer/vendor) are only linked from C<shipto>
+to C<delivery_orders>. Meaning C<delivery_orders.shipto_id> will not
+be filled in that case. That's why a separate shipto object is created
+and returned.
 
 =head2 C<convert_to_invoice %params>
 

@@ -1,6 +1,7 @@
 package SL::Template::Plugin::LxERP;
 
 use base qw( Template::Plugin );
+use Scalar::Util qw();
 use Template::Plugin;
 
 use List::Util qw(min);
@@ -14,6 +15,16 @@ sub new {
   my $context = shift;
 
   bless { }, $class;
+}
+
+sub is_rdbo {
+  my ($self, $obj, $wanted_class) = @_;
+
+  $wanted_class = !$wanted_class         ? 'Rose::DB::Object'
+                : $wanted_class =~ m{::} ? $wanted_class
+                :                          "SL::DB::${wanted_class}";
+
+  return Scalar::Util::blessed($obj) ? $obj->isa($wanted_class) : 0;
 }
 
 sub format_amount {
