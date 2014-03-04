@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('prices');
 __PACKAGE__->meta->columns(
   id            => { type => 'serial', not_null => 1 },
   parts_id      => { type => 'integer' },
-  price         => { type => 'numeric', precision => 5, scale => 15 },
+  price         => { type => 'numeric', precision => 15, scale => 5 },
   pricegroup_id => { type => 'integer' },
 );
 

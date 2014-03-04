@@ -21,7 +21,7 @@ __PACKAGE__->meta->columns(
   orderitems_id => { type => 'integer' },
   parts_id      => { type => 'integer', not_null => 1 },
   project_id    => { type => 'integer' },
-  qty           => { type => 'numeric', precision => 5, scale => 25 },
+  qty           => { type => 'numeric', precision => 25, scale => 5 },
   shippingdate  => { type => 'date' },
   trans_id      => { type => 'integer', not_null => 1 },
   trans_type_id => { type => 'integer', not_null => 1 },

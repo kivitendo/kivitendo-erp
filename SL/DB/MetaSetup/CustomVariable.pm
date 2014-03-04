@@ -14,7 +14,7 @@ __PACKAGE__->meta->columns(
   id              => { type => 'integer', not_null => 1, sequence => 'custom_variables_id' },
   itime           => { type => 'timestamp', default => 'now()' },
   mtime           => { type => 'timestamp' },
-  number_value    => { type => 'numeric', precision => 5, scale => 25 },
+  number_value    => { type => 'numeric', precision => 25, scale => 5 },
   sub_module      => { type => 'text', default => '', not_null => 1 },
   text_value      => { type => 'text' },
   timestamp_value => { type => 'timestamp' },

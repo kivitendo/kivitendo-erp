@@ -9,7 +9,7 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('oe');
 
 __PACKAGE__->meta->columns(
-  amount                  => { type => 'numeric', precision => 5, scale => 15 },
+  amount                  => { type => 'numeric', precision => 15, scale => 5 },
   closed                  => { type => 'boolean', default => 'false' },
   cp_id                   => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
@@ -26,10 +26,10 @@ __PACKAGE__->meta->columns(
   intnotes                => { type => 'text' },
   itime                   => { type => 'timestamp', default => 'now()' },
   language_id             => { type => 'integer' },
-  marge_percent           => { type => 'numeric', precision => 5, scale => 15 },
-  marge_total             => { type => 'numeric', precision => 5, scale => 15 },
+  marge_percent           => { type => 'numeric', precision => 15, scale => 5 },
+  marge_total             => { type => 'numeric', precision => 15, scale => 5 },
   mtime                   => { type => 'timestamp' },
-  netamount               => { type => 'numeric', precision => 5, scale => 15 },
+  netamount               => { type => 'numeric', precision => 15, scale => 5 },
   notes                   => { type => 'text' },
   ordnumber               => { type => 'text', not_null => 1 },
   payment_id              => { type => 'integer' },

@@ -14,7 +14,7 @@ __PACKAGE__->meta->columns(
   id               => { type => 'integer', not_null => 1, sequence => 'id' },
   itime            => { type => 'timestamp', default => 'now()' },
   mtime            => { type => 'timestamp' },
-  rate             => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  rate             => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   taxdescription   => { type => 'text', not_null => 1 },
   taxkey           => { type => 'integer', not_null => 1 },
   taxnumber        => { type => 'text' },

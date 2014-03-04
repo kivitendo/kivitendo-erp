@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('makemodel');
 __PACKAGE__->meta->columns(
   id         => { type => 'serial', not_null => 1 },
   itime      => { type => 'timestamp', default => 'now()' },
-  lastcost   => { type => 'numeric', precision => 5, scale => 15 },
+  lastcost   => { type => 'numeric', precision => 15, scale => 5 },
   lastupdate => { type => 'date' },
   make       => { type => 'integer' },
   model      => { type => 'text' },

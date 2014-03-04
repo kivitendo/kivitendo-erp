@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('units');
 
 __PACKAGE__->meta->columns(
   base_unit => { type => 'varchar', length => 20 },
-  factor    => { type => 'numeric', precision => 5, scale => 20 },
+  factor    => { type => 'numeric', precision => 20, scale => 5 },
   id        => { type => 'serial', not_null => 1 },
   name      => { type => 'varchar', length => 20, not_null => 1 },
   sortkey   => { type => 'integer', not_null => 1 },

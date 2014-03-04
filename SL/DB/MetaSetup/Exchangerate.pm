@@ -9,12 +9,12 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('exchangerate');
 
 __PACKAGE__->meta->columns(
-  buy         => { type => 'numeric', precision => 5, scale => 15 },
+  buy         => { type => 'numeric', precision => 15, scale => 5 },
   currency_id => { type => 'integer', not_null => 1 },
   id          => { type => 'serial', not_null => 1 },
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
-  sell        => { type => 'numeric', precision => 5, scale => 15 },
+  sell        => { type => 'numeric', precision => 15, scale => 5 },
   transdate   => { type => 'date' },
 );
 

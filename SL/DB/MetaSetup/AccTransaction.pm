@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('acc_trans');
 
 __PACKAGE__->meta->columns(
   acc_trans_id   => { type => 'bigint', not_null => 1, sequence => 'acc_trans_id_seq' },
-  amount         => { type => 'numeric', precision => 5, scale => 15 },
+  amount         => { type => 'numeric', precision => 15, scale => 5 },
   cb_transaction => { type => 'boolean', default => 'false', not_null => 1 },
   chart_id       => { type => 'integer', not_null => 1 },
   chart_link     => { type => 'text', not_null => 1 },

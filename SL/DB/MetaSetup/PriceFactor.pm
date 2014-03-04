@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('price_factors');
 
 __PACKAGE__->meta->columns(
   description => { type => 'text' },
-  factor      => { type => 'numeric', precision => 5, scale => 15 },
+  factor      => { type => 'numeric', precision => 15, scale => 5 },
   id          => { type => 'integer', not_null => 1, sequence => 'id' },
   sortkey     => { type => 'integer' },
 );

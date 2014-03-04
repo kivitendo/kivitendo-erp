@@ -15,7 +15,7 @@ __PACKAGE__->meta->columns(
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
   parts_id    => { type => 'integer' },
-  qty         => { type => 'float', precision => 4 },
+  qty         => { type => 'float', scale => 4 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'assembly_id' ]);
