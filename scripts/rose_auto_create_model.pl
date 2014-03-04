@@ -15,6 +15,7 @@ use English qw( -no_match_vars );
 use Getopt::Long;
 use List::MoreUtils qw(none);
 use Pod::Usage;
+use Rose::DB::Object 0.809;
 use Term::ANSIColor;
 
 use SL::Auth;
