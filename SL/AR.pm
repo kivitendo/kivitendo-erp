@@ -488,7 +488,7 @@ sub ar_transactions {
   my @values;
 
   my $query =
-    qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.transdate, | .
+    qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .
     qq|  a.duedate, a.netamount, a.amount, a.paid, | .
     qq|  a.invoice, a.datepaid, a.terms, a.notes, a.shipvia, | .
     qq|  a.shippingpoint, a.storno, a.storno_id, a.globalproject_id, | .
@@ -550,7 +550,7 @@ sub ar_transactions {
     $where .= " AND d.description ILIKE ?";
     push(@values, $department);
   }
-  foreach my $column (qw(invnumber ordnumber notes transaction_description)) {
+  foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description)) {
     if ($form->{$column}) {
       $where .= " AND a.$column ILIKE ?";
       push(@values, $form->like($form->{$column}));
@@ -603,7 +603,7 @@ sub ar_transactions {
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description))) {
+  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 

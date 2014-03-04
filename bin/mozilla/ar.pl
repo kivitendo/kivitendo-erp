@@ -902,12 +902,12 @@ sub ar_transactions {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   @columns =
-    qw(transdate id type invnumber ordnumber name netamount tax amount paid
+    qw(transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto employee_id salesman_id business_id);
+  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto employee_id salesman_id business_id);
 
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
@@ -917,6 +917,7 @@ sub ar_transactions {
     'type'                    => { 'text' => $locale->text('Type'), },
     'invnumber'               => { 'text' => $locale->text('Invoice'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $locale->text('Customer'), },
     'netamount'               => { 'text' => $locale->text('Amount'), },
     'tax'                     => { 'text' => $locale->text('Tax'), },
@@ -943,7 +944,7 @@ sub ar_transactions {
     'customertype'            => { 'text' => $locale->text('Customer type'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -976,6 +977,9 @@ sub ar_transactions {
   }
   if ($form->{ordnumber}) {
     push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
+  }
+  if ($form->{cusordnumber}) {
+    push @options, $locale->text('Customer Order Number') . " : $form->{cusordnumber}";
   }
   if ($form->{notes}) {
     push @options, $locale->text('Notes') . " : $form->{notes}";
