@@ -213,6 +213,9 @@ sub prepare_report {
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
+  if ( $report->{options}{output_format} =~ /^(pdf|csv)$/i ) {
+    $self->models->disable_plugin('paginated');
+  }
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'Project',
@@ -226,7 +229,6 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->models->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
     raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
