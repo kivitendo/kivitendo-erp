@@ -110,24 +110,10 @@ sub invoice_transactions {
   };
 
   if ( $form->{customer} =~ /--/ ) {
-    # field data comes from dropdown box
-    ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
-  } elsif ($form->{customer}) {
-
-    # a value was added in the input box, we only want to filter for one
-    # customer, so check that a unique customer can be found
-
-    # check_name is executed with no_select => 1, if the result isn't unique
-    # quit with an error message, the user has to enter a new name
-
-    # Without no_select selecting a customer causes an update which doesn't
-    # return anything, which is the reason for this workaround
-
-    &check_name('customer', no_select => 1);
-
-    # $form->{customer_id} was already set by check_name
-    $form->{customername} = $form->{customer};
-  };
+    # Felddaten kommen aus Dropdownbox
+    my $dummy;
+    ($dummy, $form->{customer_id}) = split(/--/, $form->{customer});
+  }
   # if $form->{customer} is empty nothing further happens here
 
   # test for decimalplaces or set to default of 2
@@ -168,7 +154,7 @@ sub invoice_transactions {
   # pass hidden variables for pdf/csv export
   # first with l_ to determine which columns to show
   # then with the options for headings (such as transdatefrom, partnumber, ...)
-  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
+  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
       "$form->{db}number",
       map({ "cvar_$_->{name}" } @searchable_custom_variables),
       map { "l_$_" } @columns
@@ -222,7 +208,7 @@ sub invoice_transactions {
   my @options;
 
   push @options, $locale->text('Description')             . " : $form->{description}"                                                       if $form->{description};
-  push @options, $locale->text('Customer')                . " : $form->{customername}"                                                      if $form->{customer};
+  push @options, $locale->text('Customer')                . " : $form->{customer}"                                                          if $form->{customer};
   push @options, $locale->text('Customer Number')         . " : $form->{customernumber}"                                                    if $form->{customernumber};
   # TODO: only customer id is passed
   push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0]                                    if $form->{department};
