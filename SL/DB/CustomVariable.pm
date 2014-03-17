@@ -15,7 +15,7 @@ sub value {
   my $self = $_[0];
   my $type = $self->config->type;
 
-  goto &bool_value      if $type eq 'boolean';
+  goto &bool_value      if $type eq 'bool';
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
 
