@@ -669,9 +669,7 @@ sub get_default_coa {
     my $dbconnect = 'dbi:Pg:dbname=' . $client->dbname . ';host=' . $client->dbhost . ';port=' . $client->dbport;
     my $dbh       = DBI->connect($dbconnect, $client->dbuser, $client->dbpasswd);
     my $query = q{ SELECT coa FROM defaults };
-    (my $sth = $dbh->prepare($query))->execute;
     ($coa) = selectrow_query($::form, $dbh, $query);
-    $sth->finish;
     $dbh->disconnect;
   };
   return $coa;

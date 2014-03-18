@@ -31,11 +31,13 @@ sub new {
 
 sub init_menu {
   my @menu_files;
-  if(scalar(grep(/^Switzerland/, (selectrow_query($::form, $::form->get_standard_dbh, 'SELECT coa FROM defaults'))[0]))) {
+  my $dbh = $::form->get_standard_dbh;
+  if(scalar(grep(/^Switzerland/, (selectrow_query($::form, $dbh, 'SELECT coa FROM defaults'))[0]))) {
     @menu_files = qw(menus/erp_ch.ini);
   } else {
     @menu_files = qw(menus/erp.ini);
   }
+  $dbh->commit;
   unshift @menu_files, 'menus/crm.ini' if $::instance_conf->crm_installed;
   Menu->new(@menu_files);
 }

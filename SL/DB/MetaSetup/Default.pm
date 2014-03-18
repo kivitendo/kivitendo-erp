@@ -61,6 +61,7 @@ __PACKAGE__->meta->columns(
   payments_changeable                     => { type => 'integer', default => '0', not_null => 1 },
   pdonumber                               => { type => 'text' },
   ponumber                                => { type => 'text' },
+  precision                               => { type => 'numeric', precision => 15, scale => 5, default => '0.01', not_null => 1 },
   profit_determination                    => { type => 'text' },
   purchase_delivery_order_show_delete     => { type => 'boolean', default => 'true' },
   purchase_order_show_delete              => { type => 'boolean', default => 'true' },

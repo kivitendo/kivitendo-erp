@@ -3553,9 +3553,7 @@ sub _get_precision {
     my $dbconnect = 'dbi:Pg:dbname=' . $client->{dbname} . ';host=' . $client->{dbhost} . ';port=' . $client->{dbport};
     my $dbh       = DBI->connect($dbconnect, $client->{dbuser}, $client->{dbpasswd});
     my $query = q{ SELECT precision FROM defaults };
-    (my $sth = $dbh->prepare($query))->execute;
     ($precision) = selectrow_query($::form, $dbh, $query);
-    $sth->finish;
     $dbh->disconnect;
   };
   return $precision;
