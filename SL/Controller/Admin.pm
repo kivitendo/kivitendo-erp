@@ -11,6 +11,7 @@ use SL::Common ();
 use SL::DB::AuthUser;
 use SL::DB::AuthGroup;
 use SL::DB::Printer;
+use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::System::InstallationLock;
@@ -109,12 +110,11 @@ sub action_show {
 
 sub action_new_user {
   my ($self) = @_;
-
   $self->user(SL::DB::AuthUser->new(
     config_values => {
       vclimit      => 200,
       countrycode  => "de",
-      numberformat => "1.000,00",
+      numberformat => scalar(grep(/^Switzerland/, get_default_coa($self))) ? "1'000.00" : "1.000,00",
       dateformat   => "dd.mm.yy",
       stylesheet   => "kivitendo.css",
       menustyle    => "neu",
@@ -502,7 +502,7 @@ sub init_all_users         { SL::DB::Manager::AuthUser  ->get_all_sorted        
 sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted                                                     }
 sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
-sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00'   ]                                              }
+sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ]                                    }
 sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
 sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
@@ -675,6 +675,20 @@ sub authenticate_root {
   $self->login_form(error => t8('Incorrect password!'));
 
   return undef;
+}
+
+sub get_default_coa {
+  my ( $self ) = @_;
+  my $coa = undef;
+  eval {
+    my $client = first { $_->is_default } @{ $self->all_clients };
+    my $dbconnect = 'dbi:Pg:dbname=' . $client->dbname . ';host=' . $client->dbhost . ';port=' . $client->dbport;
+    my $dbh       = DBI->connect($dbconnect, $client->dbuser, $client->dbpasswd);
+    my $query = q{ SELECT coa FROM defaults };
+    ($coa) = selectrow_query($::form, $dbh, $query);
+    $dbh->disconnect;
+  };
+  return $coa;
 }
 
 1;

@@ -22,13 +22,18 @@
   </tr>
 
   <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Create Chart of Accounts') %]</th>
+   <td>[% L.select_tag('chart', SELF.all_charts, onchange='comment_selected_chart(this.value)', default=(FORM.chart || 'Germany-DATEV-SKR03EU')) %]</td>
+  </tr>
+
+  <tr>
    <th align="right" nowrap>[% LxERP.t8('Default currency') %]</th>
    <td>[% L.input_tag('defaultcurrency', FORM.defaultcurrency || 'EUR') %]</td>
   </tr>
 
   <tr>
-   <th valign="top" align="right" nowrap>[% LxERP.t8('Create Chart of Accounts') %]</th>
-   <td>[% L.select_tag('chart', SELF.all_charts, onchange='comment_selected_chart(this.value)', default=(FORM.chart || 'Germany-DATEV-SKR03EU')) %]</td>
+   <th align="right" nowrap>[% LxERP.t8('Precision') %]</th>
+   <td>[% L.input_tag('precision', FORM.precision || '0.01') %]</td>
   </tr>
 
   <tr>
@@ -67,30 +72,28 @@
 
 function comment_selected_chart(s) {
   if (s == 'Austria') {
-   alert("SKR07 Austria ist noch Stand 2002." +
+    alert("SKR07 Austria ist noch Stand 2002." +
          "\n" +
          "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
          "\n" +
          "fuer Kunden im Ausland." +
          "\n" +
          "Hinweis vom 20.09.2011");
-
-  } else if (s == 'Swiss-German') {
-   alert("Hinweis: Das ist weder ein Schweizer Kontorahmen nach Kaefer noch ein " +
-         "Schweizer KMU-Kontenrahmen, sondern ein angelehnter KMU-Kontenrahmen fuer " +
-         "ein EDV-Dienstleistungsunternehmen mit Stand 2006 (Bspw. 32001 Hardware, " +
-         "statt 3200 Warenertrag)." +
-         "\n" +
-         "Ferner sind keine Buchungsgruppe vorkonfiguriert, somit wird " +
-         "standardmaessig keine Rechnung mit Steuer ausgewiesen." +
-         "\n" +
-         "Zum schnellen Testen und Zusammenhaenge verstehen waehlen Sie lieber einen " +
-         "deutschen Kontenrahmen aus (SKR03 oder SKR04) und passen die Steuer an." +
-         "\n" +
-         "Hinweis vom 21.09.2011");
+  } else if (/^Switzerland/.test(s)) {
+    document.getElementById('defaultcurrency').value='CHF';
+    document.getElementById('precision').value='0.05';
+    document.getElementById('accounting_method').value='accrual';
+    document.getElementById('inventory_system').value='periodic';
+    document.getElementById('profit_determination').value='balance';
+  } else {
+    document.getElementById("defaultcurrency").value="EUR";
+    document.getElementById('precision').value='0.01';
+    document.getElementById('accounting_method').value='cash';
+    document.getElementById('inventory_system').value='periodic';
+    document.getElementById('profit_determination').value='income';
   }
-
   return true;
 }
+
    -->
 </script>

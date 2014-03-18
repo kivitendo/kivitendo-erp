@@ -1586,6 +1586,7 @@ $self->{texts} = {
   'Posting Configuration'       => '',
   'Postscript'                  => '',
   'Posustva_coa'                => '',
+  'Precision'                   => '',
   'Preferences'                 => '',
   'Preferences saved!'          => '',
   'Prefix for the new bins\' names' => '',

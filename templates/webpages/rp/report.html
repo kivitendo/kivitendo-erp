@@ -9,7 +9,9 @@
   </tr>
   <tr>
     <th colspan=1>[% 'Year' | $T8 %]</th>
-    <td><input name=year size=11 title="[% 'YYYY' | $T8 %]" value="[% year %]" class="initial_focus"></td>
+    <td>
+      <input name=year size=11 title="[% 'YYYY' | $T8 %]" value="[% year %]" class="initial_focus" oninput='set_from_to(duetyp.value, this.value)'>
+    </td>
   </tr>
   <tr>
     <td align=right> <b>[% 'Yearly' | $T8 %]</b> </td>
@@ -17,32 +19,66 @@
     <th align=left colspan=3>[% 'Monthly' | $T8 %]</th>
   </tr>
   <tr>
-    <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"></td>
-    <td><input name=duetyp class=radio type=radio value="A">&nbsp;1. [% 'Quarter' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="1" checked>&nbsp;[% 'January' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="5">&nbsp;[% 'May' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="9">&nbsp;[% 'September' | $T8 %]</td>
+    <td align=right>&nbsp;
+      <input name=duetyp class=radio type=radio value="13" onchange='set_from_to(this.value, year.value)'>
+    </td>
+    <td><input name=duetyp class=radio type=radio value="A" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;1. [% 'Quarter' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="1" checked onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'January' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="5" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'May' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="9" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'September' | $T8 %]
+    </td>
   </tr>
   <tr>
     <td align= right>&nbsp;</td>
-    <td><input name=duetyp class=radio type=radio value="B">&nbsp;2. [% 'Quarter' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="2">&nbsp;[% 'February' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="6">&nbsp;[% 'June' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="10">&nbsp;[% 'October' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="B" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;2. [% 'Quarter' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="2" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'February' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="6" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'June' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="10" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'October' | $T8 %]
+    </td>
   </tr>
   <tr>
     <td> &nbsp;</td>
-    <td><input name=duetyp class=radio type=radio value="C">&nbsp;3. [% 'Quarter' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="3">&nbsp;[% 'March' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="7">&nbsp;[% 'July' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="11">&nbsp;[% 'November' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="C" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;3. [% 'Quarter' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="3" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'March' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="7" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'July' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="11" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'November' | $T8 %]
+    </td>
   </tr>
   <tr>
     <td> &nbsp;</td>
-    <td><input name=duetyp class=radio type=radio value="D">&nbsp;4. [% 'Quarter' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="4">&nbsp;[% 'April' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="8">&nbsp;[% 'August' | $T8 %]</td>
-    <td><input name=duetyp class=radio type=radio value="12">&nbsp;[% 'December' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="D" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;4. [% 'Quarter' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="4" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'April' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="8" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'August' | $T8 %]
+    </td>
+    <td><input name=duetyp class=radio type=radio value="12" onchange='set_from_to(this.value, year.value)'>
+      &nbsp;[% 'December' | $T8 %]
+    </td>
   </tr>
   <tr>
     <td colspan=5><hr size=3 noshade></td>
@@ -51,7 +87,7 @@
     <th align=left><input name=reporttype class=radio type=radio value="free">[% 'Free report period' | $T8 %]</th>
     <td align=left colspan=4>
       [% 'From' | $T8 %] [% L.date_tag('fromdate', fromdate) %]
-      [% 'Bis' | $T8 %] [% L.date_tag('todate') %]
+      [% 'Bis' | $T8 %] [% L.date_tag('todate', todate)  %]
     </td>
   </tr>
   <tr>
@@ -74,7 +110,9 @@
   </tr>
 [%- END %]
 
-<h1>[% title %]</h1>
+<h1>
+  <br> [% title %]
+</h1>
 
 <form method=post action='[% script %]'>
 
@@ -119,6 +157,7 @@
   </tr>
 [%- END %]
 
+
 [%- IF is_bwa %]
 [%- PROCESS projectnumber %]
   <input type=hidden name=nextsub value=generate_bwa>
@@ -131,6 +170,15 @@
     <td><input name=decimalplaces size=3 value="2"></td>
   </tr>
 [%- END %]
+
+
+[%- IF is_erfolgsrechnung %]
+  <input type=hidden name=nextsub value=generate_erfolgsrechnung>
+</table>
+<table>
+[%- PROCESS customized_report %]
+[%- END %]
+
 
 [%- IF is_balance_sheet %]
   <input type=hidden name=nextsub value=generate_balance_sheet>
@@ -316,3 +364,92 @@
 <input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
 
 </form>
+
+<script type="text/javascript">
+function format_date(yy, mm, dd) {
+  var format = "[% dateformat %]";
+  format = format.replace("yyyy", "yy");
+  format = format.replace("yy", yy);
+  format = format.replace("mm", mm);
+  format = format.replace("dd", dd);
+  return format;
+}
+function set_from_to(duetyp, year) {
+  switch(duetyp) {
+    case '1':
+      document.getElementById('fromdate').value=format_date(year, '01', '01');
+      document.getElementById('todate').value=format_date(year, '01', '31');
+    break;
+    case '2':
+      document.getElementById('fromdate').value=format_date(year, '02', '01');
+      if(year % 4) document.getElementById('todate').value=format_date(year, '02', '28');
+      else document.getElementById('todate').value=format_date(year, '2', '29');
+    break;
+    case '3':
+      document.getElementById('fromdate').value=format_date(year, '03', '01');
+      document.getElementById('todate').value=format_date(year, '03', '31');
+    break;
+    case '4':
+      document.getElementById('fromdate').value=format_date(year, '04', '01');
+      document.getElementById('todate').value=format_date(year, '04', '30');
+    break;
+    case '5':
+      document.getElementById('fromdate').value=format_date(year, '05', '01');
+      document.getElementById('todate').value=format_date(year, '05', '31');
+    break;
+    case '6':
+      document.getElementById('fromdate').value=format_date(year, '06', '01');
+      document.getElementById('todate').value=format_date(year, '06', '30');
+    break;
+    case '7':
+      document.getElementById('fromdate').value=format_date(year, '07', '01');
+      document.getElementById('todate').value=format_date(year, '07', '31');
+    break;
+    case '8':
+      document.getElementById('fromdate').value=format_date(year, '08', '01');
+      document.getElementById('todate').value=format_date(year, '08', '31');
+    break;
+    case '9':
+      document.getElementById('fromdate').value=format_date(year, '09', '01');
+      document.getElementById('todate').value=format_date(year, '09', '30');
+    break;
+    case '10':
+      document.getElementById('fromdate').value=format_date(year, '10', '01');
+      document.getElementById('todate').value=format_date(year, '10', '31');
+    break;
+    case '11':
+      document.getElementById('fromdate').value=format_date(year, '11', '01');
+      document.getElementById('todate').value=format_date(year, '11', '30');
+    break;
+    case '12':
+      document.getElementById('fromdate').value=format_date(year, '12', '01');
+      document.getElementById('todate').value=format_date(year, '12', '31');
+    break;
+    case '13':
+      document.getElementById('fromdate').value=format_date(year, '01', '01');
+      document.getElementById('todate').value=format_date(year, '12', '31');
+    break;
+    case 'A':
+      document.getElementById('fromdate').value=format_date(year, '01', '01');
+      document.getElementById('todate').value=format_date(year, '03', '31');
+    break;
+    case 'B':
+      document.getElementById('fromdate').value=format_date(year, '04', '01');
+      document.getElementById('todate').value=format_date(year, '06', '30');
+    break;
+    case 'C':
+      document.getElementById('fromdate').value=format_date(year, '07', '01');
+      document.getElementById('todate').value=format_date(year, '09', '31');
+    break;
+    case 'D':
+      document.getElementById('fromdate').value=format_date(year, '10', '01');
+      document.getElementById('todate').value=format_date(year, '12', '31');
+    break;
+    default:
+      document.getElementById('fromdate').value=format_date(year, '01', '01');
+      document.getElementById('todate').value=format_date(year, '12', '31');
+  }
+  return true;
+}
+</script>
+

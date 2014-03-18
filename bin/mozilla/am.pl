@@ -214,38 +214,66 @@ sub account_header {
   }
 
   my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  my %eur = (
-          1  => "Umsatzerlöse",
-          2  => "sonstige Erlöse",
-          3  => "Privatanteile",
-          4  => "Zinserträge",
-          5  => "Ausserordentliche Erträge",
-          6  => "Vereinnahmte Umsatzst.",
-          7  => "Umsatzsteuererstattungen",
-          8  => "Wareneingänge",
-          9  => "Löhne und Gehälter",
-          10 => "Gesetzl. sozialer Aufw.",
-          11 => "Mieten",
-          12 => "Gas, Strom, Wasser",
-          13 => "Instandhaltung",
-          14 => "Steuern, Versich., Beiträge",
-          15 => "Kfz-Steuern",
-          16 => "Kfz-Versicherungen",
-          17 => "Sonst. Fahrzeugkosten",
-          18 => "Werbe- und Reisekosten",
-          19 => "Instandhaltung u. Werkzeuge",
-          20 => "Fachzeitschriften, Bücher",
-          21 => "Miete für Einrichtungen",
-          22 => "Rechts- und Beratungskosten",
-          23 => "Bürobedarf, Porto, Telefon",
-          24 => "Sonstige Aufwendungen",
-          25 => "Abschreibungen auf Anlagever.",
-          26 => "Abschreibungen auf GWG",
-          27 => "Vorsteuer",
-          28 => "Umsatzsteuerzahlungen",
-          29 => "Zinsaufwand",
-          30 => "Ausserordentlicher Aufwand",
-          31 => "Betriebliche Steuern");
+  my %eur;
+  if(scalar(grep(/^Switzerland/, (selectrow_query($form, $form->get_standard_dbh, 'SELECT coa FROM defaults'))[0]))) {
+    %eur = (
+         1  => "Umsatzerlöse",
+         2  => "Spenden",
+         3  => "Mitgliederbeiträge",
+         4  => "Finanzerträge",
+         5  => "Ertragsminderungen",
+         6  => "Einkauf",
+         7  => "Löhne und Gehälter",
+         8  => "Sozialversicherungen",
+         9  => "Mieten",
+         10 => "Betriebsversicherungen",
+         11 => "Material- und Warenverluste",
+         12 => "Werbeaufwand",
+         13 => "Werkzeuge, Unterhalt, Betriebsmaterial",
+         14 => "Internet- und Serverhousingkosten",
+         15 => "Arbeitsleistungen externer Firmen",
+         16 => "Bürobedarf, Versandspesen, Telefon",
+         17 => "Sonstige Aufwendungen",
+         18 => "Abschreibungen",
+         19 => "Finanzaufwand",
+         20 => "Aufwandsminderungen",
+         21 => "Betriebliche Steuern",
+    );
+  } else {
+    %eur = (
+         1  => "Umsatzerlöse",
+         2  => "sonstige Erlöse",
+         3  => "Privatanteile",
+         4  => "Zinserträge",
+         5  => "Ausserordentliche Erträge",
+         6  => "Vereinnahmte Umsatzst.",
+         7  => "Umsatzsteuererstattungen",
+         8  => "Wareneingänge",
+         9  => "Löhne und Gehälter",
+         10 => "Gesetzl. sozialer Aufw.",
+         11 => "Mieten",
+         12 => "Gas, Strom, Wasser",
+         13 => "Instandhaltung",
+         14 => "Steuern, Versich., Beiträge",
+         15 => "Kfz-Steuern",
+         16 => "Kfz-Versicherungen",
+         17 => "Sonst. Fahrzeugkosten",
+         18 => "Werbe- und Reisekosten",
+         19 => "Instandhaltung u. Werkzeuge",
+         20 => "Fachzeitschriften, Bücher",
+         21 => "Miete für Einrichtungen",
+         22 => "Rechts- und Beratungskosten",
+         23 => "Bürobedarf, Porto, Telefon",
+         24 => "Sonstige Aufwendungen",
+         25 => "Abschreibungen auf Anlagever.",
+         26 => "Abschreibungen auf GWG",
+         27 => "Vorsteuer",
+         28 => "Umsatzsteuerzahlungen",
+         29 => "Zinsaufwand",
+         30 => "Ausserordentlicher Aufwand",
+         31 => "Betriebliche Steuern",
+    );
+  }
   foreach my $item (sort({ $a <=> $b } keys(%eur))) {
     my $text = H($::locale->{iconv_utf8}->convert($eur{$item}));
     if ($item == $form->{pos_eur}) {
@@ -750,7 +778,7 @@ sub language_header {
   $::form->header;
 
   print $::form->parse_html_template('am/language_header', {
-    numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00' ],
+    numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ],
     dateformats => [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ],
   });
 
@@ -962,8 +990,8 @@ sub config {
   my $locale   = $main::locale;
 
   _build_cfg_options('dateformat', qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
+  _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00"));
   _build_cfg_options('timeformat', qw(hh:mm hh:mm:ss));
-  _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
   my @formats = ();
   if ($::lx_office_conf{print_templates}->{opendocument}

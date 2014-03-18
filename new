@@ -1,0 +1,8 @@
+bin/mozilla/am.pl
+SL/AM.pm
+SL/Form.pm
+SL/BackgroundJob/CreatePeriodicInvoices.pm
+SL/BackgroundJob/SelfTest.pm
+SL/DBUpgrade2.pm
+SL/Controller/LoginScreen.pm
+SL/Controller/Admin.pm

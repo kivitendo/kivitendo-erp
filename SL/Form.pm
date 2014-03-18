@@ -831,7 +831,7 @@ sub format_amount {
   return $amount;
 }
 
-sub format_amount_units {
+sub format_amount_unit {
   $main::lxdebug->enter_sub();
 
   my $self             = shift;
@@ -926,17 +926,15 @@ sub parse_amount {
     return 0;
   }
 
-  if (   ($myconfig->{numberformat} eq '1.000,00')
-      || ($myconfig->{numberformat} eq '1000,00')) {
+  if ($myconfig->{numberformat} eq '1,000.00') {
+    $amount =~ s/,//g;
+  } elsif ($myconfig->{numberformat} eq '1.000,00') {
     $amount =~ s/\.//g;
-    $amount =~ s/,/\./g;
-  }
-
-  if ($myconfig->{numberformat} eq "1'000.00") {
+  } elsif ($myconfig->{numberformat} eq "1'000.00") {
     $amount =~ s/\'//g;
   }
 
-  $amount =~ s/,//g;
+  $amount =~ s/,/\./g;
 
   $main::lxdebug->leave_sub(2);
 
@@ -948,21 +946,21 @@ sub parse_amount {
 sub round_amount {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $amount, $places) = @_;
-  my $round_amount;
+  my ($self, $amount, $places, $adjust) = @_;
+  my $precision = 0.01;
 
   # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
 
   # Round amounts to eight places before rounding to the requested
   # number of places. This gets rid of errors due to internal floating
   # point representation.
-  $amount       = $self->round_amount($amount, 8) if $places < 8;
-  $amount       = $amount * (10**($places));
-  $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
+  $amount = int($amount * 10**8 + .5 * ($amount <=> 0)) / 10**8  if $places < 8;
+  $amount = int($amount / ($precision = _get_precision()) + ($amount <=> 0) * .5) * $precision if $adjust;
+  $amount = int($amount * 10**$places + .5 * ($amount <=> 0)) / 10**$places;
 
   $main::lxdebug->leave_sub(2);
 
-  return $round_amount;
+  return $amount;
 
 }
 
@@ -3532,6 +3530,20 @@ sub layout {
 
   $::lxdebug->leave_sub;
   return $layout;
+}
+
+sub _get_precision {
+  my ( $self ) = @_;
+  my $precision = 0.01;
+  eval {
+    my $client = $::auth->{client};
+    my $dbconnect = 'dbi:Pg:dbname=' . $client->{dbname} . ';host=' . $client->{dbhost} . ';port=' . $client->{dbport};
+    my $dbh       = DBI->connect($dbconnect, $client->{dbuser}, $client->{dbpasswd});
+    my $query = q{ SELECT precision FROM defaults };
+    ($precision) = selectrow_query($::form, $dbh, $query);
+    $dbh->disconnect;
+  };
+  return $precision;
 }
 
 1;

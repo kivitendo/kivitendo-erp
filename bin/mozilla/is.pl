@@ -430,6 +430,7 @@ sub form_footer {
       }
     }
   }
+  $form->{invtotal} = $form->round_amount($form->{invtotal}, 2, 1);
 
   # follow ups
   if ($form->{id}) {
