@@ -26,6 +26,7 @@ sub import {
   make_cvar_alias($caller_package, %params)      if $params{cvars_alias};
   make_cvar_by_configs($caller_package, %params);
   make_cvar_by_name($caller_package, %params);
+  make_cvar_as_hashref($caller_package, %params);
 }
 
 sub save_meta_info {
@@ -122,6 +123,24 @@ sub make_cvar_by_name {
     }
 
     return $cvar;
+  }
+}
+
+sub make_cvar_as_hashref {
+  my ($caller_package, %params) = @_;
+
+  no strict 'refs';
+  *{ $caller_package . '::cvar_as_hashref' } = sub {
+    my ($self) = @_;
+    @_ > 1 and croak "not an accessor";
+
+    my $cvars_by_config = $self->cvars_by_config;
+
+    my %return = map {
+      $_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }
+    } @$cvars_by_config;
+
+    return \%return;
   }
 }
 
