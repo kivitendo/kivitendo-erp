@@ -8,10 +8,16 @@ namespace('kivi', function(k){
       ESCAPE: 27,
       ENTER:  13,
       TAB:    9,
+      LEFT:   37,
+      RIGHT:  39,
+      PAGE_UP: 33,
+      PAGE_DOWN: 34,
     };
     var o = $.extend({
       limit: 20,
       delay: 50,
+      fat_set_item: 0, // use this option to get a fat item json with all
+                       // relevant data instead of the guaranteed id + name
     }, options);
     var STATES = {
       UNIQUE: 1,
@@ -35,7 +41,11 @@ namespace('kivi', function(k){
           real_id: real_id,
         }, ajax_data($dummy.val())),
         id: 'part_selection',
-        dialog: { title: k.t8('Part picker') }
+        dialog: {
+          title: k.t8('Part picker'),
+          width: 800,
+          height: 800,
+        }
       });
       window.clearTimeout(timer);
       return true;
@@ -46,6 +56,7 @@ namespace('kivi', function(k){
         'filter.all:substr::ilike': term,
         'filter.obsolete': 0,
         'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
+        no_paginate:  $('#no_paginate').prop('checked') ? 1 : 0,
         column:   $column && $column.val() ? $column.val() : '',
         current:  $real.val(),
       };
@@ -71,7 +82,19 @@ namespace('kivi', function(k){
       state = STATES.PICKED;
       last_real = $real.val();
       last_dummy = $dummy.val();
-      $real.trigger('change').trigger('set_item:PartPicker', item);
+      $real.trigger('change');
+
+      if (o.fat_set_item) {
+        $.ajax({
+          url: 'controller.pl?action=Part/show.json',
+          data: { id: item.id },
+          success: function(rsp) {
+            $real.trigger('set_item:PartPicker', rsp);
+          },
+        });
+      } else {
+        $real.trigger('set_item:PartPicker', item);
+      }
     }
 
     function make_defined_state () {
@@ -94,6 +117,16 @@ namespace('kivi', function(k){
     };
 
     function result_timer (event) {
+      if (!$('no_paginate').prop('checked')) {
+        if (event.keyCode == KEY.PAGE_UP) {
+          $('#part_picker_result a.paginate-prev').click();
+          return;
+        }
+        if (event.keyCode == KEY.PAGE_DOWN) {
+          $('#part_picker_result a.paginate-next').click();
+          return;
+        }
+      }
       window.clearTimeout(timer);
       timer = window.setTimeout(update_results, 100);
     }
@@ -175,7 +208,7 @@ namespace('kivi', function(k){
     var picker = $('<div>');
     $dummy.after(pcont);
     pcont.append(picker);
-    picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
+    picker.addClass('icon16 crm--search').click(open_dialog);
 
     var pp = {
       real:           function() { return $real },
@@ -192,10 +225,12 @@ namespace('kivi', function(k){
         $('div.part_picker_part').each(function(){
           $(this).click(function(){
             set_item({
-              name: $(this).children('input.part_picker_description').val(),
               id:   $(this).children('input.part_picker_id').val(),
+              name: $(this).children('input.part_picker_description').val(),
+              unit: $(this).children('input.part_picker_unit').val(),
             });
             close_popup();
+            $dummy.focus();
             return true;
           });
         });

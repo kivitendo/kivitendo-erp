@@ -180,6 +180,7 @@ $self->{texts} = {
   'Aktion'                      => 'Aktion',
   'All'                         => 'Alle',
   'All Accounts'                => 'Alle Konten',
+  'All as list'                 => 'Alle als Liste',
   'All changes in that file have been reverted.' => 'Alle &Auml;nderungen in dieser Datei wurden r&uuml;ckg&auml;ngig gemacht.',
   'All clients'                 => 'Alle Mandanten',
   'All general ledger entries'  => 'Alle Hauptbucheinträge',

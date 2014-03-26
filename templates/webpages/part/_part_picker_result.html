@@ -5,21 +5,23 @@
 
 [%# L.dump(SELF.parts) %]
 
-[% FOREACH part = SELF.parts %]
-  [% PROCESS part_block %]
-[% END %]
-
-[%- BLOCK part_block %]
-<div class='part_picker_part'>
+[% BLOCK part_block %]
+<div class='part_picker_part [% FORM.no_paginate ? 'ppp_line' : 'ppp_block' %]'>
   <input type='hidden' class='part_picker_id' value='[% part.id %]'>
   <input type='hidden' class='part_picker_partnumber' value='[% part.partnumber %]'>
   <input type='hidden' class='part_picker_description' value='[% part.description %]'>
-  <span style='float:left'>[% part.partnumber | html %]</span>
-  <span style='float:right; font-weight:bold'>[% part.description | html %]</span>
+  <input type='hidden' class='part_picker_unit' value='[% part.unit %]'>
+  <span class='ppp_block_number'>[% part.partnumber | html %]</span>
+  <span class='ppp_block_description'>[% part.description | html %]</span>
   <div style='clear:both;'></div>
-  [% 'Sellprice' | $T8 %]: [% part.sellprice_as_number | html %]
+  <span class='ppp_block_sellprice'>[% 'Sellprice' | $T8 %]: [% part.sellprice_as_number | html %]</span>
 </div>
 [%- END %]
+
+
+[% FOREACH part = SELF.parts %]
+  [% PROCESS part_block %]
+[% END %]
 
 <div style='clear:both'></div>
 

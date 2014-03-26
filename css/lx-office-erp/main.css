@@ -436,6 +436,9 @@ label {
 .float-left {
   float: left;
 }
+.float-right {
+  float: right;
+}
 
 .block-context {
   overflow: hidden;
@@ -454,10 +457,8 @@ label {
 }
 
 div.part_picker_part {
-  float:left; width: 350px;
   padding: 5px;
   margin: 5px;
-  overflow:hidden;
   border: 1px;
   border-color: darkgray;
   border-style: solid;
@@ -467,8 +468,29 @@ div.part_picker_part {
   background-color: whitesmoke;
   cursor: pointer;
 }
-
 div.part_picker_part:hover {
   background-color: lightgray;
   border-color: gray;
+}
+div.ppp_block {
+  overflow:hidden;
+  float:left;
+  width: 350px;
+}
+div.ppp_block span.ppp_block_number {
+  float:left;
+}
+div.ppp_block span.ppp_block_description {
+  float:right;
+  font-weight:bold;
+}
+div.ppp_line span.ppp_block_description {
+  margin-left:1em;
+  font-weight:bold;
+}
+div.ppp_line span.ppp_block_sellprice {
+  display:none;
+}
+span.toggle_selected {
+  font-weight: bold;
 }
