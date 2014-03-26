@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 28;
+use Test::More tests => 30;
 use Test::Deep;
 use Data::Dumper;
 
@@ -293,3 +293,32 @@ test {
    }
  ]
 }, 'Regression check: prefixing of fallback filtering in relation with custom filters', class => 'SL::DB::Manager::OrderItem';
+test {
+  'description:substr:multi::ilike' => 'term1 term2',
+}, {
+  query => [
+    and => [
+      description => { ilike => '%term1%' },
+      description => { ilike => '%term2%' },
+    ]
+  ]
+}, 'simple :multi';
+
+test {
+  part => {
+    'all:substr:multi::ilike' => 'term1 term2',
+  },
+}, {
+  query => [
+    and => [
+      or => [
+        'part.partnumber'  => { ilike => '%term1%' },
+        'part.description' => { ilike => '%term1%' },
+      ],
+      or => [
+        'part.partnumber'  => { ilike => '%term2%' },
+        'part.description' => { ilike => '%term2%' },
+      ],
+    ]
+  ],
+}, 'complex :multi with custom dispatch and prefix', class => 'SL::DB::Manager::OrderItem';

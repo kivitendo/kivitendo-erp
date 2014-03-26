@@ -103,10 +103,24 @@ sub _parse_filter {
     my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
     my ($type, $op)   = $key =~ m{:(.+)::(.+)};
 
-    ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
-    ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
-    ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
-    ($key, $value) = _apply_value_filters($key, $value, $type, $op);
+    if ($key =~ s/:multi//) {
+      my @multi;
+      my $orig_key = $key;
+      for my $value (split / /, $value) {
+        ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
+        ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
+        ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
+        ($key, $value) = _apply_value_filters($key, $value, $type, $op);
+        push @multi, $key, $value;
+        $key = $orig_key;
+      }
+      ($key, $value) = (and => \@multi);
+    } else {
+      ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
+      ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
+      ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
+      ($key, $value) = _apply_value_filters($key, $value, $type, $op);
+    }
 
     push @result, $key, $value if defined $key;
   }
