@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Test::Deep;
 use Data::Dumper;
 
@@ -322,3 +322,15 @@ test {
     ]
   ],
 }, 'complex :multi with custom dispatch and prefix', class => 'SL::DB::Manager::OrderItem';
+
+test {
+  'description:substr:multi::ilike' => q|term1 "term2 and half" 'term3 and stuff'|,
+}, {
+  query => [
+    and => [
+      description => { ilike => '%term1%' },
+      description => { ilike => '%term2 and half%' },
+      description => { ilike => '%term3 and stuff%' },
+    ]
+  ]
+}, ':multi with complex tokenizing';

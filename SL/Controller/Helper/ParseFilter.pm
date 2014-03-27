@@ -10,6 +10,7 @@ use SL::Helper::DateTime;
 use List::MoreUtils qw(uniq);
 use SL::MoreCommon qw(listify);
 use Data::Dumper;
+use Text::ParseWords;
 
 my %filters = (
   date    => sub { DateTime->from_lxoffice($_[0]) },
@@ -106,7 +107,7 @@ sub _parse_filter {
     if ($key =~ s/:multi//) {
       my @multi;
       my $orig_key = $key;
-      for my $value (split / /, $value) {
+      for my $value (parse_line('\s+', 0, $value)) {
         ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
         ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
         ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
