@@ -6,6 +6,11 @@ use warnings;
 use HTML::Parser;
 
 my %stripper;
+my %entities = (
+  'lt'  => '<',
+  'gt'  => '>',
+  'amp' => '&',
+);
 
 sub strip {
   my ($class_or_value) = @_;
@@ -21,6 +26,8 @@ sub strip {
   $stripper{text} = '';
   $stripper{parser}->parse($value);
   $stripper{parser}->eof;
+
+  $stripper{text} =~ s{\&([^;]+);}{ $entities{$1} }eg;
 
   return delete $stripper{text};
 }
