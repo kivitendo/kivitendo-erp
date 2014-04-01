@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('requirement_specs');
 
 __PACKAGE__->meta->columns(
   customer_id             => { type => 'integer' },
-  hourly_rate             => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 8 },
+  hourly_rate             => { type => 'numeric', default => '0', not_null => 1, precision => 8, scale => 2 },
   id                      => { type => 'serial', not_null => 1 },
   is_template             => { type => 'boolean', default => 'false' },
   itime                   => { type => 'timestamp', default => 'now()' },
@@ -20,7 +20,7 @@ __PACKAGE__->meta->columns(
   previous_section_number => { type => 'integer', not_null => 1 },
   project_id              => { type => 'integer' },
   status_id               => { type => 'integer' },
-  time_estimation         => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 12 },
+  time_estimation         => { type => 'numeric', default => '0', not_null => 1, precision => 12, scale => 2 },
   title                   => { type => 'text', not_null => 1 },
   type_id                 => { type => 'integer' },
   working_copy_id         => { type => 'integer' },

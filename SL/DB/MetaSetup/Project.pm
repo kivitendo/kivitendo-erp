@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('project');
 __PACKAGE__->meta->columns(
   active               => { type => 'boolean', default => 'true' },
   billable_customer_id => { type => 'integer' },
-  budget_cost          => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  budget_cost          => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   budget_minutes       => { type => 'integer', default => '0', not_null => 1 },
   customer_id          => { type => 'integer' },
   description          => { type => 'text' },
@@ -19,7 +19,7 @@ __PACKAGE__->meta->columns(
   id                   => { type => 'integer', not_null => 1, sequence => 'id' },
   itime                => { type => 'timestamp', default => 'now()' },
   mtime                => { type => 'timestamp' },
-  order_value          => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  order_value          => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   project_status_id    => { type => 'integer', not_null => 1 },
   project_type_id      => { type => 'integer', not_null => 1 },
   projectnumber        => { type => 'text' },

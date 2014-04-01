@@ -24,7 +24,7 @@ __PACKAGE__->meta->columns(
   position             => { type => 'integer', not_null => 1 },
   requirement_spec_id  => { type => 'integer', not_null => 1 },
   risk_id              => { type => 'integer' },
-  time_estimation      => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 12 },
+  time_estimation      => { type => 'numeric', default => '0', not_null => 1, precision => 12, scale => 2 },
   title                => { type => 'text' },
 );
 

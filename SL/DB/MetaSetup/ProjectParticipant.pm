@@ -9,7 +9,7 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('project_participants');
 
 __PACKAGE__->meta->columns(
-  cost_per_hour   => { type => 'numeric', precision => 5, scale => 15 },
+  cost_per_hour   => { type => 'numeric', precision => 15, scale => 5 },
   employee_id     => { type => 'integer', not_null => 1 },
   id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()' },

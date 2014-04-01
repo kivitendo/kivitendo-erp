@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('project_statuses');
 
 __PACKAGE__->meta->columns(
   description => { type => 'text', not_null => 1 },
-  id          => { type => 'serial', not_null => 1 },
+  id          => { type => 'integer', not_null => 1, sequence => 'project_status_id_seq' },
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
   name        => { type => 'text', not_null => 1 },

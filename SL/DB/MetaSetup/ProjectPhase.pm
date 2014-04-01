@@ -9,11 +9,11 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('project_phases');
 
 __PACKAGE__->meta->columns(
-  budget_cost           => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  budget_cost           => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   budget_minutes        => { type => 'integer', default => '0', not_null => 1 },
   description           => { type => 'text', not_null => 1 },
   end_date              => { type => 'date' },
-  general_cost_per_hour => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  general_cost_per_hour => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   general_minutes       => { type => 'integer', default => '0', not_null => 1 },
   id                    => { type => 'serial', not_null => 1 },
   itime                 => { type => 'timestamp', default => 'now()' },

@@ -28,7 +28,7 @@ __PACKAGE__->meta->columns(
   coa                                     => { type => 'text' },
   company                                 => { type => 'text' },
   currency_id                             => { type => 'integer', not_null => 1 },
-  customer_hourly_rate                    => { type => 'numeric', precision => 2, scale => 8 },
+  customer_hourly_rate                    => { type => 'numeric', precision => 8, scale => 2 },
   customernumber                          => { type => 'text' },
   datev_check_on_ap_transaction           => { type => 'boolean', default => 'true' },
   datev_check_on_ar_transaction           => { type => 'boolean', default => 'true' },
