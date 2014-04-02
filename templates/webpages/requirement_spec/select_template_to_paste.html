@@ -22,6 +22,7 @@
   <th>[%- LxERP.t8("Detail view") %]</th>
   <th>[%- LxERP.t8("Paste template") %]</th>
   <th>[%- LxERP.t8("Title") %]</th>
+  <th>[%- LxERP.t8("Type") %]</th>
   <th>[%- LxERP.t8("Last modification") %]</th>
  </tr>
 
@@ -35,6 +36,7 @@
   </td>
   <td><a href="#" onclick="kivi.requirement_spec.paste_selected_template([% template.id %]);">[%- LxERP.t8("Paste template") %]</a></td>
   <td>[%- HTML.escape(template.title) %]</td>
+  <td>[%- HTML.escape(template.type.description) %]</td>
   <td>[% template.mtime ? template.mtime.to_kivitendo(precision='minute') : template.itime.to_kivitendo(precision='minute') %]</td>
  </tr>
 
