@@ -2408,6 +2408,7 @@ $self->{texts} = {
   'The name is missing.'        => 'Der Name fehlt.',
   'The name is not unique.'     => 'Der Name ist nicht eindeutig.',
   'The name must only consist of letters, numbers and underscores and start with a letter.' => 'Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.',
+  'The new requirement spec template will be a copy of \'#1\'.' => 'Die neue Pflichtenheftvorlage wird eine Kopie von \'#1\' sein.',
   'The new requirement spec will be a copy of \'#1\' for customer \'#2\'.' => 'Das neue Pflichtenheft wird eine Kopie von \'#1\' für Kunde \'#2\' sein.',
   'The number of days for full payment' => 'Die Anzahl Tage, bis die Rechnung in voller Höhe bezahlt werden muss',
   'The numbering will start at 1 with each requirement spec.' => 'Die Nummerierung beginnt bei jedem Pflichtenheft bei 1.',

@@ -45,7 +45,11 @@
  [%- L.hidden_tag('copy_source_id', SELF.copy_source.id) %]
 
  <p>
-  [%- LxERP.t8("The new requirement spec will be a copy of '#1' for customer '#2'.", SELF.copy_source.title, SELF.copy_source.customer.name) %]
+  [%- IF SELF.requirement_spec.is_template %]
+   [%- LxERP.t8("The new requirement spec template will be a copy of '#1'.", SELF.copy_source.title) %]
+  [%- ELSE %]
+   [%- LxERP.t8("The new requirement spec will be a copy of '#1' for customer '#2'.", SELF.copy_source.title, SELF.copy_source.customer.name) %]
+  [%- END %]
  </p>
 [%- END %]
 

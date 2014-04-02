@@ -63,7 +63,7 @@ sub action_new {
   $self->requirement_spec(SL::DB::RequirementSpec->new(is_template => $::form->{is_template}));
 
   if ($self->copy_source) {
-    $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate)
+    $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate is_template)
   }
 
   $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec template') : t8('Create a new requirement spec'));
