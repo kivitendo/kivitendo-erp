@@ -14,12 +14,12 @@
    <td>[% L.input_tag("requirement_spec.title", SELF.requirement_spec.title, id=id_prefix _ '_title') %]</td>
   </tr>
 
-[%- UNLESS SELF.requirement_spec.is_template %]
-
   <tr>
    <td>[% LxERP.t8("Requirement Spec Type") %]</td>
    <td>[% L.select_tag("requirement_spec.type_id",  SELF.types, default=SELF.requirement_spec.type_id, title_key="description", id=id_prefix _ '_type_id') %]</td>
   </tr>
+
+[%- UNLESS SELF.requirement_spec.is_template %]
 
   <tr>
    <td>[% LxERP.t8("Requirement Spec Status") %]</td>

@@ -14,12 +14,12 @@
    <td>[% HTML.escape(SELF.requirement_spec.title) %]</td>
   </tr>
 
-[%- UNLESS SELF.requirement_spec.is_template %]
-
   <tr class="listrow">
    <td>[% LxERP.t8("Requirement Spec Type") %]:</td>
    <td>[% HTML.escape(SELF.requirement_spec.type.description) %]</td>
   </tr>
+
+[%- UNLESS SELF.requirement_spec.is_template %]
 
   <tr class="listrow">
    <td>[% LxERP.t8("Requirement Spec Status") %]:</td>
