@@ -450,7 +450,7 @@ sub render_pasted_text_block {
 sub set_default_filter_args {
   my ($self) = @_;
 
-  if (!$::form->{filter}) {
+  if (!$::form->{filter} && !$::form->{is_template}) {
     $::form->{filter} = {
       status_id => [ map { $_->{id} } grep { $_->name ne 'done' } @{ $self->statuses } ],
     };
