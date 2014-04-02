@@ -22,7 +22,7 @@ __PACKAGE__->meta->columns(
   status_id               => { type => 'integer' },
   time_estimation         => { type => 'numeric', default => '0', not_null => 1, precision => 12, scale => 2 },
   title                   => { type => 'text', not_null => 1 },
-  type_id                 => { type => 'integer' },
+  type_id                 => { type => 'integer', not_null => 1 },
   working_copy_id         => { type => 'integer' },
 );
 
