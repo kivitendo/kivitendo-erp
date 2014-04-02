@@ -27,7 +27,7 @@ sub strip {
   $stripper{parser}->parse($value);
   $stripper{parser}->eof;
 
-  $stripper{text} =~ s{\&([^;]+);}{ $entities{$1} }eg;
+  $stripper{text} =~ s{\&([^;]+);}{ $entities{$1} || "\&$1;" }eg;
 
   return delete $stripper{text};
 }
