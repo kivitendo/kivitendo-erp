@@ -14,8 +14,8 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(report number_columns year current_year objects data subtotals_per_quarter salesman_id) ],
-  'scalar --get_set_init' => [ qw(employees types) ],
+  scalar                  => [ qw(report number_columns year current_year objects subtotals_per_quarter salesman_id) ],
+  'scalar --get_set_init' => [ qw(employees types data) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('report'); });
