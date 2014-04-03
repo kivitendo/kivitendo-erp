@@ -239,7 +239,7 @@ sub init_models {
         # ]
       ],
     ],
-    with_objects => [ 'customer', 'globalproject', 'globalproject.project_type' ],
+    with_objects => [ 'customer', 'globalproject', 'globalproject.project_type', 'periodic_invoices_config' ],
   );
 }
 
