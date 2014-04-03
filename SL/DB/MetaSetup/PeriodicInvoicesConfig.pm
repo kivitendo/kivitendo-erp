@@ -14,6 +14,7 @@ __PACKAGE__->meta->columns(
   copies                  => { type => 'integer' },
   end_date                => { type => 'date' },
   extend_automatically_by => { type => 'integer' },
+  first_billing_date      => { type => 'date' },
   id                      => { type => 'integer', not_null => 1, sequence => 'id' },
   oe_id                   => { type => 'integer', not_null => 1 },
   periodicity             => { type => 'varchar', length => 10, not_null => 1 },
