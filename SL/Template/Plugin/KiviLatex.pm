@@ -58,6 +58,7 @@ sub filter_html {
   $text =~ s{ \r+ }{}gx;
   $text =~ s{ \n+ }{ }gx;
   $text =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
+  $text =~ s{ <ul>\s*</ul> | <ol>\s*</ol> }{}gx; # Remove lists without items. Can happen with copy & paste from e.g. LibreOffice.
 
   my @parts = map {
     if (substr($_, 0, 1) eq '<') {
