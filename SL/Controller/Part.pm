@@ -10,7 +10,7 @@ use SL::Locale::String qw(t8);
 use SL::JSON;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(parts models) ],
+  'scalar --get_set_init' => [ qw(parts models part) ],
 );
 
 # safety
@@ -33,8 +33,8 @@ sub action_ajax_autocomplete {
         obsolete => 0,
         SL::DB::Manager::Part->type_filter($::form->{filter}{type}),
         or => [
-          description => { ilike => $::form->{filter}{'all:substr::ilike'} },
-          partnumber  => { ilike => $::form->{filter}{'all:substr::ilike'} },
+          description => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
+          partnumber  => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
         ]
       ],
       limit => 2,
@@ -72,8 +72,33 @@ sub action_part_picker_result {
   $_[0]->render('part/_part_picker_result', { layout => 0 });
 }
 
+sub action_show {
+  my ($self) = @_;
+
+  if ($::request->type eq 'json') {
+    my $part_hash;
+    if (!$self->part) {
+      # TODO error
+    } else {
+      require Rose::DB::Object::Helpers;
+        $part_hash          = $self->part->as_tree;
+        $part_hash->{cvars} = $self->part->cvar_as_hashref;
+    }
+
+    $self->render(\ SL::JSON::to_json($part_hash), { layout => 0, type => 'json', process => 0 });
+  }
+}
+
 sub init_parts {
+  if ($::form->{no_paginate}) {
+    $_[0]->models->disable_plugin('paginated');
+  }
+
   $_[0]->models->get;
+}
+
+sub init_part {
+  SL::DB::Part->new(id => $::form->{id} || $::form->{part}{id})->load;
 }
 
 sub init_models {
@@ -83,10 +108,11 @@ sub init_models {
     controller => $self,
     sorted => {
       _default  => {
-        by => 'partnumber',
+        by => 'description',
         dir  => 1,
       },
       partnumber  => t8('Partnumber'),
+      description  => t8('Description'),
     },
     with_objects => [ qw(unit_obj) ],
   );

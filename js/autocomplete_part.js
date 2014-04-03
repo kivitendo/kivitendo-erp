@@ -53,7 +53,7 @@ namespace('kivi', function(k){
 
     function ajax_data(term) {
       var data = {
-        'filter.all:substr::ilike': term,
+        'filter.all:substr:multi::ilike': term,
         'filter.obsolete': 0,
         'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
         no_paginate:  $('#no_paginate').prop('checked') ? 1 : 0,

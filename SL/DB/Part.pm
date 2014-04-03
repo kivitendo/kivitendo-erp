@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 use List::MoreUtils qw(any);
+use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
