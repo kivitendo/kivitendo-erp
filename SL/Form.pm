@@ -831,7 +831,7 @@ sub format_amount {
   return $amount;
 }
 
-sub format_amount_unit {
+sub format_amount_units {
   $main::lxdebug->enter_sub();
 
   my $self             = shift;

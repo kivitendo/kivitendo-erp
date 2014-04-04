@@ -1906,13 +1906,15 @@ sub erfolgsrechnung {
       accounts => get_accounts_ch($category),
     );
     foreach my $account (@{$category{accounts}}) {
-      $account->{total} = 0;
-      $account->{total} += ($account->{category} eq $category ? 1 : -1) * $_ foreach (@{get_amounts_ch($account->{id}, $fromdate, $todate)});
-      $category{total} = $account->{total};
+      $account->{total} += ($account->{category} eq $category ? 1 : -1) * get_total_ch($account->{id}, $fromdate, $todate);
+      $category{total} += $account->{total};
+      $account->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $account->{total}), 2);
     }
     $form->{total} += $category{total};
+    $category{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $category{total}), 2);
     push(@{$form->{categories}}, \%category);
   }
+  $form->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $form->{total}), 2);
 
   $main::lxdebug->leave_sub();
   return {};
@@ -1949,10 +1951,11 @@ sub get_accounts_ch {
   return $accounts;
 }
 
-sub get_amounts_ch {
+sub get_total_ch {
   $main::lxdebug->enter_sub();
 
   my ($chart_id, $fromdate, $todate) = @_;
+  my $total = 0;
   my $query = qq|
     SELECT amount
     FROM acc_trans
@@ -1960,10 +1963,10 @@ sub get_amounts_ch {
       AND transdate >= $fromdate
       AND transdate <= $todate
   |;
-  my $amounts = _query($query);
+  $total += $_->{amount} foreach (_query($query));
 
   $main::lxdebug->leave_sub();
-  return $amounts;
+  return $total;
 }
 
 sub _query {return selectall_hashref_query($::form, $::form->get_standard_dbh, $_[0]);}
