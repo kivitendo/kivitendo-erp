@@ -415,24 +415,26 @@ sub save {
 
       $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
 
-      # set values to 0 if nothing entered
-      $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+      # keep entered selling price
+      my $fxsellprice =
+        $form->parse_amount($myconfig, $form->{"sellprice_$i"});
 
-      $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-      $fxsellprice = $form->{"sellprice_$i"};
-
-      my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-      $dec = length($dec);
+      my ($dec) = ($fxsellprice =~ /\.(\d+)/);
+      $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      $discount = $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"}, $decimalplaces);
-      $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
+      # undo discount formatting
+      $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+
+      # deduct discount
+      $form->{"sellprice_$i"} = $fxsellprice * (1 - $form->{"discount_$i"});
+
+      # round linetotal at least to 2 decimal places
+      $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
+      $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       $form->{"inventory_accno_$i"} *= 1;
       $form->{"expense_accno_$i"}   *= 1;
-
-      $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
-      $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       @taxaccounts = split(/ /, $form->{"taxaccounts_$i"});
       $taxrate     = 0;
