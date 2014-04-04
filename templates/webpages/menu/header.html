@@ -7,6 +7,9 @@
     [<a href="JavaScript:top.print();" title="[% 'Hardcopy' | $T8 %]">[% 'Print' | $T8 %]</a>]
     [<a href="Javascript:top.history.back();" title="[% 'Go one step back' | $T8 %]">[% 'Back' | $T8 %]</a>]
     [<a href="Javascript:top.history.forward();" title="[% 'Go one step forward' | $T8 %]">[% 'Fwd' | $T8 %]</a>]
+[%- IF AUTH.assert('general_ledger', 1) %]
+    [[% 'GL search' | $T8 %]: <input id="glquicksearch" name="glquicksearch" type="text" class="ui-widget" size="20" maxlength="20">]
+[%- END %]
  </span>
 [%- END %]
  <span class="frame-header-element frame-header-right">
@@ -20,3 +23,6 @@
   <img src="image/[% IF MYCONFIG.stylesheet == 'lx-office-erp.css' %]spinner-blue.gif[% ELSE %]spinner-white.gif[% END %]" alt="[% LxERP.t8('Loading...') %]">
  </span>
 </div>
+[% IF AUTH.assert('general_ledger', 1) %]
+ <script type="text/javascript" src="js/glquicksearch.js"></script>
+[% END %]

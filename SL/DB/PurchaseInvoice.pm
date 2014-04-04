@@ -7,6 +7,8 @@ use Carp;
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::LinkedRecords;
+use SL::Locale::String qw(t8);
+
 # The calculator hasn't been adjusted for purchase invoices yet.
 # use SL::DB::Helper::PriceTaxCalculator;
 
@@ -52,4 +54,13 @@ sub date {
   goto &transdate;
 }
 
+sub abbreviation {
+  my $self = shift;
+
+  return t8('AP Transaction (abbreviation)') if !$self->invoice && !$self->storno;
+  return t8('AP Transaction (abbreviation)') . '(' . t8('Storno (one letter abbreviation)') . ')' if !$self->invoice && $self->storno;
+  return t8('Invoice (one letter abbreviation)'). '(' . t8('Storno (one letter abbreviation)') . ')' if $self->storno;
+  return t8('Invoice (one letter abbreviation)');
+
+}
 1;

@@ -17,6 +17,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::Locale::String qw(t8);
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -315,6 +316,17 @@ sub displayable_state {
   my $self = shift;
 
   return $self->closed ? $::locale->text('closed') : $::locale->text('open');
+}
+
+sub abbreviation {
+  my $self = shift;
+
+  return t8('AR Transaction (abbreviation)') if !$self->invoice;
+  return t8('Credit note (one letter abbreviation)') if $self->type eq 'credit_note' && $self->amount < 0 && !$self->storno;
+  return t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
+  return t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->type eq 'credit_note' && $self->amount > 0 &&  $self->storno;
+  return t8('Invoice (one letter abbreviation)');
+
 }
 
 sub date {

@@ -20,6 +20,9 @@ $(clockon);
     [<a href="login.pl?action=company_logo" target="_blank">[% 'new Window' | $T8 %]</a>]
     [<a href="JavaScript:top.print()">[% 'print' | $T8 %]</a>]
     [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch($('#search_term'), event)">]
+[%- IF AUTH.assert('general_ledger', 1) %]
+    [[% 'GL search' | $T8 %]: <input id="glquicksearch" name="glquicksearch" type="text" class="ui-widget" size="20" maxlength="20">]
+[%- END %]
  </span>
  <span class="frame-header-element frame-header-right">
     [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
@@ -38,3 +41,6 @@ $(clockon);
 
  </div>
  <div style="clear: both;"></div>
+[% IF AUTH.assert('general_ledger', 1) %]
+ <script type="text/javascript" src="js/glquicksearch.js"></script>
+[% END %]
