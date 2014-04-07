@@ -2233,6 +2233,12 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         </para>
 
         <para>
+         Sofern es sich um eine Datumsvariable handelt, kann das Ausgabeformat weiter bestimmt werden, indem an den Variablennamen
+         Formatoptionen angehängt werden. Die Syntax sieht dabei wie folgt aus: <literal>&lt;%variablenname
+         FORMAT=Formatinformation%&gt;</literal>. Die zur verfügung stehenden Formatinformationen werden unten genauer beschrieben.
+        </para>
+
+        <para>
           Diese Variablen werden in den folgenden Elementen des Auftrags ersetzt:
         </para>
 
@@ -2297,6 +2303,172 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </listitem>
           </varlistentry>
         </variablelist>
+
+        <para>
+         Die invidiuellen Formatinformationen bestehen aus Paaren von Prozentzeichen und einem Buchstaben, welche beide zusammen durch den
+         dazugehörigen Wert ersetzt werden. So wird z.B. <literal>%Y</literal> durch das viertstellige Jahr ersetzt. Alle möglichen
+         Platzhalter sind:
+        </para>
+
+
+        <variablelist>
+         <varlistentry>
+          <term><varname>%a</varname></term>
+
+          <listitem>
+           <para>Der abgekürzte Wochentagsname.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%A</varname></term>
+
+          <listitem>
+           <para>Der ausgeschriebene Wochentagsname.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%b</varname></term>
+
+          <listitem>
+           <para>Der abgekürzte Monatsname.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%B</varname></term>
+
+          <listitem>
+           <para>Der ausgeschriebene Monatsname.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%C</varname></term>
+
+          <listitem>
+           <para>Das Jahrhundert (Jahr/100) als eine zweistellige Zahl.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%d</varname></term>
+
+          <listitem>
+           <para>Der Monatstag als Zahl zwischen 01 und 31.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%D</varname></term>
+
+          <listitem>
+           <para>Entspricht %m/%d/%y (amerikanisches Datumsformat).</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%e</varname></term>
+
+          <listitem>
+           <para>Wie %d (Monatstag als Zahl zwischen 1 und 31), allerdings werden führende Nullen durch Leerzeichen ersetzt.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%F</varname></term>
+
+          <listitem>
+           <para>Entspricht %Y-%m-%d (das ISO-8601-Datumsformat).</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%j</varname></term>
+
+          <listitem>
+           <para>Der Tag im Jahr als Zahl zwischen 001 und 366 inklusive.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%m</varname></term>
+
+          <listitem>
+           <para>Der Monat als Zahl zwischen 01 und 12 inklusive.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%u</varname></term>
+
+          <listitem>
+           <para>Der Wochentag als Zahl zwischen 1 und 7 inklusive, wobei die 1 dem Montag entspricht.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%U</varname></term>
+
+          <listitem>
+           <para>Die Wochennummer als Zahl zwischen 00 und 53 inklusive, wobei der erste Sonntag im Jahr das Startdatum von Woche 01 ist.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%V</varname></term>
+
+          <listitem>
+           <para>Die ISO-8601:1988-Wochennummer als Zahl zwischen 01 und 53 inklusive, wobei Woche 01 die erste Woche, von der mindestens vier Tage im Jahr liegen; Montag ist erster Tag der Woche.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%w</varname></term>
+
+          <listitem>
+           <para>Der Wochentag als Zahl zwischen 0 und 6 inklusive, wobei die 0 dem Sonntag entspricht.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%W</varname></term>
+
+          <listitem>
+           <para>Die Wochennummer als Zahl zwischen 00 und 53 inklusive, wobei der erste Montag im Jahr das Startdatum von Woche 01 ist.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%y</varname></term>
+
+          <listitem>
+           <para>Das Jahr als zweistellige Zahl zwischen 00 und 99 inklusive.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%Y</varname></term>
+
+          <listitem>
+           <para>Das Jahr als vierstellige Zahl.</para>
+          </listitem>
+         </varlistentry>
+
+         <varlistentry>
+          <term><varname>%%</varname></term>
+
+          <listitem>
+           <para>Das Prozentzeichen selber.</para>
+          </listitem>
+         </varlistentry>
+        </variablelist>
+
+        <para>
+         Anwendungsbeispiel für die Ausgabe, von welchem Monat und Jahr bis zu welchem Monat und Jahr die aktuelle Abrechnungsperiode
+         dauert: <literal>Abrechnungszeitrum: &lt;%period_start_date FORMAT=%m/%Y%&gt; bis &lt;%period_end_date FORMAT=%m/%Y%&gt;</literal>
+        </para>
       </sect2>
 
       <sect2 id="features.periodic-invoices.reports">

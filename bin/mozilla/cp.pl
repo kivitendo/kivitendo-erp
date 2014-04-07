@@ -77,7 +77,7 @@ sub payment {
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     # hotfix for 2450. TODO remove legacy code and use L
-    map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">" . H($_->{name}) . "--$_->{id}</option>\n" }
+    map { $form->{"select$form->{vc}"} .= "<option value=\"" . H($_->{name}) . "--$_->{id}\">" . H($_->{name}) . "--$_->{id}</option>\n" }
       @{ $form->{"all_$form->{vc}"} };
   }
   CP->paymentaccounts(\%myconfig, \%$form);
@@ -148,6 +148,7 @@ sub form_header {
   #              <option value="asdf--2929">asdf--2929</option>
   # offen: $form->{ARAP} kann raus?
   for my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
+    $form->{$item} = H($form->{$item});
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option value="\Q$form->{$item}\E">\Q$form->{$item}\E/option selected value="$form->{$item}">$form->{$item}/;
   }

@@ -5,14 +5,17 @@ use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(none);
 
+use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Order;
+use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PurchaseInvoice;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(report number_columns year current_year types objects data subtotals_per_quarter) ],
+  scalar                  => [ qw(report number_columns year current_year objects subtotals_per_quarter salesman_id) ],
+  'scalar --get_set_init' => [ qw(employees types data) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('report'); });
@@ -20,10 +23,11 @@ __PACKAGE__->run_before(sub { $::auth->assert('report'); });
 sub action_list {
   my ($self) = @_;
 
-  $self->subtotals_per_quarter($::form->{subtotals_per_quarter});
+  $self->$_($::form->{$_}) for qw(subtotals_per_quarter salesman_id);
 
   $self->get_objects;
-  $self->calculate_data;
+  $self->calculate_one_time_data;
+  $self->calculate_periodic_invoices;
   $self->prepare_report;
   $self->list_data;
 }
@@ -64,7 +68,7 @@ sub prepare_report {
   );
   $self->report->set_columns(%column_defs);
   $self->report->set_column_order(@columns);
-  $self->report->set_export_options(qw(list year subtotals_per_quarter));
+  $self->report->set_export_options(qw(list year subtotals_per_quarter salesman_id));
   $self->report->set_options_from_form;
 }
 
@@ -77,22 +81,26 @@ sub get_objects {
   my $start       = DateTime->new(year => $self->year, month => 1, day => 1);
   my $end         = DateTime->new(year => $self->year, month => 12, day => 31);
 
-  my @date_filter = (and => [ transdate => { ge => $start }, transdate => { le => $end } ]);
+  my @f_date      = (transdate => { ge => $start }, transdate => { le => $end });
+  my @f_salesman  = $self->salesman_id ? (salesman_id => $self->salesman_id) : ();
 
   $self->objects({
-    sales_quotations       => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('sales_quotation')   ]]),
-    sales_orders           => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('sales_order')       ]]),
-    requests_for_quotation => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('request_quotation') ]]),
-    purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
-    sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => \@date_filter),
-    purchase_invoices      => SL::DB::Manager::PurchaseInvoice->get_all(where => \@date_filter),
+    sales_quotations       => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_quotation')   ]]),
+    sales_orders           => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_order')       ]], with_objects => [ qw(periodic_invoices_config) ]),
+    requests_for_quotation => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('request_quotation') ]]),
+    purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
+    sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => [ and => [ @f_date, @f_salesman, ]]),
+    purchase_invoices      => SL::DB::Manager::PurchaseInvoice->get_all(where => [ and =>  \@f_date ]),
+    periodic_invoices_cfg  => SL::DB::Manager::PeriodicInvoicesConfig->get_all(where => [ active => 1 ]),
   });
+
+  $self->objects->{sales_orders} = [ grep { !$_->periodic_invoices_config || !$_->periodic_invoices_config->active } @{ $self->objects->{sales_orders} } ];
 }
 
-sub calculate_data {
-  my ($self) = @_;
+sub init_types { [ qw(sales_quotations sales_orders sales_invoices requests_for_quotation purchase_orders purchase_invoices) ] }
 
-  $self->types([ qw(sales_quotations sales_orders sales_invoices requests_for_quotation purchase_orders purchase_invoices) ]);
+sub init_data {
+  my ($self) = @_;
 
   my %data  = (
     year    => [ ($self->year) x 12                   ],
@@ -107,18 +115,47 @@ sub calculate_data {
     } @{ $self->types },
   );
 
-  foreach my $type (keys %{ $self->objects }) {
+  return \%data;
+}
+
+sub calculate_one_time_data {
+  my ($self) = @_;
+
+  foreach my $type (@{ $self->types }) {
     foreach my $object (@{ $self->objects->{ $type } }) {
       my $month                              = $object->transdate->month - 1;
-      my $tdata                              = $data{$type};
+      my $tdata                              = $self->data->{$type};
 
       $tdata->{months}->[$month]            += $object->netamount;
       $tdata->{quarters}->[int($month / 3)] += $object->netamount;
       $tdata->{year}                        += $object->netamount;
     }
   }
+}
 
-  $self->data(\%data);
+sub calculate_periodic_invoices {
+  my ($self)     = @_;
+
+  my $start_date = DateTime->new(year => $self->year, month =>  1, day =>  1, time_zone => $::locale->get_local_time_zone);
+  my $end_date   = DateTime->new(year => $self->year, month => 12, day => 31, time_zone => $::locale->get_local_time_zone);
+
+  $self->calculate_one_periodic_invoice(config => $_, start_date => $start_date, end_date => $end_date) for @{ $self->objects->{periodic_invoices_cfg} };
+}
+
+sub calculate_one_periodic_invoice {
+  my ($self, %params) = @_;
+
+  my @dates           = $params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date}, past_dates => 1);
+  my $first_date      = $dates[0];
+
+  return if !$first_date;
+
+  my $net  = $params{config}->order->netamount * scalar(@dates);
+  my $sord = $self->data->{sales_orders};
+
+  $sord->{months  }->[ $first_date->month   - 1 ] += $net;
+  $sord->{quarters}->[ $first_date->quarter - 1 ] += $net;
+  $sord->{year}                                   += $net;
 }
 
 sub list_data {
@@ -161,5 +198,7 @@ sub list_data {
 
   return $self->report->generate_with_headers;
 }
+
+sub init_employees { SL::DB::Manager::Employee->get_all_sorted }
 
 1;

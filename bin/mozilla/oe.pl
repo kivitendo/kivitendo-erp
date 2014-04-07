@@ -35,6 +35,7 @@
 use Carp;
 use POSIX qw(strftime);
 
+use SL::DB::Order;
 use SL::DO;
 use SL::FU;
 use SL::OE;
@@ -312,6 +313,18 @@ sub form_header {
   # Container for template variables. Unfortunately this has to be
   # visible in form_footer too, so package local level and not my here.
   %TMPL_VAR = ();
+  if ($form->{id}) {
+    my $obj = SL::DB::Order->new(id => $form->{id})->load;
+    $TMPL_VAR{warn_save_active_periodic_invoice} =
+         $obj->is_type('sales_order')
+      && $obj->periodic_invoices_config
+      && $obj->periodic_invoices_config->active
+      && (   !$obj->periodic_invoices_config->end_date
+          || ($obj->periodic_invoices_config->end_date > DateTime->today_local))
+      && $obj->periodic_invoices_config->get_previous_billed_period_start_date;
+
+    $TMPL_VAR{oe_obj} = $obj;
+  }
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1930,13 +1943,13 @@ sub edit_periodic_invoices_config {
 
   if ('HASH' ne ref $config) {
     $config =  { periodicity             => 'y',
-                 start_date_as_date      => $::form->{transdate},
+                 start_date_as_date      => $::form->{transdate} || $::form->current_date,
                  extend_automatically_by => 12,
                  active                  => 1,
                };
   }
 
-  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q y);
+  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q b y);
 
   $::form->get_lists(printers => "ALL_PRINTERS",
                      charts   => { key       => 'ALL_CHARTS',
@@ -1962,9 +1975,10 @@ sub save_periodic_invoices_config {
 
   my $config = { active                  => $::form->{active}     ? 1 : 0,
                  terminated              => $::form->{terminated} ? 1 : 0,
-                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q y)) ? $::form->{periodicity} : 'm',
+                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q b y)) ? $::form->{periodicity} : 'm',
                  start_date_as_date      => $::form->{start_date_as_date},
                  end_date_as_date        => $::form->{end_date_as_date},
+                 first_billing_date_as_date => $::form->{first_billing_date_as_date},
                  print                   => $::form->{print} ? 1 : 0,
                  printer_id              => $::form->{print} ? $::form->{printer_id} * 1 : undef,
                  copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,

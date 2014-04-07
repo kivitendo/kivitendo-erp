@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::BackgroundJob::Base);
 
 use Config::Std;
+use DateTime::Format::Strptime;
 use English qw(-no_match_vars);
 
 use SL::DB::AuthUser;
@@ -79,21 +80,22 @@ sub _generate_time_period_variables {
                            $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
                            $::locale->text('July'),    $::locale->text('August'),   $::locale->text('September'), $::locale->text('October'), $::locale->text('November'), $::locale->text('December'));
 
-  my $vars = { current_quarter     => $period_start_date->quarter,
-               previous_quarter    => $period_start_date->clone->subtract(months => 3)->quarter,
-               next_quarter        => $period_start_date->clone->add(     months => 3)->quarter,
+  my $vars = {
+    current_quarter     => [ $period_start_date->clone->truncate(to => 'month'),                        sub { $_[0]->quarter } ],
+    previous_quarter    => [ $period_start_date->clone->truncate(to => 'month')->subtract(months => 3), sub { $_[0]->quarter } ],
+    next_quarter        => [ $period_start_date->clone->truncate(to => 'month')->add(     months => 3), sub { $_[0]->quarter } ],
 
-               current_month       => $period_start_date->month,
-               previous_month      => $period_start_date->clone->subtract(months => 1)->month,
-               next_month          => $period_start_date->clone->add(     months => 1)->month,
+    current_month       => [ $period_start_date->clone->truncate(to => 'month'),                        sub { $_[0]->month } ],
+    previous_month      => [ $period_start_date->clone->truncate(to => 'month')->subtract(months => 1), sub { $_[0]->month } ],
+    next_month          => [ $period_start_date->clone->truncate(to => 'month')->add(     months => 1), sub { $_[0]->month } ],
 
-               current_year        => $period_start_date->year,
-               previous_year       => $period_start_date->year - 1,
-               next_year           => $period_start_date->year + 1,
+    current_year        => [ $period_start_date->clone->truncate(to => 'year'),                         sub { $_[0]->year } ],
+    previous_year       => [ $period_start_date->clone->truncate(to => 'year')->subtract(years => 1),   sub { $_[0]->year } ],
+    next_year           => [ $period_start_date->clone->truncate(to => 'year')->add(     years => 1),   sub { $_[0]->year } ],
 
-               period_start_date   => $::locale->format_date(\%::myconfig, $period_start_date),
-               period_end_date     => $::locale->format_date(\%::myconfig, $period_end_date),
-             };
+    period_start_date   => [ $period_start_date->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
+    period_end_date     => [ $period_end_date  ->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
+  };
 
   map { $vars->{"${_}_month_long"} = $month_names[ $vars->{"${_}_month"} ] } qw(current previous next);
 
@@ -106,8 +108,23 @@ sub _replace_vars {
   my $sub    = shift;
   my $str    = $object->$sub;
 
-  my ($key, $value);
-  $str =~ s|<\%${key}\%>|$value|g while ($key, $value) = each %{ $vars };
+  $str =~ s{ <\% ([a-z0-9_]+) ( \s+ format \s*=\s* (.*?) \s* )? \%>}{
+    my ($key, $format) = ($1, $3);
+    if (!$vars->{$key}) {
+      '';
+
+    } elsif ($format) {
+      DateTime::Format::Strptime->new(
+        pattern     => $format,
+        locale      => 'de_DE',
+        time_zone   => 'local',
+      )->format_datetime($vars->{$key}->[0]);
+
+    } else {
+      $vars->{$1}->[1]->($vars->{$1}->[0]);
+    }
+  }eigx;
+
   $object->$sub($str);
 }
 
@@ -171,27 +188,8 @@ sub _create_periodic_invoice {
 }
 
 sub _calculate_dates {
-  my $config     = shift;
-
-  my $cur_date   = $config->start_date;
-  my $start_date = $config->get_previous_invoice_date || DateTime->new(year => 1970, month => 1, day => 1);
-  my $end_date   = $config->end_date                  || DateTime->new(year => 2100, month => 1, day => 1);
-  my $tomorrow   = DateTime->today_local->add(days => 1);
-  my $period_len = $config->get_period_length;
-
-  $end_date      = $tomorrow if $end_date > $tomorrow;
-
-  my @dates;
-
-  while (1) {
-    last if $cur_date >= $end_date;
-
-    push @dates, $cur_date->clone if $cur_date > $start_date;
-
-    $cur_date->add(months => $period_len);
-  }
-
-  return @dates;
+  my ($config) = @_;
+  return $config->calculate_invoice_dates(end_date => DateTime->today_local->add(days => 1));
 }
 
 sub _send_email {
