@@ -68,7 +68,7 @@
 </form>
 
 <script type="text/javascript">
- <!--
+<!--
 
 function comment_selected_chart(s) {
   if (s == 'Austria') {
@@ -81,7 +81,7 @@ function comment_selected_chart(s) {
          "Hinweis vom 20.09.2011");
   } else if (/^Switzerland/.test(s)) {
     document.getElementById('defaultcurrency').value='CHF';
-    document.getElementById('precision').value='0.05';
+    document.getElementById('precision').value='0.01';
     document.getElementById('accounting_method').value='accrual';
     document.getElementById('inventory_system').value='periodic';
     document.getElementById('profit_determination').value='balance';
@@ -92,8 +92,9 @@ function comment_selected_chart(s) {
     document.getElementById('inventory_system').value='periodic';
     document.getElementById('profit_determination').value='income';
   }
+  document.getElementById('precision').disabled='true';
   return true;
 }
 
-   -->
+-->
 </script>
