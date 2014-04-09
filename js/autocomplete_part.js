@@ -16,8 +16,7 @@ namespace('kivi', function(k){
     var o = $.extend({
       limit: 20,
       delay: 50,
-      fat_set_item: 0, // use this option to get a fat item json with all
-                       // relevant data instead of the guaranteed id + name
+      fat_set_item: $real.hasClass('partpicker_fat_set_item'),
     }, options);
     var STATES = {
       UNIQUE: 1,

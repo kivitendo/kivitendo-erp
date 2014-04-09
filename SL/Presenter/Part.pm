@@ -29,9 +29,14 @@ sub part_picker {
 
   $value = SL::DB::Manager::Part->find_by(id => $value) if $value && !ref $value;
   my $id = delete($params{id}) || $self->name_to_id($name);
+  my $fat_set_item = delete $params{fat_set_item};
+
+  my @classes = $params{class} ? ($params{class}) : ();
+  push @classes, 'part_autocomplete';
+  push @classes, 'partpicker_fat_set_item' if $fat_set_item;
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden', id => $id) .
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
     join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(column type unit convertible_unit)) .
     $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params);
 
