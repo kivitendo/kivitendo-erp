@@ -60,7 +60,7 @@ sub action_create {
 
   # 1. Update sections with selected part IDs.
   my $section_attrs  = $::form->{sections} || [];
-  my $sections       = SL::DB::Manager::RequirementSpecItem->get_all(where => [ id => [ map { $_->{id} } @{ $section_attrs } ] ]);
+  my $sections       = SL::DB::Manager::RequirementSpecItem->get_all_sorted(where => [ id => [ map { $_->{id} } @{ $section_attrs } ] ]);
   my %sections_by_id = map { ($_->{id} => $_) } @{ $sections };
 
   $sections_by_id{ $_->{id} }->update_attributes(order_part_id => $_->{order_part_id}) for @{ $section_attrs };
