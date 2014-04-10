@@ -257,7 +257,7 @@ sub link_to {
   }
   if ($object->isa('SL::DB::Customer')) {
     my $id     = $object->id;
-    return "ct.pl?action=$action&id=$id&db=customer";
+    return "controller.pl?action=CustomerVendor/$action&id=$id";
   }
   if ($object->isa('SL::DB::Project')) {
     my $id     = $object->id;
