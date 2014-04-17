@@ -72,8 +72,10 @@ sub _format_html {
   $content =~ s{ \r+ }{}gx;
   $content =~ s{ \n+ }{ }gx;
   $content =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
+  $content =~ s{ (?:\&nbsp;|\s)+$ }{}gx;
+  $content =~ s{ (?: <br/?> )+$ }{}gx;
 
-  my @parts = map {
+  my @parts = grep { $_ } map {
     if (substr($_, 0, 1) eq '<') {
       s{ +}{}g;
       $html_replace{$_} || '';
@@ -83,7 +85,10 @@ sub _format_html {
     }
   } split(m{(<.*?>)}x, $content);
 
-  return join('', @parts);
+  $content =  join '', @parts;
+  $content =~ s{ (?: [\n\s] | \\newline )+$ }{}gx;
+
+  return $content;
 }
 
 my %formatters = (
