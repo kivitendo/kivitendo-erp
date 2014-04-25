@@ -155,6 +155,15 @@
   </tr>
 
   <tr>
+   <td align="right">[% 'IBAN' | $T8 %]</td>
+   <td>[% HTML.escape(iban) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'BIC' | $T8 %]</td>
+   <td>[% HTML.escape(bic) %]</td>
+  </tr>
+  <tr>
    <td align="right">[% IF is_customer %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</td>
    <td>[% HTML.escape(business) %]</td>
   </tr>
