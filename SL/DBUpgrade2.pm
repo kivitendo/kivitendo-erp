@@ -238,7 +238,7 @@ sub process_perl_script {
 
   my ($self, $dbh, $filename, $version_or_control) = @_;
 
-  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
+  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbhost dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
 
   $dbh->begin_work;
 
