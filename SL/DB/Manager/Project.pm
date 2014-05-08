@@ -48,6 +48,7 @@ sub _sort_spec {
       SIMPLE       => 'ALL',
       customer     => 'customer.name',
       project_type => 'project_type.description',
+      project_status => 'project_status.description',
     });
 }
 

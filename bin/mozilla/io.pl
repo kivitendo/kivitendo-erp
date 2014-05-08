@@ -1328,6 +1328,14 @@ sub print_form {
     $form->{label}        = $form->{formname} eq 'pick_list' ? $locale->text('Pick List') : $locale->text('Delivery Order');
   }
 
+  $form->{TEMPLATE_DRIVER_OPTIONS} = { };
+  if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice request_quotation purchase_order purchase_delivery_order)) {
+    $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = {
+      longdescription => 'html',
+      partnotes       => 'html',
+    };
+  }
+
   $form->isblank("email", $locale->text('E-mail address missing!'))
     if ($form->{media} eq 'email');
   $form->isblank("${inv}date",

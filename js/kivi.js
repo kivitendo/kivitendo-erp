@@ -27,6 +27,96 @@ namespace("kivi", function(ns) {
     ns._locale = locale;
   };
 
+  ns.set_focus = function(element) {
+    var $e = $(element).eq(0);
+    if ($e.data('ckeditorInstance'))
+      ns.focus_ckeditor_when_ready($e);
+    else
+      $e.focus();
+  };
+
+  ns.focus_ckeditor_when_ready = function(element) {
+    $(element).ckeditor(function() { ns.focus_ckeditor(element); });
+  };
+
+  ns.focus_ckeditor = function(element) {
+    var editor   = $(element).ckeditorGet();
+		var editable = editor.editable();
+
+		if (editable.is('textarea')) {
+			var textarea = editable.$;
+
+			if (CKEDITOR.env.ie)
+				textarea.createTextRange().execCommand('SelectAll');
+			else {
+				textarea.selectionStart = 0;
+				textarea.selectionEnd   = textarea.value.length;
+			}
+
+			textarea.focus();
+
+		} else {
+			if (editable.is('body'))
+				editor.document.$.execCommand('SelectAll', false, null);
+
+			else {
+				var range = editor.createRange();
+				range.selectNodeContents(editable);
+				range.select();
+			}
+
+			editor.forceNextSelectionCheck();
+			editor.selectionChange();
+
+      editor.focus();
+		}
+  };
+
+  ns.init_tabwidget = function(element) {
+    var $element   = $(element);
+    var tabsParams = {};
+    var elementId  = $element.attr('id');
+
+    if (elementId) {
+      var cookieName      = 'jquery_ui_tab_'+ elementId;
+      tabsParams.active   = $.cookie(cookieName);
+      tabsParams.activate = function(event, ui) {
+        var i = ui.newTab.parent().children().index(ui.newTab);
+        $.cookie(cookieName, i);
+      };
+    }
+
+    $element.tabs(tabsParams);
+  };
+
+  ns.init_text_editor = function(element) {
+    var layouts = {
+      all:     [ [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript' ], [ 'BulletedList', 'NumberedList' ], [ 'RemoveFormat' ] ],
+      default: [ [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript' ], [ 'BulletedList', 'NumberedList' ], [ 'RemoveFormat' ] ]
+    };
+
+    var $e      = $(element);
+    var buttons = layouts[ $e.data('texteditor-layout') || 'default' ] || layouts['default'];
+    var config  = {
+      entities:      false,
+      language:      'de',
+      removePlugins: 'resize',
+      toolbar:       buttons
+    }
+
+    var style = $e.prop('style');
+    $(['width', 'height']).each(function(idx, prop) {
+      var matches = (style[prop] || '').match(/(\d+)px/);
+      if (matches && (matches.length > 1))
+        config[prop] = matches[1];
+    });
+
+    $e.ckeditor(config);
+
+    if ($e.hasClass('texteditor-autofocus'))
+      $e.ckeditor(function() { ns.focus_ckeditor($e); });
+  };
+
   ns.reinit_widgets = function() {
     ns.run_once_for('.datepicker', 'datepicker', function(elt) {
       $(elt).datepicker();
@@ -40,6 +130,13 @@ namespace("kivi", function(ns) {
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
       func();
+
+    ns.run_once_for('.tooltip', 'tooltip', function(elt) {
+      $(elt).tooltip();
+    });
+
+    ns.run_once_for('.tabwidget', 'tabwidget', kivi.init_tabwidget);
+    ns.run_once_for('.texteditor', 'texteditor', kivi.init_text_editor);
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {
@@ -93,7 +190,12 @@ namespace("kivi", function(ns) {
 
     if (!params.url) {
       // Use existing DOM element and show it. No AJAX call.
-      dialog = $('#' + id).dialog(dialog_params);
+      dialog =
+        $('#' + id)
+        .bind('dialogopen', function() {
+          ns.run_once_for('.texteditor-in-dialog,.texteditor-dialog', 'texteditor', kivi.init_text_editor);
+        })
+        .dialog(dialog_params);
       return true;
     }
 

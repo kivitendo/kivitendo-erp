@@ -10,9 +10,11 @@ use Data::Dumper;
 use Support::TestSetup;
 
 eval {
-  require 'SL::DB::RequirementSpec';
-  require 'SL::DB::RequirementSpecItem';
-  require 'SL::DB::RequirementSpecTextBlock';
+  require SL::DB::RequirementSpec;
+  require SL::DB::RequirementSpecItem;
+  require SL::DB::RequirementSpecTextBlock;
+  require SL::DB::RequirementSpecType;
+  require SL::DB::RequirementSpecStatus;
   1;
 } or my $skip = 'RequirementSpec is not available for this test';
 
@@ -22,21 +24,42 @@ if ($skip) {
   plan tests => 48;
 }
 
+my ($customer, $status, $type, $r_spec, @items);
+
+sub init {
+  $customer = SL::DB::Customer->new(name => 'Test Customer', currency_id => $::instance_conf->get_currency_id)->save;
+  $status   = SL::DB::Manager::RequirementSpecStatus->find_by(name => '', description => '') ||
+              SL::DB::RequirementSpecStatus->new(name => '', description => '', position => 0)->save;
+  $type     = SL::DB::Manager::RequirementSpecType->find_by(description => '') ||
+              SL::DB::RequirementSpecType->new(description => '', position => 0)->save;
+}
+
+sub cleanup {
+  $customer->delete;
+  $status->delete;
+  $type->delete;
+}
+
+sub cleanup_req_spec {
+  SL::DB::Manager::RequirementSpec->delete_all(where => [ customer_id => $customer->id ], cascade => 1);
+}
+
 sub reset_state {
-  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(RequirementSpecTextBlock RequirementSpecItem RequirementSpec);
+  cleanup_req_spec();
+  @items = ();
 
-  SL::DB::RequirementSpec->new(id => 2, type_id => 1, status_id => 1, customer_id => 12395, hourly_rate => 42.24,  title => "Azumbo")->save;
+  $r_spec = SL::DB::RequirementSpec->new(type_id => $type->id, status_id => $status->id, customer_id => $customer->id, hourly_rate => 42.24,  title => "Azumbo")->save;
 
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => undef, id => 1, position => 1, fb_number => "A01",    title => "Mühköh",   description => "The Kuh.")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => undef, id => 2, position => 2, fb_number => "A02",    title => "Geheim",   description => "Kofferkombination")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 1,     id => 3, position => 1, fb_number => "FB0001", title => "Yäääh",    description => "Und so")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 1,     id => 4, position => 2, fb_number => "FB0012", title => "Blubb",    description => "blabb")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 1,     id => 5, position => 3, fb_number => "FB0022", title => "Fingo",    description => "fungo")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 4,     id => 6, position => 1, fb_number => "UFB002", title => "Suppi",    description => "Suppa")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 4,     id => 7, position => 2, fb_number => "UFB000", title => "Suppa",    description => "Suppi")->save;
-  SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, parent_id => 2,     id => 8, position => 1, fb_number => "FB0018", title => "Neuneins", description => "Eins")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => undef,     position => 1, fb_number => "A01",    title => "Mühköh",   item_type => 'section',            description => "The Kuh.")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => undef,     position => 2, fb_number => "A02",    title => "Geheim",   item_type => 'section',            description => "Kofferkombination")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(1), position => 1, fb_number => "FB0001", title => "Yäääh",    item_type => 'function-block',     description => "Und so")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(1), position => 2, fb_number => "FB0012", title => "Blubb",    item_type => 'function-block',     description => "blabb")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(1), position => 3, fb_number => "FB0022", title => "Fingo",    item_type => 'function-block',     description => "fungo")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(4), position => 1, fb_number => "UFB002", title => "Suppi",    item_type => 'sub-function-block', description => "Suppa")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(4), position => 2, fb_number => "UFB000", title => "Suppa",    item_type => 'sub-function-block', description => "Suppi")->save;
+  push @items, SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, parent_id => get_id(2), position => 1, fb_number => "FB0018", title => "Neuneins", item_type => 'function-block',     description => "Eins")->save;
 
-  SL::DB::RequirementSpec->new->db->dbh->do(qq|SELECT pg_catalog.setval('| . $_->[0] . qq|', | . $_->[1] . qq|, true)|) for (['requirement_spec_items_id_seq', 8], [ 'requirement_specs_id_seq', 2 ]);
+#  SL::DB::RequirementSpec->new->db->dbh->do(qq|SELECT pg_catalog.setval('| . $_->[0] . qq|', | . $_->[1] . qq|, true)|) for (['requirement_spec_items_id_seq', 8], [ 'requirement_specs_id_seq', 2 ]);
 }
 
 sub values_eq {
@@ -45,28 +68,45 @@ sub values_eq {
       && (!defined($val1) || ($val1 == $val2));
 }
 
+# accepts a list of arefs, with positions:
+# 1 - pseudo id of item
+# 2 - expceted pseudo parent_id
+# 3 - expected position
 sub test_positions {
   my ($message, @positions) = @_;
 
   my $failures =
     join ' ',
     map  { join ':', map { $_ // 'undef' } @{ $_ } }
-    grep { !values_eq($_->[1], $_->[3]) || !values_eq($_->[2], $_->[4]) }
-    map  { my $item = SL::DB::RequirementSpecItem->new(id => $_->[0])->load; [ @{ $_ }, $item->parent_id, $item->position ] }
+    grep { !values_eq($_->[1] && get_item($_->[1]) ? get_id($_->[1]) : undef, $_->[3]) || !values_eq($_->[2], $_->[4]) }
+    map  { my $item = SL::DB::RequirementSpecItem->new(id => get_id($_->[0]))->load; [ @{ $_ }, $item->parent_id, $item->position ] }
     @positions;
 
   is($failures, '', $message);
 }
 
 sub new_item {
-  return SL::DB::RequirementSpecItem->new(requirement_spec_id => 2, fb_number => 'dummy', title => 'dummy', @_);
+  my %params = @_;
+
+  my $new_item = SL::DB::RequirementSpecItem->new(requirement_spec_id => $r_spec->id, fb_number => 'dummy', title => 'dummy', item_type => $params{parent_id} ? 'function-block' : 'section', @_);
+  push @items, $new_item;
+  $new_item;
 }
 
+# the first version of this used hardcoded ids.
+# to make things a little more portable the objects are now created with the
+# default id sequences, but retain their numbering. whenever you see get_id or
+# get_item used it looks up the old id in the @items array
 sub get_item {
-  return SL::DB::RequirementSpecItem->new(id => $_[0])->load;
+  return SL::DB::RequirementSpecItem->new(id => get_id($_[0]))->load;
+}
+
+sub get_id {
+  $items[$_[0]-1]->id
 }
 
 Support::TestSetup::login();
+
 my $item;
 
 # 1
@@ -78,11 +118,12 @@ my $item;
 # 2
 # `- 8
 
+init();
 reset_state();
 test_positions "reset_state", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 # Einfügen neuer Objekte: "set_position"
-new_item(parent_id => 1)->save;
+new_item(parent_id => get_id(1))->save;
 test_positions "set_position via new with parent_id NOT NULL", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ], [ 9, 1, 4 ];
 
 reset_state();
@@ -138,12 +179,12 @@ test_positions "move_position_down when only element in sub-list", [ 1, undef, 1
 
 # Listen neu anordnen
 reset_state();
-get_item(8)->reorder_list(4, 5, 3);
-test_positions "reoder_list called as instance method", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 3, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
+get_item(8)->reorder_list(map { get_id($_) } 4, 5, 3);
+test_positions "reorder_list called as instance method", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 3, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
-SL::DB::RequirementSpecItem->reorder_list(4, 5, 3);
-test_positions "reoder_list called as class method", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 3, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
+SL::DB::RequirementSpecItem->reorder_list(map { get_id($_) } 4, 5, 3);
+test_positions "reorder_list called as class method", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 3, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 # Aus Liste entfernen
 reset_state();
@@ -168,65 +209,65 @@ test_positions "remove_from_list and delete afterwards", [ 1, undef, 1 ], [ 2, u
 
 # Zu Liste hinzufügen
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'last');
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'last');
 test_positions "add_to_list position 'last'", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 4 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'first');
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'first');
 test_positions "add_to_list position 'first'", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 2 ], [ 4, 1, 3 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 1 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'before', reference => 3);
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'before', reference => get_id(3));
 test_positions "add_to_list position 'before' first by ID", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 2 ], [ 4, 1, 3 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 1 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'before', reference => get_item(3));
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'before', reference => get_item(3));
 test_positions "add_to_list position 'before' first by reference", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 2 ], [ 4, 1, 3 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 1 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'before', reference => 4);
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'before', reference => get_id(4));
 test_positions "add_to_list position 'before' middle by ID", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 3 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 2 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'before', reference => get_item(4));
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'before', reference => get_item(4));
 test_positions "add_to_list position 'before' middle by reference", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 3 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 2 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'after', reference => 5);
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'after', reference => get_id(5));
 test_positions "add_to_list position 'after' last by ID", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 4 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'after', reference => get_item(5));
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'after', reference => get_item(5));
 test_positions "add_to_list position 'after' last by reference", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 4 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'after', reference => 4);
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'after', reference => get_id(4));
 test_positions "add_to_list position 'after' middle by ID", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 3 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(1); $item->add_to_list(position => 'after', reference => get_item(4));
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(1)); $item->add_to_list(position => 'after', reference => get_item(4));
 test_positions "add_to_list position 'after' middle by reference", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 4 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 1, 3 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(3); $item->add_to_list(position => 'last');
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(3)); $item->add_to_list(position => 'last');
 test_positions "add_to_list position 'last' in empty", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 3, 1 ];
 
 reset_state();
-$item = get_item(8); $item->remove_from_list; $item->parent_id(3); $item->add_to_list(position => 'first');
+$item = get_item(8); $item->remove_from_list; $item->parent_id(get_id(3)); $item->add_to_list(position => 'first');
 test_positions "add_to_list position 'first' in empty", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 3, 1 ];
 
 reset_state();
-$item = get_item(5); $item->add_to_list(position => 'after', reference => 3);
+$item = get_item(5); $item->add_to_list(position => 'after', reference => get_id(3));
 test_positions "add_to_list without prior remove_from_list", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 5, 1, 2 ], [ 4, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
 $item = get_item(4);
-is($item->get_next_in_list->id,                           5, 'Next of 4 is 5');
-is($item->get_previous_in_list->id,                       3, 'Previous of 4 is 5');
-is($item->get_next_in_list->get_previous_in_list->id,     4, 'Previous of Next of 4 is 4');
-is($item->get_previous_in_list->get_next_in_list->id,     4, 'Next of Previous of 4 is 4');
-is($item->get_next_in_list->get_next_in_list,         undef, 'Next of Next of 4 is undef');
-is($item->get_previous_in_list->get_previous_in_list, undef, 'Previous of Previous of 4 is undef');
+is($item->get_next_in_list->id,                       get_id(5), 'Next of 4 is 5');
+is($item->get_previous_in_list->id,                   get_id(3), 'Previous of 4 is 5');
+is($item->get_next_in_list->get_previous_in_list->id, get_id(4), 'Previous of Next of 4 is 4');
+is($item->get_previous_in_list->get_next_in_list->id, get_id(4), 'Next of Previous of 4 is 4');
+is($item->get_next_in_list->get_next_in_list,         undef,     'Next of Next of 4 is undef');
+is($item->get_previous_in_list->get_previous_in_list, undef,     'Previous of Previous of 4 is undef');
 
 # Parametervalidierung
 throws_ok { new_item()->move_position_up   } qr/not.*been.*saved/i, 'move up not saved yet';
@@ -240,4 +281,10 @@ throws_ok { get_item(8)->add_to_list(position => 'gonzo')  } qr/invalid.*paramet
 throws_ok { get_item(8)->add_to_list(position => 'before') } qr/missing.*parameter.*reference/i, 'missing reference for position "before"';
 throws_ok { get_item(8)->add_to_list(position => 'after')  } qr/missing.*parameter.*reference/i, 'missing reference for position "after"';
 
-done_testing();
+END {
+  # safely try to clean up
+  eval {
+    cleanup_req_spec();
+    cleanup();
+  }
+}

@@ -65,7 +65,7 @@ my %supported_methods = (
   removeData   => 2,
 
   # Form Events
-  focus        => 1,
+  focus        => 1, # kivi.set_focus(<TARGET>)
 
   # Generic Event Handling ## pattern: $(<TARGET>).<FUNCTION>(<ARG1>, kivi.get_function_by_name(<ARG2>))
   on           => 3,
@@ -105,6 +105,9 @@ my %supported_methods = (
   'jstree:select_node'   => 2,  # $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>, true)
   'jstree:deselect_node' => 2,
   'jstree:deselect_all'  => 1,
+
+  # ## ckeditor stuff ##
+  'focus_ckeditor'       => 1,  # kivi.focus_ckeditor_when_ready(<TARGET>)
 
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>
@@ -198,6 +201,12 @@ sub jstree {
 sub dialog {
   my ($self) = @_;
   $self->{_prefix} = 'dialog:';
+  return $self;
+}
+
+sub ckeditor {
+  my ($self) = @_;
+  $self->{_prefix} = 'ckeditor:';
   return $self;
 }
 

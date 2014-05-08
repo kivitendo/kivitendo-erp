@@ -344,19 +344,14 @@ sub tab {
 sub areainput_tag {
   my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
-  my ($rows, $cols);
-  my $min  = delete $attributes{min_rows} || 1;
-
-  if (exists $attributes{cols}) {
-    $cols = delete $attributes{cols};
-    $rows = $::form->numtextrows($value, $cols);
-  } else {
-    $rows = delete $attributes{rows} || 1;
-  }
+  my $cols    = delete $attributes{cols} || delete $attributes{size};
+  my $minrows = delete $attributes{min_rows} || 1;
+  my $maxrows = delete $attributes{max_rows};
+  my $rows    = $::form->numtextrows($value, $cols, $maxrows, $minrows);
 
   return $rows > 1
-    ? $self->textarea_tag($name, $value, %attributes, rows => max($rows, $min), ($cols ? (cols => $cols) : ()))
-    : $self->input_tag($name, $value, %attributes, ($cols ? (size => $cols) : ()));
+    ? $self->textarea_tag($name, $value, %attributes, rows => $rows, cols => $cols)
+    : $self->input_tag($name, $value, %attributes, size => $cols);
 }
 
 sub multiselect2side {

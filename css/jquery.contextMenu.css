@@ -140,3 +140,8 @@
 .context-menu-accesskey {
     text-decoration: underline;
 }
+
+.context-menu-item.context-menu-heading {
+    text-decoration: underline;
+    font-weight: bold;
+}

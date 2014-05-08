@@ -1,0 +1,37 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %]
+[%- DEFAULT id_base="edit_section" %]
+[%- SET style="width: 500px" %]
+<form id="[% id_base %]_form">
+ [%- IF SELF.item.id %]
+  [%- SET hidden = '#section-header-' _ SELF.item.id %]
+  <h1>[%- LxERP.t8("Edit section #1", SELF.item.fb_number) %]</h1>
+
+ [%- ELSE %]
+  [%- SET hidden = '#column-content > *' %]
+  <h1>[%- LxERP.t8("Add section") %]</h1>
+
+ [%- END %]
+
+ [% L.hidden_tag('form_prefix',                    id_base       id=id_base _ '_form_prefix') %]
+ [% L.hidden_tag('id',                             SELF.item.id, id=id_base _ '_id') %]
+ [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
+ [% L.hidden_tag(id_base _ '.item_type',           'section') %]
+ [% IF insert_after %]
+  [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
+ [% END %]
+
+ <p>
+  [%- LxERP.t8("Title") %]:<br>
+  [% L.input_tag(id_base _ '.title', SELF.item.title, style=style) %]
+ </p>
+
+ <p>
+  [%- LxERP.t8("Description") %]:<br>
+  [% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=80, style=style, class='texteditor') %]
+ </p>
+
+ <p>
+  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
+  <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+</form>

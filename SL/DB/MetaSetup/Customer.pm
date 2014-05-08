@@ -33,6 +33,7 @@ __PACKAGE__->meta->columns(
   fax                       => { type => 'varchar', length => 30 },
   greeting                  => { type => 'text' },
   homepage                  => { type => 'text' },
+  hourly_rate               => { type => 'numeric', precision => 8, scale => 2 },
   iban                      => { type => 'varchar', length => 100 },
   id                        => { type => 'integer', not_null => 1, sequence => 'id' },
   itime                     => { type => 'timestamp', default => 'now()' },

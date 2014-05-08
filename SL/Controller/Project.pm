@@ -15,6 +15,8 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::Project;
+use SL::DB::ProjectType;
+use SL::DB::ProjectStatus;
 use SL::DB::PurchaseInvoice;
 use SL::DB::ProjectType;
 use SL::Helper::Flash;
@@ -23,11 +25,11 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project linked_records) ],
- 'scalar --get_set_init' => [ qw(models) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses) ],
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_project',       only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('load_project',        only => [ qw(edit update destroy) ]);
 
 #
 # actions
@@ -38,7 +40,6 @@ sub action_search {
 
   my %params;
 
-  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
   $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
   ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
     = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
@@ -51,7 +52,7 @@ sub action_search {
 sub action_list {
   my ($self) = @_;
 
-  # $self->make_filter_summary;
+  $self->make_filter_summary;
 
   my $projects = $self->models->get;
 
@@ -71,15 +72,7 @@ sub action_new {
 sub action_edit {
   my ($self) = @_;
 
-  $self->linked_records([
-    map  { @{ $_ } }
-    grep { $_      } (
-      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
-    )]);
-
+  $self->get_linked_records;
   $self->display_form(title    => $::locale->text('Edit project #1', $self->project->projectnumber),
                       callback => $::form->{callback} || $self->url_for(action => 'edit', id => $self->project->id));
 }
@@ -120,11 +113,19 @@ sub check_auth {
 # helpers
 #
 
+sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
+sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
+
+sub init_customers {
+  my ($self)      = @_;
+  my @customer_id = $self->project && $self->project->customer_id ? (id => $self->project->customer_id) : ();
+
+  return SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, @customer_id ]]);
+}
+
 sub display_form {
   my ($self, %params) = @_;
 
-  $params{ALL_CUSTOMERS}     = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
-  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
 
   if ($params{keep_cvars}) {
@@ -176,17 +177,17 @@ sub load_project {
   $self->project(SL::DB::Project->new(id => $::form->{id})->load);
 }
 
-sub setup_db_args_from_filter {
+sub get_linked_records {
   my ($self) = @_;
 
-  $self->{filter} = {};
-  my %args = parse_filter(
-    $self->_pre_parse_filter($::form->{filter}, $self->{filter}),
-    with_objects => [ 'customer', 'project_type' ],
-    launder_to   => $self->{filter},
-  );
-
-  $self->db_args(\%args);
+  $self->linked_records([
+    map  { @{ $_ } }
+    grep { $_      } (
+      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
+    )]);
 }
 
 sub prepare_report {
@@ -197,14 +198,15 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(projectnumber description customer active valid project_type);
-  my @sortable    = qw(projectnumber description customer              project_type);
+  my @columns     = qw(project_status customer projectnumber description active valid project_type);
+  my @sortable    = qw(projectnumber description customer              project_type project_status);
 
   my %column_defs = (
     projectnumber => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     description   => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     project_type  => { sub  => sub { $_[0]->project_type->description } },
-    customer      => { sub  => sub { $_[0]->customer ? $_[0]->customer->name     : '' } },
+    project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Status') },
+    customer      => { raw_data  => sub { $_[0]->customer_id ? $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) : '' } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
     valid         => { sub  => sub { $_[0]->valid    ? $::locale->text('Valid')  : $::locale->text('Invalid')  },
@@ -220,7 +222,8 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'Project',
     output_format         => 'HTML',
-    top_info_text         => $::locale->text('Projects'),
+    raw_top_info_text     => $self->render('project/report_top', { output => 0 }),
+    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
     title                 => $::locale->text('Projects'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -254,4 +257,35 @@ sub init_models {
   );
 }
 
+sub make_filter_summary {
+  my ($self) = @_;
+
+  my $filter = $::form->{filter} || {};
+  my @filter_strings;
+
+  my @filters = (
+    [ $filter->{"projectnumber:substr::ilike"},  t8('Project Number') ],
+    [ $filter->{"description:substr::ilike"},    t8('Description')    ],
+    [ $filter->{customer}{"name:substr::ilike"}, t8('Customer')       ],
+    [ $filter->{"project_type_id"},              t8('Project Type'),    sub { SL::DB::Manager::ProjectType->find_by(id => $filter->{"project_type_id"})->description }   ],
+    [ $filter->{"project_status_id"},            t8('Project Status'),  sub { SL::DB::Manager::ProjectStatus->find_by(id => $filter->{"project_status_id"})->description } ],
+  );
+
+  my @flags = (
+    [ $filter->{active} eq 'active',    $::locale->text('Active')      ],
+    [ $filter->{active} eq 'inactive',  $::locale->text('Inactive')    ],
+    [ $filter->{valid}  eq 'valid',     $::locale->text('Valid')       ],
+    [ $filter->{valid}  eq 'invalid',   $::locale->text('Invalid')     ],
+    [ $filter->{orphaned},              $::locale->text('Orphaned')    ],
+  );
+
+  for (@flags) {
+    push @filter_strings, "$_->[1]" if $_->[0];
+  }
+  for (@filters) {
+    push @filter_strings, "$_->[1]: " . ($_->[2] ? $_->[2]->() : $_->[0]) if $_->[0];
+  }
+
+  $self->{filter_summary} = join ', ', @filter_strings;
+}
 1;

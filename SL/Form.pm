@@ -472,7 +472,7 @@ sub header {
 
   $layout->use_javascript("$_.js") for (qw(
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
-    jquery/jquery.form client_js
+    jquery/jquery.form jquery/fixes client_js
     common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
@@ -695,7 +695,6 @@ sub show_generic_error {
   }
 
   if ($::request->is_ajax) {
-    $::lxdebug->message(0, "trying to render AJAX response...");
     SL::ClientJS->new
       ->error($error)
       ->render(SL::Controller::Base->new);
@@ -1020,7 +1019,8 @@ sub parse_template {
                                       file_name => $self->{IN},
                                       form      => $self,
                                       myconfig  => $myconfig,
-                                      userspath => $userspath);
+                                      userspath => $userspath,
+                                      %{ $self->{TEMPLATE_DRIVER_OPTIONS} || {} });
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };

@@ -28,6 +28,7 @@ __PACKAGE__->meta->columns(
   coa                                     => { type => 'text' },
   company                                 => { type => 'text' },
   currency_id                             => { type => 'integer', not_null => 1 },
+  customer_hourly_rate                    => { type => 'numeric', precision => 8, scale => 2 },
   customernumber                          => { type => 'text' },
   datev_check_on_ap_transaction           => { type => 'boolean', default => 'true' },
   datev_check_on_ar_transaction           => { type => 'boolean', default => 'true' },
@@ -66,6 +67,7 @@ __PACKAGE__->meta->columns(
   profit_determination                    => { type => 'text' },
   purchase_delivery_order_show_delete     => { type => 'boolean', default => 'true' },
   purchase_order_show_delete              => { type => 'boolean', default => 'true' },
+  requirement_spec_section_order_part_id  => { type => 'integer' },
   revtrans                                => { type => 'boolean', default => 'false' },
   rfqnumber                               => { type => 'text' },
   rmanumber                               => { type => 'text' },
@@ -112,6 +114,11 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  requirement_spec_section_order_part => {
+    class       => 'SL::DB::Part',
+    key_columns => { requirement_spec_section_order_part_id => 'id' },
   },
 
   warehouse => {

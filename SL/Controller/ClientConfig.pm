@@ -10,6 +10,7 @@ use SL::DB::Chart;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Language;
+use SL::DB::Part;
 use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
@@ -18,7 +19,8 @@ use SL::Template;
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates h_unit_name
+                                  posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
 );
 
 sub action_edit {
@@ -39,6 +41,8 @@ sub action_save {
   foreach (qw(warehouse_id bin_id warehouse_id_ignore_onhand bin_id_ignore_onhand)) {
     undef $defaults->{$_} if !$defaults->{$_};
   }
+
+  $defaults->{$_} = $::form->parse_amount(\%::myconfig, $defaults->{$_}) for qw(customer_hourly_rate);
 
   $self->defaults->assign_attributes(%{ $defaults });
 
@@ -139,6 +143,7 @@ sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted            
 sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                                                     }
 sub init_all_weightunits { my $unit = SL::DB::Manager::Unit->find_by(name => 'kg'); $unit ? $unit->convertible_units : [] }
 sub init_all_templates   { +{ SL::Template->available_templates }                                                        }
+sub init_h_unit_name     { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde)                         };
 
 sub init_posting_options {
   [ { title => t8("never"),           value => 0           },
@@ -212,6 +217,8 @@ sub check_auth {
 
 sub edit_form {
   my ($self) = @_;
+
+  $::request->layout->use_javascript("${_}.js") for qw(autocomplete_part);
 
   $self->render('client_config/form', title => t8('Client Configuration'),
                 make_chart_title     => sub { $_[0]->accno . '--' . $_[0]->description },

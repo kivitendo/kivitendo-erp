@@ -18,24 +18,11 @@ sub project {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
-  $params{style} ||= 'both';
-  my $description;
-
-  if ($params{style} =~ m/number/) {
-    $description = $project->projectnumber;
-
-  } elsif ($params{style} =~ m/description/) {
-    $description = $project->description;
-
-  } else {
-    $description = $project->projectnumber;
-    if ($project->description && do { my $desc = quotemeta $project->description; $project->projectnumber !~ m/$desc/ }) {
-      $description .= ' (' . $project->description . ')';
-    }
-  }
+  my $description = $project->full_description(style => $params{style});
+  my $callback    = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Project/edit&amp;id=' . $self->escape($project->id) . '">',
+    $params{no_link} ? '' : '<a href="controller.pl?action=Project/edit&amp;id=' . $self->escape($project->id) . $callback . '">',
     $self->escape($description),
     $params{no_link} ? '' : '</a>',
   );

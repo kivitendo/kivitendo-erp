@@ -15,7 +15,7 @@
    <tr class="listrow" valign="top">
     <td>[% HTML.escape(language.description) %]</td>
     <td>[% L.input_tag("translations[].translation", translation.translation) %]</td>
-    <td>[% L.textarea_tag("translations[].longdescription", translation.longdescription, id="translations_longdescription_" _ language_id, style="width: 500px; height: 100px") %]</td>
+    <td>[% L.textarea_tag("translations[].longdescription", P.restricted_html(translation.longdescription), id="translations_longdescription_" _ language_id, class="texteditor", style="width: 500px; height: 100px") %]</td>
    </tr>
   [%- END %]
  </table>

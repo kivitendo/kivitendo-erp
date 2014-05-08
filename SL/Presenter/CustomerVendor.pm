@@ -10,12 +10,12 @@ our @EXPORT = qw(customer vendor);
 use Carp;
 
 sub customer {
-  my ($self, $customer, $type, %params) = @_;
+  my ($self, $customer, %params) = @_;
   return _customer_vendor($self, $customer, 'customer', %params);
 }
 
 sub vendor {
-  my ($self, $vendor, $type, %params) = @_;
+  my ($self, $vendor, %params) = @_;
   return _customer_vendor($self, $vendor, 'vendor', %params);
 }
 
@@ -25,6 +25,8 @@ sub _customer_vendor {
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
+
+  my $callback = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
 
   my $text = join '', (
     $params{no_link} ? '' : '<a href="controller.pl?action=CustomerVendor/edit&amp;db=' . $type . '&amp;id=' . $self->escape($cv->id) . '">',

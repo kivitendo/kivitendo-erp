@@ -9,10 +9,92 @@ use Cwd;
 use English qw(-no_match_vars);
 use File::Basename;
 use File::Temp;
+use HTML::Entities ();
 use List::MoreUtils qw(any);
 use Unicode::Normalize qw();
 
 use SL::DB::Default;
+
+my %text_markup_replace = (
+  b => 'textbf',
+  i => 'textit',
+  u => 'underline',
+);
+
+sub _format_text {
+  my ($self, $content, %params) = @_;
+
+  $content = $::locale->quote_special_chars('Template/LaTeX', $content);
+
+  # Allow some HTML markup to be converted into the output format's
+  # corresponding markup code, e.g. bold or italic.
+  foreach my $key (keys(%text_markup_replace)) {
+    my $new   =  $text_markup_replace{$key};
+    $content =~ s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
+  }
+
+  $content =~ s/[\x00-\x1f]//g;
+
+  return $content;
+}
+
+my %html_replace = (
+  '</p>'      => "\n\n",
+  '<ul>'      => "\\begin{itemize} ",
+  '</ul>'     => "\\end{itemize} ",
+  '<ol>'      => "\\begin{enumerate} ",
+  '</ol>'     => "\\end{enumerate} ",
+  '<li>'      => "\\item ",
+  '</li>'     => " ",
+  '<b>'       => "\\textbf{",
+  '</b>'      => "}",
+  '<strong>'  => "\\textbf{",
+  '</strong>' => "}",
+  '<i>'       => "\\textit{",
+  '</i>'      => "}",
+  '<em>'      => "\\textit{",
+  '</em>'     => "}",
+  '<u>'       => "\\underline{",
+  '</u>'      => "}",
+  '<s>'       => "\\sout{",
+  '</s>'      => "}",
+  '<sub>'     => "\\textsubscript{",
+  '</sub>'    => "}",
+  '<sup>'     => "\\textsuperscript{",
+  '</sup>'    => "}",
+  '<br/>'     => "\\newline ",
+  '<br>'      => "\\newline ",
+);
+
+sub _format_html {
+  my ($self, $content, %params) = @_;
+
+  $content =~ s{ \r+ }{}gx;
+  $content =~ s{ \n+ }{ }gx;
+  $content =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
+  $content =~ s{ (?:\&nbsp;|\s)+$ }{}gx;
+  $content =~ s{ (?: <br/?> )+$ }{}gx;
+
+  my @parts = grep { $_ } map {
+    if (substr($_, 0, 1) eq '<') {
+      s{ +}{}g;
+      $html_replace{$_} || '';
+
+    } else {
+      $::locale->quote_special_chars('Template/LaTeX', HTML::Entities::decode_entities($_));
+    }
+  } split(m{(<.*?>)}x, $content);
+
+  $content =  join '', @parts;
+  $content =~ s{ (?: [\n\s] | \\newline )+$ }{}gx;
+
+  return $content;
+}
+
+my %formatters = (
+  html => \&_format_html,
+  text => \&_format_text,
+);
 
 sub new {
   my $type = shift;
@@ -23,24 +105,14 @@ sub new {
 }
 
 sub format_string {
-  my ($self, $variable) = @_;
+  my ($self, $content, $variable) = @_;
 
-  $variable = $main::locale->quote_special_chars('Template/LaTeX', $variable);
+  my $formatter =
+       $formatters{ $self->{variable_content_types}->{$variable} }
+    // $formatters{ $self->{default_content_type} }
+    // $formatters{ text };
 
-  # Allow some HTML markup to be converted into the output format's
-  # corresponding markup code, e.g. bold or italic.
-  my %markup_replace = ('b' => 'textbf',
-                        'i' => 'textit',
-                        'u' => 'underline');
-
-  foreach my $key (keys(%markup_replace)) {
-    my $new = $markup_replace{$key};
-    $variable =~ s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
-  }
-
-  $variable =~ s/[\x00-\x1f]//g;
-
-  return $variable;
+  return $formatter->($self, $content, variable => $variable);
 }
 
 sub parse_foreach {
@@ -322,7 +394,7 @@ sub _force_mandatory_packages {
                       : defined($last_usepackage_line) ? $last_usepackage_line
                       :                                  scalar @{ $lines } - 1;
 
-  foreach my $package (qw(textcomp)) {
+  foreach my $package (qw(textcomp ulem)) {
     next if $used_packages{$package};
     splice @{ $lines }, $insertion_point, 0, "\\usepackage{${package}}\n";
     $insertion_point++;
@@ -522,7 +594,7 @@ sub parse_and_create_pdf {
 
   my $error;
   eval {
-    my $template = SL::Template::LaTeX->new($template_file_name, $local_form, \%::myconfig, $::lx_office_conf{paths}->{userspath});
+    my $template = SL::Template::LaTeX->new(file_name => $template_file_name, form => $local_form);
     my $result   = $template->parse($tex_fh) && $template->convert_to_pdf;
 
     die $template->{error} unless $result;

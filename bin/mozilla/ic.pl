@@ -39,6 +39,7 @@ use SL::AM;
 use SL::CVar;
 use SL::IC;
 use SL::Helper::Flash;
+use SL::HTML::Util;
 use SL::ReportGenerator;
 
 #use SL::PE;
@@ -1382,6 +1383,8 @@ sub generate_report {
     }
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
+    $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
+
     $report->add_data($row);
 
     my $next_ref = $form->{parts}[$idx + 1];
@@ -1628,6 +1631,7 @@ sub form_header {
   CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}, show_disabled_message => 1)
     if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
+  $::request->layout->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
   $form->header;
   #print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},
   #                                                     ALL_UNITS         => $form->{ALL_UNITS},

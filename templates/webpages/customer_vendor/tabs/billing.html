@@ -339,6 +339,13 @@
       [% END %]
 
     </tr>
+
+    [% IF ( SELF.is_customer() ) %]
+     <tr>
+      <th align="right">[%- LxERP.t8("Hourly rate") %]</th>
+      <td>[% L.input_tag("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number) %]</td>
+     </tr>
+    [% END %]
   </table>
 
   <table>

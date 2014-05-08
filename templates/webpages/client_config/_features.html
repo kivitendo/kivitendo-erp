@@ -1,4 +1,4 @@
-[%- USE LxERP -%][%- USE L -%]
+[%- USE LxERP -%][%- USE L -%][%- USE P -%]
 <div id="features">
  <table>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("WebDAV") %]</td></tr>
@@ -27,6 +27,12 @@
    <td>[% LxERP.t8('Automatic deletion of leading, trailing and excessive (repetitive) spaces in customer or vendor names') %]</td>
   </tr>
 
+  <tr>
+   <td align="right">[% LxERP.t8('Hourly Rate') %]</td>
+   <td>[% L.input_tag('defaults.customer_hourly_rate', LxERP.format_amount(SELF.defaults.customer_hourly_rate, 2), style=style) %]</td>
+   <td>[% LxERP.t8('Default hourly rate for new customers') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Parts Master Data") %]</td></tr>
 
   <tr>
@@ -50,5 +56,19 @@
    <td>[% LxERP.t8('Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.') %]</td>
   </tr>
 </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>
+   <td>
+    [% IF SELF.h_unit_name %]
+     [% P.part_picker('defaults.requirement_spec_section_order_part_id', SELF.defaults.requirement_spec_section_order_part_id, convertible_unit=SELF.h_unit_name, style=style) %]
+    [% ELSE %]
+     [% LxERP.t8("Error: this feature requires that articles with a time-based unit (e.g. 'h' or 'min') exist.") %]
+    [% END %]
+   </td>
+   <td>[% LxERP.t8('When converting a requirement spec into a quotation or an oder each section gets converted into a line position in the new record. This is the article used by default for this conversion.') %]</td>
+  </tr>
  </table>
 </div>
