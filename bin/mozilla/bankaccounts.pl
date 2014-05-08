@@ -73,9 +73,9 @@ sub bank_account_save {
 
   my $account = $form->{account} && (ref $form->{account} eq 'HASH') ? $form->{account} : { };
 
-  if (any { !$account->{$_} } qw(account_number bank_code iban bic)) {
+  if (any { !$account->{$_} } qw(name account_number bank_code iban bic)) {
     bank_account_display_form('account' => $account,
-                              'error'   => $locale->text('You have to fill in at least an account number, the bank code, the IBAN and the BIC.'));
+                              'error'   => $locale->text('You have to fill in at least a name, an account number, the bank code, the IBAN and the BIC.'));
 
     $main::lxdebug->leave_sub();
     return;
@@ -115,6 +115,7 @@ sub bank_account_list {
   my $href           = build_std_url('action=bank_account_list');
 
   my %column_defs = (
+    'name'           => { 'text' => $locale->text('Name'), },
     'account_number' => { 'text' => $locale->text('Account number'), },
     'bank_code'      => { 'text' => $locale->text('Bank code'), },
     'bank'           => { 'text' => $locale->text('Bank'), },
@@ -122,7 +123,7 @@ sub bank_account_list {
     'iban'           => { 'text' => $locale->text('IBAN'), },
   );
 
-  my @columns = qw(account_number bank bank_code bic iban);
+  my @columns = qw(name account_number bank bank_code bic iban);
 
   foreach my $name (@columns) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};

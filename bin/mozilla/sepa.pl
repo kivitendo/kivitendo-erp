@@ -47,7 +47,7 @@ sub bank_transfer_add {
   # from us automatically and we don't have to send money manually.
   $_->{checked} = ($vc eq 'customer' ? $_->{direct_debit} : !$_->{direct_debit}) for @{ $invoices };
 
-  my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
+  my $bank_account_label_sub = sub { $locale->text('#1 - Account number #2, bank code #3, #4', $_[0]->{name}, $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank} ) };
 
   my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
   my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
@@ -130,7 +130,7 @@ sub bank_transfer_create {
                                                    'id' => \@vc_ids);
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
-    my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
+    my $bank_account_label_sub = sub { $locale->text('#1 - Account number #2, bank code #3, #4', $_[0]->{name}, $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank} ) };
 
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',

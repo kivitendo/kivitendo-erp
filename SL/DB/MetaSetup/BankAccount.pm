@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   chart_id       => { type => 'integer', not_null => 1 },
   iban           => { type => 'varchar', length => 100 },
   id             => { type => 'integer', not_null => 1, sequence => 'id' },
+  name           => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

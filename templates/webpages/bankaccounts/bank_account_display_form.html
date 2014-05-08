@@ -12,6 +12,11 @@
   <p>
    <table>
     <tr>
+     <td align="right">[% 'Name' | $T8 %]</td>
+     <td><input name="account.name" size="20" maxlength="100" value="[% HTML.escape(account.name) %]"></td>
+    </tr>
+
+    <tr>
      <td align="right">[% 'Account number' | $T8 %]</td>
      <td><input name="account.account_number" size="20" maxlength="100" value="[% HTML.escape(account.account_number) %]"></td>
     </tr>

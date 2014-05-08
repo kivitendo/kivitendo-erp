@@ -23,9 +23,9 @@ sub save {
 
   my $query =
     qq|UPDATE bank_accounts
-       SET account_number = ?, bank_code = ?, bank = ?, iban = ?, bic = ?, chart_id = ?
+       SET name= ?, account_number = ?, bank_code = ?, bank = ?, iban = ?, bic = ?, chart_id = ?
        WHERE id = ?|;
-  my @values = (@params{qw(account_number bank_code bank iban bic)}, conv_i($params{chart_id}), conv_i($params{id}));
+  my @values = (@params{qw(name account_number bank_code bank iban bic)}, conv_i($params{chart_id}), conv_i($params{id}));
 
   do_query($form, $dbh, $query, @values);
 
@@ -91,6 +91,7 @@ sub list {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my %sort_columns = (
+    'name'              => [ 'ba.name', ],
     'account_number'    => [ 'ba.account_number', ],
     'bank_code'         => [ 'ba.bank_code', 'ba.account_number', ],
     'bank'              => [ 'ba.bank',      'ba.account_number', ],
@@ -103,7 +104,7 @@ sub list {
   my %sort_spec = create_sort_spec('defs' => \%sort_columns, 'default' => 'bank', 'column' => $params{sortorder}, 'dir' => $params{sortdir});
 
   my $query =
-    qq|SELECT ba.id, ba.account_number, ba.bank_code, ba.bank, ba.iban, ba.bic, ba.chart_id,
+    qq|SELECT ba.id, ba.name, ba.account_number, ba.bank_code, ba.bank, ba.iban, ba.bic, ba.chart_id,
          c.accno AS chart_accno, c.description AS chart_description
        FROM bank_accounts ba
        LEFT JOIN chart c ON (ba.chart_id = c.id)
