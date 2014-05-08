@@ -5,6 +5,19 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
+Upgrade auf v3.x.0
+==================
+
+* Neue Abhängigkeiten
+
+  * GD
+  * HTML::Restrict
+  * Image::Info
+
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+  $ scripts/installation_check.pl -ro
+
 Upgrade auf v3.1.0
 ==================
 

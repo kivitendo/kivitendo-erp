@@ -2,6 +2,39 @@
 # Veränderungen von kivitendo #
 ###############################
 
+201x-xx-xx - Release 3.x.0
+
+Größere neue Features:
+
+- Pflichtenhefte
+
+  Im Verkauf wurde ein neuer Belegtyp namens "Pflichtenheft"
+  eingeführt. Dieser steht im Prozess an erster Stelle noch vor dem
+  Angebot. Es ist möglich, in den Stammdaten Vorlagen für
+  Pflichtenhefte zu erstellen und diese immer wieder in neue
+  Pflichtenhefte hineinzukopieren.
+
+  Aus Pflichtenheften lassen sich direkt die weiteren Verkaufsprozesse
+  Angebot und Auftrag anstoßen, wobei die im Pflichtenheft gemachten
+  Einträge automatisch in die neuen Belege übernommen werden. Welche
+  Artikel dabei zum Einsatz kommen, kann frei konfiguriert werden.
+
+- Verwendung von Rich-Text in Langtexten in Einkaufs- und
+  Verkaufsbelegen
+
+  Durch die Einführung von Pflichtenheften, in denen die Verwendung
+  von Rich-Text in Form von HTML-Editoren eingeführt wurde, wurden
+  auch die Artikelstammdaten sowie Einkaufs- und Verkaufsbelege
+  diesbezüglich nachgerüstet. Somit ist es möglich, die Langtexte der
+  Artikel mit Rich-Text zu formatieren. Dabei kommt eine
+  eingeschränkte Auswahl an Formatierungsmöglichkeiten zum Einsatz,
+  die korrekt in LaTeX- und OpenDocument-Druckvorlagen umgesetzt werden.
+
+  Verfügbare Formatierungsoptionen sind: Schriftauszeichnungen (fett,
+  kursiv, unterstrichen, durchgestrichen, höher und tiefer gestellt)
+  und Aufzählungslisten (sowohl Stichpunktlisten als auch nummerierte
+  Listen).
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:
