@@ -241,7 +241,7 @@ sub date_tag {
 }
 
 sub customer_picker {
-  my ($self, $name, $value, %params) = @_;
+  my ($self, $name, $value, %params) = _hashify(3, @_);
   my $name_e    = _H($name);
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
@@ -252,7 +252,7 @@ sub customer_picker {
 
 # simple version with select_tag
 sub vendor_selector {
-  my ($self, $name, $value, %params) = @_;
+  my ($self, $name, $value, %params) = _hashify(3, @_);
 
   my $actual_vendor_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"}) ? $::form->{"$name"}->id : $::form->{"$name"}) :
                          (ref $value && $value->can('id')) ? $value->id : '';
@@ -267,7 +267,7 @@ sub vendor_selector {
 
 # simple version with select_tag
 sub part_selector {
-  my ($self, $name, $value, %params) = @_;
+  my ($self, $name, $value, %params) = _hashify(3, @_);
 
   my $actual_part_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"})? $::form->{"$name"}->id : $::form->{"$name"}) :
                        (ref $value && $value->can('id')) ? $value->id : '';
