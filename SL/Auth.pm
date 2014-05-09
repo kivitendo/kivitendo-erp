@@ -1480,7 +1480,7 @@ Returns C<$self>.
 Nothing here yet.
 
 =head1 AUTHOR
-pp
+
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 =cut
