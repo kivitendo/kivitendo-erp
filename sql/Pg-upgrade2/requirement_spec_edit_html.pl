@@ -41,7 +41,7 @@ sub run {
     map({ ($_ => 'longdescription') } qw(translation orderitems invoice delivery_order_items)),
   );
 
-  $self->convert_column($_, $tables{$_}) for sort { $a <=> $b } keys %tables;
+  $self->convert_column($_, $tables{$_}) for keys %tables;
 
   return 1;
 }
