@@ -28,7 +28,7 @@ SL::HTML::Restrict - Restrict HTML tags to set of allowed tags
   my $cleaner = SL::HTML::Restrict->create;
   my $cleaned = $cleaner->process($unsafe_html);
 
-=head1
+=head1 DESCRIPTION
 
 Often you want to allow a fixed set of well-known HTML tags to be used
 – but nothing else. This is a thin wrapper providing a default set of
