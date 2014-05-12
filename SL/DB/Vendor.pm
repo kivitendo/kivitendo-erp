@@ -3,6 +3,7 @@ package SL::DB::Vendor;
 use strict;
 
 use SL::DB::MetaSetup::Vendor;
+use SL::DB::Manager::Vendor;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
@@ -27,7 +28,6 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
-__PACKAGE__->meta->make_manager_class;
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->before_save('_before_save_set_vendornumber');
@@ -37,6 +37,12 @@ sub _before_save_set_vendornumber {
 
   $self->create_trans_number if $self->vendornumber eq '';
   return 1;
+}
+
+sub displayable_name {
+  my $self = shift;
+
+  return join ' ', grep $_, $self->vendornumber, $self->name;
 }
 
 sub is_customer { 0 };
