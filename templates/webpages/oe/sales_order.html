@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
+
 [%- PROCESS 'amcvar/render_inputs_block.html' %]
 <tr>
  <td>
@@ -21,7 +22,7 @@
 [%- END %]
    </tr>
 [%- FOREACH row = ROWS %]
-     <tr valign="top" class="[% IF row.error %]error_message[% ELSE %]listrow[% loop.count % 2 %][% END %]">
+     <tr valign="top" class="row [% IF row.error %]error_message[% ELSE %]listrow[% loop.count % 2 %][% END %]">
  [%- FOREACH row1 = row.ROW1 %]
       <td[% IF row1.align %] align="[% row1.align %]"[% END %][% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>
  [%- END %]
@@ -49,12 +50,23 @@
 [%- END %]
 
   </table>
- </td>
-</tr>
-<tr style='display:none'>
- <td>
-<script type='text/javascript'>
-  $(document).ready( function(){ $('#display_row tr:gt(1) input[name*="description"]').focus() });
-</script>
+
+  <script type='text/javascript'>
+    $(function() {
+      setTimeout(function(){
+        [% SWITCH( myconfig_focus_position ) %]
+          [% CASE 'last_partnumber' %]
+            $('#display_row tr.row:gt(-3):lt(-1) input[name*="partnumber"]').focus();
+          [% CASE 'last_description' %]
+            $('#display_row tr.row:gt(-3):lt(-1) input[name*="description"]').focus();
+          [% CASE 'new_partnumber' %]
+            $('#display_row tr:gt(1) input[name*="partnumber"]').focus();
+          [% CASE DEFAULT %]
+            $('#display_row tr:gt(1) input[name*="description"]').focus();
+        [% END %]
+      }, 1);
+    });
+  </script>
+
  </td>
 </tr>

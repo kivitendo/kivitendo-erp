@@ -37,11 +37,11 @@
       <th align="right">[% 'E-mail' | $T8 %]</th>
       <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
      </tr>
-     
+
      <tr valign="top">
       <th align="right">[% 'Signature' | $T8 %]</th>
       <td><textarea id="signature" name="signature" class="toggletextarea" rows="5" cols="50">[% HTML.escape(myconfig_signature) %] </textarea>
-         <span id="full_signature" class="toggletextarea"> <textarea readonly name="full_signature" rows="10" cols="50" >[% HTML.escape(full_signature) %]</textarea> </span> 
+         <span id="full_signature" class="toggletextarea"> <textarea readonly name="full_signature" rows="10" cols="50" >[% HTML.escape(full_signature) %]</textarea> </span>
          <a href="#" class="togglelink">[% 'Check full signature' | $T8 %]</a>
          <a href="#" id="edit_signature" class="togglelink">[% 'Edit user signature' | $T8 %]</a>
           </td> </tr>
@@ -59,6 +59,22 @@
         <th align="right">[% 'taxincluded checked' | $T8 %]</th>
         <td>
           [% L.yes_no_tag('taxincluded_checked', myconfig_taxincluded_checked) %]
+        </td>
+      </tr>
+
+      <tr>
+        <th align="right">[% 'Focus position after update' | $T8 %]</th>
+        <td>
+          [% L.select_tag(
+            'focus_position',
+            [
+              ['new_description', LxERP.t8('New row, description')],
+              ['new_partnumber', LxERP.t8('New row, partnumber')],
+              ['last_description', LxERP.t8('Last row, description')],
+              ['last_partnumber', LxERP.t8('Last row, partnumber')],
+            ],
+            default => myconfig_focus_position)
+          %]
         </td>
       </tr>
 
@@ -222,7 +238,7 @@
  </form>
 
  <script type="text/javascript">
-  <!-- 
+  <!--
 $(function() {
   $("#full_signature").toggle();
   $("#edit_signature").toggle();
