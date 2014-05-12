@@ -57,6 +57,11 @@
   </tr>
 
   <tr>
+   <td>[% 'Select type of transfer in' | $T8 %]:</td>
+   <td>[% L.select_tag('transfer_type_id', TRANSFER_TYPES, title_key='description') %] </td>
+  </tr>
+
+  <tr>
    <th align="right" nowrap>[% 'Optional comment' | $T8 %]</th>
    <td>[% L.input_tag('comment', FORM.comment, size=60) %]</td>
   </tr>

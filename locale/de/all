@@ -2483,6 +2483,7 @@ $self->{texts} = {
   'Select template to paste'    => 'Einzufügende Vorlage auswählen',
   'Select type of removal'      => 'Grund der Entnahme ausw&auml;hlen',
   'Select type of transfer'     => 'Grund der Umlagerung ausw&auml;hlen',
+  'Select type of transfer in'  => 'Grund der Einlagerung auswählen:',
   'Selected'                    => 'Ausgewählt',
   'Selection'                   => 'Auswahlbox',
   'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' => 'Auswahlboxen: Das Optionenfeld muss die f&uuml;r die Auswahl verf&uuml;gbaren Eintr&auml;ge enthalten. Die Eintr&auml;ge werden mit \'##\' voneinander getrennt. Beispiel: \'Fr&uuml;h##Normal##Sp&auml;t\'.',

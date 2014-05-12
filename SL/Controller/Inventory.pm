@@ -39,7 +39,9 @@ sub action_stock_in {
   $::form->{title}   = t8('Stock');
 
   $::request->layout->focus('#part_id_name');
-  $_[0]->render('inventory/warehouse_selection_stock', title => $::form->{title});
+  my $transfer_types = WH->retrieve_transfer_types('in');
+  map { $_->{description} = $main::locale->text($_->{description}) } @{ $transfer_types };
+  $self->render('inventory/warehouse_selection_stock', title => $::form->{title}, TRANSFER_TYPES => $transfer_types );
 }
 
 sub action_stock {
