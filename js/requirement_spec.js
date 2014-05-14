@@ -447,6 +447,10 @@ ns.standard_basic_settings_ajax_call = function(key, opt) {
       $('#basic_settings_form,#project_link_form').remove();
     }
     return true;
+
+  } else if (key == 'save') {
+    $('#basic_settings_form_submit').click();
+    return true;
   }
 
   var data = 'action=RequirementSpec/ajax_' + key + '&id=' + encodeURIComponent($('#requirement_spec_id').val());
