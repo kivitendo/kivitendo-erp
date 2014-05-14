@@ -9,6 +9,7 @@ use SL::JSON ();
 
 use Rose::Object::MakeMethods::Generic
 (
+  scalar                  => [ qw(controller) ],
   'scalar --get_set_init' => [ qw(_actions _flash _error) ],
 );
 
@@ -188,6 +189,7 @@ sub to_array {
 
 sub render {
   my ($self, $controller) = @_;
+  $controller ||= $self->controller;
   $self->reinit_widgets if $::request->presenter->need_reinit_widgets;
   return $controller->render(\$self->to_json, { type => 'json' });
 }
@@ -269,7 +271,7 @@ Now some Perl code:
     my ($self) = @_;
 
     # Create a new client-side JS object and do stuff with it!
-    my $js = SL::ClientJS->new;
+    my $js = SL::ClientJS->new(controller => $self);
 
     # Show some element on the page:
     $js->show('#usually_hidden');
@@ -295,7 +297,7 @@ Now some Perl code:
 
     # Rendering can also be chained, e.g.
     $js->html('#selector', $html)
-       ->render($self);
+       ->render;
   }
 
 =head1 OVERVIEW
@@ -345,12 +347,15 @@ are the function parameters.
 Returns the actions gathered so far as a JSON string ready to be sent
 to the client.
 
-=item C<render $controller>
+=item C<render [$controller]>
 
 Renders C<$self> via the controller. Useful for chaining. Equivalent
 to the following:
 
   $controller->render(\$self->to_json, { type => 'json' });
+
+The controller instance to use can be set during object creation (see
+synopsis) or as an argument to C<render>.
 
 =item C<dialog>
 
