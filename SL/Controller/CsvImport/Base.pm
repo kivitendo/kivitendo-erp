@@ -24,7 +24,7 @@ use Rose::Object::MakeMethods::Generic
 sub run {
   my ($self, %params) = @_;
 
-  $self->test_run($params{test_run});
+  $self->test_run($params{test});
 
   $self->controller->track_progress(phase => 'parsing csv', progress => 0);
 
