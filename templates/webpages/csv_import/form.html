@@ -114,11 +114,6 @@
 
 [%- ELSIF SELF.type == 'parts' %]
    <p>
-    [%- LxERP.t8("If the article type is set to 'mixed' then a column called 'type' must be present.") %]
-    [% LxERP.t8("Type can be either 'part' or 'service'.") %]
-   </p>
-
-   <p>
     [1]:
     [% LxERP.t8('The three columns "make_X", "model_X" and "lastcost_X" with the same number "X" are used to import vendor part numbers and vendor prices.') %]
     [% LxERP.t8('The column triplets can occur multiple times with different numbers "X" each time (e.g. "make_1", "model_1", "lastcost_1", "make_2", "model_2", "lastcost_2", "make_3", "model_3", "lastcost_3" etc).') %]
@@ -128,6 +123,11 @@
     <p>
     [2]:
     [% LxERP.t8('Onhand only sets the quantity in master data, not in inventory. This is only a legacy info field and will be overwritten as soon as a inventory transfer happens.') %]
+   </p>
+   <p>
+    [3]:
+    [% LxERP.t8("If the article type is set to 'mixed' then a column called 'type' must be present.") %]
+    [% LxERP.t8("Type can be either 'part' or 'service'.") %]
    </p>
 
 [%- ELSIF SELF.type == 'orders' %]

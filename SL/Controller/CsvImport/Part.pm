@@ -496,7 +496,7 @@ sub setup_displayable_columns {
                                  { name => 'rop',                description => $::locale->text('ROP')                                                  },
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                                            },
                                  { name => 'shop',               description => $::locale->text('Shopartikel')                                          },
-                                 { name => 'type',               description => $::locale->text('Article type (see below)')                             },
+                                 { name => 'type',               description => $::locale->text('Article type')  . ' [3]'                             },
                                  { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')                                  },
                                  { name => 'weight',             description => $::locale->text('Weight')                                               },
