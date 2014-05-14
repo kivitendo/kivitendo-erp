@@ -265,6 +265,11 @@ Secondary classes may currently not have cvars of their own.
 This is a Rose::DB::Object::Relationship accessor, generated for cvars. Use it
 like any other OneToMany relationship.
 
+Note that unlike L</cvars_by_config> this accessor only returns
+variables that have already been created for this object. No variables
+will be autovivified for configs for which no variable has been
+created yet.
+
 =item C<cvars [ CUSTOM_VARIABLES ]>
 
 Alias to C<custom_variables>. Will only be installed if C<cvars_alias> was
@@ -309,6 +314,7 @@ vivified with the same rules as in C<cvars_by_config>.
 
 =head1 AUTHOR
 
-Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 =cut
