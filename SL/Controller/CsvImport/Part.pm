@@ -203,7 +203,7 @@ sub check_existing {
 
   my $object = $entry->{object};
 
-  if (!$self->test_run && $object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
+  if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
     $entry->{part} = SL::DB::Manager::Part->find_by(
       SL::DB::Manager::Part->type_filter($object->type),
       ( partnumber => $object->partnumber )                 x!! $object->partnumber,
