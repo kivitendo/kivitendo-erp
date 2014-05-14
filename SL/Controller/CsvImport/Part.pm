@@ -210,11 +210,8 @@ sub check_existing {
     );
   }
 
-  if ($self->settings->{article_number_policy} eq 'update_prices') {
-    if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
-      push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
-    }
-    if ($entry->{part}) {
+  if ($entry->{part}) {
+    if ($self->settings->{article_number_policy} eq 'update_prices') {
       map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
 
       # merge prices
@@ -223,13 +220,14 @@ sub check_existing {
 
       push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
       $entry->{object_to_save} = $entry->{part};
+    } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
+      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));
+    } else {
+      $object->partnumber('####');
     }
-  } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
-    push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database')) if ( $entry->{part} );
-  } else {
-    $object->partnumber('####') if $entry->{part};
   }
 }
+
 
 sub handle_prices {
   my ($self, $entry) = @_;
