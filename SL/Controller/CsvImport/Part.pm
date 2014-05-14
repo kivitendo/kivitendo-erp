@@ -16,6 +16,8 @@ use SL::DB::Price;
 use SL::DB::Translation;
 use SL::DB::Unit;
 
+use List::MoreUtils qw(none);
+
 use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
@@ -204,30 +206,34 @@ sub check_existing {
   my $object = $entry->{object};
 
   if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
-    $entry->{part} = SL::DB::Manager::Part->find_by(
-      SL::DB::Manager::Part->type_filter($object->type),
-      ( partnumber => $object->partnumber )                 x!! $object->partnumber,
-    );
+    $entry->{part} = SL::DB::Manager::Part->find_by(partnumber => $object->partnumber);
   }
 
   if ($entry->{part}) {
     if ($self->settings->{article_number_policy} eq 'update_prices') {
-      map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
+      if ($self->settings->{parts_type} eq 'mixed' && $entry->{part}->type ne $object->type) {
+        push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database with different type'));
+      } else {
+        map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
 
-      # merge prices
-      my %prices_by_pricegroup_id = map { $_->pricegroup->id => $_ } $entry->{part}->prices, $object->prices;
-      $entry->{part}->prices(grep { $_ } map { $prices_by_pricegroup_id{$_->id} } @{ $self->all_pricegroups });
+        # merge prices
+        my %prices_by_pricegroup_id = map { $_->pricegroup->id => $_ } $entry->{part}->prices, $object->prices;
+        $entry->{part}->prices(grep { $_ } map { $prices_by_pricegroup_id{$_->id} } @{ $self->all_pricegroups });
 
-      push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
-      $entry->{object_to_save} = $entry->{part};
+        push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
+        $entry->{object_to_save} = $entry->{part};
+      }
     } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));
+
     } else {
       $object->partnumber('####');
+      push(@{$entry->{errors}}, $::locale->text('Skipping, for assemblies are not importable (yet)')) if $object->type eq 'assembly';
     }
+  } else {
+    push(@{$entry->{errors}}, $::locale->text('Skipping, for assemblies are not importable (yet)')) if $object->type eq 'assembly';
   }
 }
-
 
 sub handle_prices {
   my ($self, $entry) = @_;
@@ -258,16 +264,24 @@ sub check_type {
   if ($type eq 'mixed') {
     $type = $entry->{raw_data}->{type} =~ m/^p/i ? 'part'
           : $entry->{raw_data}->{type} =~ m/^s/i ? 'service'
+          : $entry->{raw_data}->{type} =~ m/^a/i ? 'assembly'
           :                                        undef;
   }
 
-  $entry->{object}->income_accno_id(  $bg->income_accno_id_0 );
-  $entry->{object}->expense_accno_id( $bg->expense_accno_id_0 );
+  $entry->{object}->assembly($type eq 'assembly');
+
+  $entry->{object}->income_accno_id( $bg->income_accno_id_0 );
+
+  if ($type eq 'part' || $type eq 'service') {
+    $entry->{object}->expense_accno_id( $bg->expense_accno_id_0 );
+  }
 
   if ($type eq 'part') {
     $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
+  }
 
-  } elsif ($type ne 'service') {
+
+  if (none { $_ eq $type } qw(part service assembly)) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid part type');
     return 0;
   }
