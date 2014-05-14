@@ -149,9 +149,7 @@ sub _all_configs {
 
   require SL::DB::CustomVariableConfig;
 
-  $params{module}
-    ? SL::DB::Manager::CustomVariableConfig->get_all(query => [ module => $params{module} ])
-    : SL::DB::Manager::CustomVariableConfig->get_all;
+  SL::DB::Manager::CustomVariableConfig->get_all_sorted($params{module} ? (query => [ module => $params{module} ]) : ());
 }
 
 sub _overload_by_module {
