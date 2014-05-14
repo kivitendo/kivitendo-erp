@@ -3,7 +3,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 
-[%- SET var_name = HTML.escape(cvar_name_prefix) _ HTML.escape(var.config.name) _ HTML.escape(cvar_name_postfix) %]
+[%- DEFAULT var_name = HTML.escape(cvar_name_prefix) _ HTML.escape(var.config.name) _ HTML.escape(cvar_name_postfix) %]
 
 [%- IF ( hide_non_editable && !var.config.is_flag('editable') ) %]
   [% L.hidden_tag(var_name, var.value) %]

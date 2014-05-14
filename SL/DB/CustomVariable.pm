@@ -11,17 +11,52 @@ __PACKAGE__->meta->initialize;
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 
+sub unparsed_value {
+  my ($self, $new) = @_;
+
+  $self->{__unparsed_value} = $new;
+}
+
+sub _ensure_config {
+  my ($self) = @_;
+
+  return $self->config if  $self->config;
+  return undef         if !defined $self->config_id;
+  $self->config( SL::DB::CustomVariableConfig->new(id => $self->config_id)->load );
+}
+
+sub parse_value {
+  my ($self) = @_;
+  my $type   = $self->_ensure_config->type;
+
+  return unless exists $self->{__unparsed_value};
+
+  my $unparsed = delete $self->{__unparsed_value};
+
+  if ($type =~ m{^(?:customer|vendor|part|bool|number)}) {
+    return $self->number_value(defined($unparsed) ? $unparsed * 1 : undef);
+  }
+
+  if ($type =~ m{^(?:date|timestamp)}) {
+    return $self->timestamp_value(defined($unparsed) ? DateTime->from_kivi($unparsed) : undef);
+  }
+
+  # text, textfield, select
+  $self->text_value($unparsed);
+}
+
 sub value {
   my $self = $_[0];
-  my $type = $self->config->type;
+  my $type = $self->_ensure_config->type;
+
+  if (scalar(@_) > 1) {
+    $self->unparsed_value($_[1]);
+    $self->parse_value;
+  }
 
   goto &bool_value      if $type eq 'bool';
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
-
-  if ( $_[1] && ($type eq 'customer' || $type eq 'vendor' || $type eq 'part') ) {
-    $self->number_value($_[1]);
-  }
 
   if ( $type eq 'customer' ) {
     require SL::DB::Customer;

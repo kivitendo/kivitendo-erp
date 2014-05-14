@@ -27,6 +27,7 @@ sub import {
   make_cvar_by_configs($caller_package, %params);
   make_cvar_by_name($caller_package, %params);
   make_cvar_as_hashref($caller_package, %params);
+  make_cvar_value_parser($caller_package, %params);
 }
 
 sub save_meta_info {
@@ -142,6 +143,20 @@ sub make_cvar_as_hashref {
 
     return \%return;
   }
+}
+
+sub make_cvar_value_parser {
+  my ($caller_package) = @_;
+  no strict 'refs';
+  *{ $caller_package . '::parse_custom_variable_values' } =  sub {
+    my ($self) = @_;
+
+    $_->parse_value for @{ $self->custom_variables || [] };
+
+    return $self;
+  };
+
+  $caller_package->before_save('parse_custom_variable_values');
 }
 
 sub _all_configs {
@@ -309,6 +324,50 @@ This is useful if you need to list every possible CVar, like in CRUD masks.
 Returns the CVar object for this object which matches the given internal name.
 Useful for print templates. If the requested cvar is not present, it will be
 vivified with the same rules as in C<cvars_by_config>.
+
+=item C<parse_custom_variable_values>
+
+When you want to edit custom variables in a form then you have
+unparsed values from the user. These should be written to the
+variable's C<unparsed_value> field.
+
+This function then processes all variables and parses their
+C<unparsed_value> field into the proper field. It returns C<$self> for
+easy chaining.
+
+This is automatically called in a C<before_save> hook so you don't
+have to do it manually if you save directly after assigning the
+values.
+
+In an HTML form you could e.g. use something like the following:
+
+  [%- FOREACH var = SELF.project.cvars_by_config.as_list %]
+    [% HTML.escape(var.config.description) %]:
+    [% L.hidden_tag('project.custom_variables[+].config_id', var.config.id) %]
+    [% PROCESS 'common/render_cvar_input.html' var_name='project.custom_variables[].unparsed_value' %]
+  [%- END %]
+
+Later in the controller when you want to save this project you don't
+have to do anything special:
+
+  my $project = SL::DB::Project->new;
+  my $params  = $::form->{project} || {};
+
+  $project->assign_attributes(%{ $params });
+
+  $project->parse_custom_variable_values->save;
+
+However, if you need access to a variable's value before saving in
+some way then you have to call this function manually. For example:
+
+  my $project = SL::DB::Project->new;
+  my $params  = $::form->{project} || {};
+
+  $project->assign_attributes(%{ $params });
+
+  $project->parse_custom_variable_values;
+
+  print STDERR "CVar[0] value: " . $project->custom_variables->[0]->value . "\n";
 
 =back
 
