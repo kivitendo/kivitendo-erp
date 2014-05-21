@@ -461,8 +461,12 @@ sub build_upgrade_order {
 #######
 #######
 
-$locale = Locale->new;
-$form   = Form->new;
+$locale    = Locale->new;
+$form      = Form->new;
+$::request = SL::Request->new(
+  cgi    => CGI->new({}),
+  layout => SL::Layout::None->new,
+);
 
 #######
 #######
