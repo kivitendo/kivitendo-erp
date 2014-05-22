@@ -183,7 +183,7 @@ sub transfer_assembly {
   # (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
 
-  my $query = qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id
+  my $query = qq|select assembly.parts_id, assembly.qty, parts.warehouse_id from assembly inner join parts on assembly.parts_id = parts.id
                   where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
@@ -204,17 +204,21 @@ sub transfer_assembly {
     $schleife_durchlaufen=1;  # Erzeugnis definiert
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
+    my $currentPart_WH_ID = $hash_ref->{warehouse_id};
+    my $warehouse_info = $self->get_basic_warehouse_info('id' => $currentPart_WH_ID);
+    my $warehouse_desc = $warehouse_info->{"warehouse_description"};
 
     # Überprüfen, ob diese Anzahl gefertigt werden kann
     my $max_parts = $self->get_max_qty_parts(parts_id => $currentPart_ID, # $self->method() == this.method()
-                                             warehouse_id => $params{dst_warehouse_id});
+                                             warehouse_id => $currentPart_WH_ID);
 
     if ($partsQTY  > $max_parts){
       # Gibt es hier ein Problem mit nicht "escapten" Zeichen?
       # 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
 
-      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) .
-                            " Einheiten der Ware:" . $self->get_part_description(parts_id => $currentPart_ID) .
+      $kannNichtFertigen .= "Zum Fertigen fehlen: " . abs($partsQTY - $max_parts) .
+                            " Einheiten der Ware: " . $self->get_part_description(parts_id => $currentPart_ID) . 
+                            " im Lager: " . $warehouse_desc .
                             ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
       next; # die weiteren Überprüfungen sind unnötig, daher das nächste elemente prüfen (genaue Ausgabe, was noch fehlt)
     }
@@ -228,7 +232,7 @@ sub transfer_assembly {
 
     my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory
                        WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber, bestbefore having SUM(qty)>0|;
-    my $tempsth   = prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);
+    my $tempsth   = prepare_execute_query($form, $dbh, $tempquery, $currentPart_WH_ID, $currentPart_ID);
 
     # Alle Werte zu dem einzelnen Artikel, die wir später auslagern
     my $tmpPartsQTY = $partsQTY;
@@ -246,7 +250,7 @@ sub transfer_assembly {
                                             # wenn * -1 als berechnung in der parameter-übergabe angegeben wird.
                                             # Dieser Wert IST und BLEIBT positiv!! Hilfe.
                                             # Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
-        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id},
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                      $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                      $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
 
@@ -256,7 +260,7 @@ sub transfer_assembly {
         # auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
       } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
         $tmpPartsQTY *=-1;
-        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id},
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                      $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                      $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
         last; # beendet die schleife (springt zum letzten element)
@@ -895,8 +899,8 @@ $main::lxdebug->enter_sub();
   my $dbh      = $params{dbh} || $form->get_standard_dbh();
 
   my $query = qq| SELECT SUM(qty), bin_id, chargenumber, bestbefore  FROM inventory where parts_id = ? AND warehouse_id = ? GROUP BY bin_id, chargenumber, bestbefore|;
-
   my $sth_QTY      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}, $params{warehouse_id}); #info: aufruf an DBUtils.pm
+
 
   my $max_qty_parts = 0; #Initialisierung mit 0
   while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle Haltbarkeiten, chargen und Lagerorte (s.a. SQL-Query oben)
