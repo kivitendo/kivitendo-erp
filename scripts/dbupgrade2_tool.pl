@@ -299,6 +299,23 @@ sub create_upgrade {
   print $fh "$comment \@description: $description\n";
   print $fh "$comment \@depends: @depends\n";
   print $fh "$comment \@encoding: $encoding\n";
+
+  if ($type eq 'pl') {
+    print $fh "package SL::DBUpgrade2::$filename;\n";
+    print $fh "\n";
+    print $fh "use strict;\n";
+    print $fh "use utf8;\n" if $encoding =~ /utf.?8/i;
+    print $fh "\n";
+    print $fh "use parent qw(SL::DBUpgrade2::Base);\n";
+    print $fh "\n";
+    print $fh "sub run {\n";
+    print $fh "  my (\$self) = \@_;\n";
+    print $fh "\n";
+    print $fh "}\n";
+    print $fh "\n";
+    print $fh "1;\n";
+  }
+
   close $fh;
 
   print "File $full_filename created.\n";
