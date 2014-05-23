@@ -81,6 +81,38 @@ sub pre_request_checks {
   }
 }
 
+sub pre_request_initialization {
+  my ($self, %params) = @_;
+
+  $self->unrequire_bin_mozilla;
+
+  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::form          = Form->new;
+  $::instance_conf = SL::InstanceConfiguration->new;
+  $::request       = SL::Request->new(
+    cgi            => CGI->new({}),
+    layout         => SL::Layout::None->new,
+  );
+
+  my $session_result = $::auth->restore_session;
+  $::auth->create_or_refresh_session;
+
+  if ($params{client}) {
+    $::auth->set_client($params{client}) || die("cannot find client " . $params{client});
+
+    if ($params{login}) {
+      die "cannot find user " . $params{login}            unless %::myconfig = $::auth->read_user(login => $params{login});
+      die "cannot find locale for user " . $params{login} unless $::locale   = Locale->new($::myconfig{countrycode});
+
+      $::form->{login} = $params{login}; # normaly implicit at login
+
+      $::instance_conf->init;
+    }
+  }
+
+  return $session_result;
+}
+
 sub render_error_ajax {
   my ($error) = @_;
 
@@ -199,18 +231,7 @@ sub handle_request {
 
   my ($script, $path, $suffix, $script_name, $action, $routing_type);
 
-  $self->unrequire_bin_mozilla;
-
-  $::locale        = Locale->new($::lx_office_conf{system}->{language});
-  $::form          = Form->new;
-  $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = SL::Request->new(
-    cgi => CGI->new({}),
-    layout => SL::Layout::None->new,
-  );
-
-  my $session_result = $::auth->restore_session;
-  $::auth->create_or_refresh_session;
+  my $session_result = $self->pre_request_initialization;
 
   $::form->read_cgi_input;
 
