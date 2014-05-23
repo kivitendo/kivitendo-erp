@@ -1065,6 +1065,7 @@ sub save_preferences {
   my $user = SL::DB::Manager::AuthUser->find_by(login => $form->{login});
   $user->update_attributes(
     config_values => {
+      %{ $user->config_values },
       map { ($_ => $form->{$_}) } SL::DB::AuthUser::CONFIG_VARS(),
     });
 
