@@ -250,6 +250,32 @@ sub add_cvar_columns_to_displayable_columns {
                                      @{ $self->cvar_configs_by->{row_ident}->{$row_ident} });
 }
 
+sub field_lengths {
+  my ($self) = @_;
+
+  my %field_lengths_by_ri = ();
+
+  foreach my $p (@{ $self->profile }) {
+    my %field_lengths = map { $_->name => $_->length } grep { $_->type eq 'varchar' } @{ $p->{class}->meta->columns };
+    $field_lengths_by_ri{ $p->{row_ident} } = \%field_lengths;
+  }
+
+  return %field_lengths_by_ri;
+}
+
+sub fix_field_lengths {
+  my ($self) = @_;
+
+  my %field_lengths_by_ri = $self->field_lengths;
+  foreach my $entry (@{ $self->controller->data }) {
+    next unless @{ $entry->{errors} };
+    my %field_lengths = %{ $field_lengths_by_ri{ $entry->{raw_data}->{datatype} } };
+    map { $entry->{object}->$_(substr($entry->{object}->$_, 0, $field_lengths{$_})) if $entry->{object}->$_ } keys %field_lengths;
+  }
+
+  return;
+}
+
 sub is_multiplexed { 1 }
 
 1;

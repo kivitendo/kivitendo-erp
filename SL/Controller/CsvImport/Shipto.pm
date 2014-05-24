@@ -88,20 +88,6 @@ sub get_duplicate_check_fields {
   };
 }
 
-sub field_lengths {
-  return ( shiptoname         => 75,
-           shiptodepartment_1 => 75,
-           shiptodepartment_2 => 75,
-           shiptostreet       => 75,
-           shiptozipcode      => 75,
-           shiptocity         => 75,
-           shiptocountry      => 75,
-           shiptocontact      => 75,
-           shiptophone        => 30,
-           shiptofax          => 30,
-         );
-}
-
 sub init_profile {
   my ($self) = @_;
 

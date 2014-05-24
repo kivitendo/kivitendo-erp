@@ -126,16 +126,6 @@ sub get_duplicate_check_fields {
   };
 }
 
-sub field_lengths {
-  return ( cp_title     => 75,
-           cp_givenname => 75,
-           cp_name      => 75,
-           cp_phone1    => 75,
-           cp_phone2    => 75,
-           cp_gender    =>  1,
-         );
-}
-
 sub setup_displayable_columns {
   my ($self) = @_;
 

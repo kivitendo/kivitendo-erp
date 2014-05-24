@@ -465,7 +465,9 @@ sub save_objects {
 }
 
 sub field_lengths {
-  return ();
+  my ($self) = @_;
+
+  return map { $_->name => $_->length } grep { $_->type eq 'varchar' } @{$self->class->meta->columns};
 }
 
 sub fix_field_lengths {

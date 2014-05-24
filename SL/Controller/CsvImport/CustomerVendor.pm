@@ -214,26 +214,6 @@ sub save_objects {
   $self->SUPER::save_objects(data => $without_number);
 }
 
-sub field_lengths {
-  return ( name           => 75,
-           department_1   => 75,
-           department_2   => 75,
-           street         => 75,
-           zipcode        => 10,
-           city           => 75,
-           country        => 75,
-           contact        => 75,
-           fax            => 30,
-           account_number => 15,
-           bank_code      => 10,
-           language       => 5,
-           username       => 50,
-           ustid          => 14,
-           iban           => 100,
-           bic            => 100,
-         );
-}
-
 sub init_profile {
   my ($self) = @_;
 
