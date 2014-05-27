@@ -8,9 +8,10 @@ use Support::CanonialGlobals ();
 my (@globals, $testcount);
 
 BEGIN {
-  @globals = map { s/[^a-z_]//; $_ } @Support::CanonialGlobals::globals;
+  @globals = map { s/[^a-z_]//g; $_ } @Support::CanonialGlobals::globals;
   $testcount = scalar(@Support::Files::testitems);
 }
+
 
 use Test::More tests => $testcount;
 
@@ -53,7 +54,7 @@ foreach my $file (@testitems) {
         if ($found_word) {
             ok(0,"$file: found UNREGISTERED GLOBAL $found_word --WARNING");
         } else {
-            ok(1,"$file does only contain registered globals");
+            ok(1,$file);
         }
     } else {
         ok(0,"could not open $file for globals check --WARNING");

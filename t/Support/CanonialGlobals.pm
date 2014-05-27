@@ -1,6 +1,6 @@
 package Support::CanonialGlobals;
 
-my @globals = qw(
+our @globals = qw(
   $::lxdebug
   $::auth
   %::myconfig
