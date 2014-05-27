@@ -193,8 +193,8 @@ sub sort_linked_records {
 
   my $today     = DateTime->today_local;
   my $date_xtor = sub {
-      $_[0]->can('transdate_as_date') ? $_[0]->transdate_as_date
-    : $_[0]->can('itime_as_date')     ? $_[0]->itime_as_date
+      $_[0]->can('transdate_as_date') ? $_[0]->transdate
+    : $_[0]->can('itime_as_date')     ? $_[0]->itime->clone->truncate(to => 'day')
     :                                   $today;
   };
   my $date_comparator = sub {
@@ -234,32 +234,78 @@ __END__
 
 SL::DB::Helper::LinkedRecords - Mixin for retrieving linked records via the table C<record_links>
 
+SYNOPSIS
+
+  # In SL::DB::<Object>
+  use SL::DB::Helper::LinkedRecords;
+
+  # later in consumer code
+  # retrieve all links
+  my @linked_objects = $order->linked_records(
+    direction => 'both',
+  );
+
+  # only links to Invoices
+  my @linked_objects = $order->linked_records(
+    direction => 'to',
+    to        => 'Invoice',
+  );
+
+  # more than one target
+  my @linked_objects = $order->linked_records(
+    direction => 'to',
+    to        => [ 'Invoice', 'Order' ],
+  );
+
+  # more than one direction
+  my @linked_objects = $order->linked_records(
+    direction => 'both',
+    both      => 'Invoice',
+  );
+
+  # more than one direction and different targets
+  my @linked_objects = $order->linked_records(
+    direction => 'both',
+    to        => 'Invoice',
+    from      => 'Order',
+  );
+
+  # transitive over known classes
+  my @linked_objects = $order->linked_records(
+    direction => 'to',
+    to        => 'Invoice',
+    via       => 'DeliveryOrder',
+  );
+
+  # add a new link
+  $order->link_to_record($invoice);
+  $order->link_to_record($purchase_order, bidirectional => 1);
+
+
 =head1 FUNCTIONS
 
 =over 4
 
 =item C<linked_records %params>
 
-Retrieves records linked from or to C<$self> via the table
-C<record_links>. The mandatory parameter C<direction> (either C<from>,
-C<to> or C<both>) determines whether the function retrieves records
-that link to C<$self> (for C<direction> = C<to>) or that are linked
-from C<$self> (for C<direction> = C<from>). For C<direction = both>
-all records linked from or to C<$self> are returned.
+Retrieves records linked from or to C<$self> via the table C<record_links>. The
+mandatory parameter C<direction> (either C<from>, C<to> or C<both>) determines
+whether the function retrieves records that link to C<$self> (for C<direction>
+= C<to>) or that are linked from C<$self> (for C<direction> = C<from>). For
+C<direction = both> all records linked from or to C<$self> are returned.
 
-The optional parameter C<from> or C<to> (same as C<direction>)
-contains the package names of Rose models for table limitation (the
-prefix C<SL::DB::> is optional). It can be a single model name as a
-single scalar or multiple model names in an array reference in which
-case all links matching any of the model names will be returned.
+The optional parameter C<from> or C<to> (same as C<direction>) contains the
+package names of Rose models for table limitation (the prefix C<SL::DB::> is
+optional). It can be a single model name as a single scalar or multiple model
+names in an array reference in which case all links matching any of the model
+names will be returned.
 
-The optional parameter C<via> can be used to retrieve all documents
-that may have intermediate documents inbetween. It is an array
-reference of Rose package names for the models that may be
-intermediate link targets. One example is retrieving all invoices for
-a given quotation no matter whether or not orders and delivery orders
-have been created. If C<via> is given then C<from> or C<to> (depending
-on C<direction>) must be given as well, and it must then not be an
+The optional parameter C<via> can be used to retrieve all documents that may
+have intermediate documents inbetween. It is an array reference of Rose package
+names for the models that may be intermediate link targets. One example is
+retrieving all invoices for a given quotation no matter whether or not orders
+and delivery orders have been created. If C<via> is given then C<from> or C<to>
+(depending on C<direction>) must be given as well, and it must then not be an
 array reference.
 
 Examples:
@@ -267,23 +313,29 @@ Examples:
 If you only need invoices created directly from an order C<$order> (no
 delivery orders inbetween) then the call could look like this:
 
-  my $invoices = $order->linked_records(direction => 'to',
-                                        to        => 'Invoice');
+  my $invoices = $order->linked_records(
+    direction => 'to',
+    to        => 'Invoice',
+  );
 
 Retrieving all invoices from a quotation no matter whether or not
 orders or delivery orders where created:
 
-  my $invoices = $quotation->linked_records(direction => 'to',
-                                            to        => 'Invoice',
-                                            via       => [ 'Order', 'DeliveryOrder' ]);
+  my $invoices = $quotation->linked_records(
+    direction => 'to',
+    to        => 'Invoice',
+    via       => [ 'Order', 'DeliveryOrder' ],
+  );
 
 The optional parameter C<query> can be used to limit the records
 returned. The following call limits the earlier example to invoices
 created today:
 
-  my $invoices = $order->linked_records(direction => 'to',
-                                        to        => 'Invoice',
-                                        query     => [ transdate => DateTime->today_local ]);
+  my $invoices = $order->linked_records(
+    direction => 'to',
+    to        => 'Invoice',
+    query     => [ transdate => DateTime->today_local ],
+  );
 
 The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>
 can be used in order to sort the result. If C<$params{sort_by}> is
@@ -329,7 +381,7 @@ If C<$params{bidirectional}> is trueish then another link will be
 created with the roles of C<from> and C<to> reversed. This link will
 also only be created if it doesn't exist already.
 
-In scalar contenxt returns either the existing link or the newly
+In scalar context returns either the existing link or the newly
 created one as an instance of C<SL::DB::RecordLink>. In array context
 it returns an array of links (one entry if C<$params{bidirectional}>
 is falsish and two entries if it is trueish).
@@ -358,15 +410,15 @@ Sort by the record's running number.
 
 =item * C<date>
 
-Sort by the date the record was created or applies to.
+Sort by the transdate of the record was created or applies to.
+
+Note: If the latter has a default setting it will always mask the creation time.
 
 =back
 
-Returns a hash reference.
+Returns an array reference.
 
-Can be called both as a class or as an instance function.
-
-This function is not exported.
+Can only be called both as a class function since it is noe exported.
 
 =back
 
