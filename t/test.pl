@@ -7,7 +7,7 @@ use File::Find ();
 use Test::Harness qw(runtests execute_tests);
 
 BEGIN {
-  $ENV{HARNESS_OPTIONS} = 'j:c';
+   $ENV{HARNESS_OPTIONS} = 'c';
   unshift @INC, 'modules/override';
   push    @INC, 'modules/fallback';
 }
