@@ -35,7 +35,7 @@ __PACKAGE__->before_save('_before_save_set_customernumber');
 sub _before_save_set_customernumber {
   my ($self) = @_;
 
-  $self->create_trans_number if $self->customernumber eq '';
+  $self->create_trans_number if !defined $self->customernumber || $self->customernumber eq '';
   return 1;
 }
 

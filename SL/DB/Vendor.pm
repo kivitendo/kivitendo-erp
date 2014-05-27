@@ -35,7 +35,7 @@ __PACKAGE__->before_save('_before_save_set_vendornumber');
 sub _before_save_set_vendornumber {
   my ($self) = @_;
 
-  $self->create_trans_number if $self->vendornumber eq '';
+  $self->create_trans_number if !defined $self->vendornumber || $self->vendornumber eq '';
   return 1;
 }
 
