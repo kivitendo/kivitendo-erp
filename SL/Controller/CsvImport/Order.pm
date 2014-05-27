@@ -346,7 +346,8 @@ sub handle_salesman {
   my ($self, $entry) = @_;
 
   my $object = $entry->{object};
-  my $vc_obj = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
+  my $vc_obj;
+  $vc_obj    = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
   $vc_obj    = SL::DB::Vendor->new(id   => $object->vendor_id)->load   if (!$vc_obj && $object->vendor_id);
 
   # salesman from customer/vendor or login if not given
