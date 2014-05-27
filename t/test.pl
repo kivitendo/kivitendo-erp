@@ -14,7 +14,7 @@ BEGIN {
 
 sub find_files_to_test {
   my @files;
-  File::Find::find(sub { push @files, $File::Find::name if (-f _) && m/\.t$/ }, 't');
+  File::Find::find(sub { push @files, $File::Find::name if (-f $_) && m/\.t$/ }, 't');
   return @files;
 }
 
