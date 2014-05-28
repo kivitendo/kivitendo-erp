@@ -1,4 +1,4 @@
-use Test::More;
+use Test::More tests => 43;
 
 use strict;
 
@@ -113,6 +113,9 @@ is $link->to_table, 'ar', 'to_table';
 is $link->to_id, $i->id, 'to_id';
 
 # retrieve link
+$links = $o1->linked_records;
+is $links->[0]->id, $i->id, 'simple retrieve';
+
 $links = $o1->linked_records(direction => 'to', to => 'Invoice');
 is $links->[0]->id, $i->id, 'direct retrieve 1';
 
@@ -186,6 +189,11 @@ is @$links, 1, 'double link is only added once 2';
 $links = $o2->linked_records(direction => 'both');
 is @$links, 2, 'links without from/to get all';
 
+# doc states you can limit with direction when giving excess params
+$links = $d->linked_records(direction => 'to', to => 'Invoice', from => 'Order');
+is $links->[0]->id, $i->id, 'direction to limit params  1';
+is @$links, 1, 'direction to limit params 2';
+
 # doc says there will be special values set... lets see
 $links = $o1->linked_records(direction => 'to', to => 'Order');
 is $links->[0]->{_record_link_direction}, 'to',  '_record_link_direction to';
@@ -196,10 +204,8 @@ is $links->[0]->{_record_link_direction}, 'from',  '_record_link_direction from'
 is $links->[0]->{_record_link}->to_id, $o1->id,  '_record_link from';
 
 # check if bidi returns an array of links
-{ local $TODO = 'does not work as advertised';
 my @links = $d->link_to_record($o2, bidirectional => 1);
 is @links, 2, 'bidi returns array of links in array context';
-}
 
 #  via
 $links = $o2->linked_records(direction => 'to', to => 'Invoice', via => 'DeliveryOrder');
@@ -271,7 +277,5 @@ $sorted = SL::DB::Helper::LinkedRecords->sort_linked_records('date', 1, @records
 is_deeply $sorted, [$o2, $i, $o1, $d], 'sorting by transdate';
 $sorted = SL::DB::Helper::LinkedRecords->sort_linked_records('date', 0, @records);
 is_deeply $sorted, [$d, $o1, $i, $o2], 'sorting by transdate desc';
-
-done_testing();
 
 1;

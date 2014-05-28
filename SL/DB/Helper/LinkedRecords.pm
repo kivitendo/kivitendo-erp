@@ -30,7 +30,19 @@ sub _linked_records_implementation {
   my $self     = shift;
   my %params   = @_;
 
-  my $wanted   = $params{direction} || croak("Missing parameter `direction'");
+  my $wanted   = $params{direction};
+
+  if (!$wanted) {
+    if ($params{to} && $params{from}) {
+      $wanted = 'both';
+    } elsif ($params{to}) {
+      $wanted = 'to';
+    } elsif ($params{from}) {
+      $wanted = 'from';
+    } else {
+      $wanted = 'both';
+    }
+  }
 
   if ($wanted eq 'both') {
     my $both       = delete($params{both});
@@ -132,7 +144,7 @@ sub link_to_record {
                );
 
     my $link = SL::DB::Manager::RecordLink->find_by(and => [ %data ]);
-    push @links, $link ? $link : SL::DB::RecordLink->new(%data)->save unless $link;
+    push @links, $link ? $link : SL::DB::RecordLink->new(%data)->save;
   }
 
   return wantarray ? @links : $links[0];
@@ -240,32 +252,26 @@ SYNOPSIS
   use SL::DB::Helper::LinkedRecords;
 
   # later in consumer code
-  # retrieve all links
-  my @linked_objects = $order->linked_records(
-    direction => 'both',
-  );
+  # retrieve all links in both directions
+  my @linked_objects = $order->linked_records;
 
   # only links to Invoices
   my @linked_objects = $order->linked_records(
-    direction => 'to',
     to        => 'Invoice',
   );
 
   # more than one target
   my @linked_objects = $order->linked_records(
-    direction => 'to',
     to        => [ 'Invoice', 'Order' ],
   );
 
   # more than one direction
   my @linked_objects = $order->linked_records(
-    direction => 'both',
     both      => 'Invoice',
   );
 
   # more than one direction and different targets
   my @linked_objects = $order->linked_records(
-    direction => 'both',
     to        => 'Invoice',
     from      => 'Order',
   );
@@ -275,6 +281,13 @@ SYNOPSIS
     direction => 'to',
     to        => 'Invoice',
     via       => 'DeliveryOrder',
+  );
+
+  # limit direction when further params contain additional keys
+  my %params = (to => 'Invoice', from => 'Order');
+  my @linked_objects = $order->linked_records(
+    direction => 'to',
+    %params,
   );
 
   # add a new link
@@ -288,17 +301,23 @@ SYNOPSIS
 
 =item C<linked_records %params>
 
-Retrieves records linked from or to C<$self> via the table C<record_links>. The
-mandatory parameter C<direction> (either C<from>, C<to> or C<both>) determines
-whether the function retrieves records that link to C<$self> (for C<direction>
-= C<to>) or that are linked from C<$self> (for C<direction> = C<from>). For
-C<direction = both> all records linked from or to C<$self> are returned.
+Retrieves records linked from or to C<$self> via the table C<record_links>.
+
+The optional parameter C<direction> (either C<from>, C<to> or C<both>)
+determines whether the function retrieves records that link to C<$self> (for
+C<direction> = C<to>) or that are linked from C<$self> (for C<direction> =
+C<from>). For C<direction = both> all records linked from or to C<$self> are
+returned.
 
 The optional parameter C<from> or C<to> (same as C<direction>) contains the
 package names of Rose models for table limitation (the prefix C<SL::DB::> is
 optional). It can be a single model name as a single scalar or multiple model
 names in an array reference in which case all links matching any of the model
 names will be returned.
+
+If no parameter C<direction> is given, but any of C<to>, C<from> or C<both>,
+then C<direction> is infered accordingly. If neither are given, C<direction> is
+set to C<both>.
 
 The optional parameter C<via> can be used to retrieve all documents that may
 have intermediate documents inbetween. It is an array reference of Rose package
