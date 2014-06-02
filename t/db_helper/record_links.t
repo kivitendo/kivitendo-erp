@@ -1,4 +1,4 @@
-use Test::More tests => 43;
+use Test::More tests => 49;
 
 use strict;
 
@@ -9,6 +9,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
+use List::Util qw(max);
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
@@ -167,7 +168,10 @@ $i = new_invoice();
 
 $o2->link_to_record($d);
 $d->link_to_record($i);
-
+# at this point the structure is:
+#
+#   o1 <--> o2 ---> d ---> i
+#
 
 $links = $d->linked_records(direction => 'both', to => 'Invoice', from => 'Order', sort_by => 'customer_id', sort_dir => 1);
 is $links->[0]->id, $o2->id, 'both with different from/to 1';
@@ -181,6 +185,10 @@ $links = $o2->linked_records(direction => 'to', to => 'DeliveryOrder');
 is @$links, 1, 'double link is only added once 1';
 
 $d->link_to_record($o2, bidirectional => 1);
+# at this point the structure is:
+#
+#   o1 <--> o2 <--> d ---> i
+#
 
 $links = $o2->linked_records(direction => 'to', to => 'DeliveryOrder');
 is @$links, 1, 'double link is only added once 2';
@@ -203,8 +211,12 @@ $links = $o1->linked_records(direction => 'from', from => 'Order');
 is $links->[0]->{_record_link_direction}, 'from',  '_record_link_direction from';
 is $links->[0]->{_record_link}->to_id, $o1->id,  '_record_link from';
 
-# check if bidi returns an array of links
+# check if bidi returns an array of links even if aready existing
 my @links = $d->link_to_record($o2, bidirectional => 1);
+# at this point the structure is:
+#
+#   o1 <--> o2 <--> d ---> i
+#
 is @links, 2, 'bidi returns array of links in array context';
 
 #  via
@@ -219,14 +231,15 @@ is $links->[0]->id, $i->id,  'simple case via links (2 hops)';
 
 # multiple links in the same direction from one object
 $o1->link_to_record($d);
+# at this point the structure is:
+#
+#   o1 <--> o2 <--> d ---> i
+#     \____________,^
+#
+
 $links = $o2->linked_records(direction => 'to', to => 'Invoice', via => 'DeliveryOrder');
 is $links->[0]->id, $i->id,  'simple case via links (string)';
 
-# at this point the structure is:
-#
-#   o1 <--> o2 ---> d ---> i
-#     \____________,^
-#
 
 # o1 must have 2 linked records now:
 $links = $o1->linked_records(direction => 'to');
@@ -278,4 +291,22 @@ is_deeply $sorted, [$o2, $i, $o1, $d], 'sorting by transdate';
 $sorted = SL::DB::Helper::LinkedRecords->sort_linked_records('date', 0, @records);
 is_deeply $sorted, [$d, $o1, $i, $o2], 'sorting by transdate desc';
 
+# now recursive stuff 2, with backlinks
+$links = $o1->linked_records(direction => 'to', recursive => 1, save_path => 1);
+is @$links, 4, 'recursive finds all 4 (backlink to self because of bidi o1<->o2)';
+
+# because of the link o1->d the longest path should be legth 2. test that
+is max(map { $_->{_record_link_depth} } @$links), 2, 'longest path is 2';
+
+$links = $o2->linked_records(direction => 'to', recursive => 1);
+is @$links, 4, 'recursive from o2 finds 4';
+
+$links = $o1->linked_records(direction => 'from', recursive => 1, save_path => 1);
+is @$links, 3, 'recursive from o1 finds 3 (not i)';
+
+$links = $i->linked_records(direction => 'from', recursive => 1, save_path => 1);
+is @$links, 3, 'recursive from i finds 3 (not i)';
+
+$links = $o1->linked_records(direction => 'both', recursive => 1, save_path => 1);
+is @$links, 4, 'recursive dir=both does not give duplicates';
 1;

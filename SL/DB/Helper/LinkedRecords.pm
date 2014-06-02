@@ -8,6 +8,7 @@ our @EXPORT = qw(linked_records link_to_record);
 
 use Carp;
 use Sort::Naturally;
+use SL::DBUtils;
 
 use SL::DB::Helper::Mappings;
 use SL::DB::RecordLink;
@@ -88,7 +89,7 @@ sub _linked_records_implementation {
   };
 
   # If no 'via' is given then use a simple(r) method for querying the wanted objects.
-  if (!$params{via}) {
+  if (!$params{via} && !$params{recursive}) {
     my @query = ( "${myself}_table" => $my_table,
                   "${myself}_id"    => $self->id );
     push @query, ( "${wanted}_table" => $wanted_tables ) if $wanted_tables;
@@ -97,31 +98,69 @@ sub _linked_records_implementation {
   }
 
   # More complex handling for the 'via' case.
-  my @sources = ( $self );
-  my @targets = map { SL::DB::Helper::Mappings::get_table_for_package($_) } @{ ref($params{via}) ? $params{via} : [ $params{via} ] };
-  push @targets, @{ $wanted_tables } if $wanted_tables;
+  if ($params{via}) {
+    my @sources = ( $self );
+    my @targets = map { SL::DB::Helper::Mappings::get_table_for_package($_) } @{ ref($params{via}) ? $params{via} : [ $params{via} ] };
+    push @targets, @{ $wanted_tables } if $wanted_tables;
 
-  my %seen = map { ($_->meta->table . $_->id => 1) } @sources;
+    my %seen = map { ($_->meta->table . $_->id => 1) } @sources;
 
-  while (@targets) {
-    my @new_sources = @sources;
-    foreach my $src (@sources) {
-      my @query = ( "${myself}_table" => $src->meta->table,
-                    "${myself}_id"    => $src->id,
-                    "${wanted}_table" => \@targets );
-      push @new_sources,
-           map  { $get_objects->($_) }
-           grep { !$seen{$_->$sub_wanted_table . $_->$sub_wanted_id} }
-           @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) };
+    while (@targets) {
+      my @new_sources = @sources;
+      foreach my $src (@sources) {
+        my @query = ( "${myself}_table" => $src->meta->table,
+                      "${myself}_id"    => $src->id,
+                      "${wanted}_table" => \@targets );
+        push @new_sources,
+             map  { $get_objects->($_) }
+             grep { !$seen{$_->$sub_wanted_table . $_->$sub_wanted_id} }
+             @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) };
+      }
+
+      @sources = @new_sources;
+      %seen    = map { ($_->meta->table . $_->id => 1) } @sources;
+      shift @targets;
     }
 
-    @sources = @new_sources;
-    %seen    = map { ($_->meta->table . $_->id => 1) } @sources;
-    shift @targets;
+    my %wanted_tables_map = map  { ($_ => 1) } @{ $wanted_tables };
+    return [ grep { $wanted_tables_map{$_->meta->table} } @sources ];
   }
 
-  my %wanted_tables_map = map  { ($_ => 1) } @{ $wanted_tables };
-  return [ grep { $wanted_tables_map{$_->meta->table} } @sources ];
+  # And lastly recursive mode
+  if ($params{recursive}) {
+    # don't use rose retrieval here. too slow.
+    # instead use recursive sql to get all the linked record_links entrys, and retrieve the objects from there
+    my $query = <<"";
+      WITH RECURSIVE record_links_rec_${wanted}(id, from_table, from_id, to_table, to_id, depth, path, cycle) AS (
+        SELECT id, from_table, from_id, to_table, to_id,
+          1, ARRAY[id], false
+        FROM record_links
+        WHERE ${myself}_id = ? and ${myself}_table = ?
+      UNION ALL
+        SELECT rl.id, rl.from_table, rl.from_id, rl.to_table, rl.to_id,
+          rlr.depth + 1, path || rl.id, rl.id = ANY(path)
+        FROM record_links rl, record_links_rec_${wanted} rlr
+        WHERE rlr.${wanted}_id = rl.${myself}_id AND rlr.${wanted}_table = rl.${myself}_table AND NOT cycle
+      )
+      SELECT DISTINCT ON (${wanted}_table, ${wanted}_id)
+        id, from_table, from_id, to_table, to_id, path, depth FROM record_links_rec_${wanted}
+      WHERE NOT cycle
+      ORDER BY ${wanted}_table, ${wanted}_id, depth ASC;
+
+    my $links     = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, $self->id, $self->meta->table);
+    my $link_objs = SL::DB::Manager::RecordLink->get_all(query => [ id => [ map { $_->{id} } @$links ] ]);
+    my @objects = map { $get_objects->($_) } @$link_objs;
+
+    if ($params{save_path}) {
+       my %links_by_id = map { $_->{id} => $_ } @$links;
+       for (@objects) {
+         $_->{_record_link_path}  = $links_by_id{$_->{_record_link}->id}->{path};
+         $_->{_record_link_depth} = $links_by_id{$_->{_record_link}->id}->{depth};
+       }
+    }
+
+    return \@objects;
+  }
 }
 
 sub link_to_record {
@@ -276,12 +315,21 @@ SYNOPSIS
     from      => 'Order',
   );
 
-  # transitive over known classes
+  # via over known classes
   my @linked_objects = $order->linked_records(
-    direction => 'to',
     to        => 'Invoice',
     via       => 'DeliveryOrder',
   );
+  my @linked_objects = $order->linked_records(
+    to        => 'Invoice',
+    via       => [ 'Order', 'DeliveryOrder' ],
+  );
+
+  # recursive
+  my @linked_objects = $order->linked_records(
+    recursive => 1,
+  );
+
 
   # limit direction when further params contain additional keys
   my %params = (to => 'Invoice', from => 'Order');
@@ -355,6 +403,58 @@ created today:
     to        => 'Invoice',
     query     => [ transdate => DateTime->today_local ],
   );
+
+In case you don't know or care which or how many objects are visited the flag
+C<recursive> can be used. It searches all reachable objects in the given direction:
+
+  my $records = $order->linked_records(
+    direction => 'to',
+    recursive => 1,
+  );
+
+Only link chains of the same type will be considered. So even with direction
+both, this
+
+  order 1 ---> invoice <--- order 2
+
+started from order 1 will only find invoice. If an object is found both in each
+direction, only one copy will be returned. The recursion is cycle protected,
+and will not recurse infinitely. Cycles are defined by the same link being
+visited twice, so this
+
+
+  order 1 ---> order 2 <--> delivery order
+                 |
+                 `--------> invoice
+
+will find the path o1 -> o2 -> do -> o2 -> i without considering it a cycle.
+
+The optional extra flag C<save_path> will give you extra inforamtion saved in
+the returned objects:
+
+  my $records = $order->linked_records(
+    direction => 'to',
+    recursive => 1,
+    save_path => 1,
+  );
+
+Every record will have two fields set:
+
+=over 2
+
+=item C<_record_link_path>
+
+And array with the ids of the visited links. The shortest paths will be
+prefered, so in the previous example this would contain the ids of o1-o2 and
+o2-i.
+
+=item C<_record_link_depth>
+
+Recursion depth when this object was found. Equal to the number of ids in
+C<_record_link_path>
+
+=back
+
 
 The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>
 can be used in order to sort the result. If C<$params{sort_by}> is
@@ -450,8 +550,16 @@ L</link_to_record>.
 
 Nothing here yet.
 
+=head1 TODO
+
+ * C<recursive> should take a query param depth and cut off there
+ * C<recursive> uses partial distinct which is known to be not terribly fast on
+   a million entry table. replace with a better statement if this ever becomes
+   an issue.
+
 =head1 AUTHOR
 
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
