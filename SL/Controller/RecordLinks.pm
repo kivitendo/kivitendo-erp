@@ -53,7 +53,7 @@ sub action_ajax_list {
   my ($self) = @_;
 
   eval {
-    my $linked_records = $self->object->linked_records(direction => 'both');
+    my $linked_records = $self->object->linked_records(direction => 'both', recursive => 1);
     push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
     my $output         = SL::Presenter->get->grouped_record_list(
       $linked_records,
