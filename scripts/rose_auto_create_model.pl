@@ -14,6 +14,7 @@ use Digest::MD5 qw(md5_hex);
 use English qw( -no_match_vars );
 use Getopt::Long;
 use List::MoreUtils qw(none);
+use List::UtilsBy qw(partition_by);
 use Pod::Usage;
 use Rose::DB::Object 0.809;
 use Term::ANSIColor;
@@ -87,11 +88,10 @@ sub setup {
 }
 
 sub process_table {
-  my @spec       =  @_;
-  my $table      =  $spec[0];
+  my ($domain, $table, $package) = @_;
   my $schema     = '';
   ($schema, $table) = split(m/\./, $table) if $table =~ m/\./;
-  my $package    =  ucfirst($spec[1] || $spec[0]);
+  $package       =  ucfirst($package || $table);
   $package       =~ s/_+(.)/uc($1)/ge;
   my $meta_file  =  "${meta_path}/${package}.pm";
   my $mngr_file  =  "${manager_path}/${package}.pm";
@@ -286,19 +286,30 @@ sub usage {
 }
 
 sub make_tables {
-  my @tables;
+  my %tables_by_domain;
   if ($config{all}) {
-    my $db  = SL::DB::create(undef, 'KIVITENDO');
-    @tables = grep { my $table = $_; none { $_ eq $table } @{ $blacklist{KIVITENDO} } } $db->list_tables;
+    foreach my $domain (sort keys %package_names) {
+      my $db  = SL::DB::create(undef, $domain);
+      $tables_by_domain{$domain} = [ grep { my $table = $_; none { $_ eq $table } @{ $blacklist{$domain} } } $db->list_tables ];
+      $db->disconnect;
+    }
 
   } elsif (@ARGV) {
-    @tables = @ARGV;
+    %tables_by_domain = partition_by {
+      my ($domain, $table) = split m{:};
+      $table ? uc($domain) : 'KIVITENDO';
+    } @ARGV;
+
+    foreach my $tables (values %tables_by_domain) {
+      s{.*:}{} for @{ $tables };
+    }
+
   } else {
     error("You specified neither --all nor any specific tables.");
     usage();
   }
 
-  @tables;
+  return %tables_by_domain;
 }
 
 sub error {
@@ -311,15 +322,19 @@ sub notice {
 
 parse_args(\%config);
 setup();
-my @tables = make_tables();
 
-my @unknown_tables = grep { !$package_names{KIVITENDO}->{$_} } @tables;
-if (@unknown_tables) {
-  error("The following tables do not have entries in \%SL::DB::Helper::Mappings::kivitendo_package_names: " . join(' ', sort @unknown_tables));
-  exit 1;
+my %tables_by_domain = make_tables();
+
+foreach my $domain (keys %tables_by_domain) {
+  my @tables         = @{ $tables_by_domain{$domain} };
+  my @unknown_tables = grep { !$package_names{$domain}->{$_} } @tables;
+  if (@unknown_tables) {
+    error("The following tables do not have entries in \%SL::DB::Helper::Mappings::${domain}_package_names: " . join(' ', sort @unknown_tables));
+    exit 1;
+  }
+
+  process_table($domain, $_, $package_names{$domain}->{$_}) for @tables;
 }
-
-process_table($_, $package_names{KIVITENDO}->{$_}) for @tables;
 
 1;
 
@@ -333,7 +348,7 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 
-  scripts/rose_auto_create_model.pl --client name-or-id table1 [table2 ...]
+  scripts/rose_auto_create_model.pl --client name-or-id [db1:]table1 [[db2:]table2 ...]
   scripts/rose_auto_create_model.pl --client name-or-id [--all|-a]
 
   # updates all models
@@ -388,6 +403,17 @@ class, which is a perl version of the schema definition, a
 C<SL::DB::*> class file and a C<SL::DB::Manager::*> manager class
 file. The first one will be updated if the schema changes, the second
 and third ones will only be created if it they do not exist.
+
+=head1 DATABASE NAMES AND TABLES
+
+If you want to generate the data for specific tables only then you
+have to list them on the command line. The format is
+C<db-name:table-name>. The part C<db-name:> is optional and defaults
+to C<KIVITENDO:> – which means the tables in the default kivitendo
+database.
+
+Valid database names are keys in the hash returned by
+L<SL::DB::Helper::Mappings/get_package_names>.
 
 =head1 OPTIONS
 
