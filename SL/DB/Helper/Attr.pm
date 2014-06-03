@@ -33,6 +33,7 @@ sub _make_by_type {
   _as_percent($package, $name, places =>  2) if $type =~ /numeric | real | float/xi;
   _as_number ($package, $name, places =>  0) if $type =~ /int/xi;
   _as_date   ($package, $name)               if $type =~ /date | timestamp/xi;
+  _as_timestamp($package, $name)             if $type =~ /timestamp/xi;
   _as_bool_yn($package, $name)               if $type =~ /bool/xi;
 }
 
@@ -105,6 +106,32 @@ sub _as_date {
   return 1;
 }
 
+sub _as_timestamp {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  my $accessor    = sub {
+    my ($precision, $self, $string) = @_;
+
+    $self->$attribute($string ? $::locale->parse_date_to_object($string) : undef) if @_ > 2;
+
+    my $dt = $self->$attribute;
+    return undef unless $dt;
+
+    $dt = DateTime->now if !ref($dt) && ($dt eq 'now');
+
+    return $::locale->format_date_object($dt, precision => $precision);
+  };
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_timestamp'    } = sub { $accessor->('minute',      @_) };
+  *{ $package . '::' . $attribute . '_as_timestamp_s'  } = sub { $accessor->('second',      @_) };
+  *{ $package . '::' . $attribute . '_as_timestamp_ms' } = sub { $accessor->('millisecond', @_) };
+
+  return 1;
+}
+
 sub _as_bool_yn {
   my ($package, $attribute, %params) = @_;
 
@@ -158,6 +185,7 @@ None yet.
 
 =head1 AUTHOR
 
-Sven Schöling <s.schoeling@linet-services.de>
+Sven Schöling <s.schoeling@linet-services.de>,
+Moritz Bunkus <m.bunkus@linet-services.de>
 
 =cut
