@@ -58,7 +58,7 @@ sub get_balance_starting_date {
   my $asofdate = shift;
   return unless $asofdate;
 
-  $asofdate = $::locale->parse_date_to_object(\%::myconfig, $asofdate);
+  $asofdate = $::locale->parse_date_to_object($asofdate);
 
   my $form = $main::form;
   my $dbh  = $::form->get_standard_dbh;
@@ -85,7 +85,7 @@ sub get_balance_starting_date {
   # default.
   my ($closedto) = selectfirst_array_query($form, $dbh, 'SELECT closedto FROM defaults');
   if ($closedto) {
-    $closedto = $::locale->parse_date_to_object(\%::myconfig, $closedto);
+    $closedto = $::locale->parse_date_to_object($closedto);
     $closedto->subtract(years => 1) while ($asofdate - $closedto)->is_negative;
     $closedto->add(days => 1);
   };
@@ -93,11 +93,11 @@ sub get_balance_starting_date {
   my ($query, $startdate, $last_ob, $mindate);
   $query = qq|select max(transdate) from acc_trans where ob_transaction is true and transdate <= ?|;
   ($last_ob) = selectrow_query($::form, $dbh, $query, $::locale->format_date(\%::myconfig, $asofdate));
-  $last_ob = $::locale->parse_date_to_object(\%::myconfig, $last_ob) if $last_ob;
+  $last_ob = $::locale->parse_date_to_object($last_ob) if $last_ob;
 
   $query = qq|select min(transdate) from acc_trans|;
   ($mindate) = selectrow_query($::form, $dbh, $query);
-  $mindate = $::locale->parse_date_to_object(\%::myconfig, $mindate);
+  $mindate = $::locale->parse_date_to_object($mindate);
 
   # the default method is to use all transactions ($mindate)
 

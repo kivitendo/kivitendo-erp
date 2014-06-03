@@ -1789,8 +1789,7 @@ sub generate_bwa {
     # if (defined ($form->{fromdate|todate}=='..'))
     # immer wahr
     if ($form->{fromdate}){
-      my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{fromdate});
-      my $datetime = $locale->parse_date_to_object(\%myconfig, $form->{fromdate});
+      my $datetime = $locale->parse_date_to_object($form->{fromdate});
       $datetime->set( month      => 1,
                       day        => 1);
       $form->{comparefromdate} = $locale->format_date(\%::myconfig, $datetime);

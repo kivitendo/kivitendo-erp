@@ -28,7 +28,7 @@ sub to_lxoffice {
 }
 
 sub from_kivitendo {
-  return $::locale->parse_date_to_object(\%::myconfig, $_[1]);
+  return $::locale->parse_date_to_object($_[1]);
 }
 
 sub from_lxoffice {

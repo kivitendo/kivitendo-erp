@@ -374,10 +374,23 @@ sub parse_date {
 }
 
 sub parse_date_to_object {
-  my $self           = shift;
-  my ($yy, $mm, $dd) = $self->parse_date(@_);
+  my ($self, $string, %params) = @_;
 
-  return $yy && $mm && $dd ? DateTime->new(year => $yy, month => $mm, day => $dd) : undef;
+  $params{dateformat}        ||= $::myconfig{dateformat}   || 'yy-mm-dd';
+  $params{numberformat}      ||= $::myconfig{numberformat} || '1,000.00';
+  my $num_separator            = $params{numberformat} =~ m{,\d+$} ? ',' : '.';
+
+  my ($date_str, $time_str)    = split m{\s+}, $string, 2;
+  my ($yy, $mm, $dd)           = $self->parse_date(\%params, $date_str);
+
+  my $millisecond              = 0;
+  my ($hour, $minute, $second) = split m/:/, $time_str;
+  ($second, $millisecond)      = split quotemeta($num_separator), $second, 2;
+  $millisecond                 = substr $millisecond, 0, 3;
+  $millisecond                .= '0' x (3 - length $millisecond);
+
+  return undef unless $yy && $mm && $dd;
+  return DateTime->new(year => $yy, month => $mm, day => $dd, hour => $hour * 1, minute => $minute * 1, second => $second * 1, nanosecond => $millisecond * 1000000);
 }
 
 sub format_date_object_to_time {
@@ -644,9 +657,14 @@ TODO: Describe new
 
 TODO: Describe parse_date
 
-=item C<parse_date_to_object>
+=item C<parse_date_to_object $string, %params>
 
-TODO: Describe parse_date_to_object
+Parses a date and optional timestamp in C<$string> and returns an
+instance of L<DateTime>. The date and number formats used are the ones
+the user has currently selected. They can be overriden by passing them
+in as parameters to this function, though.
+
+The time stamps can have up to millisecond precision.
 
 =item C<quote_special_chars>
 
