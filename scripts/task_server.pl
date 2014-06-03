@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+
+use List::MoreUtils qw(any);
+
 use strict;
 
 my $exe_dir;
@@ -23,6 +26,7 @@ use Cwd;
 use Daemon::Generic;
 use Data::Dumper;
 use DateTime;
+use Encode qw();
 use English qw(-no_match_vars);
 use File::Spec;
 use List::Util qw(first);
@@ -36,7 +40,9 @@ use SL::InstanceConfiguration;
 use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
+use SL::Mailer;
 use SL::System::TaskServer;
+use Template;
 
 our %lx_office_conf;
 
@@ -97,6 +103,50 @@ sub drop_privileges {
   }
 }
 
+sub notify_on_failure {
+  my (%params) = @_;
+
+  my $cfg = $lx_office_conf{'task_server/notify_on_failure'} || {};
+
+  return if any { !$cfg->{$_} } qw(send_email_to email_from email_subject email_template);
+
+  chdir $exe_dir;
+
+  return debug("Template " . $cfg->{email_template} . " missing!") unless -f $cfg->{email_template};
+
+  my $email_to = $cfg->{send_email_to};
+  if ($email_to !~ m{\@}) {
+    my %user = $::auth->read_user(login => $email_to);
+    return debug("cannot find user for notification $email_to") unless %user;
+
+    $email_to = $user{email};
+    return debug("user for notification " . $user{login} . " doesn't have a valid email address") unless $email_to =~ m{\@};
+  }
+
+  my $template  = Template->new({
+    INTERPOLATE => 0,
+    EVAL_PERL   => 0,
+    ABSOLUTE    => 1,
+    CACHE_SIZE  => 0,
+  });
+
+  return debug("Could not create Template instance") unless $template;
+
+  $params{client} = $::auth->client;
+
+  my $body;
+  $template->process($cfg->{email_template}, \%params, \$body);
+
+  Mailer->new(
+    from         => $cfg->{email_from},
+    to           => $email_to,
+    subject      => $cfg->{email_subject},
+    content_type => 'text/plain',
+    charset      => 'utf-8',
+    message      => Encode::decode('utf-8', $body),
+  )->send;
+}
+
 sub gd_preconfig {
   my $self = shift;
 
@@ -129,13 +179,20 @@ sub gd_run {
 
         chdir $exe_dir;
 
-        $job->run;
+        my $history = $job->run;
+
+        notify_on_failure(history => $history) if $history && $history->has_failed;
       }
 
       1;
     };
 
-    debug("Exception during execution: ${EVAL_ERROR}") if !$ok;
+    if (!$ok) {
+      my $error = $EVAL_ERROR;
+      debug("Exception during execution: ${error}");
+      notify_on_failure(exception => $error);
+    }
+
     debug("Sleeping");
 
     my $seconds = 60 - (localtime)[0];
