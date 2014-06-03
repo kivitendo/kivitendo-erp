@@ -45,7 +45,7 @@ sub run {
     $history = SL::DB::BackgroundJobHistory
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
-            status       => 'success',
+            status       => SL::DB::BackgroundJobHistory::SUCCESS(),
             result       => $result,
             data         => $self->data);
     $history->save;
@@ -58,7 +58,7 @@ sub run {
     $history = SL::DB::BackgroundJobHistory
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
-            status       => 'failure',
+            status       => SL::DB::BackgroundJobHistory::FAILURE(),
             error_col    => $error,
             data         => $self->data);
     $history->save;
