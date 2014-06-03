@@ -394,7 +394,8 @@ sub format_date_object_to_time {
 sub format_date_object {
   my ($self, $datetime, %params)    = @_;
 
-  my $format             =  $::myconfig{dateformat} || 'yyyy-mm-dd';
+  my $format             =   $params{dateformat}   || $::myconfig{dateformat}   || 'yyyy-mm-dd';
+  my $num_separator      =  ($params{numberformat} || $::myconfig{numberformat} || '1,000.00') =~ m{,\d+$} ? ',' : '.';
   $format                =~ s/yy(?:yy)?/\%Y/;
   $format                =~ s/mm/\%m/;
   $format                =~ s/dd/\%d/;
@@ -402,9 +403,10 @@ sub format_date_object {
   my $precision          =  $params{precision} || 'day';
   $precision             =~ s/s$//;
   my %precision_spec_map = (
-    second => '%H:%M:%S',
-    minute => '%H:%M',
-    hour   => '%H',
+    millisecond => '%H:%M:%S' . $num_separator . '%3N',
+    second      => '%H:%M:%S',
+    minute      => '%H:%M',
+    hour        => '%H',
   );
 
   $format .= ' ' . $precision_spec_map{$precision} if $precision_spec_map{$precision};
@@ -608,6 +610,21 @@ Add hour:minute to the date.
 =item * C<second>
 
 Add hour:minute:second to the date.
+
+=item * C<millisecond>
+
+Add hour:minute:second.millisecond to the date. The decimal separator
+is derived from the number format.
+
+=item * C<numberformat>
+
+The number format to use, e.g. C<1,000.00>. If unset the user's
+current number format is used.
+
+=item * C<dateformat>
+
+The date format to use, e.g. C<mm/dd/yy>. If unset the user's current
+date format is used.
 
 =back
 
