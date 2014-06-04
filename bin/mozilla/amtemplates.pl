@@ -201,6 +201,7 @@ sub display_template_form {
     #
     if ($format eq "tex") {
       # search all .tex-files in template dir (recursively)
+      my $template_dir = $defaults->templates;
       my @all_files;
       find(
         sub {
@@ -209,13 +210,13 @@ sub display_template_form {
 
           my $fname = $File::Find::name;
           # remove template dir from name
-          $fname =~ s|^templates/[^/+]/||;
+          $fname =~ s|^$template_dir/||;
           # remove .tex from name
           $fname =~ s|.tex$||;
 
           push(@all_files, $fname);
 
-          }, $defaults->templates);
+          }, $template_dir);
 
       # filter all files already set up (i.e. not already in @values)
       my @other_files = grep { my $a=$_; not grep {$a eq $_->{value}} @values } @all_files;
