@@ -1964,6 +1964,7 @@ $self->{texts} = {
   'Row #1: amount has to be different from zero.' => 'Zeile #1: Der Wert darf nicht 0 sein.',
   'Row number'                  => 'Zeilennummer',
   'Row was created from current record' => 'Zeile wurde aus aktuellem Beleg erstellt',
+  'Row was linked to another record' => 'Zeile wurde über einen anderen Beleg verlinkt',
   'Row was source for current record' => 'Zeile war Quelle für aktuellen Beleg',
   'Run at'                      => 'Ausgeführt um',
   'SAVED'                       => 'Gespeichert',

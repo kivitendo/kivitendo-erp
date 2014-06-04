@@ -154,8 +154,11 @@ sub _linked_records_implementation {
     if ($params{save_path}) {
        my %links_by_id = map { $_->{id} => $_ } @$links;
        for (@objects) {
-         $_->{_record_link_path}  = $links_by_id{$_->{_record_link}->id}->{path};
-         $_->{_record_link_depth} = $links_by_id{$_->{_record_link}->id}->{depth};
+         my $link = $links_by_id{$_->{_record_link}->id};
+         my $intermediate_links = SL::DB::Manager::RecordLink->get_all(query => [ id => $link->{path} ]);
+         $_->{_record_link_path}     = $link->{path};
+         $_->{_record_link_obj_path} = [ map { $get_objects->($_) } @$intermediate_links ];
+         $_->{_record_link_depth}    = $link->{depth};
        }
     }
 

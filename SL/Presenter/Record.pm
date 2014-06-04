@@ -75,7 +75,12 @@ sub record_list {
   if ($with_columns{record_link_direction}) {
     push @columns, {
       title => $::locale->text('Link direction'),
-      data  => sub { $_[0]->{_record_link_direction} eq 'from' ? $::locale->text('Row was source for current record') : $::locale->text('Row was created from current record') },
+      data  => sub {
+          $_[0]->{_record_link_depth} > 1
+        ? $::locale->text('Row was linked to another record')
+        : $_[0]->{_record_link_direction} eq 'from'
+        ? $::locale->text('Row was source for current record')
+        : $::locale->text('Row was created from current record') },
     };
   }
 
