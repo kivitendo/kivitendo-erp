@@ -241,6 +241,7 @@ sub parse_args {
   GetOptions(
     'client=s'          => \ my $client,
     all                 => \ my $all,
+    'db=s'              => \ my $db,
     'no-commit|dry-run' => \ my $nocommit,
     help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
     quiet               => \ my $quiet,
@@ -249,6 +250,7 @@ sub parse_args {
 
   $options->{client}   = $client;
   $options->{all}      = $all;
+  $options->{db}       = $db;
   $options->{nocommit} = $nocommit;
   $options->{quiet}    = $quiet;
   $options->{color}    = -t STDOUT ? 1 : 0;
@@ -288,7 +290,9 @@ sub usage {
 sub make_tables {
   my %tables_by_domain;
   if ($config{all}) {
-    foreach my $domain (sort keys %package_names) {
+    my @domains = $config{db} ? (uc $config{db}) : sort keys %package_names;
+
+    foreach my $domain (@domains) {
       my $db  = SL::DB::create(undef, $domain);
       $tables_by_domain{$domain} = [ grep { my $table = $_; none { $_ eq $table } @{ $blacklist{$domain} } } $db->list_tables ];
       $db->disconnect;
@@ -363,7 +367,7 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
   scripts/rose_auto_create_model.pl --client name-or-id [--all|-a]
 
   # updates all models
-  scripts/rose_auto_create_model.pl --client name-or-id --all
+  scripts/rose_auto_create_model.pl --client name-or-id --all [--db db]
 
   # updates only customer table, login taken from config
   scripts/rose_auto_create_model.pl customer
@@ -442,6 +446,11 @@ Note that C<CLIENT> can be either a database ID or a client's name.
 
 Process all tables from the database. Only those that are blacklistes in
 L<SL::DB::Helper::Mappings> are excluded.
+
+=item C<--db db>
+
+In combination with C<--all> causes all tables in the specific
+database to be processed, not in all databases.
 
 =item C<--no-commit, -n>
 
