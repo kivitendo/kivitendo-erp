@@ -9,6 +9,8 @@
  [%- SET is_customer = '0' %]
  [%- END %]
 
+ [%- SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
+
  <script type="text/javascript">
    $(function(){ document.Form.donumber.focus(); });
  </script>
@@ -107,6 +109,15 @@
      <th align="right">[% 'Serial Number' | $T8 %]</th>
      <td colspan="3"><input name="serialnumber" class="fixed_width"></td>
     </tr>
+
+    [%- IF ALL_BUSINESS_TYPES.size %]
+    <tr>
+     <th align="right" nowrap>[% vctypelabel %]</th>
+     <td colspan="3">
+      [% L.select_tag('business_id', ALL_BUSINESS_TYPES, title_key = 'description', with_empty = 1, style='width:250px') %]
+     </td>
+    </tr>
+    [%- END %]
 
     <tr>
      <th align="right">[% 'Delivery Order Date' | $T8 %] [% 'From' | $T8 %]</th>

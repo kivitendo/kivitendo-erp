@@ -492,10 +492,11 @@ sub search {
 
   $form->{vc} = $form->{type} eq 'purchase_delivery_order' ? 'vendor' : 'customer';
 
-  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS",
-                                       "all" => 1 },
-                   "departments"  => "ALL_DEPARTMENTS",
-                   "$form->{vc}s" => "ALL_VC");
+  $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
+                                         "all" => 1 },
+                   "departments"    => "ALL_DEPARTMENTS",
+                   "$form->{vc}s"   => "ALL_VC",
+                   "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
@@ -551,7 +552,7 @@ sub orders {
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id
-                                          insertdatefrom insertdateto);
+                                          insertdatefrom insertdateto business_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -614,6 +615,10 @@ sub orders {
     push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
   }
   push @options, $locale->text('Serial Number') . " : $form->{serialnumber}" if $form->{serialnumber};
+  if ($form->{business_id}) {
+    my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');
+    push @options, $vc_type_label . " : " . SL::DB::Business->new(id => $form->{business_id})->load->description;
+  }
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }

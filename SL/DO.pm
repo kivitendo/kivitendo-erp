@@ -67,7 +67,8 @@ sub transactions {
   my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.cusordnumber,
          dord.transdate, dord.reqdate,
-         ct.${vc}number, ct.name, dord.${vc}_id, dord.globalproject_id,
+         ct.${vc}number, ct.name, ct.business_id,
+         dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description, dord.itime::DATE AS insertdate,
          pr.projectnumber AS globalprojectnumber,
@@ -96,6 +97,11 @@ sub transactions {
           (SELECT * FROM delivery_order_items doi
            WHERE (doi.project_id = ?) AND (doi.delivery_order_id = dord.id))|;
     push @values, conv_i($form->{project_id}), conv_i($form->{project_id});
+  }
+
+  if ($form->{"business_id"}) {
+    push @where,  qq|ct.business_id = ?|;
+    push @values, conv_i($form->{"business_id"});
   }
 
   if ($form->{"${vc}_id"}) {
