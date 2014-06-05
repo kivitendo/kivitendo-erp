@@ -320,8 +320,19 @@ sub notice {
   print @_, $/;
 }
 
+sub check_errors_in_package_names {
+  foreach my $domain (sort keys %package_names) {
+    my @both = grep { $package_names{$domain}->{$_} } @{ $blacklist{$domain} || [] };
+    next unless @both;
+
+    print "Error: domain '$domain': The following table names are present in both the black list and the package name hash: ", join(' ', sort @both), "\n";
+    exit 1;
+  }
+}
+
 parse_args(\%config);
 setup();
+check_errors_in_package_names();
 
 my %tables_by_domain = make_tables();
 
