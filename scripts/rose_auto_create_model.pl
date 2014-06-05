@@ -47,17 +47,19 @@ our $manager_path = "SL/DB/Manager";
 
 my %config;
 
-our %foreign_key_name_map = (
-  oe                   => { payment => 'payment_terms', },
-  ar                   => { payment => 'payment_terms', },
-  ap                   => { payment => 'payment_terms', },
+our %foreign_key_name_map     = (
+  KIVITENDO                   => {
+    oe                        => { payment => 'payment_terms', },
+    ar                        => { payment => 'payment_terms', },
+    ap                        => { payment => 'payment_terms', },
 
-  orderitems           => { parts => 'part', trans => 'order', },
-  delivery_order_items => { parts => 'part' },
-  invoice              => { parts => 'part' },
-  follow_ups           => { 'employee_obj' => 'created_for' },
+    orderitems                => { parts => 'part', trans => 'order', },
+    delivery_order_items      => { parts => 'part' },
+    invoice                   => { parts => 'part' },
+    follow_ups                => { 'employee_obj' => 'created_for' },
 
-  periodic_invoices_configs => { oe => 'order' },
+    periodic_invoices_configs => { oe => 'order' },
+  },
 );
 
 sub setup {
@@ -139,7 +141,8 @@ CODE
   if ($foreign_key_definition && ($definition =~ /\Q$foreign_key_definition\E/)) {
     my ($start, $end) = ($-[0], $+[0]);
 
-    while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
+    my %changes = map { %{$_} } grep { $_ } ($foreign_key_name_map{$domain}->{ALL}, $foreign_key_name_map{$domain}->{$table});
+    while (my ($auto_generated_name, $desired_name) = each %changes) {
       $foreign_key_definition =~ s/^ \s \s ${auto_generated_name} \b/  ${desired_name}/msx;
     }
 
