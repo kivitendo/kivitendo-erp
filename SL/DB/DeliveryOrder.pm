@@ -139,7 +139,8 @@ sub new_from {
     $args{shipto_id} = $source->shipto_id;
   }
 
-  my $delivery_order = $class->new(%args, %{ $params{attributes} || {} });
+  my $delivery_order = $class->new(%args);
+  $delivery_order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   my $items          = delete($params{items}) || $source->items_sorted;
   my %item_parents;
 

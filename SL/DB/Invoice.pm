@@ -166,7 +166,8 @@ sub new_from {
     $args{quodate}      = $source->transdate;
   }
 
-  my $invoice = $class->new(%args, %{ $params{attributes} || {} });
+  my $invoice = $class->new(%args);
+  $invoice->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   my $items   = delete($params{items}) || $source->items_sorted;
   my %item_parents;
 
