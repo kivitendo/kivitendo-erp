@@ -130,7 +130,10 @@ sub new_from {
 
   require SL::DB::Employee;
 
-  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
+  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms
+            : $source->customer_id                              ? $source ->customer->payment_terms
+            :                                                     undef;
+
   my (@columns, @item_columns, $item_parent_id_column, $item_parent_column);
 
   if (ref($source) eq 'SL::DB::Order') {
@@ -151,7 +154,8 @@ sub new_from {
                                                 cp_id language_id taxzone_id shipto_id globalproject_id transaction_description currency_id delivery_term_id), @columns),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
-               duedate     => DateTime->today_local->add(days => $terms * 1),
+               duedate     => DateTime->today_local->add(days => ($terms ? $terms->terms_netto * 1 : 1)),
+               payment_id  => $terms ? $terms->id : undef,
                invoice     => 1,
                type        => 'invoice',
                storno      => 0,
