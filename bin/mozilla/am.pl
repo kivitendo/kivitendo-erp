@@ -215,29 +215,10 @@ sub account_header {
 
   my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
   my %eur;
-  if(scalar(grep(/^Switzerland/, (selectrow_query($form, $form->get_standard_dbh, 'SELECT coa FROM defaults'))[0]))) {
+  if ($form->{use_case} = scalar(grep(/^Switzerland/, (selectrow_query($form, $form->get_standard_dbh, 'SELECT coa FROM defaults'))[0]))) {
     %eur = (
-         1  => "Umsatzerlöse",
-         2  => "Spenden",
-         3  => "Mitgliederbeiträge",
-         4  => "Finanzerträge",
-         5  => "Ertragsminderungen",
-         6  => "Einkauf",
-         7  => "Löhne und Gehälter",
-         8  => "Sozialversicherungen",
-         9  => "Mieten",
-         10 => "Betriebsversicherungen",
-         11 => "Material- und Warenverluste",
-         12 => "Werbeaufwand",
-         13 => "Werkzeuge, Unterhalt, Betriebsmaterial",
-         14 => "Internet- und Serverhousingkosten",
-         15 => "Arbeitsleistungen externer Firmen",
-         16 => "Bürobedarf, Versandspesen, Telefon",
-         17 => "Sonstige Aufwendungen",
-         18 => "Abschreibungen",
-         19 => "Finanzaufwand",
-         20 => "Aufwandsminderungen",
-         21 => "Betriebliche Steuern",
+         1  => "Ertrag",
+         6  => "Aufwand",
     );
   } else {
     %eur = (
