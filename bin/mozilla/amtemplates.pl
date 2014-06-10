@@ -210,7 +210,7 @@ sub display_template_form {
 
           my $fname = $File::Find::name;
           # remove template dir from name
-          $fname =~ s|^$template_dir/||;
+          $fname =~ s|^\Q$template_dir\E/||;
           # remove .tex from name
           $fname =~ s|.tex$||;
 
