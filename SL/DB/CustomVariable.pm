@@ -38,7 +38,7 @@ sub parse_value {
   }
 
   if ($type =~ m{^(?:date|timestamp)}) {
-    return $self->timestamp_value(defined($unparsed) ? DateTime->from_kivi($unparsed) : undef);
+    return $self->timestamp_value(defined($unparsed) ? DateTime->from_kivitendo($unparsed) : undef);
   }
 
   # text, textfield, select
