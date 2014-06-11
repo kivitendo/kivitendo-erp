@@ -551,6 +551,8 @@ sub action_ajaj_customer_autocomplete {
     $::form->{column} ? ($::form->{column} => $query) : (or => [ customernumber => $query, name => $query ])
   );
 
+  push @filter, (or => [ obsolete => undef, obsolete => 0 ]) if !$::form->{obsolete};
+
   my $customers = SL::DB::Manager::Customer->get_all(query => [ @filter ], limit => $limit);
   my $value_col = $::form->{column} || 'name';
 
