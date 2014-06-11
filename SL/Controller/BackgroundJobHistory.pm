@@ -88,7 +88,7 @@ sub make_filter_summary {
                        @filters;
 
   my %status = (
-    failed   => $::locale->text('failed'),
+    failure  => $::locale->text('failed'),
     success  => $::locale->text('succeeded'),
   );
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
