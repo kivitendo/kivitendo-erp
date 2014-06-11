@@ -153,9 +153,10 @@ sub list_names {
   }
 
   my @columns = (
-    'id',        'name',      "$form->{db}number",   'contact',   'phone',    'discount',
-    'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
-    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country'
+    'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
+    'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
+    'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
+    'country'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -184,6 +185,7 @@ sub list_names {
     'country'           => { 'text' => $locale->text('Country'), },
     'salesman'          => { 'text' => $locale->text('Salesman'), },
     'discount'          => { 'text' => $locale->text('Discount'), },
+    'payment'           => { 'text' => $locale->text('Payment Terms'), },
     %column_defs_cvars,
   );
 
