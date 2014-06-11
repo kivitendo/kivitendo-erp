@@ -68,7 +68,7 @@ sub search {
       "email"              => "ct.email",
       "street"             => "ct.street",
       "taxnumber"          => "ct.taxnumber",
-      "business"           => "ct.business",
+      "business"           => "b.description",
       "invnumber"          => "ct.invnumber",
       "ordnumber"          => "ct.ordnumber",
       "quonumber"          => "ct.quonumber",
