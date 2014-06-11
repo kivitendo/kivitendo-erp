@@ -196,7 +196,7 @@ sub _new_cvar {
   # value needs config
   $inherited_value
    ? $cvar->value($inherited_value)
-   : $cvar->value($params{config}->default_value);
+   : $cvar->value($params{config}->type_dependant_default_value);
   return $cvar;
 }
 
