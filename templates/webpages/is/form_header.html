@@ -27,7 +27,7 @@
 [%- PROCESS 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]
 
-<div class="tabwidget">
+<div id="is_tabs" class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
