@@ -155,6 +155,7 @@ sub error_state {
   my %states = (
     session  => { warning => t8('The session has expired. Please log in again.')                   },
     password => { error   => t8('Incorrect username or password or no access to selected client!') },
+    action   => { warning => t8('The action is missing or invalid.')                               },
   );
 
   return %{ $states{$_[0]} || {} };
