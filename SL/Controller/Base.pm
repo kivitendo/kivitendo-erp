@@ -157,6 +157,7 @@ sub send_file {
   if (!ref $file_name_or_content) {
     $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
     $file->close;
+    unlink $file_name_or_content if $params{unlink};
   } else {
     $::locale->with_raw_io(\*STDOUT, sub { print $$file_name_or_content });
   }
@@ -489,6 +490,10 @@ C<%params> can include the following:
 
 =item * C<name> -- the name presented to the browser; defaults to
 C<$file_name>; mandatory if C<$file_name_or_content> is a reference
+
+=item * C<unlink> -- if trueish and C<$file_name_or_content> refers to
+a file name then unlink the file after it has been sent to the browser
+(e.g. for temporary files)
 
 =back
 
