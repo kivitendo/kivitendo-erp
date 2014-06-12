@@ -29,16 +29,15 @@ sub create_pdf {
   my ($class, %params) = @_;
 
   my $userspath       = $::lx_office_conf{paths}->{userspath};
+  my $vars            = $params{variables} || {};
   my $form            = Form->new('');
+  $form->{$_}         = $vars->{$_} for keys %{ $vars };
   $form->{format}     = 'pdf';
   $form->{cwd}        = getcwd();
   $form->{templates}  = $::instance_conf->get_templates;
   $form->{IN}         = $params{template};
   $form->{tmpdir}     = $form->{cwd} . '/' . $userspath;
   my ($suffix)        = $params{template} =~ m{\.(.+)};
-
-  my $vars            = $params{variables} || {};
-  $form->{$_}         = $vars->{$_} for keys %{ $vars };
 
   my $temp_fh;
   ($temp_fh, $form->{tmpfile}) = File::Temp::tempfile(
