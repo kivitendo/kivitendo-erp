@@ -16,6 +16,12 @@ __PACKAGE__->meta->initialize;
 sub get_active_taxkey {
   my ($self, $date) = @_;
   $date ||= DateTime->today_local;
+
+  my $cache = $::request->{cache}{chart}{$date};
+  if ($cache->{$self->id}) {
+    return $cache->{$self->id};
+  }
+
   require SL::DB::TaxKey;
   return SL::DB::Manager::TaxKey->get_all(query   => [ and => [ chart_id  => $self->id,
                                                                 startdate => { le => $date } ] ],

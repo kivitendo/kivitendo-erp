@@ -6,6 +6,8 @@ use SL::DB::Helper::Manager;
 use base qw(SL::DB::Helper::Manager);
 
 use SL::DB::Helper::Sorted;
+use DateTime;
+use SL::DBUtils;
 
 sub object_class { 'SL::DB::Chart' }
 
@@ -18,6 +20,27 @@ sub link_filter {
                   link => { like => "${link}:\%"    },
                   link => { like => "\%:${link}"    },
                   link => { like => "\%:${link}:\%" } ]);
+}
+
+sub cache_taxkeys {
+  my ($self, %params) = @_;
+
+  my $date  = $params{date} || DateTime->today;
+  my $cache = $::request->{cache}{chart}{$date} ||= {};
+
+  require SL::DB::TaxKey;
+  my $tks = SL::DB::Manager::TaxKey->get_all;
+  my %tks_by_id = map { $_->id => $_ } @$tks;
+
+  my $rows = selectall_hashref_query($::form, $::form->get_standard_dbh, <<"", $date);
+    SELECT DISTINCT ON (chart_id) chart_id, startdate, id
+    FROM taxkeys
+    WHERE startdate < ?
+    ORDER BY chart_id, startdate DESC;
+
+  for (@$rows) {
+    $cache->{$_->{chart_id}} = $tks_by_id{$_->{id}};
+  }
 }
 
 1;

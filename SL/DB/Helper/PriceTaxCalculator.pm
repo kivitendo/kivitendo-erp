@@ -37,6 +37,8 @@ sub calculate_prices_and_taxes {
   $self->netamount(  0);
   $self->marge_total(0);
 
+  SL::DB::Manager::Chart->cache_taxkeys(date => $self->transdate);
+
   my $idx = 0;
   foreach my $item ($self->items) {
     $idx++;
