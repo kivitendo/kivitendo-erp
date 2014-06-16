@@ -41,6 +41,17 @@ sub init_type {
   return 'html';
 }
 
+sub cache {
+  my ($self, $topic, $default) = @_;
+
+  $topic = '::' . (caller(0))[0] . "::$topic" unless $topic =~ m{^::};
+
+  $self->{_cache}           //= {};
+  $self->{_cache}->{$topic} //= ($default // {});
+
+  return $self->{_cache}->{$topic};
+}
+
 sub _store_value {
   my ($target, $key, $value) = @_;
   my @tokens = split /((?:\[\+?\])?(?:\.)|(?:\[\+?\]))/, $key;
@@ -532,6 +543,21 @@ Set and retrieve the layout object for the current request. Must be an instance
 of L<SL::Layout::Base>. Defaults to an isntance of L<SL::Layout::None>.
 
 For more information about layouts, see L<SL::Layout::Dispatcher>.
+
+=item C<cache $topic[, $default ]>
+
+Caches an item for the duration of the request. C<$topic> must be an
+index name referring to the thing to cache. It is used for retrieving
+it later on. If C<$topic> doesn't start with C<::> then the caller's
+package name is prepended to the topic. For example, if the a from
+package C<SL::StuffedStuff> calls with topic = C<get_stuff> then the
+actual key will be C<::SL::StuffedStuff::get_stuff>.
+
+If no item exists in the cache for C<$topic> then it is created and
+its initial value is set to C<$default>. If C<$default> is not given
+(undefined) then a new, empty hash reference is created.
+
+Returns the cached item.
 
 =back
 
