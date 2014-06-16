@@ -260,7 +260,8 @@ sub is_tracing_enabled {
 sub _write {
   no warnings;
   my ($self, $prefix, $message) = @_;
-  my $date = strftime("%Y-%m-%d %H:%M:%S $$ [" . getppid() . "] ${prefix}: ", localtime(time()));
+  my @now  = gettimeofday();
+  my $date = strftime("%Y-%m-%d %H:%M:%S." . sprintf('%03d', int($now[1] / 1000)) . " $$ [" . getppid() . "] ${prefix}: ", localtime($now[0]));
   local *FILE;
 
   chomp($message);
