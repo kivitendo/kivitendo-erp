@@ -144,9 +144,7 @@ sub get_taxkey {
   my $date     = $params{date} || DateTime->today_local;
   my $is_sales = !!$params{is_sales};
   my $taxzone  = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
-
-  $self->{__partpriv_taxkey_information} ||= { };
-  my $tk_info = $self->{__partpriv_taxkey_information};
+  my $tk_info  = $::request->cache('get_taxkey');
 
   $tk_info->{$taxzone}              ||= { };
   $tk_info->{$taxzone}->{$is_sales} ||= { };
@@ -167,8 +165,8 @@ sub get_chart {
   my $type    = (any { $_ eq $params{type} } qw(income expense inventory)) ? $params{type} : croak("Invalid 'type' parameter '$params{type}'");
   my $taxzone = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
 
-  $self->{__partpriv_get_chart_id} ||= { };
-  my $charts = $self->{__partpriv_get_chart_id};
+  my $charts     = $::request->cache('get_chart_id/by_taxzones');
+  my $all_charts = $::request->cache('get_chart_id/by_id');
 
   $charts->{$taxzone} ||= { };
 
@@ -177,7 +175,11 @@ sub get_chart {
     my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
                  :                          $bugru->call_sub("${type}_accno_id_${taxzone}");
 
-    $charts->{$taxzone}->{$type} = $chart_id ? SL::DB::Chart->new(id => $chart_id)->load : undef;
+    if ($chart_id) {
+      my $chart                    = $all_charts->{$chart_id} // SL::DB::Chart->new(id => $chart_id)->load;
+      $all_charts->{$chart_id}     = $chart;
+      $charts->{$taxzone}->{$type} = $chart;
+    }
   }
 
   return $charts->{$taxzone}->{$type};

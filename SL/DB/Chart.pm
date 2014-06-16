@@ -17,7 +17,7 @@ sub get_active_taxkey {
   my ($self, $date) = @_;
   $date ||= DateTime->today_local;
 
-  my $cache = $::request->{cache}{chart}{$date};
+  my $cache = $::request->cache("get_active_taxkey")->{$date} //= {};
   if ($cache->{$self->id}) {
     return $cache->{$self->id};
   }
