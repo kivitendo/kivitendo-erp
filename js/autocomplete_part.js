@@ -83,7 +83,7 @@ namespace('kivi', function(k){
       last_dummy = $dummy.val();
       $real.trigger('change');
 
-      if (o.fat_set_item) {
+      if (o.fat_set_item && item.id) {
         $.ajax({
           url: 'controller.pl?action=Part/show.json',
           data: { id: item.id },
