@@ -20,9 +20,11 @@ sub unparsed_value {
 sub _ensure_config {
   my ($self) = @_;
 
-  return $self->config if  $self->config;
+  return $self->config if  defined $self->{config};
   return undef         if !defined $self->config_id;
-  $self->config( SL::DB::CustomVariableConfig->new(id => $self->config_id)->load );
+
+  no warnings 'once';
+  return $::request->cache('config_by_id')->{$self->config_id} //= SL::DB::CustomVariableConfig->new(id => $self->config_id)->load;
 }
 
 sub parse_value {
@@ -80,7 +82,8 @@ sub value {
 
 sub value_as_text {
   my $self = $_[0];
-  my $type = $self->config->type;
+  my $cfg  = $self->_ensure_config;
+  my $type = $cfg->type;
 
   die 'not an accessor' if @_ > 1;
 
@@ -89,7 +92,7 @@ sub value_as_text {
   } elsif ($type eq 'timestamp') {
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
   } elsif ($type eq 'number') {
-    return $::form->format_amount(\%::myconfig, $self->number_value, $self->config->processed_options->{PRECISION});
+    return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
   } elsif ( $type eq 'customer' ) {
     require SL::DB::Customer;
 
