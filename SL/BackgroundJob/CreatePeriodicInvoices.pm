@@ -213,7 +213,7 @@ sub _send_email {
   return unless $template;
 
   my $email_template = $config{periodic_invoices}->{email_template};
-  my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/periodic_invoices_email.txt" );
+  my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/oe/periodic_invoices_email.txt" );
   my %params         = ( POSTED_INVOICES  => $posted_invoices,
                          PRINTED_INVOICES => $printed_invoices );
 
