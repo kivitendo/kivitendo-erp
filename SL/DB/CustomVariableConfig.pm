@@ -89,7 +89,7 @@ sub has_flag {
   return $self->processed_flags()->{$flag};
 }
 
-sub type_dependant_default_value {
+sub type_dependent_default_value {
   my ($self) = @_;
 
   return $self->default_value if $self->type ne 'select';
