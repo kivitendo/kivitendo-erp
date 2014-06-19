@@ -153,7 +153,6 @@ sub get_taxkey {
   if (!exists $cache->{$date}) {
     $cache->{$date} =
       $self->get_chart(type => $is_sales ? 'income' : 'expense', taxzone => $taxzone)
-      ->load
       ->get_active_taxkey($date);
   }
 
@@ -172,12 +171,13 @@ sub get_chart {
   $charts->{$taxzone} ||= { };
 
   if (!exists $charts->{$taxzone}->{$type}) {
-    my $bugru    = $self->buchungsgruppe;
+    require SL::DB::Buchungsgruppe;
+    my $bugru    = SL::DB::Buchungsgruppe->load_cached($self->buchungsgruppen_id);
     my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
                  :                          $bugru->call_sub("${type}_accno_id_${taxzone}");
 
     if ($chart_id) {
-      my $chart                    = $all_charts->{$chart_id} // SL::DB::Chart->new(id => $chart_id)->load;
+      my $chart                    = $all_charts->{$chart_id} // SL::DB::Chart->load_cached($chart_id)->load;
       $all_charts->{$chart_id}     = $chart;
       $charts->{$taxzone}->{$type} = $chart;
     }
