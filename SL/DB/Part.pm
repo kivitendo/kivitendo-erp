@@ -146,17 +146,18 @@ sub get_taxkey {
   my $taxzone  = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
   my $tk_info  = $::request->cache('get_taxkey');
 
-  $tk_info->{$taxzone}              ||= { };
-  $tk_info->{$taxzone}->{$is_sales} ||= { };
+  $tk_info->{$self->id}                                      //= {};
+  $tk_info->{$self->id}->{$taxzone}                          //= { };
+  my $cache = $tk_info->{$self->id}->{$taxzone}->{$is_sales} //= { };
 
-  if (!exists $tk_info->{$taxzone}->{$is_sales}->{$date}) {
-    $tk_info->{$taxzone}->{$is_sales}->{$date} =
+  if (!exists $cache->{$date}) {
+    $cache->{$date} =
       $self->get_chart(type => $is_sales ? 'income' : 'expense', taxzone => $taxzone)
       ->load
       ->get_active_taxkey($date);
   }
 
-  return $tk_info->{$taxzone}->{$is_sales}->{$date};
+  return $cache->{$date};
 }
 
 sub get_chart {
@@ -165,7 +166,7 @@ sub get_chart {
   my $type    = (any { $_ eq $params{type} } qw(income expense inventory)) ? $params{type} : croak("Invalid 'type' parameter '$params{type}'");
   my $taxzone = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
 
-  my $charts     = $::request->cache('get_chart_id/by_taxzones');
+  my $charts     = $::request->cache('get_chart_id/by_part_id_and_taxzone')->{$self->id} //= {};
   my $all_charts = $::request->cache('get_chart_id/by_id');
 
   $charts->{$taxzone} ||= { };
