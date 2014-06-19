@@ -2,6 +2,7 @@ package SL::DB::Object;
 
 use strict;
 
+use Carp;
 use English qw(-no_match_vars);
 use Rose::DB::Object;
 use List::MoreUtils qw(any);
@@ -179,11 +180,51 @@ sub delete {
   return $result;
 }
 
+sub load_cached {
+  my $class_or_self = shift;
+  my @ids           = @_;
+  my $class         = ref($class_or_self) || $class_or_self;
+  my $cache         = $::request->cache("::SL::DB::Object::object_cache::${class}");
+
+  croak "Missing ID" unless @ids;
+
+  my @missing_ids = grep { !exists $cache->{$_} } @ids;
+
+  return $cache->{$ids[0]} if !@missing_ids;
+
+  croak "Caching can only be used with classes with exactly one primary key column" if 1 != scalar(@{ $class->meta->primary_key_columns });
+
+  my $primary_key = $class->meta->primary_key_columns->[0]->name;
+  my $objects     = $class->_get_manager_class->get_all(where => [ $primary_key => \@missing_ids ]);
+
+  $cache->{$_->$primary_key} = $_ for @{ $objects};
+
+  return $cache->{$ids[0]};
+}
+
+sub invalidate_cached {
+  my ($class_or_self, @ids) = @_;
+  my $class                 = ref($class_or_self) || $class_or_self;
+
+  if (ref($class_or_self) && !@ids) {
+    croak "Caching can only be used with classes with exactly one primary key column" if 1 != scalar(@{ $class->meta->primary_key_columns });
+
+    my $primary_key = $class->meta->primary_key_columns->[0]->name;
+    @ids            = ($class_or_self->$primary_key);
+  }
+
+  delete @{ $::request->cache("::SL::DB::Object::object_cache::${class}") }{ @ids };
+
+  return $class_or_self;
+}
+
 1;
 
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 
@@ -256,6 +297,31 @@ Returns the first object for which all properties listed in
 C<@attributes> equal those in C<$self> but which is not C<$self>. Can
 be used to check whether or not an object's columns are unique before
 saving or during validation.
+
+=item C<load_cached @ids>
+
+Loads objects from the database which haven't been cached before and
+caches them for the duration of the current request (see
+L<SL::Request/cache>).
+
+This method can be called both as an instance method and a class
+method. It loads objects for the corresponding class (e.g. both
+C<SL::DB::Part-E<gt>load_cached(…)> and
+C<$some_part-E<gt>load_cached(…)> will load parts).
+
+Currently only classes with a single primary key column are supported.
+
+Returns the cached object for the first ID.
+
+=item C<invalidate_cached @ids>
+
+Deletes all cached instances of this class (see L</load_cached>) for
+the given IDs.
+
+If called as an instance method without further arguments then the
+object's ID is used.
+
+Returns the object/class it was called on.
 
 =back
 
