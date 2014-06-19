@@ -26,7 +26,7 @@ sub cache_taxkeys {
   my ($self, %params) = @_;
 
   my $date  = $params{date} || DateTime->today;
-  my $cache = $::request->{cache}{chart}{$date} ||= {};
+  my $cache = $::request->cache('::SL::DB::Chart::get_active_taxkey')->{$date} //= {};
 
   require SL::DB::TaxKey;
   my $tks = SL::DB::Manager::TaxKey->get_all;
