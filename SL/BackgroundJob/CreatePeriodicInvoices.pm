@@ -189,7 +189,7 @@ sub _create_periodic_invoice {
 
 sub _calculate_dates {
   my ($config) = @_;
-  return $config->calculate_invoice_dates(end_date => DateTime->today_local->add(days => 1));
+  return $config->calculate_invoice_dates(end_date => DateTime->today_local);
 }
 
 sub _send_email {
