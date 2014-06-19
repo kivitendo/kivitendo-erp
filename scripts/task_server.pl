@@ -75,6 +75,21 @@ sub lxinit {
   die "cannot find locale for user $login" unless $::locale   = Locale->new('de');
 }
 
+sub per_job_initialization {
+  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::form          = Form->new;
+  $::instance_conf = SL::InstanceConfiguration->new;
+  $::request       = SL::Request->new(
+    cgi            => CGI->new({}),
+    layout         => SL::Layout::None->new,
+  );
+
+  $::auth->restore_session;
+
+  $::form->{login} = $lx_office_conf{task_server}->{login};
+  $::instance_conf->init;
+}
+
 sub drop_privileges {
   my $user = $lx_office_conf{task_server}->{run_as};
   return unless $user;
@@ -174,8 +189,7 @@ sub gd_run {
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
         # them somehow.
-        $::locale = Locale->new($::lx_office_conf{system}->{language});
-        $::form   = Form->new;
+        per_job_initialization();
 
         chdir $exe_dir;
 
