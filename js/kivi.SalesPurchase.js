@@ -35,4 +35,29 @@ namespace('kivi.SalesPurchase', function(ns) {
     $element.val($edit.val());
     $('#edit_longdescription_dialog').dialog('close');
   };
+
+  this.delivery_order_check_transfer_qty = function() {
+    var all_match = true;
+    var rowcount  = $('input[name=rowcount]').val();
+    for (var i = 1; i < rowcount; i++)
+      if ($('#stock_in_out_qty_matches_' + i).val() != 1)
+        all_match = false;
+
+    if (all_match)
+      return true;
+
+    return confirm(kivi.t8('There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?'));
+  };
+
+  this.on_submit_checks = function() {
+    var $button = $(this);
+    if (($button.data('check-transfer-qty') == 1) && !kivi.SalesPurchase.delivery_order_check_transfer_qty())
+      return false;
+
+    return true;
+  };
+
+  this.init_on_submit_checks = function() {
+     $('input[type=submit]').click(kivi.SalesPurchase.on_submit_checks);
+  };
 });
