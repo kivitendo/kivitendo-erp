@@ -105,8 +105,6 @@ sub pre_request_initialization {
       die "cannot find locale for user " . $params{login} unless $::locale   = Locale->new($::myconfig{countrycode});
 
       $::form->{login} = $params{login}; # normaly implicit at login
-
-      $::instance_conf->init;
     }
   }
 

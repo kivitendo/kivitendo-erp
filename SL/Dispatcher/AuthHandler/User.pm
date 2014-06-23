@@ -29,6 +29,7 @@ sub handle {
 
   $::auth->create_or_refresh_session;
   $::auth->delete_session_value('FLASH');
+  $::instance_conf->reload->data;
 
   return 1;
 }
