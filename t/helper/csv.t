@@ -552,7 +552,7 @@ ok !$csv->_check_multiplexed, 'multiplex check detects empty header';
 #####
 
 $csv = SL::Helper::Csv->new(
-  file   => \<<EOL,
+  file   => \ Encode::encode('utf-8', <<EOL),
 description;longdescription;datatype
 name;customernumber;datatype
 Kaffee;"lecker Kaffee";P
@@ -580,7 +580,7 @@ is_deeply $csv->get_data, [ { datatype => 'P', description => 'Kaffee', longdesc
 #####
 
 $csv = SL::Helper::Csv->new(
-  file   => \<<EOL,
+  file   => \ Encode::encode('utf-8', <<EOL),
 datatype;description;longdescription
 name;datatype;customernumber
 P;Kaffee;"lecker Kaffee"
