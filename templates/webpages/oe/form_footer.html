@@ -131,8 +131,8 @@
 <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
 <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
 <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
-<input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]"[% IF warn_save_active_periodic_invoice %] onclick="return warn_save_active_periodic_invoice();"[% END %]>
-<input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]"[% IF warn_save_active_periodic_invoice %] onclick="return warn_save_active_periodic_invoice();"[% END %]>
+<input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %]>
+<input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %]>
 
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
@@ -183,3 +183,6 @@
 [% END %]
 
 </form>
+<script type='text/javascript'>
+ $(kivi.SalesPurchase.init_on_submit_checks);
+</script>
