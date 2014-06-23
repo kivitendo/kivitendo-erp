@@ -479,6 +479,8 @@ sub form_header {
      is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
   );
 
+  $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+
   print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
 
   $main::lxdebug->leave_sub();
@@ -756,6 +758,8 @@ sub search {
   # constants and subs for template
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
+  $form->{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+
   $form->header();
 
   print $form->parse_html_template('oe/search', {
@@ -823,6 +827,7 @@ sub orders {
     "vcnumber",                "ustid",
     "country",                 "shippingpoint",
     "taxzone",
+    "order_probability",       "expected_billing_date", "expected_netamount",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -834,6 +839,8 @@ sub orders {
   $form->{l_open}              = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered}         = "Y"                     if ($form->{delivered} && $form->{notdelivered});
   $form->{l_periodic_invoices} = "Y"                     if ($form->{periodic_invoices_active} && $form->{periodic_invoices_inactive});
+
+  map { $form->{"l_${_}"} = 'Y' } qw(order_probability expected_billing_date expected_netamount) if $form->{l_order_probability_expected_billing_date};
 
   my $attachment_basename;
   if ($form->{vc} eq 'vendor') {
@@ -861,7 +868,8 @@ sub orders {
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
-                                                        business_id shippingpoint taxzone_id);
+                                                        business_id shippingpoint taxzone_id
+                                                        order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to);
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
   push @keys_for_url, 'taxzone_id' if $form->{taxzone_id} ne ''; # taxzone_id could be 0
@@ -899,6 +907,9 @@ sub orders {
     'periodic_invoices'       => { 'text' => $locale->text('Per. Inv.'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'order_probability'       => { 'text' => $locale->text('Order probability'), },
+    'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
+    'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
@@ -906,7 +917,7 @@ sub orders {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount order_probability expected_billing_date expected_netamount);
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
@@ -952,6 +963,16 @@ sub orders {
     push @options, $locale->text('Steuersatz') . " : " . SL::DB::TaxZone->new(id => $form->{taxzone_id})->load->description;
   }
 
+  if (($form->{order_probability_value} || '') ne '') {
+    push @options, $::locale->text('Order probability') . ' ' . ($form->{order_probability_op} eq 'le' ? '<=' : '>=') . ' ' . $form->{order_probability_value} . '%';
+  }
+
+  if ($form->{expected_billing_date_from} or $form->{expected_billing_date_to}) {
+    push @options, $locale->text('Expected billing date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{expected_billing_date_from}, 1) if $form->{expected_billing_date_from};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{expected_billing_date_to},   1) if $form->{expected_billing_date_to};
+  }
+
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
                        'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
@@ -969,6 +990,7 @@ sub orders {
   my $callback = $form->escape($href);
 
   my @subtotal_columns = qw(netamount amount marge_total marge_percent remaining_amount remaining_netamount);
+  push @subtotal_columns, 'expected_netamount' if $form->{l_order_probability_expected_billing_date};
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -991,7 +1013,9 @@ sub orders {
     $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
     $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
-    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent remaining_amount remaining_netamount);
+    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent remaining_amount remaining_netamount expected_netamount);
+
+    $oe->{order_probability} = ($oe->{order_probability} || 0) . '%';
 
     my $row = { };
 
