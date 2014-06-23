@@ -129,17 +129,17 @@
 [% label_edit %]<br>
 <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
 <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
-<input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
-<input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
-<input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %]>
-<input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %]>
+<input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+<input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+<input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %] data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+<input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %] data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="[% 'history' | $T8 %]">
 
   <br>[% label_workflow %]<br>
-  <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
+  <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 
   [%- UNLESS (is_sales_ord && !INSTANCE_CONF.get_sales_order_show_delete) || (is_pur_ord && !INSTANCE_CONF.get_purchase_order_show_delete) %]
     [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]

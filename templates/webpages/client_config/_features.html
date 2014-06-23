@@ -57,6 +57,14 @@
   </tr>
 </tr>
 
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Purchasing & Sales") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Require a transaction description in purchase and sales records') %]</td>
+   <td>[% L.yes_no_tag('defaults.require_transaction_description_ps', SELF.defaults.require_transaction_description_ps) %]</td>
+   <td>[% LxERP.t8('If enabled purchase and sales records cannot be saved if no transaction description has been entered.') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
 
   <tr>

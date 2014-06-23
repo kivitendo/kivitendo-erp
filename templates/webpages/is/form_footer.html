@@ -153,20 +153,20 @@
 
     <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
     <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% IF  show_storno %]
-    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
     <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
     <input class="submit" type="submit" name="action" value="[% 'Use As New' | $T8 %]">
 
 [% IF id && !is_type_credit_note %]
-    <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
 [% IF show_delete && !storno %]
     <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
     <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
@@ -175,10 +175,10 @@
    [% UNLESS locked %]
       <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
       <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Preview' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Post and E-mail' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Print and Post' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Preview' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action" value="[% 'Post and E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action" value="[% 'Print and Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
       <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
    [%- END %]
  [% END # id %]
@@ -198,3 +198,6 @@
 <input type="hidden" name="customer_discount" value="[% customer_discount %]">
 <input type="hidden" name="gldate" value="[% gldate %]">
 </form>
+<script type='text/javascript'>
+ $(kivi.SalesPurchase.init_on_submit_checks);
+</script>

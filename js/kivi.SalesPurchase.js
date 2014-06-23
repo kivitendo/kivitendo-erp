@@ -53,12 +53,23 @@ namespace('kivi.SalesPurchase', function(ns) {
     return confirm(kivi.t8('This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?'));
   };
 
+  this.check_transaction_description = function() {
+    if ($('#transaction_description').val() != '')
+      return true;
+
+    alert(kivi.t8('A transaction description is required.'));
+    return false;
+  };
+
   this.on_submit_checks = function() {
     var $button = $(this);
     if (($button.data('check-transfer-qty') == 1) && !kivi.SalesPurchase.delivery_order_check_transfer_qty())
       return false;
 
     if (($button.data('warn-save-active-periodic-invoice') == 1) && !kivi.SalesPurchase.oe_warn_save_active_periodic_invoice())
+      return false;
+
+    if (($button.data('require-transaction-description') == 1) && !kivi.SalesPurchase.check_transaction_description())
       return false;
 
     return true;
