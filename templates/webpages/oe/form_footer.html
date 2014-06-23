@@ -2,6 +2,15 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- IF is_req_quo || is_pur_ord %]
+  [%- SET allow_invoice=1 %]
+[%- ELSIF is_sales_quo && INSTANCE_CONF.get_allow_sales_invoice_from_sales_quotation %]
+  [%- SET allow_invoice=1 %]
+[%- ELSIF is_sales_ord && INSTANCE_CONF.get_allow_sales_invoice_from_sales_order %]
+  [%- SET allow_invoice=1 %]
+[%- ELSE %]
+  [%- SET allow_invoice=0 %]
+[%- END %]
   <tr>
     <td>
       <table width="100%">
@@ -157,7 +166,9 @@
     <input class="submit" type="submit" name="action_delivery_order" value="[% 'Delivery Order' | $T8 %]">
   [%- END %]
 
+  [%- IF allow_invoice %]
   <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
+  [%- END %]
 
   [%- IF is_sales_ord || is_pur_ord %]
     <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>

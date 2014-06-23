@@ -85,6 +85,10 @@ sub add {
 
   check_do_access();
 
+  if (($::form->{type} =~ /purchase/) && !$::instance_conf->get_allow_new_purchase_invoice) {
+    $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+  }
+
   my $form     = $main::form;
 
   set_headings("add");

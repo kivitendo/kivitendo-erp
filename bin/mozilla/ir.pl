@@ -58,6 +58,10 @@ sub add {
 
   $main::auth->assert('vendor_invoice_edit');
 
+  if (!$::instance_conf->get_allow_new_purchase_invoice) {
+    $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+  }
+
   return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = $locale->text('Record Vendor Invoice');

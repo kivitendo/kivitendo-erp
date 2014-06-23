@@ -90,6 +90,16 @@ sub check_oe_access {
   $main::auth->assert($right);
 }
 
+sub check_oe_conversion_to_sales_invoice_allowed {
+  return 1 if  $::form->{type} !~ m/^sales/;
+  return 1 if ($::form->{type} =~ m/quotation/) && $::instance_conf->get_allow_sales_invoice_from_sales_quotation;
+  return 1 if ($::form->{type} =~ m/order/)     && $::instance_conf->get_allow_sales_invoice_from_sales_order;
+
+  $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+
+  return 0;
+}
+
 sub set_headings {
   $main::lxdebug->enter_sub();
 
@@ -1313,6 +1323,7 @@ sub invoice {
   my $locale   = $main::locale;
 
   check_oe_access();
+  check_oe_conversion_to_sales_invoice_allowed();
   $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{old_salesman_id} = $form->{salesman_id};
