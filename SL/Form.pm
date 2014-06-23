@@ -40,6 +40,7 @@ package Form;
 use Carp;
 use Data::Dumper;
 
+use Carp;
 use CGI;
 use Cwd;
 use Encode;
@@ -307,8 +308,7 @@ sub error {
     $self->show_generic_error($msg);
 
   } else {
-    print STDERR "Error: $msg\n";
-    ::end_of_request();
+    confess "Error: $msg\n";
   }
 
   $main::lxdebug->leave_sub();
