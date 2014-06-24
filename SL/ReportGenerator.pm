@@ -121,7 +121,7 @@ sub add_data {
         $row->{$column}->{align}   = $self->{columns}->{$column}->{align} unless (defined $row->{$column}->{align});
       }
 
-      foreach my $field (qw(data link)) {
+      foreach my $field (qw(data link link_class)) {
         map { $row->{$_}->{$field} = [ $row->{$_}->{$field} ] if (ref $row->{$_}->{$field} ne 'ARRAY') } keys %{ $row };
       }
     }
@@ -351,6 +351,7 @@ sub prepare_html_content {
           push @{ $col->{CELL_ROWS} }, {
             'data' => '' . $self->html_format($col->{data}->[$i]),
             'link' => $col->{link}->[$i],
+            link_class => $col->{link_class}->[$i],
           };
         }
 
