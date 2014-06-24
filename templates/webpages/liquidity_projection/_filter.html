@@ -1,0 +1,27 @@
+[%- USE LxERP -%][%- USE L -%]
+
+<form method="post" action="controller.pl">
+ [% L.hidden_tag('action', 'LiquidityProjection/show') %]
+
+ <table border="0">
+  <tr>
+   <th align="right">[% LxERP.t8("Number of months") %]</th>
+   <td>[% L.input_tag("params.months", FORM.params.months, class="initial_focus") %]</td>
+  </tr>
+
+  <tr>
+   <th align="right" valign="top">[% LxERP.t8("Break down by") %]</th>
+   <td valign="top">
+    [% L.checkbox_tag("params.type",           value=1, checked=FORM.params.type,           label=LxERP.t8("Basis of calculation")) %]
+    <br>
+    [% L.checkbox_tag("params.salesman",       value=1, checked=FORM.params.salesman,       label=LxERP.t8("Salesman")) %]
+    <br>
+    [% L.checkbox_tag("params.buchungsgruppe", value=1, checked=FORM.params.buchungsgruppe, label=LxERP.t8("Buchungsgruppe")) %]
+   </td>
+  </tr>
+ </table>
+
+ <p>
+  [% L.submit_tag("dummy", LxERP.t8("Show")) %]
+ </p>
+</form>

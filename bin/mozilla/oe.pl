@@ -883,7 +883,7 @@ sub orders {
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
-                                                        business_id shippingpoint taxzone_id
+                                                        business_id shippingpoint taxzone_id reqdate_unset_or_old
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to);
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -969,6 +969,7 @@ sub orders {
   push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
   push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_active};
+  push @options, $locale->text('Reqdate not set or before current month')                                 if $form->{reqdate_unset_or_old};
 
   if ($form->{business_id}) {
     my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');

@@ -244,6 +244,10 @@ SQL
     $query  .= qq| AND ${not} COALESCE(pcfg.active, 'f')|;
   }
 
+  if ($form->{reqdate_unset_or_old}) {
+    $query .= qq| AND ((o.reqdate IS NULL) OR (o.reqdate < date_trunc('month', current_date)))|;
+  }
+
   if (($form->{order_probability_value} || '') ne '') {
     my $op  = $form->{order_probability_value} eq 'le' ? '<=' : '>=';
     $query .= qq| AND (o.order_probability ${op} ?)|;
