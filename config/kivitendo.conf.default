@@ -314,3 +314,24 @@ auto_reload_resources = 0
 
 # If set to 1 each exception will include a full stack backtrace.
 backtrace_on_die = 0
+
+[cti]
+# If you want phone numbers to be clickable then this must be set to a
+# command that does the actually dialing. Within this command three
+# variables are replaced before it is executed:
+#
+# 1. <%phone_extension%> and <%phone_password%> are taken from the user
+#    configuration (changeable in the admin interface).
+# 2. <%number%> is the number to dial. It has already been sanitized
+#    and formatted correctly regarding e.g. the international dialing
+#    prefix.
+#
+# The following is an example that works with the OpenUC telephony
+# server:
+# dial_command = curl --insecure -X PUT https://<%phone_extension%>:<%phone_password%>@IP.AD.DR.ESS:8443/sipxconfig/rest/my/call/<%number%>
+dial_command =
+# If you need to dial something before the actual number then set
+# external_prefix to it.
+external_prefix = 0
+# The prefix for international calls (numbers starting with +).
+international_dialing_prefix = 00

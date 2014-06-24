@@ -160,4 +160,44 @@ namespace('kivi.CustomerVendor', function(ns) {
     var url = "common.pl?INPUT_ENCODING=UTF-8&action=show_history&longdescription=&input_name="+ encodeURIComponent(id);
     window.open(url, "_new_generic", parm);
   };
+
+  this.update_dial_action = function($input) {
+    var $action = $('#' + $input.prop('id') + '-dial-action');
+
+    if (!$action)
+      return true;
+
+    var number = $input.val().replace(/\s+/g, '');
+    if (number == '')
+      $action.hide();
+    else
+      $action.prop('href', 'controller.pl?action=CTI/call&number=' + encodeURIComponent(number)).show();
+
+    return true;
+  };
+
+  this.init_dial_action = function(input) {
+    if ($('#_cti_enabled').val() != 1)
+      return false;
+
+    var $input    = $(input);
+    var action_id = $input.prop('id') + '-dial-action';
+
+    if (!$('#' + action_id).size()) {
+      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1"></a>');
+      $input.wrap('<span nobr></span>').after($action);
+
+      $input.change(function() { kivi.CustomerVendor.update_dial_action($input); });
+    }
+
+    kivi.CustomerVendor.update_dial_action($input);
+
+    return true;
+  };
 });
+
+function local_reinit_widgets() {
+  $('#cv_phone,#shipto_shiptophone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2').each(function(idx, elt) {
+    kivi.CustomerVendor.init_dial_action($(elt));
+  });
+}

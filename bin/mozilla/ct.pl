@@ -48,6 +48,7 @@
 use POSIX qw(strftime);
 
 use SL::CT;
+use SL::CTI;
 use SL::CVar;
 use SL::Request qw(flatten);
 use SL::DB::Business;
@@ -268,6 +269,11 @@ sub list_names {
     my $column                = $ref->{formtype} eq 'invoice' ? 'invnumber' : $ref->{formtype} eq 'order' ? 'ordnumber' : 'quonumber';
     $row->{$column}->{data}   = $ref->{$column};
 
+    if (my $number = SL::CTI->sanitize_number(number => $ref->{phone})) {
+      $row->{phone}->{link}       = SL::CTI->call_link(number => $number);
+      $row->{phone}->{link_class} = 'cti_call_action';
+    }
+
     $report->add_data($row);
   }
 
@@ -390,6 +396,13 @@ sub list_contacts {
 
     for (qw(cp_email cp_privatemail)) {
       $row->{$_}->{link} = 'mailto:' . E($ref->{$_}) if $ref->{$_};
+    }
+
+    for (qw(cp_phone1 cp_phone2 cp_mobile1)) {
+      next unless my $number = SL::CTI->sanitize_number(number => $ref->{$_});
+
+      $row->{$_}->{link}       = SL::CTI->call_link(number => $number);
+      $row->{$_}->{link_class} = 'cti_call_action';
     }
 
     $report->add_data($row);

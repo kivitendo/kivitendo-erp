@@ -2,6 +2,8 @@
 [%- USE LxERP %]
 [%- USE L %]
 
+[% L.hidden_tag('_cti_enabled', !!LXCONFIG.cti.dial_command) %]
+
 [% cv_cvars = SELF.cv.cvars_by_config %]
 
 <form method="post" action="controller.pl">
