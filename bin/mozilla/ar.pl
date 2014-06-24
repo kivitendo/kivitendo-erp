@@ -842,6 +842,12 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
+  $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
+  ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
+   $form->{CT_CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CT_CUSTOM_VARIABLES},
+                                                                              'include_prefix' => 'l_',
+                                                                              'include_value'  => 'Y');
+
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
@@ -898,8 +904,16 @@ sub ar_transactions {
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype);
 
+  my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
+  my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
+  my @ct_searchable_custom_variables  = grep { $_->{searchable} }  @{ $ct_cvar_configs };
+
+  my %column_defs_cvars = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @ct_includeable_custom_variables;
+  push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
+
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto employee_id salesman_id business_id);
+  push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
@@ -934,6 +948,7 @@ sub ar_transactions {
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
     'customertype'            => { 'text' => $locale->text('Customer type'), },
+    %column_defs_cvars,
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
@@ -952,6 +967,12 @@ sub ar_transactions {
   $report->set_export_options('ar_transactions', @hidden_variables, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
+
+  CVar->add_custom_variables_to_report('module'         => 'CT',
+                                       'trans_id_field' => 'customer_id',
+                                       'configs'        => $ct_cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{AR});
 
   my @options;
   if ($form->{customer}) {

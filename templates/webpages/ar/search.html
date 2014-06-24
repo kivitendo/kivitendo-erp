@@ -115,6 +115,15 @@
       [% L.date_tag('transdateto') %]
      </td>
     </tr>
+
+[%- IF CT_CUSTOM_VARIABLES.size %]
+    <tr>
+      <td></td>
+      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</td>
+    </tr>
+    [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
+[%- END %]
+
    <input type=hidden name=sort value=transdate>
    </table>
     </td>
@@ -213,6 +222,13 @@
            <td align=right><input name="l_ustid" id="l_ustid" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'USt-IdNr.' | $T8 %]</td>
           </tr>
+
+          <table>
+            <tr><td align="right">
+            [% CT_CUSTOM_VARIABLES_INCLUSION_CODE %]
+            </td></tr>
+          </table>
+
          </table>
         </td>
        </tr>

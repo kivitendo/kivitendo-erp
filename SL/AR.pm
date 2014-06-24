@@ -573,6 +573,15 @@ sub ar_transactions {
     }
   };
 
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
+                                                            'trans_id_field' => 'c.id',
+                                                            'filter'         => $form,
+                                                           );
+  if ($cvar_where) {
+    $where .= qq| AND ($cvar_where)|;
+    push @values, @cvar_values;
+  }
+
   my @a = qw(transdate invnumber name);
   push @a, "employee" if $form->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
