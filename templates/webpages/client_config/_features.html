@@ -66,6 +66,12 @@
   </tr>
 
   <tr>
+   <td align="right">[% LxERP.t8("Only list customer's projects in sales records") %]</td>
+   <td>[% L.yes_no_tag("defaults.customer_projects_only_in_sales", SELF.defaults.customer_projects_only_in_sales) %]</td>
+   <td>[% LxERP.t8("If enabled only those projects that are assigned to the currently selected customer are offered for selection in sales records.") %]</td>
+  </tr>
+
+  <tr>
    <td align="right">[% LxERP.t8('Allow conversion from sales quotations to sales invoices') %]</td>
    <td>[% L.yes_no_tag('defaults.allow_sales_invoice_from_sales_quotation', SELF.defaults.allow_sales_invoice_from_sales_quotation) %]</td>
    <td>[% LxERP.t8('If disabled sales quotations cannot be converted into sales invoices directly.') %]</td>

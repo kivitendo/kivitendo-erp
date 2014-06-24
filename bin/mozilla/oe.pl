@@ -44,7 +44,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff);
 use SL::PE;
 use SL::ReportGenerator;
-use List::MoreUtils qw(any none);
+use List::MoreUtils qw(uniq any none);
 use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
@@ -349,20 +349,35 @@ sub form_header {
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
   $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
 
-  # project ids
-  my @old_project_ids = ($form->{"globalproject_id"}, grep { $_ } map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
-
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("projects"      => { "key"      => "ALL_PROJECTS",
-                                        "all"      => 0,
-                                        "old_id"   => \@old_project_ids },
-                   "taxzones"      => "ALL_TAXZONES",
+
+  # project ids
+  $form->get_lists("taxzones"      => "ALL_TAXZONES",
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
                    "departments"   => "ALL_DEPARTMENTS",
                    $vc             => { key   => "ALL_" . uc($vc),
                                         limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
+
+  # Projects
+  my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
+  my @old_ids_cond    = @old_project_ids ? (id => \@old_project_ids) : ();
+  my @customer_cond;
+  if (($vc eq 'customers') && $::instance_conf->get_customer_projects_only_in_sales) {
+    @customer_cond = (
+      or => [
+        customer_id          => $::form->{customer_id},
+        billable_customer_id => $::form->{customer_id},
+      ]);
+  }
+  my @conditions = (
+    or => [
+      and => [ active => 1, @customer_cond ],
+      @old_ids_cond,
+    ]);
+
+  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all(query => \@conditions);
 
   # label subs
   my $employee_list_query_gen      = sub { $::form->{$_[0]} ? [ or => [ id => $::form->{$_[0]}, deleted => 0 ] ] : [ deleted => 0 ] };

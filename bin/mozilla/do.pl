@@ -30,6 +30,7 @@
 # Delivery orders
 #======================================================================
 
+use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use POSIX qw(strftime);
 use YAML;
@@ -259,22 +260,31 @@ sub form_header {
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
-  my @old_project_ids = ($form->{"globalproject_id"});
-  map({ push(@old_project_ids, $form->{"project_id_$_"})
-          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
-
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("projects"       => {
-                     "key"          => "ALL_PROJECTS",
-                     "all"          => 0,
-                     "old_id"       => \@old_project_ids
-                   },
-                   $vc              => "ALL_VC",
+  $form->get_lists($vc              => "ALL_VC",
                    "price_factors"  => "ALL_PRICE_FACTORS",
                    "departments"    => "ALL_DEPARTMENTS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
 
+  # Projects
+  my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
+  my @old_ids_cond    = @old_project_ids ? (id => \@old_project_ids) : ();
+  my @customer_cond;
+  if (($vc eq 'customers') && $::instance_conf->get_customer_projects_only_in_sales) {
+    @customer_cond = (
+      or => [
+        customer_id          => $::form->{customer_id},
+        billable_customer_id => $::form->{customer_id},
+      ]);
+  }
+  my @conditions = (
+    or => [
+      and => [ active => 1, @customer_cond ],
+      @old_ids_cond,
+    ]);
+
+  $::form->{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all(query => \@conditions);
   $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $::form->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
