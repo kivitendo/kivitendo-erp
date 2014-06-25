@@ -76,8 +76,8 @@
       <th align="right" nowrap>[% 'Department' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.department_1', SELF.cv.department_1, size = 16, maxlength = 75) %]
-        [% L.input_tag('cv.department_2', SELF.cv.department_2, size = 16, maxlength = 75) %]
+        [% L.input_tag('cv.department_1', SELF.cv.department_1, size = 16) %]
+        [% L.input_tag('cv.department_2', SELF.cv.department_2, size = 16) %]
       </td>
     </tr>
 
@@ -85,7 +85,7 @@
       <th align="right" nowrap>[% 'Street' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.street', SELF.cv.street, size = 35, maxlength = 75) %]
+        [% L.input_tag('cv.street', SELF.cv.street, size = 35) %]
         <span id="billing_map"></span>
         <script type="text/javascript">
           billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_');
@@ -100,8 +100,8 @@
       <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.zipcode', SELF.cv.zipcode, size = 5 maxlength = 10) %]
-        [% L.input_tag('cv.city', SELF.cv.city, size = 30 maxlength = 75) %]
+        [% L.input_tag('cv.zipcode', SELF.cv.zipcode, size = 5) %]
+        [% L.input_tag('cv.city', SELF.cv.city, size = 30) %]
       </td>
     </tr>
 
@@ -109,7 +109,7 @@
       <th align="right" nowrap>[% 'Country' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.country', SELF.cv.country, size = 30 maxlength = 75) %]
+        [% L.input_tag('cv.country', SELF.cv.country, size = 30) %]
       </td>
     </tr>
 
@@ -117,7 +117,7 @@
       <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.contact', SELF.cv.contact, size = 28 maxlength = 75) %]
+        [% L.input_tag('cv.contact', SELF.cv.contact, size = 28) %]
       </td>
     </tr>
 
@@ -133,7 +133,7 @@
       <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.fax', SELF.cv.fax, size = 30 maxlength = 30) %]
+        [% L.input_tag('cv.fax', SELF.cv.fax, size = 30) %]
       </td>
     </tr>
 
@@ -229,7 +229,7 @@
       <th align="right">[% 'sales tax identification number' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.ustid', SELF.cv.ustid, maxlength = 14 size = 20 ) %]
+        [% L.input_tag('cv.ustid', SELF.cv.ustid, size = 20 ) %]
       </td>
 
 
