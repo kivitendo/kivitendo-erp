@@ -6,7 +6,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(calculate_prices_and_taxes);
 
 use Carp;
-use List::Util qw(sum min);
+use List::Util qw(sum min max);
 
 sub calculate_prices_and_taxes {
   my ($self, %params) = @_;
@@ -83,14 +83,7 @@ sub _calculate_item {
   $item->base_qty($item_unit->convert_to($item->qty, $part_unit));
   $item->fxsellprice($item->sellprice) if $data->{is_invoice};
 
-  my $num_dec   = _num_decimal_places($item->sellprice) || 2;
-  #  ^ we need at least 2 decimal places                   ^
-  # my test case 43.00 € with 0 decimal places and 0.5 discount ->
-  # : sellprice before:43.00000
-  # : num dec   before:0
-  # : discount / sellprice ratio:  22  /  21
-  # : discount = 43 * 0.5 _round(21.5, 0) = 22
-  # TODO write a test case
+  my $num_dec   = max 2, _num_decimal_places($item->sellprice);
   my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
   my $sellprice = _round($item->sellprice - $discount,              $num_dec);
 
