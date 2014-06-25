@@ -1761,6 +1761,7 @@ sub sales_order {
 
   if ($form->{type} eq "purchase_order") {
     delete($form->{ordnumber});
+    $form->{"lastcost_$_"} = $form->{"sellprice_$_"} for (1..$form->{rowcount});
   }
 
   $form->{cp_id} *= 1;
