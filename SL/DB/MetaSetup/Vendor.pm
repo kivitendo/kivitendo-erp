@@ -34,7 +34,7 @@ __PACKAGE__->meta->columns(
   iban             => { type => 'text' },
   id               => { type => 'integer', not_null => 1, sequence => 'id' },
   itime            => { type => 'timestamp', default => 'now()' },
-  language         => { type => 'varchar', length => 5 },
+  language         => { type => 'text' },
   language_id      => { type => 'integer' },
   mtime            => { type => 'timestamp' },
   name             => { type => 'text', not_null => 1 },
