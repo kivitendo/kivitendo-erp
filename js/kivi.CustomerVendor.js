@@ -77,7 +77,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     '#country'
   ];
 
-  this.MapWidget = function(prefix)
+  this.MapWidget = function(prefix, source_address)
   {
     var $mapSearchElements = [];
     var $widgetWrapper;
@@ -117,7 +117,9 @@ namespace('kivi.CustomerVendor', function(ns) {
           searchString += stmt;
       }
 
-      var url = 'https://maps.google.com/maps?q='+ encodeURIComponent(searchString);
+      source_address = source_address || '';
+      var query      = source_address != '' ? 'saddr=' + encodeURIComponent(source_address) + '&daddr=' : 'q=';
+      var url        = 'https://maps.google.com/maps?' + query + encodeURIComponent(searchString);
 
       window.open(url, '_blank');
       window.focus();

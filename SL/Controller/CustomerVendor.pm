@@ -880,4 +880,15 @@ sub normalize_name {
   $self->{cv}->name($name);
 }
 
+sub home_address_for_google_maps {
+  my ($self)  = @_;
+
+  my $address = $::instance_conf->get_address // '';
+  $address    =~ s{^\s+|\s+$|\r+}{}g;
+  $address    =~ s{\n+}{,}g;
+  $address    =~ s{\s+}{ }g;
+
+  return $address;
+}
+
 1;

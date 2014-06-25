@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE JavaScript -%]
 
 <div id="billing">
   <table width="100%">
@@ -88,7 +89,7 @@
         [% L.input_tag('cv.street', SELF.cv.street, size = 35) %]
         <span id="billing_map"></span>
         <script type="text/javascript">
-          billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_');
+          billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_', '[% JavaScript.escape(SELF.home_address_for_google_maps) %]');
           $(function() {
             billingMapWidget.render($('#billing_map'));
           });
