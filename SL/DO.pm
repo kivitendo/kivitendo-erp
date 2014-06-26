@@ -391,10 +391,10 @@ sub save {
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
-  # add shipto
   $form->{name} = $form->{ $form->{vc} };
   $form->{name} =~ s/--$form->{"$form->{vc}_id"}//;
 
+  # add shipto
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "DO");
   }

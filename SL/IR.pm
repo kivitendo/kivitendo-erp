@@ -720,9 +720,10 @@ sub post_invoice {
   }
 
 
-  # add shipto
   $form->{name} = $form->{vendor};
   $form->{name} =~ s/--\Q$form->{vendor_id}\E//;
+
+  # add shipto
   $form->add_shipto($dbh, $form->{id}, "AP");
 
   # delete zero entries
@@ -1125,16 +1126,6 @@ sub get_vendor {
     $params->{creditremaining} -= $amount * $exch;
   }
   $sth->finish();
-
-  # get shipto if we do not convert an order or invoice
-  if (!$params->{shipto}) {
-    delete @{$params}{qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail)};
-
-    $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module= 'CT')|;
-    $ref = selectfirst_hashref_query($form, $dbh, $query, $vid);
-    @{$params}{keys %$ref} = @{$ref}{keys %$ref};
-    map { $params->{$_} = $ref->{$_} } keys %$ref;
-  }
 
   if (!$params->{id} && $params->{type} !~ /_(order|quotation)/) {
     # setup last accounts used

@@ -3337,11 +3337,10 @@ sub prepare_for_printing {
     $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  # set shipto from billto unless set
-  my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
-  if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
-    $self->{shiptoname}   = $defaults->company;
-    $self->{shiptostreet} = $defaults->address;
+  # Load shipping address from database if shipto_id is set.
+  if ($self->{shipto_id}) {
+    my $shipto  = SL::DB::Shipto->new(id => $self->{shipto_id})->load;
+    $self->{$_} = $shipto->$_ for grep { m{^shipto} } map { $_->name } @{ $shipto->meta->columns };
   }
 
   my $language = $self->{language} ? '_' . $self->{language} : '';

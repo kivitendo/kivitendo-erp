@@ -179,7 +179,6 @@ sub order_links {
                'ids' => $form->{id});
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes delivery_term_id currency));
-  $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   if ($form->{vc} eq 'vendor') {
@@ -801,7 +800,6 @@ sub invoice {
   require "bin/mozilla/$form->{script}";
 
   my $currency = $form->{currency};
-  $form->{shipto} = 1 if $form->{convert_from_do_ids};
   invoice_links();
 
   if ($form->{ordnumber}) {

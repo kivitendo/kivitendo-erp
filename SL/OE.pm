@@ -609,10 +609,10 @@ sub save {
 
   $form->{ordtotal} = $amount;
 
-  # add shipto
   $form->{name} = $form->{ $form->{vc} };
   $form->{name} =~ s/--\Q$form->{"$form->{vc}_id"}\E//;
 
+  # add shipto
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "OE");
   }

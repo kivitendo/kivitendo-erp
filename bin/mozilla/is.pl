@@ -155,7 +155,6 @@ sub invoice_links {
                         taxincluded currency cp_id intnotes id shipto_id
                         delivery_term_id));
 
-  $form->{shipto} = 1 if $editing || $form->{convert_from_oe_ids} || $form->{convert_from_do_ids};
   IS->get_customer(\%myconfig, \%$form);
 
   #quote all_customer Bug 133
@@ -962,7 +961,6 @@ sub credit_note {
 
   $form->{id}     = '';
   $form->{rowcount}--;
-  $form->{shipto} = 1;
 
 
   $form->{title}  = $locale->text('Add Credit Note');

@@ -1145,10 +1145,10 @@ sub post_invoice {
     do_query($form, $dbh, qq|UPDATE ar SET paid = amount WHERE id = ?|, conv_i($form->{"id"}));
   }
 
-  # add shipto
   $form->{name} = $form->{customer};
   $form->{name} =~ s/--\Q$form->{customer_id}\E//;
 
+  # add shipto
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "AR");
   }
@@ -1615,12 +1615,6 @@ sub retrieve_invoice {
 
     $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
 
-    # get shipto
-    $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|;
-    $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
-    delete $ref->{id};
-    map { $form->{$_} = $ref->{$_} } keys %{ $ref };
-
     foreach my $vc (qw(customer vendor)) {
       next if !$form->{"delivery_${vc}_id"};
       ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|, $id);
@@ -1836,19 +1830,6 @@ sub get_customer {
     $form->{creditremaining} -= $amount * $exch;
   }
   $sth->finish;
-
-  # get shipto if we did not converted an order or invoice
-  if (!$form->{shipto}) {
-    map { delete $form->{$_} }
-      qw(shiptoname shiptodepartment_1 shiptodepartment_2
-         shiptostreet shiptozipcode shiptocity shiptocountry
-         shiptocontact shiptophone shiptofax shiptoemail);
-
-    $query = qq|SELECT * FROM shipto WHERE trans_id = ? AND module = 'CT'|;
-    $ref = selectfirst_hashref_query($form, $dbh, $query, $cid);
-    delete $ref->{id};
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
-  }
 
   # setup last accounts used for this customer
   if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {

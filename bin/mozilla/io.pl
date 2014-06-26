@@ -869,8 +869,6 @@ sub order {
   }
   $form->{script} = 'oe.pl';
 
-  $form->{shipto} = 1;
-
   $form->{rowcount}--;
 
   $form->{cp_id} *= 1;
@@ -934,8 +932,6 @@ sub quotation {
   $form->{cp_id} *= 1;
 
   $form->{script} = 'oe.pl';
-
-  $form->{shipto} = 1;
 
   $form->{rowcount}--;
 
@@ -1415,28 +1411,6 @@ sub print_form {
 
   if ($form->{shipto_id}) {
     $form->get_shipto(\%myconfig);
-  }
-
-  my @a = qw(name department_1 department_2 street zipcode city country contact phone fax email);
-
-  my $shipto = 1;
-
-  # if there is no shipto fill it in from billto
-  foreach my $item (@a) {
-    if ($form->{"shipto$item"}) {
-      $shipto = 0;
-      last;
-    }
-  }
-
-  if ($shipto) {
-    if (   $form->{formname} eq 'purchase_order'
-        || $form->{formname} eq 'request_quotation') {
-      $form->{shiptoname}   = $defaults->company;
-      $form->{shiptostreet} = $defaults->address;
-    } else {
-      map { $form->{"shipto$_"} = $form->{$_} } @a;
-    }
   }
 
   $form->{notes} =~ s/^\s+//g;

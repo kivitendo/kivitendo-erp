@@ -257,7 +257,6 @@ sub order_links {
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id delivery_term_id currency));
-  $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
@@ -1429,7 +1428,6 @@ sub invoice {
   $form->{convert_from_oe_ids} = $form->{id};
   $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
-  $form->{shipto}              = 1;
   $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
   delete @{$form}{qw(id closed)};
@@ -1662,7 +1660,6 @@ sub check_for_direct_delivery_yes {
   $form->{direct_delivery_checked} = 1;
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
-  $form->{shipto} = 1;
   $form->{CFDD_shipto} = 1;
   purchase_order();
   $main::lxdebug->leave_sub();
