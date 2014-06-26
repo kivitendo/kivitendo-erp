@@ -2365,8 +2365,13 @@ sub get_lists {
   my $dbh = $self->get_standard_dbh(\%main::myconfig);
   my ($sth, $query, $ref);
 
-  my $vc = $self->{"vc"} eq "customer" ? "customer" : "vendor";
-  my $vc_id = $self->{"${vc}_id"};
+  my ($vc, $vc_id);
+  if ($params{contacts} || $params{shipto}) {
+    $vc = 'customer' if $self->{"vc"} eq "customer";
+    $vc = 'vendor'   if $self->{"vc"} eq "vendor";
+    die "invalid use of get_lists, need 'vc'";
+    $vc_id = $self->{"${vc}_id"};
+  }
 
   if ($params{"contacts"}) {
     $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
