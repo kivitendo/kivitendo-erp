@@ -759,7 +759,7 @@ sub ustva {
 
   $form->{"Z45"} = $form->{"Z43"};
 
-  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}
+  $form->{"Z53"} = $form->{"Z45"}     + $form->{"47"}  + $form->{"53"}  + $form->{"74"}
                      + $form->{"85"}  + $form->{"65"};
 
   $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"}
