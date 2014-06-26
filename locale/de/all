@@ -1574,6 +1574,7 @@ $self->{texts} = {
   'No vendor has been selected yet.' => 'Es wurde noch kein Lieferant ausgewählt.',
   'No warehouse has been created yet or the quantity of the bins is not configured yet.' => 'Es wurde noch kein Lager angelegt, bzw. die dazugehörigen Lagerplätze sind noch nicht konfiguriert.',
   'No.'                         => 'Position',
+  'No/individual shipping address' => 'Keine/individuelle Lieferadresse',
   'None'                        => 'Kein',
   'Normal users cannot log in.' => 'Normale Benutzer können sich nicht anmelden.',
   'Normalize Customer / Vendor names' => 'Normalisierung Kunden- / Lieferantennamen',
