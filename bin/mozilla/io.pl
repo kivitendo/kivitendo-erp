@@ -47,9 +47,11 @@ use SL::CT;
 use SL::IC;
 use SL::IO;
 
+use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 
@@ -1713,8 +1715,11 @@ sub ship_to {
   $::form->{title}  = $::locale->text('Ship to');
   $::form->header;
 
+  my $vc_obj = ($::form->{vc} eq 'customer' ? "SL::DB::Customer" : "SL::DB::Vendor")->new(id => $::form->{$::form->{vc} . "_id"})->load;
+
   print $::form->parse_html_template('io/ship_to', { previousform => $previous_form,
                                                      nextsub      => $::form->{display_form} || 'display_form',
+                                                     vc_obj       => $vc_obj,
                                                    });
 
   $main::lxdebug->leave_sub();
