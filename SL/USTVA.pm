@@ -759,7 +759,7 @@ sub ustva {
 
   $form->{"Z45"} = $form->{"Z43"};
 
-  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}
+  $form->{"Z53"} = $form->{"Z45"}     + $form->{"47"}  + $form->{"53"}  + $form->{"74"}
                      + $form->{"85"}  + $form->{"65"};
 
   $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"}
@@ -806,7 +806,7 @@ sub get_accounts_ustva {
   my $arwhere  = "";
   my $item;
 
-    my $gltaxkey_where = "((tk.pos_ustva>=59 AND tk.pos_ustva<=66) or (tk.pos_ustva>=89 AND tk.pos_ustva<=93))";
+    my $gltaxkey_where = "((tk.pos_ustva = 46) OR (tk.pos_ustva>=59 AND tk.pos_ustva<=66) or (tk.pos_ustva>=89 AND tk.pos_ustva<=93))";
 
   if ($fromdate) {
     if ($form->{method} eq 'cash') {

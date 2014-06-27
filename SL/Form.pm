@@ -40,6 +40,7 @@ package Form;
 use Carp;
 use Data::Dumper;
 
+use Carp;
 use CGI;
 use Cwd;
 use Encode;
@@ -307,8 +308,7 @@ sub error {
     $self->show_generic_error($msg);
 
   } else {
-    print STDERR "Error: $msg\n";
-    ::end_of_request();
+    confess "Error: $msg\n";
   }
 
   $main::lxdebug->leave_sub();
@@ -594,8 +594,11 @@ sub _prepare_html_template {
   if (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
 
+  } elsif (ref $file eq 'SCALAR') {
+    # file is a scalarref, use inline mode
   } else {
     my $info = "Web page template '${file}' not found.\n";
+    $::form->header;
     print qq|<pre>$info</pre>|;
     ::end_of_request();
   }
@@ -2362,8 +2365,13 @@ sub get_lists {
   my $dbh = $self->get_standard_dbh(\%main::myconfig);
   my ($sth, $query, $ref);
 
-  my $vc = $self->{"vc"} eq "customer" ? "customer" : "vendor";
-  my $vc_id = $self->{"${vc}_id"};
+  my ($vc, $vc_id);
+  if ($params{contacts} || $params{shipto}) {
+    $vc = 'customer' if $self->{"vc"} eq "customer";
+    $vc = 'vendor'   if $self->{"vc"} eq "vendor";
+    die "invalid use of get_lists, need 'vc'";
+    $vc_id = $self->{"${vc}_id"};
+  }
 
   if ($params{"contacts"}) {
     $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
@@ -3334,11 +3342,10 @@ sub prepare_for_printing {
     $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  # set shipto from billto unless set
-  my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
-  if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
-    $self->{shiptoname}   = $defaults->company;
-    $self->{shiptostreet} = $defaults->address;
+  # Load shipping address from database if shipto_id is set.
+  if ($self->{shipto_id}) {
+    my $shipto  = SL::DB::Shipto->new(id => $self->{shipto_id})->load;
+    $self->{$_} = $shipto->$_ for grep { m{^shipto} } map { $_->name } @{ $shipto->meta->columns };
   }
 
   my $language = $self->{language} ? '_' . $self->{language} : '';

@@ -27,7 +27,7 @@ __PACKAGE__->add_filter_specs(
   },
   status => sub {
     my ($key, $value, $prefix) = @_;
-    return () if $value eq 'all';
+    return () if $value ne 'orphaned';
     return __PACKAGE__->is_not_used_filter($prefix);
   },
 );

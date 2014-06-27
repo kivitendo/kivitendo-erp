@@ -22,7 +22,7 @@
    </tr>
    <tr>
     <th align="right">[% LxERP.t8('Status') %]</th>
-    <td>[% L.select_tag('filter.status:eq_ignore_empty', [ [ '', '' ], [ 'failed', LxERP.t8('failed') ], [ 'success', LxERP.t8('succeeded') ] ], default=filter.status_eq_ignore_empty) %]</td>
+    <td>[% L.select_tag('filter.status:eq_ignore_empty', [ [ '', '' ], [ 'failure', LxERP.t8('failed') ], [ 'success', LxERP.t8('succeeded') ] ], default=filter.status_eq_ignore_empty) %]</td>
    </tr>
    <tr>
     <th align="right">[% LxERP.t8('Run at') %] [% LxERP.t8('From Date') %]</th>

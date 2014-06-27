@@ -105,8 +105,6 @@ sub pre_request_initialization {
       die "cannot find locale for user " . $params{login} unless $::locale   = Locale->new($::myconfig{countrycode});
 
       $::form->{login} = $params{login}; # normaly implicit at login
-
-      $::instance_conf->init;
     }
   }
 
@@ -131,6 +129,7 @@ sub show_error {
   $::locale                = Locale->new($::myconfig{countrycode});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
+  $::form->{error}         = $::locale->text('The action is missing or invalid.')      if ($error_type eq 'action');
 
   return render_error_ajax($::form->{error}) if $::request->is_ajax;
 
@@ -236,7 +235,7 @@ sub handle_request {
   $::form->read_cgi_input;
 
   my %routing;
-  eval { %routing = _route_request($ENV{SCRIPT_NAME}); 1; } or return;
+  eval { %routing = $self->_route_request($ENV{SCRIPT_NAME}); 1; } or return;
   ($routing_type, $script_name, $action) = @routing{qw(type controller action)};
   $::lxdebug->log_request($routing_type, $script_name, $action);
 
@@ -275,7 +274,7 @@ sub handle_request {
     if (   (($script eq 'login') && !$action)
         || ($script eq 'admin')
         || (SL::Auth::SESSION_EXPIRED() == $session_result)) {
-      $self->redirect_to_login($script);
+      $self->redirect_to_login(script => $script, error => 'session');
 
     }
 
@@ -338,8 +337,10 @@ sub handle_request {
 }
 
 sub redirect_to_login {
-  my ($self, $script) = @_;
-  my $action          = $script =~ m/^admin/i ? 'Admin/login' : 'LoginScreen/user_login&error=session';
+  my ($self, %params) = @_;
+  my $action          = ($params{script} // '') =~ m/^admin/i ? 'Admin/login' : 'LoginScreen/user_login';
+  $action            .= '&error=' . $params{error} if $params{error};
+
   print $::request->cgi->redirect("controller.pl?action=${action}");
   ::end_of_request();
 }
@@ -362,14 +363,15 @@ sub _interface_is_fcgi {
 }
 
 sub _route_request {
-  my $script_name = shift;
+  my ($self, $script_name) = @_;
 
-  return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        _route_dispatcher_request())
-       : $script_name =~ m/controller\.pl/  ? (type => 'controller', _route_controller_request())
+  return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        $self->_route_dispatcher_request)
+       : $script_name =~ m/controller\.pl/  ? (type => 'controller', $self->_route_controller_request)
        :                                      (type => 'old',        controller => $script_name, action => $::form->{action});
 }
 
 sub _route_dispatcher_request {
+  my ($self)  = @_;
   my $name_re = qr{[a-z]\w*};
   my ($script_name, $action);
 
@@ -400,9 +402,16 @@ sub _route_dispatcher_request {
 }
 
 sub _route_controller_request {
+  my ($self) = @_;
   my ($controller, $action, $request_type);
 
   eval {
+    # Redirect simple requests to controller.pl without any GET/POST
+    # param to the login page.
+    $self->redirect_to_login(error => 'action') if !$::form->{action};
+
+    # Show an error if the »action« parameter doesn't match the
+    # pattern »Controller/action«.
     $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) ( \. [a-zA-Z]+ )? $|x || die "Unroutable request -- invalid controller/action.\n";
     ($controller, $action) =  ($1, $2);
     delete $::form->{action};

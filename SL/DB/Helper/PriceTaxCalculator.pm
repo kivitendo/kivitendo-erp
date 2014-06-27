@@ -6,13 +6,20 @@ use parent qw(Exporter);
 our @EXPORT = qw(calculate_prices_and_taxes);
 
 use Carp;
-use List::Util qw(sum min);
+use List::Util qw(sum min max);
 
 sub calculate_prices_and_taxes {
   my ($self, %params) = @_;
 
+  require SL::DB::Chart;
+  require SL::DB::Currency;
+  require SL::DB::Default;
+  require SL::DB::InvoiceItem;
+  require SL::DB::Part;
   require SL::DB::PriceFactor;
   require SL::DB::Unit;
+
+  SL::DB::Part->load_cached(map { $_->parts_id } @{ $self->items });
 
   my %units_by_name       = map { ( $_->name => $_ ) } @{ SL::DB::Manager::Unit->get_all        };
   my %price_factors_by_id = map { ( $_->id   => $_ ) } @{ SL::DB::Manager::PriceFactor->get_all };
@@ -37,6 +44,8 @@ sub calculate_prices_and_taxes {
   $self->netamount(  0);
   $self->marge_total(0);
 
+  SL::DB::Manager::Chart->cache_taxkeys(date => $self->transdate);
+
   my $idx = 0;
   foreach my $item ($self->items) {
     $idx++;
@@ -52,9 +61,8 @@ sub calculate_prices_and_taxes {
 
 sub _get_exchangerate {
   my ($self, $data, %params) = @_;
-  require SL::DB::Default;
 
-  my $currency = $self->currency_id ? $self->currency->name || '' : '';
+  my $currency = $self->currency_id ? SL::DB::Currency->load_cached($self->currency_id)->name || '' : '';
   if ($currency ne SL::DB::Default->get_default_currency) {
     $data->{exchangerate}   = $::form->check_exchangerate(\%::myconfig, $currency, $self->transdate, $data->{is_sales} ? 'buy' : 'sell');
     $data->{exchangerate} ||= $params{exchangerate};
@@ -65,28 +73,22 @@ sub _get_exchangerate {
 sub _calculate_item {
   my ($self, $item, $idx, $data, %params) = @_;
 
-  my $part_unit  = $data->{units_by_name}->{ $item->part->unit };
-  my $item_unit  = $data->{units_by_name}->{ $item->unit       };
+  my $part       = SL::DB::Part->load_cached($item->parts_id);
+  my $part_unit  = $data->{units_by_name}->{ $part->unit };
+  my $item_unit  = $data->{units_by_name}->{ $item->unit };
 
-  croak("Undefined unit " . $item->part->unit) if !$part_unit;
+  croak("Undefined unit " . $part->unit) if !$part_unit;
   croak("Undefined unit " . $item->unit)       if !$item_unit;
 
   $item->base_qty($item_unit->convert_to($item->qty, $part_unit));
   $item->fxsellprice($item->sellprice) if $data->{is_invoice};
 
-  my $num_dec   = _num_decimal_places($item->sellprice) || 2;
-  #  ^ we need at least 2 decimal places                   ^
-  # my test case 43.00 € with 0 decimal places and 0.5 discount ->
-  # : sellprice before:43.00000
-  # : num dec   before:0
-  # : discount / sellprice ratio:  22  /  21
-  # : discount = 43 * 0.5 _round(21.5, 0) = 22
-  # TODO write a test case
+  my $num_dec   = max 2, _num_decimal_places($item->sellprice);
   my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
   my $sellprice = _round($item->sellprice - $discount,              $num_dec);
 
   $item->price_factor(      ! $item->price_factor_obj   ? 1 : ($item->price_factor_obj->factor   || 1));
-  $item->marge_price_factor(! $item->part->price_factor ? 1 : ($item->part->price_factor->factor || 1));
+  $item->marge_price_factor(! $part->price_factor ? 1 : ($part->price_factor->factor || 1));
   my $linetotal = _round($sellprice * $item->qty / $item->price_factor, 2) * $data->{exchangerate};
   $linetotal    = _round($linetotal,                                    2);
 
@@ -97,7 +99,7 @@ sub _calculate_item {
     $item->marge_percent(0);
 
   } else {
-    my $lastcost       = ! ($item->lastcost * 1) ? ($item->part->lastcost || 0) : $item->lastcost;
+    my $lastcost       = ! ($item->lastcost * 1) ? ($part->lastcost || 0) : $item->lastcost;
     my $linetotal_cost = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
 
     $item->marge_total(  $linetotal - $linetotal_cost);
@@ -107,7 +109,7 @@ sub _calculate_item {
     $data->{lastcost_total} += $linetotal_cost;
   }
 
-  my $taxkey     = $item->part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
+  my $taxkey     = $part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
   my $tax_rate   = $taxkey->tax->rate;
   my $tax_amount = undef;
 
@@ -128,17 +130,17 @@ sub _calculate_item {
 
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
-  my $chart = $item->part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
+  my $chart = $part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
   $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, tax_id => $taxkey->tax_id, amount => 0 };
   $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
   $data->{amounts}->{ $chart->id }->{amount}  -= $tax_amount if $self->taxincluded;
 
   push @{ $data->{assembly_items} }, [];
-  if ($item->part->is_assembly) {
-    _calculate_assembly_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj));
-  } elsif ($item->part->is_part) {
+  if ($part->is_assembly) {
+    _calculate_assembly_item($self, $data, $part, $item->base_qty, $item_unit->convert_to(1, $part_unit));
+  } elsif ($part->is_part) {
     if ($data->{is_invoice}) {
-      $item->allocated(_calculate_part_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
+      $item->allocated(_calculate_part_item($self, $data, $part, $item->base_qty, $item_unit->convert_to(1, $part_unit)));
     }
   }
 

@@ -36,6 +36,42 @@ sub from_lxoffice {
   goto &from_kivitendo;
 }
 
+sub add_business_duration {
+  my ($self, %params) = @_;
+
+  my $abs_days = abs $params{days};
+  my $neg      = $params{days} < 0;
+  my $bweek    = $params{businessweek} || 5;
+  my $weeks    = int ($abs_days / $bweek);
+  my $days     = $abs_days % $bweek;
+
+  if ($neg) {
+    $self->subtract(weeks => $weeks);
+    $self->add(days => 8 - $self->day_of_week) if $self->day_of_week > $bweek;
+    $self->subtract(days => $self->day_of_week > $days ? $days : $days + (7 - $bweek));
+  } else {
+    $self->add(weeks => $weeks);
+    $self->subtract(days => $self->day_of_week - $bweek) if $self->day_of_week > $bweek;
+    $self->add(days => $self->day_of_week + $days <= $bweek ? $days : $days + (7 - $bweek));
+  }
+
+  $self;
+}
+
+sub add_businessdays {
+  my ($self, %params) = @_;
+
+  $self->add_business_duration(%params);
+}
+
+sub subtract_businessdays {
+  my ($self, %params) = @_;
+
+  $params{days} *= -1;
+
+  $self->add_business_duration(%params);
+}
+
 1;
 
 __END__

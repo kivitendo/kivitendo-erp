@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE HTML %][%- USE L -%]
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
 <form name="Form" method="post" action="[% script %]">
 
 <table width="100%">
@@ -44,7 +44,7 @@
           <th align="left" nowrap>[% 'Message' | $T8 %]</th>
         </tr>
         <tr>
-          <td><textarea name="message" rows="15" cols="60" wrap="soft">[% HTML.escape(message) %]</textarea></td>
+          <td><textarea name="message" id="message" rows="15" cols="60" wrap="soft">[% HTML.escape(message) %]</textarea></td>
 
         </tr>
       </table>
@@ -68,5 +68,17 @@
 <input type="hidden" name="nextsub" value="send_email">
 
 <br>
-<input name="action" class="submit" type="submit" value="[% 'Continue' | $T8 %]">
+[% L.submit_tag('action', LxERP.t8('Continue'), onclick="return check_prerequisites();") %]
 </form>
+
+<script type="text/javascript">
+<!--
+function check_prerequisites() {
+  if (!$('#email,#subject,#message').filter(function(idx, elt) { return $(elt).val() === ""; }).size())
+    return true;
+
+  alert(kivi.t8('The recipient, subject or body is missing.'));
+  return false;
+}
+-->
+</script>

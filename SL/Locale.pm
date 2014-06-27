@@ -364,8 +364,8 @@ sub parse_date {
     ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
   }
 
-  $dd *= 1;
-  $mm *= 1;
+  $_ ||= 0 for ($dd, $mm, $yy);
+  $_ *= 1  for ($dd, $mm, $yy);
   $yy = ($yy < 70) ? $yy + 2000 : $yy;
   $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
 
@@ -383,9 +383,12 @@ sub parse_date_to_object {
   my ($date_str, $time_str)    = split m{\s+}, $string, 2;
   my ($yy, $mm, $dd)           = $self->parse_date(\%params, $date_str);
 
-  my $millisecond              = 0;
-  my ($hour, $minute, $second) = split m/:/, $time_str;
-  ($second, $millisecond)      = split quotemeta($num_separator), $second, 2;
+  my ($hour, $minute, $second) = split m/:/, ($time_str || '');
+  $second ||= '0';
+
+  ($second, my $millisecond)   = split quotemeta($num_separator), $second, 2;
+  $_ ||= 0 for ($hour, $minute, $millisecond);
+
   $millisecond                 = substr $millisecond, 0, 3;
   $millisecond                .= '0' x (3 - length $millisecond);
 

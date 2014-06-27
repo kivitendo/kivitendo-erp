@@ -1,6 +1,81 @@
-[% USE HTML %][% USE L %][% USE LxERP %]
+[% USE HTML %][% USE L %][% USE LxERP %][%- USE JavaScript -%]
+
+<script type="text/javascript">
+  var addresses = [
+    { shiptoname:         "[% JavaScript.escape(vc_obj.name) %]",
+      shiptodepartment_1: "[% JavaScript.escape(vc_obj.department_1) %]",
+      shiptodepartment_2: "[% JavaScript.escape(vc_obj.department_2) %]",
+      shiptostreet:       "[% JavaScript.escape(vc_obj.street) %]",
+      shiptozipcode:      "[% JavaScript.escape(vc_obj.zipcode) %]",
+      shiptocity:         "[% JavaScript.escape(vc_obj.city) %]",
+      shiptocountry:      "[% JavaScript.escape(vc_obj.country) %]",
+      shiptocontact:      "[% JavaScript.escape(vc_obj.contact) %]",
+      shiptocp_gender:    "[% JavaScript.escape(vc_obj.cp_gender) %]",
+      shiptophone:        "[% JavaScript.escape(vc_obj.phone) %]",
+      shiptofax:          "[% JavaScript.escape(vc_obj.fax) %]",
+      shiptoemail:        "[% JavaScript.escape(vc_obj.email) %]"
+    }
+
+  [% FOREACH shipto = vc_obj.shipto %]
+    ,
+    { shiptoname:         "[% JavaScript.escape(shipto.shiptoname) %]",
+      shiptodepartment_1: "[% JavaScript.escape(shipto.shiptodepartment_1) %]",
+      shiptodepartment_2: "[% JavaScript.escape(shipto.shiptodepartment_2) %]",
+      shiptostreet:       "[% JavaScript.escape(shipto.shiptostreet) %]",
+      shiptozipcode:      "[% JavaScript.escape(shipto.shiptozipcode) %]",
+      shiptocity:         "[% JavaScript.escape(shipto.shiptocity) %]",
+      shiptocountry:      "[% JavaScript.escape(shipto.shiptocountry) %]",
+      shiptocontact:      "[% JavaScript.escape(shipto.shiptocontact) %]",
+      shiptocp_gender:    "[% JavaScript.escape(shipto.shiptocp_gender) %]",
+      shiptophone:        "[% JavaScript.escape(shipto.shiptophone) %]",
+      shiptofax:          "[% JavaScript.escape(shipto.shiptofax) %]",
+      shiptoemail:        "[% JavaScript.escape(shipto.shiptoemail) %]"
+    }
+  [% END %]
+  ];
+
+  function copy_address() {
+    var shipto = addresses[ $('#shipto_to_copy').val() ];
+    for (key in shipto)
+      $('#' + key).val(shipto[key]);
+  }
+
+  function clear_fields() {
+    var shipto = addresses[0];
+    for (key in shipto)
+      $('#' + key).val('');
+    $('#shiptocp_gender').val('m');
+  }
+
+  function clear_shipto_id_before_submit() {
+    var shipto = addresses[0];
+    for (key in shipto)
+      if ((key != 'shiptocp_gender') && ($('#' + key).val() != '')) {
+        $('#shipto_id').val('');
+        break;
+      }
+
+    $('form').submit();
+  }
+</script>
+
+[% select_options = [ [ 0, LxERP.t8("Billing Address") ] ] ;
+   FOREACH shipto = vc_obj.shipto ;
+     city  = shipto.shiptozipcode _ ' ' _ shipto.shiptocity ;
+     title = [ shipto.shiptoname, shipto.shiptostreet, city ] ;
+     CALL select_options.import([ [ loop.count, title.grep('\S').join("; ") ] ]) ;
+   END ;
+   '' %]
 
  <form method="post" action="[% HTML.escape(script) %]">
+  [% L.hidden_tag("shipto_id", shipto_id) %]
+
+  <p>
+   [% LxERP.t8("Copy address from master data") %]:
+   [% L.select_tag("", select_options, id="shipto_to_copy", style="width: 400px") %]
+   [% L.button_tag("copy_address()", LxERP.t8("Copy")) %]
+   [% L.button_tag("clear_fields()", LxERP.t8("Clear fields")) %]
+  </p>
 
   <table>
    <tr class="listheading">
@@ -82,5 +157,5 @@
   [% L.hidden_tag("nextsub", nextsub) %]
   [% L.hidden_tag("previousform", previousform) %]
 
-  [% L.submit_tag("__dummy", LxERP.t8("Continue")) %]
+  [% L.button_tag("clear_shipto_id_before_submit()", LxERP.t8("Continue")) %]
  </form>

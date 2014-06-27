@@ -39,11 +39,13 @@ sub convertible_units {
 sub base_factor {
   my ($self) = @_;
 
-  if (!defined $self->{__base_factor}) {
-    $self->{__base_factor} = !$self->base_unit || !$self->factor || ($self->name eq $self->base_unit) ? 1 : $self->factor * $self->base->base_factor;
+  my $cache = $::request->cache('base_factor');
+
+  if (!defined $cache->{$self->id}) {
+    $cache->{$self->id} = !$self->base_unit || !$self->factor || ($self->name eq $self->base_unit) ? 1 : $self->factor * $self->base->base_factor;
   }
 
-  return $self->{__base_factor};
+  return $cache->{$self->id};
 }
 
 sub convert_to {

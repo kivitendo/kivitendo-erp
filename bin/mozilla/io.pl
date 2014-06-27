@@ -47,9 +47,11 @@ use SL::CT;
 use SL::IC;
 use SL::IO;
 
+use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 
@@ -869,8 +871,6 @@ sub order {
   }
   $form->{script} = 'oe.pl';
 
-  $form->{shipto} = 1;
-
   $form->{rowcount}--;
 
   $form->{cp_id} *= 1;
@@ -934,8 +934,6 @@ sub quotation {
   $form->{cp_id} *= 1;
 
   $form->{script} = 'oe.pl';
-
-  $form->{shipto} = 1;
 
   $form->{rowcount}--;
 
@@ -1232,7 +1230,7 @@ sub print_form {
   $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
   $form->{templates} = $defaults->templates;
 
-  my ($old_form) = @_;
+  my ($old_form, %params) = @_;
 
   my $inv       = "inv";
   my $due       = "due";
@@ -1415,28 +1413,6 @@ sub print_form {
 
   if ($form->{shipto_id}) {
     $form->get_shipto(\%myconfig);
-  }
-
-  my @a = qw(name department_1 department_2 street zipcode city country contact phone fax email);
-
-  my $shipto = 1;
-
-  # if there is no shipto fill it in from billto
-  foreach my $item (@a) {
-    if ($form->{"shipto$item"}) {
-      $shipto = 0;
-      last;
-    }
-  }
-
-  if ($shipto) {
-    if (   $form->{formname} eq 'purchase_order'
-        || $form->{formname} eq 'request_quotation') {
-      $form->{shiptoname}   = $defaults->company;
-      $form->{shiptostreet} = $defaults->address;
-    } else {
-      map { $form->{"shipto$_"} = $form->{$_} } @a;
-    }
   }
 
   $form->{notes} =~ s/^\s+//g;
@@ -1662,7 +1638,10 @@ sub print_form {
       ($form->{media} eq 'printer')
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
-    $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+
+    if (!$params{no_redirect}) {
+      $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+    }
   }
   if ($form->{printing}) {
    call_sub($display_form);
@@ -1736,8 +1715,11 @@ sub ship_to {
   $::form->{title}  = $::locale->text('Ship to');
   $::form->header;
 
+  my $vc_obj = ($::form->{vc} eq 'customer' ? "SL::DB::Customer" : "SL::DB::Vendor")->new(id => $::form->{$::form->{vc} . "_id"})->load;
+
   print $::form->parse_html_template('io/ship_to', { previousform => $previous_form,
                                                      nextsub      => $::form->{display_form} || 'display_form',
+                                                     vc_obj       => $vc_obj,
                                                    });
 
   $main::lxdebug->leave_sub();

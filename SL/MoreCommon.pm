@@ -6,6 +6,7 @@ our @ISA = qw(Exporter);
 our @EXPORT    = qw(save_form restore_form compare_numbers cross);
 our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_encode uri_decode);
 
+use Encode ();
 use List::MoreUtils qw(zip);
 use YAML;
 

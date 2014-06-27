@@ -11,6 +11,7 @@
  <script type="text/javascript" src="js/calculate_qty.js"></script>
  <script type="text/javascript" src="js/stock_in_out.js"></script>
  <script type="text/javascript" src="js/follow_up.js"></script>
+ <script type="text/javascript" src="js/kivi.SalesPurchase.js"></script>
 
  <style type="text/css">
   .fixed_width {
@@ -46,7 +47,7 @@
 
  <form method="post" name="do" action="do.pl">
 
- <div class="tabwidget">
+ <div id="do_tabs" class="tabwidget">
   <ul>
    <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
@@ -165,7 +166,8 @@
           [%- END %]
 
           [%- ELSE %]
-            [% L.select_tag('shipto_id', ALL_SHIPTO, default = shipto_id, value_key = 'shipto_id', title_key = 'displayable_id', with_empty = 1, class = 'fixed_width') %]
+            [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
+               L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
           [%- END %]
          </td>
         </tr>
@@ -213,7 +215,7 @@
 
        <tr>
         <th align="right">[% 'Transaction description' | $T8 %]</th>
-        <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"[% RO %]></td>
+        <td colspan="3"><input name="transaction_description" id="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"[% RO %]></td>
        </tr>
 
       </table>

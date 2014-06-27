@@ -217,9 +217,106 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
   }, "${title}: calculated data");
 }
 
+sub test_default_invoice_three_items_sellprice_rounding_discount() {
+  reset_state();
+
+  my $item1   = new_item(qty => 1, sellprice => 5.55, discount => .05);
+  my $item2   = new_item(qty => 1, sellprice => 5.50, discount => .05);
+  my $item3   = new_item(qty => 1, sellprice => 5.00, discount => .05);
+  my $invoice = new_invoice(
+    taxincluded  => 0,
+    invoiceitems => [ $item1, $item2, $item3 ],
+  );
+
+  # this is how price_tax_calculator is implemented. It differs from
+  # the way sales_order / invoice - forms are calculating:
+  # linetotal = sellprice 5.55 * qty 1 * (1 - 0.05) = 5.2725; rounded 5.27
+  # linetotal = sellprice 5.50 * qty 1 * (1 - 0.05) = 5.225 rounded 5.23
+  # linetotal = sellprice 5.00 * qty 1 * (1 - 0.05) = 4.75; rounded 4.75
+  # ...
+
+  # item 1:
+  # discount = sellprice 5.55 * discount (0.05) = 0.2775; rounded 0.28
+  # sellprice = sellprice 5.55 - discount 0.28 = 5.27; rounded 5.27
+  # linetotal = sellprice 5.27 * qty 1 = 5.27; rounded 5.27
+  # 19%(5.27) = 1.0013; rounded = 1.00
+  # total rounded = 6.27
+
+  # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
+  # line marge_total = 3.34
+  # line marge_percent = 63.3776091081594
+
+  # item 2:
+  # discount = sellprice 5.50 * discount 0.05 = 0.275; rounded 0.28
+  # sellprice = sellprice 5.50 - discount 0.28 = 5.22; rounded 5.22
+  # linetotal = sellprice 5.22 * qty 1 = 5.22; rounded 5.22
+  # 19%(5.22) = 0.9918; rounded = 0.99
+  # total rounded = 6.21
+
+  # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
+  # line marge_total = 5.22 - 1.93 = 3.29
+  # line marge_percent = 3.29/5.22 = 0.630268199233716
+
+  # item 3:
+  # discount = sellprice 5.00 * discount 0.25 = 0.25; rounded 0.25
+  # sellprice = sellprice 5.00 - discount 0.25 = 4.75; rounded 4.75
+  # linetotal = sellprice 4.75 * qty 1 = 4.75; rounded 4.75
+  # 19%(4.75) = 0.9025; rounded = 0.90
+  # total rounded = 5.65
+
+  # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
+  # line marge_total = 2.82
+  # line marge_percent = 59.3684210526316
+
+  my $title = 'default invoice, three items, sellprice, rounding, discount';
+  my %data  = $invoice->calculate_prices_and_taxes;
+
+  is($item1->marge_total,        3.34,               "${title}: item1 marge_total");
+  is($item1->marge_percent,      63.3776091081594,   "${title}: item1 marge_percent");
+  is($item1->marge_price_factor, 1,                  "${title}: item1 marge_price_factor");
+
+  is($item2->marge_total,        3.29,               "${title}: item2 marge_total");
+  is($item2->marge_percent,      63.0268199233716,  "${title}: item2 marge_percent");
+  is($item2->marge_price_factor, 1,                  "${title}: item2 marge_price_factor");
+
+  is($item3->marge_total,        2.82,               "${title}: item3 marge_total");
+  is($item3->marge_percent,      59.3684210526316,   "${title}: item3 marge_percent");
+  is($item3->marge_price_factor, 1,                  "${title}: item3 marge_price_factor");
+
+  is($invoice->netamount,        5.27 + 5.22 + 4.75, "${title}: netamount");
+
+  # 6.27 + 6.21 + 5.65 = 18.13
+  # 1.19*(5.27 + 5.22 + 4.75) = 18.1356; rounded 18.14
+  #is($invoice->amount,           6.27 + 6.21 + 5.65, "${title}: amount");
+  is($invoice->amount,           18.14,              "${title}: amount");
+
+  is($invoice->marge_total,      3.34 + 3.29 + 2.82, "${title}: marge_total");
+  is($invoice->marge_percent,    62.007874015748,    "${title}: marge_percent");
+
+  is_deeply(\%data, {
+    allocated                             => {},
+    amounts                               => {
+      $buchungsgruppe->income_accno_id_0  => {
+        amount                            => 15.24,
+        tax_id                            => $tax->id,
+        taxkey                            => 3,
+      },
+    },
+    amounts_cogs                          => {},
+    assembly_items                        => [
+      [], [], [],
+    ],
+    exchangerate                          => 1,
+    taxes                                 => {
+      $tax->chart_id                      => 2.9,
+    },
+  }, "${title}: calculated data");
+}
+
 Support::TestSetup::login();
 
 test_default_invoice_one_item_19_tax_not_included();
 test_default_invoice_two_items_19_7_tax_not_included();
+test_default_invoice_three_items_sellprice_rounding_discount();
 
 done_testing();

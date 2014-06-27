@@ -148,6 +148,9 @@ sub _linked_records_implementation {
       ORDER BY ${wanted}_table, ${wanted}_id, depth ASC;
 
     my $links     = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, $self->id, $self->meta->table);
+
+    return [] unless @$links;
+
     my $link_objs = SL::DB::Manager::RecordLink->get_all(query => [ id => [ map { $_->{id} } @$links ] ]);
     my @objects = map { $get_objects->($_) } @$link_objs;
 

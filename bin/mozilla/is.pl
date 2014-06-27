@@ -37,6 +37,7 @@ use SL::PE;
 use SL::OE;
 use Data::Dumper;
 use DateTime;
+use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 
 use SL::DB::Default;
@@ -154,7 +155,6 @@ sub invoice_links {
                         taxincluded currency cp_id intnotes id shipto_id
                         delivery_term_id));
 
-  $form->{shipto} = 1 if $editing || $form->{convert_from_oe_ids} || $form->{convert_from_do_ids};
   IS->get_customer(\%myconfig, \%$form);
 
   #quote all_customer Bug 133
@@ -305,18 +305,30 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  my @old_project_ids = ($form->{"globalproject_id"});
-  map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
-
-  $form->get_lists("projects"      => { "key"    => "ALL_PROJECTS",
-                                        "all"    => 0,
-                                        "old_id" => \@old_project_ids },
-                   "taxzones"      => "ALL_TAXZONES",
+  $form->get_lists("taxzones"      => "ALL_TAXZONES",
                    "currencies"    => "ALL_CURRENCIES",
                    "customers"     => "ALL_CUSTOMERS",
                    "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
+  # Projects
+  my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
+  my @old_ids_cond    = @old_project_ids ? (id => \@old_project_ids) : ();
+  my @customer_cond;
+  if ($::instance_conf->get_customer_projects_only_in_sales) {
+    @customer_cond = (
+      or => [
+        customer_id          => $::form->{customer_id},
+        billable_customer_id => $::form->{customer_id},
+      ]);
+  }
+  my @conditions = (
+    or => [
+      and => [ active => 1, @customer_cond ],
+      @old_ids_cond,
+    ]);
+
+  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all(query => \@conditions);
   $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
@@ -949,7 +961,6 @@ sub credit_note {
 
   $form->{id}     = '';
   $form->{rowcount}--;
-  $form->{shipto} = 1;
 
 
   $form->{title}  = $locale->text('Add Credit Note');

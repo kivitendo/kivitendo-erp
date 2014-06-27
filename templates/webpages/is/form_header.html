@@ -27,7 +27,7 @@
 [%- PROCESS 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]
 
-<div class="tabwidget">
+<div id="is_tabs" class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
@@ -77,7 +77,8 @@
         <tr>
           <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
-            [% L.select_tag('shipto_id', ALL_SHIPTO, default = shipto_id, value_key = 'shipto_id', title_key = 'displayable_id', with_empty = 1, style='width: 250px', onChange = "document.getElementById('update_button').click();") %]
+            [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
+               L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
           </td>
         </tr>
 [%- END %]
@@ -160,7 +161,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Transaction description' | $T8 %]</th>
-          <td colspan="3"><input size='35' name="transaction_description" value="[% HTML.escape(transaction_description) %]"></td>
+          <td colspan="3"><input size='35' name="transaction_description" id="transaction_description" value="[% HTML.escape(transaction_description) %]"></td>
         </tr>
       </table>
     </td>

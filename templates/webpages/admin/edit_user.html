@@ -99,6 +99,20 @@
   </tr>
  </table>
 
+ <h2>[%- LxERP.t8("CTI settings") %]</h2>
+
+ <table>
+  <tr>
+   <th align="right">[% LxERP.t8("Phone extension") %]</th>
+   <td>[% L.input_tag("user.config_values.phone_extension", props.phone_extension) %]</td>
+  </tr>
+
+  <tr>
+   <th align="right">[% LxERP.t8("Phone password") %]</th>
+   <td>[% L.input_tag("user.config_values.phone_password", props.phone_password) %]</td>
+  </tr>
+ </table>
+
  <h2>[%- LxERP.t8("Access to clients") %]</h2>
 
 [% IF SELF.all_clients.size %]

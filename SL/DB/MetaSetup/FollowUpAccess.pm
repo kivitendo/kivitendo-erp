@@ -17,12 +17,12 @@ __PACKAGE__->meta->columns(
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->foreign_keys(
-  employee => {
+  to_follow_ups_by => {
     class       => 'SL::DB::Employee',
     key_columns => { what => 'id' },
   },
 
-  employee_obj => {
+  with_access => {
     class       => 'SL::DB::Employee',
     key_columns => { who => 'id' },
   },

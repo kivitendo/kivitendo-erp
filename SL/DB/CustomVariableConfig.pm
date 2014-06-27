@@ -5,6 +5,8 @@ package SL::DB::CustomVariableConfig;
 
 use strict;
 
+use List::MoreUtils qw(any);
+
 use SL::DB::MetaSetup::CustomVariableConfig;
 use SL::DB::Manager::CustomVariableConfig;
 use SL::DB::Helper::ActsAsList;
@@ -85,6 +87,13 @@ sub has_flag {
   my ($self, $flag) = @_;
 
   return $self->processed_flags()->{$flag};
+}
+
+sub type_dependent_default_value {
+  my ($self) = @_;
+
+  return $self->default_value if $self->type ne 'select';
+  return (any { $_ eq $self->default_value } @{ $self->processed_options }) ? $self->default_value : $self->processed_options->[0];
 }
 
 1;

@@ -47,18 +47,32 @@ our $manager_path = "SL/DB/Manager";
 
 my %config;
 
+# Maps column names in tables to foreign key relationship names.  For
+# example:
+#
+# »follow_up_access« contains a column named »who«. Rose normally
+# names the resulting relationship after the class the target table
+# uses. In this case the target table is »employee« and the
+# corresponding class SL::DB::Employee. The resulting relationship
+# would be named »employee«.
+#
+# In order to rename this relationship we have to map »who« to
+# e.g. »granted_by«:
+#   follow_up_access => { who => 'granted_by' },
+
 our %foreign_key_name_map     = (
   KIVITENDO                   => {
-    oe                        => { payment => 'payment_terms', },
-    ar                        => { payment => 'payment_terms', },
-    ap                        => { payment => 'payment_terms', },
+    oe                        => { payment_id => 'payment_terms', },
+    ar                        => { payment_id => 'payment_terms', },
+    ap                        => { payment_id => 'payment_terms', },
 
-    orderitems                => { parts => 'part', trans => 'order', },
-    delivery_order_items      => { parts => 'part' },
-    invoice                   => { parts => 'part' },
-    follow_ups                => { 'employee_obj' => 'created_for' },
+    orderitems                => { parts_id => 'part', trans_id => 'order', },
+    delivery_order_items      => { parts_id => 'part' },
+    invoice                   => { parts_id => 'part' },
+    follow_ups                => { created_for_user => 'created_for', created_by => 'created_by', },
+    follow_up_access          => { who => 'with_access', what => 'to_follow_ups_by', },
 
-    periodic_invoices_configs => { oe => 'order' },
+    periodic_invoices_configs => { oe_id => 'order' },
   },
 );
 
@@ -87,6 +101,23 @@ sub setup {
   foreach (($meta_path, $manager_path)) {
     mkdir $_ unless -d;
   }
+}
+
+sub fix_relationship_names {
+  my ($domain, $table, $fkey_text) = @_;
+
+  if ($fkey_text !~ m/key_columns \s+ => \s+ \{ \s+ ['"]? ( [^'"\s]+ ) /x) {
+    die "fix_relationship_names: could not extract the key column for domain/table $domain/$table; foreign key definition text:\n${fkey_text}\n";
+  }
+
+  my $column_name = $1;
+  my %changes     = map { %{$_} } grep { $_ } ($foreign_key_name_map{$domain}->{ALL}, $foreign_key_name_map{$domain}->{$table});
+
+  if (my $desired_name = $changes{$column_name}) {
+    $fkey_text =~ s/^ \s\s [^\s]+ \b/  ${desired_name}/msx;
+  }
+
+  return $fkey_text;
 }
 
 sub process_table {
@@ -139,23 +170,29 @@ CODE
   $foreign_key_definition =~ s/::AUTO::/::/g;
 
   if ($foreign_key_definition && ($definition =~ /\Q$foreign_key_definition\E/)) {
+    # These positions refer to the whole setup call, not just the
+    # parameters/actual relationship definitions.
     my ($start, $end) = ($-[0], $+[0]);
 
-    my %changes = map { %{$_} } grep { $_ } ($foreign_key_name_map{$domain}->{ALL}, $foreign_key_name_map{$domain}->{$table});
-    while (my ($auto_generated_name, $desired_name) = each %changes) {
-      $foreign_key_definition =~ s/^ \s \s ${auto_generated_name} \b/  ${desired_name}/msx;
-    }
+    # Match the function parameters = the actual relationship
+    # definitions
+    next unless $foreign_key_definition =~ m/\(\n(.+)\n\)/s;
 
-    # Sort foreign key definitions alphabetically
-    if ($foreign_key_definition =~ m/\(\n(.+)\n\)/s) {
-      my ($list_start, $list_end) = ($-[0], $+[0]);
-      my @foreign_keys            = split m/\n\n/m, $1;
-      my $sorted_foreign_keys     = "(\n" . join("\n\n", sort @foreign_keys) . "\n)";
+    my ($list_start, $list_end) = ($-[0], $+[0]);
 
-      substr $foreign_key_definition, $list_start, $list_end - $list_start, $sorted_foreign_keys;;
-    }
+    # Split the whole chunk on double new lines. The resulting
+    # elements are one relationship each. Then fix the relationship
+    # names and sort them by their new names.
+    my @new_foreign_keys = sort map { fix_relationship_names($domain, $table, $_) } split m/\n\n/m, $1;
 
-    substr($definition, $start, $end - $start) = $foreign_key_definition;
+    # Replace the function parameters = the actual relationship
+    # definitions with the new ones.
+    my $sorted_foreign_keys = "(\n" . join("\n\n", @new_foreign_keys) . "\n)";
+    substr $foreign_key_definition, $list_start, $list_end - $list_start, $sorted_foreign_keys;
+
+    # Replace the whole setup call in the auto-generated output with
+    # our new version.
+    substr $definition, $start, $end - $start, $foreign_key_definition;
   }
 
   $definition =~ s/(meta->table.*)\n/$1\n$schema_str/m if $schema;

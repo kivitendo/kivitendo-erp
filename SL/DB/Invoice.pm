@@ -320,6 +320,15 @@ sub date {
   goto &transdate;
 }
 
+sub transactions {
+  my ($self) = @_;
+
+  return unless $self->id;
+
+  require SL::DB::AccTransaction;
+  SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $self->id ]);
+}
+
 1;
 
 __END__

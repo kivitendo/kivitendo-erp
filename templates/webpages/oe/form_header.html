@@ -30,7 +30,7 @@
 [%- INCLUDE 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]
 
-    <div class="tabwidget">
+    <div id="oe_tabs" class="tabwidget">
      <ul>
       <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
@@ -79,7 +79,8 @@
                   <tr>
                     <th align="right">[% 'Shipping Address' | $T8 %]</th>
                     <td>
-                      [% L.select_tag('shipto_id', ALL_SHIPTO, default=shipto_id, value_key='shipto_id', title_key='displayable_id', with_empty=1, style='width: 250px', onChange="document.getElementById('update_button').click();") %]
+                      [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
+                         L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
                     </td>
                   </tr>
 [%- END %]
@@ -146,7 +147,7 @@
                   </tr>
                   <tr>
                     <th align="right">[% 'Transaction description' | $T8 %]</th>
-                    <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"></td>
+                    <td colspan="3"><input name="transaction_description" id="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"></td>
                   </tr>
 [%- IF show_delivery_customer %]
                   <tr>
@@ -237,6 +238,20 @@
                       [%- L.select_tag('globalproject_id', ALL_PROJECTS, title_key='projectnumber', default=globalproject_id, with_empty='1', onChange="document.getElementById('update_button').click();") %]
                     </td>
                   </tr>
+[%- IF type == 'sales_quotation' %]
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% 'Order probability' | $T8 %]</th>
+                    <td nowrap>
+                      [%- L.select_tag('order_probability', ORDER_PROBABILITIES, title='title', default=order_probability) %]%
+                    </td>
+                  </tr>
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% 'Expected billing date' | $T8 %]</th>
+                    <td nowrap>
+                      [%- L.date_tag('expected_billing_date', expected_billing_date 'BL') %]
+                    </td>
+                  </tr>
+[%- END %]
                 </table>
               </td>
             </tr>

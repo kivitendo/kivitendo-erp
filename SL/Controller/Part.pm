@@ -52,6 +52,7 @@ sub action_ajax_autocomplete {
      description => $_->description,
      type        => $_->type,
      unit        => $_->unit,
+     cvars       => { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $_->cvars_by_config } },
     }
   } @{ $self->parts }; # neato: if exact match triggers we don't even need the init_parts
 

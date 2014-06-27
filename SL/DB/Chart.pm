@@ -16,10 +16,15 @@ __PACKAGE__->meta->initialize;
 sub get_active_taxkey {
   my ($self, $date) = @_;
   $date ||= DateTime->today_local;
+
+  my $cache = $::request->cache("get_active_taxkey")->{$date} //= {};
+  return $cache->{$self->id} if $cache->{$self->id};
+
   require SL::DB::TaxKey;
-  return SL::DB::Manager::TaxKey->get_all(query   => [ and => [ chart_id  => $self->id,
-                                                                startdate => { le => $date } ] ],
-                                          sort_by => "startdate DESC")->[0];
+  return $cache->{$self->id} = SL::DB::Manager::TaxKey->get_all(
+    query   => [ and => [ chart_id  => $self->id,
+                          startdate => { le => $date } ] ],
+    sort_by => "startdate DESC")->[0];
 }
 
 1;

@@ -90,10 +90,8 @@ sub add_print_templates {
     croak "File '${src_dir}/$_' does not exist" unless -f "${src_dir}/$_";
   }
 
-  my $template_dir = $::instance_conf->reload->get_templates;
+  return 1 unless my $template_dir = $::instance_conf->reload->get_templates;
   $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: template_dir $template_dir");
-
-  return 1 if !$template_dir;
 
   foreach my $src_file (@files) {
     my $dest_file = $template_dir . '/' . $src_file;

@@ -1698,6 +1698,16 @@ sub prepare_parts_for_printing {
     }
   }
 
+  my $parts = SL::DB::Manager::Part->get_all(query => [ id => \@part_ids ]);
+  my %parts_by_id = map { $_->id => $_ } @$parts;
+
+  for my $i (1..$rowcount) {
+    my $id = $form->{"${prefix}${i}"};
+    next unless $id;
+
+    push @{ $form->{TEMPLATE_ARRAYS}{part_type} },  $parts_by_id{$id}->type;
+  }
+
   $main::lxdebug->leave_sub();
 }
 

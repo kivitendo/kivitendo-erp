@@ -162,6 +162,11 @@ sub parse_access_string {
   return SL::Auth::evaluate_rights_ary($stack[0]);
 }
 
+sub parse_instance_conf_string {
+  my ($self, $setting) = @_;
+  return $::instance_conf->data->{$setting};
+}
+
 sub set_access {
   my $self = shift;
 
@@ -171,6 +176,7 @@ sub set_access {
     my $entry = $self->{$key};
 
     $entry->{GRANTED}              = $entry->{ACCESS} ? $self->parse_access_string($key, $entry->{ACCESS}) : 1;
+    $entry->{GRANTED}            &&= $self->parse_instance_conf_string($entry->{INSTANCE_CONF}) if $entry->{INSTANCE_CONF};
     $entry->{IS_MENU}              = $entry->{submenu} || ($key !~ m/--/);
     $entry->{NUM_VISIBLE_CHILDREN} = 0;
 

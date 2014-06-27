@@ -115,6 +115,7 @@ sub transactions {
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone | .
     $periodic_invoices_columns .
+    qq|  , o.order_probability, o.expected_billing_date, (o.netamount * o.order_probability / 100) AS expected_netamount | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
@@ -241,6 +242,26 @@ SQL
   if ($form->{periodic_invoices_active} ne $form->{periodic_invoices_inactive}) {
     my $not  = $form->{periodic_invoices_inactive} ? 'NOT' : '';
     $query  .= qq| AND ${not} COALESCE(pcfg.active, 'f')|;
+  }
+
+  if ($form->{reqdate_unset_or_old}) {
+    $query .= qq| AND ((o.reqdate IS NULL) OR (o.reqdate < date_trunc('month', current_date)))|;
+  }
+
+  if (($form->{order_probability_value} || '') ne '') {
+    my $op  = $form->{order_probability_value} eq 'le' ? '<=' : '>=';
+    $query .= qq| AND (o.order_probability ${op} ?)|;
+    push @values, $form->{order_probability_value};
+  }
+
+  if ($form->{expected_billing_date_from}) {
+    $query .= qq| AND (o.expected_billing_date >= ?)|;
+    push @values, conv_date($form->{expected_billing_date_from});
+  }
+
+  if ($form->{expected_billing_date_to}) {
+    $query .= qq| AND (o.expected_billing_date <= ?)|;
+    push @values, conv_date($form->{expected_billing_date_to});
   }
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -561,6 +582,7 @@ sub save {
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
          taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
+         , order_probability = ?, expected_billing_date = ?
        WHERE id = ?|;
 
   @values = ($form->{ordnumber} || '', $form->{quonumber},
@@ -581,15 +603,16 @@ sub save {
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
              $form->{marge_total} * 1, $form->{marge_percent} * 1,
+             $form->{order_probability} * 1, conv_date($form->{expected_billing_date}),
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
   $form->{ordtotal} = $amount;
 
-  # add shipto
   $form->{name} = $form->{ $form->{vc} };
   $form->{name} =~ s/--\Q$form->{"$form->{vc}_id"}\E//;
 
+  # add shipto
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "OE");
   }
@@ -811,6 +834,7 @@ sub retrieve {
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
            o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id
+           , o.order_probability, o.expected_billing_date
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
@@ -1386,6 +1410,8 @@ sub order_details {
 
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+
+  $::form->{order} = SL::DB::Manager::Order->find_by(id => $::form->{id});
 
   $main::lxdebug->leave_sub();
 }

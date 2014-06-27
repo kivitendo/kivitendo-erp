@@ -48,7 +48,7 @@ our $missing     = {};
 our @lost        = ();
 
 my %ignore_unused_templates = (
-  map { $_ => 1 } qw(ct/testpage.html generic/autocomplete.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js)
+  map { $_ => 1 } qw(ct/testpage.html generic/autocomplete.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js task_server/failure_notification_email.txt)
 );
 
 my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %jslocale);

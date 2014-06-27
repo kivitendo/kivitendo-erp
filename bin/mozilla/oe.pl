@@ -44,7 +44,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff);
 use SL::PE;
 use SL::ReportGenerator;
-use List::MoreUtils qw(any none);
+use List::MoreUtils qw(uniq any none);
 use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
@@ -88,6 +88,16 @@ sub check_oe_access {
   $right    ||= 'DOES_NOT_EXIST';
 
   $main::auth->assert($right);
+}
+
+sub check_oe_conversion_to_sales_invoice_allowed {
+  return 1 if  $::form->{type} !~ m/^sales/;
+  return 1 if ($::form->{type} =~ m/quotation/) && $::instance_conf->get_allow_sales_invoice_from_sales_quotation;
+  return 1 if ($::form->{type} =~ m/order/)     && $::instance_conf->get_allow_sales_invoice_from_sales_order;
+
+  $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
+
+  return 0;
 }
 
 sub set_headings {
@@ -247,7 +257,6 @@ sub order_links {
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id delivery_term_id currency));
-  $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
@@ -339,20 +348,35 @@ sub form_header {
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
   $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
 
-  # project ids
-  my @old_project_ids = ($form->{"globalproject_id"}, grep { $_ } map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
-
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("projects"      => { "key"      => "ALL_PROJECTS",
-                                        "all"      => 0,
-                                        "old_id"   => \@old_project_ids },
-                   "taxzones"      => "ALL_TAXZONES",
+
+  # project ids
+  $form->get_lists("taxzones"      => "ALL_TAXZONES",
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
                    "departments"   => "ALL_DEPARTMENTS",
                    $vc             => { key   => "ALL_" . uc($vc),
                                         limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
+
+  # Projects
+  my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
+  my @old_ids_cond    = @old_project_ids ? (id => \@old_project_ids) : ();
+  my @customer_cond;
+  if (($vc eq 'customers') && $::instance_conf->get_customer_projects_only_in_sales) {
+    @customer_cond = (
+      or => [
+        customer_id          => $::form->{customer_id},
+        billable_customer_id => $::form->{customer_id},
+      ]);
+  }
+  my @conditions = (
+    or => [
+      and => [ active => 1, @customer_cond ],
+      @old_ids_cond,
+    ]);
+
+  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all(query => \@conditions);
 
   # label subs
   my $employee_list_query_gen      = sub { $::form->{$_[0]} ? [ or => [ id => $::form->{$_[0]}, deleted => 0 ] ] : [ deleted => 0 ] };
@@ -468,6 +492,8 @@ sub form_header {
      is_sales_ord    => scalar ($form->{type} =~ /sales_order$/),
      is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
   );
+
+  $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
   print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
 
@@ -746,6 +772,8 @@ sub search {
   # constants and subs for template
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
+  $form->{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+
   $form->header();
 
   print $form->parse_html_template('oe/search', {
@@ -813,6 +841,7 @@ sub orders {
     "vcnumber",                "ustid",
     "country",                 "shippingpoint",
     "taxzone",
+    "order_probability",       "expected_billing_date", "expected_netamount",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -824,6 +853,8 @@ sub orders {
   $form->{l_open}              = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered}         = "Y"                     if ($form->{delivered} && $form->{notdelivered});
   $form->{l_periodic_invoices} = "Y"                     if ($form->{periodic_invoices_active} && $form->{periodic_invoices_inactive});
+
+  map { $form->{"l_${_}"} = 'Y' } qw(order_probability expected_billing_date expected_netamount) if $form->{l_order_probability_expected_billing_date};
 
   my $attachment_basename;
   if ($form->{vc} eq 'vendor') {
@@ -851,7 +882,8 @@ sub orders {
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
-                                                        business_id shippingpoint taxzone_id);
+                                                        business_id shippingpoint taxzone_id reqdate_unset_or_old
+                                                        order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to);
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
   push @keys_for_url, 'taxzone_id' if $form->{taxzone_id} ne ''; # taxzone_id could be 0
@@ -889,6 +921,9 @@ sub orders {
     'periodic_invoices'       => { 'text' => $locale->text('Per. Inv.'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'order_probability'       => { 'text' => $locale->text('Order probability'), },
+    'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
+    'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
@@ -896,7 +931,7 @@ sub orders {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr remaining_amount remaining_netamount order_probability expected_billing_date expected_netamount);
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
@@ -933,6 +968,7 @@ sub orders {
   push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
   push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_active};
+  push @options, $locale->text('Reqdate not set or before current month')                                 if $form->{reqdate_unset_or_old};
 
   if ($form->{business_id}) {
     my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');
@@ -940,6 +976,16 @@ sub orders {
   }
   if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
     push @options, $locale->text('Steuersatz') . " : " . SL::DB::TaxZone->new(id => $form->{taxzone_id})->load->description;
+  }
+
+  if (($form->{order_probability_value} || '') ne '') {
+    push @options, $::locale->text('Order probability') . ' ' . ($form->{order_probability_op} eq 'le' ? '<=' : '>=') . ' ' . $form->{order_probability_value} . '%';
+  }
+
+  if ($form->{expected_billing_date_from} or $form->{expected_billing_date_to}) {
+    push @options, $locale->text('Expected billing date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{expected_billing_date_from}, 1) if $form->{expected_billing_date_from};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{expected_billing_date_to},   1) if $form->{expected_billing_date_to};
   }
 
   $report->set_options('top_info_text'        => join("\n", @options),
@@ -959,6 +1005,7 @@ sub orders {
   my $callback = $form->escape($href);
 
   my @subtotal_columns = qw(netamount amount marge_total marge_percent remaining_amount remaining_netamount);
+  push @subtotal_columns, 'expected_netamount' if $form->{l_order_probability_expected_billing_date};
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -981,7 +1028,9 @@ sub orders {
     $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
     $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
-    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent remaining_amount remaining_netamount);
+    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent remaining_amount remaining_netamount expected_netamount);
+
+    $oe->{order_probability} = ($oe->{order_probability} || 0) . '%';
 
     my $row = { };
 
@@ -1313,6 +1362,7 @@ sub invoice {
   my $locale   = $main::locale;
 
   check_oe_access();
+  check_oe_conversion_to_sales_invoice_allowed();
   $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{old_salesman_id} = $form->{salesman_id};
@@ -1378,7 +1428,6 @@ sub invoice {
   $form->{convert_from_oe_ids} = $form->{id};
   $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
-  $form->{shipto}              = 1;
   $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
   delete @{$form}{qw(id closed)};
@@ -1611,7 +1660,6 @@ sub check_for_direct_delivery_yes {
   $form->{direct_delivery_checked} = 1;
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
-  $form->{shipto} = 1;
   $form->{CFDD_shipto} = 1;
   purchase_order();
   $main::lxdebug->leave_sub();
@@ -1710,6 +1758,7 @@ sub sales_order {
 
   if ($form->{type} eq "purchase_order") {
     delete($form->{ordnumber});
+    $form->{"lastcost_$_"} = $form->{"sellprice_$_"} for (1..$form->{rowcount});
   }
 
   $form->{cp_id} *= 1;
