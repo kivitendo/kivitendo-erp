@@ -128,7 +128,7 @@
      <td>
       <select name="warehouse_id_[% loop.count %]" onchange="warehouse_selected([% loop.count %], this.selectedIndex)">
        [%- FOREACH wh = WAREHOUSES %]
-     <option value="[% HTML.escape(wh.id) %]"[% IF wh.id == row.warehouse_id %] selected[% END %] [% IF wh.id == PART_INFO.warehouse_id && LxERP.format_amount(row.qty) == 0 && STOCK_INFO.size == 1  %] selected[% END %]  >[% HTML.escape(wh.description) %]</option>
+     <option value="[% HTML.escape(wh.id) %]"[% IF wh.id == row.warehouse_id %] selected[% END %] [% IF wh.id == PART_INFO.warehouse_id && row.qty == 0 && STOCK_INFO.size == 1  %] selected[% END %]  >[% HTML.escape(wh.description) %]</option>
        [%- END %]
       </select>
      </td>
