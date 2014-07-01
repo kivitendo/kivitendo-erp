@@ -60,6 +60,7 @@ sub _before_save_set_ord_quo_number {
 # methods
 
 sub items { goto &orderitems; }
+sub add_items { goto &add_orderitems; }
 
 sub items_sorted {
   my ($self) = @_;

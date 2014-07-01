@@ -63,6 +63,7 @@ sub _before_save_set_invnumber {
 # methods
 
 sub items { goto &invoiceitems; }
+sub add_items { goto &add_invoiceitems; }
 
 sub items_sorted {
   my ($self) = @_;
