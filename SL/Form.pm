@@ -3344,7 +3344,7 @@ sub prepare_for_printing {
 
   # Load shipping address from database if shipto_id is set.
   if ($self->{shipto_id}) {
-    my $shipto  = SL::DB::Shipto->new(id => $self->{shipto_id})->load;
+    my $shipto  = SL::DB::Shipto->new(shipto_id => $self->{shipto_id})->load;
     $self->{$_} = $shipto->$_ for grep { m{^shipto} } map { $_->name } @{ $shipto->meta->columns };
   }
 
