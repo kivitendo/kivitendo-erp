@@ -304,7 +304,12 @@ sub end_request {
 sub log_time {
   my ($self, @slurp) = @_;
   return 1 unless want_request_timer();
-  $self->_write("time", $self->get_request_time() . (@slurp ? " (@slurp)" : ''));
+
+  my $now                    = $self->get_request_time;
+  my $diff                   = int((($now - ($self->{previous_log_time} // 0)) * 10_000 + 5) / 10);
+  $self->{previous_log_time} = $now;
+
+  $self->_write("time", "${now}s Δ ${diff}ms" . (@slurp ? " (@slurp)" : ''));
 }
 
 sub get_request_time {
