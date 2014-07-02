@@ -89,6 +89,10 @@ sub _generate_time_period_variables {
     previous_month      => [ $period_start_date->clone->truncate(to => 'month')->subtract(months => 1), sub { $_[0]->month } ],
     next_month          => [ $period_start_date->clone->truncate(to => 'month')->add(     months => 1), sub { $_[0]->month } ],
 
+    current_month_long  => [ $period_start_date->clone->truncate(to => 'month'),                        sub { $month_names[ $_[0]->month ] } ],
+    previous_month_long => [ $period_start_date->clone->truncate(to => 'month')->subtract(months => 1), sub { $month_names[ $_[0]->month ] } ],
+    next_month_long     => [ $period_start_date->clone->truncate(to => 'month')->add(     months => 1), sub { $month_names[ $_[0]->month ] } ],
+
     current_year        => [ $period_start_date->clone->truncate(to => 'year'),                         sub { $_[0]->year } ],
     previous_year       => [ $period_start_date->clone->truncate(to => 'year')->subtract(years => 1),   sub { $_[0]->year } ],
     next_year           => [ $period_start_date->clone->truncate(to => 'year')->add(     years => 1),   sub { $_[0]->year } ],
@@ -96,8 +100,6 @@ sub _generate_time_period_variables {
     period_start_date   => [ $period_start_date->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
     period_end_date     => [ $period_end_date  ->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
   };
-
-  map { $vars->{"${_}_month_long"} = $month_names[ $vars->{"${_}_month"} ] } qw(current previous next);
 
   return $vars;
 }
