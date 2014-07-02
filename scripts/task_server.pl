@@ -76,7 +76,7 @@ sub lxinit {
 }
 
 sub per_job_initialization {
-  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::locale        = Locale->new($::myconfig{countrycode} || $::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
