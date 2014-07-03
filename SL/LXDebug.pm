@@ -24,6 +24,7 @@ use YAML;
 use SL::Request ();
 
 use strict;
+use utf8;
 
 my ($text_diff_available);
 
