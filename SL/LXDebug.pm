@@ -274,6 +274,7 @@ sub _write_raw {
   local *FILE;
   if ((FILE_TARGET == $self->{"target"})
       && open(FILE, ">>", $self->{"file"})) {
+    binmode FILE, ":utf8";
     print FILE $message;
     close FILE;
 
