@@ -47,11 +47,12 @@ sub create_pdf {
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
 
-  my $parser = SL::Template::LaTeX->new(
-    $form->{IN},
-    $form,
-    \%::myconfig,
-    $userspath,
+  my $parser  = SL::Template::create(
+    type      => 'LaTeX',
+    source    => $form->{IN},
+    form      => $form,
+    myconfig  => \%::myconfig,
+    userspath => $userspath,
   );
 
   my $result = $parser->parse($temp_fh);
