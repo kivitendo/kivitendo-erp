@@ -22,7 +22,7 @@ sub t8 {
   shift if $_[0] eq __PACKAGE__;
 
   my $string = shift;
-  return SL::Locale::String->new(untranslated => $string, args => \@_);
+  return SL::Locale::String->new(untranslated => $string, args => [ @_ ]);
 }
 
 sub TO_JSON {
