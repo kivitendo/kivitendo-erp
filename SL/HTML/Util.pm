@@ -17,7 +17,10 @@ sub strip {
 
   my $value = !ref($class_or_value) && (($class_or_value // '') eq 'SL::HTML::Util') ? $_[1] : $class_or_value;
 
-  return '' unless $value;
+  return '' unless defined $value;
+
+  # Remove HTML comments.
+  $value =~ s{ <!-- .*? --> }{}gx;
 
   if (!%stripper) {
     %stripper = ( parser => HTML::Parser->new );
