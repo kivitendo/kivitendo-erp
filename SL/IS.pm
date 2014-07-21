@@ -827,9 +827,12 @@ sub post_invoice {
     }
   }
 
-  $form->{amount}{ $form->{id} }{ $form->{AR} } = $netamount + $tax;
-  $form->{paid} =
-    $form->round_amount($form->{paid} * $form->{exchangerate} + $diff, 2);
+  # Invoice Summary includes Rounding
+  my $totalamount = $netamount + $tax;
+  my $rounding = $form->round_amount( $form->round_amount( $totalamount, 2, 1 ) - $totalamount, 2 );
+  my $rnd_accno = $rounding == 0 ? 0 : $rounding > 0 ? $form->{rndgain_accno} : $form->{rndloss_accno};
+  $form->{amount}{ $form->{id} }{ $form->{AR} } = $totalamount = $form->round_amount( $totalamount, 2, 1 );
+  $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $diff, 2);
 
   # reverse AR
   $form->{amount}{ $form->{id} }{ $form->{AR} } *= -1;
@@ -847,9 +850,7 @@ sub post_invoice {
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
     foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
       next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
-
       $form->{amount_cogs}{$trans_id}{$accno} = $form->round_amount($form->{amount_cogs}{$trans_id}{$accno}, 2);
-
       if (!$payments_only && ($form->{amount_cogs}{$trans_id}{$accno} != 0)) {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
@@ -862,7 +863,6 @@ sub post_invoice {
 
     foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
       $form->{amount_cogs}{$trans_id}{$accno} = $form->round_amount($form->{amount_cogs}{$trans_id}{$accno}, 2);
-
       if (!$payments_only && ($form->{amount_cogs}{$trans_id}{$accno} != 0)) {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
@@ -876,9 +876,7 @@ sub post_invoice {
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
-
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
-
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
@@ -904,10 +902,8 @@ sub post_invoice {
         $form->{amount}{$trans_id}{$accno} = 0;
       }
     }
-
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
-
       if (!$payments_only && ($form->{amount}{$trans_id}{$accno} != 0)) {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
@@ -931,6 +927,14 @@ sub post_invoice {
         @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
         do_query($form, $dbh, $query, @values);
       }
+    }
+    if (!$payments_only && ($rnd_accno != 0)) {
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
+             VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT id FROM tax WHERE taxkey=0), 0, ?, (SELECT link FROM chart WHERE accno = ?))|;
+      @values = (conv_i($trans_id), $rnd_accno, $rounding, conv_date($form->{invdate}), conv_i($project_id), $rnd_accno);
+      do_query($form, $dbh, $query, @values);
+      $rnd_accno = 0;
     }
   }
 
@@ -1094,7 +1098,7 @@ sub post_invoice {
     return;
   }
 
-  $amount = $netamount + $tax;
+  $amount = $form->round_amount( $netamount + $tax, 2, 1);
 
   # save AR record
   #erweiterung fuer lieferscheinnummer (donumber) 12.02.09 jb
@@ -1580,7 +1584,9 @@ sub retrieve_invoice {
          (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
          (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
          (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
-         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno
+         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
+         (SELECT c.accno FROM chart c WHERE d.rndgain_accno_id = c.id)    AS rndgain_accno,
+         (SELECT c.accno FROM chart c WHERE d.rndloss_accno_id = c.id)    AS rndloss_accno
          ${query_transdate}
        FROM defaults d|;
 

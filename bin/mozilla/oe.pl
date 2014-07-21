@@ -511,9 +511,6 @@ sub form_footer {
               </tr> |;
       }
     }
-
-#    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0); # template does this
-
   } else {
     foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
@@ -535,7 +532,10 @@ sub form_footer {
     }
   }
 
-  $form->{oldinvtotal} = $form->{invtotal};
+  # beware numeric effects
+  $form->{oldinvtotal} = $form->round_amount( $form->{invtotal},2,1 );
+  $form->{rounding} = $form->round_amount( $form->{oldinvtotal}-$form->{invtotal}, 2 );
+  $form->{invtotal} = $form->{oldinvtotal};
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
@@ -598,7 +598,7 @@ sub update {
     if ($form->{type} =~ /^sales/) {
       IS->retrieve_item(\%myconfig, \%$form);
       $mode = 'IS';
-    } else {
+  } else {
       IR->retrieve_item(\%myconfig, \%$form);
       $mode = 'IR';
     }

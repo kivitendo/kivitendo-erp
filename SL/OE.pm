@@ -535,7 +535,7 @@ sub save {
   my $tax = 0;
   map { $tax += $form->round_amount($taxaccounts{$_}, 2) } keys %taxaccounts;
 
-  $amount = $form->round_amount($netamount + $tax, 2);
+  $amount = $form->round_amount($netamount + $tax + $form->{invtotal}, 2, 1);
   $netamount = $form->round_amount($netamount, 2);
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
@@ -778,7 +778,9 @@ sub retrieve {
                      (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
                      (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
                      (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
-                     (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno
+                     (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
+                     (SELECT c.accno FROM chart c WHERE d.rndgain_accno_id    = c.id) AS rndgain_accno,
+                     (SELECT c.accno FROM chart c WHERE d.rndloss_accno_id    = c.id) AS rndloss_accno
               $query_add
               FROM defaults d|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query);

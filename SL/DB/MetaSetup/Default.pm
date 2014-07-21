@@ -70,6 +70,8 @@ __PACKAGE__->meta->columns(
   revtrans                                => { type => 'boolean', default => 'false' },
   rfqnumber                               => { type => 'text' },
   rmanumber                               => { type => 'text' },
+  rndgain_accno_id                        => { type => 'integer'},
+  rndloss_accno_id                        => { type => 'integer'},
   sales_delivery_order_show_delete        => { type => 'boolean', default => 'true' },
   sales_order_show_delete                 => { type => 'boolean', default => 'true' },
   sdonumber                               => { type => 'text' },

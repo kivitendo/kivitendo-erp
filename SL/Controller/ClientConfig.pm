@@ -195,6 +195,8 @@ sub init_accounts {
 
   $accounts{fx_gain} = SL::DB::Manager::Chart->get_all(where => [ category => 'I', charttype => 'A' ], sort_by => 'accno ASC');
   $accounts{fx_loss} = SL::DB::Manager::Chart->get_all(where => [ category => 'E', charttype => 'A' ], sort_by => 'accno ASC');
+  $accounts{rnd_gain} = SL::DB::Manager::Chart->get_all(where => [ category => 'I', charttype => 'A' ], sort_by => 'accno ASC');
+  $accounts{rnd_loss} = SL::DB::Manager::Chart->get_all(where => [ category => 'E', charttype => 'A' ], sort_by => 'accno ASC');
   $accounts{ar_paid} = SL::DB::Manager::Chart->get_all(where => [ link => { like => '%AR_paid%' }   ], sort_by => 'accno ASC');
 
   return \%accounts;

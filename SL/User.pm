@@ -291,7 +291,6 @@ sub dbcreate {
   # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  $form->{precision} = 0.01;	# Rundungen werden zurzeit nivht verbucht
   $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?, precision = ?|;
   do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency precision));
 
