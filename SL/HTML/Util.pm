@@ -17,6 +17,8 @@ sub strip {
 
   my $value = !ref($class_or_value) && (($class_or_value // '') eq 'SL::HTML::Util') ? $_[1] : $class_or_value;
 
+  return '' unless $value;
+
   if (!%stripper) {
     %stripper = ( parser => HTML::Parser->new );
 
