@@ -91,6 +91,7 @@ __PACKAGE__->meta->columns(
   templates                                => { type => 'text' },
   transfer_default                         => { type => 'boolean', default => 'true' },
   transfer_default_ignore_onhand           => { type => 'boolean', default => 'false' },
+  transfer_default_services                => { type => 'boolean', default => 'true' },
   transfer_default_use_master_default_bin  => { type => 'boolean', default => 'false' },
   vendornumber                             => { type => 'text' },
   version                                  => { type => 'varchar', length => 8 },

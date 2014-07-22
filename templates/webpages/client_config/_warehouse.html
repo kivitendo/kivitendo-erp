@@ -10,6 +10,18 @@
     [% LxERP.t8('Show Transfer via default') %]<br>
    </td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer with services') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default_services', SELF.defaults.transfer_default_services) %]
+   </td>
+   <td>
+    [% LxERP.t8('Transfer services via default') %]<br>
+   </td>
+  </tr>
+
+
+
    <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse') %]</td>
    <td>
     [% L.select_tag('defaults.warehouse_id', SELF.all_warehouses, id='warehouse_id', with_empty=1, default=SELF.defaults.warehouse_id, title_key='description',
