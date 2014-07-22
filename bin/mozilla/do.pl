@@ -1591,6 +1591,9 @@ sub transfer_in_out_default {
       next unless ($form->{"id_$i"});
       my $base_unit_factor = $units->{ $part_info_map{$form->{"id_$i"}}->{unit} }->{factor} || 1;
       my $qty =   $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
+
+      # if we do not want to transfer services and this part is a service, set qty to zero
+      $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
       $qty_parts{$form->{"id_$i"}} += $qty;
 
 
