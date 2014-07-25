@@ -121,6 +121,7 @@ sub radio_button_tag {
 
   _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless exists $attributes{value};
+  $attributes{id}     .= '_' . $attributes{value};
   my $label            = delete $attributes{label};
 
   if ($attributes{checked}) {
