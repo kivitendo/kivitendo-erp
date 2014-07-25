@@ -38,7 +38,7 @@
 
 use Carp;
 use CGI;
-use List::MoreUtils qw(any uniq);
+use List::MoreUtils qw(any uniq apply);
 use List::Util qw(min max first);
 
 use SL::CVar;
@@ -46,6 +46,7 @@ use SL::Common;
 use SL::CT;
 use SL::IC;
 use SL::IO;
+use SL::PriceSource;
 
 use SL::DB::Customer;
 use SL::DB::Default;
@@ -149,7 +150,7 @@ sub display_row {
   }
 
   # column_index
-  my @header_sort = qw(runningnumber partnumber description ship qty unit weight sellprice_pg sellprice discount linetotal);
+  my @header_sort = qw(runningnumber partnumber description ship qty unit weight sellprice discount linetotal);
   my @HEADER = (
     {  id => 'runningnumber', width => 5,     value => $locale->text('No.'),                  display => 1, },
     {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
@@ -162,7 +163,7 @@ sub display_row {
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
-    {  id => 'sellprice_pg',  width => 8,     value => $locale->text('Pricegroup'),           display => !$is_delivery_order && !$is_purchase, },
+    {  id => 'price_source',  width => 5,     value => $locale->text('Price Source'),         display => !$is_delivery_order, },
     {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => !$is_delivery_order, },
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
@@ -196,7 +197,7 @@ sub display_row {
   my $deliverydate  = $locale->text('Required by');
 
   # special alignings
-  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal stock_in_out weight);
+  my %align  = map { $_ => 'right' } qw(qty ship right discount linetotal stock_in_out weight);
   my %nowrap = map { $_ => 1 }       qw(description unit);
 
   $form->{marge_total}           = 0;
@@ -232,6 +233,8 @@ sub display_row {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
     }
 
+    my $record_item = _make_record_item($i);
+
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
     $form->{"selected_unit_$i"} ||= $form->{"unit_$i"};
@@ -240,12 +243,11 @@ sub display_row {
         || !AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units)) { # (z.B. Dimensionseinheit war ausgewaehlt, es handelt sich aber
       $form->{"unit_old_$i"} = $form->{"selected_unit_$i"} = $form->{"unit_$i"};                 # um eine Dienstleistung). Dann keinerlei Umrechnung vornehmen.
     }
-    # adjust prices by unit, ignore if pricegroup changed
-    if ((!$form->{"prices_$i"}) || ($form->{"new_pricegroup_$i"} == $form->{"old_pricegroup_$i"})) {
-        $form->{"sellprice_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
-        $form->{"lastcost_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
-        $form->{"unit_old_$i"}   = $form->{"selected_unit_$i"};
-    }
+
+    $form->{"sellprice_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
+    $form->{"lastcost_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
+    $form->{"unit_old_$i"}   = $form->{"selected_unit_$i"};
+
     my $this_unit = $form->{"unit_$i"};
     $this_unit    = $form->{"selected_unit_$i"} if AM->convert_unit($this_unit, $form->{"selected_unit_$i"}, $all_units);
 
@@ -305,41 +307,11 @@ sub display_row {
       $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"};
     }
 
-    # build in drop down list for pricesgroups
-    # $sellprice_value setzt den Wert etwas unabhängiger von der Darstellung.
-    # Hintergrund: Preisgruppen werden hier überprüft und neu berechnet.
-    # Vorher wurde der ganze cgi->textfield Block zweimal identisch eingebaut, dass passiert
-    # jetzt nach der Abfrage.
-    my $sellprice_value;
-    if ($form->{"prices_$i"}) {
-      $column_data{sellprice_pg} = qq|<select name="sellprice_pg_$i" style="width: 8em">$form->{"prices_$i"}</select>|;
-      $sellprice_value           =($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})
-                                      ? $form->format_amount(\%myconfig, $form->{"price_new_$i"}, $decimalplaces)
-                                      : $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
-    } else {
-      # for last row and report
-      # set pricegroup drop down list from report menu
-      if ($form->{"sellprice_$i"} != 0) {
-        # remember the pricegroup_id in pricegroup_old
-        # but don't overwrite it
-        $form->{"pricegroup_old_$i"} = $form->{"pricegroup_id_$i"};
-        my $default_option           = $form->{"sellprice_$i"}.'--'.$form->{"pricegroup_id_$i"};
-        $column_data{sellprice_pg}   = NTI($cgi->popup_menu("sellprice_pg_$i", [ $default_option ], $default_option, { $default_option => $form->{"pricegroup_$i"} || '' }));
-      } else {
-        $column_data{sellprice_pg} = qq|&nbsp;|;
-      }
-      $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
-
-    }
-    # Falls der Benutzer die Preise nicht anpassen sollte, wird das entsprechende
-    # Textfield auf readonly gesetzt. Anm. von Sven: Manipulation der Preise ist
-    # immer noch möglich, konsequenterweise sollten diese NUR aus der Datenbank
-    # geholt werden.
-    my $edit_prices = $main::auth->assert('edit_prices', 1);
-    $column_data{sellprice} = (!$edit_prices)
-                                ? $cgi->textfield(-readonly => "readonly",
-                                                  -name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value)
-                                : $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
+    my $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+    my $edit_prices     = $main::auth->assert('edit_prices', 1) && !$::form->{"active_price_source_$i"};
+    $column_data{sellprice}   = (!$edit_prices)
+                                ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
+                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
     $column_data{discount}    = (!$edit_prices)
                                   ? $cgi->textfield(-readonly => "readonly",
                                                     -name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}))
@@ -348,6 +320,13 @@ sub display_row {
     $column_data{bin}         = $form->{"bin_$i"};
 
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
+
+    if ($form->{"id_${i}"}) {
+      my $price_source = SL::PriceSource->new(record_item => $record_item);
+      my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
+      $::form->{price_sources}[$i] = $price_source;
+      $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "toggle_price_source($i)");
+    }
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
@@ -433,9 +412,7 @@ sub display_row {
 
     if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
-      $form->{"pricegroup_id_$i"} = $form->{"pricegroup_old_$i"} if $form->{"pricegroup_old_$i"};
-      $form->{"sellprice_pg_$i"}  = $form->{"hidden_prices_$i"}  if $form->{"hidden_prices_$i"};
-      push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost pricegroup_id sellprice_pg);
+      push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
@@ -443,7 +420,7 @@ sub display_row {
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
-            (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
+            (qw(orderitems_id bo price_old id inventory_accno bin partsgroup partnotes active_price_source
                 income_accno expense_accno listprice assembly taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
@@ -455,7 +432,7 @@ sub display_row {
     # Benutzerdefinierte Variablen für Waren/Dienstleistungen/Erzeugnisse
     _render_custom_variables_inputs(ROW2 => \@ROW2, row => $i, part_id => $form->{"id_$i"});
 
-    push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, };
+    push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, obj => $record_item };
   }
 
   $form->{totalweight} = $totalweight;
@@ -468,40 +445,6 @@ sub display_row {
     $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
   }
 
-  $main::lxdebug->leave_sub();
-}
-
-##################################################
-# build html-code for pricegroups in variable $form->{prices_$j}
-
-sub set_pricegroup {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
-
-  _check_io_auth();
-
-  my $rowcount = shift;
-  for my $j (1 .. $rowcount) {
-    next unless $form->{PRICES}{$j};
-    # build drop down list for pricegroups
-    my $option_tmpl = qq|<option value="%s--%s" %s>%s</option>|;
-    $form->{"prices_$j"}  = join '', map { sprintf $option_tmpl, @$_{qw(price pricegroup_id selected pricegroup)} }
-                                         (+{ pricegroup => $locale->text("none (pricegroup)") }, @{ $form->{PRICES}{$j} });
-
-    foreach my $item (@{ $form->{PRICES}{$j} }) {
-      # set new selectedpricegroup_id and prices for "Preis"
-      $form->{"pricegroup_old_$j"} = $item->{pricegroup_id}   if $item->{selected} &&  $item->{pricegroup_id};
-      $form->{"sellprice_$j"}      = $item->{price}           if $item->{selected} &&  $item->{pricegroup_id};
-      $form->{"price_new_$j"}      = $form->{"sellprice_$j"}  if $item->{selected} || !$item->{pricegroup_id};
-    }
-
-    # save hidden pricegroups for delivery_orders
-    next unless my @selected_prices = grep { $_->{selected} } @{ $form->{PRICES}{$j} };
-    $form->{"hidden_prices_$j"} = $selected_prices[-1]{price} . "--" . $selected_prices[-1]{pricegroup_id};
-  }
   $main::lxdebug->leave_sub();
 }
 
@@ -633,12 +576,6 @@ sub item_selected {
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
   } qw(sellprice listprice lastcost) if $form->{item} ne 'assembly';
 
-  # get pricegroups for parts
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-  # build up html code for prices_$i
-  set_pricegroup($form->{rowcount});
-
   &display_form;
 
   $main::lxdebug->leave_sub();
@@ -733,12 +670,6 @@ sub check_form {
       or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
       or ($form->{type} =~ /sales_order/)) {
 
-    # get pricegroups for parts
-    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-    # build up html code for prices_$i
-    set_pricegroup($form->{rowcount});
-
   }
 
   &display_form;
@@ -757,7 +688,7 @@ sub remove_emptied_rows {
                 taxaccounts bin assembly weight projectnumber project_id
                 oldprojectnumber runningnumber serialnumber partsgroup payment_id
                 not_discountable shop ve gv buchungsgruppen_id language_values
-                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber donumber
+                price_old price_new unit_old ordnumber donumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate orderitems_id);
@@ -1714,12 +1645,6 @@ sub ship_to {
   # get details for customer/vendor
   call_sub($::form->{vc} . "_details", qw(name department_1 department_2 street zipcode city country contact email phone fax), $::form->{vc} . "number");
 
-  # get pricegroups for parts
-  IS->get_pricegroups_for_parts(\%::myconfig, \%$::form);
-
-  # build up html code for prices_$i
-  set_pricegroup($::form->{rowcount});
-
   $::form->{rowcount}--;
 
   my @shipto_vars   = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
@@ -1963,4 +1888,44 @@ sub _remove_billed_or_delivered_rows {
 
   $::form->redo_rows(\@fields, \@new_rows, scalar(@new_rows), $::form->{rowcount});
   $::form->{rowcount} -= $removed_rows;
+}
+
+sub _make_record_item {
+  my ($row) = @_;
+
+  my $class = {
+    sales_order             => 'OrderItem',
+    purchase_oder           => 'OrderItem',
+    sales_quotation         => 'OrderItem',
+    request_quotation       => 'OrderItem',
+    invoice                 => 'InvoiceItem',
+    purchase_invoice        => 'InvoiceItem',
+    purchase_delivery_order => 'DeliveryOrderItem',
+    sales_delivery_order    => 'DeliveryOrderItem',
+  }->{$::form->{type}};
+
+  return unless $class;
+
+  $class = 'SL::DB::' . $class;
+
+  eval "require $class";
+
+  my $obj = $::form->{"orderitems_id_$row"}
+          ? $class->meta->convention_manager->auto_manager_class_name->find_by(id => $::form->{"orderitems_id_$row"})
+          : $class->new;
+
+  for my $method (apply { s/_$row$// } grep { /_$row$/ } keys %$::form) {
+    next unless $obj->meta->column($method);
+    if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
+      $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
+    } else {
+      $obj->$method($::form->{"$method\_$row"});
+    }
+  }
+
+  if ($::form->{"id_$row"}) {
+    $obj->part(SL::DB::Part->load_cached($::form->{"id_$row"}));
+  }
+
+  return $obj;
 }

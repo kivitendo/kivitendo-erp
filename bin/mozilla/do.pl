@@ -390,7 +390,6 @@ sub update_delivery_order {
   #            Kunde mit Rabatt 20 -> Rabatt 5,5 i.O.
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
-  # for pricegroups
   my $i = $form->{rowcount};
 
   if (   ($form->{"partnumber_$i"} eq "")
@@ -431,12 +430,6 @@ sub update_delivery_order {
         $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"} * (1 - $form->{tradediscount}));
         $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-
-        # get pricegroups for parts
-        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-        # build up html code for prices_$i
-        &set_pricegroup($i);
       }
 
       display_form();
@@ -849,13 +842,6 @@ sub invoice {
 
   }
 
-  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
-  }
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  set_pricegroup($form->{rowcount});
-
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -956,13 +942,6 @@ sub invoice_multi {
 
   invoice_links();
   prepare_invoice();
-
-  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
-  }
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  set_pricegroup($_) for 1 .. $form->{rowcount};
 
   display_form();
 

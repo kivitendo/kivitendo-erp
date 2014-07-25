@@ -273,16 +273,6 @@ sub prepare_invoice {
       $form->{rowcount}        = $i;
 
     }
-
-    # get pricegroups for parts
-    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-    # Problem: set_pricegroup resets the sellprice of old invoices to the price
-    # currently defined in the pricegroup, which is a problem if the price has
-    # changed, as the old invoice gets the new price
-    # set_pricegroup must never be called, when an old invoice is initially loaded
-
-    # set_pricegroup($_) for 1 .. $form->{rowcount};
   }
   $main::lxdebug->leave_sub();
 }
@@ -614,12 +604,6 @@ sub update {
         map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice lastcost);
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-
-        # get pricegroups for parts
-        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-        # build up html code for prices_$i
-        &set_pricegroup($i);
       }
 
       &display_form;
@@ -836,10 +820,6 @@ sub use_as_new {
   $form->{employee_id}  = SL::DB::Manager::Employee->current->id;
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
-
-  # remember pricegroups for "use as new"
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  set_pricegroup($_) for 1 .. $form->{rowcount};
 
   &display_form;
 

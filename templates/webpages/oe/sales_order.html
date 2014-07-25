@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
-
+[%- USE L %]
+[%- USE LxERP %]
 [%- PROCESS 'amcvar/render_inputs_block.html' %]
 <tr>
  <td>
@@ -74,6 +75,7 @@
 
       </td>
      </tr>
+ [% PROCESS 'oe/_price_sources_row.html' i = loop.count %]
 [%- END %]
 
   </table>
@@ -93,6 +95,14 @@
         [% END %]
       }, 1);
     });
+    function toggle_price_source(row) {
+      $('#row' + row + '_3').toggle();
+    }
+    function update_price_source(row, source, price_str){
+      $('#active_price_source_' + row).val(source);
+      if (price_str) $('#sellprice_' + row).val(price_str);
+      $('#update_button').click();
+    }
   </script>
 
  </td>

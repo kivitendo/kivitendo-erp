@@ -3,7 +3,7 @@ package SL::DB::Helper::PriceTaxCalculator;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(calculate_prices_and_taxes);
+our @EXPORT = qw(calculate_prices_and_taxes _calculate_item);
 
 use Carp;
 use List::Util qw(sum min max);
@@ -75,6 +75,8 @@ sub _calculate_item {
   my ($self, $item, $idx, $data, %params) = @_;
 
   my $part       = SL::DB::Part->load_cached($item->parts_id);
+  return unless $item->part;
+
   my $part_unit  = $data->{units_by_name}->{ $part->unit };
   my $item_unit  = $data->{units_by_name}->{ $item->unit };
 

@@ -88,56 +88,6 @@ use SL::PE;
 use SL::AM;
 use Data::Dumper;
 
-sub set_pricegroup {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my $rowcount = shift;
-  for my $j (1 .. $rowcount) {
-    my $pricegroup_old = $form->{"pricegroup_old_$j"};
-    if ($form->{PRICES}{$j}) {
-      my $len    = 0;
-      my $prices = '<option value="--">' . $locale->text("none (pricegroup)") . '</option>';
-      my $price  = 0;
-      foreach my $item (@{ $form->{PRICES}{$j} }) {
-
-        #$price = $form->round_amount($myconfig,  $item->{price}, 5);
-        #$price = $form->format_amount($myconfig, $item->{price}, 2);
-        my $price         = $item->{price};
-        my $pricegroup_id = $item->{pricegroup_id};
-        my $pricegroup    = $item->{pricegroup};
-
-        # build drop down list for pricegroups
-        $prices .=
-          qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
-
-        $len += 1;
-
-        #        map {
-        #               $form->{"${_}_$j"} =
-        #               $form->format_amount(\%myconfig, $form->{"${_}_$j"})
-        #              } qw(sellprice price_new price_old);
-
-        # set new selectedpricegroup_id and prices for "Preis"
-        if ($item->{selected} && ($pricegroup_id != 0)) {
-          $form->{"pricegroup_old_$j"} = $pricegroup_id;
-          $form->{"price_new_$j"}      = $price;
-          # edit: don't change the sellprice here
-          # $form->{"sellprice_$j"}      = $price;   # this must only be updated for existing articles, not new ones
-        }
-        if ($pricegroup_id == 0) {
-          $form->{"price_new_$j"} = $form->{"sellprice_$j"};
-        }
-      }
-      $form->{"prices_$j"} = $prices;
-    }
-  }
-  $main::lxdebug->leave_sub();
-}
-
 sub display_form {
   $main::lxdebug->enter_sub();
 
@@ -187,12 +137,6 @@ sub display_form {
   #     $form->{action}     = "display_form";
   #     $form->{rowcount}--;
   #     my $rowcount = $form->{rowcount};
-  #
-  #     # get pricegroups for parts
-  #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-  #
-  #     # build up html code for prices_$i
-  #     set_pricegroup($rowcount);
   #
   #     $form->{resubmit} = 1;
   #
