@@ -3,7 +3,7 @@ package SL::PriceSource;
 use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(record_item) ],
+  scalar => [ qw(record_item record) ],
 );
 
 use List::UtilsBy qw(min_by);
@@ -15,7 +15,7 @@ sub all_price_sources {
   my ($self) = @_;
 
   return map {
-    $_->new(record_item => $self->record_item)
+    $_->new(record_item => $self->record_item, record => $self->record)
   } SL::PriceSource::ALL->all_price_sources
 }
 

@@ -218,6 +218,7 @@ sub display_row {
 
   my $totalweight = 0;
 
+  my $record = _make_record();
   # rows
 
   my @ROWS;
@@ -233,7 +234,7 @@ sub display_row {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
     }
 
-    my $record_item = _make_record_item($i);
+    my $record_item = $record->items->[$i-1];
 
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
@@ -322,7 +323,7 @@ sub display_row {
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
 
     if ($form->{"id_${i}"}) {
-      my $price_source = SL::PriceSource->new(record_item => $record_item);
+      my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
       my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
       $::form->{price_sources}[$i] = $price_source;
       $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "toggle_price_source($i)");
@@ -1890,6 +1891,8 @@ sub _remove_billed_or_delivered_rows {
   $::form->{rowcount} -= $removed_rows;
 }
 
+# TODO: both of these are makeshift so that price sources can operate on rdbo objects. if
+# this ever gets rewritten in controller style, throw this out
 sub _make_record_item {
   my ($row) = @_;
 
@@ -1918,6 +1921,8 @@ sub _make_record_item {
     next unless $obj->meta->column($method);
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
+    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
+      $obj->${\"$method\_as\_number"}($::form->{$method});
     } else {
       $obj->$method($::form->{"$method\_$row"});
     }
@@ -1929,3 +1934,50 @@ sub _make_record_item {
 
   return $obj;
 }
+
+sub _make_record {
+  my $class = {
+    sales_order             => 'Order',
+    purchase_oder           => 'Order',
+    sales_quotation         => 'Order',
+    request_quotation       => 'Order',
+    invoice                 => 'Invoice',
+    purchase_invoice        => 'PurchaseInvoice',
+    purchase_delivery_order => 'DeliveryOrder',
+    sales_delivery_order    => 'DeliveryOrder',
+  }->{$::form->{type}};
+
+  return unless $class;
+
+  $class = 'SL::DB::' . $class;
+
+  eval "require $class";
+
+  my $obj = $::form->{id}
+          ? $class->meta->convention_manager->auto_manager_class_name->find_by(id => $::form->{id})
+          : $class->new;
+
+  for my $method (keys %$::form) {
+    next unless $obj->can($method);
+    next unless $obj->meta->column($method);
+
+    if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
+      $obj->${\"$method\_as_date"}($::form->{$method});
+    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
+      $obj->${\"$method\_as\_number"}($::form->{$method});
+    } else {
+      $obj->$method($::form->{$method});
+    }
+  }
+
+  my @items;
+  for my $i (1 .. $::form->{rowcount}) {
+    next unless $::form->{"id_$i"};
+    push @items, _make_record_item($i)
+  }
+
+  $obj->orderitems(@items);
+
+  return $obj;
+}
+

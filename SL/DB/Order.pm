@@ -15,6 +15,7 @@ use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::RecordLinks;
+use Rose::DB::Object::Helpers qw(as_tree);
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {

@@ -5,6 +5,8 @@ use parent qw(SL::PriceSource::Base);
 
 use SL::PriceSource::Price;
 use SL::Locale::String;
+use List::UtilsBy qw(min_by);
+use List::Util qw(first);
 
 sub name { 'pricegroup' }
 
@@ -36,12 +38,26 @@ sub price_from_source {
   return $self->make_price($price);
 }
 
+sub best_price {
+  my ($self, %params) = @_;
+
+  my @prices    = $self->availabe_prices;
+  my $customer  = $self->record->customer;
+  my $min_price = min_by { $_->price } @prices;
+
+  return $min_price if !$customer || !$customer->cv_klass;
+
+  my $best_price = first { $_->spec == $customer->cv_class } @prices;
+
+  return $best_price || $min_price;
+}
+
 sub make_price {
   my ($self, $price_obj) = @_;
 
   SL::PriceSource::Price->new(
     price        => $price_obj->price,
-    source       => 'pricegroup/' . $price_obj->id,
+    spec         => $price_obj->id,
     description  => $price_obj->pricegroup->pricegroup,
     price_source => $self,
   )

@@ -594,8 +594,6 @@ sub update {
 
   check_oe_access();
 
-  my $order = _make_record();
-
   set_headings($form->{"id"} ? "edit" : "add");
 
   $form->{update} = 1;
@@ -2109,30 +2107,5 @@ sub dispatcher {
   }
 
   $::form->error($::locale->text('No action defined.'));
-}
-
-sub _make_record {
-  my $obj = SL::DB::Order->new;
-
-  for my $method (keys %$::form) {
-    next unless $obj->can($method);
-    next unless $obj->meta->column($method);
-
-    if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
-      $obj->${\"$method\_as_date"}($::form->{$method});
-    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Integer|Numeric|Float|DoublePrecsion)$/) {
-      $obj->$method($::form->{$method});
-    }
-  }
-
-  my @items;
-  for my $i (1 .. $::form->{rowcount}) {
-    next unless $::form->{"id_$i"};
-    push @items, _make_record_item($i)
-  }
-
-  $obj->orderitems(@items);
-
-  return $obj;
 }
 

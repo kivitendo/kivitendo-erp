@@ -34,7 +34,7 @@ sub make_sellprice {
 
   return SL::PriceSource::Price->new(
     price        => $part->sellprice,
-    source       => 'master_data/sellprice',
+    spec         => 'sellprice',
     description  => t8('Sellprice'),
     price_source => $self,
   );
