@@ -678,6 +678,15 @@ sub update {
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
+          my $record       = _make_record();
+          my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
+          my $best_price   = $price_source->best_price;
+
+          if ($best_price) {
+            $::form->{"sellprice_$i"}           = $best_price->price;
+            $::form->{"active_price_source_$i"} = $best_price->source;
+          }
+
           $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
           $form->{"sellprice_$i"} /= $exchangerate;   # if there is an exchange rate adjust sellprice
         }

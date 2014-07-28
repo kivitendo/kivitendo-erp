@@ -1442,6 +1442,7 @@ $self->{texts} = {
   'Make (vendor\'s database ID, number or name; with X being a number)' => 'Lieferant (Datenbank-ID, Nummer oder Name des Lieferanten; X ist eine fortlaufende Zahl)',
   'Make compatible for import'  => 'Für den Import kompatibel machen',
   'Make default profile'        => 'Zu Standardprofil machen',
+  'Makemodel Price'             => 'Lieferantenpreis',
   'Manage Custom Variables'     => 'Benutzerdefinierte Variablen',
   'Mandantennummer'             => 'Mandantennummer',
   'Mandate Date of Signature'   => 'Mandat-Unterschriftsdatum',

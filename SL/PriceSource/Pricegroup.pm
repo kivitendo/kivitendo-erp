@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::PriceSource::Base);
 
 use SL::PriceSource::Price;
+use SL::DB::Price;
 use SL::Locale::String;
 use List::UtilsBy qw(min_by);
 use List::Util qw(first);
@@ -14,6 +15,8 @@ sub description { t8('Pricegroup') }
 
 sub available_prices {
   my ($self, %params) = @_;
+
+  return () unless $self->record->is_sales;
 
   my $item = $self->record_item;
 
@@ -33,23 +36,25 @@ sub available_prices {
 sub price_from_source {
   my ($self, $source, $spec) = @_;
 
-  my $price = SL::DB::Manager::Price->find_by(id => $spec);
+  my $price = SL::DB::Manager::Price->find_by(pricegroup_id => $spec, parts_id => $self->part->id);
 
+  # TODO: if someone deletes the prices entry, this fails. add a fallback
   return $self->make_price($price);
 }
 
 sub best_price {
   my ($self, %params) = @_;
 
-  my @prices    = $self->availabe_prices;
+  return () unless $self->record->is_sales;
+
+  my @prices    = $self->available_prices;
   my $customer  = $self->record->customer;
-  my $min_price = min_by { $_->price } @prices;
 
-  return $min_price if !$customer || !$customer->cv_klass;
+  return () if !$customer || !$customer->klass;
 
-  my $best_price = first { $_->spec == $customer->cv_class } @prices;
+  my $best_price = first { $_->spec == $customer->klass } @prices;
 
-  return $best_price || $min_price;
+  return $best_price || ();
 }
 
 sub make_price {
@@ -57,7 +62,7 @@ sub make_price {
 
   SL::PriceSource::Price->new(
     price        => $price_obj->price,
-    spec         => $price_obj->id,
+    spec         => $price_obj->pricegroup->id,
     description  => $price_obj->pricegroup->pricegroup,
     price_source => $self,
   )

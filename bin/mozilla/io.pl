@@ -234,7 +234,7 @@ sub display_row {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
     }
 
-    my $record_item = $record->items->[$i-1];
+    my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
 
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
@@ -519,6 +519,16 @@ sub item_selected {
   push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
   map { $form->{"${_}_$i"} = $new_item->{$_} } @new_fields;
+
+  my $record       = _make_record();
+  my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
+  my $best_price   = $price_source->best_price;
+
+  if ($best_price) {
+    $::form->{"sellprice_$i"}           = $best_price->price;
+    $::form->{"active_price_source_$i"} = $best_price->source;
+  }
+
 
   $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
@@ -1941,11 +1951,15 @@ sub _make_record {
     purchase_oder           => 'Order',
     sales_quotation         => 'Order',
     request_quotation       => 'Order',
-    invoice                 => 'Invoice',
-    purchase_invoice        => 'PurchaseInvoice',
     purchase_delivery_order => 'DeliveryOrder',
     sales_delivery_order    => 'DeliveryOrder',
   }->{$::form->{type}};
+
+  if ($::form->{type} eq 'invoice') {
+    $class = $::form->{vc} eq 'customer' ? 'Invoice'
+           : $::form->{vc} eq 'vendor'   ? 'PurchaseInvoice'
+           : do { die 'unknown invoice type' };
+  }
 
   return unless $class;
 
@@ -1976,7 +1990,7 @@ sub _make_record {
     push @items, _make_record_item($i)
   }
 
-  $obj->orderitems(@items);
+  $obj->items(@items) if @items;
 
   return $obj;
 }
