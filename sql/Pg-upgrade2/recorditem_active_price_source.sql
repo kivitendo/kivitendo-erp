@@ -1,6 +1,6 @@
 -- @tag: recorditem_active_price_source
 -- @description: Preisquelle in Belegpositionen
--- @depends: release_2_6_2
+-- @depends: release_3_1_0
 -- @encoding: utf-8
 
 ALTER TABLE orderitems           ADD COLUMN active_price_source TEXT NOT NULL DEFAULT '';
