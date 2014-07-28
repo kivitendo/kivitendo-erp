@@ -29,40 +29,76 @@ __END__
 
 =head1 NAME
 
-SL::PriceSource::Base - <oneliner description>
+SL::PriceSource::Base - this is the base class for price source adapters
 
 =head1 SYNOPSIS
 
-  # in consuming module
-# TODO: thats bullshit, theres no need to have this pollute the namespace
-# make a manager that handles this
+  # working example adapter:
+  package SL::PriceSource::FiveOnEverything;
 
-  my @list_of_price_sources = $record_item->price_sources;
-  for (@list_of_price_sources) {
-    my $internal_name   = $_->name;
-    my $translated_name = $_->description;
-    my $price           = $_->price;
+  use parent qw(SL::PriceSource::Base);
+
+  # used as internal identifier
+  sub name { 'simple' }
+
+  # used in frontend to signal where this comes from
+  sub description { t8('Simple') }
+
+  my $price = SL::PriceSource::Price->new(
+    price        => 5,
+    description  => t8('Only today 5$ on everything!'),
+    price_source => $self,
+  );
+
+  # give list of prices that this
+  sub available_prices {
+    return ($price);
   }
 
-  $record_item->set_active_price_source($price_source)  # equivalent to:
-  $record_item->active_price_source($price_source->name);
-  $record_item->sellprice($price_source->price);
+  sub best_price {
+    return $price;
+  }
 
-  # for finer control
-  $price_source->needed_params
-  $price_source->supported_params
+  sub price_from_source {
+    return $price;
+  }
 
 =head1 DESCRIPTION
 
-PriceSource is an interface that allows generic algorithms to be used, to
-calculate a price for a position in a record.
+See L<SL::PriceSource> for information about the mechanism.
 
-If any such price_source algorithm is known to the system, a user can chose
-which of them should be used to claculate the price displayed in the record.
+This is the base class for a price source algorithm. To play well, you'll have
+to implement a number of interface methods and be aware of a number of corner
+conditions.
 
-The algorithm is saved togetherwith the target price, so that changes in the
-record can recalculate the price accordingly, and otherwise manual changes to
-the price can reset the price_source used to custom (aka no price_source).
+=head1 AVAILABLE METHODS
+
+=over 4
+
+=item C<record_item>
+
+=item C<record>
+
+C<record> can be any one of L<SL::DB::Order>, L<SL::DB::DeliveryOrder>,
+L<SL::DB::Invoice>, L<SL::DB::PurchaseInvoice>. C<record_item> is of the
+corresponding position type.
+
+You can assume that both are filled with all information available at the time.
+C<part> and C<customer>/C<vendor> as well as C<is_sales> can be relied upon. You must NOT
+rely on both being linked together, in particular
+
+  $self->record_item->record   # don't do that
+
+is not guaranteed to work.
+
+Also these are copies and not the original documents. Do not try to change
+anything and do not save those.
+
+=item C<part>
+
+Shortcut to C<< record_item->part >>
+
+=back
 
 =head1 INTERFACE METHODS
 
@@ -70,31 +106,88 @@ the price can reset the price_source used to custom (aka no price_source).
 
 =item C<name>
 
-Should return a unique internal name. Should be entered in
-L<SL::PriceSource::ALL> so that a name_to_class lookup works.
+Must return a unique internal name. Must be entered in
+L<SL::PriceSource::ALL>.
 
 =item C<description>
 
-Should return a translated name.
+Must return a translated name to be used in frontend. Will be used, to
+distinguish the origin of different prices.
 
-=item C<needed_params>
+=item C<available_prices>
 
-Should return a list of elements that a record_item NEEDS to be used with this calulation.
+Must return a list of all prices that you algorithm can recommend the user
+for the current situation. Each price must have a unique spec that can be used
+to recreate it later. Try to be brief, no one needs 20 different price
+suggestions.
 
-Both C<needed_params> nad C<supported_params> are purely informational at this point.
+=item C<best_price>
 
-=item C<supported_params>
+Must return what you think of as the best matching price in your
+C<available_prices>. This does not have to be the lowest price, but it will be
+compared later to other price sources, and the lowest will be set.
 
-Should return a list of elements that a record_item MAY HAVE to be used with this calulation.
+=item C<price_from_source SOURCE, SPEC>
 
-Both C<needed_params> nad C<supported_params> are purely informational at this point.
+Must recreate the price from C<SPEC> and return. For reference, the complete
+C<SOURCE> entry from C<record_item.active_price_source> is included.
 
-=item C<price>
+Note that constraints from the rest of the C<record> do not apply anymore. If
+information needed for the retrieval can be deleted elsewhere, then you must
+guard against that.
 
-Calculate a price and return. Do not mutate the record_item. Should will return
-undef if price is not applicable to the current record_item.
+If the price for the same coditions changed, return the new price. It will be
+presented as an option to the user if the record is still editable.
+
+If the price is not valid anymore or not reconstructable, return a price with
+C<price_source> and C<spec> set to the same values as before but with
+C<invalid> or C<missing> set.
 
 =back
+
+=head1 TRAPS AND CORNER CASES
+
+=over 4
+
+=item *
+
+Be aware that all 8 types of record will be passed to your algorithm. If you
+don't serve some of them, just return emptry lists on C<available_prices> and
+C<best_price>
+
+=item *
+
+Information in C<record> might be missing. Especially on newly or automatically
+created records there might be fields not set at all.
+
+=item *
+
+Records will not be calculated. If you need tax data or position totals, you
+need to invoke that for yourself.
+
+=item *
+
+Accessor methods might not be present in some of the record types.
+
+=item *
+
+You do not need to do price factor and row discount calculation. These will be
+done automatically afterwards. You do have to include customer/vendor discount
+if your price interacts with those.
+
+=item *
+
+The price field in purchase records is still C<sellprice>.
+
+=item *
+
+C<source> and C<spec> are tainted. If you store data directly in C<spec>, sanitize.
+
+=head1 SEE ALSO
+
+L<SL::PriceSource>,
+L<SL::PriceSource::Price>,
+L<SL::PriceSource::ALL>
 
 =head1 BUGS
 

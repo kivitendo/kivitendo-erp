@@ -40,7 +40,6 @@ sub best_price {
 
 sub empty_price {
   SL::PriceSource::Price->new(
-    source      => '',
     description => t8('None (PriceSource)'),
   );
 }
@@ -55,40 +54,98 @@ __END__
 
 SL::PriceSource - mixin for price_sources in record items
 
-=head1 SYNOPSIS
-
-  # in record item class
-
-  use SL::PriceSource;
-
-  # later on:
-
-  $record_item->all_price_sources
-  $record_item->price_source      # get
-  $record_item->price_source($c)  # set
-
-  $record_item->update_price_source # set price to calculated
-
 =head1 DESCRIPTION
 
-This mixin provides a way to use price_source objects from within a record item.
-Record items in this contest mean OrderItems, InvoiceItems and
-DeliveryOrderItems.
+PriceSource is an interface that allows generic algorithms to be plugged
+together to calculate available prices for a position in a record.
 
-=head1 FUNCTIONS
+Each algorithm can access details of the record to realize dependancies on
+part, customer, vendor, date, quantity etc, which was previously not possible.
 
-price_sources
+=head1 BACKGROUND AND PHILOSOPY
 
-returns a list of price_source objects which are created with the current record
-item.
+sql ledger and subsequently Lx-Office had three prices per part: sellprice,
+listprice and lastcost. At the moment a part is loaded into a record, the
+applicable price is copied and after that free to be changed.
 
-active_price_source
+Later on additional things joined. Various types of discount, vendor pricelists
+and the infamous price groups. The problem is not that those didn't work, the
+problem is, that they had to guess to much when to change a price with the
+available price from database, and when to leave the user entered price.
 
-returns the object representing the currently chosen price_source method or
-undef if custom price is chosen. Note that this must not necessarily be the
-active price, if something affecting the price_source has changed, the price
-calculated can differ from the price in the record. It is the responsibility of
-the implementing code to decide what to do in this case.
+Unrelated to that, users asked for more ways to store special prices, based on
+qty (block pricing, bulk discount), based on date (special offers), based on
+customers (special terms), up to full blown calculation modules.
+
+On a third front sales personnel asked for ways to see what price options a
+position in a quotation has, and wanted information available when a price
+offer changed.
+
+Price sources put that together by making some compromises:
+
+=over 4
+
+=item 1.
+
+Only change the price on creation of a position or when asked to.
+
+=item 2.
+
+Either set the price from a price source and let it be read only, or use a free
+price.
+
+=item 3.
+
+Save the origin of each price with the record so that the calculation can be
+reproduced.
+
+=item 4.
+
+Make price calculation flexible and pluggable.
+
+=back
+
+The first point creates user security by never changing a price for them
+without their explicit consent, eliminating all problems originating from
+trying to be smart. The second and third one ensure that later on the
+calculation can be repeated so that invalid prices can be caught (because for
+example the special offer is no longer valid), and so that sales personnel have
+information about rising or falling prices. The fourth point ensures that
+insular calculation processes can be developed independant of the core code.
+
+=head1 INTERFACE METHODS
+
+=over 4
+
+=item C<new PARAMS>
+
+C<PARAMS> must contain both C<record> and C<record_item>. C<record_item> does
+not have to be registered in C<record>.
+
+=item C<price_from_source>
+
+Attempts to retrieve a formerly calculated price with the same conditions
+
+=item C<available_prices>
+
+Returns all available prices.
+
+=item C<best_price>
+
+Attempts to get the best available price. returns L<empty_price> if no price is found.
+
+=item C<empty_price>
+
+A special empty price, that does not change the previously entered price, and
+opens the price field to manual changes.
+
+=back
+
+=head1 SEE ALSO
+
+L<SL::PriceSource::Base>,
+L<SL::PriceSource::Price>,
+L<SL::PriceSource::ALL>
 
 =head1 BUGS
 
