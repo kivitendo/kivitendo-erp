@@ -5,7 +5,6 @@ use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(price description spec price_source invalid missing) ],
-  array => [ qw(depends_on) ]
 );
 
 use SL::DB::Helper::Attr;
