@@ -183,6 +183,8 @@ The price field in purchase records is still C<sellprice>.
 
 C<source> and C<spec> are tainted. If you store data directly in C<spec>, sanitize.
 
+=back
+
 =head1 SEE ALSO
 
 L<SL::PriceSource>,

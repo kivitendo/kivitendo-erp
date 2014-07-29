@@ -59,7 +59,7 @@ SL::PriceSource - mixin for price_sources in record items
 PriceSource is an interface that allows generic algorithms to be plugged
 together to calculate available prices for a position in a record.
 
-Each algorithm can access details of the record to realize dependancies on
+Each algorithm can access details of the record to realize dependencies on
 part, customer, vendor, date, quantity etc, which was previously not possible.
 
 =head1 BACKGROUND AND PHILOSOPY
@@ -111,7 +111,7 @@ trying to be smart. The second and third one ensure that later on the
 calculation can be repeated so that invalid prices can be caught (because for
 example the special offer is no longer valid), and so that sales personnel have
 information about rising or falling prices. The fourth point ensures that
-insular calculation processes can be developed independant of the core code.
+insular calculation processes can be developed independent of the core code.
 
 =head1 INTERFACE METHODS
 

@@ -44,6 +44,7 @@ use List::Util qw(min max first);
 use SL::CVar;
 use SL::Common;
 use SL::CT;
+use SL::Locale::String qw(t8);
 use SL::IC;
 use SL::IO;
 use SL::PriceSource;
@@ -325,8 +326,14 @@ sub display_row {
     if ($form->{"id_${i}"}) {
       my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
       my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
-      $::form->{price_sources}[$i] = $price_source;
-      $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "toggle_price_source($i)");
+      $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "kivi.io.price_chooser($i)");
+      if ($price->source) {
+        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid }) if $price->invalid;
+        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->missing, title => $price->missing }) if $price->missing;
+        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     }) if $price->price > $record_item->sellprice;
+        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    }) if $price->price < $record_item->sellprice;
+        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $price->source ne $price_source->best_price->source;
+      }
     }
 
     if ($is_delivery_order) {
@@ -702,7 +709,8 @@ sub remove_emptied_rows {
                 price_old price_new unit_old ordnumber donumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
-                stock_out stock_in has_sernumber reqdate orderitems_id);
+                stock_out stock_in has_sernumber reqdate orderitems_id
+                active_price_source);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
@@ -1931,8 +1939,6 @@ sub _make_record_item {
     next unless $obj->meta->column($method);
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
-    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-      $obj->${\"$method\_as\_number"}($::form->{$method});
     } else {
       $obj->$method($::form->{"$method\_$row"});
     }
@@ -1978,7 +1984,7 @@ sub _make_record {
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{$method});
     } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-      $obj->${\"$method\_as\_number"}($::form->{$method});
+      $obj->${\"$method\_as_number"}($::form->{$method});
     } else {
       $obj->$method($::form->{$method});
     }
