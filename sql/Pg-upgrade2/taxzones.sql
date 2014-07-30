@@ -1,6 +1,6 @@
 -- @tag: taxzone_charts
 -- @description: Neue Tabelle für Buchungskonten der Steuerzonen 
--- @depends: release_3_0_0
+-- @depends: release_3_1_0
 -- @ignore: 0
 
 CREATE TABLE taxzone_charts (
