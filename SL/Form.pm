@@ -948,24 +948,32 @@ sub parse_amount {
 }
 
 sub round_amount {
-  $main::lxdebug->enter_sub(2);
-
   my ($self, $amount, $places) = @_;
-  my $round_amount;
 
   # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
 
   # Round amounts to eight places before rounding to the requested
   # number of places. This gets rid of errors due to internal floating
   # point representation.
-  $amount       = $self->round_amount($amount, 8) if $places < 8;
-  $amount       = $amount * (10**($places));
-  $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
+  $amount   = $self->round_amount($amount, 8) if $places < 8;
 
-  $main::lxdebug->leave_sub(2);
+  # Remember the amount's sign but calculate in positive values only.
+  my $sign  = $amount <=> 0;
+  $amount   = abs $amount;
 
-  return $round_amount;
+  # Shift the amount left by $places+1 decimal places and truncate it
+  # to integer. Then to the integer equivalent of rounding to the next
+  # multiple of 10: first add half of it (5). Then truncate it back to
+  # the lower multiple of 10 by subtracting $amount modulo 10.
+  my $shift = 10 ** ($places + 1);
+  $amount   = int($amount * $shift) + 5;
+  $amount  -= $amount % 10;
 
+  # Lastly shift the amount back right by $places+1 decimal places and
+  # restore its sign. Then we're done.
+  $amount   = ($amount / $shift) * $sign;
+
+  return $amount;
 }
 
 sub parse_template {
