@@ -70,10 +70,7 @@ sub action_create {
   $order->db->with_transaction(sub {
     $order->save;
 
-    $self->requirement_spec->orders(
-      @{ $self->requirement_spec->orders },
-      SL::DB::RequirementSpecOrder->new(order => $order, version => $self->requirement_spec->version)
-    );
+    $self->requirement_spec->add_orders(SL::DB::RequirementSpecOrder->new(order => $order, version => $self->requirement_spec->version));
     $self->requirement_spec->save;
 
     $self->requirement_spec->link_to_record($order);
@@ -246,11 +243,6 @@ sub init_all_parts_time_unit {
 #
 # helpers
 #
-
-sub load_parts_for_sections {
-  my ($self, %params) = @_;
-
-}
 
 sub create_order_item {
   my ($self, %params) = @_;

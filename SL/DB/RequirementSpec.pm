@@ -43,6 +43,11 @@ __PACKAGE__->meta->add_relationship(
     class          => 'SL::DB::RequirementSpecOrder',
     column_map     => { id => 'requirement_spec_id' },
   },
+  parts            => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecPart',
+    column_map     => { id => 'requirement_spec_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -117,6 +122,14 @@ sub versioned_copies_sorted {
   @copies    = sort { $a->version->version_number <=> $b->version->version_number } @copies;
 
   return \@copies;
+}
+
+sub parts_sorted {
+  my ($self, @rest) = @_;
+
+  croak "This sub is not a writer" if @rest;
+
+  return [ sort { $a->position <=> $b->position } @{ $self->parts } ];
 }
 
 sub create_copy {
@@ -518,6 +531,11 @@ Returns an array reference of text blocks sorted by their positional
 column in ascending order. If the C<output_position> parameter is
 given then only the text blocks belonging to that C<output_position>
 are returned.
+
+=item C<parts_sorted>
+
+Returns an array reference of additional parts sorted by their
+positional column in ascending order.
 
 =item C<validate>
 
