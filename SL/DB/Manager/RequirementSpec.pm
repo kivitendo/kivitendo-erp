@@ -29,4 +29,11 @@ sub working_copy_filter {
   return (working_copy_id => undef);
 }
 
+sub not_empty_filter {
+  my @tables = qw(requirement_spec_items requirement_spec_text_blocks requirement_spec_parts);
+  my @filter = map { \"id IN (SELECT nef_${_}.requirement_spec_id FROM ${_} nef_${_})" } @tables;
+
+  return (or => \@filter);
+}
+
 1;

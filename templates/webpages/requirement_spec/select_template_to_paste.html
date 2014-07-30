@@ -44,6 +44,7 @@
   [% SET front    = template.text_blocks_sorted(output_position=0) %]
   [% SET sections = template.sections_sorted %]
   [% SET back     = template.text_blocks_sorted(output_position=1) %]
+  [% SET parts    = template.parts_sorted %]
   <td colspan="4">
    [%- LxERP.t8("What this template contains") %]:<br>
    <ul>
@@ -60,6 +61,16 @@
     [%- END %]
 
     [% PROCESS text_blocks blocks=back  title=LxERP.t8("#1 text block(s) back",  back.size)  %]
+
+    [%- IF parts.size %]
+    <li>[%- LxERP.t8("#1 additional part(s)", parts.size) %]:
+     <ol>
+      [%- FOREACH part = parts %]
+       <li>[%- HTML.escape(part.part.description) %]: [%- HTML.escape(part.qty_as_number) %] [% HTML.escape(part.unit.name) %]</li>
+      [%- END %]
+     </ol>
+    </li>
+    [%- END %]
    </ul>
   </td>
  </tr>

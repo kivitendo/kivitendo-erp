@@ -171,9 +171,9 @@ sub _copy_from {
   my %paste_template_result;
 
   # Clone text blocks and pictures.
-  my $clone_picture = sub {
-    my ($picture) = @_;
-    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($picture);
+  my $clone_and_reset_position = sub {
+    my ($src_obj) = @_;
+    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($src_obj);
     $cloned->position(undef);
     return $cloned;
   };
@@ -182,7 +182,7 @@ sub _copy_from {
     my ($text_block) = @_;
     my $cloned       = Rose::DB::Object::Helpers::clone_and_reset($text_block);
     $cloned->position(undef);
-    $cloned->pictures([ map { $clone_picture->($_) } @{ $text_block->pictures_sorted } ]);
+    $cloned->pictures([ map { $clone_and_reset_position->($_) } @{ $text_block->pictures_sorted } ]);
     return $cloned;
   };
 
@@ -193,6 +193,11 @@ sub _copy_from {
   } else {
     $self->add_text_blocks($paste_template_result{text_blocks});
   }
+
+  # Clone additional parts.
+  $paste_template_result{parts} = [ map { $clone_and_reset_position->($_) } @{ $source->parts } ];
+  my $accessor                  = $params->{paste_template} ? "add_parts" : "parts";
+  $self->$accessor($paste_template_result{parts});
 
   # Save new object -- we need its ID for the items.
   $self->save;

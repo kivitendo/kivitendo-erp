@@ -17,6 +17,7 @@ $self->{texts} = {
   '#1 (custom variable)'        => '#1 (benutzerdefinierte Variable)',
   '#1 - Account number #2, bank code #3, #4' => '#1 - Kontonummber #2, BLZ #3, #4',
   '#1 MD'                       => '#1 PT',
+  '#1 additional part(s)'       => '#1 zusätzliche(r) Artikel',
   '#1 h'                        => '#1 h',
   '#1 of #2 importable objects were imported.' => '#1 von #2 importierbaren Objekten wurden importiert.',
   '#1 prices were updated.'     => '#1 Preise wurden aktualisiert.',
