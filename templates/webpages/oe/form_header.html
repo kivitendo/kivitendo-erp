@@ -108,7 +108,7 @@
                   <tr>
                     <th align="right">[% 'Steuersatz' | $T8 %]</th>
                     <td>
-                      [% L.select_tag('taxzone_id', ALL_TAXZONES, default=taxzone_id, title_key='description', style='width: 250px') %]
+                      [% L.select_tag('taxzone_id', ( id ? ALL_TAXZONES : ALL_ACTIVE_TAXZONES), default=taxzone_id, title_key='description', style='width: 250px') %]
                     </td>
                   </tr>
 [%- IF ALL_DEPARTMENTS %]

@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('tax_zones');
 __PACKAGE__->meta->columns(
   description => { type => 'text' },
   id          => { type => 'integer', not_null => 1, sequence => 'id' },
+  obsolete    => { type => 'boolean', default => 'false' },
   sortkey     => { type => 'integer', not_null => 1 },
 );
 

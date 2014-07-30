@@ -2145,8 +2145,10 @@ sub _get_taxzones {
   my ($self, $dbh, $key) = @_;
 
   $key = "all_taxzones" unless ($key);
+  my $tzfilter = "";
+  $tzfilter = "WHERE obsolete is FALSE" if $key eq 'ALL_ACTIVE_TAXZONES'; 
 
-  my $query = qq|SELECT * FROM tax_zones ORDER BY sortkey|;
+  my $query = qq|SELECT * FROM tax_zones $tzfilter ORDER BY sortkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 

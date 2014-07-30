@@ -54,7 +54,7 @@ sub show_form {
 sub action_edit {
   my ($self) = @_;
 
-  $self->show_form(title     => t8('Edit custom variable'),
+  $self->show_form(title     => t8('Edit taxzone'),
                    CHARTLIST => SL::DB::TaxzoneChart->get_all_accounts_by_taxzone_id($self->config->id));
 }
 
@@ -115,6 +115,7 @@ sub create_or_update {
   }
 
   $self->config->save;
+  $self->config->obsolete($::form->{"obsolete"});
 
   #Save taxzone_charts for new taxzones:
   if ($is_new) {

@@ -305,7 +305,7 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->get_lists("taxzones"      => "ALL_TAXZONES",
+  $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "customers"     => "ALL_CUSTOMERS",
                    "departments"   => "all_departments",

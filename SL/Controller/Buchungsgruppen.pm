@@ -25,7 +25,7 @@ sub action_list {
   my ($self) = @_;
 
   my $buchungsgruppen = SL::DB::Manager::Buchungsgruppe->get_all_sorted();
-  my $taxzones        = SL::DB::Manager::TaxZone->get_all_sorted();
+  my $taxzones        = SL::DB::Manager::TaxZone->get_all_sorted(query => [ obsolete => 0 ]);
 
   my %chartlist = ();
   foreach my $gruppe (@{ $buchungsgruppen }) {
@@ -59,7 +59,11 @@ sub show_form {
 sub action_edit {
   my ($self) = @_;
 
+  # check whether buchungsgruppe is assigned to any parts
+  my $number_of_parts_with_buchungsgruppe = SL::DB::Manager::Part->get_objects_count(where => [ buchungsgruppen_id => $self->config->id]);
+
   $self->show_form(title     => t8('Edit Buchungsgruppe'),
+                   linked_parts  => $number_of_parts_with_buchungsgruppe,
                    CHARTLIST => SL::DB::TaxzoneChart->get_all_accounts_by_buchungsgruppen_id($self->config->id));
 }
 
@@ -120,8 +124,11 @@ sub create_or_update {
 
   $self->config->save;
 
-  #Save taxzone_charts:
-  if ($is_new) {
+  # check whether there are any assigned parts 
+  my $number_of_parts_with_buchungsgruppe = SL::DB::Manager::Part->get_objects_count(where => [ buchungsgruppen_id => $self->config->id]);
+
+  # Save or update taxzone_charts:
+  if ($is_new or $number_of_parts_with_buchungsgruppe == 0) {
     my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
 
     foreach my $tz (@{ $taxzones }) {

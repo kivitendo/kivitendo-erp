@@ -350,8 +350,7 @@ sub form_header {
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 
-  # project ids
-  $form->get_lists("taxzones"      => "ALL_TAXZONES",
+  $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
                    "departments"   => "ALL_DEPARTMENTS",

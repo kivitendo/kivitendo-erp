@@ -10,7 +10,7 @@
   </tr>
   <tr>
     <th align="right">[% 'Inventory account' | $T8 %]</th>
-    [%- IF SELF.config.id %]
+    [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.config.inventory_accno_id) %]</td>
@@ -19,7 +19,7 @@
 [%- FOREACH tz = TAXZONES %]
   <tr>
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
-    [%- IF SELF.config.id %]
+    [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${tz.id}.income_accno_id) %]</td>
@@ -27,7 +27,7 @@
   </tr>
   <tr>
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
-    [%- IF SELF.config.id %]
+    [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${tz.id}.expense_accno_id) %]</td>
