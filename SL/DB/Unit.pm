@@ -27,8 +27,8 @@ sub unit_class {
 
 sub convertible_units {
   my $self = shift;
-  my $all_units = scalar(@_) && (ref($_[0]) eq 'ARRAY') ? $_[0] : \@_;
-  $all_units    = SL::DB::Manager::Unit->get_all if !@{ $all_units };
+  my $all_units = scalar(@_) && (ref($_[0]) eq 'ARRAY') ? $_[0] : [ @_ ];
+  $all_units    = SL::DB::Manager::Unit->all_units if ! @{ $all_units };
   return [
     sort { $a->sortkey <=> $b->sortkey }
     grep { $_->unit_class->name eq $self->unit_class->name }

@@ -41,4 +41,9 @@ sub convertible_to_filter {
   return ("${prefix}name" => [ map { $_->name } @{ $unit->convertible_units } ]);
 }
 
+sub all_units {
+  my ($class) = @_;
+  $::request->cache('all_units')->{sorted} //= $class->get_all_sorted;
+}
+
 1;
