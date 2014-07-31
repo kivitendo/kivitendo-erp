@@ -61,7 +61,7 @@ sub show_form {
 
   $self->flags({
     map { split m/=/, $_, 2 }
-    split m/;/, ($self->config->flags || '')
+    split m/:/, ($self->config->flags || '')
   });
 
   $self->render('custom_variable_config/form', %params);
