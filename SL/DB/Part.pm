@@ -318,7 +318,7 @@ This function looks up the income (for trueish values of
 C<$params{is_sales}>) or expense (for falsish values of
 C<$params{is_sales}>) account for the current part. It uses the part's
 associated buchungsgruppe and uses the fields belonging to the tax
-zone given by C<$params{taxzone}> (range 0..3).
+zone given by C<$params{taxzone}>.
 
 The information retrieved by the function is cached.
 
@@ -330,8 +330,7 @@ C<$params{type}> and tax zone C<$params{taxzone}>
 the three key words C<income>, C<expense> and C<inventory>.
 
 This function uses the part's associated buchungsgruppe and uses the
-fields belonging to the tax zone given by C<$params{taxzone}> (range
-0..3).
+fields belonging to the tax zone given by C<$params{taxzone}>.
 
 The information retrieved by the function is cached.
 

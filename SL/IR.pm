@@ -46,6 +46,7 @@ use SL::HTML::Restrict;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::DB::TaxZone;
 use List::Util qw(min);
 
 use strict;
@@ -672,6 +673,7 @@ sub post_invoice {
 
   # set values which could be empty
   my $taxzone_id         = $form->{taxzone_id} * 1;
+  $taxzone_id = SL::DB::Manager::TaxZone->get_default->id unless SL::DB::Manager::TaxZone->find_by(id => $taxzone_id);
 
   # Seit neuestem wird die department_id schon übergeben UND $form->department nicht mehr
   # korrekt zusammengebaut. Sehr wahrscheinlich beim Umstieg auf T8 kaputt gegangen
@@ -681,8 +683,6 @@ sub post_invoice {
     $form->{department_id} = (split /--/, $form->{department})[1];
   }
   $form->{invnumber}     = $form->{id} unless $form->{invnumber};
-
-  $taxzone_id = 0 if (3 < $taxzone_id) || (0 > $taxzone_id);
 
   # save AP record
   $query = qq|UPDATE ap SET
@@ -963,9 +963,9 @@ sub retrieve_invoice {
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   my $transdate  = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
-  my $taxzone_id = $form->{taxzone_id} * 1;
 
-  $taxzone_id = 0 if ((3 < $taxzone_id) || (0 > $taxzone_id));
+  my $taxzone_id = $form->{taxzone_id} * 1;
+  $taxzone_id = SL::DB::Manager::TaxZone->get_default->id unless SL::DB::Manager::TaxZone->find_by(id => $taxzone_id);
 
   # retrieve individual items
   $query =
@@ -1219,7 +1219,7 @@ sub retrieve_item {
   }
 
   my $taxzone_id = $form->{taxzone_id} * 1;
-  $taxzone_id    = 0 if ((3 < $taxzone_id) || (0 > $taxzone_id));
+  $taxzone_id = SL::DB::Manager::TaxZone->get_default->id unless SL::DB::Manager::TaxZone->find_by(id => $taxzone_id);
 
   my $query =
     qq|SELECT

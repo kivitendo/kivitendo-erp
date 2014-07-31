@@ -103,26 +103,25 @@ SL::DB::Buchungsgruppe - RDBO wrapper for the C<buchungsgruppen> table
 =item C<expense_accno_id $taxzone>
 
 Return the chart ID for the expense account for the given taxzone
-(either an integer between 0 and 3 inclusively or an instance of
-L<SL::DB::TaxZone>).
+(either the DB id or an instance of L<SL::DB::TaxZone>).
 
 =item C<expense_account>
 
 Return the chart (an instance of L<SL::DB::Chart>) for the expense
-account for the given taxzone (either an integer between 0 and 3
-inclusively or an instance of L<SL::DB::TaxZone>).
+account for the given taxzone (either the DB id or an instance of
+L<SL::DB::TaxZone>).
 
 =item C<income_accno_id>
 
 Return the chart ID for the income account for the given taxzone
-(either an integer between 0 and 3 inclusively or an instance of
+(either the DB id or an instance of L<SL::DB::TaxZone>).
 L<SL::DB::TaxZone>).
 
 =item C<income_account>
 
 Return the chart (an instance of L<SL::DB::Chart>) for the income
-account for the given taxzone (either an integer between 0 and 3
-inclusively or an instance of L<SL::DB::TaxZone>).
+account for the given taxzone (either the DB id or an instance of
+L<SL::DB::TaxZone>).
 
 =back
 

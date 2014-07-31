@@ -51,6 +51,7 @@ use SL::IO;
 use SL::TransNumber;
 use SL::DB::Default;
 use SL::DB::Tax;
+use SL::DB::TaxZone;
 use SL::TransNumber;
 use Data::Dumper;
 
@@ -1638,7 +1639,7 @@ sub retrieve_invoice {
 
 
     my $taxzone_id = $form->{taxzone_id} *= 1;
-    $taxzone_id = 0 if (0 > $taxzone_id) || (3 < $taxzone_id);
+    $taxzone_id = SL::DB::Manager::TaxZone->get_default->id unless SL::DB::Manager::TaxZone->find_by(id => $taxzone_id);
 
     # retrieve individual items
     $query =
