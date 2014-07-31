@@ -1,0 +1,268 @@
+package SL::Controller::PriceRule;
+
+use strict;
+
+use parent qw(SL::Controller::Base);
+
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::ParseFilter;
+use SL::Controller::Helper::ReportGenerator;
+use SL::DB::PriceRule;
+use SL::DB::PriceRuleItem;
+use SL::DB::Pricegroup;
+use SL::DB::PartsGroup;
+use SL::DB::Business;
+use SL::Helper::Flash;
+use SL::ClientJS;
+use SL::Locale::String;
+
+use Rose::Object::MakeMethods::Generic
+(
+ 'scalar --get_set_init' => [ qw(models price_rule vc js pricegroups partsgroups businesses) ],
+);
+
+# __PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('add_javascripts');
+
+#
+# actions
+#
+
+sub action_list {
+  my ($self) = @_;
+
+  $self->make_filter_summary;
+
+  my $price_rules = $self->models->get;
+
+  $self->prepare_report;
+
+  $self->report_generator_list_objects(report => $self->{report}, objects => $price_rules);
+}
+
+sub action_new {
+  my ($self) = @_;
+
+  $self->price_rule(SL::DB::PriceRule->new);
+  $self->price_rule->assign_attributes(%{ $::form->{price_rule} || {} });
+  $self->display_form;
+}
+
+sub action_edit {
+  my ($self) = @_;
+
+  $self->display_form;
+}
+
+sub action_create {
+  my ($self) = @_;
+
+  $self->price_rule($self->price_rule->clone_and_reset_deep);
+  $self->create_or_update;
+}
+
+sub action_update {
+  my ($self) = @_;
+  $self->create_or_update;
+}
+
+ #TODO
+sub action_destroy {
+  my ($self) = @_;
+
+  $self->price_rule->obsolete(1);
+  $self->price_rule->save;
+  flash_later('info',  $::locale->text('The price rule has been obsoleted.'));
+
+  $self->redirect_to(action => 'list');
+}
+
+sub action_add_item_row {
+  my ($self, %params) = @_;
+
+  my $item = SL::DB::PriceRuleItem->new(type => $::form->{type});
+
+  my $html = $self->render('price_rule/item', { output => 0 }, item => $item);
+
+  $self
+    ->js
+    ->before('#price_rule_new_items', $html)
+    ->reinit_widgets
+    ->render($self);
+}
+
+#
+# filters
+#
+
+sub check_auth {
+  $::auth->assert('price_rule_edit');
+}
+
+#
+# helpers
+#
+
+sub display_form {
+  my ($self, %params) = @_;
+  my $is_new  = !$self->price_rule->id;
+  my $title   = $is_new ? t8('Create a new price rule') : t8('Edit price rule');
+  $self->render('price_rule/form',
+    title => $title,
+    %params
+  );
+}
+
+sub create_or_update {
+  my $self   = shift;
+  my $is_new = !$self->price_rule->id;
+  my $params = delete($::form->{price_rule}) || { };
+
+  delete $params->{id};
+  $self->price_rule->assign_attributes(%{ $params });
+
+  my @errors = $self->price_rule->validate;
+
+  if (@errors) {
+    flash('error', @errors);
+    $self->display_form(callback => $::form->{callback});
+    return;
+  }
+
+  $self->price_rule->save;
+
+  flash_later('info', $is_new ? $::locale->text('The price rule has been created.') : $::locale->text('The price rule has been saved.'));
+
+  $self->redirect_to($::form->{callback} || (action => 'list', 'filter.type' => $self->price_rule->type));
+}
+
+sub prepare_report {
+  my ($self)      = @_;
+
+  my $callback    = $self->models->get_callback;
+
+  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $self->{report} = $report;
+
+  my @columns     = qw(name type priority price discount);
+  my @sortable    = qw(name type priority price discount);
+
+  my %column_defs = (
+    name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
+    priority      => { sub  => sub { $_[0]->priority } },
+    price         => { sub  => sub { $_[0]->price_as_number } },
+    discount      => { sub  => sub { $_[0]->discount_as_number } },
+    obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn } },
+  );
+
+  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+
+  if ( $report->{options}{output_format} =~ /^(pdf|csv)$/i ) {
+    $self->models->disable_plugin('paginated');
+  }
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'PriceRule',
+    output_format         => 'HTML',
+    title                 => $::locale->text('Price Rules'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+  $report->set_export_options(qw(list filter));
+  $report->set_options_from_form;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_bottom_info_text  => $self->render('price_rule/report_bottom', { output => 0 }),
+    raw_top_info_text     => $self->render('price_rule/report_top', { output => 0 }),
+  );
+}
+
+sub make_filter_summary {
+  my ($self) = @_;
+
+  my $filter = $::form->{filter} || {};
+  my @filter_strings;
+
+  my @filters = (
+    [ $filter->{"name:substr::ilike"}, t8('Name')  ],
+    [ $filter->{"price:number"},       t8('Price') ],
+    [ $filter->{"discount:number"},    t8('Discount') ],
+  );
+
+  for (@filters) {
+    push @filter_strings, "$_->[1]: $_->[0]" if $_->[0];
+  }
+
+  $self->{filter_summary} = join ', ', @filter_strings;
+}
+
+sub all_price_rule_item_types {
+  SL::DB::Manager::PriceRuleItem->get_all_types($_[0]->price_rule->type);
+}
+
+sub add_javascripts  {
+  $::request->{layout}->add_javascripts(qw(kivi.PriceRule.js autocomplete_customer.js autocomplete_vendor.js));
+}
+
+sub init_price_rule {
+  my ($self) = @_;
+
+  my $price_rule = $::form->{price_rule}{id} ? SL::DB::PriceRule->new(id => $::form->{price_rule}{id})->load : SL::DB::PriceRule->new;
+
+  my $items = delete $::form->{price_rule}{items};
+
+  $price_rule->assign_attributes(%{ $::form->{price_rule} || {} });
+
+  my %old_items = map { $_->id => $_ } $price_rule->items;
+
+  my @items;
+  for my $raw_item (@$items) {
+    my $item = $raw_item->{id} ? $old_items{ $raw_item->{id} } || SL::DB::PriceRuleItem->new(id => $raw_item->{id})->load : SL::DB::PriceRuleItem->new;
+    $item->assign_attributes(%$raw_item);
+    push @items, $item;
+  }
+
+  $price_rule->items(@items) if @items;
+
+  $self->price_rule($price_rule);
+}
+
+sub init_vc {
+  $::form->{filter}{type};
+}
+
+sub init_js {
+  SL::ClientJS->new;
+}
+
+sub init_businesses {
+  SL::DB::Manager::Business->get_all;
+}
+
+sub init_pricegroups {
+  SL::DB::Manager::Pricegroup->get_all;
+}
+
+sub init_partsgroups {
+  SL::DB::Manager::PartsGroup->get_all;
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    sorted => {
+      name     => t8('Name'),
+      type     => t8('Type'),
+      priority => t8('Priority'),
+      price    => t8('Price'),
+      discount => t8('Discount'),
+      obsolete => t8('Obsolete'),
+    },
+  );
+}
+
+1;

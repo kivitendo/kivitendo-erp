@@ -7,6 +7,7 @@ use SL::PriceSource::Makemodel;
 use SL::PriceSource::Customer;
 use SL::PriceSource::Vendor;
 use SL::PriceSource::Business;
+use SL::PriceSource::PriceRules;
 
 my %price_sources_by_name = (
   master_data => 'SL::PriceSource::MasterData',
@@ -15,6 +16,7 @@ my %price_sources_by_name = (
   pricegroup  => 'SL::PriceSource::Pricegroup',
   makemodel   => 'SL::PriceSource::Makemodel',
   business    => 'SL::PriceSource::Business',
+  price_rules => 'SL::PriceSource::PriceRules',
 );
 
 my @price_sources_order = qw(
@@ -24,6 +26,7 @@ my @price_sources_order = qw(
   pricegroup
   makemodel
   business
+  price_rules
 );
 
 sub all_enabled_price_sources {

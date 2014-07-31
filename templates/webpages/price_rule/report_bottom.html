@@ -1,0 +1,6 @@
+[% USE L %]
+[% USE T8 %]
+[% USE HTML %]
+[%- L.paginate_controls(models=SELF.models) %]
+
+<a href="[% SELF.url_for(action='new', 'price_rule.type'=SELF.vc, callback=SELF.models.get_callback) | html %]">[% 'New Price Rule' | $T8 %]</a>

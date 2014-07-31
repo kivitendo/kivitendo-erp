@@ -183,6 +183,10 @@ sub number {
   return $self->${ \ $number_method{$self->type} }(@_);
 }
 
+sub customervendor {
+  $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
+}
+
 sub date {
   goto &transdate;
 }

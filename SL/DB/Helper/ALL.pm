@@ -68,6 +68,8 @@ use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PriceFactor;
 use SL::DB::Pricegroup;
 use SL::DB::Price;
+use SL::DB::PriceRule;
+use SL::DB::PriceRuleItem;
 use SL::DB::Printer;
 use SL::DB::Project;
 use SL::DB::ProjectParticipant;
