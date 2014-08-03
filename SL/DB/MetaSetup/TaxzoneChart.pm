@@ -36,9 +36,12 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Chart',
     key_columns => { income_accno_id => 'id' },
   },
-);
 
-# __PACKAGE__->meta->initialize;
+  taxzone => {
+    class       => 'SL::DB::TaxZone',
+    key_columns => { taxzone_id => 'id' },
+  },
+);
 
 1;
 ;

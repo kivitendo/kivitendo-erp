@@ -97,6 +97,11 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { storno_id => 'id' },
   },
 
+  taxzone => {
+    class       => 'SL::DB::TaxZone',
+    key_columns => { taxzone_id => 'id' },
+  },
+
   vendor => {
     class       => 'SL::DB::Vendor',
     key_columns => { vendor_id => 'id' },

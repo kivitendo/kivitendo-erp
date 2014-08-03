@@ -128,6 +128,11 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Invoice',
     key_columns => { storno_id => 'id' },
   },
+
+  taxzone => {
+    class       => 'SL::DB::TaxZone',
+    key_columns => { taxzone_id => 'id' },
+  },
 );
 
 1;
