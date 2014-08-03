@@ -9,13 +9,15 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::DB::TaxzoneChart;
 use SL::Controller::ClientConfig;
+use SL::DB::Default;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
+  'scalar --get_set_init' => [ qw(defaults) ],
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_config', only => [ qw(edit update) ]); #destroy
+__PACKAGE__->run_before('load_config', only => [ qw(edit update delete) ]);
 
 #
 # actions
@@ -59,7 +61,10 @@ sub show_form {
 sub action_edit {
   my ($self) = @_;
 
-  # check whether buchungsgruppe is assigned to any parts
+  # Allow editing of Buchungsgruppe if it isn't assigned to any parts. The
+  # variable is checked in the template, which toggles between L.select_tag and
+  # text.
+
   my $number_of_parts_with_buchungsgruppe = SL::DB::Manager::Part->get_objects_count(where => [ buchungsgruppen_id => $self->config->id]);
 
   $self->show_form(title     => t8('Edit Buchungsgruppe'),
@@ -77,6 +82,24 @@ sub action_create {
 sub action_update {
   my ($self) = @_;
   $self->create_or_update;
+}
+
+sub action_delete {
+  my ($self) = @_;
+
+  # allow deletion of unused Buchungsgruppen. Will fail, due to database
+  # constraint, if Buchungsgruppe is connected to a part
+
+  my $db = $self->{config}->db;
+  $db->do_transaction(sub {    
+        my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->config->id ]);
+        foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
+        $self->config->delete();
+        flash_later('info',  $::locale->text('The buchungsgruppe has been deleted.'));
+  }) || flash_later('error', $::locale->text('The buchungsgruppe is in use and cannot be deleted.'));
+
+  $self->redirect_to(action => 'list');
+
 }
 
 sub action_reorder {
@@ -144,5 +167,11 @@ sub create_or_update {
   flash_later('info', $is_new ? t8('The Buchungsgruppe has been created.') : t8('The Buchungsgruppe has been saved.'));
   $self->redirect_to(action => 'list');
 }
+
+#
+# initializers
+#
+
+sub init_defaults        { SL::DB::Default->get }
 
 1;

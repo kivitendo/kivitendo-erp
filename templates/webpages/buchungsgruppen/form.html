@@ -1,4 +1,6 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+
+<h1>[% HTML.escape(title) %]</h1>
 
 <form action="controller.pl" method="post">
 [%- L.hidden_tag("id", SELF.config.id) %]
@@ -12,6 +14,8 @@
     <th align="right">[% 'Inventory account' | $T8 %]</th>
     [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
+    [%- ELSIF NOT SELF.config.id AND linked_parts != 0 %]
+    <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.defaults.inventory_accno_id) %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.config.inventory_accno_id) %]</td>
     [%- END %]
@@ -21,6 +25,8 @@
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
     [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
+    [%- ELSIF NOT SELF.config.id AND linked_parts != 0 %]
+    <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=SELF.defaults.income_accno_id) %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${tz.id}.income_accno_id) %]</td>
     [%- END %]
@@ -29,6 +35,8 @@
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
     [%- IF SELF.config.id AND linked_parts != 0 %]
     <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
+    [%- ELSIF NOT SELF.config.id AND linked_parts != 0 %]
+    <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=SELF.defaults.expense_accno_id) %]</td>
     [%- ELSE %]
     <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${tz.id}.expense_accno_id) %]</td>
     [%- END %]
@@ -39,7 +47,9 @@
  <p>
   [% L.hidden_tag("action", "Buchungsgruppen/dispatch") %]
   [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
-  <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
+  [%- IF SELF.config.id AND linked_parts == 0 %]
+    [% L.submit_tag("action_delete", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
+  [%- END %]
  </p>
 
  <hr>

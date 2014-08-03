@@ -8,7 +8,7 @@
    <tr class="listheading">
     <th align="center" width="1%"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
     <th width="20%">[% 'Description' | $T8 %]</th>
-    <th width="20%">[% 'Inventory' | $T8 %]</th>
+    <th width="20%">[% 'Inventory account' | $T8 %]</th>
      [%- FOREACH tz = TAXZONES %]
         <th width="20%">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
         <th width="20%">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
