@@ -15,6 +15,7 @@ use SL::Controller::ClientConfig;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
+  'scalar --get_set_init' => [ qw(defaults) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -135,5 +136,11 @@ sub create_or_update {
   flash_later('info', $is_new ? t8('The taxzone has been created.') : t8('The taxzone has been saved.'));
   $self->redirect_to(action => 'list');
 }
+
+#
+# initializers
+#
+
+sub init_defaults { SL::DB::Default->get };
 
 1;

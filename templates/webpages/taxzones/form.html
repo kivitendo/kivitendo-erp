@@ -14,7 +14,7 @@
     [%- IF SELF.config.id %]
     <td>[% CHARTLIST.${bg.id}.income_accno %] -- [% CHARTLIST.${bg.id}.income_accno_description %]</td>
     [%- ELSE %]
-    <td>[%- L.select_tag('income_accno_id_' _ bg.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${bg.id}.income_accno_id) %]</td>
+    <td>[%- L.select_tag('income_accno_id_' _ bg.id, ACCOUNTS.ic_income, title_sub=\account_label, default=SELF.defaults.income_accno_id) %]</td>
     [%- END %]
   </tr>
   <tr>
@@ -22,7 +22,7 @@
     [%- IF SELF.config.id %]
     <td>[% CHARTLIST.${bg.id}.expense_accno %] -- [% CHARTLIST.${bg.id}.expense_accno_description %]</td>
     [%- ELSE %]
-    <td>[%- L.select_tag('expense_accno_id_' _ bg.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${bg.id}.expense_accno_id) %]</td>
+    <td>[%- L.select_tag('expense_accno_id_' _ bg.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=SELF.defaults.expense_accno_id) %]</td>
     [%- END %]
   </tr>
 [%- END %]
