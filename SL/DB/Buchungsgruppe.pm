@@ -25,18 +25,6 @@ sub validate {
   return @errors;
 }
 
-sub inventory_accno {
-  my ($self) = @_;
-  require SL::DB::Manager::Chart;
-  return SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id) ? SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id)->accno() : undef;
-}
-
-sub inventory_accno_description {
-  my ($self) = @_;
-  require SL::DB::Manager::Chart;
-  return SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id) ? SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id)->description() : undef;
-}
-
 sub income_accno_id {
   my ($self, $taxzone) = @_;
 

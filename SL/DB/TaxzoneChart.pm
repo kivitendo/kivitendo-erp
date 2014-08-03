@@ -22,9 +22,9 @@ sub get_all_accounts_by_buchungsgruppen_id {
 
   my %list = ();
 
-  #inventory_accno der Buchungsgruppe:
-  $list{inventory_accno} = SL::DB::Manager::Buchungsgruppe->find_by(id => $buchungsgruppen_id)->inventory_accno;
-  $list{inventory_accno_description} = SL::DB::Manager::Buchungsgruppe->find_by(id => $buchungsgruppen_id)->inventory_accno_description;
+  # inventory_accno and description of the Buchungsgruppe:
+  $list{inventory_accno}             = SL::DB::Manager::Buchungsgruppe->find_by(id => $buchungsgruppen_id)->inventory_account->accno;
+  $list{inventory_accno_description} = SL::DB::Manager::Buchungsgruppe->find_by(id => $buchungsgruppen_id)->inventory_account->description;
 
   foreach my $taxzonechart (@{ $all_taxzonecharts }) {
     $list{ $taxzonechart->taxzone_id }{taxzone_chart_id}          = $taxzonechart->id;
