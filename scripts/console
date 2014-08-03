@@ -160,8 +160,9 @@ Spezielle Kommandos:
   quit                - beendet die Konsole
 
   part                - shortcuts auf die jeweilige SL::DB::{...}::find_by
-  customer, vendor
-  order, invoice
+  customer, vendor,
+  order, invoice,
+  chart
 
 EOL
 #  load   'module'     - läd das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
@@ -236,6 +237,10 @@ sub vendor {
   SL::DB::Manager::Vendor->find_by(@_)
 }
 
+sub chart {
+  require SL::DB::Chart;
+  SL::DB::Manager::Chart->find_by(@_)
+}
 
 1;
 
