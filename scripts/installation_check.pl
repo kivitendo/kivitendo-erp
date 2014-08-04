@@ -50,6 +50,7 @@ GetOptions(
   "h|help"      => sub { pod2usage(-verbose => 2) },
   "c|color!"    => \ ( my $c = 1 ),
   "i|install-command!"  => \ my $apt,
+  "s|silent"    => \ $check{s},
 );
 
 my %install_methods = (
@@ -104,7 +105,7 @@ my $fail = @missing_modules;
 print_header('Result');
 print_line('All', $fail ? 'NOT ok' : 'OK', $fail ? 'red' : 'green');
 
-if ($default_run) {
+if ($default_run && !$check{s}) {
   if (@missing_modules) {
     $apt = 1;
   print <<"EOL";
@@ -122,7 +123,7 @@ EOL
   }
 }
 
-if (@missing_modules && $apt) {
+if (@missing_modules && $apt && !$check{s}) {
   print "\nHere are some sample installation lines, choose one appropriate for your system:\n\n";
   local $Text::Wrap::separator = " \\\n";
 
@@ -135,6 +136,8 @@ if (@missing_modules && $apt) {
     }
   }
 }
+
+exit !!@missing_modules;
 
 sub check_latex {
   my ($res) = check_kpsewhich();
@@ -158,7 +161,7 @@ our $mastertemplate_path = './templates/print/';
 sub check_kpsewhich {
   return 1 if SL::InstallationCheck::check_kpsewhich();
 
-  print STDERR <<EOL if $v;
+  print STDERR <<EOL if $v && !$check{s};
 +------------------------------------------------------------------------------+
   Can't find kpsewhich, is there a proper installed LaTeX?
   On Debian you may run "aptitude install texlive-base-bin"
@@ -182,7 +185,7 @@ sub kpsewhich {
 
   print_result("Looking for LaTeX $type_desc $package", $res);
   if (!$res) {
-    print STDERR <<EOL if $v;
+    print STDERR <<EOL if $v && !$check{s};
 +------------------------------------------------------------------------------+
   LaTeX $type_desc $package could not be loaded.
 
@@ -222,7 +225,7 @@ sub check_module {
 
   my @source_texts = module_source_texts($module);
   local $" = $/;
-  print STDERR <<EOL if $v;
+  print STDERR <<EOL if $v && !$check{s};
 +------------------------------------------------------------------------------+
   $module->{fullname} could not be loaded.
 
@@ -270,10 +273,12 @@ sub print_result {
 
 sub print_line {
   my ($text, $res, $color) = @_;
+  return if $check{s};
   print $text, " ", ('.' x (78 - length($text) - length($res))), " ", mycolor($res, $color), $/;
 }
 
 sub print_header {
+  return if $check{s};
   print $/;
   print "$_[0]:", $/;
 }
