@@ -258,7 +258,7 @@ sub check_type {
   my ($self, $entry) = @_;
 
   my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
-  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1, income_accno_id_0 => 1, expense_accno_id_0 => 1);
+  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
 
   my $type = $self->settings->{parts_type};
   if ($type eq 'mixed') {
@@ -270,16 +270,20 @@ sub check_type {
 
   $entry->{object}->assembly($type eq 'assembly');
 
-  $entry->{object}->income_accno_id( $bg->income_accno_id_0 );
+  # when saving income_accno_id or expense_accno_id use ids from the selected
+  # $bg according to the default tax_zone (the one with the highest sort
+  # order).  Alternatively one could use the ids from defaults, but they might
+  # not all be set.
+
+  $entry->{object}->income_accno_id( $bg->income_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
 
   if ($type eq 'part' || $type eq 'service') {
-    $entry->{object}->expense_accno_id( $bg->expense_accno_id_0 );
+    $entry->{object}->expense_accno_id( $bg->expense_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
   }
 
   if ($type eq 'part') {
     $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
   }
-
 
   if (none { $_ eq $type } qw(part service assembly)) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid part type');
