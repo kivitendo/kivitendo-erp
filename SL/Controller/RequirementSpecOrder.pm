@@ -66,7 +66,7 @@ sub action_create {
   $sections_by_id{ $_->{id} }->update_attributes(order_part_id => $_->{order_part_id}) for @{ $section_attrs };
 
   # 2. Create actual quotation/order.
-  my $order = $self->create_order(sections => $sections);
+  my $order = $self->create_order(sections => $sections, additional_parts => [ $self->requirement_spec->parts ]);
   $order->db->with_transaction(sub {
     $order->save;
 
@@ -280,20 +280,50 @@ sub create_order_item {
   return $item;
 }
 
+sub create_additional_part_order_item {
+  my ($self, %params) = @_;
+
+  my $add_part        = $params{additional_part};
+  my $item            = $params{item} || SL::DB::OrderItem->new;
+  my $part            = $self->parts->{ $add_part->part_id };
+  my $translation     = $params{language_id} ? first { $params{language_id} == $_->language_id } @{ $part->translations } : {};
+  my $description     = $item->description              || $add_part->description;
+  my $longdescription = $translation->{longdescription} || $part->notes;
+
+  $item->assign_attributes(
+    parts_id        => $part->id,
+    description     => $description,
+    longdescription => $longdescription,
+    qty             => $add_part->qty,
+    unit            => $add_part->unit->name,
+    sellprice       => $add_part->unit->convert_to($part->sellprice, $part->unit_obj),
+    lastcost        => $part->lastcost,
+    discount        => 0,
+    project_id      => $self->requirement_spec->project_id,
+  );
+
+  return $item;
+}
+
 sub create_order {
   my ($self, %params) = @_;
 
-  $self->{parts} = { map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->{order_part_id} } @{ $params{sections} } ] ]) } };
+  my @part_ids = (
+    map({ $_->{order_part_id} } @{ $params{sections} }),
+    map({ $_->part_id         } @{ $params{additional_parts} }),
+  );
+  $self->{parts} = { map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq @part_ids ] ]) } };
 
   my $customer   = SL::DB::Customer->new(id => $::form->{customer_id})->load;
-  my @orderitems = map { $self->create_order_item(section => $_, language_id => $customer->language_id) } @{ $params{sections} };
+  my @orderitems = map { $self->create_order_item(                section => $_,         language_id => $customer->language_id) } @{ $params{sections} };
+  my @add_items  = map { $self->create_additional_part_order_item(additional_part => $_, language_id => $customer->language_id) } @{ $params{additional_parts} };
   my $employee   = SL::DB::Manager::Employee->current;
   my $order      = SL::DB::Order->new(
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
     reqdate                 => $::form->{quotation} && $customer->payment_id ? $customer->payment->calc_date : undef,
     quotation               => !!$::form->{quotation},
-    orderitems              => \@orderitems,
+    orderitems              => [ @orderitems, @add_items ],
     customer_id             => $customer->id,
     taxincluded             => $customer->taxincluded,
     intnotes                => $customer->notes,
