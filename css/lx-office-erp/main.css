@@ -506,3 +506,8 @@ a.cti_call_action {
   background-image: url(../../image/icons/16x16/phone.png);
   background-repeat: no-repeat;
 }
+
+/* the cvars table in the 2. row */
+.row2-cvars-table tr {vertical-align: top;}
+.row2-cvars-table th {text-align: right; padding-left: 15px; padding-right: 0;}
+.row2-cvars-table td, .row2-cvars-table th {padding-top: 10px;}
