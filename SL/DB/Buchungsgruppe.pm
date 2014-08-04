@@ -72,6 +72,15 @@ sub taxzonecharts {
   my ($self) = @_;
   return SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->id ]);
 }
+ 
+sub orphaned {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+
+  require SL::DB::Part;
+  return 0 if SL::DB::Manager::Part->get_all_count(query => [ buchungsgruppen_id => $self->id ]);
+  return 1;
+}
 
 1;
 __END__
@@ -110,6 +119,10 @@ L<SL::DB::TaxZone>).
 Return the chart (an instance of L<SL::DB::Chart>) for the income
 account for the given taxzone (either the DB id or an instance of
 L<SL::DB::TaxZone>).
+
+=item C<orphaned>
+
+Checks whether this Buchungsgruppe is assigned to any parts.
 
 =back
 

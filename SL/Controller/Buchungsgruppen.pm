@@ -61,14 +61,12 @@ sub show_form {
 sub action_edit {
   my ($self) = @_;
 
-  # Allow editing of Buchungsgruppe if it isn't assigned to any parts. The
-  # variable is checked in the template, which toggles between L.select_tag and
-  # text.
-
-  my $number_of_parts_with_buchungsgruppe = SL::DB::Manager::Part->get_objects_count(where => [ buchungsgruppen_id => $self->config->id]);
+  # Allow editing of the charts of the Buchungsgruppe if it isn't assigned to
+  # any parts. This is checked inside the template via the Buchungsgruppen
+  # orphaned method, where an IF-ELSE statement toggles between L.select_tag
+  # and text.
 
   $self->show_form(title     => t8('Edit Buchungsgruppe'),
-                   linked_parts  => $number_of_parts_with_buchungsgruppe,
                    CHARTLIST => SL::DB::TaxzoneChart->get_all_accounts_by_buchungsgruppen_id($self->config->id));
 }
 
@@ -147,11 +145,8 @@ sub create_or_update {
 
   $self->config->save;
 
-  # check whether there are any assigned parts 
-  my $number_of_parts_with_buchungsgruppe = SL::DB::Manager::Part->get_objects_count(where => [ buchungsgruppen_id => $self->config->id]);
-
-  # Save or update taxzone_charts:
-  if ($is_new or $number_of_parts_with_buchungsgruppe == 0) {
+  # Save or update taxzone_charts for new or unused Buchungsgruppen
+  if ($is_new or $self->config->orphaned) {
     my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
 
     foreach my $tz (@{ $taxzones }) {
