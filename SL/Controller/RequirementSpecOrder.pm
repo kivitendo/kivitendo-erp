@@ -66,7 +66,7 @@ sub action_create {
   $sections_by_id{ $_->{id} }->update_attributes(order_part_id => $_->{order_part_id}) for @{ $section_attrs };
 
   # 2. Create actual quotation/order.
-  my $order = $self->create_order(sections => $sections, additional_parts => [ $self->requirement_spec->parts ]);
+  my $order = $self->create_order(sections => $sections, additional_parts => $self->requirement_spec->parts_sorted);
   $order->db->with_transaction(sub {
     $order->save;
 
@@ -120,31 +120,13 @@ sub action_update {
 }
 
 sub action_do_update {
-  my ($self)           = @_;
+  my ($self)         = @_;
 
-  my $order            = $self->rs_order->order;
-  my $sections         = $self->requirement_spec->sections_sorted;
-  my %orderitems_by_id = map { ($_->id => $_) } @{ $order->orderitems };
-  my %sections_by_id   = map { ($_->id => $_) } @{ $sections };
-  $self->{parts}       = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->order_part_id } @{ $sections } ] ]) } };
-  my $language_id      = $self->requirement_spec->customer->language_id;
+  my $order          = $self->rs_order->order;
+  my @new_orderitems =  $self->do_update_sections;
+  push @new_orderitems, $self->do_update_additional_parts;
 
-  my %sections_seen;
-
-  foreach my $attributes (@{ $::form->{orderitems} || [] }) {
-    my $orderitem = $orderitems_by_id{ $attributes->{id}         };
-    my $section   = $sections_by_id{   $attributes->{section_id} };
-    next unless $orderitem && $section;
-
-    $self->create_order_item(section => $section, item => $orderitem, language_id => $language_id)->save;
-    $sections_seen{ $section->id } = 1;
-  }
-
-  my @new_orderitems = map  { $self->create_order_item(section => $_, language_id => $language_id) }
-                       grep { !$sections_seen{ $_->id } }
-                       @{ $sections };
-
-  $order->orderitems([ @{ $order->orderitems }, @new_orderitems ]) if @new_orderitems;
+  $order->add_orderitems(\@new_orderitems) if @new_orderitems;
 
   $order->calculate_prices_and_taxes;
 
@@ -243,6 +225,61 @@ sub init_all_parts_time_unit {
 #
 # helpers
 #
+
+sub do_update_sections {
+  my ($self)           = @_;
+
+  my $order            = $self->rs_order->order;
+  my $sections         = $self->requirement_spec->sections_sorted;
+  my %orderitems_by_id = map { ($_->id => $_) } @{ $order->orderitems };
+  my %sections_by_id   = map { ($_->id => $_) } @{ $sections };
+  $self->{parts}       = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->order_part_id } @{ $sections } ] ]) } };
+  my $language_id      = $self->requirement_spec->customer->language_id;
+
+  my %sections_seen;
+
+  foreach my $attributes (@{ $::form->{orderitems} || [] }) {
+    my $orderitem = $orderitems_by_id{ $attributes->{id}         };
+    my $section   = $sections_by_id{   $attributes->{section_id} };
+    next unless $orderitem && $section;
+
+    $self->create_order_item(section => $section, item => $orderitem, language_id => $language_id)->save;
+    $sections_seen{ $section->id } = 1;
+  }
+
+  my @new_orderitems = map  { $self->create_order_item(section => $_, language_id => $language_id) }
+                       grep { !$sections_seen{ $_->id } }
+                       @{ $sections };
+
+  return @new_orderitems;
+}
+
+sub do_update_additional_parts {
+  my ($self)        = @_;
+
+  my $order         = $self->rs_order->order;
+  my $add_parts     = $self->requirement_spec->parts_sorted;
+  my %orderitems_by = map { (($_->parts_id . '-' . $_->description) => $_) } @{ $order->items };
+  $self->{parts}    = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->part_id } @{ $add_parts } ] ]) } };
+  my $language_id   = $self->requirement_spec->customer->language_id;
+
+  my %add_part_seen;
+  my @new_orderitems;
+
+  foreach my $add_part (@{ $add_parts }) {
+    my $key       = $add_part->part_id . '-' . $add_part->description;
+    my $orderitem = $orderitems_by{$key};
+
+    if ($orderitem) {
+      $self->create_additional_part_order_item(additional_part => $add_part, item => $orderitem, language_id => $language_id)->save;
+
+    } else {
+      push @new_orderitems, $self->create_additional_part_order_item(additional_part => $add_part, language_id => $language_id);
+    }
+  }
+
+  return @new_orderitems;
+}
 
 sub create_order_item {
   my ($self, %params) = @_;
