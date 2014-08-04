@@ -18,7 +18,7 @@ use SL::DB::Invoice;
 use SL::DB::Part;
 use SL::DB::Unit;
 
-my ($customer, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7);
+my ($customer, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
 
 sub reset_state {
   my %params = @_;
@@ -35,6 +35,7 @@ sub reset_state {
   $employee        = SL::DB::Manager::Employee->current                                                                    || croak "No employee";
   $tax             = SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, %{ $params{tax} })                           || croak "No tax";
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                                              || croak "No tax for 7\%";
+  $taxzone         = SL::DB::Manager::TaxZone->find_by( description => 'Inland')                                           || croak "No taxzone";
 
   $currency_id     = $::instance_conf->get_currency_id;
 
@@ -75,7 +76,7 @@ sub new_invoice {
     employee_id => $employee->id,
     salesman_id => $employee->id,
     gldate      => DateTime->today_local->to_kivitendo,
-    taxzone_id  => 0,
+    taxzone_id  => $taxzone->id,
     transdate   => DateTime->today_local->to_kivitendo,
     invoice     => 1,
     type        => 'invoice',
