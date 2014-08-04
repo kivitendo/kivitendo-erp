@@ -19,6 +19,7 @@
     <th width="20%">[% 'Includeable in reports' | $T8 %]</th>
     [%- IF SELF.module == 'IC' %]
      <th width="20%">[% 'Editable' | $T8 %]</th>
+     <th width="20%">[% 'Deactivate by default' | $T8 %]</th>
     [%- END %]
    </tr>
   </thead>
@@ -39,6 +40,7 @@
 
      [%- IF SELF.module == 'IC' %]
       <td>[%- IF cfg.flags.match('editable=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
+      <td>[%- IF cfg.flags.match('defaults_to_invalid=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
      [%- END %]
     </tr>
     [%- END %]

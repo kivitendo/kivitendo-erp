@@ -132,6 +132,8 @@ sub get_custom_variables {
       $act_var = $h_var->fetchrow_hashref();
 
       $valid = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id});
+    } else {
+      $valid = !$cvar->{flag_defaults_to_invalid};
     }
 
     if ($act_var) {
@@ -145,7 +147,7 @@ sub get_custom_variables {
                      :                                $act_var->{text_value};
       $cvar->{valid} = $valid;
     } else {
-      $cvar->{valid}  =  1;
+      $cvar->{valid} = $valid // 1;
 
       if ($cvar->{type} eq 'date') {
         if ($cvar->{default_value} eq 'NOW') {
