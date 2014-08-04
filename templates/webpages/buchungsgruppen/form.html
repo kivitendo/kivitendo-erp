@@ -12,33 +12,33 @@
   </tr>
   <tr>
     <th align="right">[% 'Inventory account' | $T8 %]</th>
-    [%- IF SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
-    [%- ELSIF NOT SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.defaults.inventory_accno_id) %]</td>
+    [%- IF NOT SELF.config.id %]
+      <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.defaults.inventory_accno_id) %]</td>
+    [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
+      <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.config.inventory_accno_id) %]</td>
     [%- ELSE %]
-    <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.config.inventory_accno_id) %]</td>
+      <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
     [%- END %]
   </tr>
 [%- FOREACH tz = TAXZONES %]
   <tr>
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
-    [%- IF SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
-    [%- ELSIF NOT SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=SELF.defaults.income_accno_id) %]</td>
+    [%- IF NOT SELF.config.id %]
+      <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=SELF.defaults.income_accno_id) %]</td>
+    [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
+      <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${tz.id}.income_accno_id) %]</td>
     [%- ELSE %]
-    <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${tz.id}.income_accno_id) %]</td>
+      <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
     [%- END %]
   </tr>
   <tr>
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
-    [%- IF SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
-    [%- ELSIF NOT SELF.config.id AND NOT SELF.config.orphaned %]
-    <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=SELF.defaults.expense_accno_id) %]</td>
+    [%- IF NOT SELF.config.id %]
+      <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=SELF.defaults.expense_accno_id) %]</td>
+    [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
+      <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${tz.id}.expense_accno_id) %]</td>
     [%- ELSE %]
-    <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${tz.id}.expense_accno_id) %]</td>
+      <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
     [%- END %]
   </tr>
 [%- END %]
