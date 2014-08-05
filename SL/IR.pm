@@ -382,13 +382,15 @@ sub post_invoice {
       qq|INSERT INTO invoice (id, trans_id, parts_id, description, longdescription, qty, base_qty,
                               sellprice, fxsellprice, discount, allocated, unit, deliverydate,
                               project_id, serialnumber, price_factor_id, price_factor, marge_price_factor)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?, ?)|;
     @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $form->{"discount_$i"}, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
-               conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}));
+               conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
+               conv_i($form->{"active_price_source_$i"}),
+               );
     do_query($form, $dbh, $query, @values);
 
     CVar->save_custom_variables(module       => 'IC',
@@ -976,7 +978,7 @@ sub retrieve_invoice {
 
         i.id AS invoice_id,
         i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
-        i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount,
+        i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount, i.active_price_source,
         p.partnumber, p.inventory_accno_id AS part_inventory_accno_id,  pr.projectnumber, pg.partsgroup
 
         FROM invoice i

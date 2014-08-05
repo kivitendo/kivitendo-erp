@@ -761,9 +761,9 @@ sub post_invoice {
                                 sellprice, fxsellprice, discount, allocated, assemblyitem,
                                 unit, deliverydate, project_id, serialnumber, pricegroup_id,
                                 ordnumber, donumber, transdate, cusordnumber, base_qty, subtotal,
-                                marge_percent, marge_total, lastcost,
+                                marge_percent, marge_total, lastcost, active_price_source,
                                 price_factor_id, price_factor, marge_price_factor)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
 
       @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
@@ -776,6 +776,7 @@ sub post_invoice {
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"},
+                 $form->{"active_price_source_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}));
       do_query($form, $dbh, $query, @values);
@@ -1677,7 +1678,7 @@ sub retrieve_invoice {
            i.id AS invoice_id,
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
            i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
-           i.price_factor_id, i.price_factor, i.marge_price_factor,
+           i.price_factor_id, i.price_factor, i.marge_price_factor, i.active_price_source,
            p.partnumber, p.assembly, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel, p.listprice,
            pr.projectnumber, pg.partsgroup, prg.pricegroup
 
