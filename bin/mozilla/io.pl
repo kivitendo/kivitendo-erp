@@ -1876,7 +1876,7 @@ sub _render_custom_variables_inputs {
     my $form_key = "ic_cvar_" . $cvar->{name} . "_$params{row}";
 
     push @{ $params{ROW2} }, {
-      line_break     => $show && !(($num_visible_cvars - 1) % 3),
+      line_break     => $show && !(($num_visible_cvars - 1) % ($::myconfig{form_cvars_nr_cols}*1 || 3)),
       description    => $description,
       cvar           => 1,
       render_options => {

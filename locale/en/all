@@ -1416,6 +1416,7 @@ $self->{texts} = {
   'Number Format'               => '',
   'Number missing in Row'       => '',
   'Number of bins'              => '',
+  'Number of columns of custom variables in form details (second row)' => '',
   'Number of copies'            => '',
   'Number of entries changed: #1' => '',
   'Number of new bins'          => '',
