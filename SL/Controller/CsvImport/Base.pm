@@ -221,15 +221,29 @@ sub handle_cvars {
                          bool      => 'bool_value' );
 
   my @cvars;
+  my %changed_cvars;
   foreach my $config (@{ $self->all_cvar_configs }) {
     next unless exists $entry->{raw_data}->{ "cvar_" . $config->name };
     my $value  = $entry->{raw_data}->{ "cvar_" . $config->name };
     my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
 
-    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => '');
+    my $new_cvar = SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => '');
+
+    push @cvars, $new_cvar;
+    $changed_cvars{$config->name} = $new_cvar;
   }
 
-  $entry->{object}->custom_variables(\@cvars);
+  # merge existing with new cvars. swap every existing with the imported one, push the rest
+  if (@cvars) {
+    my @orig_cvars = ($entry->{object_to_save} || $entry->{object})->custom_variables;
+    for (@orig_cvars) {
+      $_ = $changed_cvars{ $_->config->name } if $changed_cvars{ $_->config->name };
+      delete $changed_cvars{ $_->config->name };
+    }
+    push @orig_cvars, values %changed_cvars;
+
+    $entry->{object}->custom_variables(\@orig_cvars);
+  }
 }
 
 sub init_profile {
