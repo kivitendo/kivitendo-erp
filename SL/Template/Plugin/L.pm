@@ -69,8 +69,8 @@ sub simple_format { return _call_presenter('simple_format', @_); }
 sub part_picker   { return _call_presenter('part_picker',   @_); }
 
 sub _set_id_attribute {
-  my ($attributes, $name) = @_;
-  SL::Presenter::Tag::_set_id_attribute($attributes, $name);
+  my ($attributes, $name, $unique) = @_;
+  SL::Presenter::Tag::_set_id_attribute($attributes, $name, $unique);
 }
 
 sub img_tag {
@@ -119,9 +119,9 @@ sub checkbox_tag {
 sub radio_button_tag {
   my ($self, $name, %attributes) = _hashify(2, @_);
 
-  _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless exists $attributes{value};
-  $attributes{id}     .= '_' . $attributes{value};
+
+  _set_id_attribute(\%attributes, $name, 1);
   my $label            = delete $attributes{label};
 
   if ($attributes{checked}) {

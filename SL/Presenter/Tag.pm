@@ -190,9 +190,12 @@ sub select_tag {
 }
 
 sub _set_id_attribute {
-  my ($attributes, $name) = @_;
+  my ($attributes, $name, $unique) = @_;
 
-  $attributes->{id} = name_to_id(undef, $name) if !delete($attributes->{no_id}) && !$attributes->{id};
+  if (!delete($attributes->{no_id}) && !$attributes->{id}) {
+    $attributes->{id}  = name_to_id(undef, $name);
+    $attributes->{id} .= '_' . $attributes->{value} if $unique;
+  }
 
   return %{ $attributes };
 }
