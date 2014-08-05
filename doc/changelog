@@ -70,6 +70,13 @@ Größere neue Features:
   dann erscheint die Variablen nur in den Stammdaten und den Beleg-Masken bei
   Artikeln, die zu einer der ausgewählten Warengruppen gehören.
 
+- Preisquellen
+
+  Die Systeme zur Preisfindung in Belegen wurden vereinheitlicht und haben den
+  Platz der Preisgruppen eingenommen. Es ist jetzt möglich den Ursprung des
+  gewählten Preises nachzuvollziehen, und der Vertriebler wird in Belegen über
+  geänderte Preise in den Stammdaten informiert.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten implementiert (einstellbar in Mandantenkonfiguration)
