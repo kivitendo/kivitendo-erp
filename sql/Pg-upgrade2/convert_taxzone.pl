@@ -39,17 +39,21 @@ SQL
     }
     $sth->finish;
 
-    my $taxzone_charts_update_query;
-    foreach my $taxzone (  @{$::form->{taxzones}} ) {
-        foreach my $buchungsgruppe (  @{$::form->{buchungsgruppen}} ) {
-            my $id = $taxzone->{id};
-            my $income_accno_id = $buchungsgruppe->{"income_accno_id_$id"};
-            my $expense_accno_id = $buchungsgruppe->{"expense_accno_id_$id"};
-            # TODO: check if the variables have a value
-            $taxzone_charts_update_query .= "INSERT INTO taxzone_charts (taxzone_id, buchungsgruppen_id, income_accno_id, expense_accno_id) VALUES ('$taxzone->{id}', '$buchungsgruppe->{id}', $income_accno_id, $expense_accno_id);\n";
+    # convert Buchungsgruppen to taxzone_charts if any exist
+    # the default swiss COA doesn't have any, for example
+    if ( scalar @{ $::form->{buchungsgruppen} } > 0 ) { 
+        my $taxzone_charts_update_query;
+        foreach my $taxzone (  @{$::form->{taxzones}} ) {
+            foreach my $buchungsgruppe (  @{$::form->{buchungsgruppen}} ) {
+                my $id = $taxzone->{id};
+                my $income_accno_id = $buchungsgruppe->{"income_accno_id_$id"};
+                my $expense_accno_id = $buchungsgruppe->{"expense_accno_id_$id"};
+                # TODO: check if the variables have a value
+                $taxzone_charts_update_query .= "INSERT INTO taxzone_charts (taxzone_id, buchungsgruppen_id, income_accno_id, expense_accno_id) VALUES ('$taxzone->{id}', '$buchungsgruppe->{id}', $income_accno_id, $expense_accno_id);\n";
+            };
         };
+        $self->db_query($taxzone_charts_update_query) if $taxzone_charts_update_query;
     };
-    $self->db_query($taxzone_charts_update_query);
 
     my $clean_buchungsgruppen_query = <<SQL;
 alter table buchungsgruppen drop column income_accno_id_0;
