@@ -129,21 +129,21 @@ sub test_default_invoice_one_item_19_tax_not_included() {
   is($invoice->marge_percent,   17.4358974358974, "${title}: marge_percent");
 
   is_deeply(\%data, {
-    allocated                            => {},
-    amounts                              => {
-      $buchungsgruppe->income_accno_id_0 => {
-        amount                           => 5.85,
-        tax_id                           => $tax->id,
-        taxkey                           => 3,
+    allocated                                    => {},
+    amounts                                      => {
+      $buchungsgruppe->income_accno_id($taxzone) => {
+        amount                                   => 5.85,
+        tax_id                                   => $tax->id,
+        taxkey                                   => 3,
       },
     },
-    amounts_cogs                         => {},
-    assembly_items                       => [
+    amounts_cogs                                 => {},
+    assembly_items                               => [
       [],
     ],
-    exchangerate                         => 1,
-    taxes                                => {
-      $tax->chart_id                     => 1.11,
+    exchangerate                                 => 1,
+    taxes                                        => {
+      $tax->chart_id                             => 1.11,
     },
   }, "${title}: calculated data");
 }
@@ -193,27 +193,27 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
   is($invoice->marge_percent,    34.8943460879497, "${title}: marge_percent");
 
   is_deeply(\%data, {
-    allocated                             => {},
-    amounts                               => {
-      $buchungsgruppe->income_accno_id_0  => {
-        amount                            => 5.85,
-        tax_id                            => $tax->id,
-        taxkey                            => 3,
+    allocated                                     => {},
+    amounts                                       => {
+      $buchungsgruppe->income_accno_id($taxzone)  => {
+        amount                                    => 5.85,
+        tax_id                                    => $tax->id,
+        taxkey                                    => 3,
       },
-      $buchungsgruppe7->income_accno_id_0 => {
-        amount                            => 11.66,
-        tax_id                            => $tax7->id,
-        taxkey                            => 2,
+      $buchungsgruppe7->income_accno_id($taxzone) => {
+        amount                                    => 11.66,
+        tax_id                                    => $tax7->id,
+        taxkey                                    => 2,
       },
     },
-    amounts_cogs                          => {},
-    assembly_items                        => [
+    amounts_cogs                                  => {},
+    assembly_items                                => [
       [], [],
     ],
-    exchangerate                          => 1,
-    taxes                                 => {
-      $tax->chart_id                      => 1.11,
-      $tax7->chart_id                     => 0.82,
+    exchangerate                                  => 1,
+    taxes                                         => {
+      $tax->chart_id                              => 1.11,
+      $tax7->chart_id                             => 0.82,
     },
   }, "${title}: calculated data");
 }
@@ -295,21 +295,21 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
   is($invoice->marge_percent,    62.007874015748,    "${title}: marge_percent");
 
   is_deeply(\%data, {
-    allocated                             => {},
-    amounts                               => {
-      $buchungsgruppe->income_accno_id_0  => {
-        amount                            => 15.24,
-        tax_id                            => $tax->id,
-        taxkey                            => 3,
+    allocated                                    => {},
+    amounts                                      => {
+      $buchungsgruppe->income_accno_id($taxzone) => {
+        amount                                   => 15.24,
+        tax_id                                   => $tax->id,
+        taxkey                                   => 3,
       },
     },
-    amounts_cogs                          => {},
-    assembly_items                        => [
+    amounts_cogs                                 => {},
+    assembly_items                               => [
       [], [], [],
     ],
-    exchangerate                          => 1,
-    taxes                                 => {
-      $tax->chart_id                      => 2.9,
+    exchangerate                                 => 1,
+    taxes                                        => {
+      $tax->chart_id                             => 2.9,
     },
   }, "${title}: calculated data");
 }

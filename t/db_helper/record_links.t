@@ -20,8 +20,9 @@ use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Part;
 use SL::DB::Unit;
+use SL::DB::TaxZone;
 
-my ($customer, $currency_id, $buchungsgruppe, $employee, $vendor);
+my ($customer, $currency_id, $buchungsgruppe, $employee, $vendor, $taxzone);
 my ($link, $links, $o1, $o2, $d, $i);
 
 sub reset_state {
@@ -37,6 +38,7 @@ sub reset_state {
 
   $buchungsgruppe  = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%', %{ $params{buchungsgruppe} }) || croak "No accounting group";
   $employee        = SL::DB::Manager::Employee->current                                                                    || croak "No employee";
+  $taxzone         = SL::DB::Manager::TaxZone->find_by( description => 'Inland')                                           || croak "No taxzone";
 
   $currency_id     = $::instance_conf->get_currency_id;
 
@@ -61,7 +63,7 @@ sub new_order {
     currency_id => $currency_id,
     employee_id => $employee->id,
     salesman_id => $employee->id,
-    taxzone_id  => 0,
+    taxzone_id  => $taxzone->id,
     quotation   => 0,
     %params,
   )->save;
@@ -75,7 +77,7 @@ sub new_delivery_order {
     currency_id => $currency_id,
     employee_id => $employee->id,
     salesman_id => $employee->id,
-    taxzone_id  => 0,
+    taxzone_id  => $taxzone->id,
     %params,
   )->save;
 }
@@ -89,8 +91,8 @@ sub new_invoice {
     employee_id => $employee->id,
     salesman_id => $employee->id,
     gldate      => DateTime->today_local->to_kivitendo,
-    taxzone_id  => 0,
     invoice     => 1,
+    taxzone_id  => $taxzone->id,
     type        => 'invoice',
     %params,
   )->save;
