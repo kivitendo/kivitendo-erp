@@ -806,7 +806,7 @@ sub _pre_render {
 
   $self->{all_languages} = SL::DB::Manager::Language->get_all();
 
-  $self->{all_taxzones} = SL::DB::Manager::TaxZone->get_all();
+  $self->{all_taxzones} = SL::DB::Manager::TaxZone->get_all_sorted();
 
   if ( $::instance_conf->get_vertreter() ) {
     $query =
