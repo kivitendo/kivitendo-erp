@@ -46,7 +46,7 @@ __PACKAGE__->meta->columns(
   street           => { type => 'text' },
   taxincluded      => { type => 'boolean' },
   taxnumber        => { type => 'text' },
-  taxzone_id       => { type => 'integer', default => '0', not_null => 1 },
+  taxzone_id       => { type => 'integer', not_null => 1 },
   terms            => { type => 'integer', default => '0' },
   user_password    => { type => 'text' },
   username         => { type => 'text' },
@@ -84,6 +84,11 @@ __PACKAGE__->meta->foreign_keys(
   payment => {
     class       => 'SL::DB::PaymentTerm',
     key_columns => { payment_id => 'id' },
+  },
+
+  taxzone => {
+    class       => 'SL::DB::TaxZone',
+    key_columns => { taxzone_id => 'id' },
   },
 );
 
