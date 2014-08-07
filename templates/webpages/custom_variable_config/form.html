@@ -67,6 +67,13 @@
      [% L.radio_button_tag('config.flag_editable', value='0', id='config.flag_editable_0', label=LxERP.t8('No'),  checked=(SELF.flags.editable ? '' :  1)) %]
     </td>
    </tr>
+   <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+    <td align="right">[% 'Deactivate by default' | $T8 %]<sup><span class="small-text">(7)</span></sup></td>
+    <td>
+     [% L.radio_button_tag('config.flag_defaults_to_invalid', value='1', id='config.flag_defaults_to_invalid_1', label=LxERP.t8('Yes'), checked=(SELF.flags.defaults_to_invalid ?  1 : '')) %]
+     [% L.radio_button_tag('config.flag_defaults_to_invalid', value='0', id='config.flag_defaults_to_invalid_0', label=LxERP.t8('No'),  checked=(SELF.flags.defaults_to_invalid ? '' :  1)) %]
+    </td>
+   </tr>
   </table>
  </p>
 
@@ -124,6 +131,12 @@
   [%- 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %]
 
   [% 'Otherwise the variable is only available for printing.' | $T8 %]
+ </p>
+
+ <p data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+  (7)
+
+  [%- 'A variable marked as \'Deactivate by default\' isn\'t automatically added to all articles, and has to be explicitly added for each desired article in its master data tab. Only then can the variable be used for that article in the records.' | $T8 %]
  </p>
 
 </form>

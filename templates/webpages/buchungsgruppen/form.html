@@ -11,7 +11,7 @@
     <td>[%- L.input_tag("config.description", SELF.config.description) %]</td>
   </tr>
   <tr>
-    <th align="right">[% 'Inventory account' | $T8 %]</th>
+    <th align="right">[% 'Inventory Account' | $T8 %]</th>
     [%- IF NOT SELF.config.id %]
       <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.defaults.inventory_accno_id) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]

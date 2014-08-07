@@ -30,19 +30,38 @@ sub run {
     $query = qq|DELETE FROM tax_zones WHERE id=0|;
     $self->db_query($query);
 
-    #Adapt other tables to the new id:
+    #Adapt ar/ap and customer/vendor tables to the new taxzone_id
     $query = qq|UPDATE ar SET taxzone_id=$id WHERE taxzone_id=0|;
     $self->db_query($query);
 
     $query = qq|UPDATE ap SET taxzone_id=$id WHERE taxzone_id=0|;
     $self->db_query($query);
+
+    $query = qq|UPDATE customer SET taxzone_id=$id WHERE taxzone_id=0|;
+    $self->db_query($query);
+
+    $query = qq|UPDATE vendor SET taxzone_id=$id WHERE taxzone_id=0|;
+    $self->db_query($query);
   }
+
+  # Remove default 0 for taxzone_id
+  $query = qq|ALTER TABLE customer ALTER COLUMN taxzone_id DROP default|;
+  $self->db_query($query);
+
+  $query = qq|ALTER TABLE vendor ALTER COLUMN taxzone_id DROP default|;
+  $self->db_query($query);
 
   #Set Constraints:
   $query = qq|ALTER TABLE ar ADD FOREIGN KEY (taxzone_id) REFERENCES tax_zones (id)|;
   $self->db_query($query);
 
   $query = qq|ALTER TABLE ap ADD FOREIGN KEY (taxzone_id) REFERENCES tax_zones (id)|;
+  $self->db_query($query);
+
+  $query = qq|ALTER TABLE customer ADD FOREIGN KEY (taxzone_id) REFERENCES tax_zones (id)|;
+  $self->db_query($query);
+
+  $query = qq|ALTER TABLE vendor ADD FOREIGN KEY (taxzone_id) REFERENCES tax_zones (id)|;
   $self->db_query($query);
 
   $sth->finish;

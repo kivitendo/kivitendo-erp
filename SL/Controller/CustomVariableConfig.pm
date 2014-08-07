@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 use List::Util qw(first);
 
 use SL::DB::CustomVariableConfig;
+use SL::DB::CustomVariableValidity;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use Data::Dumper;
@@ -103,7 +104,7 @@ sub action_reorder {
 
   SL::DB::CustomVariableConfig->reorder_list(@{ $::form->{cvarcfg_id} || [] });
 
-  $self->render(\'', { type => 'json' });
+  $self->render(\'', { type => 'json' }); # ' make emacs happy
 }
 
 #
@@ -179,10 +180,33 @@ sub create_or_update {
     return;
   }
 
+  my $dbh = $self->config->db;
+  $dbh->begin_work;
+
   $self->config->save;
+  $self->_set_cvar_validity() if $is_new;
+
+  $dbh->commit;
 
   flash_later('info', $is_new ? t8('The custom variable has been created.') : t8('The custom variable has been saved.'));
   $self->redirect_to(action => 'list', module => $self->module);
+}
+
+sub _set_cvar_validity {
+  my ($self) = @_;
+
+  my $flags = {
+    map { split m/=/, $_, 2 }
+    split m/:/, ($self->config->flags || '')
+  };
+
+  # nothing to do to set valid
+  return if !$flags->{defaults_to_invalid};
+
+  my $all_parts  = SL::DB::Manager::Part->get_all(where => [ or => [ obsolete => 0, obsolete => undef ] ]);
+  foreach my $part (@{ $all_parts }) {
+    SL::DB::CustomVariableValidity->new(config_id => $self->config->id, trans_id => $part->id)->save;
+  }
 }
 
 1;
