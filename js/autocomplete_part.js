@@ -31,6 +31,7 @@ namespace('kivi', function(k){
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
+    var last_unverified_dummy = $dummy.val();
     var timer;
 
     function open_dialog () {
@@ -38,7 +39,7 @@ namespace('kivi', function(k){
         url: 'controller.pl?action=Part/part_picker_search',
         data: $.extend({
           real_id: real_id,
-        }, ajax_data($dummy.val())),
+        }, ajax_data(last_unverified_dummy)),
         id: 'part_selection',
         dialog: {
           title: k.t8('Part picker'),
@@ -102,6 +103,7 @@ namespace('kivi', function(k){
       else if (state == STATES.UNDEFINED && $dummy.val() == '')
         set_item({})
       else
+        last_unverified_dummy = $dummy.val();
         set_item({ id: last_real, name: last_dummy })
     }
 
