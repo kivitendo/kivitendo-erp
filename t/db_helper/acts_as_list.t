@@ -6,8 +6,10 @@ use strict;
 use lib 't';
 use utf8;
 
+use Carp;
 use Data::Dumper;
 use Support::TestSetup;
+use SL::DB::TaxZone;
 
 eval {
   require SL::DB::RequirementSpec;
@@ -24,10 +26,12 @@ if ($skip) {
   plan tests => 48;
 }
 
-my ($customer, $status, $type, $r_spec, @items);
+my ($customer, $taxzone, $status, $type, $r_spec, @items);
+
 
 sub init {
-  $customer = SL::DB::Customer->new(name => 'Test Customer', currency_id => $::instance_conf->get_currency_id)->save;
+  $taxzone  = SL::DB::Manager::TaxZone->find_by( description => 'Inland') || croak "No taxzone";
+  $customer = SL::DB::Customer->new(name => 'Test Customer', currency_id => $::instance_conf->get_currency_id, taxzone_id => $taxzone->id)->save;
   $status   = SL::DB::Manager::RequirementSpecStatus->find_by(name => '', description => '') ||
               SL::DB::RequirementSpecStatus->new(name => '', description => '', position => 0)->save;
   $type     = SL::DB::Manager::RequirementSpecType->find_by(description => '') ||

@@ -45,12 +45,14 @@ sub reset_state {
   $customer     = SL::DB::Customer->new(
     name        => 'Test Customer',
     currency_id => $currency_id,
+    taxzone_id  => $taxzone->id,
     %{ $params{customer} }
   )->save;
 
   $vendor     = SL::DB::Vendor->new(
     name        => 'Test Vendor',
     currency_id => $currency_id,
+    taxzone_id  => $taxzone->id,
     %{ $params{vendor} }
   )->save;
 }

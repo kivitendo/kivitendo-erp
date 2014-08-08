@@ -17,6 +17,7 @@ use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Part;
 use SL::DB::Unit;
+use SL::DB::TaxZone;
 
 my ($customer, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
 
@@ -42,6 +43,7 @@ sub reset_state {
   $customer     = SL::DB::Customer->new(
     name        => 'Test Customer',
     currency_id => $currency_id,
+    taxzone_id  => $taxzone->id,
     %{ $params{customer} }
   )->save;
 
