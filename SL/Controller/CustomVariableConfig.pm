@@ -96,7 +96,7 @@ sub action_destroy {
     flash_later('error', t8('The custom variable is in use and cannot be deleted.'));
   }
 
-  $self->redirect_to(action => 'list');
+  $self->redirect_to(action => 'list', module => $self->module);
 }
 
 sub action_reorder {
