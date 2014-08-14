@@ -13,14 +13,19 @@ namespace('kivi', function(k){
       PAGE_UP: 33,
       PAGE_DOWN: 34,
     };
+    var CLASSES = {
+      PICKED:       'partpicker-picked',
+      UNDEFINED:    'partpicker-undefined',
+      FAT_SET_ITEM: 'partpicker_fat_set_item',
+    }
     var o = $.extend({
       limit: 20,
       delay: 50,
-      fat_set_item: $real.hasClass('partpicker_fat_set_item'),
+      fat_set_item: $real.hasClass(CLASSES.FAT_SET_ITEM),
     }, options);
     var STATES = {
-      UNIQUE: 1,
-      UNDEFINED: 0,
+      PICKED:    CLASSES.PICKED,
+      UNDEFINED: CLASSES.UNDEFINED
     }
     var real_id = $real.attr('id');
     var $dummy  = $('#' + real_id + '_name');
@@ -31,7 +36,6 @@ namespace('kivi', function(k){
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
-    var last_unverified_dummy = $dummy.val();
     var timer;
 
     function open_dialog () {
@@ -39,7 +43,7 @@ namespace('kivi', function(k){
         url: 'controller.pl?action=Part/part_picker_search',
         data: $.extend({
           real_id: real_id,
-        }, ajax_data(last_unverified_dummy)),
+        }, ajax_data($dummy.val())),
         id: 'part_selection',
         dialog: {
           title: k.t8('Part picker'),
@@ -82,6 +86,7 @@ namespace('kivi', function(k){
       state = STATES.PICKED;
       last_real = $real.val();
       last_dummy = $dummy.val();
+      last_unverified_dummy = $dummy.val();
       $real.trigger('change');
 
       if (o.fat_set_item && item.id) {
@@ -95,16 +100,31 @@ namespace('kivi', function(k){
       } else {
         $real.trigger('set_item:PartPicker', item);
       }
+      annotate_state();
     }
 
     function make_defined_state () {
-      if (state == STATES.PICKED)
+      if (state == STATES.PICKED) {
+        annotate_state();
         return true
-      else if (state == STATES.UNDEFINED && $dummy.val() == '')
+      } else if (state == STATES.UNDEFINED && $dummy.val() == '')
         set_item({})
-      else
+      else {
         last_unverified_dummy = $dummy.val();
         set_item({ id: last_real, name: last_dummy })
+      }
+      annotate_state();
+    }
+
+    function annotate_state () {
+      if (state == STATES.PICKED)
+        $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
+      else if (state == STATES.UNDEFINED && $dummy.val() == '')
+        $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
+      else {
+        last_unverified_dummy = $dummy.val();
+        $dummy.addClass(STATES.UNDEFINED).removeClass(STATES.PICKED);
+      }
     }
 
     function update_results () {
@@ -160,11 +180,9 @@ namespace('kivi', function(k){
     /* note:
      *  event.which does not contain tab events in keypressed in firefox but will report 0
      *  chrome does not fire keypressed at all on tab or escape
-     *  TODO: users expect tab to work on keydown but enter to trigger on keyup,
-     *        should be handled seperately
      */
     $dummy.keydown(function(event){
-      if (event.which == KEY.ENTER || event.which == KEY.TAB) { // enter or tab or tab
+      if (event.which == KEY.ENTER || event.which == KEY.TAB) {
         // if string is empty assume they want to delete
         if ($dummy.val() == '') {
           set_item({});
@@ -172,11 +190,12 @@ namespace('kivi', function(k){
         } else if (state == STATES.PICKED) {
           return true;
         }
+        if (event.which == KEY.TAB) event.preventDefault();
         $.ajax({
           url: 'controller.pl?action=Part/ajax_autocomplete',
           dataType: "json",
           data: $.extend( ajax_data($dummy.val()), { prefer_exact: 1 } ),
-          success: function (data){
+          success: function (data) {
             if (data.length == 1) {
               set_item(data[0]);
               if (event.which == KEY.ENTER)
@@ -184,12 +203,9 @@ namespace('kivi', function(k){
             } else if (data.length > 1) {
              if (event.which == KEY.ENTER)
                 open_dialog();
-              else
-                make_defined_state();
             } else {
-              if (event.which == KEY.TAB)
-                make_defined_state();
             }
+            annotate_state();
           }
         });
         if (event.which == KEY.ENTER)
@@ -201,7 +217,7 @@ namespace('kivi', function(k){
 
     $dummy.blur(function(){
       window.clearTimeout(timer);
-      timer = window.setTimeout(make_defined_state, 100);
+      timer = window.setTimeout(annotate_state, 100);
     });
 
     // now add a picker div after the original input
@@ -222,6 +238,7 @@ namespace('kivi', function(k){
       result_timer:   result_timer,
       set_item:       set_item,
       reset:          make_defined_state,
+      is_defined_state: function() { return state == STATES.PICKED },
       init_results:    function () {
         $('div.part_picker_part').each(function(){
           $(this).click(function(){

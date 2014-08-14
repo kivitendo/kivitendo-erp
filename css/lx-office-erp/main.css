@@ -455,7 +455,10 @@ label {
 .part_picker {
   padding-right: 16px;
 }
-
+.partpicker-undefined {
+  color: red;
+  font-style: italic;
+}
 div.part_picker_part {
   padding: 5px;
   margin: 5px;
