@@ -7,19 +7,25 @@
  [%- L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange='show_module_list()') %]
 </p>
 
+[%- IF SELF.module == 'IC' %]
+  [%- SET W="12.5%" %]
+[%- ELSE %]
+  [%- SET W="20%" %]
+[%- END %]
 <p>
  <table width="100%" id="cvarcfg_list">
   <thead>
    <tr class="listheading">
     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
-    <th width="20%">[% 'Name' | $T8 %]</th>
-    <th width="20%">[% 'Description' | $T8 %]</th>
-    <th width="20%">[% 'Type' | $T8 %]</th>
-    <th width="20%">[% 'Searchable' | $T8 %]</th>
-    <th width="20%">[% 'Includeable in reports' | $T8 %]</th>
+    <th width="[%- W -%]">[% 'Name' | $T8 %]</th>
+    <th width="[%- W -%]">[% 'Description' | $T8 %]</th>
+    <th width="[%- W -%]">[% 'Type' | $T8 %]</th>
+    <th width="[%- W -%]">[% 'Searchable' | $T8 %]</th>
+    <th width="[%- W -%]">[% 'Includeable in reports' | $T8 %]</th>
     [%- IF SELF.module == 'IC' %]
-     <th width="20%">[% 'Editable' | $T8 %]</th>
-     <th width="20%">[% 'Deactivate by default' | $T8 %]</th>
+     <th width="[%- W -%]">[% 'Editable' | $T8 %]</th>
+     <th width="[%- W -%]">[% 'Deactivate by default' | $T8 %]</th>
+     <th width="[%- W -%]">[% 'Filter by Partsgroups' | $T8 %]</th>
     [%- END %]
    </tr>
   </thead>
@@ -41,6 +47,7 @@
      [%- IF SELF.module == 'IC' %]
       <td>[%- IF cfg.flags.match('editable=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
       <td>[%- IF cfg.flags.match('defaults_to_invalid=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
+      <td>[%- IF cfg.flags.match('partsgroup_filter=1') %][% 'Yes' | $T8 %][%- ELSE %][% 'No' | $T8 %][%- END %]</td>
      [%- END %]
     </tr>
     [%- END %]

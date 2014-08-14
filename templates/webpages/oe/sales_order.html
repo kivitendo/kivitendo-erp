@@ -45,7 +45,7 @@
  <table class='row2-cvars-table'>
    <tr>
    [%- FOREACH row2 = row.ROW2 %]
-     [%- IF row2.cvar && row2.render_options.valid %]
+     [%- IF row2.cvar && row2.render_options.valid && !row2.render_options.partsgroup_filtered %]
        [%- IF row2.line_break %]
          </tr><tr>
        [%- END %]

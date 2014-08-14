@@ -59,6 +59,9 @@ sub partsgroups {
     $where .=
       qq| AND id NOT IN | .
       qq|  (SELECT DISTINCT partsgroup_id FROM parts | .
+      qq|   WHERE NOT partsgroup_id ISNULL | .
+      qq| UNION | .
+      qq|   SELECT DISTINCT partsgroup_id FROM custom_variable_config_partsgroups | .
       qq|   WHERE NOT partsgroup_id ISNULL) |;
   }
 
@@ -128,6 +131,12 @@ sub get_partsgroup {
   $sth->finish;
 
   $dbh->disconnect;
+
+  # also not orphaned if partsgroup is selected for a cvar filter
+  if ($form->{orphaned}) {
+    my $cvar_count = scalar( @{ SL::DB::PartsGroup->new(id => $form->{id})->custom_variable_configs } );
+    $form->{orphaned} = !$cvar_count;
+  }
 
   $main::lxdebug->leave_sub();
 }

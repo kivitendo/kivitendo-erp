@@ -74,6 +74,29 @@
      [% L.radio_button_tag('config.flag_defaults_to_invalid', value='0', id='config.flag_defaults_to_invalid_0', label=LxERP.t8('No'),  checked=(SELF.flags.defaults_to_invalid ? '' :  1)) %]
     </td>
    </tr>
+   <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+    <td align="right">[% 'Filter by Partsgroups' | $T8 %]</td>
+    <td>
+     [% L.radio_button_tag('config.flag_partsgroup_filter', value='1', id='config_flag_partsgroup_filter_1', label=LxERP.t8('Yes'), checked=(SELF.flags.partsgroup_filter ?  1 : ''), onclick='update_pg_filter_row()') %]
+     [% L.radio_button_tag('config.flag_partsgroup_filter', value='0', id='config_flag_partsgroup_filter_0', label=LxERP.t8('No'),  checked=(SELF.flags.partsgroup_filter ? '' :  1), onclick='update_pg_filter_row()') %]
+    </td>
+   </tr>
+   <tr data-show-for="IC+PGFILTER"[% UNLESS (SELF.module == 'IC' && SELF.flags.partsgroup_filter) %] style="display: none;"[% END %]>
+    <td></td>
+    <td>
+  [% L.select_tag('config.partsgroups[]',
+                      all_partsgroups,
+                      id                => "partsgroups",
+                      value_key         => "id",
+                      title_key         => "partsgroup",
+                      default           => SELF.config.partsgroups,
+                      default_value_key => "id",
+                      multiple          => 1) %]
+      [% L.multiselect2side("partsgroups",
+                            labelsx => LxERP.t8("All partsgroups"),
+                            labeldx => LxERP.t8("Partsgroups where variables are shown")) %]
+    </td>
+   </tr>
   </table>
  </p>
 
@@ -149,6 +172,11 @@ function update_included_by_default() {
 
 function update_ic_rows() {
   $('[data-show-for="IC"]').toggle($('#module').val() === "IC");
+  $('[data-show-for="IC+PGFILTER"]').toggle($('#module').val() === "IC" && $('#config_flag_partsgroup_filter_1').prop('checked'));
+}
+
+function update_pg_filter_row() {
+  $('[data-show-for="IC+PGFILTER"]').toggle($('#module').val() === "IC" && $('#config_flag_partsgroup_filter_1').prop('checked'));
 }
 
 function check_prerequisites() {

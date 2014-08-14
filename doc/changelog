@@ -44,6 +44,33 @@ Größere neue Features:
   Update geht davon aus, daß die Steuerzonen im Programmcode nicht angepasst
   worden sind.
 
+- Benutzerdefinierte Variablen in Belegen als Tabelle rendern
+
+  Um die Darstellung der benutzerdefinierten Variablen vor Allem bei vielen
+  Variablen in den Belegmasken übersichtlicher zu gestalten, werden diese jetzt
+  in einer Tabelle dargestellt. Da diese nicht automatisch eine neue Reihe
+  beginnen kann, wenn der Platz zu knapp wird, lässt sich die Anzahl der Spalten
+  in den Benutzereinstellungen unter Anzeigeoptionen festlegen. Voreingestellt
+  sind 3 Spalten.
+
+- Benutzerdef. Variablen f. Waren per Voreinstellung für Belege
+  aktivieren/deaktivieren
+
+  Bei der Konfiguration benutzerdefinierter Variablen für Waren,
+  Diensleistungen und Erzeugnisse kann man nun wählen, ob diese per
+  Voreinstellung in den Belegen aktiviert oder deaktiviert sind. Vorher waren
+  diese immer aktiviert und man musste sie zum Deaktivieren zu jedem Artikel in
+  den Stammdaten explizit deaktivieren.
+
+- Warengruppen-Filter f. CVars bei Waren, Diensleistungen und Erzeugnisse
+
+  Bei der Konfiguration benutzerdefinierter Variablen für Waren, Diensleistungen
+  und Erzeugnisse kann man wählen, ob diese nur bei Artikeln, die zu bestimmten
+  Warengruppen gehören, angezeigt werden sollen. Ist der Filter eingeschaltet,
+  dann erscheint die Variablen nur in den Stammdaten und den Beleg-Masken bei
+  Artikeln, die zu einer der ausgewählten Warengruppen gehören.
+
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:

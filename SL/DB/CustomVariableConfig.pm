@@ -11,6 +11,13 @@ use SL::DB::MetaSetup::CustomVariableConfig;
 use SL::DB::Manager::CustomVariableConfig;
 use SL::DB::Helper::ActsAsList;
 
+__PACKAGE__->meta->add_relationship(
+  partsgroups  => {
+    type       => 'many to many',
+    map_class  => 'SL::DB::CustomVariableConfigPartsgroup',
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(module)]);
