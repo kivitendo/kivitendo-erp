@@ -15,7 +15,6 @@ sub run {
 
   my $query = qq|ALTER TABLE tax_zones ADD COLUMN sortkey INTEGER|;
   $self->db_query($query);
-  $self->dbh->commit;
 
   my $sortkey = 1;
   $query = qq|SELECT * FROM tax_zones ORDER BY id|;
@@ -28,8 +27,6 @@ sub run {
     $sortkey++;
   }
   $sth->finish;
-
-  $self->dbh->commit;
 
   $query = qq|ALTER TABLE tax_zones ALTER COLUMN sortkey SET NOT NULL|;
   $self->db_query($query);
