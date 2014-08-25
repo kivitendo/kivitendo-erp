@@ -70,5 +70,7 @@ namespace("kivi").setupLocale({
 "Transaction description":"Vorgangsbezeichnung",
 "Update":"Erneuern",
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
-"Version actions":"Aktionen für Versionen"
+"Version actions":"Aktionen für Versionen",
+"flat-rate position":"Pauschalposition",
+"time and effort based position":"Aufwandsposition"
 });

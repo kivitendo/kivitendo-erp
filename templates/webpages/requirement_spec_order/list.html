@@ -15,6 +15,8 @@
     <th>[% LxERP.t8("Title") %]</th>
     <th>[% LxERP.t8("Description") %]</th>
     <th>[% LxERP.t8("Article") %]</th>
+    <th>[% LxERP.t8("Unit") %]</th>
+    <th>[% LxERP.t8("Position type in quotation/order") %]</th>
    </tr>
   </thead>
 
@@ -29,6 +31,14 @@
        [% HTML.escape(section.order_part.partnumber) %] [% HTML.escape(section.order_part.description) %]
       [% ELSE %]
        [% LxERP.t8("no article assigned yet") %]
+      [% END %]
+     </td>
+     <td>[% HTML.escape(section.order_part.unit) %]</td>
+     <td>
+      [% IF section.order_part_id && section.order_part.unit_obj.is_time_based %]
+       [% LxERP.t8("time and effort based position") %]
+      [% ELSIF section.order_part_id %]
+       [% LxERP.t8("flat-rate position") %]
       [% END %]
      </td>
     </tr>

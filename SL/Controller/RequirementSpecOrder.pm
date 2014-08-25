@@ -23,7 +23,7 @@ use constant FORMS_SELECTOR => '#quotations_and_orders_article_assignment,#quota
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(parts) ],
-  'scalar --get_set_init' => [ qw(requirement_spec rs_order js h_unit_name all_customers all_parts_time_unit) ],
+  'scalar --get_set_init' => [ qw(requirement_spec rs_order js h_unit_name all_customers all_parts_time_unit section_order_part) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -156,6 +156,7 @@ sub action_edit_assignment {
   my $html   = $self->render('requirement_spec_order/edit_assignment', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
   $self->js->hide(LIST_SELECTOR())
            ->after(LIST_SELECTOR(), $html)
+           ->reinit_widgets
            ->render($self);
 }
 
@@ -209,15 +210,16 @@ sub init_js {
 }
 
 sub init_all_customers { SL::DB::Manager::Customer->get_all_sorted }
-sub init_h_unit_name   { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde) };
+sub init_h_unit_name   { SL::DB::Manager::Unit->find_h_unit->name };
 sub init_rs_order      { SL::DB::RequirementSpecOrder->new(id => $::form->{rs_order_id})->load };
+sub init_section_order_part { my $id = $::instance_conf->get_requirement_spec_section_order_part_id; return $id ? SL::DB::Part->new(id => $id)->load : undef }
 
 sub init_all_parts_time_unit {
   my ($self) = @_;
 
   return [] unless $self->h_unit_name;
 
-  my @convertible_unit_names = map { $_->name } @{ SL::DB::Manager::Unit->find_by(name => $self->h_unit_name)->convertible_units };
+  my @convertible_unit_names = map { $_->name } @{ SL::DB::Manager::Unit->time_based_units };
 
   return SL::DB::Manager::Part->get_all_sorted(where => [ unit => \@convertible_unit_names ]);
 }

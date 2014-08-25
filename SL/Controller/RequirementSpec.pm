@@ -29,7 +29,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models) ],
+                                  current_text_block_output_position models time_based_units) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -289,6 +289,7 @@ sub init_project_types          { SL::DB::Manager::ProjectType->get_all_sorted  
 sub init_projects               { SL::DB::Manager::Project->get_all_sorted                    }
 sub init_risks                  { SL::DB::Manager::RequirementSpecRisk->get_all_sorted        }
 sub init_statuses               { SL::DB::Manager::RequirementSpecStatus->get_all_sorted      }
+sub init_time_based_units       { SL::DB::Manager::Unit->time_based_units                     }
 sub init_types                  { SL::DB::Manager::RequirementSpecType->get_all_sorted        }
 
 sub init_customers {

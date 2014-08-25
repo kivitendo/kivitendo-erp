@@ -1,4 +1,4 @@
-[%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%]
+[%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%][%- USE JavaScript -%]
 [% SET sections = SELF.requirement_spec.sections_sorted || [] %]
 
 [%- INCLUDE 'common/flash.html' %]
@@ -95,6 +95,11 @@ $(function() {
 [% IF SELF.requirement_spec_item %]
     , initially_selected_node: '#fb-[% SELF.requirement_spec_item.id %]'
 [% END %]
+    , time_based_units: {
+      [% FOREACH unit = SELF.time_based_units %]
+       [% UNLESS loop.first %], [% END %] "[% JavaScript.escape(unit.name) %]": true
+      [% END %]
+    }
   });
 });
 

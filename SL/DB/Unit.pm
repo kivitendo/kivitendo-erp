@@ -1,5 +1,8 @@
 package SL::DB::Unit;
 
+use List::MoreUtils qw(any);
+
+
 use strict;
 
 use SL::DB::MetaSetup::Unit;
@@ -55,6 +58,12 @@ sub convert_to {
   my $other_base_factor = $other_unit->base_factor || 1;
 
   return $qty * $my_base_factor / $other_base_factor;
+}
+
+sub is_time_based {
+  my ($self) = @_;
+
+  return any { $_->id == $self->id } @{ SL::DB::Manager::Unit->time_based_units };
 }
 
 1;

@@ -153,6 +153,8 @@ ns.initialize_requirement_spec = function(data) {
 
   ns.create_context_menus(data.is_template);
   $('#requirement_spec_tabs').on("tabsbeforeactivate", ns.tabs_before_activate);
+
+  ns.time_based_units = data.time_based_units;
 };
 
 // -------------------------------------------------------------------------
@@ -565,6 +567,31 @@ ns.assign_order_part_id_to_all = function() {
   }).each(function(idx, elt) {
     $(elt).val(order_part_name);
   });
+
+  var unit = $('#quotations_and_orders_order_id').closest('td').data('unit');
+  var text = ns.time_based_units[unit] ? kivi.t8("time and effort based position") : kivi.t8("flat-rate position");
+
+  $('#quotations_and_orders_form [data-unit-column=1]').html(unit);
+  $('#quotations_and_orders_form [data-position-type-column=1]').html(text);
+};
+
+ns.assign_order_part_on_part_picked = function(event, item) {
+  if (!item || !item.unit)
+    return;
+
+  var $elt = $(this),
+      id   = $elt.prop('id');
+
+  if (id == 'quotations_and_orders_order_id')
+    $elt.closest('td').data('unit', item.unit);
+
+  else {
+    var $tr  = $elt.closest('tr');
+    var text = ns.time_based_units[item.unit] ? kivi.t8("time and effort based position") : kivi.t8("flat-rate position");
+
+    $tr.find('[data-unit-column=1]').html(item.unit);
+    $tr.find('[data-position-type-column=1]').html(text);
+  }
 };
 
 // -------------------------------------------------------------------------
@@ -1037,3 +1064,9 @@ ns.create_context_menus = function(is_template) {
 };
 
 });                             // end of namespace(...., function() {...
+
+function local_reinit_widgets() {
+  kivi.run_once_for('#quotations_and_orders_order_id,[name="sections[].order_part_id"]', "assign_order_part_on_part_picked", function(elt) {
+    $(elt).on('set_item:PartPicker', kivi.requirement_spec.assign_order_part_on_part_picked);
+  });
+}
