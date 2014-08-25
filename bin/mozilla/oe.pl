@@ -1728,6 +1728,8 @@ sub purchase_order {
 
   if ($form->{type} =~ /^sales_/) {
     delete($form->{ordnumber});
+    delete($form->{payment_id});
+    delete($form->{delivery_term_id});
   }
 
   $form->{cp_id} *= 1;
