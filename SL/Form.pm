@@ -1034,7 +1034,7 @@ sub parse_template {
                                       %{ $self->{TEMPLATE_DRIVER_OPTIONS} || {} });
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
-  $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
+  $self->{"notes"} = $self->{ $self->{"formname"} . "notes" } if exists $self->{ $self->{"formname"} . "notes" };
 
   if (!$self->{employee_id}) {
     $self->{"employee_${_}"} = $myconfig->{$_} for qw(email tel fax name signature);
