@@ -35,7 +35,7 @@ __PACKAGE__->meta->columns(
   shipto_id               => { type => 'integer' },
   shipvia                 => { type => 'text' },
   taxincluded             => { type => 'boolean' },
-  taxzone_id              => { type => 'integer' },
+  taxzone_id              => { type => 'integer', not_null => 1 },
   terms                   => { type => 'integer' },
   transaction_description => { type => 'text' },
   transdate               => { type => 'date', default => 'now()' },
@@ -95,6 +95,11 @@ __PACKAGE__->meta->foreign_keys(
   shipto => {
     class       => 'SL::DB::Shipto',
     key_columns => { shipto_id => 'shipto_id' },
+  },
+
+  taxzone => {
+    class       => 'SL::DB::TaxZone',
+    key_columns => { taxzone_id => 'id' },
   },
 
   vendor => {
