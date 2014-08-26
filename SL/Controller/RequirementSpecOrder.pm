@@ -228,6 +228,17 @@ sub init_all_parts_time_unit {
 # helpers
 #
 
+sub cache_parts {
+  my ($self, @ids) = @_;
+
+  my $parts = !@ids ? [] : SL::DB::Manager::Part->get_all(
+    where        => [ id => \@ids ],
+    with_objects => [ qw(unit_obj) ],
+  );
+
+  $self->parts({ map { ($_->id => $_) } @{ $parts } });
+}
+
 sub do_update_sections {
   my ($self)           = @_;
 
@@ -235,8 +246,9 @@ sub do_update_sections {
   my $sections         = $self->requirement_spec->sections_sorted;
   my %orderitems_by_id = map { ($_->id => $_) } @{ $order->orderitems };
   my %sections_by_id   = map { ($_->id => $_) } @{ $sections };
-  $self->{parts}       = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->order_part_id } @{ $sections } ] ]) } };
   my $language_id      = $self->requirement_spec->customer->language_id;
+
+  $self->cache_parts(uniq map { $_->order_part_id } @{ $sections });
 
   my %sections_seen;
 
@@ -262,8 +274,9 @@ sub do_update_additional_parts {
   my $order         = $self->rs_order->order;
   my $add_parts     = $self->requirement_spec->parts_sorted;
   my %orderitems_by = map { (($_->parts_id . '-' . $_->description) => $_) } @{ $order->items };
-  $self->{parts}    = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->part_id } @{ $add_parts } ] ]) } };
   my $language_id   = $self->requirement_spec->customer->language_id;
+
+  $self->cache_parts(uniq map { $_->part_id } @{ $add_parts });
 
   my %add_part_seen;
   my @new_orderitems;
@@ -289,6 +302,7 @@ sub create_order_item {
   my $section         = $params{section};
   my $item            = $params{item} || SL::DB::OrderItem->new;
   my $part            = $self->parts->{ $section->order_part_id };
+  my $is_time_based   = $part->unit_obj->is_time_based;
   my $translation     = $params{language_id} ? first { $params{language_id} == $_->language_id } @{ $part->translations } : {};
   my $description     = $section->{keep_description} ? $item->description : ($translation->{translation} || $part->description);
   my $longdescription = $translation->{longdescription} || $part->notes;
@@ -308,9 +322,9 @@ sub create_order_item {
     parts_id        => $part->id,
     description     => $description,
     longdescription => $longdescription,
-    qty             => $section->time_estimation * 1,
-    unit            => $self->h_unit_name,
-    sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate, 2),
+    qty             => $is_time_based ? $section->time_estimation * 1 : 1,
+    unit            => $is_time_based ? $self->h_unit_name            : $part->unit,
+    sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate * ($is_time_based ? 1 : $section->time_estimation), 2),
     lastcost        => $part->lastcost,
     discount        => 0,
     project_id      => $self->requirement_spec->project_id,
