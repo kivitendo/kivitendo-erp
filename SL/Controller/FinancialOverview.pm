@@ -91,7 +91,7 @@ sub get_objects {
     purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
     sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => [ and => [ @f_date, @f_salesman, ]]),
     purchase_invoices      => SL::DB::Manager::PurchaseInvoice->get_all(where => [ and =>  \@f_date ]),
-    periodic_invoices_cfg  => SL::DB::Manager::PeriodicInvoicesConfig->get_all(where => [ active => 1 ]),
+    periodic_invoices_cfg  => SL::DB::Manager::PeriodicInvoicesConfig->get_all(where => [ active => 1, $self->salesman_id ? ('order.salesman_id' => $self->salesman_id) : () ], with_objects => [ qw(order) ]),
   });
 
   $self->objects->{sales_orders} = [ grep { !$_->periodic_invoices_config || !$_->periodic_invoices_config->active } @{ $self->objects->{sales_orders} } ];
