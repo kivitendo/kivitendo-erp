@@ -120,7 +120,7 @@ sub calculate_data {
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
 
     if ($order->periodic_invoices_config) {
-      my @dates = $order->periodic_invoices_config->calculate_invoice_dates(past_dates => 1, end_date => $order->periodic_invoices_config->end_date || DateTime->today_local);
+      my @dates = $order->periodic_invoices_config->calculate_invoice_dates(past_dates => 1, end_date => DateTime->today_local);
       $order->{net_amount} = $order->netamount * scalar(@dates);
 
     } else {
