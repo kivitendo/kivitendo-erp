@@ -3363,15 +3363,15 @@ sub prepare_for_printing {
   my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
   if ($self->{language_id}) {
     ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) = AM->get_language_details(\%::myconfig, $self, $self->{language_id});
-  } else {
-    $output_dateformat   = $::myconfig{dateformat};
-    $output_numberformat = $::myconfig{numberformat};
-    $output_longdates    = 1;
   }
 
-  $self->{myconfig_output_dateformat}   = $output_dateformat;
-  $self->{myconfig_output_longdates}    = $output_longdates;
-  $self->{myconfig_output_numberformat} = $output_numberformat;
+  $output_dateformat   ||= $::myconfig{dateformat};
+  $output_numberformat ||= $::myconfig{numberformat};
+  $output_longdates    //= 1;
+
+  $self->{myconfig_output_dateformat}   = $output_dateformat   // $::myconfig{dateformat};
+  $self->{myconfig_output_longdates}    = $output_longdates    // 1;
+  $self->{myconfig_output_numberformat} = $output_numberformat // $::myconfig{numberformat};
 
   # Retrieve accounts for tax calculation.
   IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
