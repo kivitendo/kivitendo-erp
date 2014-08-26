@@ -135,8 +135,8 @@ sub post_transaction {
     } else {
       $query = qq|SELECT nextval('glid')|;
       ($form->{id}) = selectrow_query($form, $dbh, $query);
-      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?))|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency});
+      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id, taxzone_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?), (SELECT taxzone_id FROM customer WHERE id = ?))|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency}, $form->{customer_id});
       if (!$form->{invnumber}) {
         my $trans_number   = SL::TransNumber->new(type => 'invoice', dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
         $form->{invnumber} = $trans_number->create_unique;

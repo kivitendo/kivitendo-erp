@@ -81,7 +81,7 @@ sub post_invoice {
       &reverse_invoice($dbh, $form);
     } else {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?))|, $form->{id}, $form->{currency});
+      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id, taxzone_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?), ?)|, $form->{id}, $form->{currency}, $form->{taxzone_id});
     }
   }
 
