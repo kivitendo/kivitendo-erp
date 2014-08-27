@@ -629,7 +629,7 @@ ns.disable_commands = function(key, opt) {
 
 ns.find_versioned_copy_id = function(clicked_elt) {
   var id = $(clicked_elt).find("[name=versioned_copy_id]");
-  return id ? id.val() : undefined;
+  return id.size() ? id.val() : undefined;
 };
 
 ns.disable_versioned_copy_item_commands = function(key, opt) {
@@ -649,7 +649,7 @@ ns.create_version = function() {
 ns.create_pdf_for_versioned_copy_ajax_call = function(key, opt) {
   var data = {
     action: "RequirementSpec/create_pdf",
-    id:     ns.find_versioned_copy_id(opt.$trigger)
+    id:     ns.find_versioned_copy_id(opt.$trigger) || $('#requirement_spec_id').val()
   };
   $.download("controller.pl", data);
 
