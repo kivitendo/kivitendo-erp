@@ -861,7 +861,7 @@ ns.create_context_menus = function(is_template) {
     });
 
     $.contextMenu({
-      selector: '.basic-settings-context-menu',
+      selector: ':has(> .basic-settings-context-menu:visible)',
       items:    $.extend({
           heading:           { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
         , edit:              { name: kivi.t8('Edit'),              icon: "edit", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
@@ -870,7 +870,7 @@ ns.create_context_menus = function(is_template) {
     });
 
     $.contextMenu({
-      selector: '.edit-project-link-context-menu',
+      selector: ':has(> .edit-project-link-context-menu:visible)',
       items:    $.extend({
           heading: { name: kivi.t8('Project link actions'), className: 'context-menu-heading' }
         , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
@@ -921,7 +921,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.edit-basic-settings-context-menu',
+    selector: ':has(> .edit-basic-settings-context-menu:visible)',
     items:    $.extend({
         heading: { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
       , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
@@ -930,7 +930,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.time-cost-estimate-context-menu',
+    selector: ':has(> div > .time-cost-estimate-context-menu:visible)',
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
       , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
@@ -938,7 +938,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.edit-time-cost-estimate-context-menu',
+    selector: ':has(> .edit-time-cost-estimate-context-menu:visible)',
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
       , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
@@ -948,7 +948,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.additional-parts-context-menu',
+    selector: ':has(> .additional-parts-context-menu:visible)',
     items:    $.extend({
         heading: { name: kivi.t8('Additional articles actions'), className: 'context-menu-heading' }
       , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_additional_parts_ajax_call }
@@ -962,7 +962,7 @@ ns.create_context_menus = function(is_template) {
   };
 
   $.contextMenu({
-    selector: '.edit-additional-parts-context-menu',
+    selector: ':has(> .edit-additional-parts-context-menu:visible)',
     items:    $.extend({
         heading:        { name: kivi.t8('Additional articles actions'), className: 'context-menu-heading' }
     }, additional_parts_actions, general_actions)
@@ -977,7 +977,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.quotations-and-orders-context-menu,.quotations-and-orders-order-context-menu',
+    selector: ':has(> .quotations-and-orders-context-menu:visible),.quotations-and-orders-order-context-menu',
     items:    $.extend({
         heading:            { name: kivi.t8('Quotations/Orders actions'), className: 'context-menu-heading'                                                                                            }
       , edit_assignment:    { name: kivi.t8('Edit article/section assignments'), icon: "edit",   callback: ns.standard_quotation_order_ajax_call                                                       }
@@ -990,7 +990,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.quotations-and-orders-edit-assignment-context-menu',
+    selector: ':has(> .quotations-and-orders-edit-assignment-context-menu:visible)',
     items:    $.extend({
         heading:         { name: kivi.t8('Edit article/section assignments'), className: 'context-menu-heading'    }
       , save_assignment: { name: kivi.t8('Save'),   icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
@@ -999,7 +999,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.quotations-and-orders-new-context-menu',
+    selector: ':has(> .quotations-and-orders-new-context-menu:visible)',
     items:    $.extend({
         heading: { name: kivi.t8('Create new quotation/order'), className: 'context-menu-heading'          }
       , create:  { name: kivi.t8('Create'), icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
@@ -1008,7 +1008,7 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
-    selector: '.quotations-and-orders-update-context-menu',
+    selector: ':has(> .quotations-and-orders-update-context-menu:visible)',
     items:    $.extend({
         heading:   { name: kivi.t8('Update quotation/order'), className: 'context-menu-heading'               }
       , do_update: { name: kivi.t8('Update'), icon: "update", callback: ns.standard_quotation_order_ajax_call }
