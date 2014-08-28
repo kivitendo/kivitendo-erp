@@ -243,7 +243,7 @@ sub save {
   map { $form->{$_} = $form->parse_amount($myconfig, $form->{$_}) }
     qw(rop weight listprice sellprice gv lastcost);
 
-  my $makemodel = (($form->{make_1}) || ($form->{model_1})) ? 1 : 0;
+  my $makemodel = ($form->{make_1} || $form->{model_1} || ($form->{makemodel_rows} > 1)) ? 1 : 0;
 
   $form->{assembly} = ($form->{item} eq 'assembly') ? 1 : 0;
 
@@ -1552,9 +1552,9 @@ sub retrieve_accounts {
     LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id
     LEFT JOIN chart c2 ON tc.income_accno_id = c2.id
     LEFT JOIN chart c3 ON tc.expense_accno_id = c3.id
-    WHERE 
-    tc.taxzone_id = '$form->{taxzone_id}' 
-    and 
+    WHERE
+    tc.taxzone_id = '$form->{taxzone_id}'
+    and
     p.id IN ($in)
 SQL
 
