@@ -583,8 +583,8 @@ sub post_invoice {
       $query = qq|SELECT nextval('glid')|;
       ($form->{"id"}) = selectrow_query($form, $dbh, $query);
 
-      $query = qq|INSERT INTO ar (id, invnumber, currency_id) VALUES (?, ?, (SELECT id FROM currencies WHERE name=?))|;
-      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency});
+      $query = qq|INSERT INTO ar (id, invnumber, currency_id, taxzone_id) VALUES (?, ?, (SELECT id FROM currencies WHERE name=?), ?)|;
+      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency}, $form->{taxzone_id});
 
       if (!$form->{invnumber}) {
         my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, id => $form->{id});

@@ -153,6 +153,8 @@ ns.initialize_requirement_spec = function(data) {
 
   ns.create_context_menus(data.is_template);
   $('#requirement_spec_tabs').on("tabsbeforeactivate", ns.tabs_before_activate);
+
+  ns.time_based_units = data.time_based_units;
 };
 
 // -------------------------------------------------------------------------
@@ -565,6 +567,31 @@ ns.assign_order_part_id_to_all = function() {
   }).each(function(idx, elt) {
     $(elt).val(order_part_name);
   });
+
+  var unit = $('#quotations_and_orders_order_id').closest('td').data('unit');
+  var text = ns.time_based_units[unit] ? kivi.t8("time and effort based position") : kivi.t8("flat-rate position");
+
+  $('#quotations_and_orders_form [data-unit-column=1]').html(unit);
+  $('#quotations_and_orders_form [data-position-type-column=1]').html(text);
+};
+
+ns.assign_order_part_on_part_picked = function(event, item) {
+  if (!item || !item.unit)
+    return;
+
+  var $elt = $(this),
+      id   = $elt.prop('id');
+
+  if (id == 'quotations_and_orders_order_id')
+    $elt.closest('td').data('unit', item.unit);
+
+  else {
+    var $tr  = $elt.closest('tr');
+    var text = ns.time_based_units[item.unit] ? kivi.t8("time and effort based position") : kivi.t8("flat-rate position");
+
+    $tr.find('[data-unit-column=1]').html(item.unit);
+    $tr.find('[data-position-type-column=1]').html(text);
+  }
 };
 
 // -------------------------------------------------------------------------
@@ -645,14 +672,130 @@ ns.revert_to_versioned_copy_ajax_call = function(key, opt) {
 };
 
 // -------------------------------------------------------------------------
+// -------------------------- time/cost estimate ---------------------------
+// -------------------------------------------------------------------------
+
+ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
+  if (key == 'cancel') {
+    if (confirm(kivi.t8('Do you really want to cancel?'))) {
+      $('#time_cost_estimate').show();
+      $('#time_cost_estimate_form_container').remove();
+    }
+    return true;
+  }
+
+  var add_data = '';
+  if (key == 'save_keep_open') {
+    key      = 'save';
+    add_data = 'keep_open=1&';
+  }
+
+  var data = "action=RequirementSpec/ajax_" + key + "_time_and_cost_estimate&" + add_data;
+
+  if (key == 'save')
+    data += $('#edit_time_cost_estimate_form').serialize()
+         +  '&' + $('#current_content_type').serialize()
+         +  '&' + $('#current_content_id').serialize();
+  else
+    data += 'id=' + encodeURIComponent($('#requirement_spec_id').val());
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
+};
+
+ns.time_cost_estimate_input_key_down = function(event) {
+  if(event.keyCode == 13) {
+    event.preventDefault();
+    ns.standard_time_cost_estimate_ajax_call('save');
+    return false;
+  }
+};
+
+// -------------------------------------------------------------------------
+// -------------------------- additional parts -----------------------------
+// -------------------------------------------------------------------------
+
+ns.standard_additional_parts_ajax_call = function(key, opt) {
+  var add_data = '';
+  if (key == 'save_keep_open') {
+    key      = 'save';
+    add_data = 'keep_open=1&';
+  }
+
+  var data = "action=RequirementSpecPart/ajax_" + key + "&" + add_data + 'requirement_spec_id=' + encodeURIComponent($('#requirement_spec_id').val()) + '&';
+
+  if (key == 'save')
+    data += $('#edit_additional_parts_form').serialize();
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
+};
+
+ns.prepare_edit_additional_parts_form = function() {
+  $("#edit_additional_parts_list tbody").sortable({
+    distance: 5,
+    handle:   '.dragdrop',
+    helper:   function(event, ui) {
+      ui.children().each(function() {
+        $(this).width($(this).width());
+      });
+      return ui;
+    }
+
+  });
+};
+
+ns.cancel_edit_additional_parts_form = function() {
+  if (confirm(kivi.t8('Do you really want to cancel?'))) {
+    $('#additional_parts_list_container').show();
+    $('#additional_parts_form_container').remove();
+  }
+  return true;
+};
+
+ns.additional_parts_input_key_down = function(event) {
+  if(event.keyCode == 13) {
+    event.preventDefault();
+    ns.standard_additional_parts_ajax_call('save');
+    return false;
+  }
+};
+
+ns.add_additional_part = function() {
+  var part_id = $('#additional_parts_add_part_id').val();
+  if (!part_id || (part_id == ''))
+    return false;
+
+  var rspec_id = $('#requirement_spec_id').val();
+  var data     = 'action=RequirementSpecPart/ajax_add&requirement_spec_id=' + encodeURIComponent(rspec_id) + '&part_id=' + encodeURIComponent(part_id);
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
+};
+
+ns.delete_additional_part = function(key, opt) {
+  opt.$trigger.remove();
+  if (!$('#edit_additional_parts_list tbody tr').size()) {
+   $('#edit_additional_parts_list_empty').show();
+   $('#edit_additional_parts_list').hide();
+  }
+
+  return true;
+};
+
+// -------------------------------------------------------------------------
 // ------------------------------- tab widget ------------------------------
 // -------------------------------------------------------------------------
 var content_div_ids_for_tab_headers = {
     'tab-header-function-block':     'function-blocks-tab'
   , 'tab-header-basic-settings':     'ui-tabs-1'
   , 'tab-header-time-cost-estimate': 'ui-tabs-2'
-  , 'tab-header-versions':           'ui-tabs-3'
-  , 'tab-header-quotations-orders':  'ui-tabs-4'
+  , 'tab-header-additional-parts':   'ui-tabs-3'
+  , 'tab-header-versions':           'ui-tabs-4'
+  , 'tab-header-quotations-orders':  'ui-tabs-5'
 };
 
 ns.tabs_before_activate = function(event, ui) {
@@ -805,6 +948,35 @@ ns.create_context_menus = function(is_template) {
   });
 
   $.contextMenu({
+    selector: '.additional-parts-context-menu',
+    items:    $.extend({
+        heading: { name: kivi.t8('Additional articles actions'), className: 'context-menu-heading' }
+      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_additional_parts_ajax_call }
+    }, general_actions)
+  });
+
+  var additional_parts_actions = {
+      save:           { name: kivi.t8('Save'),               icon: "save",  callback: kivi.requirement_spec.standard_additional_parts_ajax_call }
+    , save_keep_open: { name: kivi.t8('Save and keep open'), icon: "save",  callback: kivi.requirement_spec.standard_additional_parts_ajax_call }
+    , cancel:         { name: kivi.t8('Cancel'),             icon: "close",  callback: kivi.requirement_spec.cancel_edit_additional_parts_form }
+  };
+
+  $.contextMenu({
+    selector: '.edit-additional-parts-context-menu',
+    items:    $.extend({
+        heading:        { name: kivi.t8('Additional articles actions'), className: 'context-menu-heading' }
+    }, additional_parts_actions, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.edit-additional-parts-row-context-menu',
+    items:    $.extend({
+        heading:        { name: kivi.t8('Additional articles actions'), className: 'context-menu-heading' }
+      , delete:         { name: kivi.t8('Remove article'),     icon: "delete", callback: kivi.requirement_spec.delete_additional_part }
+    }, additional_parts_actions, general_actions)
+  });
+
+  $.contextMenu({
     selector: '.quotations-and-orders-context-menu,.quotations-and-orders-order-context-menu',
     items:    $.extend({
         heading:            { name: kivi.t8('Quotations/Orders actions'), className: 'context-menu-heading'                                                                                            }
@@ -892,3 +1064,9 @@ ns.create_context_menus = function(is_template) {
 };
 
 });                             // end of namespace(...., function() {...
+
+function local_reinit_widgets() {
+  kivi.run_once_for('#quotations_and_orders_order_id,[name="sections[].order_part_id"]', "assign_order_part_on_part_picked", function(elt) {
+    $(elt).on('set_item:PartPicker', kivi.requirement_spec.assign_order_part_on_part_picked);
+  });
+}

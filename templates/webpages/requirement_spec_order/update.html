@@ -13,6 +13,8 @@
  </h2>
 
  <form id="quotations_and_orders_form">
+  <h3>[% LxERP.t8("Updating items with sections") %]</h3>
+
   [% L.hidden_tag("rs_order_id", SELF.rs_order.id, no_id=1) %]
 
   <table style="width: 100%">
@@ -42,6 +44,13 @@
 
   <p>
    [% LxERP.t8("Sections that are not assigned to any of the items above will be added as new positions.") %]
+  </p>
+
+  <h3>[% LxERP.t8("Updating items with additional parts") %]</h3>
+
+  <p>
+   [% LxERP.t8("You cannot modify individual assigments from additional articles to line items.") %]
+   [% LxERP.t8("They will be updated, new ones for additional parts without a line item added automatically.") %]
   </p>
 
   <p>

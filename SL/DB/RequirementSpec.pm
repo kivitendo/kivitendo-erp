@@ -43,6 +43,11 @@ __PACKAGE__->meta->add_relationship(
     class          => 'SL::DB::RequirementSpecOrder',
     column_map     => { id => 'requirement_spec_id' },
   },
+  parts            => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecPart',
+    column_map     => { id => 'requirement_spec_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -119,6 +124,14 @@ sub versioned_copies_sorted {
   return \@copies;
 }
 
+sub parts_sorted {
+  my ($self, @rest) = @_;
+
+  croak "This sub is not a writer" if @rest;
+
+  return [ sort { $a->position <=> $b->position } @{ $self->parts } ];
+}
+
 sub create_copy {
   my ($self, %params) = @_;
 
@@ -158,9 +171,9 @@ sub _copy_from {
   my %paste_template_result;
 
   # Clone text blocks and pictures.
-  my $clone_picture = sub {
-    my ($picture) = @_;
-    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($picture);
+  my $clone_and_reset_position = sub {
+    my ($src_obj) = @_;
+    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($src_obj);
     $cloned->position(undef);
     return $cloned;
   };
@@ -169,7 +182,7 @@ sub _copy_from {
     my ($text_block) = @_;
     my $cloned       = Rose::DB::Object::Helpers::clone_and_reset($text_block);
     $cloned->position(undef);
-    $cloned->pictures([ map { $clone_picture->($_) } @{ $text_block->pictures_sorted } ]);
+    $cloned->pictures([ map { $clone_and_reset_position->($_) } @{ $text_block->pictures_sorted } ]);
     return $cloned;
   };
 
@@ -180,6 +193,11 @@ sub _copy_from {
   } else {
     $self->add_text_blocks($paste_template_result{text_blocks});
   }
+
+  # Clone additional parts.
+  $paste_template_result{parts} = [ map { $clone_and_reset_position->($_) } @{ $source->parts } ];
+  my $accessor                  = $params->{paste_template} ? "add_parts" : "parts";
+  $self->$accessor($paste_template_result{parts});
 
   # Save new object -- we need its ID for the items.
   $self->save;
@@ -518,6 +536,11 @@ Returns an array reference of text blocks sorted by their positional
 column in ascending order. If the C<output_position> parameter is
 given then only the text blocks belonging to that C<output_position>
 are returned.
+
+=item C<parts_sorted>
+
+Returns an array reference of additional parts sorted by their
+positional column in ascending order.
 
 =item C<validate>
 

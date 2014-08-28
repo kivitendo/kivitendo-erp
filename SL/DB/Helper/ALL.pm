@@ -83,6 +83,7 @@ use SL::DB::RequirementSpecComplexity;
 use SL::DB::RequirementSpecDependency;
 use SL::DB::RequirementSpecItem;
 use SL::DB::RequirementSpecOrder;
+use SL::DB::RequirementSpecPart;
 use SL::DB::RequirementSpecPicture;
 use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecRisk;

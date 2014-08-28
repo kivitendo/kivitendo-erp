@@ -29,7 +29,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models) ],
+                                  current_text_block_output_position models time_based_units) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -234,7 +234,10 @@ sub action_create_pdf {
 sub action_select_template_to_paste {
   my ($self) = @_;
 
-  my @templates = grep { @{ $_->sections } || @{ $_->text_blocks } } @{ SL::DB::Manager::RequirementSpec->get_all(where => [ is_template => 1 ], sort_by => 'lower(title)') };
+  my @templates = @{ SL::DB::Manager::RequirementSpec->get_all(
+    where   => [ is_template => 1, SL::DB::Manager::RequirementSpec->not_empty_filter ],
+    sort_by => 'lower(requirement_specs.title)',
+  ) };
   $self->render('requirement_spec/select_template_to_paste', { layout => 0 }, TEMPLATES => \@templates);
 }
 
@@ -252,6 +255,12 @@ sub action_paste_template {
   if (@{ $result{sections} } && (($::form->{current_content_type} || 'sections') eq 'sections') && !$::form->{current_content_id}) {
     $self->render_first_pasted_section_as_list($result{sections}->[0]);
   }
+
+  my $parts_list = $self->render('requirement_spec_part/show', { output => 0 });
+  $self->js
+    ->replaceWith('#additional_parts_list_container', $parts_list)
+    ->show(       '#additional_parts_list_container')
+    ->remove(     '#additional_parts_form_container');
 
   $self->invalidate_version->render($self);
 }
@@ -280,6 +289,7 @@ sub init_project_types          { SL::DB::Manager::ProjectType->get_all_sorted  
 sub init_projects               { SL::DB::Manager::Project->get_all_sorted                    }
 sub init_risks                  { SL::DB::Manager::RequirementSpecRisk->get_all_sorted        }
 sub init_statuses               { SL::DB::Manager::RequirementSpecStatus->get_all_sorted      }
+sub init_time_based_units       { SL::DB::Manager::Unit->time_based_units                     }
 sub init_types                  { SL::DB::Manager::RequirementSpecType->get_all_sorted        }
 
 sub init_customers {

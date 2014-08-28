@@ -7,6 +7,7 @@ namespace("kivi").setupLocale({
 "Add section":"Abschnitt hinzufügen",
 "Add sub function block":"Unterfunktionsblock hinzufügen",
 "Add text block":"Textblock erfassen",
+"Additional articles actions":"Aktionen zu zusätzlichen Artikeln",
 "Are you sure?":"Sind Sie sicher?",
 "Basic settings actions":"Aktionen zu Grundeinstellungen",
 "Cancel":"Abbrechen",
@@ -44,6 +45,7 @@ namespace("kivi").setupLocale({
 "Paste template":"Vorlage einfügen",
 "Project link actions":"Projektverknüpfungs-Aktionen",
 "Quotations/Orders actions":"Aktionen für Angebote/Aufträge",
+"Remove article":"Artikel entfernen",
 "Requirement spec actions":"Pflichtenheftaktionen",
 "Requirement spec template actions":"Pflichtenheftvorlagen-Aktionen",
 "Revert to version":"Auf Version zurücksetzen",
@@ -68,5 +70,7 @@ namespace("kivi").setupLocale({
 "Transaction description":"Vorgangsbezeichnung",
 "Update":"Erneuern",
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
-"Version actions":"Aktionen für Versionen"
+"Version actions":"Aktionen für Versionen",
+"flat-rate position":"Pauschalposition",
+"time and effort based position":"Aufwandsposition"
 });

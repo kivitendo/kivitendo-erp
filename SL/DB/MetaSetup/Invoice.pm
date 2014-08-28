@@ -52,7 +52,7 @@ __PACKAGE__->meta->columns(
   storno                    => { type => 'boolean', default => 'false' },
   storno_id                 => { type => 'integer' },
   taxincluded               => { type => 'boolean' },
-  taxzone_id                => { type => 'integer' },
+  taxzone_id                => { type => 'integer', not_null => 1 },
   terms                     => { type => 'integer', default => '0' },
   transaction_description   => { type => 'text' },
   transdate                 => { type => 'date', default => 'now' },

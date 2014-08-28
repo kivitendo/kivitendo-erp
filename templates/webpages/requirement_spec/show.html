@@ -1,4 +1,4 @@
-[%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%]
+[%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%][%- USE JavaScript -%]
 [% SET sections = SELF.requirement_spec.sections_sorted || [] %]
 
 [%- INCLUDE 'common/flash.html' %]
@@ -12,6 +12,7 @@
   <li id="tab-header-function-block"><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
   <li id="tab-header-basic-settings"><a href="controller.pl?action=RequirementSpec/ajax_show_basic_settings&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
   <li id="tab-header-time-cost-estimate"><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
+  <li id="tab-header-additional-parts"><a href="controller.pl?action=RequirementSpecPart/show&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Additional articles") %]</a></li>
   [%- UNLESS SELF.requirement_spec.is_template %]
    <li id="tab-header-versions"><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>
    <li id="tab-header-quotations-orders"><a href="[% SELF.url_for(controller='RequirementSpecOrder', action='list', requirement_spec_id=SELF.requirement_spec.id) %]">[%- LxERP.t8("Quotations and orders") %]</a></li>
@@ -94,6 +95,11 @@ $(function() {
 [% IF SELF.requirement_spec_item %]
     , initially_selected_node: '#fb-[% SELF.requirement_spec_item.id %]'
 [% END %]
+    , time_based_units: {
+      [% FOREACH unit = SELF.time_based_units %]
+       [% UNLESS loop.first %], [% END %] "[% JavaScript.escape(unit.name) %]": true
+      [% END %]
+    }
   });
 });
 

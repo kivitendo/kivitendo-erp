@@ -1,5 +1,8 @@
 package SL::DB::Unit;
 
+use List::MoreUtils qw(any);
+
+
 use strict;
 
 use SL::DB::MetaSetup::Unit;
@@ -27,8 +30,8 @@ sub unit_class {
 
 sub convertible_units {
   my $self = shift;
-  my $all_units = scalar(@_) && (ref($_[0]) eq 'ARRAY') ? $_[0] : \@_;
-  $all_units    = SL::DB::Manager::Unit->get_all if !@{ $all_units };
+  my $all_units = scalar(@_) && (ref($_[0]) eq 'ARRAY') ? $_[0] : [ @_ ];
+  $all_units    = SL::DB::Manager::Unit->all_units if ! @{ $all_units };
   return [
     sort { $a->sortkey <=> $b->sortkey }
     grep { $_->unit_class->name eq $self->unit_class->name }
@@ -55,6 +58,12 @@ sub convert_to {
   my $other_base_factor = $other_unit->base_factor || 1;
 
   return $qty * $my_base_factor / $other_base_factor;
+}
+
+sub is_time_based {
+  my ($self) = @_;
+
+  return any { $_->id == $self->id } @{ SL::DB::Manager::Unit->time_based_units };
 }
 
 1;

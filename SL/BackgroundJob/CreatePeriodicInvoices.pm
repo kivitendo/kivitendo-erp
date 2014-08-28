@@ -98,7 +98,7 @@ sub _generate_time_period_variables {
     next_year           => [ $period_start_date->clone->truncate(to => 'year')->add(     years => 1),   sub { $_[0]->year } ],
 
     period_start_date   => [ $period_start_date->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
-    period_end_date     => [ $period_end_date  ->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
+    period_end_date     => [ $period_end_date,                                   sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
   };
 
   return $vars;

@@ -1034,7 +1034,7 @@ sub parse_template {
                                       %{ $self->{TEMPLATE_DRIVER_OPTIONS} || {} });
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
-  $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
+  $self->{"notes"} = $self->{ $self->{"formname"} . "notes" } if exists $self->{ $self->{"formname"} . "notes" };
 
   if (!$self->{employee_id}) {
     $self->{"employee_${_}"} = $myconfig->{$_} for qw(email tel fax name signature);
@@ -3363,15 +3363,15 @@ sub prepare_for_printing {
   my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
   if ($self->{language_id}) {
     ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) = AM->get_language_details(\%::myconfig, $self, $self->{language_id});
-  } else {
-    $output_dateformat   = $::myconfig{dateformat};
-    $output_numberformat = $::myconfig{numberformat};
-    $output_longdates    = 1;
   }
 
-  $self->{myconfig_output_dateformat}   = $output_dateformat;
-  $self->{myconfig_output_longdates}    = $output_longdates;
-  $self->{myconfig_output_numberformat} = $output_numberformat;
+  $output_dateformat   ||= $::myconfig{dateformat};
+  $output_numberformat ||= $::myconfig{numberformat};
+  $output_longdates    //= 1;
+
+  $self->{myconfig_output_dateformat}   = $output_dateformat   // $::myconfig{dateformat};
+  $self->{myconfig_output_longdates}    = $output_longdates    // 1;
+  $self->{myconfig_output_numberformat} = $output_numberformat // $::myconfig{numberformat};
 
   # Retrieve accounts for tax calculation.
   IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
