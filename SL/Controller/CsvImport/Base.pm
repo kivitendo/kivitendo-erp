@@ -2,6 +2,7 @@ package SL::Controller::CsvImport::Base;
 
 use strict;
 
+use English qw(-no_match_vars);
 use List::MoreUtils qw(pairwise any);
 
 use SL::Helper::Csv;
@@ -461,9 +462,9 @@ sub save_objects {
 
     my $ret;
     if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
-      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $@);
+      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $EVAL_ERROR);
     } elsif ( !$ret ) {
-      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
+      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $object->db->error);
     } else {
       $self->_save_history($object);
       $self->controller->num_imported($self->controller->num_imported + 1);
