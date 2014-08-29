@@ -1879,9 +1879,11 @@ sub _render_custom_variables_inputs {
       }
     }
 
+    my $hide_non_editable = 1;
+
     my $show = 0;
     my $description = '';
-    if (($cvar->{flag_editable} && $cvar->{valid}) && !$partsgroup_filtered) {
+    if (( ($cvar->{flag_editable} || !$hide_non_editable) && $cvar->{valid}) && !$partsgroup_filtered) {
       $num_visible_cvars++;
       $description = $cvar->{description} . ' ';
       $show = 1;
@@ -1894,7 +1896,7 @@ sub _render_custom_variables_inputs {
       description    => $description,
       cvar           => 1,
       render_options => {
-         hide_non_editable => 1,
+         hide_non_editable => $hide_non_editable,
          var               => $cvar,
          name_prefix       => 'ic_',
          name_postfix      => "_$params{row}",
