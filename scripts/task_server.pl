@@ -88,6 +88,8 @@ sub per_job_initialization {
 
   $::form->{login} = $lx_office_conf{task_server}->{login};
   $::instance_conf->init;
+
+  $::form->{__ERROR_HANDLER} = sub { die @_ };
 }
 
 sub drop_privileges {
@@ -221,6 +223,17 @@ sub gd_run {
       die $@ unless $@ eq "Alarm!\n";
     }
   }
+}
+
+sub end_of_request {
+  $main::lxdebug->show_backtrace();
+  die <<EOF;
+Job called ::end_of_request()!
+
+This usually indicates success but should not be used by background jobs. A
+backtrace has been logged. Please tell the job author to have a look at it.
+EOF
+
 }
 
 chdir $exe_dir;
