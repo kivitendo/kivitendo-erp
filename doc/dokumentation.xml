@@ -3912,7 +3912,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <term><varname>netprice</varname></term>
 
               <listitem>
-                <para>Nettopreis</para>
+                <para>Alternative zu <varname>sellprice</varname>, aber <varname>netprice</varname> entspricht dem effektiven Einzelpreis und beinhaltet Zeilenrabatt und Preisfaktor. <varname>netprice</varname> wird rückgerechnet aus Zeilensumme / Menge. Diese Variable ist nützlich, wenn man den gewährten Rabatt in der Druckvorlage nicht anzeigen möchte, aber Menge * Einzelpreis trotzdem die angezeigte Zeilensumme ergeben soll. <varname>netprice</varname> hat nichts mit Netto/Brutto im Sinne von Steuern zu tun.</para>
               </listitem>
             </varlistentry>
 
