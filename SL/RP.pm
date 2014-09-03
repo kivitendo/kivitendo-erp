@@ -884,7 +884,7 @@ sub trial_balance {
   my $glwhere       = '';
   my $glsumwhere    = '';
   my $tofrom;
-  my ($fromdate, $todate, $hotfix_query);
+  my ($fromdate, $todate, $fetch_accounts_before_from);
 
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {
@@ -924,7 +924,7 @@ sub trial_balance {
 
     # get all entries before fromdate, which are not yet fetched
     # TODO dpt_where_without_arapgl and project
-    $hotfix_query = qq|SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
+    $fetch_accounts_before_from = qq|SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
                        FROM acc_trans ac JOIN chart c ON (c.id = ac.chart_id) WHERE 1 = 1 AND (ac.transdate <= $fromdate)
                         AND (ac.transdate >= (SELECT date_trunc('YEAR', | . $fromdate . qq|::date)))
                        AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)
@@ -988,8 +988,8 @@ sub trial_balance {
   }
   $sth->finish;
 
-  if (! $form->{method} eq "cash") {
-    $sth = prepare_execute_query($form, $dbh, $hotfix_query);
+  if ($form->{method} ne "cash") {
+    $sth = prepare_execute_query($form, $dbh, $fetch_accounts_before_from);
     while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
       $trb{ $ref->{accno} }{charttype}   = 'A';
