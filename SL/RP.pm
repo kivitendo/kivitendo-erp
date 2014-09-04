@@ -923,10 +923,13 @@ sub trial_balance {
     $sumwhere .= $glsumwhere . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
 
     # get all entries before fromdate, which are not yet fetched
-    # TODO dpt_where_without_arapgl and project
+    # TODO dpt_where_without_arapgl and project - project calculation seems bogus anyway
+    # TODO use fiscal_year_startdate for the whole trial balance
+    #      anyway, if the last booking is in a deviating fiscal year, this already improves the query
+    my $fiscal_year_startdate = conv_dateq(get_balance_starting_date($form->{fromdate}));
     $fetch_accounts_before_from = qq|SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
                        FROM acc_trans ac JOIN chart c ON (c.id = ac.chart_id) WHERE 1 = 1 AND (ac.transdate <= $fromdate)
-                        AND (ac.transdate >= (SELECT date_trunc('YEAR', | . $fromdate . qq|::date)))
+                       AND (ac.transdate >= $fiscal_year_startdate)
                        AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)
                        AND c.accno NOT IN (SELECT c.accno FROM acc_trans ac JOIN chart c ON (c.id = ac.chart_id) WHERE 1 = 1 AND (ac.transdate >= $fromdate) AND (ac.transdate <= $todate)
                        AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL))
@@ -988,7 +991,7 @@ sub trial_balance {
   }
   $sth->finish;
 
-  if ($form->{method} ne "cash") {
+  if (!$form->{method} ne "cash") {
     $sth = prepare_execute_query($form, $dbh, $fetch_accounts_before_from);
     while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
