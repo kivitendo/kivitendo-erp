@@ -176,8 +176,6 @@
 
          <tr>
           <td>[%- L.checkbox_tag('l_priceupdate', label=LxERP.t8('Updated'), value='Y') %]</td>
-          <!-- auskommentiert fuer bug nummer 852 - ggf. fuer einen standardlagerplatz verwertet jb 18.5.09-->
-          <!-- <td>[%#- L.checkbox_tag('l_bin', label=LxERP.t8('Bin'), value='Y') %]</td> -->
           <td>[%- L.checkbox_tag('l_deliverydate', label=LxERP.t8('Delivery Date'), value='Y') %]</td>
       [%- UNLESS is_service %]
           <td>[%- L.checkbox_tag('l_rop', label=LxERP.t8('ROP'), value='Y') %]</td>
@@ -211,6 +209,7 @@
 
          <tr>
           <td>[%- L.checkbox_tag('l_notes', label=LxERP.t8('Notes'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_name', label=LxERP.t8('Name in Selected Records'), value='Y') %]</td>
          </tr>
 
          [% CUSTOM_VARIABLES_INCLUSION_CODE %]

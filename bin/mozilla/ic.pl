@@ -1046,6 +1046,7 @@ sub generate_report {
     'sellprice'          => { 'text' => $locale->text('Sell Price'), },
     'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
     'soldtotal'          => { 'text' => $locale->text('Qty in Selected Records'), },
+    'name'               => { 'text' => $locale->text('Name in Selected Records'), },
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
@@ -1211,7 +1212,11 @@ sub generate_report {
 
     flash('warning', $::locale->text('Soldtotal does not make sense without any bsooqr options'));
   }
+  if ($form->{l_name} && !$bsooqr_mode) {
+    delete $form->{l_name};
 
+    flash('warning', $::locale->text('Name does not make sense without any bsooqr options'));
+  }
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
