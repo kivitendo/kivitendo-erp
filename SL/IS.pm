@@ -492,7 +492,18 @@ sub customer_details {
        ORDER BY cp.cp_id
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
-
+  # we have no values, probably a invalid contact person. hotfix and first idea for issue #9
+  if (!$ref) {
+    my $customer = SL::DB::Manager::Customer->find_by(id => $::form->{customer_id});
+    $ref->{name} = $customer->name;
+    $ref->{street} = $customer->street;
+    $ref->{zipcode} = $customer->zipcode;
+    $ref->{country} = $customer->country;
+    my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
+    $ref->{cp_name} = $contact->cp_name;
+    $ref->{cp_givenname} = $contact->cp_givenname;
+    $ref->{cp_gender} = $contact->cp_gender;
+  }
   # remove id and taxincluded before copy back
   delete @$ref{qw(id taxincluded)};
 
