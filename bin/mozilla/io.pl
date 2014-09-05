@@ -1939,6 +1939,8 @@ sub _make_record_item {
     next unless $obj->meta->column($method);
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
+    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
+      $obj->${\"$method\_as_number"}($::form->{"$method\_$row"});
     } else {
       $obj->$method($::form->{"$method\_$row"});
     }
