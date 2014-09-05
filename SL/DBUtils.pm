@@ -8,6 +8,7 @@ our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_stateme
              selectfirst_hashref_query selectfirst_array_query
              selectall_hashref_query selectall_array_query
              selectall_as_map
+             selectall_ids
              prepare_execute_query prepare_query
              create_sort_spec does_table_exist
              add_token);
@@ -234,6 +235,25 @@ sub selectall_as_map {
   $main::lxdebug->leave_sub(2);
 
   return %hash;
+}
+
+sub selectall_ids {
+  $main::lxdebug->enter_sub(2);
+
+  my ($form, $dbh, $query, $key_col) = splice(@_, 0, 4);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+
+  my @ids;
+  while (my $ref = $sth->fetchrow_arrayref()) {
+    push @ids, $ref->[$key_col];
+  }
+
+  $sth->finish;
+
+  $main::lxdebug->leave_sub(2);
+
+  return @ids;
 }
 
 sub create_sort_spec {
