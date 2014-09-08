@@ -18,4 +18,10 @@ sub validate {
   return @errors;
 }
 
+sub displayable_name {
+  my $self = shift;
+
+  return join ' ', grep $_, $self->id, $self->description;
+}
+
 1;
