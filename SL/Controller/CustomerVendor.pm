@@ -7,6 +7,7 @@ use SL::JSON;
 use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use SL::Controller::Helper::GetModels;
 
 use SL::DB::Customer;
 use SL::DB::Vendor;
@@ -22,6 +23,10 @@ use SL::DB::FollowUp;
 use SL::DB::FollowUpLink;
 use SL::DB::History;
 use SL::DB::Currency;
+
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(customer_models vendor_models) ],
+);
 
 # safety
 __PACKAGE__->run_before(
@@ -50,6 +55,7 @@ __PACKAGE__->run_before(
   '_load_customer_vendor',
   only => [
     'edit',
+    'show',
     'update',
     'ajaj_get_shipto',
     'ajaj_get_contact',
@@ -86,6 +92,22 @@ sub action_edit {
     title => ($self->is_vendor() ? $::locale->text('Edit Vendor') : $::locale->text('Edit Customer')),
     %{$self->{template_args}}
   );
+}
+
+sub action_show {
+  my ($self) = @_;
+
+  if ($::request->type eq 'json') {
+    my $cv_hash;
+    if (!$self->{cv}) {
+      # TODO error
+    } else {
+      $cv_hash          = $self->{cv}->as_tree;
+      $cv_hash->{cvars} = $self->{cv}->cvar_as_hashref;
+    }
+
+    $self->render(\ SL::JSON::to_json($cv_hash), { layout => 0, type => 'json', process => 0 });
+  }
 }
 
 sub _save {
@@ -539,40 +561,64 @@ sub action_ajaj_get_contact {
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
-sub action_ajaj_customer_autocomplete {
+sub action_ajaj_autocomplete {
   my ($self, %params) = @_;
 
-  my $limit = $::form->{limit} || 20;
-  my $type  = $::form->{type}  || {};
-  my $query = { ilike => '%'. $::form->{term} .'%' };
+  my ($model, $manager, $number, $matches);
 
-  my @filter;
-  push(
-    @filter,
-    $::form->{column} ? ($::form->{column} => $query) : (or => [ customernumber => $query, name => $query ])
-  );
+  # first see if this is customer or vendor picking
+  if ($::form->{type} eq 'customer') {
+     $model   = $self->customer_models;
+     $manager = 'SL::DB::Manager::Customer';
+     $number  = 'customernumber';
+  } elsif ($::form->{type} eq 'vendor')  {
+     $model   = $self->vendor_models;
+     $manager = 'SL::DB::Manager::Vendor';
+     $number  = 'vendornumber';
+  } else {
+     die "unknown type $::form->{type}";
+  }
 
-  push @filter, (or => [ obsolete => undef, obsolete => 0 ]) if !$::form->{obsolete};
+  # if someone types something, and hits enter, assume he entered the full name.
+  # if something matches, treat that as sole match
+  # unfortunately get_models can't do more than one per package atm, so we d it
+  # the oldfashioned way.
+  if ($::form->{prefer_exact}) {
+    my $exact_matches;
+    if (1 == scalar @{ $exact_matches = $manager->get_all(
+      query => [
+        obsolete => 0,
+        or => [
+          name    => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
+          $number => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
+        ]
+      ],
+      limit => 2,
+    ) }) {
+      $matches = $exact_matches;
+    }
+  }
 
-  my $customers = SL::DB::Manager::Customer->get_all(query => [ @filter ], limit => $limit);
-  my $value_col = $::form->{column} || 'name';
+  $matches //= $model->get;
 
-  my $data = [
-    map(
-      {
-        {
-          value => $_->can($value_col)->($_),
-          label => $_->displayable_name,
-          id    => $_->id,
-          customernumber => $_->customernumber,
-          name  => $_->name,
-        }
-      }
-      @{$customers}
-    )
-  ];
+  my @hashes = map {
+   +{
+     value       => $_->name,
+     label       => $_->displayable_name,
+     id          => $_->id,
+     $number     => $_->$number,
+     name        => $_->name,
+     type        => $::form->{type},
+     cvars       => { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $_->cvars_by_config } },
+    }
+  } @{ $matches };
 
-  $self->render(\SL::JSON::to_json($data), { layout => 0, type => 'json' });
+  $self->render(\ SL::JSON::to_json(\@hashes), { layout => 0, type => 'json', process => 0 });
+}
+
+sub action_test_page {
+  $::request->{layout}->add_javascripts('autocomplete_customer.js');
+  $_[0]->render('customer_vendor/test_page');
 }
 
 sub is_vendor {
@@ -890,6 +936,38 @@ sub home_address_for_google_maps {
   $address    =~ s{\s+}{ }g;
 
   return $address;
+}
+
+sub init_customer_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller   => $self,
+    model        => 'Customer',
+    sorted => {
+      _default  => {
+        by => 'name',
+        dir  => 1,
+      },
+      name  => t8('name'),
+    },
+  );
+}
+
+sub init_vendor_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    model      => 'Vendor',
+    sorted => {
+      _default  => {
+        by => 'name',
+        dir  => 1,
+      },
+      name  => t8('name'),
+    },
+  );
 }
 
 1;

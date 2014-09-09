@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(customer vendor);
+our @EXPORT = qw(customer vendor customer_vendor_picker);
 
 use Carp;
 
@@ -34,6 +34,27 @@ sub _customer_vendor {
     $params{no_link} ? '' : '</a>',
   );
   return $self->escaped_text($text);
+}
+
+sub customer_vendor_picker {
+  my ($self, $name, $value, %params) = @_;
+
+  $value = SL::DB::Manager::Customer->find_by(id => $value) if $value && !ref $value;
+  my $id = delete($params{id}) || $self->name_to_id($name);
+  my $fat_set_item = delete $params{fat_set_item};
+
+  my @classes = $params{class} ? ($params{class}) : ();
+  push @classes, 'customer_vendor_autocomplete';
+  push @classes, 'customer-vendor-picker-fat-set-item' if $fat_set_item;
+
+  my $ret =
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
+    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type)) .
+    $self->input_tag("", (ref $value && $value->can('name')) ? $value->name : '', id => "${id}_name", %params);
+
+  $::request->presenter->need_reinit_widgets($id);
+
+  $self->html_tag('span', $ret, class => 'customer_vendor_picker');
 }
 
 1;

@@ -2,6 +2,8 @@ package SL::DB::Vendor;
 
 use strict;
 
+use Rose::DB::Object::Helpers qw(as_tree);
+
 use SL::DB::MetaSetup::Vendor;
 use SL::DB::Manager::Vendor;
 use SL::DB::Helper::TransNumberGenerator;

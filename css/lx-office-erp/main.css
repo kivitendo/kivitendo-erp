@@ -455,6 +455,7 @@ label {
 .part_picker {
   padding-right: 16px;
 }
+.customer-vendor-picker-undefined,
 .partpicker-undefined {
   color: red;
   font-style: italic;

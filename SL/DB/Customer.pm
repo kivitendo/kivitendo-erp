@@ -2,6 +2,8 @@ package SL::DB::Customer;
 
 use strict;
 
+use Rose::DB::Object::Helpers qw(as_tree);
+
 use SL::DB::MetaSetup::Customer;
 use SL::DB::Manager::Customer;
 use SL::DB::Helper::TransNumberGenerator;

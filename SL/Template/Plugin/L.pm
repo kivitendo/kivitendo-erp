@@ -67,6 +67,7 @@ sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
 sub part_picker   { return _call_presenter('part_picker',   @_); }
+sub customer_vendor_picker   { return _call_presenter('customer_vendor_picker',   @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -239,16 +240,6 @@ sub date_tag {
     %params,
     %class, @onchange,
   );
-}
-
-sub customer_picker {
-  my ($self, $name, $value, %params) = _hashify(3, @_);
-  my $name_e    = _H($name);
-
-  $::request->{layout}->add_javascripts('autocomplete_customer.js');
-
-  $self->hidden_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'customer_autocomplete') .
-  $self->input_tag('', (ref $value && $value->can('name')) ? $value->name : '', id => $self->name_to_id("$name_e\_name"), %params);
 }
 
 # simple version with select_tag

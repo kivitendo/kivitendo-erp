@@ -404,6 +404,7 @@ label {
   padding-right: 16px;
 }
 
+.customer-vendor-picker-undefined,
 .partpicker-undefined {
   color: red;
   font-style: italic;

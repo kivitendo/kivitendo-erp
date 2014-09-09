@@ -127,6 +127,11 @@ namespace("kivi", function(ns) {
         kivi.PartPicker($(elt));
       });
 
+    if (ns.CustomerVendorPicker)
+      ns.run_once_for('input.customer_vendor_autocomplete', 'customer_vendor_picker', function(elt) {
+        kivi.CustomerVendorPicker($(elt));
+      });
+
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
       func();
