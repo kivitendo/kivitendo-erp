@@ -323,7 +323,7 @@ sub display_row {
 
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
 
-    if ($form->{"id_${i}"}) {
+    if ($form->{"id_${i}"} && !$is_delivery_order) {
       my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
       my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
       $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "kivi.io.price_chooser($i)");
