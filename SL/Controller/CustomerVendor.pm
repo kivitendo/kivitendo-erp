@@ -949,7 +949,7 @@ sub init_customer_models {
         by => 'name',
         dir  => 1,
       },
-      name  => t8('name'),
+      name  => t8('Name'),
     },
   );
 }
@@ -965,7 +965,7 @@ sub init_vendor_models {
         by => 'name',
         dir  => 1,
       },
-      name  => t8('name'),
+      name  => t8('Name'),
     },
   );
 }
