@@ -30,6 +30,7 @@ $OUTPUT_AUTOFLUSH = 1;
 my $opt_v  = 0;
 my $opt_n  = 0;
 my $opt_c  = 0;
+my $opt_f  = 0;
 my $debug  = 0;
 
 parse_args();
@@ -175,6 +176,15 @@ if (@new_missing) {
     }
   }
 
+  if ($opt_f) {
+    for my $string (@new_missing) {
+      print "new string '$string' in files:\n";
+      for my $file (keys %cached) {
+        print "  $file", $/ if $cached{$file}{all}{$string};
+      }
+    }
+  }
+
   generate_file(
     file      => "$locales_dir/missing",
     header    => $MISSING_HEADER,
@@ -244,6 +254,7 @@ sub parse_args {
     'check-files'     => \$ignore_for_compatiblity,
     'no-check-files'  => \$opt_no_c,
     'verbose'         => \$opt_v,
+    'filenames'       => \$opt_f,
     'help'            => \$help,
     'man'             => \$man,
     'debug'           => \$debug,
@@ -739,6 +750,7 @@ locales.pl [options] lang_code
  Options:
   -n, --no-custom-files  Do not process files whose name contains "_"
   -c, --check-files      Run extended checks on HTML files
+  -f, --filenames        Show the filenames where new strings where found
   -v, --verbose          Be more verbose
   -h, --help             Show this help
 
