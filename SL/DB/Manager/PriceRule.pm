@@ -50,6 +50,8 @@ sub get_all_matching {
   my ($query, @values) = $self->get_matching_filter(%params);
   my @ids = selectall_ids($::form, $::form->get_standard_dbh, $query, 0, @values);
 
+  return [] unless @ids;
+
   $self->get_all(query => [ id => \@ids ]);
 }
 
