@@ -37,6 +37,9 @@ sub match_business {
 sub match_partsgroup {
   $_[0]->value_int == $_[1]{record_item}->parts->partsgroup_id;
 }
+sub match_part {
+  $_[0]->value_int == $_[1]{record_item}->parts_id;
+}
 sub match_qty {
   if ($_[0]->op eq 'eq') {
     return $_[0]->value_num == $_[1]{record_item}->qty
@@ -59,6 +62,10 @@ sub match_pricegroup {
   $_[0]->value_int == $_[1]{record_item}->customervendor->pricegroup_id;
 }
 
+sub part {
+  require SL::DB::Part;
+  SL::DB::Part->load_cached($_[0]->value_int);
+}
 sub customer {
   require SL::DB::Customer;
   SL::DB::Customer->load_cached($_[0]->value_int);
@@ -95,6 +102,7 @@ sub full_description {
   : $type eq 'business'   ? t8('Type of Business') . ' ' . $self->business->displayable_name
   : $type eq 'partsgroup' ? t8('Group')            . ' ' . $self->partsgroup->displayable_name
   : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->pricegroup->displayable_name
+  : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->long_description
   : $type eq 'qty' ? (
        $op eq 'eq' ? t8('Qty equals #1',    $self->value_num_as_number)
      : $op eq 'lt' ? t8('Qty less than #1', $self->value_num_as_number)

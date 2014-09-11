@@ -17,6 +17,8 @@
 [% L.hidden_tag('price_rule.items[+].id', item.id) %]
 [% L.hidden_tag('price_rule.items[].type', item.type) %]
 [%- SWITCH item.type %]
+  [% CASE 'part' %]
+    [% 'Part' | $T8 %] [% 'is' | $T8 %] [% L.part_picker('price_rule.items[].value_int', item.part) %]
   [% CASE 'customer' %]
     [% 'Customer' | $T8 %] [% 'is' | $T8 %] [% L.customer_vendor_picker('price_rule.items[].value_int', item.customer, type='customer') %]
   [% CASE 'vendor' %]
