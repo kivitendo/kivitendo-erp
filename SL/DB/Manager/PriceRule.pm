@@ -27,8 +27,7 @@ sub get_matching_filter {
   my $type = $params{record}->is_sales ? 'customer' : 'vendor';
 
   # plan: 1. search all rule_items that do NOT match this record/record item combo
-  my ($sub_where, @value_subs) = SL::DB::Manager::PriceRuleItem->not_matching_sql_and_values(type => $type);
-  my @values = map { $_->($params{record}, $params{record_item}) } @value_subs;
+  my ($sub_where, @values) = SL::DB::Manager::PriceRuleItem->not_matching_sql_and_values(type => $type, %params);
 
   # now union all NOT matching, invert ids, load these
   my $matching_rule_ids = <<SQL;
