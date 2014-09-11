@@ -70,11 +70,10 @@ sub action_update {
 sub action_destroy {
   my ($self) = @_;
 
-  $self->price_rule->obsolete(1);
-  $self->price_rule->save;
-  flash_later('info',  $::locale->text('The price rule has been obsoleted.'));
+  $self->price_rule->delete;
+  flash_later('info',  $::locale->text('The price rule has been deleted.'));
 
-  $self->redirect_to(action => 'list');
+  $self->redirect_to($::form->{callback} || (action => 'list'));
 }
 
 sub action_add_item_row {
