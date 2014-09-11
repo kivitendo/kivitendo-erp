@@ -35,7 +35,7 @@ sub available_prices {
 }
 
 sub best_price {
-  min_by { $_->price } map { $_->best_price } $_[0]->all_price_sources;
+  min_by { $_->price } grep { $_->price > 0 } map { $_->best_price } $_[0]->all_price_sources;
 }
 
 sub empty_price {
