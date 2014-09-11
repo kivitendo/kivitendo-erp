@@ -43,7 +43,7 @@ sub price_for_rule {
   my ($self, $rule) = @_;
   $rule->price_or_discount
     ? (1 - $rule->discount / 100) * ($rule->is_sales ? $self->part->sellprice : $self->part->lastcost)
-    : $_->price;
+    : $rule->price;
 }
 
 sub make_price_from_rule {
