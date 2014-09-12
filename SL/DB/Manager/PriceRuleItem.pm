@@ -56,7 +56,7 @@ sub not_matching_sql_and_values {
         my $ops = $ops{$def->{ops}};
 
         for (keys %$ops) {
-          push @sub_tokens, "op = '$_' AND NOT value_$def->{data_type} $ops->{$_} ?";
+          push @sub_tokens, "op = '$_' AND NOT ? $ops->{$_} value_$def->{data_type}";
           push @values, $value;
         }
       } else {
