@@ -36,7 +36,14 @@ sub price_from_source {
 sub best_price {
   my ($self) = @_;
 
-  $self->make_price_from_rule( min_by { $self->price_for_rule($_) } max_by { $_->priority } @{ $self->available_rules });
+  my $rules     = $self->available_rules;
+
+  return unless @$rules;
+
+  my @max_prio  = max_by { $_->priority } @$rules;
+  my $min_price = min_by { $self->price_for_rule($_) } @max_prio;
+
+  $self->make_price_from_rule($min_price);
 }
 
 sub price_for_rule {
