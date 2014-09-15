@@ -291,7 +291,8 @@ test {
    'part.partnumber', {
      ilike => '%1%'
    }
- ]
+ ],
+ with_objects => [ 'part' ],
 }, 'Regression check: prefixing of fallback filtering in relation with custom filters', class => 'SL::DB::Manager::OrderItem';
 test {
   'description:substr:multi::ilike' => 'term1 term2',

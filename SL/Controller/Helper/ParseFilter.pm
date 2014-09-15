@@ -167,7 +167,7 @@ sub _dispatch_custom_filters {
   my $obj_prefix = join '.', @tokens, '';
 
   if ($manager->can('filter')) {
-    ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix);
+    ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix, $obj_path);
     _add_uniq($with_objects, $obj) if $obj;
   } else {
     _add_uniq($with_objects, $obj_path) if $obj_path;
