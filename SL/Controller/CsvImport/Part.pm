@@ -436,6 +436,7 @@ sub handle_makemodel {
     if ($makemodel_orig) {
       $makemodel_orig->model($makemodel->model);
       $makemodel_orig->lastcost($makemodel->lastcost);
+      $makemodel_orig->sortorder(undef);
 
     } else {
       $entry->{part}->add_makemodels($makemodel);
