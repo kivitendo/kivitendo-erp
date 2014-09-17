@@ -16,7 +16,7 @@
 
     <tr>
      <td align="right">[% 'Factor' | $T8 %]</td>
-[% IF orphaned %]
+[% IF !id || orphaned %]
      <td><input name="factor" value="[% HTML.escape(factor) %]"></td>
 [% ELSE %]
      <td><input type="hidden" name="factor" value="[% HTML.escape(factor) %]">
