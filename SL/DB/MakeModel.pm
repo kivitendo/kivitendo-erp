@@ -6,6 +6,7 @@ package SL::DB::MakeModel;
 use strict;
 
 use SL::DB::MetaSetup::MakeModel;
+use SL::DB::Helper::ActsAsList (column_name => 'sortorder', group_by => [ qw(parts_id) ]);
 
 __PACKAGE__->meta->initialize;
 
