@@ -14,12 +14,13 @@ sub import {
   my ($class, @params)   = @_;
   my $importing = caller();
 
+  configure_acts_as_list($importing, @params);
+
   $importing->before_save(  sub { SL::DB::Helper::ActsAsList::set_position(@_)    });
   $importing->before_delete(sub { SL::DB::Helper::ActsAsList::remove_position(@_) });
 
-  # Use 'goto' so that Exporter knows which module to import into via
-  # 'caller()'.
-  goto &Exporter::import;
+  # Don't 'goto' to Exporters import, it would try to parse @params
+  __PACKAGE__->export_to_level(1, $class, @EXPORT);
 }
 
 #
@@ -322,7 +323,7 @@ column
 =head1 SYNOPSIS
 
   package SL::DB::SomeObject;
-  use SL::DB::Helper::ActsAsList;
+  use SL::DB::Helper::ActsAsList [ PARAMS ];
 
   package SL::Controller::SomeController;
   ...
@@ -347,7 +348,8 @@ in the table plus one.
 When the object is deleted all positions greater than the object's old
 position are decreased by one.
 
-The column name to use can be configured via L<configure_acts_as_list>.
+C<PARAMS> will be given to L<configure_acts_as_list> and can be used to
+set the column name.
 
 =head1 CLASS FUNCTIONS
 
@@ -355,8 +357,8 @@ The column name to use can be configured via L<configure_acts_as_list>.
 
 =item C<configure_acts_as_list %params>
 
-Configures the mixin's behaviour. C<%params> can contain the following
-values:
+Configures the mixin's behaviour. Will get called automatically with the
+include parameters. C<%params> can contain the following values:
 
 =over 2
 
