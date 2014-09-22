@@ -1191,11 +1191,27 @@ sub retrieve_item {
     $where .= " AND lower(${table_column}) LIKE lower(?)";
     push @values, '%' . $form->{"${field}_${i}"} . '%';
   }
-  #Es soll auch nach EAN gesucht werden, ohne Einschränkung durch Beschreibung
+
+  my (%mm_by_id);
   if ($form->{"partnumber_$i"} && !$form->{"description_$i"}) {
-      $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
-      push @values, $form->{"partnumber_$i"};
-   }
+    $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
+    push @values, $form->{"partnumber_$i"};
+
+    # also search hits in makemodels, but only cache the results by id and merge later
+    my $mm_query = qq|
+      SELECT parts_id, model FROM makemodel 
+      LEFT JOIN parts ON parts.id = parts_id 
+      WHERE NOT parts.obsolete AND model ILIKE ? AND (make IS NULL OR make = ?);
+    |;
+    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, '%' . $form->{"partnumber_$i"} . '%', $::form->{vendor_id});
+    my @mm_ids     = map { $_->{parts_id} } @$mm_results;
+    push @{$mm_by_id{ $_->{parts_id} } ||= []}, $_ for @$mm_results;
+
+    if (@mm_ids) {
+      $where .= qq| OR p.id IN (| . join(',', ('?') x @mm_ids) . qq|)|;
+      push @values, @mm_ids;
+    }
+  }
 
   # Search for part ID overrides all other criteria.
   if ($form->{"id_${i}"}) {
@@ -1227,6 +1243,7 @@ sub retrieve_item {
          p.unit, p.assembly, p.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
          p.inventory_accno_id, p.price_factor_id,
+         p.ean,
 
          pfac.factor AS price_factor,
 
@@ -1277,6 +1294,15 @@ sub retrieve_item {
 
   $form->{item_list} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+
+    if ($mm_by_id{$ref->{id}}) {
+      $ref->{makemodels} = $mm_by_id{$ref->{id}};
+      push @{ $ref->{matches} ||= [] }, $::locale->text('Model') . ': ' . join ', ', map { $_->{model} } @{ $mm_by_id{$ref->{id}} };
+    }
+
+    if ($ref->{ean} eq $::form->{"partnumber_$i"}) {
+      push @{ $ref->{matches} ||= [] }, $::locale->text('EAN') . ': ' . $ref->{ean};
+    }
 
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
     # es sich um eine Dienstleistung handelt. Bei Dienstleistungen muss das

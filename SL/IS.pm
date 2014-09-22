@@ -1910,10 +1910,23 @@ sub retrieve_item {
     push @values, '%' . $form->{"${field}_${i}"} . '%';
   }
 
-  #Es soll auch nach EAN gesucht werden, ohne Einschränkung durch Beschreibung
+  my (%mm_by_id);
   if ($form->{"partnumber_$i"} && !$form->{"description_$i"}) {
     $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
     push @values, $form->{"partnumber_$i"};
+
+    # also search hits in makemodels, but only cache the results by id and merge later
+    my $mm_query = qq|
+      SELECT parts_id, model FROM makemodel LEFT JOIN parts ON parts.id = parts_id WHERE NOT parts.obsolete AND model ILIKE ?;
+    |;
+    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, '%' . $form->{"partnumber_$i"} . '%');
+    my @mm_ids     = map { $_->{parts_id} } @$mm_results;
+    push @{$mm_by_id{ $_->{parts_id} } ||= []}, $_ for @$mm_results;
+
+    if (@mm_ids) {
+      $where .= qq| OR p.id IN (| . join(',', ('?') x @mm_ids) . qq|)|;
+      push @values, @mm_ids;
+    }
   }
 
   # Search for part ID overrides all other criteria.
@@ -1947,6 +1960,7 @@ sub retrieve_item {
     qq|SELECT
          p.id, p.partnumber, p.description, p.sellprice,
          p.listprice, p.inventory_accno_id, p.lastcost,
+         p.ean,
 
          c1.accno AS inventory_accno,
          c1.new_chart_id AS inventory_new_chart,
@@ -2001,6 +2015,15 @@ sub retrieve_item {
   map { push @{ $_ }, prepare_query($form, $dbh, $_->[0]) } @translation_queries;
 
   while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
+
+    if ($mm_by_id{$ref->{id}}) {
+      $ref->{makemodels} = $mm_by_id{$ref->{id}};
+      push @{ $ref->{matches} ||= [] }, $::locale->text('Model') . ': ' . join ', ', map { $_->{model} } @{ $mm_by_id{$ref->{id}} };
+    }
+
+    if ($ref->{ean} eq $::form->{"partnumber_$i"}) {
+      push @{ $ref->{matches} ||= [] }, $::locale->text('EAN') . ': ' . $ref->{ean};
+    }
 
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
     # es sich um eine Dienstleistung handelt. Bei Dienstleistungen muss das

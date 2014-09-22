@@ -1664,6 +1664,7 @@ $self->{texts} = {
   'Orphaned'                    => 'Nie benutzt',
   'Orphaned currencies'         => 'Verwaiste Währungen',
   'Other'                       => 'Sonstiges',
+  'Other Matches'               => 'Andere Treffer',
   'Other users\' follow-ups'    => 'Wiedervorlagen anderer Benutzer',
   'Other values are ignored.'   => 'Andere Eingaben werden ignoriert.',
   'Others'                      => 'Andere',

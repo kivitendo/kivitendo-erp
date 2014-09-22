@@ -9,6 +9,7 @@
     <th>&nbsp;</th>
     <th>[% LxERP.t8('Number') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
+    <th>[% LxERP.t8('Other Matches') %]</th>
     <th>[% LxERP.t8('Price') %]</th>
     [%- IF IS_PURCHASE %]
      <th>[% LxERP.t8('ROP') %]</th>
@@ -22,6 +23,7 @@
     <td><input name="select_item_id" class="radio" type="radio" value="[% HTML.escape(item.id) %]"[% IF loop.first %] checked[% END %]></td>
     <td>[% HTML.escape(item.partnumber) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
+    <td>[% HTML.escape(item.matches).join('<br>') %]</td>
     <td align="right">[% LxERP.format_amount(item.display_sellprice, 2) %]</td>
     [%- IF IS_PURCHASE %]
      <td align="right">[% LxERP.format_amount(item.rop, '') %]</td>
