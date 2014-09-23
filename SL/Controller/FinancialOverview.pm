@@ -145,13 +145,11 @@ sub calculate_periodic_invoices {
 sub calculate_one_periodic_invoice {
   my ($self, %params) = @_;
 
-  my @dates           = $params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date}, past_dates => 1);
-  my $first_date      = $dates[0];
+  return if $params{config}->start_date > $params{end_date};
 
-  return if !$first_date;
-
-  my $net  = $params{config}->order->netamount * scalar(@dates);
-  my $sord = $self->data->{sales_orders};
+  my $first_date = $params{config}->start_date->clone->set_year($self->year);
+  my $net        = $params{config}->order->netamount * (12 / $params{config}->get_period_length);
+  my $sord       = $self->data->{sales_orders};
 
   $sord->{months  }->[ $first_date->month   - 1 ] += $net;
   $sord->{quarters}->[ $first_date->quarter - 1 ] += $net;
