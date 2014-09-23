@@ -7,7 +7,7 @@
  [% LxERP.t8("Current year") %]:
  [% L.select_tag('year', YEARS_TO_LIST, default=SELF.year, onchange='$("#form").submit();') %]
 
- [% IF SELF.year < SELF.current_year %]
+ [% IF SELF.year < (SELF.current_year + 5) %]
   |
   <a href="[% SELF.url_for(action='list', year=(SELF.year + 1), subtotals_per_quarter=SELF.subtotals_per_quarter, salesman_id=SELF.salesman_id) %]">[%- LxERP.t8("Following year") %]: [% SELF.year + 1 %] &raquo;</a>
  [% END %]

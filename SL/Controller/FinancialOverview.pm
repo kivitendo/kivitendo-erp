@@ -61,7 +61,7 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'FinancialOverview',
     output_format         => 'HTML',
-    raw_top_info_text     => $self->render('financial_overview/report_top', { output => 0 }, YEARS_TO_LIST => [ reverse(2000..$self->current_year) ]),
+    raw_top_info_text     => $self->render('financial_overview/report_top', { output => 0 }, YEARS_TO_LIST => [ reverse(($self->current_year - 10)..($self->current_year + 5)) ]),
     title                 => t8('Financial overview for #1', $self->year),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
