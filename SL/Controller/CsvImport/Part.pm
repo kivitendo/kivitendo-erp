@@ -436,12 +436,15 @@ sub handle_makemodel {
     if ($makemodel_orig) {
       $makemodel_orig->model($makemodel->model);
       $makemodel_orig->lastcost($makemodel->lastcost);
-      $makemodel_orig->sortorder(undef);
 
     } else {
       $entry->{part}->add_makemodels($makemodel);
     }
   }
+
+  # reindex makemodels
+  my $i = 0;
+  $_->sortorder(++$i) for @{ $entry->{part}->makemodels };
 
   $entry->{part}->makemodel($object->makemodel);
 
