@@ -272,6 +272,9 @@ sub form_header {
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
+  # format exchangerate
+  $form->{exchangerate}    = $form->{exchangerate} ? $form->format_amount(\%myconfig, $form->{exchangerate}) : '';
+
   $rows = max 2, $form->numtextrows($form->{notes}, 50);
 
   my @old_project_ids = grep { $_ } map { $form->{"project_id_$_"} } 1..$form->{rowcount};
