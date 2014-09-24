@@ -3,7 +3,7 @@ package SL::Controller::FinancialControllingReport;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use List::Util qw(sum);
+use List::Util qw(min sum);
 
 use SL::DB::Order;
 use SL::DB::ProjectType;
@@ -121,8 +121,7 @@ sub calculate_data {
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
 
     if ($order->periodic_invoices_config) {
-      my @dates = $order->periodic_invoices_config->calculate_invoice_dates(past_dates => 1, end_date => DateTime->today_local);
-      $order->{net_amount} = $order->netamount * (12 / $order->periodic_invoices_config->get_period_length);
+      $order->{net_amount} = $self->calculate_periodic_invoices_order_netamount($order);
 
     } else {
       $order->{net_amount} = $order->netamount;
@@ -132,6 +131,24 @@ sub calculate_data {
       $order->{"${_}_amount_p"} = $order->{net_amount} * 1 ? $order->{"${_}_amount"} * 100 / $order->{net_amount} : undef;
     }
   }
+}
+
+sub calculate_periodic_invoices_order_netamount {
+  my ($self, $order) = @_;
+
+  my $cfg        = $order->periodic_invoices_config;
+  my $num_years  = 0;
+  my $cur_date   = $cfg->start_date->clone;
+  my $end_date   = $cfg->terminated ? $self->end_date : undef;
+  $end_date    //= DateTime->today_local;
+  $end_date      = min($end_date, DateTime->today_local);
+
+  while ($cur_date <= $end_date) {
+    $num_years++;
+    $cur_date->add(years => 1);
+  }
+
+  return $num_years * $order->netamount * (12 / $order->periodic_invoices_config->get_period_length);
 }
 
 sub sum_items {
