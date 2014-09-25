@@ -23,7 +23,7 @@
 [%- END %]
    <tr>
     <th align="right">[% 'Priority' | $T8 %]</th>
-    <td>[% L.select_tag('price_rule.priority', [1,2,3,4,5], default=SELF.price_rule.priority, style='width: 300px') %]</td>
+    <td>[% L.select_tag('price_rule.priority', [ [3, LxERP.t8('Normal') ], [ 4, LxERP.t8('Override') ] ], default=SELF.price_rule.priority, style='width: 300px') %]</td>
    </tr>
 
    <tr>

@@ -24,8 +24,12 @@
    <td>[% L.input_tag('filter.discount:number', filter.discount_number, size=20) %]</td>
   </tr>
   <tr>
-   <th align="right">[% 'Discount' | $T8 %]</th>
-   <td>[% L.select_tag('filter.obsolete', [ [ '', LxERP.t8('Both') ], [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=filter.obsolete, title_key='description', style='width: 300px') %]</td>
+   <th align="right">[% 'Priority' | $T8 %]</th>
+   <td>[% L.select_tag('filter.priority', [ [ '', LxERP.t8('All') ], [ 3, LxERP.t8('Normal') ], [ 4 , LxERP.t8('Override')]], default=filter.priority, style='width: 300px') %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Obsolete' | $T8 %]</th>
+   <td>[% L.select_tag('filter.obsolete', [ [ '', LxERP.t8('Both') ], [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=filter.obsolete, style='width: 300px') %]</td>
   </tr>
  </table>
 
@@ -36,7 +40,7 @@
 [% L.hidden_tag('page', FORM.page) %]
 [% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
 
-<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);'>[% 'Reset' | $T8 %]</a>
+<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").val("")'>[% 'Reset' | $T8 %]</a>
 
 </div>
 

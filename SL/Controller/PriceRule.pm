@@ -148,7 +148,7 @@ sub prepare_report {
 
   my %column_defs = (
     name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
-    priority      => { sub  => sub { $_[0]->priority } },
+    priority      => { sub  => sub { $_[0]->priority_as_text } },
     price         => { sub  => sub { $_[0]->price_as_number } },
     discount      => { sub  => sub { $_[0]->discount_as_number } },
     obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn } },

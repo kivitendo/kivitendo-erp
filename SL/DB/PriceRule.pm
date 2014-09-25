@@ -119,5 +119,12 @@ sub in_use {
   || SL::DB::Manager::InvoiceItem->get_all_count(query => [ active_price_source => $price_source_spec ]);
 }
 
+sub priority_as_text {
+  my ($self) = @_;
+
+  return t8('Override') if $self->priority == 4;
+  t8('Normal');
+}
+
 
 1;
