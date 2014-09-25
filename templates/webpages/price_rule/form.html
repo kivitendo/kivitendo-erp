@@ -28,7 +28,7 @@
 
    <tr>
     <th align="right">[% 'Valid' | $T8 %]</th>
-    <td>[% L.select_tag('project.project_type_id', [ [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=SELF.price_rule.obsolete, title_key='description', style='width: 300px') %]</td>
+    <td>[% L.select_tag('price_rule.obsolete', [ [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=SELF.price_rule.obsolete, title_key='description', style='width: 300px') %]</td>
    </tr>
 
    <tr>
