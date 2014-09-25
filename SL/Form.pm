@@ -952,26 +952,39 @@ sub round_amount {
 
   # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
 
-  # Round amounts to eight places before rounding to the requested
-  # number of places. This gets rid of errors due to internal floating
-  # point representation.
-  $amount   = $self->round_amount($amount, 8) if $places < 8;
+  # If you search for rounding in Perl, you'll likely get the first version of
+  # this algorithm:
+  #
+  # ($amount <=> 0) * int(abs($amount) * 10**$places) + .5) / 10**$places
+  #
+  # That doesn't work. It falls apart for certain values that are exactly 0.5
+  # over the cutoff, because the internal IEEE754 representation is slightly
+  # below the cutoff. Perl makes matters worse in that it really, really tries to
+  # recognize exact values for presentation to you, even if they are not.
+  #
+  # Example: take the value 64.475 and round to 2 places.
+  #
+  # printf("%.20f\n", 64.475) gives you 64.47499999999999431566
+  #
+  # Then 64.475 * 100 + 0.5 is 6447.99999999999909050530, and
+  # int(64.475 * 100 + 0.5) / 100 = 64.47
+  #
+  # Trying to round with more precision first only shifts the problem to rarer
+  # cases, which nevertheless exist.
+  #
+  # Now we exploit the presentation rounding of Perl. Since it really tries hard
+  # to recognize integers, we double $amount, and let Perl give us a representation.
+  # If Perl recognizes it as a slightly too small integer, and rounds up to the
+  # next odd integer, we follow suit and treat the fraction as .5 or greater.
 
-  # Remember the amount's sign but calculate in positive values only.
-  my $sign  = $amount <=> 0;
-  $amount   = abs $amount;
+  my $sign               = $amount <=> 0;
+  $amount                = abs $amount;
 
-  # Shift the amount left by $places+1 decimal places and truncate it
-  # to integer. Then to the integer equivalent of rounding to the next
-  # multiple of 10: first add half of it (5). Then truncate it back to
-  # the lower multiple of 10 by subtracting $amount modulo 10.
-  my $shift = 10 ** ($places + 1);
-  $amount   = int($amount * $shift) + 5;
-  $amount  -= $amount % 10;
-
-  # Lastly shift the amount back right by $places+1 decimal places and
-  # restore its sign. Then we're done.
-  $amount   = ($amount / $shift) * $sign;
+  my $shift              = 10 ** ($places);
+  my $shifted_and_double = $amount * $shift * 2;
+  my $rounding_bias      = sprintf('%f', $shifted_and_double) % 2;
+  $amount                = int($amount * $shift) + $rounding_bias;
+  $amount                = $amount / $shift * $sign;
 
   return $amount;
 }
