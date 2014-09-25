@@ -23,6 +23,10 @@
    <th align="right">[% 'Discount' | $T8 %]</th>
    <td>[% L.input_tag('filter.discount:number', filter.discount_number, size=20) %]</td>
   </tr>
+  <tr>
+   <th align="right">[% 'Discount' | $T8 %]</th>
+   <td>[% L.select_tag('filter.obsolete', [ [ '', LxERP.t8('Both') ], [ 0, LxERP.t8('Valid') ], [ 1 , LxERP.t8('Obsolete')]], default=filter.obsolete, title_key='description', style='width: 300px') %]</td>
+  </tr>
  </table>
 
 [% L.hidden_tag('action', 'PriceRule/dispatch') %]
