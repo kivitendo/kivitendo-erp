@@ -326,7 +326,7 @@ sub display_row {
     if ($form->{"id_${i}"} && !$is_delivery_order) {
       my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
       my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
-      $column_data{price_source} .= $cgi->button(-value => $price->full_description, -onClick => "kivi.io.price_chooser($i)");
+      $column_data{price_source} .= $cgi->button(-value => $price->source_description, -onClick => "kivi.io.price_chooser($i)");
       if ($price->source) {
         $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid }) if $price->invalid;
         $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->missing, title => $price->missing }) if $price->missing;

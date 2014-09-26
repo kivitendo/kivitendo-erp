@@ -26,6 +26,14 @@ sub full_description {
     : $self->description
 }
 
+sub source_description {
+  my ($self) = @_;
+
+  $self->price_source
+    ? $self->price_source->description
+    : $self->description 
+}
+
 sub to_str {
   "source: @{[ $_[0]->source ]}, price: @{[ $_[0]->price]}, description: @{[ $_[0]->description ]}"
 }
