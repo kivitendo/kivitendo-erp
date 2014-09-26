@@ -4,8 +4,8 @@
 [%- USE LxERP %]
 [% SET num_compare_ops = [
   [ 'eq', LxERP.t8('is equal to') ],
-  [ 'lt', LxERP.t8('is lower than') ],
-  [ 'gt', LxERP.t8('is greater than') ],
+  [ 'le', LxERP.t8('is lower than or equal') ],
+  [ 'ge', LxERP.t8('is greater than or equal') ],
 ] %]
 [% SET date_compare_ops = [
   [ 'eq', LxERP.t8('is equal to') ],
