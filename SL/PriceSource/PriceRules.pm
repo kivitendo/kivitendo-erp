@@ -10,7 +10,7 @@ use List::UtilsBy qw(min_by max_by);
 
 sub name { 'price_rules' }
 
-sub description { t8('Price Rules') }
+sub description { t8('Price Rule') }
 
 sub available_rules {
   my ($self, %params) = @_;
