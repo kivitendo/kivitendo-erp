@@ -105,7 +105,9 @@ sub check_auth {
 sub display_form {
   my ($self, %params) = @_;
   my $is_new  = !$self->price_rule->id;
-  my $title   = $is_new ? t8('Create a new price rule') : t8('Edit price rule');
+  my $title   = $is_new ?
+    ($self->price_rule->is_sales ? t8('Create a new sales price rule') : t8('Create a new purchase price rule')) :
+    ($self->price_rule->is_sales ? t8('Edit sales price rule') : t8('Edit purchase price rule'));
   $self->render('price_rule/form',
     title => $title,
     %params
@@ -163,7 +165,7 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'PriceRule',
     output_format         => 'HTML',
-    title                 => $::locale->text('Price Rules'),
+    title                 => ($self->vc eq 'customer' ? t8('Sales Price Rules') : t8('Purchase Price Rules')) ,
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
