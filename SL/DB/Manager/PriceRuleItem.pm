@@ -15,7 +15,7 @@ __PACKAGE__->make_manager_methods;
 use SL::Locale::String qw(t8);
 
 my @types = qw(
-  part customer vendor business partsgroup qty reqdate pricegroup
+  part customer vendor business partsgroup qty reqdate transdate pricegroup
 );
 
 my %ops = (
@@ -28,6 +28,7 @@ my %types = (
   'vendor'              => { description => t8('Vendor'),             customer => 0, vendor => 1, data_type => 'int',  data => sub { $_[0]->vendor->id }, },
   'business'            => { description => t8('Type of Business'),   customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[0]->customervendor->business_id }, exclude_nulls => 1 },
   'reqdate'             => { description => t8('Reqdate'),            customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->reqdate }, ops => 'date' },
+  'transdate'           => { description => t8('Transdate'),          customer => 1, vendor => 1, data_type => 'date', data => sub { $_[0]->transdate }, ops => 'date' },
   'part'                => { description => t8('Part'),               customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->id }, },
   'pricegroup'          => { description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
   'partsgroup'          => { description => t8('Group'),              customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },

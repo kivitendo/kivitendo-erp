@@ -58,6 +58,15 @@ sub match_reqdate {
     return $_[0]->value_date >  $_[1]{record}->reqdate;
   }
 }
+sub match_transdate {
+  if ($_[0]->op eq 'eq') {
+    return $_[0]->value_date == $_[1]{record}->transdate;
+  } elsif ($_[0]->op eq 'lt') {
+    return $_[0]->value_date <  $_[1]{record}->transdate;
+  } elsif ($_[0]->op eq 'gt') {
+    return $_[0]->value_date >  $_[1]{record}->transdate;
+  }
+}
 sub match_pricegroup {
   $_[0]->value_int == $_[1]{record_item}->customervendor->pricegroup_id;
 }
@@ -112,6 +121,11 @@ sub full_description {
        $op eq 'eq' ? t8('Reqdate is #1',        $self->value_date_as_date)
      : $op eq 'lt' ? t8('Reqdate is before #1', $self->value_date_as_date)
      : $op eq 'gt' ? t8('Reqdate is after #1',  $self->value_date_as_date)
+     : do { die "unknown op $op for type $type" } )
+  : $type eq 'transdate' ? (
+       $op eq 'eq' ? t8('Transdate is #1',        $self->value_date_as_date)
+     : $op eq 'lt' ? t8('Transdate is before #1', $self->value_date_as_date)
+     : $op eq 'gt' ? t8('Transdate is after #1',  $self->value_date_as_date)
      : do { die "unknown op $op for type $type" } )
   : do { die "unknown type $type" }
 }
