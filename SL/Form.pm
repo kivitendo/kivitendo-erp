@@ -2159,7 +2159,7 @@ sub _get_taxzones {
 
   $key = "all_taxzones" unless ($key);
   my $tzfilter = "";
-  $tzfilter = "WHERE obsolete is FALSE" if $key eq 'ALL_ACTIVE_TAXZONES'; 
+  $tzfilter = "WHERE obsolete is FALSE" if $key eq 'ALL_ACTIVE_TAXZONES';
 
   my $query = qq|SELECT * FROM tax_zones $tzfilter ORDER BY sortkey|;
 
