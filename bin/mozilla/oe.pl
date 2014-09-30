@@ -240,7 +240,7 @@ sub order_links {
   # get customer/vendor
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
-  # retrieve order/quotation
+  # retrieve order/quotation and webdav config
   $form->{webdav}   = $::instance_conf->get_webdav;
 
   my $editing = $form->{id};
@@ -1628,6 +1628,10 @@ sub save_as_new {
 
       my $wday         = (localtime(time))[6];
       my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
+
+      # if we have a client configured interval for sales quotation, we add this
+      $next_workday   += $::instance_conf->get_reqdate_interval if ($::instance_conf->get_reqdate_interval &&
+                                                                    $form->{type} eq 'sales_quotation'       );
 
       my $query = 'SELECT
                      date(current_date + interval \''. $next_workday .' days\') AS reqdate,

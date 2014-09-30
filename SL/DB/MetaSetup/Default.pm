@@ -72,6 +72,7 @@ __PACKAGE__->meta->columns(
   profit_determination                     => { type => 'text' },
   purchase_delivery_order_show_delete      => { type => 'boolean', default => 'true' },
   purchase_order_show_delete               => { type => 'boolean', default => 'true' },
+  reqdate_interval                         => { type => 'integer', default => '0' },
   require_transaction_description_ps       => { type => 'boolean', default => 'false', not_null => 1 },
   requirement_spec_section_order_part_id   => { type => 'integer' },
   revtrans                                 => { type => 'boolean', default => 'false' },

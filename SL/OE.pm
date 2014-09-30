@@ -795,6 +795,11 @@ sub retrieve {
   if (!$form->{id}) {
     my $wday         = (localtime(time))[6];
     my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
+
+    # if we have a client configured interval for sales quotation, we add this
+    $next_workday   += $::instance_conf->get_reqdate_interval if ($::instance_conf->get_reqdate_interval &&
+                                                                    $form->{type} eq 'sales_quotation' );
+
     $query_add       = qq|, current_date AS transdate, date(current_date + interval '${next_workday} days') AS reqdate|;
   }
 
