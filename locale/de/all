@@ -782,6 +782,7 @@ $self->{texts} = {
   'Delivery Order Number'       => 'Lieferscheinnummer',
   'Delivery Order created'      => 'Lieferschein erstellt',
   'Delivery Order deleted!'     => 'Lieferschein gelöscht!',
+  'Delivery Order(s) for full qty created' => 'Lieferschein(e) in kompletter Menge erstellt',
   'Delivery Orders'             => 'Lieferscheine',
   'Delivery Plan'               => 'Lieferplan',
   'Delivery Plan for currently outstanding sales orders' => 'Lieferplan für offene Verkaufsaufträge',

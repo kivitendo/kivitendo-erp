@@ -343,7 +343,7 @@ sub form_header {
   # openclosed checkboxes
   my @tmp;
   push @tmp, sprintf qq|<input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" %s><label for="delivered">%s</label>|,
-                        $form->{"delivered"} ? "checked" : "",  $locale->text('Delivery Order created') if $form->{"type"} =~ /_order$/;
+                        $form->{"delivered"} ? "checked" : "",  $locale->text('Delivery Order(s) for full qty created') if $form->{"type"} =~ /_order$/;
   push @tmp, sprintf qq|<input name="closed" id="closed" type="checkbox" class="checkbox" value="1" %s><label for="closed">%s</label>|,
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
   $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
