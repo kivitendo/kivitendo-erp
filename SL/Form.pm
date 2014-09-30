@@ -41,11 +41,13 @@ use Carp;
 use Data::Dumper;
 
 use Carp;
+use Config;
 use CGI;
 use Cwd;
 use Encode;
 use File::Copy;
 use IO::File;
+use Math::BigInt;
 use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
@@ -950,41 +952,33 @@ sub parse_amount {
 sub round_amount {
   my ($self, $amount, $places) = @_;
 
-  # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
+  # We use Perl's knowledge of string representation for
+  # rounding. First, convert the floating point number to a string
+  # with a high number of places. Then split the string on the decimal
+  # sign and use integer calculation for rounding the decimal places
+  # part. If an overflow occurs then apply that overflow to the part
+  # before the decimal sign as well using integer arithmetic again.
 
-  # If you search for rounding in Perl, you'll likely get the first version of
-  # this algorithm:
-  #
-  # ($amount <=> 0) * int(abs($amount) * 10**$places) + .5) / 10**$places
-  #
-  # That doesn't work. It falls apart for certain values that are exactly 0.5
-  # over the cutoff, because the internal IEEE754 representation is slightly
-  # below the cutoff. Perl makes matters worse in that it really, really tries to
-  # recognize exact values for presentation to you, even if they are not.
-  #
-  # Example: take the value 64.475 and round to 2 places.
-  #
-  # printf("%.20f\n", 64.475) gives you 64.47499999999999431566
-  #
-  # Then 64.475 * 100 + 0.5 is 6447.99999999999909050530, and
-  # int(64.475 * 100 + 0.5) / 100 = 64.47
-  #
-  # Trying to round with more precision first only shifts the problem to rarer
-  # cases, which nevertheless exist.
-  #
-  # Now we exploit the presentation rounding of Perl. Since it really tries hard
-  # to recognize integers, we double $amount, and let Perl give us a representation.
-  # If Perl recognizes it as a slightly too small integer, and rounds up to the
-  # next odd integer, we follow suit and treat the fraction as .5 or greater.
+  my $amount_str = sprintf '%.*f', $places + 10, abs($amount);
 
-  my $sign               = $amount <=> 0;
-  $amount                = abs $amount;
+  return $amount unless $amount_str =~ m{^(\d+)\.(\d+)$};
 
-  my $shift              = 10 ** ($places);
-  my $shifted_and_double = $amount * $shift * 2;
-  my $rounding_bias      = sprintf('%f', $shifted_and_double) % 2;
-  $amount                = int($amount * $shift) + $rounding_bias;
-  $amount                = $amount / $shift * $sign;
+  my ($pre, $post)      = ($1, $2);
+  my $decimals          = '1' . substr($post, 0, $places);
+
+  my $propagation_limit = $Config{i32size} == 4 ? 7 : 18;
+  my $add_for_rounding  = substr($post, $places, 1) >= 5 ? 1 : 0;
+
+  if ($places > $propagation_limit) {
+    $decimals = Math::BigInt->new($decimals)->badd($add_for_rounding);
+    $pre      = Math::BigInt->new($decimals)->badd(1) if substr($decimals, 0, 1) eq '2';
+
+  } else {
+    $decimals += $add_for_rounding;
+    $pre      += 1 if substr($decimals, 0, 1) eq '2';
+  }
+
+  $amount  = ("${pre}." . substr($decimals, 1)) * ($amount <=> 0);
 
   return $amount;
 }
