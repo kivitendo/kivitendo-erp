@@ -18,7 +18,7 @@ my @price_sources_order = qw(
 );
 
 sub all_enabled_price_sources {
-  my %disabled = map { $_ => 1 } @{ $::instance_conf->get_disabled_price_sources };
+  my %disabled = map { $_ => 1 } @{ $::instance_conf->get_disabled_price_sources || [] };
 
   map { $price_sources_by_name{$_} } grep { !$disabled{$_} } @price_sources_order;
 }
