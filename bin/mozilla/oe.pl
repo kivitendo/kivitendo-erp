@@ -564,9 +564,11 @@ sub form_footer {
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
+  my $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number;
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
      webdav          => $::instance_conf->get_webdav,
+     tpca_reminder   => $tpca_reminder,
      print_options   => print_options(inline => 1),
      label_edit      => $locale->text("Edit the $form->{type}"),
      label_workflow  => $locale->text("Workflow $form->{type}"),
@@ -2078,6 +2080,23 @@ sub _oe_remove_delivered_or_billed_rows {
   _remove_billed_or_delivered_rows(quantities => \%handled_base_qtys);
 }
 
+# iterate all positions and match articlenumber
+sub check_transport_cost_reminder_article_number {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
+  check_oe_access();
+
+  my $transport_article = $::instance_conf->get_transport_cost_reminder_article_number;
+  for my $i (1 .. $form->{rowcount}) {
+    return undef if $form->{"partnumber_${i}"} eq $transport_article;
+  }
+
+  return $transport_article;
+
+  $main::lxdebug->leave_sub();
+}
 sub dispatcher {
   foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order purchase_order quotation
                          request_for_quotation sales_order sales_order save save_and_close save_as_new ship_to update)) {
