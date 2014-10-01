@@ -16,7 +16,7 @@ sub all_price_sources {
 
   return map {
     $_->new(record_item => $self->record_item, record => $self->record)
-  } SL::PriceSource::ALL->all_price_sources
+  } SL::PriceSource::ALL->all_enabled_price_sources
 }
 
 sub price_from_source {

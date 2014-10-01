@@ -14,12 +14,13 @@ use SL::DB::Part;
 use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
+use SL::PriceSource::ALL;
 use SL::Template;
 
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates h_unit_name
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name
                                   posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
 );
 
@@ -36,6 +37,7 @@ sub action_save {
   my $defaults             = delete($::form->{defaults}) || {};
   my $entered_currencies   = delete($::form->{currencies}) || [];
   my $original_currency_id = $self->defaults->currency_id;
+  $defaults->{disabled_price_sources} ||= [];
 
   # undef several fields if an empty value has been selected.
   foreach (qw(warehouse_id bin_id warehouse_id_ignore_onhand bin_id_ignore_onhand)) {
@@ -203,6 +205,12 @@ sub init_accounts {
   return \%accounts;
 }
 
+sub init_all_price_sources {
+  my @classes = SL::PriceSource::ALL->all_price_sources;
+
+  [ map { [ $_->name, $_->description ] } @classes ];
+}
+
 #
 # filters
 #
@@ -217,6 +225,8 @@ sub check_auth {
 
 sub edit_form {
   my ($self) = @_;
+
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
 
   $self->render('client_config/form', title => t8('Client Configuration'),
                 make_chart_title     => sub { $_[0]->accno . '--' . $_[0]->description },

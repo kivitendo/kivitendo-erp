@@ -124,5 +124,17 @@
   <td>[% L.part_picker('defaults.transport_cost_reminder_article_number_id', SELF.defaults.transport_cost_reminder_article_number_id, style=style) %]</td>
    <td>[% LxERP.t8('Before saving a sales order, this article will be checked and a warning is generated.') %]</td>
  </tr>
+
+ <tr><td class="listheading" colspan="4">[% LxERP.t8("Disabled Price Sources") %]</td></tr>
+ <tr>
+   <td align="right">[% 'Price Sources to be disabled in this client' | $T8 %]</td>
+   <td colspan=2>
+     <div class="clearfix">
+      [% L.select_tag("defaults.disabled_price_sources[]", SELF.all_price_sources, id="defaults_price_sources", multiple=1, default=SELF.defaults.disabled_price_sources) %]
+      [% L.multiselect2side("defaults_price_sources", labelsx=LxERP.t8("All price sources"), labeldx=LxERP.t8("Price sources deactivated in this client")) %]
+     </div>
+   </td>
+ </tr>
+
  </table>
 </div>
