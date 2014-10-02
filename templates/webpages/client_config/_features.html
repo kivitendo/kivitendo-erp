@@ -111,7 +111,7 @@
   <tr><td class="listheading" colspan="4">[% LxERP.t8('Transport and service costs reminder') %]</td></tr>
  <tr>
   <td align="right">[% LxERP.t8('Default transport article number') %]</td>
-  <td>[% L.input_tag('defaults.transport_cost_reminder_article_number', SELF.defaults.transport_cost_reminder_article_number, style=style) %]</td>
+  <td>[% L.part_picker('defaults.transport_cost_reminder_article_number_id', SELF.defaults.transport_cost_reminder_article_number_id, style=style) %]</td>
    <td>[% LxERP.t8('Before saving a sales order, this article will be checked and a warning is generated.') %]</td>
  </tr>
  </table>

@@ -564,7 +564,7 @@ sub form_footer {
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
-  my $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number;
+  my $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number_id;
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
      webdav          => $::instance_conf->get_webdav,
@@ -2088,12 +2088,13 @@ sub check_transport_cost_reminder_article_number {
 
   check_oe_access();
 
-  my $transport_article = $::instance_conf->get_transport_cost_reminder_article_number;
+  my $transport_article_id = $::instance_conf->get_transport_cost_reminder_article_number_id;
   for my $i (1 .. $form->{rowcount}) {
-    return if $form->{"partnumber_${i}"} eq $transport_article;
+    return if $form->{"id_${i}"} eq $transport_article_id;
   }
 
-  return $transport_article;
+  # simply return the name of the part
+  return SL::DB::Part->new(id => $transport_article_id)->load()->partnumber;
 
   $main::lxdebug->leave_sub();
 }
