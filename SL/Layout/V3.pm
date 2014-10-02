@@ -98,13 +98,13 @@ sub menuitem_v3 {
     return $str . $menuitem->{href} . '">';
   }
 
-  $str .= qq|$module?action=| . $::form->escape($action) . qq|&level=| . $::form->escape($level);
+  $str .= qq|$module?action=| . $::form->escape($action);
 
   map { delete $menuitem->{$_} } qw(module action target href);
 
   # add other params
   foreach my $key (keys %{ $menuitem }) {
-    $str .= "&" . $::form->escape($key, 1) . "=";
+    $str .= "&amp;" . $::form->escape($key, 1) . "=";
     my ($value, $conf) = split(/=/, $menuitem->{$key}, 2);
     $value = $::myconfig{$value} . "/$conf" if ($conf);
     $str .= $::form->escape($value, 1);
