@@ -2090,7 +2090,7 @@ sub check_transport_cost_reminder_article_number {
 
   my $transport_article = $::instance_conf->get_transport_cost_reminder_article_number;
   for my $i (1 .. $form->{rowcount}) {
-    return undef if $form->{"partnumber_${i}"} eq $transport_article;
+    return if $form->{"partnumber_${i}"} eq $transport_article;
   }
 
   return $transport_article;
