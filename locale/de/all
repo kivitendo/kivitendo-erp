@@ -1862,6 +1862,7 @@ $self->{texts} = {
   'Price Factor'                => 'Preisfaktor',
   'Price Factors'               => 'Preisfaktoren',
   'Price Rule'                  => 'Preisregel',
+  'Price Rules'                 => 'Preisregeln',
   'Price Source'                => 'Preisquelle',
   'Price Sources to be disabled in this client' => 'Preisquellen die in diesem Mandanten deaktiviert werden sollen',
   'Price factor (database ID)'  => 'Preisfaktor (Datenbank-ID)',

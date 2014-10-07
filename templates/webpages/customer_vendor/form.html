@@ -29,6 +29,9 @@
       [% IF ( cv_cvars.size ) %]
         <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
       [% END %]
+      [% IF SELF.cv.id %]
+        <li><a href="#price_rules">[% 'Price Rules' | $T8 %]</a></li>
+      [% END %]
     </ul>
 
     [% PROCESS "customer_vendor/tabs/billing.html" %]
@@ -41,6 +44,9 @@
     [% PROCESS "customer_vendor/tabs/vcnotes.html" %]
     [% IF ( cv_cvars.size ) %]
       [% PROCESS "customer_vendor/tabs/custom_variables.html" %]
+    [% END %]
+    [% IF SELF.cv.id %]
+      [% PROCESS "customer_vendor/tabs/price_rules.html" %]
     [% END %]
   </div>
 
