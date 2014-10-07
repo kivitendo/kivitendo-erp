@@ -1,4 +1,4 @@
 [%- USE L %]
 [%- PROCESS 'common/flash.html' %]
-[%- PROCESS 'price_rule/_filter.html' filter=SELF.filter %]
+[%- PROCESS 'price_rule/_filter.html' filter=SELF.filter UNLESS FORM.inline %]
  <hr>

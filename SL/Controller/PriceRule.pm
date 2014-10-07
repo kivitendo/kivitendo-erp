@@ -37,7 +37,7 @@ sub action_list {
 
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $price_rules);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $price_rules, $::form->{inline} ? (layout => 0, header => 0) : ());
 }
 
 sub action_new {
@@ -167,13 +167,14 @@ sub prepare_report {
     controller_class      => 'PriceRule',
     output_format         => 'HTML',
     title                 => ($self->vc eq 'customer' ? t8('Sales Price Rules') : t8('Purchase Price Rules')) ,
-    allow_pdf_export      => 1,
-    allow_csv_export      => 1,
+    allow_pdf_export      => !$::form->{inline},
+    allow_csv_export      => !$::form->{inline},
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
+  $self->models->get_models_url_params(sub{ map { $_ => $::form->{$_} } qw(inline) });
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
     raw_bottom_info_text  => $self->render('price_rule/report_bottom', { output => 0 }),
