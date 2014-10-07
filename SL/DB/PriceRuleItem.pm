@@ -43,9 +43,9 @@ sub match_part {
 sub match_qty {
   if ($_[0]->op eq 'eq') {
     return $_[0]->value_num == $_[1]{record_item}->qty
-  } elsif ($_[0]->op eq 'lt') {
+  } elsif ($_[0]->op eq 'le') {
     return $_[0]->value_num <  $_[1]{record_item}->qty;
-  } elsif ($_[0]->op eq 'gt') {
+  } elsif ($_[0]->op eq 'ge') {
     return $_[0]->value_num >  $_[1]{record_item}->qty;
   }
 }
@@ -113,9 +113,11 @@ sub full_description {
   : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->pricegroup->displayable_name
   : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->long_description
   : $type eq 'qty' ? (
-       $op eq 'eq' ? t8('Qty equals #1',    $self->value_num_as_number)
-     : $op eq 'lt' ? t8('Qty less than #1', $self->value_num_as_number)
-     : $op eq 'gt' ? t8('Qty more than #1', $self->value_num_as_number)
+       $op eq 'eq' ? t8('Qty equals #1',             $self->value_num_as_number)
+     : $op eq 'lt' ? t8('Qty less than #1',          $self->value_num_as_number)
+     : $op eq 'gt' ? t8('Qty more than #1',          $self->value_num_as_number)
+     : $op eq 'le' ? t8('Qty equal or less than #1', $self->value_num_as_number)
+     : $op eq 'ge' ? t8('Qty equal or more than #1', $self->value_num_as_number)
      : do { die "unknown op $op for type $type" } )
   : $type eq 'reqdate' ? (
        $op eq 'eq' ? t8('Reqdate is #1',        $self->value_date_as_date)
