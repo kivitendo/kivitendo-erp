@@ -2072,6 +2072,7 @@ $self->{texts} = {
   'Row was created from current record' => 'Zeile wurde aus aktuellem Beleg erstellt',
   'Row was linked to another record' => 'Zeile wurde über einen anderen Beleg verlinkt',
   'Row was source for current record' => 'Zeile war Quelle für aktuellen Beleg',
+  'Rule Details'                => 'Regel Details',
   'Run at'                      => 'Ausgeführt um',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',

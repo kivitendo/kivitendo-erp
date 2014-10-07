@@ -95,12 +95,16 @@ sub clone_and_reset_deep {
 sub full_description {
   my ($self) = @_;
 
-  my $items = join ', ', map { $_->full_description } $self->items;
+  my $items = $self->item_summary;
   my $price = $self->price_or_discount
             ? t8('Discount #1%', $self->discount_as_number)
             : t8('Price #1', $self->price_as_number);
 
   sprintf "%s: %s (%s)", $self->name, $price, $items;
+}
+
+sub item_summary {
+  join ', ', map { $_->full_description } $_[0]->items;
 }
 
 sub in_use {

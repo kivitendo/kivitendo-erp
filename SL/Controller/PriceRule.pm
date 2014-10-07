@@ -145,8 +145,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(name type priority price discount);
-  my @sortable    = qw(name type priority price discount);
+  my @columns     = qw(name type priority price discount items);
+  my @sortable    = qw(name type priority price discount      );
 
   my %column_defs = (
     name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
@@ -154,6 +154,7 @@ sub prepare_report {
     price         => { sub  => sub { $_[0]->price_as_number } },
     discount      => { sub  => sub { $_[0]->discount_as_number } },
     obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn } },
+    items         => { sub  => sub { $_[0]->item_summary } },
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
@@ -262,6 +263,7 @@ sub init_models {
       price    => t8('Price'),
       discount => t8('Discount'),
       obsolete => t8('Obsolete'),
+      items    => t8('Rule Details'),
     },
   );
 }
