@@ -59,6 +59,13 @@
 
 </div>
 
+[%- IF id %]
+<div id='price_rules'>
+  <div id='price_rules_customer_report'></div>
+  <div id='price_rules_vendor_report'></div>
+</div>
+[%- END %]
+
 [%- IF show_edit_buttons %]
 
 <input class="submit" type="submit" name="action" value="[% 'Update' | $T8 %]">
@@ -92,3 +99,28 @@
 </form>
 
 <script type="text/javascript" src="js/wz_tooltip.js"></script>
+[%- IF id %]
+<script type='text/javascript'>
+  var inline_report = function(target, source, data){
+    $.ajax({
+      url:        source,
+      success:    function (rsp) {
+        $(target).html(rsp);
+        $(target).find('.paginate').find('a').click(function(event){ ns.redirect_event(event, target) });
+        $(target).find('a.report-generator-header-link').click(function(event){ ns.redirect_event(event, target) });
+      },
+      data:       data,
+    });
+  };
+  var redirect_event = function(event, target){
+    event.preventDefault();
+    ns.inline_report(target, event.target + '', {});
+  };
+  $(function() {
+    window.setTimeout(function(){
+      inline_report('#price_rules_customer_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': [% id %], 'filter.type': 'customer', inline: 1 });
+      inline_report('#price_rules_vendor_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': [% id %], 'filter.type': 'vendor', inline: 1 });
+    }, 200);
+  });
+</script>
+[%- END %]
