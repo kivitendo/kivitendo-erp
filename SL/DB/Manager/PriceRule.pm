@@ -17,6 +17,28 @@ use SL::Locale::String qw(t8);
 sub object_class { 'SL::DB::PriceRule' }
 
 __PACKAGE__->make_manager_methods;
+__PACKAGE__->add_filter_specs(
+  has_item_type => sub {
+    my ($key, $values, $prefix) = @_;
+    return unless @$values;
+
+    my $each_type = "SELECT DISTINCT price_rules_id FROM price_rule_items WHERE type = %s";
+    my $sub_query = join ' INTERSECT ', map { sprintf $each_type, $::form->get_standard_dbh->quote($_) } @$values;
+    return or => [ ${prefix} . 'id' => [ \$sub_query ] ];
+  },
+  item_type_matches => sub {
+    my ($key, $values, $prefix) = @_;
+    return unless @$values;
+    return unless 'HASH' eq ref $values->[0];
+    return unless grep $_, values %{ $values->[0] };
+
+    my $each_type = "SELECT DISTINCT price_rules_id FROM price_rule_items WHERE type = %s AND (%s)";
+    my $sub_query = join ' INTERSECT ', map {
+      sprintf $each_type, $::form->get_standard_dbh->quote($_), SL::DB::Manager::PriceRuleItem->filter_match($_, $values->[0]{$_})
+    } grep { $values->[0]{$_} } keys %{ $values->[0] };
+    return or => [ ${prefix} . 'id' => [ \$sub_query ] ];
+  },
+);
 
 sub get_matching_filter {
   my ($class, %params) = @_;

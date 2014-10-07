@@ -1210,6 +1210,7 @@ $self->{texts} = {
   'HTML Templates'              => 'HTML-Vorlagen',
   'Handling of WebDAV'          => 'Behandlung von WebDAV',
   'Hardcopy'                    => 'Seite drucken',
+  'Has item type'               => 'Hat Regeltypen',
   'Has serial number'           => 'Hat eine Serienummer',
   'Heading'                     => 'Überschrift',
   'Help Template Variables'     => 'Hilfe zu Dokumenten-Variablen',

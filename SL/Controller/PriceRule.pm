@@ -197,11 +197,17 @@ sub make_filter_summary {
     push @filter_strings, "$_->[1]: $_->[0]" if $_->[0];
   }
 
+  if ($filter->{has_item_type}) {
+    push @filter_strings, sprintf "%s: %s", t8('Has item type'), join ', ', map {
+      SL::DB::Manager::PriceRuleItem->get_type($_)->{description}
+    } @{ $filter->{has_item_type} || [] };
+  }
+
   $self->{filter_summary} = join ', ', @filter_strings;
 }
 
 sub all_price_rule_item_types {
-  SL::DB::Manager::PriceRuleItem->get_all_types($_[0]->price_rule->type);
+  SL::DB::Manager::PriceRuleItem->get_all_types($_[0]->vc || $_[0]->price_rule->type);
 }
 
 sub add_javascripts  {
