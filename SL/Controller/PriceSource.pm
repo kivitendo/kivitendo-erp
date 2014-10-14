@@ -121,7 +121,7 @@ sub _make_record {
     sales_delivery_order    => 'DeliveryOrder',
   }->{$::form->{type}};
 
-  if ($::form->{type} eq 'invoice') {
+  if ($::form->{type} =~ /invoice|credit_note/) {
     $class = $::form->{vc} eq 'customer' ? 'Invoice'
            : $::form->{vc} eq 'vendor'   ? 'PurchaseInvoice'
            : do { die 'unknown invoice type' };
