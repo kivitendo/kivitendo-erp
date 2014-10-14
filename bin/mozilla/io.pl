@@ -325,9 +325,11 @@ sub display_row {
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
 
     if ($form->{"id_${i}"} && !$is_delivery_order) {
-      my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
-      my $price    = $price_source->price_from_source($::form->{"active_price_source_$i"});
-      my $discount = $price_source->price_from_source($::form->{"active_discount_source_$i"});
+      my $price_source  = SL::PriceSource->new(record_item => $record_item, record => $record);
+      my $price         = $price_source->price_from_source($::form->{"active_price_source_$i"});
+      my $discount      = $price_source->price_from_source($::form->{"active_discount_source_$i"});
+      my $best_price    = $price_source->best_price;
+      my $best_discount = $price_source->best_discount;
       $column_data{price_source} .= $cgi->button(-value => $price->source_description, -onClick => "kivi.io.price_chooser($i)");
       if ($price->source) {
         $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid }) if $price->invalid;
@@ -335,7 +337,7 @@ sub display_row {
         if (!$price->missing && !$price->invalid) {
           $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     }) if $price->price > $record_item->sellprice;
           $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    }) if $price->price < $record_item->sellprice;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $price->source ne $price_source->best_price->source;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $best_price && $price->source ne $price_source->best_price->source;
         }
       }
       if ($discount->source) {
@@ -344,7 +346,7 @@ sub display_row {
         if (!$discount->missing && !$discount->invalid) {
           $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This discount has since gone up'),      title => t8('This discount has since gone up')      }) if $discount->discount * 100 > $record_item->discount;
           $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This discount has since gone down'),    title => t8('This discount has since gone down')    }) if $discount->discount * 100 < $record_item->discount;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better discount available'), title => t8('There is a better discount available') }) if $discount->source ne $price_source->best_discount->source;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better discount available'), title => t8('There is a better discount available') }) if $best_discount && $discount->source ne $price_source->best_discount->source;
         }
       }
     }
