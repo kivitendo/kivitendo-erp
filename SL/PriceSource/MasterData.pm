@@ -20,6 +20,8 @@ sub available_prices {
     : ($self->make_lastcost,  $self->make_listprice);
 }
 
+sub available_discounts { }
+
 sub price_from_source {
   my ($self, $source, $spec) = @_;
 
@@ -34,6 +36,8 @@ sub best_price {
   ? $_[0]->make_sellprice
   : $_[0]->make_lastcost
 }
+
+sub best_discount { }
 
 sub make_sellprice {
   my ($self) = @_;

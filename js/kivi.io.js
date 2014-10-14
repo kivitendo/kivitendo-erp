@@ -43,4 +43,10 @@ namespace('kivi.io', function(ns) {
     if (price_str) $('#sellprice_' + row).val(price_str);
     $('#update_button').click();
   }
+
+  ns.update_discount_source = function(row, source, discount_str) {
+    $('#active_discount_source_' + row).val(source);
+    if (discount_str) $('#discount_' + row).val(discount_str);
+    $('#update_button').click();
+  }
 });

@@ -6,7 +6,7 @@ use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(record_item record) ],
 );
 
-use List::UtilsBy qw(min_by);
+use List::UtilsBy qw(min_by max_by);
 use SL::PriceSource::ALL;
 use SL::PriceSource::Price;
 use SL::Locale::String;
@@ -14,7 +14,7 @@ use SL::Locale::String;
 sub all_price_sources {
   my ($self) = @_;
 
-  return map {
+  map {
     $_->new(record_item => $self->record_item, record => $self->record)
   } SL::PriceSource::ALL->all_enabled_price_sources
 }
@@ -26,7 +26,7 @@ sub price_from_source {
   my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
 
   return $class
-    ? $class->new(record_item => $self->record_item)->price_from_source($source, $spec)
+    ? $class->new(record_item => $self->record_item, record => $self->record)->price_from_source($source, $spec)
     : empty_price();
 }
 
@@ -34,8 +34,16 @@ sub available_prices {
   map { $_->available_prices } $_[0]->all_price_sources;
 }
 
+sub available_discounts {
+  map { $_->available_discounts } $_[0]->all_price_sources;
+}
+
 sub best_price {
-  min_by { $_->price } grep { $_->price > 0 } map { $_->best_price } $_[0]->all_price_sources;
+  min_by { $_->price } grep { $_->price > 0 } grep { $_ } map { $_->best_price } $_[0]->all_price_sources;
+}
+
+sub best_discount {
+  max_by { $_->discount } grep { $_->discount } grep { $_ } map { $_->best_discount } $_[0]->all_price_sources;
 }
 
 sub empty_price {

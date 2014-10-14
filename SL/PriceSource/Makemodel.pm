@@ -23,6 +23,8 @@ sub available_prices {
   $self->part->makemodels;
 }
 
+sub available_discounts { }
+
 sub price_from_source {
   my ($self, $source, $spec) = @_;
 
@@ -41,6 +43,8 @@ sub best_price {
   min_by { $_->price } $self->available_prices;
 
 }
+
+sub best_discount { }
 
 sub make_price_from_makemodel {
   my ($self, $makemodel) = @_;

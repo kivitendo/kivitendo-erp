@@ -13,12 +13,20 @@ sub description { die 'description needs to be implemented' }
 
 sub available_prices { die 'available_prices needs to be implemented' }
 
+sub available_discounts { die 'available_discounts needs to be implemented' }
+
 sub best_price { die 'best_price needs to be implemented' }
+
+sub best_discounts { die 'best_discounts needs to be implemented' }
 
 sub price_from_source { die 'price_from_source needs to be implemented:' . "@_" }
 
 sub part {
   $_[0]->record_item->part;
+}
+
+sub customer_vendor {
+  $_[0]->record->is_sales ? $_[0]->record->customer : $_[0]->record->vendor;
 }
 
 1;
@@ -98,6 +106,10 @@ anything and do not save those.
 
 Shortcut to C<< record_item->part >>
 
+=item C<customer_vendor>
+
+Shortcut to C<< record->is_sales ? record->customer : record->vendor >>
+
 =back
 
 =head1 INTERFACE METHODS
@@ -121,16 +133,30 @@ for the current situation. Each price must have a unique spec that can be used
 to recreate it later. Try to be brief, no one needs 20 different price
 suggestions.
 
+=item C<available_discounts>
+
+Must return a list of all prices that you algorithm can recommend the user
+for the current situation. Each discount must have a unique spec that can be
+used to recreate it later. Try to be brief, no one needs 20 different discount
+suggestions.
+
 =item C<best_price>
 
 Must return what you think of as the best matching price in your
 C<available_prices>. This does not have to be the lowest price, but it will be
 compared later to other price sources, and the lowest will be set.
 
+=item C<best_discount>
+
+Must return what you think of as the best matching discount in your
+C<available_discounts>. This does not have to be the highest discount, but it
+will be compared later to other price sources, and the highest will be set.
+
 =item C<price_from_source SOURCE, SPEC>
 
-Must recreate the price from C<SPEC> and return. For reference, the complete
-C<SOURCE> entry from C<record_item.active_price_source> is included.
+Must recreate the price or discount from C<SPEC> and return. For reference, the
+complete C<SOURCE> entry from C<record_item.active_price_source> or
+C<record_item.active_discount_source> is included.
 
 Note that constraints from the rest of the C<record> do not apply anymore. If
 information needed for the retrieval can be deleted elsewhere, then you must

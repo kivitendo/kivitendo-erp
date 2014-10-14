@@ -1,15 +1,15 @@
-package SL::PriceSource::Price;
+package SL::PriceSource::Discount;
 
 use strict;
 
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(price description spec price_source invalid missing) ],
+  scalar => [ qw(discount description spec price_source invalid missing) ],
 );
 
 require SL::DB::Helper::Attr;
 SL::DB::Helper::Attr::make(__PACKAGE__,
-  price => 'numeric(15,5)',
+  discount => 'numeric(15,5)',
 );
 
 sub source {
@@ -35,7 +35,7 @@ sub source_description {
 }
 
 sub to_str {
-  "source: @{[ $_[0]->source ]}, price: @{[ $_[0]->price ]}, description: @{[ $_[0]->description ]}"
+  "source: @{[ $_[0]->source ]}, discount: @{[ $_[0]->discount ]}, description: @{[ $_[0]->description ]}"
 }
 
 1;
@@ -52,9 +52,9 @@ SL::PriceSource::Price - contrainer to pass calculated prices around
 
   # in PriceSource::Base implementation
   $price = SL::PriceSource::Price->new(
-    price        => 10.3,
-    spec         => '3', # something you can easily parse later
-    description  => t8('Fix price 10.3 for customer 3'),
+    discount     => 10,
+    spec         => 'summersale2014', # something you can easily parse later
+    description  => t8('10% discount during summer sale 2014'),
     price_source => $self,
   )
 
@@ -89,9 +89,9 @@ implementations.
 
 =over 4
 
-=item C<price>
+=item C<discount>
 
-The price. A price of 0 is special and is considered undesirable. If passed as
+The discount in percent. A discount of 0 will be ignored. If passed as
 part of C<available_prices> it will be filtered out. If returned as
 C<best_price> or C<price_from_source> it will trigger a warning.
 

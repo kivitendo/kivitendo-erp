@@ -532,7 +532,7 @@ sub save {
           sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?, ship = ?,
           pricegroup_id = ?, ordnumber = ?, transdate = ?, cusordnumber = ?, subtotal = ?,
           marge_percent = ?, marge_total = ?, lastcost = ?, price_factor_id = ?,
-          active_price_source = ?,
+          active_price_source = ?, active_discount_source = ?,
           price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
         WHERE id = ?
 SQL
@@ -547,7 +547,7 @@ SQL
            $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"},
-           $form->{"active_price_source_$i"},
+           $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
            conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
            conv_i($form->{"marge_price_factor_$i"}),
            conv_i($orderitems_id),
@@ -947,7 +947,7 @@ sub retrieve {
            o.sellprice, o.parts_id AS id, o.unit, o.discount, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
            o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
            o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
-           o.price_factor_id, o.price_factor, o.marge_price_factor, o.active_price_source,
+           o.price_factor_id, o.price_factor, o.marge_price_factor, o.active_price_source, o.active_discount_source,
            pr.projectnumber, p.formel,
            pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
          FROM orderitems o

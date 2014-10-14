@@ -226,6 +226,8 @@ sub display_row {
   for my $i (1 .. $numrows) {
     my %column_data = ();
 
+    my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
+
     # undo formatting
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) }
       qw(qty discount sellprice lastcost price_new price_old)
@@ -234,8 +236,6 @@ sub display_row {
     if ($form->{"prices_$i"} && ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})) {
       $form->{"sellprice_$i"} = $form->{"price_new_$i"};
     }
-
-    my $record_item = $record->id && $record->items ? $record->items->[$i-1] : _make_record_item($i);
 
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
@@ -310,14 +310,15 @@ sub display_row {
     }
 
     my $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+    my $discount_value  = $form->format_amount(\%myconfig, $form->{"discount_$i"});
     my $edit_prices     = $main::auth->assert('edit_prices', 1) && !$::form->{"active_price_source_$i"};
+    my $edit_discounts  = $main::auth->assert('edit_prices', 1) && !$::form->{"active_discount_source_$i"};
     $column_data{sellprice}   = (!$edit_prices)
                                 ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
                                 : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
-    $column_data{discount}    = (!$edit_prices)
-                                  ? $cgi->textfield(-readonly => "readonly",
-                                                    -name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}))
-                                  : $cgi->textfield(-name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}));
+    $column_data{discount}    = (!$edit_discounts)
+                                  ? $cgi->hidden(   -name => "discount_$i", -id => "discount_$i", -value => $discount_value) . $discount_value . ' %'
+                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -value => $discount_value);
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
@@ -325,14 +326,26 @@ sub display_row {
 
     if ($form->{"id_${i}"} && !$is_delivery_order) {
       my $price_source = SL::PriceSource->new(record_item => $record_item, record => $record);
-      my $price = $price_source->price_from_source($::form->{"active_price_source_$i"});
+      my $price    = $price_source->price_from_source($::form->{"active_price_source_$i"});
+      my $discount = $price_source->price_from_source($::form->{"active_discount_source_$i"});
       $column_data{price_source} .= $cgi->button(-value => $price->source_description, -onClick => "kivi.io.price_chooser($i)");
       if ($price->source) {
         $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid }) if $price->invalid;
         $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->missing, title => $price->missing }) if $price->missing;
-        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     }) if $price->price > $record_item->sellprice;
-        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    }) if $price->price < $record_item->sellprice;
-        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $price->source ne $price_source->best_price->source;
+        if (!$price->missing && !$price->invalid) {
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     }) if $price->price > $record_item->sellprice;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    }) if $price->price < $record_item->sellprice;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $price->source ne $price_source->best_price->source;
+        }
+      }
+      if ($discount->source) {
+        $column_data{discount_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $discount->invalid, title => $discount->invalid }) if $discount->invalid;
+        $column_data{discount_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $discount->missing, title => $discount->missing }) if $discount->missing;
+        if (!$discount->missing && !$discount->invalid) {
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This discount has since gone up'),      title => t8('This discount has since gone up')      }) if $discount->discount * 100 > $record_item->discount;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This discount has since gone down'),    title => t8('This discount has since gone down')    }) if $discount->discount * 100 < $record_item->discount;
+          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better discount available'), title => t8('There is a better discount available') }) if $discount->source ne $price_source->best_discount->source;
+        }
       }
     }
 
@@ -428,7 +441,7 @@ sub display_row {
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
-            (qw(orderitems_id bo price_old id inventory_accno bin partsgroup partnotes active_price_source
+            (qw(orderitems_id bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
                 income_accno expense_accno listprice assembly taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
@@ -469,7 +482,6 @@ sub select_item {
   $::form->header;
 
   my @item_list = map {
-    $_->{display_sellprice}  = $_->{sellprice} * (1 - $::form->{tradediscount});
     $_->{display_sellprice} /= $_->{price_factor} if ($_->{price_factor});
     $_;
   } @{ $::form->{item_list} };
@@ -536,6 +548,13 @@ sub item_selected {
     $::form->{"active_price_source_$i"} = $best_price->source;
   }
 
+  my $best_discount = $price_source->best_discount;
+
+  if ($best_discount) {
+    $::form->{"discount_$i"}               = $best_discount->discount;
+    $::form->{"active_discount_source_$i"} = $best_discount->source;
+  }
+
 
   $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
@@ -556,11 +575,6 @@ sub item_selected {
       $form->{"sellprice_$i"} /= $form->{exchangerate};
       $form->{"sellprice_$i"} =
         $form->round_amount($form->{"sellprice_$i"}, $decimalplaces);
-    }
-
-    # tradediscount
-    if ($::form->{tradediscount}) {
-      $::form->{"sellprice_$i"} *= 1 - $::form->{tradediscount};
     }
   }
 
@@ -710,7 +724,7 @@ sub remove_emptied_rows {
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate orderitems_id
-                active_price_source);
+                active_price_source active_discount_source);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };

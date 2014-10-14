@@ -427,7 +427,7 @@ sub update_delivery_order {
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
-        $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"} * (1 - $form->{tradediscount}));
+        $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
         $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
       }

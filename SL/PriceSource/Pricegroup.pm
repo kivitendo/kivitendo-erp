@@ -33,6 +33,8 @@ sub available_prices {
   } @$prices;
 }
 
+sub available_discounts { }
+
 sub price_from_source {
   my ($self, $source, $spec) = @_;
 
@@ -56,6 +58,8 @@ sub best_price {
 
   return $best_price || ();
 }
+
+sub best_discount { }
 
 sub make_price {
   my ($self, $price_obj) = @_;
