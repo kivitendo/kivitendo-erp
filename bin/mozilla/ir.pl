@@ -207,6 +207,8 @@ sub prepare_invoice {
 
   $main::auth->assert('vendor_invoice_edit');
 
+  $form->{type}     = "purchase_invoice";
+
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
