@@ -564,7 +564,8 @@ sub form_footer {
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
-  my $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number_id;
+  my $tpca_reminder;
+  $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number_id;
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
      webdav          => $::instance_conf->get_webdav,
