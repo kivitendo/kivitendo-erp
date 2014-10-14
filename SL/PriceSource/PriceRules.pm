@@ -26,6 +26,8 @@ sub available_prices {
   map { $self->make_price_from_rule($_) } @$rules;
 }
 
+sub available_discounts { }
+
 sub price_from_source {
   my ($self, $source, $spec) = @_;
 
@@ -45,6 +47,8 @@ sub best_price {
 
   $self->make_price_from_rule($min_price);
 }
+
+sub best_discount { }
 
 sub price_for_rule {
   my ($self, $rule) = @_;
