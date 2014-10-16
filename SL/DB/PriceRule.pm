@@ -44,15 +44,19 @@ sub is_sales {
   : $_[0]->type eq 'vendor'   ? 0 : do { die 'wrong type' };
 }
 
-sub price_or_discount {
+sub price_type {
   my ($self, $value) = @_;
 
   if (@_ > 1) {
     my $number = $self->price || $self->discount;
-    if ($value) {
+    if ($value == SL::DB::Manager::PriceRule::PRICE_NEW()) {
+      $self->price($number);
+    } elsif ($value == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA()) {
+      $self->reduction($number);
+    } elsif ($value == SL::DB::Manager::PriceRule::PRICE_DISCOUNT()) {
       $self->discount($number);
     } else {
-      $self->price($number);
+      die 'unknown price_or_discount value';
     }
     $self->price_or_discount_state($value);
   }
@@ -61,14 +65,29 @@ sub price_or_discount {
 
 sub price_or_discount_as_number {
   my ($self, @slurp) = @_;
+  my $type = $self->price_type;
 
-  $self->price_or_discount ? $self->price(undef)               : $self->discount(undef);
-  $self->price_or_discount ? $self->discount_as_number(@slurp) : $self->price_as_number(@slurp);
+  $self->price(undef)     unless $type == SL::DB::Manager::PriceRule::PRICE_NEW();
+  $self->reduction(undef) unless $type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA();
+  $self->discount(undef)  unless $type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT();
+
+
+  if ($type == SL::DB::Manager::PriceRule::PRICE_NEW()) {
+    return $self->price_as_number(@slurp)
+  } elsif ($type == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA()) {
+    return $self->reduction_as_number(@slurp);
+  } elsif ($type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT()) {
+    return $self->discount_as_number(@slurp)
+  } else {
+    die 'unknown price_or_discount';
+  }
 }
 
 sub init_price_or_discount_state {
-    defined $_[0]->price ? 0
-  : defined $_[0]->discount ? 1 : 0
+    defined $_[0]->price     ? SL::DB::Manager::PriceRule::PRICE_NEW()
+  : defined $_[0]->reduction ? SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA()
+  : defined $_[0]->discount  ? SL::DB::Manager::PriceRule::PRICE_DISCOUNT()
+  :                            SL::DB::Manager::PriceRule::PRICE_NEW();
 }
 
 sub validate {
@@ -76,7 +95,7 @@ sub validate {
 
   my @errors;
   push @errors, $::locale->text('The name must not be empty.')              if !$self->name;
-  push @errors, $::locale->text('Price or discount must not be zero.')      if !$self->price && !$self->discount;
+  push @errors, $::locale->text('Price or discount must not be zero.')      if !$self->price && !$self->discount && !$self->reduction;
   push @errors, $::locale->text('Pirce rules must have at least one rule.') if !@{[ $self->items ]};
 
   return @errors;

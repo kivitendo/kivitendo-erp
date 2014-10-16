@@ -46,7 +46,7 @@
 </div>
 
 <h3>[% 'Then' | $T8 %]:</h3>
-<div>[% 'Set (set to)' | $T8 %] [% L.select_tag('price_rule.price_or_discount', [ [0, LxERP.t8('Price') ], [1, LxERP.t8('Discount') ]], default=SELF.price_rule.price_or_discount) %] [% 'to (set to)' | $T8 %] [% L.input_tag('price_rule.price_or_discount_as_number', SELF.price_rule.price_or_discount_as_number) %]
+<div>[% 'Set (set to)' | $T8 %] [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=SELF.price_rule.price_type) %] [% 'to (set to)' | $T8 %] [% L.input_tag('price_rule.price_or_discount_as_number', SELF.price_rule.price_or_discount_as_number) %] <a id='price_rule_price_type_help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
 </div>
 
   <p>

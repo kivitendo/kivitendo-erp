@@ -45,6 +45,7 @@ namespace("kivi").setupLocale({
 "Part picker":"Artikelauswahl",
 "Paste":"Einfügen",
 "Paste template":"Vorlage einfügen",
+"Price Types":"Preistypen",
 "Project link actions":"Projektverknüpfungs-Aktionen",
 "Quotations/Orders actions":"Aktionen für Angebote/Aufträge",
 "Re-numbering all sections and function blocks in the order they are currently shown cannot be undone.":"Das Neu-Nummerieren aller Abschnitte und Funktionsblöcke kann nicht rückgängig gemacht werden.",

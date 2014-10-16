@@ -90,6 +90,10 @@ sub action_add_item_row {
     ->render($self);
 }
 
+sub action_price_type_help {
+  $_[0]->render('price_rule/price_type_help', { layout => 0 });
+}
+
 #
 # filters
 #
@@ -145,13 +149,14 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(name type priority price discount items);
-  my @sortable    = qw(name type priority price discount      );
+  my @columns     = qw(name type priority price reduction discount items);
+  my @sortable    = qw(name type priority price reduction discount      );
 
   my %column_defs = (
     name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
     priority      => { sub  => sub { $_[0]->priority_as_text } },
     price         => { sub  => sub { $_[0]->price_as_number } },
+    reduction     => { sub  => sub { $_[0]->reduction_as_number } },
     discount      => { sub  => sub { $_[0]->discount_as_number } },
     obsolete      => { sub  => sub { $_[0]->obsolete_as_bool_yn } },
     items         => { sub  => sub { $_[0]->item_summary } },
@@ -258,6 +263,10 @@ sub init_partsgroups {
   SL::DB::Manager::PartsGroup->get_all;
 }
 
+sub all_price_types {
+  SL::DB::Manager::PriceRule->all_price_types;
+}
+
 sub init_models {
   my ($self) = @_;
 
@@ -269,6 +278,7 @@ sub init_models {
       priority => t8('Priority'),
       price    => t8('Price'),
       discount => t8('Discount'),
+      reduction => t8('Reduced Master Data'),
       obsolete => t8('Obsolete'),
       items    => t8('Rule Details'),
     },

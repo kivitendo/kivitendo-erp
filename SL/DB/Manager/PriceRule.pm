@@ -7,6 +7,10 @@ use strict;
 
 use parent qw(SL::DB::Helper::Manager);
 
+use constant PRICE_NEW                 => 0;
+use constant PRICE_REDUCED_MASTER_DATA => 1;
+use constant PRICE_DISCOUNT            => 2;
+
 use SL::DB::Helper::Filtered;
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
@@ -74,6 +78,12 @@ sub get_all_matching {
   return [] unless @ids;
 
   $self->get_all(query => [ id => \@ids ]);
+}
+
+sub all_price_types {
+  [ PRICE_NEW,                 t8('Price')               ],
+  [ PRICE_REDUCED_MASTER_DATA, t8('Reduced Master Data') ],
+  [ PRICE_DISCOUNT,            t8('Discount')            ],
 }
 
 sub _sort_spec {

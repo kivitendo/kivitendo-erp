@@ -8,6 +8,13 @@ namespace('kivi.PriceRule', function(ns) {
     $.post('controller.pl', data, kivi.eval_json_result);
   }
 
+  ns.open_price_type_help_popup = function() {
+    kivi.popup_dialog({
+      url:    'controller.pl?action=PriceRule/price_type_help',
+      dialog: { title: kivi.t8('Price Types') },
+    });
+  }
+
   $(function() {
     $('#price_rule_item_add').click(function() {
       ns.add_new_row($('#price_rules_empty_item_select').val());
@@ -15,5 +22,6 @@ namespace('kivi.PriceRule', function(ns) {
     $('#price_rule_items').on('click', 'a.price_rule_remove_line', function(){
       $(this).closest('div').remove();
     })
+    $('#price_rule_price_type_help').click(ns.open_price_type_help_popup);
   });
 });
