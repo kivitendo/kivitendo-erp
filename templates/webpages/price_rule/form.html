@@ -57,6 +57,6 @@
     [% L.submit_tag("action_create", LxERP.t8('Save as new')) %]
     [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?')) IF !SELF.price_rule.in_use %]
    [%- END %]
-   <a href="[% SELF.url_for(action='list', 'vc'=SELF.price_rule.type) %]">[%- LxERP.t8('Abort') %]</a>
+   <a href="[% SELF.url_for(action='list', 'filter.type'=SELF.price_rule.type) %]">[%- LxERP.t8('Abort') %]</a>
   </p>
  </form>
