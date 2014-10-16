@@ -54,6 +54,10 @@ sub date {
   goto &transdate;
 }
 
+sub reqdate {
+  goto &duedate;
+}
+
 sub abbreviation {
   my $self = shift;
 
@@ -63,4 +67,5 @@ sub abbreviation {
   return t8('Invoice (one letter abbreviation)');
 
 }
+
 1;

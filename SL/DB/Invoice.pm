@@ -343,6 +343,10 @@ sub date {
   goto &transdate;
 }
 
+sub reqdate {
+  goto &duedate;
+}
+
 sub transactions {
   my ($self) = @_;
 
