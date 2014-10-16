@@ -2709,6 +2709,7 @@ $self->{texts} = {
   'Therefore the definition of "kg" with the base unit "g" and a factor of 1000 is valid while defining "g" with a base unit of "kg" and a factor of "0.001" is not.' => 'So ist die Definition von "kg" mit der Basiseinheit "g" und dem Faktor 1000 zulässig, die Definition von "g" mit der Basiseinheit "kg" und dem Faktor "0,001" hingegen nicht.',
   'These wrong entries cannot be fixed automatically.' => 'Diese Einträge können nicht automatisch bereinigt werden.',
   'They will be updated, new ones for additional parts without a line item added automatically.' => 'Diese Positionen werden automatisch aktualisiert bzw. ergänzt, wenn es noch keine Position zu einem zusätzlichen Artikel gibt.',
+  'This Price Rule is no longer valid' => 'Diese Preisregel ist nicht mehr gültig',
   'This can be done with the following query:' => 'Dies kann mit der folgenden Datenbankabfrage erreicht werden:',
   'This could have happened for two reasons:' => 'Dies kann aus zwei Gründen geschehen sein:',
   'This customer number is already in use.' => 'Diese Kundennummer wird bereits verwendet.',
