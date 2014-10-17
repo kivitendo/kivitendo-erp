@@ -446,8 +446,6 @@ sub handle_makemodel {
   my $i = 0;
   $_->sortorder(++$i) for @{ $entry->{part}->makemodels };
 
-  $entry->{part}->makemodel($object->makemodel);
-
   $self->save_with_cascade(1) if $found_any;
 }
 
