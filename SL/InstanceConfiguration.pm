@@ -129,7 +129,7 @@ Returns the default method for determining the startdate for the balance
 report.
 
 Valid options:
-closed_to start_of_year all_transactions last_ob_or_all_transactions last_ob_or_start_of_year  
+closed_to start_of_year all_transactions last_ob_or_all_transactions last_ob_or_start_of_year
 
 =item C<get_is_changeable>
 

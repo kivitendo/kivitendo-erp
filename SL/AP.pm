@@ -165,7 +165,7 @@ sub post_transaction {
     } else {
 
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
- 
+
       $query =
         qq|INSERT INTO ap (id, invnumber, employee_id,currency_id, taxzone_id) | .
         qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),

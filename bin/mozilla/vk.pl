@@ -300,7 +300,7 @@ sub invoice_transactions {
     # stored seperately).  However, for fxsellprice this method only works when
     # the tax is not included, because otherwise fxsellprice includes the tax
     # and there is no simple way to extract the tax rate of the article from
-    # the big query. 
+    # the big query.
     #
     # Using fxsellprice is potentially more accurate (certainly for tax
     # included), because we can use the same method as is used while the
@@ -315,7 +315,7 @@ sub invoice_transactions {
     # sellprice_total_including_tax = qty * fxsellprice * (1-discount) /  price_factor * exchangerate
     # $ar->{sellprice_total_including_tax} =  $form->round_amount( $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor}, $form->{"decimalplaces"});
 
-    $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor; 
+    $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor;
     $ar->{sellprice_total} = $form->round_amount( $ar->{qty} * $ar->{sellprice} / $ar->{price_factor} , $form->{"decimalplaces"});
 
     $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;

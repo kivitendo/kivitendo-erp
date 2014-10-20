@@ -151,7 +151,7 @@ sub init_cvar_columns_by {
     my $ri = $p->{row_ident};
     $ccb->{row_ident}->{$ri} = [ map { "cvar_" . $_->name } (@{ $self->cvar_configs_by->{row_ident}->{$ri} }) ];
   }
-    
+
   return $ccb;
 }
 

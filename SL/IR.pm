@@ -1199,8 +1199,8 @@ sub retrieve_item {
 
     # also search hits in makemodels, but only cache the results by id and merge later
     my $mm_query = qq|
-      SELECT parts_id, model FROM makemodel 
-      LEFT JOIN parts ON parts.id = parts_id 
+      SELECT parts_id, model FROM makemodel
+      LEFT JOIN parts ON parts.id = parts_id
       WHERE NOT parts.obsolete AND model ILIKE ? AND (make IS NULL OR make = ?);
     |;
     my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, '%' . $form->{"partnumber_$i"} . '%', $::form->{vendor_id});
@@ -1268,7 +1268,7 @@ sub retrieve_item {
            WHERE id = p.buchungsgruppen_id) = c1.id)
        LEFT JOIN chart c2 ON
          ((SELECT tc.income_accno_id
-           FROM taxzone_charts tc 
+           FROM taxzone_charts tc
            WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
        LEFT JOIN chart c3 ON
          ((SELECT tc.expense_accno_id

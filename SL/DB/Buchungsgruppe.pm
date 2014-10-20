@@ -72,7 +72,7 @@ sub taxzonecharts {
   my ($self) = @_;
   return SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->id ]);
 }
- 
+
 sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;

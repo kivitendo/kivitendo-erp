@@ -88,7 +88,7 @@ to the corresponding 'edit' action.
 
 =back
 
-=back 
+=back
 
 =over 2
 

@@ -89,7 +89,7 @@ sub action_delete {
   # constraint, if Buchungsgruppe is connected to a part
 
   my $db = $self->{config}->db;
-  $db->do_transaction(sub {    
+  $db->do_transaction(sub {
         my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->config->id ]);
         foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
         $self->config->delete();

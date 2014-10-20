@@ -162,7 +162,7 @@ sub transfer_assembly {
   Common::check_params(\%params, qw(assembly_id dst_warehouse_id login qty unit dst_bin_id chargenumber bestbefore comment));
 
 
-  my $unit = SL::DB::Manager::Unit->find_by(name => $params{unit});        
+  my $unit = SL::DB::Manager::Unit->find_by(name => $params{unit});
   if ($unit) {
     my $assembly = SL::DB::Manager::Assembly->get_all(
       query => [ id => $params{assembly_id} ],
