@@ -750,6 +750,7 @@ sub order_details {
   my $position = 0;
   my $subtotal_header = 0;
   my $subposition = 0;
+  my $si_position = 0;
 
   my (@project_ids);
 
@@ -806,8 +807,10 @@ sub order_details {
   my @arrays =
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber projectdescription
+       weight lineweight
        si_runningnumber si_number si_description
-       si_warehouse si_bin si_chargenumber si_bestbefore si_qty si_unit weight lineweight);
+       si_warehouse si_bin si_chargenumber si_bestbefore
+       si_qty si_qty_nofmt si_unit);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays);
 
@@ -848,6 +851,8 @@ sub order_details {
       $position++;
     }
 
+    $si_position++;
+
     my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
     my $project = $projects_by_id{$form->{"project_id_$i"}} || SL::DB::Project->new;
 
@@ -875,6 +880,26 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}->{lineweight} },        $form->format_amount($myconfig, $lineweight, 3);
     push @{ $form->{TEMPLATE_ARRAYS}->{lineweight_nofmt} },  $lineweight;
 
+    my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});
+
+    foreach my $si (@{ $stock_info }) {
+      $num_si++;
+
+      do_statement($form, $h_bin_wh, $q_bin_wh, conv_i($si->{bin_id}), conv_i($si->{warehouse_id}));
+      my $bin_wh = $h_bin_wh->fetchrow_hashref();
+
+      push @{ $form->{TEMPLATE_ARRAYS}{si_runningnumber}[$si_position-1] }, $num_si;
+      push @{ $form->{TEMPLATE_ARRAYS}{si_number}[$si_position-1] },        $form->{"partnumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_description}[$si_position-1] },   $form->{"description_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_warehouse}[$si_position-1] },     $bin_wh->{warehouse};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_bin}[$si_position-1] },           $bin_wh->{bin};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_chargenumber}[$si_position-1] },  $si->{chargenumber};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_bestbefore}[$si_position-1] },    $si->{bestbefore};
+      push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$si_position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
+      push @{ $form->{TEMPLATE_ARRAYS}{si_qty_nofmt}[$si_position-1] },     $si->{qty} * 1;
+      push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$si_position-1] },          $si->{unit};
+    }
+
     if ($form->{"assembly_$i"}) {
       $sameitem = "";
 
@@ -891,35 +916,17 @@ sub order_details {
 
       while (my $ref = $h_pg->fetchrow_hashref("NAME_lc")) {
         if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" && $_ !~ /^si_/} @arrays));
+          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, []) } grep({ $_ =~ /^si_/} @arrays));
           $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
           push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $sameitem);
+          $si_position++;
         }
+
         push(@{ $form->{TEMPLATE_ARRAYS}->{"description"} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq| -- $ref->{partnumber}, $ref->{description}|);
-
-        map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
-      }
-    }
-
-    if ($form->{"inventory_accno_$i"} && !$form->{"assembly_$i"}) {
-      my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});
-
-      foreach my $si (@{ $stock_info }) {
-        $num_si++;
-
-        do_statement($form, $h_bin_wh, $q_bin_wh, conv_i($si->{bin_id}), conv_i($si->{warehouse_id}));
-        my $bin_wh = $h_bin_wh->fetchrow_hashref();
-
-        push @{ $form->{TEMPLATE_ARRAYS}{si_runningnumber}[$position-1] }, $num_si;
-        push @{ $form->{TEMPLATE_ARRAYS}{si_number}[$position-1] },        $form->{"partnumber_$i"};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_description}[$position-1] },   $form->{"description_$i"};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_warehouse}[$position-1] },     $bin_wh->{warehouse};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_bin}[$position-1] },           $bin_wh->{bin};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_chargenumber}[$position-1] },  $si->{chargenumber};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_bestbefore}[$position-1] },    $si->{bestbefore};
-        push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
-        push @{ $form->{TEMPLATE_ARRAYS}{si_qty_nofmt}[$position-1] },     $si->{qty} * 1;
-        push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$position-1] },          $si->{unit};
+        map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" && $_ !~ /^si_/} @arrays));
+        map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, []) } grep({ $_ =~ /^si_/} @arrays));
+        $si_position++;
       }
     }
 
