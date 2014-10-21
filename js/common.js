@@ -64,6 +64,46 @@ function check_right_date_format(input_name) {
   if(input_name.value == "") {
     return true;
   }
+
+  if ( ( input_name.value.match(/^\d+$/ ) ) && !(dateFormat.lastIndexOf("y") == 3) ) {
+    // date shortcuts for entering date without separator for three date styles, e.g.
+    // 31122014 -> 12.04.2014
+    // 12312014 -> 12/31/2014
+    // 31122014 -> 31/12/2014
+    
+    if (input_name.value.match(/^\d{8}$/)) {
+      input_name.value = input_name.value.replace(/^(\d\d)(\d\d)(\d\d\d\d)$/, "$1" + seperator + "$2" + seperator + "$3")
+    } else if (input_name.value.match(/^\d{6}$/)) {
+      // 120414 -> 12.04.2014
+      input_name.value = input_name.value.replace(/^(\d\d)(\d\d)(\d\d)$/, "$1" + seperator + "$2" + seperator + "$3")
+    } else if (input_name.value.match(/^\d{4}$/)) {
+      // 1204 -> 12.04.2014
+      var today = new Date();
+      var year = today.getYear();
+      if (year < 999) year += 1900;
+      input_name.value = input_name.value.replace(/^(\d\d)(\d\d)$/, "$1" + seperator + "$2");
+      input_name.value = input_name.value + seperator + year;
+    } else  if ( input_name.value.match(/^\d{1,2}$/ ) ) {
+      // assume the entry is the day of the current month and current year
+      var today = new Date();
+      var day = input_name.value;
+      var month = today.getMonth() + 1;
+      var year = today.getYear();
+      if( day.length == 1 && day < 10) {
+        day='0'+day; 
+      };
+      if(month<10) {
+        month='0'+month;
+      };
+      if (year < 999) year += 1900;
+      if ( dateFormat.lastIndexOf("d") == 1) {
+        input_name.value = day + seperator + month + seperator + year;
+      } else {
+        input_name.value = month + seperator + day + seperator + year;
+      } 
+    };
+  }
+
   var matching = new RegExp(dateFormat.replace(/\w/g, '\\d') + "\$","ig");
   if(!(dateFormat.lastIndexOf("y") == 3) && !matching.test(input_name.value)) {
     matching = new RegExp(dateFormat.replace(/\w/g, '\\d') + '\\d\\d\$', "ig");
