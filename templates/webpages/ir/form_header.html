@@ -212,16 +212,18 @@
 [% END %]
      });
      function set_duedate() {
-       $.ajax({
-         url: 'ir.pl?action=get_duedate_vendor',
-         data: {
-           invdate:     $('#invdate').val(),
-           vendor_id:   $('input[name="vendor_id"]').val(),
-           old_duedate: $('#duedate').val(),
-         },
-         dataType: 'text',
-         success: function (data) { $('#duedate').val(data); }
-       })
+       setTimeout(function() {
+         $.ajax({
+           url: 'ir.pl?action=get_duedate_vendor',
+           data: {
+             invdate:     $('#invdate').val(),
+             vendor_id:   $('input[name="vendor_id"]').val(),
+             old_duedate: $('#duedate').val(),
+           },
+           dataType: 'text',
+           success: function (data) { $('#duedate').val(data); }
+         })
+       }, 0);
      }
    //-->
   </script>

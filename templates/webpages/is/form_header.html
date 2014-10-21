@@ -271,15 +271,19 @@
 [% END %]
      });
      function set_duedate() {
-       $.ajax({
-         url: 'is.pl?action=set_duedate',
-         data: {
-           invdate: $('#invdate').val(),
-           payment_id: $('#payment_id').val(),
-         },
-         dataType: 'text',
-         success: function (data) { $('#duedate').val(data); }
-       })
+       setTimeout(function() {
+         $.ajax({
+           url: 'is.pl?action=set_duedate',
+           data: {
+             invdate: $('#invdate').val(),
+             payment_id: $('#payment_id').val(),
+           },
+           dataType: 'text',
+           success: function (data) {
+             $('#duedate').val(data);
+           }
+         })
+       }, 0);
      }
    //-->
   </script>
