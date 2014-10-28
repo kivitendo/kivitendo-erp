@@ -15,12 +15,6 @@
     <th align="right">[% 'Name' | $T8 %]</th>
     <td>[% L.input_tag("price_rule.name", SELF.price_rule.name, size=60, class='initial_focus') %]</td>
    </tr>
-[%- IF 0 %]
-   <tr>
-    <th align="right">[% 'Type' | $T8 %]</th>
-    <td>[% L.select_tag("price_rule.type", [ [ 'sales', LxERP.t8('Sales')], [ 'purchase', LxERP.t8('Purchase') ] ], default=SELF.price_rule.type) %]</td>
-   </tr>
-[%- END %]
    <tr>
     <th align="right">[% 'Priority' | $T8 %]</th>
     <td>[% L.select_tag('price_rule.priority', [ [3, LxERP.t8('Normal') ], [ 4, LxERP.t8('Override') ] ], default=SELF.price_rule.priority, style='width: 300px') %]</td>
