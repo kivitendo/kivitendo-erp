@@ -13,7 +13,7 @@
   [ 'lt', LxERP.t8('is before') ],
 ] %]
 <div>
-<a class='price_rule_remove_line'><img height="10px" width="10px" src="image/cross.png" alt="[% 'Remove' | $T8 %]"></a>
+<a class='price_rule_remove_line interact cursor-pointer'>✘</a>
 [% L.hidden_tag('price_rule.items[+].id', item.id) %]
 [% L.hidden_tag('price_rule.items[].type', item.type) %]
 [%- SWITCH item.type %]
