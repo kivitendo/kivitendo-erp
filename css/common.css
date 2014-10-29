@@ -60,3 +60,9 @@ input.grow_on_focus {
 }
 input.grow_on_focus:focus { width: 150px }
 
+/* clickable text anchors, usually with attached javascript handlers */
+.interact { color: gray }
+.interact:hover { color: black; }
+.cursor-default { cursor: default }
+.cursor-pointer { cursor: pointer }
+.cursor-help { cursor: help }
