@@ -154,7 +154,7 @@ sub get_models_url_params {
     );
   };
 
-  $self->registere_handlers('callback' => $callback);
+  $self->register_handlers('callback' => $callback);
 }
 
 sub get_callback {
