@@ -22,6 +22,7 @@ my %sort_columns = (
   partnumber        => t8('Part Number'),
   qty               => t8('Qty'),
   shipped_qty       => t8('shipped'),
+  delivered_qty     => t8('transferred out'),
   not_shipped_qty   => t8('not shipped'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
@@ -46,7 +47,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty);
+  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty);
   my @sortable    = qw(reqdate customer ordnumber partnumber description);
 
   my %column_defs = (
@@ -58,6 +59,7 @@ sub prepare_report {
     qty               => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
     shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
     not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
+    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->delivered_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
