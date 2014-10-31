@@ -26,6 +26,7 @@ my %sort_columns = (
   not_shipped_qty   => t8('not shipped'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
+  value_of_goods    => t8('Value of goods'),
 );
 
 sub action_list {
@@ -47,7 +48,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty);
+  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty value_of_goods);
   my @sortable    = qw(reqdate customer ordnumber partnumber description);
 
   my %column_defs = (
@@ -66,6 +67,10 @@ sub prepare_report {
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
+  # add value of goods in report
+  if ($main::auth->assert('sales_order_edit') && $::instance_conf->get_delivery_plan_show_value_of_goods) {
+    $column_defs{value_of_goods} = { sub =>  sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded } };
+  }
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
   $report->set_options(
@@ -127,6 +132,9 @@ sub make_filter_summary {
 sub delivery_plan_query {
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.eployee_id = $employee_id AND";
+  # check delivered state for delivery_orders (transferred out) if enabled
+  my $filter_delivered = $::instance_conf->get_delivery_plan_calculate_transferred_do  ?
+      "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
   [
   'order.customer_id' => { gt => 0 },
   'order.closed' => 0,
@@ -155,6 +163,7 @@ sub delivery_plan_query {
           rl.to_table = 'delivery_orders' AND
           rl.to_id = doi.delivery_order_id AND
           oi.parts_id = doi.parts_id
+          $filter_delivered
       ) tuples GROUP BY parts_id, trans_id, qty
     ) partials
     LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
@@ -162,7 +171,7 @@ sub delivery_plan_query {
 
     UNION ALL
 
-    -- 4. since the join over record_links fails for sales_orders wihtout any delivery order
+    -- 4. since the join over record_links fails for sales_orders without any delivery order
     --    retrieve those without record_links at all
     SELECT oi.id FROM orderitems oi, oe
     WHERE
@@ -207,6 +216,8 @@ sub delivery_plan_query {
           (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
       ) rl
       LEFT JOIN delivery_order_items doi ON (rl.to_id = doi.delivery_order_id)
+      WHERE 1 = 1
+      $filter_delivered
       GROUP BY rl.from_id, doi.parts_id
     ) agg ON (agg.oid = oi.trans_id AND agg.parts_id = oi.parts_id)
     LEFT JOIN oe ON oe.id = oi.trans_id

@@ -50,4 +50,17 @@ sub delivered_qty {
   return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi_delivered);
 }
 
+sub value_of_goods {
+  my ($self) = @_;
+
+  my $price_factor = $self->price_factor ? $self->price_factor : 1;
+
+  return ($self->qty * $self->sellprice * (1 - $self->discount ) / $price_factor);
+}
+
+sub taxincluded {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Order->find_by(id => $self->trans_id)->taxincluded ?  $::locale->text('WARN: Tax included value!') : '';
+}
 1;
