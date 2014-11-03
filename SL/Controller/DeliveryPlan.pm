@@ -8,6 +8,7 @@ use SL::DB::OrderItem;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
+use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
@@ -50,8 +51,9 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty value_of_goods);
-  my @sortable    = qw(reqdate customer ordnumber partnumber description);
+  my @columns     = qw(reqdate customer vendor ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty value_of_goods);
+
+  my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
 
   my %column_defs = (
     reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
@@ -65,14 +67,28 @@ sub prepare_report {
     delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->delivered_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
-    $vc               => {      sub => sub { $_[0]->order->$vc->name                                                    },
-                           obj_link => sub { $self->link_to($_[0]->order->$vc)                                          } },
+    #vendor            => {      sub => sub { $_[0]->order->vendor->name                                                    },
+    #                       obj_link => sub { $self->link_to($_[0]->order->vendor)                                        } },
+    #customer          => {      sub => sub { $_[0]->order->customer->name                                                  },
+    #                       obj_link => sub { $self->link_to($_[0]->order->customer)                                      } },
   );
 
   # add value of goods in report
   if ($main::auth->assert('sales_order_edit') && $::instance_conf->get_delivery_plan_show_value_of_goods) {
     $column_defs{value_of_goods} = { sub =>  sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded } };
   }
+
+  # hotfix for today
+  # if visible is not working
+  if ($vc eq 'customer') {
+    $column_defs{customer} = {      sub => sub { $_[0]->order->customer->name                                                  },
+                           obj_link => sub { $self->link_to($_[0]->order->customer)                                      } };
+  }
+  if ($vc eq 'vendor') {
+    $column_defs{vendor}  = {      sub => sub { $_[0]->order->vendor->name                                                    },
+                           obj_link => sub { $self->link_to($_[0]->order->vendor)                                        } },
+  }
+
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
   $report->set_options(
@@ -112,8 +128,10 @@ sub make_filter_summary {
     [ $filter->{"reqdate:date::ge"},                              $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
     [ $filter->{"reqdate:date::le"},                              $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
     [ $filter->{"qty:number"},                                    $::locale->text('Quantity')                                           ],
-    [ $filter->{order}{$vc}{"name:substr::ilike"},                ($vc eq 'customer') ? $::locale->text('Customer') : $::locale->text('Vendor')   ],
-    [ $filter->{order}{$vc}{"${vc}number:substr::ilike"},         ($vc eq 'customer') ? $::locale->text('Customer Number') : $::locale->text('Vendor Number') ],
+    [ $filter->{order}{vendor}{"name:substr::ilike"},             $::locale->text('Vendor')                                             ],
+    [ $filter->{order}{vendor}{"vendornumber:substr::ilike"},     $::locale->text('Vendor Number')                                      ],
+    [ $filter->{order}{customer}{"name:substr::ilike"},           $::locale->text('Customer')                                           ],
+    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
   );
 
   my %flags = (
@@ -264,7 +282,7 @@ sub init_all_edit_right {
   $::auth->assert('sales_all_edit', 1)
 }
 sub init_vc {
-  return $::form->{vc} || croak "self (DeliveryPlan) has no vc defined";
+  return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";
 }
 
 sub link_to {
