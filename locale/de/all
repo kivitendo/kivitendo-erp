@@ -2187,6 +2187,7 @@ $self->{texts} = {
   'Show fields used for the best before date?' => 'Felder zur Eingabe des Mindesthaltbarkeitsdatums anzeigen?',
   'Show follow ups...'          => 'Zeige Wiedervorlagen...',
   'Show help text'              => 'Hilfetext anzeigen',
+  'Show history'                => 'Verlauf anzeigen',
   'Show items from invoices individually' => 'Artikel aus Rechnungen anzeigen',
   'Show old dunnings'           => 'Alte Mahnungen anzeigen',
   'Show overdue sales quotations and requests for quotations...' => 'Überfällige Angebote und Preisanfragen anzeigen...',
