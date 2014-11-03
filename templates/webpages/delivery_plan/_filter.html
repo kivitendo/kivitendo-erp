@@ -36,7 +36,7 @@
   </tr>
 [% IF vc == 'customer' %]
     <tr>
-     <th align="right">[% vc | $T8 %]</th>
+     <th align="right">[% Customer | $T8 %]</th>
      <td>[% L.input_tag('filter.order.customer.name:substr::ilike', filter.order.customer.name_substr__ilike, size = 20) %]</td>
    </tr>
    <tr>
@@ -44,7 +44,7 @@
     <td>[% L.input_tag('filter.order.customer.customernumber:substr::ilike', filter.order.customer.customernumber_substr__ilike, size = 20) %]</td>
    </tr>
 [% ELSE %]  <tr>
-    <th align="right">[% vc | $T8 %]</th>
+    <th align="right">[% Vendor | $T8 %]</th>
     <td>[% L.input_tag('filter.order.vendor.name:substr::ilike', filter.order.vendor.name_substr__ilike, size = 20) %]</td>
    </tr>
    <tr>
@@ -66,11 +66,8 @@
 [% L.hidden_tag('sort_by', FORM.sort_by) %]
 [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
 [% L.hidden_tag('page', FORM.page) %]
-[% IF vc == 'customer' %]
+[% L.hidden_tag('vc', vc) %]
   [% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
-[% ELSE %]
-  [% L.input_tag('action_list_ap', LxERP.t8('Continue'), type = 'submit', class='submit')%]
-[% END %]
 
 
 <a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);'>[% 'Reset' | $T8 %]</a>

@@ -11,7 +11,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right vc) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -30,24 +30,9 @@ my %sort_columns = (
   value_of_goods    => t8('Value of goods'),
 );
 
-my $vc;
 
 sub action_list {
   my ($self) = @_;
-
-  $vc = "customer";
-  $self->make_filter_summary;
-  $self->prepare_report;
-
-  my $orderitems = $self->models->get;
-
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
-}
-
-sub action_list_ap {
-  my ($self) = @_;
-
-  $vc = "vendor";
   $self->make_filter_summary;
   $self->prepare_report;
 
@@ -61,6 +46,7 @@ sub action_list_ap {
 sub prepare_report {
   my ($self)      = @_;
 
+  my $vc          = $self->vc;
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
@@ -101,7 +87,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list filter vc));
   $report->set_options_from_form;
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
@@ -114,6 +100,7 @@ sub prepare_report {
 
 sub make_filter_summary {
   my ($self) = @_;
+  my $vc     = $self->vc;
 
   my $filter = $::form->{filter} || {};
   my @filter_strings;
@@ -147,6 +134,8 @@ sub make_filter_summary {
 }
 
 sub delivery_plan_query {
+  my ($self) = @_;
+  my $vc     = $self->vc;
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
   # check delivered state for delivery_orders (transferred out) if enabled
@@ -254,6 +243,7 @@ sub delivery_plan_query {
 
 sub init_models {
   my ($self) = @_;
+  my $vc     = $self->vc;
 
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
@@ -272,6 +262,9 @@ sub init_models {
 
 sub init_all_edit_right {
   $::auth->assert('sales_all_edit', 1)
+}
+sub init_vc {
+  return $::form->{vc} || croak "self (DeliveryPlan) has no vc defined";
 }
 
 sub link_to {

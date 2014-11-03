@@ -38,11 +38,8 @@ sub delivered_qty {
   my ($self) = @_;
 
   my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
-  my @d_orders_delivered;
 
-  foreach (@$d_orders) {
-    push (@d_orders_delivered, $_) if $_->delivered;
-  }
+  my @d_orders_delivered = grep { $_->delivered } @$d_orders;
 
   my @doi_delivered      = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @d_orders_delivered;
 
@@ -53,7 +50,7 @@ sub delivered_qty {
 sub value_of_goods {
   my ($self) = @_;
 
-  my $price_factor = $self->price_factor ? $self->price_factor : 1;
+  my $price_factor = $self->price_factor || 1;
 
   return ($self->qty * $self->sellprice * (1 - $self->discount ) / $price_factor);
 }
