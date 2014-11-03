@@ -80,6 +80,14 @@ Kleinere neue Features und Detailverbesserungen:
 
 - FiBu Schnellsuche in Headerzeile, um nach Belegen zu suchen
 
+- Datum Schnelleingabe ohne Punkte
+  z.B. 
+  8 Zahlen:   31122014  -> 31.12.2014
+  6 Zahlen:   311214    -> 31.12.2014
+  4 Zahlen:   3112      -> 31.12.2014   aktuelles Jahr wird angenommen
+  1-2 Zahlen: 12        -> 31.10.2014   aktueller Monat wird angenommen
+              7         -> 07.10.2014   aktueller Monat wird angenommen
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:
