@@ -1137,7 +1137,7 @@ sub parse_template {
       $full_signature         =~ s/\n/<br>\n/g;
       $mail->{message}       .=  $full_signature;
 
-      open(IN, "<", $self->{tmpfile})
+      open(IN, "<:encoding(UTF-8)", $self->{tmpfile})
         or $self->error($self->cleanup . "$self->{tmpfile} : $!");
       $mail->{message} .= $_ while <IN>;
       close(IN);
@@ -1326,7 +1326,7 @@ sub cleanup {
     push @err, $::locale->text('The application "#1" was not found on the system.', $application || 'pdflatex') . ' ' . $::locale->text('Please contact your administrator.');
 
   } elsif (-f "$self->{tmpfile}.err") {
-    open(FH, "$self->{tmpfile}.err");
+    open(FH, "<:encoding(UTF-8)", "$self->{tmpfile}.err");
     @err = <FH>;
     close(FH);
   }
