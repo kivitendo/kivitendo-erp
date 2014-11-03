@@ -265,6 +265,33 @@ sub action_paste_template {
   $self->invalidate_version->render($self);
 }
 
+sub action_renumber_sections {
+  my ($self)  = @_;
+
+  my %numbers = map { ($_ => 1)                                                                         } qw(section function_block);
+  my %formats = map { my $method = "${_}_number_format"; ($_ => $self->requirement_spec->type->$method) } qw(section function_block);
+  my @items   = @{ $self->requirement_spec->sections_sorted };
+
+  $self->requirement_spec->db->with_transaction(sub {
+    while (@items) {
+      my $item = shift @items;
+      my $type = $item->parent_id ? 'function_block' : 'section';
+
+      $item->update_attributes(fb_number => SL::PrefixedNumber->new(number => $formats{$type} || 0)->set_to($numbers{$type}));
+
+      $numbers{$type}++;
+
+      unshift @items, @{ $item->children_sorted };
+    }
+
+    $self->requirement_spec->invalidate_version unless $self->requirement_spec->is_template;
+
+    1;
+  });
+
+  $self->redirect_to(action => 'show', id => $self->requirement_spec->id);
+}
+
 #
 # filters
 #

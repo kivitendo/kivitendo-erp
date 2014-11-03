@@ -413,6 +413,47 @@ ns.init_function_block_keypress_events = function(form_id) {
     .bind('keypress', 'shift+return', function(event) { return ns.submit_function_block.apply(this, [ event, true ]); });
 };
 
+ns.renumber_callback = function(accepted) {
+  console.log(accepted ? "yay :)" : "oh no :(");
+  if (!accepted)
+    return;
+
+  $.ajax({
+    url:     'controller.pl?action=RequirementSpec/renumber_sections',
+    type:    'post',
+    data:    { id: $('#requirement_spec_id').val() },
+    success: kivi.eval_json_result
+  });
+};
+
+ns.renumber = function(opt) {
+  $('#rs-dialog-confirm').remove();
+
+  var text1   = kivi.t8('Re-numbering all sections and function blocks in the order they are currently shown cannot be undone.');
+  var text2   = kivi.t8('Do you really want do continue?');
+  var $dialog = $('<div id="rs-dialog-confirm"><p>' + text1 + '</p><p>' + text2 + '</p></div>').hide().appendTo('body');
+  var buttons = {};
+
+  buttons[kivi.t8('Yes')] = function() {
+    $(this).dialog('close');
+    ns.renumber_callback(true);
+  };
+
+  buttons[kivi.t8('No')] = function() {
+    $(this).dialog('close');
+    ns.renumber_callback(false);
+  };
+
+  $dialog.dialog({
+      resizable: false
+    , modal:     true
+    , title:     kivi.t8('Are you sure?')
+    , height:    250
+    , width:     400
+    , buttons:   buttons
+  });
+};
+
 // -------------------------------------------------------------------------
 // ------------------------------- templates -------------------------------
 // -------------------------------------------------------------------------
@@ -829,6 +870,8 @@ ns.create_context_menus = function(is_template) {
       // , sep99:           "---------"
       , copy_reqspec:    { name: kivi.t8('Copy template'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
       , delete_reqspec:  { name: kivi.t8('Delete template'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
+      , sep_paste_template: "---------"
+      , renumber:        { name: kivi.t8('Renumber sections and function blocks'), icon: "renumber", callback: kivi.requirement_spec.renumber }
     };
 
     $.contextMenu({
@@ -847,6 +890,8 @@ ns.create_context_menus = function(is_template) {
       , create_version:     { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
       , copy_reqspec:       { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
       , delete_reqspec:     { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
+      , sep_paste_template: "---------"
+      , renumber:           { name: kivi.t8('Renumber sections and function blocks'), icon: "renumber", callback: kivi.requirement_spec.renumber }
       , sep_paste_template: "---------"
       , paste_template:     { name: kivi.t8('Paste template'),     icon: "paste",  callback: kivi.requirement_spec.paste_template }
     };

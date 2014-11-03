@@ -50,6 +50,7 @@ table.rs_input_field input, table.rs_input_field select {
 .context-menu-item.icon-pdf    { background-image: url("../image/application-pdf.png"); }
 .context-menu-item.icon-add-picture { background-image: url("../image/add-picture.png"); }
 .context-menu-item.icon-download    { background-image: url("../image/download.png"); }
+.context-menu-item.icon-renumber    { background-image: url("../image/format-list-ordered.png"); }
 
 /* ------------------------------------------------------------ */
 /* Sections & function blocks */
