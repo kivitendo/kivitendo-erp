@@ -22,16 +22,32 @@ my %sort_columns = (
   partnumber        => t8('Part Number'),
   qty               => t8('Qty'),
   shipped_qty       => t8('shipped'),
-  delivered_qty     => t8('transferred out'),
+  delivered_qty     => t8('transferred in / out'),
   not_shipped_qty   => t8('not shipped'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
+  vendor            => t8('Vendor'),
   value_of_goods    => t8('Value of goods'),
 );
+
+my $vc;
 
 sub action_list {
   my ($self) = @_;
 
+  $vc = "customer";
+  $self->make_filter_summary;
+  $self->prepare_report;
+
+  my $orderitems = $self->models->get;
+
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
+}
+
+sub action_list_ap {
+  my ($self) = @_;
+
+  $vc = "vendor";
   $self->make_filter_summary;
   $self->prepare_report;
 
@@ -63,8 +79,8 @@ sub prepare_report {
     delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->delivered_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
-    customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
-                           obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+    $vc               => {      sub => sub { $_[0]->order->$vc->name                                                    },
+                           obj_link => sub { $self->link_to($_[0]->order->$vc)                                          } },
   );
 
   # add value of goods in report
@@ -77,7 +93,8 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'DeliveryPlan',
     output_format         => 'HTML',
-    top_info_text         => $::locale->text('Delivery Plan for currently outstanding sales orders'),
+    top_info_text         => ($vc eq 'customer') ? $::locale->text('Delivery Plan for currently outstanding sales orders') :
+                                                   $::locale->text('Delivery Plan for currently outstanding purchase orders'),
     title                 => $::locale->text('Delivery Plan'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -90,7 +107,7 @@ sub prepare_report {
   $self->models->finalize; # for filter laundering
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
-    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
+    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }, vc => $vc),
     raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
   );
 }
@@ -108,8 +125,8 @@ sub make_filter_summary {
     [ $filter->{"reqdate:date::ge"},                              $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
     [ $filter->{"reqdate:date::le"},                              $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
     [ $filter->{"qty:number"},                                    $::locale->text('Quantity')                                           ],
-    [ $filter->{order}{customer}{"name:substr::ilike"},           $::locale->text('Customer')                                           ],
-    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
+    [ $filter->{order}{$vc}{"name:substr::ilike"},                ($vc eq 'customer') ? $::locale->text('Customer') : $::locale->text('Vendor')   ],
+    [ $filter->{order}{$vc}{"${vc}number:substr::ilike"},         ($vc eq 'customer') ? $::locale->text('Customer Number') : $::locale->text('Vendor Number') ],
   );
 
   my %flags = (
@@ -131,12 +148,12 @@ sub make_filter_summary {
 
 sub delivery_plan_query {
   my $employee_id = SL::DB::Manager::Employee->current->id;
-  my $oe_owner = $_[0]->all_edit_right ? '' : " oe.eployee_id = $employee_id AND";
+  my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
   # check delivered state for delivery_orders (transferred out) if enabled
   my $filter_delivered = $::instance_conf->get_delivery_plan_calculate_transferred_do  ?
       "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
   [
-  'order.customer_id' => { gt => 0 },
+  "order.${vc}_id" => { gt => 0 },
   'order.closed' => 0,
   or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
 
@@ -152,7 +169,7 @@ sub delivery_plan_query {
         FROM orderitems oi, oe, record_links rl, delivery_order_items doi
         WHERE
           oe.id = oi.trans_id AND
-          oe.customer_id IS NOT NULL AND
+          oe.${vc}_id IS NOT NULL AND
           (oe.quotation = 'f' OR oe.quotation IS NULL) AND
           NOT oe.closed AND
           $oe_owner
@@ -176,7 +193,7 @@ sub delivery_plan_query {
     SELECT oi.id FROM orderitems oi, oe
     WHERE
       oe.id = oi.trans_id AND
-      oe.customer_id IS NOT NULL AND
+      oe.${vc}_id IS NOT NULL AND
       (oe.quotation = 'f' OR oe.quotation IS NULL) AND
       NOT oe.closed AND
       $oe_owner
@@ -211,7 +228,7 @@ sub delivery_plan_query {
           rl.from_table = 'oe' AND
           rl.to_table = 'delivery_orders' AND
 
-          oe.customer_id IS NOT NULL AND
+          oe.${vc}_id IS NOT NULL AND
           $oe_owner
           (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
       ) rl
@@ -228,7 +245,7 @@ sub delivery_plan_query {
         WHERE oi.trans_id = rl.from_id AND rl.from_table = 'oe' AND rl.to_table = 'delivery_orders'
       ) AND
       coalesce(sum, 0) < oi.qty AND
-      oe.customer_id IS NOT NULL AND
+      oe.${vc}_id IS NOT NULL AND
       $oe_owner
       (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
   " ],
@@ -249,7 +266,7 @@ sub init_models {
       %sort_columns,
     },
     query        => $self->delivery_plan_query,
-    with_objects => [ 'order', 'order.customer', 'part' ],
+    with_objects => [ 'order', "order.$vc", 'part' ],
   );
 }
 
