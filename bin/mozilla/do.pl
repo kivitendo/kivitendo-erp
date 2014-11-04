@@ -1599,7 +1599,7 @@ sub transfer_in_out_default {
       $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
       $qty_parts{$form->{"id_$i"}} += $qty;
       if ($qty == 0) {
-        delete $qty_parts{$form->{"id_$i"}} if $qty == 0;
+        delete $qty_parts{$form->{"id_$i"}};
         undef $form->{"stock_in_$i"};
       }
 
