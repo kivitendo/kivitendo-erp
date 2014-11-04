@@ -387,7 +387,7 @@ sub scanfile {
     return unless (-f "$file");
 
     my $fh = new FileHandle;
-    open $fh, "$file" or die "$! : $file";
+    open $fh, '<:encoding(utf8)', $file or die "$! : $file";
 
     my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
 
@@ -517,7 +517,7 @@ sub scanmenu {
   my $file = shift;
 
   my $fh = new FileHandle;
-  open $fh, "$file" or die "$! : $file";
+  open $fh, '<:encoding(utf8)', $file or die "$! : $file";
 
   my @a = grep m/^\[/, <$fh>;
   close($fh);
@@ -551,7 +551,7 @@ sub scanhtmlfile {
 
   my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
-  if (!open(IN, $file)) {
+  if (!open(IN, '<:encoding(utf8)', $file)) {
     print "E: template file '$file' not found\n";
     return;
   }
@@ -645,7 +645,7 @@ sub scanhtmlfile {
 sub scan_javascript_file {
   my ($file) = @_;
 
-  open(my $fh, $file) || die('can not open file: '. $file);
+  open(my $fh, '<:encoding(utf8)', $file) || die('can not open file: '. $file);
 
   while( my $line = readline($fh) ) {
     while( $line =~ m/
