@@ -1592,6 +1592,7 @@ sub transfer_in_out_default {
       my $base_unit_factor = $units->{ $part_info_map{$form->{"id_$i"}}->{unit} }->{factor} || 1;
       my $qty =   $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
+      $form->show_generic_error($locale->text("Cannot transfer negative entries." ), 'back_button' => 1) if ($qty < 0);
       # if we do not want to transfer services and this part is a service, set qty to zero
       # ... and do not create a hash entry in %qty_parts below (will skip check for bins for the transfer == out case)
       # ... and push only a empty (undef) element to @all_requests (will skip check for bin_id and warehouse_id and will not alter the row)
@@ -1599,7 +1600,7 @@ sub transfer_in_out_default {
       $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
       $qty_parts{$form->{"id_$i"}} += $qty;
       if ($qty == 0) {
-        delete $qty_parts{$form->{"id_$i"}};
+        delete $qty_parts{$form->{"id_$i"}} unless $qty_parts{$form->{"id_$i"}};
         undef $form->{"stock_in_$i"};
       }
 
