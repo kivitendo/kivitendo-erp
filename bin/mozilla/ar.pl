@@ -522,21 +522,13 @@ sub update {
 
   for my $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} = $form->parse_amount(\%myconfig, $form->{"amount_$i"});
-    $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
     if ($form->{"amount_$i"}) {
       push @a, {};
       my $j = $#a;
       my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-      if ($taxkey > 1) {
-        if ($form->{taxincluded}) {
-          $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
-        } else {
-          $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
-        }
-      } else {
-        $form->{"tax_$i"} = 0;
-      }
-      $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"}, 2);
+
+      my $tmpnetamount;
+      ($tmpnetamount,$form->{"tax_$i"}) = $form->calculate_tax($form->{"amount_$i"},$rate,$form->{taxincluded},2);
 
       $totaltax += $form->{"tax_$i"};
       map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;

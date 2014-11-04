@@ -69,40 +69,11 @@ sub post_transaction {
   $form->{AR_amounts}{receivables} = $form->{ARselected};
   $form->{AR}{receivables}         = $form->{ARselected};
 
-  # parsing
-  for $i (1 .. $form->{rowcount}) {
-    $form->{"amount_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"amount_$i"}) * $form->{exchangerate}, 2);
-    $form->{amount}     += $form->{"amount_$i"};
-    $form->{"tax_$i"}    = $form->parse_amount($myconfig, $form->{"tax_$i"});
-  }
+  $form->{tax}       = 0; # is this still needed?
 
-  # this is for ar
-  $form->{tax}       = 0;
-  $form->{netamount} = 0;
-  $form->{total_tax} = 0;
-
-  # taxincluded doesn't make sense if there is no amount
-  $form->{taxincluded} = 0 unless $form->{amount};
-
-  for $i (1 .. $form->{rowcount}) {
-    ($form->{"tax_id_$i"}) = split /--/, $form->{"taxchart_$i"};
-
-    $query = qq|SELECT c.accno, t.taxkey, t.rate FROM tax t LEFT JOIN chart c ON (c.id = t.chart_id) WHERE t.id = ? ORDER BY c.accno|;
-    ($form->{AR_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = selectrow_query($form, $dbh, $query, $form->{"tax_id_$i"});
-
-    if ($form->{taxincluded} *= 1) {
-      $tax = $form->{"korrektur_$i"}
-        ? $form->{"tax_$i"}
-        : $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1)); # should be same as taxrate * amount / (taxrate + 1)
-      $form->{"amount_$i"} = $form->round_amount($form->{"amount_$i"} - $tax, 2);
-      $form->{"tax_$i"}    = $form->round_amount($tax, 2);
-    } else {
-      $form->{"tax_$i"}    = $form->{"amount_$i"} * $form->{"taxrate_$i"} unless $form->{"korrektur_$i"};
-      $form->{"tax_$i"}    = $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
-    }
-    $form->{netamount}  += $form->{"amount_$i"};
-    $form->{total_tax}  += $form->{"tax_$i"};
-  }
+  # main calculation of rowcount loop inside Form method, amount_$i and tax_$i get formatted
+  $form->{taxincluded} = 0 unless $form->{taxincluded};
+  ($form->{netamount},$form->{total_tax},$form->{amount}) = $form->calculate_arap('sell', $form->{taxincluded}, $form->{exchangerate});
 
   # adjust paidaccounts if there is no date in the last row
   # this does not apply to stornos, where the paid field is set manually
@@ -117,7 +88,6 @@ sub post_transaction {
       $form->{datepaid}  = $form->{"datepaid_$i"};
     }
 
-    $form->{amount} = $form->{netamount} + $form->{total_tax};
   }
   $form->{paid}   = $form->round_amount($form->{paid} * ($form->{exchangerate} || 1), 2);
 

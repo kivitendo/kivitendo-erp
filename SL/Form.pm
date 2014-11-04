@@ -79,6 +79,7 @@ use Template;
 use URI;
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
+use SL::DB::Tax;
 
 use strict;
 
@@ -3446,6 +3447,82 @@ sub prepare_for_printing {
   return $self;
 }
 
+sub calculate_arap {
+  my ($self,$buysell,$taxincluded,$exchangerate,$roundplaces) = @_;
+
+  # this function is used to calculate netamount, total_tax and amount for AP and
+  # AR transactions (Kreditoren-/Debitorenbuchungen) by going over all lines
+  # (1..$rowcount)
+  # Thus it needs a fully prepared $form to work on.
+  # calculate_arap assumes $form->{amount_$i} entries still need to be parsed
+
+  # The calculated total values are all rounded (default is to 2 places) and
+  # returned as parameters rather than directly modifying form.  The aim is to
+  # make the calculation of AP and AR behave identically.  There is a test-case
+  # for this function in t/form/arap.t
+
+  # While calculating the totals $form->{amount_$i} and $form->{tax_$i} are
+  # modified and formatted and receive the correct sign for writing straight to
+  # acc_trans, depending on whether they are ar or ap.
+
+  # check parameters
+  die "taxincluded needed in Form->calculate_arap" unless defined $taxincluded;
+  die "exchangerate needed in Form->calculate_arap" unless defined $exchangerate;
+  die 'illegal buysell parameter, has to be \"buy\" or \"sell\" in Form->calculate_arap\n' unless $buysell =~ /^(buy|sell)$/;
+  $roundplaces = 2 unless $roundplaces;
+
+  my $sign = 1;  # adjust final results for writing amount to acc_trans
+  $sign = -1 if $buysell eq 'buy';
+
+  my ($netamount,$total_tax,$amount);
+
+  my $tax;
+
+  # parse and round amounts, setting correct sign for writing to acc_trans
+  for my $i (1 .. $self->{rowcount}) {
+    $self->{"amount_$i"} = $self->round_amount($self->parse_amount(\%::myconfig, $self->{"amount_$i"}) * $exchangerate * $sign, $roundplaces);
+
+    $amount += $self->{"amount_$i"} * $sign;
+  }
+
+  for my $i (1 .. $self->{rowcount}) {
+    next unless $self->{"amount_$i"};
+    ($self->{"tax_id_$i"}) = split /--/, $self->{"taxchart_$i"};
+    my $tax_id = $self->{"tax_id_$i"};
+
+    my $selected_tax = SL::DB::Manager::Tax->find_by(id => "$tax_id");
+
+    if ( $selected_tax ) {
+
+      if ( $buysell eq 'sell' ) {
+        $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno unless $selected_tax->taxkey == 0;
+      } else {
+        $self->{AP_amounts}{"tax_$i"} = $selected_tax->chart->accno unless $selected_tax->taxkey == 0;
+      };
+
+      $self->{"taxkey_$i"} = $selected_tax->taxkey;
+      $self->{"taxrate_$i"} = $selected_tax->rate;
+    };
+
+    ($self->{"amount_$i"}, $self->{"tax_$i"}) = $self->calculate_tax($self->{"amount_$i"},$self->{"taxrate_$i"},$taxincluded,$roundplaces);
+
+    $netamount  += $self->{"amount_$i"};
+    $total_tax  += $self->{"tax_$i"};
+
+  }
+  $amount = $netamount + $total_tax;
+
+  # due to $sign amount_$i und tax_$i already have the right sign for acc_trans
+  # but reverse sign of totals for writing amounts to ar
+  if ( $buysell eq 'buy' ) {
+    $netamount *= -1;
+    $amount    *= -1;
+    $total_tax *= -1;
+  };
+
+  return($netamount,$total_tax,$amount);
+}
+
 sub format_dates {
   my ($self, $dateformat, $longformat, @indices) = @_;
 
@@ -3557,6 +3634,39 @@ sub layout {
   $::lxdebug->leave_sub;
   return $layout;
 }
+
+sub calculate_tax {
+  # this function calculates the net amount and tax for the lines in ar, ap and
+  # gl and is used for update as well as post. When used with update the return
+  # value of amount isn't needed
+
+  # calculate_tax should always work with positive values, or rather as the user inputs them
+  # calculate_tax uses db/perl numberformat, i.e. parsed numbers
+  # convert to negative numbers (when necessary) only when writing to acc_trans
+  # the amount from $form for ap/ar/gl is currently always rounded to 2 decimals before it reaches here
+  # for post_transaction amount already contains exchangerate and correct sign and is rounded
+  # calculate_tax doesn't (need to) know anything about exchangerate
+
+  my ($self,$amount,$taxrate,$taxincluded,$roundplaces) = @_;
+
+  $roundplaces = 2 unless defined $roundplaces;
+
+  my $tax;
+
+  if ($taxincluded *= 1) {
+    # calculate tax (unrounded), subtract from amount, round amount and round tax
+    $tax       = $amount - ($amount / ($taxrate + 1)); # equivalent to: taxrate * amount / (taxrate + 1)
+    $amount    = $self->round_amount($amount - $tax, $roundplaces);
+    $tax       = $self->round_amount($tax, $roundplaces);
+  } else {
+    $tax       = $amount * $taxrate;
+    $tax       = $self->round_amount($tax, $roundplaces);
+  }
+
+  $tax = 0 unless $tax;
+
+  return ($amount,$tax);
+};
 
 1;
 

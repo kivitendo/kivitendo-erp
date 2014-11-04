@@ -594,14 +594,9 @@ sub update {
         } else {
           $credittax = 1;
         }
-        if ($form->{taxincluded}) {
-          $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
-        } else {
-          $form->{"tax_$i"} = $amount * $rate;
-        }
-      } else {
-        $form->{"tax_$i"} = 0;
-      }
+      };
+      my ($tmpnetamount,$tmpdiff);
+      ($tmpnetamount,$form->{"tax_$i"},$tmpdiff) = $form->calculate_tax($amount,$rate,$form->{taxincluded} *= 1,2);
 
       for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
       $count++;
@@ -1067,16 +1062,15 @@ sub post_transaction {
       } else {
         $credittax = 1;
       }
-      if ($form->{taxincluded}) {
-        $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
-        if ($debitcredit) {
-          $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
-        } else {
-          $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
-        }
+
+      my ($tmpnetamount,$tmpdiff);
+      ($tmpnetamount,$form->{"tax_$i"},$tmpdiff) = $form->calculate_tax($amount,$rate,$form->{taxincluded} *= 1,2);
+      if ($debitcredit) {
+        $form->{"debit_$i"} = $tmpnetamount;
       } else {
-        $form->{"tax_$i"} = $amount * $rate;
+        $form->{"credit_$i"} = $tmpnetamount;
       }
+
     } else {
       $form->{"tax_$i"} = 0;
     }

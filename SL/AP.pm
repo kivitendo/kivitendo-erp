@@ -55,6 +55,7 @@ sub post_transaction {
   my $exchangerate = 0;
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  $form->{taxincluded} = 0 unless $form->{taxincluded};
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
 
@@ -69,62 +70,17 @@ sub post_transaction {
     $form->{AP_amounts}{"amount_$i"} =
       (split(/--/, $form->{"AP_amount_$i"}))[0];
   }
+
   ($form->{AP_amounts}{payables}) = split(/--/, $form->{APselected});
   ($form->{AP_payables})          = split(/--/, $form->{APselected});
 
-  # reverse and parse amounts
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"amount_$i"} =
-      $form->round_amount(
-                         $form->parse_amount($myconfig, $form->{"amount_$i"}) *
-                           $form->{exchangerate} * -1,
-                         2);
-    $amount += ($form->{"amount_$i"} * -1);
-
-    # parse tax_$i for later
-    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"}) * -1;
-  }
-
-  # this is for ap
-  $form->{amount} = $amount;
-
-  # taxincluded doesn't make sense if there is no amount
-  $form->{taxincluded} = 0 if ($form->{amount} == 0);
-
-  for my $i (1 .. $form->{rowcount}) {
-    ($form->{"tax_id_$i"}, undef) = split /--/, $form->{"taxchart_$i"};
-
-    my $query =
-      qq|SELECT c.accno, t.taxkey, t.rate | .
-      qq|FROM tax t LEFT JOIN chart c on (c.id=t.chart_id) | .
-      qq|WHERE t.id = ? | .
-      qq|ORDER BY c.accno|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute($form->{"tax_id_$i"}) || $form->dberror($query . " (" . $form->{"tax_id_$i"} . ")");
-    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = $sth->fetchrow_array();
-
-    $sth->finish;
-
-    my ($tax, $diff);
-    if ($form->{taxincluded} *= 1) {
-      $tax = $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
-      $amount = $form->{"amount_$i"} - $tax;
-      $form->{"amount_$i"} = $form->round_amount($amount, 2);
-      $diff += $amount - $form->{"amount_$i"};
-      $form->{"tax_$i"} = $form->round_amount($tax, 2);
-      $form->{netamount} += $form->{"amount_$i"};
-    } else {
-      $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-      $form->{netamount} += $form->{"amount_$i"};
-    }
-    $form->{total_tax} += $form->{"tax_$i"} * -1;
-  }
+  # calculate the totals while calculating and reformatting the $amount_$i and $tax_$i
+  ($form->{netamount},$form->{total_tax},$form->{invtotal}) = $form->calculate_arap('buy',$form->{taxincluded}, $form->{exchangerate});
 
   # adjust paidaccounts if there is no date in the last row
   $form->{paidaccounts}-- unless ($form->{"datepaid_$form->{paidaccounts}"});
 
   $form->{invpaid} = 0;
-  $form->{netamount} *= -1;
 
   # add payments
   for my $i (1 .. $form->{paidaccounts}) {
@@ -140,8 +96,8 @@ sub post_transaction {
   $form->{invpaid} =
     $form->round_amount($form->{invpaid} * $form->{exchangerate}, 2);
 
-  # store invoice total, this goes into ap table
-  $form->{invtotal} = $form->{netamount} + $form->{total_tax};
+  # # store invoice total, this goes into ap table
+  # $form->{invtotal} = $form->{netamount} + $form->{total_tax};
 
   # amount for total AP
   $form->{payables} = $form->{invtotal};
