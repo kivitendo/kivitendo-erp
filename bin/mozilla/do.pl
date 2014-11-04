@@ -1593,14 +1593,17 @@ sub transfer_in_out_default {
       my $qty =   $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
       # if we do not want to transfer services and this part is a service, set qty to zero
+      # ... and do not create a hash entry in %qty_parts below (will skip check for bins for the transfer == out case)
+      # ... and push only a empty (undef) element to @all_requests (will skip check for bin_id and warehouse_id and will not alter the row)
+
       $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
       $qty_parts{$form->{"id_$i"}} += $qty;
-
+      delete $qty_parts{$form->{"id_$i"}} if $qty == 0;
 
       $part_info_map{$form->{"id_$i"}}{bin_id}       ||= $default_bin_id;
       $part_info_map{$form->{"id_$i"}}{warehouse_id} ||= $default_warehouse_id;
 
-      push @all_requests, {
+      push @all_requests, ($qty == 0) ? undef : {
                         'chargenumber' => '',  #?? die müsste entsprechend geholt werden
                         #'bestbefore' => undef, # TODO wird nicht berücksichtigt
                         'bin_id' => $part_info_map{$form->{"id_$i"}}{bin_id},
@@ -1616,12 +1619,12 @@ sub transfer_in_out_default {
     }
 
     # jetzt wird erst überprüft, ob die Stückzahl entsprechend stimmt.
-    if ($params{direction} eq 'out') {  # wird nur für ausgehende Mengen benötigit
-      foreach my $key (keys %qty_parts) {
+    # check if bin (transfer in and transfer out and qty (transfer out) is correct
+    foreach my $key (keys %qty_parts) {
+      $missing_default_bins{$key}{missing_bin} = 1 unless ($part_info_map{$key}{bin_id});
+      next unless ($part_info_map{$key}{bin_id}); # abbruch
 
-        $missing_default_bins{$key}{missing_bin} = 1 unless ($part_info_map{$key}{bin_id});
-        next unless ($part_info_map{$key}{bin_id}); # abbruch
-
+      if ($params{direction} eq 'out') {  # wird nur für ausgehende Mengen benötigt
         my ($max_qty, $error) = WH->get_max_qty_parts_bin(parts_id => $key, bin_id => $part_info_map{$key}{bin_id});
         if ($error == 1) {
           # wir können nicht entscheiden, welche charge oder mhd (bestbefore) ausgewählt sein soll
