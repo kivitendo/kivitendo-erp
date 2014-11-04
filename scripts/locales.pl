@@ -129,7 +129,7 @@ handle_file(@{ $_ })       for @progfiles;
 handle_file(@{ $_ })       for @dbplfiles;
 scanmenu($_)               for @menufiles;
 
-for my $file_name (map({find_files($_)} @javascript_dirs)) {
+for my $file_name (grep { /\.(?:js|html)$/i } map({find_files($_)} @javascript_dirs)) {
   scan_javascript_file($file_name);
 }
 
