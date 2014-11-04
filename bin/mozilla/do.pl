@@ -1598,12 +1598,15 @@ sub transfer_in_out_default {
 
       $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
       $qty_parts{$form->{"id_$i"}} += $qty;
-      delete $qty_parts{$form->{"id_$i"}} if $qty == 0;
+      if ($qty == 0) {
+        delete $qty_parts{$form->{"id_$i"}} if $qty == 0;
+        undef $form->{"stock_in_$i"};
+      }
 
       $part_info_map{$form->{"id_$i"}}{bin_id}       ||= $default_bin_id;
       $part_info_map{$form->{"id_$i"}}{warehouse_id} ||= $default_warehouse_id;
 
-      push @all_requests, ($qty == 0) ? undef : {
+      push @all_requests, ($qty == 0) ? { } : {
                         'chargenumber' => '',  #?? die müsste entsprechend geholt werden
                         #'bestbefore' => undef, # TODO wird nicht berücksichtigt
                         'bin_id' => $part_info_map{$form->{"id_$i"}}{bin_id},
@@ -1621,6 +1624,7 @@ sub transfer_in_out_default {
     # jetzt wird erst überprüft, ob die Stückzahl entsprechend stimmt.
     # check if bin (transfer in and transfer out and qty (transfer out) is correct
     foreach my $key (keys %qty_parts) {
+
       $missing_default_bins{$key}{missing_bin} = 1 unless ($part_info_map{$key}{bin_id});
       next unless ($part_info_map{$key}{bin_id}); # abbruch
 
@@ -1687,10 +1691,11 @@ sub transfer_in_out_default {
   # dieser array_ref ist für DO->save da:
   # einmal die all_requests in YAML verwandeln, damit delivery_order_items_stock
   # gefüllt werden kann.
-  my $i = 1;
+  my $i = 0;
   foreach (@all_requests){
-    $form->{"stock_${prefix}_$i"} = YAML::Dump([$_]);
     $i++;
+    next unless scalar(%{ $_ });
+    $form->{"stock_${prefix}_$i"} = YAML::Dump([$_]);
   }
 
   save(no_redirect => 1); # Wir können auslagern, deshalb beleg speichern
