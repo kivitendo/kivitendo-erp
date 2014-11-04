@@ -1,7 +1,7 @@
 /*
  * jQuery SelectAll plugin 1.1
  *
- * Copyright (c) 2009 Sven Schöling
+ * Copyright (c) 2009 Sven SchÃ¶ling
  */
 
 ;(function($) {
