@@ -427,7 +427,7 @@ sub output_position_from_id {
 }
 
 sub init_predefined_texts {
-  return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted;
+  return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted(where => [ useable_for_text_blocks => 1 ]);
 }
 
 sub init_picture {
