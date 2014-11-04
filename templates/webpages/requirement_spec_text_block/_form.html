@@ -1,4 +1,4 @@
-[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][% SET style="width: 500px" %]
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][% SET style="width: 500px" %]
 [% DEFAULT id_base = 'edit_text_block_' _ SELF.text_block.id %]
 <form method="post" id="[% id_base %]_form">
  <h2>
@@ -48,35 +48,7 @@
 [%- IF SELF.predefined_texts.size %]
  <script type="text/javascript">
 <!--
-function insert_selected_predefined_text() {
-  var data = {
-[%- FOREACH pt = SELF.predefined_texts %]
-    [% HTML.escape(pt.id) %]: {
-      title: "[% JavaScript.escape(pt.title) %]",
-      text: "[% JavaScript.escape(pt.text) %]"
-    }[% UNLESS loop.last %],[% END %]
-[% END %]
-  }
-
-  var id = $('#[% id_base %]_predefined_text_block').val();
-  var pt = data[id];
-  if (!pt) {
-    console.log("insert: case 1; id: " + id);
-    return false;
-  }
-
-  var title_ctrl = $('#[% id_base %]_title');
-
-  if (   ((pt.title         || '') != '')
-      && (   ((title_ctrl.val() || '') == '')
-          || confirm('[%- LxERP.t8("Do you want to overwrite your current title?") %]')))
-    title_ctrl.val(pt.title);
-
-  if ((pt.text || '') != '')
-    $('#[% id_base %]_text').ckeditorGet().insertHtml(pt.text);
-
-  return false;
-}
+[% INCLUDE 'requirement_spec_text_block/_predefined_text_inserter.js' title_ctrl_id='_title' text_ctrl_id='_text' %]
 -->
  </script>
 [%- END %]

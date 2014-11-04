@@ -14,6 +14,7 @@ use SL::Controller::Helper::RequirementSpec;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecComplexity;
 use SL::DB::RequirementSpecItem;
+use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecRisk;
 use SL::Helper::Flash;
 use SL::JSON;
@@ -22,7 +23,7 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(item visible_item visible_section clicked_item sections) ],
-  'scalar --get_set_init' => [ qw(complexities risks js) ],
+  'scalar --get_set_init' => [ qw(complexities risks js predefined_texts) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -526,6 +527,10 @@ sub init_risks {
   my ($self) = @_;
 
   return SL::DB::Manager::RequirementSpecRisk->get_all_sorted;
+}
+
+sub init_predefined_texts {
+  return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted(where => [ useable_for_sections => 1 ]);
 }
 
 sub init_js {

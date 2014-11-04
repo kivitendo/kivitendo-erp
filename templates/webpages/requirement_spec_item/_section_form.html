@@ -25,6 +25,14 @@
   [% L.input_tag(id_base _ '.title', SELF.item.title, style=style) %]
  </p>
 
+ [%- IF SELF.predefined_texts.size %]
+  <p>
+   [%- LxERP.t8("Pre-defined Texts") %]:<br>
+   [%- L.select_tag(id_base _ '_predefined_text_block', SELF.predefined_texts, title_key='description', style=style) %]
+   <a href="#" onclick="insert_selected_predefined_text()">[%- LxERP.t8("Insert") %]</a>
+  </p>
+ [%- END %]
+
  <p>
   [%- LxERP.t8("Description") %]:<br>
   [% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=80, style=style, class='texteditor') %]
@@ -34,4 +42,12 @@
   [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
   <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
  </p>
+
+[%- IF SELF.predefined_texts.size %]
+ <script type="text/javascript">
+<!--
+[% INCLUDE 'requirement_spec_text_block/_predefined_text_inserter.js' title_ctrl_id='_title' text_ctrl_id='_description' %]
+-->
+ </script>
+[%- END %]
 </form>
