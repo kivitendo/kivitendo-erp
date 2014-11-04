@@ -9,13 +9,15 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('requirement_spec_predefined_texts');
 
 __PACKAGE__->meta->columns(
-  description => { type => 'text', not_null => 1 },
-  id          => { type => 'serial', not_null => 1 },
-  itime       => { type => 'timestamp', default => 'now()' },
-  mtime       => { type => 'timestamp' },
-  position    => { type => 'integer', not_null => 1 },
-  text        => { type => 'text', not_null => 1 },
-  title       => { type => 'text', not_null => 1 },
+  description             => { type => 'text', not_null => 1 },
+  id                      => { type => 'serial', not_null => 1 },
+  itime                   => { type => 'timestamp', default => 'now()' },
+  mtime                   => { type => 'timestamp' },
+  position                => { type => 'integer', not_null => 1 },
+  text                    => { type => 'text', not_null => 1 },
+  title                   => { type => 'text', not_null => 1 },
+  useable_for_sections    => { type => 'boolean', default => 'false', not_null => 1 },
+  useable_for_text_blocks => { type => 'boolean', default => 'false', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

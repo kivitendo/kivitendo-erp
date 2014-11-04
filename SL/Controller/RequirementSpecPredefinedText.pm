@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use List::MoreUtils qw(none);
+
 use SL::DB::RequirementSpecPredefinedText;
 use SL::Helper::Flash;
 use SL::Locale::String;
@@ -32,7 +34,7 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->{requirement_spec_predefined_text} = SL::DB::RequirementSpecPredefinedText->new;
+  $self->{requirement_spec_predefined_text} = SL::DB::RequirementSpecPredefinedText->new(useable_for_text_blocks => 1);
   $self->render('requirement_spec_predefined_text/form', title => t8('Create a new predefined text'));
 }
 
@@ -94,6 +96,13 @@ sub create_or_update {
   my $is_new = !$self->{requirement_spec_predefined_text}->id;
   my $params = delete($::form->{requirement_spec_predefined_text}) || { };
   my $title  = $is_new ? t8('Create a new predefined text') : t8('Edit predefined text');
+
+  # Force presence of booleans for the useable_* flags.
+  my @useable_flags = qw(text_blocks sections);
+  $params->{"useable_for_${_}"} = !!$params->{"useable_for_${_}"} for @useable_flags;
+
+  # Force usage for text blocks if none of the check boxes are marked.
+  $params->{useable_for_text_blocks} = 1 if none { $params->{"useable_for_${_}"} } @useable_flags;
 
   $self->{requirement_spec_predefined_text}->assign_attributes(%{ $params });
 

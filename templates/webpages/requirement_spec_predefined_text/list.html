@@ -14,10 +14,16 @@
    <table id="requirement_spec_predefined_text_list">
     <thead>
     <tr class="listheading">
+     <th colspan="4"></th>
+     <th colspan="2" align="center">[% LxERP.t8("Useable for…") %]</th>
+    </tr>
+    <tr class="listheading">
      <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
      <th>[% LxERP.t8("Description") %]</th>
      <th>[% LxERP.t8("Title") %]</th>
      <th>[% LxERP.t8("Content") %]</th>
+     <th>[% LxERP.t8("Text blocks") %]</th>
+     <th>[% LxERP.t8("Sections") %]</th>
     </tr>
     </thead>
 
@@ -33,6 +39,8 @@
 
      <td>[% HTML.escape(requirement_spec_predefined_text.title) %]</td>
      <td>[% HTML.escape(L.truncate(requirement_spec_predefined_text.text_as_stripped_html)) %]</td>
+     <td align="right">[% IF requirement_spec_predefined_text.useable_for_text_blocks %][% LxERP.t8("Yes") %][% ELSE %][% LxERP.t8("No") %][% END %]</td>
+     <td align="right">[% IF requirement_spec_predefined_text.useable_for_sections %][% LxERP.t8("Yes") %][% ELSE %][% LxERP.t8("No") %][% END %]</td>
     </tr>
     [%- END %]
     </tbody>

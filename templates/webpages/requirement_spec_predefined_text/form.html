@@ -20,6 +20,14 @@
     <td>[% LxERP.t8("Content") %]</td>
     <td>[% L.textarea_tag("requirement_spec_predefined_text.text_as_restricted_html", SELF.requirement_spec_predefined_text.text_as_restricted_html, class='texteditor', style='width: 800px; height: 300px') %]</td>
    </tr>
+
+   <tr>
+    <td>[% LxERP.t8("Useable for…") %]</sup></td>
+    <td>
+     [% L.checkbox_tag("requirement_spec_predefined_text.useable_for_text_blocks", label=LxERP.t8("Text blocks"), value=1, checked=SELF.requirement_spec_predefined_text.useable_for_text_blocks) %]
+     [% L.checkbox_tag("requirement_spec_predefined_text.useable_for_sections",    label=LxERP.t8("Sections"),    value=1, checked=SELF.requirement_spec_predefined_text.useable_for_sections) %]
+    </td>
+   </tr>
   </table>
 
   <p>
