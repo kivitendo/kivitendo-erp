@@ -617,9 +617,9 @@ sub scanhtmlfile {
                       \s+           # Mindestens ein Whitespace
                       [\'\"]?       # Anfang des Dateinamens
                       ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
-                      \.html        # Endung ".html", ansonsten kann es der Name eines Blocks sein
+                      \.(html|js)   # Endung ".html" oder ".js", ansonsten kann es der Name eines Blocks sein
                      /ix) {
-      my $new_file_name = "$basedir/templates/webpages/$1.html";
+      my $new_file_name = "$basedir/templates/webpages/$1.$2";
       $cached{$file}{scanh}{$new_file_name} = 1;
       substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
     }
