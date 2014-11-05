@@ -1,8 +1,8 @@
-[% USE JavaScript %]
+[% USE LxERP %][% USE JavaScript %]
 function insert_selected_predefined_text() {
   var data = {
 [%- FOREACH pt = SELF.predefined_texts %]
-    [% HTML.escape(pt.id) %]: {
+    [% JavaScript.escape(pt.id) %]: {
       title: "[% JavaScript.escape(pt.title) %]",
       text: "[% JavaScript.escape(pt.text) %]"
     }[% UNLESS loop.last %],[% END %]
