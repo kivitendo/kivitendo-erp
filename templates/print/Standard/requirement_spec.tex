@@ -25,7 +25,12 @@ $( KiviLatex.required_packages_for_html )$
 
 \reqspecsectionstyle
 
+\usepackage{CJKutf8}
+\usepackage{CJKfntef}
+\usepackage[T1]{fontenc}
+
 \begin{document}
+\begin{CJK}{UTF8}{}
 
 %% Titelseite
 
@@ -174,5 +179,5 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 %% Textblöcke dahinter
 $( PROCESS text_block_outputter output_position=1 heading='Weitere Punkte' )$
 
-
+\end{CJK}
 \end{document}
