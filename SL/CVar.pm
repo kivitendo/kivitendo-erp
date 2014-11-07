@@ -100,11 +100,12 @@ sub get_custom_variables {
 
   my $trans_id = $params{trans_id} ? 'OR (v.trans_id = ?) ' : '';
 
+  my $sub_module = $params{sub_module} ? $params{sub_module} : '';
+
   my $q_var    =
     qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value
        FROM custom_variables
-       WHERE (config_id = ?) AND (trans_id = ?)|;
-  $q_var      .= qq| AND (sub_module = ?)| if $params{sub_module};
+       WHERE (config_id = ?) AND (trans_id = ?) AND (sub_module = ?)|;
   my $h_var    = prepare_query($form, $dbh, $q_var);
 
   my $custom_variables = $self->get_configs(module => $params{module});
@@ -129,8 +130,7 @@ sub get_custom_variables {
 
     my ($act_var, $valid);
     if ($params{trans_id}) {
-      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}));
-      push @values, $params{sub_module} if $params{sub_module};
+      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}, $sub_module));
 
       do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
