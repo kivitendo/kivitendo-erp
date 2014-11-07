@@ -130,7 +130,7 @@ sub get_custom_variables {
 
     my ($act_var, $valid);
     if ($params{trans_id}) {
-      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}, $sub_module));
+      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}), $sub_module);
 
       do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
