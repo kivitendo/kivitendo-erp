@@ -37,12 +37,14 @@ sub shipped_qty {
 sub delivered_qty {
   my ($self) = @_;
 
-  $self->_delivered_qty unless $self->{delivered_qty};
+  $self->_delivered_qty;
   return $self->{delivered_qty};
 }
 
 sub _delivered_qty {
   my ($self) = @_;
+
+  return if $self->{delivered_qty};
 
   my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
 
@@ -59,7 +61,7 @@ sub value_of_goods {
 
   my $price_factor = $self->price_factor || 1;
 
-  $self->_delivered_qty unless $self->{delivered_qty};
+  $self->_delivered_qty;
   return ($self->{delivered_qty} * $self->sellprice * (1 - $self->discount ) / $price_factor);
 }
 
