@@ -37,14 +37,13 @@ sub shipped_qty {
 sub delivered_qty {
   my ($self) = @_;
 
-  $self->_delivered_qty;
-  return $self->{delivered_qty};
+  return $self->_delivered_qty;
 }
 
 sub _delivered_qty {
   my ($self) = @_;
 
-  return if $self->{delivered_qty};
+  return $self->{delivered_qty} if $self->{delivered_qty};
 
   my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
 
@@ -54,6 +53,8 @@ sub _delivered_qty {
 
   require SL::AM;
   $self->{delivered_qty} =  sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi_delivered);
+
+  return $self->{delivered_qty};
 }
 
 sub value_of_goods {
