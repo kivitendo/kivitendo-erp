@@ -44,7 +44,8 @@ sub delivered_qty {
   my @doi_delivered      = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @d_orders_delivered;
 
   require SL::AM;
-  return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi_delivered);
+  $self->{delivered_qty} =  sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi_delivered);
+  return $self->{delivered_qty};
 }
 
 sub value_of_goods {
@@ -52,7 +53,7 @@ sub value_of_goods {
 
   my $price_factor = $self->price_factor || 1;
 
-  return ($self->qty * $self->sellprice * (1 - $self->discount ) / $price_factor);
+  return ($self->{delivered_qty} * $self->sellprice * (1 - $self->discount ) / $price_factor);
 }
 
 sub taxincluded {

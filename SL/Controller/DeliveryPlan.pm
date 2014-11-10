@@ -28,7 +28,7 @@ my %sort_columns = (
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
-  value_of_goods    => t8('Value of goods'),
+  value_of_goods    => t8('Value of transferred goods'),
 );
 
 
