@@ -63,7 +63,7 @@ sub value_of_goods {
   my $price_factor = $self->price_factor || 1;
 
   $self->_delivered_qty;
-  return ($self->{delivered_qty} * $self->sellprice * (1 - $self->discount ) / $price_factor);
+  return ($self->_delivered_qty * $self->sellprice * (1 - $self->discount ) / $price_factor);
 }
 
 sub taxincluded {
