@@ -140,7 +140,7 @@ sub _save {
 
     $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
-      $self->{contact}->save();
+      $self->{contact}->save(cascade => 1);
     }
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
