@@ -363,6 +363,7 @@ sub load_all_profiles {
     where => [
       type  => $self->type,
       login => $::myconfig{login},
+      '!name'  => '',
     ],
   sort_by => 'name'));
 }
