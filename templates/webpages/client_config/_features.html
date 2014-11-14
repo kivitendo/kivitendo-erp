@@ -1,4 +1,4 @@
-[%- USE LxERP -%][%- USE L -%][%- USE P -%]
+[%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 %]
 <div id="features">
  <table>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("WebDAV") %]</td></tr>
@@ -93,6 +93,16 @@
    <td align="right">[% LxERP.t8('Allow direct creation of new purchase invoices') %]</td>
    <td>[% L.yes_no_tag('defaults.allow_new_purchase_invoice', SELF.defaults.allow_new_purchase_invoice) %]</td>
    <td>[% LxERP.t8('If disabled purchase invoices can only be created by conversion from existing requests for quotations, purchase orders and purchase delivery orders.') %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Global Record BCC') %]</td>
+   <td>
+     [% L.input_tag('defaults.global_bcc', SELF.defaults.global_bcc, style=style) %]
+   </td>
+   <td>[% 'Manually sent E-Mails will have their BCC field appended with this address. Will not trigger for employees without the right to send bcc, and will not apply to mails sent by automated jobs.' | $T8 %]</td>
   </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
