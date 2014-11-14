@@ -151,6 +151,7 @@ sub _create_periodic_invoice {
 
     $invoice->assign_attributes(deliverydate => $period_start_date,
                                 intnotes     => $intnotes,
+                                employee     => $order->employee, # new_from sets employee to import user
                                );
 
     map { _replace_vars($invoice, $time_period_vars, $_) } qw(notes intnotes transaction_description);
