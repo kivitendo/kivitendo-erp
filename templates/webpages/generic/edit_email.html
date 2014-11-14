@@ -20,14 +20,14 @@
           <th align="right" nowrap>[% 'Cc' | $T8 %]</th>
           <td><input name="cc" size="30" value="[% HTML.escape(cc) %]"></td>
         </tr>
-[% IF SHOW_BCC %]
+[%- IF SHOW_BCC %]
         <tr>
           <th align="right" nowrap>[% 'Bcc' | $T8 %]</th>
           <td><input name="bcc" size="30" value="[% HTML.escape(bcc) %]"></td>
-        </tr>[% END %]
+        </tr>
+[%- END %]
         <tr>
           <th align="right" nowrap>[% 'Subject' | $T8 %]</th>
-
           <td>[% L.input_tag('subject', subject, size=30, class=(email ? 'initial_focus' : '')) %]</td>
         </tr>
         <tr>
