@@ -67,27 +67,15 @@ sub prepare_report {
     delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->delivered_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
-    #vendor            => {      sub => sub { $_[0]->order->vendor->name                                                    },
-    #                       obj_link => sub { $self->link_to($_[0]->order->vendor)                                        } },
-    #customer          => {      sub => sub { $_[0]->order->customer->name                                                  },
-    #                       obj_link => sub { $self->link_to($_[0]->order->customer)                                      } },
+    vendor            => {      sub => sub { $_[0]->order->vendor->name                                                      },
+                            visible => $vc eq 'vendor',
+                           obj_link => sub { $self->link_to($_[0]->order->vendor)                                            } },
+    customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
+                            visible => $vc eq 'customer',
+                           obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+    value_of_goods    => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded },
+                            visible => $::auth->assert('sales_order_edit', 1) && $::instance_conf->get_delivery_plan_show_value_of_goods, },
   );
-
-  # add value of goods in report
-  if ($main::auth->assert('sales_order_edit') && $::instance_conf->get_delivery_plan_show_value_of_goods) {
-    $column_defs{value_of_goods} = { sub =>  sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded } };
-  }
-
-  # hotfix for today
-  # if visible is not working
-  if ($vc eq 'customer') {
-    $column_defs{customer} = {      sub => sub { $_[0]->order->customer->name                                                  },
-                           obj_link => sub { $self->link_to($_[0]->order->customer)                                      } };
-  }
-  if ($vc eq 'vendor') {
-    $column_defs{vendor}  = {      sub => sub { $_[0]->order->vendor->name                                                    },
-                           obj_link => sub { $self->link_to($_[0]->order->vendor)                                        } },
-  }
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
@@ -264,17 +252,18 @@ sub init_models {
   my $vc     = $self->vc;
 
   SL::Controller::Helper::GetModels->new(
-    controller   => $self,
-    model        => 'OrderItem',
-    sorted       => {
-      _default     => {
-        by           => 'reqdate',
-        dir          => 1,
+    controller            => $self,
+    model                 => 'OrderItem',
+    sorted                => {
+      _default              => {
+        by                    => 'reqdate',
+        dir                   => 1,
       },
       %sort_columns,
     },
-    query        => $self->delivery_plan_query,
-    with_objects => [ 'order', "order.$vc", 'part' ],
+    query                 => $self->delivery_plan_query,
+    with_objects          => [ 'order', "order.$vc", 'part' ],
+    additional_url_params => { vc => $vc },
   );
 }
 
