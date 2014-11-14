@@ -580,6 +580,9 @@ sub orders {
   if ($form->{vendor}) {
     push @options, $locale->text('Vendor') . " : $form->{vendor}";
   }
+  if ($form->{cp_name}) {
+    push @options, $locale->text('Contact Person') . " : $form->{cp_name}";
+  }
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";

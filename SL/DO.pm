@@ -76,6 +76,7 @@ sub transactions {
          sm.name AS salesman
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
+       LEFT JOIN contacts cp ON (dord.cp_id = cp.cp_id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
        LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
@@ -104,6 +105,11 @@ sub transactions {
   } elsif ($form->{$vc}) {
     push @where,  qq|ct.name ILIKE ?|;
     push @values, '%' . $form->{$vc} . '%';
+  }
+
+  if ($form->{"cp_name"}) {
+    push @where, "(cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
+    push @values, ('%' . $form->{"cp_name"} . '%')x2;
   }
 
   foreach my $item (qw(employee_id salesman_id)) {

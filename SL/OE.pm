@@ -118,6 +118,7 @@ sub transactions {
     qq|  , o.order_probability, o.expected_billing_date, (o.netamount * o.order_probability / 100) AS expected_netamount | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
+    qq|LEFT JOIN contacts cp ON (o.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
     qq|LEFT JOIN employee s ON (o.salesman_id = s.id) | .
     qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
@@ -166,6 +167,11 @@ SQL
   } elsif ($form->{$vc}) {
     $query .= " AND ct.name ILIKE ?";
     push(@values, '%' . $form->{$vc} . '%');
+  }
+
+  if ($form->{"cp_name"}) {
+    $query .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
+    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
   }
 
   if (!$main::auth->assert('sales_all_edit', 1)) {

@@ -480,6 +480,7 @@ sub ar_transactions {
           ) AS charts } .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
+    qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
@@ -504,6 +505,10 @@ sub ar_transactions {
   } elsif ($form->{customer}) {
     $where .= " AND c.name ILIKE ?";
     push(@values, $form->like($form->{customer}));
+  }
+  if ($form->{"cp_name"}) {
+    $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
+    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
   }
   if ($form->{business_id}) {
     my $business_id = $form->{business_id};

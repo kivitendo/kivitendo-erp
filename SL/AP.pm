@@ -433,6 +433,7 @@ sub ap_transactions {
           ) AS charts } .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
+    qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = v.taxzone_id)| .
@@ -452,6 +453,10 @@ sub ap_transactions {
   } elsif ($form->{vendor}) {
     $where .= " AND v.name ILIKE ?";
     push(@values, $form->like($form->{vendor}));
+  }
+  if ($form->{"cp_name"}) {
+    $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
+    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
   }
   if ($form->{department}) {
     # ähnlich wie commit 0bbfb33b6aa8e38bb6c81d1684ab7d08e5b5c5af abteilung

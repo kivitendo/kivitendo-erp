@@ -949,6 +949,7 @@ sub orders {
 
   push @options, $locale->text('Customer')                . " : $form->{customer}"                        if $form->{customer};
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                          if $form->{vendor};
+  push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                         if $form->{cp_name};
   push @options, $locale->text('Department')              . " : $department"                              if $form->{department};
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};

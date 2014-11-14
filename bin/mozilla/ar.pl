@@ -957,6 +957,9 @@ sub ar_transactions {
   if ($form->{customer}) {
     push @options, $locale->text('Customer') . " : $form->{customer}";
   }
+  if ($form->{cp_name}) {
+    push @options, $locale->text('Contact Person') . " : $form->{cp_name}";
+  }
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";

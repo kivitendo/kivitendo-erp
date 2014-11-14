@@ -911,6 +911,7 @@ sub ap_transactions {
 
   my @options;
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
+  push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                        if ($form->{cp_name});
   push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0] if ($form->{department});
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});

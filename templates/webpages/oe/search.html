@@ -32,6 +32,10 @@
                  -%]
      </td>
     </tr>
+    <tr>
+     <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
+     <td colspan="3">[% L.input_tag("cp_name", '', style="width: 250px") %]</td>
+    </tr>
 [%- IF ALL_DEPARTMENTS.size %]
     <tr>
      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
