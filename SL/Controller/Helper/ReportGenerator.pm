@@ -92,7 +92,7 @@ sub report_generator_list_objects {
   $params{layout} //= 1;
 
   my $column_defs = $params{report}->{columns};
-  my @columns     = $params{report}->get_visible_columns;
+  my @columns     = $params{report}->get_visible_columns('HTML');
 
   for my $obj (@{ $params{objects} || [] }) {
     my %data = map {
