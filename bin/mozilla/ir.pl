@@ -705,7 +705,8 @@ sub post {
 
   $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
     if ($form->date_max_future($invdate, \%myconfig));
-  $form->error($locale->text('Cannot post invoice for a closed period!')) if $max_datepaid && $form->date_closed($max_datepaid, \%myconfig);
+  $form->error($locale->text('Cannot post invoice for a closed period!'))
+    if ($invdate <= $closedto);
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
