@@ -42,7 +42,6 @@ __PACKAGE__->meta->columns(
   datev_check_on_sales_invoice              => { type => 'boolean', default => 'true' },
   delivery_plan_calculate_transferred_do    => { type => 'boolean', default => 'false', not_null => 1 },
   delivery_plan_show_value_of_goods         => { type => 'boolean', default => 'false', not_null => 1 },
-  disabled_price_sources                    => { type => 'array' },
   dunning_ar                                => { type => 'integer' },
   dunning_ar_amount_fee                     => { type => 'integer' },
   dunning_ar_amount_interest                => { type => 'integer' },

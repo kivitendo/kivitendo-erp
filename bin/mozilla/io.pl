@@ -1000,7 +1000,6 @@ sub edit_e_mail {
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";
 
-  my $defaults =
   my $global_bcc = AM->get_defaults()->{global_bcc};
 
   $form->{bcc} = join ', ', grep $_, $form->{bcc}, $global_bcc;
