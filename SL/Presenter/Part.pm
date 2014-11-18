@@ -120,8 +120,9 @@ Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.
 
-Currently you must include C<js/autocomplete_part.js> in your controller, the
-presenter can not do this from the template.
+Currently you must include C<js/autocomplete_part.js> in old bin/mozilla-style
+controllers if C<<$form->header>> is called before the template. In all other
+cases, C<part_picker> will add the javascript for you.
 
 =back
 
