@@ -875,7 +875,7 @@ sub config {
   }
 
   $form->{STYLESHEETS} = [];
-  foreach my $item (qw(lx-office-erp.css Mobile.css kivitendo.css)) {
+  foreach my $item (qw(lx-office-erp.css kivitendo.css)) {
     push @{ $form->{STYLESHEETS} }, {
       'name'     => $item,
       'value'    => $item,
