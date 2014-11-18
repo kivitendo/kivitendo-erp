@@ -25,10 +25,6 @@ body.menunew {
   margin:0px;
 }
 
-body {
-behavior:url("csshover.htc");
-}
-
 #menuv3 {
 width:99.8%;
 float:left;

@@ -1849,6 +1849,7 @@ sub generate_bwa {
 
   $form->{title} = $locale->text('BWA');
 
+  $::request->layout->add_stylesheets('bwa.css');
   $form->header;
   print $form->parse_html_template('rp/bwa');
 

@@ -309,19 +309,6 @@ fieldset {
 	color: black;
 	font-weight: bolder;
 }
-/* media stuff */
-@media screen {
-.noscreen {
-/* items with this class won't display */
-	display: none;
-}
-}
-@media print {
-.noprint {
-/* items with this class won't print */
-	display: none;
-}
-}
 .filecontent {
 	border: 1px solid blue;
 	padding-left: 2px;
@@ -333,13 +320,6 @@ label {
 }
 .unbalanced_ledger {
 	background-color: #ffa0a0;
-}
-.clearfix:after {
-	clear: both;
-	content: ".";
-	display: block;
-	height: 0;
-	visibility: hidden;
 }
 .flash_message_error {
 	background-color: #FFD6D6;
@@ -375,33 +355,6 @@ label {
 .link_separator {
   margin-left: 6px;
   margin-right: 6px;
-}
-
-.small-text {
-  font-size: 0.75em;
-}
-
-.float-left {
-  float: left;
-}
-.float-right {
-  float: right;
-}
-
-.block-context {
-  overflow: hidden;
-}
-
-.position-relative {
-  position: relative;
-}
-
-.position-absolute {
-  position: absolute;
-}
-
-.part_picker {
-  padding-right: 16px;
 }
 
 .customer-vendor-picker-undefined,
@@ -449,20 +402,3 @@ div.ppp_line span.ppp_block_sellprice {
 span.toggle_selected {
   font-weight: bold;
 }
-
-/* CTI */
-a.cti_call_action {
-  display: inline-block;
-  padding-left: 18px;
-  height: 16px;
-  position: relative;
-  top: 2px;
-  vertical-align: center;
-  background-image: url(../../image/icons/16x16/phone.png);
-  background-repeat: no-repeat;
-}
-
-/* the cvars table in the 2. row */
-.row2-cvars-table tr {vertical-align: top;}
-.row2-cvars-table th {text-align: right; padding-left: 15px; padding-right: 0;}
-.row2-cvars-table td, .row2-cvars-table th {padding-top: 10px;}

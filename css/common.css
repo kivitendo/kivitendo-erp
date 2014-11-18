@@ -1,0 +1,52 @@
+
+/* class for numeric columns in tables */
+.numeric { text-align: right }
+
+/* various oneshot decoration for legacy purpose. dont use */
+.small-text { font-size: 70% }
+.bold       { font-weight: bold }
+
+.float-left  { float: left  }
+.float-right { float: right }
+
+/* quirk to force certain constructs to block context */
+.block-context { overflow: hidden }
+
+/* position */
+.position-relative { position: relative }
+.position-absolute { position: absolute }
+
+
+/* media stuff */
+@media screen {   .noscreen { display: none } }
+@media print {    .noprint  { display: none } }
+@media handheld { .nomobile { display: none } }
+
+body { behavior:url("csshover.htc") }
+
+/* class to fix container around floats */
+.clearfix:after {
+  clear:both;
+  content:".";
+  display:block;
+  font-size:0;
+  height:0;
+  visibility:hidden;
+}
+
+/* CTI */
+a.cti_call_action {
+  display: inline-block;
+  padding-left: 18px;
+  height: 16px;
+  position: relative;
+  top: 2px;
+  vertical-align: center;
+  background-image: url(../../image/icons/16x16/phone.png);
+  background-repeat: no-repeat;
+}
+
+/* the cvars table in the 2. row */
+.row2-cvars-table tr { vertical-align: top }
+.row2-cvars-table th { text-align: right; padding-left: 15px; padding-right: 0 }
+.row2-cvars-table td, .row2-cvars-table th { padding-top: 10px }

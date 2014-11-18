@@ -1,16 +1,33 @@
-2012-03-02 - Stylesheet normalization
+Some notes about stylesheets:
 
-After this, the stylesheets follow these conventions:
+* NOT every directory in css/ is considered a style to be chosen. The available
+  stylesheets are hardcoded in at least 3 places:
+  - SL/Auth.pm:read_user
+  - SL/Controller/Admin.pm:init_stylesheets
+  - bin/mozilla/am.pl:config
+  yes it sucks. change it, if you like.
 
-* Every directory in css/ is considered a style to be chosen.
-* lx-office-erp is used as the fallback style if no style was found or the
-  style chosen was invalid.
-* Missing stylesheets for the other styles have been
-  linked from lx-office-erp, so that they will used like before.
-* If you edit a file, make sure it's not a symlink.
-* The previous named stylesheets are now main.css in their respective directories.
-* menuv3 and menuv4 are now distict so that it's possible to include both
-  without overriding each other.
-* All relative image links needed to get bumped an additional ../
-* If you add another style, be sure to test tabs, calendars, all menus,
-  autocompletion, charts, and multiselect.
+* If a stylesheet is requests from controller code, it is searched in this order:
+  - css/<stylesheet_of_current_user>/<path>
+  - css/<path>
+  - <path>
+
+  so common libraries can be put higher here, to be included by any stylesheet
+
+* 'kivitendo' is used as the fallback style if no style was found or the style
+  chosen was invalid.
+
+* Pay attention to the position of relative image urls. Most should not be
+  included in css anyway but should use the generated icon maps. For the rest,
+  a couple of ../ may be needed to get the right path.
+
+* If you edit another styles, these are things that are known to get broken.
+  Be sure to test them thoroughly:
+  - tabs
+  - calendars
+  - all menus
+  - autocompletion (parts/customers)
+  - charts of accounts
+  - multiselect
+  - ckeeditor
+  - jquery-ui widgets (i hate those things)
