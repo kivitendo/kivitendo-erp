@@ -60,8 +60,6 @@ sub action_ajax_autocomplete {
 }
 
 sub action_test_page {
-  $::request->{layout}->add_javascripts('autocomplete_part.js');
-
   $_[0]->render('part/test_page');
 }
 

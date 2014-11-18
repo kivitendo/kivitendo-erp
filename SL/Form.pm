@@ -476,7 +476,7 @@ sub header {
   $layout->use_javascript("$_.js") for (qw(
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
     jquery/jquery.form jquery/fixes client_js
-    common part_selection switchmenuframe autocomplete_part
+    common part_selection switchmenuframe
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
   $self->{favicon} ||= "favicon.ico";
