@@ -98,6 +98,18 @@ sub render {
     $options->{layout} = 0 if $options->{type} ne 'html';
   }
 
+  # Let the presenter do the rest of the work.
+  my $output;
+  {
+    local $::form->{title} = $locals{title} if $locals{title};
+    $output = $self->presenter->render(
+      $template,
+      { type => $options->{type}, process => $options->{process} },
+      %locals,
+      SELF => $self,
+    );
+  }
+
   if ($options->{header}) {
     # Output the HTTP response and the layout in case of HTML output.
 
@@ -119,14 +131,6 @@ sub render {
                                           charset      => 'UTF-8');
     }
   }
-
-  # Let the presenter do the rest of the work.
-  my $output = $self->presenter->render(
-    $template,
-    { type => $options->{type}, process => $options->{process} },
-    %locals,
-    SELF => $self,
-  );
 
   # Print the output if wanted.
   print $output if $options->{output};
