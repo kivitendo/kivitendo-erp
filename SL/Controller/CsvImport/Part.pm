@@ -427,10 +427,10 @@ sub handle_makemodel {
     return;
   }
 
-  my %old_makemodels_by_make = map { $_->make => $_ } $entry->{part}->makemodels;
+  my %old_makemodels_by_mm = map { $_->make . $; . $_->model => $_ } $entry->{part}->makemodels;
 
   foreach my $makemodel ($object->makemodels()) {
-    my $makemodel_orig = $old_makemodels_by_make{$makemodel->make};
+    my $makemodel_orig = $old_makemodels_by_mm{$makemodel->make,$makemodel->model};
     $found_any = 1;
 
     if ($makemodel_orig) {
