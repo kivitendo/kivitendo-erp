@@ -1,11 +1,10 @@
 [%- USE T8 %]
 [% USE HTML %]
+<h1>[% title %]</h1>
 
 [%- IF params.error %]
  <p><div class="message_error">[% params.error %]</div></p>
 [%- END %]
-
- <p><div class="listtop">[% title %]</div></p>
 
  <form method="post" action="bankaccounts.pl">
 

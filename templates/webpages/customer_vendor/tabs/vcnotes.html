@@ -59,14 +59,13 @@
     </p>
   [% END %]
 
-
-  <div class="listtop">
+  <h2>
     [% IF ( SELF.note.id ) %]
       [% 'Edit note' | $T8 %]
     [% ELSE %]
       [% 'Add note' | $T8 %]
     [% END %]
-  </div>
+  </h2>
 
   [% L.hidden_tag('note.id', SELF.note.id) %]
 

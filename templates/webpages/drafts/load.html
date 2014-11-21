@@ -1,16 +1,12 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% 'Load draft' | $T8 %]</h1>
 
  <form action="[% HTML.escape(script) %]" method="post">
 
   <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
 
   <table width="100%">
-   <tr>
-    <th class="listtop">[% 'Load draft' | $T8 %]</th>
-   </tr>
-   <tr height="5"></tr>
-
    <tr>
     <td>
      [% 'The following drafts have been saved and can be loaded.' | $T8 %]

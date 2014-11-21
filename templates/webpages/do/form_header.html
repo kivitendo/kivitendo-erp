@@ -2,6 +2,8 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+<h1>[% title %]</h1>
+
  <script type="text/javascript" src="js/show_form_details.js"></script>
  <script type="text/javascript" src="js/show_history.js"></script>
  <script type="text/javascript" src="js/show_vc_details.js"></script>
@@ -35,8 +37,6 @@
  [%- IF delivered %]
  [%- SET DISABLED = ' disabled' %]
  [%- END %]
-
- <div class="listtop">[% title %]</div>
 
 [%- INCLUDE 'common/flash.html' %]
 [%- INCLUDE 'generic/set_longdescription.html' %]

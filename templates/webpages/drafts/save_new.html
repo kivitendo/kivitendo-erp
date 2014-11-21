@@ -1,16 +1,12 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% 'Save draft' | $T8 %]</h1>
 
  <form action="[% HTML.escape(script) %]" method="post">
 
   <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
 
   <table width="100%">
-   <tr>
-    <th class="listtop">[% 'Save draft' | $T8 %]</th>
-   </tr>
-   <tr height="5"></tr>
-
    <tr>
     <td>[% 'Enter a description for this new draft.' | $T8 %]</td>
    </tr>

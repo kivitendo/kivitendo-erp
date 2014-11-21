@@ -11,8 +11,7 @@
  [% SET arap = 'ar' %]
  [% SET iris = 'is' %]
 [%- END %]
-
- <p><div class="listtop">[% title %]: [% HTML.escape(export.ids.join(', ')) %]</div></p>
+<h1>[% title %]: [% HTML.escape(export.ids.join(', ')) %]</h1>
 
  <form action="sepa.pl" method="post">
   <input type="hidden" name="action" value="dispatcher">

@@ -1,6 +1,7 @@
 [%- USE L %]
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
 [% L.javascript_tag('show_history.js') %]
 
 <form method=post action="[% script %]">
@@ -9,10 +10,6 @@
 <input type=hidden name=type value="[% type %]">
 
 <table width=100%>
-  <tr>
-    <th class=listtop>[% title %]</th>
-  </tr>
-  <tr height="5"></tr>
   <tr>
     <td>
       <table width=100%>

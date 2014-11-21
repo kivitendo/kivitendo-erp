@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE HTML %][%- USE LxERP %]
+<h1>[% title %]</h1>
+
  [%- IF vc == 'customer' %]
  [%- SET is_customer = '1' %]
  [%- ELSE %]
@@ -18,8 +20,6 @@
  </style>
 
  <form method="post" action="do.pl" name="Form">
-
-  <div class="listtop">[% title %]</div>
 
   <p>
    <table>

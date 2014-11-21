@@ -1,5 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
+
  <form method="post">
 
   <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
@@ -7,12 +9,6 @@
   <input type="hidden" name="is_vendor" value="[% HTML.escape(is_vendor) %]">
   <input type="hidden" name="allow_both" value="[% HTML.escape(allow_both) %]">
   <input type="hidden" name="action_on_cov_selected" value="[% HTML.escape(action_on_cov_selected) %]">
-
-  <table width="100%">
-   <tr>
-    <th class="listtop">[% title %]</th>
-   </tr>
-   <tr height="5"></tr>
 
    <tr>
     <td>

@@ -1,5 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% IF id %][% 'Edit Warehouse' | $T8 %][% ELSE %][% 'Add Warehouse' | $T8 %][% END %]</h1>
+
  [% IF saved_message %]
   <p>[% saved_message %]</p>
  [% END %]
@@ -10,8 +12,6 @@
 
   <input type="hidden" name="type" value="warehouse">
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-
-  <div class="listtop">[% IF id %][% 'Edit Warehouse' | $T8 %][% ELSE %][% 'Add Warehouse' | $T8 %][% END %]</div>
 
   <table border="0">
    <tr>
@@ -51,7 +51,7 @@
 
  <hr height="3">
 
- <div class="listtop">[% 'Edit Bins' | $T8 %]</div>
+ <h2>[% 'Edit Bins' | $T8 %]</h2>
 
  [% UNLESS BINS.size %]
  <p>[% 'No bins have been added to this warehouse yet.' | $T8 %]</p>

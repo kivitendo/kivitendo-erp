@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE HTML %][%- USE LxERP %][%- USE JavaScript %]
+<h1>[% title %]</h1>
+
  [%- UNLESS delivered %]
  <script type="text/javascript">
   <!--
@@ -60,8 +62,6 @@
  [%- END %]
 
  <form method="post" action="do.pl" name="Form">
-
-  <div class="listtop">[% title %]</div>
 
   [%- IF ERRORS && ERRORS.size %]
   <p><font color="#ff0000">[% ERRORS.join('<br>') %]</font></p>

@@ -2,11 +2,11 @@
 [%- USE HTML %]
 [%- USE L %]
 [%- USE LxERP %]
+<h1>[% 'Tax-O-Matic' | $T8 %] [% title %]</h1>
+
  <form method="post" action="am.pl">
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="type" value="tax">
-
-  <div class="listtop">[% 'Tax-O-Matic' | $T8 %] [% title %]</div>
 
   <table width="100%">
    <tr>

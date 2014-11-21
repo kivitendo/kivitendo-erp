@@ -1,11 +1,11 @@
 [%- USE T8 %]
 [%- USE L %]
 [% USE HTML %]
+<h1>[% title %]</h1>
+
  <script type="text/javascript">
    $(function(){ document.Form.subject.focus(); });
  </script>
-
- <div class="listtop">[% title %]</div>
 
  <form action="fu.pl" method="post" name="Form">
   <input type="hidden" name="nextsub" value="report">

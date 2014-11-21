@@ -2,6 +2,8 @@
 [%- USE LxERP %]
 [%- USE T8 %]
 [%- USE L %]
+<h1>[% title | html %]</h1>
+
 <script type="text/javascript">
   <!--
 function updateTaxes(row)
@@ -47,9 +49,6 @@ function updateTaxes(row)
 <input type="hidden" name="follow_up_rowcount" value="1">
 
 <table width=100%>
-  <tr>
-    <th class=listtop>[% title | html %]</th>
-  </tr>
 [%- IF saved_message %]
   <tr>
     <td>[% saved_message | html %]</th>

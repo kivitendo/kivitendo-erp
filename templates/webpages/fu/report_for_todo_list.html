@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
-
-<div class="listtop">[% 'Unfinished follow-ups' | $T8 %]</div>
+<h1>[% 'Unfinished follow-ups' | $T8 %]</h1>
 
 <form action="fu.pl" method="post" name="TODOFollowUpsForm">
  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">

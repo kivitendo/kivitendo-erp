@@ -1,6 +1,9 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %]<script type="text/javascript" src="js/FormManager.js" >
+[% USE HTML %]
+<h1>[% title %]</h1>
+
+<script type="text/javascript" src="js/FormManager.js" >
 /****************************************************
 * Form Dependency Manager- By Twey- http://www.twey.co.uk
 * Visit Dynamic Drive for this script and more: http://www.dynamicdrive.com
@@ -24,12 +27,6 @@ $(function() {
 <input type="hidden" name="expense_accno_id"   value="[% HTML.escape(expense_accno_id) %]">
 <input type="hidden" name="fxgain_accno_id"    value="[% HTML.escape(fxgain_accno_id) %]">
 <input type="hidden" name="fxloss_accno_id"    value="[% HTML.escape(fxloss_accno_id) %]">
-
-<table border="0" width="100%">
-  <tr>
-    <th class="listtop">[% title %]</th>
-  </tr>
-</table>
 
 <fieldset>
   <legend>

@@ -2,12 +2,11 @@
 [%- USE HTML %]
 [%- USE L %]
 [%- USE LxERP %]
+<h1>[% 'Search projects' | $T8 %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
  <form method="post" action="controller.pl">
-
-  <div class="listtop">[% 'Search projects' | $T8 %]</div>
 
   <p>
 [%- INCLUDE 'project/_filter.html' %]

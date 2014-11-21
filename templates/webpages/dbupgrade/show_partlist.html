@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [% USE L %]
-[% USE HTML %][%- USE LxERP -%]<div class="listtop">[% 'Show parts' | $T8 %]</div>
+[% USE HTML %][%- USE LxERP -%]
+<h1>[% 'Show parts' | $T8 %]</h1>
 
 <form method="post" action="controller.pl">
 [% L.hidden_tag("action", "LoginScreen/login") %]

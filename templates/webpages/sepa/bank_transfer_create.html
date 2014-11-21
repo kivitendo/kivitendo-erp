@@ -10,12 +10,11 @@
  [% SET arap = 'ar' %]
  [% SET iris = 'is' %]
 [%- END %]
+<h1>[% title %]</h1>
 
  [%- IF error_message %]
  <p><div class="message_error">[% error_message %]</div></p>
  [%- END %]
-
- <p><div class="listtop">[% title %]</div></p>
 
  <form action="sepa.pl" method="post">
   <p>1.

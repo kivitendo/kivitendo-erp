@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE T8 %]
+<h1>[% title | html %]</h1>
 
 <form method=post action=am.pl>
 
@@ -9,10 +10,6 @@
 <input type=hidden name=type value=language>
 
 <table width=100%>
-  <tr>
-    <th class=listtop colspan=2>[% title | html %]</th>
-  </tr>
-  <tr height="5"></tr>
   <tr>
     <th align=right>[% 'Language' | $T8 %]</th>
     <td><input name=description size=30 value="[% description | html %]"></td>

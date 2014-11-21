@@ -1,5 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
+
  <form action="[% HTML.escape(script) %]" method="post" name="Form">
 
   <input type="hidden" name="input_partnumber" value="[% HTML.escape(input_partnumber) %]">
@@ -11,8 +13,6 @@
   <input type="hidden" name="filter" value="[% HTML.escape(filter) %]">
   <input type="hidden" name="options" value="[% HTML.escape(options) %]">
   <input type="hidden" name="new_description" value="[% HTML.escape(description) %]">
-
-  <div class="listtop">[% title %]</div>
 
   <table width="100%">
    <tr>

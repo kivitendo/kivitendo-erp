@@ -1,12 +1,11 @@
 [%- USE T8 %]
 [%- USE HTML %][%- USE JavaScript %]
+<h1>[% title %]</h1>
 
  <form method="post" action="wh.pl">
 
   <input type="hidden" name="nextsub" value="remove_parts">
   <input type="hidden" name="warehouse_id" value="[% HTML.escape(warehouse_id) %]">
-
-  <div class="listtop">[% title %]</div>
 
   <p>[% 'Removal from warehouse' | $T8 %]: [% warehouse_description %]</p>
 

@@ -1,6 +1,6 @@
 [%- USE T8 %][%- USE LxERP %][% USE L %]
 [% USE HTML %]
-
+<h1>[% title %]</h1>
 
  [% IF saved_message %]
   <p>[% saved_message %]</p>
@@ -12,13 +12,6 @@
 
  <input type="hidden" name="type" value="unit">
 
- <table width="100%">
-  <tr>
-   <th class="listtop" colspan="2">[% title %]</th>
-  </tr>
-  <tr height="5"></tr>
- </table>
-
  <p>
   [% LxERP.t8('All units have either no or exactly one base unit of which they are multiples.') %]
   [% LxERP.t8('If you select a base unit then you also have to enter a factor.') %]
@@ -28,9 +21,7 @@
 
  <hr>
 
- <table width="100%">
-  <tr><th class="listtop">[% 'Add unit' | $T8 %]</th></tr>
- </table>
+ <h2>[% 'Add unit' | $T8 %]</h2>
 
  <table>
   <tr>
@@ -64,9 +55,7 @@
 
  <hr>
 
- <table width="100%">
-  <tr><th class="listtop">[% 'Edit units' | $T8 %]</th></tr>
- </table>
+ <h2>[% 'Edit units' | $T8 %]</h2>
 
  <p>
   [% 'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' | $T8 %]

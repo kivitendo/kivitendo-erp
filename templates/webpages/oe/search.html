@@ -2,13 +2,13 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE L %]
+<h1>[% HTML.escape(title) %]</h1>
+
 [%- SET vclabel = vc == 'customer' ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]
 [%- SET vcnumberlabel = vc == 'customer' ? LxERP.t8('Customer Number') : LxERP.t8('Vendor Number') %]
 [%- SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
 
 <form method="post" action="oe.pl">
-
- <p><div class="listtop">[% HTML.escape(title) %]</div></p>
 
 <table width="100%">
  <tr>

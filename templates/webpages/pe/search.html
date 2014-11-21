@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
+<h1>[% is_pricegroup ? LxERP.t8('Pricegroup') : LxERP.t8('Groups') %]</h1>
 
 <form method=post action="[% script %]">
 
@@ -8,10 +9,6 @@
 <input type=hidden name=type value="[% type %]">
 
 <table width=100%>
-  <tr>
-    <th class=listtop>[% is_pricegroup ? LxERP.t8('Pricegroup') : LxERP.t8('Groups') %]</th>
-  </tr>
-  <tr height="5"></tr>
   <tr>
     <td>
       <table width=100%>

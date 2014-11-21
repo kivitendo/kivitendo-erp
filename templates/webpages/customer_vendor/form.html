@@ -1,13 +1,13 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE L %]
+<h1>[% FORM.title %]</h1>
 
 [% L.hidden_tag('_cti_enabled', !!LXCONFIG.cti.dial_command) %]
 
 [% cv_cvars = SELF.cv.cvars_by_config %]
 
 <form method="post" action="controller.pl">
-  <div class="listtop">[% FORM.title %]</div>
 
   [% L.hidden_tag('db', FORM.db) %]
   [% L.hidden_tag('callback', FORM.callback) %]

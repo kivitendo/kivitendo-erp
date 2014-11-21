@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
+<h1>[% IF is_customer %][% 'Customer details' | $T8 %][% ELSE %][% 'Vendor details' | $T8 %][% END %] &quot;[% HTML.escape(name) %]&quot;</h1>
 
 [% BLOCK jump_block %]
 [%- IF SHIPTO.size || CONTACTS.size %]
@@ -24,11 +25,6 @@
  <hr>
 [%- END %]
 [% END %]
-
-
- <div width="100%" class="listtop">
-  [% IF is_customer %][% 'Customer details' | $T8 %][% ELSE %][% 'Vendor details' | $T8 %][% END %] &quot;[% HTML.escape(name) %]&quot;
- </div>
 
  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 

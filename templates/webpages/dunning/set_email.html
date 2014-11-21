@@ -1,5 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
+
  <script type="text/javascript">
   <!--
       function email_updated() {
@@ -15,8 +17,6 @@
   <input type="hidden" name="input_subject" value="[% HTML.escape(input_subject) %]">
   <input type="hidden" name="input_body" value="[% HTML.escape(input_body) %]">
   <input type="hidden" name="input_attachment" value="[% HTML.escape(input_attachment) %]">
-
-  <div class="listtop" width="100%">[% title %]</div>
 
   <table width="100%">
    <tr>

@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %][%- USE LxERP %]
+<h1>[% title %]</h1>
 
  [%- IF delivered %]
  [%- SET RO = ' readonly' %]
@@ -12,8 +13,6 @@
  </style>
 
  <form method="post" action="do.pl" name="Form">
-
-  <div class="listtop">[% title %]</div>
 
   [%- IF ERRORS && ERRORS.size %]
   <p><font color="#ff0000">[% ERRORS.join('<br>') %]</font></p>

@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE HTML %][%- USE JavaScript %]
+<h1>[% 'Report about warehouse transactions' | $T8 %]</h1>
+
  <script type="text/javascript">
    <!--
       warehouses = new Array();
@@ -62,8 +64,6 @@
       })
      -->
  </script>
-
- <div class="listtop">[% 'Report about warehouse transactions' | $T8 %]</div>
 
  <form method="post" name="Form" action="wh.pl">
 

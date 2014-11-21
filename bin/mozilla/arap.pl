@@ -169,13 +169,11 @@ sub select_name {
   my $title = $locale->text('Select from one of the names below');
 
   print qq|
+    <h1>$title</h1>
+
 <form method=post action=$form->{script}>
 
 <table width=100%>
-  <tr>
-    <th class=listtop>$title</th>
-  </tr>
-  <tr space=5></tr>
   <tr>
     <td>
       <table width=100%>

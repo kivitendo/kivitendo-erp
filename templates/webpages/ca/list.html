@@ -2,6 +2,8 @@
 [% USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
+<h1>[% title | html %]</h1>
+
 <form method=post action="[% script %]">
 
 [% L.hidden_tag('accno', accno) %]
@@ -9,11 +11,6 @@
 [% L.hidden_tag('sort', 'transdate') %]
 [% L.hidden_tag('accounttype', accounttype) %]
 
-<table border=0 width=100%>
-  <tr>
-    <th class=listtop>[% title | html %]</th>
-  </tr>
-</table>
 <table>
         <tr>
           <th align=left>[% L.radio_button_tag('reporttype', value='custom', label=LxERP.t8('Customized Report')) %]</th>

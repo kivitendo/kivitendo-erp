@@ -288,12 +288,9 @@ sub update_prices {
 #  $form->header;
 #
 #  print qq|
+#  <h1>| . $locale->text('choice part') . qq|</h1>
 #  <form method=post action=ic.pl>
 #    <table width=100%>
-#     <tr>
-#      <th class=listtop colspan=6>| . $locale->text('choice part') . qq|</th>
-#     </tr>
-#        <tr height="5"></tr>
 #        <tr class=listheading>
 #          <th>&nbsp;</th>
 #          <th class=listheading>| . $locale->text('Part Number') . qq|</th>
@@ -722,11 +719,9 @@ sub addtop100 {
   my $colspan = $#column_index + 1;
 
   print qq|
+    <h1>$form->{title}</h1>
+
 <table width=100%>
-  <tr>
-    <th class=listtop colspan=$colspan>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
 
   <tr><td colspan=$colspan>$option</td></tr>
 

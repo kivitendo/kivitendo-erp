@@ -2,6 +2,8 @@
 [%- USE HTML %]
 [%- USE L %]
 [%- USE JavaScript %]
+<h1>[% title %]</h1>
+
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/part_selection.js"></script>
  <script type="text/javascript">
@@ -67,8 +69,6 @@
   [% IF saved_message %]
   <p>[% saved_message %]</p>
   [% END %]
-
-  <div class="listtop">[% title %]</div>
 
   <p>
    [% 'If you enter values for the part number and / or part description then only those bins containing parts whose part number or part description match your input will be shown.' | $T8 %]

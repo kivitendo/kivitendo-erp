@@ -1,16 +1,13 @@
 [%- USE T8 %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
+
  <form name="Form">
 
   <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
   <input type="hidden" name="input_id" value="[% HTML.escape(input_id) %]">
 
   <table width="100%">
-   <tr>
-    <th class="listtop">[% title %]</th>
-   </tr>
-   <tr height="5"></tr>
-
    <tr><td>[% 'Please insert object dimensions below.' | $T8 %]</td></tr>
 
    <tr>

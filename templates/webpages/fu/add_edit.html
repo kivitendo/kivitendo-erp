@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE HTML %]
+<h1>[% title %]</h1>
+
  <script type="text/javascript">
    $(function(){ document.Form.subject.focus(); });
  </script>
@@ -10,8 +12,6 @@
   [%- IF SAVED_MESSAGE %]
   <p>[% SAVED_MESSAGE %]</p>
   [%- END %]
-
-  <div class="listtop">[% title %]</div>
 
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="note_id" value="[% HTML.escape(note_id) %]">
@@ -67,7 +67,7 @@
   [%- IF FOLLOW_UPS.size %]
   <hr height="3" noshade>
 
-  <div class="listtop">[% 'Existing pending follow-ups for this item' | $T8 %]</div>
+  <h2>[% 'Existing pending follow-ups for this item' | $T8 %]</h2>
 
   <p>
    <table>
