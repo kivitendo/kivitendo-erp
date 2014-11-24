@@ -14,9 +14,12 @@ sub run {
 
   my @queries = (
     #Delete orphaned entries
-    q|DELETE FROM custom_variables WHERE sub_module = 'orderitems' AND trans_id NOT IN (SELECT id FROM orderitems)|,
-    q|DELETE FROM custom_variables WHERE sub_module = 'delivery_order_items' AND trans_id NOT IN (SELECT id FROM delivery_order_items)|,
-    q|DELETE FROM custom_variables WHERE sub_module = 'invoice' AND trans_id NOT IN (SELECT id FROM invoice)|,
+    q|DELETE FROM custom_variables WHERE sub_module = 'orderitems'
+                                   AND NOT EXISTS (SELECT id FROM orderitems WHERE orderitems.id = custom_variables.trans_id)|,
+    q|DELETE FROM custom_variables WHERE sub_module = 'delivery_order_items'
+                                   AND NOT EXISTS (SELECT id FROM delivery_order_items WHERE delivery_order_items.id = custom_variables.trans_id)|,
+    q|DELETE FROM custom_variables WHERE sub_module = 'invoice'
+                                   AND NOT EXISTS (SELECT id FROM invoice WHERE invoice.id = custom_variables.trans_id)|,
 
     #Create trigger
     q|CREATE OR REPLACE FUNCTION orderitems_before_delete_trigger() RETURNS trigger AS $$

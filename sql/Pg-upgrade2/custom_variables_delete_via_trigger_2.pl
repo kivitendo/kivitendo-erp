@@ -15,16 +15,16 @@ sub run {
   my @queries = (
     #Delete orphaned entries
     q|DELETE FROM custom_variables WHERE (sub_module = '' OR sub_module IS NULL)
-                                         AND trans_id NOT IN (SELECT id FROM customer UNION SELECT id FROM vendor)
+                                         AND NOT EXISTS (SELECT id FROM customer WHERE customer.id = custom_variables.trans_id UNION SELECT id FROM vendor WHERE vendor.id = custom_variables.trans_id)
                                          AND (SELECT module FROM custom_variable_configs WHERE id = config_id) = 'CT'|,
     q|DELETE FROM custom_variables WHERE (sub_module = '' OR sub_module IS NULL)
-                                         AND trans_id NOT IN (SELECT id FROM contacts)
+                                         AND NOT EXISTS (SELECT id FROM contacts WHERE contacts.cp_id = custom_variables.trans_id)
                                          AND (SELECT module FROM custom_variable_configs WHERE id = config_id) = 'Contacts'|,
     q|DELETE FROM custom_variables WHERE (sub_module = '' OR sub_module IS NULL)
-                                         AND trans_id NOT IN (SELECT id FROM parts)
+                                         AND NOT EXISTS (SELECT id FROM parts WHERE parts.id = custom_variables.trans_id)
                                          AND (SELECT module FROM custom_variable_configs WHERE id = config_id) = 'IC'|,
     q|DELETE FROM custom_variables WHERE (sub_module = '' OR sub_module IS NULL)
-                                         AND trans_id NOT IN (SELECT id FROM project)
+                                         AND NOT EXISTS (SELECT id FROM project WHERE project.id = custom_variables.trans_id)
                                          AND (SELECT module FROM custom_variable_configs WHERE id = config_id) = 'Projects'|,
 
     #Create trigger

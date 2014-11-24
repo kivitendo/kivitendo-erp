@@ -9,39 +9,39 @@
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
   AND (COALESCE(sub_module, '') = '')
-  AND (trans_id NOT IN (SELECT id FROM parts));
+  AND NOT EXISTS (SELECT id FROM parts WHERE parts.id = custom_variables.trans_id);
 
 -- 1.2. Alle CVars für Angebote/Aufträge, Lieferscheine, Rechnungen
 -- (sub_module gesetzt):
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
   AND (sub_module = 'orderitems')
-  AND (trans_id NOT IN (SELECT id FROM orderitems));
+  AND NOT EXISTS (SELECT id FROM orderitems WHERE orderitems.id = custom_variables.trans_id);
 
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
   AND (sub_module = 'delivery_order_items')
-  AND (trans_id NOT IN (SELECT id FROM delivery_order_items));
+  AND NOT EXISTS (SELECT id FROM delivery_order_items WHERE delivery_order_items.id = custom_variables.trans_id);
 
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
   AND (sub_module = 'invoice')
-  AND (trans_id NOT IN (SELECT id FROM invoice));
+  AND NOT EXISTS (SELECT id FROM invoice WHERE invoice.id = custom_variables.trans_id);
 
 -- 1.3. Alle CVars für Kunden/Lieferanten:
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'CT'))
-  AND (trans_id NOT IN (SELECT id FROM customer UNION SELECT id FROM vendor));
+  AND NOT EXISTS (SELECT id FROM customer WHERE customer.id = custom_variables.trans_id UNION SELECT id FROM vendor WHERE vendor.id = custom_variables.trans_id);
 
 -- 1.4. Alle CVars für Ansprechpersonen:
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'Contacts'))
-  AND (trans_id NOT IN (SELECT cp_id FROM contacts));
+  AND NOT EXISTS (SELECT cp_id FROM contacts WHERE contacts.cp_id = custom_variables.trans_id);
 
 -- 1.5. Alle CVars für Projekte:
 DELETE FROM custom_variables
 WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'Projects'))
-  AND (trans_id NOT IN (SELECT id FROM project));
+  AND NOT EXISTS (SELECT id FROM project WHERE project.id = custom_variables.trans_id);
 
 -- 2. Triggerfunktionen erstellen, die die benutzerdefinierten
 -- Variablen löschen.
