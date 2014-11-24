@@ -120,9 +120,11 @@ Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.
 
-Currently you must include C<js/autocomplete_part.js> in old bin/mozilla-style
-controllers if C<<$form->header>> is called before the template. In all other
-cases, C<part_picker> will add the javascript for you.
+C<part_picker> will register it's javascript for inclusion in the next header
+rendering. If you write a standard controller that only call C<render> once, it
+will just work.  In case the header is generated in a different render call
+(multiple blocks, ajax, old C<bin/moilla> style controllers) you need to
+include C<js/autocomplete_part.js> yourself.
 
 =back
 
