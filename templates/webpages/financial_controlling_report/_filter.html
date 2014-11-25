@@ -32,6 +32,10 @@
    <td>[% L.select_tag('filter.globalproject.project_type_id', SELF.project_types, default=filter.globalproject.project_type_id, title_key='description', with_empty=1, style=style) %]</td>
   </tr>
   <tr>
+   <th align="right">[% LxERP.t8('Transaction description') %]</th>
+   <td>[% L.input_tag('filter.transaction_description:substr::ilike', filter.transaction_description_substr__ilike, style=style) %]</td>
+  </tr>
+  <tr>
    <th align="right">[% 'Order Date' | $T8 %] [% 'From Date' | $T8 %]</th>
    <td>[% L.date_tag('filter.transdate:date::ge', filter.transdate_date__ge, cal_align = 'BR') %]</td>
   </tr>
