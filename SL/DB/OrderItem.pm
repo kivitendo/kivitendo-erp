@@ -6,6 +6,7 @@ use List::Util qw(sum);
 
 use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Manager::OrderItem;
+use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
   cvars_alias => 1,
@@ -64,6 +65,20 @@ sub value_of_goods {
 
   $self->_delivered_qty;
   return ($self->_delivered_qty * $self->sellprice * (1 - $self->discount ) / $price_factor);
+}
+
+sub stocked_qty {
+  my ($self) = @_;
+
+  my $d_orders   = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
+  my @doi        = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @$d_orders;
+
+  return 0 if !@doi;
+
+  my $doi_stocks = SL::DB::Manager::DeliveryOrderItemsStock->get_all(query => [delivery_order_item_id => [ map {$_->id} @doi ]]);
+
+  require SL::AM;
+  return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @{ $doi_stocks });
 }
 
 sub taxincluded {
