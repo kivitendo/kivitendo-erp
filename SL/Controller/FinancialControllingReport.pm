@@ -50,9 +50,9 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(customer globalprojectnumber globalproject_type ordnumber net_amount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
+  my @columns     = qw(customer globalprojectnumber globalproject_type transaction_description ordnumber net_amount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
                        billable_amount billable_amount_p other_amount);
-  my @sortable    = qw(ordnumber transdate customer globalprojectnumber globalproject_type);
+  my @sortable    = qw(ordnumber transdate customer globalprojectnumber globalproject_type transaction_description );
   $self->{number_columns} = [ qw(net_amount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
 
   my %column_defs           = (
@@ -66,6 +66,7 @@ sub prepare_report {
     billable_amount         => { text     => $::locale->text('Billable amount')                                          },
     billable_amount_p       => { text     => $::locale->text('%')                                                        },
     other_amount            => { text     => $::locale->text('Billed extra expenses')                                    },
+    transaction_description => { text     => $::locale->text('Transaction description')                                  },
     ordnumber               => { obj_link => sub { $self->link_to($_[0])                                              }  },
     customer                => {      sub => sub { $_[0]->customer->name                                              },
                                  obj_link => sub { $self->link_to($_[0]->customer)                                    }  },
