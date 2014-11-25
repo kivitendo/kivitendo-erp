@@ -3,7 +3,7 @@
 <div id="custom_variables">
   <p>
     <table>
-      [% FOREACH var = cv_cvars %]
+      [% FOREACH var = SELF.cv.cvars_by_config %]
         <tr>
           <th align="left" valign="top" nowrap>[% var.config.description | html %]</th>
 

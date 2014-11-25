@@ -365,7 +365,7 @@ sub action_delete_contact {
       }
     }) || die($db->error);
 
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
 
   $self->action_edit();
@@ -543,19 +543,27 @@ sub action_ajaj_get_contact {
   };
 
   $data->{contact_cvars} = {
-    map(
-      {
-        if ( $_->config->type eq 'number' ) {
-          $_->config->name => $::form->format_amount(\%::myconfig, $_->value, -2);
-        } else {
-          $_->config->name => $_->value;
-        }
+    map {
+      my $cvar   = $_;
+      my $result = { type => $cvar->config->type };
+
+      if ($cvar->config->type eq 'number') {
+        $result->{value} = $::form->format_amount(\%::myconfig, $cvar->value, -2);
+
+      } elsif ($result->{type} =~ m{customer|vendor|part}) {
+        my $object       = $cvar->value;
+        my $method       = $result->{type} eq 'part' ? 'description' : 'name';
+
+        $result->{id}    = int($cvar->number_value) || undef;
+        $result->{value} = $object ? $object->$method // '' : '';
+
+      } else {
+        $result->{value} = $cvar->value;
       }
-      grep(
-        { $_->is_valid; }
-        @{$self->{contact}->cvars_by_config}
-      )
-    )
+
+      ( $cvar->config->name => $result )
+
+    } grep { $_->is_valid } @{ $self->{contact}->cvars_by_config }
   };
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
@@ -637,7 +645,7 @@ sub is_orphaned {
   }
 
   my $arap      = $self->is_vendor ? 'ap' : 'ar';
-  my $num_args  = 2;
+  my $num_args  = 3;
 
   my $cv = $self->is_vendor ? 'vendor' : 'customer';
 
@@ -651,6 +659,13 @@ sub is_orphaned {
 
     SELECT a.id
     FROM oe a
+    JOIN '. $cv .' ct ON (a.'. $cv .'_id = ct.id)
+    WHERE ct.id = ?
+
+    UNION
+
+    SELECT a.id
+    FROM delivery_orders a
     JOIN '. $cv .' ct ON (a.'. $cv .'_id = ct.id)
     WHERE ct.id = ?';
 
@@ -679,11 +694,7 @@ sub _instantiate_args {
       $self->{cv} = SL::DB::Customer->new(id => $::form->{cv}->{id})->load();
     }
   } else {
-    if ( $self->is_vendor() ) {
-      $self->{cv} = SL::DB::Vendor->new();
-    } else {
-      $self->{cv} = SL::DB::Customer->new();
-    }
+    $self->{cv} = $self->_new_customer_vendor_object;
   }
   $self->{cv}->assign_attributes(%{$::form->{cv}});
 
@@ -735,7 +746,7 @@ sub _instantiate_args {
   if ( $::form->{contact}->{cp_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
   } else {
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
 
@@ -786,18 +797,14 @@ sub _load_customer_vendor {
       die($::locale->text('Error'));
     }
   } else {
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
 }
 
 sub _create_customer_vendor {
   my ($self) = @_;
 
-  if ( $self->is_vendor() ) {
-    $self->{cv} = SL::DB::Vendor->new();
-  } else {
-    $self->{cv} = SL::DB::Customer->new();
-  }
+  $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
 
   $self->{note} = SL::DB::Note->new();
@@ -806,7 +813,7 @@ sub _create_customer_vendor {
 
   $self->{shipto} = SL::DB::Shipto->new();
 
-  $self->{contact} = SL::DB::Contact->new();
+  $self->{contact} = $self->_new_contact_object;
 }
 
 sub _pre_render {
@@ -968,6 +975,23 @@ sub init_vendor_models {
       name  => t8('Name'),
     },
   );
+}
+
+sub _new_customer_vendor_object {
+  my ($self) = @_;
+
+  my $class  = 'SL::DB::' . ($self->is_vendor ? 'Vendor' : 'Customer');
+  return $class->new(
+    contacts         => [],
+    shipto           => [],
+    custom_variables => [],
+  );
+}
+
+sub _new_contact_object {
+  my ($self) = @_;
+
+  return SL::DB::Contact->new(custom_variables => []);
 }
 
 1;

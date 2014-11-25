@@ -10,62 +10,8 @@ use strict;
 use parent qw(SL::DBUpgrade2::Base);
 
 sub run {
-  my ($self) = @_;
-
-  my @queries = (
-    #Delete orphaned entries
-    q|DELETE FROM custom_variables WHERE sub_module = 'orderitems'
-                                   AND NOT EXISTS (SELECT id FROM orderitems WHERE orderitems.id = custom_variables.trans_id)|,
-    q|DELETE FROM custom_variables WHERE sub_module = 'delivery_order_items'
-                                   AND NOT EXISTS (SELECT id FROM delivery_order_items WHERE delivery_order_items.id = custom_variables.trans_id)|,
-    q|DELETE FROM custom_variables WHERE sub_module = 'invoice'
-                                   AND NOT EXISTS (SELECT id FROM invoice WHERE invoice.id = custom_variables.trans_id)|,
-
-    #Create trigger
-    q|CREATE OR REPLACE FUNCTION orderitems_before_delete_trigger() RETURNS trigger AS $$
-        BEGIN
-          DELETE FROM custom_variables WHERE sub_module = 'orderitems' AND trans_id = OLD.id;
-
-          RETURN OLD;
-        END;
-      $$ LANGUAGE plpgsql|,
-
-    q|DROP TRIGGER IF EXISTS delete_orderitems_dependencies ON orderitems|,
-
-    q|CREATE TRIGGER delete_orderitems_dependencies
-      BEFORE DELETE ON orderitems
-      FOR EACH ROW EXECUTE PROCEDURE orderitems_before_delete_trigger()|,
-
-    q|CREATE OR REPLACE FUNCTION delivery_order_items_before_delete_trigger() RETURNS trigger AS $$
-        BEGIN
-          DELETE FROM custom_variables WHERE sub_module = 'delivery_order_items' AND trans_id = OLD.id;
-
-          RETURN OLD;
-        END;
-      $$ LANGUAGE plpgsql|,
-
-    q|DROP TRIGGER IF EXISTS delete_delivery_order_items_dependencies ON delivery_order_items|,
-
-    q|CREATE TRIGGER delete_delivery_order_items_dependencies
-      BEFORE DELETE ON delivery_order_items
-      FOR EACH ROW EXECUTE PROCEDURE delivery_order_items_before_delete_trigger()|,
-
-    q|CREATE OR REPLACE FUNCTION invoice_before_delete_trigger() RETURNS trigger AS $$
-        BEGIN
-          DELETE FROM custom_variables WHERE sub_module = 'invoice' AND trans_id = OLD.id;
-
-          RETURN OLD;
-        END;
-      $$ LANGUAGE plpgsql|,
-
-    q|DROP TRIGGER IF EXISTS delete_invoice_dependencies ON invoice|,
-
-    q|CREATE TRIGGER delete_invoice_dependencies
-      BEFORE DELETE ON invoice
-      FOR EACH ROW EXECUTE PROCEDURE invoice_before_delete_trigger()|
-    );
-
-  $self->db_query($_) for @queries;
+  # This script is intentionally empty, because there is another upgrade script
+  # which provides this functionality.
 
   return 1;
 }
