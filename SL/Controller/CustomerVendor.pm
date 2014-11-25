@@ -543,19 +543,27 @@ sub action_ajaj_get_contact {
   };
 
   $data->{contact_cvars} = {
-    map(
-      {
-        if ( $_->config->type eq 'number' ) {
-          $_->config->name => $::form->format_amount(\%::myconfig, $_->value, -2);
-        } else {
-          $_->config->name => $_->value;
-        }
+    map {
+      my $cvar   = $_;
+      my $result = { type => $cvar->config->type };
+
+      if ($cvar->config->type eq 'number') {
+        $result->{value} = $::form->format_amount(\%::myconfig, $cvar->value, -2);
+
+      } elsif ($result->{type} =~ m{customer|vendor|part}) {
+        my $object       = $cvar->value;
+        my $method       = $result->{type} eq 'part' ? 'description' : 'name';
+
+        $result->{id}    = int($cvar->number_value) || undef;
+        $result->{value} = $object ? $object->$method // '' : '';
+
+      } else {
+        $result->{value} = $cvar->value;
       }
-      grep(
-        { $_->is_valid; }
-        @{$self->{contact}->cvars_by_config}
-      )
-    )
+
+      ( $cvar->config->name => $result )
+
+    } grep { $_->is_valid } @{ $self->{contact}->cvars_by_config }
   };
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });

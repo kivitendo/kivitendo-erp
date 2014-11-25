@@ -41,6 +41,27 @@ namespace('kivi.CustomerVendor', function(ns) {
     }
   };
 
+  this.setCustomVariablesFromAJAJ = function(cvars) {
+    for (var key in cvars) {
+      var cvar  = cvars[key];
+      var $ctrl = $('#contact_cvars_'+ key);
+
+      console.log($ctrl, cvar);
+
+      if (cvar.type == 'bool')
+        $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
+
+      else if ((cvar.type == 'customer') || (cvar.type == 'vendor'))
+        kivi.CustomerVendorPicker($ctrl).set_item({ id: cvar.id, name: cvar.value });
+
+      else if (cvar.type == 'part')
+        kivi.PartPicker($ctrl).set_item({ id: cvar.id, name: cvar.value });
+
+      else
+        $ctrl.val(cvar.value);
+    }
+  };
+
   this.selectContact = function(params) {
     var contactId = $('#contact_cp_id').val();
 
@@ -51,9 +72,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       for(var key in contact)
         $(document.getElementById('contact_'+ key)).val(contact[key])
 
-      var cvars = data.contact_cvars;
-      for(var key in cvars)
-        $(document.getElementById('contact_cvars_'+ key)).val(cvars[key]);
+      kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars);
 
       if ( contactId )
         $('#action_delete_contact').show();
