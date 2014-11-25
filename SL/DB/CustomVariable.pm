@@ -64,17 +64,17 @@ sub value {
     require SL::DB::Customer;
 
     my $id = int($self->number_value);
-    return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
+    return $id ? SL::DB::Customer->new(id => $id)->load() : undef;
   } elsif ( $type eq 'vendor' ) {
     require SL::DB::Vendor;
 
     my $id = int($self->number_value);
-    return $id ? SL::DB::Vendor->new(id => $id)->load() : 0;
+    return $id ? SL::DB::Vendor->new(id => $id)->load() : undef;
   } elsif ( $type eq 'part' ) {
     require SL::DB::Part;
 
     my $id = int($self->number_value);
-    return $id ? SL::DB::Part->new(id => $id)->load() : 0;
+    return $id ? SL::DB::Part->new(id => $id)->load() : undef;
   }
 
   goto &text_value; # text, textfield, date and select
