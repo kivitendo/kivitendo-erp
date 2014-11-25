@@ -76,8 +76,8 @@ sub prepare_report {
                                  sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->project_type->description : '' }  },
   );
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
-  map { $column_defs{$_}->{align} = 'right' } @{ $self->{number_columns} };
+  $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) for keys %column_defs;
+  $column_defs{$_}->{align}  = 'right'                                                        for @{ $self->{number_columns} };
 
   $report->set_options(
     std_column_visibility => 1,
@@ -181,8 +181,8 @@ sub list_objects {
   my ($self)      = @_;
   my $modify_data = sub {
     my ($data) = @_;
-    map { $data->{$_}->{data} = defined $data->{$_}->{data} ? int($data->{$_}->{data}) : ''  } grep {  m/_p$/ } @{ $self->{number_columns} };
-    map { $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) } grep { !m/_p$/ } @{ $self->{number_columns} };
+    $data->{$_}->{data} = defined $data->{$_}->{data} ? int($data->{$_}->{data}) : ''  for grep {  m/_p$/ } @{ $self->{number_columns} };
+    $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) for grep { !m/_p$/ } @{ $self->{number_columns} };
   };
 
   return $self->report_generator_list_objects(report => $self->{report}, objects => $self->{orders}, data_callback => $modify_data);
