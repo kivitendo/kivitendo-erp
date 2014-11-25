@@ -645,7 +645,7 @@ sub is_orphaned {
   }
 
   my $arap      = $self->is_vendor ? 'ap' : 'ar';
-  my $num_args  = 2;
+  my $num_args  = 3;
 
   my $cv = $self->is_vendor ? 'vendor' : 'customer';
 
@@ -659,6 +659,13 @@ sub is_orphaned {
 
     SELECT a.id
     FROM oe a
+    JOIN '. $cv .' ct ON (a.'. $cv .'_id = ct.id)
+    WHERE ct.id = ?
+
+    UNION
+
+    SELECT a.id
+    FROM delivery_orders a
     JOIN '. $cv .' ct ON (a.'. $cv .'_id = ct.id)
     WHERE ct.id = ?';
 
