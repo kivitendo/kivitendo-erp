@@ -68,6 +68,17 @@
    </td>
   </tr>
   <tr>
+   <th align="right">[% 'Employee' | $T8 %]</th>
+   <td>
+     [% L.select_tag('filter.order.employee_id', SELF.all_employees,
+                     default    => filter.order.employee_id,
+                     title_key  => 'name',
+                     value_key  => 'id',
+                     with_empty => 1,
+                     style      => 'width: 200px') %]
+   </td>
+  </tr>
+  <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>
      [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.part,     value='part',     label=LxERP.t8('Part')) %]
@@ -83,7 +94,7 @@
 [% L.hidden_tag('page', FORM.page) %]
 [% L.hidden_tag('vc', SELF.vc) %]
 [% L.hidden_tag('mode', SELF.mode) %]
-  [% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
+[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
 
 
 <a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);'>[% 'Reset' | $T8 %]</a>

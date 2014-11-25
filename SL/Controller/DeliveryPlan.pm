@@ -13,7 +13,7 @@ use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right mode vc) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right mode vc all_employees) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -42,7 +42,7 @@ sub action_list {
   my $orderitems = $self->models->get;
   $self->{all_businesses} = SL::DB::Manager::Business->get_all_sorted;
 
-    $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
 # private functions
@@ -125,6 +125,8 @@ sub make_filter_summary {
   my @filter_strings;
 
   my $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
+  my $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
+
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
     [ $filter->{order}{globalproject}{"projectnumber:substr::ilike"}, $::locale->text('Document Project Number')                            ],
@@ -138,6 +140,7 @@ sub make_filter_summary {
     [ $filter->{order}{customer}{"name:substr::ilike"},               $::locale->text('Customer')                                           ],
     [ $filter->{order}{customer}{"customernumber:substr::ilike"},     $::locale->text('Customer Number')                                    ],
     [ $business,                                                      $::locale->text('Customer type')                                      ],
+    [ $employee,                                                      $::locale->text('Employee')                                           ],
   );
 
   my %flags = (
@@ -300,6 +303,9 @@ sub init_mode {
   return $::form->{mode} if ($::form->{mode} eq 'delivery_value_report' || $::form->{mode} eq 'delivery_plan') || croak "self (DeliveryPlan) has no mode defined";
 }
 
+sub init_all_employees {
+  return SL::DB::Manager::Employee->get_all_sorted;
+}
 sub link_to {
   my ($self, $object, %params) = @_;
 
