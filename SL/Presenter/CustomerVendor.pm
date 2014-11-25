@@ -39,7 +39,14 @@ sub _customer_vendor {
 sub customer_vendor_picker {
   my ($self, $name, $value, %params) = @_;
 
-  $value = SL::DB::Manager::Customer->find_by(id => $value) if $value && !ref $value;
+  croak 'Unknown "type" parameter' unless $params{type} =~ m{^(?:customer|vendor)$};
+  croak 'Unknown value class'      if     $value && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
+
+  if ($value && !ref $value) {
+    my $class = $params{type} eq 'customer' ? 'SL::DB::Manager::Customer' : 'SL::DB::Manager::Vendor';
+    $value    = $class->find_by(id => $value);
+  }
+
   my $id = delete($params{id}) || $self->name_to_id($name);
   my $fat_set_item = delete $params{fat_set_item};
 
