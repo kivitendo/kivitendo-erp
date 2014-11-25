@@ -12,6 +12,6 @@ use_ok 'SL::CTI';
 }
 
 is SL::CTI->sanitize_number(number => '0371 5347 620'),        '03715347620';
-is SL::CTI->sanitize_number(number => '0049(0)421-22232 22'),  '0049421-2223222';
-is SL::CTI->sanitize_number(number => '+49(0)421-22232 22'),   '0049421-2223222';
+is SL::CTI->sanitize_number(number => '0049(0)421-22232 22'),  '00494212223222';
+is SL::CTI->sanitize_number(number => '+49(0)421-22232 22'),   '00494212223222';
 is SL::CTI->sanitize_number(number => 'Tel: +49 40 809064 0'), '0049408090640';

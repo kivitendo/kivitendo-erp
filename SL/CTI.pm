@@ -40,9 +40,10 @@ sub sanitize_number {
   my $idp              = $config->{international_dialing_prefix} // '00';
 
   my $number           = $params{number} // '';
-  $number              =~ s/[^0-9+\.-]//g;                                     # delete unsupported characters
+  $number              =~ s/[^0-9+]//g;                                        # delete unsupported characters
   my $countrycode      = $number =~ s/^(?: $idp | \+ ) ( \d{2} )//x ? $1 : ''; # TODO: countrycodes can have more or less than 2 digits
   $number              =~ s/^0//x if $countrycode;                             # kill non standard optional zero after global identifier
+  $number              =~ s{[^0-9]+}{}g;
 
   return '' unless $number;
 

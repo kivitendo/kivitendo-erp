@@ -12,11 +12,11 @@ use_ok 'SL::CTI';
 }
 
 is SL::CTI->call_link(number => '0371 5347 620'),        'controller.pl?action=CTI/call&number=03715347620';
-is SL::CTI->call_link(number => '0049(0)421-22232 22'),  'controller.pl?action=CTI/call&number=0049421-2223222';
-is SL::CTI->call_link(number => '+49(0)421-22232 22'),   'controller.pl?action=CTI/call&number=0049421-2223222';
+is SL::CTI->call_link(number => '0049(0)421-22232 22'),  'controller.pl?action=CTI/call&number=00494212223222';
+is SL::CTI->call_link(number => '+49(0)421-22232 22'),   'controller.pl?action=CTI/call&number=00494212223222';
 is SL::CTI->call_link(number => 'Tel: +49 40 809064 0'), 'controller.pl?action=CTI/call&number=0049408090640';
 
 is SL::CTI->call_link(number => '0371 5347 620',        internal => 1), 'controller.pl?action=CTI/call&number=03715347620&internal=1';
-is SL::CTI->call_link(number => '0049(0)421-22232 22',  internal => 1), 'controller.pl?action=CTI/call&number=0049421-2223222&internal=1';
-is SL::CTI->call_link(number => '+49(0)421-22232 22',   internal => 1), 'controller.pl?action=CTI/call&number=0049421-2223222&internal=1';
+is SL::CTI->call_link(number => '0049(0)421-22232 22',  internal => 1), 'controller.pl?action=CTI/call&number=00494212223222&internal=1';
+is SL::CTI->call_link(number => '+49(0)421-22232 22',   internal => 1), 'controller.pl?action=CTI/call&number=00494212223222&internal=1';
 is SL::CTI->call_link(number => 'Tel: +49 40 809064 0', internal => 1), 'controller.pl?action=CTI/call&number=0049408090640&internal=1';
