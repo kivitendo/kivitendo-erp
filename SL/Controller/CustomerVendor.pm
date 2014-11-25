@@ -365,7 +365,7 @@ sub action_delete_contact {
       }
     }) || die($db->error);
 
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
 
   $self->action_edit();
@@ -679,11 +679,7 @@ sub _instantiate_args {
       $self->{cv} = SL::DB::Customer->new(id => $::form->{cv}->{id})->load();
     }
   } else {
-    if ( $self->is_vendor() ) {
-      $self->{cv} = SL::DB::Vendor->new();
-    } else {
-      $self->{cv} = SL::DB::Customer->new();
-    }
+    $self->{cv} = $self->_new_customer_vendor_object;
   }
   $self->{cv}->assign_attributes(%{$::form->{cv}});
 
@@ -735,7 +731,7 @@ sub _instantiate_args {
   if ( $::form->{contact}->{cp_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
   } else {
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
 
@@ -786,18 +782,14 @@ sub _load_customer_vendor {
       die($::locale->text('Error'));
     }
   } else {
-    $self->{contact} = SL::DB::Contact->new();
+    $self->{contact} = $self->_new_contact_object;
   }
 }
 
 sub _create_customer_vendor {
   my ($self) = @_;
 
-  if ( $self->is_vendor() ) {
-    $self->{cv} = SL::DB::Vendor->new();
-  } else {
-    $self->{cv} = SL::DB::Customer->new();
-  }
+  $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
 
   $self->{note} = SL::DB::Note->new();
@@ -806,7 +798,7 @@ sub _create_customer_vendor {
 
   $self->{shipto} = SL::DB::Shipto->new();
 
-  $self->{contact} = SL::DB::Contact->new();
+  $self->{contact} = $self->_new_contact_object;
 }
 
 sub _pre_render {
@@ -968,6 +960,23 @@ sub init_vendor_models {
       name  => t8('Name'),
     },
   );
+}
+
+sub _new_customer_vendor_object {
+  my ($self) = @_;
+
+  my $class  = 'SL::DB::' . ($self->is_vendor ? 'Vendor' : 'Customer');
+  return $class->new(
+    contacts         => [],
+    shipto           => [],
+    custom_variables => [],
+  );
+}
+
+sub _new_contact_object {
+  my ($self) = @_;
+
+  return SL::DB::Contact->new(custom_variables => []);
 }
 
 1;
