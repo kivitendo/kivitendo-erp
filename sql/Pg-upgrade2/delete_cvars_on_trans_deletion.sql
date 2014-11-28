@@ -4,44 +4,70 @@
 
 -- 1. Alle benutzerdefinierten Variablen löschen, für die es keine
 -- Einträge in den dazugehörigen Tabellen mehr gibt.
+CREATE TEMPORARY TABLE cvars_to_delete AS
+SELECT cv.id
+FROM custom_variables cv
+LEFT JOIN custom_variable_configs cfg ON (cv.config_id = cfg.id)
 
 -- 1.1. Alle CVars für Artikel selber (sub_module ist leer):
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
-  AND (COALESCE(sub_module, '') = '')
-  AND NOT EXISTS (SELECT id FROM parts WHERE parts.id = custom_variables.trans_id);
+LEFT JOIN parts p ON (
+      (cfg.module = 'IC')
+  AND ((cv.sub_module IS NULL) OR (cv.sub_module = ''))
+  AND (cv.trans_id = p.id))
 
 -- 1.2. Alle CVars für Angebote/Aufträge, Lieferscheine, Rechnungen
--- (sub_module gesetzt):
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
-  AND (sub_module = 'orderitems')
-  AND NOT EXISTS (SELECT id FROM orderitems WHERE orderitems.id = custom_variables.trans_id);
+-- (cv.sub_module gesetzt):
+LEFT JOIN orderitems oi ON (
+      (cfg.module    = 'IC')
+  AND (cv.sub_module = 'orderitems')
+  AND (cv.trans_id   = oi.id))
 
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
-  AND (sub_module = 'delivery_order_items')
-  AND NOT EXISTS (SELECT id FROM delivery_order_items WHERE delivery_order_items.id = custom_variables.trans_id);
+LEFT JOIN delivery_order_items doi ON (
+      (cfg.module    = 'IC')
+  AND (cv.sub_module = 'delivery_order_items')
+  AND (cv.trans_id   = doi.id))
 
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
-  AND (sub_module = 'invoice')
-  AND NOT EXISTS (SELECT id FROM invoice WHERE invoice.id = custom_variables.trans_id);
+LEFT JOIN invoice i ON (
+      (cfg.module    = 'IC')
+  AND (cv.sub_module = 'invoice')
+  AND (cv.trans_id   = i.id))
 
 -- 1.3. Alle CVars für Kunden/Lieferanten:
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'CT'))
-  AND NOT EXISTS (SELECT id FROM customer WHERE customer.id = custom_variables.trans_id UNION SELECT id FROM vendor WHERE vendor.id = custom_variables.trans_id);
+LEFT JOIN customer c ON (
+      (cfg.module  = 'CT')
+  AND (cv.trans_id = c.id))
+
+LEFT JOIN vendor v ON (
+      (cfg.module  = 'CT')
+  AND (cv.trans_id = v.id))
 
 -- 1.4. Alle CVars für Ansprechpersonen:
-DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'Contacts'))
-  AND NOT EXISTS (SELECT cp_id FROM contacts WHERE contacts.cp_id = custom_variables.trans_id);
+LEFT JOIN contacts cp ON (
+      (cfg.module  = 'Contacts')
+  AND (cv.trans_id = cp.cp_id))
 
 -- 1.5. Alle CVars für Projekte:
+LEFT JOIN project pr ON (
+      (cfg.module  = 'Projects')
+  AND (cv.trans_id = pr.id))
+
+-- Nun diejenigen Zeilen nehmen, für die es in keiner der verknüpften
+-- Tabellen eine korrespondierende Zeile gibt.
+WHERE (p.id     IS NULL)
+  AND (oi.id    IS NULL)
+  AND (doi.id   IS NULL)
+  AND (i.id     IS NULL)
+  AND (c.id     IS NULL)
+  AND (v.id     IS NULL)
+  AND (cp.cp_id IS NULL)
+  AND (pr.id    IS NULL);
+
 DELETE FROM custom_variables
-WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'Projects'))
-  AND NOT EXISTS (SELECT id FROM project WHERE project.id = custom_variables.trans_id);
+WHERE EXISTS (
+  SELECT ctd.id
+  FROM cvars_to_delete ctd
+  WHERE ctd.id = custom_variables.id
+);
 
 -- 2. Triggerfunktionen erstellen, die die benutzerdefinierten
 -- Variablen löschen.
