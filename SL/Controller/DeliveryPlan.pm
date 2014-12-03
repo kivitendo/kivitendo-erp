@@ -13,7 +13,7 @@ use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right mode vc all_employees) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right mode vc all_employees all_businesses) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -40,7 +40,6 @@ sub action_list {
   $self->prepare_report;
 
   my $orderitems = $self->models->get;
-  $self->{all_businesses} = SL::DB::Manager::Business->get_all_sorted;
 
   $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
@@ -305,6 +304,9 @@ sub init_mode {
 
 sub init_all_employees {
   return SL::DB::Manager::Employee->get_all_sorted;
+}
+sub init_all_businesses {
+  return SL::DB::Manager::Business->get_all_sorted;
 }
 sub link_to {
   my ($self, $object, %params) = @_;
