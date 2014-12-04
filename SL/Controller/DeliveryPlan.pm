@@ -119,12 +119,13 @@ sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
   my $mode   = $self->mode;
+  my ($business, $employee);
 
   my $filter = $::form->{filter} || {};
   my @filter_strings;
 
-  my $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
-  my $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
+  $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
+  $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
 
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
