@@ -38,6 +38,10 @@
   vertical-align: middle;
 }
 
+#frame-header .frame-header-right {
+  margin-top: 3px;
+}
+
 #frame-header #ajax-spinner {
   margin-top: 2px;
   margin-right: 10px;
@@ -46,4 +50,8 @@
   height: 16px;
   min-width: 16px;
   min-height: 16px;
+}
+
+#frame-header input {
+  font-size: 12px;
 }

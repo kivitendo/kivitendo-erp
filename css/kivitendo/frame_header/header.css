@@ -33,8 +33,16 @@
   vertical-align: middle;
 }
 
+#frame-header .frame-header-right {
+  margin-top: 3px;
+}
+
 #frame-header #ajax-spinner {
   margin-top: 2px;
   margin-right: 10px;
   display: none;
+}
+
+#frame-header input {
+  font-size: 12px;
 }

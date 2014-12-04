@@ -50,3 +50,13 @@ a.cti_call_action {
 .row2-cvars-table tr { vertical-align: top }
 .row2-cvars-table th { text-align: right; padding-left: 15px; padding-right: 0 }
 .row2-cvars-table td, .row2-cvars-table th { padding-top: 10px }
+
+input.grow_on_focus {
+  width: 20px;
+  transition:         width 0.1s;
+  -moz-transition:    width 0.1s;
+  -webkit-transition: width 0.1s;
+  -o-transition:      width 0.1s;
+}
+input.grow_on_focus:focus { width: 150px }
+

@@ -1,5 +1,6 @@
-function on_keydown_quicksearch(element, event) {
+function on_keydown_quicksearch(event) {
   var key;
+  var element = $(this);
 
   if (window.event)
     key = window.event.keyCode;   // IE
@@ -16,8 +17,8 @@ function on_keydown_quicksearch(element, event) {
 
   var url = "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=" + encodeURIComponent(value);
 
-  search_term.val('');
   window.location.href = url;
 
   return false;
 }
+$(function(){ $('#frame_header_contact_search').keydown(on_keydown_quicksearch) });

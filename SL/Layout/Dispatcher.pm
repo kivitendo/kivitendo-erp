@@ -3,6 +3,7 @@ package SL::Layout::Dispatcher;
 use strict;
 
 use SL::Layout::Admin;
+use SL::Layout::AdminLogin;
 use SL::Layout::Login;
 use SL::Layout::Classic;
 use SL::Layout::V3;
@@ -15,6 +16,7 @@ sub new {
   return SL::Layout::V3->new         if $params{style} eq 'v3';
   return SL::Layout::Javascript->new if $params{style} eq 'neu';
   return SL::Layout::Admin->new      if $params{style} eq 'admin';
+  return SL::Layout::AdminLogin->new if $params{style} eq 'admin_login';
   return SL::Layout::Login->new      if $params{style} eq 'login';
   return SL::Layout::None->new;
 }

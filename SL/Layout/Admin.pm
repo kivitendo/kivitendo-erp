@@ -1,32 +1,27 @@
 package SL::Layout::Admin;
 
 use strict;
-use parent qw(SL::Layout::V3);
+use parent qw(SL::Layout::None);
 
 use SL::Menu;
+use SL::Layout::None;
+use SL::Layout::Top;
+use SL::Layout::CssMenu;
 
-use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(no_menu) ],
-);
-
-
-sub init_menu {
-  Menu->new('menus/admin.ini');
+sub init_sub_layouts {
+  [
+    SL::Layout::None->new,
+    SL::Layout::CssMenu->new(menu => Menu->new('menus/admin.ini')),
+  ]
 }
 
 sub start_content {
   "<div id='admin' class='admin'>\n";
 }
 
-sub render {
-  my ($self) = @_;
-
-  $self->presenter->render(
-    'menu/menuv3',
-    force_ul_width    => 1,
-    skip_frame_header => 1,
-    menu              => $self->no_menu ? '' : $self->print_menu,
-  );
+sub end_content {
+  "</div>\n";
 }
+
 
 1;

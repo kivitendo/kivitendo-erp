@@ -1,10 +1,10 @@
-package SL::Layout::Login;
+package SL::Layout::AdminLogin;
 
 use strict;
 use parent qw(SL::Layout::None);
 
 sub start_content {
-  "<div id='login' class='login'>\n";
+  "<div id='admin' class='admin'>\n";
 }
 
 sub end_content {

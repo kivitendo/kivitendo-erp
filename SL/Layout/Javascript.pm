@@ -7,18 +7,22 @@ use List::Util qw(max);
 use URI;
 
 sub init_sub_layouts {
-  [ SL::Layout::None->new ]
+  [
+    SL::Layout::None->new,
+    SL::Layout::Top->new,
+  ]
 }
 
 sub use_javascript {
   my $self = shift;
   qw(
-    js/quicksearch_input.js
+    js/dhtmlsuite/menu-for-applications.js
   ),
   $self->SUPER::use_javascript(@_);
 }
 
 sub pre_content {
+  $_[0]->SUPER::pre_content .
   &display
 }
 
@@ -43,42 +47,11 @@ sub stylesheets {
 
 sub display {
   my ($self) = @_;
-  my $form     = $main::form;
-
-  my $callback            = $form->unescape($form->{callback});
-  $callback               = URI->new($callback)->rel($callback) if $callback;
-  $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
   $self->presenter->render("menu/menunew",
     force_ul_width  => 1,
-    date            => $self->clock_line,
     menu_items      => $self->acc_menu,
-    callback        => $callback,
   );
-}
-
-sub clock_line {
-  my $form     = $main::form;
-
-  my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
-      $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
-    = localtime(time);
-  $Monat     += 1;
-  $Jahrestag += 1;
-  $Monat     = $Monat < 10     ? $Monat     = "0" . $Monat     : $Monat;
-  $Monatstag = $Monatstag < 10 ? $Monatstag = "0" . $Monatstag : $Monatstag;
-  $Jahr += 1900;
-  my @Wochentage = ("Sonntag",    "Montag",  "Dienstag", "Mittwoch",
-                    "Donnerstag", "Freitag", "Samstag");
-  my @Monatsnamen = ("",       "Januar",    "Februar", "M&auml;rz",
-                     "April",  "Mai",       "Juni",    "Juli",
-                     "August", "September", "Oktober", "November",
-                     "Dezember");
-  return
-      $Wochentage[$Wochentag] . ", der "
-    . $Monatstag . "."
-    . $Monat . "."
-    . $Jahr . " - ";
 }
 
 sub acc_menu {

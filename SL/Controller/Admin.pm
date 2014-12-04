@@ -15,6 +15,7 @@ use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::System::InstallationLock;
 use SL::User;
+use SL::Layout::AdminLogin;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -585,8 +586,8 @@ sub use_multiselect_js {
 
 sub login_form {
   my ($self, %params) = @_;
+  $::request->layout(SL::Layout::AdminLogin->new);
   my $version         = $::form->read_version;
-  $::request->layout->no_menu(1);
   $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version);
 }
 

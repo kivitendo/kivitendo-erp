@@ -1,14 +1,15 @@
 [%- USE T8 %][%- USE LxERP -%]
+[%- UNLESS skip_frame_header %]
 <div id="frame-header">
-[% UNLESS is_links %]
+[%- UNLESS is_links %]
  <span class="frame-header-element frame-header-left">
-    [<a href="JavaScript:Switch_Menu();" title="[% 'Switch Menu on / off' | $T8 %]">[% 'Menu' | $T8 %]</a>]
     [<a href="controller.pl?action=LoginScreen/user_login" target="_blank" title="[% 'Open a further kivitendo window or tab' | $T8 %]">[% 'New window/tab' | $T8 %]</a>]
     [<a href="JavaScript:top.print();" title="[% 'Hardcopy' | $T8 %]">[% 'Print' | $T8 %]</a>]
-    [<a href="Javascript:top.history.back();" title="[% 'Go one step back' | $T8 %]">[% 'Back' | $T8 %]</a>]
-    [<a href="Javascript:top.history.forward();" title="[% 'Go one step forward' | $T8 %]">[% 'Fwd' | $T8 %]</a>]
 [%- IF AUTH.assert('general_ledger', 1) %]
-    [[% 'GL search' | $T8 %]: <input id="glquicksearch" name="glquicksearch" type="text" class="ui-widget" size="20" maxlength="20">]
+    [ <input name="frame_header_contact_search" id="frame_header_contact_search" placeholder="[% 'Search contacts' | $T8 %]" size="14">]
+[%- END %]
+[%- IF AUTH.assert('general_ledger', 1) %]
+    [<input id="glquicksearch" name="glquicksearch" type="text" class="ui-widget" placeholder="[% 'GL search' | $T8 %]" maxlength="20">]
 [%- END %]
  </span>
 [%- END %]
@@ -16,13 +17,9 @@
   [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
    [% 'Client' | $T8 %]: [% AUTH.client.name | html %] -
    <a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
-  [% now.to_lxoffice %] -
-  [% now.hms %]
  </span>
  <span class="frame-header-element frame-header-right" id="ajax-spinner">
   <img src="image/[% IF MYCONFIG.stylesheet == 'lx-office-erp.css' %]spinner-blue.gif[% ELSE %]spinner-white.gif[% END %]" alt="[% LxERP.t8('Loading...') %]">
  </span>
 </div>
-[% IF AUTH.assert('general_ledger', 1) %]
- <script type="text/javascript" src="js/glquicksearch.js"></script>
-[% END %]
+[%- END %]
