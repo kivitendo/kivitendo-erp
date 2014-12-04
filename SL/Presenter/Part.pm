@@ -100,7 +100,7 @@ of the resulting hidden C<id> input field (but the ID can be
 overwritten with C<$params{id}>).
 
 An additional dummy input will be generated which is used to find
-parts. For a detailed description of it's behaviour, see section
+parts. For a detailed description of its behaviour, see section
 C<PART PICKER SPECIFICATION>.
 
 C<$value> can be a parts id or a C<Rose::DB:Object> instance.
@@ -116,7 +116,7 @@ C<h,min>.
 If C<%params> contains C<convertible_unit> only parts with a unit
 that's convertible to unit will be used for autocompletion.
 
-Obsolete parts will by default not displayed for selection. However they are
+Obsolete parts will by default not be displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.
 
@@ -167,7 +167,7 @@ Should not require a feedback/check loop in the common case
 
 =item *
 
-Should not be constraint to exact matches
+Should not be constrained to exact matches
 
 =back
 
@@ -196,7 +196,7 @@ ambiguity.
 
 =item 5
 
-An internal status of the part picker, indicating wether id input and dummy
+An internal status of the part picker, indicating whether id input and dummy
 input are consistent. After leaving the dummy input the part picker must
 place itself in a consistent status.
 

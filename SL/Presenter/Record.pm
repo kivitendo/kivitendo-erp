@@ -570,13 +570,13 @@ C<link>.
 =item C<with_columns>
 
 Can be set by the caller to indicate additional columns to
-list. Currently supported:
+be listed. Currently supported:
 
 =over 2
 
 =item C<record_link_destination>
 
-The record link destination. Requires that the records to list have
+The record link destination. Requires that the records to be listed have
 been retrieved via the L<SL::DB::Helper::LinkedRecords> helper.
 
 =back
@@ -584,7 +584,7 @@ been retrieved via the L<SL::DB::Helper::LinkedRecords> helper.
 =item C<edit_record_links>
 
 If trueish additional controls will be rendered that allow the user to
-remove and add record links. Requires that the records to list have
+remove and add record links. Requires that the records to be listed have
 been retrieved via the L<SL::DB::Helper::LinkedRecords> helper.
 
 =back

@@ -222,7 +222,7 @@ SL::Presenter::Tag - Layouting / tag generation
 
 =head1 SYNOPSIS
 
-Usage from a template:
+Usage in a template:
 
   [% USE P %]
 
@@ -230,14 +230,14 @@ Usage from a template:
 
   [% P.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
                                  { direction => 'right', display => 'To the right' } ],
-                               value_key => 'direction', title_key => 'display', default => 'right')) %]
+                               value_key => 'direction', title_key => 'display', default => 'right') %]
 
   [% P.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
                                  { direction => 'right', display => 'To the right', selected => 1 } ],
-                               value_key => 'direction', title_key => 'display')) %]
+                               value_key => 'direction', title_key => 'display') %]
 
-  # Use an RDBO object and it's n:m relatioship as the default
-  # values. For example, a user can be a member in many groups. "All
+  # Use an RDBO object and its n:m relationship as the default
+  # values. For example, a user can be a member of many groups. "All
   # groups" is therefore the full collection and "$user->groups" is a
   # list of RDBO AuthGroup objects whose IDs must match the ones in
   # "All groups". This could look like the following:
@@ -316,7 +316,7 @@ defaults to 5.
 
 =item C<select_tag $name, \@collection, %attributes>
 
-Creates a HTML 'select' tag named C<$name> with the contents of one
+Creates an HTML 'select' tag named C<$name> with the contents of one
 'E<lt>optionE<gt>' tag for each element in C<\@collection> and with arbitrary
 HTML attributes from C<%attributes>. The value
 to use and the title to display are extracted from the elements in
@@ -387,23 +387,23 @@ value to select by default. Constructs a hash that's treated like 3.
 
 =back
 
-5. also applies for single RDBO instances (due to 'wantarray'
-shenanigangs assigning RDBO's relationships to a hash key will result
+5. also applies to single RDBO instances (due to 'wantarray'
+shenanigans assigning RDBO's relationships to a hash key will result
 in a single RDBO object being assigned instead of an array reference
 containing that single RDBO object).
 
 If the option C<with_optgroups> is set then this function expects
 C<\@collection> to be one level deeper. The upper-most level is
-translated into a HTML C<optgroup> tag. So the structure becomes:
+translated into an HTML C<optgroup> tag. So the structure becomes:
 
 =over 4
 
 =item 1. Array of array references. Each element in the
 C<\@collection> is converted into an optgroup.
 
-=item 2. The optgroup's C<label> attribute will be set to the the
+=item 2. The optgroup's C<label> attribute will be set to the
 first element in the array element. The second array element is then
-converted to a list of C<option> tags like it is described above.
+converted to a list of C<option> tags as described above.
 
 =back
 
@@ -411,7 +411,7 @@ Example for use of optgroups:
 
   # First in a controller:
   my @collection = (
-    [ t8("First optgroup with two items"),
+    [ t8("First optgroup with three items"),
       [ { id => 42, name => "item one" },
         { id => 54, name => "second item" },
         { id => 23, name => "and the third one" },
