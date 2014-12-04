@@ -24,7 +24,7 @@
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF id %]
   <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
-  <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% 'Transactions' | $T8 %]</a></li>
+  <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% 'Transactions' | LxERP.t8 %]</a></li>
 [%- END %]
  </ul>
 
