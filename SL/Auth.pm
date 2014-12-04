@@ -1225,6 +1225,8 @@ sub load_rights_for_user {
 
   $rights = { map { $_ => 0 } all_rights() };
 
+  return $rights if !$self->client || !$login;
+
   $query =
     qq|SELECT gr."right", gr.granted
        FROM auth.group_rights gr
