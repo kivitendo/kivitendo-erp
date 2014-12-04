@@ -32,15 +32,11 @@ use Rose::Object::MakeMethods::Generic (
 
 
 sub new {
-  $main::lxdebug->enter_sub();
-
   my ($type, %params) = @_;
   my $self            = bless {}, $type;
 
   $self->_read_auth_config(%params);
   $self->reset;
-
-  $main::lxdebug->leave_sub();
 
   return $self;
 }
@@ -97,8 +93,6 @@ sub mini_error {
 }
 
 sub _read_auth_config {
-  $main::lxdebug->enter_sub();
-
   my ($self, %params) = @_;
 
   map { $self->{$_} = $::lx_office_conf{authentication}->{$_} } keys %{ $::lx_office_conf{authentication} };
@@ -143,8 +137,6 @@ sub _read_auth_config {
 
   $self->{session_timeout} *= 1;
   $self->{session_timeout}  = 8 * 60 if (!$self->{session_timeout});
-
-  $main::lxdebug->leave_sub();
 }
 
 sub has_access_to_client {
@@ -165,18 +157,14 @@ SQL
 }
 
 sub authenticate_root {
-  $main::lxdebug->enter_sub();
-
   my ($self, $password) = @_;
 
   my $session_root_auth = $self->get_session_value(SESSION_KEY_ROOT_AUTH());
   if (defined $session_root_auth && $session_root_auth == OK) {
-    $::lxdebug->leave_sub;
     return OK;
   }
 
   if (!defined $password) {
-    $::lxdebug->leave_sub;
     return ERR_PASSWORD;
   }
 
@@ -186,35 +174,27 @@ sub authenticate_root {
   my $result = $password eq $admin_password ? OK : ERR_PASSWORD;
   $self->set_session_value(SESSION_KEY_ROOT_AUTH() => $result);
 
-  $::lxdebug->leave_sub;
   return $result;
 }
 
 sub authenticate {
-  $main::lxdebug->enter_sub();
-
   my ($self, $login, $password) = @_;
 
   if (!$self->client || !$self->has_access_to_client($login)) {
-    $::lxdebug->leave_sub;
     return ERR_PASSWORD;
   }
 
   my $session_auth = $self->get_session_value(SESSION_KEY_USER_AUTH());
   if (defined $session_auth && $session_auth == OK) {
-    $::lxdebug->leave_sub;
     return OK;
   }
 
   if (!defined $password) {
-    $::lxdebug->leave_sub;
     return ERR_PASSWORD;
   }
 
   my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
   $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
-
-  $::lxdebug->leave_sub;
   return $result;
 }
 
@@ -237,13 +217,10 @@ sub get_stored_password {
 }
 
 sub dbconnect {
-  $main::lxdebug->enter_sub(2);
-
   my $self     = shift;
   my $may_fail = shift;
 
   if ($self->{dbh}) {
-    $main::lxdebug->leave_sub(2);
     return $self->{dbh};
   }
 
@@ -262,27 +239,19 @@ sub dbconnect {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
   }
 
-  $main::lxdebug->leave_sub(2);
-
   return $self->{dbh};
 }
 
 sub dbdisconnect {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   if ($self->{dbh}) {
     $self->{dbh}->disconnect();
     delete $self->{dbh};
   }
-
-  $main::lxdebug->leave_sub();
 }
 
 sub check_tables {
-  $main::lxdebug->enter_sub();
-
   my ($self, $dbh)    = @_;
 
   $dbh   ||= $self->dbconnect();
@@ -290,26 +259,18 @@ sub check_tables {
 
   my ($count) = $dbh->selectrow_array($query);
 
-  $main::lxdebug->leave_sub();
-
   return $count > 0;
 }
 
 sub check_database {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   my $dbh  = $self->dbconnect(1);
-
-  $main::lxdebug->leave_sub();
 
   return $dbh ? 1 : 0;
 }
 
 sub create_database {
-  $main::lxdebug->enter_sub();
-
   my $self   = shift;
   my %params = @_;
 
@@ -359,25 +320,17 @@ sub create_database {
   }
 
   $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
 }
 
 sub create_tables {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
   my $dbh  = $self->dbconnect();
 
   $dbh->rollback();
   SL::DBUpgrade2->new(form => $::form)->process_query($dbh, 'sql/auth_db.sql');
-
-  $main::lxdebug->leave_sub();
 }
 
 sub save_user {
-  $main::lxdebug->enter_sub();
-
   my $self   = shift;
   my $login  = shift;
   my %params = @_;
@@ -414,8 +367,6 @@ sub save_user {
   }
 
   $dbh->commit();
-
-  $main::lxdebug->leave_sub();
 }
 
 sub can_change_password {
@@ -425,20 +376,14 @@ sub can_change_password {
 }
 
 sub change_password {
-  $main::lxdebug->enter_sub();
-
   my ($self, $login, $new_password) = @_;
 
   my $result = $self->{authenticator}->change_password($login, $new_password);
-
-  $main::lxdebug->leave_sub();
 
   return $result;
 }
 
 sub read_all_users {
-  $main::lxdebug->enter_sub();
-
   my $self  = shift;
 
   my $dbh   = $self->dbconnect();
@@ -471,14 +416,10 @@ sub read_all_users {
 
   $sth->finish();
 
-  $main::lxdebug->leave_sub();
-
   return %users;
 }
 
 sub read_user {
-  $main::lxdebug->enter_sub();
-
   my ($self, %params) = @_;
 
   my $dbh   = $self->dbconnect();
@@ -518,35 +459,30 @@ sub read_user {
 
   $sth->finish();
 
-  $main::lxdebug->leave_sub();
-
   return %user_data;
 }
 
 sub get_user_id {
-  $main::lxdebug->enter_sub();
-
   my $self  = shift;
   my $login = shift;
 
   my $dbh   = $self->dbconnect();
   my ($id)  = selectrow_query($main::form, $dbh, qq|SELECT id FROM auth."user" WHERE login = ?|, $login);
 
-  $main::lxdebug->leave_sub();
-
   return $id;
 }
 
 sub delete_user {
-  $::lxdebug->enter_sub;
-
   my $self  = shift;
   my $login = shift;
 
   my $dbh   = $self->dbconnect;
   my $id    = $self->get_user_id($login);
 
-  $dbh->rollback and return $::lxdebug->leave_sub if (!$id);
+  if (!$id) {
+    $dbh->rollback;
+    return;
+  }
 
   $dbh->begin_work;
 
@@ -558,8 +494,6 @@ sub delete_user {
   # do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh && $user_db_exists;
 
   $dbh->commit;
-
-  $::lxdebug->leave_sub;
 }
 
 # --------------------------------------
@@ -567,8 +501,6 @@ sub delete_user {
 my $session_id;
 
 sub restore_session {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   $session_id        =  $::request->{cgi}->cookie($self->get_session_cookie_name());
@@ -577,7 +509,6 @@ sub restore_session {
   $self->{SESSION}   = { };
 
   if (!$session_id) {
-    $main::lxdebug->leave_sub();
     return $self->session_restore_result(SESSION_NONE());
   }
 
@@ -587,7 +518,6 @@ sub restore_session {
 
   # Don't fail if the auth DB doesn't yet.
   if (!( $dbh = $self->dbconnect(1) )) {
-    $::lxdebug->leave_sub;
     return $self->session_restore_result(SESSION_NONE());
   }
 
@@ -597,7 +527,6 @@ sub restore_session {
 
   if (!($sth = $dbh->prepare($query)) || !$sth->execute($session_id)) {
     $sth->finish if $sth;
-    $::lxdebug->leave_sub;
     return $self->session_restore_result(SESSION_NONE());
   }
 
@@ -616,7 +545,6 @@ sub restore_session {
   $cookie_is_bad     ||= $cookie->{ip_address} ne $ENV{REMOTE_ADDR}                       if !$api_token_cookie;
   if ($cookie_is_bad) {
     $self->destroy_session();
-    $main::lxdebug->leave_sub();
     return $self->session_restore_result($cookie ? SESSION_EXPIRED() : SESSION_NONE());
   }
 
@@ -625,8 +553,6 @@ sub restore_session {
   } else {
     $self->_load_without_auto_restore_column($dbh, $session_id);
   }
-
-  $main::lxdebug->leave_sub();
 
   return $self->session_restore_result(SESSION_OK());
 }
@@ -710,8 +636,6 @@ SQL
 }
 
 sub destroy_session {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   if ($session_id) {
@@ -729,8 +653,6 @@ sub destroy_session {
     $session_id      = undef;
     $self->{SESSION} = { };
   }
-
-  $main::lxdebug->leave_sub();
 }
 
 sub active_session_ids {
@@ -745,11 +667,9 @@ sub active_session_ids {
 }
 
 sub expire_sessions {
-  $main::lxdebug->enter_sub();
-
   my $self  = shift;
 
-  $main::lxdebug->leave_sub and return if !$self->session_tables_present;
+  return if !$self->session_tables_present;
 
   my $dbh   = $self->dbconnect();
 
@@ -774,19 +694,13 @@ sub expire_sessions {
 
     $dbh->commit();
   }
-
-  $main::lxdebug->leave_sub();
 }
 
 sub _create_session_id {
-  $main::lxdebug->enter_sub();
-
   my @data;
   map { push @data, int(rand() * 255); } (1..32);
 
   my $id = md5_hex(pack 'C*', @data);
-
-  $main::lxdebug->leave_sub();
 
   return $id;
 }
@@ -796,13 +710,12 @@ sub create_or_refresh_session {
 }
 
 sub save_session {
-  $::lxdebug->enter_sub;
   my $self         = shift;
   my $provided_dbh = shift;
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-  $::lxdebug->leave_sub && return unless $dbh && $session_id;
+  return unless $dbh && $session_id;
 
   $dbh->begin_work unless $provided_dbh;
 
@@ -810,7 +723,6 @@ sub save_session {
   # the admin is just trying to create the auth database.
   if (!$dbh->do(qq|LOCK auth.session_content|)) {
     $dbh->rollback unless $provided_dbh;
-    $::lxdebug->leave_sub;
     return;
   }
 
@@ -862,12 +774,9 @@ sub save_session {
   }
 
   $dbh->commit() unless $provided_dbh;
-  $::lxdebug->leave_sub;
 }
 
 sub set_session_value {
-  $main::lxdebug->enter_sub();
-
   my $self   = shift;
   my @params = @_;
 
@@ -888,31 +797,21 @@ sub set_session_value {
     }
   }
 
-  $main::lxdebug->leave_sub();
-
   return $self;
 }
 
 sub delete_session_value {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   $self->{SESSION} ||= { };
   delete @{ $self->{SESSION} }{ @_ };
 
-  $main::lxdebug->leave_sub();
-
   return $self;
 }
 
 sub get_session_value {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
   my $data = $self->{SESSION} && $self->{SESSION}->{ $_[0] } ? $self->{SESSION}->{ $_[0] }->get : undef;
-
-  $main::lxdebug->leave_sub();
 
   return $data;
 }
@@ -999,21 +898,17 @@ sub is_api_token_cookie_valid {
 }
 
 sub session_tables_present {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   # Only re-check for the presence of auth tables if either the check
   # hasn't been done before of if they weren't present.
   if ($self->{session_tables_present}) {
-    $main::lxdebug->leave_sub();
     return $self->{session_tables_present};
   }
 
   my $dbh  = $self->dbconnect(1);
 
   if (!$dbh) {
-    $main::lxdebug->leave_sub();
     return 0;
   }
 
@@ -1026,8 +921,6 @@ sub session_tables_present {
   my ($count) = selectrow_query($main::form, $dbh, $query);
 
   $self->{session_tables_present} = 2 == $count;
-
-  $main::lxdebug->leave_sub();
 
   return $self->{session_tables_present};
 }
@@ -1105,8 +998,6 @@ sub all_rights {
 }
 
 sub read_groups {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
 
   my $form   = $main::form;
@@ -1154,14 +1045,10 @@ sub read_groups {
   }
   $sth->finish();
 
-  $main::lxdebug->leave_sub();
-
   return $groups;
 }
 
 sub save_group {
-  $main::lxdebug->enter_sub();
-
   my $self  = shift;
   my $group = shift;
 
@@ -1202,13 +1089,9 @@ sub save_group {
   $sth->finish();
 
   $dbh->commit();
-
-  $main::lxdebug->leave_sub();
 }
 
 sub delete_group {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
   my $id   = shift;
 
@@ -1222,13 +1105,9 @@ sub delete_group {
   do_query($form, $dbh, qq|DELETE FROM auth."group" WHERE id = ?|, $id);
 
   $dbh->commit();
-
-  $main::lxdebug->leave_sub();
 }
 
 sub evaluate_rights_ary {
-  $main::lxdebug->enter_sub(2);
-
   my $ary    = shift;
 
   my $value  = 0;
@@ -1254,14 +1133,10 @@ sub evaluate_rights_ary {
     }
   }
 
-  $main::lxdebug->leave_sub(2);
-
   return $value;
 }
 
 sub _parse_rights_string {
-  $main::lxdebug->enter_sub(2);
-
   my $self   = shift;
 
   my $login  = shift;
@@ -1288,7 +1163,6 @@ sub _parse_rights_string {
       pop @stack;
 
       if (!@stack) {
-        $main::lxdebug->leave_sub(2);
         return 0;
       }
 
@@ -1304,14 +1178,10 @@ sub _parse_rights_string {
 
   my $result = ($access || (1 < scalar @stack)) ? 0 : evaluate_rights_ary($stack[0]);
 
-  $main::lxdebug->leave_sub(2);
-
   return $result;
 }
 
 sub check_right {
-  $main::lxdebug->enter_sub(2);
-
   my $self    = shift;
   my $login   = shift;
   my $right   = shift;
@@ -1330,17 +1200,13 @@ sub check_right {
   my $granted = $self->{FULL_RIGHTS}->{$login}->{$right};
   $granted    = $default if (!defined $granted);
 
-  $main::lxdebug->leave_sub(2);
-
   return $granted;
 }
 
 sub assert {
-  $::lxdebug->enter_sub(2);
   my ($self, $right, $dont_abort) = @_;
 
   if ($self->check_right($::myconfig{login}, $right)) {
-    $::lxdebug->leave_sub(2);
     return 1;
   }
 
@@ -1349,14 +1215,10 @@ sub assert {
     $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
   }
 
-  $::lxdebug->leave_sub(2);
-
   return 0;
 }
 
 sub load_rights_for_user {
-  $::lxdebug->enter_sub;
-
   my ($self, $login) = @_;
   my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
@@ -1382,8 +1244,6 @@ sub load_rights_for_user {
     $rights->{$row->{right}} |= $row->{granted};
   }
   $sth->finish();
-
-  $::lxdebug->leave_sub;
 
   return $rights;
 }
