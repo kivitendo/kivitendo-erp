@@ -1174,6 +1174,17 @@ sub post_invoice {
 
   Common::webdav_folder($form);
 
+  if ($form->{convert_from_ar_ids}) {
+    RecordLinks->create_links('dbh'        => $dbh,
+                              'mode'       => 'ids',
+                              'from_table' => 'ar',
+                              'from_ids'   => $form->{convert_from_ar_ids},
+                              'to_table'   => 'ar',
+                              'to_id'      => $form->{id},
+    );
+    delete $form->{convert_from_ar_ids};
+  }
+
   # Link this record to the records it was created from.
   RecordLinks->create_links('dbh'        => $dbh,
                             'mode'       => 'ids',

@@ -340,6 +340,7 @@ sub _sales_invoice_list {
     type    => 'sales_invoice',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
+      [ $::locale->text('Type'),                    sub { $_[0]->displayable_type } ],
       [ $::locale->text('Invoice Number'),          sub { $self->sales_invoice($_[0], display => 'table-cell') } ],
       [ $::locale->text('Quotation Number'),        'quonumber' ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
@@ -382,6 +383,7 @@ sub _ar_transaction_list {
     type    => 'ar_transaction',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
+      [ $::locale->text('Type'),                    sub { $_[0]->displayable_type } ],
       [ $::locale->text('Invoice Number'),          sub { $self->ar_transaction($_[0], display => 'table-cell') } ],
       [ $::locale->text('Customer'),                'customer'                ],
       [ $::locale->text('Net amount'),              'netamount'               ],

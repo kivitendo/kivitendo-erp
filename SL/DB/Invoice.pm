@@ -318,6 +318,16 @@ sub displayable_state {
   return $self->closed ? $::locale->text('closed') : $::locale->text('open');
 }
 
+sub displayable_type {
+  my ($self) = @_;
+
+  return t8('AR Transaction')                         if $self->invoice_type eq 'ar_transaction';
+  return t8('Credit Note')                            if $self->invoice_type eq 'credit_note';
+  return t8('Invoice') . "(" . t8('Storno') . ")"     if $self->invoice_type eq 'invoice_storno';
+  return t8('Credit Note') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'credit_note_storno';
+  return t8('Invoice');
+}
+
 sub abbreviation {
   my $self = shift;
 
