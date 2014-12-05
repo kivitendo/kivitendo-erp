@@ -44,7 +44,6 @@ sub new {
 sub reset {
   my ($self, %params) = @_;
 
-#   delete $self->{dbh};
   $self->{SESSION}            = { };
   $self->{FULL_RIGHTS}        = { };
   $self->{RIGHTS}             = { };
@@ -1261,7 +1260,7 @@ __END__
 
 SL::Auth - Authentication and session handling
 
-=head1 FUNCTIONS
+=head1 METHODS
 
 =over 4
 
@@ -1311,7 +1310,7 @@ Stores the session values in the database. This is the only function
 that actually stores stuff in the database. Neither the various
 setters nor the deleter access the database.
 
-=item <save_form_in_session %params>
+=item C<save_form_in_session %params>
 
 Stores the content of C<$params{form}> (default: C<$::form>) in the
 session using L</create_unique_sesion_value>.
@@ -1325,7 +1324,7 @@ can be given as an array ref in C<$params{skip_keys}>.
 
 Returns the unique key under which the form is stored.
 
-=item <restore_form_from_session $key, %params>
+=item C<restore_form_from_session $key, %params>
 
 Restores the form from the session into C<$params{form}> (default:
 C<$::form>).
@@ -1335,6 +1334,14 @@ key in C<$params{form}> will not be overwritten. C<$params{clobber}>
 is on by default.
 
 Returns C<$self>.
+
+=item C<reset>
+
+C<reset> deletes every state information from previous requests, but does not
+close the database connection.
+
+Creating a new database handle on each request can take up to 30% of the
+pre-request startup time, so we want to avoid that for fast ajax calls.
 
 =back
 
