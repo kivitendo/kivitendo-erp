@@ -72,7 +72,7 @@ sub _make_record_item {
 
   my $class = {
     sales_order             => 'OrderItem',
-    purchase_oder           => 'OrderItem',
+    purchase_order          => 'OrderItem',
     sales_quotation         => 'OrderItem',
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
@@ -117,6 +117,8 @@ sub _make_record {
     purchase_oder           => 'Order',
     sales_quotation         => 'Order',
     request_quotation       => 'Order',
+    invoice                 => 'Invoice',
+    purchase_invoice        => 'PurchaseInvoice',
     purchase_delivery_order => 'DeliveryOrder',
     sales_delivery_order    => 'DeliveryOrder',
   }->{$::form->{type}};
