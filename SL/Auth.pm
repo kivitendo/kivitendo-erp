@@ -44,7 +44,7 @@ sub new {
 sub reset {
   my ($self, %params) = @_;
 
-  delete $self->{dbh};
+#   delete $self->{dbh};
   $self->{SESSION}            = { };
   $self->{FULL_RIGHTS}        = { };
   $self->{RIGHTS}             = { };
