@@ -162,6 +162,7 @@ Spezielle Kommandos:
   part                - shortcuts auf die jeweilige SL::DB::{...}::find_by
   customer, vendor,
   order, invoice,
+  purchase_invoice,
   chart
 
 EOL
@@ -225,6 +226,11 @@ sub order {
 sub invoice {
   require SL::DB::Invoice;
   SL::DB::Manager::Invoice->find_by(@_)
+}
+
+sub purchase_invoice {
+  require SL::DB::PurchaseInvoice;
+  SL::DB::Manager::PurchaseInvoice->find_by(@_)
 }
 
 sub customer {
