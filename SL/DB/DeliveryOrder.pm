@@ -164,6 +164,7 @@ sub new_from {
   } @{ $items };
 
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
+  @items = grep { $_->qty >=0 } @items if $params{skip_items_negative_qty};
 
   $delivery_order->items(\@items);
 
@@ -238,6 +239,11 @@ An optional array reference of RDBO instances for the items to use. If
 missing then the method C<items_sorted> will be called on
 C<$source>. This option can be used to override the sorting, to
 exclude certain positions or to add additional ones.
+
+=item C<skip_items_negative_qty>
+
+If trueish then items with a negative quantity are skipped. Items with
+a quantity of 0 are not affected by this option.
 
 =item C<skip_items_zero_qty>
 
