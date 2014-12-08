@@ -92,6 +92,7 @@ sub make_price_from_rule {
     price        => $self->price_for_rule($rule),
     spec         => $rule->id,
     description  => $rule->name,
+    priority     => $rule->priority,
     price_source => $self,
     (invalid      => t8('This Price Rule is no longer valid'))x!!$rule->obsolete,
   )
@@ -104,6 +105,7 @@ sub make_discount_from_rule {
     discount     => $rule->discount / 100,
     spec         => $rule->id,
     description  => $rule->name,
+    priority     => $rule->priority,
     price_source => $self,
     (invalid      => t8('This Price Rule is no longer valid'))x!!$rule->obsolete,
   )

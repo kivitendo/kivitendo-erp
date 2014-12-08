@@ -40,11 +40,11 @@ sub available_discounts {
 }
 
 sub best_price {
-  min_by { $_->price } grep { $_->price > 0 } grep { $_ } map { $_->best_price } $_[0]->all_price_sources;
+  min_by { $_->price } max_by { $_->priority } grep { $_->price > 0 } grep { $_ } map { $_->best_price } $_[0]->all_price_sources;
 }
 
 sub best_discount {
-  max_by { $_->discount } grep { $_->discount } grep { $_ } map { $_->best_discount } $_[0]->all_price_sources;
+  max_by { $_->discount } max_by { $_->priority } grep { $_->discount } grep { $_ } map { $_->best_discount } $_[0]->all_price_sources;
 }
 
 sub empty_price {

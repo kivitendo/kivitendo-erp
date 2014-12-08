@@ -5,6 +5,7 @@ use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(price description spec price_source invalid missing) ],
+  'scalar --get_set_init' => [ qw(priority) ],
 );
 
 require SL::DB::Helper::Attr;
@@ -36,6 +37,10 @@ sub source_description {
 
 sub to_str {
   "source: @{[ $_[0]->source ]}, price: @{[ $_[0]->price ]}, description: @{[ $_[0]->description ]}"
+}
+
+sub init_priority {
+  3
 }
 
 1;
@@ -108,6 +113,11 @@ A localized short description of the origins of this price.
 =item C<price_source>
 
 A ref to the creating algorithm.
+
+=item C<priority>
+
+OPTIONAL. Prices may supply a numerical priority. Higher will trump over lower, even when
+supplying higher prices. Defaults to 3 (as in middle of 1-5).
 
 =item C<missing>
 
