@@ -48,7 +48,7 @@ sub price_type {
   my ($self, $value) = @_;
 
   if (@_ > 1) {
-    my $number = $self->price || $self->discount;
+    my $number = $self->price || $self->discount || $self->reduction;
     if ($value == SL::DB::Manager::PriceRule::PRICE_NEW()) {
       $self->price($number);
     } elsif ($value == SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA()) {
