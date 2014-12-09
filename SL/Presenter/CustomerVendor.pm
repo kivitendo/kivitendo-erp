@@ -40,7 +40,7 @@ sub customer_vendor_picker {
   my ($self, $name, $value, %params) = @_;
 
   croak 'Unknown "type" parameter' unless $params{type} =~ m{^(?:customer|vendor)$};
-  croak 'Unknown value class'      if     $value && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
+  croak 'Unknown value class'      if     $value && ref($value) && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
 
   if ($value && !ref $value) {
     my $class = $params{type} eq 'customer' ? 'SL::DB::Manager::Customer' : 'SL::DB::Manager::Vendor';
