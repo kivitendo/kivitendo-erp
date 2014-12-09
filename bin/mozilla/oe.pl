@@ -1612,6 +1612,7 @@ sub save_as_new {
 
   $form->{saveasnew} = 1;
   map { delete $form->{$_} } qw(printed emailed queued delivered closed);
+  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   # Let kivitendo assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
@@ -1810,6 +1811,7 @@ sub poso {
 
   # reset
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
+  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
   # also reset discounts
@@ -1817,6 +1819,7 @@ sub poso {
     for my $i (1 .. $form->{rowcount}) {
       $form->{"sellprice_${i}"} = $form->{"lastcost_${i}"};
       $form->{"discount_${i}"}  = 0;
+      delete $form->{"orderitems_id_$_"};
     };
   };
 

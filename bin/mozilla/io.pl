@@ -760,7 +760,7 @@ sub remove_emptied_rows {
                 sellprice_pg pricegroup_old price_old price_new unit_old ordnumber donumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
-                stock_out stock_in has_sernumber reqdate);
+                stock_out stock_in has_sernumber reqdate orderitems_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
@@ -917,6 +917,11 @@ sub quotation {
 
   _check_io_auth();
 
+  # we are coming from *_order and convert to quotation
+  # it seems that quotation is only called if we have a existing order
+  if ($form->{type} =~  /(sales|purchase)_order/) {
+    delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
+  }
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
