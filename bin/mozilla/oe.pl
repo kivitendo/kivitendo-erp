@@ -1811,7 +1811,6 @@ sub poso {
 
   # reset
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
-  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
   # also reset discounts
@@ -2104,8 +2103,8 @@ sub check_transport_cost_reminder_article_number {
   $main::lxdebug->leave_sub();
 }
 sub dispatcher {
-  foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order purchase_order quotation
-                         request_for_quotation sales_order sales_order save save_and_close save_as_new ship_to update)) {
+  foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order quotation
+                         request_for_quotation sales_order save save_and_close save_as_new ship_to update)) {
     if ($::form->{"action_${action}"}) {
       call_sub($action);
       return;
