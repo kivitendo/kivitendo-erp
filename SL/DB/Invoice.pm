@@ -330,14 +330,13 @@ sub displayable_type {
 }
 
 sub abbreviation {
-  my $self = shift;
+  my ($self) = @_;
 
-  return t8('AR Transaction (abbreviation)') if !$self->invoice;
-  return t8('Credit note (one letter abbreviation)') if $self->type eq 'credit_note' && $self->amount < 0 && !$self->storno;
-  return t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
-  return t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->type eq 'credit_note' && $self->amount > 0 &&  $self->storno;
+  return t8('AR Transaction (abbreviation)')         if $self->invoice_type eq 'ar_transaction';
+  return t8('Credit note (one letter abbreviation)') if $self->invoice_type eq 'credit_note';
+  return t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->invoice_type eq 'invoice_storno';
+  return t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")"  if $self->invoice_type eq 'credit_note_storno';
   return t8('Invoice (one letter abbreviation)');
-
 }
 
 sub date {
