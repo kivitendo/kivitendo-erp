@@ -1,0 +1,149 @@
+package SL::Webdav::File;
+
+use strict;
+use parent qw(Rose::Object);
+
+use File::Spec;
+
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(webdav filename loaded) ],
+  array  => [
+    qw(objects),
+    add_objects => { interface => 'push', hash_key => 'objects' },
+  ],
+);
+
+sub versions {
+  $_[0]->load unless $_[0]->loaded;
+  my $cmp = $_[0]->webdav->version_scheme->cmp;
+  sort { $cmp->($a, $b) } $_[0]->objects;
+}
+
+sub latest_version {
+  ($_[0]->versions)[-1]
+}
+
+sub load {
+  my ($self) = @_;
+  my @objects = $self->webdav->get_all_objects;
+  my $ref = SL::Webdav::Object->new(filename => $self->filename, webdav => $self->webdav);
+  my ($ref_basename, undef, $ref_extension) = $ref->parse_filename;
+
+  $self->objects(grep { $_->basename eq $ref_basename && $_->extension eq $ref_extension } @objects);
+  $self->loaded(1);
+}
+
+sub store {
+  my ($self, %params) = @_;
+
+  $self->load unless $self->loaded;
+
+  my $last = $self->latest_version;
+  my $object;
+
+  if (!$last) {
+    my $new_version  = $self->webdav->version_scheme->first_version;
+    $object = SL::Webdav::Object->new(filename => $self->filename, webdav => $self->webdav);
+
+    $self->add_objects($object);
+  } else {
+    if (!$self->webdav->version_scheme->keep_last_version($last)) {
+      $params{new_version} = 1;
+    }
+
+    if ($params{new_version}) {
+      my $new_version  = $self->webdav->version_scheme->next_version($last);
+      my $sep          = $self->webdav->version_scheme->separator;
+      my $new_filename = $last->basename . $sep . $new_version . "." . $last->extension;
+      $object = SL::Webdav::Object->new(filename => $new_filename, webdav => $self->webdav);
+
+      $self->add_objects($object);
+    } else {
+      $object = $last;
+    }
+  }
+
+  open my $fh, '>:raw', $object->full_filedescriptor or die "could not open " . $object->filename . ": $!";
+
+  $fh->print(${ $params{data} });
+
+  close $fh;
+
+  return $object;
+}
+
+1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Webdav::File - Webdav file manipulation
+
+=head1 SYNOPSIS
+
+  use SL::Webdav::File;
+
+  my $webdav_file = SL::Webdav::File->new(
+    webdav   => $webdav,  # SL::Webdav instance
+    filename => 'technical_drawing_AB28375.pdf',
+  );
+
+  # get existing versioned files
+  my @webdav_objects = $webdav_file->versions;
+
+  # store new version
+  my $data = SL::Helper::CreatePDF->create_pdf(...);
+  my $webdav_object = $webdav_file->store(data => \$data);
+
+  # force new version
+  my $webdav_object = $webdav_file->store(data => \$data, new_version => 1);
+
+=head1 DESCRIPTION
+
+A file in this context is the collection of all versions of a single file saved
+into the webdav. This module provides methods to access and manipulate these
+objects.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<versions>
+
+Will return all L<SL::Webdav::Object>s found in this file, sorted by version
+according to the version scheme used.
+
+=item C<latest_version>
+
+Returns only the latest version object.
+
+=item C<load>
+
+Loads objects from disk.
+
+=item C<store PARAMS>
+
+Store a new version on disk. C<data> is expected to contain a reference to the
+data to be written in raw encoding.
+
+If param C<new_version> is set, force a new version, even if the versioning
+scheme would keep the old one.
+
+=back
+
+=head1 SEE ALSO
+
+L<SL::Webdav>, L<SL::Webdav::Object>
+
+=head1 BUGS
+
+None yet :)
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
