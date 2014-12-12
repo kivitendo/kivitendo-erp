@@ -428,6 +428,7 @@ sub handle_makemodel {
   }
 
   my %old_makemodels_by_mm = map { $_->make . $; . $_->model => $_ } $entry->{part}->makemodels;
+  my @new_makemodels;
 
   foreach my $makemodel ($object->makemodels()) {
     my $makemodel_orig = $old_makemodels_by_mm{$makemodel->make,$makemodel->model};
@@ -438,9 +439,11 @@ sub handle_makemodel {
       $makemodel_orig->lastcost($makemodel->lastcost);
 
     } else {
-      $entry->{part}->add_makemodels($makemodel);
+      push @new_makemodels, $makemodel;
     }
   }
+
+  $entry->{part}->makemodels([ $entry->{part}->makemodels, @new_makemodels ]) if @new_makemodels;
 
   # reindex makemodels
   my $i = 0;
