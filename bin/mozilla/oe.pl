@@ -1344,9 +1344,14 @@ sub delete {
   if (OE->delete(\%myconfig, \%$form)){
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-      $form->{addition} = "DELETED";
-      $form->save_history;
+      if ( $form->{formname} eq 'sales_quotation' or  $form->{formname} eq 'request_quotation' ) {
+          $form->{snumbers} = qq|quonumber_| . $form->{quonumber};
+      } elsif ( $form->{formname} eq 'sales_order' or $form->{formname} eq 'purchase_order') {
+          $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+      };
+        $form->{what_done} = $form->{formname};
+        $form->{addition} = "DELETED";
+        $form->save_history;
     }
     # /saving the history
     $form->info($msg);
