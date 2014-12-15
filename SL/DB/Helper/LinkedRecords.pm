@@ -370,7 +370,7 @@ names in an array reference in which case all links matching any of the model
 names will be returned.
 
 If no parameter C<direction> is given, but any of C<to>, C<from> or C<both>,
-then C<direction> is infered accordingly. If neither are given, C<direction> is
+then C<direction> is inferred accordingly. If neither are given, C<direction> is
 set to C<both>.
 
 The optional parameter C<via> can be used to retrieve all documents that may
@@ -392,7 +392,7 @@ delivery orders inbetween) then the call could look like this:
   );
 
 Retrieving all invoices from a quotation no matter whether or not
-orders or delivery orders where created:
+orders or delivery orders were created:
 
   my $invoices = $quotation->linked_records(
     direction => 'to',
@@ -435,7 +435,7 @@ visited twice, so this
 
 will find the path o1 -> o2 -> do -> o2 -> i without considering it a cycle.
 
-The optional extra flag C<save_path> will give you extra inforamtion saved in
+The optional extra flag C<save_path> will give you extra information saved in
 the returned objects:
 
   my $records = $order->linked_records(
@@ -450,8 +450,8 @@ Every record will have two fields set:
 
 =item C<_record_link_path>
 
-And array with the ids of the visited links. The shortest paths will be
-prefered, so in the previous example this would contain the ids of o1-o2 and
+An array with the ids of the visited links. The shortest paths will be
+preferred, so in the previous example this would contain the ids of o1-o2 and
 o2-i.
 
 =item C<_record_link_depth>
@@ -543,7 +543,7 @@ Note: If the latter has a default setting it will always mask the creation time.
 
 Returns an array reference.
 
-Can only be called both as a class function since it is noe exported.
+Can only be called both as a class function since it is not exported.
 
 =back
 
