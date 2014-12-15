@@ -18,7 +18,7 @@ sub next_version { $_[1]->version + 1 }
 sub keep_last_version {
   my ($self, $last) = @_;
 
-  if ($::lxoffice_conf->{webdav}{new_version_after_minutes}) {
+  if ($::lx_office_conf->{webdav}{new_version_after_minutes}) {
     return DateTime->now <= $last->mtime + DateTime::Duration->new(minutes => $::lx_office_conf{webdav}{new_version_after_minutes});
   } else {
     return 0;
