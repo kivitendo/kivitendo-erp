@@ -57,7 +57,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items);
+  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items items);
 }
 
 sub _get_exchangerate {
