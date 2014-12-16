@@ -37,6 +37,7 @@ sub calculate_prices_and_taxes {
                exchangerate        => undef,
                is_sales            => $self->can('customer') && $self->customer,
                is_invoice          => (ref($self) =~ /Invoice/) || $params{invoice},
+               items               => { },
              );
 
   _get_exchangerate($self, \%data, %params);
@@ -94,13 +95,15 @@ sub _calculate_item {
 
   $data->{invoicediff} += $sellprice * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
 
+  my $linetotal_cost = 0;
+
   if (!$linetotal) {
     $item->marge_total(  0);
     $item->marge_percent(0);
 
   } else {
     my $lastcost       = ! ($item->lastcost * 1) ? ($part->lastcost || 0) : $item->lastcost;
-    my $linetotal_cost = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
+    $linetotal_cost    = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
 
     $item->marge_total(  $linetotal - $linetotal_cost);
     $item->marge_percent($item->marge_total * 100 / $linetotal);
@@ -145,6 +148,14 @@ sub _calculate_item {
   }
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
+
+  $data->{items}->{ $item->id } = {
+    linetotal      => $linetotal,
+    linetotal_cost => $linetotal_cost,
+    sellprice      => $sellprice,
+    tax_amount     => $tax_amount,
+    taxkey         => $taxkey,
+  };
 
   _dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
        "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
@@ -337,6 +348,15 @@ column. Only valid for invoices.
 =item C<exchangerate>
 
 The exchangerate used for the calculation.
+
+=item C<items>
+
+A hashref. For each line item this hashref contains an entry with
+additional values that have been calculated for that item but that
+aren't stored in the item object itself. These include C<linetotal>,
+C<linetotal_cost>, C<sellprice>, C<tax_amount> and C<taxkey>.
+
+The items are hashed by their IDs.
 
 =back
 
