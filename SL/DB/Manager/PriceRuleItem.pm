@@ -75,7 +75,9 @@ sub not_matching_sql_and_values {
 sub get_all_types {
   my ($class, $vc) = @_;
 
-  [ map { [ $_, $types{$_}{description} ] } grep { $types{$_}{$vc} } map { $_ } @types ];
+  $vc
+  ? [ map { [ $_, $types{$_}{description} ] } grep { $types{$_}{$vc} } map { $_ } @types ]
+  : [ map { [ $_, $types{$_}{description} ] } map { $_ } @types ]
 }
 
 sub get_type {

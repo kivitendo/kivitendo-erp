@@ -15,21 +15,21 @@
    <td>[% L.input_tag('filter.name:substr::ilike', filter.name_substr__ilike, size = 20, style='width: 300px') %]</td>
   </tr>
   <tr>
+   <th align="right">[% 'Type' | $T8 %]</th>
+   <td>[% L.select_tag('filter.type', [ [ 'customer', LxERP.t8('Sales Price Rules '), ] [ 'vendor', LxERP.t8('Purchase Price Rules ') ] ], with_empty=1, default=filter.type, id='price_rule_filter_type', style='width: 300px') %]</td>
+  </tr>
+  <tr>
    <th align="right">[% 'Part' | $T8 %]</th>
    <td>[% L.part_picker('filter.item_type_matches[].part', FORM.filter.item_type_matches.0.part, style='width: 300px') %]</td>
   </tr>
-[%- IF SELF.vc == 'customer' %]
-  <tr>
+  <tr id='price_rule_filter_customer_tr' [% "style='display:hidden' " UNLESS SELF.vc == 'customer' %]>
    <th align="right">[% 'Customer' | $T8 %]</th>
-   <td>[% L.customer_vendor_picker('filter.item_type_matches[].customer', FORM.filter.item_type_matches.0.customer, type='customer', style='width: 300px') %]</td>
+   <td>[% L.customer_vendor_picker('filter.item_type_matches[].customer', FORM.filter.item_type_matches.0.customer, type='customer', id='price_rule_filter_customer', style='width: 300px') %]</td>
   </tr>
-[%- END %]
-[%- IF SELF.vc == 'vendor' %]
-  <tr>
+  <tr id='price_rule_filter_vendor_tr' [% "style='display:hidden' " UNLESS SELF.vc == 'customer' %]>
    <th align="right">[% 'Vendor' | $T8 %]</th>
-   <td>[% L.customer_vendor_picker('filter.item_type_matches[].vendor', FORM.filter.item_type_matches.0.vendor, type='vendor', style='width: 300px') %]</td>
+   <td>[% L.customer_vendor_picker('filter.item_type_matches[].vendor', FORM.filter.item_type_matches.0.vendor, type='vendor', id='price_rule_filter_vendor', style='width: 300px') %]</td>
   </tr>
-[%- END %]
   <tr>
    <th align="right">[% 'Business' | $T8 %]</th>
    <td>[% L.select_tag('filter.item_type_matches[].business', SELF.businesses, title_key='description', default=FORM.filter.item_type_matches.0.business, with_empty=1, style='width: 300px') %]</td>
@@ -87,13 +87,12 @@
  </table>
 
 [% L.hidden_tag('action', 'PriceRule/dispatch') %]
-[% L.hidden_tag('filter.type', FORM.filter.type) %]
 [% L.hidden_tag('sort_by', FORM.sort_by) %]
 [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
 [% L.hidden_tag('page', FORM.page) %]
-[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
+[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit') %]
 
-<a onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").val("")'>[% 'Reset' | $T8 %]</a>
+<a class='interact cursor-pointer' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").val("")'>[% 'Reset' | $T8 %]</a>
 
 </div>
 

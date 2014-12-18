@@ -109,13 +109,33 @@ sub check_auth {
 sub display_form {
   my ($self, %params) = @_;
   my $is_new  = !$self->price_rule->id;
-  my $title   = $is_new ?
-    ($self->price_rule->is_sales ? t8('Create a new sales price rule') : t8('Create a new purchase price rule')) :
-    ($self->price_rule->is_sales ? t8('Edit sales price rule') : t8('Edit purchase price rule'));
+  my $title   = $self->form_title(($is_new ? 'create' : 'edit'), $self->price_rule->type);
   $self->render('price_rule/form',
     title => $title,
     %params
   );
+}
+
+sub form_title {
+  my ($self, $action, $type) = @_;
+
+  return {
+    edit => {
+      customer => t8('Edit sales price rule'),
+      vendor   => t8('Edit purchase price rule'),
+      ''       => t8('Edit price rule'),
+    },
+    create => {
+      customer => t8('Create a new sales price rule'),
+      vendor   => t8('Create a new purchase price rule'),
+      ''       => t8('Create a new price rule'),
+    },
+    list => {
+      customer => t8('Sales Price Rules'),
+      vendor   => t8('Purchase Price Rules'),
+      ''       => t8('Price Rules'),
+    },
+  }->{$action}{$type};
 }
 
 sub create_or_update {
@@ -171,7 +191,7 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'PriceRule',
     output_format         => 'HTML',
-    title                 => ($self->vc eq 'customer' ? t8('Sales Price Rules') : t8('Purchase Price Rules')) ,
+    title                 => $self->form_title('list', $self->vc),
     allow_pdf_export      => !$::form->{inline},
     allow_csv_export      => !$::form->{inline},
   );
