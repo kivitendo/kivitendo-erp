@@ -360,6 +360,14 @@ C<taxkey_id>.
 The items are stored in the same order the items are stored in the
 object that L</calculate_taxes_and_prices> has been called on.
 
+For example:
+
+  my $invoice     = SL::DB::Invoice->new(id => 12345)->load;
+  my %data        = $invoice->calculate_prices_and_taxes;
+  my $second_item = $invoice->items->[1];
+
+  print "line total of second item: " . $data{items}->[ $second_item->id ]->{linetotal};
+
 =back
 
 =back
