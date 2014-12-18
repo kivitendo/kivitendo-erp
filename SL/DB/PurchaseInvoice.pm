@@ -58,6 +58,10 @@ sub reqdate {
   goto &duedate;
 }
 
+sub customervendor {
+  goto &vendor;
+}
+
 sub abbreviation {
   my $self = shift;
 

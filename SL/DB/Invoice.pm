@@ -347,6 +347,10 @@ sub reqdate {
   goto &duedate;
 }
 
+sub customervendor {
+  goto &customer;
+}
+
 sub transactions {
   my ($self) = @_;
 
