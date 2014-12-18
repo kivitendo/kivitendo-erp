@@ -22,7 +22,7 @@
   [% CASE 'customer' %]
     [% 'Customer' | $T8 %] [% 'is' | $T8 %] [% L.customer_vendor_picker('price_rule.items[].value_int', item.customer, type='customer') %]
   [% CASE 'vendor' %]
-    [% 'Vendor' | $T8 %] [% 'is' | $T8 %] [% L.vendor_vendor_picker('price_rule.items[].value_int', item.customer, type='vendor') %]
+    [% 'Vendor' | $T8 %] [% 'is' | $T8 %] [% L.customer_vendor_picker('price_rule.items[].value_int', item.vendor, type='vendor') %]
   [% CASE 'business' %]
     [% 'Type of Business' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.businesses, title_key='description', default=item.value_int) %]
   [% CASE 'partsgroup' %]
