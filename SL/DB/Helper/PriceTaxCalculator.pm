@@ -37,7 +37,7 @@ sub calculate_prices_and_taxes {
                exchangerate        => undef,
                is_sales            => $self->can('customer') && $self->customer,
                is_invoice          => (ref($self) =~ /Invoice/) || $params{invoice},
-               items               => { },
+               items               => [ ],
              );
 
   _get_exchangerate($self, \%data, %params);
@@ -149,12 +149,12 @@ sub _calculate_item {
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
 
-  $data->{items}->{ $item->id } = {
+  push @{ $data->{items} }, {
     linetotal      => $linetotal,
     linetotal_cost => $linetotal_cost,
     sellprice      => $sellprice,
     tax_amount     => $tax_amount,
-    taxkey         => $taxkey,
+    taxkey_id      => $taxkey->id,
   };
 
   _dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
@@ -351,12 +351,14 @@ The exchangerate used for the calculation.
 
 =item C<items>
 
-A hashref. For each line item this hashref contains an entry with
-additional values that have been calculated for that item but that
-aren't stored in the item object itself. These include C<linetotal>,
-C<linetotal_cost>, C<sellprice>, C<tax_amount> and C<taxkey>.
+An array reference. For each line item this array contains a hash ref
+entry with additional values that have been calculated for that item
+but that aren't stored in the item object itself. These include
+C<linetotal>, C<linetotal_cost>, C<sellprice>, C<tax_amount> and
+C<taxkey_id>.
 
-The items are hashed by their IDs.
+The items are stored in the same order the items are stored in the
+object that L</calculate_taxes_and_prices> has been called on.
 
 =back
 

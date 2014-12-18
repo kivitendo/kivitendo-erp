@@ -7,6 +7,7 @@ use utf8;
 
 use Carp;
 use Data::Dumper;
+use List::MoreUtils qw(uniq);
 use Support::TestSetup;
 use Test::Exception;
 
@@ -110,6 +111,8 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     invoiceitems => [ $item ],
   );
 
+  my $taxkey = $item->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
+
   # sellprice 2.34 * qty 2.5 = 5.85
   # 19%(5.85) = 1.1115; rounded = 1.11
   # total rounded = 6.96
@@ -147,6 +150,14 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     taxes                                        => {
       $tax->chart_id                             => 1.11,
     },
+    items                                        => [
+      { linetotal                                => 5.85,
+        linetotal_cost                           => 4.83,
+        sellprice                                => 2.34,
+        tax_amount                               => 1.1115,
+        taxkey_id                                => $taxkey->id,
+      },
+    ],
   }, "${title}: calculated data");
 }
 
@@ -159,6 +170,9 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
   );
+
+  my $taxkey1 = $item1->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
+  my $taxkey2 = $item2->part->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id);
 
   # item 1:
   # sellprice 2.34 * qty 2.5 = 5.85
@@ -217,6 +231,20 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
       $tax->chart_id                              => 1.11,
       $tax7->chart_id                             => 0.82,
     },
+    items                                        => [
+      { linetotal                                => 5.85,
+        linetotal_cost                           => 4.83,
+        sellprice                                => 2.34,
+        tax_amount                               => 1.1115,
+        taxkey_id                                => $taxkey1->id,
+      },
+      { linetotal                                => 11.66,
+        linetotal_cost                           => 6.57,
+        sellprice                                => 9.714,
+        tax_amount                               => 0.8162,
+        taxkey_id                                => $taxkey2->id,
+      },
+    ],
   }, "${title}: calculated data");
 }
 
@@ -230,6 +258,8 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2, $item3 ],
   );
+
+  my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item1, $item2, $item3);
 
   # this is how price_tax_calculator is implemented. It differs from
   # the way sales_order / invoice - forms are calculating:
@@ -313,6 +343,26 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     taxes                                        => {
       $tax->chart_id                             => 2.9,
     },
+    items                                        => [
+      { linetotal                                => 5.27,
+        linetotal_cost                           => 1.93,
+        sellprice                                => 5.27,
+        tax_amount                               => 1.0013,
+        taxkey_id                                => $taxkeys{$item1->parts_id}->id,
+      },
+      { linetotal                                => 5.22,
+        linetotal_cost                           => 1.93,
+        sellprice                                => 5.22,
+        tax_amount                               => 0.9918,
+        taxkey_id                                => $taxkeys{$item2->parts_id}->id,
+      },
+      { linetotal                                => 4.75,
+        linetotal_cost                           => 1.93,
+        sellprice                                => 4.75,
+        tax_amount                               => 0.9025,
+        taxkey_id                                => $taxkeys{$item3->parts_id}->id,
+      }
+    ],
   }, "${title}: calculated data");
 }
 
