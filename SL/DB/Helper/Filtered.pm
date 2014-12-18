@@ -43,13 +43,13 @@ __END__
 
 =head1 NAME
 
-SL::Helper::Sorted - Manager mixin for filtered results.
+SL::DB::Helper::Filtered - Manager mixin for filtered results.
 
 =head1 SYNOPSIS
 
 In the manager:
 
-  use SL::Helper::Filtered;
+  use SL::DB::Helper::Filtered;
 
   __PACKAGE__->add_filter_specs(
     custom_filter_name => sub {
@@ -78,7 +78,7 @@ You can add multiple filters in one call, but only one filter per key.
 
 =item C<filter $key, $value, $prefix>
 
-Tells the manager to pply custom filters. If none is registered for C<$key>,
+Tells the manager to apply custom filters. If none are registered for C<$key>,
 returns C<$key, $value>.
 
 Otherwise the filter code is called.
