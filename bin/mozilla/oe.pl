@@ -375,7 +375,7 @@ sub form_header {
       @old_ids_cond,
     ]);
 
-  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all(query => \@conditions);
+  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
 
   # label subs
   my $employee_list_query_gen      = sub { $::form->{$_[0]} ? [ or => [ id => $::form->{$_[0]}, deleted => 0 ] ] : [ deleted => 0 ] };
