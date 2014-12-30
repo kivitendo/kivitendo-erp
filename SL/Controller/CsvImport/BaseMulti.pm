@@ -70,7 +70,7 @@ sub run {
   $self->controller->raw_data_headers($raw_data_headers);
   $self->controller->info_headers($info_headers);
 
-  my @objects  = $self->csv->get_objects;
+  my $objects  = $self->csv->get_objects;
 
   $self->controller->track_progress(progress => 70);
 
@@ -78,7 +78,7 @@ sub run {
 
   $self->controller->track_progress(progress => 80);
 
-  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @objects, @raw_data ]);
+  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @$objects, @raw_data ]);
 
   $self->controller->track_progress(progress => 90);
 

@@ -77,7 +77,7 @@ sub get_objects {
   croak 'must parse first' unless $self->_parsed;
 
   $self->_make_objects unless $self->_objects;
-  return wantarray ? @{ $self->_objects } : $self->_objects;
+  return $self->_objects;
 }
 
 sub errors {
@@ -360,7 +360,7 @@ SL::Helper::Csv - take care of csv file uploads
 
   my $status  = $csv->parse;
   my $hrefs   = $csv->get_data;
-  my @objects = $csv->get_objects;
+  my $objects = $csv->get_objects;
 
   my @errors  = $csv->errors;
 
@@ -421,7 +421,7 @@ Do the actual work. Will return true ($self actually) if success, undef if not.
 
 Parse the data into objects and return those.
 
-This method will return list or arrayref depending on context.
+This method will return an arrayref of all objects.
 
 =item C<get_data>
 
