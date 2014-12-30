@@ -1181,7 +1181,7 @@ sub sum_with_unit {
 
   $main::lxdebug->leave_sub();
 
-  return wantarray ? ($sum, $base_unit) : $sum;
+  return $sum;
 }
 
 sub add_unit {
