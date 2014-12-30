@@ -1081,7 +1081,7 @@ SQL
 
   $main::lxdebug->leave_sub();
 
-  return wantarray ? @{ $form->{parts} } : $form->{parts};
+  return @{ $form->{parts} };
 }
 
 sub _create_filter_for_priceupdate {
