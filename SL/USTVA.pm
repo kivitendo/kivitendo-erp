@@ -102,8 +102,6 @@ sub report_variables {
   # Get all positions for taxreport out of the database
   # Needs Databaseupdate Pg-upgrade2/USTVA_abstraction.pl
 
-  return unless defined wantarray;
-
   my ( $self,
        $arg_ref) = @_;
 
