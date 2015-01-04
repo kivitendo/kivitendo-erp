@@ -308,7 +308,7 @@ sub test_and_import_deferred {
     $self->task_server->start;
   }
 
-  flash('info', $::locale->text('Your import is beig processed.'));
+  flash('info', $::locale->text('Your import is being processed.'));
 
   $self->{deferred} = 1;
 
