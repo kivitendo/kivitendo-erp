@@ -373,6 +373,7 @@ SQL
                  conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}),
                  conv_i($sinfo->{"delivery_order_items_stock_id"}));
       do_statement($form, $h_item_stock, $q_item_stock, @values);
+      push @processed_dois, $sinfo->{"delivery_order_items_stock_id"};
     }
 
     CVar->save_custom_variables(module       => 'IC',
@@ -393,6 +394,16 @@ SQL
     # clean up delivery_order_items
     $query  = sprintf 'DELETE FROM delivery_order_items WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
     do_query($form, $dbh, $query, @orphaned_ids);
+  }
+  # search for orphaned dois
+  $query  = sprintf 'SELECT id FROM delivery_order_items_stock WHERE delivery_order_item_id in
+                      (select id from delivery_order_items where delivery_order_id = ?) AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_dois;
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_dois);
+  my @orphaned_dois_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+  if (scalar @orphaned_dois_ids) {
+    # clean up delivery_order_items_stock
+    $query  = sprintf 'DELETE FROM delivery_order_items_stock WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_dois_ids;
+    do_query($form, $dbh, $query, @orphaned_dois_ids);
   }
   $h_item->finish();
   $h_item_stock->finish();
