@@ -95,6 +95,15 @@ Kleinere neue Features und Detailverbesserungen:
   1-2 Zahlen: 12        -> 31.10.2014   aktueller Monat wird angenommen
               7         -> 07.10.2014   aktueller Monat wird angenommen
 
+- Neuer Reiter "Buchungen" in Einkaufs- und Verkaufsbelegen, wo zu einer
+  Rechnung/Buchung die Buchungen laut acc_trans angezeigt werden. Der Bearbeiter
+  braucht das FiBu-Recht.
+  In einer Tabelle "Buchungen" werden alle Buchungen laut acc_trans
+  angezeigt.
+  In einer Tabelle "Salden" werden die aktuellen Salden der bebuchten
+  Konten angezeigt, ausgeglichene Konten werden herausgefiltert.
+
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:
