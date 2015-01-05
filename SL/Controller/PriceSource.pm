@@ -161,6 +161,7 @@ sub _make_record {
 
     $obj->items(@items) if @items;
   }
+  $obj->is_sales(!!$obj->customer_id) if $class eq 'SL::DB::DeliveryOrder';
 
   return $obj;
 }
