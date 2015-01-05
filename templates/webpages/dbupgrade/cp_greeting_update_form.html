@@ -2,7 +2,9 @@
 [% USE HTML %]
 <h1>[% 'cp_greeting to cp_gender migration' | $T8 %]</h1>
 
-<form action="[% script %]" method="POST">
+<form name="Form" method="post" action="login.pl">
+<input type="hidden" name="action" value="login">
+
 <br>
 <p> The method for generating greetings ("Dear Mr. Smith") is being changed so the greeting is controlled by the gender. For this a new database field cp_gender is introduced, while the old database field cp_greeting will be removed. The various translations (Mr./Herr/Monsieur) will be stored in the database, under generic_translations. The print variable cp_greeting still exists, however, so print templates don't have to be changed, and the variable is assigned according to the gender of the contact person and the desired language.</p>
 
