@@ -57,17 +57,17 @@ Größere neue Features:
   aktivieren/deaktivieren
 
   Bei der Konfiguration benutzerdefinierter Variablen für Waren,
-  Diensleistungen und Erzeugnisse kann man nun wählen, ob diese per
+  Dienstleistungen und Erzeugnisse kann man nun wählen, ob diese per
   Voreinstellung in den Belegen aktiviert oder deaktiviert sind. Vorher waren
   diese immer aktiviert und man musste sie zum Deaktivieren zu jedem Artikel in
   den Stammdaten explizit deaktivieren.
 
-- Warengruppen-Filter f. CVars bei Waren, Diensleistungen und Erzeugnisse
+- Warengruppen-Filter f. CVars bei Waren, Dienstleistungen und Erzeugnissen
 
-  Bei der Konfiguration benutzerdefinierter Variablen für Waren, Diensleistungen
-  und Erzeugnisse kann man wählen, ob diese nur bei Artikeln, die zu bestimmten
+  Bei der Konfiguration benutzerdefinierter Variablen für Waren, Dienstleistungen
+  und Erzeugnissen kann man wählen, ob diese nur bei Artikeln, die zu bestimmten
   Warengruppen gehören, angezeigt werden sollen. Ist der Filter eingeschaltet,
-  dann erscheint die Variablen nur in den Stammdaten und den Beleg-Masken bei
+  dann erscheinen die Variablen nur in den Stammdaten und den Beleg-Masken bei
   Artikeln, die zu einer der ausgewählten Warengruppen gehören.
 
 - Preisquellen
@@ -79,11 +79,14 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
-- Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten implementiert (einstellbar in Mandantenkonfiguration)
+- Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten
+  implementiert (einstellbar in Mandantenkonfiguration)
 
-- Verkaufsangebotsgültigkeit konfigurierbar per Intervall (nächster Werktag + x Tage)
+- Verkaufsangebotsgültigkeit konfigurierbar per Intervall
+  (nächster Werktag + x Tage)
 
-- Schnelllöschen von einzelnen Positionen (Ein X vor jeder Zeile)
+- Schnelllöschen von einzelnen Positionen in Einkaufs- und Verkaufsrechnungen
+  (ein X-Symbol am Anfang jeder Artikelzeile)
 
 - FiBu Schnellsuche in Headerzeile, um nach Belegen zu suchen
 
