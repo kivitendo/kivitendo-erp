@@ -389,7 +389,7 @@ __END__
 
 =head1 NAME
 
-SL::DBUTils.pm: All about Databaseconections in Lx
+SL::DBUTils.pm: All about database connections in kivitendo
 
 =head1 SYNOPSIS
 
@@ -422,7 +422,7 @@ Using DBUtils most database procedures can be reduced to defining the query, exe
 
 DBUtils relies heavily on two parameters which have to be passed to almost every function: $form and $dbh.
   - $form is used for error handling only. It can be omitted in theory, but should not.
-  - $dbh is a handle to the databe, as returned by the DBI::connect routine. If you don't have an active connectiong, you can query $form->get_standard_dbh() to get a generic no_auto connection. Don't forget to commit in this case!
+  - $dbh is a handle to the database, as returned by the DBI::connect routine. If you don't have an active connection, you can query $form->get_standard_dbh() to get a generic no_auto connection. Don't forget to commit in this case!
 
 
 Every function here should accomplish the follwing things:

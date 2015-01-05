@@ -119,7 +119,7 @@ sub _check_multiplexed {
         0,
         0]) unless $info_ok;
 
-      # If header is given, there need to be a header for each profile
+      # If header is given, there needs to be a header for each profile
       # and no empty headers.
       if ($info_ok && $self->header) {
         my @header = @{ $self->header };
@@ -195,7 +195,7 @@ sub _check_header {
   # people insist that case sensitivity doesn't exist and try to enter all
   # sorts of stuff. at this point we've got a profile (with keys that represent
   # valid methods), and a header full of strings. if two of them match, the user
-  # mopst likely meant that field, so rewrite the header
+  # most likely meant that field, so rewrite the header
   if ($self->case_insensitive_header) {
     die 'case_insensitive_header is only possible with profile' unless $self->profile;
     if ($header) {
@@ -221,7 +221,7 @@ sub _check_header {
 sub _check_multiplex_datatype_position {
   my ($self) = @_;
 
-  return 1 if !$self->is_multiplexed; # ok if if not multiplexed
+  return 1 if !$self->is_multiplexed; # ok if not multiplexed
 
   my @positions = map { firstidx { 'datatype' eq lc($_) } @{ $_ } } @{ $self->header };
   my $first_pos = $positions[0];
@@ -368,8 +368,8 @@ SL::Helper::Csv - take care of csv file uploads
 
 See Synopsis.
 
-Text::CSV offeres already good functions to get lines out of a csv file, but in
-most cases you will want those line to be parsed into hashes or even objects,
+Text::CSV already offers good functions to get lines out of a csv file, but in
+most cases you will want those lines to be parsed into hashes or even objects,
 so this model just skips ahead and gives you objects.
 
 Its basic assumptions are:
@@ -378,7 +378,7 @@ Its basic assumptions are:
 
 =item You do know what you expect to be in that csv file.
 
-This means first and foremost you have knowledge about encoding, number and
+This means first and foremost that you have knowledge about encoding, number and
 date format, csv parameters such as quoting and separation characters. You also
 know what content will be in that csv and what L<Rose::DB> is responsible for
 it. You provide valid header columns and their mapping to the objects.
@@ -493,8 +493,8 @@ accessors. Example:
 In this case C<listprice_as_number> will be used to read in values from the
 C<listprice> column.
 
-In case of a One-To-One relationsship these can also be set over
-relationsships by sparating the steps with a dot (C<.>). This will work:
+In case of a One-To-One relationship these can also be set over
+relationships by separating the steps with a dot (C<.>). This will work:
 
   [ {profile => { customer => 'customer.name' }} ]
 

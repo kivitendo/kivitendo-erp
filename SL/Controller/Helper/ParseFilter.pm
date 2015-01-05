@@ -257,7 +257,7 @@ SL::Controller::Helper::ParseFilter - Convert a form filter spec into a RDBO get
 
 A search filter will usually search for things in relations of the actual
 search target. A search for sales orders may be filtered by the name of the
-customer. L<Rose::DB::Object> alloes you to search for these by filtering them prefixed with their table:
+customer. L<Rose::DB::Object> allows you to search for these by filtering them prefixed with their table:
 
   query => [
     'customer.name'          => 'John Doe',
@@ -265,7 +265,7 @@ customer. L<Rose::DB::Object> alloes you to search for these by filtering them p
     'orddate'                => [ lt    => DateTime->today ],
   ]
 
-Unfortunately, if you specify them in you form as these strings, the form
+Unfortunately, if you specify them in your form as these strings, the form
 parser will convert them into nested structures like this:
 
   $::form = bless {
@@ -297,7 +297,7 @@ specific L<Salesman>:
 
   [% L.select_tag('filter.salesman.id', ...) %]
 
-Additionally you can add modifier to the name to set a certain method:
+Additionally you can add a modifier to the name to set a certain method:
 
   [% L.input_tag('filter.department.description:substr::ilike', ...) %]
 
@@ -313,7 +313,7 @@ list of modifiers.
 =head1 LAUNDERING
 
 Unfortunately Template cannot parse the postfixes if you want to
-rerender the filter. For this reason all colons filter keys are by
+rerender the filter. For this reason all colon filter keys are by
 default laundered into underscores, so you can use them like this:
 
   [% L.input_tag('filter.price:number::lt', filter.price_number__lt) %]
@@ -326,7 +326,7 @@ these will get copied into a _ suffixed version as hashes:
 All of your original entries will stay intact. If you don't want this to
 happen pass C<< no_launder => 1 >> as a parameter.  Additionally you can pass a
 different target for the laundered values with the C<launder_to>  parameter. It
-takes an hashref and will deep copy all values in your filter to the target. So
+takes a hashref and will deep copy all values in your filter to the target. So
 if you have a filter that looks like this:
 
   $filter = {
@@ -382,7 +382,7 @@ will expand to:
     ]
   ]
 
-For more abuot custom filters, see L<SL::DB::Helper::Filtered>.
+For more about custom filters, see L<SL::DB::Helper::Filtered>.
 
 =head1 FILTERS (leading with :)
 
@@ -450,7 +450,7 @@ following will not work as you expect:
   L.input_tag('customer.name:substr::ilike', ...)
   L.input_tag('invoice.customer.name:substr::ilike', ...)
 
-This will sarch for orders whose invoice has the _same_ customer, which matches
+This will search for orders whose invoice has the _same_ customer, which matches
 both inputs. This is because tables are aliased by their name and not by their
 position in with_objects.
 
@@ -460,7 +460,7 @@ position in with_objects.
 
 =item *
 
-Additional filters shoud be pluggable.
+Additional filters should be pluggable.
 
 =back
 
