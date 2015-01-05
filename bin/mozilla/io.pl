@@ -437,6 +437,7 @@ sub display_row {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
+      push @hidden_vars, qw(delivery_order_items_id);
     }
 
     my @HIDDENS = map { value => $_}, (
@@ -726,7 +727,7 @@ sub remove_emptied_rows {
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate orderitems_id
-                active_price_source active_discount_source);
+                active_price_source active_discount_source delivery_order_items_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };

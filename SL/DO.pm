@@ -240,14 +240,11 @@ sub save {
 
   my $ml = ($form->{type} eq 'sales_delivery_order') ? 1 : -1;
 
+  my (@processed_doi, @processed_dois);
+
   if ($form->{id}) {
 
-    $query = qq|DELETE FROM delivery_order_items_stock WHERE delivery_order_item_id IN (SELECT id FROM delivery_order_items WHERE delivery_order_id = ?)|;
-    do_query($form, $dbh, $query, conv_i($form->{id}));
-
-    $query = qq|DELETE FROM delivery_order_items WHERE delivery_order_id = ?|;
-    do_query($form, $dbh, $query, conv_i($form->{id}));
-
+    # only delete shipto complete
     $query = qq|DELETE FROM shipto WHERE trans_id = ? AND module = 'DO'|;
     do_query($form, $dbh, $query, conv_i($form->{id}));
 
@@ -275,24 +272,23 @@ sub save {
     $query         = qq|SELECT id, unit FROM parts WHERE id IN (| . join(', ', map { '?' } @part_ids) . qq|)|;
     %part_unit_map = selectall_as_map($form, $dbh, $query, 'id', 'unit', @part_ids);
   }
-
-  my $q_item_id = qq|SELECT nextval('delivery_order_items_id')|;
-  my $h_item_id = prepare_query($form, $dbh, $q_item_id);
-
-  my $q_item =
-    qq|INSERT INTO delivery_order_items (
-         id, delivery_order_id, parts_id, description, longdescription, qty, base_qty,
-         sellprice, discount, unit, reqdate, project_id, serialnumber,
-         ordnumber, transdate, cusordnumber,
-         lastcost, price_factor_id, price_factor, marge_price_factor, pricegroup_id,
-         active_price_source, active_discount_source)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-         (SELECT factor FROM price_factors WHERE id = ?), ?, ?, ?, ?)|;
+  my $q_item = <<SQL;
+    UPDATE delivery_order_items SET
+       delivery_order_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+       sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?,
+       ordnumber = ?, transdate = ?, cusordnumber = ?,
+       lastcost = ? , price_factor_id = ?, price_factor = (SELECT factor FROM price_factors where id = ?),
+       marge_price_factor = ?, pricegroup_id = ?, active_price_source = ?, active_discount_source = ?
+    WHERE id = ?
+SQL
   my $h_item = prepare_query($form, $dbh, $q_item);
 
-  my $q_item_stock =
-    qq|INSERT INTO delivery_order_items_stock (delivery_order_item_id, qty, unit, warehouse_id, bin_id, chargenumber, bestbefore)
-       VALUES (?, ?, ?, ?, ?, ?, ?)|;
+  my $q_item_stock = <<SQL;
+    UPDATE delivery_order_items_stock SET
+      delivery_order_item_id = ?, qty = ?,  unit = ?,  warehouse_id = ?,
+      bin_id = ?, chargenumber = ?, bestbefore = ?
+    WHERE id = ?
+SQL
   my $h_item_stock = prepare_query($form, $dbh, $q_item_stock);
 
   my $in_out       = $form->{type} =~ /^sales/ ? 'out' : 'in';
@@ -300,6 +296,17 @@ sub save {
   for my $i (1 .. $form->{rowcount}) {
     next if (!$form->{"id_$i"});
 
+    if (!$form->{"delivery_order_items_id_$i"}) {
+      # there is no persistent id, therefore create one with all necessary constraints
+      my $q_item_id = qq|SELECT nextval('delivery_order_items_id')|;
+      my $h_item_id = prepare_query($form, $dbh, $q_item_id);
+      do_statement($form, $h_item_id, $q_item_id);
+      $form->{"delivery_order_items_id_$i"}  = $h_item_id->fetchrow_array();
+      $query = qq|INSERT INTO delivery_order_items (id, delivery_order_id, parts_id) VALUES (?, ?, ?)|;
+      do_query($form, $dbh, $query, conv_i($form->{"delivery_order_items_id_$i"}),
+                conv_i($form->{"id"}), conv_i($form->{"id_$i"}));
+      $h_item_id->finish();
+    }
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
     my $item_unit = $part_unit_map{$form->{"id_$i"}};
@@ -320,8 +327,6 @@ sub save {
 
     $items_reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
 
-    do_statement($form, $h_item_id, $q_item_id);
-    my ($item_id) = $h_item_id->fetchrow_array();
 
     # Get pricegroup_id and save it. Unfortunately the interface
     # also uses ID "0" for signalling that none is selected, but "0"
@@ -331,7 +336,7 @@ sub save {
     $pricegroup_id    = undef if !$pricegroup_id;
 
     # save detail record in delivery_order_items table
-    @values = (conv_i($item_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
+    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
                $form->{"qty_$i"}, $baseqty,
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
@@ -343,20 +348,36 @@ sub save {
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                conv_i($form->{"marge_price_factor_$i"}),
                $pricegroup_id,
-               $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"});
+               $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
+               conv_i($form->{"delivery_order_items_id_$i"}));
     do_statement($form, $h_item, $q_item, @values);
+    push @processed_doi, $form->{"delivery_order_items_id_$i"}; # transaction safe?
 
     my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});
 
     foreach my $sinfo (@{ $stock_info }) {
-      @values = ($item_id, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
-                 conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}));
+      # if we have stock_info, we have to check for persistents entries
+      if (!$sinfo->{"delivery_order_items_stock_id"}) {
+        my $q_item_stock_id = qq|SELECT nextval('id')|;
+        my $h_item_stock_id = prepare_query($form, $dbh, $q_item_stock_id);
+        do_statement($form, $h_item_stock_id, $q_item_stock_id);
+        $sinfo->{"delivery_order_items_stock_id"} = $h_item_stock_id->fetchrow_array();
+        $query = qq|INSERT INTO delivery_order_items_stock (id, delivery_order_item_id, qty, unit, warehouse_id, bin_id)
+                    VALUES (?, ?, ?, ?, ?, ?)|;
+        do_query($form, $dbh, $query, conv_i($sinfo->{"delivery_order_items_stock_id"}),
+                  conv_i($form->{"delivery_order_items_id_$i"}), $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
+                  conv_i($sinfo->{bin_id}));
+       $h_item_stock_id->finish();
+      }
+      @values = ($form->{"delivery_order_items_id_$i"}, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
+                 conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}),
+                 conv_i($sinfo->{"delivery_order_items_stock_id"}));
       do_statement($form, $h_item_stock, $q_item_stock, @values);
     }
 
     CVar->save_custom_variables(module       => 'IC',
                                 sub_module   => 'delivery_order_items',
-                                trans_id     => $item_id,
+                                trans_id     => $form->{"delivery_order_items_id_$i"},
                                 configs      => $ic_cvar_configs,
                                 variables    => $form,
                                 name_prefix  => 'ic_',
@@ -364,7 +385,15 @@ sub save {
                                 dbh          => $dbh);
   }
 
-  $h_item_id->finish();
+  # search for orphaned doi
+  $query  = sprintf 'SELECT id FROM delivery_order_items WHERE delivery_order_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_doi;
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_doi);
+  my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+  if (scalar @orphaned_ids) {
+    # clean up delivery_order_items
+    $query  = sprintf 'DELETE FROM delivery_order_items WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
+    do_query($form, $dbh, $query, @orphaned_ids);
+  }
   $h_item->finish();
   $h_item_stock->finish();
 
@@ -717,7 +746,8 @@ sub retrieve {
     my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
 
     $query =
-      qq|SELECT qty, unit, bin_id, warehouse_id, chargenumber, bestbefore
+      qq|SELECT id as delivery_order_items_stock_id, qty, unit, bin_id,
+                warehouse_id, chargenumber, bestbefore
          FROM delivery_order_items_stock
          WHERE delivery_order_item_id = ?|;
     my $sth = prepare_query($form, $dbh, $query);

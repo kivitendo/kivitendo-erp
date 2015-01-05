@@ -149,7 +149,7 @@
        [%- END %]
       </select>
      </td>
-
+     <input type="hidden" name="delivery_order_items_stock_id_[% loop.count %]" value="[% HTML.escape(row.delivery_order_items_stock_id) %]">
      [%- END %]
     </tr>
 

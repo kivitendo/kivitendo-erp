@@ -116,6 +116,7 @@
     <input type="hidden" name="warehouse_id_[% loop.count %]" value="[% HTML.escape(row.warehouse_id) %]">
     <input type="hidden" name="bin_id_[% loop.count %]"       value="[% HTML.escape(row.bin_id) %]">
     <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
+    <input type="hidden" name="delivery_order_items_stock_id_[% loop.count %]" value="[% HTML.escape(row.stock_delivery_order_items_stock_id) %]">
     [% IF INSTANCE_CONF.get_show_bestbefore %]
     <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
     [% END %]

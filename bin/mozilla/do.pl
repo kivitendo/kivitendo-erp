@@ -960,7 +960,7 @@ sub save_as_new {
   $form->{delivered} = 0;
   map { delete $form->{$_} } qw(printed emailed queued);
   delete @{ $form }{ grep { m/^stock_(?:in|out)_\d+/ } keys %{ $form } };
-
+  delete $form->{"delivery_order_items_id_$_"} for 1 .. $form->{"rowcount"};
   # Let kivitendo assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
   $form->{donumber} =~ s/^\s*//g;
@@ -1172,7 +1172,7 @@ sub set_stock_in {
 
     next if ($form->{"qty_$i"} <= 0);
 
-    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber bestbefore qty unit) };
+    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(delivery_order_items_stock_id warehouse_id bin_id chargenumber bestbefore qty unit) };
   }
 
   $form->{stock} = YAML::Dump($stock_info);
@@ -1221,7 +1221,7 @@ sub stock_out_form {
                  ($row->{chargenumber} ne $sinfo->{chargenumber}) ||
                  ($row->{bestbefore}   ne $sinfo->{bestbefore}));
 
-        map { $row->{"stock_$_"} = $sinfo->{$_} } qw(qty unit error);
+        map { $row->{"stock_$_"} = $sinfo->{$_} } qw(qty unit error delivery_order_items_stock_id);
       }
     }
 
@@ -1263,6 +1263,7 @@ sub set_stock_out {
       'qty'          => $form->{"qty_$i"},
       'unit'         => $form->{"unit_$i"},
       'row'          => $i,
+      'delivery_order_items_stock_id'  => $form->{"delivery_order_items_stock_id_$i"},
     };
   }
 
