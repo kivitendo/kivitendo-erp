@@ -6,6 +6,8 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - Für UStVA Voranmeldung über Elster gibt es die Anbindung über Geierlein (Installation/Config siehe Commit)
+  
   - In der Lager-Mandantenkonfig gibt es das Feature "Zum Fertigen Standardlager des Bestandteils verwenden".
     Statt das Ziellager des Erzeugnisses zu Verwenden, wird nun zur Prüfung der Fertigung das
     Standardlager der einzelnen Bestandteile verwendet.

@@ -12,7 +12,7 @@
            <fieldset>
              <legend>
                <font size="+1">[% 'Tax Office' | $T8 %]
-               [% HTML.escape(FA_Name) %]</font>
+               [% HTML.escape(fa_name) %]</font>
              </legend>
              <table width="100%" valign="top">
                 <tr>
@@ -30,24 +30,33 @@
                         </tr>
                         <tr>
                           <td colspan="2">
-                            <input name="FA_Name" size="40" title="FA_Name"
-                              value="[% HTML.escape(FA_Name) %]" [% readonly %]>
+                            <input name="fa_name" size="40" title="Name"
+                              value="[% HTML.escape(fa_name) %]" [% readonly %]>
                           <td>
                         </tr>
                         <tr>
                           <td colspan="2">
-                            <input name="FA_Strasse" size="40" title="FA_Strasse"
-                              value="[% HTML.escape(FA_Strasse) %]" [% readonly %]>
-                          </td width="100%">
+                            <input name="fa_strasse" size="40" title="Strasse"
+                              value="[% HTML.escape(fa_strasse) %]" [% readonly %]>
+                          </td>
                         </tr>
                         <tr>
                           <td width="116px">
-                            <input name="FA_PLZ" size="10" title="FA_PLZ"
-                              value="[% HTML.escape(FA_PLZ) %]" [% readonly %]>
+                            <input name="fa_plz" size="10" title="PLZ"
+                              value="[% HTML.escape(fa_plz) %]" [% readonly %]>
                           </td>
                           <td>
-                            <input name="FA_Ort" size="20" title="FA_Ort"
-                              value="[% HTML.escape(FA_Ort) %]" [% readonly %]>
+                            <input name="fa_ort" size="20" title="Ort"
+                              value="[% HTML.escape(fa_ort) %]" [% readonly %]>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            [% 'PLZ Grosskunden' | $T8 %]
+                          </td>
+                          <td>
+                            <input name="fa_plz_grosskunden" size="20" title="OrtGK"
+                              value="[% HTML.escape(fa_plz_grosskunden) %]" [% readonly %]>
                           </td>
                         </tr>
                       </table>
@@ -58,22 +67,23 @@
                         <b>[% 'Contact' | $T8 %]</b>
                       </legend>
                         [% 'Telephone' | $T8 %]<br>
-                        <input name="FA_Telefon" size="40" title="FA_Telefon"
-                          value="[% HTML.escape(FA_Telefon) %]" [% readonly %]>
+                        <input name="fa_telefon" size="40" title="Telefon"
+                          value="[% HTML.escape(fa_telefon) %]" [% readonly %]>
                         <br>
                         <br>
                         [% 'Fax' | $T8 %]<br>
-                        <input name="FA_Fax" size="40" title="FA_Fax"
-                          value="[% HTML.escape(FA_Fax) %]" [% readonly %]>
+                        <input name="fa_fax" size="40" title="Fax"
+                          value="[% HTML.escape(fa_fax) %]" [% readonly %]>
                         <br>
+                        <br>
+                        [% 'Email' | $T8 %]<br>
+                        <input name="fa_email" size="40" title="Email"
+                          value="[% HTML.escape(fa_email) %]" [% readonly %]>
                         <br>
                         [% 'Internet' | $T8 %]<br>
-                        <input name="FA_Email" size="40" title="FA_Email"
-                          value="[% HTML.escape(FA_Email) %]" [% readonly %]>
                         <br>
-                        <br>
-                        <input name="FA_Internet" size="40" title="" title="FA_Internet"
-                          value="[% HTML.escape(FA_Internet) %]" [% readonly %]>
+                        <input name="fa_internet" size="40" title="Internet"
+                          value="[% HTML.escape(fa_internet) %]" [% readonly %]>
                         <br>
                     </fieldset>
                   </td>
@@ -83,53 +93,53 @@
                     <legend>
                     <b>[% 'Openings' | $T8 %]</b>
                     </legend>
-                    <textarea name="FA_Oeffnungszeiten" rows="4" cols="40"
-                      [% readonly %]>[% HTML.escape(FA_Oeffnungszeiten) %]</textarea>
+                    <textarea name="fa_oeffnungszeiten" rows="4" cols="40"
+                      [% readonly %]>[% HTML.escape(fa_oeffnungszeiten) %]</textarea>
                     </fieldset>
                     <br>
                       <fieldset>
                       <legend>
                         <b>[% 'Bank Connection Tax Office' | $T8 %]</b>
-                      <legend>
+                      </legend>
                       <table>
                       <tr>
                         <td width="40%">
                           [% 'Bank' | $T8 %]
                           <br>
-                          <input name="FA_Bankbezeichnung_1" size="30"
-                            value="[% HTML.escape(FA_Bankbezeichnung_1) %]" [% readonly %]>
+                          <input name="fa_bankbezeichnung_1" size="30"
+                            value="[% HTML.escape(fa_bankbezeichnung_1) %]" [% readonly %]>
                           <br>
                           <br>
                           [% 'Account Nummer' | $T8 %]
                           <br>
-                          <input name="FA_Kontonummer_1" size="15"
-                            value="[% HTML.escape(FA_Kontonummer_1) %]" [% readonly %]>
+                          <input name="fa_kontonummer_1" size="15"
+                            value="[% HTML.escape(fa_kontonummer_1) %]" [% readonly %]>
                           <br>
                           <br>
                           [% 'Bank Code (long)' | $T8 %]
                           <br>
-                          <input name="FA_BLZ_1" size="15"
-                            value="[% HTML.escape(FA_BLZ_1) %]" [% readonly %]>
+                          <input name="fa_blz_1" size="15"
+                            value="[% HTML.escape(fa_blz_1) %]" [% readonly %]>
                         </td>
                         <td width="40%">
                           [% 'Bank' | $T8 %]
                           <br>
-                          <input name="FA_Bankbezeichnung_oertlich" size="30"
-                            value="[% HTML.escape(FA_Bankbezeichnung_oertlich) %]" [% readonly %]>
+                          <input name="fa_bankbezeichnung_2" size="30"
+                            value="[% HTML.escape(fa_bankbezeichnung_2) %]" [% readonly %]>
                           <br>
                           <br>
                           [% 'Account Nummer' | $T8 %]
                           <br>
-                          <input name="FA_Kontonummer_2" size="15"
-                            value="[% HTML.escape(FA_Kontonummer_2) %]" [% readonly %]>
+                          <input name="fa_kontonummer_2" size="15"
+                            value="[% HTML.escape(fa_kontonummer_2) %]" [% readonly %]>
                           <br>
                           <br>
                           [% 'Bank Code (long)' | $T8 %]
                           <br>
-                          <input name="FA_BLZ_2" size="15"
-                            value="[% HTML.escape(FA_BLZ_2) %]" [% readonly %]>
+                          <input name="fa_blz_2" size="15"
+                            value="[% HTML.escape(fa_blz_2) %]" [% readonly %]>
                         </td>
-                   </tr>
+              </tr>
              </table>
            </fieldset>
          </td>
@@ -157,7 +167,7 @@
 [%- END %]
 
 
-           </H2><br>
+           <br>
            </fieldset>
            <br>
            <br>
@@ -186,7 +196,6 @@
           [%- ELSE %]
 
             <input type="hidden" name="nextsub" value="save">
-            <input type="hidden" name="filename" value="finanzamt.ini">
             <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
 
           [%- END %]

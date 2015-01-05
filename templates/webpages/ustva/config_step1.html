@@ -18,13 +18,9 @@
        <fieldset>
        <legend><b>[% 'Taxation' | $T8 %]</b>
        </legend>
-       <input name="method" id="accrual" class="radio" type="radio" value="accrual"
-         [% checked_accrual %]>
-       <label for="accrual">[% 'accrual' | $T8 %]</label>
-       <br>
-       <input name="method" id="cash" class="radio" type="radio" value="cash"
-         [% checked_cash %]>
-       <label for="cash">[% 'cash' | $T8 %]</label>
+            [%- IF method_local %]
+              [% method_local %]
+            [%- END %]
        </fieldset>
        <br>
        <fieldset>
@@ -32,15 +28,15 @@
        </legend>
 
 
-           <input name=FA_voranmeld id=month class=radio type=radio value="month"
+           <input name=fa_voranmeld id=month class=radio type=radio value="month"
              [% checked_monthly %]>
            <label for="month">[% 'month' | $T8 %]</label>
            <br>
-           <input name="FA_voranmeld" id=quarter class=radio type=radio value="quarter"
+           <input name="fa_voranmeld" id=quarter class=radio type=radio value="quarter"
              [% checked_quarterly %]>
            <label for="quarter">[% 'quarter' | $T8 %]</label>
            <br>
-           <input name="FA_dauerfrist" id=FA_dauerfrist class=checkbox type=checkbox value="1"
+           <input name="fa_dauerfrist" id=fa_dauerfrist class=checkbox type=checkbox value="1"
              [% checked_dauerfristverlaengerung %]>
            <label for="">[% 'Extension Of Time' | $T8 %]</label>
 
@@ -49,9 +45,9 @@
            <fieldset>
            <legend><b>[% 'Tax Consultant' | $T8 %]</b>
            </legend>
-          <!-- <input name="FA_71" id=FA_71 class=checkbox type=checkbox value="X"
+          <!-- <input name="fa_71" id=fa_71 class=checkbox type=checkbox value="X"
              [% checked_kz_71 %]>
-           <label for="FA_71">[% 'Clearing Tax Received (No 71)' | $T8 %]
+           <label for="fa_71">[% 'Clearing Tax Received (No 71)' | $T8 %]
     .      </label>
            <br>
            <br>-->
@@ -72,20 +68,20 @@
            </tr>
            <tr>
            <td>
-           <input name="FA_steuerberater_name" id=steuerberater size=25
-             value="[% HTML.escape(FA_steuerberater_name) %]">
+           <input name="fa_steuerberater_name" id=steuerberater size=25
+             value="[% HTML.escape(fa_steuerberater_name) %]">
            </td>
            <td>
-           <input name="FA_steuerberater_street" id=steuerberater size=25
-             value="[% HTML.escape(FA_steuerberater_street) %]">
+           <input name="fa_steuerberater_street" id=steuerberater size=25
+             value="[% HTML.escape(fa_steuerberater_street) %]">
            </td>
            <td>
-           <input name="FA_steuerberater_city" id=steuerberater size=25
-             value="[% HTML.escape(FA_steuerberater_city) %]">
+           <input name="fa_steuerberater_city" id=steuerberater size=25
+             value="[% HTML.escape(fa_steuerberater_city) %]">
            </td>
            <td>
-           <input name="FA_steuerberater_tel" id=steuerberater size=25
-             value="[% HTML.escape(FA_steuerberater_tel) %]">
+           <input name="fa_steuerberater_tel" id=steuerberater size=25
+             value="[% HTML.escape(fa_steuerberater_tel) %]">
            </tr>
            </table>
 

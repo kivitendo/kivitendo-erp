@@ -98,8 +98,15 @@ sub report {
 
   # Einlesen der Finanzamtdaten
   my $ustva = USTVA->new();
-  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
+  $ustva->get_config();
+  $ustva->get_finanzamt();
 
+  my $geierlein_enabled = 0;
+  my $geierlein_path = $::lx_office_conf{paths}{geierlein_path};
+
+  if ( $geierlein_path && length($geierlein_path) > 0 ) {$geierlein_enabled=1;} 
+
+#  $::lxdebug->message(LXDebug->DEBUG2,"geierlein_enabled=".$geierlein_enabled." path=".$geierlein_path);
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
   my @a = qw(
@@ -116,14 +123,13 @@ sub report {
   );
 
   $form->{$_} = $myconfig{$_} for @a;
-  $form->{$_} = $defaults->$_ for qw(company address co_ustid duns);
 
-  my $openings = $form->{FA_Oeffnungszeiten};
+  my $openings = $form->{fa_oeffnungszeiten};
   $openings =~ s/\\\\n/<br>/g;
 
   my $company_given = ($form->{company} ne '')
     ? qq|<h3>$form->{company}</h3>\n|
-    : qq|<a href="am.pl?action=config">|
+    : qq|<a href="controller.pl?action=ClientConfig/edit">|
       . $locale->text('No Company Name given') . qq|!</a><br>|;
 
 
@@ -142,8 +148,7 @@ sub report {
     ? qq|$form->{co_street}<br>|
         . qq|$form->{co_street1}<br>|
         . qq|$form->{co_zip} $form->{co_city}|
-    : qq|<a href="am.pl?action=config|
-        . qq|&level=Programm--Preferences">|
+    : qq|<a href="controller.pl?action=ClientConfig/edit">|
         . $locale->text('No Company Address given')
         . qq|!</a>\n|;
 
@@ -152,8 +157,8 @@ sub report {
   $form->{co_fax}   = $form->{fax}   unless $form->{co_fax};
   $form->{co_url}   = $form->{urlx}  unless $form->{co_url};
 
-  my $taxnumber_given = ($form->{steuernummer} ne '') ? $form->{steuernummer} : qq|<a href="ustva.pl?action=config_step1">Keine Steuernummer hinterlegt!</a><br>|;
-
+  my $taxnumber_given = ($form->{taxnumber} ne '') ? $form->{taxnumber} : qq|<a href="ustva.pl?action=config_step1">Keine Steuernummer hinterlegt!</a><br>|;
+  my $fa_name_given = ($form->{fa_name} ne '') ? $form->{fa_name} : qq|<a href="ustva.pl?action=config_step1">Kein Finanzamt hinterlegt!</a><br>|;
   my $ustva_vorauswahl = &ustva_vorauswahl();
 
   my @all_years = $form->all_years(\%myconfig);
@@ -171,30 +176,49 @@ sub report {
   $_checked = "checked" if ($form->{kz10} eq '1');
   my $checkbox_kz_10 = qq|<input name="FA_10" id=FA_10 class=checkbox|
     . qq| type=checkbox value="1" $_checked title = "|
-    . $locale->text('Amended Advance Turnover Tax Return (Nr. 10)')
+    . $locale->text('Amended Advance Turnover Tax Return').'(Nr. 10)'
     . qq|">|
     . $locale->text('Amended Advance Turnover Tax Return');
 
-  my $method_local = ($form->{method} eq 'accrual') ? $locale->text('accrual')
-                   : ($form->{method} eq 'cash')    ? $locale->text('cash')
+  $_checked = "checked" if ($form->{kz22} eq '1');
+  my $checkbox_kz_22 = qq|<input name="FA_22" id=FA_22 class=checkbox|
+    . qq| type=checkbox value="1" $_checked title = "|
+    . $locale->text('Receipts attached/extra').'(Nr. 22)'
+    . qq|">|
+    . $locale->text('Receipts attached/extra');
+
+  $_checked = "checked" if ($form->{kz29} eq '1');
+  my $checkbox_kz_29 = qq|<input name="FA_29" id=FA_29 class=checkbox|
+    . qq| type=checkbox value="1" $_checked title = "|
+    . $locale->text('Accounting desired').'(Nr. 29)'
+    . qq|">|
+    . $locale->text('Accounting desired');
+
+  $_checked = "checked" if ($form->{kz26} eq '1');
+  my $checkbox_kz_26 = qq|<input name="FA_26" id=FA_26 class=checkbox|
+    . qq| type=checkbox value="1" $_checked title = "|
+    . $locale->text('Direct debit revoked').'(Nr. 26)'
+    . qq|">|
+    . $locale->text('Direct debit revoked');
+
+  my $method_local = ($form->{accounting_method} eq 'accrual') ? $locale->text('accrual')
+                   : ($form->{accounting_method} eq 'cash')    ? $locale->text('cash')
                    : '';
 
-  my $period_local = ( $form->{FA_voranmeld} eq 'month')   ? $locale->text('month')
-                   : ( $form->{FA_voranmeld} eq 'quarter') ? $locale->text('quarter')
+  my $period_local = ( $form->{fa_voranmeld} eq 'month')   ? $locale->text('month')
+                   : ( $form->{fa_voranmeld} eq 'quarter') ? $locale->text('quarter')
                    : '';
 
-  my $tax_office_banks_ref = [
-    { BLZ             => $form->{FA_BLZ_1},
-      Kontonummer     => $form->{FA_Kontonummer_1},
-      Bankbezeichnung => $form->{FA_Bankbezeichnung_1}
+  my @tax_office_banks_ref = (
+    { BLZ             => $form->{fa_blz_1},
+      Kontonummer     => $form->{fa_kontonummer_1},
+      Bankbezeichnung => $form->{fa_bankbezeichnung_1}
     },
-    { BLZ             => $form->{FA_BLZ_2},
-      Kontonummer     => $form->{FA_Kontonummer_2},
-      Bankbezeichnung => $form->{FA_Bankbezeichnung_oertlich}
+    { BLZ             => $form->{fa_blz_2},
+      Kontonummer     => $form->{fa_kontonummer_2},
+      Bankbezeichnung => $form->{fa_bankbezeichnung_2}
     }
-  ];
-
-  # Which COA is in use?
+  );
 
   $ustva->get_coa($form); # fetches coa and modifies some form variables
 
@@ -203,13 +227,19 @@ sub report {
     company_given    => $company_given,
     address_given    => $address_given,
     taxnumber_given  => $taxnumber_given,
+    fa_name_given    => $fa_name_given,
     taxnumber        => $defaults->taxnumber,
     select_year      => $select_year,
     period_local     => $period_local,
     method_local     => $method_local,
     ustva_vorauswahl => $ustva_vorauswahl,
     checkbox_kz_10   => $checkbox_kz_10,
-    tax_office_banks => $tax_office_banks_ref,
+    checkbox_kz_22   => $checkbox_kz_22,
+    checkbox_kz_29   => $checkbox_kz_29,
+    checkbox_kz_26   => $checkbox_kz_26,
+    tax_office_banks => \@tax_office_banks_ref,
+    geierlein_enabled => $geierlein_enabled,
+    geierlein_path   => $geierlein_path,
     select_options   => &show_options,
 
   };
@@ -243,7 +273,7 @@ sub show {
 
   $::auth->assert('advance_turnover_tax_return');
 
-  #&generate_ustva();
+  #generate_ustva();
   $::lxdebug->leave_sub();
   call_sub($::form->{"nextsub"});
 }
@@ -280,13 +310,13 @@ sub ustva_vorauswahl {
   #$form->{month}= '01';
   #$form->{year}= 2004;
   $select_vorauswahl = qq|
-     <input type=hidden name=day value=$form->{day}>
-     <input type=hidden name=month value=$form->{month}>
-     <input type=hidden name=yymmdd value=$yymmdd>
-     <input type=hidden name=sel value=$sel>
+     <input type="hidden" name="day" value="$form->{day}">
+     <input type="hidden" name="month" value="$form->{month}">
+     <input type="hidden" name="yymmdd" value="$yymmdd">
+     <input type="hidden" name="sel" value="$sel">
   |;
 
-  if ($form->{FA_voranmeld} eq 'month') {
+  if ($form->{fa_voranmeld} eq 'month') {
 
     # Vorauswahl bei monatlichem Voranmeldungszeitraum
 
@@ -311,7 +341,7 @@ sub ustva_vorauswahl {
     my $dfv = '';
 
     # Offset für Dauerfristverlängerung
-    $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
+    $dfv = '100' if ($form->{fa_dauerfrist} eq '1');
 
   SWITCH: {
       $yymmdd <= ($yy + 110 + $dfv) && do {
@@ -382,7 +412,7 @@ sub ustva_vorauswahl {
     }
     $select_vorauswahl .= qq|</select>|;
 
-  } elsif ($form->{FA_voranmeld} eq 'quarter') {
+  } elsif ($form->{fa_voranmeld} eq 'quarter') {
 
     # Vorauswahl bei quartalsweisem Voranmeldungszeitraum
     my %liste = ('41'  => $locale->text('1. Quarter'),
@@ -395,7 +425,7 @@ sub ustva_vorauswahl {
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
     $sel    = '';
     my $dfv = '';    # Offset für Dauerfristverlängerung
-    $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
+    $dfv = '100' if ($form->{fa_dauerfrist} eq '1');
 
   SWITCH: {
       $yymmdd <= ($yy + 110 + $dfv) && do {
@@ -506,6 +536,16 @@ sub show_options {
     . $::locale->text('HTML')
     . qq|</option>|;
 
+  #my $disabled= qq|disabled="disabled"|;
+  #$disabled='' if ($form->{elster} eq '1' );
+  #if ($::form->{elster} eq '1') {
+  if ( 1 ) {
+    $format .=
+        qq|<option value=elstertaxbird>|
+      . $::locale->text('ELSTER Export (via Geierlein)')
+      . qq|</option>|;
+  }
+
   my $show_options = qq|
     $type
     $media
@@ -530,147 +570,14 @@ sub generate_ustva {
   $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
   $form->{templates} = $defaults->templates;
 
-  # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
+  $ustva->get_config();
+  $ustva->get_finanzamt();
 
-  # init some form vars
-  my @anmeldungszeitraum =
-    qw('0401' '0402' '0403'
-       '0404' '0405' '0406'
-       '0407' '0408' '0409'
-       '0410' '0411' '0412'
-       '0441' '0442' '0443' '0444');
+  # Setze Anmeldungszeitraum
 
-  foreach my $item (@anmeldungszeitraum) {
-    $form->{$item} = "";
-  }
-
-    #forgotten the year --> thisyear
-    if ($form->{year} !~ m/^\d\d\d\d$/) {
-      $form->{year} = substr(
-                             $form->datetonum(
-                                    $form->current_date(\%myconfig), \%myconfig
-                             ),
-                             0, 4);
-      $::lxdebug->message(LXDebug->DEBUG1,
-                        qq|Actual year from Database: $form->{year}\n|);
-    }
-
-    #
-    # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
-    #
-
-    #yearly report
-    if ($form->{period} eq "13") {
-      $form->{fromdate} = "$form->{year}0101";
-      $form->{todate}   = "$form->{year}1231";
-    }
-
-    #Quater reports
-    if ($form->{period} eq "41") {
-      $form->{fromdate} = "$form->{year}0101";
-      $form->{todate}   = "$form->{year}0331";
-      $form->{'0441'}   = "X";
-    }
-    if ($form->{period} eq "42") {
-      $form->{fromdate} = "$form->{year}0401";
-      $form->{todate}   = "$form->{year}0630";
-      $form->{'0442'}   = "X";
-    }
-    if ($form->{period} eq "43") {
-      $form->{fromdate} = "$form->{year}0701";
-      $form->{todate}   = "$form->{year}0930";
-      $form->{'0443'}   = "X";
-    }
-    if ($form->{period} eq "44") {
-      $form->{fromdate} = "$form->{year}1001";
-      $form->{todate}   = "$form->{year}1231";
-      $form->{'0444'}   = "X";
-    }
-
-    #Monthly reports
-  SWITCH: {
-      $form->{period} eq "01" && do {
-        $form->{fromdate} = "$form->{year}0101";
-        $form->{todate}   = "$form->{year}0131";
-        $form->{'0401'}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "02" && do {
-        $form->{fromdate} = "$form->{year}0201";
-
-        #this works from 1901 to 2099, 1900 and 2100 fail.
-        my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$form->{year}02$leap";
-        $form->{"0402"} = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "03" && do {
-        $form->{fromdate} = "$form->{year}0301";
-        $form->{todate}   = "$form->{year}0331";
-        $form->{"0403"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "04" && do {
-        $form->{fromdate} = "$form->{year}0401";
-        $form->{todate}   = "$form->{year}0430";
-        $form->{"0404"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "05" && do {
-        $form->{fromdate} = "$form->{year}0501";
-        $form->{todate}   = "$form->{year}0531";
-        $form->{"0405"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "06" && do {
-        $form->{fromdate} = "$form->{year}0601";
-        $form->{todate}   = "$form->{year}0630";
-        $form->{"0406"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "07" && do {
-        $form->{fromdate} = "$form->{year}0701";
-        $form->{todate}   = "$form->{year}0731";
-        $form->{"0407"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "08" && do {
-        $form->{fromdate} = "$form->{year}0801";
-        $form->{todate}   = "$form->{year}0831";
-        $form->{"0408"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "09" && do {
-        $form->{fromdate} = "$form->{year}0901";
-        $form->{todate}   = "$form->{year}0930";
-        $form->{"0409"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "10" && do {
-        $form->{fromdate} = "$form->{year}1001";
-        $form->{todate}   = "$form->{year}1031";
-        $form->{"0410"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "11" && do {
-        $form->{fromdate} = "$form->{year}1101";
-        $form->{todate}   = "$form->{year}1130";
-        $form->{"0411"}   = "X";
-        last SWITCH;
-      };
-      $form->{period} eq "12" && do {
-        $form->{fromdate} = "$form->{year}1201";
-        $form->{todate}   = "$form->{year}1231";
-        $form->{"0412"}   = "X";
-        last SWITCH;
-      };
-    }
-
-  # Kontrollvariablen für die Templates
-  $form->{"year$_"} = ($form->{year} >= $_ ) ? "1":"0" for 2007..2107;
+  $ustva->set_FromTo(\%$form);
 
   # Get the USTVA
   $ustva->ustva(\%myconfig, \%$form);
@@ -737,8 +644,8 @@ sub generate_ustva {
 
   if ($form->{address} ne '') {
     my $temp = $form->{address};
-    $temp =~ s/\\n/<br \/>/;
-    ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
+    $temp =~ s/\n/<br \/>/;
+    ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp,2);
     $form->{co_city} =~ s/\\n//g;
   }
 
@@ -752,32 +659,10 @@ sub generate_ustva {
 
   if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
 
-    #
-    # Outputformat specific customisation's
-    #
+   $form->{id} = [];
+   $form->{amount} = [];
 
-    my @category_cent = $ustva->report_variables({
-        myconfig    => \%myconfig,
-        form        => $form,
-        type        => '',
-        attribute   => 'position',
-        dec_places  => '2',
-    });
-
-    push @category_cent, qw(Z43  Z45  Z53  Z62  Z65  Z67);
-
-    my @category_euro = $ustva->report_variables({
-        myconfig    => \%myconfig,
-        form        => $form,
-        type        => '',
-        attribute   => 'position',
-        dec_places  => '0',
-    });
-
-    $form->{id} = [];
-    $form->{amount} = [];
-
-    if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
+   if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
 
       $form->{IN} = "$form->{type}-$form->{year}.tex";
       $form->{padding} = "~~";
@@ -787,14 +672,14 @@ sub generate_ustva {
 
       # Zahlenformatierung für Latex USTVA Formulare
 
-      foreach my $number (@category_euro) {
+      foreach my $number (@{$::form->{category_euro}}) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '');
       }
 
       my ${decimal_comma} = ( $myconfig{numberformat} eq '1.000,00'
            or $myconfig{numberformat} eq '1000,00' ) ? ',':'.';
 
-      foreach my $number (@category_cent) {
+      foreach my $number (@{$::form->{category_cent}}) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '');
         $form->{$number} =~ s/${decimal_comma}/~~/g;
       }
@@ -808,14 +693,15 @@ sub generate_ustva {
       $form->{br}      = "<br>";
       $form->{address} =~ s/\\n/\n/g;
 
-      foreach my $number (@category_cent) {
+      foreach my $number (@{$::form->{category_cent}}) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '0');
       }
 
-      foreach my $number (@category_euro) {
+      foreach my $number (@{$::form->{category_euro}}) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '0');
       }
     } elsif ( $form->{format} eq '' ){ # No format error.
+
       $form->header;
       USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
       $::dispatcher->end_request;
@@ -830,28 +716,12 @@ sub generate_ustva {
   } else  # Outputformat for generic output
   {
 
-    my @category_cent = $ustva->report_variables({
-        myconfig    => \%myconfig,
-        form        => $form,
-        type        => '',
-        attribute   => 'position',
-        dec_places  => '2',
-    });
-
-    my @category_euro = $ustva->report_variables({
-        myconfig    => \%myconfig,
-        form        => $form,
-        type        => '',
-        attribute   => 'position',
-        dec_places  => '0',
-    });
-
     $form->{USTVA} = [];
 
     if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
 
       my $rec_ref = {};
-      for my $kennziffer (@category_cent, @category_euro) {
+      for my $kennziffer (@{$::form->{category_cent}}, @{$::form->{category_euro}}) {
         $rec_ref = {};
         $rec_ref->{id} = $kennziffer;
         $rec_ref->{amount} = $form->format_amount(\%myconfig, $form->{$kennziffer}, 2, '0');
@@ -885,6 +755,8 @@ sub generate_ustva {
 
     print($form->parse_html_template('ustva/generic_taxreport', $template_ref));
 
+  } elsif ( $form->{format} eq 'elstertaxbird' ) {
+   $form->parse_template(\%myconfig);
   } else
   {
    # add a prefix for ustva pos numbers, i.e.: 81 ->  post_ustva_81
@@ -912,22 +784,24 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
   $::form->header;
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
+  $ustva->get_config();
+  $ustva->get_finanzamt();
 
-  my $land = $::form->{elsterland};
-  my $amt  = $::form->{elsterFFFF};
+  my $land = $::form->{fa_land_nr};
+  my $amt  = $::form->{fa_bufa_nr};
 
 
   $::form->{title} = $::locale->text('Tax Office Preferences');
 
 
   my $select_tax_office               = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%::myconfig, $::form));
-  my $checked_accrual                 = $::form->{method}        eq 'accrual' ? q|checked="checked"| : '';
-  my $checked_cash                    = $::form->{method}        eq 'cash'    ? q|checked="checked"| : '';
-  my $checked_monthly                 = $::form->{FA_voranmeld}  eq 'month'   ? "checked"            : '';
-  my $checked_quarterly               = $::form->{FA_voranmeld}  eq 'quarter' ? "checked"            : '';
-  my $checked_dauerfristverlaengerung = $::form->{FA_dauerfrist} eq '1'       ? "checked"            : '';
-  my $checked_kz_71                   = $::form->{FA_71}         eq 'X'       ? "checked"            : '';
+  my $method_local = ($::form->{accounting_method} eq 'accrual') ? $::locale->text('accrual')
+                   : ($::form->{accounting_method} eq 'cash')    ? $::locale->text('cash')
+                   : '';
+
+  my $checked_monthly                 = $::form->{fa_voranmeld}  eq 'month'   ? "checked"            : '';
+  my $checked_quarterly               = $::form->{fa_voranmeld}  eq 'quarter' ? "checked"            : '';
+  my $checked_dauerfristverlaengerung = $::form->{da_dauerfrist} eq '1'       ? "checked"            : '';
 
   my $_hidden_variables_ref;
 
@@ -942,34 +816,20 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
         { 'variable' => $variable, 'value' => $_hidden_local_variables{$variable} };
   }
 
-  my @_hidden_form_variables = qw(
-    FA_Name             FA_Strasse        FA_PLZ
-    FA_Ort              FA_Telefon        FA_Fax
-    FA_PLZ_Grosskunden  FA_PLZ_Postfach   FA_Postfach
-    FA_BLZ_1            FA_Kontonummer_1  FA_Bankbezeichnung_1
-    FA_BLZ_2            FA_Kontonummer_2  FA_Bankbezeichnung_oertlich
-    FA_Oeffnungszeiten  FA_Email          FA_Internet
-    steuernummer        elsterland        elstersteuernummer
-    elsterFFFF
-  );
+  my @_hidden_form_variables = $ustva->get_fiamt_vars();
+  push @_hidden_form_variables ,qw(fa_bufa_nr taxnumber accounting_method coa);
 
   foreach my $variable (@_hidden_form_variables) {
     push @{ $_hidden_variables_ref},
         { 'variable' => $variable, 'value' => $::form->{$variable} };
   }
 
-# Which COA is in use?
-
   $ustva->get_coa($::form); # fetches coa and modifies some form variables
-
-  # hä? kann die weg?
-  my $steuernummer_new = '';
 
   # Variablen für das Template zur Verfügung stellen
   my $template_ref = {
      select_tax_office               => $select_tax_office,
-     checked_accrual                 => $checked_accrual,
-     checked_cash                    => $checked_cash,
+     method_local                    => $method_local,
      checked_monthly                 => $checked_monthly,
      checked_quarterly               => $checked_quarterly,
      checked_dauerfristverlaengerung => $checked_dauerfristverlaengerung,
@@ -994,97 +854,84 @@ sub config_step2 {
 
   $form->header();
 
-  my $elsterland         = '';
-  my $elster_amt         = '';
-  my $elsterFFFF         = '';
-  my $elstersteuernummer = '';
+  my $fa_land_nr         = '';
+  my $fa_bufa_nr         = '';
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini')
-    if ($form->{saved} eq $locale->text('saved'));
+  $ustva->get_config() if ($form->{saved} eq $locale->text('saved'));
+  my $coa = $::form->{coa};
+  $form->{"COA_$coa"}  = '1';
+  $form->{COA_Germany} = '1' if ($coa =~ m/^germany/i);
+  $ustva->get_finanzamt();
+
 
   # Auf Übergabefehler checken
   USTVA::info(  $locale->text('Missing Tax Authoritys Preferences') . "\n"
               . $locale->text('USTVA-Hint: Tax Authoritys'))
-    if (   $form->{elsterFFFF_new} eq 'Auswahl'
-        || $form->{elsterland_new} eq 'Auswahl');
+    if (   $form->{fa_bufa_nr_new} eq 'Auswahl'
+        || $form->{fa_land_nr_new} eq 'Auswahl');
   USTVA::info(  $locale->text('Missing Method!') . "\n"
               . $locale->text('USTVA-Hint: Method'))
-    if ($form->{method} eq '');
+    if ($form->{accounting_method} eq '');
 
-  # Klären, ob Variablen bereits befüllt sind UND ob veräderungen auf
+  # Klären, ob Variablen bereits befüllt sind UND ob veränderungen auf
   # der vorherigen Maske stattfanden: $change = 1(in der edit sub,
   # mittels get_config)
 
-  my $change = $form->{elsterland} eq $form->{elsterland_new}
-    && $form->{elsterFFFF} eq $form->{elsterFFFF_new} ? '0' : '1';
+#  $::lxdebug->message(LXDebug->DEBUG2,"land old=".$form->{fa_land_nr}." new=".$form->{fa_land_nr_new});
+#  $::lxdebug->message(LXDebug->DEBUG2,"bufa old=".$form->{fa_bufa_nr}." new=".$form->{fa_bufa_nr_new});
+  my $change = $form->{fa_land_nr} eq $form->{fa_land_nr_new}
+    && $form->{fa_bufa_nr} eq $form->{fa_bufa_nr_new} ? '0' : '1';
   $change = '0' if ($form->{saved} eq $locale->text('saved'));
-  my $elster_init = $ustva->query_finanzamt(\%myconfig, $form);
 
-  my %elster_init = %$elster_init;
 
   if ($change eq '1') {
 
     # Daten ändern
-    $elsterland           = $form->{elsterland_new};
-    $elsterFFFF           = $form->{elsterFFFF_new};
-    $form->{elsterland}   = $elsterland;
-    $form->{elsterFFFF}   = $elsterFFFF;
-    $form->{steuernummer} = '';
+    $fa_land_nr           = $form->{fa_land_nr_new};
+    $fa_bufa_nr           = $form->{fa_bufa_nr_new};
+    $form->{fa_land_nr}   = $fa_land_nr;
+    $form->{fa_bufa_nr}   = $fa_bufa_nr;
+    $form->{taxnumber} = '';
 
     create_steuernummer();
 
     # rebuild elster_amt
-    my $amt = $elster_init{$elsterFFFF};
-
-    # load the predefined hash data into the FA_* Vars
-    my @variables = qw(FA_Name FA_Strasse FA_PLZ FA_Ort
-      FA_Telefon FA_Fax FA_PLZ_Grosskunden FA_PLZ_Postfach
-      FA_Postfach
-      FA_BLZ_1 FA_Kontonummer_1 FA_Bankbezeichnung_1
-      FA_BLZ_2 FA_Kontonummer_2 FA_Bankbezeichnung_oertlich
-      FA_Oeffnungszeiten FA_Email FA_Internet);
-
-    for (my $i = 0; $i <= 20; $i++) {
-      $form->{ $variables[$i] } =
-        $elster_init->{$elsterland}->{$elsterFFFF}->[$i];
-    }
+    $ustva->get_finanzamt();
 
   } else {
 
-    $elsterland = $form->{elsterland};
-    $elsterFFFF = $form->{elsterFFFF};
+    $fa_land_nr = $form->{fa_land_nr};
+    $fa_bufa_nr = $form->{fa_bufa_nr};
 
   }
-  my $stnr = $form->{steuernummer};
+#  $::lxdebug->message(LXDebug->DEBUG2, "form stnr=".$form->{taxnumber}." fa_bufa_nr=".$fa_bufa_nr.
+#                      " pattern=".$form->{elster_pattern}." fa_land_nr=".$fa_land_nr);
+  my $stnr = $form->{taxnumber};
   $stnr =~ s/\D+//g;
-  my $patterncount   = $form->{patterncount};
-  my $elster_pattern = $form->{elster_pattern};
-  my $delimiter      = $form->{delimiter};
-  my $steuernummer   = $stnr eq '' ? $form->{steuernummer} : '';
+  my $taxnumber      = $stnr eq '' ? $form->{taxnumber} : '';
 
-  $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
+  $form->{fa_oeffnungszeiten} =~ s/\\\\n/\n/g;
 
 
   $ustva->get_coa($form); # fetches coa and modifies some form variables
 
   my $input_steuernummer = $ustva->steuernummer_input(
-                             $form->{elsterland},
-                             $form->{elsterFFFF},
-                             $form->{steuernummer}
+                             $fa_land_nr,
+                             $fa_bufa_nr,
+                             $form->{taxnumber}
   );
 
-  $::lxdebug->message(LXDebug->DEBUG1, qq|$input_steuernummer|);
+#  $::lxdebug->message(LXDebug->DEBUG2, qq|$input_steuernummer|);
 
 
   my $_hidden_variables_ref;
 
   my %_hidden_local_variables = (
-      'elsterland'          => $elsterland,
-      'elsterFFFF'          => $elsterFFFF,
+      'fa_land_nr'          => $fa_land_nr,
+      'fa_bufa_nr'          => $fa_bufa_nr,
       'warnung'             => 0,
-      'elstersteuernummer'  => $elstersteuernummer,
-      'steuernummer'        => $stnr,
+      'taxnumber'           => $stnr,
       'lastsub'             => 'config_step1',
       'nextsub'             => 'save',
 
@@ -1096,12 +943,11 @@ sub config_step2 {
   }
 
   my @_hidden_form_variables = qw(
-    FA_steuerberater_name   FA_steuerberater_street
-    FA_steuerberater_city   FA_steuerberater_tel
-    FA_voranmeld            method
-    FA_dauerfrist           FA_71
-    elster
-    type                    elster_init
+    fa_dauerfrist fa_steuerberater_city fa_steuerberater_name
+    fa_steuerberater_street fa_steuerberater_tel 
+    fa_voranmeld fa_dauerfrist
+    accounting_method
+    type
     saved                   callback
   );
 
@@ -1114,6 +960,7 @@ sub config_step2 {
      input_steuernummer              => $input_steuernummer,
      readonly                        => '', #q|disabled="disabled"|,
      callback                        => $form->{callback},
+     COA_Germany                     => $form->{COA_Germany},
      hidden_variables                => $_hidden_variables_ref,
   };
 
@@ -1131,34 +978,31 @@ sub create_steuernummer {
 
   my $part           = $::form->{part};
   my $patterncount   = $::form->{patterncount};
-  my $delimiter      = $::form->{delimiter};
+  my $delimiter      = $::form->{delimiter1};
   my $elster_pattern = $::form->{elster_pattern};
 
-  # rebuild steuernummer and elstersteuernummer
-  # es gibt eine gespeicherte steuernummer $form->{steuernummer}
+  # rebuild taxnumber
+  # es gibt eine gespeicherte steuernummer $form->{taxnumber}
   # und die parts und delimiter
 
   my $h = 0;
   my $i = 0;
 
-  my $steuernummer_new       = $part;
-  my $elstersteuernummer_new = $::form->{elster_FFFF};
-  $elstersteuernummer_new .= '0';
+  my $taxnumber_new       = $part;
 
   for ($h = 1; $h < $patterncount; $h++) {
-    $steuernummer_new .= qq|$delimiter|;
+    $delimiter = $::form->{delimiter2} if $h > 1;
+    $taxnumber_new .= qq|$delimiter|;
     for (my $i = 1; $i <= length($elster_pattern); $i++) {
-      $steuernummer_new       .= $::form->{"part_$h\_$i"};
-      $elstersteuernummer_new .= $::form->{"part_$h\_$i"};
+      $taxnumber_new       .= $::form->{"part_$h\_$i"};
     }
   }
-  if ($::form->{steuernummer} ne $steuernummer_new) {
-    $::form->{steuernummer}       = $steuernummer_new;
-    $::form->{elstersteuernummer} = $elstersteuernummer_new;
-    $::form->{steuernummer_new}   = $steuernummer_new;
+#  $::lxdebug->message(LXDebug->DEBUG2, "oldstnr=".$::form->{taxnumber}." newstnr=".$taxnumber_new);
+  if ($::form->{taxnumber} ne $taxnumber_new) {
+    $::form->{taxnumber}       = $taxnumber_new;
+    $::form->{taxnumber_new}   = $taxnumber_new;
   } else {
-    $::form->{steuernummer_new}       = '';
-    $::form->{elstersteuernummer_new} = '';
+    $::form->{taxnumber_new}       = '';
   }
   $::lxdebug->leave_sub();
 }
@@ -1168,56 +1012,23 @@ sub save {
 
   $::auth->assert('advance_turnover_tax_return');
 
-  my $filename = "$::myconfig{login}_$::form->{filename}";
-  $filename =~ s|.*/||;
-
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen
   create_steuernummer();
 
   # Textboxen formatieren: Linebreaks entfernen
   #
-  $::form->{FA_Oeffnungszeiten} =~ s/\r\n/\\n/g;
+  $::form->{fa_oeffnungszeiten} =~ s/\r\n/\\n/g;
 
   #URL mit http:// davor?
-  $::form->{FA_Internet} =~ s/^http:\/\///;
-  $::form->{FA_Internet} = 'http://' . $::form->{FA_Internet};
+  $::form->{fa_internet} =~ s/^http:\/\///;
+  $::form->{fa_internet} = 'http://' . $::form->{fa_internet};
 
-  my @config = qw(
-    elster              elsterland            elstersteuernummer  steuernummer
-    elsteramt           elsterFFFF            FA_Name             FA_Strasse
-    FA_PLZ              FA_Ort                FA_Telefon          FA_Fax
-    FA_PLZ_Grosskunden  FA_PLZ_Postfach       FA_Postfach         FA_BLZ_1
-    FA_Kontonummer_1    FA_Bankbezeichnung_1  FA_BLZ_2            FA_Kontonummer_2
-    FA_Bankbezeichnung_oertlich FA_Oeffnungszeiten
-    FA_Email FA_Internet FA_voranmeld method FA_steuerberater_name
-    FA_steuerberater_street FA_steuerberater_city FA_steuerberater_tel
-    FA_71 FA_dauerfrist);
+  # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer TODO ??
+  if (1) {
+    my $ustva = USTVA->new();
+    $ustva->save_config();
 
-  # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer
-  if ($::form->{elstersteuernummer} ne '000000000') {
-
-    $::form->{elster} = '1';
-
-    open my $ustvaconfig, ">", "$::lx_office_conf{paths}{userspath}/$filename" or $::form->error("$filename : $!");
-
-    # create the config file
-    print {$ustvaconfig} qq|# Configuration file for USTVA\n\n|;
-    my $key = '';
-    foreach $key (sort @config) {
-      $::form->{$key} =~ s/\\/\\\\/g;
-      # strip M
-      $::form->{$key} =~ s/\r\n/\n/g;
-
-      print {$ustvaconfig} qq|$key=|;
-      if ($::form->{$key} ne 'Y') {
-        print {$ustvaconfig} qq|$::form->{$key}\n|;
-      }
-      if ($::form->{$key} eq 'Y') {
-        print {$ustvaconfig} qq|checked \n|;
-      }
-    }
-    print {$ustvaconfig} qq|\n\n|;
-    close $ustvaconfig;
+    #$::form->{elster} = '1';
     $::form->{saved} = $::locale->text('saved');
 
   } else {

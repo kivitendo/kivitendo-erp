@@ -93,6 +93,10 @@ spool = spool
 templates = templates
 # Path to the old memberfile (ignored on new installations)
 memberfile = users/members
+# Path to ELSTER geierlein webserver path inside kivitendo
+# (must be inside kivitendo but you can set an ALIAS for apache/oe
+# if set the export to geierlein is enabled
+# geierlein_path = geierlein
 
 [mail_delivery]
 # Delivery method can be 'sendmail' or 'smtp'. For 'method = sendmail' the

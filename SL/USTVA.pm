@@ -28,28 +28,42 @@ package USTVA;
 use List::Util qw(first);
 
 use SL::DBUtils;
+use SL::DB::Default;
+use SL::DB::Finanzamt;
 
 use utf8;
 use strict;
 
 my @tax_office_information = (
-  { 'id' =>  8, 'name' => 'Baden-Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
-  { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '1',  'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' => 11, 'name' => 'Berlin',                 'taxbird_nr' => '2',  'elster_format' => 'FF/BBB/UUUUP',  },
-  { 'id' => 12, 'name' => 'Brandenburg',            'taxbird_nr' => '3',  'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' =>  4, 'name' => 'Bremen',                 'taxbird_nr' => '4',  'elster_format' => 'FF BBB UUUUP',  },
-  { 'id' =>  2, 'name' => 'Hamburg',                'taxbird_nr' => '5',  'elster_format' => 'FF/BBB/UUUUP',  },
-  { 'id' =>  6, 'name' => 'Hessen',                 'taxbird_nr' => '6',  'elster_format' => '0FF BBB UUUUP', },
-  { 'id' => 13, 'name' => 'Mecklenburg-Vorpommern', 'taxbird_nr' => '7',  'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' =>  3, 'name' => 'Niedersachsen',          'taxbird_nr' => '8',  'elster_format' => 'FF/BBB/UUUUP',  },
-  { 'id' =>  5, 'name' => 'Nordrhein-Westfalen',    'taxbird_nr' => '9',  'elster_format' => 'FFF/BBBB/UUUP', },
-  { 'id' =>  7, 'name' => 'Rheinland-Pfalz',        'taxbird_nr' => '10', 'elster_format' => 'FF/BBB/UUUU/P', },
-  { 'id' => 10, 'name' => 'Saarland',               'taxbird_nr' => '11', 'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' => 14, 'name' => 'Sachsen',                'taxbird_nr' => '12', 'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' => 15, 'name' => 'Sachsen-Anhalt',         'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' =>  1, 'name' => 'Schleswig-Holstein',     'taxbird_nr' => '14', 'elster_format' => 'FF BBB UUUUP',  },
-  { 'id' => 16, 'name' => 'Thüringen',              'taxbird_nr' => '15', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  8, 'name' => 'Baden-Württemberg',      'taxbird_nr' => '1',  'elster_format' => 'FFBBB/UUUUP',  },
+  { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '2',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 11, 'name' => 'Berlin',                 'taxbird_nr' => '3',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' => 12, 'name' => 'Brandenburg',            'taxbird_nr' => '4',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  4, 'name' => 'Bremen',                 'taxbird_nr' => '5',  'elster_format' => 'FF BBB UUUUP',  },
+  { 'id' =>  2, 'name' => 'Hamburg',                'taxbird_nr' => '6',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  6, 'name' => 'Hessen',                 'taxbird_nr' => '7',  'elster_format' => '0FF BBB UUUUP', },
+  { 'id' => 13, 'name' => 'Mecklenburg-Vorpommern', 'taxbird_nr' => '8',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  3, 'name' => 'Niedersachsen',          'taxbird_nr' => '9',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  5, 'name' => 'Nordrhein-Westfalen',    'taxbird_nr' => '10', 'elster_format' => 'FFF/BBBB/UUUP', },
+  { 'id' =>  7, 'name' => 'Rheinland-Pfalz',        'taxbird_nr' => '11', 'elster_format' => 'FF/BBB/UUUUP', },
+  { 'id' => 10, 'name' => 'Saarland',               'taxbird_nr' => '12', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 14, 'name' => 'Sachsen',                'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 15, 'name' => 'Sachsen-Anhalt',         'taxbird_nr' => '14', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  1, 'name' => 'Schleswig-Holstein',     'taxbird_nr' => '15', 'elster_format' => 'FF BBB UUUUP',  },
+  { 'id' => 16, 'name' => 'Thüringen',              'taxbird_nr' => '16', 'elster_format' => 'FFF/BBB/UUUUP', },
   );
+
+  my @fiamt_config = qw(taxnumber fa_bufa_nr fa_dauerfrist fa_steuerberater_city fa_steuerberater_name
+  fa_steuerberater_street fa_steuerberater_tel fa_voranmeld);
+
+  my @fiamt_finanzamt = qw(
+    fa_land_nr          fa_bufa_nr            fa_name             fa_strasse            
+    fa_plz              fa_ort                fa_telefon          fa_fax
+    fa_plz_grosskunden  fa_plz_postfach       fa_postfach         
+    fa_blz_1 fa_kontonummer_1 fa_bankbezeichnung_1
+    fa_blz_2 fa_kontonummer_2 fa_bankbezeichnung_2 fa_oeffnungszeiten
+    fa_email fa_internet);
+
 
 sub new {
   my $type = shift;
@@ -133,44 +147,6 @@ sub report_variables {
 
 }
 
-sub create_steuernummer {
-  $main::lxdebug->enter_sub();
-
-  my $form = $main::form;
-
-  our ($elster_FFFF);
-
-  my $part           = $form->{part};
-  my $patterncount   = $form->{patterncount};
-  my $delimiter      = $form->{delimiter};
-  my $elster_pattern = $form->{elster_pattern};
-
-  # rebuild steuernummer and elstersteuernummer
-  # es gibt eine gespeicherte steuernummer $form->{steuernummer}
-  # und die parts und delimiter
-
-  my $h = 0;
-  my $i = 0;
-
-  my $steuernummer_new        = $part;
-  my $elstersteuernummer_new  = $elster_FFFF;
-  $elstersteuernummer_new    .= '0';
-
-  for ($h = 1; $h < $patterncount; $h++) {
-    $steuernummer_new .= qq|$delimiter|;
-    for ($i = 1; $i <= length($elster_pattern); $i++) {
-      $steuernummer_new       .= $form->{"part_$h\_$i"};
-      $elstersteuernummer_new .= $form->{"part_$h\_$i"};
-    }
-  }
-  if ($form->{steuernummer} ne $steuernummer_new) {
-    $form->{steuernummer}       = $steuernummer_new;
-    $form->{elstersteuernummer} = $elstersteuernummer_new;
-    $form->{steuernummer_new}   = $steuernummer_new;
-  }
-  $main::lxdebug->leave_sub();
-  return ($steuernummer_new, $elstersteuernummer_new);
-}
 
 sub steuernummer_input {
   $main::lxdebug->enter_sub();
@@ -191,16 +167,27 @@ sub steuernummer_input {
   #Pattern description Elstersteuernummer
 
   #split the pattern
-  my $tax_office     = first { $_->{name} eq $elster_land } @{ $self->{tax_office_information} };
+  my $tax_office     = first { $_->{id} eq $elster_land } @{ $self->{tax_office_information} };
   my $elster_pattern = $tax_office->{elster_format};
+ # $::lxdebug->message(LXDebug->DEBUG2, "stnr=".$stnr." elster_FFFF=".$elster_FFFF.
+ #                     " pattern=".$elster_pattern." land=".$elster_land);
   my @elster_pattern = split(' ', $elster_pattern);
-  my $delimiter      = '&nbsp;';
+  my $delimiter1      = '&nbsp;';
+  my $delimiter2      = '&nbsp;';
   my $patterncount   = @elster_pattern;
   if ($patterncount < 2) {
     @elster_pattern = ();
     @elster_pattern = split('/', $elster_pattern);
-    $delimiter      = '/';
+    $delimiter1      = '/';
+    $delimiter2      = '/';
     $patterncount   = @elster_pattern;
+    if ($patterncount < 2) {
+        @elster_pattern = ();
+        @elster_pattern = split(' ', $elster_pattern);
+        $delimiter1      = ' ';
+        $delimiter2      = ' ';
+        $patterncount   = @elster_pattern;
+    }
   }
 
   # no we have an array of patternparts and a delimiter
@@ -208,6 +195,7 @@ sub steuernummer_input {
 
   $steuernummer_input .= qq|<b><font size="+1">|;
   my $part = '';
+#  $::lxdebug->message(LXDebug->DEBUG2, "pattern0=".$elster_pattern[0]);
 SWITCH: {
     $elster_pattern[0] eq 'FFF' && do {
       $part = substr($elster_FFFF, 1, 4);
@@ -217,6 +205,15 @@ SWITCH: {
     $elster_pattern[0] eq '0FF' && do {
       $part = '0' . substr($elster_FFFF, 2, 4);
       $steuernummer_input .= qq|$part|;
+      last SWITCH;
+    };
+    $elster_pattern[0] eq 'FFBBB' && do {
+      $part = substr($elster_FFFF, 2, 4);
+      $steuernummer_input .= qq|$part|;
+      $delimiter1 = '';
+      $patterncount++ ;
+      # Sonderfall BW
+      @elster_pattern = ('FF','BBB','UUUUP');
       last SWITCH;
     };
     $elster_pattern[0] eq 'FF' && do {
@@ -231,19 +228,22 @@ SWITCH: {
   }
 
   #now the rest of the Steuernummer ...
-  $steuernummer_input .= qq|</b></font>|;
+  $steuernummer_input .= qq|</font></b>|;
   $steuernummer_input .= qq|\n
            <input type=hidden name="elster_pattern" value="$elster_pattern">
            <input type=hidden name="patterncount" value="$patterncount">
            <input type=hidden name="patternlength" value="$patterncount">
-           <input type=hidden name="delimiter" value="$delimiter">
+           <input type=hidden name="delimiter1" value="$delimiter1">
+           <input type=hidden name="delimiter2" value="$delimiter2">
            <input type=hidden name="part" value="$part">
   |;
 
   my $k = 0;
 
   for (my $h = 1; $h < $patterncount; $h++) {
+    my $delimiter = ( $h==1?$delimiter1:$delimiter2);
     $steuernummer_input .= qq|&nbsp;$delimiter&nbsp;\n|;
+#  $::lxdebug->message(LXDebug->DEBUG2, "pattern[$h]=".$elster_pattern[$h]);
     for (my $i = 1; $i <= length($elster_pattern[$h]); $i++) {
       $steuernummer_input .= qq|<select name="part_$h\_$i">\n|;
 
@@ -269,42 +269,46 @@ SWITCH: {
 sub fa_auswahl {
   $main::lxdebug->enter_sub();
 
-#  use SL::Form;
-
   # Referenz wird übergeben, hash of hash wird nicht
   # in neues  Hash kopiert, sondern direkt über die Referenz verändert
   # Prototyp für diese Konstruktion
 
   my ($self, $land, $elsterFFFF, $elster_init) = @_;
 
+#  $::lxdebug->message(LXDebug->DEBUG2,"land=".$land." amt=".$elsterFFFF);
   my $terminal = '';
   my $FFFF     = $elsterFFFF;
   my $ffff     = '';
   my $checked  = '';
   $checked = 'checked' if ($elsterFFFF eq '' and $land eq '');
   my %elster_land_fa;
+  my %elster_land_name = ();
 
   my $fa_auswahl = qq|
         <script language="Javascript">
         function update_auswahl()
         {
-                var elsterBLAuswahl = document.verzeichnis.elsterland_new;
-                var elsterFAAuswahl = document.verzeichnis.elsterFFFF_new;
+                var elsterBLAuswahl = document.verzeichnis.fa_land_nr_new;
+                var elsterFAAuswahl = document.verzeichnis.fa_bufa_nr_new;
 
                 elsterFAAuswahl.options.length = 0; // dropdown aufräumen
                 |;
 
   foreach my $elster_land (sort keys %$elster_init) {
     $fa_auswahl .= qq|
-               if (elsterBLAuswahl.options[elsterBLAuswahl.selectedIndex].
-               value == "$elster_land")
+               if (elsterBLAuswahl.options[elsterBLAuswahl.selectedIndex].value == "$elster_land")
                {
                |;
     my $j              = 0;
     %elster_land_fa = ();
     $FFFF = '';
     for $FFFF (keys %{ $elster_init->{$elster_land} }) {
-      $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
+        if ( $FFFF eq 'name' ) {
+            $elster_land_name{$elster_land} = $elster_init->{$elster_land}{$FFFF};
+            delete $elster_init->{$elster_land}{$FFFF};
+        } else {
+            $elster_land_fa{$FFFF} = $elster_init->{$elster_land}{$FFFF}->fa_name;
+       }
     }
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
@@ -326,20 +330,22 @@ sub fa_auswahl {
                Bundesland
             </td>
             <td>
-              <select size="1" name="elsterland_new" onchange="update_auswahl()">|;
+              <select size="1" name="fa_land_nr_new" onchange="update_auswahl()">|;
   if ($land eq '') {
     $fa_auswahl .= qq|<option value="Auswahl" $checked>| . $main::locale->text('Select federal state...') . qq|</option>\n|;
   }
   foreach my $elster_land (sort keys %$elster_init) {
     $fa_auswahl .= qq|
                   <option value="$elster_land"|;
+#  $::lxdebug->message(LXDebug->DEBUG2,"land=".$land." elster_land=".$elster_land." lname=".$elster_land_name{$elster_land});
     if ($elster_land eq $land and $checked eq '') {
       $fa_auswahl .= qq| selected|;
     }
-    $fa_auswahl .= qq|>$elster_land</option>
+    $fa_auswahl .= qq|>$elster_land_name{$elster_land}</option>
              |;
   }
   $fa_auswahl .= qq|
+              </select>
             </td>
           </tr>
           |;
@@ -348,7 +354,7 @@ sub fa_auswahl {
   $elster_land = ($land ne '') ? $land : '';
   %elster_land_fa = ();
   for $FFFF (keys %{ $elster_init->{$elster_land} }) {
-    $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
+    $elster_land_fa{$FFFF} = $elster_init->{$elster_land}{$FFFF}->fa_name;
   }
 
   $fa_auswahl .= qq|
@@ -356,7 +362,7 @@ sub fa_auswahl {
               <td>Finanzamt
               </td>
               <td>
-                 <select size="1" name="elsterFFFF_new">|;
+                 <select size="1" name="fa_bufa_nr_new">|;
   if ($elsterFFFF eq '') {
     $fa_auswahl .= qq|<option value="Auswahl" $checked>| . $main::locale->text('Select tax office...') . qq|</option>|;
   } else {
@@ -373,10 +379,10 @@ sub fa_auswahl {
     }
   }
   $fa_auswahl .= qq|
-                 </td>
-              </tr>
-            </table>
-            </select>|;
+                 </select>
+              </td>
+          </tr>
+        </table>|;
 
   $main::lxdebug->leave_sub();
 
@@ -518,69 +524,16 @@ sub query_finanzamt {
   };
   $tst->finish();
 
-  #$dbh->disconnect();
 
-  my @vars = (
-    'FA_Land_Nr',             #  0
-    'FA_BUFA_Nr',             #  1
-                              #'FA_Verteiler',                             #  2
-    'FA_Name',                #  3
-    'FA_Strasse',             #  4
-    'FA_PLZ',                 #  5
-    'FA_Ort',                 #  6
-    'FA_Telefon',             #  7
-    'FA_Fax',                 #  8
-    'FA_PLZ_Grosskunden',     #  9
-    'FA_PLZ_Postfach',        # 10
-    'FA_Postfach',            # 11
-    'FA_BLZ_1',               # 12
-    'FA_Kontonummer_1',       # 13
-    'FA_Bankbezeichnung_1',   # 14
-                              #'FA_BankIBAN_1',                            # 15
-                              #'FA_BankBIC_1',                             # 16
-                              #'FA_BankInhaber_BUFA_Nr_1',                 # 17
-    'FA_BLZ_2',               # 18
-    'FA_Kontonummer_2',       # 19
-    'FA_Bankbezeichnung_2',   # 20
-                              #'FA_BankIBAN_2',                            # 21
-                              #'FA_BankBIC_2',                             # 22
-                              #'FA_BankInhaber_BUFA_Nr_2',                 # 23
-    'FA_Oeffnungszeiten',     # 24
-    'FA_Email',               # 25
-    'FA_Internet'             # 26
-                              #'FA_zustaendige_Hauptstelle_BUFA_Nr',       # 27
-                              #'FA_zustaendige_vorgesetzte_Finanzbehoerde' # 28
-  );
-
-  my $field = join(', ', @vars);
-
-  my $query = "SELECT $field FROM finanzamt ORDER BY FA_Land_nr";
-  my $sth = $dbh->prepare($query) or $self->error($dbh->errstr);
-  $sth->execute || $form->dberror($query);
-  my $array_ref = $sth->fetchall_arrayref();
-  my $land      = '';
+  my $fiamt =  SL::DB::Finanzamt->_get_manager_class->get_all(sort => 'fa_land_nr');
+  my $land      = 0;
   my %finanzamt;
-  foreach my $row (@$array_ref) {
-    my $FA_finanzamt = $row;
-    my $tax_office   = first { $_->{id} == $FA_finanzamt->[0] } @{ $self->{tax_office_information} };
-    $land            = $tax_office->{name};
-
-    # $land = $main::locale->{iconv}->convert($land);
-
-    my $ffff = @$FA_finanzamt[1];
-
-    my $rec = {};
-    $rec->{$land} = $ffff;
-
-    shift @$row;
-    shift @$row;
-
-    $finanzamt{$land}{$ffff} = [@$FA_finanzamt];
+  foreach my $row (@$fiamt) {
+    my $tax_office   = first { $_->{id} == $row->fa_land_nr } @{ $self->{tax_office_information} };
+    $land            = $tax_office->{id};
+    $finanzamt{$land}{$row->fa_bufa_nr}  = $row;
+    $finanzamt{$land}{'name'} ||= $tax_office->{name};
   }
-
-  $sth->finish();
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 
   return \%finanzamt;
@@ -654,6 +607,8 @@ sub ustva {
   my $last_period     = 0;
   my $category        = "pos_ustva";
 
+  $form->{coa} = $::instance_conf->get_coa;
+
   my @category_cent = USTVA->report_variables({
       myconfig    => $myconfig,
       form        => $form,
@@ -662,8 +617,9 @@ sub ustva {
       dec_places  => '2',
   });
 
-  push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
-
+  if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
+      push @category_cent, qw(Z43  Z45  Z53  Z54  Z62  Z65  Z67);
+  }
   my @category_euro = USTVA->report_variables({
       myconfig    => $myconfig,
       form        => $form,
@@ -672,14 +628,8 @@ sub ustva {
       dec_places  => '0',
   });
 
-  push @category_euro, USTVA->report_variables({
-      myconfig    => $myconfig,
-      form        => $form,
-      type        => '',
-      attribute   => 'position',
-      dec_places  => '0',
-  });
-
+  @{$form->{category_cent}} = @category_cent;
+  @{$form->{category_euro}} = @category_euro;
   $form->{decimalplaces} *= 1;
 
   foreach my $item (@category_cent) {
@@ -688,13 +638,10 @@ sub ustva {
   foreach my $item (@category_euro) {
     $form->{"$item"} = 0;
   }
-  my $coa_name = $::instance_conf->get_coa;
-  $form->{coa} = $coa_name;
 
   # Controlvariable for templates
+  my $coa_name = $form->{coa};
   $form->{"$coa_name"} = '1';
-
-  $main::lxdebug->message(LXDebug->DEBUG2(), "COA: '$form->{coa}',  \$form->{$coa_name} = 1");
 
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
@@ -777,10 +724,10 @@ sub get_accounts_ustva {
   my $arwhere  = "";
   my $item;
 
-    my $gltaxkey_where = "((tk.pos_ustva = 46) OR (tk.pos_ustva>=59 AND tk.pos_ustva<=67) or (tk.pos_ustva>=89 AND tk.pos_ustva<=93))";
+  my $gltaxkey_where = "((tk.pos_ustva = 46) OR (tk.pos_ustva>=59 AND tk.pos_ustva<=67) or (tk.pos_ustva>=89 AND tk.pos_ustva<=93))";
 
   if ($fromdate) {
-    if ($form->{method} eq 'cash') {
+    if ($form->{accounting_method} eq 'cash') {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
       $ARwhere .= " AND acc.transdate >= '$fromdate'";
@@ -816,7 +763,7 @@ sub get_accounts_ustva {
   #
   ############################################
 
-  if ($form->{method} eq 'cash') {
+  if ($form->{accounting_method} eq 'cash') {
 
     $query = qq|
        SELECT
@@ -860,7 +807,7 @@ sub get_accounts_ustva {
        GROUP BY tk.pos_ustva
     |;
 
-  } elsif ($form->{method} eq 'accrual') {
+  } elsif ($form->{accounting_method} eq 'accrual') {
     #########################################
     # Method eq 'accrual' = Soll Versteuerung
     #########################################
@@ -889,7 +836,7 @@ sub get_accounts_ustva {
 
   } else {
 
-    $form->error("Unknown tax method: $form->{method}")
+    $form->error("Unknown tax method: $form->{accounting_method}")
 
   }
 
@@ -994,27 +941,173 @@ sub get_accounts_ustva {
 
 }
 
-sub get_config {
+sub set_FromTo {
   $main::lxdebug->enter_sub();
 
-  my ($self, $userspath, $filename) = @_;
+  my ($self, $form) = @_;
 
-  my $form = $main::form;
+  # init some form vars
+  my @anmeldungszeitraum =
+    qw('0401' '0402' '0403'
+       '0404' '0405' '0406'
+       '0407' '0408' '0409'
+       '0410' '0411' '0412'
+       '0441' '0442' '0443' '0444');
 
-  $form->error("Missing Parameter: @_") if !$userspath || !$filename;
+  foreach my $item (@anmeldungszeitraum) {
+    $form->{$item} = "";
+  }
 
-  $filename = "$::myconfig{login}_$filename";
-  $filename =~ s|.*/||;
-  $filename = "$userspath/$filename";
-  open my $FACONF, "<", $filename or do {# Annon Sub
-    # catch open error
-    # create file if file does not exist
-    open my $FANEW, ">", $filename  or $form->error("CREATE: $filename : $!");
-    close $FANEW                    or $form->error("CLOSE: $filename : $!");
+  #forgotten the year --> thisyear
+  if ($form->{year} !~ m/^\d\d\d\d$/) {
+      $form->{year} = substr(
+          $form->datetonum(
+              $form->current_date(\%::myconfig), \%::myconfig
+          ),
+          0, 4);
+      $::lxdebug->message(LXDebug->DEBUG1,
+                          qq|Actual year from Database: $form->{year}\n|);
+  }
 
-    #try again open file
-    open my $FACONF, "<", $filename or $form->error("OPEN: $filename : $!");
-  };
+  #
+  # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
+  #
+
+  #yearly report
+  if ($form->{period} eq "13") {
+      $form->{fromdate} = "$form->{year}0101";
+      $form->{todate}   = "$form->{year}1231";
+  }
+
+  #quarter reports
+  if ($form->{period} eq "41") {
+      $form->{fromdate} = "$form->{year}0101";
+      $form->{todate}   = "$form->{year}0331";
+      $form->{'0441'}   = "X";
+  }
+  if ($form->{period} eq "42") {
+      $form->{fromdate} = "$form->{year}0401";
+      $form->{todate}   = "$form->{year}0630";
+      $form->{'0442'}   = "X";
+  }
+  if ($form->{period} eq "43") {
+      $form->{fromdate} = "$form->{year}0701";
+      $form->{todate}   = "$form->{year}0930";
+      $form->{'0443'}   = "X";
+  }
+  if ($form->{period} eq "44") {
+      $form->{fromdate} = "$form->{year}1001";
+      $form->{todate}   = "$form->{year}1231";
+      $form->{'0444'}   = "X";
+  }
+
+   #Monthly reports
+  SWITCH: {
+      $form->{period} eq "01" && do {
+        $form->{fromdate} = "$form->{year}0101";
+        $form->{todate}   = "$form->{year}0131";
+        $form->{'0401'}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "02" && do {
+        $form->{fromdate} = "$form->{year}0201";
+
+        #this works from 1901 to 2099, 1900 and 2100 fail.
+        my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
+        $form->{todate} = "$form->{year}02$leap";
+        $form->{"0402"} = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "03" && do {
+        $form->{fromdate} = "$form->{year}0301";
+        $form->{todate}   = "$form->{year}0331";
+        $form->{"0403"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "04" && do {
+        $form->{fromdate} = "$form->{year}0401";
+        $form->{todate}   = "$form->{year}0430";
+        $form->{"0404"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "05" && do {
+        $form->{fromdate} = "$form->{year}0501";
+        $form->{todate}   = "$form->{year}0531";
+        $form->{"0405"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "06" && do {
+        $form->{fromdate} = "$form->{year}0601";
+        $form->{todate}   = "$form->{year}0630";
+        $form->{"0406"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "07" && do {
+        $form->{fromdate} = "$form->{year}0701";
+        $form->{todate}   = "$form->{year}0731";
+        $form->{"0407"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "08" && do {
+        $form->{fromdate} = "$form->{year}0801";
+        $form->{todate}   = "$form->{year}0831";
+        $form->{"0408"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "09" && do {
+        $form->{fromdate} = "$form->{year}0901";
+        $form->{todate}   = "$form->{year}0930";
+        $form->{"0409"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "10" && do {
+        $form->{fromdate} = "$form->{year}1001";
+        $form->{todate}   = "$form->{year}1031";
+        $form->{"0410"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "11" && do {
+        $form->{fromdate} = "$form->{year}1101";
+        $form->{todate}   = "$form->{year}1130";
+        $form->{"0411"}   = "X";
+        last SWITCH;
+      };
+      $form->{period} eq "12" && do {
+        $form->{fromdate} = "$form->{year}1201";
+        $form->{todate}   = "$form->{year}1231";
+        $form->{"0412"}   = "X";
+        last SWITCH;
+      };
+    }
+
+  # Kontrollvariablen für die Templates
+  $form->{"year$_"} = ($form->{year} >= $_ ) ? "1":"0" for 2007..2107;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_fiamt_vars {
+    return @fiamt_finanzamt;
+}
+
+sub get_oldconfig {
+  $main::lxdebug->enter_sub();
+
+  my $ret = 0;
+  my %oldkeys = (
+      'steuernummer' => 'taxnumber',
+      'elsterFFFF' => 'fa_bufa_nr',
+      'FA_dauerfrist' => 'fa_dauerfrist',
+      'FA_steuerberater_city' => 'fa_steuerberater_city',
+      'FA_steuerberater_name' => 'fa_steuerberater_name',
+      'FA_steuerberater_street' => 'fa_steuerberater_street',
+      'FA_steuerberater_tel' => 'fa_steuerberater_tel',
+      'FA_voranmeld' => 'fa_voranmeld',
+      );
+
+  my $filename = $::lx_office_conf{paths}{userspath}."/finanzamt.ini";
+  my $FACONF;
+  return unless (open( $FACONF, "<", $filename));
 
   while (<$FACONF>) {
     last if (/^\[/);
@@ -1026,15 +1119,62 @@ sub get_config {
     # remove any trailing whitespace
     s/^\s*(.*?)\s*$/$1/;
     my ($key, $value) = split(/=/, $_, 2);
-
-    $form->{$key} = "$value";
-
+    
+    $main::lxdebug->message(LXDebug->DEBUG2(), "oldkey: ".$key." val=".$value." newkey=".
+                          $oldkeys{$key}." oval=".$::form->{$oldkeys{$key}});
+    if ( $oldkeys{$key} && $::form->{$oldkeys{$key}} eq '' ) {
+        $::form->{$oldkeys{$key}} = $::locale->{iconv_utf8}->convert($value);
+        $main::lxdebug->message(LXDebug->DEBUG2(), "set ".$oldkeys{$key}."=".$::form->{$oldkeys{$key}});
+        $ret = 1;
+    }
   }
-
-  close $FACONF;
-
   $main::lxdebug->leave_sub();
+  return $ret;
 }
 
+sub get_config {
+    $main::lxdebug->enter_sub();
+    my $defaults   = SL::DB::Default->get;
+    my @rd_config =  @fiamt_config;
+    push @rd_config ,qw(accounting_method coa company address co_ustid duns);
+    $::form->{$_} = $defaults->$_ for @rd_config;
+
+    if ( $::form->{taxnumber} eq '' || $::form->{fa_bufa_nr} eq '') {
+        #alte finanzamt.ini lesen, ggf abspeichern
+        if ( get_oldconfig() ) {
+            get_finanzamt();
+            save_config();
+        }
+    }
+
+    my $coa = $::form->{coa};
+    $::form->{"COA_$coa"} = '1';
+    $::form->{COA_Germany} = '1' if ($coa =~ m/^germany/i);
+    $main::lxdebug->leave_sub();
+}
+
+sub get_finanzamt {
+    $main::lxdebug->enter_sub();
+    if ( $::form->{fa_bufa_nr} && $::form->{fa_bufa_nr} ne '' ) {
+        my $fiamt =  SL::DB::Finanzamt->_get_manager_class->get_first(
+                 query => [ fa_bufa_nr => $::form->{fa_bufa_nr} ]);
+        $::form->{$_} = $fiamt->$_ for @fiamt_finanzamt;
+    }
+    $main::lxdebug->leave_sub();
+}
+
+sub save_config {
+    $main::lxdebug->enter_sub();
+    my $defaults  = SL::DB::Default->get;
+    $defaults->$_($::form->{$_}) for @fiamt_config;
+    $defaults->save;
+    if ( $defaults->fa_bufa_nr ) {
+        my $fiamt =  SL::DB::Finanzamt->_get_manager_class->get_first(
+                 query => [ fa_bufa_nr => $defaults->fa_bufa_nr ]);
+        $fiamt->$_($::form->{$_}) for @fiamt_finanzamt;
+        $fiamt->save;
+    }
+    $main::lxdebug->leave_sub();
+}
 
 1;

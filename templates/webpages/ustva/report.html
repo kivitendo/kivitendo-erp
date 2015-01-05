@@ -2,8 +2,9 @@
 [% USE HTML %]
 <h1>[% HTML.escape(title) %]</h1>
 
- <form method="post" action="[% HTML.escape(script) %]">
+ <form method="post" id="form_do" action="[% HTML.escape(script) %]">
 
+ [%- INCLUDE 'common/flash.html' %]
  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
 
  <table width="100%">
@@ -37,22 +38,18 @@
 [%- IF COA_Germany %]
             [% taxnumber_given %]
             <br />
-            [% 'ELSTER Tax Number' | $T8 %]:&nbsp;
-            [% HTML.escape(elstersteuernummer) %]
-            <br />
-            <br />
 [%- ELSE %]
             [% taxnumber %]
 [%- END %]
             </fieldset>
             <br />
 
-            [%- IF FA_steuerberater_name %]
+            [%- IF fa_steuerberater_name %]
               <fieldset>
               <legend>
                 <input checked="checked"
                  title="[% 'Assume Tax Consultant Data in Tax Computation?' | $T8 %]"
-                 name="FA_steuerberater"
+                 name="fa_steuerberater"
                  id="steuerberater"
                  class="checkbox"
                  type="checkbox"
@@ -60,10 +57,10 @@
                  &nbsp;<b>[% 'Tax Consultant' | $T8 %]</b>
                 </legend>
 
-                [% HTML.escape(FA_steuerberater_name) %]<br />
-                [% HTML.escape(FA_steuerberater_street) %]<br />
-                [% HTML.escape(FA_steuerberater_city) %]<br />
-                [% 'Tel.' | $T8 %] [% HTML.escape(FA_steuerberater_tel) %]<br />
+                [% HTML.escape(fa_steuerberater_name) %]<br />
+                [% HTML.escape(fa_steuerberater_street) %]<br />
+                [% HTML.escape(fa_steuerberater_city) %]<br />
+                [% 'Tel.' | $T8 %] [% HTML.escape(fa_steuerberater_tel) %]<br />
               </fieldset>
               <br />
             [%- END %]
@@ -73,12 +70,17 @@
             <b>[% 'Tax Period' | $T8 %]</b>
             </legend>
             [% select_year %] [% ustva_vorauswahl %]
-            [% checkbox_kz_10 %]
             <br />
-            [%- IF FA_voranmeld %]
+            [% checkbox_kz_10 %]
+            [% checkbox_kz_22 %]
+            <br />
+            [% checkbox_kz_29 %]
+            [% checkbox_kz_26 %]
+            <br />
+            [%- IF fa_voranmeld %]
               <br />
               [% period_local %]
-              [%- IF FA_dauerfrist %]
+              [%- IF fa_dauerfrist %]
                 [% 'With Extension Of Time' | $T8 %]
               [%- END %]
               <br />
@@ -94,32 +96,32 @@
               <legend>
                  <b>[% 'Tax Office' | $T8 %]</b>
               </legend>
-              <h3>[% HTML.escape(FA_Name) %]</h3>
+              <h3>[% fa_name_given %]</h3>
 
-              [% HTML.escape(FA_Strasse) %]
+              [% HTML.escape(fa_strasse) %]
               <br>
-              [% HTML.escape(FA_PLZ) %]&nbsp; &nbsp;[% HTML.escape(FA_Ort) %]
+              [% HTML.escape(fa_plz) %]&nbsp; &nbsp;[% HTML.escape(fa_ort) %]
               <br>
               <br>
               [% 'Tel' | $T8 %].:&nbsp;
-              [% HTML.escape(FA_Telefon) %]
+              [% HTML.escape(fa_telefon) %]
               <br>
               [% 'Fax' | $T8 %].:&nbsp;
-              [% HTML.escape(FA_Fax) %]
+              [% HTML.escape(fa_fax) %]
               <br>
               <br>
               <!-- Mailto alles Maskieren! -->
-              <a href="mailto:[% HTML.escape(FA_Email) %]
-                ?subject=&quot;[% HTML.escape(steuernummer) %]:&quot;
+              <a href="mailto:[% HTML.escape(fa_email) %]
+                ?subject=&quot;[% HTML.escape(taxnumber) %]:&quot;
                 &amp;bcc=&quot;[% HTML.escape(email) %]&quot;
                 &amp;body=&quot;Sehr%20geehrte%20Damen%20und%20Herren,
                 %0D%0A%0D%0A%0D%0AMit%20freundlichen%20Gr&uuml;&szlig;en
                 %0D%0A%0D%0A[% HTML.escape(signature) %]&quot;">
-              [% HTML.escape(FA_Email) %]
+              [% HTML.escape(fa_email) %]
               </a>
               <br>
-              <a href="[% FA_Internet %]">
-              [% HTML.escape(FA_Internet) %]
+              <a href="[% fa_internet %]">
+              [% HTML.escape(fa_internet) %]
               </a>
               <br>
               <br>
@@ -132,7 +134,7 @@
               <table>
               <tr>
 
-              [%- FOREACH row = "tax_office_banks" %]
+              [%- FOREACH row = tax_office_banks %]
                   <td width="40%">
                   [% HTML.escape(row.Bankbezeichnung) %]
                   <br>
@@ -148,22 +150,6 @@
               </table>
               <br>
               </fieldset>
-
-              <br>
-
-              <fieldset>
-              <legend>
-              <b>[% 'Outputformat' | $T8 %]</b>
-              </legend>
-[%- IF COA_Germany %]
-              [% select_options %]
-[%- ELSE %]
-              <SELECT name="format">
-                <option value="generic">[% 'Preview' | $T8 %]</option>
-              </SELECT>
-[%- END %]
-
-              </fieldset>
           </td>
         </tr>
       </table>
@@ -177,17 +163,42 @@
   <br>
   <input type="hidden" name="address" value="[% HTML.escape(address) %]">
   <input type="hidden" name="reporttype" value="custom">
+  <input type="hidden" name="co_zip" value="[% HTML.escape(co_zip) %]">
+  <input type="hidden" name="co_tel" value="[% HTML.escape(co_tel) %]">
+  <input type="hidden" name="co_email" value="[% HTML.escape(co_email) %]">
   <input type="hidden" name="co_street" value="[% HTML.escape(co_street) %]">
   <input type="hidden" name="co_city" value="[% HTML.escape(co_city) %]">
+  <input type="hidden" name="account_method" value="[% HTML.escape(account_method) %]">
+  <input type="hidden" name="fa_bufa_nr" value="[% HTML.escape(fa_bufa_nr) %]">
   <table width="100%">
   <tr>
    <td align="left">
      <input type=hidden name=nextsub value=generate_ustva>
+     <input type=hidden name=format  value=html>
      <input type=submit class=submit name=action value="[% 'Show' | $T8 %]">
    </td>
+[%- IF geierlein_enabled %]
+   <td align="left">
+     <input type=button class=submit onclick="return sendGeierlein();" value="[% 'To Geierlein' | $T8 %]">
+   </td>
+[%- END %]
    <td align="right">
-
-    </form>
    </td>
   </tr>
   </table>
+</form>
+[%- IF geierlein_enabled && geierlein_path %]
+<script type='text/javascript'>
+function sendGeierlein () {
+ kivi.submit_ajax_form('controller.pl?action=ODGeierlein/send', $('#form_do'));
+ return false;
+}
+
+function openGeierlein(myimport) {
+localStorage["geierlein.import"] = myimport;
+var geierpath = '[% geierlein_path %]';
+window.open(geierpath + '/#importLocalStorage','_blank','');
+return false;
+}
+</script>
+[%- END %]
