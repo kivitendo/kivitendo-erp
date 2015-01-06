@@ -386,7 +386,18 @@ SQL
                                 dbh          => $dbh);
   }
 
-  # search for orphaned doi
+  # 1. search for orphaned dois; processed_dois may be empty (no transfer) TODO: be supersafe and alter same statement for doi and oi
+  $query  = sprintf 'SELECT id FROM delivery_order_items_stock WHERE delivery_order_item_id in
+                      (select id from delivery_order_items where delivery_order_id = ?)';
+  $query .= sprintf ' AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_dois if (scalar @processed_dois);
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_dois);
+  my @orphaned_dois_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+  if (scalar @orphaned_dois_ids) {
+    # clean up delivery_order_items_stock
+    $query  = sprintf 'DELETE FROM delivery_order_items_stock WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_dois_ids;
+    do_query($form, $dbh, $query, @orphaned_dois_ids);
+  }
+  # 2. search for orphaned doi
   $query  = sprintf 'SELECT id FROM delivery_order_items WHERE delivery_order_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_doi;
   @values = (conv_i($form->{id}), map { conv_i($_) } @processed_doi);
   my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
@@ -394,16 +405,6 @@ SQL
     # clean up delivery_order_items
     $query  = sprintf 'DELETE FROM delivery_order_items WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
     do_query($form, $dbh, $query, @orphaned_ids);
-  }
-  # search for orphaned dois
-  $query  = sprintf 'SELECT id FROM delivery_order_items_stock WHERE delivery_order_item_id in
-                      (select id from delivery_order_items where delivery_order_id = ?) AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_dois;
-  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_dois);
-  my @orphaned_dois_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
-  if (scalar @orphaned_dois_ids) {
-    # clean up delivery_order_items_stock
-    $query  = sprintf 'DELETE FROM delivery_order_items_stock WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_dois_ids;
-    do_query($form, $dbh, $query, @orphaned_dois_ids);
   }
   $h_item->finish();
   $h_item_stock->finish();

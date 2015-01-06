@@ -1089,7 +1089,8 @@ sub update_stock_in {
 
   foreach my $i (1..$form->{rowcount}) {
     $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
-    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber bestbefore qty unit) };
+    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber
+                                                                   bestbefore qty unit delivery_order_items_stock_id) };
   }
 
   display_stock_in_form($stock_info);
