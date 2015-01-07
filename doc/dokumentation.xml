@@ -3613,7 +3613,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <listitem><para>Beschreibung der Lieferbedingung</para></listitem>
             </varlistentry>
             <varlistentry>
-              <term><varname>delivery_term.long_description</varname></term>
+              <term><varname>delivery_term.description_long</varname></term>
               <listitem><para>Langtext bzw. übersetzter Langtext der Lieferbedingung</para></listitem>
             </varlistentry>
           </variablelist>
