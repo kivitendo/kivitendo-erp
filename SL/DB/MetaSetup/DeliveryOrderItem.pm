@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   mtime                  => { type => 'timestamp' },
   ordnumber              => { type => 'text' },
   parts_id               => { type => 'integer', not_null => 1 },
+  position               => { type => 'integer', not_null => 1 },
   price_factor           => { type => 'numeric', default => 1, precision => 15, scale => 5 },
   price_factor_id        => { type => 'integer' },
   pricegroup_id          => { type => 'integer' },

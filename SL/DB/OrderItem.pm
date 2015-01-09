@@ -7,6 +7,7 @@ use List::Util qw(sum);
 use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Manager::OrderItem;
 use SL::DB::DeliveryOrderItemsStock;
+use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
   cvars_alias => 1,
@@ -19,6 +20,8 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
 
 sub is_price_update_available {
   my $self = shift;
