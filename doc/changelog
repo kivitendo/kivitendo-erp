@@ -91,7 +91,7 @@ Kleinere neue Features und Detailverbesserungen:
 - FiBu Schnellsuche in Headerzeile, um nach Belegen zu suchen
 
 - Datum Schnelleingabe ohne Punkte
-  z.B. 
+  z.B.
   8 Zahlen:   31122014  -> 31.12.2014
   6 Zahlen:   311214    -> 31.12.2014
   4 Zahlen:   3112      -> 31.12.2014   aktuelles Jahr wird angenommen
@@ -106,6 +106,11 @@ Kleinere neue Features und Detailverbesserungen:
   In einer Tabelle "Salden" werden die aktuellen Salden der bebuchten
   Konten angezeigt, ausgeglichene Konten werden herausgefiltert.
 
+- Lieferschein-Ausdruck
+  Beim Ausdruck werden die shipto*-Felder nicht mehr aus der Rechnungsadresse / Mandantenkonfiguration vorbelegt,
+  wenn keine Lieferadresse gesetzt, bzw. ausgewählt ist. Somit ist die Lieferadresse und die Rechnungsadresse
+  jetzt eindeutig anhand der Variablen zu unterscheiden.
+  Ggf. müssen bestehende Druckvorlagen angepasst werden (s.a. http://blog.kivitendo-premium.de/?p=351).
 
 2014-02-28 - Release 3.1.0
 
