@@ -28,27 +28,38 @@ our %EXPORT_TAGS = (
 sub create_pdf {
   my ($class, %params) = @_;
 
+  return $class->create_parsed_file(
+    format        => 'pdf',
+    template_type => 'LaTeX',
+    %params,
+  );
+}
+
+sub create_parsed_file {
+  my ($class, %params) = @_;
+
   my $userspath       = $::lx_office_conf{paths}->{userspath};
   my $vars            = $params{variables} || {};
   my $form            = Form->new('');
   $form->{$_}         = $vars->{$_} for keys %{ $vars };
-  $form->{format}     = 'pdf';
+  $form->{format}     = lc($params{format} || 'pdf');
   $form->{cwd}        = getcwd();
   $form->{templates}  = $::instance_conf->get_templates;
   $form->{IN}         = $params{template};
   $form->{tmpdir}     = $form->{cwd} . '/' . $userspath;
   my ($suffix)        = $params{template} =~ m{\.(.+)};
 
-  my $temp_fh;
-  ($temp_fh, $form->{tmpfile}) = File::Temp::tempfile(
+  my ($temp_fh, $tmpfile) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
     DIR    => $userspath,
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
 
+  $form->{tmpfile} = $tmpfile;
+
   my $parser  = SL::Template::create(
-    type      => 'LaTeX',
+    type      => ($params{template_type} || 'LaTeX'),
     source    => $form->{IN},
     form      => $form,
     myconfig  => \%::myconfig,
@@ -66,19 +77,19 @@ sub create_pdf {
   }
 
   if (($params{return} || 'content') eq 'file_name') {
-    my $new_name = $userspath . '/keep-' . $form->{tmpfile};
-    rename $userspath . '/' . $form->{tmpfile}, $new_name;
+    my $new_name = $userspath . '/keep-' . $tmpfile;
+    rename $tmpfile, $new_name;
 
     $form->cleanup;
 
     return $new_name;
   }
 
-  my $pdf = File::Slurp::read_file($userspath . '/' . $form->{tmpfile});
+  my $content = File::Slurp::read_file($tmpfile);
 
   $form->cleanup;
 
-  return $pdf;
+  return $content;
 }
 
 sub merge_pdfs {
@@ -189,7 +200,14 @@ SL::Helper::CreatePDF - A helper for creating PDFs from template files
 =item C<create_pdf %params>
 
 Parses a LaTeX template file, creates a PDF for it and returns either
-its content or its file name. The recognized parameters are:
+its content or its file name. The recognized parameters are the same
+as the ones for L</create_parsed_file> with C<format> and
+C<template_type> being pre-set.
+
+=item C<create_parsed_file %params>
+
+Parses a template file and returns either its content or its file
+name. The recognized parameters are:
 
 =over 2
 
@@ -206,6 +224,14 @@ name of the temporary file containing the PDF is returned, and the
 caller is responsible for deleting it. Otherwise a scalar containing
 the PDF itself is returned and all temporary files have already been
 deleted by L</create_pdf>.
+
+=item * C<format> – optional, defaults to C<pdf> and determines the
+output format. Can be set to C<html> for HTML output if
+C<template_type> is set to C<HTML> as well.
+
+=item * C<template_type> – optional, defaults to C<LaTeX> and
+determines the template's format. Can be set to C<HTML> for HTML
+output if C<format> is set to C<html> as well.
 
 =back
 
