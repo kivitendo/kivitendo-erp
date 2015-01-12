@@ -106,7 +106,7 @@ Kleinere neue Features und Detailverbesserungen:
   In einer Tabelle "Salden" werden die aktuellen Salden der bebuchten
   Konten angezeigt, ausgeglichene Konten werden herausgefiltert.
 
-- Lieferschein-Ausdruck
+- Verkaufsbeleg-Ausdruck
   Beim Ausdruck werden die shipto*-Felder nicht mehr aus der Rechnungsadresse / Mandantenkonfiguration vorbelegt,
   wenn keine Lieferadresse gesetzt, bzw. ausgewählt ist. Somit ist die Lieferadresse und die Rechnungsadresse
   jetzt eindeutig anhand der Variablen zu unterscheiden.
