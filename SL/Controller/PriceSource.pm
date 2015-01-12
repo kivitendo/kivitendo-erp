@@ -114,7 +114,7 @@ sub _make_record {
 
   my $class = {
     sales_order             => 'Order',
-    purchase_oder           => 'Order',
+    purchase_order          => 'Order',
     sales_quotation         => 'Order',
     request_quotation       => 'Order',
     invoice                 => 'Invoice',
