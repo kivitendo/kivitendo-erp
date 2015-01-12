@@ -16,6 +16,7 @@ namespace("kivi").setupLocale({
 "Copy requirement spec":"Pflichtenheft kopieren",
 "Copy template":"Vorlage kopieren",
 "Create":"Anlegen",
+"Create HTML":"HTML erzeugen",
 "Create PDF":"PDF erzeugen",
 "Create a new version":"Eine neue Version anlegen",
 "Create new quotation/order":"Neues Angebot/neuen Auftrag anlegen",

@@ -151,7 +151,7 @@ ns.initialize_requirement_spec = function(data) {
       plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
     });
 
-  ns.create_context_menus(data.is_template);
+  ns.create_context_menus(data);
   $('#requirement_spec_tabs').on("tabsbeforeactivate", ns.tabs_before_activate);
 
   ns.time_based_units = data.time_based_units;
@@ -647,6 +647,11 @@ ns.create_reqspec_pdf = function(key, opt) {
   $.download("controller.pl", data);
 };
 
+ns.create_reqspec_html = function(key, opt) {
+  window.open("controller.pl?action=RequirementSpec/create_html&id=" + encodeURIComponent($('#requirement_spec_id').val()), '_blank');
+  return true;
+};
+
 ns.copy_reqspec = function(key, opt) {
   window.location.href = "controller.pl?action=RequirementSpec/new&copy_source_id=" + encodeURIComponent($('#requirement_spec_id').val());
   return true;
@@ -694,6 +699,11 @@ ns.create_pdf_for_versioned_copy_ajax_call = function(key, opt) {
   };
   $.download("controller.pl", data);
 
+  return true;
+};
+
+ns.create_html_for_versioned_copy_ajax_call = function(key, opt) {
+  window.open("controller.pl?action=RequirementSpec/create_html&id=" + encodeURIComponent(ns.find_versioned_copy_id(opt.$trigger) || $('#requirement_spec_id').val()), '_blank');
   return true;
 };
 
@@ -862,8 +872,8 @@ ns.tabs_before_activate = function(event, ui) {
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
-ns.create_context_menus = function(is_template) {
-  if (is_template) {
+ns.create_context_menus = function(data) {
+  if (data.is_template) {
     var general_actions = {
         sep98:           "---------"
       , general_actions: { name: kivi.t8('Requirement spec template actions'), className: 'context-menu-heading' }
@@ -887,6 +897,7 @@ ns.create_context_menus = function(is_template) {
         sep98:              "---------"
       , general_actions:    { name: kivi.t8('Requirement spec actions'), className: 'context-menu-heading' }
       , create_pdf:         { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: kivi.requirement_spec.create_reqspec_pdf }
+      , create_html:        { name: kivi.t8('Create HTML'),             icon: "html",   callback: kivi.requirement_spec.create_reqspec_html }
       , create_version:     { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
       , copy_reqspec:       { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
       , delete_reqspec:     { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
@@ -896,13 +907,21 @@ ns.create_context_menus = function(is_template) {
       , paste_template:     { name: kivi.t8('Paste template'),     icon: "paste",  callback: kivi.requirement_spec.paste_template }
     };
 
+    var versioned_copy_actions = {
+        heading:             { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
+      , create_version_pdf:  { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
+      , create_version_html: { name: kivi.t8('Create HTML'),       icon: "html",   callback: kivi.requirement_spec.create_html_for_versioned_copy_ajax_call                                                                     }
+      , revert_to_version:   { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
+    };
+
+    if (!data.html_template_exists) {
+      delete general_actions.create_html;
+      delete versioned_copy_actions.create_version_html;
+    }
+
     $.contextMenu({
       selector: '.versioned-copy-context-menu',
-      items:    $.extend({
-          heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
-        , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
-        , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
-      }, general_actions)
+      items:    $.extend(versioned_copy_actions, general_actions)
     });
 
     $.contextMenu({

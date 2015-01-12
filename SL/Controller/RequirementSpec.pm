@@ -21,6 +21,7 @@ use SL::DB::RequirementSpecRisk;
 use SL::DB::RequirementSpecStatus;
 use SL::DB::RequirementSpecType;
 use SL::DB::RequirementSpec;
+use SL::Helper::CreatePDF qw();
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Template::LaTeX;
@@ -29,7 +30,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models time_based_units) ],
+                                  current_text_block_output_position models time_based_units html_template) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -229,6 +230,27 @@ sub action_create_pdf {
 
   $self->send_file($result{file_name}, type => 'application/pdf', name => $attachment_name);
   unlink $result{file_name};
+}
+
+sub action_create_html {
+  my ($self, %params) = @_;
+
+  my $base_name       = $self->requirement_spec->type->template_file_name || 'requirement_spec';
+  my @pictures        = $self->prepare_pictures_for_printing;
+  my $content         = SL::Helper::CreatePDF->create_parsed_file(
+    template      => "${base_name}.html",
+    format        => 'html',
+    template_type => 'HTML',
+    variables     => {
+      SELF        => $self,
+      rspec       => $self->requirement_spec,
+    });
+
+  # $content is now a scalar of bytes, but $self->render() expects a
+  # scalar of characters.
+  $content = Encode::decode('utf-8', $content);
+
+  $self->render(\$content, { layout => 0, process => 0 });
 }
 
 sub action_select_template_to_paste {
@@ -611,6 +633,13 @@ sub init_models {
     ],
     with_objects => [ 'customer', 'type', 'status', 'project' ],
   );
+}
+
+sub init_html_template {
+  my ($self)    = @_;
+  my $base_name = $self->requirement_spec->type->template_file_name || 'requirement_spec';
+  my $template  = SL::Helper::CreatePDF->find_template(name => $base_name, extension => 'html');
+  return !!$template;
 }
 
 1;

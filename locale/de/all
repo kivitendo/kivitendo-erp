@@ -586,6 +586,7 @@ $self->{texts} = {
   'Create Chart of Accounts'    => 'Zu verwendender Kontenplan',
   'Create Dataset'              => 'Neue Datenbank anlegen',
   'Create Date'                 => 'Erstelldatum',
+  'Create HTML'                 => 'HTML erzeugen',
   'Create PDF'                  => 'PDF erzeugen',
   'Create a new acceptance status' => 'Einen neuen Abnahmestatus anlegen',
   'Create a new background job' => 'Einen neuen Hintergrund-Job anlegen',

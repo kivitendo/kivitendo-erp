@@ -92,6 +92,7 @@ $(function() {
       initially_open:          initially_open
     , tree_data:               tree_data
     , is_template:             [% SELF.requirement_spec.is_template ? 'true' : 'false' %]
+    , html_template_exists:    [% SELF.html_template                ? 'true' : 'false' %]
 [% IF SELF.requirement_spec_item %]
     , initially_selected_node: '#fb-[% SELF.requirement_spec_item.id %]'
 [% END %]

@@ -48,6 +48,7 @@ table.rs_input_field input, table.rs_input_field select {
 .context-menu-item.icon-save   { background-image: url("../image/document-save.png"); }
 .context-menu-item.icon-revert { background-image: url("../image/edit-undo.png"); }
 .context-menu-item.icon-pdf    { background-image: url("../image/application-pdf.png"); }
+.context-menu-item.icon-html   { background-image: url("../image/text-html.png"); }
 .context-menu-item.icon-add-picture { background-image: url("../image/add-picture.png"); }
 .context-menu-item.icon-download    { background-image: url("../image/download.png"); }
 .context-menu-item.icon-renumber    { background-image: url("../image/format-list-ordered.png"); }
