@@ -21,7 +21,7 @@ __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name
-                                  posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
+                                  posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options) ],
 );
 
 sub action_edit {
@@ -180,29 +180,6 @@ sub init_balance_startdate_method_options {
     { title => t8("All transactions"),                          value => "all_transactions"            },
     { title => t8("Last opening balance or all transactions"),  value => "last_ob_or_all_transactions" },
     { title => t8("Last opening balance or start of year"),     value => "last_ob_or_start_of_year"    }, ]
-}
-
-sub init_accounts {
-  my %accounts;
-
-  foreach my $chart (@{ SL::DB::Manager::Chart->get_all(where => [ link => { like => '%IC%' } ], sort_by => 'accno ASC') }) {
-    my %added;
-
-    foreach my $link (split m/:/, $chart->link) {
-      my $key = lc($link =~ /cogs/ ? 'IC_expense' : $link =~ /sale/ ? 'IC_income' : $link);
-      next if $added{$key};
-
-      $added{$key}      = 1;
-      $accounts{$key} ||= [];
-      push @{ $accounts{$key} }, $chart;
-    }
-  }
-
-  $accounts{fx_gain} = SL::DB::Manager::Chart->get_all(where => [ category => 'I', charttype => 'A' ], sort_by => 'accno ASC');
-  $accounts{fx_loss} = SL::DB::Manager::Chart->get_all(where => [ category => 'E', charttype => 'A' ], sort_by => 'accno ASC');
-  $accounts{ar_paid} = SL::DB::Manager::Chart->get_all(where => [ link => { like => '%AR_paid%' }   ], sort_by => 'accno ASC');
-
-  return \%accounts;
 }
 
 sub init_all_price_sources {

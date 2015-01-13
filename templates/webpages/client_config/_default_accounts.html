@@ -1,35 +1,38 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
-[% SET style="width: 600px" %]
+[% SET style="width: 500px" %]
+[%# L.dump( SELF.defaults ) %]
 <div id="default_accounts">
  <table>
   <tr>
    <td align="right">[% LxERP.t8("Inventory Account") %]</td>
-   <td>[% L.select_tag('defaults.inventory_accno_id', SELF.accounts.ic, default=SELF.defaults.inventory_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>
+   [% L.chart_picker('defaults.inventory_accno_id', SELF.defaults.inventory_accno_id, type='IC', choose=1, style=style) %]
+   <td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Revenue Account") %]</td>
-   <td>[% L.select_tag('defaults.income_accno_id', SELF.accounts.ic_income, default=SELF.defaults.income_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.chart_picker('defaults.income_accno_id', SELF.defaults.income_accno_id, type='IC_income,IC_sale', choose=1, style=style) %]</td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Expense Account") %]</td>
-   <td>[% L.select_tag('defaults.expense_accno_id', SELF.accounts.ic_expense, default=SELF.defaults.expense_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.chart_picker('defaults.expense_accno_id', SELF.defaults.expense_accno_id, type='IC_expense,IC_cogs', choose=1, style=style) %]</td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Foreign Exchange Gain") %]</td>
-   <td>[% L.select_tag('defaults.fxgain_accno_id', SELF.accounts.fx_gain, default=SELF.defaults.fxgain_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.chart_picker('defaults.fxgain_accno_id', SELF.defaults.fxgain_accno_id, category='I,A', choose=1, style=style) %]<td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Foreign Exchange Loss") %]</td>
-   <td>[% L.select_tag('defaults.fxloss_accno_id', SELF.accounts.fx_loss, default=SELF.defaults.fxloss_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.chart_picker('defaults.fxloss_accno_id', SELF.defaults.fxloss_accno_id, category='E,A', choose=1, style=style) %]<td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Current assets account") %]</td>
-   <td>[% L.select_tag('defaults.ar_paid_accno_id', SELF.accounts.ar_paid, default=SELF.defaults.ar_paid_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.chart_picker('defaults.ar_paid_accno_id', SELF.defaults.ar_paid_accno_id, type='AR_paid', choose=1, style=style) %]<td>
   </tr>
  </table>
 </div>
