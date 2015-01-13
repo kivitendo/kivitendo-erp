@@ -1933,7 +1933,7 @@ sub _make_record_item {
 
   my $class = {
     sales_order             => 'OrderItem',
-    purchase_oder           => 'OrderItem',
+    purchase_order          => 'OrderItem',
     sales_quotation         => 'OrderItem',
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
