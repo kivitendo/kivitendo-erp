@@ -7,6 +7,7 @@ use parent qw(Rose::Object);
 use Carp;
 use Template;
 
+use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::EscapedText;

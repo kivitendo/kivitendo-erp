@@ -112,6 +112,10 @@ Kleinere neue Features und Detailverbesserungen:
   jetzt eindeutig anhand der Variablen zu unterscheiden.
   Ggf. müssen bestehende Druckvorlagen angepasst werden (s.a. http://blog.kivitendo-premium.de/?p=351).
 
+- Chartpicker
+  Analog zum Partpicker steht nun ein intelligenter Picker für Konten zur
+  Verfügung.
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:

@@ -132,6 +132,12 @@ namespace("kivi", function(ns) {
         kivi.CustomerVendorPicker($(elt));
       });
 
+    if (ns.ChartPicker)
+      ns.run_once_for('input.chart_autocomplete', 'chart_picker', function(elt) {
+        kivi.ChartPicker($(elt));
+      });
+
+
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
       func();

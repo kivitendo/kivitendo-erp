@@ -11,6 +11,7 @@ namespace("kivi").setupLocale({
 "Are you sure?":"Sind Sie sicher?",
 "Basic settings actions":"Aktionen zu Grundeinstellungen",
 "Cancel":"Abbrechen",
+"Chart picker":"Kontenauswahl",
 "Copy":"Kopieren",
 "Copy requirement spec":"Pflichtenheft kopieren",
 "Copy template":"Vorlage kopieren",

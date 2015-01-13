@@ -1,0 +1,58 @@
+[% USE L %]
+
+<h1>Chart Picker Testpage</h1>
+
+<div>
+
+<p>
+All charts: [% L.chart_picker('chart_id', '', style="width: 400px") %]text after icon<br>
+Only booked charts: [% L.chart_picker('chart_id_booked', '', booked=1, style="width: 400px") %]<br>
+All charts choose: [% L.chart_picker('chart_id_choose', '', choose=1, style="width: 400px") %]<br>
+</p>
+
+<p>
+Filter by link:<br>
+AR_paid: [% L.chart_picker('chart_id_ar_paid', undef, type='AR_paid', category='I,A' style="width: 400px") %]<br>
+AR: [% L.chart_picker('chart_id_ar', undef, type='AR', style="width: 400px") %]<br>
+AP: [% L.chart_picker('chart_id_ap', undef, type='AP', style="width: 400px") %]<br>
+AR or AP: [% L.chart_picker('chart_id_arap', undef, type='AR,AP', style="width: 400px") %]<br>
+IC_income,IC_sale: [% L.chart_picker('chart_id_icis', undef, type='IC_income,IC_sale', style="width: 400px") %]<br>
+IC_expense,IC_cogs: [% L.chart_picker('chart_id_icco', undef, type='IC_expense,IC_cogs', style="width: 400px") %]<br>
+</p>
+
+<p>
+Filter by category:<br>
+I: [% L.chart_picker('chart_id_i', undef, category='I', style="width: 400px") %]<br>
+IE: [% L.chart_picker('chart_id_ie', undef, category='I,E', style="width: 400px") %]<br>
+AQL: [% L.chart_picker('chart_id_aql', undef, category='A,Q,L', style="width: 400px") %]<br>
+</p>
+
+<p>
+Filter by special type:<br>
+GuV: [% L.chart_picker('chart_id_guv', undef, type='guv', style="width: 400px") %]<br>
+</p>
+
+<p>bank (fat): [% L.chart_picker('bank_id', '', type='bank', fat_set_item=1, choose=1, style="width: 400px") %]
+</p>
+<p id="banktext"></p>
+
+
+<p>
+[% FOREACH i IN [ 1 2 3 4 5 6 ] %]
+S [% i %]: [% L.chart_picker('credit_' _ i) %] - &nbsp;&nbsp;  H [% i %]: [% L.chart_picker('debit' _ i) %] <br>
+[% END %]
+</p>
+
+</div>
+
+<script type='text/javascript'>
+  $(function(){
+      // do something when a chartpicker with fat_set_item and a certain id changes
+      $('#bank_id').on('set_item:ChartPicker', function (e, item) {
+        console.log(item)
+        $('#banktext').html('Selected fat item with category ' + item.category);
+      })
+  });
+
+</script>
+
