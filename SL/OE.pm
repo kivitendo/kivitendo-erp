@@ -546,10 +546,9 @@ SQL
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
            $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
-           $form->{"lastcost_$i"},
+           $form->{"lastcost_$i"}, conv_i($form->{"price_factor_id_$i"}),
            $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
-           conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
-           conv_i($form->{"marge_price_factor_$i"}),
+           conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
            conv_i($orderitems_id),
       );
 
