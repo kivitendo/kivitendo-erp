@@ -515,20 +515,22 @@ sub save {
       $pricegroup_id *= 1;
       $pricegroup_id  = undef if !$pricegroup_id;
 
+      my $position = $i;
+
       # save detail record in orderitems table
       if (! $form->{"orderitems_id_$i"}) {
         $query = qq|SELECT nextval('orderitemsid')|;
         ($form->{"orderitems_id_$i"}) = selectrow_query($form, $dbh, $query);
 
-        $query = qq|INSERT INTO orderitems (id) VALUES (?)|;
-        do_query($form, $dbh, $query, $form->{"orderitems_id_$i"});
+        $query = qq|INSERT INTO orderitems (id, position) VALUES (?, ?)|;
+        do_query($form, $dbh, $query, $form->{"orderitems_id_$i"}, conv_i($position));
       }
       my $orderitems_id = $form->{"orderitems_id_$i"};
       push @processed_orderitems, $orderitems_id;
 
        $query = <<SQL;
          UPDATE orderitems SET
-          trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+          trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
           sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?, ship = ?,
           pricegroup_id = ?, ordnumber = ?, transdate = ?, cusordnumber = ?, subtotal = ?,
           marge_percent = ?, marge_total = ?, lastcost = ?, price_factor_id = ?,
@@ -537,7 +539,7 @@ sub save {
         WHERE id = ?
 SQL
       @values = (
-           conv_i($form->{id}), conv_i($form->{"id_$i"}),
+           conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
@@ -960,7 +962,7 @@ sub retrieve {
       ($form->{id}
        ? qq|WHERE o.trans_id = ?|
        : qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
-      qq|ORDER BY o.oid|;
+      qq|ORDER BY o.trans_id, o.position|;
 
     @ids = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
@@ -1092,7 +1094,7 @@ sub retrieve_simple {
   my $dbh         = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my $oe_query    = qq|SELECT * FROM oe         WHERE id = ?|;
-  my $oi_query    = qq|SELECT * FROM orderitems WHERE trans_id = ?|;
+  my $oi_query    = qq|SELECT * FROM orderitems WHERE trans_id = ? ORDER BY position|;
 
   my $order            = selectfirst_hashref_query($form, $dbh, $oe_query, conv_i($params{id}));
   $order->{orderitems} = selectall_hashref_query(  $form, $dbh, $oi_query, conv_i($params{id}));
