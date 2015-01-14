@@ -390,7 +390,7 @@ sub post_invoice {
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
-               conv_i($form->{"active_price_source_$i"}), conv_i($form->{"active_discount_source_$i"}),
+               $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
                );
     do_query($form, $dbh, $query, @values);
 
