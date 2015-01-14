@@ -49,7 +49,7 @@ sub add_items { goto &add_orderitems; }
 sub items_sorted {
   my ($self) = @_;
 
-  return [ sort {$a->id <=> $b->id } @{ $self->items } ];
+  return [ sort {$a->position <=> $b->position } @{ $self->items } ];
 }
 
 sub sales_order {
