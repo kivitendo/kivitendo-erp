@@ -3183,6 +3183,7 @@ $self->{texts} = {
   'pos_bwa'                     => 'BWA',
   'pos_eur'                     => 'E/ÜR',
   'pos_ustva'                   => 'UStVA',
+  'position'                    => 'Position',
   'posted!'                     => 'gebucht',
   'prev'                        => 'zurück',
   'proforma'                    => 'Proforma',

@@ -156,6 +156,7 @@ sub setup_displayable_columns {
                                  { name => 'ordnumber',       description => $::locale->text('Order Number')               },
                                  { name => 'parts_id',        description => $::locale->text('Part (database ID)')         },
                                  { name => 'partnumber',      description => $::locale->text('Part Number')                },
+                                 { name => 'position',        description => $::locale->text('position')                   },
                                  { name => 'project_id',      description => $::locale->text('Project (database ID)')      },
                                  { name => 'projectnumber',   description => $::locale->text('Project (number)')           },
                                  { name => 'project',         description => $::locale->text('Project (description)')      },

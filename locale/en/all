@@ -2681,6 +2681,7 @@ $self->{texts} = {
   'pos_bwa'                     => '',
   'pos_eur'                     => '',
   'pos_ustva'                   => '',
+  'position'                    => '',
   'posted!'                     => '',
   'prev'                        => '',
   'print'                       => '',
