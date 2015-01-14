@@ -274,7 +274,7 @@ sub save {
   }
   my $q_item = <<SQL;
     UPDATE delivery_order_items SET
-       delivery_order_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+       delivery_order_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
        sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?,
        ordnumber = ?, transdate = ?, cusordnumber = ?,
        lastcost = ? , price_factor_id = ?, price_factor = (SELECT factor FROM price_factors where id = ?),
@@ -296,15 +296,17 @@ SQL
   for my $i (1 .. $form->{rowcount}) {
     next if (!$form->{"id_$i"});
 
+    my $position = $i;
+
     if (!$form->{"delivery_order_items_id_$i"}) {
       # there is no persistent id, therefore create one with all necessary constraints
       my $q_item_id = qq|SELECT nextval('delivery_order_items_id')|;
       my $h_item_id = prepare_query($form, $dbh, $q_item_id);
       do_statement($form, $h_item_id, $q_item_id);
       $form->{"delivery_order_items_id_$i"}  = $h_item_id->fetchrow_array();
-      $query = qq|INSERT INTO delivery_order_items (id, delivery_order_id, parts_id) VALUES (?, ?, ?)|;
+      $query = qq|INSERT INTO delivery_order_items (id, delivery_order_id, position, parts_id) VALUES (?, ?, ?, ?)|;
       do_query($form, $dbh, $query, conv_i($form->{"delivery_order_items_id_$i"}),
-                conv_i($form->{"id"}), conv_i($form->{"id_$i"}));
+                conv_i($form->{"id"}), conv_i($position), conv_i($form->{"id_$i"}));
       $h_item_id->finish();
     }
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -336,7 +338,7 @@ SQL
     $pricegroup_id    = undef if !$pricegroup_id;
 
     # save detail record in delivery_order_items table
-    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
+    @values = (conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
                $form->{"qty_$i"}, $baseqty,
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
@@ -740,7 +742,7 @@ sub retrieve {
        LEFT JOIN project pr ON (doi.project_id = pr.id)
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
        WHERE doi.delivery_order_id IN ($do_ids_placeholders)
-       ORDER BY doi.oid|;
+       ORDER BY doi.delivery_order_id, doi.position|;
 
   $form->{form_details} = selectall_hashref_query($form, $dbh, $query, @do_ids);
 
