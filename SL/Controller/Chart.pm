@@ -6,7 +6,6 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 use SL::DB::Chart;
 use SL::Controller::Helper::GetModels;
-use SL::DB::Helper::Paginated;
 use SL::Locale::String qw(t8);
 use SL::JSON;
 
@@ -74,9 +73,8 @@ sub action_show {
     if (!$self->chart) {
       # TODO error
     } else {
-      require Rose::DB::Object::Helpers;
-        $chart_hash                     = $self->chart->as_tree;
-        $chart_hash->{displayable_name} = $self->chart->displayable_name;
+      $chart_hash                     = $self->chart->as_tree;
+      $chart_hash->{displayable_name} = $self->chart->displayable_name;
     }
 
     $self->render(\ SL::JSON::to_json($chart_hash), { layout => 0, type => 'json', process => 0 });

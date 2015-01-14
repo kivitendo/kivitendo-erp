@@ -79,9 +79,8 @@ sub action_show {
     if (!$self->part) {
       # TODO error
     } else {
-      require Rose::DB::Object::Helpers;
-        $part_hash          = $self->part->as_tree;
-        $part_hash->{cvars} = $self->part->cvar_as_hashref;
+      $part_hash          = $self->part->as_tree;
+      $part_hash->{cvars} = $self->part->cvar_as_hashref;
     }
 
     $self->render(\ SL::JSON::to_json($part_hash), { layout => 0, type => 'json', process => 0 });
