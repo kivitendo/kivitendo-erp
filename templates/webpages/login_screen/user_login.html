@@ -29,7 +29,7 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td>[% L.input_tag('{AUTH}login', '', id='auth_login', style=style, class='initial_focus') %]</td>
+            <td>[% L.input_tag('{AUTH}login', FORM.login, id='auth_login', style=style, class='initial_focus') %]</td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>
@@ -70,3 +70,13 @@
    &nbsp;|&nbsp;
    <a href="doc/kivitendo-Dokumentation.pdf" target="_top">[%- LxERP.t8('Documentation') %]</a>
   </p>
+
+[% IF FORM.client %]
+<script type='text/javascript'>
+$(function() {
+  $('[name="{AUTH}client_id"] option').filter(function() {
+     return ($(this).text() === '[% FORM.client %]');
+  }).prop('selected', true);
+});
+</script>
+[% END %]

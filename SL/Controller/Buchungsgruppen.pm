@@ -8,7 +8,6 @@ use SL::DB::TaxZone;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::DB::TaxzoneChart;
-use SL::Controller::ClientConfig;
 use SL::DB::Default;
 
 use Rose::Object::MakeMethods::Generic (
@@ -53,9 +52,7 @@ sub show_form {
   my ($self, %params) = @_;
 
   $self->render('buchungsgruppen/form', %params,
-                 TAXZONES       => SL::DB::Manager::TaxZone->get_all_sorted(),
-                 ACCOUNTS       => SL::Controller::ClientConfig->init_accounts(),
-                 account_label  => sub { "$_[0]{accno}--$_[0]{description}" });
+                 TAXZONES       => SL::DB::Manager::TaxZone->get_all_sorted());
 }
 
 sub action_edit {

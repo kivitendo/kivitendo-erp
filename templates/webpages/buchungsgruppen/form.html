@@ -1,4 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+[% SET style="width: 400px" %]
 
 <h1>[% HTML.escape(title) %]</h1>
 
@@ -13,9 +14,9 @@
   <tr>
     <th align="right">[% 'Inventory Account' | $T8 %]</th>
     [%- IF NOT SELF.config.id %]
-      <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.defaults.inventory_accno_id) %]</td>
+    <td>[% L.chart_picker("config.inventory_accno_id", SELF.defaults.inventory_accno_id, choose=1, type='IC', style=style) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
-      <td>[%- L.select_tag("config.inventory_accno_id", ACCOUNTS.ic, title_sub=\account_label, default=SELF.config.inventory_accno_id) %]</td>
+    <td>[% L.chart_picker("config.inventory_accno_id", SELF.config.inventory_accno_id, choose=1, type='IC', style=style) %]</td>
     [%- ELSE %]
       <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
     [%- END %]
@@ -24,9 +25,9 @@
   <tr>
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(tz.description) %]</th>
     [%- IF NOT SELF.config.id %]
-      <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=SELF.defaults.income_accno_id) %]</td>
+    <td>[% L.chart_picker('income_accno_id_' _ tz.id, SELF.defaults.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
-      <td>[%- L.select_tag('income_accno_id_' _ tz.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${tz.id}.income_accno_id) %]</td>
+    <td>[% L.chart_picker('income_accno_id_' _ tz.id, CHARTLIST.${tz.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSE %]
       <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
     [%- END %]
@@ -34,9 +35,9 @@
   <tr>
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(tz.description) %]</th>
     [%- IF NOT SELF.config.id %]
-      <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=SELF.defaults.expense_accno_id) %]</td>
+      <td>[% L.chart_picker('expense_accno_id_' _ tz.id, SELF.defaults.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
-      <td>[%- L.select_tag('expense_accno_id_' _ tz.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${tz.id}.expense_accno_id) %]</td>
+      <td>[% L.chart_picker('expense_accno_id_' _ tz.id, CHARTLIST.${tz.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSE %]
       <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
     [%- END %]

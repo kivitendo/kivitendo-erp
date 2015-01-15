@@ -11,7 +11,6 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::DB::Manager::Buchungsgruppe;
 use SL::DB::Manager::TaxzoneChart;
-use SL::Controller::ClientConfig;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
@@ -47,9 +46,7 @@ sub show_form {
   my ($self, %params) = @_;
 
   $self->render('taxzones/form', %params,
-                BUCHUNGSGRUPPEN => SL::DB::Manager::Buchungsgruppe->get_all_sorted,
-                ACCOUNTS        => SL::Controller::ClientConfig->init_accounts,
-                account_label   => sub { "$_[0]{accno}--$_[0]{description}" });
+                BUCHUNGSGRUPPEN => SL::DB::Manager::Buchungsgruppe->get_all_sorted);
 }
 
 sub action_edit {
