@@ -114,7 +114,20 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Chartpicker
   Analog zum Partpicker steht nun ein intelligenter Picker für Konten zur
-  Verfügung.
+  Verfügung. Dieser wird nun bei der Zuweisung von Steuerzonen,
+  Buchungsgruppen und den Standardkonten in der Mandantenkonfiguration
+  genutzt.
+
+- Mandantenauswahl per Bookmark
+  Mit der Mandantenfähigkeit gibt es eine Möglichkeit, einen Standardmandanten
+  auszuwählen, der auf der Loginseite immer vorausgewählt ist. Gibt man der
+  Loginseite per URL den Parameter "client=foobar" mit, wird nun stattdessen der
+  Mandant "foobar" vorausgewählt. (Der Name muß natürlich in der Liste
+  vorkommen). Damit kann man sich ein Bookmark für einen bestimmten Mandanten setzen:
+  controller.pl?action=LoginScreen/login&client=foobar
+  Übergibt man als Parameter "user=Tom" wird auch das Benutzerfeld
+  vorausgefüllt, Beispiel:
+  controller.pl?action=LoginScreen/login&client=foobar&login=Tom
 
 2014-02-28 - Release 3.1.0
 
