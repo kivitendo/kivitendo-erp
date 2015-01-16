@@ -67,13 +67,14 @@ sub check_objects {
     $self->check_business($entry);
     $self->check_payment($entry);
     $self->check_delivery_term($entry);
+    $self->check_taxzone($entry,  take_default => 1);
     $self->check_currency($entry, take_default => 1);
     $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };
 
     my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(name department_1 department_2 street zipcode city country contact phone fax homepage email cc bcc
-                                                                     taxnumber account_number bank_code bank username greeting));
+                                                                     taxnumber account_number bank_code bank username greeting taxzone));
 
     push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
       if @cleaned_fields;
@@ -100,7 +101,7 @@ sub check_objects {
     $i++;
   }
 
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment delivery_term));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment delivery_term taxzone));
   $self->add_cvar_raw_data_columns;
 }
 
@@ -267,7 +268,8 @@ sub setup_displayable_columns {
                                  { name => 'phone',             description => $::locale->text('Phone')                           },
                                  { name => 'street',            description => $::locale->text('Street')                          },
                                  { name => 'taxnumber',         description => $::locale->text('Tax Number / SSN')                },
-                                 { name => 'taxzone_id',        description => $::locale->text('Steuersatz')                      },
+                                 { name => 'taxzone',           description => $::locale->text('Tax zone (description)')          },
+                                 { name => 'taxzone_id',        description => $::locale->text('Tax zone (database ID)')          },
                                  { name => 'user_password',     description => $::locale->text('Password')                        },
                                  { name => 'username',          description => $::locale->text('Username')                        },
                                  { name => 'ustid',             description => $::locale->text('sales tax identification number') },

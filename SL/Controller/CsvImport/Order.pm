@@ -25,7 +25,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by price_factors_by pricegroups_by) ],
 );
 
 
@@ -225,13 +225,6 @@ sub init_ct_shiptos_by {
   $sby->{'trans_id+shipto_id'} = { map { ( $_->trans_id . '+' . $_->shipto_id => $_ ) } @{ $all_ct_shiptos } };
 
   return $sby;
-}
-
-sub init_taxzones_by {
-  my ($self) = @_;
-
-  my $all_taxzones = SL::DB::Manager::TaxZone->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_taxzones } } ) } qw(id description) };
 }
 
 sub init_price_factors_by {
@@ -569,31 +562,6 @@ sub check_ct_shipto {
   if ($object->shipto_id && !$self->ct_shiptos_by->{'trans_id+shipto_id'}->{ $trans_id . '+' . $object->shipto_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto');
     return 0;
-  }
-
-  return 1;
-}
-
-sub check_taxzone {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check wether or not taxzone ID is valid.
-  if ($object->taxzone_id && !$self->taxzones_by->{id}->{ $object->taxzone_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid tax zone');
-    return 0;
-  }
-
-  # Map description to ID if given.
-  if (!$object->taxzone_id && $entry->{raw_data}->{taxzone}) {
-    my $taxzone = $self->taxzones_by->{description}->{ $entry->{raw_data}->{taxzone} };
-    if (!$taxzone) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid tax zone');
-      return 0;
-    }
-
-    $object->taxzone_id($taxzone->id);
   }
 
   return 1;

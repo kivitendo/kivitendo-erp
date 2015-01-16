@@ -16,3 +16,11 @@
   [% L.select_tag('settings.update_policy', opts, default = SELF.profile.get('update_policy'), style = 'width: 300px') %]
  </td>
 </tr>
+
+<tr>
+ <th align="right" valign="top">[%- LxERP.t8('Default taxzone') %]:</th>
+ <td colspan="10" valign="top">
+  [% L.select_tag('settings.default_taxzone', SELF.all_taxzones, default = SELF.profile.get('default_taxzone'), title_key = 'description', style => 'width: 300px') %]
+ </td>
+</tr>
+

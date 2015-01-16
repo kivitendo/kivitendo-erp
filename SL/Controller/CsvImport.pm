@@ -27,7 +27,7 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
-                                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file) ],
+                                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file all_taxzones) ],
  'scalar --get_set_init' => [ qw(worker task_server) ],
  'array'                 => [
    progress_tracker     => { },
@@ -266,6 +266,10 @@ sub render_inputs {
             : $self->type eq 'projects'          ? $::locale->text('CSV import: projects')
             : $self->type eq 'orders'            ? $::locale->text('CSV import: orders')
             : die;
+
+  if ($self->{type} eq 'customers_vendors' or $self->{type} eq 'orders'  ) {
+    $self->all_taxzones(SL::DB::Manager::TaxZone->get_all_sorted(query => [ obsolete => 0 ]));
+  };
 
   if ($self->{type} eq 'parts') {
     $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
