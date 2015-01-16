@@ -9,6 +9,8 @@ use SL::DB::Business;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
+use SL::AM;
+use SL::DBUtils ();
 use Carp;
 
 use Rose::Object::MakeMethods::Generic (
@@ -41,6 +43,7 @@ sub action_list {
 
   my $orderitems = $self->models->get;
 
+  $self->calc_qtys($orderitems);
   $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
@@ -70,11 +73,11 @@ sub prepare_report {
                                              ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
     unit              => {      sub => sub {  $_[0]->unit                                                                    },
                             visible => $rp_csv_mod                                                                           },
-    shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) .
+    shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) .
                                              ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) .
+    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}, 2) .
                                              ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->delivered_qty, 2) .
+    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{delivered_qty}, 2) .
                                              ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
@@ -113,6 +116,35 @@ sub prepare_report {
     raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
     raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
   );
+}
+
+sub calc_qtys {
+  my ($self, $orderitems) = @_;
+  # using $orderitem->shipped_qty 40 times is far too slow. need to do it manually
+  #
+  my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
+
+  my $query = <<SQL;
+    SELECT oi.id, doi.qty, doi.qty, doi.unit, doe.delivered
+    FROM record_links rl
+    INNER JOIN delivery_order_items doi ON (doi.delivery_order_id = rl.to_id)
+    INNER JOIN delivery_orders doe ON (doe.id = rl.to_id)
+    INNER JOIN orderitems oi ON (oi.trans_id = rl.from_id)
+    WHERE rl.from_table = 'oe'
+      AND rl.to_table   = 'delivery_orders'
+      AND oi.parts_id   = doi.parts_id
+      AND oi.id IN (@{[ join ', ', ("?")x @$orderitems ]})
+SQL
+
+  my $result = SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, $query, map { $_->id } @$orderitems);
+
+  for my $row (@$result) {
+    my $item = $orderitems_by_id{ $row->{id} };
+    $item->{shipped_qty}   ||= 0;
+    $item->{delivered_qty} ||= 0;
+    $item->{shipped_qty}    += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty};
+    $item->{delivered_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} if $row->{delivered};
+  }
 }
 
 sub make_filter_summary {
