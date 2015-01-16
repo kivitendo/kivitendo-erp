@@ -84,6 +84,7 @@ use SL::Locale;
 use SL::LXDebug;
 use Data::Dumper;
 use List::Util qw(max);
+use Time::HiRes;
 
 # this is a cleaned up version of am.pl
 # it lacks redirection, some html setup and most of the authentication process.
@@ -153,13 +154,14 @@ sub help {
 
 Spezielle Kommandos:
 
-  help                - zeigt diese Hilfe an.
-  lxinit 'login'      - lädt das kivitendo-Environment für den User 'login'.
-  reload              - lädt modifizierte Module neu.
-  pp DATA             - zeigt die Datenstruktur mit Data::Dumper an.
-  quit                - beendet die Konsole
+  help              - zeigt diese Hilfe an.
+  lxinit 'login'    - lädt das kivitendo-Environment für den User 'login'.
+  reload            - lädt modifizierte Module neu.
+  pp DATA           - zeigt die Datenstruktur mit Data::Dumper an.
+  clock { CODE }    - zeigt die gebrauchte Zeit für die Ausführung von CODE an
+  quit              - beendet die Konsole
 
-  part                - shortcuts auf die jeweilige SL::DB::{...}::find_by
+  part              - shortcuts auf die jeweilige SL::DB::{...}::find_by
   customer, vendor,
   order, invoice,
   purchase_invoice,
@@ -247,6 +249,13 @@ sub chart {
   require SL::DB::Chart;
   SL::DB::Manager::Chart->find_by(@_)
 }
+
+sub clock (&) {
+  my $s = [Time::HiRes::gettimeofday()];
+  $_[0]->();
+  Time::HiRes::tv_interval($s);
+}
+
 
 1;
 
