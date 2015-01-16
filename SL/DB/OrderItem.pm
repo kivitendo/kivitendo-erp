@@ -33,10 +33,9 @@ sub is_price_update_available {
 sub shipped_qty {
   my ($self) = @_;
 
-  my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
+  my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder', with_objects => [ 'orderitems' ]);
   my @doi      = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @$d_orders;
 
-  require SL::AM;
   return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi);
 }
 

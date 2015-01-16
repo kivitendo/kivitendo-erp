@@ -85,7 +85,12 @@ sub _linked_records_implementation {
       $_->{_record_link_direction} = $wanted;
       $_->{_record_link}           = $link;
       $_
-    } @{ $manager_class->get_all(query => [ id => $link->$sub_wanted_id, @get_objects_query ]) };
+    } @{
+      $manager_class->get_all(
+        query         => [ id => $link->$sub_wanted_id, @get_objects_query ],
+        (with_objects => $params{with_objects}) x !!$params{with_objects},
+      )
+    };
   };
 
   # If no 'via' is given then use a simple(r) method for querying the wanted objects.
