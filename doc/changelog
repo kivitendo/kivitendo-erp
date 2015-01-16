@@ -121,13 +121,13 @@ Kleinere neue Features und Detailverbesserungen:
 - Mandantenauswahl per Bookmark
   Mit der Mandantenfähigkeit gibt es eine Möglichkeit, einen Standardmandanten
   auszuwählen, der auf der Loginseite immer vorausgewählt ist. Gibt man der
-  Loginseite per URL den Parameter "client=foobar" mit, wird nun stattdessen der
+  Loginseite per URL den Parameter "{AUTH}client=foobar" mit, wird nun stattdessen der
   Mandant "foobar" vorausgewählt. (Der Name muß natürlich in der Liste
   vorkommen). Damit kann man sich ein Bookmark für einen bestimmten Mandanten setzen:
-  controller.pl?action=LoginScreen/login&client=foobar
-  Übergibt man als Parameter "user=Tom" wird auch das Benutzerfeld
+  controller.pl?action=LoginScreen/login&{AUTH}client=foobar
+  Übergibt man als Parameter "{AUTH}login=Tom" wird auch das Benutzerfeld
   vorausgefüllt, Beispiel:
-  controller.pl?action=LoginScreen/login&client=foobar&login=Tom
+  controller.pl?action=LoginScreen/login&{AUTH}login=Tom&{AUTH}client=foobar
 
 2014-02-28 - Release 3.1.0
 
