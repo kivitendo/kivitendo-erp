@@ -54,10 +54,12 @@
 </select>
 
 [%- ELSIF cvar.var.type == 'customer' %]
-[%- L.customer_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[%- render_cvar_tag_options.type = 'customer' %]
+[%- L.customer_vendor_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'vendor' %]
-[% L.vendor_selector(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[%- render_cvar_tag_options.type = 'vendor' %]
+[%- L.customer_vendor_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'part' %]
 [% L.part_selector(cvar_tag_name, cvar.value, render_cvar_tag_options) %]

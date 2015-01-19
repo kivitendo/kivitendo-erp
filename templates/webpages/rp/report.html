@@ -70,7 +70,7 @@
 [%- BLOCK customer %]
   <tr>
     <th align=right nowrap>[% 'Customer' | $T8 %]</th>
-    <td colspan=3>[% L.customer_picker('customer_id') %]</td>
+    <td colspan=3>[% L.customer_vendor_picker('customer_id', '', type='customer') %]</td>
   </tr>
 [%- END %]
 [%- BLOCK projectnumber %]

@@ -25,10 +25,10 @@
 <input name="[% var_name %]" value="[% HTML.escape(var.value) %]">
 
 [%- ELSIF var.type == 'customer' %]
-[% L.customer_picker(var_name, var.value) %]
+[% L.customer_vendor_picker(var_name, var.value, type='customer') %]
 
 [%- ELSIF var.type == 'vendor' %]
-[% L.vendor_selector(var_name, var.value) %]
+[% L.customer_vendor_picker(var_name, var.value, type='vendor') %]
 
 [%- ELSIF var.type == 'part' %]
 [% L.part_selector(var_name, var.value) %]

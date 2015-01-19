@@ -301,6 +301,9 @@ sub render_inputs {
     $var->{VALID_BOX} = $form->parse_html_template('amcvar/render_checkboxes', { var => $var, %options });
   }
 
+  # needed for customer_vendor_picker
+  $::request->{layout}->add_javascripts('autocomplete_customer.js');
+
   $main::lxdebug->leave_sub(2);
 }
 
