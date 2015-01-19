@@ -1472,6 +1472,7 @@ sub invoice {
 
   # bo creates the id, reset it
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
+  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
   $form->{ $form->{vc} } =~ s/--.*//g;
   $form->{type} = "invoice";
 
@@ -1891,6 +1892,7 @@ sub delivery_order {
 
   # reset
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
+  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
