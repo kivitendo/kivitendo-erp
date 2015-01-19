@@ -1937,6 +1937,7 @@ sub _make_record_item {
     sales_quotation         => 'OrderItem',
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
+    credit_note             => 'InvoiceItem',
     purchase_invoice        => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',
     sales_delivery_order    => 'DeliveryOrderItem',
@@ -2016,7 +2017,7 @@ sub _make_record {
   my @items;
   for my $i (1 .. $::form->{rowcount}) {
     next unless $::form->{"id_$i"};
-    push @items, _make_record_item($i)
+    push @items, _make_record_item($i);
   }
 
   $obj->items(@items) if @items;
