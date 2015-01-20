@@ -10,9 +10,10 @@
       SET render_cvar_tag_options.no_id = 1;
     END;
 %]
-[%- IF (cvar.hide_non_editable && !cvar.var.flag_editable) || cvar.partsgroup_filtered %]
-[%- L.hidden_tag(cvar_tag_name, cvar.var.value, render_cvar_tag_options) %]
-[%- ELSIF !cvar.valid %]
+
+[%- IF (!cvar.hide_non_editable || cvar.var.flag_editable) && !cvar.partsgroup_filtered %]
+
+[%- IF !cvar.valid %]
   [%- IF show_disabled_message %]
 <i>[% 'Element disabled' | $T8 %]</i>
   [%- END %]
@@ -71,4 +72,7 @@
 [% render_cvar_tag_options.maxlength=cvar.var.maxlength IF cvar.var.maxlength;
    L.input_tag(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 [%- END %]
+
+[%- END %]
+
 [%- END %]

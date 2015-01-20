@@ -512,13 +512,30 @@ sub save {
       my $position = $i;
 
       # save detail record in orderitems table
+      my $cvars;
       if (! $form->{"orderitems_id_$i"}) {
         $query = qq|SELECT nextval('orderitemsid')|;
         ($form->{"orderitems_id_$i"}) = selectrow_query($form, $dbh, $query);
 
         $query = qq|INSERT INTO orderitems (id, position) VALUES (?, ?)|;
         do_query($form, $dbh, $query, $form->{"orderitems_id_$i"}, conv_i($position));
+
+        # get values for CVars from master data for new items
+        $cvars = CVar->get_custom_variables(dbh      => $dbh,
+                                            module   => 'IC',
+                                            trans_id => $form->{"id_$i"},
+                                           );
+      } else {
+        # get values for CVars from custom_variables for existing items
+        $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                            module     => 'IC',
+                                            sub_module => 'orderitems',
+                                            trans_id   => $form->{"orderitems_id_$i"},
+                                           );
       }
+      # map only non-editable CVars to form (editable ones are already there)
+      map { $form->{"ic_cvar_$_->{name}_$i"} = $_->{value} unless $_->{flag_editable} } @{ $cvars };
+
       my $orderitems_id = $form->{"orderitems_id_$i"};
       push @processed_orderitems, $orderitems_id;
 
@@ -1376,6 +1393,24 @@ sub order_details {
         }
         $sth->finish;
       }
+
+      my $cvars;
+      if (! $form->{"orderitems_id_$i"}) {
+        # get values for CVars from master data for new items
+        $cvars = CVar->get_custom_variables(dbh      => $dbh,
+                                            module   => 'IC',
+                                            trans_id => $form->{"id_$i"},
+                                           );
+      } else {
+        # get values for CVars from custom_variables for existing items
+        $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                            module     => 'IC',
+                                            sub_module => 'orderitems',
+                                            trans_id   => $form->{"orderitems_id_$i"},
+                                           );
+      }
+      # map only non-editable CVars to form (editable ones are already there)
+      map { $form->{"ic_cvar_$_->{name}_$i"} = $_->{value} unless $_->{flag_editable} } @{ $cvars };
 
       push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
         CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
