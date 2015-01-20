@@ -59,6 +59,7 @@ sub customer_vendor_picker {
     join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type)) .
     $self->input_tag("", (ref $value && $value->can('name')) ? $value->name : '', id => "${id}_name", %params);
 
+  $::request->layout->add_javascripts('autocomplete_customer.js');
   $::request->presenter->need_reinit_widgets($id);
 
   $self->html_tag('span', $ret, class => 'customer_vendor_picker');
