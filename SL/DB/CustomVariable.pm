@@ -103,7 +103,8 @@ sub value_as_text {
     require SL::DB::Vendor;
 
     my $id = int($self->number_value);
-    return $id ? SL::DB::Vendor->new(id => $id)->load() : 0;
+    my $vendor =  $id ? SL::DB::Vendor->new(id => $id)->load() : 0;
+    return $vendor ? $vendor->name : '';
   } elsif ( $type eq 'part' ) {
     require SL::DB::Part;
 
