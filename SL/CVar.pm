@@ -98,8 +98,6 @@ sub get_custom_variables {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $trans_id = $params{trans_id} ? 'OR (v.trans_id = ?) ' : '';
-
   my $sub_module = $params{sub_module} ? $params{sub_module} : '';
 
   my $q_var    =
