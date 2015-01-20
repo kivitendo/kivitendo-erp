@@ -419,10 +419,9 @@ sub save {
   $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) VALUES(?, ?, ?)|;
   $sth   = prepare_query($form, $dbh, $query);
 
-  # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
     my $price = $form->parse_amount($myconfig, $form->{"price_$i"});
-    next unless $price && ($price != $form->{sellprice});
+    next unless $price;
 
     @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
     do_statement($form, $sth, $query, @values);
