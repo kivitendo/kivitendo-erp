@@ -63,7 +63,7 @@
 [%- L.customer_vendor_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'part' %]
-[% L.part_selector(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[% L.part_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'number' %]
 [%- L.input_tag(cvar_tag_name, LxERP.format_amount(cvar.value, -2), render_cvar_tag_options) %]
