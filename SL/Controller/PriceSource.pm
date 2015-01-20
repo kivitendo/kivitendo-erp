@@ -77,6 +77,7 @@ sub _make_record_item {
     request_quotation       => 'OrderItem',
     invoice                 => 'InvoiceItem',
     purchase_invoice        => 'InvoiceItem',
+    credit_note             => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',
     sales_delivery_order    => 'DeliveryOrderItem',
   }->{$::form->{type}};
@@ -119,7 +120,6 @@ sub _make_record {
     purchase_order          => 'Order',
     sales_quotation         => 'Order',
     request_quotation       => 'Order',
-    invoice                 => 'Invoice',
     purchase_invoice        => 'PurchaseInvoice',
     purchase_delivery_order => 'DeliveryOrder',
     sales_delivery_order    => 'DeliveryOrder',
