@@ -381,12 +381,6 @@ sub save {
   $form->{$number_field} ||= $trans_number->create_unique;
 
   if ($form->{id}) {
-    $query = qq|DELETE FROM custom_variables
-                WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
-                  AND (sub_module = 'orderitems')
-                  AND (trans_id IN (SELECT id FROM orderitems WHERE trans_id = ?))|;
-    do_query($form, $dbh, $query, $form->{id});
-
     $query = qq|DELETE FROM shipto | .
              qq|WHERE trans_id = ? AND module = 'OE'|;
     do_query($form, $dbh, $query, $form->{id});
