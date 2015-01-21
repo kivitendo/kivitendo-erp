@@ -95,7 +95,7 @@ sub action_quicksearch {
   push(@{$data},@{$ardata});
   push(@{$data},@{$apdata});
 
-  @$data = reverse sort { $a->{'transdate_sort'} cmp $b->{'transdate_sort'} } @$data;
+  @$data = reverse sort { $a->{'transdate'} cmp $b->{'transdate'} } @$data;
 
   $self->render(\SL::JSON::to_json($data), { layout => 0, type => 'json' });
 }
