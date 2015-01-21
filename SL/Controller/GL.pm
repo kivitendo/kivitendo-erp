@@ -14,10 +14,10 @@ __PACKAGE__->run_before('check_auth');
 sub action_quicksearch {
 
   my ($self, %params) = @_;
-  
+
   my $limit = $::form->{limit} || 40; # max number of results per type (AR/AP/GL)
   my $term  = $::form->{term}  || '';
-  
+
   my $descriptionquery = { ilike => '%' . $term . '%' };
   my $referencequery   = { ilike => '%' . $term . '%' };
   my $apinvnumberquery = { ilike => '%' . $term . '%' };

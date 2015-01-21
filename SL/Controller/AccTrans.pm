@@ -5,18 +5,18 @@ use SL::DB::AccTransaction;
 
 __PACKAGE__->run_before('check_auth');
 
-sub action_list_transactions {                                                                                
-  my ($self) = @_;                                                                                      
+sub action_list_transactions {
+  my ($self) = @_;
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{trans_id};
 
-  my $transactions = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $::form->{trans_id} ], sort_by => 'acc_trans_id ASC'); 
+  my $transactions = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $::form->{trans_id} ], sort_by => 'acc_trans_id ASC');
 
   return $self->render(\'', { type => 'json' }) unless scalar @{$transactions};
 
   my $acc_trans_table = $self->_mini_ledger($transactions);
   my $balances_table  = $self->_mini_trial_balance($transactions);
-  
+
   return $self->render('acc_trans/acc_trans', { header => 0 }, acc_trans_table => $acc_trans_table, balances_table => $balances_table);
 }
 

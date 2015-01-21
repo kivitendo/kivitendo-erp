@@ -54,7 +54,7 @@ sub check_taxzone {
   my $object = $entry->{object};
 
   # Check whether the CSV contains the parameters taxzone_id or taxzone, and
-  # check them for validity. 
+  # check them for validity.
   # If one of them was given, but is invalid, return an error
 
   # If neither was given:
@@ -63,7 +63,7 @@ sub check_taxzone {
   # b) if param take_default was not set, do nothing, return without error, and
   #    taxzone_id may be set later by other means (order import uses cv settings)
 
- 
+
   # if $object->taxzone_id is defined (from CSV line), check if it is valid
   if ($object->taxzone_id && ! _taxzones_by($self)->{id}->{ $object->taxzone_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid tax zone');
@@ -101,7 +101,7 @@ sub check_taxzone {
   };
 
   # for the order import at this stage $object->taxzone_id may still not be
-  # defined, in this case the customer/vendor taxzone will be used. 
+  # defined, in this case the customer/vendor taxzone will be used.
 
   return 1;
 }
