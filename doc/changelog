@@ -129,6 +129,16 @@ Kleinere neue Features und Detailverbesserungen:
   vorausgefüllt, Beispiel:
   controller.pl?action=LoginScreen/login&{AUTH}login=Tom&{AUTH}client=foobar
 
+- Benutzerdefinierte Variablen vom Typ "Kunde/Lieferant" und "Ware" werden
+  jetzt mit Pickern ausgewählt, nicht mehr mit L-selects.
+
+- Die Picker benutzen zum Anzeigen der Auswahl nun alle eine Langbeschreibung (displayable_name):
+  * Kunden und Lieferanten: Kunden/Lieferanten-Nummer _ Name
+  * Waren: Artikelnummer _ Beschreibung
+  * Konten: Kontonummer _ Beschreibung
+  Die Sortierung in den Pickern ist immer alphanumerisch nach der
+  Anfangsnummer (d.h. 01,02,10, aber 1,10,2)
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:
