@@ -611,7 +611,7 @@ sub action_ajaj_autocomplete {
 
   my @hashes = map {
    +{
-     value       => $_->name,
+     value       => $_->displayable_name,
      label       => $_->displayable_name,
      id          => $_->id,
      $number     => $_->$number,
@@ -953,10 +953,10 @@ sub init_customer_models {
     model        => 'Customer',
     sorted => {
       _default  => {
-        by => 'name',
+        by => 'customernumber',
         dir  => 1,
       },
-      name  => t8('Name'),
+      customernumber => t8('Customer Number'),
     },
   );
 }
@@ -969,10 +969,10 @@ sub init_vendor_models {
     model      => 'Vendor',
     sorted => {
       _default  => {
-        by => 'name',
+        by => 'vendornumber',
         dir  => 1,
       },
-      name  => t8('Name'),
+      vendornumber => t8('Vendor Number'),
     },
   );
 }
