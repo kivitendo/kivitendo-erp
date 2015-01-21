@@ -111,7 +111,7 @@ sub full_description {
   : $type eq 'business'   ? t8('Type of Business') . ' ' . $self->business->displayable_name
   : $type eq 'partsgroup' ? t8('Group')            . ' ' . $self->partsgroup->displayable_name
   : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->pricegroup->displayable_name
-  : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->long_description
+  : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->displayable_name
   : $type eq 'qty' ? (
        $op eq 'eq' ? t8('Qty equals #1',             $self->value_num_as_number)
      : $op eq 'lt' ? t8('Qty less than #1',          $self->value_num_as_number)

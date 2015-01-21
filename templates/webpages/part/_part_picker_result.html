@@ -9,7 +9,7 @@
 <div class='part_picker_part [% FORM.no_paginate ? 'ppp_line' : 'ppp_block' %]'>
   <input type='hidden' class='part_picker_id' value='[% part.id %]'>
   <input type='hidden' class='part_picker_partnumber' value='[% part.partnumber %]'>
-  <input type='hidden' class='part_picker_description' value='[% part.description %]'>
+  <input type='hidden' class='part_picker_description' value='[% part.displayable_name %]'>
   <input type='hidden' class='part_picker_unit' value='[% part.unit %]'>
   <span class='ppp_block_number'>[% part.partnumber | html %]</span>
   <span class='ppp_block_description'>[% part.description | html %]</span>

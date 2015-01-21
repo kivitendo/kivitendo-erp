@@ -3,7 +3,7 @@
 [%- USE L %]
 [%- USE T8 %]
 [%- IF SELF.part.id %]
-<h3>[% LxERP.t8('Stock for part #1', SELF.part.long_description) %]</h3>
+<h3>[% LxERP.t8('Stock for part #1', SELF.part.displayable_name) %]</h3>
 
 [%- IF SELF.stock_empty && !SELF.part.bin_id  %]
 <p>[% 'Nothing stocked yet.' | $T8 %]</p>

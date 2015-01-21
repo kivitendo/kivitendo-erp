@@ -21,7 +21,7 @@
  <tr class='listrow'>
   <td>[% row.base.itime_as_date  %]</td>
   <td>[% row.base.trans_type.description | $T8 %]</td>
-  <td>[% row.base.part.long_description | html %]</td>
+  <td>[% row.base.part.displayable_name | html %]</td>
   <td>[% row.out ? row.out.bin.full_description : '-' | html %]</td>
   <td class='numeric'>[% row.in ? row.in.qty_as_number : LxERP.format_amount(-1 * row.out.qty, 2) %]</td>
   <td>[% row.base.part.unit | html %]</td>

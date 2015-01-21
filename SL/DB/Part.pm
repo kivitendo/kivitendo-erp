@@ -205,7 +205,7 @@ sub get_simple_stock {
   sub bin       { require SL::DB::Bin;       SL::DB::Manager::Bin      ->find_by_or_create(id => $_[0]->{bin_id}) }
 }
 
-sub long_description {
+sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
 }
 
