@@ -32,7 +32,6 @@ namespace('kivi', function(k){
     var $type   = $('#' + real_id + '_type');
     var $unit   = $('#' + real_id + '_unit');
     var $convertible_unit = $('#' + real_id + '_convertible_unit');
-    var $column = $('#' + real_id + '_column');
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
@@ -61,7 +60,6 @@ namespace('kivi', function(k){
         'filter.obsolete': 0,
         'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
         no_paginate:  $('#no_paginate').prop('checked') ? 1 : 0,
-        column:   $column && $column.val() ? $column.val() : '',
         current:  $real.val(),
       };
 
@@ -77,8 +75,8 @@ namespace('kivi', function(k){
     function set_item (item) {
       if (item.id) {
         $real.val(item.id);
-        // autocomplete ui has name, ajax items have description
-        $dummy.val(item.name ? item.name : item.description);
+        // autocomplete ui has name, use the value for ajax items, which contains displayable_name
+        $dummy.val(item.name ? item.name : item.value);
       } else {
         $real.val('');
         $dummy.val('');
@@ -233,7 +231,6 @@ namespace('kivi', function(k){
       type:           function() { return $type },
       unit:           function() { return $unit },
       convertible_unit: function() { return $convertible_unit },
-      column:         function() { return $column },
       update_results: update_results,
       result_timer:   result_timer,
       set_item:       set_item,

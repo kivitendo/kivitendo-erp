@@ -20,8 +20,6 @@ __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') },
 sub action_ajax_autocomplete {
   my ($self, %params) = @_;
 
-  my $value = $::form->{column} || 'description';
-
   # if someone types something, and hits enter, assume he entered the full name.
   # if something matches, treat that as sole match
   # unfortunately get_models can't do more than one per package atm, so we d it
@@ -45,8 +43,8 @@ sub action_ajax_autocomplete {
 
   my @hashes = map {
    +{
-     value       => $_->$value,
-     label       => $_->long_description,
+     value       => $_->displayable_name,
+     label       => $_->displayable_name,
      id          => $_->id,
      partnumber  => $_->partnumber,
      description => $_->description,
@@ -106,7 +104,7 @@ sub init_models {
     controller => $self,
     sorted => {
       _default  => {
-        by => 'description',
+        by => 'partnumber',
         dir  => 1,
       },
       partnumber  => t8('Partnumber'),
