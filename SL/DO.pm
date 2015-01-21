@@ -451,7 +451,7 @@ SQL
              $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
              conv_date($form->{reqdate}), $form->{shippingpoint}, $form->{shipvia},
-             $form->{notes}, $form->{intnotes},
+             $restricter->process($form->{notes}), $form->{intnotes},
              $form->{closed} ? 't' : 'f', $form->{delivered} ? "t" : "f",
              conv_i($form->{department_id}), conv_i($form->{language_id}), conv_i($form->{shipto_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),

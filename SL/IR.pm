@@ -722,7 +722,7 @@ SQL
                 $form->{invnumber},          $form->{ordnumber},           $form->{quonumber},      conv_date($form->{invdate}),
       conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
                 $netamount,                  $form->{paid},      conv_date($form->{duedate}),
-            '1',                             $taxzone_id,                  $form->{notes},          $form->{taxincluded} ? 't' : 'f',
+            '1',                             $taxzone_id, $restricter->process($form->{notes}),               $form->{taxincluded} ? 't' : 'f',
                 $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), conv_i($form->{delivery_term_id}),
          conv_i($form->{globalproject_id}),

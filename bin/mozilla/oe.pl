@@ -510,11 +510,9 @@ sub form_footer {
 
   $form->{invtotal} = $form->{invsubtotal};
 
-  my $rows    = max 2, $form->numtextrows($form->{notes}, 25, 8);
-  my $introws = max 2, $form->numtextrows($form->{intnotes}, 35, 8);
-  $rows    = max $rows, $introws;
+  my $introws = max 5, $form->numtextrows($form->{intnotes}, 35, 8);
 
-  $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
+  $TMPL_VAR{notes}    = qq|<textarea name="notes" class="texteditor" wrap="soft" style="width: 350px; height: 150px">| . H($form->{notes}) . qq|</textarea>|;
   $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
   if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {

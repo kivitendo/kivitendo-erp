@@ -1351,6 +1351,7 @@ sub print_form {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = {
       longdescription => 'html',
       partnotes       => 'html',
+      notes           => 'html',
     };
   }
 

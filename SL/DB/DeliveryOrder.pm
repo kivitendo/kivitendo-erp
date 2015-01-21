@@ -8,6 +8,7 @@ use Rose::DB::Object::Helpers ();
 
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
+use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
@@ -28,6 +29,8 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
                                    );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_html('notes');
 
 __PACKAGE__->before_save('_before_save_set_donumber');
 

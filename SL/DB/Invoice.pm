@@ -12,6 +12,7 @@ use Rose::DB::Object::Helpers ();
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
+use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
@@ -57,6 +58,8 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_html('notes');
 
 __PACKAGE__->before_save('_before_save_set_invnumber');
 

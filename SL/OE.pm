@@ -634,7 +634,7 @@ SQL
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
              $amount, $netamount, conv_date($reqdate),
              $form->{taxincluded} ? 't' : 'f', $form->{shippingpoint},
-             $form->{shipvia}, $form->{notes}, $form->{intnotes},
+             $form->{shipvia}, $restricter->process($form->{notes}), $form->{intnotes},
              $form->{currency}, $form->{closed} ? 't' : 'f',
              $form->{delivered} ? "t" : "f", $form->{proforma} ? 't' : 'f',
              $quotation, conv_i($form->{department_id}),

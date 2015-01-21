@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %][%- USE L -%]
+[% USE HTML %][% USE LxERP %][%- USE L -%][%- USE P -%]
  [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
@@ -13,7 +13,14 @@
        </tr>
 
        <tr valign="top">
-        <td><textarea name="notes" rows="[% LxERP.numtextrows(notes, 25, 8, 2) %]" cols="25" wrap="soft"[% RO %]>[% HTML.escape(notes) %]</textarea></td>
+        <td>
+         [% IF delivered %]
+          [% L.hidden_tag("notes", notes) %]
+         <div style="width: 350px; height: 150px; border: 1px solid black">[% P.restricted_html(notes) %]</div>
+         [% ELSE %]
+          [% L.textarea_tag("notes", notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
+         [% END %]
+        </td>
         <td><textarea name="intnotes" rows="[% LxERP.numtextrows(intnotes, 35, 8, 2) %]" cols="35" wrap="soft"[% RO %]>[% HTML.escape(intnotes) %]</textarea></td>
        </tr>
 

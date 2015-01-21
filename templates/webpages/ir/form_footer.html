@@ -15,7 +15,7 @@
         </tr>
         <tr valign="top">
          <td>
-          <textarea name="notes" rows="[% rows %]" cols="26" wrap="soft">[% notes %]</textarea>
+          [% L.textarea_tag("notes", notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
          </td>
          <td>
           <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
