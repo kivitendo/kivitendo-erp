@@ -898,10 +898,12 @@ sub order_details {
     next if (!$form->{"id_$i"});
 
     if ($item->[1] ne $sameitem) {
-      push(@{ $form->{description} }, qq|$item->[1]|);
+      push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
 
-      map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+      map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" && $_ !~ /^si_/} @arrays));
+      map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, []) } grep({ $_ =~ /^si_/} @arrays));
+      $si_position++;
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
