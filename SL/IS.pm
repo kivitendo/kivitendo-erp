@@ -633,6 +633,8 @@ sub post_invoice {
   $form->{amount}      = {};
   $form->{amount_cogs} = {};
 
+  my @processed_invoice_ids;
+
   foreach my $i (1 .. $form->{rowcount}) {
     if ($form->{type} eq "credit_note") {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"}) * -1;
@@ -753,21 +755,29 @@ sub post_invoice {
       $pricegroup_id *= 1;
       $pricegroup_id  = undef if !$pricegroup_id;
 
-      my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('invoiceid')|);
+      if (!$form->{"invoice_id_$i"}) {
+        # there is no persistent id, therefore create one with all necessary constraints
+        my $q_invoice_id = qq|SELECT nextval('invoiceid')|;
+        my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
+        do_statement($form, $h_invoice_id, $q_invoice_id);
+        $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
+        my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, parts_id) values (?, ?, ?)|;
+        do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}), conv_i($form->{id}), conv_i($form->{"id_$i"}));
+        $h_invoice_id->finish();
+      }
 
       # save detail record in invoice table
-      $query =
-        qq|INSERT INTO invoice (id, trans_id, parts_id, description, longdescription, qty,
-                                sellprice, fxsellprice, discount, allocated, assemblyitem,
-                                unit, deliverydate, project_id, serialnumber, pricegroup_id,
-                                ordnumber, donumber, transdate, cusordnumber, base_qty, subtotal,
-                                marge_percent, marge_total, lastcost, active_price_source, active_discount_source,
+      $query = <<SQL;
+        UPDATE invoice SET trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?,
+                           sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, assemblyitem = ?,
+                           unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
+                           ordnumber = ?, donumber = ?, transdate = ?, cusordnumber = ?, base_qty = ?, subtotal = ?,
+                           marge_percent = ?, marge_total = ?, lastcost = ?, active_price_source = ?, active_discount_source = ?,
+                           price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
+        WHERE id = ?
+SQL
 
-                                price_factor_id, price_factor, marge_price_factor)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                   (SELECT factor FROM price_factors WHERE id = ?), ?)|;
-
-      @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
+      @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
                  $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
@@ -779,12 +789,14 @@ sub post_invoice {
                  $form->{"lastcost_$i"},
                  $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
-                 conv_i($form->{"marge_price_factor_$i"}));
+                 conv_i($form->{"marge_price_factor_$i"}),
+                 conv_i($form->{"invoice_id_$i"}));
       do_query($form, $dbh, $query, @values);
+      push @processed_invoice_ids, $form->{"invoice_id_$i"};
 
       CVar->save_custom_variables(module       => 'IC',
                                   sub_module   => 'invoice',
-                                  trans_id     => $invoice_id,
+                                  trans_id     => $form->{"invoice_id_$i"},
                                   configs      => $ic_cvar_configs,
                                   variables    => $form,
                                   name_prefix  => 'ic_',
@@ -1217,6 +1229,16 @@ sub post_invoice {
                                'arap_id' => $form->{id},
                                'table'   => 'ar',);
 
+  # search for orphaned invoice items
+  $query  = sprintf 'SELECT id FROM invoice WHERE trans_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_invoice_ids;
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_invoice_ids);
+  my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+  if (scalar @orphaned_ids) {
+    # clean up invoice items
+    $query  = sprintf 'DELETE FROM invoice WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
+    do_query($form, $dbh, $query, @orphaned_ids);
+  }
+
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_sales_invoice) {
     my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
@@ -1538,7 +1560,6 @@ sub reverse_invoice {
   # delete acc_trans
   my @values = (conv_i($form->{id}));
   do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
-  do_query($form, $dbh, qq|DELETE FROM invoice WHERE trans_id = ?|, @values);
   do_query($form, $dbh, qq|DELETE FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|, @values);
 
   $main::lxdebug->leave_sub();
@@ -1576,6 +1597,7 @@ sub delete_invoice {
   my @queries = (
     qq|DELETE FROM status WHERE trans_id = ?|,
     qq|DELETE FROM periodic_invoices WHERE ar_id = ?|,
+    qq|DELETE FROM invoice WHERE trans_id = ?|,
     qq|DELETE FROM ar WHERE id = ?|,
   );
 
@@ -1678,7 +1700,7 @@ sub retrieve_invoice {
 
            i.id AS invoice_id,
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
-           i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
+           i.project_id, i.serialnumber, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor, i.active_price_source, i.active_discount_source,
            p.partnumber, p.assembly, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel, p.listprice,
            pr.projectnumber, pg.partsgroup, prg.pricegroup
@@ -1705,7 +1727,6 @@ sub retrieve_invoice {
                                              trans_id   => $ref->{invoice_id},
                                             );
       map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
-      delete $ref->{invoice_id};
 
       map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
       delete($ref->{"part_inventory_accno_id"});

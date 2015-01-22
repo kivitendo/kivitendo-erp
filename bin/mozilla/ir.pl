@@ -586,6 +586,8 @@ sub storno {
   # Payments must not be recorded for the new storno invoice.
   $form->{paidaccounts} = 0;
   map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ gldate_ acc_trans_id_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
+  # set new ids for storno invoice
+  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -618,6 +620,7 @@ sub use_as_new {
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
+  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
   &display_form;
 
   $main::lxdebug->leave_sub();

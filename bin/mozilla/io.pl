@@ -445,6 +445,9 @@ sub display_row {
       push @hidden_vars, qw(invoice_id converted_from_quotation_orderitems_id converted_from_order_orderitems_id
                             converted_from_delivery_order_items_id);
     }
+    if ($::form->{type} =~ /credit_note/) {
+      push @hidden_vars, qw(invoice_id converted_from_invoice_id);
+    }
    if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
