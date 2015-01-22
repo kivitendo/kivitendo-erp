@@ -1820,6 +1820,7 @@ sub poso {
 
   # reset
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
+  $form->{"converted_from_quotation_orderitems_id_$_"} = $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};  # always reset orderitems_id
   delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};  # always reset orderitems_id
 
   # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
@@ -1896,6 +1897,7 @@ sub delivery_order {
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
+    $form->{"converted_from_order_orderitems_id_$_"} = $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
   }
 
   my %old_values = map { $_ => $form->{$_} } qw(customer_id oldcustomer customer vendor_id oldvendor vendor shipto_id);

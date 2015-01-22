@@ -578,6 +578,16 @@ SQL
                                   name_prefix  => 'ic_',
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
+      # link quotation items with order items
+      if ($form->{"converted_from_quotation_orderitems_id_$i"}) {
+        RecordLinks->create_links('dbh'        => $dbh,
+                                  'mode'       => 'ids',
+                                  'from_table' => 'orderitems',
+                                  'from_ids'   => $form->{"converted_from_quotation_orderitems_id_$i"},
+                                  'to_table'   => 'orderitems',
+                                  'to_id'      => $orderitems_id,
+        );
+      }
     }
   }
   # search for orphaned ids
