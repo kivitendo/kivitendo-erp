@@ -578,7 +578,7 @@ SQL
                                   name_prefix  => 'ic_',
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
-      # link quotation items with order items
+      # link quotation items with order items and delete entry (just one link)
       if ($form->{"converted_from_quotation_orderitems_id_$i"}) {
         RecordLinks->create_links('dbh'        => $dbh,
                                   'mode'       => 'ids',
@@ -587,6 +587,7 @@ SQL
                                   'to_table'   => 'orderitems',
                                   'to_id'      => $orderitems_id,
         );
+        delete $form->{"converted_from_quotation_orderitems_id_$i"};
       }
     }
   }
