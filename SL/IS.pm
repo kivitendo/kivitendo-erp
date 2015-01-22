@@ -648,6 +648,7 @@ sub post_invoice {
 
     if ($form->{"id_$i"}) {
       my $item_unit;
+      my $position = $i;
 
       if (defined($baseunits{$form->{"id_$i"}})) {
         $item_unit = $baseunits{$form->{"id_$i"}};
@@ -733,7 +734,7 @@ sub post_invoice {
 
         if ($form->{"assembly_$i"}) {
           # record assembly item as allocated
-          &process_assembly($dbh, $myconfig, $form, $form->{"id_$i"}, $baseqty);
+          &process_assembly($dbh, $myconfig, $form, $position, $form->{"id_$i"}, $baseqty);
 
         } else {
           $allocated = &cogs($dbh, $myconfig, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
@@ -754,14 +755,15 @@ sub post_invoice {
         my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
         do_statement($form, $h_invoice_id, $q_invoice_id);
         $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
-        my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, parts_id) values (?, ?, ?)|;
-        do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}), conv_i($form->{id}), conv_i($form->{"id_$i"}));
+        my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id) values (?, ?, ?, ?)|;
+        do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}),
+                 conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}));
         $h_invoice_id->finish();
       }
 
       # save detail record in invoice table
       $query = <<SQL;
-        UPDATE invoice SET trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?,
+        UPDATE invoice SET trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?,
                            sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, assemblyitem = ?,
                            unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
                            ordnumber = ?, donumber = ?, transdate = ?, cusordnumber = ?, base_qty = ?, subtotal = ?,
@@ -770,7 +772,7 @@ sub post_invoice {
         WHERE id = ?
 SQL
 
-      @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
+      @values = (conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}),
                  $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
@@ -1388,7 +1390,7 @@ sub post_payment {
 sub process_assembly {
   $main::lxdebug->enter_sub();
 
-  my ($dbh, $myconfig, $form, $id, $totalqty) = @_;
+  my ($dbh, $myconfig, $form, $position, $id, $totalqty) = @_;
 
   my $query =
     qq|SELECT a.parts_id, a.qty, p.assembly, p.partnumber, p.description, p.unit,
@@ -1409,7 +1411,7 @@ sub process_assembly {
     $ref->{qty} *= $totalqty;
 
     if ($ref->{assembly}) {
-      &process_assembly($dbh, $myconfig, $form, $ref->{parts_id}, $ref->{qty});
+      &process_assembly($dbh, $myconfig, $form, $position, $ref->{parts_id}, $ref->{qty});
       next;
     } else {
       if ($ref->{inventory_accno_id}) {
@@ -1419,9 +1421,10 @@ sub process_assembly {
 
     # save detail record for individual assembly item in invoice table
     $query =
-      qq|INSERT INTO invoice (trans_id, description, parts_id, qty, sellprice, fxsellprice, allocated, assemblyitem, unit)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)|;
-    my @values = (conv_i($form->{id}), $ref->{description}, conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit});
+      qq|INSERT INTO invoice (trans_id, position, description, parts_id, qty, sellprice, fxsellprice, allocated, assemblyitem, unit)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+    my @values = (conv_i($form->{id}), conv_i($position), $ref->{description},
+                  conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit});
     do_query($form, $dbh, $query, @values);
 
   }
@@ -1723,7 +1726,7 @@ sub retrieve_invoice {
          LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
          LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
 
-         WHERE (i.trans_id = ?) AND NOT (i.assemblyitem = '1') ORDER BY i.id|;
+         WHERE (i.trans_id = ?) AND NOT (i.assemblyitem = '1') ORDER BY i.position|;
 
     $sth = prepare_execute_query($form, $dbh, $query, $id);
 

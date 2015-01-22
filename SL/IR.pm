@@ -106,6 +106,8 @@ sub post_invoice {
   for my $i (1 .. $form->{rowcount}) {
     next unless $form->{"id_$i"};
 
+    my $position = $i;
+
     $form->{"qty_$i"}  = $form->parse_amount($myconfig, $form->{"qty_$i"});
     $form->{"qty_$i"} *= -1 if $form->{storno};
 
@@ -373,14 +375,15 @@ sub post_invoice {
       my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
       do_statement($form, $h_invoice_id, $q_invoice_id);
       $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
-      my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, parts_id) values (?, ?, ?)|;
-      do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}), conv_i($form->{id}), conv_i($form->{"id_$i"}));
+      my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id) values (?, ?, ?, ?)|;
+      do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}),
+               conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}));
       $h_invoice_id->finish();
     }
 
       # save detail record in invoice table
       $query = <<SQL;
-        UPDATE invoice SET trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+        UPDATE invoice SET trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
                            sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, unit = ?, deliverydate = ?,
                            project_id = ?, serialnumber = ?, price_factor_id = ?,
                            price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
@@ -388,7 +391,7 @@ sub post_invoice {
         WHERE id = ?
 SQL
 
-    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
+    @values = (conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $form->{"discount_$i"}, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
@@ -1018,7 +1021,7 @@ sub retrieve_invoice {
 
         WHERE i.trans_id = ?
 
-        ORDER BY i.id|;
+        ORDER BY i.position|;
   $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
