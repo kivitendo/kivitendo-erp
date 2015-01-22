@@ -70,6 +70,11 @@ sub flatten_to_form {
     _copy($item->project, $form, 'project', "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
 
     _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}");
+
+    if (ref($self) eq 'SL::DB::Invoice') {
+      $form->{"deliverydate_oe_${idx}"} = $item->deliverydate->to_lxoffice;
+      $form->{"reqdate_${idx}"}         = $item->deliverydate->to_lxoffice;
+    }
   }
 
   _copy_custom_variables($self, $form, 'vc_cvar_', '');
