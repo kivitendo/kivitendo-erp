@@ -136,6 +136,8 @@ sub display_row {
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
+  my $is_quotation       = $form->{type} =~ /_quotation$/;
+  my $is_invoice         = $form->{type} =~ /invoice/;
   my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
 
   if ($is_delivery_order) {
@@ -432,19 +434,29 @@ sub display_row {
 # / calculate onhand
 
     my @hidden_vars;
-
-    if ($is_delivery_order) {
+    # add hidden ids for persistent (item|invoice)_ids and previous (converted_from*) ids
+    if ($is_quotation) {
+      push @hidden_vars, qw(orderitems_id);
+    }
+    if ($is_s_p_order) {
+      push @hidden_vars, qw(orderitems_id converted_from_quotation_orderitems_id);
+    }
+    if ($is_invoice) {
+      push @hidden_vars, qw(invoice_id converted_from_quotation_orderitems_id converted_from_order_orderitems_id
+                            converted_from_delivery_order_items_id);
+    }
+   if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
-      push @hidden_vars, qw(delivery_order_items_id);
+      push @hidden_vars, qw(delivery_order_items_id converted_from_order_orderitems_id);
     }
 
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
-            (qw(orderitems_id bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
+            (qw(bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
                 income_accno expense_accno listprice assembly taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
@@ -727,7 +739,9 @@ sub remove_emptied_rows {
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate orderitems_id
-                active_price_source active_discount_source delivery_order_items_id);
+                active_price_source active_discount_source delivery_order_items_id
+                invoice_id converted_from_quotation_orderitems_id
+                converted_from_order_orderitems_id converted_from_delivery_order_items_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
