@@ -41,7 +41,7 @@ sub add_items { goto &add_invoiceitems; }
 sub items_sorted {
   my ($self) = @_;
 
-  return [ sort {$a->id <=> $b->id } @{ $self->items } ];
+  return [ sort {$a->position <=> $b->position } @{ $self->items } ];
 }
 
 sub is_sales {
