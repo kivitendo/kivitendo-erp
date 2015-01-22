@@ -3112,6 +3112,7 @@ $self->{texts} = {
   'found'                       => 'Gefunden',
   'from (time)'                 => 'von',
   'general_ledger_list'         => 'buchungsjournal',
+  'gl_transaction'              => 'Dialogbuchung',
   'h'                           => 'h',
   'history'                     => 'Historie',
   'history search engine'       => 'Historien Suchmaschine',

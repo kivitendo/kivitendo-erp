@@ -1190,23 +1190,28 @@ sub show_am_history {
   my $callback     = build_std_url(qw(action einschraenkungen fromdate todate mitarbeiter searchid what2search));
   $form->{order} ||= 'h.itime--1';
 
-  my %search = ( "Artikelnummer"          => "parts",
-                 "Kundennummer"           => "customer",
-                 "Lieferantennummer"      => "vendor",
-                 "Projektnummer"          => "project",
-                 "Buchungsnummer"         => "oe",
-                 "Eingangsrechnungnummer" => "ap",
-                 "Ausgangsrechnungnummer" => "ar",
-                 "Mahnungsnummer"         => "dunning"
-    );
+  # my %search = ( "Artikelnummer"          => "parts",
+  #                "Kundennummer"           => "customer",
+  #                "Lieferantennummer"      => "vendor",
+  #                "Projektnummer"          => "project",
+  #                "Auftragsnummer"         => "oe",
+  #                "Angebotsnummer"         => "oe",
+  #                "Eingangsrechnungnummer" => "ap",
+  #                "Ausgangsrechnungnummer" => "ar",
+  #                "Mahnungsnummer"         => "dunning",
+  #                "Buchungsnummer"         => "gl",
+  # );
+
   my %searchNo = ( "Artikelnummer"          => "partnumber",
                    "Kundennummer"           => "customernumber",
                    "Lieferantennummer"      => "vendornumber",
                    "Projektnummer"          => "projectnumber",
-                   "Buchungsnummer"         => "ordnumber",
+                   "Auftragsnummer"         => "ordnumber",
+                   "Angebotsnummer"         => "quonumber",
                    "Eingangsrechnungnummer" => "invnumber",
                    "Ausgangsrechnungnummer" => "invnumber",
-                   "Mahnungsnummer"         => "dunning_id"
+                   "Mahnungsnummer"         => "dunning_id",
+                   "Buchungsnummer"         => "gltransaction"
     );
 
   my $dbh = $form->dbconnect(\%myconfig);
