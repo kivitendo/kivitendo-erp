@@ -102,6 +102,7 @@ sub post_invoice {
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
   my $price_factor;
 
+  my @processed_invoice_ids;
   for my $i (1 .. $form->{rowcount}) {
     next unless $form->{"id_$i"};
 
@@ -144,17 +145,8 @@ sub post_invoice {
     map { $taxrate += $form->{"${_}_rate"} } @taxaccounts;
 
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
-    #####################################################################
-    # das ist aus IS.pm kopiert. schlimm. jb 7.10.2009
-    # ich würde mir wünschen, dass diese vier stellen zusammengefasst werden
-    # ... vier stellen = (einkauf + verkauf) * (maske + backend)
-    # ansonsten stolpert man immer wieder viermal statt einmal heftig
-    # und auch das undo discount formatting ist nicht besonders wartungsfreundlich
-
-    # keine ahnung wofür das in IS.pm gemacht wird:
-    #      my ($dec) = ($fxsellprice =~ /\.(\d+)/);
-    #  $dec = length $dec;
-    #  my $decimalplaces = ($dec > 2) ? $dec : 2;
+    # copied from IS.pm, with some changes (no decimalplaces corrections here etc)
+    # TODO maybe use PriceTaxCalculation or something like this for backends (IR.pm / IS.pm)
 
     # undo discount formatting
     $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
@@ -234,17 +226,17 @@ sub post_invoice {
            ORDER BY transdate|;
            # ORDER BY transdate guarantees FIFO
 
-# sold two items without having bought them yet, example result of query:
-# id | qty | allocated | trans_id | inventory_accno_id | expense_accno_id | transdate
-# ---+-----+-----------+----------+--------------------+------------------+------------
-#  9 |   2 |         0 |        9 |                 15 |              151 | 2011-01-05
+      # sold two items without having bought them yet, example result of query:
+      # id | qty | allocated | trans_id | inventory_accno_id | expense_accno_id | transdate
+      # ---+-----+-----------+----------+--------------------+------------------+------------
+      #  9 |   2 |         0 |        9 |                 15 |              151 | 2011-01-05
 
-# base_qty + allocated > 0 if article has already been sold but not bought yet
+      # base_qty + allocated > 0 if article has already been sold but not bought yet
 
-# select qty,allocated,base_qty,sellprice from invoice where trans_id = 9;
-#  qty | allocated | base_qty | sellprice
-# -----+-----------+----------+------------
-#    2 |         0 |        2 | 1000.00000
+      # select qty,allocated,base_qty,sellprice from invoice where trans_id = 9;
+      #  qty | allocated | base_qty | sellprice
+      # -----+-----------+----------+------------
+      #    2 |         0 |        2 | 1000.00000
 
       $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id_$i"}));
 
@@ -259,7 +251,7 @@ sub post_invoice {
 
           if ($ref->{allocated} < 0) {
 
-# we have an entry for it already, adjust amount
+            # we have an entry for it already, adjust amount
             $form->update_balance($dbh, "acc_trans", "amount",
                 qq|    (trans_id = $ref->{trans_id})
                 AND (chart_id = $ref->{inventory_accno_id})
@@ -292,7 +284,7 @@ sub post_invoice {
                        $ref->{inventory_accno_id});
             do_query($form, $dbh, $query, @values);
 
-# add expense
+            # add expense
             $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) VALUES (?, ?, ?, ?,
                                 (SELECT taxkey_id
                                  FROM taxkeys
@@ -375,28 +367,41 @@ sub post_invoice {
 
     next if $payments_only;
 
-    # save detail record in invoice table
-    my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('invoiceid')|);
+    if (!$form->{"invoice_id_$i"}) {
+      # there is no persistent id, therefore create one with all necessary constraints
+      my $q_invoice_id = qq|SELECT nextval('invoiceid')|;
+      my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
+      do_statement($form, $h_invoice_id, $q_invoice_id);
+      $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
+      my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, parts_id) values (?, ?, ?)|;
+      do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}), conv_i($form->{id}), conv_i($form->{"id_$i"}));
+      $h_invoice_id->finish();
+    }
 
-    $query =
-      qq|INSERT INTO invoice (id, trans_id, parts_id, description, longdescription, qty, base_qty,
-                              sellprice, fxsellprice, discount, allocated, unit, deliverydate,
-                              project_id, serialnumber, price_factor_id, price_factor, marge_price_factor,
-                              active_price_source, active_discount_source)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?, ?, ?)|;
-    @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
+      # save detail record in invoice table
+      $query = <<SQL;
+        UPDATE invoice SET trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+                           sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, unit = ?, deliverydate = ?,
+                           project_id = ?, serialnumber = ?, price_factor_id = ?,
+                           price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
+                           active_price_source = ?, active_discount_source = ?
+        WHERE id = ?
+SQL
+
+    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $form->{"discount_$i"}, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}),
                $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
-               );
+               conv_i($form->{"invoice_id_$i"}));
     do_query($form, $dbh, $query, @values);
+    push @processed_invoice_ids, $form->{"invoice_id_$i"};
 
     CVar->save_custom_variables(module       => 'IC',
                                 sub_module   => 'invoice',
-                                trans_id     => $invoice_id,
+                                trans_id     => $form->{"invoice_id_$i"},
                                 configs      => $ic_cvar_configs,
                                 variables    => $form,
                                 name_prefix  => 'ic_',
@@ -765,6 +770,16 @@ sub post_invoice {
                                'arap_id' => $form->{id},
                                'table'   => 'ap',);
 
+  # search for orphaned invoice items
+  $query  = sprintf 'SELECT id FROM invoice WHERE trans_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_invoice_ids;
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_invoice_ids);
+  my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+  if (scalar @orphaned_ids) {
+    # clean up invoice items
+    $query  = sprintf 'DELETE FROM invoice WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
+    do_query($form, $dbh, $query, @orphaned_ids);
+  }
+
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_purchase_invoice) {
     my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
@@ -866,10 +881,6 @@ sub reverse_invoice {
   $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
   do_query($form, $dbh, $query, $id);
 
-  # delete invoice entries
-  $query = qq|DELETE FROM invoice WHERE trans_id = ?|;
-  do_query($form, $dbh, $query, $id);
-
   $query = qq|DELETE FROM shipto WHERE (trans_id = ?) AND (module = 'AP')|;
   do_query($form, $dbh, $query, $id);
 
@@ -886,13 +897,20 @@ sub delete_invoice {
 
   &reverse_invoice($dbh, $form);
 
+  my @values = (conv_i($form->{id}));
+
   # delete zero entries
+  # wtf? use case for this?
   $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
   do_query($form, $dbh, $query);
 
-  # delete AP record
-  $query = qq|DELETE FROM ap WHERE id = ?|;
-  do_query($form, $dbh, $query, conv_i($form->{id}));
+
+  my @queries = (
+    qq|DELETE FROM invoice WHERE trans_id = ?|,
+    qq|DELETE FROM ap WHERE id = ?|,
+  );
+
+  map { do_query($form, $dbh, $_, @values) } @queries;
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -1003,7 +1021,6 @@ sub retrieve_invoice {
                                            trans_id   => $ref->{invoice_id},
                                           );
     map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
-    delete $ref->{invoice_id};
 
     map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
     delete($ref->{"part_inventory_accno_id"});

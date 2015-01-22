@@ -381,6 +381,7 @@ sub form_header {
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2  shiptocp_gender message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids convert_from_ar_ids
+    invoice_id
     show_details
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
@@ -833,6 +834,7 @@ sub use_as_new {
   $form->{employee_id}  = SL::DB::Manager::Employee->current->id;
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
+  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   &display_form;
 
@@ -875,6 +877,8 @@ sub storno {
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
   $form->{invdate}   = DateTime->today->to_lxoffice;
   $form->{rowcount}++;
+  # set new ids for storno invoice
+  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   post();
   $main::lxdebug->leave_sub();
@@ -979,6 +983,8 @@ sub credit_note {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
   }
+  # set new persistent ids for credit note
+  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   my $currency = $form->{currency};
   &invoice_links;
