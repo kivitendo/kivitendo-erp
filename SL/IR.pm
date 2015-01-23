@@ -407,6 +407,28 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
+    # link oe items with invoice
+    if ($form->{"converted_from_orderitems_id_$i"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => 'orderitems',
+                                'from_ids'   => $form->{"converted_from_orderitems_id_$i"},
+                                'to_table'   => 'invoice',
+                                'to_id'      => $form->{"invoice_id_$i"},
+      );
+      delete $form->{"converted_from_orderitems_id_$i"};
+    }
+    # link doi items with invoice
+    if ($form->{"converted_from_delivery_order_items_id_$i"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => 'delivery_order_items',
+                                'from_ids'   => $form->{"converted_from_delivery_order_items_id_$i"},
+                                'to_table'   => 'invoice',
+                                'to_id'      => $form->{"invoice_id_$i"},
+      );
+      delete $form->{"converted_from_delivery_order_items_id_$i"};
+    }
   }
 
   $h_item_unit->finish();

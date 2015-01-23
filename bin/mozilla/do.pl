@@ -785,6 +785,7 @@ sub invoice {
     }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
     $form->{"donumber_$i"} = $form->{donumber};
+    $form->{"converted_from_delivery_order_items_id_$i"} = delete $form->{"delivery_order_items_id_$i"};
   }
 
   $form->{type} = "invoice";
@@ -922,6 +923,7 @@ sub invoice_multi {
     $ref->{reqdate} ||= $ref->{dord_transdate}; # copy transdates into each invoice row
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
     map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice lastcost);
+    $form->{"converted_from_delivery_order_items_id_$form->{rowcount}"} = delete $form->{"delivery_order_items_id_$form->{rowcount}"};
 
     if ($vc_discount){ # falls wir einen Lieferanten/Kundenrabatt haben
       # und keinen anderen discount wert an $i ...

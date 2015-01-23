@@ -404,15 +404,15 @@ SQL
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
     # link order items with doi
-    if ($form->{"converted_from_order_orderitems_id_$i"}) {
+    if ($form->{"converted_from_orderitems_id_$i"}) {
       RecordLinks->create_links('dbh'        => $dbh,
                                 'mode'       => 'ids',
                                 'from_table' => 'orderitems',
-                                'from_ids'   => $form->{"converted_from_order_orderitems_id_$i"},
+                                'from_ids'   => $form->{"converted_from_orderitems_id_$i"},
                                 'to_table'   => 'delivery_order_items',
                                 'to_id'      =>  $form->{"delivery_order_items_id_$i"},
       );
-      delete $form->{"converted_from_order_orderitems_id_$i"};
+      delete $form->{"converted_from_orderitems_id_$i"};
     }
   }
 

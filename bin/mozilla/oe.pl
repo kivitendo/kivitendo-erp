@@ -1423,6 +1423,7 @@ sub invoice {
     for (qw(ship qty sellprice listprice basefactor)) {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
+    $form->{"converted_from_orderitems_id_$i"} = delete $form->{"orderitems_id_$i"};
   }
 
   my ($buysell, $orddate, $exchangerate);
@@ -1472,7 +1473,6 @@ sub invoice {
 
   # bo creates the id, reset it
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
-  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
   $form->{ $form->{vc} } =~ s/--.*//g;
   $form->{type} = "invoice";
 
@@ -1896,8 +1896,7 @@ sub delivery_order {
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
-    $form->{"converted_from_order_orderitems_id_$i"} = $form->{"orderitems_id_$i"};
-    delete $form->{"orderitems_id_$i"}; # even if they don't exist in form. cvars checks them before display_row
+    $form->{"converted_from_orderitems_id_$i"} = delete $form->{"orderitems_id_$i"};
   }
 
   my %old_values = map { $_ => $form->{$_} } qw(customer_id oldcustomer customer vendor_id oldvendor vendor shipto_id);
