@@ -72,8 +72,9 @@ sub flatten_to_form {
     _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}");
 
     if (ref($self) eq 'SL::DB::Invoice') {
-      $form->{"deliverydate_oe_${idx}"} = $item->deliverydate->to_lxoffice;
-      $form->{"reqdate_${idx}"}         = $item->deliverydate->to_lxoffice;
+      my $date                          = $item->deliverydate ? $item->deliverydate->to_lxoffice : undef;
+      $form->{"deliverydate_oe_${idx}"} = $date;
+      $form->{"reqdate_${idx}"}         = $date;
     }
   }
 

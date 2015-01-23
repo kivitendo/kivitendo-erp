@@ -962,8 +962,9 @@ sub yes {
   if (GL->delete_transaction(\%myconfig, \%$form)){
     # saving the history
       if(!exists $form->{addition} && $form->{id} ne "") {
-        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+        $form->{snumbers} = qq|gltransaction_| . $form->{id};
         $form->{addition} = "DELETED";
+        $form->{what_done} = "gl_transaction";
         $form->save_history;
       }
     # /saving the history
@@ -1134,9 +1135,9 @@ sub post_transaction {
   undef($form->{callback});
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-    $form->{addition} = "SAVED";
-    $form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id};
+    $form->{snumbers} = qq|gltransaction_| . $form->{id};
+    $form->{addition} = "POSTED";
+    $form->{what_done} = "gl transaction";
     $form->save_history;
   }
   # /saving the history
@@ -1203,8 +1204,9 @@ sub storno {
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = "ordnumber_$form->{ordnumber}";
+    $form->{snumbers} = qq|gltransaction_| . $form->{id};
     $form->{addition} = "STORNO";
+    $form->{what_done} = "gl_transaction";
     $form->save_history;
   }
   # /saving the history
