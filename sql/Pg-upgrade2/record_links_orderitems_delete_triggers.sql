@@ -1,6 +1,6 @@
 -- @tag: record_links_orderitems_delete_triggers
 -- @description: delete trigger für verknüpfte invoice(items), orderitems und delivery_order_items
--- @depends: record_links_post_delete_triggers2
+-- @depends: record_links_post_delete_triggers2 release_3_1_0
 CREATE OR REPLACE FUNCTION clean_up_record_links_before_orderitems_delete() RETURNS trigger AS $$
   BEGIN
     DELETE FROM record_links
