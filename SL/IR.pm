@@ -757,14 +757,16 @@ SQL
   Common::webdav_folder($form);
 
   # Link this record to the records it was created from.
-  RecordLinks->create_links('dbh'        => $dbh,
-                            'mode'       => 'ids',
-                            'from_table' => 'oe',
-                            'from_ids'   => $form->{convert_from_oe_ids},
-                            'to_table'   => 'ap',
-                            'to_id'      => $form->{id},
-    );
-  delete $form->{convert_from_oe_ids};
+  if ($form->{convert_from_oe_ids}) {
+    RecordLinks->create_links('dbh'        => $dbh,
+                              'mode'       => 'ids',
+                              'from_table' => 'oe',
+                              'from_ids'   => $form->{convert_from_oe_ids},
+                              'to_table'   => 'ap',
+                              'to_id'      => $form->{id},
+      );
+    delete $form->{convert_from_oe_ids};
+  }
 
   my @convert_from_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{convert_from_do_ids};
   if (scalar @convert_from_do_ids) {
