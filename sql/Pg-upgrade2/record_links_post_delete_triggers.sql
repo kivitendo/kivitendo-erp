@@ -3,7 +3,7 @@
 -- @depends: release_2_7_0
 
 -- When deleting records record_links weren't cleaned up until now
--- This wasn't rally a problem apart from the fact that record_links slowly grew
+-- This wasn't really a problem apart from the fact that record_links slowly grew
 -- but deleting records was seldom enough to not matter
 -- Unfortunately delivery_plan decides if an order need to be displayed by the
 -- number of record_links, which generates false negatives.
