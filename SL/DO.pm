@@ -403,6 +403,17 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
+    # link order items with doi
+    if ($form->{"converted_from_order_orderitems_id_$i"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => 'orderitems',
+                                'from_ids'   => $form->{"converted_from_order_orderitems_id_$i"},
+                                'to_table'   => 'delivery_order_items',
+                                'to_id'      =>  $form->{"delivery_order_items_id_$i"},
+      );
+      delete $form->{"converted_from_order_orderitems_id_$i"};
+    }
   }
 
   # 1. search for orphaned dois; processed_dois may be empty (no transfer) TODO: be supersafe and alter same statement for doi and oi

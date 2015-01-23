@@ -1893,11 +1893,11 @@ sub delivery_order {
 
   # reset
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
-  delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
-    $form->{"converted_from_order_orderitems_id_$_"} = $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
+    $form->{"converted_from_order_orderitems_id_$i"} = $form->{"orderitems_id_$i"};
+    delete $form->{"orderitems_id_$i"}; # even if they don't exist in form. cvars checks them before display_row
   }
 
   my %old_values = map { $_ => $form->{$_} } qw(customer_id oldcustomer customer vendor_id oldvendor vendor shipto_id);
