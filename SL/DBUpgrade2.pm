@@ -185,6 +185,7 @@ sub process_query {
           # Query is complete. Send it.
 
           $sth = $dbh->prepare($query);
+          $::lxdebug->dump(0, "bb: query: ", $query);
           if (!$sth->execute()) {
             my $errstr = $dbh->errstr;
             return $errstr // '<unknown database error>' if $self->{return_on_error};
