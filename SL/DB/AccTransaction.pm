@@ -12,4 +12,59 @@ __PACKAGE__->meta->initialize;
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 
+sub record {
+  my ($self) = @_;
+
+  my @classes = qw(Invoice PurchaseInvoice GLTransaction);
+
+  foreach my $class ( @classes ) {
+    $class = 'SL::DB::' . $class;
+    my $record = $class->new(id => $self->trans_id);
+    return $record if $record->load(speculative => 1);
+  };
+
+};
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB::AccTransaction: Rose model for transactions (table "acc_trans")
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<record>
+
+Returns the ar, ap or gl object of the current acc_trans object.
+
+Example:
+  my $acc_trans = SL::DB::Manager::AccTransaction->find_by( trans_id => '427' );
+  my $record = $acc_trans->record;
+
+Each acc_trans entry is associated with an ar, ap or gl record. If we only have
+an acc_trans object, and we want to find out which kind of record it belongs
+to, we have to look for its trans_id in the tables ar, ap and gl. C<record>
+does this for you and returns an Invoice, PurchaseInvoice or GLTransaction
+object.
+
+We use the Rose::DB::Object load function with the C<speculative> parameter for
+each record type, which returns true if the load was successful, so we don't
+bother to check the ref of the object.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+G. Richardson E<lt>information@kivitendo-premium.deE<gt>
+
+=cut
