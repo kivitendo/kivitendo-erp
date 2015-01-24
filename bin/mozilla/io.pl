@@ -436,10 +436,10 @@ sub display_row {
     my @hidden_vars;
     # add hidden ids for persistent (item|invoice)_ids and previous (converted_from*) ids
     if ($is_quotation) {
-      push @hidden_vars, qw(orderitems_id);
+      push @hidden_vars, qw(orderitems_id converted_from_orderitems_id);
     }
     if ($is_s_p_order) {
-      push @hidden_vars, qw(orderitems_id converted_from_quotation_orderitems_id);
+      push @hidden_vars, qw(orderitems_id converted_from_quotation_orderitems_id converted_from_invoice_id);
     }
     if ($is_invoice) {
       push @hidden_vars, qw(invoice_id converted_from_orderitems_id converted_from_delivery_order_items_id);
@@ -743,7 +743,8 @@ sub remove_emptied_rows {
                 stock_out stock_in has_sernumber reqdate orderitems_id
                 active_price_source active_discount_source delivery_order_items_id
                 invoice_id converted_from_quotation_orderitems_id
-                converted_from_orderitems_id converted_from_delivery_order_items_id);
+                converted_from_orderitems_id converted_from_delivery_order_items_id
+                converted_from_invoice_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
@@ -883,6 +884,7 @@ sub order {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
         qw(ship qty sellprice listprice basefactor discount));
+    $form->{"converted_from_invoice_id_$i"} = delete $form->{"invoice_id_$i"};
   }
 
   &prepare_order;
@@ -903,7 +905,7 @@ sub quotation {
   # we are coming from *_order and convert to quotation
   # it seems that quotation is only called if we have a existing order
   if ($form->{type} =~  /(sales|purchase)_order/) {
-    delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
+    $form->{"converted_from_orderitems_id_$_"} = delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
   }
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;

@@ -983,8 +983,8 @@ sub credit_note {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
   }
-  # set new persistent ids for credit note
-  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+  # set new persistent ids for credit note and link previous invoice id
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   my $currency = $form->{currency};
   &invoice_links;

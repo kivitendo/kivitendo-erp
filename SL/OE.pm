@@ -578,16 +578,20 @@ SQL
                                   name_prefix  => 'ic_',
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
-      # link quotation items with order items and delete entry (just one link)
-      if ($form->{"converted_from_quotation_orderitems_id_$i"}) {
-        RecordLinks->create_links('dbh'        => $dbh,
-                                  'mode'       => 'ids',
-                                  'from_table' => 'orderitems',
-                                  'from_ids'   => $form->{"converted_from_quotation_orderitems_id_$i"},
-                                  'to_table'   => 'orderitems',
-                                  'to_id'      => $orderitems_id,
-        );
-        delete $form->{"converted_from_quotation_orderitems_id_$i"};
+      # link previous items with orderitems
+      foreach (qw(quotation_orderitems orderitems invoice)) {
+        if ($form->{"converted_from_${_}_id_$i"}) {
+          my $table = $_;
+          $table    = 'orderitems' if $table eq 'quotation_orderitems';
+          RecordLinks->create_links('dbh'        => $dbh,
+                                    'mode'       => 'ids',
+                                    'from_table' => $table,
+                                    'from_ids'   => $form->{"converted_from_${_}_id_$i"},
+                                    'to_table'   => 'orderitems',
+                                    'to_id'      => $orderitems_id,
+          );
+          delete $form->{"converted_from_${_}_id_$i"};
+        }
       }
     }
   }
