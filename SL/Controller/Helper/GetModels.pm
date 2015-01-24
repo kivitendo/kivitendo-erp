@@ -211,7 +211,7 @@ __END__
 
 =head1 NAME
 
-SL::Controller::Helper::GetModels - Base class for a the GetModels system.
+SL::Controller::Helper::GetModels - Base class for the GetModels system.
 
 =head1 SYNOPSIS
 
@@ -228,7 +228,7 @@ In controller:
 =head1 OVERVIEW
 
 Building a CRUD controller would be easy, were it not for those stupid
-list actions. People unreasonable expect stuff like filtering, sorting,
+list actions. People unreasonably expect stuff like filtering, sorting,
 paginating, exporting etc simply to work. Well, lets try to make it simply work
 a little.
 
@@ -237,7 +237,7 @@ helper modules that handle these things (sorting, paginating etc) and gives you
 the means to retrieve the information when needed to display sort headers or
 paginating footers.
 
-Information about the requested data query can be stored into the object up to
+Information about the requested data query can be stored in the object up to
 a certain point, from which on the object becomes locked and can only be
 accessed for information. (See C<STATES>).
 
@@ -302,7 +302,7 @@ Forces finalized state. Can be used on finalized objects without error.
 
 Note that most higher functions will call this themselves to force a finalized
 state. If you do use it it must come before any other finalizing methods, and
-will most likely function as a reminder or maintainers where your codes
+will most likely function as a reminder for maintainers where your code
 switches from configuration to finalized state.
 
 =item source HASHREF
@@ -364,7 +364,7 @@ This is the state after creating a new object.
 
 =item Init
 
-In this state every information needed from the source ($::form) has been read
+In this state all the information needed from the source ($::form) has been read
 and subsequent changes to the source have no effect. In the current
 implementation this will happen during creation, so that the return value of
 C<new> is already in state C<Init>.
@@ -401,7 +401,7 @@ is inferred from the name of the controller class.
 =item filtered PARAMS
 
 Configuration for plugins. If the option for any plugin is omitted, it defaults
-to enabled and configured by default. Giving a falsish value as first argument
+to enabled and is configured by default. Giving a falsish value as first argument
 will disable the plugin.
 
 If the value is a hashref, it will be passed to the plugin's C<init> method.
