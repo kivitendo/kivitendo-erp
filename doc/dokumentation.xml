@@ -1408,7 +1408,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <title>Drucken mit kivitendo</title>
 
       <para>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX-Vorlagen.  Um drucken zu können, braucht der Server ein geeignetes
-      LaTeX System. Am einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter Debianoiden Betriebssystemen installiert man
+      LaTeX System. Am einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter debianoiden Betriebssystemen installiert man
       die Pakete mit:</para>
 
       <para><programlisting>aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
@@ -1446,7 +1446,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
         <para>Nach dem Speichern wird das Vorlagenverzeichnis angelegt und ist für den aktuellen Mandanten ausgewählt.
            Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Mandanten verwendet werden.
-           Eventuell muessen Anpassungen (Logo, Erscheinungsbild, etc) noch vorgenommen werden. Den Ordner findet man im Dateisistem unter
+           Eventuell müssen Anpassungen (Logo, Erscheinungsbild, etc) noch vorgenommen werden. Den Ordner findet man im Dateisystem unter
            <filename>./templates/[Neuer Name]</filename></para>
 
 
@@ -1468,7 +1468,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           <title>Feature-Übersicht</title>
           <itemizedlist>
             <listitem><para>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
-            Angebot, Rechnung, Performarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</para></listitem>
+            Angebot, Rechnung, Proformarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</para></listitem>
 
             <listitem><para>Leichte Anpassung an das Firmen-Layout durch verwendung eines Hintergrund-PDF. Dieses kann leicht mit dem
             eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</para></listitem>
@@ -1503,33 +1503,33 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             <listitem><para>Editiere den Bereich "<option>settings</option>" in der datei <filename>letter.lco</filename>.</para></listitem>
           </itemizedlist>
 
-          <para>oder etwas Detaillierter:</para>
+          <para>oder etwas detaillierter:</para>
 
           <para>
             Es wird eine Datei <filename>sample.lco</filename> erstellt und diese nach <filename>letter.lco</filename> verlinkt.  Eigentlich
-            ist dies die Datei die für die Firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
-            ist, wird in dieser Datei auf ein Hintergrundpdf verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
-            vorzunehmen und <filename>sample.lco</filename> unverändert zu lassen. Die die Anpassung über eine
-            <filename>*.lco</filename>-Datei die letztlich auf <filename>letter.lco</filename> verlinkt ist ist aber auch möglich.
+            ist dies die Datei die für die firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
+            ist, wird in dieser Datei auf ein Hintergrund-PDF verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
+            vorzunehmen und <filename>sample.lco</filename> unverändert zu lassen. Die Anpassung über eine
+            <filename>*.lco</filename>-Datei, die letztlich auf <filename>letter.lco</filename> verlinkt ist ist aber auch möglich.
           </para>
 
           <para>
             Es wird eine Datei <filename>sample_head.pdf</filename> mit ausgeliefert, diese wird nach <filename>letter_head.pdf</filename>
-            verlinkt. Damit gibt es schon mal eine Funktionsfähige Vorlage. Schau Dir nach Abschluss der Installation die Datei
-            <filename>sample_haed.pdf</filename> an und erstelle ein entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
+            verlinkt. Damit gibt es schon mal eine funktionsfähige Vorlage. Schau Dir nach Abschluss der Installation die Datei
+            <filename>sample_head.pdf</filename> an und erstelle ein entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
             Template Verzeichniss ablegen und statt <filename>sample_head.pdf</filename> nach <filename>letter_head.pdf</filename>
             verlinken.
           </para>
 
           <para>
-            letzlich muss <filename>letter_head.pdf</filename> auf das passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
-            enthält. Bei Updates oder nach erneutem
+            Letzlich muss <filename>letter_head.pdf</filename> auf das passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
+            enthält.
           </para>
 
           <para>
             Es wird eine Datei <filename>mydata.tex.example</filename> ausgeliefert, die nach <filename>mytdata.tex</filename> verlinkt
             ist. Bei verwendetem Hintergrund-PDF wird nur der Eintrag für das Land verwendet. Die Datei muss also nicht angefasst
-            werden. Die Anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit nicht im öffentlichen Zweig).
+            werden. Die anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit nicht im öffentlichen Zweig).
           </para>
           <para>
             Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.  sollten über die Hintergrund-PDF-Datei oder die
@@ -1541,17 +1541,17 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           <title>f-tex Funktionsübersicht</title>
           <para>
             Das Konzept von kivitendo sieht vor, für jedes Dokument (Auftragsbestätigung, Lieferschein, Rechnung, etc.) eine LaTeX-Vorlage
-            vorzuhalten, dies ist sehr Wartungsunfreundlich. Auch das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
+            vorzuhalten, dies ist sehr wartungsunfreundlich. Auch das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
             bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen aus dem Ruder läuft. Bei dem vorliegenden Ansatz wird für alle
             briefartigen Dokumente mit Artikel-Tabellen eine einheitliche LaTeX-Vorlage verwendet, welche über Codeweichen die
-            Besonderheiten der jeweiligen Dokumente Berücksichtigt.
+            Besonderheiten der jeweiligen Dokumente berücksichtigt:
           </para>
 
           <itemizedlist>
             <listitem><para>Tabellen mit oder ohne Preis</para></listitem>
             <listitem><para>Sprache der Tabellenüberschriften etc.</para></listitem>
             <listitem><para>Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus Angebotsnummer)</para></listitem>
-            <listitem><para>Darstellung von Brutto oder Netto-Preisen in der Auflistung (Endverbraucher versus Gewerblicher
+            <listitem><para>Darstellung von Brutto oder Netto-Preisen in der Auflistung (Endverbraucher versus gewerblicher
             Kunde)</para></listitem>
            </itemizedlist>
 
@@ -1561,15 +1561,15 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
              LaTeX hat ohnehin eine sehr steile Lehrnkurve. Die Datei <filename>letter.tex</filename> ist sehr komplex und verstärkt damit
              diesen Effekt noch einmal erheblich.  Wer LaTeX-Erfahrung hat, oder geübt ist Scriptsparachen nachzuvollziehen kann natürlich
              auch innerhalb der Tabellendarstellung gut persönliche Anpassungen vornehmen. Aber man kann sich hier bei Veränderungen sehr
-             schnell häftig in den Fuss schiessen.
+             schnell heftig in den Fuss schiessen.
            </para>
 
-           <para>Wer nicht so tief in die Materie einsteigen will oder leicht zu frustrieren ist, sollte sein Hintergrund PDF auf Basis der
-           mitglieferten Datei <filename>sample_head.pdf</filename> erstellen, und sich an der Form der dargestellten Tabellen wie sie
+           <para>Wer nicht so tief in die Materie einsteigen will oder leicht zu frustrieren ist, sollte sein Hintergrund-PDF auf Basis der
+           mitglieferten Datei <filename>sample_head.pdf</filename> erstellen, und sich an der Form der dargestellten Tabellen, wie sie
            ausgeliefert werden, erfreuen.
            </para>
 
-           <para>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine kontinuierliche Schritte gehen.</para>
+           <para>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine, kontinuierliche Schritte gehen.</para>
 
         </sect3>
 
@@ -1584,8 +1584,8 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               Zuordung einer Default-Preisgruppe handhaben)</para>
             </listitem>
             <listitem>
-              <para>man darf beim Anlegen des Vorgangs nicht vergessen Dieses Häkchen zu setzen.  (das ist in der Praxis wenn man sowohl
-              Endverbraucher- wie Gewerbekunden beliefert der eigentliche Knackpunkt)</para>
+              <para>man darf beim Anlegen des Vorgangs nicht vergessen, dieses Häkchen zu setzen.  (Das ist in der Praxis, wenn man sowohl
+              Endverbraucher als auch Gewerbekunden beliefert, der eigentliche Knackpunkt)</para>
             </listitem>
           </itemizedlist>
 
@@ -1596,10 +1596,10 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             an (einmal mit der Namensendung "_E"). Gewinn:</para>
 
           <itemizedlist>
-            <listitem><para>Die Entscheidung, ob Netopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste Verbunden.</para></listitem>
+            <listitem><para>Die Entscheidung, ob Netopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste verbunden.</para></listitem>
             <listitem><para>Die Default-Zahlart kann im Kundendatensatz hinterlegt werden, und man muss nicht mehr daran denken, "alle Preise
             Netto" auszuwählen.</para></listitem>
-            <listitem><para>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen werden, kann direkt beim Drucken reviediert werden,
+            <listitem><para>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen werden, kann direkt beim Drucken revidiert werden,
             ohne dass sich der Auftragswert ändert.</para></listitem>
           </itemizedlist>
         </sect3>
@@ -1627,9 +1627,9 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
       <sect2 id="allgemeine-hinweise-zu-latex">
         <title>Allgemeine Hinweise zu LaTeX Vorlagen</title>
-        <para>In den allermeisten Installationen sollte drucken jetzt schon
-        funktionieren. Sollte ein Fehler auftreten wirft TeX sehr lange
-        Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeite
+        <para>In den allermeisten Installationen sollte das Drucken jetzt schon
+        funktionieren. Sollte ein Fehler auftreten, wirft TeX sehr lange
+        Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeile,
         die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
         Beispiel:</para>
 
