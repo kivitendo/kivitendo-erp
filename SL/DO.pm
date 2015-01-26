@@ -387,6 +387,8 @@ SQL
                   conv_i($form->{"delivery_order_items_id_$i"}), $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
                   conv_i($sinfo->{bin_id}));
        $h_item_stock_id->finish();
+      # write back the id to the form (important if only transfer was clicked (id fk for invoice)
+      $form->{"stock_${in_out}_$i"} = YAML::Dump($stock_info);
       }
       @values = ($form->{"delivery_order_items_id_$i"}, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
                  conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}),
@@ -403,7 +405,7 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
-    # link order items with doi
+    # link order items with doi, for future extension look at foreach IS.pm
     if ($form->{"converted_from_orderitems_id_$i"}) {
       RecordLinks->create_links('dbh'        => $dbh,
                                 'mode'       => 'ids',
@@ -1197,17 +1199,18 @@ sub transfer_in_out {
 
   foreach my $request (@{ $params{requests} }) {
     push @transfers, {
-      'parts_id'               => $request->{parts_id},
-      "${prefix}_warehouse_id" => $request->{warehouse_id},
-      "${prefix}_bin_id"       => $request->{bin_id},
-      'chargenumber'           => $request->{chargenumber},
-      'bestbefore'             => $request->{bestbefore},
-      'qty'                    => $request->{qty},
-      'unit'                   => $request->{unit},
-      'oe_id'                  => $form->{id},
-      'shippingdate'           => 'current_date',
-      'transfer_type'          => $params{direction} eq 'in' ? 'stock' : 'shipped',
-      'project_id'             => $request->{project_id},
+      'parts_id'                      => $request->{parts_id},
+      "${prefix}_warehouse_id"        => $request->{warehouse_id},
+      "${prefix}_bin_id"              => $request->{bin_id},
+      'chargenumber'                  => $request->{chargenumber},
+      'bestbefore'                    => $request->{bestbefore},
+      'qty'                           => $request->{qty},
+      'unit'                          => $request->{unit},
+      'oe_id'                         => $form->{id},
+      'shippingdate'                  => 'current_date',
+      'transfer_type'                 => $params{direction} eq 'in' ? 'stock' : 'shipped',
+      'project_id'                    => $request->{project_id},
+      'delivery_order_items_stock_id' => $request->{delivery_order_items_stock_id},
     };
   }
 

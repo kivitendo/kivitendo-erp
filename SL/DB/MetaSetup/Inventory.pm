@@ -9,23 +9,23 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('inventory');
 
 __PACKAGE__->meta->columns(
-  bestbefore    => { type => 'date' },
-  bin_id        => { type => 'integer', not_null => 1 },
-  chargenumber  => { type => 'text', default => '', not_null => 1 },
-  comment       => { type => 'text' },
-  employee_id   => { type => 'integer', not_null => 1 },
-  id            => { type => 'serial', not_null => 1 },
-  itime         => { type => 'timestamp', default => 'now()' },
-  mtime         => { type => 'timestamp' },
-  oe_id         => { type => 'integer' },
-  orderitems_id => { type => 'integer' },
-  parts_id      => { type => 'integer', not_null => 1 },
-  project_id    => { type => 'integer' },
-  qty           => { type => 'numeric', precision => 25, scale => 5 },
-  shippingdate  => { type => 'date' },
-  trans_id      => { type => 'integer', not_null => 1 },
-  trans_type_id => { type => 'integer', not_null => 1 },
-  warehouse_id  => { type => 'integer', not_null => 1 },
+  bestbefore                    => { type => 'date' },
+  bin_id                        => { type => 'integer', not_null => 1 },
+  chargenumber                  => { type => 'text', default => '', not_null => 1 },
+  comment                       => { type => 'text' },
+  delivery_order_items_stock_id => { type => 'integer' },
+  employee_id                   => { type => 'integer', not_null => 1 },
+  id                            => { type => 'serial', not_null => 1 },
+  itime                         => { type => 'timestamp', default => 'now()' },
+  mtime                         => { type => 'timestamp' },
+  oe_id                         => { type => 'integer' },
+  parts_id                      => { type => 'integer', not_null => 1 },
+  project_id                    => { type => 'integer' },
+  qty                           => { type => 'numeric', precision => 25, scale => 5 },
+  shippingdate                  => { type => 'date' },
+  trans_id                      => { type => 'integer', not_null => 1 },
+  trans_type_id                 => { type => 'integer', not_null => 1 },
+  warehouse_id                  => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -38,9 +38,19 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { bin_id => 'id' },
   },
 
+  delivery_order_items_stock => {
+    class       => 'SL::DB::DeliveryOrderItemsStock',
+    key_columns => { delivery_order_items_stock_id => 'id' },
+  },
+
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
+  },
+
+  oe => {
+    class       => 'SL::DB::DeliveryOrder',
+    key_columns => { oe_id => 'id' },
   },
 
   parts => {
