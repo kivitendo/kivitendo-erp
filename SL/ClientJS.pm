@@ -75,7 +75,8 @@ my %supported_methods = (
 
   # ## jQuery UI dialog plugin ## pattern: $(<TARGET>).dialog('<FUNCTION>')
 
-  # Closing and removing the popup
+  # Opening and closing and closing a popup
+  'dialog:open'          => 1, # kivi.popup_dialog(<TARGET>)
   'dialog:close'         => 1,
 
   # ## jQuery Form plugin ##

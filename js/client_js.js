@@ -89,7 +89,8 @@ ns.eval_json_result = function(data) {
 
       // ## jQuery UI dialog plugin ##
 
-      // Closing and removing the popup
+      // Opening and closing and closing a popup
+      else if (action[0] == 'dialog:open')          kivi.popup_dialog(action[1]);
       else if (action[0] == 'dialog:close')         $(action[1]).dialog('close');
 
       // ## jQuery Form plugin ##
