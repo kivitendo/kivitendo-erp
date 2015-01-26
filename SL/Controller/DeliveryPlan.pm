@@ -42,7 +42,6 @@ sub action_list {
   $self->prepare_report;
 
   my $orderitems = $self->models->get;
-
   $self->calc_qtys($orderitems);
   $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
@@ -122,6 +121,9 @@ sub calc_qtys {
   my ($self, $orderitems) = @_;
   # using $orderitem->shipped_qty 40 times is far too slow. need to do it manually
   #
+
+  return unless scalar @$orderitems;
+
   my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
 
   my $query = <<SQL;
