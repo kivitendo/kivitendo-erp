@@ -29,7 +29,7 @@ sub run {
     my $sth = $self->dbh->prepare($query);
     $sth->execute || $::form->dberror($query);
 
-    # set new postition field in order of ids, starting by one for each order
+    # set new position field in order of ids, starting by one for each order
     my $last_order_id;
     my $position;
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
