@@ -105,7 +105,7 @@ sub _find_stylesheet {
 sub get_stylesheet_for_user {
   my $css_path = 'css';
   if (my $user_style = $::myconfig{stylesheet}) {
-    $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
+    $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnant of pre 2.7.0 stylesheet handling
     if (-d "$css_path/$user_style" &&
         -f "$css_path/$user_style/main.css") {
       $css_path = "$css_path/$user_style";
@@ -179,7 +179,7 @@ SL::Layout::Base - Base class for layouts
 
 =head1 DESCRIPTION
 
-For a description about the external interface of layouts in general see
+For a description of the external interface of layouts in general see
 L<SL::Layout::Dispatcher>.
 
 This is a base class for layouts in general. It provides the basic interface
@@ -189,7 +189,7 @@ and some capabilities to extend and cascade layouts.
 =head1 IMPLEMENTING LAYOUT CALLBACKS
 
 There are eight callbacks (C<pre_content>, C<post_content>, C<start_content>,
-C<end_content>, C<stylesheets>, C<stylesheets_inline>, C<javscripts>,
+C<end_content>, C<stylesheets>, C<stylesheets_inline>, C<javascripts>,
 C<javascripts_inline>) which are documented in L<SL::Layout::Dispatcher>. If
 you are writing a new simple layout, you can just override some of them like
 this:
@@ -265,15 +265,15 @@ is to just add your content and dispatch to the base method.
 
 =head1 GORY DETAILS ABOUT JAVASCRIPT AND STYLESHEET OVERLOADING
 
-The original code used to store one stylehsheet in C<< $form->{stylesheet} >> and
+The original code used to store one stylesheet in C<< $form->{stylesheet} >> and
 allowed/expected authors of potential C<bin/mozilla/> controllers to change
 that into their own modified stylesheet.
 
 This was at some point cleaned up into a method C<use stylesheet> which took a
 string of space separated stylesheets and processed them into the response.
 
-A lot of controllers are still using this methods so the layout interface
-supports it to change as few controller code as possible, while providing the
+A lot of controllers are still using this method so the layout interface
+supports it to change as little controller code as possible, while providing the
 more intuitive C<add_stylesheets> method.
 
 At the same time the following things need to be possible:
@@ -299,7 +299,7 @@ A leaf layout should be able to override a callback to return a list.
 
 Sanitizing
 
-C<stylesheets> needs to retain it's sanitizing behaviour.
+C<stylesheets> needs to retain its sanitizing behaviour.
 
 =item 4.
 
@@ -309,7 +309,7 @@ The standard implementation should be able to collect from sub layouts.
 
 =item 5.
 
-Preserving of Inclusion Order
+Preserving Inclusion Order
 
 Since there is currently no standard way of mixing own content and including
 sub layouts, this has to be done manually. Certain things like jquery get added
