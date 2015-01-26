@@ -407,27 +407,18 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
-    # link oe items with invoice
-    if ($form->{"converted_from_orderitems_id_$i"}) {
-      RecordLinks->create_links('dbh'        => $dbh,
-                                'mode'       => 'ids',
-                                'from_table' => 'orderitems',
-                                'from_ids'   => $form->{"converted_from_orderitems_id_$i"},
-                                'to_table'   => 'invoice',
-                                'to_id'      => $form->{"invoice_id_$i"},
-      );
-      delete $form->{"converted_from_orderitems_id_$i"};
-    }
-    # link doi items with invoice
-    if ($form->{"converted_from_delivery_order_items_id_$i"}) {
-      RecordLinks->create_links('dbh'        => $dbh,
-                                'mode'       => 'ids',
-                                'from_table' => 'delivery_order_items',
-                                'from_ids'   => $form->{"converted_from_delivery_order_items_id_$i"},
-                                'to_table'   => 'invoice',
-                                'to_id'      => $form->{"invoice_id_$i"},
-      );
-      delete $form->{"converted_from_delivery_order_items_id_$i"};
+    # link previous items with invoice items See IS.pm (no credit note -> no invoice item)
+    foreach (qw(delivery_order_items orderitems)) {
+      if ($form->{"converted_from_${_}_id_$i"}) {
+        RecordLinks->create_links('dbh'        => $dbh,
+                                  'mode'       => 'ids',
+                                  'from_table' => $_,
+                                  'from_ids'   => $form->{"converted_from_${_}_id_$i"},
+                                  'to_table'   => 'invoice',
+                                  'to_id'      => $form->{"invoice_id_$i"},
+        );
+        delete $form->{"converted_from_${_}_id_$i"};
+      }
     }
   }
 

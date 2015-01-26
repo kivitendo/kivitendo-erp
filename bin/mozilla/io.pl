@@ -439,7 +439,7 @@ sub display_row {
       push @hidden_vars, qw(orderitems_id converted_from_orderitems_id);
     }
     if ($is_s_p_order) {
-      push @hidden_vars, qw(orderitems_id converted_from_quotation_orderitems_id converted_from_invoice_id);
+      push @hidden_vars, qw(orderitems_id converted_from_orderitems_id converted_from_invoice_id);
     }
     if ($is_invoice) {
       push @hidden_vars, qw(invoice_id converted_from_orderitems_id converted_from_delivery_order_items_id);
@@ -742,9 +742,8 @@ sub remove_emptied_rows {
                 marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in has_sernumber reqdate orderitems_id
                 active_price_source active_discount_source delivery_order_items_id
-                invoice_id converted_from_quotation_orderitems_id
-                converted_from_orderitems_id converted_from_delivery_order_items_id
-                converted_from_invoice_id);
+                invoice_id converted_from_orderitems_id
+                converted_from_delivery_order_items_id converted_from_invoice_id);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };

@@ -579,13 +579,11 @@ SQL
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
       # link previous items with orderitems
-      foreach (qw(quotation_orderitems orderitems invoice)) {
+      foreach (qw(orderitems invoice)) {
         if ($form->{"converted_from_${_}_id_$i"}) {
-          my $table = $_;
-          $table    = 'orderitems' if $table eq 'quotation_orderitems';
           RecordLinks->create_links('dbh'        => $dbh,
                                     'mode'       => 'ids',
-                                    'from_table' => $table,
+                                    'from_table' => $_,
                                     'from_ids'   => $form->{"converted_from_${_}_id_$i"},
                                     'to_table'   => 'orderitems',
                                     'to_id'      => $orderitems_id,

@@ -1821,7 +1821,7 @@ sub poso {
   # reset
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
   # this converted variable is also used for sales_order to purchase order and vice versa
-  $form->{"converted_from_quotation_orderitems_id_$_"} = delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
+  $form->{"converted_from_orderitems_id_$_"} = delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
 
   # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
   # also reset discounts
