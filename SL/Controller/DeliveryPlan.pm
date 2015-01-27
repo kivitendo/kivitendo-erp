@@ -126,8 +126,6 @@ sub calc_qtys {
 
   my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
 
-  return unless @$orderitems;
-
   my $query = <<SQL;
     SELECT oi.id, doi.qty, doi.qty, doi.unit, doe.delivered
     FROM record_links rl
