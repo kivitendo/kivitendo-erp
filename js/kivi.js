@@ -174,9 +174,9 @@ namespace("kivi", function(ns) {
   // Open a modal jQuery UI popup dialog. The content can be either
   // loaded via AJAX (if the parameter 'url' is given) or simply
   // displayed if it exists in the DOM already (referenced via
-  // 'id'). If an existing DOM div should be used then the element
-  // won't be removed upon closing the dialog which allows re-opening
-  // it later on.
+  // 'id') or given via param.html. If an existing DOM div should be used then
+  // the element won't be removed upon closing the dialog which allows
+  // re-opening it later on.
   //
   // Parameters:
   // - id: dialog DIV ID (optional; defaults to 'jqueryui_popup_dialog')
@@ -196,10 +196,10 @@ namespace("kivi", function(ns) {
         // User supplied options:
       params.dialog || { },
       { // Options that must not be changed:
-        close: function(event, ui) { if (params.url) dialog.remove(); else dialog.dialog('close'); }
+        close: function(event, ui) { if (params.url || params.html) dialog.remove(); else dialog.dialog('close'); }
       });
 
-    if (!params.url) {
+    if (!params.url && !params.html) {
       // Use existing DOM element and show it. No AJAX call.
       dialog =
         $('#' + id)
@@ -215,15 +215,20 @@ namespace("kivi", function(ns) {
     dialog = $('<div style="display:none" class="loading" id="' + id + '"></div>').appendTo('body');
     dialog.dialog(dialog_params);
 
-    $.ajax({
-      url:     params.url,
-      data:    params.data,
-      type:    params.type,
-      success: function(new_html) {
-        dialog.html(new_html);
-        dialog.removeClass('loading');
-      }
-    });
+    if (params.html) {
+      dialog.html(params.html);
+    } else {
+      // no html? get it via ajax
+      $.ajax({
+        url:     params.url,
+        data:    params.data,
+        type:    params.type,
+        success: function(new_html) {
+          dialog.html(new_html);
+          dialog.removeClass('loading');
+        }
+      });
+    }
 
     return true;
   };
