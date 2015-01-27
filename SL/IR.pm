@@ -369,6 +369,7 @@ sub post_invoice {
 
     next if $payments_only;
 
+    my $cvars;
     if (!$form->{"invoice_id_$i"}) {
       # there is no persistent id, therefore create one with all necessary constraints
       my $q_invoice_id = qq|SELECT nextval('invoiceid')|;
@@ -379,7 +380,22 @@ sub post_invoice {
       do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}),
                conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}));
       $h_invoice_id->finish();
+
+      # get values for CVars from master data for new items
+      $cvars = CVar->get_custom_variables(dbh      => $dbh,
+                                          module   => 'IC',
+                                          trans_id => $form->{"id_$i"},
+                                         );
+    } else {
+      # get values for CVars from custom_variables for existing items
+      $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                          module     => 'IC',
+                                          sub_module => 'invoice',
+                                          trans_id   => $form->{"invoice_id_$i"},
+                                         );
     }
+    # map only non-editable CVars to form (editable ones are already there)
+    map { $form->{"ic_cvar_$_->{name}_$i"} = $_->{value} unless $_->{flag_editable} } @{ $cvars };
 
       # save detail record in invoice table
       $query = <<SQL;
