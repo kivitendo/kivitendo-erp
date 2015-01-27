@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(grouped_record_list empty_record_list record_list);
+our @EXPORT = qw(grouped_record_list empty_record_list record_list record);
 
 use SL::Util;
 
@@ -17,6 +17,21 @@ sub _arrayify {
   return []     if !defined $array;
   return $array if ref $array;
   return [ $array ];
+}
+
+sub record {
+  my ($self, $record, %params) = @_;
+
+  my %grouped = _group_records( [ $record ] ); # pass $record as arrayref
+  my $type    = (keys %grouped)[0];
+
+  return $self->sales_invoice(   $record, %params) if $type eq 'sales_invoices';
+  return $self->purchase_invoice($record, %params) if $type eq 'purchase_invoices';
+  return $self->ar_transaction(  $record, %params) if $type eq 'ar_transactions';
+  return $self->ap_transaction(  $record, %params) if $type eq 'ap_transactions';
+  return $self->gl_transaction(  $record, %params) if $type eq 'gl_transactions';
+
+  return '';
 }
 
 sub grouped_record_list {
@@ -161,6 +176,7 @@ sub _group_records {
     ap_transactions          => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') && !$_[0]->invoice                      },
     sepa_collections         => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
     sepa_transfers           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
+    gl_transactions          => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
   );
 
   my %groups;
@@ -477,6 +493,18 @@ TODO
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<record>
+
+Returns a rendered version (actually an instance of
+L<SL::Presenter::EscapedText>) of a single ar, ap or gl object.
+
+Example:
+  # fetch the record from a random acc_trans object and print its link (could be ar, ap or gl)
+  my $record = SL::DB::Manager::AccTransaction->get_first()->record;
+  my $html   = SL::Presenter->get->record($record, display => 'inline');
+
+=item C<grouped_record_list $list, %params>
 
 =item C<empty_record_list>
 
