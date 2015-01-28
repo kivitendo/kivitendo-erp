@@ -207,7 +207,7 @@ sub action_revert_to {
   my $version = $versioned_copy->versions->[0];
   $version->update_attributes(working_copy_id => $self->requirement_spec->id);
 
-  flash_later('info', t8('The requirement spec has been reverted to version #1.', $self->requirement_spec->version->version_number));
+  flash_later('info', t8('The requirement spec has been reverted to version #1.', $versioned_copy->version->version_number));
   $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render($self);
 }
 
