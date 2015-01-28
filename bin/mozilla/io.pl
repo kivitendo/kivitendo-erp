@@ -843,7 +843,10 @@ sub order {
   $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
 
-  map { delete $form->{$_} } qw(id printed emailed queued);
+  # link doc invoice -> quotation (single id no multi mode)
+  $form->{convert_from_ar_ids} = delete $form->{id};
+
+  delete $form->{$_} foreach (qw(printed emailed queued));
   my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
@@ -906,10 +909,13 @@ sub quotation {
   if ($form->{type} =~  /(sales|purchase)_order/) {
     $form->{"converted_from_orderitems_id_$_"} = delete $form->{"orderitems_id_$_"} for 1 .. $form->{"rowcount"};
   }
+  # link doc order -> quotation (single id no multi mode)
+  $form->{convert_from_oe_ids} = delete $form->{id};
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
-  map { delete $form->{$_} } qw(id printed emailed queued);
+  delete $form->{$_} foreach (qw(printed emailed queued));
 
   my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {

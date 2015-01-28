@@ -673,23 +673,28 @@ SQL
   $form->save_status($dbh);
 
   # Link this record to the records it was created from.
+  # check every record type we may link. i am not happy with converting the string to array back
+  # should be a array from the start (OE.pm -> retrieve).
+  #  and that i need the local array ref for close_quotation_rfqs. better ideas welcome
   $form->{convert_from_oe_ids} =~ s/^\s+//;
   $form->{convert_from_oe_ids} =~ s/\s+$//;
   my @convert_from_oe_ids      =  split m/\s+/, $form->{convert_from_oe_ids};
   delete $form->{convert_from_oe_ids};
-
-  if (scalar @convert_from_oe_ids) {
-    RecordLinks->create_links('dbh'        => $dbh,
-                              'mode'       => 'ids',
-                              'from_table' => 'oe',
-                              'from_ids'   => \@convert_from_oe_ids,
-                              'to_table'   => 'oe',
-                              'to_id'      => $form->{id},
-      );
-
+  @{ $form->{convert_from_oe_ids} }      =  @convert_from_oe_ids;
+  foreach (qw(ar oe)) {
+    if ($form->{"convert_from_${_}_ids"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => $_,
+                                'from_ids'   => $form->{"convert_from_${_}_ids"},
+                                'to_table'   => 'oe',
+                                'to_id'      => $form->{id},
+        );
+      delete $form->{"convert_from_${_}_ids"};
+    }
     $self->_close_quotations_rfqs('dbh'     => $dbh,
                                   'from_id' => \@convert_from_oe_ids,
-                                  'to_id'   => $form->{id});
+                                  'to_id'   => $form->{id}) if $_ eq 'oe';
   }
 
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
