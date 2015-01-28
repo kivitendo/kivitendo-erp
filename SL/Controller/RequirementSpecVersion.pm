@@ -72,13 +72,14 @@ sub action_create {
   return $self->js->error(@errors)->render($self) if @errors;
 
   my $db     = $self->requirement_spec->db;
-  my @result = $self->version($self->requirement_spec->create_version(%attributes));
+  my @result = $self->requirement_spec->create_version(%attributes);
 
   if (!@result) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
     return $self->js->error($::locale->text('Saving failed. Error message from the database: #1'), $db->error)->render($self);
   }
 
+  $self->version($result[0]);
   my $version_info_html = $self->render('requirement_spec/_version',     { output => 0 }, requirement_spec => $self->requirement_spec);
   my $version_list_html = $self->render('requirement_spec_version/list', { output => 0 });
 
