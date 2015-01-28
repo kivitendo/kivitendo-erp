@@ -373,8 +373,16 @@ sub create_or_update {
   my $self   = shift;
   my $is_new = !$self->requirement_spec->id;
   my $params = delete($::form->{requirement_spec}) || { };
+  my $cvars  = delete($::form->{cvars})            || { };
 
   $self->requirement_spec->assign_attributes(%{ $params });
+
+  foreach my $var (@{ $self->requirement_spec->cvars_by_config }) {
+    my $value = $cvars->{ $var->config->name };
+    $value    = $::form->parse_amount(\%::myconfig, $value) if $var->config->type eq 'number';
+
+    $var->value($value);
+  }
 
   my $title  = $is_new && $self->requirement_spec->is_template ? t8('Create a new requirement spec template')
              : $is_new                                         ? t8('Create a new requirement spec')
@@ -396,7 +404,7 @@ sub create_or_update {
     if ($self->copy_source) {
       $self->requirement_spec($self->copy_source->create_copy(%{ $params }));
     } else {
-      $self->requirement_spec->save;
+      $self->requirement_spec->save(cascade => 1);
     }
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);

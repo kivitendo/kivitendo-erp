@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------ */
 
 input.rs_input_field, select.rs_input_field,
-table.rs_input_field input, table.rs_input_field select {
+table.rs_input_field input[type=text], table.rs_input_field input[type=password], table.rs_input_field select {
   width: 300px;
 }
 

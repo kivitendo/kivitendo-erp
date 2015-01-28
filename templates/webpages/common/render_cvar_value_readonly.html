@@ -1,0 +1,18 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+[%- IF ( var.config .type == 'bool' ) %]
+  [% IF var.value %]
+   [% LxERP.t8("Yes") %]
+  [% ELSE %]
+   [% LxERP.t8("No") %]
+  [% END %]
+[%- ELSIF ( var.config .type == 'textfield' ) %]
+  <pre>[% HTML.escape(var.value) %]</pre>
+[%- ELSIF ( var.config.type == 'number' ) %]
+  [%- LxERP.format_amount(var.value, -2) %]
+[%- ELSE %]
+  [% HTML.escape(var.value) %]
+[%- END %]

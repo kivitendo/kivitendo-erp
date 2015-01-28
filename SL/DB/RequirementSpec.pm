@@ -9,6 +9,10 @@ use Rose::DB::Object::Helpers;
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
 use SL::DB::Helper::AttrDuration;
+use SL::DB::Helper::CustomVariables (
+  module      => 'RequirementSpecs',
+  cvars_alias => 1,
+);
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String;
 use SL::Util qw(_hashify);
