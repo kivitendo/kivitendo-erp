@@ -158,12 +158,13 @@ sub init_translated_types {
 sub init_modules {
   my ($self, %params) = @_;
 
-  return [
-    { module => 'CT',       description => t8('Customers and vendors')          },
-    { module => 'Contacts', description => t8('Contact persons')                },
-    { module => 'IC',       description => t8('Parts, services and assemblies') },
-    { module => 'Projects', description => t8('Projects')                       },
-  ];
+  return [ sort { $a->{description}->translated cmp $b->{description}->translated } (
+    { module => 'CT',               description => t8('Customers and vendors')          },
+    { module => 'Contacts',         description => t8('Contact persons')                },
+    { module => 'IC',               description => t8('Parts, services and assemblies') },
+    { module => 'Projects',         description => t8('Projects')                       },
+    { module => 'RequirementSpecs', description => t8('Requirement Specs')              },
+  )];
 }
 
 sub create_or_update {
