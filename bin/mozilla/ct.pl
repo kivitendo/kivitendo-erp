@@ -76,7 +76,8 @@ sub search {
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
-  $form->get_lists("business_types" => "ALL_BUSINESS_TYPES");
+  $form->get_lists("business_types" => "ALL_BUSINESS_TYPES",
+                   "salesmen"       => "ALL_SALESMEN");
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
@@ -152,6 +153,12 @@ sub list_names {
       push @options, $label . " : " . $business->description;
     }
   }
+  if ($form->{salesman_id}) {
+    my $salesman = SL::DB::Manager::Employee->find_by(id => $form->{salesman_id});
+    if ($salesman) {
+      push @options, $locale->text('Salesman') . " : " . $salesman->name;
+    }
+  }
 
   my @columns = (
     'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
@@ -194,7 +201,7 @@ sub list_names {
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
-      addr_city addr_country business_id
+      addr_city addr_country business_id salesman_id
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),

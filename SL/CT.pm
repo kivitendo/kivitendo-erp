@@ -171,6 +171,11 @@ sub search {
     push(@values, conv_i($form->{business_id}));
   }
 
+  if ($form->{salesman_id}) {
+    $where .= qq| AND (ct.salesman_id = ?)|;
+    push(@values, conv_i($form->{salesman_id}));
+  }
+
   # Nur Kunden finden, bei denen ich selber der Verkäufer bin
   # Gilt nicht für Lieferanten
   if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {

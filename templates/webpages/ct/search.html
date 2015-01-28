@@ -57,6 +57,15 @@
    </tr>
    [% END %]
 
+   [% IF IS_CUSTOMER && ALL_SALESMEN.size %]
+   <tr>
+    <th align="right" nowrap>[% 'Salesman' | $T8 %]</th>
+    <td>
+     [% L.select_tag('salesman_id', ALL_SALESMEN, title_key = 'name', with_empty = 1) %]
+    </td>
+   </tr>
+   [% END %]
+
    [% CUSTOM_VARIABLES_FILTER_CODE %]
 
    <tr>
