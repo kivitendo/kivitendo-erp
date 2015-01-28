@@ -32,7 +32,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(trans_id oe_id orderitems_id bestbefore trans_type_id project_id)};
+  delete @{$profile}{qw(trans_id oe_id delivery_order_items_stock_id bestbefore trans_type_id project_id)};
 
   return $profile;
 }
@@ -64,8 +64,8 @@ sub init_bins_by {
 
   my $all_bins = SL::DB::Manager::Bin->get_all();
   my $bins_by;
-  $bins_by->{'wh_id+id'}          = { map { ( $_->warehouse_id . '+' . $_->id          => $_ ) } @{ $all_bins } };
-  $bins_by->{'wh_id+description'} = { map { ( $_->warehouse_id . '+' . $_->description => $_ ) } @{ $all_bins } };
+  $bins_by->{_wh_id_and_id_ident()}          = { map { ( _wh_id_and_id_maker($_->warehouse_id, $_->id)                   => $_ ) } @{ $all_bins } };
+  $bins_by->{_wh_id_and_description_ident()} = { map { ( _wh_id_and_description_maker($_->warehouse_id, $_->description) => $_ ) } @{ $all_bins } };
 
   return $bins_by;
 }
@@ -172,7 +172,7 @@ sub check_warehouse {
   return 1;
 }
 
-# Check bin fior given warehouse, so check_warehouse must be called first.
+# Check bin for given warehouse, so check_warehouse must be called first.
 sub check_bin {
   my ($self, $entry) = @_;
 
@@ -181,7 +181,7 @@ sub check_bin {
   # If bin from front-end is enforced for all transfers, use this, if valid.
   if ($self->settings->{apply_bin} eq 'all') {
     $object->bin_id(undef);
-    my $bin = $self->bins_by->{'wh_id+description'}->{ $object->warehouse_id . '+' . $self->settings->{bin} };
+    my $bin = $self->bins_by->{_wh_id_and_description_ident()}->{ _wh_id_and_description_maker($object->warehouse_id, $self->settings->{bin}) };
     if (!$bin) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
       return 0;
@@ -194,7 +194,7 @@ sub check_bin {
   if (    $self->settings->{apply_bin} eq 'missing'
        && ! $object->bin_id
        && ! $entry->{raw_data}->{bin} ) {
-    my $bin = $self->bins_by->{'wh_id+description'}->{ $object->warehouse_id . '+' . $self->settings->{bin} };
+    my $bin = $self->bins_by->{_wh_id_and_description_ident()}->{ _wh_id_and_description_maker($object->warehouse_id, $self->settings->{bin}) };
     if (!$bin) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
       return 0;
@@ -204,14 +204,14 @@ sub check_bin {
   }
 
   # Check wether or not bin ID is valid.
-  if ($object->bin_id && !$self->bins_by->{'wh_id+id'}->{ $object->warehouse_id . '+' . $object->bin_id }) {
+  if ($object->bin_id && !$self->bins_by->{_wh_id_and_id_ident()}->{ _wh_id_and_id_maker($object->warehouse_id, $object->bin_id) }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
     return 0;
   }
   
   # Map description to ID if given.
   if (!$object->bin_id && $entry->{raw_data}->{bin}) {
-    my $bin = $self->bins_by->{'wh_id+description'}->{ $object->warehouse_id . '+' . $entry->{raw_data}->{bin} };
+    my $bin = $self->bins_by->{_wh_id_and_description_ident()}->{ _wh_id_and_description_maker($object->warehouse_id, $entry->{raw_data}->{bin}) };
     if (!$bin) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
       return 0;
@@ -221,7 +221,7 @@ sub check_bin {
   }
 
   if ($object->bin_id) {
-    $entry->{info_data}->{bin} = $self->bins_by->{'wh_id+id'}->{ $object->warehouse_id . '+' . $object->bin_id }->description;
+    $entry->{info_data}->{bin} = $self->bins_by->{_wh_id_and_id_ident()}->{ _wh_id_and_id_maker($object->warehouse_id, $object->bin_id) }->description;
   } else {
     push @{ $entry->{errors} }, $::locale->text('Error: Bin not found');
     return 0;
@@ -287,7 +287,7 @@ sub check_qty{
 
   # Actual quantity is read from stock or is the result of transfers for the
   # same part, warehouse and bin done before.
-  my $key = $object->parts_id . '+' . $object->warehouse_id . '+' . $object->bin_id;
+  my $key = join '+', $object->parts_id, $object->warehouse_id, $object->bin_id;
   if (!exists $self->{resulting_quantities}->{$key}) {
     my $stock = $object->part->get_simple_stock;
     my @stocked = grep { $_->{warehouse_id} == $object->warehouse_id && $_->{bin_id} == $object->bin_id } @$stock;
@@ -396,6 +396,22 @@ sub save_objects {
   }
 
   $self->SUPER::save_objects(%params);
+}
+
+sub _wh_id_and_description_ident {
+  return 'wh_id+description';
+}
+
+sub _wh_id_and_description_maker {
+    return join '+', $_[0], $_[1]
+}
+
+sub _wh_id_and_id_ident {
+  return 'wh_id+id';
+}
+
+sub _wh_id_and_id_maker {
+    return join '+', $_[0], $_[1]
 }
 
 1;
