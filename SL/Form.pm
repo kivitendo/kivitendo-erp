@@ -2430,7 +2430,7 @@ sub get_lists {
   }
 
   if ($params{"salesmen"}) {
-    $self->_get_employees($dbh, "all_salesmen", $params{"salesmen"});
+    $self->_get_employees($dbh, $params{"salesmen"});
   }
 
   if ($params{"business_types"}) {
