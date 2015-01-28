@@ -276,7 +276,7 @@ sub check_qty{
   }
 
   if (exists $entry->{raw_data}->{target_qty} && exists $entry->{raw_data}->{qty}) {
-    push @{ $entry->{errors} }, $::locale->text('Error: a quantity and a target quantity could not be given both.');
+    push @{ $entry->{errors} }, $::locale->text('Error: A quantity and a target quantity could not be given both.');
     return 0;
   }
 
