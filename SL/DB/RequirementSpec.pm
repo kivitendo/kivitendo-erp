@@ -175,6 +175,11 @@ sub _copy_from {
                              %attributes);
   }
 
+  # Copy custom variables.
+  foreach my $var (@{ $source->cvars_by_config }) {
+    $self->cvar_by_name($var->config->name)->value($var->value);
+  }
+
   my %paste_template_result;
 
   # Clone text blocks and pictures.
@@ -207,7 +212,7 @@ sub _copy_from {
   $self->$accessor($paste_template_result{parts});
 
   # Save new object -- we need its ID for the items.
-  $self->save;
+  $self->save(cascade => 1);
 
   my %id_to_clone;
 
