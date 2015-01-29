@@ -77,6 +77,13 @@ Größere neue Features:
   gewählten Preises nachzuvollziehen, und der Vertriebler wird in Belegen über
   geänderte Preise in den Stammdaten informiert.
 
+- Lagerbestands- / Lagerbewegungsimport via CSV
+
+  Damit lässt sich der Lagerbestand über einen CSV-Import
+  korrigieren. Es lassen sich für Artikel zu bewegenden Mengen oder
+  Ziel-Lagermengen verarbeiten.
+
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten
