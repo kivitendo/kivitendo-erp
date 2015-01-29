@@ -68,6 +68,8 @@ If falsish (the default) then the trans_id number will be linked to the
 
 =back
 
+=back
+
 =head1 BUGS
 
 Nothing here yet.
