@@ -286,15 +286,17 @@ sub check_qty{
   }
 
   # Actual quantity is read from stock or is the result of transfers for the
-  # same part, warehouse and bin done before.
-  my $key = join '+', $object->parts_id, $object->warehouse_id, $object->bin_id;
+  # same part, warehouse, bin and chargenumber done before.
+  my $key = join '+', $object->parts_id, $object->warehouse_id, $object->bin_id, $object->chargenumber;
   if (!exists $self->{resulting_quantities}->{$key}) {
-    my $stock = $object->part->get_simple_stock;
-    my @stocked = grep { $_->{warehouse_id} == $object->warehouse_id && $_->{bin_id} == $object->bin_id } @$stock;
-    my $stocked_qty = 0;
-    foreach (@stocked) {
-      $stocked_qty += $stocked[0]->{sum} * 1;
-    }
+    my $query = <<SQL;
+      SELECT sum(qty) FROM inventory
+        WHERE parts_id = ? AND warehouse_id = ? AND bin_id = ? AND chargenumber = ?
+        GROUP BY warehouse_id, bin_id, chargenumber
+SQL
+
+    my ($stocked_qty) = selectrow_query($::form, $::form->get_standard_dbh, $query,
+                                        $object->parts_id, $object->warehouse_id, $object->bin_id, $object->chargenumber);
     $self->{resulting_quantities}->{$key} = $stocked_qty;
   }
   my $actual_qty = $self->{resulting_quantities}->{$key};
