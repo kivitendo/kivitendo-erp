@@ -162,6 +162,48 @@ Kleinere neue Features und Detailverbesserungen:
   * Warenverkaufswert im Lieferplan anzeigen (konfigurierbar)
   * Lieferplan berücksichtig den Status des Lieferscheins (ausgelagert / nicht ausgelagert) (konfigurierbar)
 
+Bugfixes aus Trac:
+
+- Bugfix #819	Kontostand
+- Bugfix #1691 - Rundung bei Berichten bei Buchungen mit MwSt inkl.
+- Bugfix #1862	Preisgruppen zu Kunden werden nicht auf in Lieferscheinen hinzugefuegte Artikel angewendet
+- Bugfix #1927	Workflow Lieferschein->Rechnung berücksichtigt Preisgruppen nicht
+- Bugfix #2029 - Rundungsfehler bei Dialogbuchung
+- Bugfix #2033 - Unterschiede in Rundungen durch taxincluded
+- Bugfix #2094 - Rundungsprobleme in Kreditorenbuchungen: Cent "kippt" bei Zahlungseinbuchung
+- Bugfix #2295	Neue Steuersätze
+- Bugfix #2345	Rechnung bekommt immer die Lieferadresse des Kunden
+- Bugfix #2365	Überlagerte benutzerdefinierte Variablen werden in wiederkehrende Rechnungen nicht übernommen
+- Bugfix #2400	Lieferadresse wird bei der Auswahl eines neuen Lieferanten überschrieben
+- Bugfix #2427	GuV und Ist-Versteuerung und Abteilungsfilter fehlerhaft
+- Bugfix #2435 - Rundungsfehler in Kreditorenbuchungen (Netto vs. Brutto)
+- Bugfix #2452	SuSa saldiert nicht korrekt
+- Bugfix #2464	ustva.pl - Typos
+- Bugfix #2466	Kundenpreise werden bei Fortführung eines Lieferscheins zur Rechnung nicht übernommen
+- Bugfix #2467	Auftrag aus Kundenstammdaten aufrufen leitet in neuen Lieferantenauftrag
+- Bugfix #2468	Verkaufsbericht filtert nach Verkäufer und Land ohne Aufforderung
+- Bugfix #2469	Bug: Rechnungsnummer in Kreditorenbuchung nicht mehr änderbar
+- Bugfix #2470	Erneuern im Zahlungseingang verwirft den Kunden
+- Bugfix #2471	Beim Erzeugen von neuen Kivitendo-BenutzerInnen wird die Mandantenzugehörigkeit nicht gespeichert
+- Bugfix #2483	Editieren von TeX Templates
+- Bugfix #2485	Einkaufslieferschein -> Einlagern -> ? -> Standardlager ändern -> Bugfix Erneuern -> fehlerhafte Ansicht, ggf. inkonsistente Lagerbewegungs-DB
+- Bugfix #2494	Anlegen neuer Preisfaktoren nicht möglich
+
+Bugfixes aus Redmine:
+
+- Bugfix #1	Kundenauftrag -> Lieferantenauftrag Zahlungsbedingungen und Lieferbedingungen löschen
+- Bugfix #2	abweichende Lieferadresse für Lieferschein bei RB-Druckvorlagen
+- Bugfix #7	2447 Lieferanten-EK-Preise / Lieferantenartikelnummern verschwinden
+- Bugfix #9	CsvImport für Kunden gibt Fehlermeldung wenn taxzone_id falsch oder nicht vorhanden ist
+- Bugfix #10	Ansprechpartner auf ungültig setzen löst leeres Adressfeld beim Drucken aus
+- Bugfix #15	Schnelllöschen (x) kann immer nur eine Position löschen
+- Bugfix #16	Fehler beim Speichern eines Angebots
+- Bugfix #18	PriceSource / Pricerule - Fehler in VK-Rechnung beim Bearbeiten von Positionen
+- Bugfix #21	PriceSource: Einkauf/Lieferantenauftrag erfasse funktioniert nicht
+- Bugfix #24	Preisgruppenverhalten
+- Bugfix #26	Gruppieren nach Warengruppen beim Drucken von Lieferscheinen funktioniert nicht
+- Bugfix #29	Verknüpfte Belege -> keine Verknüpfung von Rechnung nach Auftrag
+
 2014-02-28 - Release 3.1.0
 
 Größere neue Features:
