@@ -95,7 +95,8 @@ Kleinere neue Features und Detailverbesserungen:
   Ziel-Lagermengen verarbeiten.
 
 - Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten
-  implementiert (einstellbar in Mandantenkonfiguration)
+  In der Mandantenkonfiguration kann ein Artikel definiert werden, an den
+  standardmässig in Angeboten / Aufträgen erinnert wird (bspw. Versandpauschale)
 
 - Verkaufsangebotsgültigkeit konfigurierbar per Intervall
   (nächster Werktag + x Tage)
@@ -153,6 +154,13 @@ Kleinere neue Features und Detailverbesserungen:
   * Konten: Kontonummer _ Beschreibung
   Die Sortierung in den Pickern ist immer alphanumerisch nach der
   Anfangsnummer (d.h. 01,02,10, aber 1,10,2)
+
+- Lagerverfahren
+  Dienstleistungen müssen nicht mehr zwingend in Belegen ein- oder ausgelagert werden (konfigurierbar)
+
+- Lieferplan
+  * Warenverkaufswert im Lieferplan anzeigen (konfigurierbar)
+  * Lieferplan berücksichtig den Status des Lieferscheins (ausgelagert / nicht ausgelagert) (konfigurierbar)
 
 2014-02-28 - Release 3.1.0
 
