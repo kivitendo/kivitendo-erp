@@ -45,6 +45,15 @@ __PACKAGE__->meta->add_relationship(
     column_map      => { id => 'trans_id' },
     query_args      => [ module => 'AR' ],
   },
+  transactions   => {
+    type         => 'one to many',
+    class        => 'SL::DB::AccTransaction',
+    column_map   => { id => 'trans_id' },
+    manager_args => {
+      with_objects => [ 'chart' ],
+      sort_by      => 'acc_trans_id ASC',
+    },
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -349,15 +358,6 @@ sub reqdate {
 
 sub customervendor {
   goto &customer;
-}
-
-sub transactions {
-  my ($self) = @_;
-
-  return unless $self->id;
-
-  require SL::DB::AccTransaction;
-  SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $self->id ]);
 }
 
 1;

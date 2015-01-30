@@ -31,6 +31,13 @@ __PACKAGE__->meta->add_relationship(
     column_map      => { id => 'trans_id' },
     query_args      => [ module => 'AP' ],
   },
+  transactions   => {
+    type         => 'one to many',
+    class        => 'SL::DB::AccTransaction',
+    column_map   => { id => 'trans_id' },
+    manager_args => { with_objects => [ 'chart' ],
+                      sort_by      => 'acc_trans_id ASC' }
+  },
 );
 
 __PACKAGE__->meta->initialize;
