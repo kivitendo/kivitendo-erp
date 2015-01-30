@@ -45,6 +45,13 @@ Größere neue Features:
   Update geht davon aus, daß die Steuerzonen im Programmcode nicht angepasst
   worden sind.
 
+- Preisregeln
+
+  Als erste Anwendung der Preisquellen gibt es jetzt ein Regelsystem, mit dem
+  Preise nach freien Regeln erstellt werden können. Abbildbar sind damit
+  oft gewünschte Features wie Kundenpreislisten, Mengenrabatt, Aktionspreise,
+  SSV oder Angebotspreise.
+
 - Preisquellen
 
   Die Systeme zur Preisfindung in Belegen wurden vereinheitlicht und haben den
