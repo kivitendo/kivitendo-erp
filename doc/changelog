@@ -36,6 +36,7 @@ Größere neue Features:
   Listen).
 
 - Steuerzonen editierbar
+
   Bisher waren die 4 Steuerzonen fest im Code verankert. Nun kann man selber
   neue Steuerzonen hinfügen, und für die neue Steuerzone das Erlös- und
   Aufwandskonto für jede Buchungsgruppe hinzufügen. Das Bestandskonto ist
@@ -43,6 +44,16 @@ Größere neue Features:
   Außerdem kann man nicht mehr benötigte Steuerzonen auf ungültig setzen. Das
   Update geht davon aus, daß die Steuerzonen im Programmcode nicht angepasst
   worden sind.
+
+- Preisquellen
+
+  Die Systeme zur Preisfindung in Belegen wurden vereinheitlicht und haben den
+  Platz der Preisgruppen eingenommen. Es ist jetzt möglich den Ursprung des
+  gewählten Preises nachzuvollziehen, und der Vertriebler wird in Belegen über
+  geänderte Preise in den Stammdaten informiert.
+
+
+Kleinere neue Features und Detailverbesserungen:
 
 - Benutzerdefinierte Variablen in Belegen als Tabelle rendern
 
@@ -70,21 +81,11 @@ Größere neue Features:
   dann erscheinen die Variablen nur in den Stammdaten und den Beleg-Masken bei
   Artikeln, die zu einer der ausgewählten Warengruppen gehören.
 
-- Preisquellen
-
-  Die Systeme zur Preisfindung in Belegen wurden vereinheitlicht und haben den
-  Platz der Preisgruppen eingenommen. Es ist jetzt möglich den Ursprung des
-  gewählten Preises nachzuvollziehen, und der Vertriebler wird in Belegen über
-  geänderte Preise in den Stammdaten informiert.
-
 - Lagerbestands- / Lagerbewegungsimport via CSV
 
   Damit lässt sich der Lagerbestand über einen CSV-Import
-  korrigieren. Es lassen sich für Artikel zu bewegenden Mengen oder
+  korrigieren. Es lassen sich für Artikel zu bewegende Mengen oder
   Ziel-Lagermengen verarbeiten.
-
-
-Kleinere neue Features und Detailverbesserungen:
 
 - Versand- oder Transportkostenerinnerung in Aufträgen / Angeboten
   implementiert (einstellbar in Mandantenkonfiguration)
@@ -98,12 +99,12 @@ Kleinere neue Features und Detailverbesserungen:
 - FiBu Schnellsuche in Headerzeile, um nach Belegen zu suchen
 
 - Datum Schnelleingabe ohne Punkte
-  z.B.
+  z.B. Eingabe im Monat Dezember 2014:
   8 Zahlen:   31122014  -> 31.12.2014
   6 Zahlen:   311214    -> 31.12.2014
   4 Zahlen:   3112      -> 31.12.2014   aktuelles Jahr wird angenommen
-  1-2 Zahlen: 12        -> 31.10.2014   aktueller Monat wird angenommen
-              7         -> 07.10.2014   aktueller Monat wird angenommen
+  1-2 Zahlen: 12        -> 12.12.2014   aktueller Monat wird angenommen
+              7         -> 07.12.2014   aktueller Monat wird angenommen
 
 - Neuer Reiter "Buchungen" in Einkaufs- und Verkaufsbelegen, wo zu einer
   Rechnung/Buchung die Buchungen laut acc_trans angezeigt werden. Der Bearbeiter
