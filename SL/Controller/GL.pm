@@ -8,6 +8,7 @@ use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
 use SL::DB::AccTransaction;
 use SL::Locale::String qw(t8);
+use List::Util qw(sum);
 
 __PACKAGE__->run_before('check_auth');
 
@@ -38,14 +39,9 @@ sub action_quicksearch {
   my $ars = SL::DB::Manager::Invoice->get_all(        query => [ @arfilter ], limit => $limit, sort_by => 'transdate DESC', with_objects => [ 'customer' ]);
   my $aps = SL::DB::Manager::PurchaseInvoice->get_all(query => [ @apfilter ], limit => $limit, sort_by => 'transdate DESC', with_objects => [ 'vendor' ]);
 
-  # calculate an amount to be displayed for gl transaction
+  # use the sum of all credit amounts as the "amount" of the gl transaction
   foreach my $gl ( @$gls ) {
-    my $amount = 0;
-    my $acc_trans_lines = SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $gl->id ]);
-    foreach my $acc_trans_line ( @$acc_trans_lines ) {
-      $amount += $acc_trans_line->amount if $acc_trans_line->amount > 0 ;
-    };
-    $gl->{'amount'} = $amount;
+    $gl->{'amount'} = sum map { $_->amount if $_->amount > 0 } @{$gl->transactions};
   };
 
   my $gldata = [
