@@ -16,7 +16,7 @@
   <tbody>
    [%- FOREACH transaction = TRANSACTIONS %]
    <tr class="listrow[% loop.count % 2 %]">
-    <td>[%- transaction.gldate.to_kivitendo -%]</td>
+    <td>[%- transaction.transdate.to_kivitendo -%]</td>
     <td align="right">[%- transaction.chart.accno -%]</td>
     <td>[%- transaction.chart.description -%]</td>
     <td align="right">[%- IF transaction.amount < 0 %] [%- LxERP.format_amount(transaction.amount * -1, 2) %] [% END %]</td>
