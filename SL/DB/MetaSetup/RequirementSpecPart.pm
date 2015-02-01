@@ -9,8 +9,8 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('requirement_spec_parts');
 
 __PACKAGE__->meta->columns(
-  id                  => { type => 'serial', not_null => 1 },
   description         => { type => 'text', not_null => 1 },
+  id                  => { type => 'serial', not_null => 1 },
   part_id             => { type => 'integer', not_null => 1 },
   position            => { type => 'integer', not_null => 1 },
   qty                 => { type => 'numeric', not_null => 1, precision => 15, scale => 5 },

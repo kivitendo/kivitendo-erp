@@ -9,12 +9,12 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('taxzone_charts');
 
 __PACKAGE__->meta->columns(
-  id                 => { type => 'serial', not_null => 1 },
-  taxzone_id         => { type => 'integer', not_null => 1 },
   buchungsgruppen_id => { type => 'integer', not_null => 1 },
-  income_accno_id    => { type => 'integer', not_null => 1 },
   expense_accno_id   => { type => 'integer', not_null => 1 },
+  id                 => { type => 'serial', not_null => 1 },
+  income_accno_id    => { type => 'integer', not_null => 1 },
   itime              => { type => 'timestamp', default => 'now()' },
+  taxzone_id         => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

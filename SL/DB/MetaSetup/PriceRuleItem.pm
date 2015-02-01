@@ -11,6 +11,8 @@ __PACKAGE__->meta->table('price_rule_items');
 __PACKAGE__->meta->columns(
   custom_variable_configs_id => { type => 'integer' },
   id                         => { type => 'serial', not_null => 1 },
+  itime                      => { type => 'timestamp' },
+  mtime                      => { type => 'timestamp' },
   op                         => { type => 'text' },
   price_rules_id             => { type => 'integer', not_null => 1 },
   type                       => { type => 'text' },
