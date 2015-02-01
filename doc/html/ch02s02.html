@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.2. Benötigte Software und Pakete</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.1.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="next" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.2. Benötigte Software und Pakete</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s03.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.2. Benötigte Software und Pakete"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Ben%C3%B6tigte-Software-und-Pakete"></a>2.2. Benötigte Software und Pakete</h2></div></div></div><div class="sect2" title="2.2.1. Betriebssystem"><div class="titlepage"><div><div><h3 class="title"><a name="Betriebssystem"></a>2.2.1. Betriebssystem</h3></div></div></div><p>kivitendo ist für Linux konzipiert, und sollte auf jedem
+   <title>2.2. Benötigte Software und Pakete</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.2.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="next" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.2. Benötigte Software und Pakete</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s03.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.2. Benötigte Software und Pakete"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Ben%C3%B6tigte-Software-und-Pakete"></a>2.2. Benötigte Software und Pakete</h2></div></div></div><div class="sect2" title="2.2.1. Betriebssystem"><div class="titlepage"><div><div><h3 class="title"><a name="Betriebssystem"></a>2.2.1. Betriebssystem</h3></div></div></div><p>kivitendo ist für Linux konzipiert, und sollte auf jedem
         unixoiden Betriebssystem zum Laufen zu kriegen sein. Getestet ist
         diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
@@ -55,7 +55,8 @@
                      <code class="literal">XML::Writer</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <code class="literal">File::Copy::Recursive</code>.</p><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
+                  </p></li></ul></div><p>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen: <code class="literal">GD</code>, <code class="literal">HTML::Restrict</code>, <code class="literal">Image::Info</code>
+            </p><p>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <code class="literal">File::Copy::Recursive</code>.</p><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
         <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <code class="literal">URI</code> und
         <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo
@@ -70,8 +71,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e349"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Alle benötigten Perl-Pakete stehen für Debian und Ubuntu als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e360"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
   libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
   liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
@@ -79,14 +79,15 @@
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
-  libfile-copy-recursive-perl postgresql</pre></div><div class="sect3" title="2.2.2.2. Fedora Core"><div class="titlepage"><div><div><h4 class="title"><a name="d0e356"></a>2.2.2.2. Fedora Core</h4></div></div></div><p>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installeirt werden:</p><pre class="programlisting">yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
+  libimage-info-perl libgd-gd2-perl \
+  libfile-copy-recursive-perl postgresql</pre><p>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Der entsprechende Befehl wird beim Aufruf von installation_check.pl angezeigt.</p></div><div class="sect3" title="2.2.2.2. Fedora Core"><div class="titlepage"><div><div><h4 class="title"><a name="d0e369"></a>2.2.2.2. Fedora Core</h4></div></div></div><p>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
   perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
   perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">yum install perl-CPAN
-cpan Config::Std</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e367"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
+cpan Config::Std</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e380"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
   perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \

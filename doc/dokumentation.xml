@@ -2,7 +2,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.1.0: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.2.0: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -12,7 +12,7 @@
     <itemizedlist>
       <listitem>
         <para>im kivitendo-Forum: <ulink
-        url="https://forum.kivitendo.org/">https://forum.kivitendo.org/</ulink></para>
+        url="https://forum.kivitendo.org:32443">https://forum.kivitendo.org:32443</ulink></para>
       </listitem>
       <listitem>
         <para>in der doc/UPGRADE Datei im doc-Verzeichnis der Installation</para>
@@ -182,6 +182,7 @@
           <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
 
+        <para>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen: <literal>GD</literal>, <literal>HTML::Restrict</literal>, <literal>Image::Info</literal></para>
         <para>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <literal>File::Copy::Recursive</literal>.</para>
 
         <para>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <literal>Email::MIME</literal>, <literal>Net::SMTP::SSL</literal>,
@@ -211,8 +212,7 @@
         <sect3>
           <title>Debian und Ubuntu</title>
 
-          <para>Alle benötigten Perl-Pakete stehen für Debian und Ubuntu als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</para>
+          <para>Für Debian und Ubuntu stehen die meisten der benötigten Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</para>
 
           <programlisting>apt-get install apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -222,13 +222,16 @@
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
+  libimage-info-perl libgd-gd2-perl \
   libfile-copy-recursive-perl postgresql</programlisting>
+
+          <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Der entsprechende Befehl wird beim Aufruf von installation_check.pl angezeigt.</para>
         </sect3>
 
         <sect3>
           <title>Fedora Core</title>
 
-          <para>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installeirt werden:</para>
+          <para>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</para>
 
           <programlisting>yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -272,11 +275,11 @@ cpan Rose::Db::Object</programlisting>
       <title>Manuelle Installation des Programmpaketes</title>
       <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github gehostet und kann
  <ulink url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink> heruntergeladen werden.</para>
-      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.1.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
+      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.2.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
       (z.B.  <filename>/var/www/html/</filename>, <filename>/srv/www/htdocs</filename> oder <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www
-tar xvzf kivitendo-erp-3.1.0.tgz</programlisting>
+tar xvzf kivitendo-erp-3.2.0.tgz</programlisting>
 
       <para>Wechseln Sie in das entpackte Verzeichnis:</para>
 
@@ -286,7 +289,7 @@ tar xvzf kivitendo-erp-3.1.0.tgz</programlisting>
       Webserverkonfiguration benutzen, um auf das tatsächliche
       Installationsverzeichnis zu verweisen.</para>
 
-      <para>Bei einer Neuinstallation der Version 3.1.0 muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+      <para>Bei einer Neuinstallation von Version 3.1.0 oder Version 3.2.0 muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
 
       <programlisting>mkdir webdav</programlisting>
 
