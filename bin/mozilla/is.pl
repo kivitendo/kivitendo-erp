@@ -861,6 +861,11 @@ sub storno {
     $form->error($locale->text('Cannot storno invoice for a closed period!'));
   }
 
+  # save the history of invoice being stornoed
+  $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
+  $form->{addition} = "STORNO";
+  $form->save_history;
+
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
   invoice_links();
