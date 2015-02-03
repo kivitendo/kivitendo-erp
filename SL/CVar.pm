@@ -652,6 +652,56 @@ sub format_to_template {
   return $value;
 }
 
+sub get_non_editable_ic_cvars {
+  $main::lxdebug->enter_sub(2);
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(form dbh row sub_module may_converted_from));
+  my $form               = $params{form};
+  my $dbh                = $params{dbh};
+  my $row                = $params{row};
+  my $sub_module         = $params{sub_module};
+  my $may_converted_from = $params{may_converted_from};
+
+  my $cvars;
+  if (! $form->{"${sub_module}_id_${row}"}) {
+    my $conv_from = 0;
+    foreach (@{ $may_converted_from }) {
+      if ($form->{"converted_from_${_}_id_$row"}) {
+        $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                            module     => 'IC',
+                                            sub_module => $_,
+                                            trans_id   => $form->{"converted_from_${_}_id_$row"},
+                                           );
+        $conv_from = 1;
+        last;
+      }
+    }
+    # get values for CVars from master data for new items
+    if (!$conv_from) {
+      $cvars = CVar->get_custom_variables(dbh      => $dbh,
+                                          module   => 'IC',
+                                          trans_id => $form->{"id_$row"},
+                                         );
+    }
+  } else {
+    # get values for CVars from custom_variables for existing items
+    $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                        module     => 'IC',
+                                        sub_module => $sub_module,
+                                        trans_id   => $form->{"${sub_module}_id_${row}"},
+                                       );
+  }
+  # map only non-editable CVars to form
+  foreach (@{ $cvars }) {
+    next if $_->{flag_editable};
+    $form->{"ic_cvar_$_->{name}_$row"} = $_->{value}
+  }
+
+  $main::lxdebug->leave_sub(2);
+}
+
 1;
 
 __END__

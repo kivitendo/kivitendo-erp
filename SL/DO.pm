@@ -296,9 +296,14 @@ SQL
   for my $i (1 .. $form->{rowcount}) {
     next if (!$form->{"id_$i"});
 
+    CVar->get_non_editable_ic_cvars(form               => $form,
+                                    dbh                => $dbh,
+                                    row                => $i, 
+                                    sub_module         => 'delivery_order_items',
+                                    may_converted_from => ['orderitems']);
+
     my $position = $i;
 
-    my $cvars;
     if (!$form->{"delivery_order_items_id_$i"}) {
       # there is no persistent id, therefore create one with all necessary constraints
       my $q_item_id = qq|SELECT nextval('delivery_order_items_id')|;
@@ -309,22 +314,7 @@ SQL
       do_query($form, $dbh, $query, conv_i($form->{"delivery_order_items_id_$i"}),
                 conv_i($form->{"id"}), conv_i($position), conv_i($form->{"id_$i"}));
       $h_item_id->finish();
-
-      # get values for CVars from master data for new items
-      $cvars = CVar->get_custom_variables(dbh      => $dbh,
-                                          module   => 'IC',
-                                          trans_id => $form->{"id_$i"},
-                                         );
-    } else {
-      # get values for CVars from custom_variables for existing items
-      $cvars = CVar->get_custom_variables(dbh        => $dbh,
-                                          module     => 'IC',
-                                          sub_module => 'delivery_order_items',
-                                          trans_id   => $form->{"delivery_order_items_id_$i"},
-                                         );
     }
-    # map only non-editable CVars to form (editable ones are already there)
-    map { $form->{"ic_cvar_$_->{name}_$i"} = $_->{value} unless $_->{flag_editable} } @{ $cvars };
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
@@ -1015,23 +1005,11 @@ sub order_details {
       }
     }
 
-    my $cvars;
-    if (! $form->{"delivery_order_items_id_$i"}) {
-      # get values for CVars from master data for new items
-      $cvars = CVar->get_custom_variables(dbh      => $dbh,
-                                          module   => 'IC',
-                                          trans_id => $form->{"id_$i"},
-                                         );
-    } else {
-      # get values for CVars from custom_variables for existing items
-      $cvars = CVar->get_custom_variables(dbh        => $dbh,
-                                          module     => 'IC',
-                                          sub_module => 'delivery_order_items',
-                                          trans_id   => $form->{"delivery_order_items_id_$i"},
-                                         );
-    }
-    # map only non-editable CVars to form (editable ones are already there)
-    map { $form->{"ic_cvar_$_->{name}_$i"} = $_->{value} unless $_->{flag_editable} } @{ $cvars };
+    CVar->get_non_editable_ic_cvars(form               => $form,
+                                    dbh                => $dbh,
+                                    row                => $i, 
+                                    sub_module         => 'delivery_order_items',
+                                    may_converted_from => ['orderitems']);
 
     push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
       CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
@@ -1288,6 +1266,5 @@ sub is_marked_as_delivered {
 
   return $delivered ? 1 : 0;
 }
-
 
 1;
