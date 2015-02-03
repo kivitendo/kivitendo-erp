@@ -152,7 +152,7 @@
 
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="[% 'history' | $T8 %]">
+  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %], 'id')" name="history" id="history" value="[% 'history' | $T8 %]">
 
   <br>[% label_workflow %]<br>
   <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">

@@ -37,7 +37,7 @@
 
     <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-    <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+    <input type="button" class="submit" onclick="set_history_window([% id %], 'glid');" name="history" id="history" value="[% 'history' | $T8 %]">
   [% ELSE %]
     [% IF ( !is_closed ) %]
       <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">

@@ -385,8 +385,18 @@ sub show_history {
 
   $form->{title} = $locale->text("History");
   $form->header(no_layout => 1);
+
+  my $restriction;
+  if ( $form->{trans_id_type} eq 'glid' ) {
+    $restriction = "AND ( snumbers LIKE 'invnumber%' OR what_done LIKE '%Buchungsnummer%' OR snumbers LIKE 'gltransaction%' ) ";
+  } elsif ( $form->{trans_id_type} eq 'id' ) {
+    $restriction = " AND ( snumbers NOT LIKE 'invnumber_%' AND snumbers NOT LIKE 'gltransaction%' AND (what_done NOT LIKE '%Buchungsnummer%' OR what_done IS null))";
+  } else {
+    $restriction = '';
+  };
+
   print $form->parse_html_template( "common/show_history", {
-    "DATEN"        => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
+    "DATEN"        => $form->get_history($dbh,$form->{input_name},$restriction,$form->{order}),
     "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
     uc($sort)      => 1,
     uc($sort)."BY" => $sortby,

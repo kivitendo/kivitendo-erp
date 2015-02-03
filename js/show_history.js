@@ -10,13 +10,14 @@ function centerParms(width,height,extra) {
   return string;
 }
 
-function set_history_window(id) {
+function set_history_window(id,trans_id_type) {
   var parm = centerParms(800,500) + ",width=800,height=500,status=yes,scrollbars=yes";
   var name = "History";
   url = "common.pl?" +
     "INPUT_ENCODING=UTF-8&" +
     "action=show_history&" +
     "longdescription=" + "&" +
+    "trans_id_type=" + encodeURIComponent(trans_id_type) + "&" +
     "input_name=" + encodeURIComponent(id) + "&"
   window.open(url, "_new_generic", parm);
 }

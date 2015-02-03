@@ -89,7 +89,7 @@
    [%- UNLESS closed %]
    <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
    [%- END %]
-   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+   <input type="button" class="submit" onclick="set_history_window([% id %], 'id');" name="history" id="history" value="[% 'history' | $T8 %]">
    [%- END %]
   </p>
 
