@@ -1099,7 +1099,7 @@ sub storno {
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = "ordnumber_$form->{ordnumber}";
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "STORNO";
     $form->save_history;
   }
