@@ -556,22 +556,22 @@ sub item_selected {
 
   map { $form->{"${_}_$i"} = $new_item->{$_} } @new_fields;
 
-  my $record       = _make_record();
-  my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
-  my $best_price   = $price_source->best_price;
+  if (my $record = _make_record()) {
+    my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
+    my $best_price   = $price_source->best_price;
 
-  if ($best_price) {
-    $::form->{"sellprice_$i"}           = $best_price->price;
-    $::form->{"active_price_source_$i"} = $best_price->source;
+    if ($best_price) {
+      $::form->{"sellprice_$i"}           = $best_price->price;
+      $::form->{"active_price_source_$i"} = $best_price->source;
+    }
+
+    my $best_discount = $price_source->best_discount;
+
+    if ($best_discount) {
+      $::form->{"discount_$i"}               = $best_discount->discount;
+      $::form->{"active_discount_source_$i"} = $best_discount->source;
+    }
   }
-
-  my $best_discount = $price_source->best_discount;
-
-  if ($best_discount) {
-    $::form->{"discount_$i"}               = $best_discount->discount;
-    $::form->{"active_discount_source_$i"} = $best_discount->source;
-  }
-
 
   $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
