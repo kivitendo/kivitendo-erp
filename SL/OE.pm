@@ -674,7 +674,7 @@ SQL
   delete $form->{convert_from_oe_ids};
   @{ $form->{convert_from_oe_ids} }      =  @convert_from_oe_ids;
   foreach (qw(ar oe)) {
-    if ($form->{"convert_from_${_}_ids"}) {
+    if (!$form->{useasnew} && $form->{"convert_from_${_}_ids"}) {
       RecordLinks->create_links('dbh'        => $dbh,
                                 'mode'       => 'ids',
                                 'from_table' => $_,
@@ -836,6 +836,7 @@ sub retrieve {
   if ($form->{"rowcount"} and $#ids == 0) {
     $form->{"id"} = $ids[0];
     undef @ids;
+    delete $form->{convert_from_oe_ids};
   }
 
   # and remember for the rest of the function
