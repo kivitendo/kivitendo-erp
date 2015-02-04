@@ -478,7 +478,7 @@ sub form_header {
         CFDD_shipto CFDD_shipto_id shiptocity shiptocountry shiptocontact shiptophone shiptofax
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
-        show_details),
+        show_details useasnew),
         @custom_hiddens,
         map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
 

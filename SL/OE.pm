@@ -571,7 +571,7 @@ SQL
 
       # link previous items with orderitems
       foreach (qw(orderitems invoice)) {
-        if (!$form->{saveasnew} && $form->{"converted_from_${_}_id_$i"}) {
+        if (!$form->{saveasnew} && !$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
           RecordLinks->create_links('dbh'        => $dbh,
                                     'mode'       => 'ids',
                                     'from_table' => $_,
@@ -840,6 +840,7 @@ sub retrieve {
 
   # and remember for the rest of the function
   my $is_collective_order = scalar @ids;
+  $form->{useasnew} = !!$is_collective_order;
 
   if (!$form->{id}) {
     my $extra_days   = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval : 1;
@@ -1044,7 +1045,7 @@ sub retrieve {
       }
 
       # delete orderitems_id in collective orders, so that they get cloned no matter what
-      delete $ref->{orderitems_id} if $is_collective_order;
+      $ref->{converted_from_orderitems_id} = delete $ref->{orderitems_id} if $is_collective_order;
 
       # get tax rates and description
       my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
