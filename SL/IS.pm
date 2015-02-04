@@ -812,7 +812,7 @@ SQL
     }
     # link previous items with invoice items
     foreach (qw(delivery_order_items orderitems invoice)) {
-      if ($form->{"converted_from_${_}_id_$i"}) {
+      if (!$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
         RecordLinks->create_links('dbh'        => $dbh,
                                   'mode'       => 'ids',
                                   'from_table' => $_,
@@ -820,8 +820,8 @@ SQL
                                   'to_table'   => 'invoice',
                                   'to_id'      => $form->{"invoice_id_$i"},
         );
-        delete $form->{"converted_from_${_}_id_$i"};
       }
+      delete $form->{"converted_from_${_}_id_$i"};
     }
   }
 

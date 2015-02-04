@@ -300,7 +300,7 @@ SQL
                                     dbh                => $dbh,
                                     row                => $i, 
                                     sub_module         => 'delivery_order_items',
-                                    may_converted_from => ['orderitems']);
+                                    may_converted_from => ['orderitems', 'delivery_order_items']);
 
     my $position = $i;
 
@@ -395,8 +395,9 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
+
     # link order items with doi, for future extension look at foreach IS.pm
-    if ($form->{"converted_from_orderitems_id_$i"}) {
+    if (!$form->{saveasnew} && $form->{"converted_from_orderitems_id_$i"}) {
       RecordLinks->create_links('dbh'        => $dbh,
                                 'mode'       => 'ids',
                                 'from_table' => 'orderitems',
@@ -404,8 +405,8 @@ SQL
                                 'to_table'   => 'delivery_order_items',
                                 'to_id'      =>  $form->{"delivery_order_items_id_$i"},
       );
-      delete $form->{"converted_from_orderitems_id_$i"};
     }
+    delete $form->{"converted_from_orderitems_id_$i"};
   }
 
   # 1. search for orphaned dois; processed_dois may be empty (no transfer) TODO: be supersafe and alter same statement for doi and oi
@@ -1009,7 +1010,7 @@ sub order_details {
                                     dbh                => $dbh,
                                     row                => $i, 
                                     sub_module         => 'delivery_order_items',
-                                    may_converted_from => ['orderitems']);
+                                    may_converted_from => ['orderitems', 'delivery_order_items']);
 
     push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
       CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)

@@ -442,7 +442,7 @@ sub display_row {
       push @hidden_vars, qw(orderitems_id converted_from_orderitems_id converted_from_invoice_id);
     }
     if ($is_invoice) {
-      push @hidden_vars, qw(invoice_id converted_from_orderitems_id converted_from_delivery_order_items_id);
+      push @hidden_vars, qw(invoice_id converted_from_orderitems_id converted_from_delivery_order_items_id converted_from_invoice_id);
     }
     if ($::form->{type} =~ /credit_note/) {
       push @hidden_vars, qw(invoice_id converted_from_invoice_id);
@@ -451,7 +451,7 @@ sub display_row {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
-      push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id);
+      push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id converted_from_delivery_order_items_id);
     }
 
     my @HIDDENS = map { value => $_}, (

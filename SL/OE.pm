@@ -568,9 +568,10 @@ SQL
                                   name_prefix  => 'ic_',
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
+
       # link previous items with orderitems
       foreach (qw(orderitems invoice)) {
-        if ($form->{"converted_from_${_}_id_$i"}) {
+        if (!$form->{saveasnew} && $form->{"converted_from_${_}_id_$i"}) {
           RecordLinks->create_links('dbh'        => $dbh,
                                     'mode'       => 'ids',
                                     'from_table' => $_,
@@ -578,11 +579,12 @@ SQL
                                     'to_table'   => 'orderitems',
                                     'to_id'      => $orderitems_id,
           );
-          delete $form->{"converted_from_${_}_id_$i"};
         }
+        delete $form->{"converted_from_${_}_id_$i"};
       }
     }
   }
+
   # search for orphaned ids
   $query  = sprintf 'SELECT id FROM orderitems WHERE trans_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_orderitems;
   @values = (conv_i($form->{id}), map { conv_i($_) } @processed_orderitems);

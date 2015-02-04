@@ -373,7 +373,7 @@ sub post_invoice {
                                     dbh                => $dbh,
                                     row                => $i, 
                                     sub_module         => 'invoice',
-                                    may_converted_from => ['delivery_order_items', 'orderitems']);
+                                    may_converted_from => ['delivery_order_items', 'orderitems', 'invoice']);
 
     if (!$form->{"invoice_id_$i"}) {
       # there is no persistent id, therefore create one with all necessary constraints
@@ -416,9 +416,10 @@ SQL
                                 name_prefix  => 'ic_',
                                 name_postfix => "_$i",
                                 dbh          => $dbh);
+
     # link previous items with invoice items See IS.pm (no credit note -> no invoice item)
     foreach (qw(delivery_order_items orderitems)) {
-      if ($form->{"converted_from_${_}_id_$i"}) {
+      if (!$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
         RecordLinks->create_links('dbh'        => $dbh,
                                   'mode'       => 'ids',
                                   'from_table' => $_,
@@ -426,8 +427,8 @@ SQL
                                   'to_table'   => 'invoice',
                                   'to_id'      => $form->{"invoice_id_$i"},
         );
-        delete $form->{"converted_from_${_}_id_$i"};
       }
+      delete $form->{"converted_from_${_}_id_$i"};
     }
   }
 

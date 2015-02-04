@@ -962,7 +962,7 @@ sub save_as_new {
   $form->{delivered} = 0;
   map { delete $form->{$_} } qw(printed emailed queued);
   delete @{ $form }{ grep { m/^stock_(?:in|out)_\d+/ } keys %{ $form } };
-  delete $form->{"delivery_order_items_id_$_"} for 1 .. $form->{"rowcount"};
+  $form->{"converted_from_delivery_order_items_id_$_"} = delete $form->{"delivery_order_items_id_$_"} for 1 .. $form->{"rowcount"};
   # Let kivitendo assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
   $form->{donumber} =~ s/^\s*//g;

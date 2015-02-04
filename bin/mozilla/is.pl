@@ -380,7 +380,7 @@ sub form_header {
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2  shiptocp_gender message email subject cc bcc taxaccounts cursor_fokus
-    convert_from_do_ids convert_from_oe_ids convert_from_ar_ids
+    convert_from_do_ids convert_from_oe_ids convert_from_ar_ids useasnew
     invoice_id
     show_details
   ), @custom_hiddens,
@@ -834,8 +834,10 @@ sub use_as_new {
   $form->{employee_id}  = SL::DB::Manager::Employee->current->id;
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
-  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+
+  $form->{useasnew} = 1;
   &display_form;
 
   $main::lxdebug->leave_sub();

@@ -333,7 +333,7 @@ sub form_header {
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
-    convert_from_do_ids convert_from_oe_ids show_details gldate
+    convert_from_do_ids convert_from_oe_ids show_details gldate useasnew
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
@@ -620,7 +620,10 @@ sub use_as_new {
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
-  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+
+  $form->{useasnew} = 1;
   &display_form;
 
   $main::lxdebug->leave_sub();
