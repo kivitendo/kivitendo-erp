@@ -1637,25 +1637,14 @@ sub save_as_new {
   if ( $form->{reqdate} && $form->{id} ) {
     my $saved_order = OE->retrieve_simple(id => $form->{id});
     if ( $saved_order && $saved_order->{reqdate} eq $form->{reqdate} && $saved_order->{transdate} eq $form->{transdate} ) {
+      my $extra_days   = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval : 1;
+      my $next_workday = DateTime->today_local->add(days => $extra_days);
+      my $day_of_week  = $next_workday->day_of_week;
 
-      my $dbh = $form->get_standard_dbh;
+      $next_workday->add(days => (8 - $day_of_week)) if $day_of_week >= 6;
 
-      my $wday         = (localtime(time))[6];
-      my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
-
-      # if we have a client configured interval for sales quotation, we add this
-      $next_workday   += $::instance_conf->get_reqdate_interval if ($::instance_conf->get_reqdate_interval &&
-                                                                    $form->{type} eq 'sales_quotation'       );
-
-      my $query = 'SELECT
-                     date(current_date + interval \''. $next_workday .' days\') AS reqdate,
-                     date(current_date) AS transdate';
-      my $ref = selectfirst_hashref_query($form, $dbh, $query);
-
-      map(
-        { $form->{$_} = $ref->{$_} }
-        keys %{$ref}
-      );
+      $form->{transdate} = DateTime->today_local->to_kivitendo;
+      $form->{reqdate}   = $next_workday->to_kivitendo;
     }
   }
 

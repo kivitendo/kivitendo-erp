@@ -850,14 +850,14 @@ sub retrieve {
   my $is_collective_order = scalar @ids;
 
   if (!$form->{id}) {
-    my $wday         = (localtime(time))[6];
-    my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
+    my $extra_days   = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval : 1;
+    my $next_workday = DateTime->today_local->add(days => $extra_days);
+    my $day_of_week  = $next_workday->day_of_week;
 
-    # if we have a client configured interval for sales quotation, we add this
-    $next_workday   += $::instance_conf->get_reqdate_interval if ($::instance_conf->get_reqdate_interval &&
-                                                                    $form->{type} eq 'sales_quotation' );
+    $next_workday->add(days => (8 - $day_of_week)) if $day_of_week >= 6;
 
-    $query_add       = qq|, current_date AS transdate, date(current_date + interval '${next_workday} days') AS reqdate|;
+    $form->{transdate} = DateTime->today_local->to_kivitendo;
+    $form->{reqdate}   = $next_workday->to_kivitendo;
   }
 
   # get default accounts
