@@ -58,7 +58,7 @@ sub run {
     }
   }
 
-  map { _print_invoice(@{ $_ }) } @invoices_to_print;
+  _print_invoice(@{ $_ }) for @invoices_to_print;
 
   _send_email(\@new_invoices, [ map { $_->[0] } @invoices_to_print ]) if @new_invoices;
 
@@ -154,10 +154,10 @@ sub _create_periodic_invoice {
                                 employee     => $order->employee, # new_from sets employee to import user
                                );
 
-    map { _replace_vars($invoice, $time_period_vars, $_) } qw(notes intnotes transaction_description);
+    _replace_vars($invoice, $time_period_vars, $_) for qw(notes intnotes transaction_description);
 
     foreach my $item (@{ $invoice->items }) {
-      map { _replace_vars($item, $time_period_vars, $_) } qw(description longdescription);
+      _replace_vars($item, $time_period_vars, $_) for qw(description longdescription);
     }
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
