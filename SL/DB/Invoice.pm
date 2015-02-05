@@ -196,7 +196,7 @@ sub new_from {
 
     SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
                                  qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id transdate cusordnumber unit
-                                    base_qty longdescription lastcost price_factor_id), @item_columns),
+                                    base_qty longdescription lastcost price_factor_id active_discount_source active_price_source), @item_columns),
                              deliverydate     => $source_item->reqdate,
                              fxsellprice      => $source_item->sellprice,
                              custom_variables => \@custom_variables,

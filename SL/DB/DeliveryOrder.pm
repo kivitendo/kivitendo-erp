@@ -155,7 +155,7 @@ sub new_from {
 
     SL::DB::DeliveryOrderItem->new(map({ ( $_ => $source_item->$_ ) }
                                          qw(base_qty cusordnumber description discount lastcost longdescription marge_price_factor parts_id price_factor price_factor_id
-                                            project_id qty reqdate sellprice serialnumber transdate unit
+                                            project_id qty reqdate sellprice serialnumber transdate unit active_discount_source active_price_source
                                          )),
                                    custom_variables => \@custom_variables,
                                    ordnumber        => ref($item_parent) eq 'SL::DB::Order' ? $item_parent->ordnumber : $source_item->ordnumber,
