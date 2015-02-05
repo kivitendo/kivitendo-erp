@@ -94,7 +94,7 @@ sub _as_date {
     return $self->$attribute
       ? $::locale->reformat_date(
           { dateformat => 'yy-mm-dd' },
-          ( $self->$attribute eq 'now'
+          ( ($self->$attribute eq 'now' || $self->$attribute eq 'now()')
              ? DateTime->now
              : $self->$attribute
           )->ymd,
