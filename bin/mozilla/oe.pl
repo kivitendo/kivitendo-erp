@@ -2000,14 +2000,16 @@ sub edit_periodic_invoices_config {
   $config = YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
 
   if ('HASH' ne ref $config) {
-    $config =  { periodicity             => 'y',
+    $config =  { periodicity             => 'm',
+                 order_value_periodicity => 'p', # = same as periodicity
                  start_date_as_date      => $::form->{transdate} || $::form->current_date,
                  extend_automatically_by => 12,
                  active                  => 1,
                };
   }
 
-  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q b y);
+  $config->{periodicity}             = 'm' if none { $_ eq $config->{periodicity}             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES;
+  $config->{order_value_periodicity} = 'p' if none { $_ eq $config->{order_value_periodicity} } ('p', @SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIODICITIES);
 
   $::form->get_lists(printers => "ALL_PRINTERS",
                      charts   => { key       => 'ALL_CHARTS',
@@ -2033,7 +2035,8 @@ sub save_periodic_invoices_config {
 
   my $config = { active                  => $::form->{active}     ? 1 : 0,
                  terminated              => $::form->{terminated} ? 1 : 0,
-                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q b y)) ? $::form->{periodicity} : 'm',
+                 periodicity             => (any { $_ eq $::form->{periodicity}             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES)              ? $::form->{periodicity}             : 'm',
+                 order_value_periodicity => (any { $_ eq $::form->{order_value_periodicity} } ('p', @SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIODICITIES)) ? $::form->{order_value_periodicity} : 'p',
                  start_date_as_date      => $::form->{start_date_as_date},
                  end_date_as_date        => $::form->{end_date_as_date},
                  first_billing_date_as_date => $::form->{first_billing_date_as_date},

@@ -1,6 +1,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% SET style="width: 400px" %]
 <h1>[% title %]</h1>
 
  <form name="Form" action="oe.pl" method="post">
@@ -20,15 +21,19 @@
     </tr>
 
     <tr>
-     <th align="right" valign="top">[%- LxERP.t8('Periodicity') %]</th>
+     <th align="right" valign="top">[%- LxERP.t8('Billing Periodicity') %]</th>
      <td valign="top">
-      [% L.radio_button_tag("periodicity", value => "m", label => LxERP.t8("monthly"),   checked => periodicity == 'm') %]
-      <br>
-      [% L.radio_button_tag("periodicity", value => "q", label => LxERP.t8("every third month"), checked => periodicity == 'q') %]
-      <br>
-      [% L.radio_button_tag("periodicity", value => "b", label => LxERP.t8("semiannually"), checked => periodicity == 'b') %]
-      <br>
-      [% L.radio_button_tag("periodicity", value => "y", label => LxERP.t8("yearly"),    checked => periodicity == 'y') %]
+      [% L.select_tag("periodicity", [ [ "m", LxERP.t8("monthly") ], [ "q", LxERP.t8("every third month") ], [ "b", LxERP.t8("semiannually") ], [ "y", LxERP.t8("yearly") ] ], default=periodicity, style=style) %]
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" valign="top">[%- LxERP.t8('Order value periodicity') %]</th>
+     <td valign="top">
+      [% L.select_tag("order_value_periodicity",
+                      [ [ "p", LxERP.t8("same as periodicity") ], [ "m", LxERP.t8("monthly") ], [ "q", LxERP.t8("every third month") ], [ "b", LxERP.t8("semiannually") ], [ "y", LxERP.t8("yearly") ],
+                        [ "2", LxERP.t8("2 years") ], [ "3", LxERP.t8("3 years") ], [ "4", LxERP.t8("4 years") ], [ "5", LxERP.t8("5 years") ], ],
+                      default=order_value_periodicity, style=style) %]
      </td>
     </tr>
 
@@ -63,7 +68,7 @@
     <tr>
      <th align="right">[%- LxERP.t8('Record in') %]</th>
      <td valign="top">
-      [% L.select_tag("ar_chart_id", AR, title_key => 'description', default => ar_chart_id) %]
+      [% L.select_tag("ar_chart_id", AR, title_key => 'description', default => ar_chart_id, style=style) %]
      </td>
     </tr>
 
@@ -77,7 +82,7 @@
     <tr>
      <th align="right">[%- LxERP.t8('Printer') %]</th>
      <td valign="top">
-      [% L.select_tag("printer_id", ALL_PRINTERS, title_key = 'printer_description', default = printer_id, disabled = !print) %]
+      [% L.select_tag("printer_id", ALL_PRINTERS, title_key = 'printer_description', default = printer_id, disabled = !print, style=style) %]
      </td>
     </tr>
 

@@ -148,7 +148,7 @@ sub calculate_periodic_invoices_order_netamount {
     $cur_date->add(years => 1);
   }
 
-  return $num_years * $order->netamount * (12 / $order->periodic_invoices_config->get_period_length);
+  return $num_years * $order->netamount * (12 / $order->periodic_invoices_config->get_billing_period_length);
 }
 
 sub sum_items {

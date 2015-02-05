@@ -148,7 +148,7 @@ sub calculate_one_periodic_invoice {
   return if $params{config}->start_date > $params{end_date};
 
   my $first_date = $params{config}->start_date->clone->set_year($self->year);
-  my $net        = $params{config}->order->netamount * (12 / $params{config}->get_period_length);
+  my $net        = $params{config}->order->netamount * (12 / $params{config}->get_billing_period_length);
   my $sord       = $self->data->{sales_orders};
 
   $sord->{months  }->[ $first_date->month   - 1 ] += $net;
