@@ -3161,6 +3161,14 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>greeting</varname></term>
+
+              <listitem>
+                <para>Anrede</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>name</varname></term>
 
               <listitem>
