@@ -108,22 +108,35 @@ sub _replace_vars {
   my (%params) = @_;
   my $sub      = $params{attribute};
   my $str      = $params{object}->$sub;
+  my $sub_fmt  = lc($params{attribute_format} // 'text');
 
-  $str =~ s{ <\% ([a-z0-9_]+) ( \s+ format \s*=\s* (.*?) \s* )? \%>}{
+  my ($start_tag, $end_tag) = $sub_fmt eq 'html' ? ('&lt;%', '%&gt;') : ('<%', '%>');
+
+  $str =~ s{ ${start_tag} ([a-z0-9_]+) ( \s+ format \s*=\s* (.*?) \s* )? ${end_tag} }{
     my ($key, $format) = ($1, $3);
+    $key               = $::locale->unquote_special_chars('html', $key) if $sub_fmt eq 'html';
+    my $new_value;
+
     if (!$params{vars}->{$key}) {
-      '';
+      $new_value = '';
 
     } elsif ($format) {
-      DateTime::Format::Strptime->new(
+      $format    = $::locale->unquote_special_chars('html', $format) if $sub_fmt eq 'html';
+
+      $new_value = DateTime::Format::Strptime->new(
         pattern     => $format,
         locale      => 'de_DE',
         time_zone   => 'local',
       )->format_datetime($params{vars}->{$key}->[0]);
 
     } else {
-      $params{vars}->{$1}->[1]->($params{vars}->{$1}->[0]);
+      $new_value = $params{vars}->{$1}->[1]->($params{vars}->{$1}->[0]);
     }
+
+    $new_value = $::locale->quote_special_chars('html', $new_value) if $sub_fmt eq 'html';
+
+    $new_value;
+
   }eigx;
 
   $params{object}->$sub($str);
@@ -156,7 +169,7 @@ sub _create_periodic_invoice {
     _replace_vars(object => $invoice, vars => $time_period_vars, attribute => $_) for qw(notes intnotes transaction_description);
 
     foreach my $item (@{ $invoice->items }) {
-      _replace_vars(object => $item, vars => $time_period_vars, attribute => $_) for qw(description longdescription);
+      _replace_vars(object => $item, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')) for qw(description longdescription);
     }
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
