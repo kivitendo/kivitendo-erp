@@ -493,7 +493,7 @@ sub action_get_delivery {
 
      LEFT JOIN oe
        ON (oe.ordnumber = ${arap}.ordnumber AND NOT ${arap}.ordnumber = ''
-           AND ". ($arap eq 'ar' ? 'oe.customer_id IS NOT NULL' : 'oe_vendor_id IS NOT NULL') ." )
+           AND ". ($arap eq 'ar' ? 'oe.customer_id IS NOT NULL' : 'oe.vendor_id IS NOT NULL') ." )
 
      ${where}
      ORDER BY ${arap}.transdate DESC LIMIT 15";
