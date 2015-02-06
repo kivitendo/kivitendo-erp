@@ -28,7 +28,7 @@ sub get_order_value_period_length {
 }
 
 sub _log_msg {
-  $::lxdebug->message(LXDebug->DEBUG1(), join('', @_));
+  $::lxdebug->message(LXDebug->DEBUG1(), join('', 'SL::DB::PeriodicInvoicesConfig: ', @_));
 }
 
 sub handle_automatic_extension {
@@ -87,11 +87,11 @@ sub calculate_invoice_dates {
   my ($self, %params) = @_;
 
   my $period_len = $self->get_billing_period_length;
-  my $cur_date   = $self->first_billing_date || $self->start_date;
+  my $cur_date   = ($self->first_billing_date || $self->start_date)->clone;
   my $end_date   = $self->terminated ? $self->end_date : undef;
   $end_date    //= DateTime->today_local->add(years => 100);
-  my $start_date = $params{past_dates} ? undef                       : $self->get_previous_billed_period_start_date;
-  $start_date    = $start_date         ? $start_date->add(days => 1) : $cur_date->clone;
+  my $start_date = $params{past_dates} ? undef                              : $self->get_previous_billed_period_start_date;
+  $start_date    = $start_date         ? $start_date->clone->add(days => 1) : $cur_date->clone;
 
   $start_date    = max($start_date, $params{start_date}) if $params{start_date};
   $end_date      = min($end_date,   $params{end_date})   if $params{end_date};
@@ -105,6 +105,27 @@ sub calculate_invoice_dates {
   }
 
   return @dates;
+}
+
+sub is_last_bill_date_in_order_value_cycle {
+  my ($self, %params)    = @_;
+
+  my $months_billing     = $self->get_billing_period_length;
+  my $months_order_value = $self->get_order_value_period_length;
+
+  return 1 if $months_billing >= $months_order_value;
+
+  my $next_billing_date = $params{date}->clone->add(months => $months_billing);
+  my $date_itr          = max($self->start_date, $self->first_billing_date || $self->start_date)->clone;
+
+  _log_msg("is_last_billing_date_in_order_value_cycle start: id " . $self->id . " date_itr $date_itr start " . $self->start_date);
+
+  $date_itr->add(months => $months_order_value) while $date_itr < $next_billing_date;
+
+  _log_msg("is_last_billing_date_in_order_value_cycle end: refdate $params{date} next_billing_date $next_billing_date date_itr $date_itr months_billing $months_billing months_order_value $months_order_value result "
+           . ($date_itr == $next_billing_date));
+
+  return $date_itr == $next_billing_date;
 }
 
 1;
@@ -191,6 +212,28 @@ returned.
 Otherwise (if C<extend_automatically_by> is 0) the property C<active>
 will be set to 1, and the configuration will be saved. In this case
 C<undef> will be returned.
+
+=item C<is_last_billing_date_in_order_value_cycle %params>
+
+Determines whether or not the mandatory parameter C<date>, an instance
+of L<DateTime>, is the last billing date within the cycle given by the
+order value periodicity. Returns a truish value if this is the case
+and a falsish value otherwise.
+
+This check is always true if the billing periodicity is longer than or
+equal to the order value periodicity. For example, if you have an
+order whose value is given for three months and you bill every six
+months and you have twice the order value on each invoice, meaning
+each invoice is itself the last invoice for not only one but two order
+value cycles.
+
+Otherwise (if the order value periodicity is longer than the billing
+periodicity) this function iterates over all eligible dates starting
+with C<first_billing_date> (or C<start_date> if C<first_billing_date>
+is unset) and adding the order value length with each step. If the
+date given by the C<date> parameter plus the billing period length
+equals one of those dates then the given date is indeed the date of
+the last invoice in that particular order value cycle.
 
 =back
 
