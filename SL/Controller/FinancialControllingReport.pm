@@ -3,7 +3,7 @@ package SL::Controller::FinancialControllingReport;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use List::Util qw(min sum);
+use List::Util qw(max min sum);
 
 use SL::DB::Order;
 use SL::DB::ProjectType;
@@ -136,19 +136,24 @@ sub calculate_data {
 sub calculate_periodic_invoices_order_netamount {
   my ($self, $order) = @_;
 
+  my $year       = DateTime->today_local->year;
+  my $year_start = DateTime->new_local(day =>  1, month =>  1, year => $year);
+  my $year_end   = DateTime->new_local(day => 31, month => 12, year => $year);
+
   my $cfg        = $order->periodic_invoices_config;
-  my $num_years  = 0;
+  my $period_len = $cfg->get_billing_period_length;
+  my $num_months = 0;
   my $cur_date   = $cfg->start_date->clone;
-  my $end_date   = $cfg->terminated ? $self->end_date : undef;
-  $end_date    //= DateTime->today_local;
-  $end_date      = min($end_date, DateTime->today_local);
+  my $end_date   = $cfg->terminated ? $cfg->end_date : undef;
+  $end_date    //= $year_end;
+  $end_date      = min $end_date, $year_end;
 
   while ($cur_date <= $end_date) {
-    $num_years++;
-    $cur_date->add(years => 1);
+    $num_months += $period_len if $cur_date >= $year_start;
+    $cur_date->add(months => $period_len);
   }
 
-  return $num_years * $order->netamount * (12 / $order->periodic_invoices_config->get_billing_period_length);
+  return $num_months * $order->netamount / $order->periodic_invoices_config->get_order_value_period_length;
 }
 
 sub sum_items {
