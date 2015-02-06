@@ -107,7 +107,7 @@ sub _generate_time_period_variables {
 sub _replace_vars {
   my (%params) = @_;
   my $sub      = $params{attribute};
-  my $str      = $params{object}->$sub;
+  my $str      = $params{object}->$sub // '';
   my $sub_fmt  = lc($params{attribute_format} // 'text');
 
   my ($start_tag, $end_tag) = $sub_fmt eq 'html' ? ('&lt;%', '%&gt;') : ('<%', '%>');
