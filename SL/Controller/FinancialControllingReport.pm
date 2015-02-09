@@ -12,8 +12,8 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(project_types) ],
-  'scalar --get_set_init' => [ qw(models) ],
+  scalar                  => [ qw(orders) ],
+  'scalar --get_set_init' => [ qw(project_types models) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
@@ -29,13 +29,11 @@ my %sort_columns = (
 sub action_list {
   my ($self) = @_;
 
-  $self->project_types(SL::DB::Manager::ProjectType->get_all_sorted);
-
   $self->make_filter_summary;
 
   $self->prepare_report;
 
-  $self->{orders} = $self->models->get;
+  $self->orders($self->models->get);
 
   $self->calculate_data;
 
@@ -104,7 +102,7 @@ sub prepare_report {
 sub calculate_data {
   my ($self) = @_;
 
-  foreach my $order (@{ $self->{orders} }) {
+  foreach my $order (@{ $self->orders }) {
     my @delivery_orders = @{ $order->linked_records(direction => 'to', to => 'DeliveryOrder', via => 'Order', query => [ '!customer_id' => undef ]) };
     my @invoices        = @{ $order->linked_records(direction => 'to', to => 'Invoice',       via => [ 'Order', 'DeliveryOrder' ])                  };
 
@@ -113,10 +111,10 @@ sub calculate_data {
       map({ @{ $_->storno_invoices } } grep { $_->storno && !$_->storno_id } @invoices),
     );
 
-    $order->{delivered_amount}  = sum map { $self->sum_relevant_items(order => $order, other => $_, by_order => 1)    } @delivery_orders;
-    $order->{billed_amount}     = sum map { $self->sum_relevant_items(order => $order, other => $_)                   } @invoices;
-    $order->{paid_amount}       = sum map { $_->paid * $_->netamount / (($_->amount * 1) || ($_->netamount * 1) || 1) } @invoices;
-    my $billed_amount           = sum map { $_->netamount                                                             } @invoices;
+    $order->{delivered_amount}  = sum(map { $self->sum_relevant_items(order => $order, other => $_, by_order => 1)    } @delivery_orders) // 0;
+    $order->{billed_amount}     = sum(map { $self->sum_relevant_items(order => $order, other => $_)                   } @invoices)        // 0;
+    $order->{paid_amount}       = sum(map { $_->paid * $_->netamount / (($_->amount * 1) || ($_->netamount * 1) || 1) } @invoices)        // 0;
+    my $billed_amount           = sum(map { $_->netamount                                                             } @invoices)        // 0;
     $order->{other_amount}      = $billed_amount             - $order->{billed_amount};
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
 
@@ -207,7 +205,7 @@ sub list_objects {
     $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) for grep { !m/_p$/ } @{ $self->{number_columns} };
   };
 
-  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->{orders}, data_callback => $modify_data);
+  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->orders, data_callback => $modify_data);
 }
 
 sub make_filter_summary {
@@ -226,6 +224,8 @@ sub make_filter_summary {
 
   $self->{filter_summary} = join ', ', @filter_strings;
 }
+
+sub init_project_types { SL::DB::Manager::ProjectType->get_all_sorted }
 
 sub init_models {
   my ($self) = @_;
