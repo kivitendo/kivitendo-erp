@@ -57,7 +57,7 @@ sub prepare_report {
     purchase_invoices      => { text => t8('Purchase Invoices')      },
   );
 
-  map { $column_defs{$_}->{align} = 'right' } @columns;
+  $column_defs{$_}->{align} = 'right' for @columns;
 
   $self->report->set_options(
     std_column_visibility => 1,
