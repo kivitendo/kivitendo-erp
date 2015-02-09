@@ -32,8 +32,8 @@ sub read_params {
   my $source = $self->get_models->source;
 
   my $from_form = {
-    page            => $source->{ $self->form_params->[0] } || 1,
-    per_page        => $source->{ $self->form_params->[1] } * 1,
+    page            =>  $source->{ $self->form_params->[0] } || 1,
+    per_page        => ($source->{ $self->form_params->[1] } // 0) * 1,
   };
 
 #  my $priv              = _priv($self);
