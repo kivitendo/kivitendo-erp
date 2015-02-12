@@ -160,11 +160,17 @@ sub list_names {
     }
   }
 
+  if ( $form->{insertdatefrom} or $form->{insertdateto} ) {
+    push @options, $locale->text('Insert Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1) if $form->{insertdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{insertdateto},   1) if $form->{insertdateto};
+  };
+
   my @columns = (
     'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
-    'country'
+    'country',   'insertdate'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -194,6 +200,7 @@ sub list_names {
     'salesman'          => { 'text' => $locale->text('Salesman'), },
     'discount'          => { 'text' => $locale->text('Discount'), },
     'payment'           => { 'text' => $locale->text('Payment Terms'), },
+    'insertdate'        => { 'text' => $locale->text('Insert Date'), },
     %column_defs_cvars,
   );
 
@@ -201,7 +208,7 @@ sub list_names {
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
-      addr_city addr_country business_id salesman_id
+      addr_city addr_country business_id salesman_id insertdateto insertdatefrom
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),

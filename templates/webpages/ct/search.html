@@ -66,6 +66,17 @@
    </tr>
    [% END %]
 
+   <tr>
+    <th align="right">[% 'Insert Date' | $T8 %] [% 'From' | $T8 %]</th>
+    <td>
+      [% L.date_tag('insertdatefrom') %]
+    </td>
+    <th align="right">[% 'Bis' | $T8 %]</th>
+    <td>
+      [% L.date_tag('insertdateto') %]
+    </td>
+   </tr>
+
    [% CUSTOM_VARIABLES_FILTER_CODE %]
 
    <tr>
@@ -86,7 +97,7 @@
 
    <tr>
     <th align="right" nowrap>[% 'Include in Report' | $T8 %]</th>
-    <td>
+    <td colspan="5">
      <table border="0">
       <tr>
        <td>
@@ -171,6 +182,10 @@
        <td>
         <input name="l_payment" id="l_payment" type="checkbox" class="checkbox" value="Y">
         <label for="l_payment">[% 'Payment Terms' | $T8 %]</label>
+       </td>
+       <td>
+        <input name="l_insertdate" id="l_insertdate" class="checkbox" type="checkbox" value="Y">
+        <label for="l_insertdate">[% 'Insert Date' | $T8 %]</label>
        </td>
       [% IF IS_CUSTOMER %]
       <td>

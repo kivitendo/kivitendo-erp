@@ -76,6 +76,7 @@ sub search {
       "city"               => "ct.city",
       "country"            => "ct.country",
       "discount"           => "ct.discount",
+      "insertdate"         => "ct.itime",
       "salesman"           => "e.name",
       "payment"            => "pt.description"
     );
@@ -92,7 +93,7 @@ sub search {
   }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|id|discount)/ && !$join_records) {
+  if ($sortorder !~ /(business|id|discount|itime)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
@@ -176,6 +177,16 @@ sub search {
     push(@values, conv_i($form->{salesman_id}));
   }
 
+  if($form->{insertdatefrom}) {
+    $where .= qq| AND (ct.itime::DATE >= ?)|;
+    push@values, conv_date($form->{insertdatefrom});
+  }
+
+  if($form->{insertdateto}) {
+    $where .= qq| AND (ct.itime::DATE <= ?)|;
+    push @values, conv_date($form->{insertdateto});
+  }
+
   # Nur Kunden finden, bei denen ich selber der Verkäufer bin
   # Gilt nicht für Lieferanten
   if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
@@ -203,7 +214,7 @@ sub search {
   }
 
   my $query =
-    qq|SELECT ct.*, b.description AS business, e.name as salesman, |.
+    qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
     qq|  pt.description as payment | .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
@@ -223,7 +234,7 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, e.name as salesman, |.
+        qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, | .
         qq|  a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
@@ -240,7 +251,7 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, e.name as salesman, |.
+        qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
@@ -256,7 +267,7 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
+        qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
