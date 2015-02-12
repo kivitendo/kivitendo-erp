@@ -744,7 +744,7 @@ sub all_parts {
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
-  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop));
+  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -820,10 +820,12 @@ sub all_parts {
     'ioi.id'       => 'ioi_id',
     'ioi.ioi'      => 'ioi',
     'projectdescription' => 'projectdescription',
+    'insertdate'   => 'insertdate',
   );
 
   my %real_column = (
     projectdescription => 'description',
+    insertdate         => 'itime::DATE',
   );
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
@@ -860,6 +862,21 @@ sub all_parts {
     for (qw(transdatefrom transdateto)) {
       next unless $form->{$_};
       push @where_tokens, sprintf "transdate %s ?", /from$/ ? '>=' : '<=';
+      push @bind_vars,    $form->{$_};
+    }
+  }
+
+  # special case insertdate
+  if (grep { $form->{$_} } qw(insertdatefrom insertdateto)) {
+    $form->{"l_insertdate"} = 1;
+    push @select_tokens, 'insertdate';
+
+    my $token_builder = $make_token_builder->();
+    my $token = $token_builder->('insertdate');
+
+    for (qw(insertdatefrom insertdateto)) {
+      next unless $form->{$_};
+      push @where_tokens, sprintf "$token %s ?", /from$/ ? '>=' : '<=';
       push @bind_vars,    $form->{$_};
     }
   }
@@ -997,7 +1014,7 @@ sub all_parts {
 
   my $token_builder = $make_token_builder->(\%joins_needed);
 
-  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate shop));
+  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate insertdate shop));
      $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols; # sort by id if unknown or invisible column
   my $sort_order   = ($form->{revers} ? ' DESC' : ' ASC');
   my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
@@ -1055,7 +1072,7 @@ sub all_parts {
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
-           p.unit, p.notes,
+           p.unit, p.notes, p.itime::DATE as insertdate,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight, p.priceupdate,
            p.image, p.drawing, p.microfiche,

@@ -1023,6 +1023,7 @@ sub generate_report {
     'drawing'            => { 'text' => $locale->text('Drawing'), },
     'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
+    'insertdate'         => { 'text' => $locale->text('Insert Date'), },
     'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
     'lastcost'           => { 'text' => $locale->text('Last Cost'), },
     'linetotallastcost'  => { 'text' => $locale->text('Extended'), },
@@ -1130,11 +1131,13 @@ sub generate_report {
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('Qty in Selected Records'),
     ean           => $locale->text('EAN')              . ": '$form->{ean}'",
+    insertdatefrom => $locale->text('Insert Date') . ": " . $locale->text('From')       . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1),
+    insertdateto   => $locale->text('Insert Date') . ": " . $locale->text('To (time)')  . " " . $locale->date(\%myconfig, $form->{insertdateto}, 1),
   );
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
   my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
-                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto ean shop);
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop);
 
   # calculate dependencies
   for (@itemstatus_keys, @callback_keys) {
@@ -1220,7 +1223,7 @@ sub generate_report {
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
-    shop
+    insertdate shop
   );
 
   my $pricegroups = SL::DB::Manager::Pricegroup->get_all(sort => 'id');
@@ -1248,7 +1251,7 @@ sub generate_report {
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
 
   my @hidden_variables = (
-    qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups),
+    qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
     @itemstatus_keys,
     @callback_keys,
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
@@ -1258,7 +1261,7 @@ sub generate_report {
 
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
-  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate shop);
+  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop);
   my @sort_no_revers   = qw(partsgroup bin priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {
