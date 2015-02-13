@@ -443,6 +443,17 @@ sub check_part {
     $object->parts_id($part->id);
   }
 
+  # Map description to ID if given.
+  if (!$object->parts_id && $entry->{raw_data}->{description}) {
+    my $part = $self->parts_by->{description}->{ $entry->{raw_data}->{description} };
+    if (!$part) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
+      return 0;
+    }
+
+    $object->parts_id($part->id);
+  }
+
   if ($object->parts_id) {
     $entry->{info_data}->{partnumber} = $self->parts_by->{id}->{ $object->parts_id }->partnumber;
   } else {
