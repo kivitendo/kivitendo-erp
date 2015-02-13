@@ -426,7 +426,7 @@ sub check_part {
 
   my $object = $entry->{object};
 
-  # Check wether or non part ID is valid.
+  # Check wether or not part ID is valid.
   if ($object->parts_id && !$self->parts_by->{id}->{ $object->parts_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
     return 0;
@@ -624,10 +624,10 @@ sub add_items_to_order {
   my $order_entry;
   my @orderitems;
   foreach my $entry (@{ $self->controller->data }) {
-    # search first order
+    # search first/next order
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
 
-      # new order entry: add collected orderitems to the previous one
+      # next order entry: add collected orderitems to the previous one
       if (defined $order_entry) {
         $order_entry->{object}->orderitems(@orderitems);
         @orderitems = ();
