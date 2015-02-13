@@ -4,6 +4,11 @@ use strict;
 
 use SL::Util qw(_hashify);
 
+sub new_local {
+  my ($class, %params) = @_;
+  return $class->new(hour => 0, minute => 0, second => 0, time_zone => $::locale->get_local_time_zone, %params);
+}
+
 sub now_local {
   return shift->now(time_zone => $::locale->get_local_time_zone);
 }
@@ -85,6 +90,11 @@ SL::Helpers::DateTime - helper functions for L<DateTime>
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<new_local %params>
+
+Returns the time given in C<%params> with the time zone set to the
+local time zone.
 
 =item C<now_local>
 
