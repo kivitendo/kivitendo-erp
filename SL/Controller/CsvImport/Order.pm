@@ -654,7 +654,7 @@ sub handle_prices_and_taxes() {
   foreach my $entry (@{ $self->controller->data }) {
     next if @{ $entry->{errors} };
 
-    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column && $entry->{object}->orderitems) {
 
       $entry->{object}->calculate_prices_and_taxes;
 
