@@ -4,7 +4,7 @@
 
 <p>
  [% 'Custom variables for module' | $T8 %]
- [%- L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange='show_module_list()') %]
+ [% L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange='show_module_list()') %]
 </p>
 
 [%- IF SELF.module == 'IC' %]
