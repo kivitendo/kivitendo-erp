@@ -91,7 +91,7 @@ sub value_as_text {
 
   if ($type eq 'bool') {
     return $self->bool_value ? $::locale->text('Yes') : $::locale->text('No');
-  } elsif ($type eq 'timestamp') {
+  } elsif ($type =~ m{^(?:timestamp|date)}) {
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
   } elsif ($type eq 'number') {
     return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
@@ -115,7 +115,7 @@ sub value_as_text {
     return $part ? $part->description : '';
   }
 
-  goto &text_value; # text, textfield, date and select
+  goto &text_value; # text, textfield and select
 }
 
 sub is_valid {
