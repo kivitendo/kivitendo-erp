@@ -329,7 +329,7 @@ sub make_cvar_custom_filter {
         $query{$key} =~ s{\bt\d+(?:\.)?\b}{}g;
 
         # manually inline the values. again, rose doen't know how to handly bind params in subqueries :(
-        $query{$key} =~ s{\?}{ $config->dbh->quote($_) }xe for @{ $bind_vals{$key} };
+        $query{$key} =~ s{\?}{ $config->dbh->quote(shift @{ $bind_vals{$key} }) }xeg;
 
         $query{$key} =~ s{\n}{ }g;
       }
