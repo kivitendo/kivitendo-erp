@@ -111,6 +111,7 @@ sub value_col {
   return {
     bool      => 'bool_value',
     timestamp => 'timestamp_value',
+    date      => 'timestamp_value',
     number    => 'number_value',
     integer   => 'number_value',
     customer  => 'number_value',
@@ -118,7 +119,6 @@ sub value_col {
     part      => 'number_value',
     text      => 'text_value',
     textfield => 'text_value',
-    date      => 'text_value',
     select    => 'text_value'
   }->{$type};
 }
