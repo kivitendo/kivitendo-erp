@@ -10,13 +10,13 @@ our @EXPORT = qw (filter add_filter_specs);
 my %filter_spec;
 
 sub filter {
-  my ($class, $key, $value, $prefix, $path) = @_;
+  my ($class, $key, $value, $prefix, $path, @additional_tokens) = @_;
 
   my $filters = _get_filters($class);
 
   return ($prefix . $key, $value, $path) unless $filters->{$key};
 
-  return $filters->{$key}->($key, $value, $prefix);
+  return $filters->{$key}->($key, $value, $prefix, @additional_tokens);
 }
 
 sub _get_filters {

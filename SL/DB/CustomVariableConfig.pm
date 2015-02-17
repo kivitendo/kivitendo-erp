@@ -103,4 +103,24 @@ sub type_dependent_default_value {
   return (any { $_ eq $self->default_value } @{ $self->processed_options }) ? $self->default_value : $self->processed_options->[0];
 }
 
+sub value_col {
+  my ($self) = @_;
+
+  my $type = $self->type;
+
+  return {
+    bool      => 'bool_value',
+    timestamp => 'timestamp_value',
+    number    => 'number_value',
+    integer   => 'number_value',
+    customer  => 'number_value',
+    vendor    => 'number_value',
+    part      => 'number_value',
+    text      => 'text_value',
+    textfield => 'text_value',
+    date      => 'text_value',
+    select    => 'text_value'
+  }->{$type};
+}
+
 1;
