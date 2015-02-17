@@ -375,6 +375,13 @@ sub create_or_update {
   my $params = delete($::form->{requirement_spec}) || { };
   my $cvars  = delete($::form->{cvars})            || { };
 
+  # Forcefully make it clear to Rose which custom_variables exist (or don't), so that the ones added with »add_custom_variables« are visible when calling »custom_variables«.
+  if ($is_new) {
+    $params->{custom_variables} = [];
+  } else {
+    $self->requirement_spec->custom_variables;
+  }
+
   $self->requirement_spec->assign_attributes(%{ $params });
 
   foreach my $var (@{ $self->requirement_spec->cvars_by_config }) {
