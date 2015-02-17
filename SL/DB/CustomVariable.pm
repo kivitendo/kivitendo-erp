@@ -76,7 +76,7 @@ sub value {
     my $id = int($self->number_value);
     return $id ? SL::DB::Part->new(id => $id)->load() : undef;
   } elsif ( $type eq 'date' ) {
-    return $self->timestamp_value->clone->truncate(to => 'day');
+    return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
   }
 
   goto &text_value; # text, textfield and select
@@ -92,6 +92,7 @@ sub value_as_text {
   if ($type eq 'bool') {
     return $self->bool_value ? $::locale->text('Yes') : $::locale->text('No');
   } elsif ($type =~ m{^(?:timestamp|date)}) {
+    return '' if !$self->timestamp_value;
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
   } elsif ($type eq 'number') {
     return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
