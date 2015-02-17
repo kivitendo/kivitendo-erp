@@ -41,7 +41,7 @@
   [% FOREACH var = cvars %]
    <tr class="listrow">
     <td>[% HTML.escape(var.config.description) %]</td>
-    <td>[% INCLUDE 'common/render_cvar_value_readonly.html' %]</td>
+    <td>[% HTML.escape(var.value_as_text) %]</td>
    </tr>
   [% END %]
 
