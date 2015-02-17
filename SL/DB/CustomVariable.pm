@@ -89,7 +89,7 @@ sub value_as_text {
 
   die 'not an accessor' if @_ > 1;
 
-  if ($type eq 'boolean') {
+  if ($type eq 'bool') {
     return $self->bool_value ? $::locale->text('Yes') : $::locale->text('No');
   } elsif ($type eq 'timestamp') {
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
