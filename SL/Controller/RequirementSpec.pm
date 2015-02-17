@@ -30,7 +30,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models time_based_units html_template cvar_configs) ],
+                                  current_text_block_output_position models time_based_units html_template cvar_configs includeable_cvar_configs include_cvars) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -366,6 +366,17 @@ sub init_current_text_block_output_position {
   $self->current_text_block_output_position($::form->{current_content_type} !~ m/^(?:text-blocks|tb)-(front|back)/ ? -1 : $1 eq 'front' ? 0 : 1);
 }
 
+sub init_includeable_cvar_configs {
+  my ($self) = @_;
+  return [ grep { $_->includeable } @{ $self->cvar_configs } ];
+}
+
+sub init_include_cvars {
+  my ($self) = @_;
+  return $::form->{include_cvars} if $::form->{include_cvars} && (ref($::form->{include_cvars}) eq 'HASH');
+  return { map { ($_->name => ($_->includeable && $_->included_by_default)) } @{ $self->cvar_configs } };
+}
+
 #
 # helpers
 #
@@ -474,7 +485,21 @@ sub prepare_report {
     );
   }
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) for keys %column_defs;
+
+  if (!$is_template) {
+    my %cvar_column_defs = map {
+      my $cfg = $_;
+      (('cvar_' . $cfg->name) => {
+        sub     => sub { my $var = $_[0]->cvar_by_name($cfg->name); $var ? $var->value_as_text : '' },
+        text    => $cfg->description,
+        visible => $self->include_cvars->{ $cfg->name } ? 1 : 0,
+      })
+    } @{ $self->includeable_cvar_configs };
+
+    push @columns, map { 'cvar_' . $_->name } @{ $self->includeable_cvar_configs };
+    %column_defs = (%column_defs, %cvar_column_defs);
+  }
 
   $report->set_options(
     std_column_visibility => 1,

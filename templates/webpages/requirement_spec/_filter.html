@@ -55,6 +55,28 @@
       </tr>
      [% END %]
     [% END %]
+
+    [% L.hidden_tag("include_cvars.dummy__", 1) %]
+    [% IF SELF.includeable_cvar_configs.size %]
+     <tr>
+      <th align="right">[% LxERP.t8("Include in Report") %]</th>
+      <td>
+       <table>
+        <tr>
+         [% FOREACH cvar_cfg = SELF.includeable_cvar_configs %]
+          <td>
+           [% name__ = cvar_cfg.name;
+              L.checkbox_tag("include_cvars." _ name__, value="1", checked=(SELF.include_cvars.$name__ ? 1 : ''), label=cvar_cfg.description) %]
+          </td>
+          [%- IF !loop.last && ((loop.count % 3) == 0) %]
+           </tr><tr>
+          [% END %]
+         [% END %]
+        </tr>
+       </table>
+      </td>
+     </tr>
+    [% END %]
 [%- END %]
    </table>
   </p>
