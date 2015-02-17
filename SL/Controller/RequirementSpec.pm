@@ -30,7 +30,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models time_based_units html_template) ],
+                                  current_text_block_output_position models time_based_units html_template cvar_configs) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -323,7 +323,7 @@ sub setup {
 
   $::auth->assert('requirement_spec_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery autocomplete_part);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery autocomplete_part autocomplete_customer);
   $self->init_visible_section;
 
   return 1;
@@ -340,6 +340,7 @@ sub init_risks                  { SL::DB::Manager::RequirementSpecRisk->get_all_
 sub init_statuses               { SL::DB::Manager::RequirementSpecStatus->get_all_sorted      }
 sub init_time_based_units       { SL::DB::Manager::Unit->time_based_units                     }
 sub init_types                  { SL::DB::Manager::RequirementSpecType->get_all_sorted        }
+sub init_cvar_configs           { SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'RequirementSpecs' ]) }
 
 sub init_customers {
   my ($self) = @_;
