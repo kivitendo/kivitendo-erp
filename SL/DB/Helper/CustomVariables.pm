@@ -295,7 +295,6 @@ sub make_cvar_custom_filter {
       my $conversion  = $config->type =~ m{^(?:date|timestamp)$}       ? $config->type
                       : $config->type =~ m{^(?:customer|vendor|part)$} ? 'integer'
                       : $config->type eq 'number'                      ? 'numeric'
-                      # : $config->type eq 'bool'                        ? 'boolean'
                       :                                                  '';
 
       ($query{config}, $bind_vals{config}) = Rose::DB::Object::QueryBuilder::build_select(
