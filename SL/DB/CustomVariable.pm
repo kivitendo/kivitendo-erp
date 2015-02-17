@@ -75,9 +75,11 @@ sub value {
 
     my $id = int($self->number_value);
     return $id ? SL::DB::Part->new(id => $id)->load() : undef;
+  } elsif ( $type eq 'date' ) {
+    return $self->timestamp_value->clone->truncate(to => 'day');
   }
 
-  goto &text_value; # text, textfield, date and select
+  goto &text_value; # text, textfield and select
 }
 
 sub value_as_text {
