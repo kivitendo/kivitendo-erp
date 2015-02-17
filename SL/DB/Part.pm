@@ -209,6 +209,8 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
 }
 
+sub displayable_name { goto &long_description; }
+
 1;
 
 __END__
