@@ -309,7 +309,7 @@ sub make_cvar_custom_filter {
         query_is_sql       => 1,
       );
 
-      $query{config} =~ s{ \bdefault_value\b \s*=\s* (?!'') }{default_value::${conversion} = }x if $conversion;
+      $query{config} =~ s{ (?<! NOT\( ) default_value (?! \s*is\s+not\s+null) }{default_value::${conversion}}x if $conversion;
 
       ($query{not_customized}, $bind_vals{not_customized}) = Rose::DB::Object::QueryBuilder::build_select(
         dbh          => $config->dbh,
