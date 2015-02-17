@@ -95,24 +95,11 @@ sub value_as_text {
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
   } elsif ($type eq 'number') {
     return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
-  } elsif ( $type eq 'customer' ) {
-    require SL::DB::Customer;
-
-    my $id = int($self->number_value);
-    my $customer =  $id ? SL::DB::Customer->new(id => $id)->load() : 0;
-    return $customer ? $customer->name : '';
-  } elsif ( $type eq 'vendor' ) {
-    require SL::DB::Vendor;
-
-    my $id = int($self->number_value);
-    my $vendor =  $id ? SL::DB::Vendor->new(id => $id)->load() : 0;
-    return $vendor ? $vendor->name : '';
-  } elsif ( $type eq 'part' ) {
-    require SL::DB::Part;
-
-    my $id = int($self->number_value);
-    my $part = $id ? SL::DB::Part->new(id => $id)->load() : 0;
-    return $part ? $part->description : '';
+  } elsif ( $type =~ m{^(?:customer|vendor|part)$}) {
+    my $class = "SL::DB::" . ucfirst($type);
+    eval "require $class";
+    my $object =  $class->_get_manager_class->find_by(id => int($self->number_value));
+    return $object ? $object->displayable_name : '';
   }
 
   goto &text_value; # text, textfield and select
