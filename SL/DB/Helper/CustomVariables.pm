@@ -244,6 +244,13 @@ sub make_cvar_custom_filter {
         die "invalid config_id in $caller_package\::cvar custom filter: expected module $params{module} - got @{[ $config->module ]}";
       }
 
+      my @filter;
+      if ($config->type eq 'bool') {
+        @filter = $value ? ($config->value_col => 1) : (or => [ $config->value_col => undef, $config->value_col => 0 ]);
+      } else {
+        @filter = ($config->value_col => $value);
+      }
+
       my (%query, %bind_vals);
       ($query{customized}, $bind_vals{customized}) = Rose::DB::Object::QueryBuilder::build_select(
         dbh                  => $config->dbh,
@@ -253,30 +260,57 @@ sub make_cvar_custom_filter {
         query                => [
           config_id          => $config_id,
           sub_module         => $params{sub_module},
-          $config->value_col => $value,
+          @filter,
         ],
         query_is_sql         => 1,
       );
 
+      if ($config->type eq 'bool') {
+        if ($value) {
+          @filter = (
+            '!default_value' => undef,
+            '!default_value' => '',
+            default_value    => '1',
+          );
+
+        } else {
+          @filter = (
+            or => [
+              default_value => '0',
+              default_value => '',
+              default_value => undef,
+            ],
+          );
+        }
+
+      } else {
+        @filter = (
+          '!default_value' => undef,
+          '!default_value' => '',
+          default_value    => $value,
+        );
+      }
+
+
       my $conversion  = $config->type =~ m{^(?:date|timestamp)$}       ? $config->type
                       : $config->type =~ m{^(?:customer|vendor|part)$} ? 'integer'
-                      : $config->type eq 'bool'                        ? 'boolean'
                       : $config->type eq 'number'                      ? 'numeric'
+                      # : $config->type eq 'bool'                        ? 'boolean'
                       :                                                  '';
 
       ($query{config}, $bind_vals{config}) = Rose::DB::Object::QueryBuilder::build_select(
-        dbh             => $config->dbh,
-        select          => 'id',
-        tables          => [ 'custom_variable_configs' ],
-        columns         => { custom_variable_configs => [ qw(id default_value) ] },
-        query           => [
-          id            => $config->id,
-          default_value => $value,
+        dbh                => $config->dbh,
+        select             => 'id',
+        tables             => [ 'custom_variable_configs' ],
+        columns            => { custom_variable_configs => [ qw(id default_value) ] },
+        query              => [
+          id               => $config->id,
+          @filter,
         ],
-        query_is_sql    => 1,
+        query_is_sql       => 1,
       );
 
-      $query{config} =~ s{\bdefault_value\b}{default_value::${conversion}} if $conversion;
+      $query{config} =~ s{ \bdefault_value\b \s*=\s* (?!'') }{default_value::${conversion} = }x if $conversion;
 
       ($query{not_customized}, $bind_vals{not_customized}) = Rose::DB::Object::QueryBuilder::build_select(
         dbh          => $config->dbh,
