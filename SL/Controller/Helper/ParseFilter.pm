@@ -43,9 +43,9 @@ sub parse_filter {
     _add_uniq($objects, $_) for @$auto_objects;
   }
 
-  my $query = _parse_filter($flattened, $objects, %params);
-
   _launder_keys($filter, $params{launder_to}) unless $params{no_launder};
+
+  my $query = _parse_filter($flattened, $objects, %params);
 
   return
     ($query   && @$query   ? (query => $query) : ()),
