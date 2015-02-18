@@ -11,6 +11,7 @@ use File::Basename ();
 use File::Copy ();
 use File::Path ();
 use List::MoreUtils qw(uniq);
+use version;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(dbh myconfig) ],
@@ -57,8 +58,14 @@ sub db_query {
 sub db_errstr {
   my ($self, $handle) = @_;
 
+  # DBD::Pg before 2.16.1 doesn't set the UTF-8 flag for error
+  # messages even if the connection has UTF-8 enabled. Therefore we
+  # have to convert it to Perl's internal encoding ourselves. See
+  # https://rt.cpan.org/Public/Bug/Display.html?id=53854
+
   my $error = $handle ? $handle->errstr : $self->dbh->errstr;
 
+  return $error if version->new("$DBD::Pg::VERSION")->numify >= version->new("2.16.1")->numify;
   return Encode::decode('utf-8', $error);
 }
 
@@ -256,8 +263,10 @@ be used.
 =item C<db_errstr [$handle]>
 
 Returns the last database from C<$handle> error message encoded in
-Perl's internal encoding. The PostgreSQL DBD leaves the UTF-8 flag off
-for error messages even if the C<pg_enable_utf8> attribute is set.
+Perl's internal encoding. The PostgreSQL DBD before 2.16.1 leaves the
+UTF-8 flag off for error messages even if the C<pg_enable_utf8>
+attribute is set. For older versions the error string is already
+encoded correctly and is left unchanged.
 
 C<$handle> is optional and can be one of three things:
 
