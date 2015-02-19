@@ -297,28 +297,6 @@ sub process_file {
                               : $self->process_perl_script($dbh, $filename, $version_or_control);
 }
 
-sub update2_available {
-  $::lxdebug->enter_sub();
-
-  my ($self, $dbh) = @_;
-
-  map { $_->{applied} = 0; } values %{ $self->{all_controls} };
-
-  my $sth = $dbh->prepare(qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|);
-  if ($sth->execute) {
-    while (my ($tag) = $sth->fetchrow_array) {
-      $self->{all_controls}->{$tag}->{applied} = 1 if defined $self->{all_controls}->{$tag};
-    }
-  }
-  $sth->finish();
-
-  my $needs_update = any { !$_->{applied} } values %{ $self->{all_controls} };
-
-  $::lxdebug->leave_sub();
-
-  return $needs_update;
-}
-
 sub unapplied_upgrade_scripts {
   my ($self, $dbh) = @_;
 
@@ -333,6 +311,14 @@ sub unapplied_upgrade_scripts {
   $sth->finish;
 
   return grep { !$_->{applied} } @all_scripts;
+}
+
+sub update2_available {
+  my ($self, $dbh) = @_;
+
+  my @unapplied_scripts = $self->unapplied_upgrade_scripts($dbh);
+
+  return !!@unapplied_scripts;
 }
 
 sub apply_admin_dbupgrade_scripts {
