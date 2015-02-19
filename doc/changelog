@@ -160,7 +160,13 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Lieferplan
   * Warenverkaufswert im Lieferplan anzeigen (konfigurierbar)
-  * Lieferplan berücksichtig den Status des Lieferscheins (ausgelagert / nicht ausgelagert) (konfigurierbar)
+  * Lieferplan berücksichtigt den Status des Lieferscheins (ausgelagert / nicht ausgelagert) (konfigurierbar)
+
+- Kursor-Position nach Erneuern
+  in den Benutzereinstellungen einstellbar, in welches Feld der Cursor nach
+  Hinzufügen eines Artikels springt (Nummer oder Beschreibung, neue Zeile oder
+  alte Zeile)
+
 
 Bugfixes aus Trac:
 
