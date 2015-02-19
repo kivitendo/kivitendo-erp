@@ -7,7 +7,6 @@ use List::MoreUtils qw(any);
 use SL::Common;
 use SL::DBUpgrade2::Base;
 use SL::DBUtils;
-use SL::Iconv;
 
 use strict;
 
@@ -52,7 +51,7 @@ sub parse_dbupdate_controls {
   my $path = $self->path;
 
   foreach my $file_name (<$path/*.sql>, <$path/*.pl>) {
-    next unless (open(IN, $file_name));
+    next unless (open(IN, "<:encoding(UTF-8)", $file_name));
 
     my $file = $file_name;
     $file =~ s|.*/||;
@@ -133,7 +132,7 @@ sub process_query {
   my ($self, $dbh, $filename, $version_or_control) = @_;
 
   my $form  = $self->{form};
-  my $fh    = IO::File->new($filename, "r");
+  my $fh    = IO::File->new($filename, "<:encoding(UTF-8)");
   my $query = "";
   my $sth;
   my @quote_chars;
@@ -146,8 +145,6 @@ sub process_query {
   $dbh->begin_work();
 
   while (<$fh>) {
-    $_ = SL::Iconv::convert('UTF-8', 'UTF-8', $_);
-
     # Remove DOS and Unix style line endings.
     chomp;
 
@@ -332,8 +329,6 @@ sub apply_admin_dbupgrade_scripts {
   return 0 if !@unapplied_scripts;
 
   $self->{form}->{login} ||= 'admin';
-
-  map { $_->{description} = SL::Iconv::convert('UTF-8', 'UTF-8', $_->{description}) } values %{ $self->{all_controls} };
 
   if ($called_from_admin) {
     $self->{form}->{title} = $::locale->text('Dataset upgrade');
