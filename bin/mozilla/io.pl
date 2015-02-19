@@ -139,6 +139,7 @@ sub display_row {
   my $is_quotation       = $form->{type} =~ /_quotation$/;
   my $is_invoice         = $form->{type} =~ /invoice/;
   my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
+  my $show_ship_missing  = $is_s_p_order && $::instance_conf->get_sales_purchase_order_ship_missing_column;
 
   if ($is_delivery_order) {
     if ($form->{type} eq 'sales_delivery_order') {
@@ -159,6 +160,7 @@ sub display_row {
     {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
     {  id => 'description',   width => 30,    value => $locale->text('Part Description'),     display => 1, },
     {  id => 'ship',          width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
+    {  id => 'ship_missing',  width => 5,     value => $locale->text('Not delivered'),        display => $show_ship_missing, },
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
@@ -200,7 +202,7 @@ sub display_row {
   my $deliverydate  = $locale->text('Required by');
 
   # special alignings
-  my %align  = map { $_ => 'right' } qw(qty ship right discount linetotal stock_in_out weight);
+  my %align  = map { $_ => 'right' } qw(qty ship right discount linetotal stock_in_out weight ship_missing);
   my %nowrap = map { $_ => 1 }       qw(description unit);
 
   $form->{marge_total}           = 0;
@@ -309,6 +311,11 @@ sub display_row {
       $ship_qty          /= ( $all_units->{$form->{"unit_$i"}}->{factor} || 1 );
 
       $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"};
+
+      my $ship_missing_qty    = $form->{"qty_$i"} - $ship_qty;
+      my $ship_missing_amount = $form->round_amount($ship_missing_qty * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
+
+      $column_data{ship_missing} = $form->format_amount(\%myconfig, $ship_missing_qty) . ' ' . $form->{"unit_$i"} . '; ' . $form->format_amount(\%myconfig, $ship_missing_amount, $decimalplaces);
     }
 
     my $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
@@ -2065,4 +2072,3 @@ sub _make_record {
 
   return $obj;
 }
-

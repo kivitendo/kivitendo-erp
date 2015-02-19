@@ -95,6 +95,12 @@
    <td>[% LxERP.t8('If disabled purchase invoices can only be created by conversion from existing requests for quotations, purchase orders and purchase delivery orders.') %]</td>
   </tr>
 
+  <tr>
+   <td align="right">[% LxERP.t8("Show »not delivered qty/value« column in sales and purchase orders") %]</td>
+   <td>[% L.yes_no_tag("defaults.sales_purchase_order_ship_missing_column", SELF.defaults.sales_purchase_order_ship_missing_column) %]</td>
+   <td>[% LxERP.t8("If enabled a column will be shown in sales and purchase orders that lists both the amount and the value not shipped yet for each item.") %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
   <tr>

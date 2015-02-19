@@ -84,6 +84,7 @@ __PACKAGE__->meta->columns(
   rmanumber                                 => { type => 'text' },
   sales_delivery_order_show_delete          => { type => 'boolean', default => 'true' },
   sales_order_show_delete                   => { type => 'boolean', default => 'true' },
+  sales_purchase_order_ship_missing_column  => { type => 'boolean', default => 'false' },
   sdonumber                                 => { type => 'text' },
   sepa_creditor_id                          => { type => 'text' },
   servicenumber                             => { type => 'text' },
