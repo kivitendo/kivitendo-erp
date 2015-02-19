@@ -6,11 +6,11 @@
  [%- L.select_tag(name__, [ '', [ 1, LxERP.t8('Yes') ], [ 0, LxERP.t8('No') ] ], default=value__, class=cvar_class) %]
 
 [%- ELSIF cvar_cfg.type == 'number' %]
- [% L.select_tag(name__ _ '::', [ [ 'eq', '==' ], [ 'ne', '=/=' ], [ 'gt', '>' ], [ 'ge', '>=' ], [ 'lt', '<' ], [ 'le', '<=' ] ]) %]
+ [% L.select_tag(name__ _ '::', [ [ 'eq', '==' ], [ 'ne', '=/=' ], [ 'gt', '>' ], [ 'ge', '>=' ], [ 'lt', '<' ], [ 'le', '<=' ] ], default=filter.cvar.item(cvar_cfg.id _ '__')) %]
  [% L.input_tag(name__, value__, class=cvar_class) %]
 
 [%- ELSIF cvar_cfg.type == 'date' %]
- [% L.select_tag(name__ _ '::', [ [ 'eq', '==' ], [ 'ne', '=/=' ], [ 'gt', '>' ], [ 'ge', '>=' ], [ 'lt', '<' ], [ 'le', '<=' ] ]) %]
+ [% L.select_tag(name__ _ '::', [ [ 'eq', '==' ], [ 'ne', '=/=' ], [ 'gt', '>' ], [ 'ge', '>=' ], [ 'lt', '<' ], [ 'le', '<=' ] ], default=filter.cvar.item(cvar_cfg.id _ '__')) %]
  [% L.date_tag(name__, value__, class=cvar_class) %]
 
 [% ELSIF cvar_cfg.type == 'select' %]
