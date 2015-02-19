@@ -14,3 +14,23 @@
 
  <input type="submit" name="dummy" value="[% 'Continue' | $T8 %]">
 </form>
+
+<p id="nodetails">
+ <a href="#" onclick="$('#details,#nodetails').toggle();">[% LxERP.t8('Toggle details') %]</a>
+</p>
+
+<div id="details" style="display: none;">
+ <p>
+  <a href="#" onclick="$('#details,#nodetails').toggle();">[% LxERP.t8('Toggle details') %]</a>
+ </p>
+
+ <p>
+  [% LxERP.t8("List of database upgrades to be applied:") %]
+ </p>
+
+ <ul>
+  [% FOREACH upgrade_script = unapplied_scripts %]
+   <li>[% HTML.escape(upgrade_script.tag) %]: [% HTML.escape(upgrade_script.description) %]</li>
+  [% END %]
+ </ul>
+</div>

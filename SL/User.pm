@@ -124,10 +124,10 @@ sub login {
   $self->create_schema_info_table($form, $dbh);
 
   my $dbupdater        = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
-  my $update_available = $dbupdater->update2_available($dbh);
+  my @unapplied_scripts = $dbupdater->unapplied_upgrade_scripts($dbh);
   $dbh->disconnect;
 
-  if (!$update_available) {
+  if (!@unapplied_scripts) {
     SL::DB::Manager::Employee->update_entries_for_authorized_users;
     return LOGIN_OK();
   }
@@ -142,7 +142,7 @@ sub login {
   $form->{dbupdate} = "db" . $::auth->client->{dbname};
 
   if ($form->{"show_dbupdate_warning"}) {
-    print $form->parse_html_template("dbupgrade/warning");
+    print $form->parse_html_template("dbupgrade/warning", { unapplied_scripts => \@unapplied_scripts });
     ::end_of_request();
   }
 
