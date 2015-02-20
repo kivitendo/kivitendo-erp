@@ -315,11 +315,16 @@ sub invoice_transactions {
     # sellprice_total_including_tax = qty * fxsellprice * (1-discount) /  price_factor * exchangerate
     # $ar->{sellprice_total_including_tax} =  $form->round_amount( $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor}, $form->{"decimalplaces"});
 
+    my $sellprice_orig     = $ar->{sellprice};
+    my $qty_orig           = $ar->{qty};
+    # adjust sellprice so it reflects the unit sellprice according to price_factor and basefactor
     $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor;
-    $ar->{sellprice_total} = $form->round_amount( $ar->{qty} * $ar->{sellprice} / $ar->{price_factor} , $form->{"decimalplaces"});
+    # for sellprice_total use the original amounts
+    $ar->{sellprice_total} = $form->round_amount( $qty_orig * $sellprice_orig / $ar->{price_factor}, $form->{"decimalplaces"});
 
+    my $lastcost_orig      = $ar->{lastcost};
     $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;
-    $ar->{lastcost_total}  = $form->round_amount( $ar->{qty} * $ar->{lastcost} / $ar->{price_factor}, $form->{"decimalplaces"});
+    $ar->{lastcost_total}  = $form->round_amount( $qty_orig * $lastcost_orig / $ar->{price_factor}, $form->{"decimalplaces"});
 
     # marge_percent is recalculated, because the value in invoice used to be empty
     $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total} * 100) : 0;
@@ -327,8 +332,10 @@ sub invoice_transactions {
     $ar->{marge_total} = $ar->{sellprice_total} ? $ar->{sellprice_total}-$ar->{lastcost_total}  : 0;
     $ar->{discount} *= 100;  # format discount value for output, 10% is stored as 0.1 in db
 
-    # adapt qty to the chosen unit
+    # adjust qty to reflect the qty of the base unit
     $ar->{qty} *= $basefactor;
+
+    # now $ar->{sellprice} * $ar->{qty} should be the same as $qty_orig * $ar->{qty}
 
     # weight is the still the weight per part, but here we want the total weight
     $ar->{weight} *= $ar->{qty};
