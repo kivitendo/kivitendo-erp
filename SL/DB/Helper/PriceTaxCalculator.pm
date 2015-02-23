@@ -19,7 +19,7 @@ sub calculate_prices_and_taxes {
   require SL::DB::PriceFactor;
   require SL::DB::Unit;
 
-  SL::DB::Part->load_cached(map { $_->parts_id } @{ $self->items }) if @{ $self->items };
+  SL::DB::Part->load_cached(map { $_->parts_id } @{ $self->items }) if @{ $self->items || [] };
 
   my %units_by_name       = map { ( $_->name => $_ ) } @{ SL::DB::Manager::Unit->get_all        };
   my %price_factors_by_id = map { ( $_->id   => $_ ) } @{ SL::DB::Manager::PriceFactor->get_all };
