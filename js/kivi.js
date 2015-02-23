@@ -1,5 +1,114 @@
 namespace("kivi", function(ns) {
   ns._locale = {};
+  ns._date_format   = {
+    sep: '.',
+    y:   2,
+    m:   1,
+    d:   0
+  };
+  ns._number_format = {
+    decimalSep:  ',',
+    thousandSep: '.'
+  };
+
+  ns.setup_formats = function(params) {
+    var res = (params.dates || "").match(/^([ymd]+)([^a-z])([ymd]+)[^a-z]([ymd]+)$/);
+    if (res) {
+      ns._date_format                      = { sep: res[2] };
+      ns._date_format[res[1].substr(0, 1)] = 0;
+      ns._date_format[res[3].substr(0, 1)] = 1;
+      ns._date_format[res[4].substr(0, 1)] = 2;
+    }
+
+    res = (params.numbers || "").match(/^\d*([^\d]?)\d+([^\d])\d+$/);
+    if (res)
+      ns._number_format = {
+        decimalSep:  res[2],
+        thousandSep: res[1]
+      };
+  };
+
+  ns.parse_date = function(date) {
+    var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
+    date     = new Date(
+      ((parts[ ns._date_format.y ] || 0) * 1) || (new Date).getFullYear(),
+       (parts[ ns._date_format.m ] || 0) * 1 - 1, // Months are 0-based.
+       (parts[ ns._date_format.d ] || 0) * 1
+    );
+
+    return isNaN(date.getTime()) ? undefined : date;
+  };
+
+  ns.format_date = function(date) {
+    if (isNaN(date.getTime()))
+      return undefined;
+
+    var parts = [ "", "", "" ]
+    parts[ ns._date_format.y ] = date.getFullYear();
+    parts[ ns._date_format.m ] = (date.getMonth() <  9 ? "0" : "") + (date.getMonth() + 1); // Months are 0-based, but days are 1-based.
+    parts[ ns._date_format.d ] = (date.getDate()  < 10 ? "0" : "") + date.getDate();
+    return parts.join(ns._date_format.sep);
+  };
+
+  ns.parse_amount = function(amount) {
+    if ((amount == undefined) || (amount == ''))
+      return 0;
+
+    if (ns._number_format.decimalSep == ',')
+      amount = amount.replace(/\./g, "").replace(/,/g, ".");
+
+    amount = amount.replace(/[\',]/g, "")
+
+    return eval(amount);
+  };
+
+  ns.round_amount = function(amount, places) {
+    var neg  = amount >= 0 ? 1 : -1;
+    var mult = Math.pow(10, places + 1);
+    var temp = Math.abs(amount) * mult;
+    var diff = Math.abs(1 - temp + Math.floor(temp));
+    temp     = Math.floor(temp) + (diff <= 0.00001 ? 1 : 0);
+    var dec  = temp % 10;
+    temp    += dec >= 5 ? 10 - dec: dec * -1;
+
+    return neg * temp / mult;
+  };
+
+  ns.format_amount = function(amount, places) {
+    amount = amount || 0;
+
+    if ((places != undefined) && (places >= 0))
+      amount = ns.round_amount(amount, Math.abs(places));
+
+    var parts = ("" + Math.abs(amount)).split(/\./);
+    var intg  = parts[0];
+    var dec   = parts.length > 1 ? parts[1] : "";
+    var sign  = amount  < 0      ? "-"      : "";
+
+    if (places != undefined) {
+      while (dec.length < Math.abs(places))
+        dec += "0";
+
+      if ((places > 0) && (dec.length > Math.abs(places)))
+        dec = d.substr(0, places);
+    }
+
+    if ((ns._number_format.thousandSep != "") && (intg.length > 3)) {
+      var len   = ((intg.length + 2) % 3) + 1,
+          start = len,
+          res   = intg.substr(0, len);
+      while (start < intg.length) {
+        res   += ns._number_format.thousandSep + intg.substr(start, 3);
+        start += 3;
+      }
+
+      intg = res;
+    }
+
+    var sep = (places != 0) && (dec != "") ? ns._number_format.decimalSep : "";
+
+    return sign + intg + sep + dec;
+  };
 
   ns.t8 = function(text, params) {
     var text = ns._locale[text] || text;

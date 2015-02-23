@@ -16,6 +16,11 @@ $(function() {
       buttonImageOnly: true
   }));
 
+  kivi.setup_formats({
+    numbers: '[% JavaScript.escape(MYCONFIG.numberformat) %]',
+    dates:   '[% JavaScript.escape(MYCONFIG.dateformat) %]'
+  });
+
   kivi.reinit_widgets();
 [% END %]
 
