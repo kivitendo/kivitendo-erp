@@ -70,6 +70,18 @@
    <td align="right" nowrap="true">[% LxERP.t8('Default Bin with ignoring onhand') %]</td>
    <td>[% L.select_tag('defaults.bin_id_ignore_onhand', [], id='bin_id_ignore_onhand', with_empty=1) %]</td>
   </tr>
+
+  <tr><td colspan="3"><hr /></td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Transfer out on posting sales invoices?') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.is_transfer_out', SELF.defaults.is_transfer_out) %]
+   </td>
+   <td>
+   [% LxERP.t8('Transfer out all items of a sales invoice when posting it. Items are transfered out acording to the settings above.') %]
+   </td>
+  </tr>
+
   <tr><td colspan="3"><hr /></td></tr>
   <tr>
   <tr>
@@ -88,7 +100,7 @@
    </td>
   </tr>
   <tr><td colspan="3"><hr /></td></tr>
-<tr>
+  <tr>
    <td align="right">[% LxERP.t8('Show Value of Goods for Delivery Plan') %]</td>
    <td>
     [% L.yes_no_tag('defaults.delivery_plan_show_value_of_goods', SELF.defaults.delivery_plan_show_value_of_goods) %]
@@ -106,5 +118,6 @@
    [% LxERP.t8('The default delivery plan only checks if all delivery orders have been created not if the goods are transferred. This feature will check if all the goods are transferred. Caveat: Only the state of the delivery orders are checked not partial transferred delivery orders (in technical terms: the table inventory is not checked') %]
    </td>
   </tr>
+
  </table>
 </div>

@@ -61,6 +61,7 @@ __PACKAGE__->meta->columns(
   ir_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
   is_changeable                             => { type => 'integer', default => 2, not_null => 1 },
   is_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
+  is_transfer_out                           => { type => 'boolean', default => 'false', not_null => 1 },
   itime                                     => { type => 'timestamp', default => 'now()' },
   language_id                               => { type => 'integer' },
   max_future_booking_interval               => { type => 'integer', default => 360 },

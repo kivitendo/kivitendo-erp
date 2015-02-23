@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   delivery_order_items_stock_id => { type => 'integer' },
   employee_id                   => { type => 'integer', not_null => 1 },
   id                            => { type => 'serial', not_null => 1 },
+  invoice_id                    => { type => 'integer' },
   itime                         => { type => 'timestamp', default => 'now()' },
   mtime                         => { type => 'timestamp' },
   oe_id                         => { type => 'integer' },
@@ -46,6 +47,11 @@ __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
+  },
+
+  invoice => {
+    class       => 'SL::DB::InvoiceItem',
+    key_columns => { invoice_id => 'id' },
   },
 
   oe => {
