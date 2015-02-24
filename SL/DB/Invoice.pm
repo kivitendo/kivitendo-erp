@@ -193,17 +193,20 @@ sub new_from {
 
     $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
     my $item_parent                  = $item_parents{$source_item_id};
+    my $current_invoice_item =
+      SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
+                                   qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id transdate cusordnumber unit
+                                      base_qty longdescription lastcost price_factor_id active_discount_source active_price_source), @item_columns),
+                               deliverydate     => $source_item->reqdate,
+                               fxsellprice      => $source_item->sellprice,
+                               custom_variables => \@custom_variables,
+                               ordnumber        => ref($item_parent) eq 'SL::DB::Order'         ? $item_parent->ordnumber : $source_item->ordnumber,
+                               donumber         => ref($item_parent) eq 'SL::DB::DeliveryOrder' ? $item_parent->donumber  : $source_item->can('donumber') ? $source_item->donumber : '',
+                             );
 
-    SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
-                                 qw(parts_id description qty sellprice discount project_id serialnumber pricegroup_id transdate cusordnumber unit
-                                    base_qty longdescription lastcost price_factor_id active_discount_source active_price_source), @item_columns),
-                             deliverydate     => $source_item->reqdate,
-                             fxsellprice      => $source_item->sellprice,
-                             custom_variables => \@custom_variables,
-                             ordnumber        => ref($item_parent) eq 'SL::DB::Order'         ? $item_parent->ordnumber : $source_item->ordnumber,
-                             donumber         => ref($item_parent) eq 'SL::DB::DeliveryOrder' ? $item_parent->donumber  : $source_item->can('donumber') ? $source_item->donumber : '',
-                           );
-
+    $current_invoice_item->{"converted_from_orderitems_id"}           = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
+    $current_invoice_item->{"converted_from_delivery_order_items_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::DeliveryOrder';
+    $current_invoice_item;
   } @{ $items };
 
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};

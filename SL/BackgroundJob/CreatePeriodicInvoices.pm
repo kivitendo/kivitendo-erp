@@ -143,6 +143,8 @@ sub _replace_vars {
 }
 
 sub _create_periodic_invoice {
+  $main::lxdebug->enter_sub();
+
   my $self              = shift;
   my $config            = shift;
   my $period_start_date = shift;
@@ -188,6 +190,21 @@ sub _create_periodic_invoice {
 
     $order->link_to_record($invoice);
 
+    foreach my $item (@{ $invoice->items }) {
+      foreach (qw(orderitems)) {    # expand if needed (delivery_order_items)
+          if ($item->{"converted_from_${_}_id"}) {
+            die unless $item->{id};
+            RecordLinks->create_links('mode'       => 'ids',
+                                      'from_table' => $_,
+                                      'from_ids'   => $item->{"converted_from_${_}_id"},
+                                      'to_table'   => 'invoice',
+                                      'to_id'      => $item->{id},
+            ) || die;
+            delete $item->{"converted_from_${_}_id"};
+         }
+      }
+    }
+
     SL::DB::PeriodicInvoice->new(config_id         => $config->id,
                                  ar_id             => $invoice->id,
                                  period_start_date => $period_start_date)
@@ -198,7 +215,7 @@ sub _create_periodic_invoice {
     $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
     return undef;
   }
-
+  $main::lxdebug->leave_sub();
   return $invoice;
 }
 

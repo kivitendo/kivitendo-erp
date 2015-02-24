@@ -48,7 +48,7 @@ sub create_links {
 
   if (!scalar @links) {
     $main::lxdebug->leave_sub();
-    return;
+    return undef;
   }
 
   my $myconfig = \%main::myconfig;

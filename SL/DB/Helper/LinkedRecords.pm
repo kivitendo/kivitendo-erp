@@ -384,7 +384,7 @@ array reference.
 Examples:
 
 If you only need invoices created directly from an order C<$order> (no
-delivery orders inbetween) then the call could look like this:
+delivery orders in between) then the call could look like this:
 
   my $invoices = $order->linked_records(
     direction => 'to',
