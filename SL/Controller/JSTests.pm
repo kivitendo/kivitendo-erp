@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 
 use File::Find ();
 use File::Spec ();
+use List::UtilsBy qw(sort_by);
 
 use SL::System::Process;
 
@@ -42,7 +43,7 @@ sub init_all_scripts {
 
   File::Find::find($wanted, $exe_dir . '/js/t');
 
-  return \@scripts;
+  return [ sort_by { lc } @scripts ];
 }
 
 sub init_scripts_to_run {
