@@ -1706,6 +1706,7 @@ $self->{texts} = {
   'Only due follow-ups'         => 'Nur f&auml;llige Wiedervorlagen',
   'Only groups that have been configured for the client the user logs in to will be considered.' => 'Allerdings werden nur diejenigen Gruppen herangezogen, die für den Mandanten konfiguriert sind.',
   'Only list customer\'s projects in sales records' => 'Nur Projekte des Kunden in Verkaufsbelegen anzeigen',
+  'Only run tests from this file:' => 'Nur Tests aus dieser Datei ausführen:',
   'Only shown in item mode'     => 'werden nur im Artikelmodus angezeigt',
   'Oops. No valid action found to dispatch. Please report this case to the kivitendo team.' => 'Ups. Es wurde keine gültige Funktion zum Aufrufen gefunden. Bitte berichten Sie diesen Fall den kivitendo-Entwicklern.',
   'Open'                        => 'Offen',
@@ -2112,7 +2113,9 @@ $self->{texts} = {
   'Row was linked to another record' => 'Zeile wurde über einen anderen Beleg verlinkt',
   'Row was source for current record' => 'Zeile war Quelle für aktuellen Beleg',
   'Rule Details'                => 'Regel Details',
+  'Run JavaScript unit tests'   => 'JavaScript-Unit-Tests ausführen',
   'Run at'                      => 'Ausgeführt um',
+  'Run tests'                   => 'Tests ausführen',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
@@ -3285,6 +3288,7 @@ $self->{texts} = {
   'yearly'                      => 'jährlich',
   'yes'                         => 'ja',
   'you can find professional help.' => 'finden Sie professionelle Hilfe.',
+  '– all available test files –' => '– alle verfügbaren Testdateien –',
 };
 
 1;
