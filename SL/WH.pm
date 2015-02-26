@@ -79,7 +79,7 @@ sub transfer {
   my @trans_ids;
 
   my $db = SL::DB::Inventory->new->db;
-  $db->do_transaction(sub{
+  $db->with_transaction(sub{
     while (my $transfer = shift @args) {
       my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
 
@@ -141,10 +141,12 @@ sub transfer {
           $part->update_attributes(warehouse_id  => conv_i($transfer->{dst_warehouse_id}));
           $part->update_attributes(bin_id        => conv_i($transfer->{dst_bin_id}));
         }
-     }
+      }
 
       push @trans_ids, $trans_id;
     }
+
+    1;
   }) or do {
     $::form->error("Warehouse transfer error: " . join("\n", (split(/\n/, $db->error))[0..2]));
   };
