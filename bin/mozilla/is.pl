@@ -39,6 +39,7 @@ use Data::Dumper;
 use DateTime;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
+use English qw(-no_match_vars);
 
 use SL::DB::Default;
 use SL::DB::Customer;
@@ -778,8 +779,34 @@ sub post {
   }
 
   relink_accounts();
-  $form->error($locale->text('Cannot post invoice!'))
-    unless IS->post_invoice(\%myconfig, \%$form);
+
+  # If transfer_out is requested, get rose db handle and do post and
+  # transfer out in one transaction. Otherwise just post the invoice.
+  if ($::instance_conf->get_is_transfer_out) {
+    require SL::DB::Inventory;
+    my $rose_db = SL::DB::Inventory->new->db;
+    my $error;
+
+    if (!$rose_db->with_transaction(sub {
+      if (!eval {
+        IS->post_invoice(\%myconfig, \%$form, $rose_db->dbh);
+        IS->transfer_out(\%$form);
+        1;
+      }) {
+        $error = $EVAL_ERROR;
+        return;
+      }
+
+      1;
+    })) {
+      $form->error($locale->text("Cannot post invoice and/or transfer out!\nError was:\n") . $locale->text($error));
+    }
+  } else {
+    if (!IS->post_invoice(\%myconfig, \%$form)) {
+      $form->error($locale->text('Cannot post invoice!'));
+    }
+  }
+
   remove_draft() if $form->{remove_draft};
 
   if(!exists $form->{addition}) {

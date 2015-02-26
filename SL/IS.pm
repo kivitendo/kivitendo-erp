@@ -1291,6 +1291,63 @@ SQL
   return $rc;
 }
 
+sub transfer_out {
+  $::lxdebug->enter_sub;
+
+  my ($self, $form) = @_; 
+
+  my @transfers;
+
+  foreach my $i (1 .. $form->{rowcount}) {
+    next if !$form->{"id_$i"};
+    my ($wh_id, $bin_id) = _determine_wh_and_bin($::instance_conf, $form->{"id_$i"});
+
+    if ($wh_id && $bin_id) {
+      push @transfers, {
+        'parts_id'         => $form->{"id_$i"},
+        'qty'              => $form->{"qty_$i"},
+        'unit'             => $form->{"unit_$i"},
+        'transfer_type'    => 'shipped',
+        'src_warehouse_id' => $wh_id,
+        'src_bin_id'       => $bin_id,
+        'project_id'       => $form->{"project_id_$i"},
+        'invoice_id'       => $form->{"invoice_id_$i"},
+      };
+    }
+  }
+
+  require SL::WH;
+  WH->transfer(@transfers);
+
+  $::lxdebug->leave_sub;
+  return 1;
+}
+
+sub _determine_wh_and_bin {
+  $::lxdebug->enter_sub(2);
+
+  my ($conf, $part_id) = @_;
+
+  my $part = SL::DB::Part->new(id => $part_id)->load;
+
+  if ($part->is_service && !$conf->get_transfer_default_services) {
+    $::lxdebug->leave_sub(2);
+    return;
+  }
+    
+
+  my $wh_id  = $part->warehouse_id;
+  my $bin_id = $part->bin_id;
+
+  if (!$wh_id && !$bin_id && $conf->get_transfer_default_ignore_onhand) {
+    $wh_id  = $conf->get_warehouse_id_ignore_onhand;
+    $bin_id = $conf->get_bin_id_ignore_onhand;
+  }
+
+  $::lxdebug->leave_sub(2);
+  return ($wh_id, $bin_id);
+}
+
 sub _delete_payments {
   $main::lxdebug->enter_sub();
 

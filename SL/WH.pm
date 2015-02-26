@@ -110,7 +110,7 @@ sub transfer {
           trans_id         => $trans_id,
           shippingdate     => !$transfer->{shippingdate} || $transfer->{shippingdate} eq 'current_date'
                               ? $now : $transfer->{shippingdate},
-          map { $_ => $transfer->{$_} } qw( chargenumber bestbefore oe_id delivery_order_items_stock_id comment),
+          map { $_ => $transfer->{$_} } qw(chargenumber bestbefore oe_id delivery_order_items_stock_id invoice_id comment),
       );
 
       if ($unit) {
