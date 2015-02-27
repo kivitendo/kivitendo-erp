@@ -587,8 +587,12 @@ sub post_invoice {
   my $all_units = AM->retrieve_units($myconfig, $form);
 
   if (!$payments_only) {
+    if ($form->{storno}) {
+      _delete_transfers($dbh, $form, $form->{storno_id});
+    }
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
+      _delete_transfers($dbh, $form, $form->{id});
 
     } else {
       my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, save => 1);
@@ -1348,6 +1352,19 @@ sub _determine_wh_and_bin {
   return ($wh_id, $bin_id);
 }
 
+sub _delete_transfers {
+  $::lxdebug->enter_sub;
+
+  my ($dbh, $form, $id) = @_;
+
+  my $query = qq|DELETE FROM inventory WHERE invoice_id
+                  IN (SELECT id FROM invoice WHERE trans_id = ?)|;
+
+  do_query($form, $dbh, $query, $id);
+
+  $::lxdebug->leave_sub;
+}
+
 sub _delete_payments {
   $main::lxdebug->enter_sub();
 
@@ -1654,6 +1671,7 @@ sub delete_invoice {
   my $dbh = $form->get_standard_dbh;
 
   &reverse_invoice($dbh, $form);
+  _delete_transfers($dbh, $form, $form->{id});
 
   my @values = (conv_i($form->{id}));
 

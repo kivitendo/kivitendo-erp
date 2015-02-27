@@ -782,7 +782,7 @@ sub post {
 
   # If transfer_out is requested, get rose db handle and do post and
   # transfer out in one transaction. Otherwise just post the invoice.
-  if ($::instance_conf->get_is_transfer_out) {
+  if ($::instance_conf->get_is_transfer_out && $form->{type} ne 'credit_note' && !$form->{storno}) {
     require SL::DB::Inventory;
     my $rose_db = SL::DB::Inventory->new->db;
     my $error;
