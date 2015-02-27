@@ -410,6 +410,7 @@ sub get_warehouse_journal {
      "trans_type"           => "tt.description",
      "trans_id"             => "i1.trans_id",
      "oe_id"                => "COALESCE(i1.oe_id, i2.oe_id)",
+     "invoice_id"           => "COALESCE(i1.invoice_id, i2.invoice_id)",
      "date"                 => "i1.itime::DATE",
      "itime"                => "i1.itime",
      "employee"             => "e.name",
@@ -425,6 +426,8 @@ sub get_warehouse_journal {
      "bin_from"             => "'$filter{na}'",
      "warehouse_from"       => "'$filter{na}'",
      };
+
+  $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
 
   # build the select clauses.
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
@@ -525,6 +528,18 @@ sub get_warehouse_journal {
       SELECT ap.id AS id, ap.invnumber AS number, 'purchase_invoice' AS type
       FROM ap
       WHERE ap.id = ?
+
+      UNION
+
+      SELECT ar.id AS id, ar.invnumber AS number, 'sales_invoice' AS type
+      FROM ar
+      WHERE ar.id = (SELECT trans_id FROM invoice WHERE id = ?)
+
+      UNION
+
+      SELECT ap.id AS id, ap.invnumber AS number, 'purchase_invoice' AS type
+      FROM ap
+      WHERE ap.id = (SELECT trans_id FROM invoice WHERE id = ?)
 SQL
     $h_oe_id = prepare_query($form, $dbh, $q_oe_id);
   }
@@ -545,8 +560,9 @@ SQL
       next if (('<=' eq $f_qty_op) && ($qty > $f_qty));
     }
 
-    if ($h_oe_id && $ref->{oe_id}) {
-      do_statement($form, $h_oe_id, $q_oe_id, ($ref->{oe_id}) x 4);
+    if ($h_oe_id && ($ref->{oe_id} || $ref->{invoice_id})) {
+      my $id = $ref->{oe_id} ? $ref->{oe_id} : $ref->{invoice_id};
+      do_statement($form, $h_oe_id, $q_oe_id, ($id) x 6);
       $ref->{oe_id_info} = $h_oe_id->fetchrow_hashref() || {};
     }
 
