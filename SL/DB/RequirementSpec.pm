@@ -8,6 +8,7 @@ use Rose::DB::Object::Helpers;
 
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
+use SL::DB::Helper::AttrDuration;
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String;
 use SL::Util qw(_hashify);
@@ -51,6 +52,8 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_duration(qw(time_estimation));
 
 __PACKAGE__->before_save('_before_save_initialize_not_null_columns');
 
