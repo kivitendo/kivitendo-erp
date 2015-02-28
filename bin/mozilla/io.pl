@@ -555,7 +555,10 @@ sub item_selected {
   my $new_item = $form->{item_list}->[0] || croak "No item found for mode '${mode}' and ID '${id}'";
 
   # if there was a price entered, override it
-  my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+  my $sellprice;
+  unless ( $mode eq 'IC' ) {
+    $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+  };
 
   my @new_fields =
     qw(id partnumber description sellprice listprice inventory_accno
