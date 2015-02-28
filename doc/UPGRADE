@@ -5,10 +5,10 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
-Upgrade auf v3.x.0
+Upgrade auf v3.2.0
 ==================
 
-* Neue Abhängigkeiten
+* Neue Perl-Modul-Abhängigkeiten:
 
   * GD
   * HTML::Restrict
@@ -17,6 +17,9 @@ Upgrade auf v3.x.0
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
   $ scripts/installation_check.pl -ro
+
+  Sofern das Upgrade von einer früheren Version als 3.1.0 geschieht auch die
+  Upgradehinweise der Vorversionen beachten.
 
 Upgrade auf v3.1.0
 ==================
