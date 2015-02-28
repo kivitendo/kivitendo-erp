@@ -509,12 +509,17 @@ sub select_item {
   print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
                                                          MODE          => $mode,
                                                          ITEM_LIST     => \@item_list,
+                                                         IS_ASSEMBLY   => $mode eq 'IC', 
                                                          IS_PURCHASE   => $mode eq 'IS' });
 
   $main::lxdebug->leave_sub();
 }
 
 sub item_selected {
+
+  # this function is used for adding parts to records (mode = IR/IS)
+  # and to assemblies (mode = IC)
+
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -527,6 +532,13 @@ sub item_selected {
   my $mode = delete($form->{select_item_mode}) || croak 'Missing item selection mode';
   my $id   = delete($form->{select_item_id})   || croak 'Missing item selection ID';
   my $i    = $form->{ $mode eq 'IC' ? 'assembly_rows' : 'rowcount' };
+
+  if ( $mode eq 'IC' ) {
+    # assembly mode:
+    # the qty variables of the existing assembly items are all still formatted, so we parse them here (1 .. $i-1)
+    # including the qty of the just added part ($i)
+    $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for (1 .. $i);
+  };
 
   $form->{"id_${i}"} = $id;
 
@@ -598,6 +610,7 @@ sub item_selected {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(sellprice listprice weight);
 
+  # at this stage qty of newly added part needs to be have been parsed
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
 
   if ($form->{"not_discountable_$i"}) {

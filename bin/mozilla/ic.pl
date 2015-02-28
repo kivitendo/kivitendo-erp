@@ -1787,9 +1787,20 @@ sub update {
 
   $auth->assert('part_service_assembly_edit');
 
+  # update checks whether pricegroups, makemodels or assembly items have been changed/added
+  # new items might have been added (and the original form might have been stored and restored)
+  # so at the end the ic form is run through check_form in io.pl
+  # The various combination of events can lead to problems with the order of parse_amount and format_amount
+  # Currently check_form parses some variables in assembly mode, but not in article or service mode
+  # This will only ever really be sanely resolved with a rewrite...
+
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
-  $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(sellprice listprice ve gv);
+
+  unless ($form->{item} eq 'assembly') {
+    # for assemblies check_form will parse sellprice and listprice, but not for parts or services
+    $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(sellprice listprice ve gv);
+  };
 
   if ($form->{item} eq 'part') {
     $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(weight rop);
@@ -1809,13 +1820,16 @@ sub update {
     if (   ($form->{"partnumber_$i"} eq "")
         && ($form->{"description_$i"} eq "")
         && ($form->{"partsgroup_$i"}  eq "")) {
+      # no new assembly item was added
 
       &check_form;
 
     } else {
-
+      # search db for newly added assemblyitems, via partnumber or description
       IC->assembly_item(\%myconfig, \%$form);
 
+      # form->{item_list} contains the possible matches, next check whether the
+      # match is unique or we need to call the page to select the item
       my $rows = scalar @{ $form->{item_list} };
 
       if ($rows) {
