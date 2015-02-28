@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2015-02-01 - Release 3.2.0 Beta
+2015-02-01 - Release 3.2.0
 
 Größere neue Features:
 
@@ -167,6 +167,7 @@ Kleinere neue Features und Detailverbesserungen:
   Hinzufügen eines Artikels springt (Nummer oder Beschreibung, neue Zeile oder
   alte Zeile)
 
+- CTI-Modul - Unterstützung für die Anbindung an eine Telefonanlage
 
 Bugfixes aus Trac:
 
@@ -199,6 +200,7 @@ Bugfixes aus Redmine:
 
 - Bugfix #1  Kundenauftrag -> Lieferantenauftrag Zahlungsbedingungen und Lieferbedingungen löschen
 - Bugfix #2  abweichende Lieferadresse für Lieferschein bei RB-Druckvorlagen
+- Bugfix #3  2478 Preis bei Erzeugnissen
 - Bugfix #4  1836 nicht-editierbare benutzerdef. Variablen tauchen nicht/falsch im Druck auf
 - Bugfix #7  2447 Lieferanten-EK-Preise / Lieferantenartikelnummern verschwinden
 - Bugfix #9  CsvImport für Kunden gibt Fehlermeldung wenn taxzone_id falsch oder nicht vorhanden ist
@@ -217,6 +219,7 @@ Bugfixes aus Redmine:
 - Bugfix #36 Steuerzone und Zahlungsbedingungen im Bericht Einkaufsrechnungen kommen aus Stammdaten
 - Bugfix #37 Im der Suchmaske zum Rechnungsbericht Häkchen für Steuersatz, Zahlungsbedingungen u. Buchungskonto aus Kundenbereich verschieben
 - Bugfix #40 Verkaufsbericht zeigt falsche Menge und Preis im Artikelmodus an (invoice->unit wird nicht berücksichtigt)
+- Bugfix #42 Nachkommastellen in Menge bei Erzeugniskomponenten
 
 
 2014-02-28 - Release 3.1.0
