@@ -21,6 +21,12 @@ Upgrade auf v3.2.0
   Sofern das Upgrade von einer früheren Version als 3.1.0 geschieht auch die
   Upgradehinweise der Vorversionen beachten.
 
+* Druckvorlagen auf shipto-Verwendung prüfen
+
+  Hier hat sich das Standardverhalten geändert und ggf. werden shipto* nicht mehr
+  ausgedruckt, hier müssten die Druckvorlagen individuell angepasst werden, s.a.
+  Changelog -> Verkaufsbeleg-Ausdruck.
+
 Upgrade auf v3.1.0
 ==================
 
