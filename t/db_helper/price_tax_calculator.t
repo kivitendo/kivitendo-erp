@@ -14,8 +14,10 @@ use Test::Exception;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Customer;
+use SL::DB::DeliveryOrder;
 use SL::DB::Employee;
 use SL::DB::Invoice;
+use SL::DB::Order;
 use SL::DB::Part;
 use SL::DB::Unit;
 use SL::DB::TaxZone;
@@ -27,6 +29,8 @@ sub reset_state {
 
   $params{$_} ||= {} for qw(buchungsgruppe unit customer part tax);
 
+  SL::DB::Manager::Order->delete_all(all => 1);
+  SL::DB::Manager::DeliveryOrder->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
