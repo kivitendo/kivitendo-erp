@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 31;
+use Test::More tests => 36;
 use Test::Deep;
 use Data::Dumper;
 
@@ -179,6 +179,44 @@ test {
   }
 }, 'deep laundering, check for laundered hash', target => 'launder', launder_to => { };
 
+test {
+  part => {
+   'sellprice:number' => '2',
+   'sellprice:number::' => 'le',
+  }
+}, {
+  part => {
+   'sellprice:number' => '2',
+   'sellprice:number::' => 'le',
+  }
+}, 'laundering of indirect filters does not alter', target => 'filter', launder_to => { };
+
+test {
+  part => {
+   'sellprice:number' => '2',
+   'sellprice:number::' => 'le',
+  }
+}, {
+  part => {
+    'sellprice_number' => '2',
+    'sellprice_number__' => 'le',
+  }
+}, 'laundering of indirect filters', target => 'launder', launder_to => { };
+
+test {
+  part => {
+   'sellprice:number' => '2',
+   'sellprice:number::' => 'le',
+  }
+}, {
+  part => {
+    'sellprice:number' => '2',
+    'sellprice:number::' => 'le',
+    'sellprice_number' => '2',
+    'sellprice_number__' => 'le',
+  }
+}, 'laundering of indirect filters - inplace', target => 'filter';
+
 ### bug: sub objects
 
 test {
@@ -335,3 +373,27 @@ test {
     ]
   ]
 }, ':multi with complex tokenizing';
+
+# test tokenizing for custom filters by monkeypatching a custom filter into Part
+SL::DB::Manager::Part->add_filter_specs(
+  test => sub {
+    my ($key, $value, $prefix, @additional) = @_;
+    return "$prefix$key" => { @additional, $value };
+  }
+);
+
+test {
+  'part.test.what' => 2,
+}, {
+  query => [
+    'part.test' => { 'what', 2 },
+  ]
+}, 'additional tokens', class => 'SL::DB::Manager::OrderItem';
+
+test {
+  'part.test.what:substr::ilike' => 2,
+}, {
+  query => [
+    'part.test' => { 'what', { ilike => '%2%' } },
+  ]
+}, 'additional tokens + filters + methods', class => 'SL::DB::Manager::OrderItem';

@@ -30,7 +30,7 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position models time_based_units html_template) ],
+                                  current_text_block_output_position models time_based_units html_template cvar_configs includeable_cvar_configs include_cvars) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -323,7 +323,7 @@ sub setup {
 
   $::auth->assert('requirement_spec_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery autocomplete_part);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery autocomplete_part autocomplete_customer);
   $self->init_visible_section;
 
   return 1;
@@ -340,6 +340,7 @@ sub init_risks                  { SL::DB::Manager::RequirementSpecRisk->get_all_
 sub init_statuses               { SL::DB::Manager::RequirementSpecStatus->get_all_sorted      }
 sub init_time_based_units       { SL::DB::Manager::Unit->time_based_units                     }
 sub init_types                  { SL::DB::Manager::RequirementSpecType->get_all_sorted        }
+sub init_cvar_configs           { SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'RequirementSpecs' ]) }
 
 sub init_customers {
   my ($self) = @_;
@@ -365,6 +366,17 @@ sub init_current_text_block_output_position {
   $self->current_text_block_output_position($::form->{current_content_type} !~ m/^(?:text-blocks|tb)-(front|back)/ ? -1 : $1 eq 'front' ? 0 : 1);
 }
 
+sub init_includeable_cvar_configs {
+  my ($self) = @_;
+  return [ grep { $_->includeable } @{ $self->cvar_configs } ];
+}
+
+sub init_include_cvars {
+  my ($self) = @_;
+  return $::form->{include_cvars} if $::form->{include_cvars} && (ref($::form->{include_cvars}) eq 'HASH');
+  return { map { ($_->name => ($_->includeable && $_->included_by_default)) } @{ $self->cvar_configs } };
+}
+
 #
 # helpers
 #
@@ -373,8 +385,23 @@ sub create_or_update {
   my $self   = shift;
   my $is_new = !$self->requirement_spec->id;
   my $params = delete($::form->{requirement_spec}) || { };
+  my $cvars  = delete($::form->{cvars})            || { };
+
+  # Forcefully make it clear to Rose which custom_variables exist (or don't), so that the ones added with »add_custom_variables« are visible when calling »custom_variables«.
+  if ($is_new) {
+    $params->{custom_variables} = [];
+  } else {
+    $self->requirement_spec->custom_variables;
+  }
 
   $self->requirement_spec->assign_attributes(%{ $params });
+
+  foreach my $var (@{ $self->requirement_spec->cvars_by_config }) {
+    my $value = $cvars->{ $var->config->name };
+    $value    = $::form->parse_amount(\%::myconfig, $value) if $var->config->type eq 'number';
+
+    $var->value($value);
+  }
 
   my $title  = $is_new && $self->requirement_spec->is_template ? t8('Create a new requirement spec template')
              : $is_new                                         ? t8('Create a new requirement spec')
@@ -396,7 +423,7 @@ sub create_or_update {
     if ($self->copy_source) {
       $self->requirement_spec($self->copy_source->create_copy(%{ $params }));
     } else {
-      $self->requirement_spec->save;
+      $self->requirement_spec->save(cascade => 1);
     }
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
@@ -458,7 +485,21 @@ sub prepare_report {
     );
   }
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) for keys %column_defs;
+
+  if (!$is_template) {
+    my %cvar_column_defs = map {
+      my $cfg = $_;
+      (('cvar_' . $cfg->name) => {
+        sub     => sub { my $var = $_[0]->cvar_by_name($cfg->name); $var ? $var->value_as_text : '' },
+        text    => $cfg->description,
+        visible => $self->include_cvars->{ $cfg->name } ? 1 : 0,
+      })
+    } @{ $self->includeable_cvar_configs };
+
+    push @columns, map { 'cvar_' . $_->name } @{ $self->includeable_cvar_configs };
+    %column_defs = (%column_defs, %cvar_column_defs);
+  }
 
   $report->set_options(
     std_column_visibility => 1,

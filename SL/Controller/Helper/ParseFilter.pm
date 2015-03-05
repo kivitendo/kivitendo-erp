@@ -43,9 +43,9 @@ sub parse_filter {
     _add_uniq($objects, $_) for @$auto_objects;
   }
 
-  my $query = _parse_filter($flattened, $objects, %params);
-
   _launder_keys($filter, $params{launder_to}) unless $params{no_launder};
+
+  my $query = _parse_filter($flattened, $objects, %params);
 
   return
     ($query   && @$query   ? (query => $query) : ()),
@@ -149,25 +149,27 @@ sub _dispatch_custom_filters {
   die 'unrecognized filters' if $key =~ /:/;
 
   my @tokens     = split /\./, $key;
-  my $last_token = pop @tokens;
   my $curr_class = $class->object_class;
 
-  for my $token (@tokens) {
+  # find first token which is not a relationship
+  my $i = 0;
+   while ($i < $#tokens) {
     eval {
-      $curr_class = $curr_class->meta->relationship($token)->class;
-      1;
+      $curr_class = $curr_class->meta->relationship($tokens[$_])->class;
+      ++$i;
     } or do {
-      require Carp;
-      Carp::croak("Could not resolve the relationship '$token' in '$key' while building the filter request");
+      last;
     }
   }
 
   my $manager    = $curr_class->meta->convention_manager->auto_manager_class_name;
-  my $obj_path   = join '.', @tokens;
-  my $obj_prefix = join '.', @tokens, '';
+  my $obj_path   = join '.', @tokens[0..$i-1];
+  my $obj_prefix = join '.', @tokens[0..$i-1], '';
+  my $key_token  = $tokens[$i];
+  my @additional_tokens = @tokens[$i+1..$#tokens];
 
   if ($manager->can('filter')) {
-    ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix, $obj_path);
+    ($key, $value, my $obj) = $manager->filter($key_token, $value, $obj_prefix, $obj_path, @additional_tokens);
     _add_uniq($with_objects, $obj) if $obj;
   } else {
     _add_uniq($with_objects, $obj_path) if $obj_path;

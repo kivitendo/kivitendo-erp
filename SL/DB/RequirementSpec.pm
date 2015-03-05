@@ -9,6 +9,10 @@ use Rose::DB::Object::Helpers;
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
 use SL::DB::Helper::AttrDuration;
+use SL::DB::Helper::CustomVariables (
+  module      => 'RequirementSpecs',
+  cvars_alias => 1,
+);
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String;
 use SL::Util qw(_hashify);
@@ -171,6 +175,11 @@ sub _copy_from {
                              %attributes);
   }
 
+  # Copy custom variables.
+  foreach my $var (@{ $source->cvars_by_config }) {
+    $self->cvar_by_name($var->config->name)->value($var->value);
+  }
+
   my %paste_template_result;
 
   # Clone text blocks and pictures.
@@ -203,7 +212,7 @@ sub _copy_from {
   $self->$accessor($paste_template_result{parts});
 
   # Save new object -- we need its ID for the items.
-  $self->save;
+  $self->save(cascade => 1);
 
   my %id_to_clone;
 

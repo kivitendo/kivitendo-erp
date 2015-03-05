@@ -1,4 +1,4 @@
-[%- USE LxERP -%][%- USE L -%]
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
 [%- DEFAULT id_prefix = 'basic_settings_form'
             submit_as = 'post'
 %]
@@ -38,6 +38,20 @@
   </tr>
 
 [%- END %]
+
+  [% cvars = SELF.requirement_spec.cvars_by_config %]
+
+  [% FOREACH var = cvars %]
+   <tr>
+    <td>[% HTML.escape(var.config.description) %]</td>
+
+    <td>
+      [% INCLUDE 'common/render_cvar_input.html'
+                 cvar_name_prefix = 'cvars.'
+      %]
+    </td>
+   </tr>
+  [% END %]
 
  </table>
 

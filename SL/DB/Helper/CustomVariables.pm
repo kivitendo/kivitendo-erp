@@ -28,6 +28,7 @@ sub import {
   make_cvar_by_name($caller_package, %params);
   make_cvar_as_hashref($caller_package, %params);
   make_cvar_value_parser($caller_package, %params);
+  make_cvar_custom_filter($caller_package, %params);
 }
 
 sub save_meta_info {
@@ -223,6 +224,132 @@ sub _get_primary_key_column {
   return $column_name;
 }
 
+sub make_cvar_custom_filter {
+  my ($caller_package, %params) = @_;
+
+  my $manager    = $caller_package->meta->convention_manager->auto_manager_class_name;
+
+  return unless $manager->can('filter');
+
+  $manager->add_filter_specs(
+    cvar => sub {
+      my ($key, $value, $prefix, $config_id) = @_;
+      my $config = SL::DB::Manager::CustomVariableConfig->find_by(id => $config_id);
+
+      if (!$config) {
+        die "invalid config_id in $caller_package\::cvar custom filter: $config_id";
+      }
+
+      if ($config->module != $params{module}) {
+        die "invalid config_id in $caller_package\::cvar custom filter: expected module $params{module} - got @{[ $config->module ]}";
+      }
+
+      my @filter;
+      if ($config->type eq 'bool') {
+        @filter = $value ? ($config->value_col => 1) : (or => [ $config->value_col => undef, $config->value_col => 0 ]);
+      } else {
+        @filter = ($config->value_col => $value);
+      }
+
+      my (%query, %bind_vals);
+      ($query{customized}, $bind_vals{customized}) = Rose::DB::Object::QueryBuilder::build_select(
+        dbh                  => $config->dbh,
+        select               => 'trans_id',
+        tables               => [ 'custom_variables' ],
+        columns              => { custom_variables => [ qw(trans_id config_id text_value number_value bool_value timestamp_value sub_module) ] },
+        query                => [
+          config_id          => $config_id,
+          sub_module         => $params{sub_module},
+          @filter,
+        ],
+        query_is_sql         => 1,
+      );
+
+      if ($config->type eq 'bool') {
+        if ($value) {
+          @filter = (
+            '!default_value' => undef,
+            '!default_value' => '',
+            default_value    => '1',
+          );
+
+        } else {
+          @filter = (
+            or => [
+              default_value => '0',
+              default_value => '',
+              default_value => undef,
+            ],
+          );
+        }
+
+      } else {
+        @filter = (
+          '!default_value' => undef,
+          '!default_value' => '',
+          default_value    => $value,
+        );
+      }
+
+
+      my $conversion  = $config->type =~ m{^(?:date|timestamp)$}       ? $config->type
+                      : $config->type =~ m{^(?:customer|vendor|part)$} ? 'integer'
+                      : $config->type eq 'number'                      ? 'numeric'
+                      :                                                  '';
+
+      ($query{config}, $bind_vals{config}) = Rose::DB::Object::QueryBuilder::build_select(
+        dbh                => $config->dbh,
+        select             => 'id',
+        tables             => [ 'custom_variable_configs' ],
+        columns            => { custom_variable_configs => [ qw(id default_value) ] },
+        query              => [
+          id               => $config->id,
+          @filter,
+        ],
+        query_is_sql       => 1,
+      );
+
+      $query{config} =~ s{ (?<! NOT\( ) default_value (?! \s*is\s+not\s+null) }{default_value::${conversion}}x if $conversion;
+
+      ($query{not_customized}, $bind_vals{not_customized}) = Rose::DB::Object::QueryBuilder::build_select(
+        dbh          => $config->dbh,
+        select       => 'trans_id',
+        tables       => [ 'custom_variables' ],
+        columns      => { custom_variables => [ qw(trans_id config_id sub_module) ] },
+        query        => [
+          config_id  => $config_id,
+          sub_module => $params{sub_module},
+        ],
+        query_is_sql => 1,
+      );
+
+      foreach my $key (keys %query) {
+        # remove rose aliases. query builder sadly is not reentrant, and will reuse the same aliases. :(
+        $query{$key} =~ s{\bt\d+(?:\.)?\b}{}g;
+
+        # manually inline the values. again, rose doen't know how to handly bind params in subqueries :(
+        $query{$key} =~ s{\?}{ $config->dbh->quote(shift @{ $bind_vals{$key} }) }xeg;
+
+        $query{$key} =~ s{\n}{ }g;
+      }
+
+      my $qry_config = "EXISTS (" . $query{config} . ")";
+
+      my @result = (
+        'or' => [
+          $prefix . 'id'   => [ \$query{customized} ],
+          and              => [
+            "!${prefix}id" => [ \$query{not_customized}  ],
+            \$qry_config,
+          ]
+        ],
+      );
+
+      return @result;
+    }
+  );
+}
+
 1;
 
 __END__
@@ -368,6 +495,18 @@ some way then you have to call this function manually. For example:
   $project->parse_custom_variable_values;
 
   print STDERR "CVar[0] value: " . $project->custom_variables->[0]->value . "\n";
+
+=back
+
+=head1 INSTALLED MANAGER METHODS
+
+=over 4
+
+=item Custom filter for GetModels
+
+If the Manager for the calling C<SL::DB::Object> has included the helper L<SL::DB::Helper::Filtered>, a custom filter for cvars will be added to the specs, with the following syntax:
+
+  filter.cvar.$config_id
 
 =back
 

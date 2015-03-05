@@ -36,6 +36,15 @@
    <td>[% HTML.escape(SELF.requirement_spec.hourly_rate_as_number) %]</td>
   </tr>
 
+  [% cvars = SELF.requirement_spec.cvars_by_config %]
+
+  [% FOREACH var = cvars %]
+   <tr class="listrow">
+    <td>[% HTML.escape(var.config.description) %]</td>
+    <td>[% HTML.escape(var.value_as_text) %]</td>
+   </tr>
+  [% END %]
+
 [%- END %]
 
  </table>
