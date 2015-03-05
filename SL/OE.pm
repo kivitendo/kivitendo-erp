@@ -738,7 +738,7 @@ sub load_periodic_invoice_config {
     my $config_obj = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $form->{id});
 
     if ($config_obj) {
-      my $config = { map { $_ => $config_obj->$_ } qw(active terminated periodicity start_date_as_date end_date_as_date first_billing_date_as_date extend_automatically_by ar_chart_id
+      my $config = { map { $_ => $config_obj->$_ } qw(active terminated periodicity order_value_periodicity start_date_as_date end_date_as_date first_billing_date_as_date extend_automatically_by ar_chart_id
                                                       print printer_id copies) };
       $form->{periodic_invoices_config} = YAML::Dump($config);
     }

@@ -66,7 +66,7 @@ sub run {
 }
 
 sub _log_msg {
-  my $message  = join('', @_);
+  my $message  = join('', 'SL::BackgroundJob::CreatePeriodicInvoices: ', @_);
   $message    .= "\n" unless $message =~ m/\n$/;
   $::lxdebug->message(LXDebug::DEBUG1(), $message);
 }
@@ -74,7 +74,7 @@ sub _log_msg {
 sub _generate_time_period_variables {
   my $config            = shift;
   my $period_start_date = shift;
-  my $period_end_date   = $period_start_date->clone->truncate(to => 'month')->add(months => $config->get_period_length)->subtract(days => 1);
+  my $period_end_date   = $period_start_date->clone->truncate(to => 'month')->add(months => $config->get_billing_period_length)->subtract(days => 1);
 
   my @month_names       = ('',
                            $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
@@ -107,7 +107,7 @@ sub _generate_time_period_variables {
 sub _replace_vars {
   my (%params) = @_;
   my $sub      = $params{attribute};
-  my $str      = $params{object}->$sub;
+  my $str      = $params{object}->$sub // '';
   my $sub_fmt  = lc($params{attribute_format} // 'text');
 
   my ($start_tag, $end_tag) = $sub_fmt eq 'html' ? ('&lt;%', '%&gt;') : ('<%', '%>');
@@ -142,6 +142,40 @@ sub _replace_vars {
   $params{object}->$sub($str);
 }
 
+sub _adjust_sellprices_for_period_lengths {
+  my (%params) = @_;
+
+  my $billing_len     = $params{config}->get_billing_period_length;
+  my $order_value_len = $params{config}->get_order_value_period_length;
+
+  return if $billing_len == $order_value_len;
+
+  my $is_last_invoice_in_cycle = $params{config}->is_last_bill_date_in_order_value_cycle(date => $params{period_start_date});
+
+  _log_msg("_adjust_sellprices_for_period_lengths: period_start_date $params{period_start_date} is_last_invoice_in_cycle $is_last_invoice_in_cycle billing_len $billing_len order_value_len $order_value_len");
+
+  if ($order_value_len < $billing_len) {
+    my $num_orders_per_invoice = $billing_len / $order_value_len;
+
+    $_->sellprice($_->sellprice * $num_orders_per_invoice) for @{ $params{invoice}->items };
+
+    return;
+  }
+
+  my $num_invoices_in_cycle = $order_value_len / $billing_len;
+
+  foreach my $item (@{ $params{invoice}->items }) {
+    my $sellprice_one_invoice = $::form->round_amount($item->sellprice * $billing_len / $order_value_len, 2);
+
+    if ($is_last_invoice_in_cycle) {
+      $item->sellprice($item->sellprice - ($num_invoices_in_cycle - 1) * $sellprice_one_invoice);
+
+    } else {
+      $item->sellprice($sellprice_one_invoice);
+    }
+  }
+}
+
 sub _create_periodic_invoice {
   $main::lxdebug->enter_sub();
 
@@ -173,6 +207,8 @@ sub _create_periodic_invoice {
     foreach my $item (@{ $invoice->items }) {
       _replace_vars(object => $item, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')) for qw(description longdescription);
     }
+
+    _adjust_sellprices_for_period_lengths(invoice => $invoice, config => $config, period_start_date => $period_start_date);
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
 
@@ -209,6 +245,8 @@ sub _create_periodic_invoice {
                                  ar_id             => $invoice->id,
                                  period_start_date => $period_start_date)
       ->save;
+
+    _log_msg("_create_invoice created for period start date $period_start_date id " . $invoice->id . " number " . $invoice->invnumber . " netamount " . $invoice->netamount . " amount " . $invoice->amount);
 
     # die $invoice->transaction_description;
   })) {

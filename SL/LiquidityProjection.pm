@@ -5,6 +5,7 @@ use strict;
 use List::MoreUtils qw(uniq);
 
 use SL::DBUtils;
+use SL::DB::PeriodicInvoicesConfig;
 
 sub new {
   my $package       = shift;
@@ -128,7 +129,7 @@ SQL
     SELECT (oi.qty * (1 - oi.discount) * oi.sellprice) AS linetotal,
       bg.description AS buchungsgruppe,
       CASE WHEN COALESCE(e.name, '') = '' THEN e.login ELSE e.name END AS salesman,
-      pcfg.periodicity, pcfg.id AS config_id,
+      pcfg.periodicity, pcfg.order_value_periodicity, pcfg.id AS config_id,
       EXTRACT(year FROM pcfg.start_date) AS start_year, EXTRACT(month FROM pcfg.start_date) AS start_month
     FROM orderitems oi
     LEFT JOIN oe                             ON (oi.trans_id                              = oe.id)
@@ -140,7 +141,6 @@ SQL
 SQL
 
   # 3. Iterieren über Saldierungsintervalle, vormerken
-  my %periodicities = ( 'm' => 1, 'q' => 3,  'y' => 12 );
   my @scentries;
   $sth = prepare_execute_query($::form, $dbh, $query);
   while ($ref = $sth->fetchrow_hashref) {
@@ -148,15 +148,20 @@ SQL
     my $date;
 
     while (($date = _the_date($year, $month)) le $self->{max_date}) {
+      my $billing_len = $SL::DB::PeriodicInvoicesConfig::PERIOD_LENGTHS{ $ref->{periodicity} } || 1;
+
       if (($date ge $self->{min_date}) && (!$periodic_invoices{ $ref->{config_id} } || !$periodic_invoices{ $ref->{config_id} }->{$date})) {
+        my $order_value_periodicity = $ref->{order_value_periodicity} eq 'p' ? $ref->{periodicity} : $ref->{order_value_periodicity};
+        my $order_value_len         = $SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIOD_LENGTHS{$order_value_periodicity} || 1;
+
         push @scentries, { buchungsgruppe => $ref->{buchungsgruppe},
                            salesman       => $ref->{salesman},
-                           linetotal      => $ref->{linetotal},
+                           linetotal      => $ref->{linetotal} * $billing_len / $order_value_len,
                            date           => $date,
                          };
       }
 
-      ($year, $month) = _fix_date($year, $month + ($periodicities{ $ref->{periodicity} } || 1));
+      ($year, $month) = _fix_date($year, $month + $billing_len);
     }
   }
   $sth->finish;

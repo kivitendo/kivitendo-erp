@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(none);
+use List::Util qw(min);
 
 use SL::DB::Employee;
 use SL::DB::Invoice;
@@ -39,7 +40,7 @@ sub prepare_report {
 
   $self->report(SL::ReportGenerator->new(\%::myconfig, $::form));
 
-  my @columns = qw(year quarter month sales_quotations sales_orders sales_invoices requests_for_quotation purchase_orders purchase_invoices);
+  my @columns = (qw(year quarter month), @{ $self->types });
 
   $self->number_columns([ grep { !m/^(?:month|year|quarter)$/ } @columns ]);
 
@@ -48,14 +49,15 @@ sub prepare_report {
     year                   => { text => t8('Year')                   },
     quarter                => { text => t8('Quarter')                },
     sales_quotations       => { text => t8('Sales Quotations')       },
-    sales_orders           => { text => t8('Sales Orders')           },
+    sales_orders           => { text => t8('Sales Orders Advance')   },
+    sales_orders_per_inv   => { text => t8('Total Sales Orders Value') },
     sales_invoices         => { text => t8('Invoices')               },
     requests_for_quotation => { text => t8('Requests for Quotation') },
     purchase_orders        => { text => t8('Purchase Orders')        },
     purchase_invoices      => { text => t8('Purchase Invoices')      },
   );
 
-  map { $column_defs{$_}->{align} = 'right' } @columns;
+  $column_defs{$_}->{align} = 'right' for @columns;
 
   $self->report->set_options(
     std_column_visibility => 1,
@@ -87,6 +89,7 @@ sub get_objects {
   $self->objects({
     sales_quotations       => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_quotation')   ]]),
     sales_orders           => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_order')       ]], with_objects => [ qw(periodic_invoices_config) ]),
+    sales_orders_per_inv   => [],
     requests_for_quotation => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('request_quotation') ]]),
     purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
     sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => [ and => [ @f_date, @f_salesman, ]]),
@@ -97,7 +100,7 @@ sub get_objects {
   $self->objects->{sales_orders} = [ grep { !$_->periodic_invoices_config || !$_->periodic_invoices_config->active } @{ $self->objects->{sales_orders} } ];
 }
 
-sub init_types { [ qw(sales_quotations sales_orders sales_invoices requests_for_quotation purchase_orders purchase_invoices) ] }
+sub init_types { [ qw(sales_quotations sales_orders sales_orders_per_inv sales_invoices requests_for_quotation purchase_orders purchase_invoices) ] }
 
 sub init_data {
   my ($self) = @_;
@@ -122,7 +125,8 @@ sub calculate_one_time_data {
   my ($self) = @_;
 
   foreach my $type (@{ $self->types }) {
-    foreach my $object (@{ $self->objects->{ $type } }) {
+    my $src_object_type = $type eq 'sales_orders_per_inv' ? 'sales_orders' : $type;
+    foreach my $object (@{ $self->objects->{ $src_object_type } }) {
       my $month                              = $object->transdate->month - 1;
       my $tdata                              = $self->data->{$type};
 
@@ -145,15 +149,25 @@ sub calculate_periodic_invoices {
 sub calculate_one_periodic_invoice {
   my ($self, %params) = @_;
 
-  return if $params{config}->start_date > $params{end_date};
+  # Calculate sales order advance
+  my $net  = $params{config}->order->netamount * $params{config}->get_billing_period_length / $params{config}->get_order_value_period_length;
+  my $sord = $self->data->{sales_orders};
 
-  my $first_date = $params{config}->start_date->clone->set_year($self->year);
-  my $net        = $params{config}->order->netamount * (12 / $params{config}->get_period_length);
-  my $sord       = $self->data->{sales_orders};
+  foreach my $date ($params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date}, past_dates => 1)) {
+    $sord->{months  }->[ $date->month   - 1 ] += $net;
+    $sord->{quarters}->[ $date->quarter - 1 ] += $net;
+    $sord->{year}                             += $net;
+  }
 
-  $sord->{months  }->[ $first_date->month   - 1 ] += $net;
-  $sord->{quarters}->[ $first_date->quarter - 1 ] += $net;
-  $sord->{year}                                   += $net;
+  # Calculate total sales order value
+  my $date = $params{config}->order->transdate;
+  return if $date->year != $params{start_date}->year;
+
+  $net                                       = $params{config}->order->netamount;
+  $sord                                      = $self->data->{sales_orders_per_inv};
+  $sord->{months  }->[ $date->month   - 1 ] += $net;
+  $sord->{quarters}->[ $date->quarter - 1 ] += $net;
+  $sord->{year}                             += $net;
 }
 
 sub list_data {
