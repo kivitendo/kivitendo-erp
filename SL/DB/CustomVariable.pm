@@ -35,8 +35,12 @@ sub parse_value {
 
   my $unparsed = delete $self->{__unparsed_value};
 
-  if ($type =~ m{^(?:customer|vendor|part|bool|number)}) {
+  if ($type =~ m{^(?:customer|vendor|part|number)}) {
     return $self->number_value(defined($unparsed) ? $unparsed * 1 : undef);
+  }
+
+  if ($type =~ m{^(?:bool)}) {
+    return $self->bool_value(defined($unparsed) ? !!$unparsed : undef);
   }
 
   if ($type =~ m{^(?:date|timestamp)}) {
@@ -54,6 +58,7 @@ sub value {
   if (scalar(@_) > 1) {
     $self->unparsed_value($_[1]);
     $self->parse_value;
+    @_ = ($self);
   }
 
   goto &bool_value      if $type eq 'bool';
