@@ -1298,15 +1298,26 @@ SQL
 sub transfer_out {
   $::lxdebug->enter_sub;
 
-  my ($self, $form) = @_; 
+  my ($self, $form, $dbh) = @_; 
 
-  my @transfers;
+  my (@errors, @transfers);
+
+  # do nothing, if transfer default is not requeseted at all
+  if (!$::instance_conf->get_transfer_default) {
+    $::lxdebug->leave_sub;
+    return \@errors;
+  }
+
+  require SL::WH;
 
   foreach my $i (1 .. $form->{rowcount}) {
     next if !$form->{"id_$i"};
-    my ($wh_id, $bin_id) = _determine_wh_and_bin($::instance_conf, $form->{"id_$i"});
+    my ($err, $wh_id, $bin_id) = _determine_wh_and_bin($dbh, $::instance_conf,
+                                                       $form->{"id_$i"},
+                                                       $form->{"qty_$i"},
+                                                       $form->{"unit_$i"});
 
-    if ($wh_id && $bin_id) {
+    if (!@{ $err } && $wh_id && $bin_id) {
       push @transfers, {
         'parts_id'         => $form->{"id_$i"},
         'qty'              => $form->{"qty_$i"},
@@ -1318,38 +1329,86 @@ sub transfer_out {
         'invoice_id'       => $form->{"invoice_id_$i"},
       };
     }
+
+    push @errors, @{ $err };
   }
 
-  require SL::WH;
-  WH->transfer(@transfers);
+  if (!@errors) {
+    WH->transfer(@transfers);
+  }
 
   $::lxdebug->leave_sub;
-  return 1;
+  return \@errors;
 }
 
 sub _determine_wh_and_bin {
   $::lxdebug->enter_sub(2);
 
-  my ($conf, $part_id) = @_;
+  my ($dbh, $conf, $part_id, $qty, $unit) = @_;
+  my @errors;
 
   my $part = SL::DB::Part->new(id => $part_id)->load;
 
+  # ignore service if they are not configured to be transfered
   if ($part->is_service && !$conf->get_transfer_default_services) {
     $::lxdebug->leave_sub(2);
     return;
   }
-    
 
-  my $wh_id  = $part->warehouse_id;
-  my $bin_id = $part->bin_id;
+  # test negative qty
+  if ($qty < 0) {
+    push @errors, $::locale->text("Cannot transfer negative quantities.");
+    return (\@errors);
+  }
 
-  if (!$wh_id && !$bin_id && $conf->get_transfer_default_ignore_onhand) {
+  # get/test default bin
+  my ($default_wh_id, $default_bin_id);
+  if ($conf->get_transfer_default_use_master_default_bin) {
+    $default_wh_id  = $conf->get_warehouse_id if $conf->get_warehouse_id;
+    $default_bin_id = $conf->get_bin_id       if $conf->get_bin_id;
+  }
+  my $wh_id  = $part->warehouse_id || $default_wh_id;
+  my $bin_id = $part->bin_id       || $default_bin_id;
+
+  # check qty and bin
+  if ($bin_id) {
+    my ($max_qty, $error) = WH->get_max_qty_parts_bin(dbh      => $dbh,
+                                                      parts_id => $part->id,
+                                                      bin_id   => $bin_id);
+    if ($error == 1) {
+      push @errors, $::locale->text("Part \"#1\" has chargenumber or best before date set. So it cannot be transfered automaticaly.",
+                                    $part->description);
+    }
+    my $form_unit_obj = SL::DB::Unit->new(name => $unit)->load;
+    my $part_unit_qty = $form_unit_obj->convert_to($qty, $part->unit_obj);
+    my $diff_qty      = $max_qty - $part_unit_qty;
+    if (!@errors && $diff_qty < 0) {
+      push @errors, $::locale->text("For part \"#1\" there are missing #2 #3 in the default warehouse/bin \"#4/#5\"",
+                                    $part->description, 
+                                    $::form->format_amount(\%::myconfig, -1*$diff_qty),
+                                    $part->unit_obj->name,
+                                    SL::DB::Warehouse->new(id => $wh_id)->load->description,
+                                    SL::DB::Bin->new(      id => $bin_id)->load->description);
+    }
+  } else {
+    push @errors, $::locale->text("For part \"#1\" there is no default warehouse and bin defined.",
+                                  $part->description);
+  }
+
+  # transfer to special "ignore onhand" bin if requested and default bin does not work
+  if (@errors && $conf->get_transfer_default_ignore_onhand && $conf->get_bin_id_ignore_onhand) {
     $wh_id  = $conf->get_warehouse_id_ignore_onhand;
     $bin_id = $conf->get_bin_id_ignore_onhand;
+    if ($wh_id && $bin_id) {
+      @errors = ();
+    } else {
+      push @errors, $::locale->text("For part \"#1\" there is no default warehouse and bin for ignoring onhand defined.",
+                                    $part->description);
+    }
   }
 
   $::lxdebug->leave_sub(2);
-  return ($wh_id, $bin_id);
+  return (\@errors, $wh_id, $bin_id);
 }
 
 sub _delete_transfers {

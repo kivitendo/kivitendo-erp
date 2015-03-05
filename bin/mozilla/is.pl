@@ -785,21 +785,30 @@ sub post {
   if ($::instance_conf->get_is_transfer_out && $form->{type} ne 'credit_note' && !$form->{storno}) {
     require SL::DB::Inventory;
     my $rose_db = SL::DB::Inventory->new->db;
-    my $error;
+    my @errors;
 
     if (!$rose_db->with_transaction(sub {
       if (!eval {
-        IS->post_invoice(\%myconfig, \%$form, $rose_db->dbh);
-        IS->transfer_out(\%$form);
+        if (!IS->post_invoice(\%myconfig, \%$form, $rose_db->dbh)) {
+          push @errors, $locale->text('Cannot post invoice!');
+          die 'posting error';
+        }
+        my $err = IS->transfer_out(\%$form, $rose_db->dbh);
+        if (@{ $err }) {
+          push @errors, @{ $err };
+          die 'transfer error';
+        }
+
         1;
       }) {
-        $error = $EVAL_ERROR;
-        return;
+        push @errors, $EVAL_ERROR;
+        die 'transaction error';
       }
 
       1;
     })) {
-      $form->error($locale->text("Cannot post invoice and/or transfer out!\nError was:\n") . $locale->text($error));
+      push @errors, $rose_db->error;
+      $form->error($locale->text('Cannot post invoice and/or transfer out! Error message:') . "\n" . join("\n", @errors));
     }
   } else {
     if (!IS->post_invoice(\%myconfig, \%$form)) {
