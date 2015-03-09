@@ -56,21 +56,20 @@
   </tr>
 
  <tr>
-   <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse with ignoring on hand') %]</td>
+   <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse with ignoring onhand') %]</td>
    <td>
     [% L.select_tag('defaults.warehouse_id_ignore_onhand', SELF.all_warehouses, id='warehouse_id_ignore_onhand', with_empty=1, default=SELF.defaults.warehouse_id_ignore_onhand, title_key='description',
                     onchange="warehouse_selected(this.selectedIndex == 0 ? -1 : warehouses[this.selectedIndex - 1].id, -1, 'bin_id_ignore_onhand')") %]
    </td>
    <td>
-    [% LxERP.t8('This is the default bin for ignoring onhand') %]<br>
-    [% LxERP.t8('If the default transfer out always succeed use this bin for negative stock quantity.') %]<br>
+    [% LxERP.t8('This is the default warehouse for ignoring onhand') %]<br>
    </td>
   </tr>
   <tr>
    <td align="right" nowrap="true">[% LxERP.t8('Default Bin with ignoring onhand') %]</td>
    <td>[% L.select_tag('defaults.bin_id_ignore_onhand', [], id='bin_id_ignore_onhand', with_empty=1) %]</td>
+   <td>[% LxERP.t8('If the default transfer out always succeed use this bin for negative stock quantity.') %]</td>
   </tr>
-
   <tr><td colspan="3"><hr /></td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Transfer out on posting sales invoices?') %]</td>
@@ -81,7 +80,6 @@
    [% LxERP.t8('Transfer out all items of a sales invoice when posting it. Items are transfered out acording to the settings above.') %]
    </td>
   </tr>
-
   <tr><td colspan="3"><hr /></td></tr>
   <tr>
   <tr>
@@ -118,6 +116,5 @@
    [% LxERP.t8('The default delivery plan only checks if all delivery orders have been created not if the goods are transferred. This feature will check if all the goods are transferred. Caveat: Only the state of the delivery orders are checked not partial transferred delivery orders (in technical terms: the table inventory is not checked') %]
    </td>
   </tr>
-
  </table>
 </div>

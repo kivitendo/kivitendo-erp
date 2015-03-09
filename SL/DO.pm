@@ -298,7 +298,7 @@ SQL
 
     CVar->get_non_editable_ic_cvars(form               => $form,
                                     dbh                => $dbh,
-                                    row                => $i, 
+                                    row                => $i,
                                     sub_module         => 'delivery_order_items',
                                     may_converted_from => ['orderitems', 'delivery_order_items']);
 
@@ -1008,7 +1008,7 @@ sub order_details {
 
     CVar->get_non_editable_ic_cvars(form               => $form,
                                     dbh                => $dbh,
-                                    row                => $i, 
+                                    row                => $i,
                                     sub_module         => 'delivery_order_items',
                                     may_converted_from => ['orderitems', 'delivery_order_items']);
 
@@ -1190,6 +1190,7 @@ sub transfer_in_out {
       'transfer_type'                 => $params{direction} eq 'in' ? 'stock' : 'shipped',
       'project_id'                    => $request->{project_id},
       'delivery_order_items_stock_id' => $request->{delivery_order_items_stock_id},
+      'comment'                       => $request->{comment},
     };
   }
 
