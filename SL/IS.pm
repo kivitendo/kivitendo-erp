@@ -375,7 +375,7 @@ sub invoice_details {
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,
-                                      row                => $i, 
+                                      row                => $i,
                                       sub_module         => 'invoice',
                                       may_converted_from => ['delivery_order_items', 'orderitems', 'invoice']);
 
@@ -761,7 +761,7 @@ sub post_invoice {
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,
-                                      row                => $i, 
+                                      row                => $i,
                                       sub_module         => 'invoice',
                                       may_converted_from => ['delivery_order_items', 'orderitems', 'invoice']);
 
@@ -1298,7 +1298,7 @@ SQL
 sub transfer_out {
   $::lxdebug->enter_sub;
 
-  my ($self, $form, $dbh) = @_; 
+  my ($self, $form, $dbh) = @_;
 
   my (@errors, @transfers);
 
@@ -1327,6 +1327,7 @@ sub transfer_out {
         'src_bin_id'       => $bin_id,
         'project_id'       => $form->{"project_id_$i"},
         'invoice_id'       => $form->{"invoice_id_$i"},
+        'comment'          => $::locale->text("Default transfer invoice"),
       };
     }
 
@@ -1384,7 +1385,7 @@ sub _determine_wh_and_bin {
     my $diff_qty      = $max_qty - $part_unit_qty;
     if (!@errors && $diff_qty < 0) {
       push @errors, $::locale->text("For part \"#1\" there are missing #2 #3 in the default warehouse/bin \"#4/#5\"",
-                                    $part->description, 
+                                    $part->description,
                                     $::form->format_amount(\%::myconfig, -1*$diff_qty),
                                     $part->unit_obj->name,
                                     SL::DB::Warehouse->new(id => $wh_id)->load->description,
