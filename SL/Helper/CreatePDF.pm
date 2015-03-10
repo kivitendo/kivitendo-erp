@@ -6,6 +6,7 @@ use Carp;
 use Cwd;
 use English qw(-no_match_vars);
 use File::Slurp ();
+use File::Spec ();
 use File::Temp ();
 use List::MoreUtils qw(uniq);
 use List::Util qw(first);
@@ -28,7 +29,7 @@ our %EXPORT_TAGS = (
 sub create_pdf {
   my ($class, %params) = @_;
 
-  return $class->create_parsed_file(
+  return __PACKAGE__->create_parsed_file(
     format        => 'pdf',
     template_type => 'LaTeX',
     %params,
@@ -47,12 +48,13 @@ sub create_parsed_file {
   $form->{templates}  = $::instance_conf->get_templates;
   $form->{IN}         = $params{template};
   $form->{tmpdir}     = $form->{cwd} . '/' . $userspath;
+  my $tmpdir          = $form->{tmpdir};
   my ($suffix)        = $params{template} =~ m{\.(.+)};
 
   my ($temp_fh, $tmpfile) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
-    DIR    => $userspath,
+    DIR    => $form->{tmpdir},
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
 
@@ -63,7 +65,7 @@ sub create_parsed_file {
     source    => $form->{IN},
     form      => $form,
     myconfig  => \%::myconfig,
-    userspath => $userspath,
+    userspath => $tmpdir,
   );
 
   my $result = $parser->parse($temp_fh);
@@ -76,16 +78,22 @@ sub create_parsed_file {
     die $parser->get_error;
   }
 
+  # SL::Template:** modify $form->{tmpfile} by removing its
+  # $form->{userspath} prefix. They also store the final file's actual
+  # file name in $form->{tmpfile} – but it is now relative to
+  # $form->{userspath}. Other modules return the full file name…
+  my ($volume, $directory, $file_name) = File::Spec->splitpath($form->{tmpfile});
+  my $full_file_name                   = File::Spec->catfile($tmpdir, $file_name);
   if (($params{return} || 'content') eq 'file_name') {
-    my $new_name = $userspath . '/keep-' . $tmpfile;
-    rename $tmpfile, $new_name;
+    my $new_name = File::Spec->catfile($tmpdir, 'keep-' . $form->{tmpfile});
+    rename $full_file_name, $new_name;
 
     $form->cleanup;
 
     return $new_name;
   }
 
-  my $content = File::Slurp::read_file($tmpfile);
+  my $content = File::Slurp::read_file($full_file_name);
 
   $form->cleanup;
 
