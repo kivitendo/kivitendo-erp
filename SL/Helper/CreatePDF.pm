@@ -28,7 +28,7 @@ our %EXPORT_TAGS = (
 sub create_pdf {
   my ($class, %params) = @_;
 
-  return $class->create_parsed_file(
+  return __PACKAGE__->create_parsed_file(
     format        => 'pdf',
     template_type => 'LaTeX',
     %params,
