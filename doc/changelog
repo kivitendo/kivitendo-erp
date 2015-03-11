@@ -2,6 +2,17 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2015-xx-xx  - Release 3.x.x
+
+
+Kleinere neue Features und Detailverbesserungen:
+
+- Das Verkaufsmenü wurde um eine Brieffunktion (Entwurf und finale) erweitert.
+  Hierfür muss entsprechend eine neue Druckvorlage (letter.tex) erstellt werden.
+  Eine erste Vorlage hierfür befindet sich im Standard-Druckvorlagen-Satz
+
+
+
 2015-02-28 - Release 3.2.0
 
 Größere neue Features:
