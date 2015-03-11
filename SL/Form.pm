@@ -1235,6 +1235,7 @@ sub get_formname_translation {
     sales_delivery_order    => $main::locale->text('Delivery Order'),
     purchase_delivery_order => $main::locale->text('Delivery Order'),
     dunning                 => $main::locale->text('Dunning'),
+    letter                  => $main::locale->text('Letter')
   );
 
   $main::lxdebug->leave_sub();
@@ -1249,7 +1250,12 @@ sub get_number_prefix_for_type {
       (first { $self->{type} eq $_ } qw(invoice credit_note)) ? 'inv'
     : ($self->{type} =~ /_quotation$/)                        ? 'quo'
     : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
+    : ($self->{type} =~ /letter/)                             ? 'letter'
     :                                                           'ord';
+
+  # better default like this?
+  # : ($self->{type} =~ /(sales|purcharse)_order/           :  'ord';
+  # :                                                           'prefix_undefined';
 
   $main::lxdebug->leave_sub();
   return $prefix;
@@ -2387,7 +2393,7 @@ sub get_lists {
   if ($params{contacts} || $params{shipto}) {
     $vc = 'customer' if $self->{"vc"} eq "customer";
     $vc = 'vendor'   if $self->{"vc"} eq "vendor";
-    die "invalid use of get_lists, need 'vc'";
+    die "invalid use of get_lists, need 'vc'" unless $vc;
     $vc_id = $self->{"${vc}_id"};
   }
 

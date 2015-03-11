@@ -1,0 +1,109 @@
+\documentclass[twoside]{scrartcl}
+\usepackage{eurosym}
+\usepackage{tabularx}
+\usepackage[utf8]{inputenc}
+\setlength{\voffset}{0.5cm}
+\setlength{\hoffset}{-2.0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{1.0cm}
+\setlength{\evensidemargin}{1.0cm}
+\setlength{\textwidth}{19.2cm}
+\setlength{\textheight}{24.5cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\begin{document}
+
+\thispagestyle{empty}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+\setlength{\parindent}{0cm}
+
+\fontfamily{cmss}\fontshape{n}\selectfont
+
+<%pagebreak 80 28 37%>
+\end{tabularx}
+
+\newpage
+
+%\begin{tabularx}{\textwidth}{lrXrr}
+%  \hline
+%  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+%  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+%  \hline
+%  <%foreach number%>
+%    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+%    <%sellprice%> & <%linetotal%>\\
+%  <%end number%>
+%<%end pagebreak%>
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\vspace*{1cm}
+
+\begin{minipage}{14cm}
+
+  <%rcv_name%>
+
+  <%rcv_contact_formal%>
+
+  <%rcv_countrycode%> <%rcv_zipcode%> <%rcv_city%>
+
+  <%rcv_country%>
+
+\end{minipage}
+\hfill
+\begin{minipage}{6cm}
+\end{minipage}
+
+\vspace{2.5cm}
+
+\begin{minipage}{14cm}
+
+\textbf{<%subject%>}
+
+\vspace{1cm}
+
+  <%greeting%>
+
+\vspace{0.5cm}
+
+  <%body%>
+
+\vspace{0.5cm}
+
+  <%close%>
+
+  <%company_name%>
+
+\end{minipage}
+\hfill
+\begin{minipage}{6cm}
+  <%date%>
+
+\vspace{5cm}
+
+Anlagen | Attch.:
+\end{minipage}
+
+\vspace*{0.5cm}
+
+\begin{minipage}{6cm}
+
+\textbf{<%employee%>}
+
+<%employee_position%>
+
+\end{minipage}
+\begin{minipage}{6cm}
+
+\textbf{<%salesman%>}
+
+<%salesman_position%>
+
+\end{minipage}
+
+\end{document}
+
