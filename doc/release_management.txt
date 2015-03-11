@@ -193,6 +193,9 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 
   $ scripts/dbupgrade2_tool.pl --nodeps
 
+  Wichtig: Seit 3.0.0 gibt es noch zusätzlich ein Pg-Upgrade2-auth/ Verzeichnis, welches
+  für die  Authentifizierungsupdates benutzt wird.
+
 * Voraussichtliches Releasedatum im changelog eintragen
 
 * Finaler Testlauf:
