@@ -1376,14 +1376,14 @@ sub _determine_wh_and_bin {
                                                       parts_id => $part->id,
                                                       bin_id   => $bin_id);
     if ($error == 1) {
-      push @errors, $::locale->text("Part \"#1\" has chargenumber or best before date set. So it cannot be transfered automaticaly.",
+      push @errors, $::locale->text('Part "#1" has chargenumber or best before date set. So it cannot be transfered automaticaly.',
                                     $part->description);
     }
     my $form_unit_obj = SL::DB::Unit->new(name => $unit)->load;
     my $part_unit_qty = $form_unit_obj->convert_to($qty, $part->unit_obj);
     my $diff_qty      = $max_qty - $part_unit_qty;
     if (!@errors && $diff_qty < 0) {
-      push @errors, $::locale->text("For part \"#1\" there are missing #2 #3 in the default warehouse/bin \"#4/#5\"",
+      push @errors, $::locale->text('For part "#1" there are missing #2 #3 in the default warehouse/bin "#4/#5".',
                                     $part->description,
                                     $::form->format_amount(\%::myconfig, -1*$diff_qty),
                                     $part->unit_obj->name,
@@ -1391,7 +1391,7 @@ sub _determine_wh_and_bin {
                                     SL::DB::Bin->new(      id => $bin_id)->load->description);
     }
   } else {
-    push @errors, $::locale->text("For part \"#1\" there is no default warehouse and bin defined.",
+    push @errors, $::locale->text('For part "#1" there is no default warehouse and bin defined.',
                                   $part->description);
   }
 
@@ -1402,7 +1402,7 @@ sub _determine_wh_and_bin {
     if ($wh_id && $bin_id) {
       @errors = ();
     } else {
-      push @errors, $::locale->text("For part \"#1\" there is no default warehouse and bin for ignoring onhand defined.",
+      push @errors, $::locale->text('For part "#1" there is no default warehouse and bin for ignoring onhand defined.',
                                     $part->description);
     }
   }
