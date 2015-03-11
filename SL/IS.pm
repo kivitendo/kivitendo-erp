@@ -1316,7 +1316,6 @@ sub transfer_out {
                                                        $form->{"id_$i"},
                                                        $form->{"qty_$i"},
                                                        $form->{"unit_$i"});
-    next if ($err eq 'ignore service');
     if (!@{ $err } && $wh_id && $bin_id) {
       push @transfers, {
         'parts_id'         => $form->{"id_$i"},
@@ -1353,7 +1352,7 @@ sub _determine_wh_and_bin {
   # ignore service if they are not configured to be transfered
   if ($part->is_service && !$conf->get_transfer_default_services) {
     $::lxdebug->leave_sub(2);
-    return 'ignore service';
+    return (\@errors);
   }
 
   # test negative qty
