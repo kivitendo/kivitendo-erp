@@ -11,6 +11,11 @@ Kleinere neue Features und Detailverbesserungen:
   Hierfür muss entsprechend eine neue Druckvorlage (letter.tex) erstellt werden.
   Eine erste Vorlage hierfür befindet sich im Standard-Druckvorlagen-Satz
 
+- Automatisches Auslagern beim Buchen einer Verkaufsrechnung:
+  In der Mandanten-Konfiguration lässt sich im Reiter "Lager" auswählen, ob
+  Artikel beim Buchen einer Verkaufsrechnung automatisch von den
+  Standardlagerplätzen ausgelagert werden sollen. Dabei werden die
+  Einstellungen für das Auslagern über Standardlagerplätze berücksichtigt.
 
 
 2015-02-28 - Release 3.2.0
