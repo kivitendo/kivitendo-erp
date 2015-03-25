@@ -455,7 +455,7 @@ sub create_assembly {
   # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
     'transfer_type'    => 'assembly',
-    'login'            => $form->{login},
+    'login'            => $::myconfig{login},
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
@@ -972,7 +972,7 @@ sub show_no_warehouses_error {
 
   my $msg = $locale->text('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';
 
-  if ($main::auth->check_right($form->{login}, 'config')) {
+  if ($main::auth->check_right($::myconfig{login}, 'config')) {
     $msg .= $locale->text('You can create warehouses and bins via the menu "System -> Warehouses".');
   } else {
     $msg .= $locale->text('Please ask your administrator to create warehouses and bins.');

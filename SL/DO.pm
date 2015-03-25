@@ -119,7 +119,7 @@ sub transactions {
   }
   if (!$main::auth->assert('sales_all_edit', 1)) {
     push @where, qq|dord.employee_id = (select id from employee where login= ?)|;
-    push @values, $form->{login};
+    push @values, $::myconfig{login};
   }
 
   foreach my $item (qw(donumber ordnumber cusordnumber transaction_description)) {

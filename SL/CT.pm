@@ -180,7 +180,7 @@ sub search {
   # Gilt nicht für Lieferanten
   if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
     $where .= qq| AND ct.salesman_id = (select em.id from employee em where em.login = ?)|;
-    push(@values, $form->{login});
+    push(@values, $::myconfig{login});
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',

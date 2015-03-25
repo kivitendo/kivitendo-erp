@@ -1168,7 +1168,7 @@ sub save {
 
   $::auth->assert('advance_turnover_tax_return');
 
-  my $filename = "$::form->{login}_$::form->{filename}";
+  my $filename = "$::myconfig{login}_$::form->{filename}";
   $filename =~ s|.*/||;
 
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen

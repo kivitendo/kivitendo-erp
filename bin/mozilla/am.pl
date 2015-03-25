@@ -885,9 +885,9 @@ sub config {
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
-  $form->{todo_cfg}            = { TODO->get_user_config('login' => $form->{login}) };
+  $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };
 
-  $form->{title}               = $locale->text('Edit Preferences for #1', $form->{login});
+  $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
 
   $form->header();
 
@@ -907,7 +907,7 @@ sub save_preferences {
 
   $form->{stylesheet} = $form->{usestylesheet};
 
-  TODO->save_user_config('login' => $form->{login}, %{ $form->{todo_cfg} || { } });
+  TODO->save_user_config('login' => $::myconfig{login}, %{ $form->{todo_cfg} || { } });
 
   if (AM->save_preferences($form)) {
     if ($::auth->can_change_password()
@@ -920,7 +920,7 @@ sub save_preferences {
         $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
       }
 
-      $::auth->change_password($form->{login}, $form->{new_password});
+      $::auth->change_password($::myconfig{login}, $form->{new_password});
     }
 
     $form->redirect($locale->text('Preferences saved!'));

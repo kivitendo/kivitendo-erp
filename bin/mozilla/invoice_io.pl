@@ -48,8 +48,8 @@ use strict;
 if (-f "bin/mozilla/custom_invoice_io.pl") {
   eval { require "bin/mozilla/custom_invoice_io.pl"; };
 }
-if (-f "bin/mozilla/$main::form->{login}_invoice_io.pl") {
-  eval { require "bin/mozilla/$main::form->{login}_invoice_io.pl"; };
+if (-f "bin/mozilla/$::myconfig{login}_invoice_io.pl") {
+  eval { require "bin/mozilla/$::myconfig{login}_invoice_io.pl"; };
 }
 
 1;

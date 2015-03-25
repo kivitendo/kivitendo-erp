@@ -154,7 +154,7 @@ sub bank_transfer_create {
       $bank_transfer->{chart_id} = $bank_account->{chart_id};
     }
 
-    my $id = SL::SEPA->create_export('employee'       => $form->{login},
+    my $id = SL::SEPA->create_export('employee'       => $::myconfig{login},
                                      'bank_transfers' => \@bank_transfers,
                                      'vc'             => $vc);
 

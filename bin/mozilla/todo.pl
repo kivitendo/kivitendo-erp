@@ -41,7 +41,7 @@ sub create_todo_list {
   my %params   = @_;
   my $postfix  = $params{login_screen} ? '_login' : '';
 
-  my %todo_cfg = TODO->get_user_config('login' => $form->{login});
+  my %todo_cfg = TODO->get_user_config('login' => $::myconfig{login});
 
   if ($params{login_screen} && !$todo_cfg{show_after_login}) {
     $main::lxdebug->leave_sub();

@@ -244,7 +244,7 @@ sub create_invoice_for_fees {
              $dunning_id,       # duedate
              $curr,             # default currency
              sprintf($main::locale->text('Automatically created invoice for fee and interest for dunning %s'), $dunning_id), # notes
-             $form->{login});   # employee_id
+             $::myconfig{login});   # employee_id
   do_query($form, $dbh, $query, @values);
 
   $query =
@@ -926,7 +926,7 @@ sub print_invoice_for_fees {
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
   $query = qq|SELECT * FROM employee WHERE login = ?|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{login});
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $::myconfig{login});
   map { $form->{"employee_${_}"} = $ref->{$_} } keys %{ $ref };
 
   $query = qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY acc_trans_id ASC|;

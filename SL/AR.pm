@@ -561,7 +561,7 @@ sub ar_transactions {
   if (!$main::auth->assert('sales_all_edit', 1)) {
     # only show own invoices
     $where .= " AND a.employee_id = (select id from employee where login= ?)";
-    push (@values, $form->{login});
+    push (@values, $::myconfig{login});
   } else {
     if ($form->{employee_id}) {
       $where .= " AND a.employee_id = ?";

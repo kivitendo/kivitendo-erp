@@ -23,7 +23,7 @@ sub save {
     ($params{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('note_id')|);
     $query        = qq|INSERT INTO notes (created_by, trans_id, trans_module, subject, body, id)
                        VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
-    push @values, $form->{login}, conv_i($params{trans_id}), $params{trans_module};
+    push @values, $::myconfig{login}, conv_i($params{trans_id}), $params{trans_module};
 
   } else {
     $query        = qq|UPDATE notes SET subject = ?, body = ? WHERE id = ?|;

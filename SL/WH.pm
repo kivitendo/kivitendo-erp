@@ -59,7 +59,7 @@ sub transfer {
   require SL::DB::Employee;
   require SL::DB::Inventory;
 
-  my $employee   = SL::DB::Manager::Employee->find_by(login => $::form->{login});
+  my $employee   = SL::DB::Manager::Employee->find_by(login => $::myconfig{login});
   my ($now)      = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT current_date|);
   my @directions = (undef, qw(out in transfer));
 

@@ -104,7 +104,7 @@ sub post_transaction {
     $query =
       qq|INSERT INTO gl (id, employee_id) | .
       qq|VALUES (?, (SELECT id FROM employee WHERE login = ?))|;
-    @values = ($form->{id}, $form->{login});
+    @values = ($form->{id}, $::myconfig{login});
     do_query($form, $dbh, $query, @values);
   }
 

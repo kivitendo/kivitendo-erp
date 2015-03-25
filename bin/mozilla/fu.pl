@@ -364,7 +364,7 @@ sub report_for_todo_list {
   my %params   = (
     'due_only'          => 1,
     'not_done'          => 1,
-    'created_for_login' => $form->{login},
+    'created_for_login' => $::myconfig{login},
     );
 
   my $follow_ups = FU->follow_ups(%params);

@@ -1030,7 +1030,7 @@ sub get_config {
 
   $form->error("Missing Parameter: @_") if !$userspath || !$filename;
 
-  $filename = "$form->{login}_$filename";
+  $filename = "$::myconfig{login}_$filename";
   $filename =~ s|.*/||;
   $filename = "$userspath/$filename";
   open my $FACONF, "<", $filename or do {# Annon Sub

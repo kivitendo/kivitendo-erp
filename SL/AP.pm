@@ -126,7 +126,7 @@ sub post_transaction {
         qq|INSERT INTO ap (id, invnumber, employee_id,currency_id, taxzone_id) | .
         qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),
                       (SELECT id FROM currencies WHERE name = ?), (SELECT taxzone_id FROM vendor WHERE id = ?) )|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $form->{login}, $form->{currency}, $form->{vendor_id});
+      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $::myconfig{login}, $form->{currency}, $form->{vendor_id});
 
     }
 

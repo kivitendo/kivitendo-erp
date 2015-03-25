@@ -21,8 +21,8 @@ sub _sort_spec {
 }
 
 sub current {
-  return undef unless $::form && $::form->{login};
-  return shift->find_by(login => $::form->{login});
+  return undef unless $::myconfig{login};
+  return shift->find_by(login => $::myconfig{login});
 }
 
 sub update_entries_for_authorized_users {

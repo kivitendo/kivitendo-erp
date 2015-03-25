@@ -72,7 +72,7 @@ sub invoice_transactions {
   # limits by employees (Bearbeiter), not salesmen!
   if (!$main::auth->assert('sales_all_edit', 1)) {
     $where .= " AND ar.employee_id = (select id from employee where login= ?)";
-    push (@values, $form->{login});
+    push (@values, $::myconfig{login});
   }
 
   # Stornierte Rechnungen und Stornorechnungen in invoice rausfiltern

@@ -74,7 +74,7 @@ sub save {
     qq|  (SELECT id FROM employee WHERE login = ?) | .
     qq|WHERE id = ?|;
 
-  do_query($form, $dbh, $query, $draft_description, $dumped, $form->{login}, $draft_id);
+  do_query($form, $dbh, $query, $draft_description, $dumped, $::myconfig{login}, $draft_id);
 
   $dbh->commit();
 

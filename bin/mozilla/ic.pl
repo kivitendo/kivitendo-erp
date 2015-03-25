@@ -1641,7 +1641,7 @@ sub form_header {
   #                                                     payment_terms     => $form->{payment_terms},
   #                                                     all_partsgroup    => $form->{all_partsgroup}});
 
-  $form->{show_edit_buttons} = $main::auth->check_right($form->{login}, 'part_service_assembly_edit');
+  $form->{show_edit_buttons} = $main::auth->check_right($::myconfig{login}, 'part_service_assembly_edit');
 
   print $form->parse_html_template('ic/form_header');
   $lxdebug->leave_sub();

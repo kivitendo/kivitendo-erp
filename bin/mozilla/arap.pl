@@ -36,8 +36,8 @@ use strict;
 if (-f "bin/mozilla/custom_arap.pl") {
   eval { require "bin/mozilla/custom_arap.pl"; };
 }
-if (-f "bin/mozilla/$main::form->{login}_arap.pl") {
-  eval { require "bin/mozilla/$main::form->{login}_arap.pl"; };
+if (-f "bin/mozilla/$::myconfig{login}_arap.pl") {
+  eval { require "bin/mozilla/$::myconfig{login}_arap.pl"; };
 }
 
 1;

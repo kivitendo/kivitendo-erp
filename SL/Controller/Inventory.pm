@@ -243,7 +243,7 @@ sub show_no_warehouses_error {
 
   my $msg = t8('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';
 
-  if ($::auth->check_right($::form->{login}, 'config')) { # TODO wut?
+  if ($::auth->check_right($::myconfig{login}, 'config')) { # TODO wut?
     $msg .= t8('You can create warehouses and bins via the menu "System -> Warehouses".');
   } else {
     $msg .= t8('Please ask your administrator to create warehouses and bins.');

@@ -147,7 +147,7 @@ sub parse_access_string {
       push @{$cur_ary}, $token;
 
     } else {
-      push @{$cur_ary}, $auth->check_right($form->{login}, $token, 1);
+      push @{$cur_ary}, $auth->check_right($::myconfig{login}, $token, 1);
     }
   }
 

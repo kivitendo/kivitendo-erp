@@ -28,7 +28,7 @@ sub save {
     $query = qq|INSERT INTO follow_ups (created_by, done, note_id, follow_up_date, created_for_user, id)
                 VALUES ((SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
 
-    push @values, $form->{login};
+    push @values, $::myconfig{login};
 
   } else {
     $query = qq|UPDATE follow_ups SET done = ?, note_id = ?, follow_up_date = ?, created_for_user = ? WHERE id = ?|;
@@ -119,7 +119,7 @@ sub retrieve {
   my $dbh      = $form->get_standard_dbh($myconfig);
   my ($query, @values);
 
-  my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
+  my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
   $query            = qq|SELECT fu.*, n.subject, n.body, n.created_by
                          FROM follow_ups fu
                          LEFT JOIN notes n ON (fu.note_id = n.id)
@@ -183,7 +183,7 @@ sub follow_ups {
   my $dbh      = $form->get_standard_dbh($myconfig);
   my ($query, $where, $where_user);
 
-  my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
+  my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
   my @values        = ();
   my @values_user   = ();
 
@@ -424,7 +424,7 @@ sub save_access_rights {
 
   my $dbh      = $form->get_standard_dbh($myconfig);
 
-  my ($id)     = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
+  my ($id)     = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
 
   do_query($form, $dbh, qq|DELETE FROM follow_up_access WHERE what = ?|, $id);
 
@@ -455,7 +455,7 @@ sub retrieve_access_rights {
 
   my $dbh      = $form->get_standard_dbh($myconfig);
 
-  my $sth      = prepare_execute_query($form, $dbh, qq|SELECT who FROM follow_up_access WHERE what = (SELECT id FROM employee WHERE login = ?)|, $form->{login});
+  my $sth      = prepare_execute_query($form, $dbh, qq|SELECT who FROM follow_up_access WHERE what = (SELECT id FROM employee WHERE login = ?)|, $::myconfig{login});
   my $access   = {};
 
   while (my $ref = $sth->fetchrow_hashref()) {

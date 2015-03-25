@@ -176,7 +176,7 @@ SQL
 
   if (!$main::auth->assert('sales_all_edit', 1)) {
     $query .= " AND o.employee_id = (select id from employee where login= ?)";
-    push @values, $form->{login};
+    push @values, $::myconfig{login};
   }
   if ($form->{employee_id}) {
     $query .= " AND o.employee_id = ?";
@@ -325,7 +325,7 @@ sub transactions_for_todo_list {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my $query    = qq|SELECT id FROM employee WHERE login = ?|;
-  my ($e_id)   = selectrow_query($form, $dbh, $query, $form->{login});
+  my ($e_id)   = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
   $query       =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,

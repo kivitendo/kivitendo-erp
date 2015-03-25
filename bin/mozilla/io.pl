@@ -65,8 +65,8 @@ use strict;
 if (-f "bin/mozilla/custom_io.pl") {
   eval { require "bin/mozilla/custom_io.pl"; };
 }
-if (-f "bin/mozilla/$::form->{login}_io.pl") {
-  eval { require "bin/mozilla/$::form->{login}_io.pl"; };
+if (-f "bin/mozilla/$::myconfig{login}_io.pl") {
+  eval { require "bin/mozilla/$::myconfig{login}_io.pl"; };
 }
 
 1;
