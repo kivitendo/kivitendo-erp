@@ -86,7 +86,6 @@ sub per_job_initialization {
 
   $::auth->restore_session;
 
-  $::form->{login} = $lx_office_conf{task_server}->{login};
   $::instance_conf->init;
 
   $::form->{__ERROR_HANDLER} = sub { die @_ };

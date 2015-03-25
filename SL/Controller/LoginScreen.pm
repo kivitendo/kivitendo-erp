@@ -56,7 +56,6 @@ sub action_login {
   }
 
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
-  $::form->{login} = $login;
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
   SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
 

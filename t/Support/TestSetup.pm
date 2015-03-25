@@ -44,8 +44,6 @@ sub login {
 
   die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
 
-  $::form->{login} = $login; # normaly implicit at login
-
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
 
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
