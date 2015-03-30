@@ -17,6 +17,7 @@ use SL::Controller::CsvImport::Inventory;
 use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
 use SL::Controller::CsvImport::Order;
+use SL::JSON;
 use SL::BackgroundJob::CsvImport;
 use SL::System::TaskServer;
 
@@ -318,7 +319,11 @@ sub test_and_import_deferred {
 
   $self->{deferred} = 1;
 
-  $self->render_inputs;
+  if ($::request->type eq 'json') {
+    $self->render(\ SL::JSON::to_json($self->{background_job}->as_tree), { type => 'json' })
+  } else {
+    $self->render_inputs;
+  }
 }
 
 sub test_and_import {

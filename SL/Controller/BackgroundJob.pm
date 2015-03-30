@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_task_server');
-__PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute) ]);
+__PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute show) ]);
 
 #
 # actions
@@ -49,6 +49,16 @@ sub action_edit {
   $self->render('background_job/form',
                 title       => $::locale->text('Edit background job'),
                 JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
+}
+
+sub action_show {
+  my ($self) = @_;
+
+  if ($::request->type eq 'json') {
+    $self->render(\ SL::JSON::to_json($self->background_job->as_tree), { type => 'json' });
+  } else {
+    $self->action_edit;
+  }
 }
 
 sub action_create {

@@ -5,6 +5,8 @@ use strict;
 use DateTime::Event::Cron;
 use English qw(-no_match_vars);
 
+use Rose::DB::Object::Helpers qw(as_tree);
+
 use SL::DB::MetaSetup::BackgroundJob;
 use SL::DB::Manager::BackgroundJob;
 
