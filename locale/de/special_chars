@@ -31,7 +31,9 @@ $=\\$
 <bullet>=$\\bullet$
 %=\\%
 _=\\_
-#=\\#
+# A hash mark starts a comment; therefore the line is ignored. So use
+# its hex code instead.
+\x23=\\#
 {=\\{
 }=\\}
 <=$<$
