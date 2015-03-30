@@ -41,10 +41,11 @@
              force_textbox = limit_exceeded_all_customer
              onChange      = "document.getElementById('update_button').click();" -%]
 [%- IF letter.customer_id %]
-        <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="edit_vc_window([% letter.customer_id | html %], 'customer')">
+        <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')">
 [%- END %]
         <input type='hidden' name='letter.oldcustomer' value='[% letter.oldcustomer | html %]'>
         <input type='hidden' name='letter.customer_id' value='[% letter.customer_id | html %]'>
+        <input type='hidden' name='customer_id' value='[% customer_id | html %]'>
 [%- UNLESS myconfig_vclimit < ALL_CUSTOMERS.size %]
         <input type="hidden" name="letter.select[% vc %]" value="1">
 [%- END %]
@@ -195,6 +196,6 @@
        Calendar.setup({ inputField : "date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "date_button" });
      //-->
     </script>
-
+    <script type="text/javascript" src="js/show_vc_details.js"></script>
 </body>
 
