@@ -1147,6 +1147,7 @@ sub save_and_close {
   my $locale   = $main::locale;
 
   check_oe_access();
+  $form->mtime_ischanged('oe');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1253,6 +1254,7 @@ sub save {
 
   check_oe_access();
 
+  $form->mtime_ischanged('oe');
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
 
@@ -1404,6 +1406,8 @@ sub invoice {
 
   check_oe_access();
   check_oe_conversion_to_sales_invoice_allowed();
+  $form->mtime_ischanged('oe');
+
   $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{old_salesman_id} = $form->{salesman_id};
@@ -1751,6 +1755,8 @@ sub purchase_order {
   my $locale   = $main::locale;
 
   check_oe_access();
+  $form->mtime_ischanged('oe');
+
   $main::auth->assert('purchase_order_edit');
 
   $form->{sales_order_to_purchase_order} = 0;
@@ -1788,6 +1794,8 @@ sub sales_order {
   my $locale   = $main::locale;
 
   check_oe_access();
+
+  $form->mtime_ischanged('oe');
   $main::auth->assert('sales_order_edit');
 
   if ($form->{type} eq "purchase_order") {
@@ -1878,6 +1886,8 @@ sub delivery_order {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
+  $form->mtime_ischanged('oe');
+
   if ($form->{type} =~ /^sales/) {
     $main::auth->assert('sales_delivery_order_edit');
 
@@ -1934,9 +1944,11 @@ sub e_mail {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
+  $form->mtime_ischanged('oe','mail');
   $form->{print_and_save} = 1;
 
   my $saved_form = save_form();

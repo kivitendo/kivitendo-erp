@@ -708,6 +708,8 @@ sub save {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  $form->mtime_ischanged('delivery_orders');
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("transdate", $locale->text('Delivery Order Date missing!'));
@@ -785,6 +787,8 @@ sub invoice {
   my $locale   = $main::locale;
 
   check_do_access();
+  $form->mtime_ischanged('delivery_orders');
+
   $main::auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{convert_from_do_ids} = $form->{id};
@@ -1010,9 +1014,9 @@ sub e_mail {
 
   check_do_access();
 
-  my $form     = $main::form;
+  $::form->mtime_ischanged('delivery_orders','mail');
 
-  $form->{print_and_save} = 1;
+  $::form->{print_and_save} = 1;
 
   my $saved_form = save_form();
 

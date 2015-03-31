@@ -682,6 +682,7 @@ sub post_payment {
 
   $main::auth->assert('invoice_edit');
 
+  $form->mtime_ischanged('ar') ;
   my $invdate = $form->datetonum($form->{invdate}, \%myconfig);
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
@@ -737,6 +738,7 @@ sub post {
   my $locale   = $main::locale;
 
   $main::auth->assert('invoice_edit');
+  $form->mtime_ischanged('ar');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));

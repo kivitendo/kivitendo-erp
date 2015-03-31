@@ -72,6 +72,8 @@ sub get_part {
   # copy to $form variables
   map { $form->{$_} = $ref->{$_} } (keys %{$ref});
 
+  $form->{mtime} = $form->{itime} if !$form->{mtime};
+  $form->{lastmtime} = $form->{mtime};
   $form->{onhand} *= 1;
 
   # part or service item

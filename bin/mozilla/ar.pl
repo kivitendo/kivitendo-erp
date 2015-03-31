@@ -616,6 +616,7 @@ sub post_payment {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  $form->mtime_ischanged('ar');
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   my $invdate = $form->datetonum($form->{transdate}, \%myconfig);
@@ -671,6 +672,8 @@ sub post {
   my $locale   = $main::locale;
 
   my ($inline) = @_;
+
+  $form->mtime_ischanged('ar');
 
   my ($datepaid);
 

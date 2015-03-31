@@ -14,6 +14,7 @@
 [% L.hidden_tag('follow_up_trans_type_1', 'ar_transaction') %]
 [% L.hidden_tag('follow_up_trans_info_1', follow_up_trans_info) %]
 [% L.hidden_tag('follow_up_rowcount', 1) %]
+<input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
 
 <h1>[% title | html %]</h1>
 

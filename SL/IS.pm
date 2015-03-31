@@ -1892,6 +1892,7 @@ sub retrieve_invoice {
            a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
+           a.mtime, a.itime,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
            a.marge_total, a.marge_percent, a.direct_debit, a.delivery_term_id,
@@ -1903,6 +1904,8 @@ sub retrieve_invoice {
          WHERE a.id = ?|;
     $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
     map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+    $form->{mtime} = $form->{itime} if !$form->{mtime};
+    $form->{lastmtime} = $form->{mtime};
 
     $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
 

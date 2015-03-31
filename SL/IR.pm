@@ -984,12 +984,15 @@ sub retrieve_invoice {
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
                 orddate, quodate, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
+                mtime, itime,
                 intnotes, (SELECT cu.name FROM currencies cu WHERE cu.id=ap.currency_id) AS currency, direct_debit,
                 delivery_term_id
               FROM ap
               WHERE id = ?|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+  $form->{mtime} = $form->{itime} if !$form->{mtime};
+  $form->{lastmtime} = $form->{mtime};
 
   $form->{exchangerate}  = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
 

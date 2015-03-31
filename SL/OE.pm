@@ -919,6 +919,7 @@ sub retrieve {
            (SELECT cu.name FROM currencies cu WHERE cu.id=o.currency_id) AS currency, e.name AS employee, o.employee_id, o.salesman_id,
            o.${vc}_id, cv.name AS ${vc}, o.amount AS invtotal,
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
+           o.mtime, o.itime,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
            o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id,
@@ -946,6 +947,8 @@ sub retrieve {
         map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
       }
     }
+    $form->{mtime} = $form->{itime} if ! $form->{mtime};
+    $form->{lastmtime} = $form->{mtime};
 
     # if not given, fill transdate with current_date
     $form->{transdate} = $form->current_date($myconfig)

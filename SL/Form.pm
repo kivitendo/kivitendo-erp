@@ -2603,6 +2603,24 @@ sub all_vc {
   $main::lxdebug->leave_sub();
 }
 
+sub mtime_ischanged {
+  my ($self, $relation,$option) = @_;
+  #$main::lxdebug->message(LXDebug->DEBUG2(),"mtime_ischanged from rel=".$relation." id=".$id);
+  if ( ! $self->{id} ) { return ; }
+
+  my $query = "SELECT mtime, itime FROM ".$relation." WHERE id = ?";
+  my $ref = selectfirst_hashref_query($self, $self->get_standard_dbh, $query, $self->{id});
+  $ref->{mtime} = $ref->{itime} if !$ref->{mtime};
+  #$main::lxdebug->message(LXDebug->DEBUG2(),"my  mtime=".$self->{lastmtime}." new mtime=".$ref->{mtime});
+  if ($self->{lastmtime} && $self->{lastmtime} ne $ref->{mtime} ) {
+      my $etxt = $main::locale->text("The document has been changed from other user. Please reopen it in another window and copy the changes to the new window");
+      $etxt = $main::locale->text("The document has been changed from other user. No mail was sent. Please reopen it in another window and copy the changes to the new window")
+				  if  defined $option && $option eq 'mail';
+      $self->error($main::locale->text($etxt));
+    ::end_of_request();
+  }
+}
+
 sub language_payment {
   $main::lxdebug->enter_sub();
 
@@ -2754,6 +2772,7 @@ sub create_links {
       qq|SELECT
            a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid,
            a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.notes,
+           a.mtime,a.itime,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
            a.globalproject_id, ${extra_columns}
@@ -2770,7 +2789,8 @@ sub create_links {
     foreach my $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
-
+    $self->{mtime} = $self->{itime} if ! $self->{mtime};
+    $self->{lastmtime} = $self->{mtime};
     my $transdate = "current_date";
     if ($self->{transdate}) {
       $transdate = $dbh->quote($self->{transdate});

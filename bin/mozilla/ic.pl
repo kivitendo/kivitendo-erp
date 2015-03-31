@@ -1883,7 +1883,7 @@ sub save {
   $lxdebug->enter_sub();
 
   $auth->assert('part_service_assembly_edit');
-
+  $::form->mtime_ischanged('parts');
   my ($parts_id, %newform, $amount, $callback);
 
   # check if there is a part number - commented out, cause there is an automatic allocation of numbers

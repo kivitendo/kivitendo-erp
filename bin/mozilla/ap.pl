@@ -584,6 +584,7 @@ sub post_payment {
   my $locale   = $main::locale;
 
   $main::auth->assert('general_ledger');
+  $form->mtime_ischanged('ap');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -632,6 +633,7 @@ sub post {
   my $locale   = $main::locale;
 
   $main::auth->assert('general_ledger');
+  $form->mtime_ischanged('ap');
 
   my ($inline) = @_;
 

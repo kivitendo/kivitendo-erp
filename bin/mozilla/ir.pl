@@ -672,6 +672,7 @@ sub post_payment {
 
   $main::auth->assert('vendor_invoice_edit');
 
+  $form->mtime_ischanged('ap') ;
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"}) {
@@ -731,6 +732,7 @@ sub post {
 
   $main::auth->assert('vendor_invoice_edit');
 
+  $form->mtime_ischanged('ap');
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("invdate",   $locale->text('Invoice Date missing!'));
