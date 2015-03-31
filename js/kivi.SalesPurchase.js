@@ -1,6 +1,5 @@
 namespace('kivi.SalesPurchase', function(ns) {
   this.edit_longdescription = function(row) {
-    var $edit    = $('#popup_edit_longdescription_input');
     var $element = $('#longdescription_' + row);
 
     if (!$element.length) {
@@ -8,8 +7,16 @@ namespace('kivi.SalesPurchase', function(ns) {
       return;
     }
 
-    $edit.data('element', $element);
+    var $container = $('#popup_edit_longdescription_input_container');
+    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog" wrap="soft" style="width: 750px; height: 220px;"></textarea>');
+
+    $container.children().remove();
+    $container.append($edit);
+    $container.data('element', $element);
+
     $edit.val($element.val());
+
+    kivi.init_text_editor($edit);
 
     $('#popup_edit_longdescription_runningnumber').html(row);
     $('#popup_edit_longdescription_partnumber').html($('#partnumber_' + row).val() || '');
@@ -23,16 +30,17 @@ namespace('kivi.SalesPurchase', function(ns) {
       id:    'edit_longdescription_dialog',
       dialog: {
         title: kivi.t8('Enter longdescription'),
-        open:  function() { kivi.set_focus('#popup_edit_longdescription_input'); }
+        open:  function() { kivi.focus_ckeditor_when_ready('#popup_edit_longdescription_input'); },
+        close: function() { $('#popup_edit_longdescription_input_container').children().remove(); }
       }
     });
   };
 
   this.set_longdescription = function() {
-    var $edit    = $('#popup_edit_longdescription_input');
-    var $element = $edit.data('element');
+    $('#popup_edit_longdescription_input_container')
+      .data('element')
+      .val( $('#popup_edit_longdescription_input').val() );
 
-    $element.val($edit.val());
     $('#edit_longdescription_dialog').dialog('close');
   };
 
