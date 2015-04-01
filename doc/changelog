@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2015-xx-xx  - Release 3.x.x
+2015-04-xx  - Release 3.2.1
 
 
 Kleinere neue Features und Detailverbesserungen:
@@ -17,6 +17,11 @@ Kleinere neue Features und Detailverbesserungen:
   Standardlagerplätzen ausgelagert werden sollen. Dabei werden die
   Einstellungen für das Auslagern über Standardlagerplätze berücksichtigt.
 
+- Benutzerdefinierte Variablen in einigen Fällen sinnvoller parsen
+
+- LangTextEditor jetzt auch im Bemerkungsfeld eingebaut
+
+- Bugfix #47  Nicht mehr benötigte Trigger entfernt (check_inventory)
 
 2015-02-28 - Release 3.2.0
 
