@@ -1,6 +1,7 @@
-package YAML::Marshall;
 use strict; use warnings;
-use YAML::Node();
+package YAML::Marshall;
+
+use YAML::Node ();
 
 sub import {
     my $class = shift;
@@ -11,7 +12,7 @@ sub import {
     }
 
     my $tag = shift;
-    if ($tag) {
+    if ( $tag ) {
         no warnings 'once';
         $YAML::TagClass->{$tag} = $package;
         ${$package . "::YamlTag"} = $tag;
@@ -44,34 +45,3 @@ sub yaml_ynode {
 }
 
 1;
-
-__END__
-
-=head1 NAME
-
-YAML::Marshall - YAML marshalling class you can mixin to your classes
-
-=head1 SYNOPSIS
-
-    package Bar;
-    use Foo -base;
-    use YAML::Marshall -mixin;
-
-=head1 DESCRIPTION
-
-For classes that want to handle their own YAML serialization.
-
-=head1 AUTHOR
-
-Ingy döt Net <ingy@cpan.org>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2006. Ingy döt Net. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut

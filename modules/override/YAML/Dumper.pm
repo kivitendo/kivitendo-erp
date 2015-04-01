@@ -1,23 +1,25 @@
 package YAML::Dumper;
-use strict; use warnings;
-use YAML::Base;
-use base 'YAML::Dumper::Base';
 
+use YAML::Mo;
+extends 'YAML::Dumper::Base';
+
+use YAML::Dumper::Base;
 use YAML::Node;
 use YAML::Types;
+use Scalar::Util qw();
 
 # Context constants
-use constant KEY => 3;
-use constant BLESSED => 4;
+use constant KEY       => 3;
+use constant BLESSED   => 4;
 use constant FROMARRAY => 5;
-use constant VALUE => "\x07YAML\x07VALUE\x07";
+use constant VALUE     => "\x07YAML\x07VALUE\x07";
 
 # Common YAML character sets
 my $ESCAPE_CHAR = '[\\x00-\\x08\\x0b-\\x0d\\x0e-\\x1f]';
-my $LIT_CHAR = '|';    
+my $LIT_CHAR    = '|';
 
 #==============================================================================
-# OO version of Dump. YAML->new->dump($foo); 
+# OO version of Dump. YAML->new->dump($foo);
 sub dump {
     my $self = shift;
     $self->stream('');
@@ -42,7 +44,7 @@ sub dump {
 sub _emit_header {
     my $self = shift;
     my ($node) = @_;
-    if (not $self->use_header and 
+    if (not $self->use_header and
         $self->document == 1
        ) {
         $self->die('YAML_DUMP_ERR_NO_HEADER')
@@ -79,9 +81,7 @@ sub _prewalk {
     }
 
     # Handle regexps
-    if (ref($_[0]) eq 'Regexp') {  
-        $self->transferred->{$node_id} =
-          YAML::Type::regexp->yaml_dump($_[0], $class, $self);
+    if (ref($_[0]) eq 'Regexp') {
         return;
     }
 
@@ -113,10 +113,10 @@ sub _prewalk {
         $self->transferred->{$node_id} = 'placeholder';
         YAML::Type::code->yaml_dump(
             $self->dump_code,
-            $_[0], 
+            $_[0],
             $self->transferred->{$node_id}
         );
-        ($class, $type, $node_id) = 
+        ($class, $type, $node_id) =
           $self->node_info(\ $self->transferred->{$node_id}, $stringify);
         $self->{id_refcnt}{$node_id}++;
         return;
@@ -144,6 +144,7 @@ sub _prewalk {
     }
 
     # Handle YAML Blessed things
+    require YAML;
     if (defined YAML->global_object()->{blessed_map}{$node_id}) {
         $value = YAML->global_object()->{blessed_map}{$node_id};
         $self->transferred->{$node_id} = $value;
@@ -164,7 +165,7 @@ sub _prewalk {
         my $ref_ynode = $self->transferred->{$node_id} =
           YAML::Type::ref->yaml_dump($value);
 
-        my $glob_ynode = $ref_ynode->{&VALUE} = 
+        my $glob_ynode = $ref_ynode->{&VALUE} =
           YAML::Type::glob->yaml_dump($$value);
 
         (undef, undef, $node_id) = $self->node_info($glob_ynode, $stringify);
@@ -209,7 +210,12 @@ sub _emit_node {
     my $self = shift;
     my ($type, $node_id);
     my $ref = ref($_[0]);
-    if ($ref and $ref ne 'Regexp') {
+    if ($ref) {
+        if ($ref eq 'Regexp') {
+            $self->_emit(' !!perl/regexp');
+            $self->_emit_str("$_[0]");
+            return;
+        }
         (undef, $type, $node_id) = $self->node_info($_[0], $self->stringify);
     }
     else {
@@ -232,7 +238,7 @@ sub _emit_node {
             $ynode = ynode($self->transferred->{$node_id});
             $tag = defined $ynode ? $ynode->tag->short : '';
             $type = 'SCALAR';
-            (undef, undef, $node_id) = 
+            (undef, undef, $node_id) =
               $self->node_info(
                   \ $self->transferred->{$node_id},
                   $self->stringify
@@ -270,7 +276,7 @@ sub _emit_node {
     return $self->_emit_str("$value");
 }
 
-# A YAML mapping is akin to a Perl hash. 
+# A YAML mapping is akin to a Perl hash.
 sub _emit_mapping {
     my $self = shift;
     my ($value, $tag, $node_id, $context) = @_;
@@ -351,7 +357,7 @@ sub _emit_sequence {
     $self->{stream} .= " !$tag" if $tag;
 
     return ($self->{stream} .= " []\n") if @$value == 0;
-        
+
     $self->{stream} .= "\n"
       unless $self->headless && not($self->headless(0));
 
@@ -423,7 +429,7 @@ sub _emit_str {
     while (1) {
         $self->_emit($sf),
         $self->_emit_plain($_[0]),
-        $self->_emit($ef), last 
+        $self->_emit($ef), last
           if not defined $_[0];
         $self->_emit($sf, '=', $ef), last
           if $_[0] eq VALUE;
@@ -451,6 +457,10 @@ sub _emit_str {
             $self->_emit($eb), last;
         }
         $self->_emit($sf),
+        $self->_emit_number($_[0]),
+        $self->_emit($ef), last
+          if $self->is_literal_number($_[0]);
+        $self->_emit($sf),
         $self->_emit_plain($_[0]),
         $self->_emit($ef), last
           if $self->is_valid_plain($_[0]);
@@ -469,10 +479,23 @@ sub _emit_str {
     return;
 }
 
+sub is_literal_number {
+    my $self = shift;
+    # Stolen from JSON::Tiny
+    return B::svref_2object(\$_[0])->FLAGS & (B::SVp_IOK | B::SVp_NOK)
+            && 0 + $_[0] eq $_[0];
+}
+
+sub _emit_number {
+    my $self = shift;
+    return $self->_emit_plain($_[0]);
+}
+
 # Check whether or not a scalar should be emitted as an plain scalar.
 sub is_valid_plain {
     my $self = shift;
     return 0 unless length $_[0];
+    return 0 if $self->quote_numeric_strings and Scalar::Util::looks_like_number($_[0]);
     # refer to YAML::Loader::parse_inline_simple()
     return 0 if $_[0] =~ /^[\s\{\[\~\`\'\"\!\@\#\>\|\%\&\?\*\^]/;
     return 0 if $_[0] =~ /[\{\[\]\},]/;
@@ -480,6 +503,7 @@ sub is_valid_plain {
     return 0 if $_[0] =~ /\s#/;
     return 0 if $_[0] =~ /\:(\s|$)/;
     return 0 if $_[0] =~ /[\s\|\>]$/;
+    return 0 if $_[0] eq '-';
     return 1;
 }
 
@@ -533,7 +557,7 @@ sub indent {
 }
 
 # Escapes for unprintable characters
-my @escapes = qw(\z   \x01 \x02 \x03 \x04 \x05 \x06 \a
+my @escapes = qw(\0   \x01 \x02 \x03 \x04 \x05 \x06 \a
                  \x08 \t   \n   \v   \f   \r   \x0e \x0f
                  \x10 \x11 \x12 \x13 \x14 \x15 \x16 \x17
                  \x18 \x19 \x1a \e   \x1c \x1d \x1e \x1f
@@ -549,36 +573,3 @@ sub escape {
 }
 
 1;
-
-__END__
-
-=head1 NAME
-
-YAML::Dumper - YAML class for dumping Perl objects to YAML
-
-=head1 SYNOPSIS
-
-    use YAML::Dumper;
-    my $dumper = YAML::Dumper->new;
-    $dumper->indent_width(4);
-    print $dumper->dump({foo => 'bar'});
-
-=head1 DESCRIPTION
-
-YAML::Dumper is the module that YAML.pm used to serialize Perl objects to
-YAML. It is fully object oriented and usable on its own.
-
-=head1 AUTHOR
-
-Ingy döt Net <ingy@cpan.org>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2006. Ingy döt Net. All rights reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut
