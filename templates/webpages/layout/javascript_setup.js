@@ -6,8 +6,8 @@ $(function() {
   setupDateFormat('[% JavaScript.escape(MYCONFIG.dateformat) %]', '[% 'Falsches Datumsformat!' | $T8 %]');
 
   $.datepicker.setDefaults(
-    $.extend({}, $.datepicker.regional["[% MYCONFIG.countrycode %]"], {
-      dateFormat: "[% datefmt %]",
+    $.extend({}, $.datepicker.regional['[% JavaScript.escape(MYCONFIG.countrycode) %]'], {
+      dateFormat: '[% JavaScript.escape(datefmt) %]',
       showOn: "button",
       showButtonPanel: true,
       changeMonth: true,
