@@ -1,9 +1,9 @@
 [%- USE T8 %]
-[%- USE JSON %]
+[%- USE JavaScript %]
 $(function() {
 [% IF datefmt %]
-  setupPoints([% JSON.json(MYCONFIG.numberformat) %], '[% 'wrongformat' | $T8 %]');
-  setupDateFormat([% JSON.json(MYCONFIG.dateformat) %], '[% 'Falsches Datumsformat!' | $T8 %]');
+  setupPoints('[% JavaScript.escape(MYCONFIG.numberformat) %]', '[% 'wrongformat' | $T8 %]');
+  setupDateFormat('[% JavaScript.escape(MYCONFIG.dateformat) %]', '[% 'Falsches Datumsformat!' | $T8 %]');
 
   $.datepicker.setDefaults(
     $.extend({}, $.datepicker.regional["[% MYCONFIG.countrycode %]"], {
