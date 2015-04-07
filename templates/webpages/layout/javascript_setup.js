@@ -1,13 +1,14 @@
 [%- USE T8 %]
 [%- USE JavaScript %]
+[%- USE JSON %]
+kivi.myconfig = [% JSON.json(MYCONFIG) %];
 $(function() {
-[% IF datefmt %]
-  setupPoints('[% JavaScript.escape(MYCONFIG.numberformat) %]', '[% 'wrongformat' | $T8 %]');
-  setupDateFormat('[% JavaScript.escape(MYCONFIG.dateformat) %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+  setupPoints(kivi.myconfig.numberformat, '[% 'wrongformat' | $T8 %]');
+  setupDateFormat(kivi.myconfig.dateformat, '[% 'Falsches Datumsformat!' | $T8 %]');
 
   $.datepicker.setDefaults(
-    $.extend({}, $.datepicker.regional['[% JavaScript.escape(MYCONFIG.countrycode) %]'], {
-      dateFormat: '[% JavaScript.escape(datefmt) %]',
+    $.extend({}, $.datepicker.regional[kivi.myconfig.countrycode], {
+      dateFormat: kivi.myconfig.dateformat.replace(/d+/gi, 'dd').replace(/m+/gi, 'mm').replace(/y+/gi, 'yy'),
       showOn: "button",
       showButtonPanel: true,
       changeMonth: true,
@@ -17,14 +18,13 @@ $(function() {
   }));
 
   kivi.setup_formats({
-    numbers: '[% JavaScript.escape(MYCONFIG.numberformat) %]',
-    dates:   '[% JavaScript.escape(MYCONFIG.dateformat) %]'
+    numbers: kivi.myconfig.numberformat,
+    dates:   kivi.myconfig.dateformat
   });
 
   kivi.reinit_widgets();
-[% END %]
 
-[% IF ajax_spinner %]
+[%- IF ajax_spinner %]
   $(document).ajaxSend(function() {
     $('#ajax-spinner').show();
   }).ajaxStop(function() {
