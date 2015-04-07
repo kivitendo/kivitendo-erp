@@ -424,11 +424,32 @@ sub update_delivery_order {
 
       } else {
 
+        my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
+
+        if ($sellprice) {
+          $form->{"sellprice_$i"} = $sellprice;
+        } else {
+          my $record        = _make_record();
+          my $price_source  = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
+          my $best_price    = $price_source->best_price;
+          my $best_discount = $price_source->best_discount;
+
+          if ($best_price) {
+            $::form->{"sellprice_$i"}           = $best_price->price;
+            $::form->{"active_price_source_$i"} = $best_price->source;
+          }
+          if ($best_discount) {
+            $::form->{"discount_$i"}               = $best_discount->discount;
+            $::form->{"active_discount_source_$i"} = $best_discount->source;
+          }
+        }
+
         $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
-        $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
+        $form->{"lastcost_$i"}           = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
       }
 
