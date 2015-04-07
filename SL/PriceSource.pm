@@ -35,6 +35,7 @@ sub available_prices {
 }
 
 sub available_discounts {
+  return if $_[0]->record_item->part->not_discountable;
   map { $_->available_discounts } $_[0]->all_price_sources;
 }
 
