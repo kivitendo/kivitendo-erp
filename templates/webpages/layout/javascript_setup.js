@@ -1,10 +1,10 @@
-[%- USE T8 %]
+[%- USE LxERP %]
 [%- USE JavaScript %]
 [%- USE JSON %]
 kivi.myconfig = [% JSON.json(MYCONFIG) %];
 $(function() {
-  setupPoints(kivi.myconfig.numberformat, '[% 'wrongformat' | $T8 %]');
-  setupDateFormat(kivi.myconfig.dateformat, '[% 'Falsches Datumsformat!' | $T8 %]');
+  setupPoints(kivi.myconfig.numberformat, '[% JavaScript.escape(LxERP.t8("wrongformat")) %]');
+  setupDateFormat(kivi.myconfig.dateformat, '[% JavaScript.escape(LxERP.t8("Falsches Datumsformat!")) %]');
 
   $.datepicker.setDefaults(
     $.extend({}, $.datepicker.regional[kivi.myconfig.countrycode], {
