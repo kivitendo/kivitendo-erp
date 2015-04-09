@@ -5,7 +5,7 @@ use strict;
 use parent qw(Rose::Object);
 
 sub handle {
-  %::myconfig = ();
+  %::myconfig = User->get_default_myconfig;
   return 1;
 }
 

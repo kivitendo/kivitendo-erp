@@ -115,7 +115,6 @@ sub get_stylesheet_for_user {
   } else {
     $css_path = "$css_path/kivitendo";
   }
-  $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
 
   return $css_path;
 }
