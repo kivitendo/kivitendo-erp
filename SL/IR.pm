@@ -371,7 +371,7 @@ sub post_invoice {
 
     CVar->get_non_editable_ic_cvars(form               => $form,
                                     dbh                => $dbh,
-                                    row                => $i, 
+                                    row                => $i,
                                     sub_module         => 'invoice',
                                     may_converted_from => ['delivery_order_items', 'orderitems', 'invoice']);
 

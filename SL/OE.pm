@@ -511,7 +511,7 @@ sub save {
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,
-                                      row                => $i, 
+                                      row                => $i,
                                       sub_module         => 'orderitems',
                                       may_converted_from => ['orderitems', 'invoice']);
 
@@ -1408,7 +1408,7 @@ sub order_details {
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,
-                                      row                => $i, 
+                                      row                => $i,
                                       sub_module         => 'orderitems',
                                       may_converted_from => ['orderitems', 'invoice']);
 

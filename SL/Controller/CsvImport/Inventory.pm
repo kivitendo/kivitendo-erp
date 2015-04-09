@@ -208,7 +208,7 @@ sub check_bin {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
     return 0;
   }
-  
+
   # Map description to ID if given.
   if (!$object->bin_id && $entry->{raw_data}->{bin}) {
     my $bin = $self->bins_by->{_wh_id_and_description_ident()}->{ _wh_id_and_description_maker($object->warehouse_id, $entry->{raw_data}->{bin}) };

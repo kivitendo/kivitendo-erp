@@ -516,7 +516,7 @@ sub select_item {
   print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
                                                          MODE          => $mode,
                                                          ITEM_LIST     => \@item_list,
-                                                         IS_ASSEMBLY   => $mode eq 'IC', 
+                                                         IS_ASSEMBLY   => $mode eq 'IC',
                                                          IS_PURCHASE   => $mode eq 'IS' });
 
   $main::lxdebug->leave_sub();
