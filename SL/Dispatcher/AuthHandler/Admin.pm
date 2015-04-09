@@ -8,7 +8,7 @@ use SL::Layout::Dispatcher;
 sub handle {
   my ($self, %params) = @_;
 
-  %::myconfig = ();
+  %::myconfig = User->get_default_myconfig;
 
   my $ok =  $::auth->is_api_token_cookie_valid;
   $ok  ||=  $::form->{'{AUTH}admin_password'} && ($::auth->authenticate_root($::form->{'{AUTH}admin_password'})            == $::auth->OK());

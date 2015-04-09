@@ -412,4 +412,18 @@ sub data {
   +{ %{ $_[0] } }
 }
 
+sub get_default_myconfig {
+  my ($self_or_class, %user_config) = @_;
+
+  return (
+    countrycode  => 'de',
+    css_path     => 'css',      # Needed for menunew, see SL::Layout::Base::get_stylesheet_for_user
+    dateformat   => 'dd.mm.yy',
+    numberformat => '1.000,00',
+    stylesheet   => 'kivitendo.css',
+    timeformat   => 'hh:mm',
+    %user_config,
+  );
+}
+
 1;

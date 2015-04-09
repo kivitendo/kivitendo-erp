@@ -38,6 +38,7 @@ use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
+use SL::User;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
@@ -157,8 +158,8 @@ sub pre_startup_setup {
     $::lxdebug     = LXDebug->new;
     $::auth        = SL::Auth->new;
     $::form        = undef;
-    %::myconfig    = ();
     $::request     = undef;
+    %::myconfig    = User->get_default_myconfig;
   }
 
   $SIG{__WARN__} = sub {
