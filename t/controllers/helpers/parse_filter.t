@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 36;
+use Test::More tests => 37;
 use Test::Deep;
 use Data::Dumper;
 
@@ -397,3 +397,11 @@ test {
     'part.test' => { 'what', { ilike => '%2%' } },
   ]
 }, 'additional tokens + filters + methods', class => 'SL::DB::Manager::OrderItem';
+
+test {
+  'orderitems.part.test.what:substr::ilike' => 2,
+}, {
+  query => [
+    'orderitems.part.test' => { 'what', { ilike => '%2%' } },
+  ]
+}, 'relationship + additional tokens + filters + methods', class => 'SL::DB::Manager::Order';

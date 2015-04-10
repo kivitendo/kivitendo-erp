@@ -151,11 +151,22 @@ sub _dispatch_custom_filters {
   my @tokens     = split /\./, $key;
   my $curr_class = $class->object_class;
 
-  # find first token which is not a relationship
+  # our key will consist of dot-delimited tokens
+  # like this: order.part.unit.name
+  # each of these tokens except the last one is one of:
+  #  - a relationship in the parent object
+  #  - a custom filter
+  #
+  # the last token must be
+  #  - a custom filter
+  #  - a column in the parent object
+  #
+  # find first token which is not a relationship,
+  # so we can pass the rest on
   my $i = 0;
    while ($i < $#tokens) {
     eval {
-      $curr_class = $curr_class->meta->relationship($tokens[$_])->class;
+      $curr_class = $curr_class->meta->relationship($tokens[$i])->class;
       ++$i;
     } or do {
       last;
