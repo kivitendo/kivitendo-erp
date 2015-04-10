@@ -155,7 +155,7 @@ sub _dispatch_custom_filters {
   my $i = 0;
    while ($i < $#tokens) {
     eval {
-      $curr_class = $curr_class->meta->relationship($tokens[$_])->class;
+      $curr_class = $curr_class->meta->relationship($tokens[$i])->class;
       ++$i;
     } or do {
       last;
