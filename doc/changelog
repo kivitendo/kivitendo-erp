@@ -2,8 +2,11 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2015-04-xx  - Release 3.2.1
+2015-04-10 - Release 3.2.1
 
+Dies ist ein Unstable Bugfix-Release für die 3.2. D.h. es wurden ein paar
+wichtige Bugs in der Version 3.2 behoben, allerdings gibt es auch relativ
+ungetestete neue Features und Veränderungen.
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -17,11 +20,26 @@ Kleinere neue Features und Detailverbesserungen:
   Standardlagerplätzen ausgelagert werden sollen. Dabei werden die
   Einstellungen für das Auslagern über Standardlagerplätze berücksichtigt.
 
-- Benutzerdefinierte Variablen in einigen Fällen sinnvoller parsen
+- HTML-Editor jetzt auch im Bemerkungsfeld von Einkaufs/Verkaufsbelegen eingebaut
 
-- LangTextEditor jetzt auch im Bemerkungsfeld eingebaut
+- %::myconfig wird nun auch dem JavaScript Client zur Verfügung gestellt
 
+- Preisregeln können priorisiert werden
+
+- Beim Anlegen von Lieferscheinen wird jetzt auch der Preis kurz versteckt
+  ermittelt und mitgespeichert, damit beim Umwandeln in Rechnungen keine
+  Überraschungen passieren. (Feature #41). Dies ist nützlich, wenn man den
+  Workflow nicht mit Angebot oder Auftrag sondern mit einem Lieferschein
+  beginnt.
+
+Bugfixes:
+
+- Bugfix #51 Stammdaten -> Waren -> Preisinformationen -> Blättern defekt
+- Bugfix #49 / trac 2848  Langtext-Popup erscheint nicht immer
+- Bugfix #48 '#' wird nicht bei Artikelnummer in LaTeX-Templates ausgedruckt
 - Bugfix #47  Nicht mehr benötigte Trigger entfernt (check_inventory)
+- CSS für PartPicker repariert
+- Bug beim Parsen von benutzerdefinierten Variablen behoben (Commit 2b9e50ba72)
 
 2015-02-28 - Release 3.2.0
 
