@@ -371,8 +371,11 @@ sub print_letter {
   );
   my $pdf_file_name;
   eval {
-    $pdf_file_name = SL::Helper::CreatePDF->create_pdf(%create_params);
+    # catch LaTeX template not found error
+    my $tex_templates  = $::instance_conf->get_templates . '/letter.tex';
+    die( t8('Please create/copy a template named letter.tex in your client template dir') ) unless (-e $tex_templates);
 
+    $pdf_file_name = SL::Helper::CreatePDF->create_pdf(%create_params);
     if ( $::form->{media} eq 'email') {
       my $mail             = Mailer->new;
       my $signature        = $::myconfig{signature};
