@@ -23,7 +23,6 @@ sub handle {
   }
 
   $::request->{layout} = SL::Layout::Dispatcher->new(style => 'admin');
-  $::request->layout->no_menu(1);
   $::auth->delete_session_value('admin_password');
   $::auth->punish_wrong_login;
   SL::Dispatcher::show_error('admin/adminlogin', 'password');
