@@ -84,9 +84,10 @@ sub data_as_hash {
 sub set_data {
   my ($self, %data) = @_;
 
-  my $data = YAML::Load($self->data);
-  $data->{$_} = $data{$_} for keys %data;
-  $self->data(YAML::Dump($data));
+  $self->data(YAML::Dump({
+    %{ $self->data_as_hash },
+    %data,
+  }));
 
   $self;
 }
