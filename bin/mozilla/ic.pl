@@ -1045,6 +1045,7 @@ sub generate_report {
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
+    'shop'               => { 'text' => $locale->text('Shopartikel'), },
     'projectnumber'      => { 'text' => $locale->text('Project Number'), },
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
   );
@@ -1133,7 +1134,7 @@ sub generate_report {
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
   my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
-                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto ean);
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto ean shop);
 
   # calculate dependencies
   for (@itemstatus_keys, @callback_keys) {
@@ -1219,6 +1220,7 @@ sub generate_report {
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
+    shop
   );
 
   my $pricegroups = SL::DB::Manager::Pricegroup->get_all(sort => 'id');
@@ -1243,7 +1245,7 @@ sub generate_report {
 
   %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
   map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal), @pricegroup_columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop), @pricegroup_columns;
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups),
@@ -1256,7 +1258,7 @@ sub generate_report {
 
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
-  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
+  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate shop);
   my @sort_no_revers   = qw(partsgroup bin priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {
@@ -1349,6 +1351,11 @@ sub generate_report {
     map { $row->{$_}{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
 
     $row->{weight}->{data} .= ' ' . $defaults->{weightunit};
+
+    # 'yes' and 'no' for boolean value shop
+    if ($form->{l_shop}) {
+      $row->{shop}{data} = $row->{shop}{data}? $::locale->text('yes') : $::locale->text('no');
+    }
 
     if (!$ref->{assemblyitem}) {
       foreach my $col (@subtotal_columns) {

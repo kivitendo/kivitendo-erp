@@ -730,7 +730,7 @@ sub all_parts {
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
-  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image));
+  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -856,6 +856,16 @@ sub all_parts {
     push @bind_vars, $form->{"partsgroup_id"};
   }
 
+  if ($form->{shop} ne '') {
+    $form->{l_shop} = '1'; # show the column
+    if ($form->{shop} eq '0' || $form->{shop} eq 'f') {
+      push @where_tokens, 'NOT p.shop';
+      $form->{shop} = 'f';
+    } else {
+      push @where_tokens, 'p.shop';
+    }
+  }
+
   foreach (@like_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
@@ -973,7 +983,7 @@ sub all_parts {
 
   my $token_builder = $make_token_builder->(\%joins_needed);
 
-  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
+  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate shop));
      $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols; # sort by id if unknown or invisible column
   my $sort_order   = ($form->{revers} ? ' DESC' : ' ASC');
   my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
