@@ -75,6 +75,9 @@ sub run {
 
 sub data_as_hash {
   my $self = shift;
+
+  $self->data(YAML::Dump($_[0])) if @_;
+
   return {}                        if !$self->data;
   return $self->data               if ref($self->{data}) eq 'HASH';
   return YAML::Load($self->{data}) if !ref($self->{data});
