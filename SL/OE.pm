@@ -271,7 +271,7 @@ SQL
   }
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
-  my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
+  my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name"), "o.itime"));
   my %allowed_sort_columns = (
     "transdate"               => "o.transdate",
     "reqdate"                 => "o.reqdate",
@@ -288,7 +288,7 @@ SQL
     "taxzone"                 => "tz.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
-    $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}";
+    $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}"  . ", o.itime ${sortdir}";
   }
   $query .= qq| ORDER by | . $sortorder;
 
