@@ -4,6 +4,7 @@ use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(record_item record) ],
+  'array --get_set_init' => [ qw(all_price_sources) ],
 );
 
 use List::UtilsBy qw(min_by max_by);
@@ -11,12 +12,12 @@ use SL::PriceSource::ALL;
 use SL::PriceSource::Price;
 use SL::Locale::String;
 
-sub all_price_sources {
+sub init_all_price_sources {
   my ($self) = @_;
 
-  map {
+  [ map {
     $_->new(record_item => $self->record_item, record => $self->record)
-  } SL::PriceSource::ALL->all_enabled_price_sources
+  } SL::PriceSource::ALL->all_enabled_price_sources ]
 }
 
 sub price_from_source {
