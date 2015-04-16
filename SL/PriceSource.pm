@@ -71,16 +71,16 @@ together to calculate available prices for a position in a record.
 Each algorithm can access details of the record to realize dependencies on
 part, customer, vendor, date, quantity etc, which was previously not possible.
 
-=head1 BACKGROUND AND PHILOSOPY
+=head1 BACKGROUND AND PHILOSOPHY
 
 sql ledger and subsequently Lx-Office had three prices per part: sellprice,
 listprice and lastcost. At the moment a part is loaded into a record, the
-applicable price is copied and after that free to be changed.
+applicable price is copied and after that it is free to be changed.
 
-Later on additional things joined. Various types of discount, vendor pricelists
+Later on additional things were added. Various types of discount, vendor pricelists
 and the infamous price groups. The problem is not that those didn't work, the
-problem is, that they had to guess to much when to change a price with the
-available price from database, and when to leave the user entered price.
+problem is, that they had to guess too much when to change a price with the
+available price from the database, and when to leave the user entered price.
 
 Unrelated to that, users asked for more ways to store special prices, based on
 qty (block pricing, bulk discount), based on date (special offers), based on

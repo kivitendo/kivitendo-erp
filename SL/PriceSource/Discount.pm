@@ -51,7 +51,7 @@ __END__
 
 =head1 NAME
 
-SL::PriceSource::Discount - contrainer to pass calculated discounts around
+SL::PriceSource::Discount - container to pass calculated discounts around
 
 =head1 SYNOPSIS
 
@@ -75,7 +75,7 @@ SL::PriceSource::Discount - contrainer to pass calculated discounts around
   );
 
   # invalid discount
-  SL::PriceSource::Dicount->new(
+  SL::PriceSource::Discount->new(
     discount     => $original_discount,
     spec         => $original_spec,
     description  => $original_description,
