@@ -211,7 +211,7 @@ sub create_invoice_for_fees {
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
                        taxincluded, amount,    netamount, paid,   duedate,
-                       invoice,     currency_id,      notes,
+                       invoice,     currency_id, taxzone_id,      notes,
                        employee_id)
        VALUES (
          ?,                     -- id
@@ -232,6 +232,14 @@ sub create_invoice_for_fees {
          (SELECT duedate FROM dunning WHERE dunning_id = ? LIMIT 1),
          'f',                   -- invoice
          (SELECT id FROM currencies WHERE name = ?), -- curr
+         --taxzone_id:
+         (SELECT taxzone_id FROM customer WHERE id =
+          (SELECT ar.customer_id
+           FROM dunning dn
+           LEFT JOIN ar ON (dn.trans_id = ar.id)
+           WHERE dn.dunning_id = ?
+           LIMIT 1)
+         ),
          ?,                     -- notes
          -- employee_id:
          (SELECT id FROM employee WHERE login = ?)
@@ -243,6 +251,7 @@ sub create_invoice_for_fees {
              $amount,
              $dunning_id,       # duedate
              $curr,             # default currency
+             $dunning_id,       # taxzone_id
              sprintf($main::locale->text('Automatically created invoice for fee and interest for dunning %s'), $dunning_id), # notes
              $::myconfig{login});   # employee_id
   do_query($form, $dbh, $query, @values);
