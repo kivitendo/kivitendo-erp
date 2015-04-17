@@ -132,4 +132,15 @@ sub full_description {
   : do { die "unknown type $type" }
 }
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, t8('Rule for part must not be empty')     if $self->type eq 'part'     && !$self->value_int;
+  push @errors, t8('Rule for customer must not be empty') if $self->type eq 'customer' && !$self->value_int;
+  push @errors, t8('Rule for vendor must not be empty')   if $self->type eq 'vendor'   && !$self->value_int;
+
+  return @errors;
+}
+
 1;
