@@ -31,6 +31,16 @@
   </tr>
 
   <tr>
+   <td align="right">[% LxERP.t8("Rounding Gain") %]</td>
+   <td>[% L.select_tag('defaults.rndgain_accno_id', SELF.accounts.rnd_gain, default=SELF.defaults.rndgain_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Rounding Loss") %]</td>
+   <td>[% L.select_tag('defaults.rndloss_accno_id', SELF.accounts.rnd_loss, default=SELF.defaults.rndloss_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
    <td align="right">[% LxERP.t8("Current assets account") %]</td>
    <td>[% L.chart_picker('defaults.ar_paid_accno_id', SELF.defaults.ar_paid_accno_id, type='AR_paid', choose=1, style=style) %]<td>
   </tr>

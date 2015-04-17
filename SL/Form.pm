@@ -931,17 +931,15 @@ sub parse_amount {
     return 0;
   }
 
-  if (   ($myconfig->{numberformat} eq '1.000,00')
-      || ($myconfig->{numberformat} eq '1000,00')) {
+  if ($myconfig->{numberformat} eq '1,000.00') {
+    $amount =~ s/,//g;
+  } elsif ($myconfig->{numberformat} eq '1.000,00') {
     $amount =~ s/\.//g;
-    $amount =~ s/,/\./g;
-  }
-
-  if ($myconfig->{numberformat} eq "1'000.00") {
+  } elsif ($myconfig->{numberformat} eq "1'000.00") {
     $amount =~ s/\'//g;
   }
 
-  $amount =~ s/,//g;
+  $amount =~ s/,/\./g;
 
   $main::lxdebug->leave_sub(2);
 
@@ -951,7 +949,18 @@ sub parse_amount {
 }
 
 sub round_amount {
-  my ($self, $amount, $places) = @_;
+  my ($self, $amount, $places, $adjust) = @_;
+
+  if ($adjust) {
+    my $precision = 0.01;
+    # Round amounts to eight places before rounding to the requested
+    # number of places. This gets rid of errors due to internal floating
+    # point representation.
+    $amount = int($amount * 10**8 + .5 * ($amount <=> 0)) / 10**8  if $places < 8;
+    $amount = int($amount / ($precision = _get_precision()) + ($amount <=> 0) * .5) * $precision;
+    $amount = int($amount * 10**$places + .5 * ($amount <=> 0)) / 10**$places;
+    return $amount;
+  }
 
   # We use Perl's knowledge of string representation for
   # rounding. First, convert the floating point number to a string
@@ -2861,7 +2870,9 @@ sub create_links {
            d.closedto, d.revtrans,
            (SELECT cu.name FROM currencies cu WHERE cu.id=d.currency_id) AS defaultcurrency,
            (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
-           (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
+           (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno,
+           (SELECT c.accno FROM chart c WHERE d.rndgain_accno_id = c.id) AS rndgain_accno,
+           (SELECT c.accno FROM chart c WHERE d.rndloss_accno_id = c.id) AS rndloss_accno
          FROM defaults d|;
     $ref = selectfirst_hashref_query($self, $dbh, $query);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
@@ -2874,7 +2885,9 @@ sub create_links {
             current_date AS transdate, d.closedto, d.revtrans,
             (SELECT cu.name FROM currencies cu WHERE cu.id=d.currency_id) AS defaultcurrency,
             (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
-            (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
+            (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno,
+           (SELECT c.accno FROM chart c WHERE d.rndgain_accno_id = c.id) AS rndgain_accno,
+           (SELECT c.accno FROM chart c WHERE d.rndloss_accno_id = c.id) AS rndloss_accno
           FROM defaults d|;
     $ref = selectfirst_hashref_query($self, $dbh, $query);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
@@ -3673,6 +3686,20 @@ sub calculate_tax {
 
   return ($amount,$tax);
 };
+
+sub _get_precision {
+  my ( $self ) = @_;
+  my $precision = 0.01;
+  eval {
+    my $client = $::auth->{client};
+    my $dbconnect = 'dbi:Pg:dbname=' . $client->{dbname} . ';host=' . $client->{dbhost} . ';port=' . $client->{dbport};
+    my $dbh       = DBI->connect($dbconnect, $client->{dbuser}, $client->{dbpasswd});
+    my $query = q{ SELECT precision FROM defaults };
+    ($precision) = selectrow_query($::form, $dbh, $query);
+    $dbh->disconnect;
+  };
+  return $precision;
+}
 
 1;
 

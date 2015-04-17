@@ -27,6 +27,8 @@ $(function() {
 <input type="hidden" name="expense_accno_id"   value="[% HTML.escape(expense_accno_id) %]">
 <input type="hidden" name="fxgain_accno_id"    value="[% HTML.escape(fxgain_accno_id) %]">
 <input type="hidden" name="fxloss_accno_id"    value="[% HTML.escape(fxloss_accno_id) %]">
+<input type="hidden" name="rndgain_accno_id"    value="[% HTML.escape(rndgain_accno_id) %]">
+<input type="hidden" name="rndloss_accno_id"    value="[% HTML.escape(rndloss_accno_id) %]">
 
 <fieldset>
   <legend>
@@ -249,6 +251,7 @@ $(function() {
           <th align="left">[% 'EUER' | $T8 %]</th>
           <td colspan="3"><select name="pos_eur">[% select_eur %]</select></td>
         </tr>
+     [% IF use_case == 0 %]
         <tr>
           <th align="left">[% 'BWA' | $T8 %]</th>
           <td colspan="3"><select name="pos_bwa">[% select_bwa %]</select></td>
@@ -262,6 +265,7 @@ $(function() {
           <th align="left">[% 'Datevautomatik' | $T8 %]</th>
           <td colspan="3"><input name="datevautomatik" type="checkbox" class="checkbox" value="T" [% IF datevautomatik %]checked [% END %]>[% 'If checked the taxkey will not be exported in the DATEV Export, but only IF chart taxkeys differ from general ledger taxkeys' | $T8 %] </td>
         </tr>
+     [% END %]
         <tr>
           <th align="left">[% 'Folgekonto' | $T8 %]</th>
           <td><select name="new_chart_id">[% selectnewaccount %]</select></td>

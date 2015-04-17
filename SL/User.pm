@@ -283,11 +283,16 @@ sub dbcreate {
   # create the tables
   $dbupdater->process_query($dbh, "sql/lx-office.sql");
 
+  # process update-scripts needed before 1st user-login
+  $dbupdater->process_query($dbh, "sql/Pg-upgrade2/defaults_add_precision.sql");
+  $self->create_schema_info_table($form, $dbh);
+  $dbh->do("INSERT INTO schema_info (tag, login) VALUES ('defaults_add_precision', 'admin')");
+
   # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
-  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
+  $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?, precision = ?|;
+  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency precision));
 
   $dbh->disconnect;
 
