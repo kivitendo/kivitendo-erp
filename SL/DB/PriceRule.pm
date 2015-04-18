@@ -96,7 +96,7 @@ sub validate {
   my @errors;
   push @errors, $::locale->text('The name must not be empty.')              if !$self->name;
   push @errors, $::locale->text('Price or discount must not be zero.')      if !$self->price && !$self->discount && !$self->reduction;
-  push @errors, $::locale->text('Pirce rules must have at least one rule.') if !@{[ $self->items ]};
+  push @errors, $::locale->text('Price rules must have at least one rule.') if !@{[ $self->items ]};
   push @errors, $_->validate                                                for $self->items;
 
   return @errors;

@@ -47,6 +47,7 @@ puhs
 sekf
 sucess
 varsion
+pirce
 );
 
 $testcount = scalar(@Support::Files::testitems);
