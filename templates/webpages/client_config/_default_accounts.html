@@ -32,12 +32,12 @@
 
   <tr>
    <td align="right">[% LxERP.t8("Rounding Gain") %]</td>
-   <td>[% L.select_tag('defaults.rndgain_accno_id', SELF.accounts.rnd_gain, default=SELF.defaults.rndgain_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.select_tag('defaults.rndgain_accno_id', SELF.defaults.rndgain_accno_id, category='I,A', choose=1, style=style) %]</td>
   </tr>
 
   <tr>
    <td align="right">[% LxERP.t8("Rounding Loss") %]</td>
-   <td>[% L.select_tag('defaults.rndloss_accno_id', SELF.accounts.rnd_loss, default=SELF.defaults.rndloss_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+   <td>[% L.select_tag('defaults.rndloss_accno_id', SELF.accounts.rndloss_accno_id,  category='E,A', choose=1, style=style) %]</td>
   </tr>
 
   <tr>
