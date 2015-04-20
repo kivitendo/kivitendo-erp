@@ -398,7 +398,8 @@ sub print_letter {
       return $err?0:1;
     }
 
-    if (!$::form->{printer_id}) {
+    if (!$::form->{printer_id} || $::form->{media} eq 'screen') {
+
       my $file = IO::File->new($pdf_file_name, 'r') || croak("Cannot open file '$pdf_file_name'");
       my $size = -s $pdf_file_name;
       my $content_type    =  'application/pdf';
