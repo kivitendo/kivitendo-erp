@@ -2,6 +2,15 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2015-0x-xx - Release 3.2.2-unstable
+
+
+Kleinere neue Features und Detailverbesserungen:
+
+- Briefe werden auch im WebDAV archiviert. Ferner bessere Fehlerbehandlung und
+  E-Mail-Funktion aktiviert.
+
+
 2015-04-10 - Release 3.2.1
 
 Dies ist ein Unstable Bugfix-Release für die 3.2. D.h. es wurden ein paar

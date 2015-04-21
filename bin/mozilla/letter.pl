@@ -21,6 +21,8 @@ use SL::DB::Contact;
 use SL::DB::Default;
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
+use SL::Common;
+use Cwd;
 require "bin/mozilla/reportgenerator.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -376,6 +378,12 @@ sub print_letter {
     die( t8('Please create/copy a template named letter.tex in your client template dir') ) unless (-e $tex_templates);
 
     $pdf_file_name = SL::Helper::CreatePDF->create_pdf(%create_params);
+
+    # set some form defaults for printing webdav copy variables
+    $form->{tmpfile} = $pdf_file_name;
+    $form->{tmpdir} = 'users';
+    $form->{type} = 'letter';
+    $form->{cwd}        = getcwd();
     if ( $::form->{media} eq 'email') {
       my $mail             = Mailer->new;
       my $signature        = $::myconfig{signature};
@@ -387,14 +395,15 @@ sub print_letter {
       $mail->{message}    .=  "\n-- \n$signature";
       $mail->{message}     =~ s/\r//g;
 
+      # copy_file_to_webdav was already done via io.pl -> edit_e_mail
       my $err = $mail->send;
-# TODO
-#       $self
-#           ->js
-#           ->flash($err?'error':'info',
-#                   $err?t8('A mail error occurred: #1', $err):
-#                        t8('The document have been sent to \'#1\'.', $mail->{to}))
-#           ->render($self);
+      # TODO
+      #       $self
+      #           ->js
+      #           ->flash($err?'error':'info',
+      #                   $err?t8('A mail error occurred: #1', $err):
+      #                        t8('The document have been sent to \'#1\'.', $mail->{to}))
+      #           ->render($self);
       return $err?0:1;
     }
 
@@ -412,6 +421,7 @@ sub print_letter {
 
       $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
       $file->close;
+      Common::copy_file_to_webdav_folder($form) if $::instance_conf->get_webdav_documents;
       unlink $pdf_file_name;
       return 1;
     }
@@ -423,6 +433,7 @@ sub print_letter {
     binmode $out;
     print $out scalar(read_file($pdf_file_name));
     close $out;
+    Common::copy_file_to_webdav_folder($form) if $::instance_conf->get_webdav_documents;
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
     my $callback = build_std_url('letter.pl', 'action=edit', 'id=' . $letter->{id}, 'printer_id');
@@ -495,6 +506,7 @@ sub e_mail {
   $letter->check_number;
   $letter->save;
 
+  $form->{formname} = "letter";
   $letter->export_to($::form);
 
   $::form->{id} = $letter->{id};

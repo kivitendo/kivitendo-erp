@@ -1352,6 +1352,11 @@ sub print_form {
     $numberfld            = $form->{type} =~ /^sales/ ? 'sdonumber' : 'pdonumber';
     $form->{label}        = $form->{formname} eq 'pick_list' ? $locale->text('Pick List') : $locale->text('Delivery Order');
   }
+  if ($form->{type} =~ /letter/) {
+    undef $due;
+    undef $inv;
+    $form->{label}        = $locale->text('Letter');
+  }
 
   $form->{TEMPLATE_DRIVER_OPTIONS} = { };
   if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice request_quotation purchase_order purchase_delivery_order)) {
@@ -1432,6 +1437,9 @@ sub print_form {
     DO->order_details(\%myconfig, \%$form);
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
+  } elsif ($form->{type} eq 'letter') {
+    # right now, no details are needed
+    # but i do not want to break the bad default (invoice)
   } else {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }

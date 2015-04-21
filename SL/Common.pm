@@ -583,6 +583,8 @@ sub get_webdav_folder {
     ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
   } elsif ($form->{type} eq "credit_note") {
     ($path, $number) = ("gutschriften", $form->{invnumber});
+  } elsif ($form->{type} eq "letter") {
+    ($path, $number) = ("briefe", $form->{letternumber} );
   } elsif ($form->{vc} eq "customer") {
     ($path, $number) = ("rechnungen", $form->{invnumber});
   } elsif ($form->{vc} eq "vendor") {
@@ -610,7 +612,7 @@ sub copy_file_to_webdav_folder {
   # checks
   foreach my $item (qw(tmpdir tmpfile type)){
     next if $form->{$item};
-    $::lxdebug->message(LXDebug::WARN(), 'Missing parameter');
+    $::lxdebug->message(LXDebug::WARN(), 'Missing parameter:' . $item);
     $::form->error($::locale->text("Missing parameter for WebDAV file copy"));
   }
 
@@ -618,6 +620,7 @@ sub copy_file_to_webdav_folder {
 
   if (! $webdav_folder){
     $::lxdebug->leave_sub();
+    $::lxdebug->message(LXDebug::WARN(), 'Cannot check correct WebDAV folder');
     $::form->error($::locale->text("Cannot check correct WebDAV folder"));
     return undef;
   }
@@ -626,7 +629,7 @@ sub copy_file_to_webdav_folder {
 
   # maybe the path does not exist (automatic printing), see #2446
   if (!-d $complete_path) {
-    # we need a chdir and  restore old dir
+    # we need a chdir and restore old dir
     my $current_dir = POSIX::getcwd();
     chdir("$form->{cwd}");
     mkdir_with_parents($webdav_folder);

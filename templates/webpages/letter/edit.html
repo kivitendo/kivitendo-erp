@@ -184,8 +184,12 @@
 
 <input type="hidden" name="action" value="dispatcher">
 <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
-<input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
-<input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
+
+[%- IF letter.letternumber %]
+  <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
+  <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
+[% END %]
+
 <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
 <input class="submit" type="submit" name="action_save_letter_draft" value="[% 'Save Draft' | $T8 %]">
 
