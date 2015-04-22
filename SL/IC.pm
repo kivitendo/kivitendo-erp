@@ -526,6 +526,20 @@ sub save {
                               variables     => $form,
                               save_validity => 1);
 
+  # Delete saved custom variable values for configs that have been
+  # marked invalid for this part.
+  $query = <<SQL;
+    DELETE FROM custom_variables
+    WHERE (config_id IN (
+        SELECT val.config_id
+        FROM custom_variables_validity val
+        LEFT JOIN custom_variable_configs val_cfg ON (val.config_id = val_cfg.id)
+        WHERE (val_cfg.module = 'IC')
+          AND (val.trans_id   = ?)))
+      AND (trans_id = ?)
+SQL
+  do_query($form, $dbh, $query, ($form->{id}) x 2);
+
   # commit
   my $rc = $dbh->commit;
 
