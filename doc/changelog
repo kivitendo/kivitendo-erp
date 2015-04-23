@@ -10,6 +10,11 @@ Kleinere neue Features und Detailverbesserungen:
 - Briefe werden auch im WebDAV archiviert. Ferner bessere Fehlerbehandlung und
   E-Mail-Funktion aktiviert.
 
+- Mehrfachauswahl und Mengeneingabe für Artikel:
+  Wenn in den Belegmasken die Artikeleingabe nicht eindeutig ist, erscheint
+  eine Maske zur Artikelauswahl. Hierzu kann jetzt in den Benutzereinstellungen
+  eingestellt werden, dass in dieser Maske mehrere Artikel mit Mengen ausgewählt
+  werden können.
 
 2015-04-10 - Release 3.2.1
 

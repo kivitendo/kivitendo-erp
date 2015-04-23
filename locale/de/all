@@ -1402,6 +1402,7 @@ $self->{texts} = {
   'It will simply set the taxkey to 0 (meaning "no taxes") which is the correct value for such inventory transactions.' => 'Es wird einfach die Steuerschlüssel auf  0 setzen, was "keine Steuer" bedeutet und für solche Warenbestandsbuchungen der richtige Wert ist.',
   'Item deleted!'               => 'Artikel gelöscht!',
   'Item mode'                   => 'Artikelmodus',
+  'Item multi selection with qty' => 'Artikel-Mehrfachauswahl mit Menge',
   'Item not on file!'           => 'Dieser Artikel ist nicht in der Datenbank!',
   'Item values'                 => 'Artikelwerte',
   'Item variables'              => 'Artikelvariablen',

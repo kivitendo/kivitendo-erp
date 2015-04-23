@@ -1192,6 +1192,7 @@ $self->{texts} = {
   'It will simply set the taxkey to 0 (meaning "no taxes") which is the correct value for such inventory transactions.' => '',
   'Item deleted!'               => '',
   'Item mode'                   => '',
+  'Item multi selection with qty' => '',
   'Item not on file!'           => '',
   'Item values'                 => '',
   'Item variables'              => '',

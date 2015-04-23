@@ -419,7 +419,7 @@ sub update_delivery_order {
 
       if ($rows > 1) {
 
-        select_item(mode => $mode);
+        select_item(mode => $mode, pre_entered_qty => $form->{"qty_$i"});
         ::end_of_request();
 
       } else {

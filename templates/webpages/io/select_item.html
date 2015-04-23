@@ -5,7 +5,11 @@
 
   <table width="100%">
    <tr class="listheading">
-    <th>&nbsp;</th>
+    [%- IF myconfig_item_multiselect %]
+      <th>[% LxERP.t8('Qty') %]</th>
+    [%- ELSE %]
+      <th>&nbsp;</th>
+    [%- END %]
     <th>[% LxERP.t8('Number') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
     <th>[% LxERP.t8('Other Matches') %]</th>
@@ -19,7 +23,11 @@
 
    [%- FOREACH item = ITEM_LIST %]
    <tr class="listrow[% loop.count % 2 %]">
-    <td><input name="select_item_id" class="radio" type="radio" value="[% HTML.escape(item.id) %]"[% IF loop.first %] checked[% END %]></td>
+    [%- IF myconfig_item_multiselect %]
+      <td>[% L.input_tag('select_qty_' _ HTML.escape(item.id), '', size => 5) %]</td>
+    [%- ELSE %]
+      <td><input name="select_item_id" class="radio" type="radio" value="[% HTML.escape(item.id) %]"[% IF loop.first %] checked[% END %]></td>
+    [%- END %]
     <td>[% HTML.escape(item.partnumber) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
     <td>[% HTML.escape(item.matches).join('<br>') %]</td>
@@ -41,3 +49,22 @@
 
   [% L.submit_tag('action', LxERP.t8('Continue')) %]
  </form>
+
+[%- IF myconfig_item_multiselect %]
+ <script type='text/javascript'>
+   var first_click = 1;;
+   [%- FOREACH item = ITEM_LIST %]
+     [% SET THIS_ID = 'select_qty_' _ HTML.escape(item.id) %]
+     $('#[% THIS_ID %]').click(function(){
+       var qty = '1';
+       if (first_click) {
+         qty = '[% LxERP.format_amount(PRE_ENTERED_QTY, 5) %]';
+       }
+       first_click = 0;
+       if ($('#[% THIS_ID %]').attr('value') == '') {
+         $('#[% THIS_ID %]').attr('value', qty); $('#[% THIS_ID %]').select();
+       }
+     });
+   [%- END %]
+ </script>
+[%- END %]

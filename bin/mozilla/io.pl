@@ -497,8 +497,8 @@ sub select_item {
   $main::lxdebug->enter_sub();
 
   my %params = @_;
-  my $mode   = $params{mode} || croak "Missing parameter 'mode'";
-
+  my $mode            = $params{mode}            || croak "Missing parameter 'mode'";
+  my $pre_entered_qty = $params{pre_entered_qty} || 1;
   _check_io_auth();
 
   my $previous_form = $::auth->save_form_in_session(form => $::form);
@@ -513,11 +513,12 @@ sub select_item {
   # delete action variable
   delete @{$::form}{qw(action item_list)};
 
-  print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
-                                                         MODE          => $mode,
-                                                         ITEM_LIST     => \@item_list,
-                                                         IS_ASSEMBLY   => $mode eq 'IC',
-                                                         IS_PURCHASE   => $mode eq 'IS' });
+  print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM   => $previous_form,
+                                                         MODE            => $mode,
+                                                         ITEM_LIST       => \@item_list,
+                                                         IS_ASSEMBLY     => $mode eq 'IC',
+                                                         IS_PURCHASE     => $mode eq 'IS',
+                                                         PRE_ENTERED_QTY => $pre_entered_qty, });
 
   $main::lxdebug->leave_sub();
 }
@@ -536,18 +537,47 @@ sub item_selected {
 
   $::auth->restore_form_from_session($form->{select_item_previous_form} || croak('Missing previous form ID'), form => $form);
 
-  my $mode = delete($form->{select_item_mode}) || croak 'Missing item selection mode';
-  my $id   = delete($form->{select_item_id})   || croak 'Missing item selection ID';
-  my $i    = $form->{ $mode eq 'IC' ? 'assembly_rows' : 'rowcount' };
+  my $mode     = delete($form->{select_item_mode}) || croak 'Missing item selection mode';
+  my $row_key  = $mode eq 'IC' ? 'assembly_rows' : 'rowcount';
+  my $curr_row = $form->{ $row_key };
+
+  my $row = $curr_row;
+
+  if ($myconfig{item_multiselect}) {
+    foreach (grep(/^select_qty_/, keys(%{ $form }))) {
+      next unless $form->{$_};
+      $_ =~ /^select_qty_(\d+)/;
+      $form->{"id_${row}"}  = $1;
+      $form->{"qty_${row}"} = $form->{$_};
+      $row++;
+    }
+  } else {
+    $form->{"id_${row}"} = delete($form->{select_item_id}) || croak 'Missing item selection ID';
+    $row++;
+  }
+
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
+    qw(sellprice listprice weight);
 
   if ( $mode eq 'IC' ) {
     # assembly mode:
-    # the qty variables of the existing assembly items are all still formatted, so we parse them here (1 .. $i-1)
-    # including the qty of the just added part ($i)
-    $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for (1 .. $i);
+    # the qty variables of the existing assembly items are all still formatted, so we parse them here
+    # including the qty of the just added part
+    $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for (1 .. $row - 1);
+  } else {
+    if ($myconfig{item_multiselect}) {
+      # other modes and multiselection:
+      # parse all newly entered qtys
+      $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for ($curr_row .. $row - 1);
+    }
   }
 
-  $form->{"id_${i}"} = $id;
+  for my $i ($curr_row .. $row - 1) {
+    $form->{ $row_key } = $i;
+
+    my $id = $form->{"id_${i}"};
+
+    delete $form->{item_list};
 
   if ($mode eq 'IS') {
     IS->retrieve_item(\%myconfig, \%$form);
@@ -617,9 +647,6 @@ sub item_selected {
     }
   }
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(sellprice listprice weight);
-
   # at this stage qty of newly added part needs to be have been parsed
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
 
@@ -640,13 +667,15 @@ sub item_selected {
 
   $form->{"runningnumber_$i"} = $i;
 
-  delete $form->{nextsub};
-
   # format amounts
   map {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
   } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
+
+  delete $form->{nextsub};
+
+  }
 
   &display_form;
 

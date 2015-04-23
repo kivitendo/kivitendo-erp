@@ -568,7 +568,7 @@ sub update {
 
       if ($rows > 1) {
 
-        select_item(mode => 'IS');
+        select_item(mode => 'IS', pre_entered_qty => $form->{"qty_$i"});
         ::end_of_request();
 
       } else {
