@@ -545,7 +545,7 @@ sub item_selected {
     # the qty variables of the existing assembly items are all still formatted, so we parse them here (1 .. $i-1)
     # including the qty of the just added part ($i)
     $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for (1 .. $i);
-  };
+  }
 
   $form->{"id_${i}"} = $id;
 
@@ -646,7 +646,7 @@ sub item_selected {
   map {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-  } qw(sellprice listprice lastcost) if $form->{item} ne 'assembly';
+  } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
 
   &display_form;
 
