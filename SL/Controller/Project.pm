@@ -54,11 +54,9 @@ sub action_list {
 
   $self->make_filter_summary;
 
-  my $projects = $self->models->get;
-
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $projects);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
 sub action_new {
@@ -215,15 +213,10 @@ sub prepare_report {
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
-  if ( $report->{options}{output_format} =~ /^(pdf|csv)$/i ) {
-    $self->models->disable_plugin('paginated');
-  }
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'Project',
     output_format         => 'HTML',
-    raw_top_info_text     => $self->render('project/report_top', { output => 0 }),
-    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
     title                 => $::locale->text('Projects'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -232,8 +225,10 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
+    raw_top_info_text     => $self->render('project/report_top',    { output => 0 }),
     raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
   );
 }
