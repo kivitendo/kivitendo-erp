@@ -71,9 +71,7 @@ if (!defined $check{a}
 }
 
 if ($check{a}) {
-  foreach my $check (keys %check) {
-    $check{$check} = 1 unless defined $check{$check};
-  }
+  $check{$_} //= 1 for qw(o d l r);
 }
 
 
