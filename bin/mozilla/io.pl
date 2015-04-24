@@ -1388,7 +1388,7 @@ sub print_form {
   }
 
   $form->{TEMPLATE_DRIVER_OPTIONS} = { };
-  if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice request_quotation purchase_order purchase_delivery_order)) {
+  if (any { $form->{type} eq $_ } qw(sales_quotation sales_order sales_delivery_order invoice request_quotation purchase_order purchase_delivery_order credit_note)) {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = {
       longdescription => 'html',
       partnotes       => 'html',
