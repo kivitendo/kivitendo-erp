@@ -631,11 +631,8 @@ sub update {
 
     my $rows = scalar @{ $form->{item_list} };
 
-    # hier ist das problem fuer bug 817 $form->{discount} wird nicht durchgeschliffen
-    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736 jb 04.05.2009
-    # select discount as vendor_discount from vendor ||
-    # select discount as customer_discount from customer
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
+    $form->{"discount_$i"}   = $form->parse_amount(\%myconfig, $form->{"discount_$i"}) / 100.0;
+    $form->{"discount_$i"} ||= $form->{"$form->{vc}_discount"};
 
     $form->{"lastcost_$i"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$i"});
 
@@ -693,7 +690,7 @@ sub update {
           $form->{"sellprice_$i"} /= $exchangerate;   # if there is an exchange rate adjust sellprice
         }
 
-        my $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        my $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"});
         map { $form->{"${_}_base"} = 0 }                                 split / /, $form->{taxaccounts};
         map { $form->{"${_}_base"} += $amount }                          split / /, $form->{"taxaccounts_$i"};
         map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{taxaccounts} if !$form->{taxincluded};
@@ -703,6 +700,7 @@ sub update {
         $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
         $form->{"lastcost_$i"}  = $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces);
         $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+        $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0);
       }
 
       display_form();

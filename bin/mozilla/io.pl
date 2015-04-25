@@ -655,7 +655,7 @@ sub item_selected {
   }
 
   my $amount =
-    $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"} / 100) *
+    $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"}) *
     $form->{"qty_$i"};
   map { $form->{"${_}_base"} += $amount }
     (split / /, $form->{"taxaccounts_$i"});
@@ -672,6 +672,7 @@ sub item_selected {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
   } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
+  $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{item} ne 'assembly';
 
   delete $form->{nextsub};
 

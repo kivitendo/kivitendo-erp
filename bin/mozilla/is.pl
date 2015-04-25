@@ -554,11 +554,8 @@ sub update {
 
     my $rows = scalar @{ $form->{item_list} };
 
-    # Falls kein Kundenrabatt vorhanden ist, den aktuellen Rabatt nicht mit 0% überschreiben,
-    # da hier der Anwender schon manual einen Wert eingetragen haben könnte (analog zu qty) Bugfix: 1412
-    if ($form->{customer_discount}){
-      $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
-    }
+    $form->{"discount_$i"}   = $form->parse_amount(\%myconfig, $form->{"discount_$i"}) / 100.0;
+    $form->{"discount_$i"} ||= $form->{customer_discount};
 
     if ($rows) {
       $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
@@ -609,7 +606,7 @@ sub update {
 
         $form->{"listprice_$i"} /= $exchangerate;
 
-        my $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        my $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"});
         map { $form->{"${_}_base"} = 0 }                                 split / /, $form->{taxaccounts};
         map { $form->{"${_}_base"} += $amount }                          split / /, $form->{"taxaccounts_$i"};
         map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{"taxaccounts_$i"} if !$form->{taxincluded};
@@ -618,7 +615,8 @@ sub update {
 
         map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice lastcost);
 
-        $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+        $form->{"qty_$i"}      = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+        $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0);
       }
 
       &display_form;

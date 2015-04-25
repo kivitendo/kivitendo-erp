@@ -484,6 +484,9 @@ sub update {
 
     my $rows = scalar @{ $form->{item_list} };
 
+    $form->{"discount_$i"}   = $form->parse_amount(\%myconfig, $form->{"discount_$i"}) / 100.0;
+    $form->{"discount_$i"} ||= $form->{vendor_discount};
+
     if ($rows) {
       $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
       if( !$form->{"qty_$i"} ) {
@@ -500,8 +503,6 @@ sub update {
         # override sellprice if there is one entered
         my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
-        # ergaenzung fuer bug 736 Lieferanten-Rabatt auch in Einkaufsrechnungen vorbelegen jb
-        $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{vendor_discount} * 100 );
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
@@ -532,10 +533,11 @@ sub update {
           $form->{"sellprice_$i"} /= $exchangerate;
         }
 
-        my $amount                   = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        my $amount                = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"});
         $form->{creditremaining} -= $amount;
         $form->{"sellprice_$i"}   = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
         $form->{"qty_$i"}         = $form->format_amount(\%myconfig, $form->{"qty_$i"},       $dec_qty);
+        $form->{"discount_$i"}    = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0);
       }
 
       &display_form;

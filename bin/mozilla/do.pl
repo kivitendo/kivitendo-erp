@@ -453,6 +453,7 @@ sub update_delivery_order {
         $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
         $form->{"lastcost_$i"}           = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+        $form->{"discount_$i"}           = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0);
       }
 
       display_form();
