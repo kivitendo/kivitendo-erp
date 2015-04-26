@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::PriceSource::Base);
 
 use SL::DB::Vendor;
-use SL::PriceSource::Price;
+use SL::PriceSource::Discount;
 use SL::Locale::String;
 
 sub name { 'vendor_discount' }
@@ -20,7 +20,7 @@ sub available_discounts {
   return unless $self->record->vendor;
   return unless $self->record->vendor->discount != 0;
 
-  SL::PriceSource::Vendor->new(
+  SL::PriceSource::Discount->new(
     discount     => $self->record->vendor->discount,
     spec         => $self->record->vendor->id,
     description  => t8('Vendor Discount'),
