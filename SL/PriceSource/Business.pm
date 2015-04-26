@@ -50,13 +50,14 @@ sub price_from_source {
     )
   }
 
-  if ($business->id != $self->customer_vendor->business->id) {
+  if (!$self->customer_vendor->business ||
+      $business->id != $self->customer_vendor->business->id) {
     return SL::PriceSource::Discount->new(
       discount     => $business->discount,
       spec         => $business->id,
       description  => t8('Business Discount'),
       price_source => $self,
-      invalid      => t8('This discount is only valid for business #1', $business->full_description),
+      invalid      => t8('This discount is only valid for business #1', $business->displayable_name),
     )
   }
 
