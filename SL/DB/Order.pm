@@ -10,6 +10,7 @@ use List::Util qw(max);
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
 use SL::DB::Helper::AttrHTML;
+use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
@@ -43,6 +44,7 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
 
@@ -65,12 +67,6 @@ sub _before_save_set_ord_quo_number {
 
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
-
-sub items_sorted {
-  my ($self) = @_;
-
-  return [ sort {$a->position <=> $b->position } @{ $self->items } ];
-}
 
 sub type {
   my $self = shift;

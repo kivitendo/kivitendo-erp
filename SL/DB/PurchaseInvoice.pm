@@ -7,6 +7,7 @@ use Carp;
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::AttrHTML;
+use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::LinkedRecords;
 use SL::Locale::String qw(t8);
 
@@ -44,15 +45,10 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_sorted('items');
 
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
-
-sub items_sorted {
-  my ($self) = @_;
-
-  return [ sort {$a->position <=> $b->position } @{ $self->items } ];
-}
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder

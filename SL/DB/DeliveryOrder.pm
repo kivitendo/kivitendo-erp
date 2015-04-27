@@ -9,6 +9,7 @@ use Rose::DB::Object::Helpers ();
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
 use SL::DB::Helper::AttrHTML;
+use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
@@ -31,6 +32,7 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_donumber');
 
@@ -48,12 +50,6 @@ sub _before_save_set_donumber {
 
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
-
-sub items_sorted {
-  my ($self) = @_;
-
-  return [ sort {$a->position <=> $b->position } @{ $self->items } ];
-}
 
 sub sales_order {
   my $self   = shift;
@@ -207,11 +203,6 @@ closed and delivered.
 
 An alias for C<deliver_orer_items> for compatibility with other
 sales/purchase models.
-
-=item C<items_sorted>
-
-Returns the delivery order items sorted by their ID (same order they
-appear in the frontend delivery order masks).
 
 =item C<new_from $source, %params>
 
