@@ -579,102 +579,98 @@ sub item_selected {
 
     delete $form->{item_list};
 
-  if ($mode eq 'IS') {
-    IS->retrieve_item(\%myconfig, \%$form);
-  } elsif ($mode eq 'IR') {
-    IR->retrieve_item(\%myconfig, \%$form);
-  } elsif ($mode eq 'IC') {
-    IC->assembly_item(\%myconfig, \%$form);
-  } else {
-    croak "Invalid item selection mode '${mode}'";
-  }
-
-  my $new_item = $form->{item_list}->[0] || croak "No item found for mode '${mode}' and ID '${id}'";
-
-  # if there was a price entered, override it
-  my $sellprice;
-  unless ( $mode eq 'IC' ) {
-    $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
-  };
-
-  my @new_fields =
-    qw(id partnumber description sellprice listprice inventory_accno
-       income_accno expense_accno bin unit weight assembly taxaccounts
-       partsgroup formel longdescription not_discountable partnotes lastcost
-       price_factor_id price_factor);
-
-  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
-  push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
-
-  map { $form->{"${_}_$i"} = $new_item->{$_} } @new_fields;
-
-  if (my $record = _make_record()) {
-    my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
-    my $best_price   = $price_source->best_price;
-
-    if ($best_price) {
-      $::form->{"sellprice_$i"}           = $best_price->price;
-      $::form->{"active_price_source_$i"} = $best_price->source;
+    if ($mode eq 'IS') {
+      IS->retrieve_item(\%myconfig, \%$form);
+    } elsif ($mode eq 'IR') {
+      IR->retrieve_item(\%myconfig, \%$form);
+    } elsif ($mode eq 'IC') {
+      IC->assembly_item(\%myconfig, \%$form);
+    } else {
+      croak "Invalid item selection mode '${mode}'";
     }
 
-    my $best_discount = $price_source->best_discount;
+    my $new_item = $form->{item_list}->[0] || croak "No item found for mode '${mode}' and ID '${id}'";
 
-    if ($best_discount) {
-      $::form->{"discount_$i"}               = $best_discount->discount;
-      $::form->{"active_discount_source_$i"} = $best_discount->source;
+    # if there was a price entered, override it
+    my $sellprice;
+    unless ( $mode eq 'IC' ) {
+      $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+    };
+
+    my @new_fields =
+        qw(id partnumber description sellprice listprice inventory_accno
+           income_accno expense_accno bin unit weight assembly taxaccounts
+           partsgroup formel longdescription not_discountable partnotes lastcost
+           price_factor_id price_factor);
+
+    my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+    push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+
+    map { $form->{"${_}_$i"} = $new_item->{$_} } @new_fields;
+
+    if (my $record = _make_record()) {
+      my $price_source = SL::PriceSource->new(record_item => $record->items->[$i-1], record => $record);
+      my $best_price   = $price_source->best_price;
+
+      if ($best_price) {
+        $::form->{"sellprice_$i"}           = $best_price->price;
+        $::form->{"active_price_source_$i"} = $best_price->source;
+      }
+
+      my $best_discount = $price_source->best_discount;
+
+      if ($best_discount) {
+        $::form->{"discount_$i"}               = $best_discount->discount;
+        $::form->{"active_discount_source_$i"} = $best_discount->source;
+      }
     }
-  }
 
-  $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
+    $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
-  if ($form->{"part_payment_id_$i"} ne "") {
-    $form->{payment_id} = $form->{"part_payment_id_$i"};
-  }
-
-  my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-  $dec           = length $dec;
-  my $decimalplaces = ($dec > 2) ? $dec : 2;
-
-  if ($sellprice) {
-    $form->{"sellprice_$i"} = $sellprice;
-  } else {
-
-    # if there is an exchange rate adjust sellprice
-    if (($form->{exchangerate} * 1) != 0) {
-      $form->{"sellprice_$i"} /= $form->{exchangerate};
-      $form->{"sellprice_$i"} =
-        $form->round_amount($form->{"sellprice_$i"}, $decimalplaces);
+    if ($form->{"part_payment_id_$i"} ne "") {
+      $form->{payment_id} = $form->{"part_payment_id_$i"};
     }
-  }
 
-  # at this stage qty of newly added part needs to be have been parsed
-  $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
+    my ($dec)         = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    $dec              = length $dec;
+    my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-  if ($form->{"not_discountable_$i"}) {
-    $form->{"discount_$i"} = 0;
-  }
+    if ($sellprice) {
+      $form->{"sellprice_$i"} = $sellprice;
+    } else {
 
-  my $amount =
-    $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"}) *
-    $form->{"qty_$i"};
-  map { $form->{"${_}_base"} += $amount }
-    (split / /, $form->{"taxaccounts_$i"});
-  map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /,
-    $form->{"taxaccounts_$i"}
-    if !$form->{taxincluded};
+      # if there is an exchange rate adjust sellprice
+      if (($form->{exchangerate} * 1) != 0) {
+        $form->{"sellprice_$i"} /= $form->{exchangerate};
+        $form->{"sellprice_$i"} =
+            $form->round_amount($form->{"sellprice_$i"}, $decimalplaces);
+      }
+    }
 
-  $form->{creditremaining} -= $amount;
+    # at this stage qty of newly added part needs to be have been parsed
+    $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
 
-  $form->{"runningnumber_$i"} = $i;
+    if ($form->{"not_discountable_$i"}) {
+      $form->{"discount_$i"} = 0;
+    }
 
-  # format amounts
-  map {
-    $form->{"${_}_$i"} =
-      $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-  } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
-  $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{item} ne 'assembly';
+    my $amount =
+        $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"}) * $form->{"qty_$i"};
+    map { $form->{"${_}_base"} += $amount }                         (split / /, $form->{"taxaccounts_$i"});
+    map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{"taxaccounts_$i"} if !$form->{taxincluded};
 
-  delete $form->{nextsub};
+    $form->{creditremaining} -= $amount;
+
+    $form->{"runningnumber_$i"} = $i;
+
+    # format amounts
+    map {
+      $form->{"${_}_$i"} =
+          $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
+    } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{item} ne 'assembly';
+
+    delete $form->{nextsub};
 
   }
 
