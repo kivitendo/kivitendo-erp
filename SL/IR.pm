@@ -1135,7 +1135,7 @@ sub get_vendor {
          v.email, v.cc, v.bcc, v.language_id, v.payment_id, v.delivery_term_id,
          v.street, v.zipcode, v.city, v.country, v.taxzone_id, cu.name AS curr, v.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
-         b.description AS business
+         b.discount AS tradediscount, b.description AS business
        FROM vendor v
        LEFT JOIN business b       ON (b.id = v.business_id)
        LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
