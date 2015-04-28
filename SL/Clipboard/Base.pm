@@ -180,13 +180,13 @@ L</dump>.
 
 =item C<to_object>
 
-Converts the dumped representation back to an Rose::DB::Object
+Converts the dumped representation back to a Rose::DB::Object
 instance. Several columns of the newly created object are cleared by
 C<to_object> itself: the primary key columns (if any) and the columns
 C<itime> and C<mtime> (if the object has such columns).
 
 This function should not be overwritten by sub-classes. Instead,
-functions can overwrite C<_fix_object> which can be used for sanitzing
+functions can overwrite C<_fix_object> which can be used for sanitizing
 the newly created object before handing it back to the caller.
 
 =item C<type>

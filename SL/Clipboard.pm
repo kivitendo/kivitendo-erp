@@ -147,7 +147,7 @@ C<SL::DB::RequirementSpecItem> would be
 C<SL::Clipboard::RequirementSpecItem>. These support classes must
 inherit from L<SL::Clipboard::Base> which offers almost a full set of
 support functions so that the actual specialized class has to do very
-litte.
+little.
 
 As the clipboard is session-based its contents will be lost when the
 session expires (either due to timeouts or to the user logging off).
@@ -163,7 +163,7 @@ Clears the clipboard (removes all entries).
 =item C<copy $object>
 
 Creates a dumped copy of C<$object> and stores that copy in the
-session. An unlimited number of copies of differeing types can be
+session. An unlimited number of copies of differing types can be
 made.
 
 Returns the instance of the copied object, a sub-class of
@@ -181,7 +181,7 @@ array is the one most recently copied.
 =item C<get_entry [$type]>
 
 Returns the most recently clipped object whose type matches the
-regular expression C<$type>. If C<$type> is not given then then then
+regular expression C<$type>. If C<$type> is not given then the
 most recently copied object is returned.
 
 If no such object exists C<undef> is returned instead.
