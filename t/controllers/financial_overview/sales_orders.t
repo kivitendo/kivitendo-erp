@@ -37,6 +37,10 @@ Support::TestSetup::login();
 
 our ($ar_chart, $buchungsgruppe, $ctrl, $currency_id, $customer, $employee, $order, $part, $tax_zone, $unit, @invoices);
 
+sub clear_up {
+  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+};
+
 sub init_common_state {
   $ar_chart       = SL::DB::Manager::Chart->find_by(accno => '1400')                        || croak "No AR chart";
   $buchungsgruppe = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%') || croak "No accounting group";
@@ -52,7 +56,7 @@ sub create_sales_order {
   $params{$_} ||= {} for qw(customer part tax order orderitem);
 
   # Clean up: remove invoices, orders, parts and customers
-  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+  clear_up();
 
   $customer     = SL::DB::Customer->new(
     name        => 'Test Customer',
@@ -202,5 +206,7 @@ create_sales_order(
 
 is_deeply($ctrl->data->{$_}, { months => [ (0) x 12 ], quarters => [ 0, 0, 0, 0 ], year => 0 }, "periodic conf p=q ovp=y, no invoices, starting and ending before current year, data for $_")
   for qw(purchase_invoices purchase_orders requests_for_quotation sales_invoices sales_orders sales_orders_per_inv sales_quotations);
+
+clear_up();
 
 done_testing();
