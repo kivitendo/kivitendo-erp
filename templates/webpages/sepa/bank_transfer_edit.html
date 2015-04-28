@@ -32,6 +32,8 @@
       <th class="listheading" colspan="2">[% 'Source bank account' | $T8 %]</th>
      [%- END %]
      <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Skonto amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Payment type' | $T8 %]</th>
      [% IF vc == 'customer' %]
       <th class="listheading" align="right">[% 'Mandator ID' | $T8 %]</th>
      [%- END %]
@@ -46,7 +48,7 @@
      <th class="listheading">[% 'IBAN' | $T8 %]</th>
      <th class="listheading">[% 'BIC' | $T8 %]</th>
      [%- IF show_post_payments_button %]
-      <th class="listheading" colspan="[% IF vc == 'customer' %]4[% ELSE %]3[% END %]">&nbsp;</th>
+      <th class="listheading" colspan="[% IF vc == 'customer' %]6[% ELSE %]5[% END %]">&nbsp;</th>
       <th class="listheading">
         [% L.date_tag('set_all_execution_date', '', onchange='set_all_execution_date_fields(this);') %]
       </th>
@@ -75,6 +77,8 @@
       <td>[% HTML.escape(item.vc_iban) %]</td>
       <td>[% HTML.escape(item.vc_bic) %]</td>
       <td align="right">[% HTML.escape(LxERP.format_amount(item.amount, 2)) %]</td>
+      <td align="right">[% HTML.escape(LxERP.format_amount(item.skonto_amount, 2)) %]</td>
+      <td align="right">[% item.payment_type | $T8 %]</td>
       [% IF vc == 'customer' %]
        <td>[% HTML.escape(item.mandator_id) %]</td>
       [%- END %]

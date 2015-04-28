@@ -45,6 +45,7 @@ use SL::DBUtils;
 use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
+use SL::DB::Chart;
 use SL::GenericTranslations;
 
 use strict;
@@ -1286,7 +1287,11 @@ sub taxes {
                    t.taxdescription,
                    round(t.rate * 100, 2) AS rate,
                    (SELECT accno FROM chart WHERE id = chart_id) AS taxnumber,
-                   (SELECT description FROM chart WHERE id = chart_id) AS account_description
+                   (SELECT description FROM chart WHERE id = chart_id) AS account_description,
+                   (SELECT accno FROM chart WHERE id = skonto_sales_chart_id) AS skonto_chart_accno,
+                   (SELECT description FROM chart WHERE id = skonto_sales_chart_id) AS skonto_chart_description,
+                   (SELECT accno FROM chart WHERE id = skonto_purchase_chart_id) AS skonto_chart_purchase_accno,
+                   (SELECT description FROM chart WHERE id = skonto_purchase_chart_id) AS skonto_chart_purchase_description
                  FROM tax t
                  ORDER BY taxkey, rate|;
 
@@ -1328,6 +1333,17 @@ sub get_tax_accounts {
     push @{ $form->{ACCOUNTS} }, $ref;
   }
 
+  $form->{AR_PAID} = SL::DB::Manager::Chart->get_all(where => [ link => { like => '%AR_paid%' } ], sort_by => 'accno ASC');
+  $form->{AP_PAID} = SL::DB::Manager::Chart->get_all(where => [ link => { like => '%AP_paid%' } ], sort_by => 'accno ASC');
+
+  $form->{skontochart_value_title_sub} = sub {
+    my $item = shift;
+    return [
+      $item->{id},
+      $item->{accno} .' '. $item->{description},
+    ];
+  };
+
   $sth->finish;
 
   $dbh->disconnect;
@@ -1350,7 +1366,9 @@ sub get_tax {
                    chart_id,
                    chart_categories,
                    (id IN (SELECT tax_id
-                           FROM acc_trans)) AS tax_already_used
+                           FROM acc_trans)) AS tax_already_used,
+                   skonto_sales_chart_id,
+                   skonto_purchase_chart_id
                  FROM tax
                  WHERE id = ? |;
 
@@ -1414,15 +1432,17 @@ sub save_tax {
   $chart_categories .= 'E' if $form->{expense};
   $chart_categories .= 'C' if $form->{costs};
 
-  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, conv_i($form->{chart_id}), conv_i($form->{chart_id}), $chart_categories);
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, conv_i($form->{chart_id}), conv_i($form->{chart_id}), conv_i($form->{skonto_sales_chart_id}), conv_i($form->{skonto_purchase_chart_id}), $chart_categories);
   if ($form->{id} ne "") {
     $query = qq|UPDATE tax SET
-                  taxkey         = ?,
-                  taxdescription = ?,
-                  rate           = ?,
-                  chart_id       = ?,
-                  taxnumber      = (SELECT accno FROM chart WHERE id= ? ),
-                  chart_categories = ?
+                  taxkey                   = ?,
+                  taxdescription           = ?,
+                  rate                     = ?,
+                  chart_id                 = ?,
+                  taxnumber                = (SELECT accno FROM chart WHERE id = ? ),
+                  skonto_sales_chart_id    = ?,
+                  skonto_purchase_chart_id = ?,
+                  chart_categories         = ?
                 WHERE id = ?|;
 
   } else {
@@ -1434,10 +1454,12 @@ sub save_tax {
                   rate,
                   chart_id,
                   taxnumber,
+                  skonto_sales_chart_id,
+                  skonto_purchase_chart_id,
                   chart_categories,
                   id
                 )
-                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ?, ?)|;
+                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ?, ?,  ?, ?)|;
   }
   push(@values, $form->{id});
   do_query($form, $dbh, $query, @values);

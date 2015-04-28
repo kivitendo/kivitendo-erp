@@ -3,6 +3,8 @@
 [%- USE LxERP %]
 [%- USE L %]
 
+[% SET debug = 0 %]
+
 <table width=100% id="proposal_table">
   <thead>
     <tr class="listheading">
@@ -10,7 +12,7 @@
 
       <th></th>
       <th>[% 'Type' | $T8 %]</th>
-      <th>[% 'ID/Acc_ID' | $T8 %]</th>
+      [% IF debug %]<th>[% 'ID/Acc_ID' | $T8 %]</th>[% END %]
       <th>[% 'Transdate' | $T8 %]</th>
       <th>[% 'Amount BT' | $T8 %]</th>
       <th>[% 'Amount BB' | $T8 %]</th>
@@ -25,7 +27,7 @@
   [% PROCESS "reconciliation/proposals.html" %]
 <table>
 
-[% L.button_tag("reconciliate_proposals()", LxERP.t8("Reconciliate")) %]
+[% L.button_tag("reconcile_proposals()", LxERP.t8("Reconcile")) %]
 
 <script type="text/javascript">
 <!--
@@ -45,12 +47,12 @@ function filter_table () {
   });
 }
 
-function reconciliate_proposals() {
+function reconcile_proposals() {
   $('<input>').attr({
     id : "action",
     name : "action",
     type : "hidden",
-    value : "Reconciliation/reconciliate_proposals"
+    value : "Reconciliation/reconcile_proposals"
   }).appendTo('#reconciliation_form');
   $("#reconciliation_form").submit();
 }

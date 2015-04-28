@@ -1,4 +1,4 @@
- SL::Controller::BankAccount;
+package SL::Controller::BankAccount;
 
 use strict;
 

@@ -34,7 +34,8 @@ html, body {
      <td>[% L.select_tag('filter.local_bank_account_id:number',
                           SELF.BANK_ACCOUNTS,
                           default=FORM.filter.local_bank_account_id_number,
-                          title_sub=\label_sub, with_empty=0,
+                          title_key='displayable_name',
+                          with_empty=0,
                           style='width:450px',
                           onchange='filter_table();') %]</td>
     </tr>
@@ -95,9 +96,11 @@ html, body {
 <!--
 
 function load_proposals () {
-  var url="controller.pl?action=Reconciliation/load_proposals&" + $('#reconciliation_form') . serialize();
+  var url="controller.pl?action=Reconciliation/load_proposals";
   $.ajax({
     url: url,
+    type: "POST",
+    data: $('#reconciliation_form').serialize(),
     success: function(new_data) {
       $('#overview').html('');
       $('#automatic').html(new_data['html']);
@@ -107,9 +110,11 @@ function load_proposals () {
 }
 
 function load_overview () {
-  var url="controller.pl?action=Reconciliation/load_overview&" + $('#reconciliation_form') . serialize();
+  var url="controller.pl?action=Reconciliation/load_overview";
   $.ajax({
     url: url,
+    type: "GET",
+    data: $('#reconciliation_form').serialize(),
     success: function(new_data) {
       $('#overview').html(new_data['html']);
       $('#automatic').html('');

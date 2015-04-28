@@ -18,7 +18,7 @@ __PACKAGE__->meta->columns(
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->foreign_keys(
-  acc_tran => {
+  acc_trans => {
     class       => 'SL::DB::AccTransaction',
     key_columns => { acc_trans_id => 'acc_trans_id' },
   },

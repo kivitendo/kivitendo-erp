@@ -17,7 +17,7 @@ __PACKAGE__->meta->columns(
   iban                            => { type => 'varchar', length => 100 },
   id                              => { type => 'integer', not_null => 1, sequence => 'id' },
   name                            => { type => 'text' },
-  obsolete                        => { type => 'boolean' },
+  obsolete                        => { type => 'boolean', default => 'false', not_null => 1 },
   reconciliation_starting_balance => { type => 'numeric', precision => 15, scale => 5 },
   reconciliation_starting_date    => { type => 'date' },
   sortkey                         => { type => 'integer', not_null => 1 },

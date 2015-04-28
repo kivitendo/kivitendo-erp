@@ -1,6 +1,5 @@
 [% USE LxERP %]
 [% USE L %]
-
 <tr>
  <th align="right">[%- LxERP.t8("Existing bank transactions") %]:</th>
  <td colspan="10">
@@ -8,5 +7,3 @@
   [% L.select_tag('settings.update_policy', opts, default = SELF.profile.get('update_policy'), style = 'width: 300px') %]
  </td>
 </tr>
-
-

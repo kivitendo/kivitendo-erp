@@ -4,7 +4,12 @@ use strict;
 
 use POSIX qw(strftime);
 
+use Data::Dumper;
 use SL::DBUtils;
+use SL::DB::Invoice;
+use SL::DB::PurchaseInvoice;
+use SL::Locale::String qw(t8);
+use DateTime;
 
 sub retrieve_open_invoices {
   $main::lxdebug->enter_sub();
@@ -21,9 +26,21 @@ sub retrieve_open_invoices {
 
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
 
+  # in query: for customers, use payment terms from invoice, for vendors use
+  # payment terms from vendor settings
+  # currently there is no option in vendor invoices for setting payment terms,
+  # so the vendor settings are always used
+
+  my $payment_term_type = $params{vc} eq 'customer' ? "${arap}" : 'vc';
+
+  # open_amount is not the current open amount according to bookkeeping, but
+  # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
     qq|
-       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.transdate, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+         (${arap}.transdate + pt.terms_skonto) as skonto_date, (pt.percent_skonto * 100) as percent_skonto,
+         (${arap}.amount - (${arap}.amount * pt.percent_skonto)) as amount_less_skonto,
+         (${arap}.amount * pt.percent_skonto) as skonto_amount,
          vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${arap}.direct_debit,
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' ${mandate} AS vc_bank_info_ok,
@@ -40,12 +57,29 @@ sub retrieve_open_invoices {
                   GROUP BY sei.ap_id)
          AS open_transfers ON (${arap}.id = open_transfers.ap_id)
 
+       LEFT JOIN payment_terms pt ON (${payment_term_type}.payment_id = pt.id)
+
        WHERE ${arap}.amount > (COALESCE(open_transfers.amount, 0) + ${arap}.paid)
 
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
 
   my $results = selectall_hashref_query($form, $dbh, $query);
+
+  # add some more data to $results:
+  # create drop-down data for payment types and suggest amount to be paid according
+  # to open amount or skonto
+
+  foreach my $result ( @$results ) {
+    my $invoice = $vc eq 'customer' ? SL::DB::Manager::Invoice->find_by(         id => $result->{id} )
+                                    : SL::DB::Manager::PurchaseInvoice->find_by( id => $result->{id} );
+
+    $invoice->get_payment_suggestions(sepa => 1); # consider amounts of open entries in sepa_export_items
+    $result->{skonto_amount}             = $invoice->skonto_amount;
+    $result->{within_skonto_period}      = $invoice->within_skonto_period;
+    $result->{invoice_amount_suggestion} = $invoice->{invoice_amount_suggestion};
+    $result->{payment_select_options}    = $invoice->{payment_select_options};
+  };
 
   $main::lxdebug->leave_sub();
 
@@ -84,10 +118,12 @@ sub create_export {
   my $q_insert =
     qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
                                       amount,      requested_execution_date, reference,   end_to_end_id,
-                                      our_iban,    our_bic,                  vc_iban,     vc_bic ${c_mandate})
+                                      our_iban,    our_bic,                  vc_iban,     vc_bic,
+                                      skonto_amount, payment_type ${c_mandate})
        VALUES                        (?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
-                                      ?,           ?,                        ?,           ? ${p_mandate})|;
+                                      ?,           ?,                        ?,           ?,
+                                      ?,           ? ${p_mandate})|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
 
   my $q_reference =
@@ -133,6 +169,17 @@ sub create_export {
                   $transfer->{amount},               conv_date($transfer->{requested_execution_date}),
                   $transfer->{reference},            $end_to_end_id,
                   map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vc));
+    # save value of skonto_amount and payment_type
+    if ( $transfer->{payment_type} eq 'without_skonto' ) {
+      push(@values, 0);
+    } elsif ($transfer->{payment_type} eq 'difference_as_skonto' ) {
+      push(@values, $transfer->{amount});
+    } elsif ($transfer->{payment_type} eq 'with_skonto_pt' ) {
+      push(@values, $transfer->{skonto_amount});
+    } else {
+      die "illegal payment_type: " . $transfer->{payment_type} . "\n";
+    };
+    push(@values, $transfer->{payment_type});
 
     push @values, $transfer->{vc_mandator_id}, conv_date($transfer->{vc_mandate_date_of_signature}) if $params{vc} eq 'customer';
 
@@ -392,6 +439,7 @@ sub post_payment {
   map { unshift @{ $_ }, prepare_query($form, $dbh, $_->[0]) } values %handles;
 
   foreach my $item (@items) {
+
     my $item_id = conv_i($item->{id});
 
     # Retrieve the item data belonging to the ID.
@@ -400,23 +448,25 @@ sub post_payment {
 
     next if (!$orig_item);
 
-    # Retrieve the invoice's AR/AP chart ID.
-    do_statement($form, @{ $handles{get_arap} }, $orig_item->{"${arap}_id"});
-    my ($arap_chart_id) = $handles{get_arap}->[0]->fetchrow_array();
+    # fetch item_id via Rose (same id as orig_item)
+    my $sepa_export_item = SL::DB::Manager::SepaExportItem->find_by( id => $item_id);
 
-    # Record the payment in acc_trans offsetting AR/AP.
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '', $arap_chart_id);
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference},
-                                                      $orig_item->{chart_id});
+    my $invoice;
 
-    # Update the invoice to reflect the new paid amount.
-    do_statement($form, @{ $handles{update_arap} }, $orig_item->{amount}, $orig_item->{"${arap}_id"});
+    if ( $sepa_export_item->ar_id ) {
+      $invoice = SL::DB::Manager::Invoice->find_by( id => $sepa_export_item->ar_id);
+    } elsif ( $sepa_export_item->ap_id ) {
+      $invoice = SL::DB::Manager::PurchaseInvoice->find_by( id => $sepa_export_item->ap_id);
+    } else {
+      die "sepa_export_item needs either ar_id or ap_id\n";
+    };
 
-    # Update datepaid of invoice. set_datepaid (which has some extra logic)
-    # finds the date from acc_trans, where the payment has already been
-    # recorded above, so we don't need to explicitly pass
-    # $item->{execution_date}
-    IO->set_datepaid(table => "$arap", id => $orig_item->{"${arap}_id"}, dbh => $dbh);
+    $invoice->pay_invoice(amount       => $sepa_export_item->amount,
+                          payment_type => $sepa_export_item->payment_type,
+                          chart_id     => $sepa_export_item->chart_id,
+                          source       => $sepa_export_item->reference,
+                          transdate    => $item->{execution_date},  # value from user form
+                         );
 
     # Update the item to reflect that it has been posted.
     do_statement($form, @{ $handles{finish_item} }, $item->{execution_date}, $item_id);

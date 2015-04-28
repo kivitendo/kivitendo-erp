@@ -146,7 +146,7 @@ sub init_all_languages {
 sub init_all_bank_accounts {
   my ($self) = @_;
 
-  return SL::DB::Manager::BankAccount->get_all;
+  return SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 }
 
 sub init_payment_terms_by {

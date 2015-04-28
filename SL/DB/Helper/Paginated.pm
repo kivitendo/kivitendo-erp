@@ -79,13 +79,13 @@ __END__
 
 =head1 NAME
 
-SL::Helper::Paginated - Manager mixin for paginating results.
+SL::DB::Helper::Paginated - Manager mixin for paginating results.
 
 =head1 SYNOPSIS
 
 In the manager:
 
-  use SL::Helper::Paginated;
+  use SL::DB::Helper::Paginated;
 
   __PACKAGE__->default_objects_per_page(10); # optional, defaults to 20
 
@@ -124,7 +124,7 @@ since they don't make sense with paginating.
 C<page> should contain a value between 1 and the maximum pages. Will be
 sanitized.
 
-The parameter C<per_page> is optional. If not given the default value of the
+The parameter C<per_page> is optional, otherwise the default value of the
 Manager will be used.
 
 =back

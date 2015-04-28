@@ -24,8 +24,8 @@ sub validate {
     # chart_id)
 
     my $chart_id = $self->chart_id;
-    my $chart = SL::DB::Chart->new( id => $chart_id );
-    if ( $chart->load(speculative => 1) ) {
+    my $chart = SL::DB::Manager::Chart->find_by( id => $chart_id );
+    if ( $chart ) {
       my $linked_bank = SL::DB::Manager::BankAccount->find_by( chart_id => $chart_id );
       if ( $linked_bank ) {
         if ( not $self->{id} or ( $self->{id} && $linked_bank->id != $self->{id} )) {
@@ -40,6 +40,12 @@ sub validate {
   push @errors, $::locale->text('The IBAN is missing.') unless $self->{iban};
 
   return @errors;
+}
+
+sub displayable_name {
+  my ($self) = @_;
+
+  return join ' ', grep $_, $self->name, $self->bank, $self->iban;
 }
 
 1;

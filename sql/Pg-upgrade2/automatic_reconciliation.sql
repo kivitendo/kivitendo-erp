@@ -1,6 +1,6 @@
 -- @tag: automatic_reconciliation
 -- @description: Erstellt Tabelle reconiliation_links für den automatischen Kontenabgleich.
--- @depends: release_3_0_0 bank_transactions
+-- @depends: release_3_2_0 bank_transactions
 
 CREATE TABLE reconciliation_links (
   id                      integer NOT NULL DEFAULT nextval('id'),

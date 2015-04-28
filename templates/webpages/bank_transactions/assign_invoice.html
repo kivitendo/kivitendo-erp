@@ -1,30 +1,32 @@
 [%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %]
 
+[% SET debug = 0 %]
+
 <form method="post" action="javascript:filter_invoices();">
-  <b>Transaction</b>
+  <b>[%- LxERP.t8("Bank transaction") %]:</b>
   <table>
    <tr class="listheading">
-    <td>[%- LxERP.t8("ID") %]:</td>
+    [% IF debug %]<td>[%- LxERP.t8("ID") %]:</td>[% END %]
+    <td>[%- LxERP.t8("Transdate") %]:</td>
     <td>[%- LxERP.t8("Amount") %]:</td>
-    <td>[%- LxERP.t8("Remote bank code") %]:</td>
-    <td>[%- LxERP.t8("Remote account number") %]:</td>
     <td>[%- LxERP.t8("Remote name") %]:</td>
     <td>[%- LxERP.t8("Purpose") %]:</td>
-    <td>[%- LxERP.t8("Transdate") %]:</td>
+    <td>[%- LxERP.t8("Remote account number") %]:</td>
+    <td>[%- LxERP.t8("Remote bank code") %]:</td>
    </tr>
 
    <tr class="listrow">
-    <td>[% SELF.transaction.id %]</td>
+    [% IF debug %]<td>[% SELF.transaction.id %]</td>[% END %]
+    <td>[% SELF.transaction.transdate_as_date %]</td>
     <td>[% LxERP.format_amount(SELF.transaction.amount, 2) %]</td>
-    <td>[% SELF.transaction.remote_bank_code %]</td>
-    <td>[% SELF.transaction.remote_account_number %]</td>
     <td>[% SELF.transaction.remote_name %]</td>
     <td>[% SELF.transaction.purpose %]</td>
-    <td>[% SELF.transaction.transdate_as_date %]</td>
+    <td>[% SELF.transaction.remote_account_number %]</td>
+    <td>[% SELF.transaction.remote_bank_code %]</td>
    </tr>
   </table>
 
-  <b>Filter</b>
+  <b>[%- LxERP.t8("Invoice filter") %]:</b>
   <table>
    <tr>
     <th align="right">[%- LxERP.t8("Invoice number") %]</th>
@@ -43,7 +45,7 @@
    </tr>
 
    <tr>
-    <th align="right">[%- LxERP.t8("Transdate from") %]</th>
+    <th align="right">[%- LxERP.t8("Invdate from") %]</th>
     <td>[% L.date_tag('transdatefrom') %]</td>
 
     <th align="right">[%- LxERP.t8("to (date)") %]</th>

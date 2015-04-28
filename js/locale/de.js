@@ -64,6 +64,7 @@ namespace("kivi").setupLocale({
 "Select template to paste":"Einzufügende Vorlage auswählen",
 "Text block actions":"Textblockaktionen",
 "Text block picture actions":"Aktionen für Textblockbilder",
+"The IBAN is missing.":"Die IBAN fehlt.",
 "The description is missing.":"Die Beschreibung fehlt.",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",

@@ -23,6 +23,8 @@ use SL::DB::AccTransaction;
 use SL::DB::Tax;
 use SL::DB::Draft;
 use SL::DB::BankAccount;
+use SL::Presenter;
+use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -39,22 +41,19 @@ __PACKAGE__->run_before('check_auth');
 sub action_search {
   my ($self) = @_;
 
-  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 
   $self->render('bank_transactions/search',
-                 label_sub => sub { t8('#1 - Account number #2, bank code #3, #4', $_[0]->name, $_[0]->account_number, $_[0]->bank_code, $_[0]->bank, )},
                  BANK_ACCOUNTS => $bank_accounts);
 }
 
 sub action_list_all {
   my ($self) = @_;
 
-  my $transactions = $self->models->get;
-
   $self->make_filter_summary;
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $transactions);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
 sub action_list {
@@ -70,13 +69,19 @@ sub action_list {
   $sort_by = 'transdate' if $sort_by eq 'proposal';
   $sort_by .= $::form->{sort_dir} ? ' DESC' : ' ASC';
 
-  my $fromdate = $::locale->parse_date_to_object(\%::myconfig, $::form->{filter}->{fromdate});
-  my $todate   = $::locale->parse_date_to_object(\%::myconfig, $::form->{filter}->{todate});
+  my $fromdate = $::locale->parse_date_to_object($::form->{filter}->{fromdate});
+  my $todate   = $::locale->parse_date_to_object($::form->{filter}->{todate});
   $todate->add( days => 1 ) if $todate;
 
   my @where = ();
   push @where, (transdate => { ge => $fromdate }) if ($fromdate);
   push @where, (transdate => { lt => $todate })   if ($todate);
+  my $bank_account = SL::DB::Manager::BankAccount->find_by( id => $::form->{filter}{bank_account} );
+  # bank_transactions no younger than starting date,
+  # but OPEN invoices to be matched may be from before
+  if ( $bank_account->reconciliation_starting_date ) {
+    push @where, (transdate => { gt => $bank_account->reconciliation_starting_date });
+  };
 
   my $bank_transactions = SL::DB::Manager::BankTransaction->get_all(where => [ amount => {ne => \'invoice_amount'},
                                                                                local_bank_account_id => $::form->{filter}{bank_account},
@@ -88,159 +93,72 @@ sub action_list {
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { gt => \'paid' }], with_objects => 'vendor');
 
   my @all_open_invoices;
-  push @all_open_invoices, @{ $all_open_ar_invoices };
-  push @all_open_invoices, @{ $all_open_ap_invoices };
+  # filter out invoices with less than 1 cent outstanding
+  push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ar_invoices };
+  push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
+
+  # try to match each bank_transaction with each of the possible open invoices
+  # by awarding points
 
   foreach my $bt (@{ $bank_transactions }) {
     next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
+
+    $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
+
+    # try to match the current $bt to each of the open_invoices, saving the
+    # results of get_agreement_with_invoice in $open_invoice->{agreement} and
+    # $open_invoice->{rule_matches}.
+
+    # The values are overwritten each time a new bt is checked, so at the end
+    # of each bt the likely results are filtered and those values are stored in
+    # the arrays $bt->{proposals} and $bt->{rule_matches}, and the agreement
+    # score is stored in $bt->{agreement}
+
     foreach my $open_invoice (@all_open_invoices){
-      $open_invoice->{agreement} = 0;
-
-      #compare banking arrangements
-      my ($bank_code, $account_number);
-      $bank_code      = $open_invoice->customer->bank_code      if $open_invoice->is_sales;
-      $account_number = $open_invoice->customer->account_number if $open_invoice->is_sales;
-      $bank_code      = $open_invoice->vendor->bank_code        if ! $open_invoice->is_sales;
-      $account_number = $open_invoice->vendor->account_number   if ! $open_invoice->is_sales;
-      ($bank_code eq $bt->remote_bank_code
-        && $account_number eq $bt->remote_account_number) ? ($open_invoice->{agreement} += 2) : ();
-
-      my $datediff = $bt->transdate->{utc_rd_days} - $open_invoice->transdate->{utc_rd_days};
-      $open_invoice->{datediff} = $datediff;
-
-      #compare amount
-#      (abs($open_invoice->amount) == abs($bt->amount)) ? ($open_invoice->{agreement} += 2) : ();
-# do we need double abs here? 
-      (abs(abs($open_invoice->amount) - abs($bt->amount)) < 0.01) ? ($open_invoice->{agreement} += 4) : ();
-
-      #search invoice number in purpose
-      my $invnumber = $open_invoice->invnumber;
-# possible improvement: match has to have more than 1 character?
-      $bt->purpose =~ /\b$invnumber\b/i ? ($open_invoice->{agreement} += 2) : ();
-
-      #check sign
-      if ( $open_invoice->is_sales && $bt->amount < 0 ) {
-        $open_invoice->{agreement} -= 1;
-      };
-      if ( ! $open_invoice->is_sales && $bt->amount > 0 ) {
-        $open_invoice->{agreement} -= 1;
-      };
-
-      #search customer/vendor number in purpose
-      my $cvnumber;
-      $cvnumber = $open_invoice->customer->customernumber if $open_invoice->is_sales;
-      $cvnumber = $open_invoice->vendor->vendornumber     if ! $open_invoice->is_sales;
-      $bt->purpose =~ /\b$cvnumber\b/i ? ($open_invoice->{agreement}++) : ();
-
-      #compare customer/vendor name and account holder
-      my $cvname;
-      $cvname = $open_invoice->customer->name if $open_invoice->is_sales;
-      $cvname = $open_invoice->vendor->name   if ! $open_invoice->is_sales;
-      $bt->remote_name =~ /\b$cvname\b/i ? ($open_invoice->{agreement}++) : ();
-
-      #Compare transdate of bank_transaction with transdate of invoice
-      #Check if words in remote_name appear in cvname
-      $open_invoice->{agreement} += &check_string($bt->remote_name,$cvname);
-
-      $open_invoice->{agreement} -= 1 if $datediff < -5; # dies hebelt eventuell Vorkasse aus
-      $open_invoice->{agreement} += 1 if $datediff < 30; # dies hebelt eventuell Vorkasse aus
-
-      # only if we already have a good agreement, let date further change value of agreement.
-      # this is so that if there are several open invoices which are all equal (rent jan, rent feb...) the one with the best date match is chose over the others
-      # another way around this is to just pre-filter by periods instead of matching everything
-      if ( $open_invoice->{agreement} > 5 ) {
-        if ( $datediff == 0 ) { 
-          $open_invoice->{agreement} += 3;
-        } elsif  ( $datediff > 0 and $datediff <= 14 ) {
-          $open_invoice->{agreement} += 2;
-        } elsif  ( $datediff >14 and $datediff < 35) {
-          $open_invoice->{agreement} += 1;
-        } elsif  ( $datediff >34 and $datediff < 120) {
-          $open_invoice->{agreement} += 1;
-        } elsif  ( $datediff < 0 ) {
-          $open_invoice->{agreement} -= 1;
-        } else {
-          # e.g. datediff > 120
-        };
-      };
-
-      #if ($open_invoice->transdate->{utc_rd_days} == $bt->transdate->{utc_rd_days}) {  
-        #$open_invoice->{agreement} += 4;
-        #print FH "found matching date for invoice " . $open_invoice->invnumber . " ( " . $bt->transdate->{utc_rd_days} . " . \n";
-      #} elsif (($open_invoice->transdate->{utc_rd_days} + 30) < $bt->transdate->{utc_rd_days}) {  
-        #$open_invoice->{agreement} -= 1;
-      #} else {
-        #$open_invoice->{agreement} -= 2;
-        #print FH "found nomatch date -2 for invoice " . $open_invoice->invnumber . " ( " . $bt->transdate->{utc_rd_days} . " . \n";
-      #};
-      #print FH "agreement after date_agreement: " . $open_invoice->{agreement} . "\n";
-
-
-
-    }
-# finished going through all open_invoices
-
-    # go through each bt
-    # for each open_invoice try to match it to each open_invoice and store agreement in $open_invoice->{agreement} (which gets overwritten each time for each bt)
-    #    calculate 
-#  
+      ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
+    };
 
     $bt->{proposals} = [];
-    my $agreement = 11;
-    # wird nie ausgeführt, bzw. nur ganz am Ende
-# oder einmal am Anfang?
-# es werden maximal 7 vorschläge gemacht?
-    # 7 mal wird geprüft, ob etwas passt
-    while (scalar @{ $bt->{proposals} } < 1 && $agreement-- > 0) {
-      $bt->{proposals} = [ grep { $_->{agreement} > $agreement } @all_open_invoices ];
-      #Kann wahrscheinlich weg:
-#      map { $_->{style} = "green" } @{ $bt->{proposals} } if $agreement >= 5;
-#      map { $_->{style} = "orange" } @{ $bt->{proposals} } if $agreement < 5 and $agreement >= 3;
-#      map { $_->{style} = "red" } @{ $bt->{proposals} } if $agreement < 3;
-      $bt->{agreement} = $agreement;  # agreement value at cutoff, will correspond to several results if threshold is 7 and several are already above 7
-    }
+
+    my $agreement = 15;
+    my $min_agreement = 3; # suggestions must have at least this score
+
+    my $max_agreement = max map { $_->{agreement} } @all_open_invoices;
+
+    # add open_invoices with highest agreement into array $bt->{proposals}
+    if ( $max_agreement >= $min_agreement ) {
+      $bt->{proposals} = [ grep { $_->{agreement} == $max_agreement } @all_open_invoices ];
+      $bt->{agreement} = $max_agreement; #scalar @{ $bt->{proposals} } ? $agreement + 1 : '';
+
+      # store the rule_matches in a separate array, so they can be displayed in template
+      foreach ( @{ $bt->{proposals} } ) {
+        push(@{$bt->{rule_matches}}, $_->{rule_matches});
+      };
+    };
   }  # finished one bt
   # finished all bt
 
   # separate filter for proposals (second tab, agreement >= 5 and exactly one match)
   # to qualify as a proposal there has to be
-  # * agreement >= 5
-  # * there must be only one exact match 
+  # * agreement >= 5  TODO: make threshold configurable in configuration
+  # * there must be only one exact match
   # * depending on whether sales or purchase the amount has to have the correct sign (so Gutschriften don't work?)
-
-  my @proposals = grep { $_->{agreement} >= 5
+  my $proposal_threshold = 5;
+  my @proposals = grep { $_->{agreement} >= $proposal_threshold
                          and 1 == scalar @{ $_->{proposals} }
                          and (@{ $_->{proposals} }[0]->is_sales ? abs(@{ $_->{proposals} }[0]->amount - $_->amount) < 0.01  : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01) } @{ $bank_transactions };
 
-  #Sort bank transactions by quality of proposal
+  # sort bank transaction proposals by quality (score) of proposal
   $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 1;
   $bank_transactions = [ sort { $b->{agreement} <=> $a->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 0;
 
 
   $self->render('bank_transactions/list',
-                title             => t8('List of bank transactions'),
+                title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
                 PROPOSALS         => \@proposals,
-                bank_account      => SL::DB::Manager::BankAccount->find_by(id => $::form->{filter}{bank_account}) );
+                bank_account      => $bank_account );
 }
-
-sub check_string {
-    my $bankstring = shift;
-    my $namestring = shift;
-    return 0 unless $bankstring and $namestring;
-
-    my @bankwords = grep(/^\w+$/, split(/\b/,$bankstring));
-
-    my $match = 0;
-    foreach my $bankword ( @bankwords ) {
-        # only try to match strings with more than 2 characters
-        next unless length($bankword)>2; 
-        if ( $namestring =~ /\b$bankword\b/i ) {
-            $match++;
-        };
-    };
-    return $match;
-};
 
 sub action_assign_invoice {
   my ($self) = @_;
@@ -288,6 +206,33 @@ sub action_create_invoice {
                                    'filter.fromdate'     => $::form->{filter}->{fromdate}),
       );
 }
+
+sub action_ajax_payment_suggestion {
+  my ($self) = @_;
+
+  # based on a BankTransaction ID and a Invoice or PurchaseInvoice ID passed via $::form,
+  # create an HTML blob to be used by the js function add_invoices in templates/webpages/bank_transactions/list.html
+  # and return encoded as JSON
+
+  my $bt = SL::DB::Manager::BankTransaction->find_by( id => $::form->{bt_id} );
+  my $invoice = SL::DB::Manager::Invoice->find_by( id => $::form->{prop_id} );
+  $invoice = SL::DB::Manager::PurchaseInvoice->find_By( id => $::form->{prop_id} ) unless $invoice;
+
+  die unless $bt and $invoice;
+
+  my @select_options = $invoice->get_payment_select_options_for_bank_transaction($::form->{bt_id});
+
+  my $html;
+  $html .= SL::Presenter->input_tag('invoice_ids.' . $::form->{bt_id} . '[]', $::form->{prop_id} , type => 'hidden');
+  $html .= SL::Presenter->escape( $invoice->invnumber );
+  $html .= SL::Presenter->select_tag('invoice_skontos.' . $::form->{bt_id} . '[]', \@select_options,
+                                              value_key => 'payment_type',
+                                              title_key => 'display' ) if @select_options;
+  $html .= '<a href=# onclick="delete_invoice(' . $::form->{bt_id} . ',' . $::form->{prop_id} . ');">x</a>';
+  $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id});
+
+  $self->render(\ SL::JSON::to_json( { 'html' => $html } ), { layout => 0, type => 'json', process => 0 });
+};
 
 sub action_filter_drafts {
   my ($self) = @_;
@@ -352,27 +297,30 @@ sub action_ajax_add_list {
   }
 
   if ($::form->{transdatefrom}) {
-    my $fromdate = $::locale->parse_date_to_object(\%::myconfig, $::form->{transdatefrom});
-    push @where_sale,     ('transdate' => { ge => $fromdate});
-    push @where_purchase, ('transdate' => { ge => $fromdate});
+    my $fromdate = $::locale->parse_date_to_object($::form->{transdatefrom});
+    if ( ref($fromdate) eq 'DateTime' ) {
+      push @where_sale,     ('transdate' => { ge => $fromdate});
+      push @where_purchase, ('transdate' => { ge => $fromdate});
+    };
   }
 
   if ($::form->{transdateto}) {
-    my $todate = $::locale->parse_date_to_object(\%::myconfig, $::form->{transdateto});
-    $todate->add(days => 1);
-    push @where_sale,     ('transdate' => { lt => $todate});
-    push @where_purchase, ('transdate' => { lt => $todate});
+    my $todate = $::locale->parse_date_to_object($::form->{transdateto});
+    if ( ref($todate) eq 'DateTime' ) {
+      $todate->add(days => 1);
+      push @where_sale,     ('transdate' => { lt => $todate});
+      push @where_purchase, ('transdate' => { lt => $todate});
+    };
   }
 
   my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where => \@where_sale, with_objects => 'customer');
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => \@where_purchase, with_objects => 'vendor');
 
   my @all_open_invoices;
-  push @all_open_invoices, @{ $all_open_ar_invoices };
-  push @all_open_invoices, @{ $all_open_ap_invoices };
+  # filter out subcent differences from ap invoices
+  push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
 
   @all_open_invoices = sort { $a->id <=> $b->id } @all_open_invoices;
-  #my $all_open_invoices = SL::DB::Manager::Invoice->get_all(where => \@where);
 
   my $output  = $self->render(
       'bank_transactions/add_list',
@@ -404,7 +352,8 @@ sub action_ajax_accept_invoices {
 sub action_save_invoices {
   my ($self) = @_;
 
-  my $invoice_hash = delete $::form->{invoice_ids};
+  my $invoice_hash = delete $::form->{invoice_ids}; # each key (the bt line with a bt_id) contains an array of invoice_ids
+  my $skonto_hash  = delete $::form->{invoice_skontos} || {}; # array containing the payment type, could be empty
 
   while ( my ($bt_id, $invoice_ids) = each(%$invoice_hash) ) {
     my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
@@ -423,8 +372,14 @@ sub action_save_invoices {
                        return 1; } @invoices                    if $bank_transaction->amount < 0;
 
     foreach my $invoice (@invoices) {
+      my $payment_type;
+      if ( @$skonto_hash{"$bt_id"} ) {
+        $payment_type = shift( @$skonto_hash{"$bt_id"} );
+      } else {
+        $payment_type = 'without_skonto';
+      };
       if ($amount_of_transaction == 0) {
-        flash('warning',  $::locale->text('There are invoices which could not be payed by bank transaction #1 (Account number: #2, bank code: #3)!',
+        flash('warning',  $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
                                             $bank_transaction->purpose,
                                             $bank_transaction->remote_account_number,
                                             $bank_transaction->remote_bank_code));
@@ -432,7 +387,11 @@ sub action_save_invoices {
       }
       #pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->amount <= $amount_of_transaction) {
-        $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id, trans_id => $invoice->id, amount => $invoice->amount, transdate => $bank_transaction->transdate);
+        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
+                              trans_id     => $invoice->id,
+                              amount       => $invoice->amount,
+                              payment_type => $payment_type,
+                              transdate    => $bank_transaction->transdate->to_kivitendo);
         if ($invoice->is_sales) {
           $amount_of_transaction -= $sign * $invoice->amount;
           $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $invoice->amount);
@@ -441,7 +400,11 @@ sub action_save_invoices {
           $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $invoice->amount);
         }
       } else {
-        $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id, trans_id => $invoice->id, amount => $amount_of_transaction, transdate => $bank_transaction->transdate);
+        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
+                              trans_id     => $invoice->id,
+                              amount       => $amount_of_transaction,
+                              payment_type => $payment_type,
+                              transdate    => $bank_transaction->transdate->to_kivitendo);
         $bank_transaction->invoice_amount($bank_transaction->amount) if $invoice->is_sales;
         $bank_transaction->invoice_amount($bank_transaction->amount) if !$invoice->is_sales;
         $amount_of_transaction = 0;
@@ -480,7 +443,7 @@ sub action_save_proposals {
     $arap->pay_invoice(chart_id  => $bt->local_bank_account->chart_id,
                        trans_id  => $arap->id,
                        amount    => $arap->amount,
-                       transdate => $bt->transdate);
+                       transdate => $bt->transdate->to_kivitendo);
     $arap->save;
 
     #create record link
@@ -520,12 +483,12 @@ sub make_filter_summary {
   my @filter_strings;
 
   my @filters = (
-    [ $filter->{"transdate:date::ge"},  $::locale->text('Transdate') . " " . $::locale->text('From Date') ],
-    [ $filter->{"transdate:date::le"},  $::locale->text('Transdate') . " " . $::locale->text('To Date')   ],
+    [ $filter->{"transdate:date::ge"},  $::locale->text('Transdate')  . " " . $::locale->text('From Date') ],
+    [ $filter->{"transdate:date::le"},  $::locale->text('Transdate')  . " " . $::locale->text('To Date')   ],
     [ $filter->{"valutadate:date::ge"}, $::locale->text('Valutadate') . " " . $::locale->text('From Date') ],
     [ $filter->{"valutadate:date::le"}, $::locale->text('Valutadate') . " " . $::locale->text('To Date')   ],
-    [ $filter->{"amount:number"},       $::locale->text('Amount')                                           ],
-    [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                                           ],
+    [ $filter->{"amount:number"},       $::locale->text('Amount')                                          ],
+    [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                          ],
   );
 
   for (@filters) {
@@ -543,8 +506,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
-  my @sortable    = qw(transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
+  my @columns     = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
+  my @sortable    = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
   my %column_defs = (
     transdate             => { sub => sub { $_[0]->transdate_as_date } },
@@ -561,6 +524,7 @@ sub prepare_report {
     purpose               => { },
     local_account_number  => { sub => sub { $_[0]->local_bank_account->account_number } },
     local_bank_code       => { sub => sub { $_[0]->local_bank_account->bank_code } },
+    local_bank_name       => { sub => sub { $_[0]->local_bank_account->name } },
     id                    => {},
   );
 
@@ -577,16 +541,15 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list_all filter));
   $report->set_options_from_form;
-  $self->models->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
-  my $bank_accounts = SL::DB::Manager::BankAccount->get_all();
-  my $label_sub = sub { t8('#1 - Account number #2, bank code #3, #4', $_[0]->name, $_[0]->account_number, $_[0]->bank_code, $_[0]->bank )};
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted();
 
   $report->set_options(
-    raw_top_info_text     => $self->render('bank_transactions/report_top',    { output => 0 }, BANK_ACCOUNTS => $bank_accounts, label_sub => $label_sub),
+    raw_top_info_text     => $self->render('bank_transactions/report_top',    { output => 0 }, BANK_ACCOUNTS => $bank_accounts),
     raw_bottom_info_text  => $self->render('bank_transactions/report_bottom', { output => 0 }),
   );
 }
@@ -599,7 +562,7 @@ sub init_models {
     sorted => {
       _default => {
         by    => 'transdate',
-        dir   => 1,
+        dir   => 0,   # 1 = ASC, 0 = DESC : default sort is newest at top
       },
       transdate             => t8('Transdate'),
       remote_name           => t8('Remote name'),
@@ -613,6 +576,7 @@ sub init_models {
       purpose               => t8('Purpose'),
       local_account_number  => t8('Local account number'),
       local_bank_code       => t8('Local bank code'),
+      local_bank_name       => t8('Bank account'),
     },
     with_objects => [ 'local_bank_account', 'currency' ],
   );

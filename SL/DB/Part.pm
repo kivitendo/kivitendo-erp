@@ -243,7 +243,7 @@ flavours called:
 
 These types are sadly represented by data inside the class and cannot be
 migrated into a flag. To work around this, each C<Part> object knows what type
-it currently is. Since the type ist data driven, there ist no explicit setting
+it currently is. Since the type is data driven, there ist no explicit setting
 method for it, but you can construct them explicitly with C<new_part>,
 C<new_service>, and C<new_assembly>. A Buchungsgruppe should be supplied in this
 case, but it will use the default Buchungsgruppe if you don't.
@@ -263,7 +263,7 @@ L</is_type> and others.
 =item C<new_assembly %PARAMS>
 
 Will set the appropriate data fields so that the resulting instance will be of
-tthe requested type. Since part of the distinction are accounting targets,
+the requested type. Since accounting targets are part of the distinction,
 providing a C<Buchungsgruppe> is recommended. If none is given the constructor
 will load a default one and set the accounting targets from it.
 
@@ -336,12 +336,12 @@ The information retrieved by the function is cached.
 
 =item C<orphaned>
 
-Checks if this articke is used in orders, invoices, delivery orders or
+Checks if this article is used in orders, invoices, delivery orders or
 assemblies.
 
 =item C<buchungsgruppe BUCHUNGSGRUPPE>
 
-Used to set the accounting informations from a L<SL:DB::Buchungsgruppe> object.
+Used to set the accounting information from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
 

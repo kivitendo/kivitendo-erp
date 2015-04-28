@@ -2,6 +2,45 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2015-0x-xx - Release 3.2.2-unstable
+
+
+Größere neue Features:
+
+Bankerweiterung und Skontobehandlung
+
+  Bei der Bankerweiterung kann man
+  * Kontoauszüge importieren (für MT940 wird aqbanking-cli benötigt)
+  * anhand der Kontoauszüge Zahlungen verbuchen
+  * die FiBu-Buchungen auf die Bankkonten mit den importieren Auszügen
+  abgleichen
+
+__Es wurde ein neues Recht "Bankbewegungen" eingeführt.
+
+  Beim Verbuchen der Zahlungen werden Rechnungsvorschläge gemacht, die anhand
+  eines internen Punktesystems bewertet werden.
+
+  Es wurde eine Skontobehandlung bei der Zahlung der Rechnungen implementiert,
+  und zwar nach der Bruttomethode. D.h. es wird der skontierte Betrag auf
+  erhaltene oder gewährte Skonti gebucht, allerdings gibt es hier keine
+  Steuerautomatik, d.h. man muß am Monatsende die Salden noch manuell umbuchen.
+
+  Die zu buchenden Skontokonten müssen unter System->Steuern konfiguriert
+  werden.
+
+  Die Skontobehandlung wurde beim Verbuchen der Skontobelege und beim
+  SEPA-Einzug bzw der SEPA-Überweisung implementiert.
+  Beim Bezahlen von Rechnungen kann man auswählen ob man die Zahlung
+  * ohne Skonto
+  * mit Skonto laut Zahlungsbedingungen
+  * die Differenz als Skonto
+  buchen möchte. Es wird je nach Zahlungsbetrag und Zahlungsdatum ein sinnvoller
+  Vorschlag gemacht.
+
+
+Kleinere neue Features und Detailverbesserungen:
+
+
 2015-04-10 - Release 3.2.1
 
 Dies ist ein Unstable Bugfix-Release für die 3.2. D.h. es wurden ein paar

@@ -5,7 +5,7 @@
     <tr class="listheading">
       <th>[% L.checkbox_tag('check_all') %]</th>
 
-      <th>[% 'Typ' | $T8 %]</th>
+      <th>[% 'Type' | $T8 %]</th>
       <th>[% 'ID' | $T8 %]</th>
       <th>[% 'Transdate' | $T8 %]</th>
       <th>[% 'Amount' | $T8 %]</th>
@@ -36,11 +36,11 @@
       [% FOREACH proposed_invoice = proposal.proposals %]
         <tr>
 
-          <td>[% 'Rechnung/Buchung' | $T8 %]</td>
+          <td>[% 'Invoice' | $T8 %]</td>
           <td>[% proposed_invoice.id %]</td>
           <td>[% proposed_invoice.transdate_as_date %]</td>
           <td>[% proposed_invoice.amount_as_number %]</td>
-          <td>[% HTML.escape(proposed_invoice.invnumber) %]</td>
+          <td>[% proposed_invoice.link %]</td>
           <td>[% HTML.escape(proposed_invoice.customer.name) %][% HTML.escape(proposed_invoice.vendor.name) %]</td>
         </tr>
             [% L.hidden_tag("proposed_invoice_" _ proposal.id, proposed_invoice.id) %]

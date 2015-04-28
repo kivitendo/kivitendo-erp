@@ -3,15 +3,17 @@
 [%- USE LxERP %]
 [%- USE L %]
 
-  <div style="height:60%;overflow:auto;">
-    <table width=100% id="link_table">
+[% SET debug = 0 %]
+
+  <div style="height:500px; overflow:auto;">
+    <table width=99% id="link_table">
       <thead>
         <tr class="listheading">
           <th></th>
 
           <th></th>
           <th>[% 'Type' | $T8 %]</th>
-          <th>[% 'ID/Acc_ID' | $T8 %]</th>
+          [% IF debug %]<th>[% 'ID/Acc_ID' | $T8 %]</th>[% END %]
           <th>[% 'Transdate' | $T8 %]</th>
           <th>[% 'Amount BT' | $T8 %]</th>
           <th>[% 'Amount BB' | $T8 %]</th>
@@ -52,9 +54,11 @@
 <!--
 
 function filter_table () {
-  var url="controller.pl?action=Reconciliation/filter_overview&" + $('#reconciliation_form') . serialize();
+  var url="controller.pl?action=Reconciliation/filter_overview";
   $.ajax({
     url: url,
+    type: "POST",
+    data: $('#reconciliation_form').serialize(),
     success: function(new_data) {
       $("tbody[class^='listrow']").remove();
       $("#assigned_elements").html('');
@@ -68,9 +72,11 @@ function filter_table () {
 }
 
 function update_reconciliation_table () {
-  var url="controller.pl?action=Reconciliation/update_reconciliation_table&" + $('#reconciliation_form') . serialize();
+  var url="controller.pl?action=Reconciliation/update_reconciliation_table";
   $.ajax({
     url: url,
+    type: "POST",
+    data: $('#reconciliation_form').serialize(),
     success: function(new_data) {
       $('#assigned_elements').html(new_data['html']);
     }
@@ -92,7 +98,7 @@ function submit_with_action(action) {
     id : "action",
     name : "action",
     type : "hidden",
-    value : "Reconciliation/reconciliate"
+    value : "Reconciliation/reconcile"
   }).appendTo('#reconciliation_form');
   $("#reconciliation_form").submit();
 }

@@ -9,6 +9,8 @@
    <th class="listheading">[% 'tax_rate' | $T8 %]</th>
    <th class="listheading">[% 'taxnumber' | $T8 %]</th>
    <th class="listheading">[% 'account_description' | $T8 %]</th>
+   <th class="listheading">[% 'Automatic skonto chart sales' | $T8 %]</th>
+   <th class="listheading">[% 'Automatic skonto chart purchase' | $T8 %]</th>
   </tr>
 
   [% SET row_odd = '1' %][% FOREACH row = TAX %]
@@ -18,6 +20,8 @@
    <td align="right">[% HTML.escape(row.rate) %] %</td>
    <td align="right">[% HTML.escape(row.taxnumber) %]</td>
    <td>[% HTML.escape(row.account_description) %]</td>
+   <td>[% HTML.escape(row.skonto_chart_accno) %] [% HTML.escape(row.skonto_chart_description) %]</td>
+   <td>[% HTML.escape(row.skonto_chart_purchase_accno) %] [% HTML.escape(row.skonto_chart_purchase_description) %]</td>
   </tr>
   [% END %]
  </table>

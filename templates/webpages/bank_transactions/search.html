@@ -11,46 +11,10 @@
 
   <p>
    <table>
-<!--
-    <tr>
-     <th align="right">[% 'Valutadate from' | $T8 %]</th>
-     <td>[% L.date_tag('filter.valutadate:date::ge', filter.valutadate_date__ge) %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Valutadate to' | $T8 %]</th>
-     <td>[% L.date_tag('filter.valutadate:date::le', filter.valutadate_date__le) %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Remote name' | $T8 %]</th>
-     <td>[% L.input_tag('filter.remote_name:substr::ilike', filter.remote_name_substr__ilike, size=60, class='initial_focus') %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Remote account number' | $T8 %]</th>
-     <td>[% L.input_tag('filter.remote_account_number:substr::ilike', filter.remote_account_number_substr__ilike, size=60, class='initial_focus') %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Remote bank code' | $T8 %]</th>
-     <td>[% L.input_tag('filter.remote_bank_code:substr::ilike', filter.remote_bank_code_substr__ilike, size=60, class='initial_focus') %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Amount' | $T8 %]</th>
-     <td>[% L.input_tag('filter.amount:number', filter.amount_number, size = 20) %]</td>
-    </tr>
-
-    <tr>
-     <th align="right">[% 'Purpose' | $T8 %]</th>
-     <td>[% L.input_tag('filter.purpose:substr::ilike', filter.purpose_substr__ilike, size=60, class='initial_focus') %]</td>
-    </tr>
-    -->
 
     <tr>
      <th align="right">[% 'Bank account' | $T8 %]</th>
-     <td>[% L.select_tag('filter.bank_account', BANK_ACCOUNTS, default=bank_acount, title_sub=\label_sub, with_empty=0, style='width:450px') %]</td>
+     <td>[% L.select_tag('filter.bank_account', BANK_ACCOUNTS, default=bank_account, title_key='displayable_name', with_empty=0, style='width:450px') %]</td>
     </tr>
 
     <tr>

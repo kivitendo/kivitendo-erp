@@ -1,11 +1,16 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
+[% SET debug=1 %]
+
  <table id="bt_list">
   <thead>
    <tr class="listheading">
     <th></th>
     <th></th>
     <th>[% 'Assigned invoices' | $T8 %]</th>
+    [% IF debug %]
+    <th>[% 'Score' | $T8 %]</th>
+    [% END %]
     <th>[% IF FORM.sort_by == 'proposal'%]
           <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=proposal&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
             [% 'Proposal' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
@@ -14,36 +19,12 @@
             [% 'Proposal' | $T8 %]</a>
         [% END %]
     </th>
-    <th>[% IF FORM.sort_by == 'remote_bank_code'%]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_bank_code&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
-            [% 'Remote bank code' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
-        [% ELSE %]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_bank_code&sort_dir=0" class="sort_link">
-            [% 'Remote bank code' | $T8 %]</a>
-        [% END %]
-    </th>
-    <th>[% IF FORM.sort_by == 'remote_account_number'%]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_account_number&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
-            [% 'Remote account number' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
-        [% ELSE %]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_account_number&sort_dir=0" class="sort_link">
-            [% 'Remote account number' | $T8 %]</a>
-        [% END %]
-    </th>
     <th>[% IF FORM.sort_by == 'transdate'%]
           <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=transdate&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
             [% 'Transdate' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
         [% ELSE %]
           <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=transdate&sort_dir=0" class="sort_link">
             [% 'Transdate' | $T8 %]</a>
-        [% END %]
-    </th>
-    <th>[% IF FORM.sort_by == 'valutadate'%]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=valutadate&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
-            [% 'Valutadate' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
-        [% ELSE %]
-          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=valutadate&sort_dir=0" class="sort_link">
-            [% 'Valutadate' | $T8 %]</a>
         [% END %]
     </th>
     <th>[% IF FORM.sort_by == 'amount'%]
@@ -55,7 +36,6 @@
         [% END %]
     </th>
     <th>[% 'Assigned' | $T8 %]</th>
-    <th>[% 'Currency' | $T8 %]</th>
     <th>[% IF FORM.sort_by == 'remote_name'%]
           <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_name&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
             [% 'Remote name' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
@@ -64,8 +44,32 @@
             [% 'Remote name' | $T8 %]</a>
         [% END %]
     </th>
-    <th>[% 'Remote name 1' | $T8 %]</th>
     <th>[% 'Purpose' | $T8 %]</th>
+    <th>[% IF FORM.sort_by == 'remote_account_number'%]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_account_number&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
+            [% 'Remote account number' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
+        [% ELSE %]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_account_number&sort_dir=0" class="sort_link">
+            [% 'Remote account number' | $T8 %]</a>
+        [% END %]
+    </th>
+    <th>[% IF FORM.sort_by == 'remote_bank_code'%]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_bank_code&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
+            [% 'Remote bank code' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
+        [% ELSE %]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_bank_code&sort_dir=0" class="sort_link">
+            [% 'Remote bank code' | $T8 %]</a>
+        [% END %]
+    </th>
+    <th>[% IF FORM.sort_by == 'valutadate'%]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=valutadate&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
+            [% 'Valutadate' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
+        [% ELSE %]
+          <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=valutadate&sort_dir=0" class="sort_link">
+            [% 'Valutadate' | $T8 %]</a>
+        [% END %]
+    </th>
+    <th>[% 'Currency' | $T8 %]</th>
    </tr>
   </thead>
 
@@ -74,24 +78,26 @@
     <tr class="listrow" id="bt_id_[% bt.id %]">
      <td><a href=# onclick="assign_invoice('[% bt.id %]'); return false;">[% 'Assign invoice' | $T8 %]</a></td>
      <td><a href=# onclick="create_invoice('[% bt.id %]'); return false;">[% 'Create invoice' | $T8 %]</a></td>
-     <td id="assigned_invoices_[% bt.id %]"></td>
+     <td id="assigned_invoices_[% bt.id %]" nowrap></td>
+     [% IF debug %]
+     <td onmouseover="Tip('[% FOREACH match = bt.rule_matches %] [% match %]<br> [% END %]')" onmouseout="UnTip()">[% bt.agreement %]</td>
+     [% END %]
      <td>
       [% FOREACH prop = bt.proposals %]
         <div name='[% prop.id %]'> <a href=# onclick="add_invoices('[% bt.id %]', '[% prop.id %]', '[% HTML.escape(prop.invnumber) %]');"
-              onmouseover="Tip('<table><tr><th></th><td>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %]&nbsp;[% '(Purchase)' | $T8 %][% END %]</td><td>[% 'Bank transaction' | $T8 %]</td></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount, 2) %]</td><td>[% LxERP.format_amount(bt.amount, 2) %]</td></tr><tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.name) %][% HTML.escape(prop.vendor.name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Customer/Vendor Number' | $T8 %]</th><td>[% HTML.escape(prop.customer.customernumber) %][% HTML.escape(prop.vendor.vendornumber) %]</td><td></td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>')" onmouseout="UnTip()"
+              onmouseover="Tip('<table><tr><th></th><th>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %] ([% 'AP' | $T8 %])[% END %]</th><th>[% 'Bank transaction' | $T8 %]</th></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount, 2) %] ([% 'open' | $T8 %]: [% LxERP.format_amount(prop.open_amount, 2) %])</td><td>[% LxERP.format_amount(bt.amount, 2) %]</td></tr>[% IF prop.skonto_date %]<tr><th>[% 'Payment terms' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount_less_skonto, 2) %] [% 'until' | $T8 %] [% HTML.escape(prop.skonto_date.to_kivitendo) %] ([% prop.percent_skonto * 100 %] %)</td><td></td></tr>[% END %]<tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.displayable_name) %][% HTML.escape(prop.vendor.displayable_name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>')" onmouseout="UnTip()"
               class=[% IF bt.agreement >= 5 %]"green"[% ELSIF bt.agreement < 5 and bt.agreement >= 3 %]"orange"[% ELSE %]"red"[% END %]>&larr;[% HTML.escape(prop.invnumber)%]</a></div>
       [% END %]
      </td>
-     <td>[% HTML.escape(bt.remote_bank_code) %]</td>
-     <td>[% HTML.escape(bt.remote_account_number) %]</td>
      <td align=right>[% bt.transdate_as_date %]</td>
-     <td align=right>[% bt.valutadate_as_date %]</td>
      <td align=right>[% bt.amount_as_number %]</td>
      <td align=right>[% bt.invoice_amount_as_number %]</td>
-     <td align=center>[% HTML.escape(bt.currency.name) %]</td>
      <td>[% HTML.escape(bt.remote_name) %]</td>
-     <td>[% HTML.escape(bt.remote_name_1) %]</td>
      <td>[% HTML.escape(bt.purpose) %]</td>
+     <td>[% HTML.escape(bt.remote_account_number) %]</td>
+     <td>[% HTML.escape(bt.remote_bank_code) %]</td>
+     <td align=right>[% bt.valutadate_as_date %]</td>
+     <td align=center>[% HTML.escape(bt.currency.name) %]</td>
     </tr>
     [%- END %]
   </tbody>

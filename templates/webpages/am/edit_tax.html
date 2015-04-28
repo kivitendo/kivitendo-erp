@@ -43,7 +43,15 @@
     <td>[% 'tax_chartaccno' | $T8 %]</td>
     <td><select name="chart_id"><option value="">[% 'None' | $T8 %]</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
    </tr>
-
+   <tr>
+    <td>[% 'Automatic skonto chart sales' | $T8 %]</td>
+    <td> [% L.select_tag('skonto_sales_chart_id', AR_PAID, value_title_sub = \skontochart_value_title_sub, with_empty = 1, default = skonto_sales_chart_id) %]</td>
+   </tr>
+   <tr>
+    <td>[% 'Automatic skonto chart purchase' | $T8 %]</td>
+    <td> [% L.select_tag('skonto_purchase_chart_id', AP_PAID, value_title_sub = \skontochart_value_title_sub, with_empty = 1, default = skonto_purchase_chart_id) %]</td>
+   </tr>
+   <tr>
     <td>[% 'Account categories' | $T8 %]</td>
     <td><table>
           <colgroup>

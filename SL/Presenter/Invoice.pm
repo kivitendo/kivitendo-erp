@@ -5,9 +5,27 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(sales_invoice ar_transaction purchase_invoice ap_transaction gl_transaction);
+our @EXPORT = qw(invoice sales_invoice ar_transaction purchase_invoice ap_transaction gl_transaction);
 
 use Carp;
+
+sub invoice {
+  my ($self, $invoice, %params) = @_;
+
+  if ( $invoice->is_sales ) {
+    if ( $invoice->invoice ) {
+      return _is_ir_record($self, $invoice, 'is', %params);
+    } else {
+      return _is_ir_record($self, $invoice, 'ar', %params);
+    }
+  } else {
+    if ( $invoice->invoice ) {
+      return _is_ir_record($self, $invoice, 'ir', %params);
+    } else {
+      return _is_ir_record($self, $invoice, 'ap', %params);
+    }
+  };
+};
 
 sub sales_invoice {
   my ($self, $invoice, %params) = @_;
@@ -85,9 +103,35 @@ transaction, purchase invoice and AP transaction Rose::DB objects
   my $object = SL::DB::Manager::PurchaseInvoice->get_first(where => [ or => [ invoice => undef, invoice => 0 ]]);
   my $html   = SL::Presenter->get->ar_transaction($object, display => 'inline');
 
+  # use with any of the above ar/ap/is/ir types:
+  my $html   = SL::Presenter->get->invoice($object, display => 'inline');
+
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<invoice $object, %params>
+
+Returns a rendered version (actually an instance of
+L<SL::Presenter::EscapedText>) of an ar/ap/is/ir object C<$object> . Determines
+which type (sales or purchase, invoice or not) the object is.
+
+C<%params> can include:
+
+=over 2
+
+=item * display
+
+Either C<inline> (the default) or C<table-cell>. At the moment both
+representations are identical and produce the invoice number linked
+to the corresponding 'edit' action.
+
+=item * no_link
+
+If falsish (the default) then the invoice number will be linked to the
+"edit invoice" dialog from the sales menu.
+
+=back
 
 =item C<sales_invoice $object, %params>
 

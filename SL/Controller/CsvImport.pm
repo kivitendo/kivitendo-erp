@@ -224,7 +224,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders bank_transactions mt940);
   $self->type($::form->{profile}->{type});
 }
 
@@ -292,13 +292,13 @@ sub test_and_import_deferred {
 
   $self->profile_from_form;
 
-
   if ( $::form->{file} && $::form->{FILENAME} =~ /\.940$/ ) {
     my $mt940_file = SL::SessionFile->new($::form->{FILENAME}, mode => '>');
     $mt940_file->fh->print($::form->{file});
     $mt940_file->fh->close;
 
-    my $aqbin = '/usr/bin/aqbanking-cli';
+    my $aqbin = $::lx_office_conf{applications}->{aqbanking};
+    die "Can't find aqbanking-cli, please check your configuration file.\n" unless -f $aqbin;
     my $cmd = "$aqbin --cfgdir=\"users\" import --importer=\"swift\" --profile=\"SWIFT-MT940\" -f " . $mt940_file->file_name . " | $aqbin --cfgdir=\"users\" listtrans --exporter=\"csv\" --profile=\"AqMoney2\" ";
     my $converted_mt940;
     open(MT, "$cmd |");

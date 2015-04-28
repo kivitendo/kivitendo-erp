@@ -3,7 +3,8 @@
 -- @depends: release_3_2_0
 -- @encoding: utf-8
 
-ALTER TABLE bank_accounts ADD COLUMN obsolete BOOLEAN;
+-- default false needed so that get_all_sorted( query => [ obsolete => 0 ] ) works
+ALTER TABLE bank_accounts ADD COLUMN obsolete BOOLEAN NOT NULL DEFAULT false;
 
 ALTER TABLE bank_accounts ADD COLUMN sortkey INTEGER;
 CREATE SEQUENCE tmp_counter;

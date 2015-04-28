@@ -72,7 +72,7 @@
 
    [% FOREACH draft = DRAFTS %]
     <tr class="listrow[% loop.count % 2 %]">
-     <td><a href="[% draft.module %].pl?action=load_draft&id=[% HTML.url(draft.id) %]&amount_1=[% -1 * SELF.transaction.amount_as_number %]&transdate=[% HTML.url(SELF.transaction.transdate_as_date) %]&duedate=[% HTML.url(SELF.transaction.transdate_as_date) %]&datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&paid_1=[% -1 * SELF.transaction.amount_as_number %]&currency=[% HTML.url(SELF.transaction.currency.name) %]&AP_paid_1=[% HTML.url(SELF.transaction.local_bank_account.chart.accno) %]&remove_draft=0&callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
+     <td><a href="[% draft.module %].pl?action=load_draft&id=[% HTML.url(draft.id) %]&amount_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&transdate=[% HTML.url(SELF.transaction.transdate_as_date) %]&duedate=[% HTML.url(SELF.transaction.transdate_as_date) %]&datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&paid_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&currency=[% HTML.url(SELF.transaction.currency.name) %]&AP_paid_1=[% HTML.url(SELF.transaction.local_bank_account.chart.accno) %]&remove_draft=0&callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
      <td>[% HTML.escape(draft.vendor) %]</td>
      <td>[% HTML.escape(draft.employee.name) %]</td>
      <td>[% HTML.escape(draft.itime_as_date) %]</td>

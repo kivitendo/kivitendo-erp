@@ -8,6 +8,7 @@
     <th>[%- LxERP.t8("Invoice number") %]</th>
     <th>[%- LxERP.t8("Amount") %]</th>
     <th>[%- LxERP.t8("Open amount") %]</th>
+    <th>[%- LxERP.t8("Amount less skonto") %]</th>
     <th>[%- LxERP.t8("Transdate") %]</th>
     <th>[%- LxERP.t8("Customer/Vendor number") %]</th>
     <th>[%- LxERP.t8("Customer/Vendor name") %]</th>
@@ -19,6 +20,7 @@
     <td>[%- invoice.invnumber %]</td>
     <td align="right">[%- LxERP.format_amount(invoice.amount, 2) %]</td>
     <td align="right">[%- LxERP.format_amount(invoice.amount - invoice.paid, 2) %]</td>
+    <td align="right">[%- LxERP.format_amount(invoice.amount_less_skonto, 2) %]</td>
     <td align="right">[%- invoice.transdate_as_date %]</td>
     <td>[%- invoice.vendor.vendornumber %][%- invoice.customer.customernumber %]</td>
     <td>[%- invoice.vendor.name %][%- invoice.customer.name %]</td>
