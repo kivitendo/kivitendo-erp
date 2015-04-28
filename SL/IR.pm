@@ -807,8 +807,6 @@ SQL
       exporttype => DATEV_ET_BUCHUNGEN,
       format     => DATEV_FORMAT_KNE,
       dbh        => $dbh,
-      from       => $transdate,
-      to         => $transdate,
       trans_id   => $form->{id},
     );
 

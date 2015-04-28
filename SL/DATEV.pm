@@ -199,6 +199,8 @@ sub trans_id {
     $self->{trans_id} = $_[0];
   }
 
+  die "illegal trans_id passed for DATEV export: " . $self->{trans_id} . "\n" unless $self->{trans_id} =~ m/^\d+$/;
+
   return $self->{trans_id};
 }
 
@@ -346,18 +348,24 @@ sub _sign {
 sub _get_transactions {
   $main::lxdebug->enter_sub();
   my $self     = shift;
-  my $fromto   =  shift;
+  my $fromto   = shift;
   my $progress_callback = shift || sub {};
 
   my $form     =  $main::form;
 
   my $trans_id_filter = '';
 
-  $trans_id_filter = 'AND ac.trans_id = ' . $self->trans_id if $self->trans_id;
+  if ( $self->{trans_id} ) {
+    # ignore dates when trans_id is passed so that the entire transaction is
+    # checked, not just either the initial bookings or the subsequent payments
+    # (the transdates will likely differ)
+    $fromto = '';
+    $trans_id_filter = 'ac.trans_id = ' . $self->trans_id;
+  } else {
+    $fromto      =~ s/transdate/ac\.transdate/g;
+  };
 
   my ($notsplitindex);
-
-  $fromto      =~ s/transdate/ac\.transdate/g;
 
   my $filter   = '';            # Useful for debugging purposes
 
@@ -421,7 +429,10 @@ sub _get_transactions {
   $self->{DATEV} = [];
 
   my $counter = 0;
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+  my $continue = 1; #
+  my $name;
+  while ( $continue && (my $ref = $sth->fetchrow_hashref("NAME_lc")) ) {
+    last unless $ref;  # for single transactions
     $counter++;
     if (($counter % 500) == 0) {
       $progress_callback->($counter);
@@ -445,13 +456,27 @@ sub _get_transactions {
     # keep fetching new acc_trans lines until the end of a balanced group is reached
     while (abs($count) > 0.01 || $firstrun || ($subcent && abs($count) > 0.005)) {
       my $ref2 = $sth->fetchrow_hashref("NAME_lc");
-      last unless ($ref2);
+      unless ( $ref2 ) {
+        $continue = 0;
+        last;
+      };
 
       # check if trans_id of current acc_trans line is still the same as the
-      # trans_id of the first line in group
+      # trans_id of the first line in group, i.e. we haven't finished a 0-group
+      # before moving on to the next trans_id, error will likely be in the old
+      # trans_id.
 
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
-        $self->add_error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
+        require SL::DB::Manager::AccTransaction;
+        if ( $trans->[0]->{trans_id} ) {
+          my $acc_trans_old_obj  = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $trans->[0]->{trans_id} ]);
+          $self->add_error("Unbalanced ledger! Old: " . $acc_trans_old_obj->transaction_name) if ref($acc_trans_old_obj);
+        };
+        if ( $ref2->{trans_id} ) {
+          my $acc_trans_curr_obj = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $ref2->{trans_id} ]);
+          $self->add_error("Unbalanced ledger! New:" . $acc_trans_curr_obj->transaction_name) if ref($acc_trans_curr_obj);
+        };
+        $self->add_error("count: $count");
         return;
       }
 
@@ -618,7 +643,9 @@ sub _get_transactions {
 
     $absumsatz = $form->round_amount($absumsatz, 2);
     if (abs($absumsatz) >= (0.01 * (1 + scalar @taxed))) {
-      $self->add_error("Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)");
+      require SL::DB::Manager::AccTransaction;
+      my $acc_trans_obj  = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $trans->[0]->{trans_id} ]);
+      $self->add_error("Datev-Export fehlgeschlagen! Bei Transaktion " . $acc_trans_obj->transaction_name . " ($absumsatz)");
 
     } elsif (abs($absumsatz) >= 0.01) {
       $self->add_net_gross_differences($absumsatz);
@@ -1066,11 +1093,21 @@ SL::DATEV - kivitendo DATEV Export module
 
   use SL::DATEV qw(:CONSTANTS);
 
+  my $startdate = DateTime->new(year => 2014, month => 9, day => 1);
+  my $enddate   = DateTime->new(year => 2014, month => 9, day => 31);
   my $datev = SL::DATEV->new(
     exporttype => DATEV_ET_BUCHUNGEN,
     format     => DATEV_FORMAT_KNE,
     from       => $startdate,
     to         => $enddate,
+  );
+
+  # To only export transactions from a specific trans_id: (from and to are ignored)
+  my $invoice = SL::DB::Manager::Invoice->find_by( invnumber => '216' );
+  my $datev = SL::DATEV->new(
+    exporttype => DATEV_ET_BUCHUNGEN,
+    format     => DATEV_FORMAT_KNE,
+    trans_id   => $invoice->trans_id,
   );
 
   my $datev = SL::DATEV->new(
@@ -1084,7 +1121,7 @@ SL::DATEV - kivitendo DATEV Export module
   my $hashref = $datev->get_datev_stamm;
   $datev->save_datev_stamm($hashref);
 
-  # manually clean up temporary directories
+  # manually clean up temporary directories older than 8 hours
   $datev->clean_temporary_directories;
 
   # export
@@ -1117,7 +1154,7 @@ This module implements the DATEV export standard. For usage see above.
 
 =item new PARAMS
 
-Generic constructor. See section attributes for information about hat to pass.
+Generic constructor. See section attributes for information about what to pass.
 
 =item get_datev_stamm
 
@@ -1159,7 +1196,7 @@ Note: If either a download_token or export_path were set at the creation these a
 
 =item filenames
 
-Returns a list of filenames generated by this DATEV object. This only works if th files were generated during it's lifetime, not if the object was created from a download_token.
+Returns a list of filenames generated by this DATEV object. This only works if the files were generated during its lifetime, not if the object was created from a download_token.
 
 =item net_gross_differences
 
@@ -1211,7 +1248,14 @@ Can be set on creation to retrieve a prior export for download.
 
 =item to
 
-Set boundary dates for the export. Currently thse MUST be set for the export to work.
+Set boundary dates for the export. Unless a trans_id is passed these MUST be
+set for the export to work.
+
+=item trans_id
+
+To check only one gl/ar/ap transaction, pass the trans_id. The attributes
+L<from> and L<to> are currently still needed for the query to be assembled
+correctly.
 
 =item accnofrom
 
@@ -1255,7 +1299,7 @@ No or unrecognized exporttype or format was provided for an export
 
 =item *
 
-OBE rxport was called, which is not yet implemented.
+OBE export was called, which is not yet implemented.
 
 =item *
 
@@ -1274,7 +1318,7 @@ C<Unbalanced Ledger!>. Exactly that, your ledger is unbalanced. Should never occ
 =item *
 
 C<Datev-Export fehlgeschlagen! Bei Transaktion %d (%f).>  This error occurs if a
-transaction could not be reliably sorted out, or had rounding errors over the acceptable threshold.
+transaction could not be reliably sorted out, or had rounding errors above the acceptable threshold.
 
 =back
 
@@ -1284,7 +1328,7 @@ transaction could not be reliably sorted out, or had rounding errors over the ac
 
 =item *
 
-Handling of Vollvorlauf is currently not fully implemented. You must provide both from and to to get a working export.
+Handling of Vollvorlauf is currently not fully implemented. You must provide both from and to in order to get a working export.
 
 =item *
 
