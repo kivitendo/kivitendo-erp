@@ -64,6 +64,7 @@ __PACKAGE__->meta->columns(
   is_transfer_out                           => { type => 'boolean', default => 'false', not_null => 1 },
   itime                                     => { type => 'timestamp', default => 'now()' },
   language_id                               => { type => 'integer' },
+  letternumber                              => { type => 'integer' },
   max_future_booking_interval               => { type => 'integer', default => 360 },
   mtime                                     => { type => 'timestamp' },
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },
