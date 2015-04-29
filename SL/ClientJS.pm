@@ -118,6 +118,8 @@ my %supported_methods = (
   reinit_widgets         => 0,  # kivi.reinit_widgets()
   run                    => -1, # kivi.run(<TARGET>, <ARGS>)
   run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
+
+  scroll_into_view       => 1,  # $(<TARGET>)[0].scrollIntoView()
 );
 
 sub AUTOLOAD {

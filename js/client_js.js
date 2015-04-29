@@ -131,6 +131,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
       else if (action[0] == 'run')                  kivi.run(action[1], action.slice(2, action.length));
       else if (action[0] == 'run_once_for')         kivi.run_once_for(action[1], action[2], action[3]);
+      else if (action[0] == 'scroll_into_view')     $(action[1])[0].scrollIntoView();
 
       else                                          console.log('Unknown action: ' + action[0]);
 
