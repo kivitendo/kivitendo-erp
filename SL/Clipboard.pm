@@ -120,7 +120,7 @@ Rose::DB::Object instances
 =head1 OVERVIEW
 
 The clipboard can store an unlimited number of copies of
-Rose::DB::Object instance. The instances are dumped into trees using
+Rose::DB::Object instances. The instances are dumped into trees using
 L<Rose::DB::Object::Helpers/as_tree>. How much of such an object is
 copied depends on its type. For example, a dump of a customer object
 might also include the dumps of the shipping address and contact
