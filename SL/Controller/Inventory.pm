@@ -59,6 +59,7 @@ sub action_stock {
       unit          => $self->unit,
       transfer_type => 'stock',
       chargenumber  => $::form->{chargenumber},
+      bestbefore    => $::form->{bestbefore},
       ean           => $::form->{ean},
       comment       => $::form->{comment},
     });
