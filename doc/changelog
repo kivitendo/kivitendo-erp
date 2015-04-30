@@ -16,6 +16,34 @@ Kleinere neue Features und Detailverbesserungen:
   eingestellt werden, dass in dieser Maske mehrere Artikel mit Mengen ausgewählt
   werden können.
 
+- Stammdaten->Berichte->Waren: Nach Shopartikel filtern und anzeigen können.
+
+- Auftrags-/Angebotsbericht: Erfassungszeit als letzte Sortierung verwenden,
+  damit die Einträge nach Eingabezeitpunkt sortiert sind, wenn es
+  gleichrangige Einträge in der aktuellen Sortierung gibt.
+
+- Bei Eingabe nicht eindeutiger Artikel in den Belegmasken bleibt jetzt auch die
+  Mengeneingabe über die Auswahlmaske hinweg bestehen. Damit kann man die Menge
+  auch schon vorher eingeben: Nicht eindeutiger Artikel, TAB, TAB, Menge, ENTER
+
+- In den Berichten zu Aufträgen, VK-Lieferscheinen, Warenstammdaten, Kunden-/
+  Lieferntenstammdaten kann das Erfassungsdatum angezeigt und danach gefiltert
+  werden.
+
+- Filtern/Anzeigen von benutzerdefinierten Variablen bei Kunden-/Lieferanten in
+  den Berichten Angebot/Aufträge und Verkaufsrechnungen
+
+- Filtern nach Kunden-/Lieferantentyp bei Lieferschein-Berichten.
+
+- Preisgruppe bei Stammdaten->Berichte->Kunden anzeigen lassen können.
+
+
+Bugfixes:
+
+- Bugfix #54 Fehlermeldung im Mahnlauf bei automatischer Rechnung über Mahngebühren
+- Bugfix #50 Kundentyp-Rabatt wird falsch übernommen
+
+
 2015-04-10 - Release 3.2.1
 
 Dies ist ein Unstable Bugfix-Release für die 3.2. D.h. es wurden ein paar
