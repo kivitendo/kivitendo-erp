@@ -11,7 +11,9 @@ use Rose::Object::MakeMethods::Generic (
 
 our @EXPORT = qw(t8);
 
-use overload '""' => \&translated;
+use overload
+  '""' => \&translated,
+  eq   => \&my_eq;
 
 sub translated {
   my ($self) = @_;
@@ -23,6 +25,10 @@ sub t8 {
 
   my $string = shift;
   return SL::Locale::String->new(untranslated => $string, args => [ @_ ]);
+}
+
+sub my_eq {
+  $_[1] eq $_[0]->translated;
 }
 
 sub TO_JSON {
