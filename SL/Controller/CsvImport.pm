@@ -18,6 +18,7 @@ use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
 use SL::Controller::CsvImport::Order;
 use SL::JSON;
+use SL::Controller::CsvImport::BankTransaction;
 use SL::BackgroundJob::CsvImport;
 use SL::System::TaskServer;
 
@@ -223,7 +224,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts inventories customers_vendors addresses contacts projects orders bank_transactions mt940);
   $self->type($::form->{profile}->{type});
 }
 
@@ -268,6 +269,8 @@ sub render_inputs {
             : $self->type eq 'inventories'       ? $::locale->text('CSV import: inventories')
             : $self->type eq 'projects'          ? $::locale->text('CSV import: projects')
             : $self->type eq 'orders'            ? $::locale->text('CSV import: orders')
+            : $self->type eq 'bank_transactions' ? $::locale->text('CSV import: bank transactions')
+            : $self->type eq 'mt940'             ? $::locale->text('CSV import: MT940')
             : die;
 
   if ($self->{type} eq 'customers_vendors' or $self->{type} eq 'orders'  ) {
@@ -289,10 +292,28 @@ sub test_and_import_deferred {
 
   $self->profile_from_form;
 
-  if ($::form->{file}) {
+  if ( $::form->{file} && $::form->{FILENAME} =~ /\.940$/ ) {
+    my $mt940_file = SL::SessionFile->new($::form->{FILENAME}, mode => '>');
+    $mt940_file->fh->print($::form->{file});
+    $mt940_file->fh->close;
+
+    my $aqbin = $::lx_office_conf{applications}->{aqbanking};
+    die "Can't find aqbanking-cli, please check your configuration file.\n" unless -f $aqbin;
+    my $cmd = "$aqbin --cfgdir=\"users\" import --importer=\"swift\" --profile=\"SWIFT-MT940\" -f " . $mt940_file->file_name . " | $aqbin --cfgdir=\"users\" listtrans --exporter=\"csv\" --profile=\"AqMoney2\" ";
+    my $converted_mt940;
+    open(MT, "$cmd |");
+    $converted_mt940 .=  '"transaction_id";"local_bank_code";"local_account_number";"remote_bank_code";"remote_account_number";"transdate";"valutadate";"amount";"currency";"remote_name";"remote_name_1";"purpose";"purpose1";"purpose2";"purpose3";"purpose4";"purpose5";"purpose6";"purpose7";"purpose8";"purpose9";"purpose10";"purpose11"' . "\n";
+    my $headerline = <MT>;  # discard original header line
+    while (<MT>) {
+      $converted_mt940 .= $_;
+    };
     my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
-    $file->fh->print($::form->{file});
+    $file->fh->print($converted_mt940);
     $file->fh->close;
+  } elsif ($::form->{file}) {
+      my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
+      $file->fh->print($::form->{file});
+      $file->fh->close;
   }
 
   my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
@@ -618,6 +639,8 @@ sub init_worker {
        : $self->{type} eq 'inventories'       ? SL::Controller::CsvImport::Inventory->new(@args)
        : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(@args)
        : $self->{type} eq 'orders'            ? SL::Controller::CsvImport::Order->new(@args)
+       : $self->{type} eq 'bank_transactions' ? SL::Controller::CsvImport::BankTransaction->new(@args)
+       : $self->{type} eq 'mt940'             ? SL::Controller::CsvImport::BankTransaction->new(@args)
        :                                        die "Program logic error";
 }
 

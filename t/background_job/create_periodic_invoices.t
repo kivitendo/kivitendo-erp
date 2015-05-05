@@ -45,13 +45,17 @@ sub init_common_state {
   $unit           = SL::DB::Manager::Unit->find_by(name => 'psch')                          || croak "No unit";
 }
 
+sub clear_up {
+  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+};
+
 sub create_invoices {
   my %params = @_;
 
   $params{$_} ||= {} for qw(customer part tax order orderitem periodic_invoices_config);
 
   # Clean up: remove invoices, orders, parts and customers
-  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+  clear_up();
 
   $customer     = SL::DB::Customer->new(
     name        => 'Test Customer',
@@ -236,5 +240,7 @@ are_invoices 'p=b ovp=5',[ '01.01.2009', 33.33 ], [ '01.07.2009', 33.33 ],
 
 create_invoices(periodic_invoices_config => { periodicity => 'y', order_value_periodicity => '5', start_date => DateTime->from_kivitendo('01.01.2009') });
 are_invoices 'p=y ovp=5',[ '01.01.2009', 66.67 ], [ '01.01.2010', 66.67 ], [ '01.01.2011', 66.67 ], [ '01.01.2012', 66.67 ], [ '01.01.2013', 66.65 ], [ '01.01.2014', 66.67 ];
+
+clear_up();
 
 done_testing();

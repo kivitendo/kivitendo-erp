@@ -9,6 +9,7 @@ use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::Payment qw(:ALL);
 use SL::Locale::String qw(t8);
 
 # The calculator hasn't been adjusted for purchase invoices yet.
@@ -76,6 +77,16 @@ sub abbreviation {
   return t8('Invoice (one letter abbreviation)'). '(' . t8('Storno (one letter abbreviation)') . ')' if $self->storno;
   return t8('Invoice (one letter abbreviation)');
 
+};
+
+sub link {
+  my ($self) = @_;
+
+  my $html;
+  $html   = SL::Presenter->get->purchase_invoice($self, display => 'inline') if $self->invoice;
+  $html   = SL::Presenter->get->ap_transaction($self, display => 'inline') if !$self->invoice;
+
+  return $html;
 }
 
 1;

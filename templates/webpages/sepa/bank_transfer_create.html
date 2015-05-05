@@ -10,11 +10,12 @@
  [% SET arap = 'ar' %]
  [% SET iris = 'is' %]
 [%- END %]
-<h1>[% title %]</h1>
 
  [%- IF error_message %]
  <p><div class="message_error">[% error_message %]</div></p>
  [%- END %]
+
+ <p><div class="listtop">[% title %]</div></p>
 
  <form action="sepa.pl" method="post">
   <p>1.
@@ -24,12 +25,13 @@
     [% 'Please select the destination bank account for the collections:' | $T8 %]
    [%- END %]
    <br>
-   [%- INCLUDE generic/multibox.html
-         name      = 'bank_account.id',
-         DATA      = BANK_ACCOUNTS,
-         id_key    = 'id',
-         label_sub = 'bank_account_label',
-   -%]
+   [% L.select_tag('bank_account',
+       BANK_ACCOUNTS,
+       title_key='displayable_name',
+       default=bank_account.id,
+       with_empty=0,
+       style='width:450px',
+   ) %]
   </p>
 
   <p>
@@ -82,6 +84,8 @@
      <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
      <th class="listheading">[% 'Purpose' | $T8 %]</th>
      <th class="listheading" align="right">[%- IF is_vendor %][% 'Bank transfer amount' | $T8 %][%- ELSE %][%- LxERP.t8('Bank collection amount') %][%- END %]</th>
+     <th class="listheading" align="right">[% LxERP.t8('Payment type') %]</th>
+     <th class="listheading" align="right">[% LxERP.t8('Skonto information') %]</th>
      <th class="listheading">[% 'Execution date' | $T8 %]</th>
     </tr>
 
@@ -89,6 +93,9 @@
      <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(bank_transfer.id) %]">
      <input type="hidden" name="bank_transfers[].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
      <input type="hidden" name="bank_transfers[].selected" value="1">
+     <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
+     <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
+     <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
 
      <tr class="listrow[% loop.count % 2 %]">
       <td>
@@ -109,9 +116,13 @@
       <td align="right">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
       <td align="right">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
       <td>
-       <input name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference.substr(0, 140)) %]" size="60" maxlength="140">
+       <input name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference.substr(0, 140)) %]" size="40" maxlength="140">
       </td>
-      <td align="right"><input name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
+      <td align="right"><input id=[% loop.count %] name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
+      <td>
+      [% L.select_tag('bank_transfers[].payment_type', bank_transfer.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target' ) %]
+      </td>
+      <td align="left" [%- IF bank_transfer.within_skonto_period %]style="background-color: LightGreen"[%- END %]>[%- IF bank_transfer.skonto_amount %] [% LxERP.format_amount(bank_transfer.percent_skonto, 2) %] % = [% LxERP.format_amount(bank_transfer.skonto_amount, 2) %] € [% 'until' | $T8 %] [% bank_transfer.skonto_date %] [% END %]</td>
       <td nowrap>
         [% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.requested_execution_date) %]
       </td>
@@ -136,3 +147,30 @@
   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
   <input type="hidden" name="confirmation" value="1">
  </form>
+
+ <script type="text/javascript">
+
+    // function toggle(id) {
+    //   $('#skonto_' + id).change(function() {
+    //     if($('#skonto_' + id).prop("checked")) {
+    //         $('#' + id).val( $('#amount_less_skonto_' + id).val() );
+    //     } else {
+    //         $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+    //     }
+    //   });
+    // };
+
+$( ".type_target" ).change(function() {
+  type_id = $(this).attr('id');
+  var id = type_id.match(/\d*$/);
+  // alert("found id " + id);
+  if ( $(this).val() == "without_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "difference_as_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "with_skonto_pt" ) {
+            $('#' + id).val( $('#amount_less_skonto_' + id).val() );
+  }
+});
+
+</script>

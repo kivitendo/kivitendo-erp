@@ -34,13 +34,6 @@ sub new_with_default {
 sub set_defaults {
   my ($self) = @_;
 
-  $self->_set_defaults(sep_char     => ',',
-                       quote_char   => '"',
-                       escape_char  => '"',
-                       charset      => 'CP850',
-                       numberformat => $::myconfig{numberformat},
-                       duplicates   => 'no_check',
-                      );
 
   if ($self->type eq 'parts') {
     my $bugru = SL::DB::Manager::Buchungsgruppe->find_by(description => { like => 'Standard%19%' });
@@ -59,9 +52,32 @@ sub set_defaults {
                          item_column     => $::locale->text('OrderItem'),
                          max_amount_diff => 0.02,
                         );
+  } elsif ($self->type eq 'mt940') {
+    $self->_set_defaults(charset       => 'UTF8',
+                         sep_char      => ';',
+                         numberformat  => '1000.00',
+                         update_policy => 'skip',
+                        );
+  } elsif ($self->type eq 'bank_transactions') {
+    $self->_set_defaults(charset       => 'UTF8',
+                         update_policy => 'skip',
+                        );
   } else {
     $self->_set_defaults(table => 'customer');
   }
+
+  # TODO: move the defaults into their own controller
+  # defaults can only be set once, so use these values as default if they
+  # haven't already been set above for one of the special import types
+  # If the values have been set above they won't be overwritten here:
+
+  $self->_set_defaults(sep_char     => ',',
+                       quote_char   => '"',
+                       escape_char  => '"',
+                       charset      => 'CP850',
+                       numberformat => $::myconfig{numberformat},
+                       duplicates   => 'no_check',
+                      );
 
   return $self;
 }

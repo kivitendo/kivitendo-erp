@@ -1,0 +1,51 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+
+<table>
+  <thead>
+    <tr class="listheading">
+      <th>[% L.checkbox_tag('check_all') %]</th>
+
+      <th>[% 'Type' | $T8 %]</th>
+      <th>[% 'ID' | $T8 %]</th>
+      <th>[% 'Transdate' | $T8 %]</th>
+      <th>[% 'Amount' | $T8 %]</th>
+      <th>[% 'Purpose/Reference' | $T8 %]</th>
+      <th>[% 'Customer/Vendor/Remote name' | $T8 %]</th>
+    </tr>
+  </thead>
+  [% IF !PROPOSALS.size %]
+    <tbody class="listrow">
+      <td colspan="7"><p class="message_hint">[% 'No data was found.' | $T8 %]</p></td>
+    </tbody>
+  [% ELSE %]
+    [% FOREACH proposal = PROPOSALS %]
+      <tbody class="listrow">
+        <tr>
+          <td rowspan=2 style="valign:center;">
+            [% L.checkbox_tag('proposal_ids[]', checked=0, value=proposal.id) %]
+          </td>
+
+          <td>[% 'Bank transaction' | $T8 %]</td>
+          <td>[% proposal.id %]</td>
+          <td>[% proposal.transdate_as_date %]</td>
+          <td>[% proposal.amount_as_number %]</td>
+          <td>[% HTML.escape(proposal.purpose) %]</td>
+          <td>[% HTML.escape(proposal.remote_name) %]</td>
+        </tr>
+
+      [% FOREACH proposed_invoice = proposal.proposals %]
+        <tr>
+
+          <td>[% 'Invoice' | $T8 %]</td>
+          <td>[% proposed_invoice.id %]</td>
+          <td>[% proposed_invoice.transdate_as_date %]</td>
+          <td>[% proposed_invoice.amount_as_number %]</td>
+          <td>[% proposed_invoice.link %]</td>
+          <td>[% HTML.escape(proposed_invoice.customer.name) %][% HTML.escape(proposed_invoice.vendor.name) %]</td>
+        </tr>
+            [% L.hidden_tag("proposed_invoice_" _ proposal.id, proposed_invoice.id) %]
+      [% END %]
+      </tbody>
+    [% END %]
+  [% END %]
+</table>

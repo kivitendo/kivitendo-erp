@@ -6,9 +6,9 @@ use Carp;
 use List::Util qw(first);
 
 use Rose::DB::Object::Helpers ();
-
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
+use SL::DB::Helper::Payment qw(:ALL);
 use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
@@ -17,6 +17,7 @@ use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::Locale::String qw(t8);
+use SL::DB::CustomVariable;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -357,6 +358,16 @@ sub reqdate {
 
 sub customervendor {
   goto &customer;
+}
+
+sub link {
+  my ($self) = @_;
+
+  my $html;
+  $html   = SL::Presenter->get->sales_invoice($self, display => 'inline') if $self->invoice;
+  $html   = SL::Presenter->get->ar_transaction($self, display => 'inline') if !$self->invoice;
+
+  return $html;
 }
 
 1;

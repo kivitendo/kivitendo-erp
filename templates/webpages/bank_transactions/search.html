@@ -1,0 +1,37 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <form method="post" action="controller.pl">
+
+  <div class="listtop">[% 'Search bank transactions' | $T8 %]</div>
+
+  <p>
+   <table>
+
+    <tr>
+     <th align="right">[% 'Bank account' | $T8 %]</th>
+     <td>[% L.select_tag('filter.bank_account', BANK_ACCOUNTS, default=bank_account, title_key='displayable_name', with_empty=0, style='width:450px') %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Transdate from' | $T8 %]</th>
+     <td>[% L.date_tag('filter.fromdate', filter.fromdate) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'to (date)' | $T8 %]</th>
+     <td>[% L.date_tag('filter.todate', filter.todate) %]</td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  [% L.hidden_tag('action', 'BankTransaction/list') %]
+
+  <p>[% L.submit_tag('dummy', LxERP.t8('Continue')) %]</p>
+ </form>

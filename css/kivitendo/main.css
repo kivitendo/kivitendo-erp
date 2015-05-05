@@ -39,6 +39,18 @@ a.nomobile {
 	background-color:transparent;
 	border:none;
 }
+a.green {
+	background-color:#40FF00;
+	border:none;
+}
+a.orange {
+	background-color:#FF8000;
+	border:none;
+}
+a.red {
+	background-color:#FF0000;
+	border:none;
+}
 
 table {
     font-size: 90% !important;
@@ -236,6 +248,16 @@ body.menu {
 	color: black;
 	vertical-align: top;
 }
+.listrow_error1, .listrow_error:nth-child(even) {
+	background-color: #F6CECE;
+	color: black;
+	vertical-align: top;
+}
+.listrow_error0, .listrow_error:nth-child(odd) {
+	background-color: #F5A9A9;
+	color: black;
+	vertical-align: top;
+}
 .listrowempty {
 	background-color: #FFFFFF;
 	color: black;
@@ -324,6 +346,13 @@ label {
 .flash_message_error {
 	background-color: #FFD6D6;
 	border: 1px solid #AE0014;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+.flash_message_ok {
+	background-color: #ADFFB6;
+	border: 1px solid #007F0F;
 	margin-top: 5px;
 	margin-bottom: 5px;
 	padding: 5px;

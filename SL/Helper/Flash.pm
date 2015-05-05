@@ -9,7 +9,7 @@ our @EXPORT_OK = qw(render_flash delay_flash);
 
 my %valid_categories = (
   map({$_ => 'info'} qw(information message)),
-  map({$_ => $_}     qw(info error warning)),
+  map({$_ => $_}     qw(info error warning ok)),
 );
 
 #

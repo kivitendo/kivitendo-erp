@@ -46,6 +46,6 @@ sub _sort_spec {
          );
 }
 
-sub default_objects_per_page { 40 }
+sub default_objects_per_page { 15 }
 
 1;

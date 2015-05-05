@@ -1,0 +1,101 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %]
+
+  <b>Transaction</b>
+  <table>
+   <tr class="listheading">
+    <td>[%- LxERP.t8("ID") %]:</td>
+    <td>[%- LxERP.t8("Amount") %]:</td>
+    <td>[%- LxERP.t8("Date") %]:</td>
+    <td>[%- LxERP.t8("Remote name") %]:</td>
+    <td>[%- LxERP.t8("Purpose") %]:</td>
+    <td>[%- LxERP.t8("Remote bank code") %]:</td>
+    <td>[%- LxERP.t8("Remote account number") %]:</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% SELF.transaction.id %]</td>
+    <td>[% LxERP.format_amount(SELF.transaction.amount, 2) %]</td>
+    <td>[% SELF.transaction.valutadate_as_date %]</td>
+    <td>[% SELF.transaction.remote_name %]</td>
+    <td>[% SELF.transaction.purpose %]</td>
+    <td>[% SELF.transaction.remote_bank_code %]</td>
+    <td>[% SELF.transaction.remote_account_number %]</td>
+   </tr>
+  </table>
+
+
+<br>
+[% 'Vendor filter for AP transaction drafts' | $T8 %]:
+
+<form method="post" action="javascript:filter_drafts();">
+[% L.hidden_tag('bt_id', SELF.transaction.id) %]
+  <table>
+   <tr>
+    <th align="right">[%- LxERP.t8("Vendor") %]</th>
+    <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'vendor',
+                 select_name   = 'vendor_id',
+                 default       = ALL_VENDORS.size < limit ? vendor_id : vendor_name,
+                 style         = 'width: 250px',
+                 DATA          = ALL_VENDORS,
+                 id_key        = 'id',
+                 label_key     = 'name',
+                 limit         = limit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+                 class         = 'initial_focus',
+                 onChange      = 'filter_drafts();',
+                 -%]
+    </td>
+   </tr>
+  </table>
+</form>
+
+  <p>
+   <a href="#" onclick="$('#create_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
+  </p>
+
+  <hr>
+<div id="drafts">
+[% IF DRAFTS.size %]
+[% 'Draft suggestions' | $T8 %]:
+
+
+  <table>
+   <tr>
+    <th class="listheading">[% 'Description' | $T8 %]</th>
+    <th class="listheading">[% 'Vendor' | $T8 %]</th>
+    <th class="listheading">[% 'Employee' | $T8 %]</th>
+    <th class="listheading">[% 'Draft from:' | $T8 %]</th>
+   </tr>
+
+   [% FOREACH draft = DRAFTS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td><a href="[% draft.module %].pl?action=load_draft&id=[% HTML.url(draft.id) %]&amount_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&transdate=[% HTML.url(SELF.transaction.transdate_as_date) %]&duedate=[% HTML.url(SELF.transaction.transdate_as_date) %]&datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&paid_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&currency=[% HTML.url(SELF.transaction.currency.name) %]&AP_paid_1=[% HTML.url(SELF.transaction.local_bank_account.chart.accno) %]&remove_draft=0&callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
+     <td>[% HTML.escape(draft.vendor) %]</td>
+     <td>[% HTML.escape(draft.employee.name) %]</td>
+     <td>[% HTML.escape(draft.itime_as_date) %]</td>
+    </tr>
+   [% END %]
+  </table>
+[% ELSE %]
+  <p class="message_hint">[% 'No draft was found.' | $T8 %]</p>
+[% END %]
+</div>
+
+<script type="text/javascript">
+<!--
+
+function filter_drafts() {
+  var url="controller.pl?action=BankTransaction/filter_drafts&" + $("#create_invoice_window form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $("#drafts").html(new_data['html']);
+    }
+  });
+}
+//-->
+</script>
+

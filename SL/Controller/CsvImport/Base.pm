@@ -6,6 +6,8 @@ use English qw(-no_match_vars);
 use List::MoreUtils qw(pairwise any);
 
 use SL::Helper::Csv;
+
+use SL::DB::BankAccount;
 use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
@@ -19,7 +21,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_vc vc_by clone_methods) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_bank_accounts all_vc vc_by clone_methods) ],
 );
 
 sub run {
@@ -139,6 +141,12 @@ sub init_all_languages {
   my ($self) = @_;
 
   return SL::DB::Manager::Language->get_all;
+}
+
+sub init_all_bank_accounts {
+  my ($self) = @_;
+
+  return SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 }
 
 sub init_payment_terms_by {

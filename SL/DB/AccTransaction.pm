@@ -6,11 +6,32 @@ package SL::DB::AccTransaction;
 use strict;
 
 use SL::DB::MetaSetup::AccTransaction;
+use SL::DB::Manager::AccTransaction;
+use SL::Locale::String qw(t8);
+
+require SL::DB::GLTransaction;
+require SL::DB::Invoice;
+require SL::DB::PurchaseInvoice;
+
+__PACKAGE__->meta->add_relationship(
+  ar => {
+    type         => 'many to one',
+    class        => 'SL::DB::Invoice',
+    column_map   => { trans_id => 'id' },
+  },
+  ap => {
+    type         => 'many to one',
+    class        => 'SL::DB::PurchaseInvoice',
+    column_map   => { trans_id => 'id' },
+  },
+  gl => {
+    type         => 'many to one',
+    class        => 'SL::DB::GLTransaction',
+    column_map   => { trans_id => 'id' },
+  },
+);
 
 __PACKAGE__->meta->initialize;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 sub record {
   my ($self) = @_;
@@ -24,7 +45,43 @@ sub record {
   };
 
 };
+
+sub get_type {
+  my $self = shift;
+
+  my $ref = ref $self->record;
+
+  return "ar" if $ref->isa('SL::DB::Invoice');
+  return "ap" if $ref->isa('SL::DB::PurchaseInvoice');
+  return "gl" if $ref->isa('SL::DB::GLTransaction');
+
+  die "Can't find trans_id " . $self->trans_id . " in ar, ap or gl" unless $ref;
+
+};
+
+sub transaction_name {
+  my $self = shift;
+
+  my $ref = ref $self->record;
+  my $name = "trans_id: " . $self->trans_id;
+  if ( $self->get_type eq 'ar' ) {
+    $name .= " (" . $self->record->abbreviation . " " . t8("AR") . ") " . t8("Invoice Number") . ": " . $self->record->invnumber;
+  } elsif ( $self->get_type eq 'ap' ) {
+    $name .= " (" . $self->record->abbreviation . " " . t8("AP") . ") " . t8("Invoice Number") . ": " . $self->record->invnumber;
+  } elsif ( $self->get_type eq 'gl' ) {
+    $name = "trans_id: " . $self->trans_id . " (" . $self->record->abbreviation . ") " . $self->record->reference . " - " . $self->record->description;
+  } else {
+    die "can't determine type of acc_trans line with trans_id " . $self->trans_id;
+  };
+
+  $name .= "   " . t8("Date") . ": " . $self->transdate->to_kivitendo;
+
+  return $name;
+
+};
+
 1;
+
 __END__
 
 =pod
@@ -56,6 +113,22 @@ object.
 We use the Rose::DB::Object load function with the C<speculative> parameter for
 each record type, which returns true if the load was successful, so we don't
 bother to check the ref of the object.
+
+=item C<get_type>
+
+Returns the type of transaction the acc_trans entry belongs to: ar, ap or gl.
+
+Example:
+ my $acc = SL::DB::Manager::AccTransaction->get_first();
+ my $type = $acc->get_type;
+
+=item C<transaction_name>
+
+Generate a meaningful transaction name for an acc_trans line from the
+corresponding ar/ap/gl object, a combination of trans_id,
+invnumber/description, abbreviation. Can be used for better error output of the
+DATEV export and contains some database information, e.g. the trans_id, and is
+a kind of displayable_name for debugging or in the console.
 
 =back
 

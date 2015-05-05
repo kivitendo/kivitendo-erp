@@ -6,6 +6,8 @@ use parent 'SL::Controller::Helper::GetModels::Base';
 use Carp;
 use List::MoreUtils qw(uniq);
 
+use Data::Dumper;
+
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(by dir specs form_data) ],
   'scalar --get_set_init' => [ qw(form_params) ],

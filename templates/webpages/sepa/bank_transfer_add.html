@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE LxERP %]
 [% IF vc == 'vendor' %]
  [% SET is_vendor = 1 %]
@@ -9,7 +10,8 @@
  [% SET arap = 'ar' %]
  [% SET iris = 'is' %]
 [%- END %]
-<h1>[% title %]</h1>
+
+ <p><div class="listtop">[% title %]</div></p>
 
  <form action="sepa.pl" method="post">
   <p>
@@ -19,12 +21,12 @@
     [% 'Please select the destination bank account for the collections:' | $T8 %]
    [%- END %]
    <br>
-   [%- INCLUDE generic/multibox.html
-         name      = 'bank_account.id',
-         DATA      = BANK_ACCOUNTS,
-         id_key    = 'id',
-         label_sub = 'bank_account_label',
-   -%]
+   [% L.select_tag('bank_account',
+       BANK_ACCOUNTS,
+       title_key='displayable_name',
+       with_empty=0,
+       style='width:450px',
+   ) %]
   </p>
 
   <p>
@@ -35,13 +37,20 @@
      <th class="listheading">[% 'Invoice' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Invoice Date' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Due Date' | $T8 %]</th>
      <th class="listheading">[% 'Purpose' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Bank transfer amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Payment type' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Skonto information' | $T8 %]</th>
     </tr>
 
     [%- FOREACH invoice = INVOICES %]
      <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
+     <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
+     <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.open_sepa_transfer_amount, 2) %]">
+     <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
+
 
      <tr class="listrow[% loop.count % 2 %]">
       <td align="center">
@@ -68,16 +77,21 @@
        </a>
       </td>
 
-      <td align="right">[% LxERP.format_amount(invoice.invoice_amount, -2) %]</td>
-      <td align="right">[% LxERP.format_amount(invoice.open_amount, -2) %]</td>
+      <td align="right">[% LxERP.format_amount(invoice.invoice_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
+      <td align="right">[% LxERP.format_amount(invoice.open_amount-invoice.open_sepa_transfer_amount, 2) %]</td>
+      <td align="right">[% invoice.transdate %]</td>
       <td align="right">[% invoice.duedate %]</td>
       <td>
        [%- SET reference = invoice.reference_prefix _ invoice.invnumber %]
-       <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="60">
+       <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="20">
       </td>
       <td align="right">
-       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, 2) %]" style="text-align: right" size="12">
+       <input id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.invoice_amount_suggestion, 2) %]" style="text-align: right" size="12">
       </td>
+      <td>
+      [% L.select_tag('bank_transfers[].payment_type', invoice.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target' ) %]
+      </td>
+      <td align="left" [%- IF invoice.within_skonto_period %]style="background-color: LightGreen"[%- END %]>[%- IF invoice.skonto_amount %] [% LxERP.format_amount(invoice.percent_skonto, 2) %] % = [% LxERP.format_amount(invoice.skonto_amount, 2) %] € bis [% invoice.skonto_date %] [%- END %]</td>
      </tr>
     [%- END %]
    </table>
@@ -110,4 +124,18 @@
       $("#select_all").checkall('INPUT[name="bank_transfers[].selected"]');
     });
     -->
+
+$( ".type_target" ).change(function() {
+  type_id = $(this).attr('id');
+  var id = type_id.match(/\d*$/);
+  // alert("found id " + id);
+  if ( $(this).val() == "without_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "difference_as_skonto" ) {
+      $('#' + id).val( $('#invoice_open_amount_' + id).val() );
+  } else if ( $(this).val() == "with_skonto_pt" ) {
+            $('#' + id).val( $('#amount_less_skonto_' + id).val() );
+  }
+});
+
  </script>

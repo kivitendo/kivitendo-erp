@@ -55,6 +55,8 @@ sub grouped_record_list {
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ap_transaction_list(         $self, $groups{ap_transactions},          %params) if $groups{ap_transactions};
 
+  $output .= _bank_transactions(           $self, $groups{bank_transactions},        %params) if $groups{bank_transactions};
+
   $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
   $output .= _sepa_transfer_list(          $self, $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
 
@@ -177,6 +179,7 @@ sub _group_records {
     sepa_collections         => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
     sepa_transfers           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
     gl_transactions          => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
+    bank_transactions        => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
   );
 
   my %groups;
@@ -424,6 +427,29 @@ sub _ap_transaction_list {
       [ $::locale->text('Net amount'),              'netamount'                      ],
       [ $::locale->text('Paid'),                    'paid'                           ],
       [ $::locale->text('Transaction description'), 'transaction_description'        ],
+    ],
+    %params,
+  );
+}
+
+sub _bank_transactions {
+  my ($self, $list, %params) = @_;
+
+  return $self->record_list(
+    $list,
+    title   => $::locale->text('Bank transactions'),
+    type    => 'bank_transactions',
+    columns => [
+      [ $::locale->text('Transdate'),            'transdate'                      ],
+      [ $::locale->text('Local Bank Code'),      sub { $self->bank_code($_[0]->local_bank_account) }  ],
+      [ $::locale->text('Local account number'), sub { $self->account_number($_[0]->local_bank_account) }  ],
+      [ $::locale->text('Remote Bank Code'),     'remote_bank_code' ],
+      [ $::locale->text('Remote account number'),'remote_account_number' ],
+      [ $::locale->text('Valutadate'),           'valutadate' ],
+      [ $::locale->text('Amount'),               'amount' ],
+      [ $::locale->text('Currency'),             sub { $_[0]->currency->name } ],
+      [ $::locale->text('Remote name'),          'remote_name' ],
+      [ $::locale->text('Purpose'),              'purpose' ],
     ],
     %params,
   );

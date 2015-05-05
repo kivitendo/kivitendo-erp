@@ -24,16 +24,20 @@ use SL::DB::TaxZone;
 
 my ($customer, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
 
-sub reset_state {
-  my %params = @_;
-
-  $params{$_} ||= {} for qw(buchungsgruppe unit customer part tax);
-
+sub clear_up {
   SL::DB::Manager::Order->delete_all(all => 1);
   SL::DB::Manager::DeliveryOrder->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
+};
+
+sub reset_state {
+  my %params = @_;
+
+  $params{$_} ||= {} for qw(buchungsgruppe unit customer part tax);
+
+  clear_up();
 
   $buchungsgruppe  = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%', %{ $params{buchungsgruppe} }) || croak "No accounting group";
   $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%')                                || croak "No accounting group for 7\%";
@@ -376,4 +380,5 @@ test_default_invoice_one_item_19_tax_not_included();
 test_default_invoice_two_items_19_7_tax_not_included();
 test_default_invoice_three_items_sellprice_rounding_discount();
 
+clear_up();
 done_testing();

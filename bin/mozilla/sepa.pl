@@ -4,7 +4,8 @@ use List::MoreUtils qw(any none uniq);
 use List::Util qw(sum first);
 use POSIX qw(strftime);
 
-use SL::BankAccount;
+use Data::Dumper;
+use SL::DB::BankAccount;
 use SL::Chart;
 use SL::CT;
 use SL::Form;
@@ -25,7 +26,7 @@ sub bank_transfer_add {
 
   $form->{title}    = $vc eq 'customer' ? $::locale->text('Prepare bank collection via SEPA XML') : $locale->text('Prepare bank transfer via SEPA XML');
 
-  my $bank_accounts = SL::BankAccount->list();
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 
   if (!scalar @{ $bank_accounts }) {
     $form->error($locale->text('You have not added bank accounts yet.'));
@@ -47,8 +48,6 @@ sub bank_transfer_add {
   # from us automatically and we don't have to send money manually.
   $_->{checked} = ($vc eq 'customer' ? $_->{direct_debit} : !$_->{direct_debit}) for @{ $invoices };
 
-  my $bank_account_label_sub = sub { $locale->text('#1 - Account number #2, bank code #3, #4', $_[0]->{name}, $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank} ) };
-
   my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
   my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
 
@@ -62,7 +61,6 @@ sub bank_transfer_add {
   print $form->parse_html_template('sepa/bank_transfer_add',
                                    { 'INVOICES'           => $invoices,
                                      'BANK_ACCOUNTS'      => $bank_accounts,
-                                     'bank_account_label' => $bank_account_label_sub,
                                      'vc'                 => $vc,
                                    });
 
@@ -79,27 +77,42 @@ sub bank_transfer_create {
 
   $form->{title}    = $vc eq 'customer' ? $::locale->text('Create bank collection via SEPA XML') : $locale->text('Create bank transfer via SEPA XML');
 
-  my $bank_accounts = SL::BankAccount->list();
-
+  my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
   if (!scalar @{ $bank_accounts }) {
     $form->error($locale->text('You have not added bank accounts yet.'));
   }
 
-  my $bank_account = first { $form->{bank_account}->{id} == $_->{id} } @{ $bank_accounts };
+  my $bank_account = SL::DB::Manager::BankAccount->find_by( id => $form->{bank_account} );
 
-  if (!$bank_account) {
+  unless ( $bank_account ) {
     $form->error($locale->text('The selected bank account does not exist anymore.'));
   }
 
   my $arap_id        = $vc eq 'customer' ? 'ar_id' : 'ap_id';
   my $invoices       = SL::SEPA->retrieve_open_invoices(vc => $vc);
 
+  # load all open invoices (again), but grep out the ones that were selected with checkboxes beforehand ($_->selected). At this stage we again have all the invoice information, including dropdown with payment_type options
+  # all the information from retrieve_open_invoices is then ADDED to what was passed via @{ $form->{bank_transfers} }
+  # parse amount from the entry in the form, but take skonto_amount from PT again
+  # the map inserts the values of invoice_map directly into the array of hashes
   my %invoices_map   = map { $_->{id} => $_ } @{ $invoices };
   my @bank_transfers =
     map  +{ %{ $invoices_map{ $_->{$arap_id} } }, %{ $_ } },
     grep  { $_->{selected} && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } }
     map   { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
           @{ $form->{bank_transfers} || [] };
+
+  # override default payment_type selection and set it to the one chosen by the user
+  # in the previous step, so that we don't need the logic in the template
+  foreach my $bt (@bank_transfers) {
+    foreach my $type ( @{$bt->{payment_select_options}} ) {
+      if ( $type->{payment_type} eq $bt->{payment_type} ) {
+        $type->{selected} = 1;
+      } else {
+        $type->{selected} = 0;
+      };
+    };
+  };
 
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
@@ -130,15 +143,12 @@ sub bank_transfer_create {
                                                    'id' => \@vc_ids);
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
-    my $bank_account_label_sub = sub { $locale->text('#1 - Account number #2, bank code #3, #4', $_[0]->{name}, $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank} ) };
-
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',
                                      { 'BANK_TRANSFERS'     => \@bank_transfers,
                                        'BANK_ACCOUNTS'      => $bank_accounts,
                                        'VC_BANK_INFO'       => \@vc_bank_info,
                                        'bank_account'       => $bank_account,
-                                       'bank_account_label' => $bank_account_label_sub,
                                        'error_message'      => $error_message,
                                        'vc'                 => $vc,
                                        'total_trans'        => $total_trans,

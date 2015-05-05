@@ -25,16 +25,21 @@ use SL::DB::TaxZone;
 my ($customer, $currency_id, $buchungsgruppe, $employee, $vendor, $taxzone);
 my ($link, $links, $o1, $o2, $d, $i);
 
+sub clear_up {
+  SL::DB::Manager::DeliveryOrder->delete_all(all => 1);
+  SL::DB::Manager::Order->delete_all(all => 1);
+  SL::DB::Manager::Invoice->delete_all(all => 1);
+  SL::DB::Manager::Part->delete_all(all => 1);
+  SL::DB::Manager::Customer->delete_all(all => 1);
+  SL::DB::Manager::Vendor->delete_all(all => 1);
+};
+
 sub reset_state {
   my %params = @_;
 
   $params{$_} ||= {} for qw(buchungsgruppe unit customer part tax);
 
-  SL::DB::Manager::DeliveryOrder->delete_all(all => 1);
-  SL::DB::Manager::Order->delete_all(all => 1);
-  SL::DB::Manager::Invoice->delete_all(all => 1);
-  SL::DB::Manager::Customer->delete_all(all => 1);
-  SL::DB::Manager::Vendor->delete_all(all => 1);
+  clear_up();
 
   $buchungsgruppe  = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%', %{ $params{buchungsgruppe} }) || croak "No accounting group";
   $employee        = SL::DB::Manager::Employee->current                                                                    || croak "No employee";
@@ -103,7 +108,6 @@ sub new_invoice {
 Support::TestSetup::login();
 
 reset_state();
-
 
 $o1 = new_order();
 $i  = new_invoice();
@@ -313,4 +317,7 @@ is @$links, 3, 'recursive from i finds 3 (not i)';
 
 $links = $o1->linked_records(direction => 'both', recursive => 1, save_path => 1);
 is @$links, 4, 'recursive dir=both does not give duplicates';
+
+clear_up();
+
 1;

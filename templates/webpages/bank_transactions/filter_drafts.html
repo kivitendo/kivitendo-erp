@@ -1,0 +1,23 @@
+[%- USE T8 -%][%- USE HTML -%][%- USE LxERP -%][%- USE P -%][%- USE L -%]
+[%- IF !DRAFTS.size %]
+  <p class="message_hint">[% 'No draft was found.' | $T8 %]</p>
+[%- ELSE %]
+  <table>
+   <tr>
+    <th class="listheading">[% 'Date' | $T8 %]</th>
+    <th class="listheading">[% 'Description' | $T8 %]</th>
+    <th class="listheading">[% 'Employee' | $T8 %]</th>
+    <th class="listheading">[% 'Vendor' | $T8 %]</th>
+   </tr>
+
+   [% FOREACH draft = DRAFTS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td>[% HTML.escape(draft.itime_as_date) %]</td>
+     <td><a href="[% draft.module %].pl?action=load_draft&id=[% HTML.url(draft.id) %]&amount_1=[% SELF.transaction.amount_as_number %]&datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&paid_1=[% SELF.transaction.amount_as_number %]&remove_draft=0&callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
+     <td>[% HTML.escape(draft.employee.name) %]</td>
+     <td>[% HTML.escape(draft.vendor) %]</td>
+    </tr>
+   [% END %]
+  </table>
+[%- END %]
+

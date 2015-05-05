@@ -9,22 +9,29 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('bank_accounts');
 
 __PACKAGE__->meta->columns(
-  account_number => { type => 'varchar', length => 100 },
-  bank           => { type => 'text' },
-  bank_code      => { type => 'varchar', length => 100 },
-  bic            => { type => 'varchar', length => 100 },
-  chart_id       => { type => 'integer', not_null => 1 },
-  iban           => { type => 'varchar', length => 100 },
-  id             => { type => 'integer', not_null => 1, sequence => 'id' },
-  name           => { type => 'text' },
+  account_number                  => { type => 'varchar', length => 100 },
+  bank                            => { type => 'text' },
+  bank_code                       => { type => 'varchar', length => 100 },
+  bic                             => { type => 'varchar', length => 100 },
+  chart_id                        => { type => 'integer', not_null => 1 },
+  iban                            => { type => 'varchar', length => 100 },
+  id                              => { type => 'integer', not_null => 1, sequence => 'id' },
+  name                            => { type => 'text' },
+  obsolete                        => { type => 'boolean', default => 'false', not_null => 1 },
+  reconciliation_starting_balance => { type => 'numeric', precision => 15, scale => 5 },
+  reconciliation_starting_date    => { type => 'date' },
+  sortkey                         => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->unique_keys([ 'chart_id' ]);
 
 __PACKAGE__->meta->foreign_keys(
   chart => {
     class       => 'SL::DB::Chart',
     key_columns => { chart_id => 'id' },
+    rel_type    => 'one to one',
   },
 );
 
