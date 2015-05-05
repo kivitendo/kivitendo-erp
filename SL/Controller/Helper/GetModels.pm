@@ -157,10 +157,16 @@ sub get_models_url_params {
   $self->register_handlers('callback' => $callback);
 }
 
-sub get_callback {
+sub get_callback_params {
   my ($self, %override_params) = @_;
 
   my %default_params = $self->_run_handlers('callback', action => $self->controller->action_name);
+}
+
+sub get_callback {
+  my ($self, %override_params) = @_;
+
+  my %default_params = $self->get_callback_params(%override_params);
 
   return $self->controller->url_for(%default_params, %override_params);
 }
