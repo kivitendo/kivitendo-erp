@@ -551,6 +551,7 @@ sub get_payment_select_options_for_bank_transaction {
 
   my @options;
   if ( $open_amount &&                   # invoice amount not 0
+       $self->skonto_date &&             # check whether skonto applies
        abs(abs($self->amount_less_skonto) - abs($bt->amount)) < 0.01 &&
        $self->check_skonto_configuration) {
          if ( $self->within_skonto_period($bt->transdate) ) {
