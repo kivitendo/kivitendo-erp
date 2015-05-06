@@ -34,6 +34,16 @@ sub init_class {
   $self->class(['SL::DB::Order', 'SL::DB::OrderItem']);
 }
 
+sub set_profile_defaults {
+  my ($self) = @_;
+
+  $self->controller->profile->_set_defaults(
+                       order_column    => $::locale->text('Order'),
+                       item_column     => $::locale->text('OrderItem'),
+                       max_amount_diff => 0.02,
+                      );
+};
+
 
 sub init_settings {
   my ($self) = @_;

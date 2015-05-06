@@ -27,6 +27,24 @@ use Rose::Object::MakeMethods::Generic
                                  translation_columns all_pricegroups) ],
 );
 
+sub set_profile_defaults {
+  my ($self) = @_;
+
+  my $bugru = SL::DB::Manager::Buchungsgruppe->find_by(description => { like => 'Standard%19%' });
+
+  $self->controller->profile->_set_defaults(
+                       sellprice_places          => 2,
+                       sellprice_adjustment      => 0,
+                       sellprice_adjustment_type => 'percent',
+                       article_number_policy     => 'update_prices',
+                       shoparticle_if_missing    => '0',
+                       parts_type                => 'part',
+                       default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
+                       apply_buchungsgruppe      => 'all',
+                      );
+};
+
+
 sub init_class {
   my ($self) = @_;
   $self->class('SL::DB::Part');

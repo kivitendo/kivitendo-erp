@@ -28,6 +28,9 @@ sub init_class {
   $self->class('SL::DB::Inventory');
 }
 
+sub set_profile_defaults {
+};
+
 sub init_profile {
   my ($self) = @_;
 

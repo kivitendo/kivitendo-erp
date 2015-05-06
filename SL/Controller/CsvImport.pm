@@ -385,6 +385,7 @@ sub load_default_profile {
   $profile ||= SL::DB::CsvImportProfile->new(type => $self->{type}, login => $::myconfig{login});
 
   $self->profile($profile);
+  $self->worker->set_profile_defaults;
   $self->profile->set_defaults;
 }
 

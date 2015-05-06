@@ -15,6 +15,15 @@ use Rose::Object::MakeMethods::Generic
  'scalar --get_set_init' => [ qw(bank_accounts_by) ],
 );
 
+sub set_profile_defaults {
+  my ($self) = @_;
+
+  $self->controller->profile->_set_defaults(
+                       charset       => 'UTF8',  # override charset from defaults
+                       update_policy => 'skip',
+                      );
+};
+
 sub init_class {
   my ($self) = @_;
   $self->class('SL::DB::BankTransaction');
