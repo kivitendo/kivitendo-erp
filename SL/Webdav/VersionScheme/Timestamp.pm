@@ -3,7 +3,7 @@ package SL::Webdav::VersionScheme::Timestamp;
 use strict;
 use parent qw(Rose::Object);
 
-use POSIX;
+use POSIX ();
 
 sub separator { "_" }
 

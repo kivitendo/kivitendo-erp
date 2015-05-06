@@ -25,7 +25,6 @@ use English qw(-no_match_vars);
 use File::Basename;
 use List::MoreUtils qw(all);
 use List::Util qw(first);
-use POSIX;
 use SL::ArchiveZipFixes;
 use SL::Auth;
 use SL::Dispatcher::AuthHandler;
