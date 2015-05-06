@@ -216,7 +216,7 @@ sub action_ajax_payment_suggestion {
 
   my $bt = SL::DB::Manager::BankTransaction->find_by( id => $::form->{bt_id} );
   my $invoice = SL::DB::Manager::Invoice->find_by( id => $::form->{prop_id} );
-  $invoice = SL::DB::Manager::PurchaseInvoice->find_By( id => $::form->{prop_id} ) unless $invoice;
+  $invoice = SL::DB::Manager::PurchaseInvoice->find_by( id => $::form->{prop_id} ) unless $invoice;
 
   die unless $bt and $invoice;
 
