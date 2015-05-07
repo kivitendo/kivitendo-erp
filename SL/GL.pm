@@ -722,10 +722,14 @@ sub storno {
   $query = qq|SELECT * FROM gl WHERE id = ?|;
   $storno_row = selectfirst_hashref_query($form, $dbh, $query, $id);
 
-  $storno_row->{id}        = $new_id;
-  $storno_row->{storno_id} = $id;
-  $storno_row->{storno}    = 't';
-  $storno_row->{reference} = 'Storno-' . $storno_row->{reference};
+  $storno_row->{id}          = $new_id;
+  $storno_row->{storno_id}   = $id;
+  $storno_row->{storno}      = 't';
+  $storno_row->{reference}   = 'Storno-' . $storno_row->{reference};
+
+  $query = qq|SELECT id FROM employee WHERE login = ?|;
+  my ($employee_id) = selectrow_query($form, $dbh, $query, $::myconfig{login});
+  $storno_row->{employee_id} = $employee_id;
 
   delete @$storno_row{qw(itime mtime gldate)};
 
