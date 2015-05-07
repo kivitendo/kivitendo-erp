@@ -11,6 +11,9 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(table) ],
 );
 
+sub set_profile_defaults {
+};
+
 sub init_class {
   my ($self) = @_;
   $self->class('SL::DB::Shipto');

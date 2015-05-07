@@ -18,6 +18,9 @@ sub init_class {
   $self->class('SL::DB::Project');
 }
 
+sub set_profile_defaults {
+};
+
 sub init_all_cvar_configs {
   my ($self) = @_;
 

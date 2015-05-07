@@ -17,6 +17,11 @@ use Rose::Object::MakeMethods::Generic
  'scalar --get_set_init' => [ qw(table languages_by businesses_by) ],
 );
 
+sub set_profile_defaults {
+  my ($self) = @_;
+  $self->controller->profile->_set_defaults(table => 'customer');
+};
+
 sub init_table {
   my ($self) = @_;
   $self->table($self->controller->profile->get('table') eq 'customer' ? 'customer' : 'vendor');
