@@ -22,6 +22,7 @@ use File::Slurp qw(slurp);
 use FileHandle;
 use Getopt::Long;
 use IO::Dir;
+use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Pod::Usage;
 
@@ -180,9 +181,11 @@ if (@new_missing) {
   if ($opt_f) {
     for my $string (@new_missing) {
       print "new string '$string' in files:\n";
-      for my $file (keys %cached) {
-        print "  $file", $/ if $cached{$file}{all}{$string};
-      }
+      print join "",
+        map   { "  $_\n"                  }
+        apply { s{^(?:\.\./)+}{}          }
+        grep  { $cached{$_}{all}{$string} }
+        keys  %cached;
     }
   }
 
