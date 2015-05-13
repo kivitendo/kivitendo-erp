@@ -555,6 +555,7 @@ $self->{texts} = {
   'Client Configuration'        => 'Mandantenkonfiguration',
   'Client Configuration saved!' => 'Mandantenkonfiguration gespeichert!',
   'Client administration: configuration, editing templates, task server control, background jobs (remaining entries in the \'System\' menu)' => 'Mandantenverwaltung: Mandantenkonfiguration, Vorlagen bearbeiten, Task-Server-Steuerung, Hintergrundjobs (restliche Einträge im Menü \'System\')',
+  'Client assignment'           => 'Mandantenzuweisung',
   'Client list'                 => 'Mandantenliste',
   'Client name'                 => 'Mandantenname',
   'Client to assign the existing WebDAV folders to' => 'Mandant, dem bestehende WebDAV-Ordner zugewiesen werden',
