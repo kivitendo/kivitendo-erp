@@ -947,6 +947,10 @@ sub parse_amount {
 
   # Make sure no code wich is not a math expression ends up in eval().
   return 0 unless $amount =~ /^ [\s \d \( \) \- \+ \* \/ \. ]* $/x;
+
+  # Prevent numbers from being parsed as octals;
+  $amount =~ s{ (?<! [\d.] ) 0+ (?= [1-9] ) }{}gx;
+
   return scalar(eval($amount)) * 1 ;
 }
 
