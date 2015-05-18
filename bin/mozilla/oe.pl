@@ -853,6 +853,7 @@ sub orders {
     "country",                 "shippingpoint",
     "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
+    "payment_terms",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -944,10 +945,11 @@ sub orders {
     'order_probability'       => { 'text' => $locale->text('Order probability'), },
     'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
+    'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

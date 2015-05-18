@@ -111,6 +111,7 @@ sub transactions {
     qq|  o.marge_total, o.marge_percent, | .
     qq|  o.itime::DATE AS insertdate, | .
     qq|  ex.$rate AS exchangerate, | .
+    qq|  pt.description AS payment_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
@@ -125,6 +126,7 @@ sub transactions {
     qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
+    qq|LEFT JOIN payment_terms pt ON (pt.id = o.payment_id)| .
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|$periodic_invoices_joins | .
     qq|WHERE (o.quotation = ?) |;
@@ -307,6 +309,7 @@ SQL
     "shippingpoint"           => "o.shippingpoint",
     "insertdate"              => "o.itime",
     "taxzone"                 => "tz.description",
+    "payment_terms"           => "pt.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}"  . ", o.itime ${sortdir}";
