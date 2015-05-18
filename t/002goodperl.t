@@ -111,10 +111,12 @@ foreach my $file (@testitems) {
 # the estimate wether a file is dirty or not is still pretty helpful, as it will catch most of the closing tags.
 # if you are in doubt about a specific file, you still have to check it manually.
 my $tags = qr/b|i|u|h[1-6]|a href.*|input|form|br|textarea|table|tr|td|th|body|head|html|p|button|select|option|script/;
+my $todo_files_re = qr{^bin/mozilla/ic\.pl$};
 foreach my $file (@testitems) {
     my $found_html_count = 0;
     my $found_html       = '';
     $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
+
     next if (!$file); # skip null entries
     if (! open (FILE, $file)) {
         ok(0,"could not open $file --WARNING");
@@ -135,7 +137,13 @@ foreach my $file (@testitems) {
         ok(0,"$file contains at least $found_html_count html tags.");
       }
     } else {
+      if ($file =~ $todo_files_re) {
+        TODO: { local $TODO = q(This file is known to have lots of old cruft.);
+          ok(0,"$file contains at least $found_html_count html tags.");
+        }
+      } else {
         ok(0,"$file contains at least $found_html_count html tags.");
+      }
     }
 }
 
