@@ -5,7 +5,7 @@
       die Pakete mit:</p><p>
             </p><pre class="programlisting">aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
   texlive-latex-extra texlive-lang-german texlive-generic-extra</pre><p>
-         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Standard</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>RB</p></li></ul></div><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemmeldete Benutzer muss in einer Gruppe sein, die über das
+         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Standard</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>RB</p></li></ul></div><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
               Recht "Konfiguration -&gt; Mandantenverwaltung" verfügt. Siehe auch <a class="xref" href="ch02s09.html#Gruppen-anlegen" title="2.9.4. Gruppen anlegen">Abschnitt&nbsp;2.9.4, „Gruppen anlegen“</a>.
         </p><p>Im Userbereich lässt sich unter:
         "<span class="guimenu">System</span> -&gt;
@@ -18,7 +18,7 @@
            Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Mandanten verwendet werden.
            Eventuell müssen Anpassungen (Logo, Erscheinungsbild, etc) noch vorgenommen werden. Den Ordner findet man im Dateisystem unter
            <code class="filename">./templates/[Neuer Name]</code>
-            </p></div><div class="sect2" title="2.12.2. Standard"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-Standard"></a>2.12.2. Standard</h3></div></div></div><p>Der Standard-Vorlagensatz von Kivitendo. Wie unter <a class="ulink" href="http://demo.kivitendo.org" target="_top">http://demo.kivitendo.org</a> zu
+            </p></div><div class="sect2" title="2.12.2. Standard"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-Standard"></a>2.12.2. Standard</h3></div></div></div><p>Der Standard-Vorlagensatz von Kivitendo. Wie unter <a class="ulink" href="https://www.kivitendo.de" target="_top">https://www.kivitendo.de</a> zu
         sehen.</p></div><div class="sect2" title="2.12.3. f-tex"><div class="titlepage"><div><div><h3 class="title"><a name="f-tex"></a>2.12.3. f-tex</h3></div></div></div><p>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur Verfügung stellt.</p><div class="sect3" title="2.12.3.1. Feature-Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Feature-%C3%9Cbersicht"></a>2.12.3.1. Feature-Übersicht</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
             Angebot, Rechnung, Proformarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</p></li><li class="listitem"><p>Leichte Anpassung an das Firmen-Layout durch verwendung eines Hintergrund-PDF. Dieses kann leicht mit dem
             eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</p></li><li class="listitem"><p>Hintergrund-PDF umschaltbar auf "nur erste Seite" (Standard) oder "alle Seiten" (Option
@@ -91,18 +91,18 @@
             einer Standardinstallation exotische utf8 Zeichen zu drucken.
             TeXLive unterstützt von Haus nur romanische Schriften und muss mit
             diversen Tricks dazu gebracht werden andere Zeichen zu akzeptieren.
-            Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</p></li></ul></div><p>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
+            Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</p></li></ul></div><p>Wird gar kein Fehler angezeigt sondern nur der Name des Templates,
         heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
         Prüfen Sie den Namen in der Konfiguration (Standard:
         <code class="literal">pdflatex</code>), und stellen Sie sicher, dass pdflatex
         (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
-        darf.</p><p>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_temp_files" auf 1</p><p>
+        darf.</p><p>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_temp_files" auf 1</p><p>
                      </p><pre class="programlisting">keep_temp_files = 1;</pre><p>
                   </p></li><li class="listitem"><p>bei fastcgi oder mod_perl den Webserver neu Starten</p></li><li class="listitem"><p>Nochmal einen Druckversuch im Webfrontend auslösen</p></li><li class="listitem"><p>wechsele in das users Verzeichnis von kivitendo</p><p>
                      </p><pre class="programlisting">cd [kivitendo-home]/users</pre><p>
                   </p></li><li class="listitem"><p>LaTeX Suchpfad anpassen:</p><p>
                      </p><pre class="programlisting">export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</pre><p>
-                  </p></li><li class="listitem"><p>Finde herraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</p><p>
+                  </p></li><li class="listitem"><p>Finde heraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</p><p>
                      </p><pre class="programlisting">ls -lahtr ./1*.tex</pre><p>
                   </p><p>Es sollte die letzte Datei ganz unten sein</p></li><li class="listitem"><p>für besseren Hinweis auf Fehler texdatei nochmals übersetzen</p><p>
                      </p><pre class="programlisting">pdflatex ./1*.tex</pre><p>

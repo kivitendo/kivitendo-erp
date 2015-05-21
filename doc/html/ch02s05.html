@@ -12,7 +12,7 @@ exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.5.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.5.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <code class="filename">/var/lib/pgsql/data/</code> oder
-        <code class="filename">/etc/postgresql/</code>, muss sichergestellt werden,
+        <code class="filename">/etc/postgresql/</code>), muss sichergestellt werden,
         dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
         Parameter <code class="varname">listen_address</code> gesteuert. Laufen
         PostgreSQL und kivitendo auf demselben Rechner, so kann dort der Wert
@@ -20,9 +20,9 @@ exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
         was mit dem Wert <code class="literal">*</code> geschieht.</p><p>In der Datei <code class="filename">pg_hba.conf</code>, die im gleichen
         Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden
-        sein sollte, müssen die Berichtigungen für den Zugriff geändert
+        sein sollte, müssen die Berechtigungen für den Zugriff geändert
 	werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
-	nögiten Verbindungen immer zuzulassen, für eine lokal laufenden
+	nötigen Verbindungen immer zuzulassen, für eine lokal laufende
 	Datenbank zum Beispiel:</p><pre class="programlisting">local all kivitendo password
 host all kivitendo 127.0.0.1 255.255.255.255 password</pre></div><div class="sect2" title="2.5.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.5.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
         Unterstützung für servergespeicherte Prozeduren eingerichet werden.

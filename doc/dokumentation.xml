@@ -1448,7 +1448,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
         <programlisting>./scripts/installation_check.pl -lv</programlisting>
 
-	<para>Der Angemmeldete Benutzer muss in einer Gruppe sein, die über das
+	<para>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
               Recht "Konfiguration -> Mandantenverwaltung" verfügt. Siehe auch <xref linkend="Gruppen-anlegen"/>.
         </para>
         <para>Im Userbereich lässt sich unter:
@@ -1473,7 +1473,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="Vorlagen-Standard">
         <title>Standard</title>
 
-        <para>Der Standard-Vorlagensatz von Kivitendo. Wie unter <ulink url="http://demo.kivitendo.org">http://demo.kivitendo.org</ulink> zu
+        <para>Der Standard-Vorlagensatz von Kivitendo. Wie unter <ulink url="https://www.kivitendo.de">https://www.kivitendo.de</ulink> zu
         sehen.</para>
 
       </sect2>
@@ -1669,14 +1669,14 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           </listitem>
         </itemizedlist>
 
-        <para>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
+        <para>Wird gar kein Fehler angezeigt sondern nur der Name des Templates,
         heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
         Prüfen Sie den Namen in der Konfiguration (Standard:
         <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
         (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
         darf.</para>
 
-        <para>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</para>
+        <para>Wenn sich das Problem nicht auf Grund der Ausgabe im Webbrowser verifizieren lässt:</para>
         <itemizedlist>
           <listitem>
              <para> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_temp_files" auf 1</para>
@@ -1697,7 +1697,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             <para><programlisting>export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</programlisting></para>
           </listitem>
           <listitem>
-            <para>Finde herraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</para>
+            <para>Finde heraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</para>
             <para><programlisting>ls -lahtr ./1*.tex</programlisting></para>
             <para>Es sollte die letzte Datei ganz unten sein</para>
           </listitem>
@@ -2904,7 +2904,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <listitem>
                 <para>Ausgabemedium. Kann zur Zeit die Werte
                 <constant>screen</constant> für Bildschirm,
-                <constant>email</constant> für E-Mmail (triggert das
+                <constant>email</constant> für E-Mail (triggert das
                 <constant>_email</constant> Kürzel im Dateinamen),
                 <constant>printer</constant> für Drucker, und
                 <constant>queue</constant> für Warteschlange enthalten.</para>
@@ -5310,7 +5310,7 @@ Beschreibung: &lt;%description%&gt;
           </itemizedlist>
 
           <para><varname>$::form</varname> wurde unter <productname>SQL
-          Ledger</productname> als Gottobjekt für alles misbraucht. Sämtliche
+          Ledger</productname> als Gottobjekt für alles missbraucht. Sämtliche
           alten Funktionen unter SL/ mutieren <varname>$::form</varname>, das
           heißt, alles was einem lieb ist (alle Variablen die einem ans Herz
           gewachsen sind), sollte man vor einem Aufruf (!) von zum Beispiel
@@ -5872,7 +5872,7 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
             <listitem>
               <para>Benötigt. Eine Beschreibung, was in diesem Update
               passiert. Diese wird dem Benutzer beim eigentlichen
-              Datenbankupdate angezeigt. Während der Tag in englisch gehalten
+              Datenbankupdate angezeigt. Während der Tag in Englisch gehalten
               sein sollte, sollte die Beschreibung auf Deutsch
               erfolgen.</para>
             </listitem>
