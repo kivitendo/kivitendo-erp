@@ -225,7 +225,9 @@
   libimage-info-perl libgd-gd2-perl \
   libfile-copy-recursive-perl postgresql</programlisting>
 
-          <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Der entsprechende Befehl wird beim Aufruf von installation_check.pl angezeigt.</para>
+          <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Unter Ubuntu funktioniert das mit:</para>
+          <programlisting>apt-get install build-essential
+cpan HTML::Restrict</programlisting>
         </sect3>
 
         <sect3>
