@@ -38,7 +38,7 @@
    <th align="right">[% 'Quantity' | $T8 %]</th>
    <td>[% L.input_tag('filter.qty:number', filter.qty_number, size = 20) %]</td>
   </tr>
-[% IF vc == 'customer' %]
+[% IF SELF.vc == 'customer' %]
     <tr>
      <th align="right">[% 'Customer' | $T8 %]</th>
      <td>[% L.input_tag('filter.order.customer.name:substr::ilike', filter.order.customer.name_substr__ilike, size = 20) %]</td>
