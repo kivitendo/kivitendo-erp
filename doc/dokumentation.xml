@@ -483,7 +483,7 @@ exit </programlisting>
         <para>In der Datei <filename>postgresql.conf</filename>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <filename>/var/lib/pgsql/data/</filename> oder
-        <filename>/etc/postgresql/</filename>, muss sichergestellt werden,
+        <filename>/etc/postgresql/</filename>), muss sichergestellt werden,
         dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
         Parameter <varname>listen_address</varname> gesteuert. Laufen
         PostgreSQL und kivitendo auf demselben Rechner, so kann dort der Wert
@@ -493,9 +493,9 @@ exit </programlisting>
 
         <para>In der Datei <filename>pg_hba.conf</filename>, die im gleichen
         Verzeichnis wie die <filename>postgresql.conf</filename> zu finden
-        sein sollte, müssen die Berichtigungen für den Zugriff geändert
+        sein sollte, müssen die Berechtigungen für den Zugriff geändert
 	werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
-	nögiten Verbindungen immer zuzulassen, für eine lokal laufenden
+	nötigen Verbindungen immer zuzulassen, für eine lokal laufende
 	Datenbank zum Beispiel:</para>
 
         <programlisting>local all kivitendo password
@@ -1330,7 +1330,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="System">
         <title>System sperren / entsperren</title>
 
-        <para>Unter dem Menüpunkt System gibt es den Eintrag 'Installation sperren/entsperren'. Setz man diese Sperre so ist der Zugang zu der gesamten kivitendo Installation gesperrt.</para>
+        <para>Unter dem Menüpunkt System gibt es den Eintrag 'Installation sperren/entsperren'. Setzt man diese Sperre so ist der Zugang zu der gesamten kivitendo Installation gesperrt.</para>
         <para>Falls die Sperre gesetzt ist, erscheint anstelle der Anmeldemaske die Information: 'kivitendo ist momentan zwecks Wartungsarbeiten nicht zugänglich.'.
         </para>
         <para>Wichtig zu erwähnen ist hierbei noch, dass sich kivitendo automatisch 'sperrt', falls es bei einem Versionsupdate zu einem Datenbankfehler kam. Somit kann hier nicht aus Versehen
