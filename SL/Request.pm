@@ -169,9 +169,9 @@ sub _parse_multipart_formdata {
           # legacy, some old upload routines expect this to be here
           $temp_target->{FILENAME} = $filename if defined $filename;
 
-          # name can potentially be both a normal variable or a file upload
-          # a file upload can be identified by its "filename" attribute
-          # the thing is, if a [+] clause vivifies atructur in one of the
+          # Name can potentially be both a normal variable or a file upload.
+          # A file upload can be identified by its "filename" attribute.
+          # The thing is, if a [+] clause vivifies structure in one of the
           # branches it must be done in both, or subsequent "[]" will fail
           my $temp_target_slot = _store_value($temp_target, $name);
           my $target_slot      = _store_value($target,      $name);
@@ -286,7 +286,7 @@ sub read_cgi_input {
     read STDIN, $content, $ENV{CONTENT_LENGTH};
     if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
       # multipart formdata can bring it's own encoding, so give it both
-      # and let ti decide on it's own
+      # and let it decide on it's own
       _parse_multipart_formdata($target, $temp_target, $content, 1);
     } else {
       # normal encoding must be recoded
@@ -313,11 +313,11 @@ sub flatten {
   my ($source, $target, $prefix, $in_array) = @_;
   $target ||= [];
 
-  # there are two edge cases that need attention. first: more than one hash
-  # inside an array.  only the first of each nested can have a [+].  second: if
+  # There are two edge cases that need attention. First: more than one hash
+  # inside an array.  Only the first of each nested can have a [+].  Second: if
   # an array contains mixed values _store_value will rely on autovivification.
-  # so any type change must have a [+]
-  # this closure decides one recursion step AFTER an array has been found if a
+  # So any type change must have a [+]
+  # This closure decides one recursion step AFTER an array has been found if a
   # [+] needs to be generated
   my $arr_prefix = sub {
     return $_[0] ? '[+]' : '[]' if $in_array;
@@ -373,7 +373,7 @@ SL::Request.pm - request parsing, data serialization, request information
 =head1 SYNOPSIS
 
 This module handles unpacking of CGI parameters. It also gives
-information about the request like whether or not it was done via AJAX
+information about the request, such as whether or not it was done via AJAX,
 or the requested content type.
 
   use SL::Request qw(read_cgi_input);
@@ -418,7 +418,7 @@ will be serialized to
 
 =item Arrays
 
-Arrays will by trailing empty brackets (C<[]>). An hash like this
+Arrays will be marked by empty brackets (C<[]>). A hash like this
 
   selected_id => [ 2, 6, 8, 9 ]
 
@@ -439,7 +439,7 @@ input:
 
 =item Nested structures
 
-A special version of this are nested hashs in an array, which is very common.
+A special version of this are nested hashes in an array, which is very common.
 The combined operator (C<[].>) will be used. As a special case, every time a new
 array slice is started, the special convention (C<[+].>) will be used. Again this
 is because it's easy to write a template with it.
@@ -491,7 +491,7 @@ You cannot use the tokens C<[]>, C<[+]> and C<.> in keys. No way around it.
 
 =item Sparse Arrays
 
-It is not possible to serialize somehing like
+It is not possible to serialize something like
 
   sparse_array => do { my $sa = []; $sa[100] = 1; $sa },
 
@@ -522,7 +522,7 @@ No support for globs, scalar refs, code refs, filehandles and the like. These wi
 This function will flatten the provided hash ref into the provided array ref.
 The array ref may be non empty, but will be changed in this case.
 
-Return value is the flattened array ref.
+The return value is the flattened array ref.
 
 =item C<unflatten ARRAYREF [ HASHREF ]>
 
@@ -540,7 +540,7 @@ Returns the requested content type (either C<html>, C<js> or C<json>).
 =item C<layout>
 
 Set and retrieve the layout object for the current request. Must be an instance
-of L<SL::Layout::Base>. Defaults to an isntance of L<SL::Layout::None>.
+of L<SL::Layout::Base>. Defaults to an instance of L<SL::Layout::None>.
 
 For more information about layouts, see L<SL::Layout::Dispatcher>.
 
@@ -565,33 +565,33 @@ Returns the cached item.
 
 =head2 C<_store_value()>
 
-parses a complex var name, and stores it in the form.
+Parses a complex var name, and stores it in the form.
 
-syntax:
+Syntax:
   _store_value($target, $key, $value);
 
-keys must start with a string, and can contain various tokens.
-supported key structures are:
+Keys must start with a string, and can contain various tokens.
+Supported key structures are:
 
 1. simple access
-  simple key strings work as expected
+  Simple key strings work as expected
 
   id => $form->{id}
 
 2. hash access.
-  separating two keys by a dot (.) will result in a hash lookup for the inner value
-  this is similar to the behaviour of java and templating mechanisms.
+  Separating two keys by a dot (.) will result in a hash lookup for the inner value
+  This is similar to the behaviour of java and templating mechanisms.
 
   filter.description => $form->{filter}->{description}
 
 3. array+hashref access
 
-  adding brackets ([]) before the dot will cause the next hash to be put into an array.
-  using [+] instead of [] will force a new array index. this is useful for recurring
-  data structures like part lists. put a [+] into the first varname, and use [] on the
+  Adding brackets ([]) before the dot will cause the next hash to be put into an array.
+  Using [+] instead of [] will force a new array index. This is useful for recurring
+  data structures like part lists. Put a [+] into the first varname, and use [] on the
   following ones.
 
-  repeating these names in your template:
+  Repeating these names in your template:
 
     invoice.items[+].id
     invoice.items[].parts_id
@@ -612,8 +612,8 @@ supported key structures are:
 
 4. arrays
 
-  using brackets at the end of a name will result in a pure array to be created.
-  note that you mustn't use [+], which is reserved for array+hash access and will
+  Using brackets at the end of a name will result in the creation of a pure array.
+  Note that you mustn't use [+], which is reserved for array+hash access and will
   result in undefined behaviour in array context.
 
   filter.status[]  => $form->{status}->[ val1, val2, ... ]

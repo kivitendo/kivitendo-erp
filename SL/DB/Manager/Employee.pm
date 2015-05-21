@@ -70,8 +70,8 @@ Returns an RDBO instance corresponding to the currently logged-in user.
 For each user created by the administrator in the admin section an
 entry only exists in the authentication table, but not in the employee
 table. This is where this function comes in: It iterates over all
-authentication users that have access to the current client and ensure
-than an entry for them exists in the table C<employee>. The matching
+authentication users that have access to the current client and ensures
+that an entry for them exists in the table C<employee>. The matching
 is done via the login name which must be the same in both tables.
 
 The only other properties that will be copied from the authentication
