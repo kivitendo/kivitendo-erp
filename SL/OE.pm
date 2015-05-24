@@ -1295,7 +1295,8 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-      push @{ $form->{TEMPLATE_ARRAYS}->{listprice} },         $form->{"listprice_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{listprice} },         $form->format_amount($myconfig, $form->{"listprice_$i"}, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{listprice_nofmt} },   $form->{"listprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor} },      $price_factor->{formatted_factor};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor_name} }, $price_factor->{description};
       push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },        $form->{"partsgroup_$i"};

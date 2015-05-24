@@ -420,8 +420,6 @@ sub display_row {
                    $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces) }
       if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/ || $form->{type} =~ /^credit_note$/ ) && !$is_delivery_order;
 
-    $form->{"listprice_$i"} = $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2)
-      if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) ;
 # / marge calculations ending
 
 # Calculate total weight
@@ -557,7 +555,7 @@ sub item_selected {
   }
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(sellprice listprice weight);
+    qw(sellprice weight);
 
   if ( $mode eq 'IC' ) {
     # assembly mode:
@@ -667,7 +665,7 @@ sub item_selected {
     map {
       $form->{"${_}_$i"} =
           $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-    } qw(sellprice listprice lastcost qty) if $form->{item} ne 'assembly';
+    } qw(sellprice lastcost qty) if $form->{item} ne 'assembly';
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{item} ne 'assembly';
 
     delete $form->{nextsub};
@@ -728,7 +726,7 @@ sub check_form {
     #$form->{sellprice} = 0;
     $form->{weight}    = 0;
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-      qw(listprice sellprice rop stock);
+      qw(sellprice rop stock);
 
     my @flds = qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup lastcost);
 
@@ -934,7 +932,7 @@ sub order {
   for my $i (1 .. $form->{rowcount}) {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor discount));
+        qw(ship qty sellprice basefactor discount));
     $form->{"converted_from_invoice_id_$i"} = delete $form->{"invoice_id_$i"};
   }
 
@@ -1002,7 +1000,7 @@ sub quotation {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
                                                      $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor discount lastcost));
+        qw(ship qty sellprice basefactor discount lastcost));
   }
 
   &prepare_order;

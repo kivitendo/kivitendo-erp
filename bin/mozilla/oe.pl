@@ -1445,7 +1445,7 @@ sub invoice {
   $form->{cp_id} *= 1;
 
   for my $i (1 .. $form->{rowcount}) {
-    for (qw(ship qty sellprice listprice basefactor)) {
+    for (qw(ship qty sellprice basefactor)) {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
     $form->{"converted_from_orderitems_id_$i"} = delete $form->{"orderitems_id_$i"};
@@ -1847,7 +1847,7 @@ sub poso {
   };
 
   for my $i (1 .. $form->{rowcount}) {
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount lastcost);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice basefactor discount lastcost);
   }
 
   my %saved_vars = map { $_ => $form->{$_} } grep { $form->{$_} } qw(currency);
@@ -1909,7 +1909,7 @@ sub delivery_order {
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
 
   for my $i (1 .. $form->{rowcount}) {
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice lastcost basefactor discount);
     $form->{"converted_from_orderitems_id_$i"} = delete $form->{"orderitems_id_$i"};
   }
 

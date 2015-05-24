@@ -1019,11 +1019,6 @@ sub credit_note {
 #  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
 #    qw(creditlimit creditremaining);
 
-  for my $i (1 .. $form->{rowcount}) {
-    for (qw(listprice)) {
-      $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
-    }
-  }
   # set new persistent ids for credit note and link previous invoice id
   $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
