@@ -1526,7 +1526,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
           <para>
             Es wird eine Datei <filename>sample.lco</filename> erstellt und diese nach <filename>letter.lco</filename> verlinkt.  Eigentlich
-            ist dies die Datei die für die firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in \LaTeX nicht ganz niedrig
+            ist dies die Datei die für die firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
             ist, wird in dieser Datei auf ein Hintergrund-PDF verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
             vorzunehmen und <filename>sample.lco</filename> unverändert zu lassen. Die Anpassung über eine
             <filename>*.lco</filename>-Datei, die letztlich auf <filename>letter.lco</filename> verlinkt ist ist aber auch möglich.
@@ -1637,10 +1637,18 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="Vorlagen-RB">
         <title>Der Druckvorlagensatz RB</title>
 
-        <para>Hierbei handelt es sich um einen vollständigen Dokumentensatz mit alternativem Design.</para>
+        <para>Hierbei handelt es sich um einen vollständigen \LaTeX Dokumentensatz mit alternativem Design. Die odt oder html-Varianten sind nicht gepflegt.</para>
         <para>Die konzeptionelle Idee der Vorlagen wird <ulink
           url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
           auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</para>
+
+        <para>Eine kurze Übersicht der Features:</para>
+          <itemizedlist>
+            <listitem><para>Mehrsprachenfähig, mit Deutscher und Englischer Übersetzung</para></listitem>
+            <listitem><para>Zentrale Konfigurationsdateien, die für alle Belege benutzt werden, z.B. für Kopf- und Fußzeilen, und Infos wie Bankdaten</para></listitem>
+            <listitem><para>mehrere vordefinierte Varianten für Logos/Hintergrundbilder</para></listitem>
+            <listitem><para>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder "Außerhalb EU"</para></listitem>
+          </itemizedlist>
 
       </sect2>
 
