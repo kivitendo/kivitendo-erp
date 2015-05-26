@@ -1193,7 +1193,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <para><ulink
       url="http://localhost/kivitendo-erp/controller.pl?action=Admin/login">http://localhost/kivitendo-erp/controller.pl?action=Admin/login</ulink></para>
 
-      <para>Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
+      <para>Verwenden Sie zur Anmeldung das Passwort, das Sie in der Datei
       <filename>config/kivitendo.conf</filename> eingetragen haben.</para>
 
       <sect2 id="Zusammenhänge">
@@ -1473,7 +1473,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="Vorlagen-Standard">
         <title>Standard</title>
 
-        <para>Der Standard-Vorlagensatz von Kivitendo. Wie unter <ulink url="https://www.kivitendo.de">https://www.kivitendo.de</ulink> zu
+        <para>Der Standard-Vorlagensatz von kivitendo. Wie unter <ulink url="https://www.kivitendo.de">https://www.kivitendo.de</ulink> zu
         sehen.</para>
 
       </sect2>
@@ -1487,9 +1487,9 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           <title>Feature-Übersicht</title>
           <itemizedlist>
             <listitem><para>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
-            Angebot, Rechnung, Proformarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</para></listitem>
+            Angebot, Rechnung, Proformarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc.</para></listitem>
 
-            <listitem><para>Leichte Anpassung an das Firmen-Layout durch verwendung eines Hintergrund-PDF. Dieses kann leicht mit dem
+            <listitem><para>Leichte Anpassung an das Firmen-Layout durch Verwendung eines Hintergrund-PDFs. Dieses kann leicht mit dem
             eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</para></listitem>
 
             <listitem><para>Hintergrund-PDF umschaltbar auf "nur erste Seite" (Standard) oder "alle Seiten" (Option
@@ -1526,7 +1526,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
           <para>
             Es wird eine Datei <filename>sample.lco</filename> erstellt und diese nach <filename>letter.lco</filename> verlinkt.  Eigentlich
-            ist dies die Datei die für die firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
+            ist dies die Datei die für die firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in \LaTeX nicht ganz niedrig
             ist, wird in dieser Datei auf ein Hintergrund-PDF verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
             vorzunehmen und <filename>sample.lco</filename> unverändert zu lassen. Die Anpassung über eine
             <filename>*.lco</filename>-Datei, die letztlich auf <filename>letter.lco</filename> verlinkt ist ist aber auch möglich.
@@ -1615,7 +1615,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             an (einmal mit der Namensendung "_E"). Gewinn:</para>
 
           <itemizedlist>
-            <listitem><para>Die Entscheidung, ob Netopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste verbunden.</para></listitem>
+            <listitem><para>Die Entscheidung, ob Nettopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste verbunden.</para></listitem>
             <listitem><para>Die Default-Zahlart kann im Kundendatensatz hinterlegt werden, und man muss nicht mehr daran denken, "alle Preise
             Netto" auszuwählen.</para></listitem>
             <listitem><para>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen werden, kann direkt beim Drucken revidiert werden,
@@ -1669,7 +1669,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           </listitem>
         </itemizedlist>
 
-        <para>Wird gar kein Fehler angezeigt sondern nur der Name des Templates,
+        <para>Wird gar kein Fehler angezeigt, sondern nur der Name des Templates,
         heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
         Prüfen Sie den Namen in der Konfiguration (Standard:
         <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
@@ -1689,7 +1689,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             <para>Nochmal einen Druckversuch im Webfrontend auslösen</para>
           </listitem>
           <listitem>
-            <para>wechsele in das users Verzeichnis von kivitendo</para>
+            <para>wechsel in das users Verzeichnis von kivitendo</para>
             <para><programlisting>cd [kivitendo-home]/users</programlisting></para>
           </listitem>
           <listitem>
@@ -1697,7 +1697,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             <para><programlisting>export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</programlisting></para>
           </listitem>
           <listitem>
-            <para>Finde heraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</para>
+            <para>Finde heraus,  welche Datei kivitendo beim letzten Durchlauf erstellt hat</para>
             <para><programlisting>ls -lahtr ./1*.tex</programlisting></para>
             <para>Es sollte die letzte Datei ganz unten sein</para>
           </listitem>
@@ -1890,11 +1890,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         evtl. die Ergebnisse verfälscht. Dies gilt vor Allem für die
         Warenbuchungsmethode (siehe auch
         <link linkend="config.eur.inventory-system-perpetual">
-        Bemerkungen zu Bestandsmethode</link>).</para>
+        Bemerkungen zur Bestandsmethode</link>).</para>
       </sect2>
 
       <sect2 id="config.eur.inventory-system-perpetual">
-        <title>Bemerkungen zu Bestandsmethode</title>
+        <title>Bemerkungen zur Bestandsmethode</title>
 
         <para>Die Bestandsmethode ist eigentlich eine sehr elegante Methode,
         funktioniert in kivitendo aber nur unter bestimmten Bedingungen:
@@ -2059,10 +2059,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
     <para>immer alle Buchungen seit Beginn der Datenbank nimmt</para>
   </listitem>
   </itemizedlist>
+  <para>
    Folgende Hinweise zu den Optionen:
     Das "Bücher schließen Datum" ist sinnvoll, wenn man nur komplette Jahre
     schließt. Bei Wirtschaftsjahr = Kalendarjahr entspricht dies aber auch
-    Jahresanfang.
+    dem Jahresanfang.
     "Alle Buchungen" kann z.B. sinnvoll sein wenn man ohne Jahresabschluß
     durchbucht.
     Eröffnungsbuchung mit "alle Buchungen" als Fallback ist z.B. sinnvoll, wenn man
@@ -2073,6 +2074,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
     Zur Sicherheit wird das Startdatum im Bilanzbericht jetzt zusätzlich zum
     Stichtag mit angezeigt. Das hilft auch bei der Kontrolle für den
     Abgleich mit der GuV.
+    </para>
     </sect1>
     <sect1 id="config.client">
       <title>Einstellungen pro Mandant</title>
@@ -2156,7 +2158,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
             <listitem>
               <para>Bei aktiven Rechnungen wird automatisch eine Rechnung
-              erstellt, wenn die Periodizität erreicht ist (z.B. Anfang eines
+              erstellt, wenn die Periodizität erreicht ist (z.B. am Anfang eines
               neuen Monats).</para>
 
               <para>Ist ein Auftrag nicht aktiv, so werden für ihn auch keine
