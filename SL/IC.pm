@@ -1721,7 +1721,8 @@ sub prepare_parts_for_printing {
 
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
-  map { $form->{TEMPLATE_ARRAYS}{$_} = [] } (qw(make model), @columns);
+  my %template_arrays;
+  map { $template_arrays{$_} = [] } (qw(make model), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -1729,16 +1730,16 @@ sub prepare_parts_for_printing {
     next if (!$id);
 
     foreach (@columns) {
-      push @{ $form->{TEMPLATE_ARRAYS}{$_} }, $data{$id}->{$_};
+      push @{ $template_arrays{$_} }, $data{$id}->{$_};
     }
 
-    push @{ $form->{TEMPLATE_ARRAYS}{make} },  [];
-    push @{ $form->{TEMPLATE_ARRAYS}{model} }, [];
+    push @{ $template_arrays{make} },  [];
+    push @{ $template_arrays{model} }, [];
 
     next if (!$makemodel{$id});
 
     foreach my $ref (@{ $makemodel{$id} }) {
-      map { push @{ $form->{TEMPLATE_ARRAYS}{$_}->[-1] }, $ref->{$_} } qw(make model);
+      map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model);
     }
   }
 
@@ -1749,9 +1750,10 @@ sub prepare_parts_for_printing {
     my $id = $form->{"${prefix}${i}"};
     next unless $id;
 
-    push @{ $form->{TEMPLATE_ARRAYS}{part_type} },  $parts_by_id{$id}->type;
+    push @{ $template_arrays{part_type} },  $parts_by_id{$id}->type;
   }
 
+  return %template_arrays;
   $main::lxdebug->leave_sub();
 }
 

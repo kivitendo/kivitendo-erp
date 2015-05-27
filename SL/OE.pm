@@ -1226,25 +1226,29 @@ sub order_details {
 
   $form->{discount} = [];
 
+  # get some values of parts from db on store them in extra array,
+  # so that they can be sorted in later
+  my %prepared_template_arrays = IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
+  my @prepared_arrays          = keys %prepared_template_arrays;
+
   $form->{TEMPLATE_ARRAYS} = { };
-  IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   my $project_cvar_configs = CVar->get_configs(module => 'Projects');
 
   my @arrays =
-    qw(runningnumber number description longdescription qty ship unit bin
-       partnotes serialnumber reqdate sellprice listprice netprice
-       discount p_discount discount_sub nodiscount_sub
-       linetotal  nodiscount_linetotal tax_rate projectnumber projectdescription
-       price_factor price_factor_name partsgroup weight lineweight);
+    qw(runningnumber number description longdescription qty qty_nofmt ship ship_nofmt unit bin
+       partnotes serialnumber reqdate sellprice sellprice_nofmt listprice listprice_nofmt netprice netprice_nofmt
+       discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
+       linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
+       price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
   push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
-  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays);
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @prepared_arrays);
 
   my $totalweight = 0;
   my $sameitem = "";
@@ -1252,10 +1256,11 @@ sub order_details {
     $i = $item->[0];
 
     if ($item->[1] ne $sameitem) {
+      push(@{ $form->{TEMPLATE_ARRAYS}->{entry_type}  }, 'partsgroup');
       push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
 
-      map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+      map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } (@arrays, @prepared_arrays)));
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -1280,6 +1285,9 @@ sub order_details {
 
       my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
 
+      push(@{ $form->{TEMPLATE_ARRAYS}->{$_} },                $prepared_template_arrays{$_}[$i - 1]) for @prepared_arrays;
+
+      push @{ $form->{TEMPLATE_ARRAYS}->{entry_type} },        'normal';
       push @{ $form->{TEMPLATE_ARRAYS}->{runningnumber} },     $position;
       push @{ $form->{TEMPLATE_ARRAYS}->{number} },            $form->{"partnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
@@ -1420,13 +1428,15 @@ sub order_details {
 
         while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-            map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+            map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } (@arrays, @prepared_arrays)));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
+            push(@{ $form->{TEMPLATE_ARRAYS}->{entry_type}  }, 'assembly-item-partsgroup');
             push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $sameitem);
           }
 
+          push(@{ $form->{TEMPLATE_ARRAYS}->{entry_type}  }, 'assembly-item');
           push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
-          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } (@arrays, @prepared_arrays)));
         }
         $sth->finish;
       }
