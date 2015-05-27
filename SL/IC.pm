@@ -1713,7 +1713,7 @@ sub prepare_parts_for_printing {
 
   $sth->finish();
 
-  my @columns = qw(ean image microfiche drawing weight);
+  my @columns = qw(ean image microfiche drawing);
 
   $query      = qq|SELECT id, | . join(', ', @columns) . qq|
                    FROM parts
