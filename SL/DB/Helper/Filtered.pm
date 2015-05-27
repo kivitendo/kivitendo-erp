@@ -164,7 +164,7 @@ to make sense to Rose.
 
 =item *
 
-You are expeceted to return exactly one key and one value. That can mean you
+You are expected to return exactly one key and one value. That can mean you
 have to encapsulate your arguments into C<< or => [] >> or C<< and => [] >> blocks.
 
 =item *
