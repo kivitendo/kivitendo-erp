@@ -311,7 +311,7 @@ sub save {
   my $items_reqdate;
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
-  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
+  my %price_factors = map { $_->{id} => $_->{factor} *1 } @{ $form->{ALL_PRICE_FACTORS} };
   my $price_factor;
 
   my %part_id_map = map { $_ => 1 } grep { $_ } map { $form->{"id_$_"} } (1 .. $form->{rowcount});
@@ -913,7 +913,7 @@ sub order_details {
   push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
-  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
+  my %price_factors = map { $_->{id} => $_->{factor} *1 } @{ $form->{ALL_PRICE_FACTORS} };
 
   my $totalweight = 0;
   my $sameitem = "";
