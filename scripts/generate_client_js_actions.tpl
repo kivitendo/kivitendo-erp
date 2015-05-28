@@ -5,15 +5,27 @@
 // SL/ClientJS.pm for instructions.
 
 namespace("kivi", function(ns) {
-ns.display_flash = function(type, message) {
+ns.display_flash = function(type, message, noscroll) {
   $('#flash_' + type + '_content').text(message);
   $('#flash_' + type).show();
-  $('#frame-header')[0].scrollIntoView();
+  if (!noscroll) {
+    $('#frame-header')[0].scrollIntoView();
+  }
 };
 
 ns.display_flash_detail = function(type, message) {
   $('#flash_' + type + '_detail').html(message);
   $('#flash_' + type + '_disp').show();
+};
+
+ns.clear_flash = function(category , timeout) {
+  window.setTimeout(function(){
+    $('#flash_' + category).hide();
+    $('#flash_detail_' + category).hide();
+    $('#flash_' + category + '_disp').hide();
+    $('#flash_' + category + '_content').empty();
+    $('#flash_' + category + '_detail').empty();
+  }, timeout);
 };
 
 ns.eval_json_result = function(data) {

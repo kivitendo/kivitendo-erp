@@ -5,10 +5,12 @@
 // SL/ClientJS.pm for instructions.
 
 namespace("kivi", function(ns) {
-ns.display_flash = function(type, message) {
+ns.display_flash = function(type, message, noscroll) {
   $('#flash_' + type + '_content').text(message);
   $('#flash_' + type).show();
-  $('#frame-header')[0].scrollIntoView();
+  if (!noscroll) {
+    $('#frame-header')[0].scrollIntoView();
+  }
 };
 
 ns.display_flash_detail = function(type, message) {
@@ -148,6 +150,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
       else if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
       else if (action[0] == 'flash_detail')         kivi.display_flash_detail(action[1], action[2]);
+      else if (action[0] == 'clear_flash')          kivi.clear_flash(action[1], action[2]);
       else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
       else if (action[0] == 'run')                  kivi.run(action[1], action.slice(2, action.length));
       else if (action[0] == 'run_once_for')         kivi.run_once_for(action[1], action[2], action[3]);

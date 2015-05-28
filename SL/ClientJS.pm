@@ -116,6 +116,7 @@ my %supported_methods = (
 
   flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
   flash_detail           => 2,  # kivi.display_flash_detail(<TARGET>, <ARGS>)
+  clear_flash            => 2,  # kivi.display_flash_detail(<TARGET>, <ARGS>)
   reinit_widgets         => 0,  # kivi.reinit_widgets()
   run                    => -1, # kivi.run(<TARGET>, <ARGS>)
   run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
