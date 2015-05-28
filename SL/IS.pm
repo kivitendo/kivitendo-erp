@@ -1298,7 +1298,7 @@ SQL
   if ($form->{storno}) {
     $query =
       qq!UPDATE ar SET
-           paid = paid + amount,
+           paid = amount,
            storno = 't',
            intnotes = ? || intnotes
          WHERE id = ?!;
