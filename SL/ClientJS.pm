@@ -10,7 +10,7 @@ use SL::JSON ();
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw() ],
-  'scalar --get_set_init' => [ qw(controller _actions _flash _error) ],
+  'scalar --get_set_init' => [ qw(controller _actions _flash _flash_detail _error) ],
 );
 
 my %supported_methods = (
@@ -115,6 +115,7 @@ my %supported_methods = (
   redirect_to            => 1,  # window.location.href = <TARGET>
 
   flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
+  flash_detail           => 2,  # kivi.display_flash_detail(<TARGET>, <ARGS>)
   reinit_widgets         => 0,  # kivi.reinit_widgets()
   run                    => -1, # kivi.run(<TARGET>, <ARGS>)
   run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
@@ -180,6 +181,10 @@ sub init__flash {
   return {};
 }
 
+sub init__flash_detail {
+  return {};
+}
+
 sub init__error {
   return '';
 }
@@ -231,6 +236,21 @@ sub flash {
     push @{ $self->_actions }, $self->_flash->{$type};
   } else {
     $self->_flash->{$type}->[-1] .= ' ' . $message;
+  }
+
+  return $self;
+}
+
+sub flash_detail {
+  my ($self, $type, @messages) = @_;
+
+  my $message = join '<br>', grep { $_ } @messages;
+
+  if (!$self->_flash_detail->{$type}) {
+    $self->_flash_detail->{$type} = [ 'flash_detail', $type, $message ];
+    push @{ $self->_actions }, $self->_flash_detail->{$type};
+  } else {
+    $self->_flash_detail->{$type}->[-1] .= ' ' . $message;
   }
 
   return $self;

@@ -8,6 +8,12 @@ namespace("kivi", function(ns) {
 ns.display_flash = function(type, message) {
   $('#flash_' + type + '_content').text(message);
   $('#flash_' + type).show();
+  $('#frame-header')[0].scrollIntoView();
+};
+
+ns.display_flash_detail = function(type, message) {
+  $('#flash_' + type + '_detail').html(message);
+  $('#flash_' + type + '_disp').show();
 };
 
 ns.eval_json_result = function(data) {
@@ -19,7 +25,10 @@ ns.eval_json_result = function(data) {
 
   $(['info', 'warning', 'error']).each(function(idx, category) {
     $('#flash_' + category).hide();
+    $('#flash_detail_' + category).hide();
+    $('#flash_' + category + '_disp').hide();
     $('#flash_' + category + '_content').empty();
+    $('#flash_' + category + '_detail').empty();
   });
 
   if ((data.js || '') != '')
