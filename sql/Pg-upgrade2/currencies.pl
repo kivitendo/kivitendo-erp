@@ -20,7 +20,7 @@ sub run {
     print_no_default_currency();
     return 2;
   } else {
-    if (length($main::form->{defaultcurrency}) == 0){
+    if (!defined $::form->{defaultcurrency} || length($main::form->{defaultcurrency}) == 0){
       $main::form->{defaultcurrency} = (split m/:/, $currencies)[0];
     }
   }
