@@ -30,7 +30,7 @@ sub run {
   # check current configuration and set default variables accordingly, so that
   # kivitendo behaviour isn't changed by this update
 
-  if ($::lx_office_conf{system}->{eur} == 0 ) {
+  if (!defined $::lx_office_conf{system}->{eur} || $::lx_office_conf{system}->{eur} == 0 ) {
     $accounting_method = 'accrual';
     $inventory_system = 'perpetual';
     $profit_determination = 'balance';
