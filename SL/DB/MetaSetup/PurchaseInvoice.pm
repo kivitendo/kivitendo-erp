@@ -9,7 +9,7 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('ap');
 
 __PACKAGE__->meta->columns(
-  amount                  => { type => 'numeric', precision => 15, scale => 5 },
+  amount                  => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   cp_id                   => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
   datepaid                => { type => 'date' },
@@ -28,11 +28,11 @@ __PACKAGE__->meta->columns(
   itime                   => { type => 'timestamp', default => 'now()' },
   language_id             => { type => 'integer' },
   mtime                   => { type => 'timestamp' },
-  netamount               => { type => 'numeric', precision => 15, scale => 5 },
+  netamount               => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   notes                   => { type => 'text' },
   orddate                 => { type => 'date' },
   ordnumber               => { type => 'text' },
-  paid                    => { type => 'numeric', precision => 15, scale => 5 },
+  paid                    => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   payment_id              => { type => 'integer' },
   quodate                 => { type => 'date' },
   quonumber               => { type => 'text' },
