@@ -376,6 +376,8 @@ sub parse_date {
 sub parse_date_to_object {
   my ($self, $string, %params) = @_;
 
+  return undef if !defined $string;
+
   $params{dateformat}        ||= $::myconfig{dateformat}   || 'yy-mm-dd';
   $params{numberformat}      ||= $::myconfig{numberformat} || '1,000.00';
   my $num_separator            = $params{numberformat} =~ m{,\d+$} ? ',' : '.';
