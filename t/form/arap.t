@@ -6,9 +6,11 @@ use Support::TestSetup;
 use Carp;
 use Test::Exception;
 
+no warnings qw(qw);
+
 # this test tests the functions calculate_arap and calculate_tax in SL/Form.pm
 # calculate_arap is used for post_invoice in AR and AP
-# calculate_tax is used in calculate_arap as well as update in ar/ap/gl and post_transaction in gl 
+# calculate_tax is used in calculate_arap as well as update in ar/ap/gl and post_transaction in gl
 
 my ($ar_tax_19, $ar_tax_7,$ar_tax_0);
 my $config = {};
