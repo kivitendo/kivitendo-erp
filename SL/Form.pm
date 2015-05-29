@@ -957,6 +957,8 @@ sub parse_amount {
 sub round_amount {
   my ($self, $amount, $places) = @_;
 
+  return 0 if !defined $amount;
+
   # We use Perl's knowledge of string representation for
   # rounding. First, convert the floating point number to a string
   # with a high number of places. Then split the string on the decimal
