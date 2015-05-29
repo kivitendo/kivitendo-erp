@@ -41,11 +41,6 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Chart',
     key_columns => { skonto_sales_chart_id => 'id' },
   },
-
-  skonto_sales_chart_obj => {
-    class       => 'SL::DB::Chart',
-    key_columns => { skonto_sales_chart_id => 'id' },
-  },
 );
 
 1;
