@@ -145,7 +145,7 @@ sub load_draft {
   $form->{duedate} = $form->current_date(\%myconfig); # Aktuelles Fälligkeitsdatum  ...
 
   if ( $overwrite_hash ) {
-    foreach ( keys $overwrite_hash ) {
+    foreach ( keys %$overwrite_hash ) {
       $form->{$_} = $overwrite_hash->{$_};  # variante 1
     };
   };
