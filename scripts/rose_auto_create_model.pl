@@ -74,6 +74,7 @@ our %foreign_key_name_map     = (
     follow_up_access          => { who => 'with_access', what => 'to_follow_ups_by', },
 
     periodic_invoices_configs => { oe_id => 'order' },
+    reconciliation_links      => { acc_trans_id => 'acc_trans' },
   },
 );
 
