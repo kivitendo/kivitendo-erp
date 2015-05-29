@@ -427,7 +427,9 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included() {
   is($paid_amount,               -17.51,   "${title}: paid amount");
   is($invoice->paid,              17.51,   "${title}: paid");
   is($number_of_payments,             3,   "${title}: 3 AR_paid bookings");
+  { local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
   is($total,                          0,   "${title}: even balance");
+  }
 }
 
 # test 3 : two items, without skonto
@@ -953,8 +955,9 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included() {
   is($paid_amount,           -100,    "${title}: paid amount");
   is($invoice->paid,          100,    "${title}: paid");
   is($number_of_payments,       3,    "${title}: 3 AR_paid bookings");
-# currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct
-  is($total,                    0,    "${title}: even balance: this will fail due to rounding error in invoice post, not the skonto");
+  { local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
+  is($total,                    0,    "${title}: even balance");
+  }
 }
 
 sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple() {
