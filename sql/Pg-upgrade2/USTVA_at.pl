@@ -12,7 +12,7 @@ sub run {
   my ($self) = @_;
 
   if (!$self->check_coa('Austria')) {
-    print qq|Nichts zu tun in diesem Kontenrahmen.|;
+#    print qq|Nichts zu tun in diesem Kontenrahmen.|;
     return 1;
   }
 

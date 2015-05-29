@@ -13,7 +13,7 @@ sub run {
 
   # 1. Überprüfen ob Kontenrahmen SKR04 ist, wenn nicht alles überspringen
   if (!$self->check_coa('Germany-DATEV-SKR04EU')) {
-    print qq|Nichts zu tun in diesem Kontenrahmen.|;
+#    print qq|Nichts zu tun in diesem Kontenrahmen.|;
     return 1;
   }
 

@@ -90,7 +90,7 @@ SQL
   $h_find->finish();
   $h_change->finish();
 
-  print $::locale->text('Number of entries changed: #1', $num_changed) . "<br/>\n";
+#  print $::locale->text('Number of entries changed: #1', $num_changed) . "<br/>\n";
 
   return 1;
 }
