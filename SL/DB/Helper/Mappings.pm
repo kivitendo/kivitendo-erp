@@ -207,6 +207,10 @@ sub get_package_names {
   return KIVITENDO => \%kivitendo_package_names;
 }
 
+sub get_name_for_table {
+  return $kivitendo_package_names{ $_[0] };
+}
+
 sub get_package_for_table {
   %kivitendo_tables_to_packages = map { ($_ => "SL::DB::" . camelify($kivitendo_package_names{$_})) } keys %kivitendo_package_names
     unless %kivitendo_tables_to_packages;
