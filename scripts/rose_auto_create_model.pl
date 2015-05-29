@@ -23,6 +23,7 @@ use SL::Auth;
 use SL::DBUtils;
 use SL::DB;
 use SL::Form;
+use SL::InstanceConfiguration;
 use SL::Locale;
 use SL::LXDebug;
 use SL::LxOfficeConf;
@@ -37,7 +38,7 @@ our $auth;
 our %lx_office_conf;
 
 our $script =  __FILE__;
-$script     =~ s:.*/::;
+$script     =~ s{.*/}{};
 
 $OUTPUT_AUTOFLUSH       = 1;
 $Data::Dumper::Sortkeys = 1;
@@ -80,18 +81,28 @@ sub setup {
 
   SL::LxOfficeConf->read;
 
-  my $client = $config{client} || $::lx_office_conf{devel}{client};
+  my $client     = $config{client} || $::lx_office_conf{devel}{client};
+  my $new_client = $config{new_client};
 
-  if (!$client) {
+  if (!$client && !$new_client) {
     error("No client found in config. Please provide a client:");
     usage();
   }
 
-  $::lxdebug      = LXDebug->new();
-  $::locale       = Locale->new("de");
-  $::form         = new Form;
-  $form->{script} = 'rose_meta_data.pl';
-  $::auth         = SL::Auth->new();
+  $::lxdebug       = LXDebug->new();
+  $::lxdebug->disable_sub_tracing;
+  $::locale        = Locale->new("de");
+  $::form          = new Form;
+  $::instance_conf = SL::InstanceConfiguration->new;
+  $form->{script}  = 'rose_meta_data.pl';
+
+  if ($new_client) {
+    $::auth       = SL::Auth->new(unit_tests_database => 1);
+    $client       = 1;
+    drop_and_create_test_database();
+  } else {
+    $::auth       = SL::Auth->new();
+  }
 
   if (!$::auth->set_client($client)) {
     error("No client with ID or name '$client' found in config. Please provide a client:");
@@ -280,6 +291,7 @@ sub parse_args {
   my ($options) = @_;
   GetOptions(
     'client=s'          => \ my $client,
+    'test-client'       => \ my $use_test_client,
     all                 => \ my $all,
     'db=s'              => \ my $db,
     'no-commit|dry-run' => \ my $nocommit,
@@ -288,12 +300,13 @@ sub parse_args {
     diff                => \ my $diff,
   );
 
-  $options->{client}   = $client;
-  $options->{all}      = $all;
-  $options->{db}       = $db;
-  $options->{nocommit} = $nocommit;
-  $options->{quiet}    = $quiet;
-  $options->{color}    = -t STDOUT ? 1 : 0;
+  $options->{client}     = $client;
+  $options->{new_client} = $use_test_client;
+  $options->{all}        = $all;
+  $options->{db}         = $db;
+  $options->{nocommit}   = $nocommit;
+  $options->{quiet}      = $quiet;
+  $options->{color}      = -t STDOUT ? 1 : 0;
 
   if ($diff) {
     if (eval { require Text::Diff; 1 }) {
@@ -374,6 +387,150 @@ sub check_errors_in_package_names {
   }
 }
 
+sub drop_and_create_test_database {
+  my $db_cfg          = $::lx_office_conf{'testing/database'} || die 'testing/database missing';
+
+  my @dbi_options = (
+    'dbi:Pg:dbname=' . $db_cfg->{template} . ';host=' . $db_cfg->{host} . ';port=' . $db_cfg->{port},
+    $db_cfg->{user},
+    $db_cfg->{password},
+    SL::DBConnect->get_options,
+  );
+
+  $::auth->reset;
+  my $dbh_template = SL::DBConnect->connect(@dbi_options) || BAIL_OUT("No database connection to the template database: " . $DBI::errstr);
+  my $auth_dbh     = $::auth->dbconnect(1);
+
+  if ($auth_dbh) {
+    notice("Database exists; dropping");
+    $auth_dbh->disconnect;
+
+    dbh_do($dbh_template, "DROP DATABASE \"" . $db_cfg->{db} . "\"", message => "Database could not be dropped");
+
+    $::auth->reset;
+  }
+
+  notice("Creating database");
+
+  dbh_do($dbh_template, "CREATE DATABASE \"" . $db_cfg->{db} . "\" TEMPLATE \"" . $db_cfg->{template} . "\" ENCODING 'UNICODE'", message => "Database could not be created");
+  $dbh_template->disconnect;
+
+  notice("Creating initial schema");
+
+  @dbi_options = (
+    'dbi:Pg:dbname=' . $db_cfg->{db} . ';host=' . $db_cfg->{host} . ';port=' . $db_cfg->{port},
+    $db_cfg->{user},
+    $db_cfg->{password},
+    SL::DBConnect->get_options(PrintError => 0, PrintWarn => 0),
+  );
+
+  my $dbh           = SL::DBConnect->connect(@dbi_options) || BAIL_OUT("Database connection failed: " . $DBI::errstr);
+  $::auth->{dbh} = $dbh;
+  my $dbupdater  = SL::DBUpgrade2->new(form => $::form, return_on_error => 1, silent => 1);
+  my $coa        = 'Germany-DATEV-SKR03EU';
+
+  apply_dbupgrade($dbupdater, $dbh, "sql/lx-office.sql");
+  apply_dbupgrade($dbupdater, $dbh, "sql/${coa}-chart.sql");
+
+  dbh_do($dbh, qq|UPDATE defaults SET coa = '${coa}', accounting_method = 'cash', profit_determination = 'income', inventory_system = 'periodic', curr = 'EUR'|);
+  dbh_do($dbh, qq|CREATE TABLE schema_info (tag TEXT, login TEXT, itime TIMESTAMP DEFAULT now(), PRIMARY KEY (tag))|);
+
+  notice("Creating initial auth schema");
+
+  $dbupdater = SL::DBUpgrade2->new(form => $::form, return_on_error => 1, auth => 1);
+  apply_dbupgrade($dbupdater, $dbh, 'sql/auth_db.sql');
+
+  apply_upgrades(auth => 1, dbh => $dbh);
+
+  notice("Creating client, user, group and employee");
+
+  dbh_do($dbh, qq|DELETE FROM auth.clients|);
+  dbh_do($dbh, qq|INSERT INTO auth.clients (id, name, dbhost, dbport, dbname, dbuser, dbpasswd, is_default) VALUES (1, 'Unit-Tests', ?, ?, ?, ?, ?, TRUE)|,
+         bind => [ @{ $db_cfg }{ qw(host port db user password) } ]);
+  dbh_do($dbh, qq|INSERT INTO auth."user"         (id,        login)    VALUES (1, 'unittests')|);
+  dbh_do($dbh, qq|INSERT INTO auth."group"        (id,        name)     VALUES (1, 'Vollzugriff')|);
+  dbh_do($dbh, qq|INSERT INTO auth.clients_users  (client_id, user_id)  VALUES (1, 1)|);
+  dbh_do($dbh, qq|INSERT INTO auth.clients_groups (client_id, group_id) VALUES (1, 1)|);
+  dbh_do($dbh, qq|INSERT INTO auth.user_group     (user_id,   group_id) VALUES (1, 1)|);
+
+  my %config                 = (
+    default_printer_id       => '',
+    template_format          => '',
+    default_media            => '',
+    email                    => 'unit@tester',
+    tel                      => '',
+    dateformat               => 'dd.mm.yy',
+    show_form_details        => '',
+    name                     => 'Unit Tester',
+    signature                => '',
+    hide_cvar_search_options => '',
+    numberformat             => '1.000,00',
+    vclimit                  => 0,
+    favorites                => '',
+    copies                   => '',
+    menustyle                => 'v3',
+    fax                      => '',
+    stylesheet               => 'lx-office-erp.css',
+    mandatory_departments    => 0,
+    countrycode              => 'de',
+  );
+
+  my $sth = $dbh->prepare(qq|INSERT INTO auth.user_config (user_id, cfg_key, cfg_value) VALUES (1, ?, ?)|) || BAIL_OUT($dbh->errstr);
+  dbh_do($dbh, $sth, bind => [ $_, $config{$_} ]) for sort keys %config;
+  $sth->finish;
+
+  $sth = $dbh->prepare(qq|INSERT INTO auth.group_rights (group_id, "right", granted) VALUES (1, ?, TRUE)|) || BAIL_OUT($dbh->errstr);
+  dbh_do($dbh, $sth, bind => [ $_ ]) for sort $::auth->all_rights;
+  $sth->finish;
+
+  dbh_do($dbh, qq|INSERT INTO employee (id, login, name) VALUES (1, 'unittests', 'Unit Tester')|);
+
+  $::auth->set_client(1) || BAIL_OUT("\$::auth->set_client(1) failed");
+  %::myconfig = $::auth->read_user(login => 'unittests');
+
+  apply_upgrades(dbh => $dbh);
+}
+
+sub apply_upgrades {
+  my %params            = @_;
+  my $dbupdater         = SL::DBUpgrade2->new(form => $::form, return_on_error => 1, auth => $params{auth});
+  my @unapplied_scripts = $dbupdater->unapplied_upgrade_scripts($params{dbh});
+
+  my $all = @unapplied_scripts;
+  my $i;
+  for my $script (@unapplied_scripts) {
+    ++$i;
+    print "\rUpgrade $i/$all";
+    apply_dbupgrade($dbupdater, $params{dbh}, $script);
+  }
+  print " - done.\n";
+}
+
+sub apply_dbupgrade {
+  my ($dbupdater, $dbh, $control_or_file) = @_;
+
+  my $file    = ref($control_or_file) ? ("sql/Pg-upgrade2" . ($dbupdater->{auth} ? "-auth" : "") . "/$control_or_file->{file}") : $control_or_file;
+  my $control = ref($control_or_file) ? $control_or_file                                                                        : undef;
+
+  my $error = $dbupdater->process_file($dbh, $file, $control);
+
+  die("Error applying $file: $error") if $error;
+}
+
+sub dbh_do {
+  my ($dbh, $query, %params) = @_;
+
+  if (ref($query)) {
+    return if $query->execute(@{ $params{bind} || [] });
+    die($dbh->errstr);
+  }
+
+  return if $dbh->do($query, undef, @{ $params{bind} || [] });
+
+  die($params{message} . ": " . $dbh->errstr) if $params{message};
+  die("Query failed: " . $dbh->errstr . " ; query: $query");
+}
+
 parse_args(\%config);
 setup();
 check_errors_in_package_names();
@@ -403,11 +560,15 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 
-  scripts/rose_auto_create_model.pl --client name-or-id [db1:]table1 [[db2:]table2 ...]
-  scripts/rose_auto_create_model.pl --client name-or-id [--all|-a]
+  scripts/rose_auto_create_model.pl OPTIONS TARGET
 
+  # use other client than devel.client
+  scripts/rose_auto_create_model.pl --test-client TARGET
+  scripts/rose_auto_create_model.pl --client name-or-id TARGET
+
+  # TARGETS:
   # updates all models
-  scripts/rose_auto_create_model.pl --client name-or-id --all [--db db]
+  scripts/rose_auto_create_model.pl --all [--db db]
 
   # updates only customer table, login taken from config
   scripts/rose_auto_create_model.pl customer
@@ -474,13 +635,21 @@ L<SL::DB::Helper::Mappings/get_package_names>.
 
 =over 4
 
+=item C<--test-client, -t>
+
+Use the C<testing/database> to create a new testing database, and connect to
+the first client there. Overrides C<client>.
+
+If neither C<test-client> nor C<client> are set, the config key C<devel/client>
+will be used.
+
 =item C<--client, -c CLIENT>
 
-Provide a client whose database settings are used. If not present the
-client is loaded from the config key C<devel/client>. If that too is
-not found, an error is thrown.
+Provide a client whose database settings are used. C<CLIENT> can be either a
+database ID or a client's name.
 
-Note that C<CLIENT> can be either a database ID or a client's name.
+If neither C<test-client> nor C<client> are set, the config key C<devel/client>
+will be used.
 
 =item C<--all, -a>
 
