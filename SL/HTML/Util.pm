@@ -7,9 +7,11 @@ use HTML::Parser;
 
 my %stripper;
 my %entities = (
-  'lt'  => '<',
-  'gt'  => '>',
-  'amp' => '&',
+  'lt'   => '<',
+  'gt'   => '>',
+  'amp'  => '&',
+  'nbsp' => ' ',   # should be => "\x{00A0}", but this can lead to problems with
+                   # a non-visible character in csv-exports for example
 );
 
 sub strip {
