@@ -138,8 +138,10 @@ sub display_row {
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
   my $is_quotation       = $form->{type} =~ /_quotation$/;
   my $is_invoice         = $form->{type} =~ /invoice/;
+  my $is_credit_note     = $form->{type} =~ /credit_note/;
   my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
   my $show_ship_missing  = $is_s_p_order && $::instance_conf->get_sales_purchase_order_ship_missing_column;
+  my $show_marge         = (!$is_purchase || $is_invoice || $is_credit_note) && !$is_delivery_order;
 
   if ($is_delivery_order) {
     if ($form->{type} eq 'sales_delivery_order') {
@@ -154,35 +156,46 @@ sub display_row {
   }
 
   # column_index
-  my @header_sort = qw(runningnumber partnumber description ship qty unit weight sellprice discount linetotal);
-  my @HEADER = (
-    {  id => 'runningnumber', width => 5,     value => $locale->text('No.'),                  display => 1, },
-    {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
-    {  id => 'description',   width => 30,    value => $locale->text('Part Description'),     display => 1, },
-    {  id => 'ship',          width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
-    {  id => 'ship_missing',  width => 5,     value => $locale->text('Not delivered'),        display => $show_ship_missing, },
-    {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
-    {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
-    {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
-    {  id => 'weight',        width => 5,     value => $locale->text('Weight'),               display => $defaults->{show_weight}, },
-    {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
-    {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
-    {  id => 'price_source',  width => 5,     value => $locale->text('Price Source'),         display => !$is_delivery_order, },
-    {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
-    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => !$is_delivery_order, },
-    {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
-    {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
-    {  id => 'stock_in_out',  width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
+  my @header_sort = qw(
+    runningnumber partnumber description ship ship_missing qty price_factor
+    unit weight price_source sellprice discount linetotal
+    bin stock_in_out
   );
-  my @column_index = map { $_->{id} } grep { $_->{display} } @HEADER;
-
+  my @row2_sort   = qw(
+    serialnr projectnr reqdate subtotal marge listprice lastcost onhand
+  );
+  my %column_def = (
+    runningnumber => { width => 5,     value => $locale->text('No.'),                  display => 1, },
+    partnumber    => { width => 8,     value => $locale->text('Number'),               display => 1, },
+    description   => { width => 30,    value => $locale->text('Part Description'),     display => 1, },
+    ship          => { width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
+    ship_missing  => { width => 5,     value => $locale->text('Not delivered'),        display => $show_ship_missing, },
+    qty           => { width => 5,     value => $locale->text('Qty'),                  display => 1, },
+    price_factor  => { width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
+    unit          => { width => 5,     value => $locale->text('Unit'),                 display => 1, },
+    weight        => { width => 5,     value => $locale->text('Weight'),               display => $defaults->{show_weight}, },
+    serialnr      => { width => 10,    value => $locale->text('Serial No.'),           display => !$is_quotation },
+    projectnr     => { width => 10,    value => $locale->text('Project'),              display => 1, },
+    price_source  => { width => 5,     value => $locale->text('Price Source'),         display => !$is_delivery_order, },
+    sellprice     => { width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
+    discount      => { width => 5,     value => $locale->text('Discount'),             display => !$is_delivery_order, },
+    linetotal     => { width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
+    bin           => { width => 10,    value => $locale->text('Bin'),                  display => 0, },
+    stock_in_out  => { width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
+    reqdate       => {                 value => $locale->text('Reqdate'),              display => $is_s_p_order || $is_delivery_order || $is_invoice, },
+    subtotal      => {                 value => $locale->text('Subtotal'),             display => 1, },
+    marge         => {                 value => $locale->text('Ertrag'),               display => $show_marge, },
+    listprice     => {                 value => $locale->text('LP'),                   display => $show_marge, },
+    lastcost      => {                 value => $locale->text('EK'),                   display => $show_marge, },
+    onhand        => {                 value => $locale->text('On Hand'),              display => 1, },
+  );
+  my @HEADER = map { $column_def{$_} } @header_sort;
 
   # cache units
   my $all_units       = AM->retrieve_units(\%myconfig, $form);
 
   my %price_factors   = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
 
-  my $colspan = scalar @column_index;
 
   $form->{invsubtotal} = 0;
   map { $form->{"${_}_base"} = 0 } (split(/ /, $form->{taxaccounts}));
@@ -193,12 +206,6 @@ sub display_row {
   # /about details
 
   # translations, unused commented out
-#  $runningnumber = $locale->text('No.');
-#  my $deliverydate  = $locale->text('Delivery Date');
-  my $serialnumber  = $locale->text('Serial No.');
-  my $projectnumber = $locale->text('Project');
-#  $partsgroup    = $locale->text('Group');
-  my $reqdate       = $locale->text('Reqdate');
   my $deliverydate  = $locale->text('Required by');
 
   # special alignings
@@ -364,18 +371,15 @@ sub display_row {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
     }
 
-    my @ROW1 = map { value => $column_data{$_}, align => $align{$_}, nowrap => $nowrap{$_} }, @column_index;
-
-    # second row
-    my @ROW2 = ();
-    push @ROW2, { value => qq|<b>$serialnumber</b> <input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">| }
-      if $form->{type} !~ /_quotation/;
-    push @ROW2, { value => qq|<b>$projectnumber</b> | . NTI($cgi->popup_menu('-name'  => "project_id_$i",        '-values'  => \@projectnumber_values,
-                                                                             '-labels' => \%projectnumber_labels, '-default' => $form->{"project_id_$i"})) };
-    push @ROW2, { value => qq|<b>$reqdate</b> <input name="reqdate_$i" size="11" onBlur="check_right_date_format(this)" value="$form->{"reqdate_$i"}">| }
-      if ($form->{type} =~ /order/ ||  $form->{type} =~ /invoice/);
-    push @ROW2, { value => sprintf qq|<b>%s</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" %s>|,
-                   $locale->text('Subtotal'), $form->{"subtotal_$i"} ? 'checked' : '' };
+    $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">|;
+    $column_data{projectnr} = NTI($cgi->popup_menu(
+      '-name' => "project_id_$i",
+      '-values' => \@projectnumber_values,
+      '-labels' => \%projectnumber_labels,
+      '-default' => $form->{"project_id_$i"}
+    ));
+    $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" onBlur="check_right_date_format(this)" value="$form->{"reqdate_$i"}">|;
+    $column_data{subtotal}  = sprintf qq|<input type="checkbox" name="subtotal_$i" value="1" %s>|, $form->{"subtotal_$i"} ? 'checked' : '';
 
 # begin marge calculations
     $form->{"lastcost_$i"}     *= 1;
@@ -411,15 +415,10 @@ sub display_row {
 
     map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
 
-    push @ROW2, { value => sprintf qq|
-         <font %s><b>%s</b> %s &nbsp;%s%% </font>
-        &nbsp;<b>%s</b> %s
-        &nbsp;<b>%s</b> <input size="5" name="lastcost_$i" value="%s">|,
-                   $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
-                   $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
-                   $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces) }
-      if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/ || $form->{type} =~ /^credit_note$/ ) && !$is_delivery_order;
-
+    $column_data{marge} = sprintf qq|<font %s>%s &nbsp;%s%%</font>|,
+      $marge_color, $form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"};
+    $column_data{listprice} = $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2);
+    $column_data{lastcost}  = sprintf qq|<input size="5" name="lastcost_$i" value="%s">|, $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces);
 # / marge calculations ending
 
 # Calculate total weight
@@ -429,14 +428,15 @@ sub display_row {
     if ($form->{"id_$i"}) {
       my $part         = IC->get_basic_part_info(id => $form->{"id_$i"});
       my $onhand_color = $part->{onhand} < $part->{rop} ? 'color="#ff0000"' : '';
-      push @ROW2, { value => sprintf "<b>%s</b> <font %s>%s %s</font>",
-                      $locale->text('On Hand'),
+      $column_data{onhand} = sprintf "<font %s>%s %s</font>",
                       $onhand_color,
                       $form->format_amount(\%myconfig, $part->{onhand}, 2),
-                      $part->{unit}
-      };
+                      $part->{unit};
     }
 # / calculate onhand
+
+    my @ROW1 = map { { value => $column_data{$_}, align => $align{$_}, nowrap => $nowrap{$_} } } grep { $column_def{$_}{display} } @header_sort;
+    my @ROW2 = map { { value => sprintf "<b>%s</b> %s", $column_def{$_}{value}, $column_data{$_} } } grep { $column_def{$_}{display} } @row2_sort;
 
     my @hidden_vars;
     # add hidden ids for persistent (item|invoice)_ids and previous (converted_from*) ids
@@ -475,6 +475,7 @@ sub display_row {
     # Benutzerdefinierte Variablen für Waren/Dienstleistungen/Erzeugnisse
     _render_custom_variables_inputs(ROW2 => \@ROW2, row => $i, part_id => $form->{"id_$i"});
 
+    my $colspan = scalar @ROW1;
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, obj => $record_item };
   }
 
