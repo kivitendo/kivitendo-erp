@@ -86,7 +86,7 @@ sub get_next_trans_number {
     dbh                  => $self->db->dbh,
     select               => $number_column,
     tables               => [ $self->meta->table ],
-    columns              => { $self->meta->table => [ $number_column ] },
+    columns              => { $self->meta->table => [ $self->meta->column_names ] },
     query_is_sql         => 1,
     %conditions_for_in_use,
   );
