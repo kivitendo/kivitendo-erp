@@ -82,6 +82,20 @@ sub initialize_kivitendo {
   $::form->{__ERROR_HANDLER} = sub { die @_ };
 }
 
+sub cleanup_kivitendo {
+  eval { SL::DB::Auth->new->db->dbh->rollback; };
+  eval { SL::DB::BackgroundJob->new->db->dbh->rollback; };
+
+  $::auth->save_session;
+  $::auth->expire_sessions;
+  $::auth->reset;
+
+  $::form     = undef;
+  $::myconfig = ();
+  $::request  = undef;
+  Form::disconnect_standard_dbh;
+}
+
 sub drop_privileges {
   my $user = $lx_office_conf{task_server}->{run_as};
   return unless $user;
@@ -198,6 +212,8 @@ sub gd_run {
       debug("Exception during execution: ${error}");
       notify_on_failure(exception => $error);
     }
+
+    cleanup_kivitendo();
 
     debug("Sleeping");
 
