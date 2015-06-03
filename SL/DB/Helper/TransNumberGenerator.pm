@@ -8,6 +8,7 @@ our @EXPORT = qw(get_next_trans_number create_trans_number);
 use Carp;
 use List::Util qw(max);
 
+use SL::DBUtils ();
 use SL::PrefixedNumber;
 
 sub oe_scoping {
@@ -81,7 +82,17 @@ sub get_next_trans_number {
   # therefore we're re-loading the row.
   $self->db->dbh->do("LOCK " . $self->meta->table) || die $self->db->dbh->errstr;
 
-  my %numbers_in_use = map { ( $_->$number_column => 1 ) } @{ $self->_get_manager_class->get_all(%conditions_for_in_use) };
+  my ($query_in_use, $bind_vals_in_use) = Rose::DB::Object::QueryBuilder::build_select(
+    dbh                  => $self->db->dbh,
+    select               => $number_column,
+    tables               => [ $self->meta->table ],
+    columns              => { $self->meta->table => [ $number_column ] },
+    query_is_sql         => 1,
+    %conditions_for_in_use,
+  );
+
+  my @numbers        = do { no warnings 'once'; SL::DBUtils::selectall_array_query($::form, $self->db->dbh, $query_in_use, @{ $bind_vals_in_use || [] }) };
+  my %numbers_in_use = map { ( $_ => 1 ) } @numbers;
 
   my $range_table    = ($business ? $business : SL::DB::Default->get)->load(for_update => 1);
 
@@ -90,7 +101,6 @@ sub get_next_trans_number {
   my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
 
   if (!$fill_holes_in_range) {
-    my @numbers = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
     $sequence->set_to_max(@numbers) ;
   }
 
