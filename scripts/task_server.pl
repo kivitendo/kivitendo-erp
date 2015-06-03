@@ -51,42 +51,33 @@ sub debug {
   $::lxdebug->message(0, @_);
 }
 
-sub lxinit {
+sub initialize_kivitendo {
+  chdir $exe_dir;
+
   my $login  = $lx_office_conf{task_server}->{login};
   my $client = $lx_office_conf{task_server}->{client};
 
   package main;
 
+  Form::disconnect_standard_dbh;
   $::lxdebug       = LXDebug->new;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
   die "No client configured or no client found with the name/ID '$client'" unless $::auth->set_client($client);
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = { cgi => CGI->new({}) };
-
-  die 'cannot reach auth db'               unless $::auth->session_tables_present;
-
-  $::auth->restore_session;
-
-  require "bin/mozilla/common.pl";
-
-  die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
-  die "cannot find locale for user $login" unless $::locale   = Locale->new('de');
-}
-
-sub per_job_initialization {
-  $::locale        = Locale->new($::myconfig{countrycode} || $::lx_office_conf{system}->{language});
-  $::form          = Form->new;
-  $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
     cgi            => CGI->new({}),
     layout         => SL::Layout::None->new,
   );
 
-  $::auth->restore_session;
+  die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
-  $::instance_conf->init;
+  $::auth->restore_session;
+  $::auth->create_or_refresh_session;
+
+  die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
+  die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode} || $::lx_office_conf{system}->{language});
 
   $::form->{__ERROR_HANDLER} = sub { die @_ };
 }
@@ -173,7 +164,7 @@ sub gd_preconfig {
   die "Missing key 'client' in section [task_server] in config file" unless $lx_office_conf{task_server}->{client};
 
   drop_privileges();
-  lxinit();
+  initialize_kivitendo();
 
   return ();
 }
@@ -181,6 +172,8 @@ sub gd_preconfig {
 sub gd_run {
   while (1) {
     my $ok = eval {
+      initialize_kivitendo();
+
       debug("Retrieving jobs");
 
       my $jobs = SL::DB::Manager::BackgroundJob->get_all_need_to_run;
@@ -190,9 +183,7 @@ sub gd_run {
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
         # them somehow.
-        per_job_initialization();
-
-        chdir $exe_dir;
+        initialize_kivitendo();
 
         my $history = $job->run;
 
