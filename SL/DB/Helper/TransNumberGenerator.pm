@@ -70,9 +70,21 @@ sub get_next_trans_number {
     }
   }
 
+  # Lock both the table where the new number is stored and the range
+  # table. The storage table has to be locked first in order to
+  # prevent deadlocks as the legacy code in SL/TransNumber.pm locks it
+  # first, too.
+
+  # For the storage table we have to use a full lock in order to
+  # prevent insertion of new entries while this routine is still
+  # working. For the range table we only need a row-level lock,
+  # therefore we're re-loading the row.
+  $self->db->dbh->do("LOCK " . $self->meta->table) || die $self->db->dbh->errstr;
+
   my %numbers_in_use = map { ( $_->$number_column => 1 ) } @{ $self->_get_manager_class->get_all(%conditions_for_in_use) };
 
-  my $range_table    = $business ? $business : SL::DB::Default->get;
+  my $range_table    = ($business ? $business : SL::DB::Default->get)->load(for_update => 1);
+
   my $start_number   = $range_table->$number_range_column;
   $start_number      = $range_table->articlenumber if ($number_range_column eq 'assemblynumber') && (length($start_number) < 1);
   my $sequence       = SL::PrefixedNumber->new(number => $start_number // 0);
