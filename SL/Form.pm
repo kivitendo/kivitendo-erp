@@ -91,7 +91,8 @@ END {
 
 sub disconnect_standard_dbh {
   return unless $standard_dbh;
-  $standard_dbh->disconnect();
+
+  $standard_dbh->rollback();
   undef $standard_dbh;
 }
 

@@ -4,6 +4,7 @@ use strict;
 
 use DBI;
 use SL::DB;
+use SL::DBConnect::Cache;
 
 my %dateformat_to_datestyle = (
   'yy-mm-dd'   => 'ISO',
@@ -33,11 +34,17 @@ sub _connect {
 sub connect {
   my ($self, @args) = @_;
 
+  if (my $cached_dbh = SL::DBConnect::Cache->get(@args)) {
+    return $cached_dbh;
+  }
+
   my $dbh = $self->_connect(@args);
   return undef if !$dbh;
 
   my $initial_sql = $self->get_initial_sql;
   $dbh->do($initial_sql) if $initial_sql;
+
+  SL::DBConnect::Cache->store($dbh, @args);
 
   return $dbh;
 }
