@@ -246,7 +246,7 @@ INSERT INTO buchungsgruppen
   (SELECT id FROM chart WHERE accno = '4000'));
 
 
--- Defaults
+-- Mandantenkonfiguration
 DELETE FROM defaults;
 
 INSERT INTO defaults
@@ -266,8 +266,11 @@ INSERT INTO defaults
    accounting_method, inventory_system,
    profit_determination)
  VALUES
+  -- 1200: Handelswaren / 3000: Produktionserlöse
   ((SELECT id FROM CHART WHERE accno='1200'),(SELECT id FROM CHART WHERE accno='3000'),
+  -- 4000: Materialeinkauf / 6952: Kursgewinne
   (SELECT id FROM CHART WHERE accno='4000'),(SELECT id FROM CHART WHERE accno='6952'),
+  -- 6942: Kursverluste
   (SELECT id FROM CHART WHERE accno='6942'),0,
   0,'kg',
   '','3.1.0 CH',
@@ -283,19 +286,26 @@ INSERT INTO defaults
   'balance');
 
 
+-- Steuern & Steuerzonen
 DELETE FROM tax;
 
 INSERT INTO tax (rate, taxkey, taxdescription, itime, mtime, id) VALUES
 (0,0,'Keine Steuer','2014-01-01 00:00:00.000000',NULL,0),
-(0,1,'mehrwertsteuerfrei','2014-01-01 00:00:00.000000',NULL,1);
+(0,1,'Mehrwertsteuerfrei','2014-01-01 00:00:00.000000',NULL,1);
 
 INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription, itime, mtime, id) VALUES
-(45,0.08000,2201,2,'MWST 8% Verkauf','2014-01-01 00:00:00.000000',NULL,2),
-(44,0.02500,2200,3,'MWST 2.5% Verkauf','2014-01-01 00:00:00.000000',NULL,3),
-(12,0.08000,1170,4,'MWST 8% Aufwand','2014-01-01 00:00:00.000000',NULL,4),
-(12,0.02500,1170,5,'MWST 2.5% Aufwand','2014-01-01 00:00:00.000000',NULL,5),
-(13,0.08000,1171,6,'MWST 8% Investitionen','2014-01-01 00:00:00.000000',NULL,6),
-(13,0.02500,1171,7,'MWST 2.5% Investitionen','2014-01-01 00:00:00.000000',NULL,7);
+  -- 2201:
+  ((SELECT id FROM CHART WHERE accno='2201'),0.08000,2201,2,'MWST Normalsatz','2014-01-01 00:00:00.000000',NULL,2),
+  -- 2200:
+  ((SELECT id FROM CHART WHERE accno='2200'),0.02500,2200,3,'MWST reduzierter Satz','2014-01-01 00:00:00.000000',NULL,3),
+  -- 1170:
+  ((SELECT id FROM CHART WHERE accno='1170'),0.08000,1170,4,'MWST 8% Aufwand','2014-01-01 00:00:00.000000',NULL,4),
+  -- 1170:
+  ((SELECT id FROM CHART WHERE accno='1170'),0.02500,1170,5,'MWST 2.5% Aufwand','2014-01-01 00:00:00.000000',NULL,5),
+  -- 1171:
+  ((SELECT id FROM CHART WHERE accno='1171'),0.08000,1171,6,'MWST 8% Investitionen','2014-01-01 00:00:00.000000',NULL,6),
+  -- 1171:
+  ((SELECT id FROM CHART WHERE accno='1171'),0.02500,1171,7,'MWST 2.5% Investitionen','2014-01-01 00:00:00.000000',NULL,7);
 
 
 DELETE FROM tax_zones;
@@ -503,6 +513,8 @@ INSERT INTO taxkeys (id, chart_id, tax_id, taxkey_id, pos_ustva, startdate) VALU
 (190,190,0,0,NULL,'2014-01-01'),
 (191,191,0,0,NULL,'2014-01-01');
 
+
+-- Einheiten
 DELETE FROM units;
 
 INSERT INTO units (name, base_unit, factor, type) VALUES
@@ -520,4 +532,3 @@ INSERT INTO units (name, base_unit, factor, type) VALUES
 ('Wo',NULL,0.00000,'service'),
 ('Mt','Wo',4.00000,'service'),
 ('Jahr','Mt',12.00000,'service');
-
