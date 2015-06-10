@@ -249,8 +249,38 @@ INSERT INTO buchungsgruppen
 -- Defaults
 DELETE FROM defaults;
 
-INSERT INTO defaults (inventory_accno_id, income_accno_id, expense_accno_id, fxgain_accno_id, fxloss_accno_id, invnumber, sonumber, weightunit, businessnumber, version, curr, closedto, revtrans, ponumber, sqnumber, rfqnumber, customernumber, vendornumber, audittrail, articlenumber, servicenumber, coa, itime, mtime, rmanumber, cnnumber, accounting_method, inventory_system, profit_determination) VALUES
-(16,72,90,166,162,0,0,'kg','','3.1.0 CH','CHF:EUR',NULL,'f',0,0,0,0,0,'f',0,0,'Switzerland-deutsch-MWST','2014-01-01 00:00:00.000000',NULL,0,0,'accrual','periodic','balance');
+INSERT INTO defaults
+  (inventory_accno_id, income_accno_id,
+   expense_accno_id, fxgain_accno_id,
+   fxloss_accno_id, invnumber,
+   sonumber, weightunit,
+   businessnumber, version,
+   curr, closedto,
+   revtrans, ponumber,
+   sqnumber, rfqnumber,
+   customernumber, vendornumber,
+   audittrail, articlenumber,
+   servicenumber, coa,
+   itime, mtime,
+   rmanumber, cnnumber,
+   accounting_method, inventory_system,
+   profit_determination)
+ VALUES
+  ((SELECT id FROM CHART WHERE accno='1200'),(SELECT id FROM CHART WHERE accno='3000'),
+  (SELECT id FROM CHART WHERE accno='4000'),(SELECT id FROM CHART WHERE accno='6952'),
+  (SELECT id FROM CHART WHERE accno='6942'),0,
+  0,'kg',
+  '','3.1.0 CH',
+  'CHF:EUR',NULL,
+  'f',0,
+  0,0,
+  0,0,
+  'f',0,
+  0,'Switzerland-deutsch-MWST',
+  '2014-01-01 00:00:00.000000',NULL,
+  0,0,
+  'accrual','periodic',
+  'balance');
 
 
 DELETE FROM tax;
