@@ -17,12 +17,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with kivitendo. If not, see <http://www.gnu.org/licenses/>.
 
-DELETE FROM buchungsgruppen;
 
-INSERT INTO buchungsgruppen (id, description, inventory_accno_id, income_accno_id_0, expense_accno_id_0, income_accno_id_1, expense_accno_id_1, income_accno_id_2, expense_accno_id_2, income_accno_id_3, expense_accno_id_3) VALUES
-(1,'Standard',16,72,90,72,90,72,90,72,90);
-
-
+-- CH Konten
 DELETE FROM chart;
 
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik, itime, mtime, valid_from) VALUES ('1','AKTIVEN','H','','',NULL,0,NULL,NULL,NULL,NULL,'f','2014-01-01 00:00:00.000000',NULL,NULL);
@@ -218,6 +214,39 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik, itime, mtime, valid_from) VALUES ('99','HILFSKONTEN NEBENBÜCHER','H','','',NULL,0,NULL,NULL,NULL,NULL,'f','2014-01-01 00:00:00.000000',NULL,NULL);
 
 
+-- Buchungsgruppen
+DELETE FROM buchungsgruppen;
+
+INSERT INTO buchungsgruppen
+  (description, inventory_accno_id,
+    income_accno_id_0, expense_accno_id_0,
+    income_accno_id_1, expense_accno_id_1,
+    income_accno_id_2, expense_accno_id_2,
+    income_accno_id_3, expense_accno_id_3)
+ VALUES
+  -- Beschreibung
+  ('Standard',
+  -- 1200: Handelswaren
+  (SELECT id FROM chart WHERE accno = '1200'),
+  -- 3000: Produktionserlöse
+  -- 4000: Materialeinkauf
+  (SELECT id FROM chart WHERE accno = '3000'),
+  (SELECT id FROM chart WHERE accno = '4000'),
+  -- 3000: Produktionserlöse
+  -- 4000: Materialeinkauf
+  (SELECT id FROM chart WHERE accno = '3000'),
+  (SELECT id FROM chart WHERE accno = '4000'),
+  -- 3000: Produktionserlöse
+  -- 4000: Materialeinkauf
+  (SELECT id FROM chart WHERE accno = '3000'),
+  (SELECT id FROM chart WHERE accno = '4000'),
+  -- 3000: Produktionserlöse
+  -- 4000: Materialeinkauf
+  (SELECT id FROM chart WHERE accno = '3000'),
+  (SELECT id FROM chart WHERE accno = '4000'));
+
+
+-- Defaults
 DELETE FROM defaults;
 
 INSERT INTO defaults (inventory_accno_id, income_accno_id, expense_accno_id, fxgain_accno_id, fxloss_accno_id, invnumber, sonumber, weightunit, businessnumber, version, curr, closedto, revtrans, ponumber, sqnumber, rfqnumber, customernumber, vendornumber, audittrail, articlenumber, servicenumber, coa, itime, mtime, rmanumber, cnnumber, accounting_method, inventory_system, profit_determination) VALUES
