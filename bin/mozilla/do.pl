@@ -828,7 +828,7 @@ sub invoice {
   $form->{type} = "invoice";
 
   # locale messages
-  $main::locale = new Locale "$myconfig{countrycode}", "$script";
+  $main::locale = Locale->new("$myconfig{countrycode}", "$script");
   $locale = $main::locale;
 
   require "bin/mozilla/$form->{script}";
@@ -975,7 +975,7 @@ sub invoice_multi {
   }
   delete $form->{form_details};
 
-  $locale = new Locale "$myconfig{countrycode}", "$script";
+  $locale = Locale->new("$myconfig{countrycode}", "$script");
 
   require "bin/mozilla/$form->{script}";
 

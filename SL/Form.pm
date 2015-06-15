@@ -1125,7 +1125,7 @@ sub parse_template {
 
   if ($self->{media} eq 'email') {
 
-    my $mail = new Mailer;
+    my $mail = Mailer->new;
 
     map { $mail->{$_} = $self->{$_} }
       qw(cc bcc subject message version format);

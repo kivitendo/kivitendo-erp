@@ -17,7 +17,7 @@ sub verify_installation {
 
   use SL::Locale;
 
-  my $locale = new Locale($::lx_office_conf{system}->{language}, "installationcheck");
+  my $locale = Locale->new($::lx_office_conf{system}->{language}, "installationcheck");
 
   print(qq|content-type: text/html
 

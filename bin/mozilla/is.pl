@@ -842,7 +842,7 @@ sub print_and_post {
 
   $main::auth->assert('invoice_edit');
 
-  my $old_form                    = new Form;
+  my $old_form                    = Form->new;
   $form->{no_redirect_after_post} = 1;
   $form->{print_and_post}         = 1;
   &post();
@@ -933,7 +933,7 @@ sub preview {
   $main::auth->assert('invoice_edit');
 
   $form->{preview} = 1;
-  my $old_form = new Form;
+  my $old_form = Form->new;
   for (keys %$form) { $old_form->{$_} = $form->{$_} }
 
   &print_form($old_form);

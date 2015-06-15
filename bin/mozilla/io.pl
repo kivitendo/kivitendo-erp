@@ -918,7 +918,7 @@ sub order {
   my $script = $form->{"script"};
   $script =~ s|.*/||;
   $script =~ s|.pl$||;
-  $locale = new Locale($::lx_office_conf{system}->{language}, $script);
+  $locale = Locale->new($::lx_office_conf{system}->{language}, $script);
 
   map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
@@ -1247,7 +1247,7 @@ sub print {
     $form->error($locale->text('Select postscript or PDF!'))
       if ($form->{format} !~ /(postscript|pdf)/);
 
-    $old_form = new Form;
+    $old_form = Form->new;
     map { $old_form->{$_} = $form->{$_} } keys %$form;
   }
 
