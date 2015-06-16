@@ -9,6 +9,7 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('payment_terms');
 
 __PACKAGE__->meta->columns(
+  auto_calculation => { type => 'boolean', not_null => 1 },
   description      => { type => 'text' },
   description_long => { type => 'text' },
   id               => { type => 'integer', not_null => 1, sequence => 'id' },

@@ -194,7 +194,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onchange='set_duedate()') %]</td>
+          <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")') %]</td>
         </tr>
 [%- ELSE %]
         <tr>
@@ -203,11 +203,14 @@
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onchange='set_duedate()') %]</td>
+          <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")') %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Due Date' | $T8 %]</th>
-          <td>[% L.date_tag('duedate', duedate) %]</td>
+          <td>
+           <span id="duedate_container"[% IF payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% L.date_tag('duedate', duedate) %]</span>
+           <span id="duedate_fixed"[% IF !payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate) %]</span>
+          </td>
         </tr>
         <tr>
         <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
@@ -271,21 +274,6 @@
 [% ELSE %]
 [% END %]
      });
-     function set_duedate() {
-       setTimeout(function() {
-         $.ajax({
-           url: 'is.pl?action=set_duedate',
-           data: {
-             invdate: $('#invdate').val(),
-             payment_id: $('#payment_id').val(),
-           },
-           dataType: 'text',
-           success: function (data) {
-             $('#duedate').val(data);
-           }
-         })
-       }, 0);
-     }
    //-->
   </script>
 <table width="100%">

@@ -1960,22 +1960,10 @@ sub get_customer {
   my $dateformat = $myconfig->{dateformat};
   $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
 
-  my (@values, $duedate, $ref, $query);
-
-  if ($form->{invdate}) {
-    $duedate = "to_date(?, '$dateformat')";
-    push @values, $form->{invdate};
-  } else {
-    $duedate = "current_date";
-  }
+  my (@values, $ref, $query);
 
   my $cid = conv_i($form->{customer_id});
   my $payment_id;
-
-  if ($form->{payment_id}) {
-    $payment_id = "(pt.id = ?) OR";
-    push @values, conv_i($form->{payment_id});
-  }
 
   # get customer
   $query =
@@ -1985,19 +1973,25 @@ sub get_customer {
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
-         $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
-       LEFT JOIN payment_terms pt ON ($payment_id (c.payment_id = pt.id))
        LEFT JOIN currencies cu ON (c.currency_id=cu.id)
        WHERE c.id = ?|;
   push @values, $cid;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
 
   delete $ref->{salesman_id} if !$ref->{salesman_id};
+  delete $ref->{payment_id}  if $form->{payment_id};
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  if ($form->{payment_id}) {
+    my $reference_date = $form->{invdate} ? DateTime->from_kivitendo($form->{invdate}) : undef;
+    $form->{duedate}   = SL::DB::PaymentTerm->new(id => $form->{payment_id})->load->calc_date(reference_date => $reference_date)->to_kivitendo;
+  } else {
+    $form->{duedate}   = DateTime->today_local->to_kivitendo;
+  }
 
   # use customer currency
   $form->{currency} = $form->{curr};

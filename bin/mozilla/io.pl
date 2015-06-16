@@ -41,8 +41,10 @@ use CGI;
 use List::MoreUtils qw(any uniq apply);
 use List::Util qw(min max first);
 
+use SL::ClientJS;
 use SL::CVar;
 use SL::Common;
+use SL::Controller::Base;
 use SL::CT;
 use SL::Locale::String qw(t8);
 use SL::IC;
@@ -1805,20 +1807,35 @@ sub relink_accounts {
   $main::lxdebug->leave_sub();
 }
 
+sub get_payment_terms_for_invoice {
+  my $terms = $::form->{payment_id}  ? SL::DB::PaymentTerm->new(id => $::form->{payment_id}) ->load
+            : $::form->{customer_id} ? SL::DB::Customer   ->new(id => $::form->{customer_id})->load->payment
+            : $::form->{vendor_id}   ? SL::DB::Vendor     ->new(id => $::form->{vendor_id})  ->load->payment
+            :                          undef;
+
+  return $terms;
+}
+
 sub set_duedate {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
   _check_io_auth();
 
-  my $invdate = $form->{invdate} eq 'undefined' ? undef : $form->{invdate};
-  my $duedate = $form->get_duedate(\%myconfig, $invdate);
+  my $js      = SL::ClientJS->new(controller => SL::Controller::Base->new);
+  my $terms   = get_payment_terms_for_invoice();
+  my $invdate = $::form->{invdate} eq 'undefined' ? DateTime->today_local : DateTime->from_kivitendo($::form->{invdate});
+  my $duedate = $terms ? $terms->calc_date(reference_date => $invdate, due_date => $::form->{duedate})->to_kivitendo : ($::form->{duedate} || $invdate->to_kivitendo);
 
-  print $form->ajax_response_header() . ($duedate || $invdate);
+  if ($terms && $terms->auto_calculation) {
+    $js->hide('#duedate_container')
+       ->show('#duedate_fixed')
+       ->html('#duedate_fixed', $duedate);
 
-  $main::lxdebug->leave_sub();
+  } else {
+    $js->show('#duedate_container')
+       ->hide('#duedate_fixed');
+  }
+
+  $js->val('#duedate', $duedate)
+     ->render;
 }
 
 sub _update_part_information {

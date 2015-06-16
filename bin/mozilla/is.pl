@@ -43,6 +43,7 @@ use English qw(-no_match_vars);
 
 use SL::DB::Default;
 use SL::DB::Customer;
+use SL::DB::PaymentTerm;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -387,7 +388,10 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
+
+  $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
+  $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{due_due})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
   $form->header();
 
@@ -778,6 +782,9 @@ sub post {
 
   relink_accounts();
 
+  my $terms        = get_payment_terms_for_invoice();
+  $form->{duedate} = $terms->calc_date(reference_date => $form->{invdate}, due_date => $form->{due_due})->to_kivitendo if $terms;
+
   # If transfer_out is requested, get rose db handle and do post and
   # transfer out in one transaction. Otherwise just post the invoice.
   if ($::instance_conf->get_is_transfer_out && $form->{type} ne 'credit_note' && !$form->{storno}) {
@@ -864,7 +871,8 @@ sub use_as_new {
   $form->{rowcount}--;
   $form->{paidaccounts} = 1;
   $form->{invdate}      = $form->current_date(\%myconfig);
-  $form->{duedate}      = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
+  my $terms             = get_payment_terms_for_invoice();
+  $form->{duedate}      = $terms ? $terms->calc_date(reference_date => $form->{invdate})->to_kivitendo : $form->{invdate};
   $form->{employee_id}  = SL::DB::Manager::Employee->current->id;
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};

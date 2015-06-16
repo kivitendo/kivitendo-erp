@@ -1703,36 +1703,19 @@ sub get_default_currency {
 }
 
 sub set_payment_options {
-  $main::lxdebug->enter_sub();
-
   my ($self, $myconfig, $transdate) = @_;
 
-  return $main::lxdebug->leave_sub() unless ($self->{payment_id});
+  my $terms = $self->{payment_id} ? SL::DB::PaymentTerm->new(id => $self->{payment_id})->load : undef;
+  return if !$terms;
 
-  my $dbh = $self->get_standard_dbh($myconfig);
+  $transdate                  ||= $self->{invdate} || $self->{transdate};
+  my $due_date                  = $self->{duedate} || $self->{reqdate};
 
-  my $query =
-    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long , p.description | .
-    qq|FROM payment_terms p | .
-    qq|WHERE p.id = ?|;
-
-  ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
-   $self->{payment_terms}, $self->{payment_description}) =
-     selectrow_query($self, $dbh, $query, $self->{payment_id});
-
-  if ($transdate eq "") {
-    if ($self->{invdate}) {
-      $transdate = $self->{invdate};
-    } else {
-      $transdate = $self->{transdate};
-    }
-  }
-
-  $query =
-    qq|SELECT ?::date + ?::integer AS netto_date, ?::date + ?::integer AS skonto_date | .
-    qq|FROM payment_terms|;
-  ($self->{netto_date}, $self->{skonto_date}) =
-    selectrow_query($self, $dbh, $query, $transdate, $self->{terms_netto}, $transdate, $self->{terms_skonto});
+  $self->{$_}                   = $terms->$_ for qw(terms_netto terms_skonto percent_skonto);
+  $self->{payment_terms}        = $terms->description_long;
+  $self->{payment_description}  = $terms->description;
+  $self->{netto_date}           = $terms->calc_date(reference_date => $transdate, due_date => $due_date, terms => 'net')->to_kivitendo;
+  $self->{skonto_date}          = $terms->calc_date(reference_date => $transdate, due_date => $due_date, terms => 'discount')->to_kivitendo;
 
   my ($invtotal, $total);
   my (%amounts, %formatted_amounts);
@@ -1762,7 +1745,8 @@ sub set_payment_options {
   }
 
   if ($self->{"language_id"}) {
-    $query =
+    my $dbh   = $self->get_standard_dbh($myconfig);
+    my $query =
       qq|SELECT t.translation, l.output_numberformat, l.output_dateformat, l.output_longdates | .
       qq|FROM generic_translations t | .
       qq|LEFT JOIN language l ON t.language_id = l.id | .
@@ -1805,8 +1789,6 @@ sub set_payment_options {
   map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
 
   $self->{skonto_in_percent} = $formatted_amounts{skonto_in_percent};
-
-  $main::lxdebug->leave_sub();
 
 }
 
@@ -1978,23 +1960,6 @@ sub get_employee_data {
     }
  }
   $main::lxdebug->leave_sub();
-}
-
-sub get_duedate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $reference_date) = @_;
-
-  my $terms   = $self->{payment_id}  ? SL::DB::PaymentTerm->new(id => $self->{payment_id}) ->load
-              : $self->{customer_id} ? SL::DB::Customer   ->new(id => $self->{customer_id})->load->payment
-              : $self->{vendor_id}   ? SL::DB::Vendor     ->new(id => $self->{vendor_id})  ->load->payment
-              : $self->{invdate}     ? undef # no payment terms, therefore invdate == duedate
-              :                        croak("Missing field in \$::form: payment_id, customer_id, vendor_id or invdate");
-  my $duedate = $terms ? $terms->calc_date(reference_date => $reference_date)->to_kivitendo : undef;
-
-  $main::lxdebug->leave_sub();
-
-  return $duedate;
 }
 
 sub _get_contacts {

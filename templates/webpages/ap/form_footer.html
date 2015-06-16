@@ -48,21 +48,3 @@
 [%- END %]
 
 </form>
-
-<script type="text/javascript">
-<!--
-function set_duedate() {
-   $.ajax({
-     url: 'is.pl?action=set_duedate',
-     data: {
-       invdate: $('#transdate').val(),
-       vendor_id: $('[name=vendor_id]').val(),
-     },
-     dataType: 'text',
-     success: function(data) {
-       $('#duedate').val(data);
-     }
-   });
- }
-//-->
-</script>

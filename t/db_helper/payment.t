@@ -83,7 +83,8 @@ sub reset_state {
     description_long => 'payment',
     terms_netto      => '30',
     terms_skonto     => '5',
-    percent_skonto   => '0.05'
+    percent_skonto   => '0.05',
+    auto_calculation => 1,
   )->save;
 
   $vendor       = SL::DB::Vendor->new(

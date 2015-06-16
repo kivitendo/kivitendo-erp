@@ -30,9 +30,14 @@
    [%- END %]
 
    <tr>
+    <td>[% LxERP.t8("Calculate due date automatically") %]</td>
+    <td>[% L.yes_no_tag("payment_term.auto_calculation", SELF.payment_term.auto_calculation, "data-auto-calculation-toggle"="1") %]</td>
+   </tr>
+
+   <tr>
     <td>[%- 'Netto Terms' | $T8 %]</td>
     <td>
-     <input name="payment_term.terms_netto_as_number" value="[%- HTML.escape(SELF.payment_term.terms_netto_as_number) %]" size="6">
+     [% L.input_tag("payment_term.terms_netto_as_number", SELF.payment_term.terms_netto_as_number, size="6", disabled=(SELF.payment_term.auto_calculation ? '' : 1)) %]
     </td>
    </tr>
 
@@ -85,4 +90,3 @@
    <tr><td>&lt;%bank_code%&gt;</td><td>[% LxERP.t8("Your bank code") %]</td></tr>
   </table>
  </form>
-

@@ -156,7 +156,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onChange='set_duedate(this)') %]</td>
+          <td>[% L.date_tag('invdate', invdate) %]</td>
         </tr>
 [%- ELSE %]
         <tr>
@@ -165,11 +165,14 @@
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onChange='set_duedate(this)') %]</td>
+          <td>[% L.date_tag('invdate', invdate, onChange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")') %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Due Date' | $T8 %]</th>
-          <td>[% L.date_tag('duedate', duedate) %]</td>
+          <td>
+           <span id="duedate_container"[% IF payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% L.date_tag('duedate', duedate) %]</span>
+           <span id="duedate_fixed"[% IF !payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate) %]</span>
+          </td>
         </tr>
 [%- END %]
 
@@ -218,20 +221,6 @@
 [% ELSE %]
 [% END %]
      });
-     function set_duedate() {
-       setTimeout(function() {
-         $.ajax({
-           url: 'ir.pl?action=get_duedate_vendor',
-           data: {
-             invdate:     $('#invdate').val(),
-             vendor_id:   $('input[name="vendor_id"]').val(),
-             old_duedate: $('#duedate').val(),
-           },
-           dataType: 'text',
-           success: function (data) { $('#duedate').val(data); }
-         })
-       }, 0);
-     }
    //-->
   </script>
   <input type="hidden" name="webdav" value="[% webdav | html %]">

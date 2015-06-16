@@ -16,6 +16,7 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_payment_term', only => [ qw(         edit        update destroy) ]);
 __PACKAGE__->run_before('load_languages',    only => [ qw(new list edit create update) ]);
+__PACKAGE__->run_before('setup',             only => [ qw(new      edit) ]);
 
 #
 # actions
@@ -32,12 +33,13 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->{payment_term} = SL::DB::PaymentTerm->new;
+  $self->{payment_term} = SL::DB::PaymentTerm->new(auto_calculation => 1);
   $self->render('payment_term/form', title => $::locale->text('Create a new payment term'));
 }
 
 sub action_edit {
   my ($self) = @_;
+
   $self->render('payment_term/form', title => $::locale->text('Edit payment term'));
 }
 
@@ -81,6 +83,10 @@ sub check_auth {
   $::auth->assert('config');
 }
 
+sub setup {
+  $::request->layout->use_javascript("kivi.PaymentTerm.js");
+}
+
 #
 # helpers
 #
@@ -91,6 +97,7 @@ sub create_or_update {
   my $params = delete($::form->{payment_term}) || { };
 
   $self->{payment_term}->assign_attributes(%{ $params });
+  $self->{payment_term}->terms_netto(0) if !$self->{payment_term}->auto_calculation;
 
   my @errors = $self->{payment_term}->validate;
 

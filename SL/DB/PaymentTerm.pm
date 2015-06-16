@@ -2,6 +2,8 @@ package SL::DB::PaymentTerm;
 
 use strict;
 
+use List::Util qw(max);
+
 use SL::DB::MetaSetup::PaymentTerm;
 use SL::DB::Manager::PaymentTerm;
 use SL::DB::Helper::ActsAsList;
@@ -24,6 +26,13 @@ sub calc_date {
 
   my $reference_date  = $params{reference_date} || DateTime->today_local;
   $reference_date     = DateTime->from_kivitendo($reference_date) unless ref($reference_date) eq 'DateTime';
+
+  if (!$self->auto_calculation) {
+    my $due_date = $params{due_date} || $reference_date;
+    $due_date    = DateTime->from_kivitendo($due_date) unless ref($due_date) eq 'DateTime';
+
+    return max $due_date, $reference_date;
+  }
 
   my $terms           = ($params{terms} // 'net') eq 'discount' ? 'terms_skonto' : 'terms_netto';
   my $date            = $reference_date->add(days => $self->$terms);
@@ -58,8 +67,12 @@ SL::DB::PaymentTerm - Rose model for the payment_terms table
 =item C<calc_date [%params]>
 
 Calculates and returns a due date as an instance of L<DateTime> by
-adding one of C<$self>'s terms fields. Note that the resulting date
-will be the following Monday if the result falls on a weekend.
+adding one of C<$self>'s terms fields if automatic calculation is on;
+otherwise returns the currently-set due date (which must be provided)
+or the reference date, whichever is later.
+
+Note that for automatich calculation the resulting date will be the
+following Monday if the result falls on a weekend.
 
 C<%params> can contain the following parameters:
 
@@ -72,6 +85,12 @@ either an instance of L<DateTime> or a scalar in which case the scalar
 is parsed via L<DateTime/from_kivitendo>.
 
 Defaults to the current date if unset.
+
+=item C<due_date>
+
+A currently set due date. If automatic calculation is off then this
+date will be returned if it is provided and greater than or equal to
+the C<reference_date>. Otherwise the reference date will be returned.
 
 =item C<terms>
 

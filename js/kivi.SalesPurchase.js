@@ -86,4 +86,16 @@ namespace('kivi.SalesPurchase', function(ns) {
   this.init_on_submit_checks = function() {
      $('input[type=submit]').click(kivi.SalesPurchase.on_submit_checks);
   };
+
+  this.set_duedate_on_reference_date_change = function(reference_field_id) {
+    setTimeout(function() {
+      var data = {
+        action:     'set_duedate',
+        invdate:    $('#' + reference_field_id).val(),
+        duedate:    $('#duedate').val(),
+        payment_id: $('#payment_id').val(),
+      };
+      $.post('is.pl', data, kivi.eval_json_result);
+    });
+  };
 });
