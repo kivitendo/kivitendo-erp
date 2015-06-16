@@ -25,7 +25,7 @@ sub action_list {
   my ($self) = @_;
 
   $self->render('payment_term/list',
-                title               => $::locale->text('Payment terms'),
+                title         => $::locale->text('Payment terms'),
                 PAYMENT_TERMS => SL::DB::Manager::PaymentTerm->get_all_sorted);
 }
 
