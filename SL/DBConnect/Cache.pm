@@ -67,26 +67,26 @@ SL::DBConnect::Cache - cached database handle pool
 
 =head1 SYNOPSIS
 
-  use SL::SBConnect::Cache;
+  use SL::DBConnect::Cache;
 
-  my $dbh = SL::DBConnct::Cache->get(@args);
-  SL::DBConnct::Cache->store($dbh, @args);
+  my $dbh = SL::DBConnect::Cache->get(@args);
+  SL::DBConnect::Cache->store($dbh, @args);
 
   # reset a cached handle
-  SL::DBConnct::Cache->reset($dbh);
+  SL::DBConnect::Cache->reset($dbh);
 
   # close a cached handle and forget it
-  SL::DBConnct::Cache->close($dbh);
+  SL::DBConnect::Cache->close($dbh);
 
-  SL::DBConnct::Cache->clear($dbh);
+  SL::DBConnect::Cache->clear($dbh);
 
 
 =head1 DESCRIPTION
 
-Implementes a managed cache for DB connection handles.
+Implements a managed cache for DB connection handles.
 
 The same would be possible with C<< DBI->connect_cached >>, but in that case,
-we would have no control ver the cache.
+we would have no control over the cache.
 
 =head1 METHODS
 
@@ -106,7 +106,7 @@ Rollback the connection specified by C<ARGS>.
 
 =item * C<clear>
 
-Emties the cache. If handles are not referenced otherwise, they will get
+Empties the cache. If handles are not referenced otherwise, they will get
 dropped and closed.
 
 =back
