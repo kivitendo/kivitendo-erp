@@ -108,9 +108,9 @@ sub check_bank_account {
 
   my $object = $entry->{object};
 
-  # Check whether or not local_bank_account ID exists and is valid.
+  # import via id: check whether or not local_bank_account ID exists and is valid.
   if ($object->local_bank_account_id && !$self->bank_accounts_by->{id}->{ $object->local_bank_account_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+    push @{ $entry->{errors} }, $::locale->text('Error: unknown local bank account id');
     return 0;
   }
 
@@ -118,11 +118,11 @@ sub check_bank_account {
   if ($object->local_bank_account_id && $entry->{raw_data}->{local_account_number}) {
     my $bank_account = $self->bank_accounts_by->{id}->{ $object->local_bank_account_id };
     if ($bank_account->account_number ne $entry->{raw_data}->{local_account_number}) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      push @{ $entry->{errors} }, $::locale->text('Error: local bank account id doesn\'t match local bank account number');
       return 0;
     }
     if ($entry->{raw_data}->{local_bank_code} && $entry->{raw_data}->{local_bank_code} ne $bank_account->bank_code) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      push @{ $entry->{errors} }, $::locale->text('Error: local bank account id doesn\'t match local bank code');
       return 0;
     }
 
@@ -136,7 +136,7 @@ sub check_bank_account {
        $bank_account = $self->bank_accounts_by->{iban}->{ $entry->{raw_data}->{local_account_number} };
     };
     if (!$bank_account) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      push @{ $entry->{errors} }, $::locale->text('Error: unknown local bank account') . ": " . $entry->{raw_data}->{local_account_number};
       return 0;
     }
     if ($entry->{raw_data}->{local_bank_code} && $entry->{raw_data}->{local_bank_code} ne $bank_account->bank_code) {
