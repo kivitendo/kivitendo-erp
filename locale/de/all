@@ -1098,6 +1098,7 @@ $self->{texts} = {
   'Error: Buchungsgruppe missing or invalid' => 'Fehler: Buchungsgruppe fehlt oder ungültig',
   'Error: Customer/vendor missing' => 'Fehler: Kunde/Lieferant fehlt',
   'Error: Customer/vendor not found' => 'Fehler: Kunde/Lieferant nicht gefunden',
+  'Error: Found local bank account number but local bank code doesn\'t match' => 'Fehler: Kontonummer wurde gefunden aber gespeicherte Bankleitzahl stimmt nicht überein',
   'Error: Gender (cp_gender) missing or invalid' => 'Fehler: Geschlecht (cp_gender) fehlt oder ungültig',
   'Error: Invalid bin'          => 'Fehler: Ungültiger Lagerplatz',
   'Error: Invalid business'     => 'Fehler: Kunden-/Lieferantentyp ungültig',

@@ -140,7 +140,7 @@ sub check_bank_account {
       return 0;
     }
     if ($entry->{raw_data}->{local_bank_code} && $entry->{raw_data}->{local_bank_code} ne $bank_account->bank_code) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      push @{ $entry->{errors} }, $::locale->text('Error: Found local bank account number but local bank code doesn\'t match') . ": " . $entry->{raw_data}->{local_bank_code};
       return 0;
     }
 
