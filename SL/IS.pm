@@ -68,9 +68,6 @@ sub invoice_details {
   my $dbh = $form->get_standard_dbh;
   my $sth;
 
-  my $query = qq|SELECT date | . conv_dateq($form->{duedate}) . qq| - date | . conv_dateq($form->{invdate}) . qq| AS terms|;
-  ($form->{terms}) = selectrow_query($form, $dbh, $query);
-
   my (@project_ids);
   $form->{TEMPLATE_ARRAYS} = {};
 
@@ -354,7 +351,7 @@ sub invoice_details {
           $sortorder = qq|ORDER BY a.oid|;
         }
 
-        $query =
+        my $query =
           qq|SELECT p.partnumber, p.description, p.unit, a.qty, pg.partsgroup
              FROM assembly a
              JOIN parts p ON (a.parts_id = p.id)
@@ -1170,7 +1167,7 @@ SQL
                 transdate   = ?, orddate       = ?, quodate       = ?, customer_id   = ?,
                 amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
-                shipvia     = ?, terms         = ?, notes         = ?, intnotes      = ?,
+                shipvia     = ?,                    notes         = ?, intnotes      = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?),
                 department_id = ?, payment_id    = ?, taxincluded   = ?,
                 type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?,
@@ -1185,7 +1182,7 @@ SQL
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
                        $amount,                        $netamount,                       $form->{"paid"},
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
-                       $form->{"shipvia"},      conv_i($form->{"terms"}), $restricter->process($form->{"notes"}),       $form->{"intnotes"},
+                       $form->{"shipvia"},                                $restricter->process($form->{"notes"}),       $form->{"intnotes"},
                        $form->{"currency"},     conv_i($form->{"department_id"}), conv_i($form->{"payment_id"}),        $form->{"taxincluded"} ? 't' : 'f',
                        $form->{"type"},         conv_i($form->{"language_id"}),   conv_i($form->{"taxzone_id"}), conv_i($form->{"shipto_id"}),
                 conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),   conv_i($form->{storno_id}),           $form->{"storno"} ? 't' : 'f',
@@ -1816,7 +1813,7 @@ sub retrieve_invoice {
            a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
            a.orddate, a.quodate, a.globalproject_id,
            a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
-           a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
+           a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
@@ -1983,7 +1980,7 @@ sub get_customer {
   # get customer
   $query =
     qq|SELECT
-         c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
+         c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,

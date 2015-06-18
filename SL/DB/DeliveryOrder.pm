@@ -50,6 +50,7 @@ sub _before_save_set_donumber {
 
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
+sub payment_terms { goto &payment; }
 
 sub sales_order {
   my $self   = shift;
@@ -104,15 +105,12 @@ sub new_from {
     $item_parent_column    = 'order';
   }
 
-  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
-
   my %args = ( map({ ( $_ => $source->$_ ) } qw(cp_id currency_id customer_id cusordnumber department_id employee_id globalproject_id intnotes language_id notes
-                                                ordnumber reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id
+                                                ordnumber payment_id reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id
                                              )),
                closed    => 0,
                is_sales  => !!$source->customer_id,
                delivered => 0,
-               terms     => $terms,
                transdate => DateTime->today_local,
             );
 

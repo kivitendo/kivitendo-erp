@@ -2919,7 +2919,6 @@ sub lastname_used {
                     "d.description"           => "department",
                     "ct.name"                 => $table,
                     "cu.name"                 => "currency",
-                    "current_date + ct.terms" => "duedate",
     );
 
   if ($self->{type} =~ /delivery_order/) {

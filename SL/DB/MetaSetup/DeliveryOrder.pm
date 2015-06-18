@@ -29,6 +29,7 @@ __PACKAGE__->meta->columns(
   notes                   => { type => 'text' },
   ordnumber               => { type => 'text' },
   oreqnumber              => { type => 'text' },
+  payment_id              => { type => 'integer' },
   reqdate                 => { type => 'date' },
   salesman_id             => { type => 'integer' },
   shippingpoint           => { type => 'text' },
@@ -36,7 +37,6 @@ __PACKAGE__->meta->columns(
   shipvia                 => { type => 'text' },
   taxincluded             => { type => 'boolean' },
   taxzone_id              => { type => 'integer', not_null => 1 },
-  terms                   => { type => 'integer' },
   transaction_description => { type => 'text' },
   transdate               => { type => 'date', default => 'now()' },
   vendor_id               => { type => 'integer' },
@@ -85,6 +85,11 @@ __PACKAGE__->meta->foreign_keys(
   language => {
     class       => 'SL::DB::Language',
     key_columns => { language_id => 'id' },
+  },
+
+  payment => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
   },
 
   salesman => {

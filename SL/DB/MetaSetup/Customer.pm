@@ -54,7 +54,6 @@ __PACKAGE__->meta->columns(
   taxincluded_checked       => { type => 'boolean' },
   taxnumber                 => { type => 'text' },
   taxzone_id                => { type => 'integer', not_null => 1 },
-  terms                     => { type => 'integer', default => '0' },
   user_password             => { type => 'text' },
   username                  => { type => 'text' },
   ustid                     => { type => 'text' },
