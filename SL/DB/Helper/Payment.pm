@@ -558,7 +558,7 @@ sub get_payment_select_options_for_bank_transaction {
            push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
            push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
          } else {
-           push(@options, { payment_type => 'without_skonto', display => t8('without skonto') }, selected => 1 );
+           push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
            push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
          };
   };
