@@ -42,7 +42,7 @@ sub clear {
 sub _args2str {
   my (@args) = @_;
 
-  my ($dbconnect, $dbuser, $dbpasswd, $options) = @_;
+  my ($dbconnect, $dbuser, $dbpasswd, $options, $initial_sql) = @_;
   $dbconnect //= '';
   $dbuser    //= '';
   $dbpasswd  //= '';
@@ -52,7 +52,7 @@ sub _args2str {
     map { $_ => $options->{$_} }
     sort keys %$options;                  # deterministic order
 
-  join ';', apply { s/([;\\])/\\$1/g } $dbconnect, $dbuser, $dbpasswd, $options_str;
+  join ';', apply { s/([;\\])/\\$1/g } $dbconnect, $dbuser, $dbpasswd, $options_str, $initial_sql;
 }
 
 1;

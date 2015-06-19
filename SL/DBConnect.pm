@@ -33,18 +33,20 @@ sub _connect {
 
 sub connect {
   my ($self, @args) = @_;
+  my $initial_sql = $self->get_initial_sql;
 
-  if (my $cached_dbh = SL::DBConnect::Cache->get(@args)) {
+  if (my $cached_dbh = SL::DBConnect::Cache->get(@args, $initial_sql)) {
     return $cached_dbh;
   }
 
   my $dbh = $self->_connect(@args);
   return undef if !$dbh;
 
-  my $initial_sql = $self->get_initial_sql;
-  $dbh->do($initial_sql) if $initial_sql;
-
-  SL::DBConnect::Cache->store($dbh, @args);
+  if ($initial_sql) {
+    $dbh->do($initial_sql);
+    $dbh->commit if !$dbh->{AutoCommit};
+  }
+  SL::DBConnect::Cache->store($dbh, @args, $initial_sql);
 
   return $dbh;
 }
