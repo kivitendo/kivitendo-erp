@@ -10,13 +10,13 @@ my %icons = (
 'AP--Reports--Purchase Orders.png'                          => 'purchase_order_report.png',
 'AP--Reports--RFQs.png'                                     => 'rfq_report.png',
 'AR--Add Credit Note.png'                                   => 'credit_note_add.png',
-'AR--Add Delivery Order.png'                                => undef, # symlink to MDI-Txt_editor
+'AR--Add Delivery Order.png'                                => 'delivery_oder_add.png', # symlink to MDI-Txt_editor
 'AR--Add Dunning.png'                                       => 'dunning_add.png',
 'AR--Add Quotation.png'                                     => 'quotation_add.png',
 'AR--Add Sales Invoice.png'                                 => 'sales_invoice_add.png',
 'AR--Add Sales Order.png'                                   => 'sales_order_add.png',
 'AR.png'                                                    => 'ar.png',
-'AR--Reports--Delivery Orders.png'                          => undef, # symlink to MDI-Text_editor
+'AR--Reports--Delivery Orders.png'                          => 'delivery_order_report.png', # symlink to MDI-Text_editor
 'AR--Reports--Dunnings.png'                                 => 'dunnings_report.png',
 'AR--Reports--Invoices, Credit Notes & AR Transactions.png' => 'invoices_report.png',
 'AR--Reports.png'                                           => 'ar_report.png',
@@ -85,7 +85,7 @@ my %icons = (
 'Master Data--Reports--Vendors.png'                         => 'vendor_report.png',
 'Master Data--Update Prices.png'                            => 'prices_update.png',
 'Neues Fenster.png'                                         => 'window_new.png',
-# 'phone.png'                                                 => 'phone.png',
+'phone.png'                                                 => 'phone.png',
 'Program--Logout.png'                                       => 'logout.png',
 'Program.png'                                               => 'program.png',
 'Program--Preferences.png'                                  => 'preferences.png',
@@ -99,6 +99,7 @@ my %icons = (
 'Warehouse.png'                                             => 'warehouse.png',
 'Warehouse--Produce Assembly.png'                           => 'assembly_produce.png',
 'MDI-Text-Editor-16x16.png'                                 => 'mdi_text_editor.png',
+'Productivity'                                              => 'productivity.png',
 );
 
 my %symlinks = (
@@ -152,5 +153,35 @@ sub make_icons {
   }
 }
 
-checks();
-make_icons();
+sub translate_menu {
+  my ($menu_file) = @_;
+
+  my $new_file = $menu_file;
+  $new_file =~ s/\./_new\./;
+
+  open my $in,  "<", $menu_file or die "error opening $menu_file: $!";
+  open my $out, ">", $new_file  or die "error opening $new_file:  $!";
+
+  while (<$in>) {
+    print $out $_;
+    if (/^\[(.*)\]$/) {
+      my $name = $1;
+      # look if we got this in %icons
+      if ($icons{ $name . '.png' }) {
+        my $new_name = $icons{ $name . '.png' };
+        $new_name =~ s/\.png$//;
+        print $out "ICON=$icons{ $name . '.png' }\n";
+      } else {
+        warn "don't know what '$name' is in $menu_file";
+      }
+    }
+  }
+  system("mv $new_file $menu_file");
+}
+
+# checks();
+# make_icons();
+
+translate_menu('menus/erp.ini');
+translate_menu('menus/admin.ini');
+translate_menu('menus/crm.ini');
