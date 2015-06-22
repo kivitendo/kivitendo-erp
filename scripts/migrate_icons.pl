@@ -170,7 +170,7 @@ sub translate_menu {
       if ($icons{ $name . '.png' }) {
         my $new_name = $icons{ $name . '.png' };
         $new_name =~ s/\.png$//;
-        print $out "ICON=$icons{ $name . '.png' }\n";
+        print $out "ICON=$new_name\n";
       } else {
         warn "don't know what '$name' is in $menu_file";
       }
