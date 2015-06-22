@@ -160,6 +160,7 @@ sub new_from {
 
   } @{ $items };
 
+  @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
   @items = grep { $_->qty * 1 } @items if $params{skip_items_zero_qty};
   @items = grep { $_->qty >=0 } @items if $params{skip_items_negative_qty};
 
@@ -244,6 +245,12 @@ a quantity of 0 are not affected by this option.
 =item C<skip_items_zero_qty>
 
 If trueish then items with a quantity of 0 are skipped.
+
+=item C<item_filter>
+
+An optional code reference that is called for each item with the item
+as its sole parameter. Items for which the code reference returns a
+falsish value will be skipped.
 
 =item C<attributes>
 
