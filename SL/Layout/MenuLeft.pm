@@ -50,7 +50,7 @@ sub section_menu {
     my $menuitem   = $menu->{$item};
     my $olabel     = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
-    my $icon_class = apply { $_ =lc $_; s/[^a-z0-9_-]/-/g } $item;
+    my $icon_class = apply { $_ = lc $_; s/[^a-z0-9_-]/-/g } $menuitem->{ICON};
     my $spacer     = "s" . (0 + $item =~ s/--/--/g);
 
     next if $level && $item ne "$level--$olabel";
