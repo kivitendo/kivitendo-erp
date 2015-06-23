@@ -39,21 +39,23 @@ sub end_content {
 }
 
 sub section_menu {
-  $::lxdebug->enter_sub(2);
-  my ($menu, $level, $id_prefix) = @_;
-  my @menuorder = $menu->access_control(\%::myconfig, $level);
+  my ($menu) = @_;
+  my @menuorder = @{ $menu->{ORDER} };
   my @items;
-
-  my $id = 0;
+  my @id_stack = (-1);
 
   for my $item (@menuorder) {
     my $menuitem   = $menu->{$item};
     my $olabel     = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
     my $icon_class = apply { $_ = lc $_; s/[^a-z0-9_-]/-/g } $menuitem->{ICON};
-    my $spacer     = "s" . (0 + $item =~ s/--/--/g);
+    my $level      = (0 + $item =~ s/--/--/g);
+    my $spacer     = "s" . $level;
 
-    next if $level && $item ne "$level--$olabel";
+    # do id stack
+    push @id_stack, -1 if    $level > $#id_stack;
+    pop @id_stack      while $level < $#id_stack;
+    $id_stack[-1]++;
 
     my $label         = $::locale->text($olabel);
 
@@ -63,32 +65,24 @@ sub section_menu {
 
     # add other params
     foreach my $key (keys %$menuitem) {
-      next if $key =~ /target|module|action|href/;
+      next if $key =~ /target|module|action|href|ICON/;
       $menuitem->{href} .= "&" . $::form->escape($key, 1) . "=";
       my ($value, $conf) = split(/=/, $menuitem->{$key}, 2);
       $value = $::myconfig{$value} . "/$conf" if ($conf);
       $menuitem->{href} .= $::form->escape($value, 1);
     }
 
-    my @common_args = ($label, $spacer, "$id_prefix\_$id");
+    my @common_args  = ($label, $spacer, join '_', @id_stack);
 
-    if (!$level) { # toplevel
+    if ($spacer eq 's0') { # toplevel
       push @items, [ @common_args, "icon24 $icon_class", 'm' ];
-      #  make_image(size => 24, label => $item),
-      push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{submenu}) {
       push @items, [ @common_args, "icon16 submenu", 'sm' ];
-      #make_image(label => 'submenu'),
-      push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
       push @items, [ @common_args, "icon16 $icon_class", 'i', $menuitem->{href}, $menuitem->{target} ];
-      #make_image(size => 16, label => $item),
     }
-  } continue {
-    $id++;
   }
 
-  $::lxdebug->leave_sub(2);
   return @items;
 }
 
