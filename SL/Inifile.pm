@@ -45,50 +45,40 @@ sub new {
   my ($type, $file, %options) = @_;
 
   my $id = "";
-  my $skip;
+  my $cur;
 
-  local *FH;
+  my $self = { FILE => $file, ORDER => [] };
 
-  my $self = { "FILE" => $file };
+  open my $fh, "$file" or $::form->error("$file : $!");
 
-  open FH, "$file" or $::form->error("$file : $!");
-
-  while (<FH>) {
+  for (<$fh>) {
     chomp;
 
     if (!$options{verbatim}) {
       # strip comments
-      s/\#.*//;
-
       # remove any trailing whitespace
+      s/\s*#.*$//;
       s/^\s*//;
-      s/\s*$//;
     } else {
-      next if (m/^\s*\#/);
+      next if m/#/;
     }
 
     next unless $_;
 
-    if (m/^\[/) {
-      s/(\[|\])//g;
+    if (m/^\[(.*)\]$/) {
+      $id = $1;
+      $cur = $self->{$1} ||= { };
 
-      $id = $_;
+      push @{ $self->{ORDER} }, $1;
+    } else {
+      # add key=value to $id
+      my ($key, $value) = split m/=/, $_, 2;
 
-      $self->{$id} ||= { };
-
-      push @{ $self->{ORDER} }, $_;
-
-      next;
-
+      $cur->{$key} = $value;
     }
 
-    # add key=value to $id
-    my ($key, $value) = split m/=/, $_, 2;
-
-    $self->{$id}->{$key} = $value;
-
   }
-  close FH;
+  close $fh;
 
   $main::lxdebug->leave_sub(2);
 
