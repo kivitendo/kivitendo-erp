@@ -103,7 +103,7 @@ sub create_menu {
 
     if ($menu_item->{submenu} || (!defined($menu_item->{module}) && !defined($menu_item->{href}))) {
       $item->{subitems} = [];
-      $item->{image} = _icon_path("$name.png");
+      $item->{image} = _icon_path($menu_item->{ICON});
       $self->create_menu($menu, $item->{subitems}, "${parent}${name}", $depth * 1 + 1);
 
     } else {
@@ -118,7 +118,7 @@ sub _icon_path {
 
   $size ||= 16;
 
-  my $img = "image/icons/${size}x${size}/$label";
+  my $img = "image/icons/${size}x${size}/$label.png";
 
   return unless -f $img;
   return $img;
