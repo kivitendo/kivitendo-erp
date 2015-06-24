@@ -838,8 +838,8 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
           <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE, ältere Fedora Core)</title>
 
           <para>Kopieren Sie die Datei
-          <filename>scripts/boot/system-v/kivitendo-server</filename>
-          nach <filename>/etc/init.d/kivitendo-server</filename>. Passen
+          <filename>scripts/boot/system-v/kivitendo-task-server</filename>
+          nach <filename>/etc/init.d/kivitendo-task-server</filename>. Passen
           Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <literal>DAEMON=....</literal>). Binden Sie das Script in den
           Boot-Prozess ein. Dies ist distributionsabhängig:</para>
