@@ -762,15 +762,6 @@ sub check_form {
     $form->{creditremaining} -= &invoicetotal;
   }
 
-  #sk
-  # if pricegroups
-  if (   $form->{type} =~ (/sales_quotation/)
-      or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
-      or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
-      or ($form->{type} =~ /sales_order/)) {
-
-  }
-
   &display_form;
 
   $main::lxdebug->leave_sub();
