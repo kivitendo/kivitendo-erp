@@ -689,10 +689,15 @@ sub post_payment {
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
   relink_accounts();
-  $form->redirect($locale->text('Payment posted!'))
-      if (IS->post_payment(\%myconfig, \%$form));
-    $form->error($locale->text('Cannot post payment!'));
-
+  if ( IS->post_payment(\%myconfig, \%$form) ) {
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{what_done} = $form->{type};
+    $form->{addition}  = "PAYMENT POSTED";
+    $form->save_history;
+    $form->redirect($locale->text('Payment posted!'))
+  } else {
+   $form->error($locale->text('Cannot post payment!'));
+  };
 
   $main::lxdebug->leave_sub();
 }

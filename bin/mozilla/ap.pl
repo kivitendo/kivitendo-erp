@@ -582,9 +582,15 @@ sub post_payment {
 
   ($form->{AP})      = split /--/, $form->{AP};
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
-  $form->redirect($locale->text('Payment posted!'))
-      if (AP->post_payment(\%myconfig, \%$form));
+  if (AP->post_payment(\%myconfig, \%$form)) {
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{what_done} = 'invoice';
+    $form->{addition}  = "PAYMENT POSTED";
+    $form->save_history;
+    $form->redirect($locale->text('Payment posted!'))
+  } else {
     $form->error($locale->text('Cannot post payment!'));
+  };
 
 
   $main::lxdebug->leave_sub();

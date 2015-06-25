@@ -668,9 +668,9 @@ sub post_payment {
   if (IR->post_payment(\%myconfig, \%$form)){
     if (!exists $form->{addition} && $form->{id} ne "") {
       # saving the history
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-      $form->{addition} = "PAYMENT POSTED";
-      $form->{what_done} = $form->{currency} . qq| | . $form->{paid} . qq| | . $locale->text("POSTED");
+      $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+      $form->{addition}  = "PAYMENT POSTED";
+      $form->{what_done} = "invoice";
       $form->save_history;
       # /saving the history
     }

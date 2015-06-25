@@ -348,8 +348,9 @@ sub process_payment {
       # saving the history
       $form->{id} = $form->{"id_$i"};
       if(!exists $form->{addition}) {
-        $form->{snumbers} = qq|invnumber_| . $form->{"invnumber_$i"};
-        $form->{addition} = "POSTED";
+        $form->{snumbers}  = qq|invnumber_| . $form->{"invnumber_$i"};
+        $form->{what_done} = "invoice";
+        $form->{addition}  = "PAYMENT POSTED";
         $form->save_history;
       }
       # /saving the history
