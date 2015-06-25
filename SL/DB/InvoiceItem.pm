@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::InvoiceItem;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'invoice',
   cvars_alias => 1,
