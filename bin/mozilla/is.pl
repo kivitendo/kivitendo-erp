@@ -99,7 +99,6 @@ sub edit {
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
-  #/show hhistory button
 
   my ($language_id, $printer_id);
   if ($form->{print_and_post}) {
@@ -173,7 +172,7 @@ sub invoice_links {
   $form->restore_vars(qw(salesman_id)) if $editing;
 
 
-  # build vendor/customer drop down comatibility... don't ask
+  # build vendor/customer drop down compatibility... don't ask
   if (@{ $form->{"all_customer"} }) {
     $form->{"selectcustomer"} = 1;
     $form->{customer}         = qq|$form->{customer}--$form->{"customer_id"}|;
