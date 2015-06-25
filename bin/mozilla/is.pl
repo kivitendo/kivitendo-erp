@@ -691,7 +691,7 @@ sub post_payment {
   relink_accounts();
   if ( IS->post_payment(\%myconfig, \%$form) ) {
     $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
-    $form->{what_done} = $form->{type};
+    $form->{what_done} = 'invoice';
     $form->{addition}  = "PAYMENT POSTED";
     $form->save_history;
     $form->redirect($locale->text('Payment posted!'))
@@ -829,10 +829,11 @@ sub post {
   remove_draft() if $form->{remove_draft};
 
   if(!exists $form->{addition}) {
-    $form->{snumbers} =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
-    $form->{addition} = $form->{print_and_post} ? "PRINTED AND POSTED" :
-                        $form->{storno}         ? "STORNO"             :
-                                                  "POSTED";
+    $form->{snumbers}  =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
+    $form->{what_done} = 'invoice';
+    $form->{addition}  = $form->{print_and_post} ? "PRINTED AND POSTED" :
+                         $form->{storno}         ? "STORNO"             :
+                                                   "POSTED";
     $form->save_history;
   }
 
@@ -911,8 +912,9 @@ sub storno {
   }
 
   # save the history of invoice being stornoed
-  $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  $form->{addition} = "STORNO";
+  $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+  $form->{what_done} = 'invoice';
+  $form->{addition}  = "STORNO";
   $form->save_history;
 
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
@@ -1076,8 +1078,9 @@ sub yes {
   if (IS->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
-      $form->{addition} = "DELETED";
+      $form->{snumbers}  = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
+      $form->{what_done} = 'invoice';
+      $form->{addition}  = "DELETED";
       $form->save_history;
     }
     # /saving the history

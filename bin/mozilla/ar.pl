@@ -713,8 +713,9 @@ sub post {
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = "invnumber_$form->{invnumber}";
-    $form->{addition} = "POSTED";
+    $form->{snumbers}  = "invnumber_$form->{invnumber}";
+    $form->{what_done} = "invoice";
+    $form->{addition}  = "POSTED";
     $form->save_history;
   }
   # /saving the history
@@ -736,8 +737,9 @@ sub post_as_new {
   $form->{postasnew} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-    $form->{addition} = "POSTED AS NEW";
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{what_done} = "invoice";
+    $form->{addition}  = "POSTED AS NEW";
     $form->save_history;
   }
   # /saving the history
@@ -814,8 +816,9 @@ sub yes {
   if (AR->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-      $form->{addition} = "DELETED";
+      $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+      $form->{what_done} = "invoice";
+      $form->{addition}  = "DELETED";
       $form->save_history;
     }
     # /saving the history
@@ -1127,8 +1130,9 @@ sub storno {
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-    $form->{addition} = "STORNO";
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{addition}  = "STORNO";
+    $form->{what_done} = "invoice";
     $form->save_history;
   }
   # /saving the history

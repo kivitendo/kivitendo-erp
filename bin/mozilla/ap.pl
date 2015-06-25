@@ -679,8 +679,9 @@ sub post {
   if (AP->post_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-      $form->{addition} = "POSTED";
+      $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+      $form->{addition}  = "POSTED";
+      $form->{what_done} = "invoice";
       $form->save_history;
     }
     # /saving the history
@@ -705,8 +706,12 @@ sub post_as_new {
   $form->{postasnew} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-    $form->{addition} = "POSTED AS NEW";
+    # does this work? post_as_new for ap doesn't immediately save the
+    # invoice, because the invnumber has to be entered by hand.
+    # And the value of $form->{postasnew} isn't checked when calling post
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{addition}  = "POSTED AS NEW";
+    $form->{what_done} = "invoice";
     $form->save_history;
   }
   # /saving the history
@@ -783,8 +788,9 @@ sub yes {
   if (AP->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-      $form->{addition} = "DELETED";
+      $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+      $form->{addition}  = "DELETED";
+      $form->{what_done} = "invoice";
       $form->save_history;
     }
     # /saving the history
@@ -1028,8 +1034,9 @@ sub storno {
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = "invnumber_$form->{invnumber}";
-    $form->{addition} = "STORNO";
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{addition}  = "STORNO";
+    $form->{what_done} = "invoice";
     $form->save_history;
   }
   # /saving the history
