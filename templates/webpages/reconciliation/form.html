@@ -104,7 +104,6 @@ function load_proposals () {
     success: function(new_data) {
       $('#overview').html('');
       $('#automatic').html(new_data['html']);
-      $('#set_cleared').html('');
     }
   });
 }
@@ -118,7 +117,6 @@ function load_overview () {
     success: function(new_data) {
       $('#overview').html(new_data['html']);
       $('#automatic').html('');
-      $('#set_cleared').html('');
     }
   });
 }
