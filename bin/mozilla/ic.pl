@@ -1915,8 +1915,9 @@ sub save {
   }
   # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-    $form->{addition} = "SAVED";
+    $form->{snumbers}  = qq|partnumber_| . $form->{partnumber};
+    $form->{what_done} = "part";
+    $form->{addition}  = "SAVED";
     $form->save_history;
   }
   # /saving the history
@@ -2043,8 +2044,9 @@ sub save_as_new {
 
   # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-    $form->{addition} = "SAVED AS NEW";
+    $form->{snumbers}  = qq|partnumber_| . $form->{partnumber};
+    $form->{addition}  = "SAVED AS NEW";
+    $form->{what_done} = "part";
     $form->save_history;
   }
   # /saving the history
@@ -2064,8 +2066,9 @@ sub delete {
 
   # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-    $form->{addition} = "DELETED";
+    $form->{snumbers}  = qq|partnumber_| . $form->{partnumber};
+    $form->{addition}  = "DELETED";
+    $form->{what_done} = "part";
     $form->save_history;
   }
   # /saving the history
