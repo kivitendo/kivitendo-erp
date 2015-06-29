@@ -99,7 +99,6 @@ sub edit {
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
-  #/show hhistory button
 
   my ($language_id, $printer_id);
   if ($form->{print_and_post}) {
@@ -173,7 +172,7 @@ sub invoice_links {
   $form->restore_vars(qw(salesman_id)) if $editing;
 
 
-  # build vendor/customer drop down comatibility... don't ask
+  # build vendor/customer drop down compatibility... don't ask
   if (@{ $form->{"all_customer"} }) {
     $form->{"selectcustomer"} = 1;
     $form->{customer}         = qq|$form->{customer}--$form->{"customer_id"}|;
@@ -689,10 +688,15 @@ sub post_payment {
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
   relink_accounts();
-  $form->redirect($locale->text('Payment posted!'))
-      if (IS->post_payment(\%myconfig, \%$form));
-    $form->error($locale->text('Cannot post payment!'));
-
+  if ( IS->post_payment(\%myconfig, \%$form) ) {
+    $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+    $form->{what_done} = 'invoice';
+    $form->{addition}  = "PAYMENT POSTED";
+    $form->save_history;
+    $form->redirect($locale->text('Payment posted!'))
+  } else {
+   $form->error($locale->text('Cannot post payment!'));
+  };
 
   $main::lxdebug->leave_sub();
 }
@@ -824,10 +828,11 @@ sub post {
   remove_draft() if $form->{remove_draft};
 
   if(!exists $form->{addition}) {
-    $form->{snumbers} =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
-    $form->{addition} = $form->{print_and_post} ? "PRINTED AND POSTED" :
-                        $form->{storno}         ? "STORNO"             :
-                                                  "POSTED";
+    $form->{snumbers}  =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
+    $form->{what_done} = 'invoice';
+    $form->{addition}  = $form->{print_and_post} ? "PRINTED AND POSTED" :
+                         $form->{storno}         ? "STORNO"             :
+                                                   "POSTED";
     $form->save_history;
   }
 
@@ -906,8 +911,9 @@ sub storno {
   }
 
   # save the history of invoice being stornoed
-  $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  $form->{addition} = "STORNO";
+  $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};
+  $form->{what_done} = 'invoice';
+  $form->{addition}  = "STORNO";
   $form->save_history;
 
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
@@ -1071,8 +1077,9 @@ sub yes {
   if (IS->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
-      $form->{addition} = "DELETED";
+      $form->{snumbers}  = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
+      $form->{what_done} = 'invoice';
+      $form->{addition}  = "DELETED";
       $form->save_history;
     }
     # /saving the history

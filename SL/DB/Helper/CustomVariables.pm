@@ -12,7 +12,7 @@ sub import {
   my $caller_package = caller;
 
   # TODO: if module is empty, module overloading needs to take effect
-  # certain stuff may have more than one overload, odr even more than one type
+  # certain stuff may have more than one overload, or even more than one type
   defined $caller_package     or croak 'need to be included from a caller reference';
 
   $params{module}     ||= _calc_modules_from_overloads(%params) if $params{overloads};
@@ -327,7 +327,7 @@ sub make_cvar_custom_filter {
         # remove rose aliases. query builder sadly is not reentrant, and will reuse the same aliases. :(
         $query{$key} =~ s{\bt\d+(?:\.)?\b}{}g;
 
-        # manually inline the values. again, rose doen't know how to handly bind params in subqueries :(
+        # manually inline the values. again, rose doen't know how to handle bind params in subqueries :(
         $query{$key} =~ s{\?}{ $config->dbh->quote(shift @{ $bind_vals{$key} }) }xeg;
 
         $query{$key} =~ s{\n}{ }g;
@@ -358,7 +358,7 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helper::CustomVariables - Mixin to provide custom variables relations
+SL::DB::Helper::CustomVariables - Mixin to provide custom variable relations
 
 =head1 SYNOPSIS
 
