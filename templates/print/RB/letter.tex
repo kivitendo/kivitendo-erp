@@ -10,10 +10,11 @@
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
+% laufende Kopfzeile:
+%\ourhead{}{}{<%subject%>}{<%letternumber%>}{<%date%>}
+\ourhead{}{}{}{}{}
+
 \begin{document}
-
-\fontfamily{cmss}\fontshape{n}\selectfont
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
@@ -30,14 +31,9 @@
   <%country%>
 
 \end{minipage}
-\hfill
-\begin{minipage}{6cm}
-\end{minipage}
 
 \vspace{2.5cm}
-
-\begin{minipage}{14cm}
-
+\hfill<%date%>
 \textbf{<%reference%>}
 
 \vspace{1cm}
@@ -58,16 +54,6 @@
   <%close%>
 
   <%company_name%>
-
-\end{minipage}
-\hfill
-\begin{minipage}{6cm}
-  <%date%>
-
-\vspace{5cm}
-
-\anlagen
-\end{minipage}
 
 \vspace*{0.5cm}
 
