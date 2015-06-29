@@ -72,6 +72,16 @@ sub type {
   return shift->customer_id ? 'sales_delivery_order' : 'purchase_delivery_order';
 }
 
+sub displayable_type {
+  my $type = shift->type;
+
+  return $::locale->text('Sales Delivery Order')    if $type eq 'sales_delivery_order';
+  return $::locale->text('Purchase Delivery Order') if $type eq 'purchase_delivery_order';
+
+  die 'invalid type';
+}
+
+
 sub displayable_state {
   my ($self) = @_;
 
