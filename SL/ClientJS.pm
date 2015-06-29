@@ -150,7 +150,7 @@ sub action {
   }
 
   foreach my $idx (0..$num_args - 1) {
-    # Force flattening from SL::Presenter::EscapedText and trim leading whitespace for scalars
+    # Force flattening from SL::Presenter::EscapedText.
     $args[$idx] =  "" . $args[$idx] if  ref($args[$idx]) eq 'SL::Presenter::EscapedText';
   }
 
