@@ -77,6 +77,7 @@ sub _before_save_set_invnumber {
 
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
+sub record_number { goto &invnumber; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder

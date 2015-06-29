@@ -51,6 +51,7 @@ sub _before_save_set_donumber {
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
 sub payment_terms { goto &payment; }
+sub record_number { goto &donumber; }
 
 sub sales_order {
   my $self   = shift;

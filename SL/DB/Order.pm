@@ -67,6 +67,7 @@ sub _before_save_set_ord_quo_number {
 
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
+sub record_number { goto &number; }
 
 sub type {
   my $self = shift;
