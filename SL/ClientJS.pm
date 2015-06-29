@@ -122,6 +122,8 @@ my %supported_methods = (
   scroll_into_view       => 1,  # $(<TARGET>)[0].scrollIntoView()
 );
 
+my %trim_target_for = map { ($_ => 1) } qw(insertAfter insertBefore appendTo prependTo);
+
 sub AUTOLOAD {
   our $AUTOLOAD;
 
@@ -153,6 +155,11 @@ sub action {
     # Force flattening from SL::Presenter::EscapedText.
     $args[$idx] = "" . $args[$idx] if ref($args[$idx]) eq 'SL::Presenter::EscapedText';
   }
+
+  # Trim leading whitespaces for certain jQuery functions that operate
+  # on HTML code: $("<p>test</p>").appendTo('#some-id'). jQuery croaks
+  # on leading whitespaces, e.g. on $(" <p>test</p>").
+  $args[0] =~ s{^\s+}{} if $trim_target_for{$method};
 
   push @{ $self->_actions }, [ $method, @args ];
 
