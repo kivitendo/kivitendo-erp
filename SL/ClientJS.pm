@@ -139,10 +139,10 @@ sub action {
   $method      =  (delete($self->{_prefix}) || '') . $method;
   my $num_args =  $supported_methods{$method};
 
-  croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
+  croak "Unsupported jQuery action: $method" unless defined $num_args;
 
   if ($num_args > 0) {
-    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if scalar(@args) != $num_args;
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)"          if scalar(@args) != $num_args;
   } else {
     $num_args *= -1;
     croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted at least: $num_args)" if scalar(@args) < $num_args;
@@ -151,7 +151,7 @@ sub action {
 
   foreach my $idx (0..$num_args - 1) {
     # Force flattening from SL::Presenter::EscapedText.
-    $args[$idx] =  "" . $args[$idx] if  ref($args[$idx]) eq 'SL::Presenter::EscapedText';
+    $args[$idx] = "" . $args[$idx] if ref($args[$idx]) eq 'SL::Presenter::EscapedText';
   }
 
   push @{ $self->_actions }, [ $method, @args ];
