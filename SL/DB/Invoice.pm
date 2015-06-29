@@ -337,6 +337,10 @@ sub displayable_type {
   return t8('Invoice');
 }
 
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
+
 sub abbreviation {
   my ($self) = @_;
 

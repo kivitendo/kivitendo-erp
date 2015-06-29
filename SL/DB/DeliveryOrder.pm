@@ -82,6 +82,9 @@ sub displayable_type {
   die 'invalid type';
 }
 
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 sub displayable_state {
   my ($self) = @_;

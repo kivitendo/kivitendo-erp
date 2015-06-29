@@ -95,6 +95,9 @@ sub displayable_type {
   die 'invalid type';
 }
 
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
