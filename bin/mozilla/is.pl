@@ -840,7 +840,7 @@ sub post {
     $form->{action} = 'edit';
     $form->{script} = 'is.pl';
     $form->{saved_message} = $form->{label} . " $form->{invnumber} " . $locale->text('posted!');
-    $form->{callback} = build_std_url(qw(action edit id saved_message));
+    $form->{callback} = build_std_url(qw(action edit id callback saved_message));
     $form->redirect;
   }
 
