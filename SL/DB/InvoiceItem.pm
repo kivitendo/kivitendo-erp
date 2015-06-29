@@ -36,4 +36,12 @@ __PACKAGE__->meta->add_relationships(
 
 __PACKAGE__->meta->initialize;
 
+sub record {
+  my ($self) = @_;
+
+  return $self->invoice          if $self->invoice;
+  return $self->purchase_invoice if $self->purchase_invoice;
+  return;
+};
+
 1;
