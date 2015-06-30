@@ -60,7 +60,7 @@ sub close_orders_if_billed {
   my $q_billed  = qq|SELECT i.parts_id, i.qty ${qtyfactor} AS qty, i.unit, p.unit AS partunit
                      FROM invoice i
                      LEFT JOIN parts p ON (i.parts_id = p.id)
-                     WHERE i.trans_id = ?|;
+                     WHERE i.trans_id = ? AND i.assemblyitem is false|;
   my $h_billed  = prepare_query($form, $dbh, $q_billed);
 
   my $q_ordered = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
