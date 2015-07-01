@@ -73,7 +73,7 @@ hr {
 	height: 2px;
 }
 
-/* I.E. & Chrome können das nicht! */
+/* I.E. & Chrome kÃ¶nnen das nicht! */
 /* input[type="radio"], input[type="checkbox"]{
 	width:1.15em;
 	height:1.15em;
@@ -85,7 +85,7 @@ input:focus, textarea:focus, select:focus {
 	border: 2px solid #FE5F14;
 	/* border-bottom: medium solid #FE5F14; */
 }
-/* Fängt den "Schrink" beim focus - problem für i.e. und chrome */
+/* FÃ¤ngt den "Schrink" beim focus - problem fÃ¼r i.e. und chrome */
 /* input[type="radio"]:focus, input[type="checkbox"]:focus{
 	width:1.2em;
 	height:1.2em;
