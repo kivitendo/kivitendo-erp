@@ -24,7 +24,6 @@ use SL::DB::Tax;
 use SL::DB::Draft;
 use SL::DB::BankAccount;
 use SL::Presenter;
-use SL::DB::Helper::Payment qw(validate_payment_type);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
@@ -374,9 +373,8 @@ sub action_save_invoices {
 
     foreach my $invoice (@invoices) {
       my $payment_type;
-      if ( defined $skonto_hash->{"$bt_id"} ) {
+      if (@{ $skonto_hash->{"$bt_id"} }) {
         $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
-        SL::DB::Helper::Payment->validate_payment_type($payment_type);
       } else {
         $payment_type = 'without_skonto';
       };
