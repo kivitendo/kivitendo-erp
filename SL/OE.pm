@@ -557,7 +557,7 @@ sub save {
          UPDATE orderitems SET
           trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
           sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?, ship = ?,
-          pricegroup_id = ?, ordnumber = ?, transdate = ?, cusordnumber = ?, subtotal = ?,
+          pricegroup_id = ?, subtotal = ?,
           marge_percent = ?, marge_total = ?, lastcost = ?, price_factor_id = ?,
           active_price_source = ?, active_discount_source = ?,
           price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
@@ -569,9 +569,8 @@ SQL
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
-           $form->{"serialnumber_$i"}, $form->{"ship_$i"}, $pricegroup_id,
-           $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-           $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
+           $form->{"serialnumber_$i"}, $form->{"ship_$i"},
+           $pricegroup_id, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"}, conv_i($form->{"price_factor_id_$i"}),
            $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},

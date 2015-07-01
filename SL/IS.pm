@@ -36,6 +36,7 @@ package IS;
 
 use List::Util qw(max);
 
+use Carp;
 use SL::AM;
 use SL::ARAP;
 use SL::CVar;
@@ -59,6 +60,8 @@ use strict;
 
 sub invoice_details {
   $main::lxdebug->enter_sub();
+
+  # prepare invoice for printing
 
   my ($self, $myconfig, $form, $locale) = @_;
 
@@ -182,6 +185,74 @@ sub invoice_details {
 
     if ($form->{"id_$i"} != 0) {
 
+      # Prepare linked items for printing
+      if ( $form->{"invoice_id_$i"} ) {
+
+        require SL::DB::InvoiceItem;
+        my $invoice_item = SL::DB::Manager::InvoiceItem->find_by( id => $form->{"invoice_id_$i"} );
+        my $linkeditems  = $invoice_item->linked_records( direction => 'from', recursive => 1 );
+
+        # check for (recursively) linked sales quotation items, sales order
+        # items and sales delivery order items.
+
+        # The checks for $form->{"ordnumber_$i"} and quo and do are for the old
+        # behaviour, where this data was stored in its own database fields in
+        # the invoice items, and there were no record links for the items.
+
+        # If this information were to be fetched in retrieve_invoice, e.g. for showing
+        # this information in the second row, then these fields will already have
+        # been set and won't be calculated again. This shouldn't be done there
+        # though, as each invocation creates several database calls per item, and would
+        # make the interface very slow for many items. So currently these
+        # requests are only made when printing the record.
+
+        # When using the workflow an invoice item can only be (recursively) linked to at
+        # most one sales quotation item and at most one delivery order item.  But it may
+        # be linked back to several order items, if collective orders were involved. If
+        # that is the case we will always choose the very first order item from the
+        # original order, i.e. where it first appeared in an order.
+
+        # TODO: credit note items aren't checked for a record link to their
+        # invoice item
+
+        unless ( $form->{"ordnumber_$i"} ) {
+
+          # $form->{"ordnumber_$i"} comes from ordnumber in invoice, if an
+          # entry exists this must be from before the change from ordnumber to linked items.
+          # So we just use that value and don't check for linked items.
+          # In that case there won't be any links for quo or do items either
+
+          # sales order items are fetched and sorted by id, the lowest id is first
+          # It is assumed that the id always grows, so the item we want (the original) will have the lowest id
+          # better solution: filter the order_item that doesn't have any links from other order_items
+          #                  or maybe fetch linked_records with param save_path and order by _record_length_depth
+          my @linked_orderitems = grep { $_->isa("SL::DB::OrderItem") && $_->record->type eq 'sales_order' } @{$linkeditems};
+          if ( scalar @linked_orderitems ) {
+            @linked_orderitems = sort { $a->id <=> $b->id } @linked_orderitems;
+            my $orderitem = $linked_orderitems[0]; # 0: the original order item, -1: the last collective order item
+
+            $form->{"ordnumber_$i"}       = $orderitem->record->record_number;
+            $form->{"transdate_oe_$i"}    = $orderitem->record->transdate->to_kivitendo;
+            $form->{"cusordnumber_oe_$i"} = $orderitem->record->cusordnumber;
+          };
+
+          my @linked_quoitems = grep { $_->isa("SL::DB::OrderItem") && $_->record->type eq 'sales_quotation' } @{$linkeditems};
+          if ( scalar @linked_quoitems ) {
+            croak "an invoice item may only be linked back to 1 sales quotation item, something is wrong\n" unless scalar @linked_quoitems == 1;
+            $form->{"quonumber_$i"}     = $linked_quoitems[0]->record->record_number;
+            $form->{"transdate_quo_$i"} = $linked_quoitems[0]->record->transdate->to_kivitendo;
+          };
+
+          my @linked_deliveryorderitems = grep { $_->isa("SL::DB::DeliveryOrderItem") && $_->record->type eq 'sales_delivery_order' } @{$linkeditems};
+          if ( scalar @linked_deliveryorderitems ) {
+            croak "an invoice item may only be linked back to 1 sales delivery item, something is wrong\n" unless scalar @linked_deliveryorderitems == 1;
+            $form->{"donumber_$i"}     = $linked_deliveryorderitems[0]->record->record_number;
+            $form->{"transdate_do_$i"} = $linked_deliveryorderitems[0]->record->transdate->to_kivitendo;
+          };
+        };
+      };
+
+
       # add number, description and qty to $form->{number},
       if ($form->{"subtotal_$i"} && !$subtotal_header) {
         $subtotal_header = $i;
@@ -215,9 +286,15 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{deliverydate_oe} },   $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+      # linked item print variables
+      push @{ $form->{TEMPLATE_ARRAYS}->{quonumber_quo} },     $form->{"quonumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{transdate_quo} },     $form->{"transdate_quo_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{ordnumber_oe} },      $form->{"ordnumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{transdate_oe} },      $form->{"transdate_oe_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{cusordnumber_oe} },   $form->{"cusordnumber_oe_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{donumber_do} },       $form->{"donumber_$i"};
-      push @{ $form->{TEMPLATE_ARRAYS}->{transdate_oe} },      $form->{"transdate_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{transdate_do} },      $form->{"transdate_do_$i"};
+
       push @{ $form->{TEMPLATE_ARRAYS}->{invnumber} },         $form->{"invnumber"};
       push @{ $form->{TEMPLATE_ARRAYS}->{invdate} },           $form->{"invdate"};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor} },      $price_factor->{formatted_factor};
@@ -789,7 +866,7 @@ sub post_invoice {
         UPDATE invoice SET trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?,
                            sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, assemblyitem = ?,
                            unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
-                           ordnumber = ?, donumber = ?, transdate = ?, cusordnumber = ?, base_qty = ?, subtotal = ?,
+                           base_qty = ?, subtotal = ?,
                            marge_percent = ?, marge_total = ?, lastcost = ?, active_price_source = ?, active_discount_source = ?,
                            price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
         WHERE id = ?
@@ -801,8 +878,7 @@ SQL
                  $form->{"discount_$i"}, $allocated, 'f',
                  $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
                  $form->{"serialnumber_$i"}, $pricegroup_id,
-                 $form->{"ordnumber_$i"}, $form->{"donumber_$i"}, conv_date($form->{"transdate_$i"}),
-                 $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
+                 $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"},
                  $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},

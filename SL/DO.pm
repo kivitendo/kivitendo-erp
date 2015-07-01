@@ -293,7 +293,6 @@ sub save {
     UPDATE delivery_order_items SET
        delivery_order_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
        sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?,
-       ordnumber = ?, transdate = ?, cusordnumber = ?,
        lastcost = ? , price_factor_id = ?, price_factor = (SELECT factor FROM price_factors where id = ?),
        marge_price_factor = ?, pricegroup_id = ?, active_price_source = ?, active_discount_source = ?
     WHERE id = ?
@@ -368,8 +367,6 @@ SQL
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
                $form->{"unit_$i"}, conv_date($items_reqdate), conv_i($form->{"project_id_$i"}),
                $form->{"serialnumber_$i"},
-               $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-               $form->{"cusordnumber_$i"},
                $form->{"lastcost_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                conv_i($form->{"marge_price_factor_$i"}),

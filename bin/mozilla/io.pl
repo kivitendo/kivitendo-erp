@@ -1494,11 +1494,13 @@ sub print_form {
   format_dates($output_dateformat, $output_longdates,
                qw(invdate orddate quodate pldate duedate reqdate transdate
                   shippingdate deliverydate validitydate paymentdate
-                  datepaid transdate_oe deliverydate_oe dodate
+                  datepaid transdate_oe transdate_do transdate_quo deliverydate_oe dodate
                   employee_startdate employee_enddate
                   ),
                grep({ /^datepaid_\d+$/ ||
                         /^transdate_oe_\d+$/ ||
+                        /^transdate_do_\d+$/ ||
+                        /^transdate_quo_\d+$/ ||
                         /^deliverydate_oe_\d+$/ ||
                         /^reqdate_\d+$/ ||
                         /^deliverydate_\d+$/ ||
