@@ -316,8 +316,8 @@ sub action_ajax_add_list {
   my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where => \@where_sale, with_objects => 'customer');
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => \@where_purchase, with_objects => 'vendor');
 
-  my @all_open_invoices;
-  # filter out subcent differences from ap invoices
+  my @all_open_invoices = @{ $all_open_ar_invoices };
+  # add ap invoices, filtering out subcent open amounts
   push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
 
   @all_open_invoices = sort { $a->id <=> $b->id } @all_open_invoices;
