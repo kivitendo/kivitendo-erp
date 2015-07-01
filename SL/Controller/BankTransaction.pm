@@ -373,7 +373,7 @@ sub action_save_invoices {
 
     foreach my $invoice (@invoices) {
       my $payment_type;
-      if (@{ $skonto_hash->{"$bt_id"} }) {
+      if ( defined $skonto_hash->{"$bt_id"} ) {
         $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
       } else {
         $payment_type = 'without_skonto';
