@@ -122,6 +122,8 @@ my %supported_methods = (
   scroll_into_view       => 1,  # $(<TARGET>)[0].scrollIntoView()
 );
 
+my %trim_target_for = map { ($_ => 1) } qw(insertAfter insertBefore appendTo prependTo);
+
 sub AUTOLOAD {
   our $AUTOLOAD;
 
@@ -139,10 +141,10 @@ sub action {
   $method      =  (delete($self->{_prefix}) || '') . $method;
   my $num_args =  $supported_methods{$method};
 
-  croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
+  croak "Unsupported jQuery action: $method" unless defined $num_args;
 
   if ($num_args > 0) {
-    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if scalar(@args) != $num_args;
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)"          if scalar(@args) != $num_args;
   } else {
     $num_args *= -1;
     croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted at least: $num_args)" if scalar(@args) < $num_args;
@@ -150,9 +152,14 @@ sub action {
   }
 
   foreach my $idx (0..$num_args - 1) {
-    # Force flattening from SL::Presenter::EscapedText and trim leading whitespace for scalars
-    $args[$idx] =  "" . $args[$idx] if  ref($args[$idx]) eq 'SL::Presenter::EscapedText';
+    # Force flattening from SL::Presenter::EscapedText.
+    $args[$idx] = "" . $args[$idx] if ref($args[$idx]) eq 'SL::Presenter::EscapedText';
   }
+
+  # Trim leading whitespaces for certain jQuery functions that operate
+  # on HTML code: $("<p>test</p>").appendTo('#some-id'). jQuery croaks
+  # on leading whitespaces, e.g. on $(" <p>test</p>").
+  $args[0] =~ s{^\s+}{} if $trim_target_for{$method};
 
   push @{ $self->_actions }, [ $method, @args ];
 

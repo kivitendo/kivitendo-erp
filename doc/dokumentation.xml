@@ -4825,7 +4825,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <title>Blöcke, bedingte Anweisungen und Schleifen</title>
 
         <sect3 id="dokumentenvorlagen-und-variablen.bloecke.einfuehrung">
-          <title>Einfürhung</title>
+          <title>Einführung</title>
 
           <para>Der Parser kennt neben den Variablen einige weitere
           Konstrukte, die gesondert behandelt werden. Diese sind wie
@@ -4901,7 +4901,7 @@ Zahlungseingänge:
           auf Ungleichheit getestet.</para>
 
           <para>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit
-          auch Tests auf übereinstimmung mit regulären Ausdrücken ohne
+          auch Tests auf Übereinstimmung mit regulären Ausdrücken ohne
           Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
           dieselbe Syntax wie oben nur mit <function>=~</function> und
           <function>!~</function> als Vergleichsoperatoren.</para>

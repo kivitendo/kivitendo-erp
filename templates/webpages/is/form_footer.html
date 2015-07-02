@@ -191,6 +191,10 @@
       [% END %]
   [% END %]
 
+  [% IF callback %]
+    <a href="[% callback %]">[% 'back' | $T8  %]</a>
+  [% END %]
+
 <input type="hidden" name="rowcount" value="[% rowcount %]">
 <input type="hidden" name="callback" value="[% callback | html %]">
 <input type="hidden" name="draft_id" value="[% draft_id %]">

@@ -24,7 +24,6 @@ use SL::DB::Tax;
 use SL::DB::Draft;
 use SL::DB::BankAccount;
 use SL::Presenter;
-use SL::DB::Helper::Payment qw(validate_payment_type);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
@@ -317,8 +316,8 @@ sub action_ajax_add_list {
   my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where => \@where_sale, with_objects => 'customer');
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => \@where_purchase, with_objects => 'vendor');
 
-  my @all_open_invoices;
-  # filter out subcent differences from ap invoices
+  my @all_open_invoices = @{ $all_open_ar_invoices };
+  # add ap invoices, filtering out subcent open amounts
   push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
 
   @all_open_invoices = sort { $a->id <=> $b->id } @all_open_invoices;
@@ -376,7 +375,6 @@ sub action_save_invoices {
       my $payment_type;
       if ( defined $skonto_hash->{"$bt_id"} ) {
         $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
-        SL::DB::Helper::Payment->validate_payment_type($payment_type);
       } else {
         $payment_type = 'without_skonto';
       };
