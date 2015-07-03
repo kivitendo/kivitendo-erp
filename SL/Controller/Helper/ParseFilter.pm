@@ -12,6 +12,14 @@ use SL::MoreCommon qw(listify);
 use Data::Dumper;
 use Text::ParseWords;
 
+sub _lazy_bool_eq {
+  my ($key, $value) = @_;
+
+  return ()                                   if ($value // '') eq '';
+  return (or => [ $key => undef, $key => 0 ]) if !$value;
+  return ($key => 1);
+}
+
 my %filters = (
   date    => sub { DateTime->from_lxoffice($_[0]) },
   number  => sub { $::form->parse_amount(\%::myconfig, $_[0]) },
@@ -30,6 +38,10 @@ my %methods = (
     my $_copy = "$_";
     $_   => sub { +{ $_copy    => $_[0] } },
   } qw(similar match imatch regex regexp like ilike rlike is is_not ne eq lt gt le ge),
+);
+
+my %complex_methods = (
+  lazy_bool_eq => \&_lazy_bool_eq,
 );
 
 sub parse_filter {
@@ -99,12 +111,13 @@ sub _parse_filter {
 
   $flattened = _collapse_indirect_filters($flattened);
 
-  my $all_filters = { %filters, %{ $params{filters} || {} } };
-  my $all_methods = { %methods, %{ $params{methods} || {} } };
+  my $all_filters = { %filters,         %{ $params{filters}         || {} } };
+  my $all_methods = { %methods,         %{ $params{methods}         || {} } };
+  my $all_complex = { %complex_methods, %{ $params{complex_methods} || {} } };
 
   my @result;
   for (my $i = 0; $i < scalar @$flattened; $i += 2) {
-    my (@args, @filters, @methods);
+    my (@args, @filters, $method);
 
     my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
     my ($type, $op)   = $key =~ m{:(.+)::(.+)};
@@ -112,7 +125,7 @@ sub _parse_filter {
     my $is_multi      = $key =~ s/:multi//;
     my @value_tokens  = $is_multi ? parse_line('\s+', 0, $value) : ($value);
 
-    ($key, @methods)  = split m{::}, $key;
+    ($key, $method)   = split m{::}, $key, 2;
     ($key, @filters)  = split m{:},  $key;
 
     my $orig_key      = $key;
@@ -121,7 +134,8 @@ sub _parse_filter {
       $key                 = $orig_key;
 
       $value_token         = _apply($value_token, $_, $all_filters) for @filters;
-      $value_token         = _apply($value_token, $_, $all_methods) for @methods;
+      $value_token         = _apply($value_token, $method, $all_methods)                                 if $method && exists $all_methods->{$method};
+      ($key, $value_token) = _apply_complex($key, $value_token, $method, $all_complex)                   if $method && exists $all_complex->{$method};
       ($key, $value_token) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value_token) if $params{class};
       ($key, $value_token) = _apply_value_filters($key, $value_token, $type, $op);
 
@@ -244,6 +258,12 @@ sub _apply {
   return $value unless $name && $filters->{$name};
   return [ map { _apply($_, $name, $filters) } @$value ] if 'ARRAY' eq ref $value;
   return $filters->{$name}->($value);
+}
+
+sub _apply_complex {
+  my ($key, $value, $name, $filters) = @_;
+  return $key, $value unless $name && $filters->{$name};
+  return $filters->{$name}->($key, $value);
 }
 
 1;
@@ -444,6 +464,13 @@ standard SQL C<=> operator.
 =item like
 
 All these are recognized like the L<Rose::DB::Object> methods.
+
+=item lazu_bool_eq
+
+If the value is undefined or an empty string then this parameter will
+be completely removed from the query. Otherwise a falsish filter value
+will match for C<NULL> and C<FALSE>; trueish values will only match
+C<TRUE>.
 
 =back
 

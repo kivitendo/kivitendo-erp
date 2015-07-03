@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 37;
+use Test::More tests => 38;
 use Test::Deep;
 use Data::Dumper;
 
@@ -405,3 +405,18 @@ test {
     'orderitems.part.test' => { 'what', { ilike => '%2%' } },
   ]
 }, 'relationship + additional tokens + filters + methods', class => 'SL::DB::Manager::Order';
+
+test {
+  part => {
+    'obsolete::lazy_bool_eq' => '0',
+  },
+}, {
+  query => [
+      or => [
+        'part.obsolete' => undef,
+        'part.obsolete' => 0
+      ],
+  ],
+  with_objects => [ 'part' ],
+}, 'complex methods modifying the key';
+
