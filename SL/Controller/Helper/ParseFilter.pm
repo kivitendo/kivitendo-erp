@@ -99,22 +99,29 @@ sub _parse_filter {
 
   $flattened = _collapse_indirect_filters($flattened);
 
+  my $all_filters = { %filters, %{ $params{filters} || {} } };
+  my $all_methods = { %methods, %{ $params{methods} || {} } };
+
   my @result;
   for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my (@args, @filters, @methods);
+
     my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
     my ($type, $op)   = $key =~ m{:(.+)::(.+)};
 
     my $is_multi      = $key =~ s/:multi//;
-    my $orig_key      = $key;
     my @value_tokens  = $is_multi ? parse_line('\s+', 0, $value) : ($value);
 
-    my @args;
+    ($key, @methods)  = split m{::}, $key;
+    ($key, @filters)  = split m{:},  $key;
+
+    my $orig_key      = $key;
 
     for my $value_token (@value_tokens) {
       $key                 = $orig_key;
 
-      ($key, $value_token) = _apply_all($key, $value_token, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
-      ($key, $value_token) = _apply_all($key, $value_token, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
+      $value_token         = _apply($value_token, $_, $all_filters) for @filters;
+      $value_token         = _apply($value_token, $_, $all_methods) for @methods;
       ($key, $value_token) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value_token) if $params{class};
       ($key, $value_token) = _apply_value_filters($key, $value_token, $type, $op);
 
@@ -237,16 +244,6 @@ sub _apply {
   return $value unless $name && $filters->{$name};
   return [ map { _apply($_, $name, $filters) } @$value ] if 'ARRAY' eq ref $value;
   return $filters->{$name}->($value);
-}
-
-sub _apply_all {
-  my ($key, $value, $re, $subs) = @_;
-
-  while ($key =~ s/$re//) {
-    $value = _apply($value, $1, $subs);
-  }
-
-  return $key, $value;
 }
 
 1;
