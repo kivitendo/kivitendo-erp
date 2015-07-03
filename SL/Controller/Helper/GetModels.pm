@@ -95,7 +95,9 @@ sub init {
 
   my @plugins;
   for my $plugin (qw(filtered sorted paginated)) {
-    next unless my $spec = delete $params{$plugin} // {};
+    next if exists($params{$plugin}) && !$params{$plugin};
+
+    my $spec         = delete $params{$plugin} // {};
     my $plugin_class = "SL::Controller::Helper::GetModels::" . ucfirst $plugin;
     push @plugins, $self->$plugin($plugin_class->new(%$spec, get_models => $self));
   }
