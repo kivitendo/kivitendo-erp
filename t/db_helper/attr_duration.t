@@ -4,16 +4,20 @@ use base qw(SL::DB::Object);
 
 __PACKAGE__->meta->setup(
   table   => 'dummy',
-  columns => [ dummy => { type => 'numeric', precision => 2, scale => 12 }, ]
+  columns => [
+    dummy => { type => 'numeric', precision => 2, scale => 12 },
+    inty  => { type => 'integer' },
+  ]
 );
 
 use SL::DB::Helper::AttrDuration;
 
 __PACKAGE__->attr_duration('dummy');
+__PACKAGE__->attr_duration_minutes('inty');
 
 package main;
 
-use Test::More tests => 91;
+use Test::More; # tests => 91;
 use Test::Exception;
 
 use strict;
@@ -30,6 +34,8 @@ sub new_item {
 
 Support::TestSetup::login();
 my $item;
+
+### attr_duration
 
 # Wenn das Attribut undef ist:
 is(new_item->dummy,                    undef,  'uninitialized: raw');
@@ -164,5 +170,52 @@ throws_ok { new_item()->dummy_as_man_days_unit('invalid') } qr/unknown.*unit/i, 
 lives_ok  { new_item()->dummy_as_man_days_unit('h')       } 'known unit h';
 lives_ok  { new_item()->dummy_as_man_days_unit('hour')    } 'known unit hour';
 lives_ok  { new_item()->dummy_as_man_days_unit('man_day') } 'known unit man_day';
+
+### attr_duration_minutes
+
+# Wenn das Attribut undef ist:
+is(new_item->inty,                    undef,  'uninitialized: raw');
+is(new_item->inty_as_hours,           0,      'uninitialized: as_hours');
+is(new_item->inty_as_minutes,         0,      'uninitialized: as_minutes');
+is(new_item->inty_as_duration_string, undef,  'uninitialized: as_duration_string');
+
+# Auslesen kleiner 60 Minuten:
+is(new_item(inty => 37)->inty,                    37,     'initialized < 60: raw');
+is(new_item(inty => 37)->inty_as_hours,           0,      'initialized < 60: as_hours');
+is(new_item(inty => 37)->inty_as_minutes,         37,     'initialized < 60: as_minutes');
+is(new_item(inty => 37)->inty_as_duration_string, '0:37', 'initialized < 60: as_duration_string');
+
+# Auslesen größer 60 Minuten:
+is(new_item(inty => 145)->inty,                    145,    'initialized > 60: raw');
+is(new_item(inty => 145)->inty_as_hours,           2,      'initialized > 60: as_hours');
+is(new_item(inty => 145)->inty_as_minutes,         25,     'initialized > 60: as_minutes');
+is(new_item(inty => 145)->inty_as_duration_string, '2:25', 'initialized > 60: as_duration_string');
+
+$item = new_item(inty => 145); $item->inty_as_duration_string(undef);
+is($item->inty,                    undef, 'write as_duration_string undef read raw');
+is($item->inty_as_minutes,         0,     'write as_duration_string undef read as_minutes');
+is($item->inty_as_hours,           0,     'write as_duration_string undef read as_hours');
+is($item->inty_as_duration_string, undef, 'write as_duration_string undef read as_duration_string');
+
+$item = new_item(inty => 145); $item->inty_as_duration_string('');
+is($item->inty,                    undef, 'write as_duration_string "" read raw');
+is($item->inty_as_minutes,         0,     'write as_duration_string "" read as_minutes');
+is($item->inty_as_hours,           0,     'write as_duration_string "" read as_hours');
+is($item->inty_as_duration_string, undef, 'write as_duration_string "" read as_duration_string');
+
+$item = new_item(inty => 145); $item->inty_as_duration_string("3:21");
+is($item->inty,                    201,    'write as_duration_string 3:21 read raw');
+is($item->inty_as_minutes,         21,     'write as_duration_string 3:21 read as_minutes');
+is($item->inty_as_hours,           3,      'write as_duration_string 3:21 read as_hours');
+is($item->inty_as_duration_string, "3:21", 'write as_duration_string 3:21 read as_duration_string');
+
+$item = new_item(inty => 145); $item->inty_as_duration_string("03:1");
+is($item->inty,                    181,    'write as_duration_string 03:1 read raw');
+is($item->inty_as_minutes,         1,      'write as_duration_string 03:1 read as_minutes');
+is($item->inty_as_hours,           3,      'write as_duration_string 03:1 read as_hours');
+is($item->inty_as_duration_string, "3:01", 'write as_duration_string 03:1 read as_duration_string');
+
+# Parametervalidierung
+throws_ok { new_item()->inty_as_duration_string('invalid') } qr/invalid.*format/i, 'invalid duration format';
 
 done_testing();
