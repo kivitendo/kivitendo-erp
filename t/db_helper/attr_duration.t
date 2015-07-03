@@ -17,7 +17,7 @@ __PACKAGE__->attr_duration_minutes('inty');
 
 package main;
 
-use Test::More; # tests => 91;
+use Test::More tests => 120;
 use Test::Exception;
 
 use strict;
