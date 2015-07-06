@@ -420,10 +420,29 @@ sub get_warehouse_journal {
   my $sort_order = $form->{order};
 
   $sort_col      = $filter{sort}         unless $sort_col;
+  $sort_col      = 'shippingdate'        if     $sort_col eq 'date';
   $sort_order    = ($sort_col = 'shippingdate') unless $sort_col;
-  $sort_col      = 'shippingdate'               if     $sort_col eq 'date';
-  $sort_order    = $filter{order}        unless $sort_order;
-  my $sort_spec  = "${sort_col} " . ($sort_order ? " DESC" : " ASC");
+
+  my %orderspecs = (
+    'shippingdate'   => ['shippingdate', 'r_itime', 'r_parts_id'],
+    'bin_to'         => ['bin_to', 'r_itime', 'r_parts_id'],
+    'bin_from'       => ['bin_from', 'r_itime', 'r_parts_id'],
+    'warehouse_to'   => ['warehouse_to, r_itime, r_parts_id'],
+    'warehouse_from' => ['warehouse_from, r_itime, r_parts_id'],
+    'partnumber'     => ['partnumber'],
+    'partdescription'=> ['partdescription'],
+    'partunit'       => ['partunit, r_itime, r_parts_id'],
+    'qty'            => ['qty, r_itime, r_parts_id'],
+    'oe_id'          => ['oe_id'],
+    'comment'        => ['comment'],
+    'trans_type'     => ['trans_type'],
+    'employee'       => ['employee'],
+    'projectnumber'  => ['projectnumber'],
+  );
+
+  $sort_order    = $filter{order}  unless $sort_order;
+  my $ASC = ($sort_order ? " DESC" : " ASC");
+  my $sort_spec  = join("$ASC , ", @{$orderspecs{$sort_col}}). " $ASC";
 
   my $where_clause = @filter_ary ? join(" AND ", @filter_ary) . " AND " : '';
 
@@ -466,6 +485,8 @@ sub get_warehouse_journal {
      };
 
   $form->{l_classification_id}  = 'Y';
+  $form->{l_part_type}          = 'Y';
+  $form->{l_itime}              = 'Y';
   $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
 
   # build the select clauses.
@@ -476,12 +497,12 @@ sub get_warehouse_journal {
   }
 
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
-        ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate) );
+        ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
 
   my $query =
-  qq|SELECT DISTINCT $select{trans}
+  qq|SELECT * FROM (SELECT DISTINCT $select{trans}
     FROM inventory i1
     LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
     LEFT JOIN parts p ON i1.parts_id = p.id
@@ -529,7 +550,10 @@ sub get_warehouse_journal {
     WHERE $where_clause i1.qty > 0 AND
           i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 1 )
     GROUP BY $group_clause
-    ORDER BY r_${sort_spec}|;
+    ORDER BY r_${sort_spec}) AS lines WHERE r_qty>0|;
+
+  $query .= " LIMIT $filter{limit}"    if $filter{limit} ;
+  $query .= " OFFSET $filter{offset}"  if $filter{offset} ;
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars, @filter_vars, @filter_vars);
 
@@ -700,6 +724,11 @@ sub get_warehouse_report {
     push @filter_vars, trim($form->{bestbefore});
   }
 
+  if ($filter{classification_id}) {
+    push @filter_ary, "p.classification_id = ?";
+    push @filter_vars, $filter{classification_id};
+  }
+
   if ($filter{ean}) {
     push @filter_ary,  "p.ean ILIKE ?";
     push @filter_vars, like($filter{ean});
@@ -763,6 +792,7 @@ sub get_warehouse_report {
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
      "stock_value"          => "p.lastcost / COALESCE(pfac.factor, 1)",
+     "purchase_price"       => "p.lastcost",
   );
   $form->{l_classification_id}  = 'Y';
   $form->{l_part_type}          = 'Y';
@@ -784,7 +814,7 @@ sub get_warehouse_report {
           qw(l_parts_id l_qty l_partunit) );
 
   my $query =
-    qq|SELECT $select_clause
+    qq|SELECT * FROM ( SELECT $select_clause
       FROM inventory i
       LEFT JOIN parts     p ON i.parts_id     = p.id
       LEFT JOIN bin       b ON i.bin_id       = b.id
@@ -792,7 +822,10 @@ sub get_warehouse_report {
       $joins
       WHERE $where_clause
       GROUP BY $group_clause
-      ORDER BY $sort_spec|;
+      ORDER BY $sort_spec ) AS lines WHERE qty<>0|;
+
+  $query .= " LIMIT $filter{limit}"    if $filter{limit} ;
+  $query .= " OFFSET $filter{offset}"  if $filter{offset} ;
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
 

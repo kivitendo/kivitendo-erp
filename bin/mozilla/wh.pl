@@ -581,7 +581,7 @@ sub generate_journal {
   my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -593,10 +593,34 @@ sub generate_journal {
   }
   # /filter stuff
 
+  my $allrows = 0;
+  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+
+  # manual paginating
+  my $pages = {};
+  my $page = $::form->{page} || 1;
+  $pages->{per_page}        = $::form->{per_page} || 15;
+  my $first_nr = ($page - 1) * $pages->{per_page};
+  my $last_nr  = $first_nr + $pages->{per_page};
+
+  # no optimisation if qty op
+  if ( !$allrows && $form->{maxrows} && !$filter{qty_op}) {
+    $filter{limit}  = $pages->{per_page};
+    $filter{offset} = ($page - 1) * $pages->{per_page};
+    $first_nr = 0;
+    $last_nr = $pages->{per_page};
+  }
+
+  my @contents  = WH->get_warehouse_journal(%filter);
+  # get maxcount
+  if (!$form->{maxrows}) {
+    $form->{maxrows} = scalar @contents ;
+  }
+
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit fromdate todate);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit unit partunit fromdate todate transtype_ids comment projectnumber);
   push @hidden_variables, qw(classification_id);
 
   my %column_defs = (
@@ -622,13 +646,22 @@ sub generate_journal {
     'oe_id'           => { 'text' => $locale->text('Document'), },
   );
 
+  if ($form->{transtype_ids} && 'ARRAY' eq ref $form->{transtype_ids}) {
+    for (my $i = 0; $i < scalar(@{ $form->{transtype_ids} }); $i++) {
+      delete $form->{transtype_ids}[$i] if $form->{transtype_ids}[$i] eq '';
+    }
+    $form->{transtype_ids} = join(",", @{ $form->{transtype_ids} });
+  }
+
   my $href = build_std_url('action=generate_journal', grep { $form->{$_} } @hidden_variables);
-  my $page = $::form->{page} || 1;
+  $href .= "&maxrows=".$form->{maxrows};
+
   map { $column_defs{$_}->{link} = $href ."&page=".$page. "&sort=${_}&order=" . Q($_ eq $form->{sort} ? 1 - $form->{order} : $form->{order}) } @columns;
 
   my %column_alignment = map { $_ => 'right' } qw(qty);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+  $column_defs{partunit}->{visible} = 1;
   $column_defs{type_and_classific}->{visible} = 1;
   $column_defs{type_and_classific}->{link} ='';
 
@@ -646,7 +679,6 @@ sub generate_journal {
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
-  my @contents  = WH->get_warehouse_journal(%filter);
 
   my %doc_types = ( 'sales_quotation'         => { script => 'oe', title => $locale->text('Sales quotation') },
                     'sales_order'             => { script => 'oe', title => $locale->text('Sales Order') },
@@ -658,22 +690,15 @@ sub generate_journal {
                     'purchase_invoice'        => { script => 'ir', title => $locale->text('Purchase Invoice') },
                   );
 
-  my $allrows = 0;
-  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
-
-  # manual paginating
-  my $pages = {};
-  $pages->{per_page}        = $::form->{per_page} || 15;
-  my $first_nr = ($page - 1) * $pages->{per_page};
-  my $last_nr  = $first_nr + $pages->{per_page};
   my $idx       = 0;
 
   foreach my $entry (@contents) {
     $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{part_type}).
                                    $::request->presenter->classification_abbreviation($entry->{classification_id});
-    $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
-                                                      'part_unit'  => $entry->{partunit},
-                                                      'conv_units' => 'convertible');
+    $entry->{qty}        = $form->format_amount(\%myconfig, $entry->{qty});
+#    $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
+#                                                      'part_unit'  => $entry->{partunit},
+#                                                      'conv_units' => 'convertible');
     $entry->{trans_type} = $locale->text($entry->{trans_type});
 
     my $row = { };
@@ -698,18 +723,18 @@ sub generate_journal {
     }
 
     if ( $allrows || ($idx >= $first_nr && $idx < $last_nr )) {
-       $report->add_data($row);
+      $report->add_data($row);
     }
     $idx++;
   }
 
   if ( ! $allrows ) {
-      $pages->{max}  = SL::DB::Helper::Paginated::ceil($idx, $pages->{per_page}) || 1;
+      $pages->{max}  = SL::DB::Helper::Paginated::ceil($form->{maxrows}, $pages->{per_page}) || 1;
       $pages->{page} = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
       $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
 
       $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
-                                                            { 'pages' => $pages , 'base_url' => $href}) );
+                                                            { 'pages' => $pages , 'base_url' => $href.'&sort='.$form->{sort}.'&order='.$form->{order}}) );
   }
   $report->generate_with_headers();
 
@@ -756,11 +781,10 @@ sub generate_report {
 
   $form->{title}   = $locale->text("Report about warehouse contents");
   $form->{sort}  ||= 'partnumber';
-  $form->{sort}  ||= 'partunit';
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit stock_value);
+  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit  purchase_price stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
@@ -801,9 +825,34 @@ sub generate_report {
   }
   # /filter stuff
 
+  $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
+
+  # manual paginating
+  my $allrows = 0;
+  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+  my $page = $::form->{page} || 1;
+  my $pages = {};
+  $pages->{per_page}        = $::form->{per_page} || 20;
+  my $first_nr = ($page - 1) * $pages->{per_page};
+  my $last_nr  = $first_nr + $pages->{per_page};
+
+  # no optimisation if qty op
+  if ( !$allrows && $form->{maxrows} && !$filter{qty_op}) {
+    $filter{limit}  = $pages->{per_page};
+    $filter{offset} = ($page - 1) * $pages->{per_page};
+    $first_nr = 0;
+    $last_nr = $pages->{per_page};
+  }
+
+  my @contents  = WH->get_warehouse_report(%filter);
+
+  # get maxcount
+  if (!$form->{maxrows}) {
+    $form->{maxrows} = scalar @contents ;
+  }
+
   $form->{subtotal} = '' if (!first { $_ eq $sort_col } qw(partnumber partdescription));
 
-  $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
@@ -822,16 +871,19 @@ sub generate_report {
     'qty'                  => { 'text' => $locale->text('Qty'), },
     'partunit'             => { 'text' => $locale->text('Unit'), },
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
+    'purchase_price'       => { 'text' => $locale->text('Purchase Price'), },
   );
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
-  my $page = $::form->{page} || 1;
+  $href .= "&maxrows=".$form->{maxrows};
+
   map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(qty stock_value);
+  my %column_alignment = map { $_ => 'right' } qw(qty purchase_price stock_value);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
+  $column_defs{partunit}->{visible}           = 1;
   $column_defs{type_and_classific}->{visible} = 1;
   $column_defs{type_and_classific}->{link} ='';
 
@@ -850,23 +902,12 @@ sub generate_report {
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
-  my @contents  = WH->get_warehouse_report(%filter);
-
   my $idx       = 0;
 
   my @subtotals_columns = qw(qty stock_value);
   my %subtotals         = map { $_ => 0 } @subtotals_columns;
 
   my $total_stock_value = 0;
-
-  my $allrows = 0;
-  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
-
-  # manual paginating
-  my $pages = {};
-  $pages->{per_page}        = $::form->{per_page} || 20;
-  my $first_nr = ($page - 1) * $pages->{per_page};
-  my $last_nr  = $first_nr + $pages->{per_page};
 
   foreach my $entry (@contents) {
 
@@ -879,6 +920,7 @@ sub generate_report {
 #                                                       'part_unit'  => $entry->{partunit},
 #                                                       'conv_units' => 'convertible');
     $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
+    $entry->{purchase_price} = $form->format_amount(\%myconfig, $entry->{purchase_price} * 1, 2);
 
     my $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
 
@@ -892,6 +934,7 @@ sub generate_report {
 #                                                               'part_unit'  => $entry->{partunit},
 #                                                               'conv_units' => 'convertible');
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
+      $row->{purchase_price}->{data} = $form->format_amount(\%myconfig, $subtotals{purchase_price} * 1, 2);
 
       %subtotals                  = map { $_ => 0 } @subtotals_columns;
 
@@ -899,7 +942,7 @@ sub generate_report {
     }
 
     if ( $allrows || ($idx >= $first_nr && $idx < $last_nr )) {
-      $report->add_data($row_set);
+        $report->add_data($row_set);
     }
     $idx++;
   }
@@ -916,6 +959,14 @@ sub generate_report {
     $row->{stock_value}->{align} = 'right';
 
     $report->add_data($row);
+  }
+  if ( ! $allrows ) {
+    $pages->{max}  = SL::DB::Helper::Paginated::ceil($form->{maxrows}, $pages->{per_page}) || 1;
+    $pages->{page} = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
+    $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
+
+    $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
+                                                                              {'pages' => $pages , 'base_url' => $href}) );
   }
 
   $report->generate_with_headers();
