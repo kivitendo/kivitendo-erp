@@ -902,7 +902,7 @@ sub form_footer {
   my ($follow_ups, $follow_ups_due);
 
   if ($::form->{id}) {
-    $follow_ups     = FU->follow_ups('trans_id' => $::form->{id});
+    $follow_ups     = FU->follow_ups('trans_id' => $::form->{id}, 'not_done' => 1);
     $follow_ups_due = sum map { $_->{due} * 1 } @{ $follow_ups || [] };
   }
 

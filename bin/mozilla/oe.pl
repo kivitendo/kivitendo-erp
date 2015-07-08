@@ -434,7 +434,7 @@ sub form_header {
   $TMPL_VAR{follow_up_trans_info} =  ($form->{type} =~ /_quotation$/ ? $form->{quonumber} : $form->{ordnumber}) . " ($follow_up_vc)";
 
   if ($form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id}, 'not_done' => 1);
 
     if (scalar @{ $follow_ups }) {
       $TMPL_VAR{num_follow_ups}     = scalar                    @{ $follow_ups };

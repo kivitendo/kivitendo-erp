@@ -454,7 +454,7 @@ sub form_footer {
   my $num_due;
   my $num_follow_ups;
   if ($::form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $::form->{id});
+    my $follow_ups = FU->follow_ups('trans_id' => $::form->{id}, 'not_done' => 1);
 
     if (@{ $follow_ups }) {
       $num_due        = sum map { $_->{due} * 1 } @{ $follow_ups };

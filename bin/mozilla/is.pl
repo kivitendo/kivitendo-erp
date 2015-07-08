@@ -472,7 +472,7 @@ sub form_footer {
 
   # follow ups
   if ($form->{id}) {
-    $form->{follow_ups}            = FU->follow_ups('trans_id' => $form->{id}) || [];
+    $form->{follow_ups}            = FU->follow_ups('trans_id' => $form->{id}, 'not_done' => 1) || [];
     $form->{follow_ups_unfinished} = ( sum map { $_->{due} * 1 } @{ $form->{follow_ups} } ) || 0;
   }
 

@@ -483,7 +483,7 @@ sub form_footer {
   my $cgi      = $::request->{cgi};
 
   if ( $form->{id} ) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id}, 'not_done' => 1);
     if ( @{ $follow_ups} ) {
       $form->{follow_up_length} = scalar(@{$follow_ups});
       $form->{follow_up_due_length} = sum(map({ $_->{due} * 1 } @{ $follow_ups }));
