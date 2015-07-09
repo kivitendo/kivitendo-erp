@@ -53,14 +53,6 @@ sub read_params {
   my %calculated_params = SL::Controller::Helper::ParseFilter::parse_filter($filter, %parse_filter_args);
   %calculated_params = $self->merge_args(\%calculated_params, \%filter_args, \%params);
 
-  if ($self->laundered) {
-    if ($self->get_models->controller->can('filter')) {
-      $self->get_models->controller->filter($self->laundered);
-    } else {
-      $self->get_models->controller->{filter} = $self->laundered;
-    }
-  }
-
   # $::lxdebug->dump(0, "get_current_filter_params: ", \%calculated_params);
 
   $self->filter_params(\%calculated_params);

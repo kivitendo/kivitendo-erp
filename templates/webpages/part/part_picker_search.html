@@ -5,7 +5,7 @@
 
 <div style='overflow:hidden'>
 
-[% LxERP.t8("Filter") %]: [% L.input_tag('part_picker_filter', SELF.filter.all_substr_multi__ilike, class='part_picker_filter') %]
+[% LxERP.t8("Filter") %]: [% L.input_tag('part_picker_filter', SELF.models.filtered.laundered.all_substr_multi__ilike, class='part_picker_filter') %]
 [% L.hidden_tag('part_picker_real_id', FORM.real_id) %]
 
 <div class='float-right'>

@@ -10,7 +10,7 @@ use SL::Locale::String qw(t8);
 use SL::JSON;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(charts models chart) ],
+  'scalar --get_set_init' => [ qw(charts models chart filter) ],
 );
 
 sub action_ajax_autocomplete {
@@ -110,5 +110,7 @@ sub init_models {
     },
   );
 }
+
+sub init_filter { $_[0]->models->filtered->laundered }
 
 1;
