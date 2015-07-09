@@ -8,8 +8,8 @@ use SL::Controller::Helper::ParseFilter ();
 use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(filter_args filter_params orig_filter filter) ],
-  'scalar --get_set_init' => [ qw(form_params launder_to laundered) ],
+  scalar => [ qw(filter_args filter_params orig_filter filter no_launder) ],
+  'scalar --get_set_init' => [ qw(form_params laundered) ],
 );
 
 sub init {
@@ -39,29 +39,27 @@ sub read_params {
     class        => $self->get_models->manager,
     with_objects => $params{with_objects},
   );
-  my $laundered;
-  if ($self->launder_to eq '__INPLACE__') {
-    # nothing to do
-  } elsif ($self->launder_to) {
-    $laundered = {};
-    $parse_filter_args{launder_to} = $laundered;
+
+  # Store laundered result in $self->laundered.
+
+  if (!$self->no_launder) {
+    $self->laundered({});
+    $parse_filter_args{launder_to} = $self->laundered;
   } else {
+    $self->laundered(undef);
     $parse_filter_args{no_launder} = 1;
   }
 
   my %calculated_params = SL::Controller::Helper::ParseFilter::parse_filter($filter, %parse_filter_args);
   %calculated_params = $self->merge_args(\%calculated_params, \%filter_args, \%params);
 
-  if ($laundered) {
-    if ($self->get_models->controller->can($self->launder_to)) {
-      $self->get_models->controller->${\ $self->launder_to }($laundered);
+  if ($self->laundered) {
+    if ($self->get_models->controller->can('filter')) {
+      $self->get_models->controller->filter($self->laundered);
     } else {
-      $self->get_models->controller->{$self->launder_to} = $laundered;
+      $self->get_models->controller->{filter} = $self->laundered;
     }
   }
-
-  # Store laundered result in $self->laundered.
-  $self->laundered($laundered // $filter) unless $parse_filter_args{no_launder};
 
   # $::lxdebug->dump(0, "get_current_filter_params: ", \%calculated_params);
 
@@ -110,10 +108,6 @@ sub init_form_params {
   'filter'
 }
 
-sub init_launder_to {
-  'filter'
-}
-
 sub init_laundered {
   my ($self) = @_;
 
@@ -141,7 +135,7 @@ In a controller:
     ...
     filtered => {
       filter      => HASHREF,
-      launder_to  => HASHREF | SUBNAME | '__INPLACE__',
+      no_launder  => 0 | 1,
     }
 
     OR
@@ -171,17 +165,9 @@ Optional. Indicates a key in C<source> to be used as filter.
 
 Defaults to the value C<filter> if missing.
 
-=item * C<launder_to>
+=item * C<no_launder>
 
-Optional. Indicates a target for laundered filter arguments in the controller.
-Can be set to C<undef> to disable laundering, and can be set to method named or
-hash keys of the controller. In the latter case the laundered structure will be
-put there.
-
-Defaults to the controller. Laundered values will end up in C<SELF.filter> for
-template purposes.
-
-Setting this to the special value C<__INPLACE__> will cause inplace laundering.
+Optional. If given and trueish then laundering is disabled.
 
 =back
 
