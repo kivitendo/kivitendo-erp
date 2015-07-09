@@ -318,6 +318,14 @@ sub handle_request {
 
   $::form->footer;
 
+  if ($self->_interface_is_fcgi) {
+    # fcgi? send send reponse on its way before cleanup.
+    $self->{request}->Flush;
+    $self->{request}->Finish;
+  }
+
+  $::lxdebug->end_request;
+
   # cleanup
   $::auth->save_session;
   $::auth->expire_sessions;
@@ -328,8 +336,6 @@ sub handle_request {
   $::myconfig = ();
   $::request  = undef;
   Form::disconnect_standard_dbh;
-
-  $::lxdebug->end_request;
 
   $self->_watch_for_changed_files;
 
