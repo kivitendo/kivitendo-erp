@@ -34,29 +34,28 @@
 
 package Menu;
 
+use strict;
+
 use SL::Auth;
 use SL::Inifile;
 
-use strict;
+our @ISA = qw(Inifile);
+
 
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, @menufiles) = @_;
-  my $self               = bless {}, $type;
+  my ($package, @menufiles) = @_;
 
-  my @order;
+  my $self = $package->SUPER::new($menufiles[0]);
 
-  foreach my $menufile (grep { -f } @menufiles) {
-    my $inifile = Inifile->new($menufile);
-
-    push @order, @{ delete($inifile->{ORDER}) || [] };
-    $self->{$_} = $inifile->{$_} for keys %{ $inifile };
+  for (@menufiles[1..$#menufiles]) {
+    my $inifile = Inifile->new($_);
+    push @{ $self->{ORDER} }, @{ delete $inifile->{ORDER} };
+    $self->{$_} = $inifile->{$_} for keys %$inifile;
   }
 
-  $self->{ORDER} = \@order;
-
-  $self->set_access();
+  $self->set_access;
 
   $main::lxdebug->leave_sub();
 
@@ -68,14 +67,11 @@ sub menuitem_new {
 
   my ($self, $name, $item) = @_;
 
-  my $form        =  $main::form;
-  my $myconfig    = \%main::myconfig;
-
-  my $module      = $self->{$name}->{module} || $form->{script};
+  my $module      = $self->{$name}->{module} || $::form->{script};
   my $action      = $self->{$name}->{action};
 
   $item->{target} = $self->{$name}->{target} || "main_window";
-  $item->{href}   = $self->{$name}->{href}   || "${module}?action=" . $form->escape($action);
+  $item->{href}   = $self->{$name}->{href}   || "${module}?action=" . $::form->escape($action);
 
   my @vars = qw(module target href);
   push @vars, 'action' unless ($self->{$name}->{href});
@@ -85,8 +81,8 @@ sub menuitem_new {
   # add other params
   foreach my $key (keys %{ $self->{$name} }) {
     my ($value, $conf)  = split(m/=/, $self->{$name}->{$key}, 2);
-    $value              = $myconfig->{$value} . "/$conf" if ($conf);
-    $item->{href}      .= "&" . $form->escape($key) . "=" . $form->escape($value);
+    $value              = $::myconfig->{$value} . "/$conf" if ($conf);
+    $item->{href}      .= "&" . $::form->escape($key) . "=" . $::form->escape($value);
   }
 
   $main::lxdebug->leave_sub(LXDebug::DEBUG2());
