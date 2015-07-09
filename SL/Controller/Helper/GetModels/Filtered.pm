@@ -9,7 +9,7 @@ use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(filter_args filter_params orig_filter filter) ],
-  'scalar --get_set_init' => [ qw(form_params launder_to) ],
+  'scalar --get_set_init' => [ qw(form_params launder_to laundered) ],
 );
 
 sub init {
@@ -59,6 +59,9 @@ sub read_params {
       $self->get_models->controller->{$self->launder_to} = $laundered;
     }
   }
+
+  # Store laundered result in $self->laundered.
+  $self->laundered($laundered // $filter) unless $parse_filter_args{no_launder};
 
   # $::lxdebug->dump(0, "get_current_filter_params: ", \%calculated_params);
 
@@ -111,6 +114,12 @@ sub init_launder_to {
   'filter'
 }
 
+sub init_laundered {
+  my ($self) = @_;
+
+  $self->get_models->finalize;
+  return $self->{laundered};
+}
 
 1;
 
@@ -184,6 +193,18 @@ See L<SL::Controller::Helper::ParseFilter> for a description of the filter forma
 
 C<Filtered> will honor custom filters defined in RDBO managers. See
 L<SL::DB::Helper::Filtered> for an explanation fo those.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<laundered>
+
+Finalizes the object (which causes laundering of the filter structure)
+and returns a hashref of the laundered filter. If the plugin is
+configured not to launder then C<undef> will be returned.
+
+=back
 
 =head1 BUGS
 
