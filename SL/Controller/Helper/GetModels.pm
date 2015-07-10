@@ -11,7 +11,7 @@ use Scalar::Util qw(weaken);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(controller model query with_objects filtered sorted paginated finalized final_params) ],
-  'scalar --get_set_init' => [ qw(handlers source additional_url_params) ],
+  'scalar --get_set_init' => [ qw(handlers source list_action additional_url_params) ],
   array => [ qw(plugins) ],
 );
 
@@ -162,7 +162,7 @@ sub get_models_url_params {
 sub get_callback_params {
   my ($self, %override_params) = @_;
 
-  my %default_params = $self->_run_handlers('callback', action => $self->controller->action_name);
+  my %default_params = $self->_run_handlers('callback', action => $self->list_action);
 }
 
 sub get_callback {
@@ -206,6 +206,10 @@ sub init_handlers {
 
 sub init_source {
   $::form
+}
+
+sub init_list_action {
+  $_[0]->controller->action_name
 }
 
 sub init_additional_url_params { +{} }
@@ -401,6 +405,13 @@ The creating controller. Currently this is mandatory.
 
 The name of the model for this GetModels instance. If none is given, the model
 is inferred from the name of the controller class.
+
+=item list_action ACTION
+
+If callbacks are generated, use this action instead of the current action.
+Usually you can omit this. In case the reporting is done without redirecting
+from a mutating action, this is necessary to have callbacks for paginating and
+sorting point to the correct action.
 
 =item sorted PARAMS
 
