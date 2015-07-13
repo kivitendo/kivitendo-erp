@@ -1380,7 +1380,7 @@ sub generate_report {
       $row->{quonumber}{link} = $edit_oe_quo_link if (!$ref->{ordnumber});
 
     } else {
-      $row->{invnumber}{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback');
+      $row->{invnumber}{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback') if ($ref->{invnumber});
     }
 
     # set properties of images
