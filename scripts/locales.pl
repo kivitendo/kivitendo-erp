@@ -25,6 +25,8 @@ use IO::Dir;
 use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Pod::Usage;
+use YAML ();
+use YAML::Loader (); # YAML tries to load Y:L at runtime, but can't find it after we chdir'ed
 
 $OUTPUT_AUTOFLUSH = 1;
 
@@ -41,7 +43,7 @@ my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
-my @menufiles    = <${basedir}/menus/*.ini>;
+my @menufiles    = <"${basedir}/menus/*/*">;
 my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
 my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
@@ -97,13 +99,6 @@ push @progfiles, map { m:^(.+)/([^/]+)$:; [ $2, $1 ] } grep { /\.pm$/ } map { fi
 
 # put customized files into @customfiles
 my %dir_h;
-
-if ($opt_n) {
-  @customfiles = ();
-} else {
-  tie %dir_h, 'IO::Dir', $basedir;
-  push @menufiles, map { "$basedir/$_" } grep { /.*_menu.ini$/ } keys %dir_h;
-}
 
 my @dbplfiles;
 foreach my $sub_dir ("Pg-upgrade2", "Pg-upgrade2-auth") {
@@ -520,24 +515,13 @@ sub scanfile {
 sub scanmenu {
   my $file = shift;
 
-  my $fh = new FileHandle;
-  open $fh, '<:encoding(utf8)', $file or die "$! : $file";
+  print STDERR "trying to load file $file\n";
+  my $menu = YAML::LoadFile($file);
 
-  my @a = grep m/^\[/, <$fh>;
-  close($fh);
-
-  # strip []
-  grep { s/(\[|\])//g } @a;
-
-  foreach my $item (@a) {
-    my @b = split /--/, $item;
-    foreach my $string (@b) {
-      chomp $string;
-      $locale{$string}     = 1;
-      $alllocales{$string} = 1;
-    }
+  for my $node (@$menu) {
+    $locale{$node->{name}}     = 1;
+    $alllocales{$node->{name}} = 1;
   }
-
 }
 
 sub unescape_template_string {
@@ -780,7 +764,7 @@ Be more verbose.
 
 =head1 DESCRIPTION
 
-This script collects strings from Perl files, the menu.ini file and
+This script collects strings from Perl files, the menu files and
 HTML templates and puts them into the file "all" for translation.
 
 =cut

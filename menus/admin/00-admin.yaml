@@ -1,0 +1,92 @@
+---
+- id: users_clients_and_user_groups
+  name: Users, Clients and User Groups
+  order: 100
+- parent: users_clients_and_user_groups
+  id: users_clients_and_user_groups_list_users_clients_and_user_groups
+  name: List Users, Clients and User Groups
+  order: 100
+  params: 
+    action: Admin/show
+- parent: users_clients_and_user_groups
+  id: users_clients_and_user_groups_add_user
+  name: Add User
+  order: 200
+  params: 
+    action: Admin/new_user
+- parent: users_clients_and_user_groups
+  id: users_clients_and_user_groups_add_client
+  name: Add Client
+  order: 300
+  params: 
+    action: Admin/new_client
+- parent: users_clients_and_user_groups
+  id: users_clients_and_user_groups_add_user_group
+  name: Add User Group
+  order: 400
+  params: 
+    action: Admin/new_group
+- id: database_management
+  name: Database Management
+  order: 200
+- parent: database_management
+  id: database_management_create_dataset
+  name: Create Dataset
+  order: 100
+  params: 
+    action: Admin/create_dataset_login
+- parent: database_management
+  id: database_management_delete_dataset
+  name: Delete Dataset
+  order: 200
+  params: 
+    action: Admin/delete_dataset_login
+- id: printer_management
+  name: Printer Management
+  order: 300
+- parent: printer_management
+  id: printer_management_list_printers
+  name: List Printers
+  order: 100
+  params: 
+    action: Admin/list_printers
+- parent: printer_management
+  id: printer_management_add_printer
+  name: Add Printer
+  order: 200
+  params: 
+    action: Admin/new_printer
+- id: system
+  name: System
+  icon: system
+  order: 400
+- parent: system
+  id: system_lock_and_unlock_installation
+  name: Lock and unlock installation
+  order: 100
+  params: 
+    action: Admin/show_lock
+- parent: system
+  id: system_documentation_in_german_
+  name: Documentation (in German)
+  order: 200
+  href: doc/kivitendo-Dokumentation.pdf
+  target: _blank
+- parent: system
+  id: system_kivitendo_website_external_
+  name: kivitendo website (external)
+  order: 300
+  href: http://www.kivitendo.de/
+  target: _blank
+- parent: system
+  id: system_to_user_login
+  name: To user login
+  order: 400
+  params: 
+    action: LoginScreen/user_login
+- parent: system
+  id: system_logout
+  name: Logout
+  order: 500
+  params: 
+    action: Admin/logout

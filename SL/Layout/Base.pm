@@ -29,9 +29,7 @@ sub new {
 }
 
 sub init_menu {
-  my @menu_files = qw(menus/erp.ini);
-  unshift @menu_files, 'menus/crm.ini' if $::instance_conf->crm_installed;
-  Menu->new(@menu_files);
+  SL::Menu->new('user');
 }
 
 sub init_auto_reload_resources_param {

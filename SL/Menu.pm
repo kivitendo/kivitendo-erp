@@ -1,126 +1,141 @@
-#=====================================================================
-# LX-Office ERP
-# Copyright (C) 2004
-# Based on SQL-Ledger Version 2.1.9
-# Web http://www.lx-office.org
-#
-#=====================================================================
-# SQL-Ledger Accounting
-# Copyright (C) 2001
-#
-#  Author: Dieter Simader
-#   Email: dsimader@sql-ledger.org
-#     Web: http://www.sql-ledger.org
-#
-#  Contributors:
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-#=====================================================================
-#
-# routines for menu items
-#
-#=====================================================================
-
-package Menu;
+package SL::Menu;
 
 use strict;
 
 use SL::Auth;
-use SL::Inifile;
-
-our @ISA = qw(Inifile);
-
+use YAML::XS ();
+use File::Spec;
+use SL::MoreCommon qw(uri_encode);
 
 sub new {
-  $main::lxdebug->enter_sub();
+  my ($package, $domain) = @_;
 
-  my ($package, @menufiles) = @_;
+  my $path = File::Spec->catdir('menus', $domain);
 
-  my $self = $package->SUPER::new($menufiles[0]);
+  opendir my $dir, $path or die "can't open $path: $!";
+  my @files = sort grep -f "$path/$_", readdir $dir;
+  close $dir;
 
-  for (@menufiles[1..$#menufiles]) {
-    my $inifile = Inifile->new($_);
-    push @{ $self->{ORDER} }, @{ delete $inifile->{ORDER} };
-    $self->{$_} = $inifile->{$_} for keys %$inifile;
+  my $nodes = [];
+  my $nodes_by_id = {};
+  for my $file (@files) {
+    my $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
+    _merge($nodes, $nodes_by_id, $data);
   }
 
-  $self->set_access;
 
-  $main::lxdebug->leave_sub();
+  my $self = bless {
+    nodes => $nodes,
+    by_id => $nodes_by_id,
+  }, $package;
+
+  $self->build_tree;
+  $self->set_access;
 
   return $self;
 }
 
-sub menuitem_new {
-  $main::lxdebug->enter_sub(LXDebug::DEBUG2());
+sub _merge {
+  my ($nodes, $by_id, $data) = @_;
 
-  my ($self, $name, $item) = @_;
+  die 'not an array ref' unless $data && 'ARRAY' eq ref $data; # TODO check this sooner, to get better diag to user
 
-  my $module      = $self->{$name}->{module} || $::form->{script};
-  my $action      = $self->{$name}->{action};
+  for my $node (@$data) {
+    my $id = $node->{id};
 
-  $item->{target} = $self->{$name}->{target} || "main_window";
-  $item->{href}   = $self->{$name}->{href}   || "${module}?action=" . $::form->escape($action);
+    my $merge_to = $by_id->{$id};
 
-  my @vars = qw(module target href);
-  push @vars, 'action' unless ($self->{$name}->{href});
+    if (!$merge_to) {
+      push @$nodes, $node;
+      $by_id->{$id} = $node;
+      next;
+    }
 
-  map { delete $self->{$name}{$_} } @vars;
+    # TODO make this a real recursive merge
+    # TODO add support for arrays
 
-  # add other params
-  foreach my $key (keys %{ $self->{$name} }) {
-    my ($value, $conf)  = split(m/=/, $self->{$name}->{$key}, 2);
-    $value              = $::myconfig->{$value} . "/$conf" if ($conf);
-    $item->{href}      .= "&" . $::form->escape($key) . "=" . $::form->escape($value);
+    # merge keys except params
+    for my $key (keys %$node) {
+      if (ref $node->{$key}) {
+        if ('HASH' eq ref $node->{$key}) {
+          $merge_to->{$key} = {} if !exists $merge_to->{$key} || 'HASH' ne ref $merge_to->{$key};
+          for (keys %{ $node->{params} }) {
+            $merge_to->{$key}{$_} = $node->{params}{$_};
+          }
+        } else {
+          die "unsupported structure @{[ ref $node->{$key} ]}";
+        }
+      } else {
+        $merge_to->{$key} = $node->{$key};
+      }
+    }
   }
-
-  $main::lxdebug->leave_sub(LXDebug::DEBUG2());
 }
 
-sub access_control {
-  $main::lxdebug->enter_sub(2);
+sub build_tree {
+  my ($self) = @_;
 
-  my ($self, $myconfig, $menulevel) = @_;
-
-  my @menu = ();
-
-  if (!$menulevel) {
-    @menu = grep { !/--/ } @{ $self->{ORDER} };
-  } else {
-    @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
+  # first, some sanity check. are all parents valid ids or empty?
+  for my $node ($self->nodes) {
+    next if !exists $node->{parent} || !$node->{parent} || $self->{by_id}->{$node->{id}};
+    die "menu: node $node->{id} has non-existant parent $node->{parent}";
   }
 
-  $main::lxdebug->leave_sub(2);
+  my %by_parent;
+  # order them by parent
+  for my $node ($self->nodes) {
+    push @{ $by_parent{ $node->{parent} } //= [] }, $node;
+  }
 
-  return @menu;
+  my $tree = { };
+  $self->{by_id}{''} = $tree;
+
+
+  for (keys %by_parent) {
+    my $parent = $self->{by_id}{$_};
+    $parent->{children} =  [ sort { $a->{order} <=> $b->{order} } @{ $by_parent{$_} } ];
+  }
+
+  _set_level_rec($tree->{children}, 0);
+
+  $self->{tree} = $tree->{children};
+}
+
+sub _set_level_rec {
+  my ($ary_ref, $level) = @_;
+
+  for (@$ary_ref) {
+    $_->{level} = $level;
+    _set_level_rec($_->{children}, $level + 1) if $_->{children};
+  }
+}
+
+sub nodes {
+  @{ $_[0]{nodes} }
+}
+
+sub tree_walk {
+  my ($self, $all) = @_;
+
+  _tree_walk_rec($self->{tree}, $all);
+}
+
+sub _tree_walk_rec {
+  my ($ary_ref, $all) = @_;
+  map { $_->{children} ? ($_, _tree_walk_rec($_->{children}, $all)) : ($_) } grep { $all || $_->{visible} } @$ary_ref;
 }
 
 sub parse_access_string {
-  my $self   = shift;
-  my $key    = shift;
-  my $access = shift;
-
-  my $form        =  $main::form;
-  my $auth        =  $main::auth;
-  my $myconfig    = \%main::myconfig;
+  my ($self, $node) = @_;
 
   my @stack;
   my $cur_ary = [];
 
   push @stack, $cur_ary;
 
-  while ($access =~ m/^([a-z_]+|\||\&|\(|\)|\s+)/) {
+  my $access = $node->{access};
+
+  while ($access =~ m/^([a-z_\/]+|\||\&|\(|\)|\s+)/) {
     my $token = $1;
     substr($access, 0, length($1)) = "";
 
@@ -135,7 +150,7 @@ sub parse_access_string {
     } elsif ($token eq ")") {
       pop @stack;
       if (!@stack) {
-        $form->error("Error in menu.ini for entry ${key}: missing '('");
+        die "Error in menu.ini for entry $node->{id}: missing '('";
       }
       $cur_ary = $stack[-1];
 
@@ -143,19 +158,42 @@ sub parse_access_string {
       push @{$cur_ary}, $token;
 
     } else {
-      push @{$cur_ary}, $auth->check_right($::myconfig{login}, $token, 1);
+      if ($token =~ m{^ client / (.*) }x) {
+        push @{$cur_ary}, $self->parse_instance_conf_string($1);
+      } else {
+        push @{$cur_ary}, $::auth->check_right($::myconfig{login}, $token, 1);
+      }
     }
   }
 
   if ($access) {
-    $form->error("Error in menu.ini for entry ${key}: unrecognized token at the start of '$access'\n");
+    die "Error in menu.ini for entry $node->{id}: unrecognized token at the start of '$access'\n";
   }
 
   if (1 < scalar @stack) {
-    $main::form->error("Error in menu.ini for entry ${key}: Missing ')'\n");
+    die "Error in menu.ini for entry $node->{id}: Missing ')'\n";
   }
 
   return SL::Auth::evaluate_rights_ary($stack[0]);
+}
+
+sub href_for_node {
+  my ($self, $node) = @_;
+
+  return undef if !$node->{href} && !$node->{module} && !$node->{params};
+
+  my $href = $node->{href} || $node->{module} || 'controller.pl';
+  my @tokens;
+
+  while (my ($key, $value) = each %{ $node->{params} }) {
+    push @tokens, uri_encode($key, 1) . "=" . uri_encode($value, 1);
+  }
+
+  return join '?', $href, grep $_, join '&', @tokens;
+}
+
+sub name_for_node {
+  $::locale->text($_[1]{name})
 }
 
 sub parse_instance_conf_string {
@@ -164,56 +202,18 @@ sub parse_instance_conf_string {
 }
 
 sub set_access {
-  my $self = shift;
+  my ($self) = @_;
+  # 1. evaluate access for all
+  # 2. if a menu has no visible children, its not visible either
 
-  my $key;
-
-  foreach $key (@{ $self->{ORDER} }) {
-    my $entry = $self->{$key};
-
-    $entry->{GRANTED}              = $entry->{ACCESS} ? $self->parse_access_string($key, $entry->{ACCESS}) : 1;
-    $entry->{GRANTED}            &&= $self->parse_instance_conf_string($entry->{INSTANCE_CONF}) if $entry->{INSTANCE_CONF};
-    $entry->{IS_MENU}              = $entry->{submenu} || ($key !~ m/--/);
-    $entry->{NUM_VISIBLE_CHILDREN} = 0;
-
-    if ($key =~ m/--/) {
-      my $parent = $key;
-      substr($parent, rindex($parent, '--')) = '';
-      $entry->{GRANTED} &&= $self->{$parent}->{GRANTED};
+  for my $node (reverse $self->tree_walk("all")) {
+    $node->{visible} = $node->{access}           ? $self->parse_access_string($node)
+                     : !$node->{children}        ? 1
+                     : $node->{visible_children} ? 1
+                     :                             0;
+    if ($node->{visible} && $node->{parent}) {
+      $self->{by_id}{ $node->{parent} }{visible_children} = 1;
     }
-
-    $entry->{VISIBLE} = $entry->{GRANTED};
-  }
-
-  foreach $key (reverse @{ $self->{ORDER} }) {
-    my $entry = $self->{$key};
-
-    if ($entry->{IS_MENU}) {
-      $entry->{VISIBLE} &&= $entry->{NUM_VISIBLE_CHILDREN} > 0;
-    }
-
-    next if (($key !~ m/--/) || !$entry->{VISIBLE});
-
-    my $parent = $key;
-    substr($parent, rindex($parent, '--')) = '';
-    $self->{$parent}->{NUM_VISIBLE_CHILDREN}++;
-  }
-
-#   $self->dump_visible();
-
-  $self->{ORDER} = [ grep { $self->{$_}->{VISIBLE} } @{ $self->{ORDER} } ];
-
-  { no strict 'refs';
-  # ToDO: fix this. nuke and pave algorithm without type checking screams for problems.
-  map { delete @{$self->{$_}}{qw(GRANTED IS_MENU NUM_VISIBLE_CHILDREN VISIBLE ACCESS)} if ($_ ne 'ORDER') } keys %{ $self };
-  }
-}
-
-sub dump_visible {
-  my $self = shift;
-  foreach my $key (@{ $self->{ORDER} }) {
-    my $entry = $self->{$key};
-    $main::lxdebug->message(0, "$entry->{GRANTED} $entry->{VISIBLE} $entry->{NUM_VISIBLE_CHILDREN} $key");
   }
 }
 
