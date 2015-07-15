@@ -352,7 +352,6 @@ sub form_header {
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "payments"      => "ALL_PAYMENTS",
-                   "projects"      => "ALL_PROJECTS",
                    "currencies"    => "ALL_CURRENCIES",
                    "departments"   => "ALL_DEPARTMENTS",
                    $vc             => { key   => "ALL_" . uc($vc),
