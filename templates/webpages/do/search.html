@@ -11,10 +11,6 @@
 
  [%- SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
 
- <script type="text/javascript">
-   $(function(){ document.Form.donumber.focus(); });
- </script>
-
  <style type="text/css">
   .fixed_width {
     width: 250px;
@@ -29,9 +25,9 @@
      <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
      <td colspan="3">
       [%- UNLESS SHOW_VC_DROP_DOWN %]
-      <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width">
+      <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width initial_focus">
       [%- ELSE %]
-      <select name="[% vc %]" class="fixed_width">
+      <select name="[% vc %]" class="fixed_width initial_focus">
        <option></option>
        [%- FOREACH row = ALL_VC %]
        <option>[% HTML.escape(row.name) %]--[% HTML.escape(row.id) %]</option>
