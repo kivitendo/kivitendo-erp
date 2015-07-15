@@ -3,9 +3,14 @@ package SL::Menu;
 use strict;
 
 use SL::Auth;
-use YAML::XS ();
+use YAML ();
 use File::Spec;
 use SL::MoreCommon qw(uri_encode);
+
+our $yaml_xs;
+BEGIN {
+   $yaml_xs =  eval { require YAML::XS };
+}
 
 sub new {
   my ($package, $domain) = @_;
@@ -19,7 +24,12 @@ sub new {
   my $nodes = [];
   my $nodes_by_id = {};
   for my $file (@files) {
-    my $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
+    my $data;
+    if ($yaml_xs) {
+      $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
+    } else {
+      $data = YAML::LoadFile(File::Spec->catfile($path, $file));
+    }
     _merge($nodes, $nodes_by_id, $data);
   }
 
