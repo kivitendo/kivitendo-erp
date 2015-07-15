@@ -150,7 +150,7 @@ sub parse_access_string {
     } elsif ($token eq ")") {
       pop @stack;
       if (!@stack) {
-        die "Error in menu.ini for entry $node->{id}: missing '('";
+        die "Error while parsing menu entry $node->{id}: missing '('";
       }
       $cur_ary = $stack[-1];
 
@@ -167,11 +167,11 @@ sub parse_access_string {
   }
 
   if ($access) {
-    die "Error in menu.ini for entry $node->{id}: unrecognized token at the start of '$access'\n";
+    die "Error while parsing menu entry $node->{id}: unrecognized token at the start of '$access'\n";
   }
 
   if (1 < scalar @stack) {
-    die "Error in menu.ini for entry $node->{id}: Missing ')'\n";
+    die "Error while parsing menu entry $node->{id}: Missing ')'\n";
   }
 
   return SL::Auth::evaluate_rights_ary($stack[0]);
