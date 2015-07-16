@@ -12,37 +12,46 @@ BEGIN {
    $yaml_xs =  eval { require YAML::XS };
 }
 
+our %menu_cache;
+
 sub new {
   my ($package, $domain) = @_;
 
-  my $path = File::Spec->catdir('menus', $domain);
+  if (!$menu_cache{$domain}) {
+    my $path = File::Spec->catdir('menus', $domain);
 
-  opendir my $dir, $path or die "can't open $path: $!";
-  my @files = sort grep -f "$path/$_", readdir $dir;
-  close $dir;
+    opendir my $dir, $path or die "can't open $path: $!";
+    my @files = sort grep -f "$path/$_", readdir $dir;
+    close $dir;
 
-  my $nodes = [];
-  my $nodes_by_id = {};
-  for my $file (@files) {
-    my $data;
-    if ($yaml_xs) {
-      $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
-    } else {
-      $data = YAML::LoadFile(File::Spec->catfile($path, $file));
+    my $nodes = [];
+    my $nodes_by_id = {};
+    for my $file (@files) {
+      my $data;
+      if ($yaml_xs) {
+        $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
+      } else {
+        $data = YAML::LoadFile(File::Spec->catfile($path, $file));
+      }
+      _merge($nodes, $nodes_by_id, $data);
     }
-    _merge($nodes, $nodes_by_id, $data);
+
+
+    my $self = bless {
+      nodes => $nodes,
+      by_id => $nodes_by_id,
+    }, $package;
+
+    $self->build_tree;
+
+    $menu_cache{$domain} = $self;
+  } else {
+    $menu_cache{$domain}->clear_access;
   }
 
+  $menu_cache{$domain}->set_access;
 
-  my $self = bless {
-    nodes => $nodes,
-    by_id => $nodes_by_id,
-  }, $package;
-
-  $self->build_tree;
-  $self->set_access;
-
-  return $self;
+  return $menu_cache{$domain};
 }
 
 sub _merge {
@@ -209,6 +218,14 @@ sub name_for_node {
 sub parse_instance_conf_string {
   my ($self, $setting) = @_;
   return $::instance_conf->data->{$setting};
+}
+
+sub clear_access {
+  my ($self) = @_;
+  for my $node ($self->tree_walk("all")) {
+    delete $node->{visible};
+    delete $node->{visible_children};
+  }
 }
 
 sub set_access {
