@@ -64,6 +64,13 @@ sub translate_to_yaml {
       delete $item->{submenu};
     }
 
+    #sanitize those stupid menu inlinks
+    if ($item->{module} eq 'menu.pl') {
+      delete $item->{module};
+      delete $item->{action};
+      delete $item->{target};
+    }
+
     # sanitize INSTANCE_CONF
     if ($item->{INSTANCE_CONF}) {
       my $instance_conf = delete $item->{INSTANCE_CONF};
