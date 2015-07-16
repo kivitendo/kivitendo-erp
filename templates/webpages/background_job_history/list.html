@@ -4,7 +4,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-[%- PROCESS 'background_job_history/_filter.html' filter=SELF.filter %]
+[%- PROCESS 'background_job_history/_filter.html' filter=SELF.models.filtered.laundered %]
 
 [% IF !ENTRIES.size %]
  <p>

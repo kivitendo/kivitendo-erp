@@ -3,7 +3,7 @@ package SL::DB::Helper::AttrDuration;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(attr_duration);
+our @EXPORT = qw(attr_duration attr_duration_minutes);
 
 use Carp;
 
@@ -11,6 +11,12 @@ sub attr_duration {
   my ($package, @attributes) = @_;
 
   _make($package, $_) for @attributes;
+}
+
+sub attr_duration_minutes {
+  my ($package, @attributes) = @_;
+
+  _make_minutes($package, $_) for @attributes;
 }
 
 sub _make {
@@ -75,6 +81,43 @@ sub _make {
   };
 }
 
+sub _make_minutes {
+  my ($package, $attribute) = @_;
+
+  no strict 'refs';
+
+  *{ $package . '::' . $attribute . '_as_hours' } = sub {
+    my ($self, $value) = @_;
+
+    $self->$attribute($value * 60 + ($self->$attribute % 60)) if @_ > 1;
+    return int(($self->$attribute // 0) / 60);
+  };
+
+  *{ $package . '::' . $attribute . '_as_minutes' } = sub {
+    my ($self, $value) = @_;
+
+    $self->$attribute(int($self->$attribute) - (int($self->$attribute) % 60) + ($value // 0)) if @_ > 1;
+    return ($self->$attribute // 0) % 60;
+  };
+
+  *{ $package . '::' . $attribute . '_as_duration_string' } = sub {
+    my ($self, $value) = @_;
+
+    if (@_ > 1) {
+      if (!defined($value) || ($value eq '')) {
+        $self->$attribute(undef);
+      } else {
+        croak $::locale->text("Invalid duration format") if $value !~ m{^(?:(\d*):)?(\d+)$};
+        $self->$attribute(($1 // 0) * 60 + ($2 // 0));
+      }
+    }
+
+    my $as_hours   = "${attribute}_as_hours";
+    my $as_minutes = "${attribute}_as_minutes";
+    return defined($self->$attribute) ? sprintf('%d:%02d', $self->$as_hours, $self->$as_minutes) : undef;
+  };
+}
+
 1;
 __END__
 
@@ -92,6 +135,7 @@ numeric columns
   # In a Rose model:
   use SL::DB::Helper::AttrDuration;
   __PACKAGE__->attr_duration('time_estimation');
+  __PACKAGE__->attr_duration_minutes('hours');
 
   # Read access:
   print "Minutes: " . $obj->time_estimation_as_minutes . " hours: " . $obj->time_estimation_as_hours . "\n";
@@ -104,11 +148,23 @@ numeric columns
 
 =head1 OVERVIEW
 
-This is a helper for columns that store a duration as a numeric or
-floating point number representing a number of hours. So the value
-1.75 would stand for "1 hour, 45 minutes".
+This is a helper for columns that store a duration in one of two formats:
 
-The helper methods created are:
+=over 2
+
+=item 1. as a numeric or floating point number representing a number
+of hours
+
+=item 2. as an integer presenting a number of minutes
+
+=back
+
+In the first case the value 1.75 would stand for "1 hour, 45
+minutes". In the second case the value 105 represents the same
+duration.
+
+The helper methods created depend on the mode. Calling
+C<attr_duration> makes the following methods available:
 
 =over 4
 
@@ -160,11 +216,36 @@ handles this case correctly.
 
 =back
 
+With C<attr_duration_minutes> the following methods are available:
+
+=over 4
+
+=item C<attribute_as_minutes [$new_value]>
+
+Access only the minutes. Return values are in the range [0 - 59].
+
+=item C<attribute_as_hours [$new_value]>
+
+Access only the hours. Returns an integer value.
+
+=item C<attribute_as_duration_string [$new_value]>
+
+Access the full value as a formatted string in the form C<h:mm>,
+e.g. C<1:30> for the value 90 minutes. Parsing such a string is
+supported, too.
+
+=back
+
 =head1 FUNCTIONS
 
 =over 4
 
 =item C<attr_duration @attributes>
+
+Package method. Call with the names of attributes for which the helper
+methods should be created.
+
+=item C<attr_duration_minutes @attributes>
 
 Package method. Call with the names of attributes for which the helper
 methods should be created.

@@ -26,7 +26,9 @@
 
   <%contact_formal%>
 
-  <%countrycode%> <%zipcode%> <%city%>
+  <%street%>
+
+  <%zipcode%> <%city%>
 
   <%country%>
 
@@ -34,12 +36,16 @@
 
 \vspace{2.5cm}
 \hfill<%date%>
-\textbf{<%reference%>}
+
+<%if reference%>
+\textbf{\ihrzeichen : <%reference%>}
+<%end if%>
 
 \vspace{1cm}
 
-
-\textbf{<%subject%>}
+<%if subject%>
+\textbf{\betreff : <%subject%>}
+<%end if%>
 
 \vspace{1cm}
 

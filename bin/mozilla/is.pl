@@ -320,6 +320,7 @@ sub form_header {
     ]);
 
   $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
+  $form->{ALL_PROJECTS}            = $TMPL_VAR{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
   $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [

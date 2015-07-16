@@ -52,7 +52,7 @@ sub _args2str {
     map { $_ => $options->{$_} }
     sort keys %$options;                  # deterministic order
 
-  join ';', apply { s/([;\\])/\\$1/g } $dbconnect, $dbuser, $dbpasswd, $options_str, $initial_sql;
+  join ';', apply { $_ //= ''; s/([;\\])/\\$1/g } $dbconnect, $dbuser, $dbpasswd, $options_str, $initial_sql;
 }
 
 1;

@@ -194,6 +194,10 @@ $(document).ready(function () {
     if (focussable(this)) window.focused_element = this;
   });
 
+  // Lowest priority: first focussable element in form.
+  set_cursor_to_first_element();
+
+  // Medium priority: class set in template
   var initial_focus = $(".initial_focus").filter(':visible')[0];
   if (initial_focus)
     $(initial_focus).focus();
@@ -201,7 +205,6 @@ $(document).ready(function () {
   // legacy. sone forms install these
   if (typeof fokus == 'function') { fokus(); return; }
   if (focus_by_name('cursor_fokus')) return;
-  set_cursor_to_first_element();
 });
 
 $('form').submit(function(){
