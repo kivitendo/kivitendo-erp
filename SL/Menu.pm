@@ -97,7 +97,7 @@ sub build_tree {
   # first, some sanity check. are all parents valid ids or empty?
   for my $node ($self->nodes) {
     next if !exists $node->{parent} || !$node->{parent} || $self->{by_id}->{$node->{id}};
-    die "menu: node $node->{id} has non-existant parent $node->{parent}";
+    die "menu: node $node->{id} has non-existent parent $node->{parent}";
   }
 
   my %by_parent;
