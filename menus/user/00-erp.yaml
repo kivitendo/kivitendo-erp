@@ -1,3 +1,27 @@
+# This is the main menu config file for user space menu entries.
+#
+# Each menu entry can have the following properties:
+#
+# parnet:  the id of a higher node in the tree, top-level node if missing
+# id:      a unique identifier used by parent links and for overloading
+# name:    translatable text for display
+# icon:    stripped name of an icon for this menu entry
+# order:   numeric value. lower will be displayed first
+# access:  boolean expression of the rights needed to display and access this entry
+#          ( ) & | are supported.  if binary operator is missing the last
+#          operator in same scope is repeated, or "|" if none used in scope
+#          yet. client config entrys can be used as rights by prefixing them
+#          with "client/". If missing, access will be granted.
+#
+#          Example:
+#            client/feature_default_enabled | ( feature & system )
+#
+# href:   fully qualified external link
+# module: defaults to "controller.pl". Should ne be present if the link is for
+#         Controller::Base dispatching to enable routing.  otherwise with
+#         script will be used.
+# target: target window for link. ex: "_blank"
+# params: additional url parameter
 ---
 - id: master_data
   name: Master Data
