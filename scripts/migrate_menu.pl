@@ -143,9 +143,9 @@ sub yaml_dump {
     my $first = 0;
     for my $key (@order) {
       next unless exists $node->{$key};
-      $yaml .= ($first++ ? '  ' : '- ') . $key . ": ";
+      $yaml .= ($first++ ? '  ' : '- ') . $key . ":";
       if (!ref $node->{$key}) {
-        $yaml .= $node->{$key} . "\n";
+        $yaml .= ' ' . $node->{$key} . "\n";
       } else {
         $yaml .= "\n";
         for ('action', grep !/^action$/, keys %{ $node->{$key} }) {
