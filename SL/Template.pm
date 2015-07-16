@@ -52,7 +52,7 @@ sub available_templates {
   } keys %dir_h;
 
   tie %dir_h, 'IO::Dir', "$::lx_office_conf{paths}->{templates}/print";
-  my @allmaster = ('Standard', sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ && !/^Standard$/ } keys %dir_h);
+  my @allmaster = (sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ && !/^Standard$/ } keys %dir_h);
 
   return (
     print_templates  => \@alldir,
