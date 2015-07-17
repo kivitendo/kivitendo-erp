@@ -251,10 +251,6 @@ namespace("kivi", function(ns) {
     if (func)
       func();
 
-    ns.run_once_for('.tooltip', 'tooltip', function(elt) {
-      $(elt).tooltip();
-    });
-
     ns.run_once_for('.tooltipster', 'tooltipster', function(elt) {
       $(elt).tooltipster({
         contentAsHTML: false,
