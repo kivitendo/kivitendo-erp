@@ -5,7 +5,6 @@ use strict;
 use List::Util qw(first);
 
 require SL::DB::MetaSetup::CsvImportProfile;
-use Rose::DB::Object::Helpers qw(clone_and_reset);
 
 __PACKAGE__->meta->add_relationship(
   settings => {

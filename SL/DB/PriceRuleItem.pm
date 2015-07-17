@@ -7,7 +7,6 @@ use strict;
 
 use SL::DB::MetaSetup::PriceRuleItem;
 use SL::DB::Manager::PriceRuleItem;
-use Rose::DB::Object::Helpers qw(clone_and_reset);
 use SL::Locale::String qw(t8);
 
 __PACKAGE__->meta->initialize;

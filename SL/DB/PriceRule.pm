@@ -7,7 +7,6 @@ use strict;
 
 use SL::DB::MetaSetup::PriceRule;
 use SL::DB::Manager::PriceRule;
-use Rose::DB::Object::Helpers qw(clone_and_reset);
 use SL::Locale::String qw(t8);
 
 __PACKAGE__->meta->add_relationship(

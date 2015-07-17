@@ -5,7 +5,8 @@ use strict;
 use Carp;
 use English qw(-no_match_vars);
 use Rose::DB::Object;
-use List::MoreUtils qw(any);
+use Rose::DB::Object::Constants qw();
+use List::MoreUtils qw(any pairwise);
 
 use SL::DB;
 use SL::DB::Helper::Attr;
@@ -218,6 +219,37 @@ sub invalidate_cached {
   return $class_or_self;
 }
 
+my %_skip_fields_when_cloning = map { ($_ => 1) } qw(itime mtime);
+
+sub clone_and_reset {
+  my($self)               = shift;
+  my $class               = ref $self;
+  my $cloning             = Rose::DB::Object::Constants::STATE_CLONING();
+  local $self->{$cloning} = 1;
+
+  my $meta                = $class->meta;
+  my @accessors           = $meta->column_accessor_method_names;
+  my @mutators            = $meta->column_mutator_method_names;
+  my @column_names        =
+    grep     { $_->[0] && $_->[1] && !$_skip_fields_when_cloning{ $_->[0] } }
+    pairwise { [ $a, $b] } @accessors, @mutators;
+
+  my $clone = $class->new(map { my $method = $_->[0]; ($_->[1] => $self->$method) } @column_names);
+
+  # Blank all primary and unique key columns
+  my @keys = (
+    $meta->primary_key_column_mutator_names,
+    map { my $uk = $_; map { $meta->column_mutator_method_name($_) } ($uk->columns) } ($meta->unique_keys)
+  );
+
+  $clone->$_(undef) for @keys;
+
+  # Also copy db object, if any
+  $clone->db($self->{db}) if $self->{db};
+
+  return $clone;
+}
+
 1;
 
 __END__
@@ -322,6 +354,16 @@ If called as an instance method without further arguments then the
 object's ID is used.
 
 Returns the object/class it was called on.
+
+=item C<clone_and_reset>
+
+This works similar to L<Rose::DB::Object::Helpers/clone_and_reset>: it
+returns a cloned instance of C<$self>. All primary and unique key
+fields have been reset.
+
+The difference between Rose's and this function is that this function
+will also skip setting the following fields if such columns exist for
+C<$self>: C<itime>, C<mtime>.
 
 =back
 

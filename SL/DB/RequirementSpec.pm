@@ -156,7 +156,7 @@ sub create_copy {
 sub _create_copy {
   my ($self, %params) = @_;
 
-  my $copy = Rose::DB::Object::Helpers::clone_and_reset($self);
+  my $copy = $self->clone_and_reset;
   $copy->copy_from($self, %params);
 
   return $copy;
@@ -185,14 +185,14 @@ sub _copy_from {
   # Clone text blocks and pictures.
   my $clone_and_reset_position = sub {
     my ($src_obj) = @_;
-    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($src_obj);
+    my $cloned    = $src_obj->clone_and_reset;
     $cloned->position(undef);
     return $cloned;
   };
 
   my $clone_text_block = sub {
     my ($text_block) = @_;
-    my $cloned       = Rose::DB::Object::Helpers::clone_and_reset($text_block);
+    my $cloned       = $text_block->clone_and_reset;
     $cloned->position(undef);
     $cloned->pictures([ map { $clone_and_reset_position->($_) } @{ $text_block->pictures_sorted } ]);
     return $cloned;
@@ -220,7 +220,7 @@ sub _copy_from {
   my $clone_item;
   $clone_item = sub {
     my ($item) = @_;
-    my $cloned = Rose::DB::Object::Helpers::clone_and_reset($item);
+    my $cloned = $item->clone_and_reset;
     $cloned->requirement_spec_id($self->id);
     $cloned->position(undef);
     $cloned->fb_number(undef) if $params->{paste_template};

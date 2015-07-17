@@ -101,7 +101,7 @@ sub date {
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
-  my $cloned = Rose::DB::Object::Helpers::clone_and_reset($_);
+  my $cloned = $_->clone_and_reset;
   $cloned->sub_module('delivery_order_items');
 
   return $cloned;
