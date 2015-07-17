@@ -255,6 +255,20 @@ namespace("kivi", function(ns) {
       $(elt).tooltip();
     });
 
+    ns.run_once_for('.tooltipster', 'tooltipster', function(elt) {
+      $(elt).tooltipster({
+        contentAsHTML: false,
+        theme: 'tooltipster-light'
+      })
+    });
+
+    ns.run_once_for('.tooltipster-html', 'tooltipster-html', function(elt) {
+      $(elt).tooltipster({
+        contentAsHTML: true,
+        theme: 'tooltipster-light'
+      })
+    });
+
     ns.run_once_for('.tabwidget', 'tabwidget', kivi.init_tabwidget);
     ns.run_once_for('.texteditor', 'texteditor', kivi.init_text_editor);
   };

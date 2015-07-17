@@ -1,7 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
-<script type="text/javascript" src="js/wz_tooltip.js"></script>
-
 <h1>[% title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
@@ -76,7 +74,6 @@ function add_invoices(bt_id, prop_id, prop_invnumber) {
     var node = document.getElementsByName(prop_id)[0];
     node.parentNode.removeChild(node);
   }
-  UnTip();
   var invoices = document.getElementById('assigned_invoices_' + bt_id);
 
   $.ajax({
@@ -104,4 +101,3 @@ function create_invoice(bt_id) {
 
 //-->
 </script>
-

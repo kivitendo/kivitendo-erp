@@ -472,11 +472,13 @@ sub header {
     jquery.multiselect2side
     ui-lightness/jquery-ui
     jquery-ui.custom
+    tooltipster themes/tooltipster-light
   );
 
   $layout->use_javascript("$_.js") for (qw(
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
     jquery/jquery.form jquery/fixes client_js
+    jquery/jquery.tooltipster.min
     common part_selection switchmenuframe
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
