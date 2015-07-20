@@ -59,6 +59,7 @@ sub parse_dbupdate_controls {
     my $control = {
       "priority" => 1000,
       "depends"  => [],
+      "locales"  => [],
     };
 
     while (<IN>) {
@@ -73,6 +74,8 @@ sub parse_dbupdate_controls {
 
       if ($fields[0] eq "depends") {
         push(@{$control->{"depends"}}, split(/\s+/, $fields[1]));
+      } elsif ($fields[0] eq "locales") {
+        push @{$control->{locales}}, $fields[1];
       } else {
         $control->{$fields[0]} = $fields[1];
       }
