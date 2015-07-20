@@ -38,8 +38,6 @@ sub path {
 }
 
 sub parse_dbupdate_controls {
-  $::lxdebug->enter_sub();
-
   my ($self) = @_;
 
   my $form   = $self->{form};
@@ -123,8 +121,6 @@ sub parse_dbupdate_controls {
       values(%all_controls));
 
   $self->{all_controls} = \%all_controls;
-
-  $::lxdebug->leave_sub();
 
   return $self;
 }
@@ -381,13 +377,11 @@ sub _control_error {
 }
 
 sub _dbupdate2_calculate_depth {
-  $::lxdebug->enter_sub(2);
-
   my ($tree, $tag) = @_;
 
   my $node = $tree->{$tag};
 
-  return $::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
+  return if (defined($node->{"depth"}));
 
   my $max_depth = 0;
 
@@ -398,8 +392,6 @@ sub _dbupdate2_calculate_depth {
   }
 
   $node->{"depth"} = $max_depth + 1;
-
-  $::lxdebug->leave_sub(2);
 }
 
 sub sort_dbupdate_controls {
