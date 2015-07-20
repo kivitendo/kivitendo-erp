@@ -338,7 +338,7 @@ sub _get_elements_and_validate {
     push @elements, $bb;
   }
 
-  if ($::form->round_amount($bt_sum + $bb_sum) != 0) {
+  if ($::form->round_amount($bt_sum + $bb_sum, 2) != 0) {
     push @errors, t8('Out of balance!');
   }
 
