@@ -81,6 +81,8 @@ sub action_create_auth_tables {
   $::auth->set_session_value('admin_password', $::lx_office_conf{authentication}->{admin_password});
   $::auth->create_or_refresh_session;
 
+  return if $self->apply_dbupgrade_scripts;
+
   my $group = (SL::DB::Manager::AuthGroup->get_all(limit => 1))[0];
   if (!$group) {
     SL::DB::AuthGroup->new(
@@ -90,9 +92,7 @@ sub action_create_auth_tables {
     )->save;
   }
 
-  if (!$self->apply_dbupgrade_scripts) {
-    $self->action_login;
-  }
+  $self->action_login;
 }
 
 #
