@@ -86,7 +86,7 @@ sub action_create_auth_tables {
     SL::DB::AuthGroup->new(
       name        => t8('Full Access'),
       description => t8('Full access to all functions'),
-      rights      => [ map { SL::DB::AuthGroupRight->new(right => $_, granted => 1) } SL::Auth::all_rights() ],
+      rights      => [ map { SL::DB::AuthGroupRight->new(right => $_, granted => 1) } $::auth->all_rights ],
     )->save;
   }
 
