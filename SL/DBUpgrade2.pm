@@ -26,7 +26,7 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
-  $params{path}          = "sql/Pg-upgrade2" . $params{path_suffix};
+  $params{path}        ||= "sql/Pg-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 
