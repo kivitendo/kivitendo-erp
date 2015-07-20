@@ -27,6 +27,7 @@ use List::Util qw(first);
 use Pod::Usage;
 use YAML ();
 use YAML::Loader (); # YAML tries to load Y:L at runtime, but can't find it after we chdir'ed
+use SL::DBUpgrade2;
 
 $OUTPUT_AUTOFLUSH = 1;
 
@@ -125,6 +126,7 @@ my %old_texts = %{ $self->{texts} || {} };
 handle_file(@{ $_ })       for @progfiles;
 handle_file(@{ $_ })       for @dbplfiles;
 scanmenu($_)               for @menufiles;
+scandbupgrades();
 
 for my $file_name (grep { /\.(?:js|html)$/i } map({find_files($_)} @javascript_dirs)) {
   scan_javascript_file($file_name);
@@ -515,12 +517,30 @@ sub scanfile {
 sub scanmenu {
   my $file = shift;
 
-  print STDERR "trying to load file $file\n";
   my $menu = YAML::LoadFile($file);
 
   for my $node (@$menu) {
+    # possible for override files
+    next unless exists $node->{name};
+
     $locale{$node->{name}}     = 1;
     $alllocales{$node->{name}} = 1;
+    $cached{$file}{all}{$node->{name}} = 1;
+  }
+}
+
+sub scandbupgrades {
+  # we only need to do this for auth atm, because only auth scripts can include new rights, which are translateable
+  my $auth = 1;
+
+  my $dbu = SL::DBUpgrade2->new(auth => $auth, path => '../../sql/Pg-upgrade2-auth');
+
+  for my $upgrade ($dbu->sort_dbupdate_controls) {
+    for my $string (@{ $upgrade->{locales} || [] }) {
+      $locale{$string}     = 1;
+      $alllocales{$string} = 1;
+    $cached{$upgrade->{tag}}{all}{$string} = 1;
+    }
   }
 }
 

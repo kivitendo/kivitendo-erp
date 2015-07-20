@@ -897,93 +897,52 @@ sub is_api_token_cookie_valid {
   return $self->{api_token} && $provided_api_token && ($self->{api_token} eq $provided_api_token);
 }
 
-sub session_tables_present {
-  my $self = shift;
+sub _tables_present {
+  my ($self, @tables) = @_;
+  my $cache_key = join '_', @tables;
 
   # Only re-check for the presence of auth tables if either the check
   # hasn't been done before of if they weren't present.
-  if ($self->{session_tables_present}) {
-    return $self->{session_tables_present};
+  return $self->{"$cache_key\_tables_present"} ||= do {
+    my $dbh  = $self->dbconnect(1);
+
+    if (!$dbh) {
+      return 0;
+    }
+
+    my $query =
+      qq|SELECT COUNT(*)
+         FROM pg_tables
+         WHERE (schemaname = 'auth')
+           AND (tablename IN (@{[ join ', ', ('?') x @tables ]}))|;
+
+    my ($count) = selectrow_query($main::form, $dbh, $query, @tables);
+
+    return scalar @tables == $count;
   }
+}
 
-  my $dbh  = $self->dbconnect(1);
+sub session_tables_present {
+  $_[0]->_tables_present('session', 'session_content');
+}
 
-  if (!$dbh) {
-    return 0;
-  }
-
-  my $query =
-    qq|SELECT COUNT(*)
-       FROM pg_tables
-       WHERE (schemaname = 'auth')
-         AND (tablename IN ('session', 'session_content'))|;
-
-  my ($count) = selectrow_query($main::form, $dbh, $query);
-
-  $self->{session_tables_present} = 2 == $count;
-
-  return $self->{session_tables_present};
+sub master_rights_present {
+  $_[0]->_tables_present('master_rights');
 }
 
 # --------------------------------------
 
 sub all_rights_full {
-  my $locale = $main::locale;
+  my ($self) = @_;
 
-  my @all_rights = (
-    ["--master_data",                  $locale->text("Master Data")],
-    ["customer_vendor_edit",           $locale->text("Create customers and vendors. Edit all vendors. Edit only customers where salesman equals employee (login)")],
-    ["customer_vendor_all_edit",       $locale->text("Create customers and vendors. Edit all vendors. Edit all customers")],
-    ["part_service_assembly_edit",     $locale->text("Create and edit parts, services, assemblies")],
-    ["part_service_assembly_details",  $locale->text("Show details and reports of parts, services, assemblies")],
-    ["project_edit",                   $locale->text("Create and edit projects")],
-    ["--ar",                           $locale->text("AR")],
-    ["requirement_spec_edit",          $locale->text("Create and edit requirement specs")],
-    ["sales_quotation_edit",           $locale->text("Create and edit sales quotations")],
-    ["sales_order_edit",               $locale->text("Create and edit sales orders")],
-    ["sales_delivery_order_edit",      $locale->text("Create and edit sales delivery orders")],
-    ["invoice_edit",                   $locale->text("Create and edit invoices and credit notes")],
-    ["dunning_edit",                   $locale->text("Create and edit dunnings")],
-    ["sales_letter_edit",              $locale->text("Edit sales letters")],
-    ["sales_all_edit",                 $locale->text("View/edit all employees sales documents")],
-    ["edit_prices",                    $locale->text("Edit prices and discount (if not used, textfield is ONLY set readonly)")],
-    ["show_ar_transactions",           $locale->text("Show AR transactions as part of AR invoice report")],
-    ["delivery_plan",                  $locale->text("Show delivery plan")],
-    ["delivery_value_report",          $locale->text("Show delivery value report")],
-    ["sales_letter_report",            $locale->text("Show sales letters report")],
-    ["--ap",                           $locale->text("AP")],
-    ["request_quotation_edit",         $locale->text("Create and edit RFQs")],
-    ["purchase_order_edit",            $locale->text("Create and edit purchase orders")],
-    ["purchase_delivery_order_edit",   $locale->text("Create and edit purchase delivery orders")],
-    ["vendor_invoice_edit",            $locale->text("Create and edit vendor invoices")],
-    ["show_ap_transactions",           $locale->text("Show AP transactions as part of AP invoice report")],
-    ["--warehouse_management",         $locale->text("Warehouse management")],
-    ["warehouse_contents",             $locale->text("View warehouse content")],
-    ["warehouse_management",           $locale->text("Warehouse management")],
-    ["--general_ledger_cash",          $locale->text("General ledger and cash")],
-    ["general_ledger",                 $locale->text("Transactions, AR transactions, AP transactions")],
-    ["datev_export",                   $locale->text("DATEV Export")],
-    ["cash",                           $locale->text("Receipt, payment, reconciliation")],
-    ["bank_transaction",               $locale->text("Bank transactions")],
-    ["--reports",                      $locale->text('Reports')],
-    ["report",                         $locale->text('All reports')],
-    ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],
-    ["--batch_printing",               $locale->text("Batch Printing")],
-    ["batch_printing",                 $locale->text("Batch Printing")],
-    ["--configuration",                $locale->text("Configuration")],
-    ["config",                         $locale->text("Change kivitendo installation settings (most entries in the 'System' menu)")],
-    ["admin",                          $locale->text("Client administration: configuration, editing templates, task server control, background jobs (remaining entries in the 'System' menu)")],
-    ["--others",                       $locale->text("Others")],
-    ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
-    ["productivity",                   $locale->text("Productivity")],
-    ["display_admin_link",             $locale->text("Show administration link")],
-    );
-
-  return @all_rights;
+  @{ $self->{master_rights} ||= do {
+      $self->dbconnect->selectall_arrayref("SELECT name, description, category FROM auth.master_rights ORDER BY id");
+    }
+  }
 }
 
 sub all_rights {
-  return grep !/^--/, map { $_->[0] } all_rights_full();
+  return map { $_->[0] } grep { !$_->[2] } $_[0]->all_rights_full;
 }
 
 sub read_groups {
@@ -1030,7 +989,7 @@ sub read_groups {
       $group->{rights}->{$row->{right}} |= $row->{granted};
     }
 
-    map { $group->{rights}->{$_} = 0 if (!defined $group->{rights}->{$_}); } all_rights();
+    map { $group->{rights}->{$_} = 0 if (!defined $group->{rights}->{$_}); } $self->all_rights;
   }
   $sth->finish();
 
@@ -1212,7 +1171,7 @@ sub load_rights_for_user {
   my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
 
-  $rights = { map { $_ => 0 } all_rights() };
+  $rights = { map { $_ => 0 } $self->all_rights };
 
   return $rights if !$self->client || !$login;
 

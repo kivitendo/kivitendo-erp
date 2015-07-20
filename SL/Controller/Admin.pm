@@ -528,13 +528,13 @@ sub init_all_rights {
   my (@sections, $current_section);
 
   foreach my $entry ($::auth->all_rights_full) {
-    if ($entry->[0] =~ m/^--/) {
-      push @sections, { description => $entry->[1], rights => [] };
+    if ($entry->[2]) {
+      push @sections, { description => t8($entry->[1]), rights => [] };
 
     } elsif (@sections) {
       push @{ $sections[-1]->{rights} }, {
         name        => $entry->[0],
-        description => $entry->[1],
+        description => t8($entry->[1]),
       };
 
     } else {
