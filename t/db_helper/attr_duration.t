@@ -27,6 +27,7 @@ use utf8;
 
 use Data::Dumper;
 use Support::TestSetup;
+use SL::Locale;
 
 sub new_item {
   return AttrDurationTestDummy->new(@_);
@@ -34,6 +35,8 @@ sub new_item {
 
 Support::TestSetup::login();
 my $item;
+
+$::locale = Locale->new('en');
 
 ### attr_duration
 
