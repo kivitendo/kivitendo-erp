@@ -493,7 +493,7 @@ sub display_row {
                                                        HEADER => \@HEADER,
                                                      });
 
-  if (0 != ($form->{sellprice_total} * 1)) {
+  if (abs($form->{sellprice_total} * 1) >= 0.01) {
     $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
   }
 
