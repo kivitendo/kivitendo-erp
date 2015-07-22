@@ -117,7 +117,7 @@
      <td>
     <script type='text/javascript'>
      $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
-     $('#datepaid_[% i %]').blur(function(){ check_right_date_format(this) });
+     $('#datepaid_[% i %]').change(function(){ check_right_date_format(this) });
     </script>
      </td>
     </tr>

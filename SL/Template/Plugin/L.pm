@@ -181,7 +181,7 @@ sub date_tag {
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
     size   => 11,
-    onblur => "check_right_date_format(this);",
+    onchange => "check_right_date_format(this);",
     %params,
     %class, @onchange,
   );
