@@ -539,7 +539,7 @@ sub footer {
   print $::request->{layout}->post_content;
 
   if (my @inline_scripts = $::request->{layout}->javascripts_inline) {
-    print "<script type='text/javascript'>@inline_scripts</script>\n";
+    print "<script type='text/javascript'>" . join("; ", @inline_scripts) . "</script>\n";
   }
 
   print <<EOL
