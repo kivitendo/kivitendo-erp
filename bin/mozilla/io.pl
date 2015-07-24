@@ -1198,6 +1198,7 @@ sub print_options {
 
   my %dont_display_groupitems = (
     'dunning' => 1,
+    'letter'  => 1,
     );
 
   my %template_vars = (
