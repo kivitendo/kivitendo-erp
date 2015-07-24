@@ -1,0 +1,1369 @@
+# This is the main menu config file for user space menu entries.
+#
+# Each menu entry can have the following properties:
+#
+# parnet:  the id of a higher node in the tree, top-level node if missing
+# id:      a unique identifier used by parent links and for overloading
+# name:    translatable text for display
+# icon:    stripped name of an icon for this menu entry
+# order:   numeric value. lower will be displayed first
+# access:  boolean expression of the rights needed to display and access this entry
+#          ( ) & | are supported.  if binary operator is missing the last
+#          operator in same scope is repeated, or "|" if none used in scope
+#          yet. client config entrys can be used as rights by prefixing them
+#          with "client/". If missing, access will be granted.
+#
+#          Example:
+#            client/feature_default_enabled | ( feature & system )
+#
+# href:   fully qualified external link
+# module: defaults to "controller.pl". Should ne be present if the link is for
+#         Controller::Base dispatching to enable routing.  otherwise with
+#         script will be used.
+# target: target window for link. ex: "_blank"
+# params: additional url parameter
+---
+- id: master_data
+  name: Master Data
+  icon: master_data
+  order: 100
+- parent: master_data
+  id: master_data_add_customer
+  name: Add Customer
+  icon: customer_add
+  order: 100
+  access: customer_vendor_edit
+  params:
+    action: CustomerVendor/add
+    db: customer
+- parent: master_data
+  id: master_data_add_vendor
+  name: Add Vendor
+  icon: vendor_add
+  order: 200
+  access: customer_vendor_edit
+  params:
+    action: CustomerVendor/add
+    db: vendor
+- parent: master_data
+  id: master_data_add_part
+  name: Add Part
+  icon: part_add
+  order: 300
+  access: part_service_assembly_edit
+  module: ic.pl
+  params:
+    action: add
+    item: part
+- parent: master_data
+  id: master_data_add_service
+  name: Add Service
+  icon: service_add
+  order: 400
+  access: part_service_assembly_edit
+  module: ic.pl
+  params:
+    action: add
+    item: service
+- parent: master_data
+  id: master_data_add_assembly
+  name: Add Assembly
+  icon: assembly_add
+  order: 500
+  access: part_service_assembly_edit
+  module: ic.pl
+  params:
+    action: add
+    item: assembly
+- parent: master_data
+  id: master_data_add_project
+  name: Add Project
+  icon: project_add
+  order: 600
+  access: project_edit
+  params:
+    action: Project/new
+- parent: master_data
+  id: master_data_add_requirement_spec_template
+  name: Add Requirement Spec Template
+  order: 700
+  access: requirement_spec_edit
+  params:
+    action: RequirementSpec/new
+    is_template: 1
+- parent: master_data
+  id: master_data_update_prices
+  name: Update Prices
+  icon: prices_update
+  order: 800
+  access: part_service_assembly_edit
+  module: ic.pl
+  params:
+    action: search_update_prices
+- parent: master_data
+  id: master_data_price_rules
+  name: Price Rules
+  order: 900
+  access: part_service_assembly_edit
+  params:
+    action: PriceRule/list
+    filter.obsolete: 0
+- parent: master_data
+  id: master_data_reports
+  name: Reports
+  icon: master_data_report
+  order: 1000
+- parent: master_data_reports
+  id: master_data_reports_customers
+  name: Customers
+  icon: customer_report
+  order: 100
+  access: customer_vendor_edit
+  params:
+    action: CustomerVendor/search
+    db: customer
+- parent: master_data_reports
+  id: master_data_reports_vendors
+  name: Vendors
+  icon: vendor_report
+  order: 200
+  access: customer_vendor_edit
+  params:
+    action: CustomerVendor/search
+    db: vendor
+- parent: master_data_reports
+  id: master_data_reports_contacts
+  name: Contacts
+  order: 300
+  access: customer_vendor_edit
+  params:
+    action: CustomerVendor/search_contact
+    db: customer
+- parent: master_data_reports
+  id: master_data_reports_parts
+  name: Parts
+  icon: part_report
+  order: 400
+  access: part_service_assembly_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: part
+- parent: master_data_reports
+  id: master_data_reports_services
+  name: Services
+  icon: service_report
+  order: 500
+  access: part_service_assembly_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: service
+- parent: master_data_reports
+  id: master_data_reports_assemblies
+  name: Assemblies
+  icon: assembly_report
+  order: 600
+  access: part_service_assembly_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: assembly
+- parent: master_data_reports
+  id: master_data_reports_projects
+  name: Projects
+  icon: project_report
+  order: 700
+  access: project_edit
+  params:
+    action: Project/list
+    filter.active: active
+    filter.valid: valid
+- parent: master_data_reports
+  id: master_data_reports_requirement_spec_templates
+  name: Requirement Spec Templates
+  order: 800
+  access: requirement_spec_edit
+  params:
+    action: RequirementSpec/list
+    is_template: 1
+- id: ar
+  name: AR
+  icon: ar
+  order: 200
+- parent: ar
+  id: ar_add_requirement_spec
+  name: Add Requirement Spec
+  order: 100
+  access: requirement_spec_edit
+  params:
+    action: RequirementSpec/new
+- parent: ar
+  id: ar_add_quotation
+  name: Add Quotation
+  icon: quotation_add
+  order: 200
+  access: sales_quotation_edit
+  module: oe.pl
+  params:
+    action: add
+    type: sales_quotation
+- parent: ar
+  id: ar_add_sales_order
+  name: Add Sales Order
+  icon: sales_order_add
+  order: 300
+  access: sales_order_edit
+  module: oe.pl
+  params:
+    action: add
+    type: sales_order
+- parent: ar
+  id: ar_add_delivery_order
+  name: Add Delivery Order
+  icon: delivery_order_add
+  order: 400
+  access: sales_delivery_order_edit
+  module: do.pl
+  params:
+    action: add
+    type: sales_delivery_order
+- parent: ar
+  id: ar_add_sales_invoice
+  name: Add Sales Invoice
+  icon: sales_invoice_add
+  order: 500
+  access: invoice_edit
+  module: is.pl
+  params:
+    action: add
+    type: invoice
+- parent: ar
+  id: ar_add_credit_note
+  name: Add Credit Note
+  icon: credit_note_add
+  order: 600
+  access: invoice_edit
+  module: is.pl
+  params:
+    action: add
+    type: credit_note
+- parent: ar
+  id: ar_add_dunning
+  name: Add Dunning
+  icon: dunning_add
+  order: 700
+  access: dunning_edit
+  module: dn.pl
+  params:
+    action: add
+- parent: ar
+  id: ar_add_letter
+  name: Add Letter
+  order: 800
+  access: sales_letter_edit
+  module: letter.pl
+  params:
+    action: add
+- parent: ar
+  id: ar_reports
+  name: Reports
+  icon: ar_report
+  order: 900
+- parent: ar_reports
+  id: ar_reports_requirement_specs
+  name: Requirement Specs
+  order: 100
+  access: requirement_spec_edit
+  params:
+    action: RequirementSpec/list
+- parent: ar_reports
+  id: ar_reports_quotations
+  name: Quotations
+  icon: report_quotations
+  order: 200
+  access: sales_quotation_edit
+  module: oe.pl
+  params:
+    action: search
+    type: sales_quotation
+- parent: ar_reports
+  id: ar_reports_sales_orders
+  name: Sales Orders
+  icon: report_sales_orders
+  order: 300
+  access: sales_order_edit
+  module: oe.pl
+  params:
+    action: search
+    type: sales_order
+- parent: ar_reports
+  id: ar_reports_delivery_orders
+  name: Delivery Orders
+  icon: delivery_order_report
+  order: 400
+  access: sales_delivery_order_edit
+  module: do.pl
+  params:
+    action: search
+    type: sales_delivery_order
+- parent: ar_reports
+  id: ar_reports_invoices_credit_notes_ar_transactions
+  name: Invoices, Credit Notes & AR Transactions
+  icon: invoices_report
+  order: 500
+  access: invoice_edit
+  module: ar.pl
+  params:
+    action: search
+    nextsub: ar_transactions
+- parent: ar_reports
+  id: ar_reports_sales_report
+  name: Sales Report
+  order: 600
+  access: invoice_edit
+  module: vk.pl
+  params:
+    action: search_invoice
+    nextsub: invoice_transactions
+- parent: ar_reports
+  id: ar_reports_dunnings
+  name: Dunnings
+  icon: dunnings_report
+  order: 700
+  access: dunning_edit
+  module: dn.pl
+  params:
+    action: search
+- parent: ar_reports
+  id: ar_reports_delivery_plan
+  name: Delivery Plan
+  order: 800
+  access: delivery_plan
+  params:
+    action: DeliveryPlan/list
+    vc: customer
+    mode: delivery_plan
+- parent: ar_reports
+  id: ar_reports_delivery_value_report
+  name: Delivery Value Report
+  order: 900
+  access: delivery_value_report
+  params:
+    action: DeliveryPlan/list
+    mode: delivery_value_report
+    vc: customer
+- parent: ar_reports
+  id: ar_reports_financial_controlling
+  name: Financial Controlling
+  order: 1000
+  access: sales_order_edit
+  params:
+    action: FinancialControllingReport/list
+- parent: ar_reports
+  id: ar_reports_letters
+  name: Letters
+  order: 1100
+  access: sales_letter_report
+  module: letter.pl
+  params:
+    action: search
+- id: ap
+  name: AP
+  icon: ap
+  order: 300
+- parent: ap
+  id: ap_add_rfq
+  name: Add RFQ
+  icon: rfq_add
+  order: 100
+  access: request_quotation_edit
+  module: oe.pl
+  params:
+    action: add
+    type: request_quotation
+- parent: ap
+  id: ap_add_purchase_order
+  name: Add Purchase Order
+  icon: purchase_order_add
+  order: 200
+  access: purchase_order_edit
+  module: oe.pl
+  params:
+    action: add
+    type: purchase_order
+- parent: ap
+  id: ap_add_delivery_note
+  name: Add Delivery Note
+  order: 300
+  access: client/allow_new_purchase_delivery_order & purchase_delivery_order_edit
+  module: do.pl
+  params:
+    action: add
+    type: purchase_delivery_order
+- parent: ap
+  id: ap_add_vendor_invoice
+  name: Add Vendor Invoice
+  order: 400
+  access: client/allow_new_purchase_invoice & vendor_invoice_edit
+  module: ir.pl
+  params:
+    action: add
+    type: invoice
+- parent: ap
+  id: ap_reports
+  name: Reports
+  icon: ap_report
+  order: 500
+- parent: ap_reports
+  id: ap_reports_rfqs
+  name: RFQs
+  icon: rfq_report
+  order: 100
+  access: request_quotation_edit
+  module: oe.pl
+  params:
+    action: search
+    type: request_quotation
+- parent: ap_reports
+  id: ap_reports_purchase_orders
+  name: Purchase Orders
+  icon: purchase_order_report
+  order: 200
+  access: purchase_order_edit
+  module: oe.pl
+  params:
+    action: search
+    type: purchase_order
+- parent: ap_reports
+  id: ap_reports_delivery_orders
+  name: Delivery Orders
+  order: 300
+  access: purchase_delivery_order_edit
+  module: do.pl
+  params:
+    action: search
+    type: purchase_delivery_order
+- parent: ap_reports
+  id: ap_reports_vendor_invoices_ap_transactions
+  name: Vendor Invoices & AP Transactions
+  order: 400
+  access: vendor_invoice_edit
+  module: ap.pl
+  params:
+    action: search
+    nextsub: ap_transactions
+- parent: ap_reports
+  id: ap_reports_delivery_plan
+  name: Delivery Plan
+  order: 500
+  access: delivery_plan
+  params:
+    action: DeliveryPlan/list
+    mode: delivery_plan
+    vc: vendor
+- parent: ap_reports
+  id: ap_reports_delivery_value_report
+  name: Delivery Value Report
+  order: 600
+  access: delivery_value_report
+  params:
+    action: DeliveryPlan/list
+    vc: vendor
+    mode: delivery_value_report
+- id: warehouse
+  name: Warehouse
+  icon: warehouse
+  order: 400
+- parent: warehouse
+  id: warehouse_stock
+  name: Stock
+  order: 100
+  access: warehouse_management
+  params:
+    action: Inventory/stock_in
+- parent: warehouse
+  id: warehouse_produce_assembly
+  name: Produce Assembly
+  icon: assembly_produce
+  order: 200
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: assembly
+- parent: warehouse
+  id: warehouse_transfer
+  name: Transfer
+  order: 300
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: transfer
+- parent: warehouse
+  id: warehouse_removal
+  name: Removal
+  order: 400
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: transfer_warehouse_selection
+    trans_type: removal
+- parent: warehouse
+  id: warehouse_reports
+  name: Reports
+  order: 500
+- parent: warehouse_reports
+  id: warehouse_reports_warehouse_content
+  name: Warehouse content
+  order: 100
+  access: warehouse_contents | warehouse_management
+  module: wh.pl
+  params:
+    action: report
+- parent: warehouse_reports
+  id: warehouse_reports_whjournal
+  name: WHJournal
+  order: 200
+  access: warehouse_management
+  module: wh.pl
+  params:
+    action: journal
+- id: general_ledger
+  name: General Ledger
+  icon: gl
+  order: 500
+- parent: general_ledger
+  id: general_ledger_add_transaction
+  name: Add Transaction
+  icon: transaction_add
+  order: 100
+  access: general_ledger
+  module: gl.pl
+  params:
+    action: add
+- parent: general_ledger
+  id: general_ledger_add_ar_transaction
+  name: Add AR Transaction
+  icon: ar_transaction_add
+  order: 200
+  access: general_ledger
+  module: ar.pl
+  params:
+    action: add
+- parent: general_ledger
+  id: general_ledger_add_ap_transaction
+  name: Add AP Transaction
+  icon: ap_transaction_add
+  order: 300
+  access: general_ledger
+  module: ap.pl
+  params:
+    action: add
+- parent: general_ledger
+  id: general_ledger_datev_export_assistent
+  name: DATEV - Export Assistent
+  icon: datev
+  order: 400
+  access: datev_export
+  module: datev.pl
+  params:
+    action: export
+- parent: general_ledger
+  id: general_ledger_reports
+  name: Reports
+  icon: gl_report
+  order: 500
+- parent: general_ledger_reports
+  id: general_ledger_reports_ar_aging
+  name: AR Aging
+  icon: ar_aging
+  order: 100
+  access: general_ledger
+  module: rp.pl
+  params:
+    action: report
+    report: ar_aging
+- parent: general_ledger_reports
+  id: general_ledger_reports_ap_aging
+  name: AP Aging
+  icon: ap_aging
+  order: 200
+  access: general_ledger
+  module: rp.pl
+  params:
+    action: report
+    report: ap_aging
+- parent: general_ledger_reports
+  id: general_ledger_reports_journal
+  name: Journal
+  icon: journal
+  order: 300
+  access: general_ledger
+  module: gl.pl
+  params:
+    action: search
+- id: cash
+  name: Cash
+  icon: cash
+  order: 600
+- parent: cash
+  id: cash_receipt
+  name: Receipt
+  icon: receipt
+  order: 100
+  access: cash
+  module: cp.pl
+  params:
+    action: payment
+    vc: customer
+    type: receipt
+- parent: cash
+  id: cash_payment
+  name: Payment
+  icon: payment
+  order: 200
+  access: cash
+  module: cp.pl
+  params:
+    action: payment
+    vc: vendor
+    type: check
+- parent: cash
+  id: cash_bank_collection_via_sepa
+  name: Bank collection via SEPA
+  order: 300
+  access: cash
+  module: sepa.pl
+  params:
+    action: bank_transfer_add
+    vc: customer
+- parent: cash
+  id: cash_bank_transfer_via_sepa
+  name: Bank transfer via SEPA
+  order: 400
+  access: cash
+  module: sepa.pl
+  params:
+    action: bank_transfer_add
+    vc: vendor
+- parent: cash
+  id: cash_bank_import
+  name: Bank Import
+  order: 500
+- parent: cash_bank_import
+  id: cash_bank_import_csv
+  name: CSV
+  order: 100
+  access: bank_transaction
+  params:
+    action: CsvImport/new
+    profile.type: bank_transactions
+- parent: cash_bank_import
+  id: cash_bank_import_mt940
+  name: MT940
+  order: 200
+  access: bank_transaction
+  params:
+    action: BankImport/upload_mt940
+- parent: cash
+  id: cash_bank_transactions_mt940
+  name: Bank transactions MT940
+  order: 600
+  access: bank_transaction
+  params:
+    action: BankTransaction/search
+- parent: cash
+  id: cash_reconciliation_with_bank
+  name: Reconciliation with bank
+  order: 700
+  access: bank_transaction
+  params:
+    action: Reconciliation/search
+    next_sub: Reconciliation/reconciliation
+- parent: cash
+  id: cash_reconciliation
+  name: Reconciliation
+  icon: reconcilliation
+  order: 800
+  access: cash
+  module: rc.pl
+  params:
+    action: reconciliation
+- parent: cash
+  id: cash_reports
+  name: Reports
+  icon: cash_report
+  order: 900
+- parent: cash_reports
+  id: cash_reports_receipts
+  name: Receipts
+  icon: receipt_report
+  order: 100
+  access: cash
+  module: rp.pl
+  params:
+    action: report
+    report: receipts
+- parent: cash_reports
+  id: cash_reports_payments
+  name: Payments
+  icon: payment_report
+  order: 200
+  access: cash
+  module: rp.pl
+  params:
+    action: report
+    report: payments
+- parent: cash_reports
+  id: cash_reports_bank_collections_via_sepa
+  name: Bank collections via SEPA
+  order: 300
+  access: cash
+  module: sepa.pl
+  params:
+    action: bank_transfer_search
+    vc: customer
+- parent: cash_reports
+  id: cash_reports_bank_transfers_via_sepa
+  name: Bank transfers via SEPA
+  order: 400
+  access: cash
+  module: sepa.pl
+  params:
+    action: bank_transfer_search
+    vc: vendor
+- parent: cash_reports
+  id: cash_reports_bank_transactions
+  name: Bank transactions
+  order: 500
+  access: bank_transaction
+  params:
+    action: BankTransaction/list_all
+- id: reports
+  name: Reports
+  icon: report
+  order: 700
+- parent: reports
+  id: reports_chart_of_accounts
+  name: Chart of Accounts
+  icon: chart_of_accounts
+  order: 100
+  access: report
+  module: ca.pl
+  params:
+    action: chart_of_accounts
+- parent: reports
+  id: reports_trial_balance
+  name: Trial Balance
+  order: 200
+  access: report
+  module: rp.pl
+  params:
+    action: report
+    report: trial_balance
+- parent: reports
+  id: reports_income_statement
+  name: Income Statement
+  icon: income_statement
+  order: 300
+  access: report
+  module: rp.pl
+  params:
+    action: report
+    report: income_statement
+- parent: reports
+  id: reports_bwa
+  name: BWA
+  order: 400
+  access: report
+  module: rp.pl
+  params:
+    action: report
+    report: bwa
+- parent: reports
+  id: reports_balance_sheet
+  name: Balance Sheet
+  icon: balance_sheet
+  order: 500
+  access: report
+  module: rp.pl
+  params:
+    action: report
+    report: balance_sheet
+- parent: reports
+  id: reports_ustva
+  name: UStVa
+  icon: ustva
+  order: 600
+  access: advance_turnover_tax_return
+  module: ustva.pl
+  params:
+    action: report
+- parent: reports
+  id: reports_projecttransactions
+  name: Projecttransactions
+  order: 700
+  access: report
+  module: rp.pl
+  params:
+    action: report
+    report: projects
+- parent: reports
+  id: reports_financial_overview
+  name: Financial Overview
+  order: 800
+  access: report
+  params:
+    action: FinancialOverview/list
+- parent: reports
+  id: reports_liquidity_projection
+  name: Liquidity projection
+  order: 900
+  access: report
+  params:
+    action: LiquidityProjection/show
+- id: batch_printing
+  name: Batch Printing
+  icon: printing
+  order: 800
+  access: batch_printing
+- parent: batch_printing
+  id: batch_printing_sales_invoices
+  name: Sales Invoices
+  icon: sales_invoice_printing
+  order: 100
+  access: invoice_edit
+  module: bp.pl
+  params:
+    action: search
+    vc: customer
+    type: invoice
+- parent: batch_printing
+  id: batch_printing_sales_orders
+  name: Sales Orders
+  icon: sales_order_printing
+  order: 200
+  access: sales_order_edit
+  module: bp.pl
+  params:
+    action: search
+    type: sales_order
+    vc: customer
+- parent: batch_printing
+  id: batch_printing_quotations
+  name: Quotations
+  icon: quotation_printing
+  order: 300
+  access: sales_quotation_edit
+  module: bp.pl
+  params:
+    action: search
+    vc: customer
+    type: sales_quotation
+- parent: batch_printing
+  id: batch_printing_packing_lists
+  name: Packing Lists
+  icon: package_lists
+  order: 400
+  access: invoice_edit | sales_order_edit
+  module: bp.pl
+  params:
+    action: search
+    type: packing_list
+    vc: customer
+- parent: batch_printing
+  id: batch_printing_purchase_orders
+  name: Purchase Orders
+  icon: purchase_order_printing
+  order: 500
+  access: purchase_order_edit
+  module: bp.pl
+  params:
+    action: search
+    type: purchase_order
+    vc: vendor
+- parent: batch_printing
+  id: batch_printing_rfqs
+  name: RFQs
+  icon: rfq_printing
+  order: 600
+  access: request_quotation_edit
+  module: bp.pl
+  params:
+    action: search
+    vc: vendor
+    type: request_quotation
+- parent: batch_printing
+  id: batch_printing_checks
+  name: Checks
+  order: 700
+  access: cash
+  module: bp.pl
+  params:
+    action: search
+    type: check
+    vc: vendor
+- parent: batch_printing
+  id: batch_printing_receipts
+  name: Receipts
+  icon: receipt_printing
+  order: 800
+  access: cash
+  module: bp.pl
+  params:
+    action: search
+    vc: customer
+    type: receipt
+- id: productivity
+  name: Productivity
+  icon: productivity
+  order: 900
+  access: productivity
+- parent: productivity
+  id: productivity_show_todo_list
+  name: Show TODO list
+  order: 100
+  module: todo.pl
+  params:
+    action: show_todo_list
+- parent: productivity
+  id: productivity_add_follow_up
+  name: Add Follow-Up
+  order: 200
+  module: fu.pl
+  params:
+    action: add
+- parent: productivity
+  id: productivity_edit_access_rights
+  name: Edit Access Rights
+  order: 300
+  module: fu.pl
+  params:
+    action: edit_access_rights
+- parent: productivity
+  id: productivity_reports
+  name: Reports
+  order: 400
+- parent: productivity_reports
+  id: productivity_reports_follow_ups
+  name: Follow-Ups
+  order: 100
+  module: fu.pl
+  params:
+    action: search
+- id: system
+  name: System
+  icon: system
+  order: 1000
+  access: config
+- parent: system
+  id: system_client_configuration
+  name: Client Configuration
+  order: 100
+  access: admin
+  params:
+    action: ClientConfig/edit
+- parent: system
+  id: system_ustva_einstellungen
+  name: UStVa Einstellungen
+  order: 200
+  module: ustva.pl
+  params:
+    action: config_step1
+- parent: system
+  id: system_edit_dunning
+  name: Edit Dunning
+  order: 300
+  module: dn.pl
+  params:
+    action: edit_config
+- parent: system
+  id: system_chart_of_accounts
+  name: Chart of Accounts
+  order: 400
+- parent: system_chart_of_accounts
+  id: system_chart_of_accounts_add_account
+  name: Add Account
+  order: 100
+  module: am.pl
+  params:
+    action: add_account
+- parent: system_chart_of_accounts
+  id: system_chart_of_accounts_list_accounts
+  name: List Accounts
+  order: 200
+  module: am.pl
+  params:
+    action: list_account
+- parent: system
+  id: system_buchungsgruppen
+  name: Buchungsgruppen
+  order: 500
+  params:
+    action: Buchungsgruppen/list
+- parent: system
+  id: system_taxzones
+  name: Taxzones
+  order: 600
+  params:
+    action: Taxzones/list
+- parent: system
+  id: system_taxes
+  name: Taxes
+  order: 700
+  module: am.pl
+  params:
+    action: list_tax
+- parent: system
+  id: system_bank_accounts
+  name: Bank accounts
+  order: 800
+  params:
+    action: BankAccount/list
+- parent: system
+  id: system_groups
+  name: Groups
+  order: 900
+  module: pe.pl
+  params:
+    action: search
+    type: partsgroup
+- parent: system
+  id: system_pricegroups
+  name: Pricegroups
+  order: 1000
+  module: pe.pl
+  params:
+    action: search
+    type: pricegroup
+- parent: system
+  id: system_edit_units
+  name: Edit units
+  order: 1100
+  module: am.pl
+  params:
+    action: edit_units
+- parent: system
+  id: system_price_factors
+  name: Price Factors
+  order: 1200
+  module: am.pl
+  params:
+    action: list_price_factors
+- parent: system
+  id: system_departments
+  name: Departments
+  order: 1300
+  params:
+    action: Department/list
+- parent: system
+  id: system_types_of_business
+  name: Types of Business
+  order: 1400
+  params:
+    action: Business/list
+- parent: system
+  id: system_leads
+  name: Leads
+  order: 1500
+  module: am.pl
+  params:
+    action: list_lead
+- parent: system
+  id: system_project_types
+  name: Project Types
+  order: 1600
+  params:
+    action: ProjectType/list
+- parent: system
+  id: system_project_status
+  name: Project Status
+  order: 1700
+  params:
+    action: ProjectStatus/list
+- parent: system
+  id: system_requirement_specs
+  name: Requirement specs
+  order: 1800
+- parent: system_requirement_specs
+  id: system_requirement_specs_pre_defined_texts
+  name: Pre-defined Texts
+  order: 100
+  params:
+    action: RequirementSpecPredefinedText/list
+- parent: system_requirement_specs
+  id: system_requirement_specs_requirement_spec_types
+  name: Requirement Spec Types
+  order: 200
+  params:
+    action: RequirementSpecType/list
+- parent: system_requirement_specs
+  id: system_requirement_specs_requirement_spec_statuses
+  name: Requirement Spec Statuses
+  order: 300
+  params:
+    action: RequirementSpecStatus/list
+- parent: system_requirement_specs
+  id: system_requirement_specs_complexities
+  name: Complexities
+  order: 400
+  params:
+    action: RequirementSpecComplexity/list
+- parent: system_requirement_specs
+  id: system_requirement_specs_risks
+  name: Risks
+  order: 500
+  params:
+    action: RequirementSpecRisk/list
+- parent: system_requirement_specs
+  id: system_requirement_specs_acceptance_statuses
+  name: Acceptance Statuses
+  order: 600
+  params:
+    action: RequirementSpecAcceptanceStatus/list
+- parent: system
+  id: system_languages_and_translations
+  name: Languages and translations
+  order: 1900
+- parent: system_languages_and_translations
+  id: system_languages_and_translations_add_language
+  name: Add Language
+  order: 100
+  module: am.pl
+  params:
+    action: add_language
+- parent: system_languages_and_translations
+  id: system_languages_and_translations_list_languages
+  name: List Languages
+  order: 200
+  module: am.pl
+  params:
+    action: list_language
+- parent: system_languages_and_translations
+  id: system_languages_and_translations_greetings
+  name: Greetings
+  order: 300
+  module: generictranslations.pl
+  params:
+    action: edit_greetings
+- parent: system_languages_and_translations
+  id: system_languages_and_translations_sepa_strings
+  name: SEPA strings
+  order: 400
+  module: generictranslations.pl
+  params:
+    action: edit_sepa_strings
+- parent: system
+  id: system_payment_terms
+  name: Payment Terms
+  order: 2000
+  params:
+    action: PaymentTerm/list
+- parent: system
+  id: system_delivery_terms
+  name: Delivery Terms
+  order: 2100
+  params:
+    action: DeliveryTerm/list
+- parent: system
+  id: system_manage_custom_variables
+  name: Manage Custom Variables
+  order: 2200
+  params:
+    action: CustomVariableConfig/list
+- parent: system
+  id: system_warehouses
+  name: Warehouses
+  order: 2300
+  module: am.pl
+  params:
+    action: list_warehouses
+- parent: system
+  id: system_import_csv
+  name: Import CSV
+  order: 2400
+- parent: system_import_csv
+  id: system_import_csv_customers_and_vendors
+  name: Customers and vendors
+  order: 100
+  params:
+    action: CsvImport/new
+    profile.type: customers_vendors
+- parent: system_import_csv
+  id: system_import_csv_contacts
+  name: Contacts
+  order: 200
+  params:
+    action: CsvImport/new
+    profile.type: contacts
+- parent: system_import_csv
+  id: system_import_csv_shipto
+  name: Shipto
+  order: 300
+  params:
+    action: CsvImport/new
+    profile.type: addresses
+- parent: system_import_csv
+  id: system_import_csv_parts
+  name: Parts
+  order: 400
+  params:
+    action: CsvImport/new
+    profile.type: parts
+- parent: system_import_csv
+  id: system_import_csv_inventories
+  name: Inventories
+  order: 500
+  params:
+    action: CsvImport/new
+    profile.type: inventories
+- parent: system_import_csv
+  id: system_import_csv_projects
+  name: Projects
+  order: 600
+  params:
+    action: CsvImport/new
+    profile.type: projects
+- parent: system_import_csv
+  id: system_import_csv_orders
+  name: Orders
+  order: 700
+  params:
+    action: CsvImport/new
+    profile.type: orders
+- parent: system
+  id: system_templates
+  name: Templates
+  order: 2500
+  access: admin
+- parent: system_templates
+  id: system_templates_html_templates
+  name: HTML Templates
+  order: 100
+  module: amtemplates.pl
+  params:
+    action: display_template_form
+    type: templates
+    format: html
+- parent: system_templates
+  id: system_templates_latex_templates
+  name: LaTeX Templates
+  order: 200
+  module: amtemplates.pl
+  params:
+    action: display_template_form
+    format: tex
+    type: templates
+- parent: system_templates
+  id: system_templates_stylesheet
+  name: Stylesheet
+  order: 300
+  module: amtemplates.pl
+  params:
+    action: display_template_form
+    type: stylesheet
+- parent: system
+  id: system_general_ledger_corrections
+  name: General Ledger Corrections
+  order: 2600
+  module: acctranscorrections.pl
+  params:
+    action: analyze_filter
+- parent: system
+  id: system_background_jobs_and_task_server
+  name: Background jobs and task server
+  order: 2700
+  access: admin
+- parent: system_background_jobs_and_task_server
+  id: system_background_jobs_and_task_server_list_current_background_jobs
+  name: List current background jobs
+  order: 100
+  params:
+    action: BackgroundJob/list
+- parent: system_background_jobs_and_task_server
+  id: system_background_jobs_and_task_server_background_job_history
+  name: Background job history
+  order: 200
+  params:
+    action: BackgroundJobHistory/list
+- parent: system_background_jobs_and_task_server
+  id: system_background_jobs_and_task_server_task_server_control
+  name: Task server control
+  order: 300
+  params:
+    action: TaskServer/show
+- parent: system
+  id: system_audit_control
+  name: Audit Control
+  order: 2800
+  module: am.pl
+  params:
+    action: audit_control
+- parent: system
+  id: system_history_search_engine
+  name: History Search Engine
+  order: 2900
+  module: am.pl
+  params:
+    action: show_history_search
+- parent: system
+  id: system_employees
+  name: Employees
+  order: 3000
+  access: admin
+  params:
+    action: Employee/list
+- id: program
+  name: Program
+  icon: program
+  order: 1100
+- parent: program
+  id: program_user_preferences
+  name: User Preferences
+  order: 100
+  module: am.pl
+  params:
+    action: config
+- parent: program
+  id: program_internal_phone_list
+  name: Internal Phone List
+  order: 200
+  params:
+    action: CTI/list_internal_extensions
+- parent: program
+  id: program_version
+  name: Version
+  icon: version
+  order: 300
+  module: login.pl
+  params:
+    action: company_logo
+    no_todo_list: 1
+- parent: program
+  id: program_administration_area
+  name: Administration area
+  order: 400
+  access: display_admin_link
+  params:
+    action: Admin/login
+- parent: program
+  id: program_documentation_in_german_
+  name: Documentation (in German)
+  order: 500
+  href: doc/kivitendo-Dokumentation.pdf
+  target: _blank
+- parent: program
+  id: program_kivitendo_website_external_
+  name: kivitendo website (external)
+  order: 600
+  href: http://www.kivitendo.de/
+  target: _blank
+- parent: program
+  id: program_logout
+  name: Logout
+  icon: logout
+  order: 700
+  params:
+    action: LoginScreen/logout

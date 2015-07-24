@@ -80,11 +80,27 @@ sub _init {
   $self->{countrycode} = $country;
 
   if ($country && -d "locale/$country") {
-    local *IN;
-    if (open(IN, "<", "locale/$country/all")) {
-      my $code = join("", <IN>);
+    if (open my $in, "<", "locale/$country/all") {
+      local $/ = undef;
+      my $code = <$in>;
       eval($code);
-      close(IN);
+      close($in);
+    }
+
+    if (-d "locale/$country/more") {
+      opendir my $dh, "locale/$country/more" or die "can't open locale/$country/more: $!";
+      my @files = sort grep -f "locale/$country/more/$_", readdir $dh;
+      close $dh;
+
+      for my $file (@files) {
+        if (open my $in, "<", "locale/$country/more/$file") {
+          local $/ = undef;
+          my $code = <$file>;
+          eval($code);
+          close($in);
+          $self->{texts}{$_} = $self->{more_texts}{$_} for keys %{ $self->{more_texts} };
+        }
+      }
     }
   }
 

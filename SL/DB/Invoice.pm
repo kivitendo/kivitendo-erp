@@ -77,6 +77,7 @@ sub _before_save_set_invnumber {
 
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
+sub record_number { goto &invnumber; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -335,6 +336,10 @@ sub displayable_type {
   return t8('Credit Note') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'credit_note_storno';
   return t8('Invoice');
 }
+
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 sub abbreviation {
   my ($self) = @_;

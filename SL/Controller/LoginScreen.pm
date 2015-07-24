@@ -67,7 +67,8 @@ sub action_login {
   # Auth DB needs update? If so log the user out forcefully.
   if (User::LOGIN_AUTH_DBUPDATE_AVAILABLE() == $result) {
     $::auth->destroy_session;
-    return $self->render('login_screen/auth_db_needs_update');
+    # must be without layout because menu rights might not exist yet
+    return $self->render('login_screen/auth_db_needs_update', { layout => 0 });
   }
 
   # Basic client tables available? If not tell the user to create them

@@ -48,11 +48,11 @@ sub rights_map {
 
   if (@_) {
     my %new_rights = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
-    $self->rights([ map { SL::DB::AuthGroupRight->new(right => $_, granted => $new_rights{$_} ? 1 : 0) } SL::Auth::all_rights() ]);
+    $self->rights([ map { SL::DB::AuthGroupRight->new(right => $_, granted => $new_rights{$_} ? 1 : 0) } $::auth->all_rights ]);
   }
 
   return {
-    map({ ($_        => 0)           } SL::Auth::all_rights()),
+    map({ ($_        => 0)           } $::auth->all_rights),
     map({ ($_->right => $_->granted) } @{ $self->rights || [] })
   };
 }

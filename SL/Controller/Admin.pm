@@ -81,18 +81,18 @@ sub action_create_auth_tables {
   $::auth->set_session_value('admin_password', $::lx_office_conf{authentication}->{admin_password});
   $::auth->create_or_refresh_session;
 
+  return if $self->apply_dbupgrade_scripts;
+
   my $group = (SL::DB::Manager::AuthGroup->get_all(limit => 1))[0];
   if (!$group) {
     SL::DB::AuthGroup->new(
       name        => t8('Full Access'),
       description => t8('Full access to all functions'),
-      rights      => [ map { SL::DB::AuthGroupRight->new(right => $_, granted => 1) } SL::Auth::all_rights() ],
+      rights      => [ map { SL::DB::AuthGroupRight->new(right => $_, granted => 1) } $::auth->all_rights ],
     )->save;
   }
 
-  if (!$self->apply_dbupgrade_scripts) {
-    $self->action_login;
-  }
+  $self->action_login;
 }
 
 #
@@ -528,13 +528,13 @@ sub init_all_rights {
   my (@sections, $current_section);
 
   foreach my $entry ($::auth->all_rights_full) {
-    if ($entry->[0] =~ m/^--/) {
-      push @sections, { description => $entry->[1], rights => [] };
+    if ($entry->[2]) {
+      push @sections, { description => t8($entry->[1]), rights => [] };
 
     } elsif (@sections) {
       push @{ $sections[-1]->{rights} }, {
         name        => $entry->[0],
-        description => $entry->[1],
+        description => t8($entry->[1]),
       };
 
     } else {

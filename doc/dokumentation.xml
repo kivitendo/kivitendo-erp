@@ -3882,6 +3882,14 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>cusordnumber_oe</varname></term>
+
+              <listitem>
+                <para>Bestellnummer des Kunden aus dem Auftrag, aus dem der Posten ursprünglich stammt (nur Verkauf)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>discount</varname></term>
 
               <listitem>
@@ -3894,6 +3902,14 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
               <listitem>
                 <para>Zwischensumme mit Rabatt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>donumber_do</varname></term>
+
+              <listitem>
+                <para>Lieferscheinnummer des Lieferscheins, aus dem die Position ursprünglich stammt, wenn die Rechnung im Rahmen des Workflows aus einem  Lieferschein erstellt wurde.</para>
               </listitem>
             </varlistentry>
 
@@ -3981,17 +3997,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <term><varname>ordnumber_oe</varname></term>
 
               <listitem>
-                <para>Auftragsnummer des Originalauftrags, wenn die Rechnung
-                aus einem Sammelauftrag erstellt wurde</para>
-              </listitem>
-            </varlistentry>
-
-            <varlistentry>
-              <term><varname>donumber_do</varname></term>
-
-              <listitem>
-                <para>Lieferscheinnummer desjenigen Lieferscheins, aus dem die Position stammt, sofern die Rechnung aus einem oder
-                mehreren Lieferscheinen erstellt wurde</para>
+                <para>Auftragsnummer des Originalauftrags, aus dem der Posten ursprünglich stammt. Nützlich, wenn die Rechnung aus mehreren Lieferscheinen zusammengefasst wurde, oder wenn zwischendurch eine Sammelauftrag aus mehreren Aufträgen erstellt wurde. In letzterem Fall wird die unsprüngliche Auftragsnummer angezeigt.</para>
               </listitem>
             </varlistentry>
 
@@ -4102,11 +4108,26 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>transdate_do</varname></term>
+
+              <listitem>
+                <para>Datum des Lieferscheins, wenn die Rechnung im Rahmen des Workflows aus einem Lieferschein stammte.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>transdate_oe</varname></term>
 
               <listitem>
-                <para>Auftragsdatum des Originalauftrags, wenn die Rechnung
-                aus einem Sammelauftrag erstellt wurde</para>
+                <para>Datum des Auftrags, wenn die Rechnung im Rahmen des Workflows aus einem Auftrag erstellt wurde. Wenn es Sammelaufträge gab wird das Datum des ursprünglichen Auftrags genommen.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>transdate_quo</varname></term>
+
+              <listitem>
+                <para>Datum des Angebots, wenn die Position im Rahmen des Workflows aus einem Angebot stammte.</para>
               </listitem>
             </varlistentry>
 

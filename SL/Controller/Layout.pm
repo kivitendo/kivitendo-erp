@@ -8,7 +8,7 @@ use SL::JSON ();
 sub action_empty {
   my ($self) = @_;
 
-  if ($::form->{format} eq 'json') {
+  if ($::form->{format} eq 'json' || $::request->type eq 'json') {
     my $layout = {
       pre_content        => $::request->{layout}->pre_content,
       start_content      => $::request->{layout}->start_content,
@@ -21,6 +21,8 @@ sub action_empty {
     };
 
     $self->render(\ SL::JSON::to_json($layout), { type => 'json', process => 0 });
+  } else {
+    $self->render(\'', {  process => 0 });
   }
 }
 

@@ -67,6 +67,7 @@ sub _before_save_set_ord_quo_number {
 
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
+sub record_number { goto &number; }
 
 sub type {
   my $self = shift;
@@ -94,6 +95,9 @@ sub displayable_type {
   die 'invalid type';
 }
 
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;

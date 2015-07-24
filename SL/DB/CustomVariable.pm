@@ -63,7 +63,10 @@ sub value {
 
   goto &bool_value      if $type eq 'bool';
   goto &timestamp_value if $type eq 'timestamp';
-  goto &number_value    if $type eq 'number';
+
+  if ($type eq 'number') {
+    return defined($self->number_value) ? $self->number_value * 1 : undef;
+  }
 
   if ( $type eq 'customer' ) {
     require SL::DB::Customer;

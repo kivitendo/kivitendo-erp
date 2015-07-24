@@ -11,7 +11,7 @@ use SL::Layout::CssMenu;
 sub init_sub_layouts {
   [
     SL::Layout::None->new,
-    SL::Layout::CssMenu->new(menu => Menu->new('menus/admin.ini')),
+    SL::Layout::CssMenu->new(menu => SL::Menu->new('admin')),
   ]
 }
 

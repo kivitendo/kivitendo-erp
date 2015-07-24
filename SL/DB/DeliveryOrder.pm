@@ -51,6 +51,7 @@ sub _before_save_set_donumber {
 sub items { goto &orderitems; }
 sub add_items { goto &add_orderitems; }
 sub payment_terms { goto &payment; }
+sub record_number { goto &donumber; }
 
 sub sales_order {
   my $self   = shift;
@@ -71,6 +72,19 @@ sub sales_order {
 sub type {
   return shift->customer_id ? 'sales_delivery_order' : 'purchase_delivery_order';
 }
+
+sub displayable_type {
+  my $type = shift->type;
+
+  return $::locale->text('Sales Delivery Order')    if $type eq 'sales_delivery_order';
+  return $::locale->text('Purchase Delivery Order') if $type eq 'purchase_delivery_order';
+
+  die 'invalid type';
+}
+
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 sub displayable_state {
   my ($self) = @_;

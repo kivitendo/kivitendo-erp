@@ -1,33 +1,31 @@
 [%- USE T8 %]
-[% USE HTML %][%- USE LxERP -%]
+[%- USE L %]
+[%- USE HTML %]
+[%- USE LxERP -%]
  <div id="main_menu_div"></div>
-
  [%- SET main_id = '100' %]
  <ul id="main_menu_model"  style='display:none'>
- [%- FOREACH mainitem = menu_items %]
+ [%- FOREACH node = menu.tree %]
+  [%- NEXT UNLESS node.visible %]
   [%- SET main_id = main_id + 1 %]
-  <li id="[% main_id %]"[% IF mainitem.image %] itemIcon="[% mainitem.image %]"[% END %]>
-   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]"[% IF mainitem.target && (mainitem.target != 'main_window') %] target="[% HTML.escape(mainitem.target) %]"[% END %]>
-    [%- HTML.escape(mainitem.title) %]
-   </a>
-   [%- IF mainitem.subitems %]
-    <ul[%- IF force_ul_width %] width="[% mainitem.max_width * 10 %]"[% END %]>
+  <li id="[% main_id %]"[% IF icon_path(node.icon) %] itemIcon="[% icon_path(node.icon) %]"[% END %]>
+   [% L.link(menu.href_for_node(node) || '#', menu.name_for_node(node), target=node.target) %]
+   [%- IF node.children %]
+    <ul width="[% max_width(node) %]">
      [%- SET sub1_id = main_id * 100 %]
-     [%- FOREACH sub1item = mainitem.subitems %]
+     [%- FOREACH sub1node = node.children %]
+      [%- NEXT UNLESS sub1node.visible %]
       [%- SET sub1_id = sub1_id + 1 %]
-      <li id="[% sub1_id %]"[% IF sub1item.image %] itemIcon="[% sub1item.image %]"[% END %]>
-       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]"[% IF sub1item.target && (sub1item.target != 'main_window') %] target="[% HTML.escape(sub1item.target) %]"[% END %]>
-        [%- HTML.escape(sub1item.title) %]
-       </a>
-       [%- IF sub1item.subitems %]
-        <ul[%- IF force_ul_width %] width="[% sub1item.max_width * 10 %]"[% END %]>
+      <li id="[% sub1_id %]"[% IF icon_path(sub1node.icon) %] itemIcon="[% icon_path(sub1node.icon) %]"[% END %]>
+       [% L.link(menu.href_for_node(sub1node) || '#', menu.name_for_node(sub1node), target=sub1node.target) %]
+       [%- IF sub1node.children %]
+        <ul width="[% max_width(sub1node) %]">
          [%- SET sub2_id = sub1_id * 100 %]
-         [%- FOREACH sub2item = sub1item.subitems %]
+         [%- FOREACH sub2node = sub1node.children %]
+          [%- NEXT UNLESS sub2node.visible %]
           [%- SET sub2_id = sub2_id + 1 %]
-          <li id="[% sub2_id %]"[% IF sub2item.image %] itemIcon="[% sub2item.image %]"[% END %]>
-           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]"[% IF sub2item.target && (sub2item.target != 'main_window') %] target="[% HTML.escape(sub2item.target) %]"[% END %]>
-            [%- HTML.escape(sub2item.title) %]
-           </a>
+          <li id="[% sub2_id %]"[% IF icon_path(sub2node.icon) %] itemIcon="[% icon_path(sub2node.icon) %]"[% END %]>
+            [% L.link(menu.href_for_node(sub2node) || '#', menu.name_for_node(sub2node), target=sub2node.target) %]
           </li>
          [%- END %]
         </ul>
@@ -39,30 +37,3 @@
   </li>
  [%- END %]
  </ul>
-
- <script type="text/javascript">
-  <!--
-
-$(function(){
-  DHTMLSuite.createStandardObjects();
-
-  DHTMLSuite.configObj.setImagePath('image/dhtmlsuite/');
-
-  var menu_model = new DHTMLSuite.menuModel();
-  menu_model.addItemsFromMarkup('main_menu_model');
-  menu_model.init();
-
-  var menu_bar = new DHTMLSuite.menuBar();
-  menu_bar.addMenuItems(menu_model);
-  menu_bar.setTarget('main_menu_div');
-  menu_bar.init();
-});
-
-
-
-function open_url(url, target) {
-
-}
-
-    -->
- </script>

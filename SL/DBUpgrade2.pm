@@ -26,7 +26,7 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
-  $params{path}          = "sql/Pg-upgrade2" . $params{path_suffix};
+  $params{path}        ||= "sql/Pg-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 
@@ -38,8 +38,6 @@ sub path {
 }
 
 sub parse_dbupdate_controls {
-  $::lxdebug->enter_sub();
-
   my ($self) = @_;
 
   my $form   = $self->{form};
@@ -59,6 +57,7 @@ sub parse_dbupdate_controls {
     my $control = {
       "priority" => 1000,
       "depends"  => [],
+      "locales"  => [],
     };
 
     while (<IN>) {
@@ -73,6 +72,8 @@ sub parse_dbupdate_controls {
 
       if ($fields[0] eq "depends") {
         push(@{$control->{"depends"}}, split(/\s+/, $fields[1]));
+      } elsif ($fields[0] eq "locales") {
+        push @{$control->{locales}}, $fields[1];
       } else {
         $control->{$fields[0]} = $fields[1];
       }
@@ -120,8 +121,6 @@ sub parse_dbupdate_controls {
       values(%all_controls));
 
   $self->{all_controls} = \%all_controls;
-
-  $::lxdebug->leave_sub();
 
   return $self;
 }
@@ -378,13 +377,11 @@ sub _control_error {
 }
 
 sub _dbupdate2_calculate_depth {
-  $::lxdebug->enter_sub(2);
-
   my ($tree, $tag) = @_;
 
   my $node = $tree->{$tag};
 
-  return $::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
+  return if (defined($node->{"depth"}));
 
   my $max_depth = 0;
 
@@ -395,8 +392,6 @@ sub _dbupdate2_calculate_depth {
   }
 
   $node->{"depth"} = $max_depth + 1;
-
-  $::lxdebug->leave_sub(2);
 }
 
 sub sort_dbupdate_controls {

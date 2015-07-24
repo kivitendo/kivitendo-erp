@@ -8,6 +8,7 @@ use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Manager::OrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
   cvars_alias => 1,
@@ -89,4 +90,7 @@ sub taxincluded {
 
   return SL::DB::Manager::Order->find_by(id => $self->trans_id)->taxincluded ?  $::locale->text('WARN: Tax included value!') : '';
 }
+
+sub record { goto &order }
+
 1;

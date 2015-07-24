@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::InvoiceItem;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'invoice',
   cvars_alias => 1,
@@ -34,5 +35,13 @@ __PACKAGE__->meta->add_relationships(
 );
 
 __PACKAGE__->meta->initialize;
+
+sub record {
+  my ($self) = @_;
+
+  return $self->invoice          if $self->invoice;
+  return $self->purchase_invoice if $self->purchase_invoice;
+  return;
+};
 
 1;
