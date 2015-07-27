@@ -60,7 +60,7 @@ sub new {
       s/\s*#.*$//;
       s/^\s*//;
     } else {
-      next if m/#/;
+      next if m/^\s*#/;
     }
 
     next unless $_;
