@@ -3474,9 +3474,9 @@ sub calculate_arap {
     if ( $selected_tax ) {
 
       if ( $buysell eq 'sell' ) {
-        $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno unless $selected_tax->taxkey == 0;
+        $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno if defined $selected_tax->chart;
       } else {
-        $self->{AP_amounts}{"tax_$i"} = $selected_tax->chart->accno unless $selected_tax->taxkey == 0;
+        $self->{AP_amounts}{"tax_$i"} = $selected_tax->chart->accno if defined $selected_tax->chart;
       };
 
       $self->{"taxkey_$i"} = $selected_tax->taxkey;
