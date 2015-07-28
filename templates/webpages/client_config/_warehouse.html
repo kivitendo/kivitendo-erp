@@ -98,22 +98,13 @@
    </td>
   </tr>
   <tr><td colspan="3"><hr /></td></tr>
-  <tr>
-   <td align="right">[% LxERP.t8('Show Value of Goods for Delivery Plan') %]</td>
-   <td>
-    [% L.yes_no_tag('defaults.delivery_plan_show_value_of_goods', SELF.defaults.delivery_plan_show_value_of_goods) %]
-   </td>
-   <td>
-   [% LxERP.t8('Calculate the value of goods for delivery plan (WARNING:  Experimental (not taxincluded safe!)') %]
-   </td>
-  </tr>
  <tr>
   <td align="right">[% LxERP.t8('Delivery Plan check for transferred delivery orders') %]</td>
    <td>
     [% L.yes_no_tag('defaults.delivery_plan_calculate_transferred_do', SELF.defaults.delivery_plan_calculate_transferred_do) %]
    </td>
    <td>
-   [% LxERP.t8('The default delivery plan only checks if all delivery orders have been created not if the goods are transferred. This feature will check if all the goods are transferred. Caveat: Only the state of the delivery orders are checked not partial transferred delivery orders (in technical terms: the table inventory is not checked') %]
+   [% LxERP.t8('The default delivery value report only checks if all delivery orders have been created not if the goods are transferred. This feature will check if all the goods are transferred. Caveat: Only the state of the delivery orders are checked not partial transferred delivery orders (in technical terms: the table inventory is not checked') %]
    </td>
   </tr>
  </table>

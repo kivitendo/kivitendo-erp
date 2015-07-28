@@ -87,7 +87,7 @@ sub prepare_report {
                             visible => $vc eq 'customer',
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
     value_of_goods    => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded },
-                            visible => $::auth->assert('sales_order_edit', 1) && $mode eq 'delivery_value_report' &&   $::instance_conf->get_delivery_plan_show_value_of_goods, },
+                            visible => $mode eq 'delivery_value_report' },
   );
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
