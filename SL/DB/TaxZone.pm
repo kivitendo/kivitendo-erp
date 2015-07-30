@@ -23,4 +23,18 @@ sub validate {
   return @errors;
 }
 
+sub orphaned {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+
+  my @classes = qw(Customer Vendor Invoice Order DeliveryOrder PurchaseInvoice);
+  foreach my $class ( @classes ) {
+    my $module = 'SL::DB::' . $class;
+    eval "require $module";
+    my $manager = 'SL::DB::Manager::' . $class;
+    return 0 if $manager->get_all_count( query  => [ taxzone_id => $self->id ] );
+  };
+  return 1;
+}
+
 1;

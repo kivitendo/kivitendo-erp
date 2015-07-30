@@ -12,18 +12,22 @@
 [%- FOREACH bg = BUCHUNGSGRUPPEN %]
   <tr>
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(bg.description) %]</th>
-    [%- IF SELF.config.id %]
-    <td>[% CHARTLIST.${bg.id}.income_accno %] -- [% CHARTLIST.${bg.id}.income_accno_description %]</td>
-    [%- ELSE %]
+    [%- IF NOT SELF.config.id %]
     <td>[% L.chart_picker('income_accno_id_' _ bg.id, SELF.defaults.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
+    [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
+    <td>[% L.chart_picker('income_accno_id_' _ bg.id, CHARTLIST.${bg.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
+    [%- ELSE %]
+    <td>[% CHARTLIST.${bg.id}.income_accno %] -- [% CHARTLIST.${bg.id}.income_accno_description %]</td>
     [%- END %]
   </tr>
   <tr>
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(bg.description) %]</th>
-    [%- IF SELF.config.id %]
-    <td>[% CHARTLIST.${bg.id}.expense_accno %] -- [% CHARTLIST.${bg.id}.expense_accno_description %]</td>
-    [%- ELSE %]
+    [%- IF NOT SELF.config.id %]
     <td>[% L.chart_picker('expense_accno_id_' _ bg.id, SELF.defaults.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
+    [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
+    <td>[% L.chart_picker('expense_accno_id_' _ bg.id, CHARTLIST.${bg.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
+    [%- ELSE %]
+    <td>[% CHARTLIST.${bg.id}.expense_accno %] -- [% CHARTLIST.${bg.id}.expense_accno_description %]</td>
     [%- END %]
   </tr>
 [%- END %]
@@ -34,6 +38,9 @@
  <p>
   [% L.hidden_tag("action", "Taxzones/dispatch") %]
   [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
+  [%- IF SELF.config.id AND SELF.config.orphaned %]
+    [% L.submit_tag("action_delete", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
+  [%- END %]
   <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
  </p>
 

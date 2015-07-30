@@ -4,8 +4,6 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
-#use List::Util qw(first);
-
 use SL::DB::TaxZone;
 use SL::Helper::Flash;
 use SL::Locale::String;
@@ -18,7 +16,7 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_config', only => [ qw(edit update) ]); #destroy
+__PACKAGE__->run_before('load_config', only => [ qw(edit update delete) ]);
 
 #
 # actions
@@ -29,7 +27,6 @@ sub action_list {
 
   my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
 
-  $::form->header;
   $self->render('taxzones/list',
                 title    => t8('List of tax zones'),
                 TAXZONES => $taxzones);
@@ -69,6 +66,24 @@ sub action_update {
   $self->create_or_update;
 }
 
+sub action_delete {
+  my ($self) = @_;
+
+  # allow deletion of unused tax zones. Will fail, due to database
+  # constraints, if tax zone is used anywhere
+
+  my $db = $self->{config}->db;
+  $db->do_transaction(sub {
+        my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ taxzone_id => $self->config->id ]);
+        foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
+        $self->config->delete();
+        flash_later('info',  $::locale->text('The tax zone has been deleted.'));
+  }) || flash_later('error', $::locale->text('The tax zone is in use and cannot be deleted.'));
+
+  $self->redirect_to(action => 'list');
+
+}
+
 sub action_reorder {
   my ($self) = @_;
 
@@ -100,35 +115,54 @@ sub create_or_update {
   my $is_new = !$self->config->id;
 
   my $params = delete($::form->{config}) || { };
+
   delete $params->{id};
 
-  $self->config->assign_attributes(%{ $params });
+  my @errors;
 
-  my @errors = $self->config->validate;
+  my $db = $self->config->db;
+  $db->do_transaction( sub {
 
-  if (@errors) {
-    flash('error', @errors);
-    $self->show_form(title => $is_new ? t8('Add taxzone') : t8('Edit taxzone'));
-    return;
-  }
+    # always allow editing of description and obsolete
+    $self->config->assign_attributes( %{$params} ) ;
 
-  $self->config->save;
-  $self->config->obsolete($::form->{"obsolete"});
+    push(@errors, $self->config->validate); # check for description
 
-  #Save taxzone_charts for new taxzones:
-  if ($is_new) {
-    my $buchungsgruppen = SL::DB::Manager::Buchungsgruppe->get_all_sorted();
+    if (@errors) {
+      die @errors . "\n";
+    };
 
-    foreach my $bg (@{ $buchungsgruppen }) {
-      my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by_or_create(buchungsgruppen_id => $bg->id, taxzone_id => $self->config->id);
+    $self->config->save;
 
-      $taxzone_chart->taxzone_id($self->config->id);
-      $taxzone_chart->buchungsgruppen_id($bg->id);
-      $taxzone_chart->income_accno_id($::form->{"income_accno_id_" . $bg->id});
-      $taxzone_chart->expense_accno_id($::form->{"expense_accno_id_" . $bg->id});
-      $taxzone_chart->save;
+    if ( $is_new or $self->config->orphaned ) {
+      # Save taxzone_charts
+      my $buchungsgruppen = SL::DB::Manager::Buchungsgruppe->get_all_sorted();
+
+      foreach my $bg (@{ $buchungsgruppen }) {
+        my $income_accno_id  = $::form->{"income_accno_id_"  . $bg->id};
+        my $expense_accno_id = $::form->{"expense_accno_id_" . $bg->id};
+
+        my ($income_accno, $expense_accno);
+        $income_accno  = SL::DB::Manager::Chart->find_by( id => $income_accno_id )  if $income_accno_id;
+        $expense_accno = SL::DB::Manager::Chart->find_by( id => $expense_accno_id ) if $expense_accno_id;
+
+        push(@errors, t8('Buchungsgruppe #1 needs a valid income account' , $bg->description)) unless $income_accno;
+        push(@errors, t8('Buchungsgruppe #1 needs a valid expense account', $bg->description)) unless $expense_accno;
+
+        my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by_or_create(buchungsgruppen_id => $bg->id, taxzone_id => $self->config->id);
+        # if taxzonechart doesn't exist an empty new TaxzoneChart object is
+        # created by find_by_or_create, so we have to assign buchungsgruppe and
+        # taxzone again for the new case to work
+        $taxzone_chart->taxzone_id($self->config->id);
+        $taxzone_chart->buchungsgruppen_id($bg->id);
+        $taxzone_chart->income_accno_id($income_accno->id);
+        $taxzone_chart->expense_accno_id($expense_accno->id);
+        $taxzone_chart->save;
+      }
     }
-  }
+  } ) || die @errors ? join("\n", @errors) . "\n" : $db->error . "\n";
+         # die with rollback of taxzone save if saving of any of the taxzone_charts fails
+         # only show the $db->error if we haven't already identified the likely error ourselves
 
   flash_later('info', $is_new ? t8('The taxzone has been created.') : t8('The taxzone has been saved.'));
   $self->redirect_to(action => 'list');
