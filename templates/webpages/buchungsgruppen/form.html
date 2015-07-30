@@ -18,7 +18,7 @@
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
     <td>[% L.chart_picker("config.inventory_accno_id", SELF.config.inventory_accno_id, choose=1, type='IC', style=style) %]</td>
     [%- ELSE %]
-      <td>[%- CHARTLIST.inventory_accno %] -- [%- CHARTLIST.inventory_accno_description %]</td>
+      <td>[%- CHARTLIST.inventory_accno_description %]</td>
     [%- END %]
   </tr>
 [%- FOREACH tz = TAXZONES %]
@@ -29,7 +29,7 @@
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
     <td>[% L.chart_picker('income_accno_id_' _ tz.id, CHARTLIST.${tz.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSE %]
-      <td>[% CHARTLIST.${tz.id}.income_accno %] -- [% CHARTLIST.${tz.id}.income_accno_description %]</td>
+      <td>[% CHARTLIST.${tz.id}.income_accno_description %]</td>
     [%- END %]
   </tr>
   <tr>
@@ -39,7 +39,7 @@
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
       <td>[% L.chart_picker('expense_accno_id_' _ tz.id, CHARTLIST.${tz.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSE %]
-      <td>[% CHARTLIST.${tz.id}.expense_accno %] -- [% CHARTLIST.${tz.id}.expense_accno_description %]</td>
+      <td>[% CHARTLIST.${tz.id}.expense_accno_description %]</td>
     [%- END %]
   </tr>
 [%- END %]

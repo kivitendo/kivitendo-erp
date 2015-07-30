@@ -17,7 +17,7 @@
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
     <td>[% L.chart_picker('income_accno_id_' _ bg.id, CHARTLIST.${bg.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSE %]
-    <td>[% CHARTLIST.${bg.id}.income_accno %] -- [% CHARTLIST.${bg.id}.income_accno_description %]</td>
+    <td>[% CHARTLIST.${bg.id}.income_accno_description %]</td>
     [%- END %]
   </tr>
   <tr>
@@ -27,7 +27,7 @@
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
     <td>[% L.chart_picker('expense_accno_id_' _ bg.id, CHARTLIST.${bg.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSE %]
-    <td>[% CHARTLIST.${bg.id}.expense_accno %] -- [% CHARTLIST.${bg.id}.expense_accno_description %]</td>
+    <td>[% CHARTLIST.${bg.id}.expense_accno_description %]</td>
     [%- END %]
   </tr>
 [%- END %]
