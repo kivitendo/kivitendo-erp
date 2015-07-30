@@ -130,31 +130,48 @@ sub create_or_update {
   my $params = delete($::form->{config}) || { };
   delete $params->{id};
 
-  $self->config->assign_attributes(%{ $params });
+  my @errors;
 
-  my @errors = $self->config->validate;
+  my $db = $self->config->db;
+  $db->do_transaction( sub {
 
-  if (@errors) {
-    flash('error', @errors);
-    $self->show_form(title => $is_new ? t8('Add taxzone') : t8('Edit taxzone'));
-    return;
-  }
+    $self->config->assign_attributes(%{ $params }); # assign description and inventory_accno_id
 
-  $self->config->save;
+    @errors = $self->config->validate; # check for description and inventory_accno_id
 
-  # Save or update taxzone_charts for new or unused Buchungsgruppen
-  if ($is_new or $self->config->orphaned) {
-    my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
+    if (@errors) {
+      die "foo" . @errors . "\n";
+    };
 
-    foreach my $tz (@{ $taxzones }) {
-      my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by_or_create(buchungsgruppen_id => $self->config->id, taxzone_id => $tz->id);
-      $taxzone_chart->taxzone_id($tz->id);
-      $taxzone_chart->buchungsgruppen_id($self->config->id);
-      $taxzone_chart->income_accno_id($::form->{"income_accno_id_" . $tz->id});
-      $taxzone_chart->expense_accno_id($::form->{"expense_accno_id_" . $tz->id});
-      $taxzone_chart->save;
+    $self->config->save;
+
+    # Save or update taxzone_charts for new or unused Buchungsgruppen
+    if ($is_new or $self->config->orphaned) {
+      my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
+
+      foreach my $tz (@{ $taxzones }) {
+
+        my $income_accno_id    = $::form->{"income_accno_id_"  . $tz->id};
+        my $expense_accno_id   = $::form->{"expense_accno_id_" . $tz->id};
+
+        my ($income_accno, $expense_accno);
+        $income_accno    = SL::DB::Manager::Chart->find_by( id => $income_accno_id  ) if $income_accno_id;
+        $expense_accno   = SL::DB::Manager::Chart->find_by( id => $expense_accno_id ) if $expense_accno_id;
+
+        push(@errors, t8('Tax zone #1 needs a valid income account'   , $tz->description)) unless $income_accno;
+        push(@errors, t8('Tax zone #1 needs a valid expense account'  , $tz->description)) unless $expense_accno;
+
+        my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by_or_create(buchungsgruppen_id => $self->config->id, taxzone_id => $tz->id);
+        $taxzone_chart->taxzone_id($tz->id);
+        $taxzone_chart->buchungsgruppen_id($self->config->id);
+        $taxzone_chart->income_accno_id($income_accno->id);
+        $taxzone_chart->expense_accno_id($expense_accno->id);
+        $taxzone_chart->save;
+      }
     }
-  }
+  } ) || die @errors ? join("\n", @errors) . "\n" : $db->error . "\n";
+         # die with rollback of taxzone save if saving of any of the taxzone_charts fails
+         # only show the $db->error if we haven't already identified the likely error ourselves
 
   flash_later('info', $is_new ? t8('The Buchungsgruppe has been created.') : t8('The Buchungsgruppe has been saved.'));
   $self->redirect_to(action => 'list');

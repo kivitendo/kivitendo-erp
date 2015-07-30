@@ -21,6 +21,13 @@ sub validate {
 
   my @errors;
   push @errors, $::locale->text('The description is missing.') if !$self->description;
+  if( $self->inventory_accno_id ) {
+    require SL::DB::Chart;
+    my $inventory_accno = SL::DB::Manager::Chart->find_by( id => $self->inventory_accno_id );
+    push(@errors, $::locale->text('Buchungsgruppe #1 needs a valid inventory account', $self->description)) unless $inventory_accno;
+  } else {
+    push @errors, $::locale->text('The Buchungsgruppe needs an inventory account.');
+  };
 
   return @errors;
 }
