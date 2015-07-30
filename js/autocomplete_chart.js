@@ -234,7 +234,7 @@ namespace('kivi', function(k){
     var picker = $('<div>');
     $dummy.after(pcont);
     pcont.append(picker);
-    picker.addClass('icon16 crm--search').click(open_dialog);
+    picker.addClass('icon16 search').click(open_dialog);
 
     var cp = {
       real:           function() { return $real },
