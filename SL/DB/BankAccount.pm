@@ -24,6 +24,7 @@ sub validate {
     # chart_id)
 
     my $chart_id = $self->chart_id;
+    require SL::DB::Chart;
     my $chart = SL::DB::Manager::Chart->find_by( id => $chart_id );
     if ( $chart ) {
       my $linked_bank = SL::DB::Manager::BankAccount->find_by( chart_id => $chart_id );
