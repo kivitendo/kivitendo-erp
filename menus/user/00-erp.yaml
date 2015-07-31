@@ -2,7 +2,7 @@
 #
 # Each menu entry can have the following properties:
 #
-# parnet:  the id of a higher node in the tree, top-level node if missing
+# parent:  the id of a higher node in the tree, top-level node if missing
 # id:      a unique identifier used by parent links and for overloading
 # name:    translatable text for display
 # icon:    stripped name of an icon for this menu entry
@@ -10,7 +10,7 @@
 # access:  boolean expression of the rights needed to display and access this entry
 #          ( ) & | are supported.  if binary operator is missing the last
 #          operator in same scope is repeated, or "|" if none used in scope
-#          yet. client config entrys can be used as rights by prefixing them
+#          yet. client config entries can be used as rights by prefixing them
 #          with "client/". If missing, access will be granted.
 #
 #          Example:
