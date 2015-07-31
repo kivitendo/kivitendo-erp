@@ -95,7 +95,7 @@ sub _init {
       for my $file (@files) {
         if (open my $in, "<", "locale/$country/more/$file") {
           local $/ = undef;
-          my $code = <$file>;
+          my $code = <$in>;
           eval($code);
           close($in);
           $self->{texts}{$_} = $self->{more_texts}{$_} for keys %{ $self->{more_texts} };
