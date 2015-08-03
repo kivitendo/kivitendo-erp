@@ -2,7 +2,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.2.0: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.3.0: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -277,11 +277,11 @@ cpan Rose::Db::Object</programlisting>
       <title>Manuelle Installation des Programmpaketes</title>
       <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github gehostet und kann
  <ulink url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink> heruntergeladen werden.</para>
-      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.2.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
+      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.3.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
       (z.B.  <filename>/var/www/html/</filename>, <filename>/srv/www/htdocs</filename> oder <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www
-tar xvzf kivitendo-erp-3.2.0.tgz</programlisting>
+tar xvzf kivitendo-erp-3.3.0.tgz</programlisting>
 
       <para>Wechseln Sie in das entpackte Verzeichnis:</para>
 
@@ -291,7 +291,7 @@ tar xvzf kivitendo-erp-3.2.0.tgz</programlisting>
       Webserverkonfiguration benutzen, um auf das tatsächliche
       Installationsverzeichnis zu verweisen.</para>
 
-      <para>Bei einer Neuinstallation von Version 3.1.0 oder Version 3.2.0 muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+      <para>Bei einer Neuinstallation von Version 3.1.0 oder später muß das WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
 
       <programlisting>mkdir webdav</programlisting>
 
