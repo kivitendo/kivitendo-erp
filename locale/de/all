@@ -2575,6 +2575,7 @@ $self->{texts} = {
   'The Bins in master data were only a information text field.' => 'Die Lagerplätze unter Stammdaten/Waren sind nur ein informatives Textfeld.',
   'The Buchungsgruppe has been created.' => 'Die Buchungsgruppe wurde erstellt.',
   'The Buchungsgruppe has been saved.' => 'Die Buchungsgruppe wurde gespeichert.',
+  'The Buchungsgruppe needs an inventory account.' => 'Die Buchungsgruppe braucht ein Warenbestandskonto.',
   'The GL transaction #1 has been deleted.' => 'Die Dialogbuchung #1 wurde gelöscht.',
   'The IBAN is missing.'        => 'Die IBAN fehlt.',
   'The LDAP server "#1:#2" is unreachable. Please check config/kivitendo.conf.' => 'Der LDAP-Server "#1:#2" ist nicht erreichbar. Bitte &uuml;berpr&uuml;fen Sie die Angaben in config/kivitendo.conf.',
