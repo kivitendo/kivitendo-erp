@@ -196,7 +196,7 @@ sub report {
 
   # Which COA is in use?
 
-  $ustva->get_coa($form, \%myconfig);
+  $ustva->get_coa($form); # fetches coa and modifies some form variables
 
   my $template_ref = {
     openings         => $openings,
@@ -960,7 +960,7 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
 
 # Which COA is in use?
 
-  $ustva->get_coa($::form, \%::myconfig);
+  $ustva->get_coa($::form); # fetches coa and modifies some form variables
 
   # hä? kann die weg?
   my $steuernummer_new = '';
@@ -1066,7 +1066,7 @@ sub config_step2 {
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
 
 
-  $ustva->get_coa($form, \%myconfig);
+  $ustva->get_coa($form); # fetches coa and modifies some form variables
 
   my $input_steuernummer = $ustva->steuernummer_input(
                              $form->{elsterland},

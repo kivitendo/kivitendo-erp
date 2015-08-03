@@ -77,19 +77,9 @@ sub _init {
 
 sub get_coa {
 
-  my ( $self, $form, $myconfig) = @_;
+  my ( $self, $form ) = @_;
 
-  my $query = q{ SELECT coa FROM defaults };
-
-  my $dbh = $form->dbconnect($myconfig);
-  my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query);
-
-  my ($coa) = selectrow_query($form, $dbh, $query);
-
-  $sth->finish;
-  $dbh->disconnect;
-
+  my $coa = $::instance_conf->get_coa;
   $form->{coa} = $coa;
   $form->{"COA_$coa"} = '1';
   $form->{COA_Germany} = '1' if ($coa =~ m/^germany/i);
@@ -698,7 +688,7 @@ sub ustva {
   foreach my $item (@category_euro) {
     $form->{"$item"} = 0;
   }
-  my $coa_name = coa_get($dbh);
+  my $coa_name = $::instance_conf->get_coa;
   $form->{coa} = $coa_name;
 
   # Controlvariable for templates
@@ -771,23 +761,6 @@ sub ustva {
 
   $main::lxdebug->leave_sub();
 }
-
-sub coa_get {
-
-  my ($dbh) = @_;
-  my $form  = $main::form;
-
-  my $query= qq|SELECT coa FROM defaults|;
-
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute || $form->dberror($query);
-
-  my ($ref) = $sth->fetchrow_array;
-
-  return $ref;
-
-};
 
 sub get_accounts_ustva {
   $main::lxdebug->enter_sub();
