@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2015-0x-xx - Release 3.2.2-unstable
+2015-08-01 - Release 3.3-beta
 
 Größere neue Features:
 
@@ -36,10 +36,20 @@ __Es wurde ein neues Recht "Bankbewegungen" eingeführt.
   buchen möchte. Es wird je nach Zahlungsbetrag und Zahlungsdatum ein sinnvoller
   Vorschlag gemacht.
 
+- Menüsystem überarbeitet: yaml, Icons und Rechte
+
+  Die Menüstruktur wird nun durch yaml-Dateien definiert. Statt Änderungen an
+  der menu.ini kann man nun durch Hinzufügen eigener Dateien neue Menüpunkte
+  hinzufügen oder bestehende Menüpunkte umsortieren.
+
+  Die Dateinamen der Icons wurden angepasst, und können nun unabhängig vom
+  Menunamen zugewiesen werden.
+
+  Die Rechte liegen jetzt in der auth Datenbank, in "auth.master_rights".
+
 Kleinere neue Features und Detailverbesserungen:
 
-- Briefe werden auch im WebDAV archiviert. Ferner bessere Fehlerbehandlung und
-  E-Mail-Funktion aktiviert.
+- Briefe werden auch im WebDAV archiviert.
 
 - Mehrfachauswahl und Mengeneingabe für Artikel:
   Wenn in den Belegmasken die Artikeleingabe nicht eindeutig ist, erscheint
@@ -58,7 +68,7 @@ Kleinere neue Features und Detailverbesserungen:
   auch schon vorher eingeben: Nicht eindeutiger Artikel, TAB, TAB, Menge, ENTER
 
 - In den Berichten zu Aufträgen, VK-Lieferscheinen, Warenstammdaten, Kunden-/
-  Lieferntenstammdaten kann das Erfassungsdatum angezeigt und danach gefiltert
+  Lieferantenstammdaten kann das Erfassungsdatum angezeigt und danach gefiltert
   werden.
 
 - Filtern/Anzeigen von benutzerdefinierten Variablen bei Kunden-/Lieferanten in
@@ -68,11 +78,32 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Preisgruppe bei Stammdaten->Berichte->Kunden anzeigen lassen können.
 
+Änderungen:
+
+- Die Standarddruckvorlagen wurden entfernt, da diese nicht mehr gepflegt
+  wurden. Neuer Default bei den Druckvorlagen sind die RB-Vorlagen.
+
+- Belegpositionen werden nicht mehr mit ordnumber, transdate, cusordnumber
+  gespeichert, für den Ausdruck in Rechnungen werden stattdessen die
+  Informationen aus den verknüpften Positionen ermittelt.
+
+- wzToolTip wurde durch jQuery ToolTipster ersetzt
+
 
 Bugfixes:
 
-- Bugfix #54 Fehlermeldung im Mahnlauf bei automatischer Rechnung über Mahngebühren
+- Bugfix #46 Listenpreis falsch formatiert beim Workflow Lieferantenauftrag->Kundenauftrag
 - Bugfix #50 Kundentyp-Rabatt wird falsch übernommen
+- Bugfix #54 Fehlermeldung im Mahnlauf bei automatischer Rechnung über Mahngebühren
+- Bugfix #56 parse_amount wandelt Zahlen mit 0 am Anfang in Oktalzahlen um
+- Bugfix #61 Als neu speichern und Kunde wechseln wirft einen DB-Fehler im Demo-Mandanten Steigmann Werft
+- Bugfix #62 Auftragsnummer in Auftragspositionen - ordnumber
+- Bugfix #64 Brieffunktion / letter fehlerhaft
+- Bugfix #66 Bankimport Kontenabgleich Unausgeglichene Buchungen lassen sich speichern
+- Bugfix #68 Steuerzone hinzufügen - DB-Fehler
+- Bugfix #69 Einrichten/Upgrade neuer Datenbank schlägt fehl
+- Bugfix #71 Debitorenbuchungen und Kreditorenbuchungen können nicht mit Steuerschlüssel Ust-frei gebucht werden
+- Bugfix #73 Fehlermeldung bei UStVA
 
 
 
