@@ -17,8 +17,8 @@
 #            client/feature_default_enabled | ( feature & system )
 #
 # href:   fully qualified external link
-# module: defaults to "controller.pl". Should ne be present if the link is for
-#         Controller::Base dispatching to enable routing.  otherwise with
+# module: defaults to "controller.pl". Should not be present if the link is for
+#         Controller::Base dispatching to enable routing. Otherwise this
 #         script will be used.
 # target: target window for link. ex: "_blank"
 # params: additional url parameter
