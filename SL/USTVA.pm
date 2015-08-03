@@ -659,7 +659,7 @@ sub ustva {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
