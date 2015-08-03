@@ -1,27 +1,36 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>3.4. Mandantenkonfiguration Lager</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.2.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s03.html" title="3.3. Excel-Vorlagen"><link rel="next" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.4. Mandantenkonfiguration Lager</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.4. Mandantenkonfiguration Lager"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.warehouse"></a>3.4. Mandantenkonfiguration Lager</h2></div></div></div>
-        Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt:
-        Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die Möglichkeit hier über den
-        Menüpunkt Lager entsprechende Warenbewegungen durchzuführen. Ferner kann
-        jede Position eines Lieferscheins ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf).
-        Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet werden.
-        Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und
-        das Auswählen dieser Position zu einem Lager mit Lagerplatz.
-        Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in
-        der Mandatenkonfiguration gesetzt werden.
-       <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                  <code class="option">Auslagern über Standardlagerplatz</code> Hier wird ein zusätzlicher Knopf (Auslagern über Standard-Lagerplatz)
-            in dem Lieferschein-Beleg hinzugefügt, der dann alle Lagerbewegungen über den Standardlagerplatz (konfigurierbar pro Ware) durchführt.
-            </p></li><li class="listitem"><p>
-                  <code class="option">Auslagern ohne Bestandsprüfung</code>Das obige Auslagern schlägt fehl, wenn die entsprechende Menge für
-            die Lagerbewegung nicht vorhanden ist, möchte man dies auch ignorieren und ggf. dann nachpflegen, so kann man eine Negativ-Warenmenge mit dieser Option
-            erlauben. Hierfür muss ein entsprechender Lagerplatz (Fehlbestand, o.ä.) konfiguriert sein.</p></li></ul></div>
-        Zusätzliche Funktionshinweise:
-         <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                  <code class="option">Standard-Lagerplatz</code>Ist dieser konfiguriert, wird dies auch als Standard-Voreinstellung bei der Neuerfassung von
-          Stammdaten-&gt; Waren / Dienstleistung / Erzeugnis verwendet.
-          </p></li><li class="listitem"><p>
-                  <code class="option">Standard-Lagerplatz verwenden, falls keiner in Stammdaten definiert</code>Wird beim 'Auslagern über Standardlagerplatz'
-          keine Standardlagerplatz zu der Ware gefunden, so wird mit dieser Option einfach der Standardlagerplatz verwendet.
-          </p></li></ul></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.3. Excel-Vorlagen&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;Kapitel 4. Entwicklerdokumentation</td></tr></table></div></body></html>
+   <title>3.4. Excel-Vorlagen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.3.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen"><link rel="next" href="ch03s05.html" title="3.5. Mandantenkonfiguration Lager"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.4. Excel-Vorlagen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch03s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.4. Excel-Vorlagen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="excel-templates"></a>3.4. Excel-Vorlagen</h2></div></div></div><div class="sect2" title="3.4.1. Zusammenfassung"><div class="titlepage"><div><div><h3 class="title"><a name="excel-templates.summary"></a>3.4.1. Zusammenfassung</h3></div></div></div><p>Dieses Dokument beschreibt den Mechanismus, mit dem
+        Exceltemplates abgearbeitet werden, und die Einschränkungen, die damit
+        einhergehen.</p></div><div class="sect2" title="3.4.2. Bedienung"><div class="titlepage"><div><div><h3 class="title"><a name="excel-templates.usage"></a>3.4.2. Bedienung</h3></div></div></div><p>Der Excel Mechanismus muss in der Konfigurationsdatei aktiviert
+        werden. Die Konfigurationsoption heißt <code class="varname">excel_templates =
+        1</code> im Abschnitt <code class="varname">[print_templates]</code>.</p><p>Eine Excelvorlage kann dann unter dem Namen einer beliebigen
+        anderen Vorlage mit der Endung <code class="filename">.xls</code> gespeichert
+        werden. In den normalen Verkaufsmasken taucht nun
+        <code class="constant">Excel</code> als auswählbares Format auf und kann von da
+        an wie LaTeX- oder OpenOffice-Vorlagen benutzt werden.</p><p>Der Sonderfall der Angebote aus der Kundenmaske ist ebenfalls
+        eine Angebotsvorlage und wird unter dem internen Namen der Angebote
+        <code class="filename">sales_quotation.xls</code> gespeichert.</p></div><div class="sect2" title="3.4.3. Variablensyntax"><div class="titlepage"><div><div><h3 class="title"><a name="excel-templates.syntax"></a>3.4.3. Variablensyntax</h3></div></div></div><p>Einfache Syntax:
+        <span class="command"><strong>&lt;&lt;varname&gt;&gt;</strong></span>
+            </p><p>Dabei sind <code class="constant">&lt;&lt;</code> und
+        <code class="constant">&gt;&gt;</code> die Delimiter. Da Excel auf festen
+        Breiten besteht, kann der Tag künstlich verlängert werden, indem
+        weitere <code class="constant">&lt;</code> oder <code class="constant">&gt;</code>
+        eingefügt werden. Der Tag muss nicht symmetrisch sein.
+        Beispiel:</p><pre class="programlisting">&lt;&lt;&lt;&lt;&lt;varname&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</pre><p>Um die Limitierung der festen Breite zu reduzieren, können
+        weitere Variablen in einem Block interpoliert werden. Whitespace wird
+        dazwishen dann erhalten. Beispiel:</p><pre class="programlisting">&lt;&lt;&lt;&lt;&lt;varname1 varname2   varname3&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</pre><p>Die Variablen werden interpoliert, und linksbündig mit
+        Leerzeichen auf die gewünschte Länge aufgefüllt. Ist der String zu
+        lang, werden überzählige Zeichen abgeschnitten.</p><p>Es ist ausserdem möglich, Daten rechtsbündig darzustellen, wenn
+        der Block mit einem Leerzeichen anfängt. Beispiel:</p><pre class="programlisting">&lt;&lt;&lt;&lt;&lt;&lt;            varname&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</pre><p>Dies würde rechtsbündig triggern. Wenn bei rechtsbündiger
+        Ausrichtung Text abgeschnitten werden muss, wird er vom linken Ende
+        entfernt.</p></div><div class="sect2" title="3.4.4. Einschränkungen"><div class="titlepage"><div><div><h3 class="title"><a name="excel-templates.limitations"></a>3.4.4. Einschränkungen</h3></div></div></div><p>Das Excelformat bis 2002 ist ein binäres Format, und kann nicht
+        mit vertretbarem Aufwand editiert werden. Der Templatemechanismus
+        beschränkt sich daher darauf, Textstellen exakt durch einen anderen
+        Text zu ersetzen.</p><p>Aus dem gleichen Grund sind die Kontrolllstrukturen
+        <span class="command"><strong>&lt;%if%&gt;</strong></span> und
+        <span class="command"><strong>&lt;%foreach%&gt;</strong></span> nicht vorhanden. Der Delimiter
+        <code class="constant">&lt;% %&gt;</code> kommt in den Headerinformationen
+        evtl. vor. Deshalb wurde auf den sichereren Delimiter
+        <code class="constant">&lt;&lt;</code> und <code class="constant">&gt;&gt;</code>
+        gewechselt.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch03s05.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.3. Dokumentenvorlagen und verfügbare Variablen&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;3.5. Mandantenkonfiguration Lager</td></tr></table></div></body></html>

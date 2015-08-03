@@ -2131,7 +2131,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
     <title>Features und Funktionen</title>
 
     <sect1 id="features.periodic-invoices"
-           xreflabel="Wiedekehrende Rechnungen">
+           xreflabel="Wiederkehrende Rechnungen">
       <title>Wiederkehrende Rechnungen</title>
 
       <sect2 id="features.periodic-invoices.introduction"
@@ -2531,7 +2531,21 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         manuell über den Workflow.</para>
       </sect2>
     </sect1>
-        <sect1 id="dokumentenvorlagen-und-variablen">
+    <sect1 id="features.bank"
+           xreflabel="bankerweiterung">
+      <title>Bankerweiterung</title>
+
+      <sect2 id="features.bank.introduction"
+             xreflabel="Einführung in die Bankerweiterung">
+        <title>Einführung</title>
+
+        <para>Die Beschreibung der Bankerweiterung befindet sich derzeit noch im Wiki und soll von dort später hierhin übernommen werden:</para>
+
+        <para><ulink
+        url="http://redmine.kivitendo-premium.de/projects/forum/wiki/Bankerweiterung">http://redmine.kivitendo-premium.de/projects/forum/wiki/Bankerweiterung</ulink></para>
+      </sect2>
+    </sect1>
+    <sect1 id="dokumentenvorlagen-und-variablen">
       <title>Dokumentenvorlagen und verfügbare Variablen</title>
 
       <sect2 id="dokumentenvorlagen-und-variablen.einführung">
