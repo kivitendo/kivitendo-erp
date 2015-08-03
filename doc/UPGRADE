@@ -4,6 +4,22 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.3.0
+==================
+
+* Bei Upgrade von Versionen vor v.3.2.x wie immer erst die dortigen
+  Upgradehinweise beachten.
+
+* Es gibt keine neuen Perl-Modul-Abhängigkeiten.
+
+* Die alte ungepflegte Druckvorlagenvariante "Standard" wurde entfernt.
+  Bereits verwendete Druckvorlagen, die darauf aufbauen, funktionieren
+  natürlich weiterhin.
+
+* Für die Verwendung des MT940 Import Features der Bankerweiterung muß
+  aqbanking installiert werden. Dies wird nur für die Konvertierung vom MT940
+  ins CSV Format benötigt, das Kommandozeilentool "aqbanking-cli" befindet sich
+  z.B. unter Ubuntu im Paket aqbanking-tools.
 
 Upgrade auf v3.2.0
 ==================
