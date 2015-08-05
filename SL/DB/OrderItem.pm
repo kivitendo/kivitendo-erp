@@ -9,6 +9,7 @@ use SL::DB::Manager::OrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::RecordItem;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
   cvars_alias => 1,

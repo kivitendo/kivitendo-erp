@@ -5,6 +5,7 @@ use strict;
 use SL::DB::MetaSetup::DeliveryOrderItem;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::RecordItem;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'delivery_order_items',
   cvars_alias => 1,
