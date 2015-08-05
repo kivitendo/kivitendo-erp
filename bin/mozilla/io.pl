@@ -2044,15 +2044,18 @@ sub _make_record_item {
           : $class->new;
 
   for my $method (apply { s/_$row$// } grep { /_$row$/ } keys %$::form) {
-    next unless $obj->meta->column($method);
-    if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
-      $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
-    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-      $obj->${\"$method\_as_number"}($::form->{"$method\_$row"});
-    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
-      $obj->$method(!!$::form->{$method});
+    if ($obj->meta->column($method)) {
+      if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
+        $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
+      } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
+        $obj->${\"$method\_as_number"}($::form->{"$method\_$row"});
+      } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
+        $obj->$method(!!$::form->{$method});
+      } else {
+        $obj->$method($::form->{"$method\_$row"});
+      }
     } else {
-      $obj->$method($::form->{"$method\_$row"});
+      $obj->{__additional_form_attributes}{$method} = $::form->{"$method\_$row"};
     }
   }
 
