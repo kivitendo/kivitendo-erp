@@ -69,6 +69,7 @@ __PACKAGE__->meta->columns(
   mtime                                     => { type => 'timestamp' },
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },
   normalize_vc_names                        => { type => 'boolean', default => 'true' },
+  order_always_project                      => { type => 'boolean', default => 'false' },
   parts_image_css                           => { type => 'text', default => 'border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;' },
   parts_listing_image                       => { type => 'boolean', default => 'true' },
   parts_show_image                          => { type => 'boolean', default => 'true' },
@@ -76,6 +77,8 @@ __PACKAGE__->meta->columns(
   pdonumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
   profit_determination                      => { type => 'text' },
+  project_status_id                         => { type => 'integer' },
+  project_type_id                           => { type => 'integer' },
   purchase_delivery_order_show_delete       => { type => 'boolean', default => 'true' },
   purchase_order_show_delete                => { type => 'boolean', default => 'true' },
   reqdate_interval                          => { type => 'integer', default => '0' },
@@ -130,6 +133,16 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  project_status => {
+    class       => 'SL::DB::ProjectStatus',
+    key_columns => { project_status_id => 'id' },
+  },
+
+  project_type => {
+    class       => 'SL::DB::ProjectType',
+    key_columns => { project_type_id => 'id' },
   },
 
   requirement_spec_section_order_part => {
