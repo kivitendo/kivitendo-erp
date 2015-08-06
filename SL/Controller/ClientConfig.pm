@@ -21,6 +21,7 @@ __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name
+                                  all_project_statuses all_project_types
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options) ],
 );
 
@@ -143,6 +144,8 @@ sub init_defaults        { SL::DB::Default->get                                 
 sub init_all_warehouses  { SL::DB::Manager::Warehouse->get_all_sorted                                                    }
 sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted                                                     }
 sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                                                     }
+sub init_all_project_types    { SL::DB::Manager::ProjectType->get_all_sorted                                             }
+sub init_all_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted                                           }
 sub init_all_weightunits { my $unit = SL::DB::Manager::Unit->find_by(name => 'kg'); $unit ? $unit->convertible_units : [] }
 sub init_all_templates   { +{ SL::Template->available_templates }                                                        }
 sub init_h_unit_name     { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde)                         };

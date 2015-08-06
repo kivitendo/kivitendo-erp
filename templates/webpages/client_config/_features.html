@@ -150,5 +150,19 @@
    </td>
  </tr>
 
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Projects") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Always save orders with a projectnumber (create new projects)') %]</td>
+   <td>[% L.yes_no_tag('defaults.order_always_project', SELF.defaults.order_always_project) %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Project type') %]</td>
+   <td>[% L.select_tag('defaults.project_type_id', SELF.all_project_types, default=SELF.defaults.project_type_id, title_key='description', with_empty=1, style="width: 200px") %]</td>
+  </tr>
+   <td align="right">[% LxERP.t8('Project Status') %]</td>
+   <td>[% L.select_tag('defaults.project_status_id', SELF.all_project_statuses, default=SELF.defaults.project_status_id, title_key='description', with_empty=1, style="width: 200px") %]</td>
+  </tr>
+
  </table>
 </div>
