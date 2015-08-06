@@ -42,6 +42,8 @@ use SL::Common;
 use SL::CVar;
 use SL::DB::Order;
 use SL::DB::PeriodicInvoicesConfig;
+use SL::DB::Project;
+use SL::DB::ProjectType;
 use SL::DB::Status;
 use SL::DB::Tax;
 use SL::DBUtils;
@@ -402,7 +404,7 @@ sub save {
 
   my $number_field         = $form->{type} =~ m{order} ? 'ordnumber' : 'quonumber';
   my $trans_number         = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{$number_field}, id => $form->{id});
-  $form->{$number_field} ||= $trans_number->create_unique;
+  $form->{$number_field} ||= $trans_number->create_unique; # set $form->{ordnumber} or $form->{quonumber}
 
   if ($form->{id}) {
     $query = qq|DELETE FROM shipto | .
@@ -532,6 +534,19 @@ sub save {
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
       $pricegroup_id  = undef if !$pricegroup_id;
+
+      if ( $::instance_conf->get_order_always_project && !$form->{"globalproject_id"} && ( $form->{type} eq 'sales_order' ) ) {
+        my $new_project = SL::DB::Project->new(
+          projectnumber => $form->{ordnumber},
+          description   => $form->{customer},
+          active        => 1,
+          project_type_id =>  $::instance_conf->get_project_type_id,
+          project_status_id => $::instance_conf->get_project_status_id,
+          # id            => $form->{globalproject_id}
+        );
+        $new_project->save;
+        $form->{"globalproject_id"} = $new_project->id;
+      };
 
       CVar->get_non_editable_ic_cvars(form               => $form,
                                       dbh                => $dbh,
