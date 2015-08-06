@@ -98,9 +98,9 @@
   [% INCLUDE projectnumber %]
   <input type=hidden name=nextsub value=generate_projects>
   <tr>
-    <th align=right>[% 'as at' | $T8 %]</th>
+    <th align=right>[% 'From' | $T8 %]</th>
     <td> [% L.date_tag('fromdate', fromdate, class='initial_focus') %]</td>
-    <th align=right nowrap>[% 'Compare to' | $T8 %]</th>
+    <th align=right nowrap>[% 'Bis' | $T8 %]</th>
     <td>[% L.date_tag('todate') %]</td>
   </tr>
 </table>
