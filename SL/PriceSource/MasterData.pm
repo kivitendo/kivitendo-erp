@@ -39,11 +39,15 @@ sub best_price {
 
 sub best_discount { }
 
+sub unit_mul {
+  $_[0]->record_item ? $_[0]->record_item->unit_multiplier : 1
+}
+
 sub make_sellprice {
   my ($self) = @_;
 
   return SL::PriceSource::Price->new(
-    price        => $self->part->sellprice,
+    price        => $self->part->sellprice * $self->unit_mul,
     spec         => 'sellprice',
     description  => t8('Sellprice'),
     price_source => $self,
@@ -54,7 +58,7 @@ sub make_listprice {
   my ($self) = @_;
 
   return SL::PriceSource::Price->new(
-    price        => $self->part->listprice,
+    price        => $self->part->listprice * $self->unit_mul,
     spec         => 'listprice',
     description  => t8('List Price'),
     price_source => $self,
@@ -65,7 +69,7 @@ sub make_lastcost {
   my ($self) = @_;
 
   return SL::PriceSource::Price->new(
-    price        => $self->part->lastcost,
+    price        => $self->part->lastcost * $self->unit_mul,
     spec         => 'lastcost',
     description  => t8('Lastcost'),
     price_source => $self,
