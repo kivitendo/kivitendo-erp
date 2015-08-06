@@ -157,9 +157,30 @@ L<SL::PriceSource::Base>,
 L<SL::PriceSource::Price>,
 L<SL::PriceSource::ALL>
 
-=head1 BUGS
+=head1 BUGS AND CAVEATS
 
-None yet. :)
+=over 4
+
+=item *
+
+The current simple model of price sources providing a simple value in simple
+cases doesn't work well in situations where prices are modified by other
+properties. The same problem also causes headaches when trying to use price
+sources to compute positions in assemblies.
+
+The solution should be to split price sources in simple ones, which do not
+manage their interactions with record_items, but can be used in contexts
+without record_items, and complex ones which do, but have to be fed a dummy
+record_item. For the former there should be a wrapper that handles interactions
+with units, price_factors etc..
+
+=item *
+
+Currently it is only possible to provide additional prices, but not to restrict
+prices. Potential scenarios include credit limit customers which do not receive
+benefits from sales, or general ALLOW, DENY order calculation.
+
+=back
 
 =head1 AUTHOR
 
