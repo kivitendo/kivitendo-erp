@@ -25,6 +25,12 @@ sub action_price_popup {
   my ($self) = @_;
 
   my $record_item = _make_record_item($::form->{row});
+  my $old_unit;
+  if (($old_unit = $record_item->{__additional_form_attributes}{unit_old}) && $old_unit ne $record_item->unit) {
+    # reset unit changes. the way these interact on update breaks stuff
+    $record_item->unit_obj(SL::DB::Manager::Unit->find_by(name => $old_unit));
+    $self->js->val("select[name='unit_$::form->{row}']", $old_unit);
+  }
 
   $self->render_price_dialog($record_item);
 }
