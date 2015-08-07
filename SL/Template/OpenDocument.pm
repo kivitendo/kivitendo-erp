@@ -238,7 +238,7 @@ sub parse_block {
           $table_row .=  $1;
           $end_tag    =  $2;
 
-          substr $contents, 0, length($2), '';
+          substr $contents, 0, length($1) + length($2), '';
 
           my $new_text = $self->parse_foreach($var, $table_row, $tag, $end_tag, @indices);
           if (!defined($new_text)) {
