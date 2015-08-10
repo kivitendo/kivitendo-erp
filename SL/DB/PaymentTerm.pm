@@ -71,7 +71,7 @@ adding one of C<$self>'s terms fields if automatic calculation is on;
 otherwise returns the currently-set due date (which must be provided)
 or the reference date, whichever is later.
 
-Note that for automatich calculation the resulting date will be the
+Note that for automatic calculation the resulting date will be the
 following Monday if the result falls on a weekend.
 
 C<%params> can contain the following parameters:
