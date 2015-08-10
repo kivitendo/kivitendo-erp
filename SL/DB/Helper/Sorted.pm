@@ -122,7 +122,7 @@ sorting of database records
 Evaluates C<$params{sort_by}> and C<$params{sort_dir}> and returns an
 SQL string suitable for sorting. The package this package is mixed
 into has to provide a method L</_sort_spec> that returns a hash whose
-structure is explained below. That hash is authoritive in which
+structure is explained below. That hash is authoritative in which
 columns may be sorted, which column to sort by by default and how to
 handle C<NULL> values.
 
@@ -173,7 +173,7 @@ strings by which to sort. Example:
                customer_name           => 'lower(customer.name)',
              },
 
-If sorting by a column is requested that is not a key in this hash
+If sorting is requested for a column that is not a key in this hash
 then the default column name will be used.
 
 The value can be either a scalar or an array reference. If it's the
@@ -196,12 +196,12 @@ Either a scalar or a hash reference determining where C<NULL> values
 will be sorted. If undefined then the decision is left to the
 database.
 
-If it is a scalar then all the same value will be used for all
+If it is a scalar then the same value will be used for all
 classes. The value is either C<FIRST> or C<LAST>.
 
 If it is a hash reference then its keys are column names (not SQL
 names). The values are either C<FIRST> or C<LAST>. If a column name is
-not found in this hash then the special keu C<default> will be looked
+not found in this hash then the special key C<default> will be looked
 up and used if it is found.
 
 Example:
