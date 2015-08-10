@@ -3423,6 +3423,7 @@ $self->{texts} = {
   'to (date)'                   => 'bis',
   'to (set to)'                 => 'auf',
   'to (time)'                   => 'bis',
+  'to be used as template for'  => 'als neue Vorlage verwenden für',
   'transfer'                    => 'Umlagerung',
   'transferred in'              => 'eingelagert',
   'transferred in / out'        => 'ein- / ausgelagert',

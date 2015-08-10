@@ -178,7 +178,7 @@
   [%- END %]
 
   [%- IF is_sales_ord || is_pur_ord %]
-    <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
+    <br>[% heading %] [% 'to be used as template for' | $T8 %]<br>
     [%- IF is_sales_ord %]
       <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
      <input class="submit" type="submit" name="action_quotation" value="[% 'Quotation' | $T8 %]">
