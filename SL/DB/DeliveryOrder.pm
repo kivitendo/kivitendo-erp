@@ -207,6 +207,11 @@ SL::DB::DeliveryOrder - Rose model for delivery orders (table
 
 An alias for C<transdate> for compatibility with other sales/purchase models.
 
+=item C<displayable_name>
+
+Returns a human-readable and translated description of the delivery order, consisting of
+record type and number, e.g. "Verkaufslieferschein 123".
+
 =item C<displayable_state>
 
 Returns a human-readable description of the state regarding being
@@ -214,7 +219,7 @@ closed and delivered.
 
 =item C<items>
 
-An alias for C<deliver_orer_items> for compatibility with other
+An alias for C<delivery_order_items> for compatibility with other
 sales/purchase models.
 
 =item C<new_from $source, %params>
@@ -280,7 +285,7 @@ TODO: Describe sales_order
 
 =item C<type>
 
-Returns a stringdescribing this record's type: either
+Returns a string describing this record's type: either
 C<sales_delivery_order> or C<purchase_delivery_order>.
 
 =back
