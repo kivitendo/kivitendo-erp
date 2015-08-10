@@ -246,12 +246,13 @@ sub init_models {
         by    => 'projectnumber',
         dir   => 1,
       },
-      customer      => t8('Customer'),
-      description   => t8('Description'),
-      projectnumber => t8('Project Number'),
-      project_type  => t8('Project Type'),
+      customer       => t8('Customer'),
+      description    => t8('Description'),
+      projectnumber  => t8('Project Number'),
+      project_type   => t8('Project Type'),
+      project_status => t8('Project Status'),
     },
-    with_objects => [ 'customer' ],
+    with_objects => [ 'customer', 'project_status', 'project_type' ],
   );
 }
 
