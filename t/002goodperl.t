@@ -106,7 +106,7 @@ foreach my $file (@testitems) {
 
 # note, the html checker is not really thorough.
 # in particular it will not find standard tags with parameters.
-# the estimate wether a file is dirty or not is still pretty helpful, as it will catch most of the closing tags.
+# the estimate whether a file is dirty or not is still pretty helpful, as it will catch most of the closing tags.
 # if you are in doubt about a specific file, you still have to check it manually.
 my $tags = qr/b|i|u|h[1-6]|a href.*|input|form|br|textarea|table|tr|td|th|body|head|html|p|button|select|option|script/;
 my $todo_files_re = qr{^bin/mozilla/ic\.pl$};

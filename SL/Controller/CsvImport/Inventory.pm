@@ -148,7 +148,7 @@ sub check_warehouse {
     $object->warehouse_id($wh->id);
   }
 
-  # Check wether or not warehouse ID is valid.
+  # Check whether or not warehouse ID is valid.
   if ($object->warehouse_id && !$self->warehouses_by->{id}->{ $object->warehouse_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid warehouse');
     return 0;
@@ -206,7 +206,7 @@ sub check_bin {
     $object->bin_id($bin->id);
   }
 
-  # Check wether or not bin ID is valid.
+  # Check whether or not bin ID is valid.
   if ($object->bin_id && !$self->bins_by->{_wh_id_and_id_ident()}->{ _wh_id_and_id_maker($object->warehouse_id, $object->bin_id) }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin');
     return 0;
@@ -238,7 +238,7 @@ sub check_part {
 
   my $object = $entry->{object};
 
-  # Check wether or non part ID is valid.
+  # Check whether or not part ID is valid.
   if ($object->parts_id && !$self->parts_by->{id}->{ $object->parts_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
     return 0;

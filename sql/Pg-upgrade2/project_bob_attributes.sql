@@ -9,7 +9,7 @@
 -- varchars retyped to text
 -- hours (numeric) changed to minutes (integer) since the code already calculates in minutes
 --  note: flags changing the behaviour of hours are still called so and not minutes
--- no refcounts. we use adhoc counts to decide wether delete is possible or not
+-- no refcounts. we use adhoc counts to decide whether delete is possible or not
 -- no hour_approval
 -- nothing relevant to notifications
 

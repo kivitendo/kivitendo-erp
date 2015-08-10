@@ -48,6 +48,7 @@ sekf
 sucess
 varsion
 pirce
+wether
 );
 
 $testcount = scalar(@Support::Files::testitems);

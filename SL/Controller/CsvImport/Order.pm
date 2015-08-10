@@ -436,7 +436,7 @@ sub check_part {
 
   my $object = $entry->{object};
 
-  # Check wether or not part ID is valid.
+  # Check whether or not part ID is valid.
   if ($object->parts_id && !$self->parts_by->{id}->{ $object->parts_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
     return 0;
@@ -482,7 +482,7 @@ sub check_contact {
   my $cp_cv_id = $object->customer_id || $object->vendor_id;
   return 0 unless $cp_cv_id;
 
-  # Check wether or not contact ID is valid.
+  # Check whether or not contact ID is valid.
   if ($object->cp_id && !$self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact');
     return 0;
@@ -511,7 +511,7 @@ sub check_department {
 
   my $object = $entry->{object};
 
-  # Check wether or not department ID is valid.
+  # Check whether or not department ID is valid.
   if ($object->department_id && !$self->departments_by->{id}->{ $object->department_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid department');
     return 0;
@@ -540,7 +540,7 @@ sub check_project {
 
   my $object = $entry->{object};
 
-  # Check wether or not projetc ID is valid.
+  # Check whether or not projetc ID is valid.
   if ($object->$id_column && !$self->projects_by->{id}->{ $object->$id_column }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid project');
     return 0;
@@ -579,7 +579,7 @@ sub check_ct_shipto {
   my $trans_id = $object->customer_id || $object->vendor_id;
   return 0 unless $trans_id;
 
-  # Check wether or not shipto ID is valid.
+  # Check whether or not shipto ID is valid.
   if ($object->shipto_id && !$self->ct_shiptos_by->{'trans_id+shipto_id'}->{ $trans_id . '+' . $object->shipto_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto');
     return 0;
@@ -593,7 +593,7 @@ sub check_price_factor {
 
   my $object = $entry->{object};
 
-  # Check wether or not price_factor ID is valid.
+  # Check whether or not price_factor ID is valid.
   if ($object->price_factor_id && !$self->price_factors_by->{id}->{ $object->price_factor_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid price factor');
     return 0;
@@ -618,7 +618,7 @@ sub check_pricegroup {
 
   my $object = $entry->{object};
 
-  # Check wether or not pricegroup ID is valid.
+  # Check whether or not pricegroup ID is valid.
   if ($object->pricegroup_id && !$self->pricegroups_by->{id}->{ $object->pricegroup_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid price group');
     return 0;
