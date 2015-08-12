@@ -1,6 +1,6 @@
 # @tag: delivery_plan_rights
 # @description: Setzt das neue Recht den Lieferplan anzuzeigen
-# @depends: release_3_0_0
+# @depends: release_3_2_0 add_master_rights
 package SL::DBUpgrade2::delivery_plan_rights;
 
 use strict;

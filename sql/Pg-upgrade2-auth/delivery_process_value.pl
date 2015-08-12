@@ -1,6 +1,6 @@
 # @tag: delivery_process_value
 # @description: Setzt das neue Recht den Lieferstatus mit Warenwert zu sehen
-# @depends: release_3_0_0
+# @depends: release_3_2_0 add_master_rights
 package SL::DBUpgrade2::delivery_process_value;
 
 use strict;
