@@ -33,7 +33,7 @@
 
   <tr>
    <td>[%- LxERP.t8("Project") %]:</td>
-   <td>[% L.select_tag('project_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, style=style) %]</td>
+   <td>[% L.select_tag('globalproject_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, style=style) %]</td>
   </tr>
 
   <tr>
