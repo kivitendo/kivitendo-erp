@@ -406,8 +406,8 @@ sub _filter_to_where {
   }
 
   if ( $self->{bank_account}->reconciliation_starting_date ) {
-    push @bt_where, (transdate => { gt => $self->{bank_account}->reconciliation_starting_date });
-    push @bb_where, (transdate => { gt => $self->{bank_account}->reconciliation_starting_date });
+    push @bt_where, (transdate => { ge => $self->{bank_account}->reconciliation_starting_date });
+    push @bb_where, (transdate => { ge => $self->{bank_account}->reconciliation_starting_date });
   }
 
   # don't try to reconcile opening and closing balance transactions
