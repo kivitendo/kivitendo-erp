@@ -10,7 +10,7 @@
 [% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate %][% END %]
 </p>
 
-<form id="list_form">
+<form method="post" id="list_form">
 [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
 [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
 [% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
