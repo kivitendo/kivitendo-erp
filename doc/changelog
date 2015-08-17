@@ -83,6 +83,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Die Standarddruckvorlagen wurden entfernt, da diese nicht mehr gepflegt
   wurden. Neuer Default bei den Druckvorlagen sind die RB-Vorlagen.
 
+- Es gibt einen neuen Druckvorlagensatz rev-odt, der auf
+  OpenOffice/LibreOffice Dateien basiert.
+
 - Belegpositionen werden nicht mehr mit ordnumber, transdate, cusordnumber
   gespeichert, für den Ausdruck in Rechnungen werden stattdessen die
   Informationen aus den verknüpften Positionen ermittelt.

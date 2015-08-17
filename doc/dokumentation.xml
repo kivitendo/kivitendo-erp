@@ -1437,10 +1437,12 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
       <para>kivitendo bringt drei alternative Vorlagensätze mit:</para>
       <itemizedlist>
-        <listitem><para>Standard</para></listitem>
-        <listitem><para>f-tex</para></listitem>
         <listitem><para>RB</para></listitem>
+        <listitem><para>f-tex</para></listitem>
+        <listitem><para>rev-odt</para></listitem>
       </itemizedlist>
+
+      <para>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version 3.3 entfernt, da er nicht mehr gepflegt wurde.</para>
 
       <sect2 id="Vorlagenverzeichnis-anlegen" xreflabel="Vorlagenverzeichnis anlegen">
         <title>Vorlagenverzeichnis anlegen</title>
@@ -1458,7 +1460,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
         <orderedlist>
           <listitem><para><option>Vorlagen auswählen</option>: Wählen Sie hier den Vorlagensatz aus, der kopiert werden soll
-          (<filename>Standard</filename>, <filename>f-tex</filename> oder <filename>RB</filename>.)</para></listitem>
+          (<filename>RB</filename>, <filename>f-tex</filename> oder <filename>odt-rev</filename>.)</para></listitem>
           <listitem><para><option>Neuer Name</option>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
           Bedingungen für Verzeichnisnamen frei gewählt werden.</para></listitem>
         </orderedlist>
@@ -1470,11 +1472,22 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
 
       </sect2>
-      <sect2 id="Vorlagen-Standard">
-        <title>Standard</title>
 
-        <para>Der Standard-Vorlagensatz von kivitendo. Wie unter <ulink url="https://www.kivitendo.de">https://www.kivitendo.de</ulink> zu
-        sehen.</para>
+      <sect2 id="Vorlagen-RB">
+        <title>Der Druckvorlagensatz RB</title>
+
+        <para>Hierbei handelt es sich um einen vollständigen LaTeX Dokumentensatz mit alternativem Design. Die odt oder html-Varianten sind nicht gepflegt.</para>
+        <para>Die konzeptionelle Idee der Vorlagen wird <ulink
+          url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
+          auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</para>
+
+        <para>Eine kurze Übersicht der Features:</para>
+          <itemizedlist>
+            <listitem><para>Mehrsprachenfähig, mit Deutscher und Englischer Übersetzung</para></listitem>
+            <listitem><para>Zentrale Konfigurationsdateien, die für alle Belege benutzt werden, z.B. für Kopf- und Fußzeilen, und Infos wie Bankdaten</para></listitem>
+            <listitem><para>mehrere vordefinierte Varianten für Logos/Hintergrundbilder</para></listitem>
+            <listitem><para>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder "Außerhalb EU"</para></listitem>
+          </itemizedlist>
 
       </sect2>
 
@@ -1633,22 +1646,44 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           </para>
         </sect3>
       </sect2>
+      
+      <sect2 id="Vorlagen-rev-odt">
+        <title>Der Druckvorlagensatz rev-odt</title>
 
-      <sect2 id="Vorlagen-RB">
-        <title>Der Druckvorlagensatz RB</title>
+        <para>Hierbei handelt es sich um einen Dokumentensatz der mit odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
+Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it, Zürich erstellt
+und werden laufend aktualisiert. Ein paar der Formulierungen in den Druckvorlagen entsprechen dem Schweizer Sprachgebrauch, z.B. "Offerte" oder "allfällig".
+        </para>
 
-        <para>Hierbei handelt es sich um einen vollständigen \LaTeX Dokumentensatz mit alternativem Design. Die odt oder html-Varianten sind nicht gepflegt.</para>
-        <para>Die konzeptionelle Idee der Vorlagen wird <ulink
-          url="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf">hier</ulink>
-          auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</para>
-
-        <para>Eine kurze Übersicht der Features:</para>
-          <itemizedlist>
-            <listitem><para>Mehrsprachenfähig, mit Deutscher und Englischer Übersetzung</para></listitem>
-            <listitem><para>Zentrale Konfigurationsdateien, die für alle Belege benutzt werden, z.B. für Kopf- und Fußzeilen, und Infos wie Bankdaten</para></listitem>
-            <listitem><para>mehrere vordefinierte Varianten für Logos/Hintergrundbilder</para></listitem>
-            <listitem><para>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder "Außerhalb EU"</para></listitem>
-          </itemizedlist>
+<para>
+Hinweis zum Einsatz des Feldes "Land" bei den Stammdaten für KundInnen und LieferantInnen,
+sowie bei Lieferadressen:
+Die in diesem Vorlagensatz vorhandenen Vorlagen erwarten für "Land" das entsprechende
+Kürzel, das in Adressen vor die Postleitzahl gesetzt wird.
+Das Feld kann auch komplett leer bleiben.
+Wer dies anders handhaben möchte, muss die Vorlagen entsprechend anpassen.
+</para>
+<para>
+odt-Vorlagen können mit LibreOffice oder OpenOffice editiert
+und den eigenen Bedürfnissen angepasst werden.
+Wichtig beim Editieren von if-Blöcken ist, dass immer der gesamte Block
+überschrieben werden muss und nicht nur Teile davon, da dies sonst oft
+zu einer odt-Datei führt, die vom Parser nicht korrekt gelesen werden kann.
+</para>
+<para>
+Zur Zeit gibt es in kivitendo noch keine Möglichkeit, odt-Vorlagen bei Mahnungen
+einzusetzen. Entsprechende Vorlagen sind deshalb nicht vorhanden.
+</para>
+<para>
+Inwieweit es möglich ist, für die in Version 3.2.0 neu eingeführten Pflichtenhefte
+odt-Vorlagen zu erstellen, sind wir am abklären.
+Wenn dies möglich ist, werden wir in Zukunft auch eine odt-Vorlage für Pflichtenhefte
+in diesem Vorlagensatz zur Verfügung stellen.
+</para>
+<para>
+Fehlermeldungen, Anregungen und Wünsche bitte senden an:
+empfang@revamp-it.ch
+</para>
 
       </sect2>
 

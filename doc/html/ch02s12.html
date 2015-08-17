@@ -5,21 +5,21 @@
       die Pakete mit:</p><p>
             </p><pre class="programlisting">aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
   texlive-latex-extra texlive-lang-german texlive-generic-extra</pre><p>
-         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Standard</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>RB</p></li></ul></div><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
+         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>RB</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>rev-odt</p></li></ul></div><p>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version 3.3 entfernt, da er nicht mehr gepflegt wurde.</p><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
               Recht "Konfiguration -&gt; Mandantenverwaltung" verfügt. Siehe auch <a class="xref" href="ch02s09.html#Gruppen-anlegen" title="2.9.4. Gruppen anlegen">Abschnitt&nbsp;2.9.4, „Gruppen anlegen“</a>.
         </p><p>Im Userbereich lässt sich unter:
         "<span class="guimenu">System</span> -&gt;
         <span class="guisubmenu">Mandantenverwaltung</span> -&gt; <span class="guimenuitem">Verschiedenes</span>" die Option
         "Neue Druckvorlagen aus Vorlagensatz erstellen" auswählen.</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
                      <code class="option">Vorlagen auswählen</code>: Wählen Sie hier den Vorlagensatz aus, der kopiert werden soll
-          (<code class="filename">Standard</code>, <code class="filename">f-tex</code> oder <code class="filename">RB</code>.)</p></li><li class="listitem"><p>
+          (<code class="filename">RB</code>, <code class="filename">f-tex</code> oder <code class="filename">odt-rev</code>.)</p></li><li class="listitem"><p>
                      <code class="option">Neuer Name</code>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
           Bedingungen für Verzeichnisnamen frei gewählt werden.</p></li></ol></div><p>Nach dem Speichern wird das Vorlagenverzeichnis angelegt und ist für den aktuellen Mandanten ausgewählt.
            Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Mandanten verwendet werden.
            Eventuell müssen Anpassungen (Logo, Erscheinungsbild, etc) noch vorgenommen werden. Den Ordner findet man im Dateisystem unter
            <code class="filename">./templates/[Neuer Name]</code>
-            </p></div><div class="sect2" title="2.12.2. Standard"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-Standard"></a>2.12.2. Standard</h3></div></div></div><p>Der Standard-Vorlagensatz von kivitendo. Wie unter <a class="ulink" href="https://www.kivitendo.de" target="_top">https://www.kivitendo.de</a> zu
-        sehen.</p></div><div class="sect2" title="2.12.3. f-tex"><div class="titlepage"><div><div><h3 class="title"><a name="f-tex"></a>2.12.3. f-tex</h3></div></div></div><p>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur Verfügung stellt.</p><div class="sect3" title="2.12.3.1. Feature-Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Feature-%C3%9Cbersicht"></a>2.12.3.1. Feature-Übersicht</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
+            </p></div><div class="sect2" title="2.12.2. Der Druckvorlagensatz RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.12.2. Der Druckvorlagensatz RB</h3></div></div></div><p>Hierbei handelt es sich um einen vollständigen LaTeX Dokumentensatz mit alternativem Design. Die odt oder html-Varianten sind nicht gepflegt.</p><p>Die konzeptionelle Idee der Vorlagen wird <a class="ulink" href="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf" target="_top">hier</a>
+          auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</p><p>Eine kurze Übersicht der Features:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Mehrsprachenfähig, mit Deutscher und Englischer Übersetzung</p></li><li class="listitem"><p>Zentrale Konfigurationsdateien, die für alle Belege benutzt werden, z.B. für Kopf- und Fußzeilen, und Infos wie Bankdaten</p></li><li class="listitem"><p>mehrere vordefinierte Varianten für Logos/Hintergrundbilder</p></li><li class="listitem"><p>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.12.3. f-tex"><div class="titlepage"><div><div><h3 class="title"><a name="f-tex"></a>2.12.3. f-tex</h3></div></div></div><p>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur Verfügung stellt.</p><div class="sect3" title="2.12.3.1. Feature-Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Feature-%C3%9Cbersicht"></a>2.12.3.1. Feature-Übersicht</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
             Angebot, Rechnung, Proformarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc.</p></li><li class="listitem"><p>Leichte Anpassung an das Firmen-Layout durch Verwendung eines Hintergrund-PDFs. Dieses kann leicht mit dem
             eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</p></li><li class="listitem"><p>Hintergrund-PDF umschaltbar auf "nur erste Seite" (Standard) oder "alle Seiten" (Option
             "<code class="option">bgPdfFirstPageOnly</code>" in Datei <code class="filename">letter.lco</code>)</p></li><li class="listitem"><p>Hintergrund-PDF für Ausdruck auf bereits bedrucktem Briefpapier abschaltbar. Es wird dann nur bei per E-Mail
@@ -78,8 +78,34 @@
           <code class="varname">shipto*</code>-Variable leer ist, wird die entsprechende Adressvariable eingesetzt.  Wenn also die Lieferadresse in
           Straße, Hausnummer und Ort abweicht, müssen auch nur diese Felder in der Lieferadresse ausgefüllt werden. Für den Firmenname wird
           der Wert der Hauptadresse angezeigt.
-          </p></div></div><div class="sect2" title="2.12.4. Der Druckvorlagensatz RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.12.4. Der Druckvorlagensatz RB</h3></div></div></div><p>Hierbei handelt es sich um einen vollständigen \LaTeX Dokumentensatz mit alternativem Design. Die odt oder html-Varianten sind nicht gepflegt.</p><p>Die konzeptionelle Idee der Vorlagen wird <a class="ulink" href="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf" target="_top">hier</a>
-          auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die eigenen Firmendaten finden sich in der Datei Readme.tex im Vorlagenverzeichnis.</p><p>Eine kurze Übersicht der Features:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Mehrsprachenfähig, mit Deutscher und Englischer Übersetzung</p></li><li class="listitem"><p>Zentrale Konfigurationsdateien, die für alle Belege benutzt werden, z.B. für Kopf- und Fußzeilen, und Infos wie Bankdaten</p></li><li class="listitem"><p>mehrere vordefinierte Varianten für Logos/Hintergrundbilder</p></li><li class="listitem"><p>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt schon
+          </p></div></div><div class="sect2" title="2.12.4. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.12.4. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
+Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it, Zürich erstellt
+und werden laufend aktualisiert. Ein paar der Formulierungen in den Druckvorlagen entsprechen dem Schweizer Sprachgebrauch, z.B. "Offerte" oder "allfällig".
+        </p><p>
+Hinweis zum Einsatz des Feldes "Land" bei den Stammdaten für KundInnen und LieferantInnen,
+sowie bei Lieferadressen:
+Die in diesem Vorlagensatz vorhandenen Vorlagen erwarten für "Land" das entsprechende
+Kürzel, das in Adressen vor die Postleitzahl gesetzt wird.
+Das Feld kann auch komplett leer bleiben.
+Wer dies anders handhaben möchte, muss die Vorlagen entsprechend anpassen.
+</p><p>
+odt-Vorlagen können mit LibreOffice oder OpenOffice editiert
+und den eigenen Bedürfnissen angepasst werden.
+Wichtig beim Editieren von if-Blöcken ist, dass immer der gesamte Block
+überschrieben werden muss und nicht nur Teile davon, da dies sonst oft
+zu einer odt-Datei führt, die vom Parser nicht korrekt gelesen werden kann.
+</p><p>
+Zur Zeit gibt es in kivitendo noch keine Möglichkeit, odt-Vorlagen bei Mahnungen
+einzusetzen. Entsprechende Vorlagen sind deshalb nicht vorhanden.
+</p><p>
+Inwieweit es möglich ist, für die in Version 3.2.0 neu eingeführten Pflichtenhefte
+odt-Vorlagen zu erstellen, sind wir am abklären.
+Wenn dies möglich ist, werden wir in Zukunft auch eine odt-Vorlage für Pflichtenhefte
+in diesem Vorlagensatz zur Verfügung stellen.
+</p><p>
+Fehlermeldungen, Anregungen und Wünsche bitte senden an:
+empfang@revamp-it.ch
+</p></div><div class="sect2" title="2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.12.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt schon
         funktionieren. Sollte ein Fehler auftreten, wirft TeX sehr lange
         Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeile,
         die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
