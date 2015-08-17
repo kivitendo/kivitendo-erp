@@ -35,6 +35,10 @@ sub reset {
   $dbh;
 }
 
+sub reset_all {
+  $_->rollback for values %cache;
+}
+
 sub clear {
   %cache = ();
 }

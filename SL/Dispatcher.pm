@@ -335,6 +335,8 @@ sub handle_request {
   $::form     = undef;
   $::myconfig = ();
   $::request  = undef;
+
+  SL::DBConnect::Cache->reset_all;
   Form::disconnect_standard_dbh;
 
   $self->_watch_for_changed_files;
