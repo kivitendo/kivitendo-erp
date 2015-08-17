@@ -50,6 +50,7 @@ __PACKAGE__->attr_sorted('items');
 
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
+sub record_number { goto &invnumber; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -88,5 +89,23 @@ sub link {
 
   return $html;
 }
+
+sub invoice_type {
+  my ($self) = @_;
+
+  return 'ap_transaction' if !$self->invoice;
+  return 'purchase_invoice';
+}
+
+sub displayable_type {
+  my ($self) = @_;
+
+  return t8('AP Transaction')    if $self->invoice_type eq 'ap_transaction';
+  return t8('Purchase Invoice');
+}
+
+sub displayable_name {
+  join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
+};
 
 1;
