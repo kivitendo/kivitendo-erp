@@ -26,12 +26,12 @@ sub javascripts_inline {
 sub use_javascript {
   my $self = shift;
   qw(
-    js/jquery.js
-    js/common.js
-    js/namespace.js
-    js/kivi.js
+    jquery.js
+    common.js
+    namespace.js
+    kivi.js
   ),
-  'js/locale/'. $::myconfig{countrycode} .'.js',
+  'locale/'. $::myconfig{countrycode} .'.js',
   $self->SUPER::use_javascript(@_);
 }
 

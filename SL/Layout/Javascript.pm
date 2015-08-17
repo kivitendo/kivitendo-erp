@@ -59,7 +59,6 @@ sub stylesheets {
     dhtmlsuite/menu-item.css
     dhtmlsuite/menu-bar.css
     icons16.css
-    frame_header/header.css
     menu.css
   ));
   $_[0]->SUPER::stylesheets;

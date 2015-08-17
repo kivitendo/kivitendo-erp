@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Layout::Base);
 
 sub use_stylesheet {
-  qw(icons16.css frame_header/header.css),
+  qw(icons16.css),
 }
 
 sub pre_content {
