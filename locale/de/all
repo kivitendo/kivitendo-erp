@@ -355,6 +355,7 @@ $self->{texts} = {
   'Bank collection via SEPA'    => 'Bankeinzug via SEPA',
   'Bank collections via SEPA'   => 'Bankeinzüge via SEPA',
   'Bank transaction'            => 'Bankbuchung',
+  'Bank transaction with id #1 has already been linked to #2.' => 'Bankbuchung mit id #1 wurde schon mit #2 verlinkt.',
   'Bank transactions'           => 'Bankbewegungen',
   'Bank transactions MT940'     => 'Kontoauszug verbuchen',
   'Bank transfer amount'        => 'Überweisungssumme',

@@ -355,6 +355,9 @@ sub action_save_invoices {
   my $invoice_hash = delete $::form->{invoice_ids}; # each key (the bt line with a bt_id) contains an array of invoice_ids
   my $skonto_hash  = delete $::form->{invoice_skontos} || {}; # array containing the payment type, could be empty
 
+  # a bank_transaction may be assigned to several invoices, i.e. a customer
+  # might pay several open invoices with one transaction
+
   while ( my ($bt_id, $invoice_ids) = each(%$invoice_hash) ) {
     my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
     my $sign = $bank_transaction->amount < 0 ? -1 : 1;
@@ -372,6 +375,12 @@ sub action_save_invoices {
                        return 1; } @invoices                    if $bank_transaction->amount < 0;
 
     foreach my $invoice (@invoices) {
+
+      # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
+      # This might be caused by the user reloading a page and resending the form
+      die t8("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name)
+        if _existing_record_link($bank_transaction, $invoice);
+
       my $payment_type;
       if ( defined $skonto_hash->{"$bt_id"} ) {
         $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
@@ -385,7 +394,7 @@ sub action_save_invoices {
                                             $bank_transaction->remote_bank_code));
         last;
       }
-      #pay invoice or go to the next bank transaction if the amount is not sufficiently high
+      # pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->amount <= $amount_of_transaction) {
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
@@ -410,7 +419,7 @@ sub action_save_invoices {
         $amount_of_transaction = 0;
       }
 
-      #Record a link from the bank transaction to the invoice
+      # Record a record link from the bank transaction to the invoice
       my @props = (
           from_table => 'bank_transactions',
           from_id    => $bt_id,
@@ -418,9 +427,7 @@ sub action_save_invoices {
           to_id      => $invoice->id,
           );
 
-      my $existing = SL::DB::Manager::RecordLink->get_all(where => \@props, limit => 1)->[0];
-
-      SL::DB::RecordLink->new(@props)->save if !$existing;
+      SL::DB::RecordLink->new(@props)->save;
     }
     $bank_transaction->save;
   }
@@ -432,14 +439,21 @@ sub action_save_proposals {
   my ($self) = @_;
 
   foreach my $bt_id (@{ $::form->{proposal_ids} }) {
-    #mark bt as booked
     my $bt = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
+
+    my $arap = SL::DB::Manager::Invoice->find_by(id => $::form->{"proposed_invoice_$bt_id"});
+    $arap    = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{"proposed_invoice_$bt_id"}) if not defined $arap;
+
+    # check for existing record_link for that $bt and $arap
+    # do this before any changes to $bt are made
+    die t8("Bank transaction with id #1 has already been linked to #2.", $bt->id, $arap->displayable_name)
+      if _existing_record_link($bt, $arap);
+
+    #mark bt as booked
     $bt->invoice_amount($bt->amount);
     $bt->save;
 
     #pay invoice
-    my $arap = SL::DB::Manager::Invoice->find_by(id => $::form->{"proposed_invoice_$bt_id"});
-    $arap    = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{"proposed_invoice_$bt_id"}) if not defined $arap;
     $arap->pay_invoice(chart_id  => $bt->local_bank_account->chart_id,
                        trans_id  => $arap->id,
                        amount    => $arap->amount,
@@ -454,9 +468,7 @@ sub action_save_proposals {
         to_id      => $arap->id,
         );
 
-    my $existing = SL::DB::Manager::RecordLink->get_all(where => \@props, limit => 1)->[0];
-
-    SL::DB::RecordLink->new(@props)->save if !$existing;
+    SL::DB::RecordLink->new(@props)->save;
   }
 
   flash('ok', t8('#1 proposal(s) saved.', scalar @{ $::form->{proposal_ids} }));
@@ -553,6 +565,21 @@ sub prepare_report {
     raw_bottom_info_text  => $self->render('bank_transactions/report_bottom', { output => 0 }),
   );
 }
+
+sub _existing_record_link {
+  my ($bt, $invoice) = @_;
+
+  # check whether a record link from banktransaction $bt already exists to
+  # invoice $invoice, returns 1 if that is the case
+
+  die unless $bt->isa("SL::DB::BankTransaction") && ( $invoice->isa("SL::DB::Invoice") || $invoice->isa("SL::DB::PurchaseInvoice") );
+
+  my $linked_record_to_table = $invoice->is_sales ? 'Invoice' : 'PurchaseInvoice';
+  my $linked_records = $bt->linked_records( direction => 'to', to => $linked_record_to_table, query => [ id => $invoice->id ]  );
+
+  return @$linked_records ? 1 : 0;
+};
+
 
 sub init_models {
   my ($self) = @_;
