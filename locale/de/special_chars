@@ -46,15 +46,15 @@ _=\\_
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
-§=\\S
-®=\\textregistered
-©=\\textcopyrighta
+§=\\S\s
+®=\\textregistered\s
+©=\\textcopyright\s
 \xad=\\-
 ➔=$\\rightarrow$
 →=$\\rightarrow$
 ←=$\\leftarrow$
 \xa0=~
-|=\\textbar
+|=\\textbar\s
 −={\\textemdash}
 
 [Template/OpenDocument]
