@@ -16,6 +16,7 @@ sub available_prices { }
 sub available_discounts {
   my ($self, %params) = @_;
 
+  return if     $self->part->not_discountable;
   return unless $self->record->is_sales;
   return unless $self->record->customer;
   return unless $self->record->customer->discount != 0;
