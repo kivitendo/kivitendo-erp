@@ -1349,13 +1349,13 @@
   id: program_kivitendo_modul_overview
   name: Overview kivitendo modules
   order: 100
-  href: http://www.kivitendo-premium.de/module.html
+  href: http://www.kivitendo-premium.de/module.shtml
   target: _blank
 - parent: program_kivitendo_modul
   id: program_kivitendo_modul_activate
   name: Activate kivitendo module
   order: 200
-  href: http://www.kivitendo-premium.de/modul-aktivieren.html
+  href: http://www.kivitendo-premium.de/modul-aktivieren.shtml
   target: _blank
 - parent: program
   id: program_administration_area
