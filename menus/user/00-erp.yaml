@@ -1342,6 +1342,22 @@
     action: company_logo
     no_todo_list: 1
 - parent: program
+  id: program_kivitendo_modul
+  name: kivitendo modules
+  order: 350
+- parent: program_kivitendo_modul
+  id: program_kivitendo_modul_overview
+  name: Overview kivitendo modules
+  order: 100
+  href: http://www.kivitendo-premium.de/module.html
+  target: _blank
+- parent: program_kivitendo_modul
+  id: program_kivitendo_modul_activate
+  name: Activate kivitendo module
+  order: 200
+  href: http://www.kivitendo-premium.de/modul-aktivieren.html
+  target: _blank
+- parent: program
   id: program_administration_area
   name: Administration area
   order: 400
