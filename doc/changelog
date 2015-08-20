@@ -6,15 +6,15 @@
 
 Größere neue Features:
 
-Bankerweiterung und Skontobehandlung
+- Bankerweiterung und Skontobehandlung
 
   Bei der Bankerweiterung kann man
-  * Kontoauszüge importieren (für MT940 wird aqbanking-cli benötigt)
-  * anhand der Kontoauszüge Zahlungen verbuchen
-  * die FiBu-Buchungen auf die Bankkonten mit den importieren Auszügen
-  abgleichen
 
-__Es wurde ein neues Recht "Bankbewegungen" eingeführt.
+  * Kontoauszüge importieren (für MT940 wird aqbanking-cli benötigt)
+  * Zahlungen verbuchen anhand der Kontoauszüge
+  * Buchungen auf die Bankkonten mit den importieren Auszügen abgleichen
+
+- Es wurde ein neues Recht "Bankbewegungen" eingeführt.
 
   Beim Verbuchen der Zahlungen werden Rechnungsvorschläge gemacht, die anhand
   eines internen Punktesystems bewertet werden.
@@ -30,22 +30,13 @@ __Es wurde ein neues Recht "Bankbewegungen" eingeführt.
   Die Skontobehandlung wurde beim Verbuchen der Skontobelege und beim
   SEPA-Einzug bzw der SEPA-Überweisung implementiert.
   Beim Bezahlen von Rechnungen kann man auswählen ob man die Zahlung
+
   * ohne Skonto
   * mit Skonto laut Zahlungsbedingungen
   * die Differenz als Skonto
+
   buchen möchte. Es wird je nach Zahlungsbetrag und Zahlungsdatum ein sinnvoller
   Vorschlag gemacht.
-
-- Menüsystem überarbeitet: yaml, Icons und Rechte
-
-  Die Menüstruktur wird nun durch yaml-Dateien definiert. Statt Änderungen an
-  der menu.ini kann man nun durch Hinzufügen eigener Dateien neue Menüpunkte
-  hinzufügen oder bestehende Menüpunkte umsortieren.
-
-  Die Dateinamen der Icons wurden angepasst, und können nun unabhängig vom
-  Menunamen zugewiesen werden.
-
-  Die Rechte liegen jetzt in der auth Datenbank, in "auth.master_rights".
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -78,13 +69,13 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Preisgruppe bei Stammdaten->Berichte->Kunden anzeigen lassen können.
 
-Änderungen:
-
 - Die Standarddruckvorlagen wurden entfernt, da diese nicht mehr gepflegt
   wurden. Neuer Default bei den Druckvorlagen sind die RB-Vorlagen.
 
 - Es gibt einen neuen Druckvorlagensatz rev-odt, der auf
   OpenOffice/LibreOffice Dateien basiert.
+
+System- und API-Änderungen:
 
 - Belegpositionen werden nicht mehr mit ordnumber, transdate, cusordnumber
   gespeichert, für den Ausdruck in Rechnungen werden stattdessen die
@@ -92,7 +83,15 @@ Kleinere neue Features und Detailverbesserungen:
 
 - wzToolTip wurde durch jQuery ToolTipster ersetzt
 
-- Initital neue Einträge unter Menü -> Programm für Module erstellt
+- Menüsystem überarbeitet: yaml, Icons und Rechte
+  Die Menüstruktur wird nun durch yaml-Dateien definiert. Statt Änderungen an
+  der menu.ini kann man nun durch Hinzufügen eigener Dateien neue Menüpunkte
+  hinzufügen oder bestehende Menüpunkte umsortieren.
+
+  Die Dateinamen der Icons wurden angepasst, und können nun unabhängig vom
+  Menunamen zugewiesen werden.
+
+  Die Rechte liegen jetzt in der auth Datenbank, in "auth.master_rights".
 
 Bugfixes:
 
