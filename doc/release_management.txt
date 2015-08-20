@@ -24,7 +24,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   Benutzer und Mandant muss hierfür entsprechend in kivitendo.conf > Abschnitt testing
   konfiguriert sein.
 
-  - Im Moment sind 3 Fehler optimal (die sind noch nicht angegangen):
+  - Im Moment sind 3 Fehler optional (die sind noch nicht angegangen):
     o  bin/mozilla/ic.pl contains at least 123 html tags.
   - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
     TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
@@ -196,6 +196,8 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   Wichtig: Seit 3.0.0 gibt es noch zusätzlich ein Pg-Upgrade2-auth/ Verzeichnis, welches
   für die  Authentifizierungsupdates benutzt wird.
 
+  $ scripts/dbupgrade2_tool.pl --nodeps --auth-db
+
 * Voraussichtliches Releasedatum im changelog eintragen
 
 * Finaler Testlauf:
@@ -221,18 +223,9 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   Commits mit Tags können von github als Archiv heruntergeladen werden:
   https://github.com/kivitendo/kivitendo-erp/releases
 
-* Tarball testen, wird das richtig entpackt?
-
-* SHA1 und MD5 von tarball machen und in *.sha1 bzw. *.md5 speichern
-
-* Alles auf Sourceforge hochladen
-
-* Auf Sourceforge den Standarddownloadlink setzen
-
 * Releasemessages schreiben für folgende Ziele:
 
   - kivitendo.de: deutsch, prosa, formell
-  - freecode.com: englisch, max 600 zeichen, technische stichpunkte aus dem changelog (ehemals freshmeat.net)
   - Mailinglisten: deutsch, freitext, informell
 
 * Alle Releasemessages von mindestens einer Person Korrektur lesen lassen

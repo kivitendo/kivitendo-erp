@@ -1,0 +1,4 @@
+-- @tag: release_3_3_0
+-- @description: Abhängigkeitsscript für Release 3.2.0, bzw. vergessene 3.1.0
+-- @depends: release_3_2_0 sales_letter_rights delivery_plan_rights requirement_spec_rights delivery_process_value bank_transaction_rights
+-- @charset: utf-8
