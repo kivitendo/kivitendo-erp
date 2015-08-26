@@ -44,7 +44,7 @@ sub parse_value {
   }
 
   if ($type =~ m{^(?:date|timestamp)}) {
-    return $self->timestamp_value(defined($unparsed) ? DateTime->from_kivitendo($unparsed) : undef);
+    return $self->timestamp_value(!defined($unparsed) ? undef : ref($unparsed) eq 'DateTime' ? $unparsed->clone : DateTime->from_kivitendo($unparsed));
   }
 
   # text, textfield, select
