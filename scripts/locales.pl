@@ -615,7 +615,7 @@ sub scanhtmlfile {
     }
 
     while ($line =~ m/\[\%          # Template-Start-Tag
-                      [\-~#]?       # Whitespace-Unterdrückung
+                      [\-~#]*       # Whitespace-Unterdrückung
                       \s*           # Optional beliebig viele Whitespace
                       (?:           # Die erkannten Template-Direktiven
                         PROCESS
