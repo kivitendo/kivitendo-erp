@@ -51,7 +51,7 @@ __END__
 
 =head1 NAME
 
-SL::PriceSource::Price - contrainer to pass calculated prices around
+SL::PriceSource::Price - container to pass calculated prices around
 
 =head1 SYNOPSIS
 
@@ -116,7 +116,7 @@ A ref to the creating algorithm.
 
 =item C<priority>
 
-OPTIONAL. Prices may supply a numerical priority. Higher will trump over lower, even when
+OPTIONAL. Prices may supply a numerical priority. Higher will trump lower, even when
 supplying higher prices. Defaults to 3 (as in middle of 1-5).
 
 =item C<missing>

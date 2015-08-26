@@ -123,19 +123,19 @@ L<SL::PriceSource::ALL>.
 
 =item C<description>
 
-Must return a translated name to be used in frontend. Will be used, to
+Must return a translated name to be used in the frontend. Will be used to
 distinguish the origin of different prices.
 
 =item C<available_prices>
 
-Must return a list of all prices that you algorithm can recommend the user
+Must return a list of all prices that your algorithm can recommend to the user
 for the current situation. Each price must have a unique spec that can be used
 to recreate it later. Try to be brief, no one needs 20 different price
 suggestions.
 
 =item C<available_discounts>
 
-Must return a list of all prices that you algorithm can recommend the user
+Must return a list of all prices that your algorithm can recommend to the user
 for the current situation. Each discount must have a unique spec that can be
 used to recreate it later. Try to be brief, no one needs 20 different discount
 suggestions.
@@ -178,7 +178,7 @@ C<invalid> or C<missing> set.
 =item *
 
 Be aware that all 8 types of record will be passed to your algorithm. If you
-don't serve some of them, just return emptry lists on C<available_prices> and
+don't serve some of them, just return empty lists on C<available_prices> and
 C<best_price>
 
 =item *
@@ -189,7 +189,7 @@ created records there might be fields not set at all.
 =item *
 
 Records will not be calculated. If you need tax data or position totals, you
-need to invoke that for yourself.
+need to invoke that yourself.
 
 =item *
 
@@ -198,7 +198,7 @@ Accessor methods might not be present in some of the record types.
 =item *
 
 You do not need to do price factor and row discount calculation. These will be
-done automatically afterwards. You do have to include customer/vendor discount
+done automatically afterwards. You do have to include customer/vendor discounts
 if your price interacts with those.
 
 =item *
