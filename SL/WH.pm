@@ -978,7 +978,7 @@ $main::lxdebug->enter_sub();
   while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle Haltbarkeiten und Chargen(s.a. SQL-Query oben)
     $max_qty_parts += $ref->{sum};
     $i++;
-    if ($ref->{chargenumber} || $ref->{bestbefore}){
+    if (($ref->{chargenumber} || $ref->{bestbefore}) && $ref->{sum} != 0){
       $error=1;
     }
   }
