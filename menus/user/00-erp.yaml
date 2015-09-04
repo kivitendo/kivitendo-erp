@@ -266,6 +266,19 @@
   params:
     action: add
 - parent: ar
+  id: ar_invoices
+  name: Invoices
+  icon: sales_invoice_add
+  order: 850
+- parent: ar_invoices
+  id: ar_invoices_mass_add_sales_invoice
+  name: Mass Create Print Sales Invoice from Delivery Order
+  order: 100
+  access: invoice_edit
+  params:
+    noshow: 1
+    action: MassInvoiceCreatePrint/list_sales_delivery_orders
+- parent: ar
   id: ar_reports
   name: Reports
   icon: ar_report
