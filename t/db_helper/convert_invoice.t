@@ -1,4 +1,4 @@
-use Test::More tests => 29;
+use Test::More tests => 38;
 
 use strict;
 
@@ -26,6 +26,8 @@ use SL::DB::TaxZone;
 
 my ($customer, $currency_id, $buchungsgruppe, $employee, $vendor, $taxzone, $buchungsgruppe7, $tax, $tax7,
     $unit, @parts);
+
+my $VISUAL_TEST = 0;  # just a sleep to click around
 
 sub clear_up {
   foreach (qw(DeliveryOrderItem DeliveryOrder InvoiceItem Invoice Part Customer Vendor Employee Department PaymentTerm)) {
@@ -218,6 +220,7 @@ ok(2 ==  scalar@{ SL::DB::Manager::DeliveryOrderItem->get_all(where => [ deliver
 # convert this do to invoice
 my $invoice = $do1->convert_to_invoice();
 
+sleep (300) if $VISUAL_TEST; # we can do a real visual test via gui login
 # test invoice afterwards
 
 ok ($invoice->shipvia eq "DHL, Versand am 06.03.2015, 1 Paket  17,00 kg", "ship via check");
@@ -284,6 +287,53 @@ is(@ {$invoice->items_sorted}[0]->discount, 0.25, "pos 1 discount");
 is(@ {$invoice->items_sorted}[1]->discount, 0.25, "pos 2 discount");
 
 # more ideas: check onhand, lastcost (parsed lastcost)
+
+
+
+# check linked records AND linked items
+
+# we expect something like this in record links:
+# delivery_order_items |  144736 | invoice  |     9 | 2015-09-02 16:29:32.362562 |  5
+# delivery_order_items |  144737 | invoice  |    10 | 2015-09-02 16:29:32.362562 |  6
+# delivery_orders      |  464003 | ar       |     5 | 2015-09-02 16:29:32.362562 |  7
+# wir erwarten:
+# verkn�pfter beleg$VAR1 = {
+#           'from_id' => 464003,
+#           'from_table' => 'delivery_orders',
+#           'to_id' => 11,
+#           'to_table' => 'ar'
+#         };
+# verkn�pfte positionen$VAR1 = {
+#           'from_id' => 144737,
+#           'from_table' => 'delivery_order_items',
+#           'to_id' => 22,
+#           'to_table' => 'invoice'
+#         };
+# $VAR2 = {
+#           'from_id' => 144736,
+#           'from_table' => 'delivery_order_items',
+#           'to_id' => 21,
+#           'to_table' => 'invoice'
+#         };
+
+
+
+my @links_record    = RecordLinks->get_links('from_table' => 'delivery_orders',
+                                             'to_table'   => 'ar',
+                                             'from_id'      => 464003);
+is($links_record[0]->{from_id}, '464003', "record from id check");
+is($links_record[0]->{from_table}, 'delivery_orders', "record from table check");
+is($links_record[0]->{to_table}, 'ar', "record to table check");
+
+foreach (qw(144736 144737)) {
+  my @links_record_item1 = RecordLinks->get_links('from_table' => 'delivery_order_items',
+                                                 'to_table'   => 'invoice',
+                                                 'from_id'      => $_);
+  is($links_record_item1[0]->{from_id}, $_, "record from id check $_");
+  is($links_record_item1[0]->{from_table}, 'delivery_order_items', "record from table check $_");
+  is($links_record_item1[0]->{to_table}, 'invoice', "record to table check $_");
+}
+
 
 clear_up();
 
