@@ -304,7 +304,7 @@ set by the registered handlers.
 
 Enable or disable the specified plugin. Useful to disable paginating for
 exports for example. C<is_enabled_plugin> can be used to check the current
-state fo a plugin.
+state of a plugin.
 
 Must not be finalized to use this.
 

@@ -170,7 +170,7 @@ See L<SL::Controller::Helper::ParseFilter> for a description of the filter forma
 =head1 CUSTOM FILTERS
 
 C<Filtered> will honor custom filters defined in RDBO managers. See
-L<SL::DB::Helper::Filtered> for an explanation fo those.
+L<SL::DB::Helper::Filtered> for an explanation of those.
 
 =head1 FUNCTIONS
 
