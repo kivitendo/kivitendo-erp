@@ -2,6 +2,20 @@
 # Veränderungen von kivitendo #
 ###############################
 
+
+2015-xx-xx - Release 3.x.x
+
+Größere neue Features:
+
+- Massenkonvertierung von Lieferscheinen nach Rechnung mit direktem Ausdruck (optional)
+    Die manuelle Umwandlung von Lieferscheinen zu Rechnungen stößt bei größeren Daten-
+    mengen an die Grenze der Anwendergeduld. Entsprechend können Lieferschein-Objekte
+    direkt in Rechnungsobjekte gewandelt und zum Drucker geschickt werden. Die Ab-
+    arbeitung erfolgt als Hintergrund-Job mit Status-Information (alle 5 sek) an den
+    Benutzer. Auf der aktuellen Testumgebung (8000 bogomips) konnten hier 440 Objekte
+    in 2 Minuten gewandelt und in weiteren 5 Minuten als PDF erzeugt werden.
+
+
 2015-08-20 - Release 3.3
 
 Größere neue Features:
