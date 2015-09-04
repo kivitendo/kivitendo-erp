@@ -187,6 +187,39 @@ sub customervendor {
   $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
 }
 
+sub convert_to_invoice {
+  my ($self, %params) = @_;
+
+  croak("Conversion to invoices is only supported for sales records") unless $self->customer_id;
+
+  my $invoice;
+  if (!$self->db->with_transaction(sub {
+    require SL::DB::Invoice;
+    $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
+    $self->link_to_record($invoice);
+    foreach my $item (@{ $invoice->items }) {
+      foreach (qw(delivery_order_items)) {    # expand if needed (delivery_order_items)
+        if ($item->{"converted_from_${_}_id"}) {
+          die unless $item->{id};
+          RecordLinks->create_links('mode'       => 'ids',
+                                    'from_table' => $_,
+                                    'from_ids'   => $item->{"converted_from_${_}_id"},
+                                    'to_table'   => 'invoice',
+                                    'to_id'      => $item->{id},
+          ) || die;
+          delete $item->{"converted_from_${_}_id"};
+        }
+      }
+    }
+    $self->update_attributes(closed => 1);
+    1;
+  })) {
+    return undef;
+  }
+
+  return $invoice;
+}
+
 1;
 __END__
 
@@ -287,6 +320,21 @@ TODO: Describe sales_order
 
 Returns a string describing this record's type: either
 C<sales_delivery_order> or C<purchase_delivery_order>.
+
+=item C<convert_to_invoice %params>
+
+Creates a new invoice with C<$self> as the basis by calling
+L<SL::DB::Invoice::new_from>. That invoice is posted, and C<$self> is
+linked to the new invoice via L<SL::DB::RecordLink>. C<$self>'s
+C<closed> attribute is set to C<true>, and C<$self> is saved.
+
+The arguments in C<%params> are passed to L<SL::DB::Invoice::post>.
+
+Returns the new invoice instance on success and C<undef> on
+failure. The whole process is run inside a transaction. On failure
+nothing is created or changed in the database.
+
+At the moment only sales delivery orders can be converted.
 
 =back
 
