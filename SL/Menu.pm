@@ -21,7 +21,7 @@ sub new {
     my $path = File::Spec->catdir('menus', $domain);
 
     opendir my $dir, $path or die "can't open $path: $!";
-    my @files = sort grep -f "$path/$_", readdir $dir;
+    my @files = sort grep -f "$path/$_", grep /\.yaml$/, readdir $dir;
     close $dir;
 
     my $nodes = [];
