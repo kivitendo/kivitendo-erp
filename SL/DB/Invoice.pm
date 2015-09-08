@@ -426,8 +426,13 @@ falsish value will be skipped.
 =item C<attributes>
 
 An optional hash reference. If it exists then it is passed to C<new>
-allowing the caller to set certain attributes for the new delivery
-order.
+allowing the caller to set certain attributes for the new invoice.
+For example to set a different transdate (default is the current date),
+call the method like this:
+
+   my %params;
+   $params{attributes}{transdate} = '28.08.2015';
+   $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
 
 =back
 
@@ -488,6 +493,16 @@ active.
 See L<SL::DB::Object::basic_info>.
 
 =back
+
+=head1 TODO
+ As explained in the new_from example, it is possible to set transdate to a new value.
+ From a user / programm point of view transdate is more than holy and there should be
+ some validity checker available for controller code. At least the same logic like in
+ Form.pm from ar.pl should be available:
+  # see old stuff ar.pl post
+  #$form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+  #  if ($form->date_max_future($transdate, \%myconfig));
+  #$form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
 =head1 AUTHOR
 
