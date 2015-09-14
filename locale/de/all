@@ -2356,6 +2356,7 @@ $self->{texts} = {
   'Services'                    => 'Dienstleistungen',
   'Set (set to)'                => 'Setze',
   'Set eMail text'              => 'E-Mail Text eingeben',
+  'Set to paid missing'         => 'Fehlbetrag setzen',
   'Settings'                    => 'Einstellungen',
   'Setup Menu'                  => 'Menü-Variante',
   'Ship to'                     => 'Lieferadresse',
