@@ -4,6 +4,9 @@
 package SL::DB::CustomVariable;
 
 use strict;
+
+use List::MoreUtils qw(any);
+
 use SL::DB::MetaSetup::CustomVariable;
 
 __PACKAGE__->meta->initialize;
@@ -36,7 +39,9 @@ sub parse_value {
   my $unparsed = delete $self->{__unparsed_value};
 
   if ($type =~ m{^(?:customer|vendor|part|number)}) {
-    return $self->number_value(defined($unparsed) ? $unparsed * 1 : undef);
+    return $self->number_value(!defined($unparsed) ? undef
+                               : (any { ref($unparsed) eq $_ } qw(SL::DB::Customer SL::DB::Vendor SL::DB::Part)) ? $unparsed->id * 1
+                               : $unparsed * 1);
   }
 
   if ($type =~ m{^(?:bool)}) {
