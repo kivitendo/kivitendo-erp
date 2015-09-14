@@ -45,7 +45,11 @@
      <tr>
      <td align="center">
      [% IF $changeable %]
-       [% L.date_tag('datepaid_'_ i, $datepaid) %]
+       [% IF $datepaid %]
+         [% L.date_tag('datepaid_'_ i, $datepaid) %]
+       [% ELSE %]
+         [% L.date_tag('datepaid_'_ i, today) %]
+       [% END %]
      [% ELSE %]
        <input type="hidden" name="datepaid_[% i %]" value="[% $datepaid %]"> [% $datepaid %]
      [% END %]
