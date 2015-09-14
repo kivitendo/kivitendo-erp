@@ -384,7 +384,6 @@ From a reverse engineering point of view the actions in this controller were wri
 background job existed, therefore if anything goes boom take a look at the single steps done via gui
 in this controller and after that take a deeper look at the MassRecordCreationAndPrinting job.
 
-
 =head1 FUNCTIONS
 
 =over 2
@@ -494,4 +493,5 @@ Both todos are marked in the template code.
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 Jan Büren E<lt>jan@kivitendo-premium.deE<gt>
+
 =cut

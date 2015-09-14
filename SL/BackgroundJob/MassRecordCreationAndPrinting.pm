@@ -194,7 +194,6 @@ __END__
 
 SL::BackgroundJob::MassRecordCreationAndPrinting
 
-
 =head1 SYNOPSIS
 
 In controller:
@@ -259,6 +258,7 @@ Sent the pdf to the printer command (if checked).
 =back
 
 =head1 BUGS
+
 Currently the calculation from the gui (form) differs from the calculation via convert (PTC).
 Furthermore mass conversion with foreign currencies could lead to problems (daily rate check).
 
@@ -267,4 +267,5 @@ Furthermore mass conversion with foreign currencies could lead to problems (dail
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 Jan Büren E<lt>jan@kivitendo-premium.deE<gt>
+
 =cut
