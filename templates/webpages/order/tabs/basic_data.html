@@ -97,6 +97,11 @@
           </tr>
 
           <tr>
+            <th width="70%" align="right" nowrap>[% 'Quotation Number' | $T8 %]</th>
+            <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size = 11) %]</td>
+          </tr>
+
+          <tr>
             <th width="70%" align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
             <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, size = 11) %]</td>
           </tr>
@@ -104,6 +109,11 @@
           <tr>
             <th width="70%" align="right" nowrap>[% 'Order Date' | $T8 %]</th>
             <td>[% L.date_tag('order.transdate', SELF.order.transdate) %]</td>
+          </tr>
+
+          <tr>
+            <th width="70%" align="right" nowrap>[% 'Insert Date' | $T8 %]</th>
+            <td>[% SELF.order.itime_as_date %]</td>
           </tr>
 
           <tr>
