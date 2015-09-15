@@ -2710,6 +2710,7 @@ $self->{texts} = {
   'Show items from invoices individually' => 'Artikel aus Rechnungen anzeigen',
   'Show mappings (csv_import)'  => 'Spaltenzuordnungen anzeigen',
   'Show old dunnings'           => 'Alte Mahnungen anzeigen',
+  'Show only marked as paid invoices' => 'Nur "als geschlossen markiert" zeigen',
   'Show overdue sales quotations and requests for quotations...' => 'Überfällige Angebote und Preisanfragen anzeigen...',
   'Show parts'                  => 'Artikel anzeigen',
   'Show parts longdescription (notes) in select list' => 'Langtext in Auswahlliste bei mehreren Treffern im Stammdaten-Bestand anzeigen',

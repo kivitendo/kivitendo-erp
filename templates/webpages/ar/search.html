@@ -65,6 +65,10 @@
      </tr>
     [% END %]
      <tr>
+      <th>[% 'Show only marked as paid invoices' | $T8 %]</th>
+      <td>[% L.checkbox_tag('show_marked_as_closed') %]</td>
+     </tr>
+     <tr>
       <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
       <td>
        [% L.date_tag('transdatefrom') %]

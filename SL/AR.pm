@@ -599,6 +599,20 @@ SQL
     push @values, like($form->{parts_description});
   }
 
+  if ($form->{show_marked_as_closed}) {
+    $query .= '
+      LEFT JOIN (
+              SELECT SUM(acc_trans.amount) AS amount, trans_id
+              FROM acc_trans
+              LEFT JOIN chart ON chart.id = chart_id
+              WHERE chart.link ILIKE ?
+              GROUP BY trans_id
+      ) AS paid_difference ON (paid_difference.trans_id = a.id)
+    ';
+    unshift @values, '%AR_paid%';
+    $where .= ' AND COALESCE(paid_difference.amount, 0) + a.paid != 0';
+  }
+
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
                                                             'trans_id_field' => 'c.id',
                                                             'filter'         => $form,
