@@ -36,7 +36,7 @@ sub reset {
 }
 
 sub reset_all {
-  $_->rollback for values %cache;
+  $_->{AutoCommit} || $_->rollback for values %cache;
 }
 
 sub clear {
