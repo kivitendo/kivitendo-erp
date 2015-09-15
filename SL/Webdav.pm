@@ -145,13 +145,13 @@ This module is a wrapper around the webdav storage mechanism with some simple
 document management functionality.
 
 This is not a replacement for real document management, mostly because the
-underlying webdav storage ist not fully under our control. It's common practice
+underlying webdav storage is not fully under our control. It's common practice
 to allow people direct samba access to the webdav, so all versioning
-information need to be encoded into the filename of a file, and nonsensical
+information needs to be encoded into the filename of a file, and nonsensical
 filenames must not break assumptions.
 
 This module is intended to be used if you need to scan the folder for
-previously saved files and need to build a list to display for it.
+previously saved files and need to build a list in order to display it.
 
 If you need to manipulate the versions of a file, see L<SL::Webdav::File>
 
@@ -181,15 +181,15 @@ Returns the physical path to this webdav object.
 
 =head1 VERSIONING SCHEME
 
-You may register a versioning scheme object to hangdle versioning. It is
+You may register a versioning scheme object to handle versioning. It is
 expected to implement the following methods:
 
 =over 4
 
 =item C<separator>
 
-Must return a string that will be used to separate basename and version part of
-filenames in generating and parsing.
+Must return a string that will be used to separate the basename and version part of
+filenames when generating and parsing.
 
 =item C<extract_regexp>
 
