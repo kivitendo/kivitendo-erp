@@ -16,7 +16,6 @@ my %dateformat_to_datestyle = (
 
 sub _connect {
   my ($self, @args) = @_;
-  @args = $self->get_connect_args if !@args;
 
   return DBI->connect(@args) unless $::lx_office_conf{debug} && $::lx_office_conf{debug}->{dbix_log4perl};
 
@@ -33,6 +32,7 @@ sub _connect {
 
 sub connect {
   my ($self, @args) = @_;
+  @args = $self->get_connect_args if !@args;
   my $initial_sql = $self->get_initial_sql;
 
   if (my $cached_dbh = SL::DBConnect::Cache->get(@args, $initial_sql)) {
