@@ -146,6 +146,7 @@ sub action_customer_vendor_changed {
     ->val('#order_taxzone_id', $self->order->taxzone_id)
     ->val('#order_payment_id',       $self->order->payment_id)
     ->val('#order_delivery_term_id', $self->order->delivery_term_id)
+    ->val('#order_intnotes',         $self->order->$cv_method->notes)
     ->focus('#order_' . $self->cv . '_id')
     ->render($self);
 }
@@ -419,6 +420,8 @@ sub _pre_render {
   $self->{all_delivery_terms}  = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
+
+  $::request->{layout}->use_javascript("${_}.js")  for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
 }
 
 sub _sales_order_type {

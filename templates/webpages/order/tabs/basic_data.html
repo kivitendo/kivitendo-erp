@@ -171,6 +171,23 @@
             <td>
               <table>
                 <tr>
+                  <th align="left">[% 'Notes' | $T8 %]</th>
+                  <th align="left">[% 'Internal Notes' | $T8 %]</th>
+                </tr>
+                <tr valign="top">
+                  <td>
+                    [% L.textarea_tag('order.notes', SELF.order.notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
+                  </td>
+                  <td>
+                    [% L.textarea_tag('order.intnotes', SELF.order.intnotes, wrap="soft", style="width: 350px; height: 150px") %]
+                  </td>
+                </tr>
+              </table>
+            </td>
+
+            <td>
+              <table>
+                <tr>
                   <th align="right">[% 'Payment Terms' | $T8 %]</th>
                   <td>[% L.select_tag('order.payment_id',
                                       SELF.all_payment_terms,
