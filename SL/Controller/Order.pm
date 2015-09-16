@@ -137,10 +137,15 @@ sub action_customer_vendor_changed {
     $self->js->hide('#shipto_row');
   }
 
+  $self->order->payment_id($self->order->$cv_method->payment_id);
+  $self->order->delivery_term_id($self->order->$cv_method->delivery_term_id);
+
   $self->js
     ->replaceWith('#order_cp_id',     $self->build_contact_select)
     ->replaceWith('#order_shipto_id', $self->build_shipto_select)
     ->val('#order_taxzone_id', $self->order->taxzone_id)
+    ->val('#order_payment_id',       $self->order->payment_id)
+    ->val('#order_delivery_term_id', $self->order->delivery_term_id)
     ->focus('#order_' . $self->cv . '_id')
     ->render($self);
 }
@@ -400,16 +405,18 @@ sub _save {
 sub _pre_render {
   my ($self) = @_;
 
-  $self->{all_taxzones}  = SL::DB::Manager::TaxZone->get_all_sorted();
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
-                                                                                 deleted => 0 ] ],
-                                                              sort_by => 'name');
-  $self->{all_salesmen}  = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
-                                                                                 deleted => 0 ] ],
-                                                              sort_by => 'name');
-  $self->{all_projects}  = SL::DB::Manager::Project->get_all(where => [ or => [ id => $self->order->globalproject_id,
-                                                                                active => 1 ] ],
-                                                             sort_by => 'projectnumber');
+  $self->{all_taxzones}        = SL::DB::Manager::TaxZone->get_all_sorted();
+  $self->{all_employees}       = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
+                                                                                       deleted => 0 ] ],
+                                                                    sort_by => 'name');
+  $self->{all_salesmen}        = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
+                                                                                       deleted => 0 ] ],
+                                                                    sort_by => 'name');
+  $self->{all_projects}        = SL::DB::Manager::Project->get_all(where => [ or => [ id => $self->order->globalproject_id,
+                                                                                      active => 1 ] ],
+                                                                   sort_by => 'projectnumber');
+  $self->{all_payment_terms}   = SL::DB::Manager::PaymentTerm->get_all_sorted();
+  $self->{all_delivery_terms}  = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 }

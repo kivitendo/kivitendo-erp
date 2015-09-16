@@ -165,21 +165,32 @@
     </tr>
 
     <tr>
-      <td align="right">
-        <table>
-          [%- IF NOT taxincluded %]
+      <td colspan="100%" width="100%">
+        <table width="100%">
           <tr>
-            <th align="right">[%- 'Subtotal' | $T8 %]</th>
-            <td align="right">
-              [%- L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %]
+            <td>
+              <table>
+                <tr>
+                  <th align="right">[% 'Payment Terms' | $T8 %]</th>
+                  <td>[% L.select_tag('order.payment_id',
+                                      SELF.all_payment_terms,
+                                      default = SELF.order.payment_id,
+                                      with_empty = 1,
+                                      title_key = 'description',
+                                      style = 'width: 250px') %]</td>
+                </tr>
+                <tr>
+                  <th align="right">[% 'Delivery Terms' | $T8 %]</th>
+                  <td>[% L.select_tag('order.delivery_term_id',
+                                      SELF.all_delivery_terms,
+                                      default = SELF.order.delivery_term_id,
+                                      with_empty = 1,
+                                      title_key = 'description',
+                                      style = 'width: 250px') %]</td>
+                </tr>
+              </table>
             </td>
-          </tr>
-          [%- END %]
-          [%- FOREACH tax = SELF.taxes %]
-            [%- PROCESS order/tabs/_tax_row.html TAX=tax %]
-          [%- END %]
-          <tr id="amount_row_id">
-            <th align="right">[%- 'Total' | $T8 %]</th>
+
             <td align="right">
               <table>
                 [%- IF NOT taxincluded %]
