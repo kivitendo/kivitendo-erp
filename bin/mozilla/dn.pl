@@ -36,6 +36,9 @@ use POSIX qw(strftime);
 use SL::IS;
 use SL::PE;
 use SL::DN;
+use SL::DB::Dunning;
+use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -473,6 +476,29 @@ sub print_dunning {
   $main::lxdebug->leave_sub();
 }
 
+sub delete {
+  $main::auth->assert('dunning_edit');
+
+  my @dunning_ids = map { $::form->{"dunning_id_$_"} } grep { $::form->{"selected_$_"} } (1..$::form->{rowcount});
+
+  if (!scalar @dunning_ids) {
+    $::form->error($::locale->text('No dunnings have been selected for printing.'));
+  }
+
+  my $dunnings = SL::DB::Manager::Dunning->get_all(query => [ dunning_id => \@dunning_ids ]);
+
+  SL::DB::Dunning->new->db->with_transaction(sub {
+    for my $dunning (@$dunnings) {
+      SL::DB::Manager::Invoice->find_by(id => $dunning->trans_id)->update_attributes(dunning_config_id => undef);
+      $dunning->delete;
+    }
+  });
+
+  flash('info', t8('#1 dunnings have been deleted', scalar @$dunnings));
+
+  search();
+}
+
 sub print_multiple {
   $main::lxdebug->enter_sub();
 
@@ -526,4 +552,14 @@ sub continue {
   call_sub($main::form->{nextsub});
 }
 
+sub dispatcher {
+  foreach my $action (qw(delete print_multiple)) {
+    if ($::form->{"action_${action}"}) {
+      call_sub($action);
+      return;
+    }
+  }
+
+  $::form->error($::locale->text('No action defined.'));
+}
 # end of main

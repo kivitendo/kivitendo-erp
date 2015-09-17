@@ -1,5 +1,8 @@
 [%- USE T8 %]
-[% USE HTML %]  <input type="hidden" name="rowcount" value="[% rowcount %]">
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+<input type="hidden" name="rowcount" value="[% rowcount %]">
 
   <p>
     <input type="checkbox" id='force_lang' name="force_lang" size="6" value="1">
@@ -9,9 +12,9 @@
 
   <p>
    [% 'Dunnings' | $T8 %]<br>
-   <input type="hidden" name="print_nextsub" value="print_multiple">
-   <input type="hidden" name="action" value="print">
-   <input type="submit" class="submit" value="[%- 'Print' | $T8 %]">
+   [% L.hidden_tag('action', 'dispatcher') %]
+   <input type="submit" class="submit" name='action_print_multiple' value="[%- 'Print' | $T8 %]">
+   [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('This resets the dunning process for the selected invoices. Posted dunning invoices will not be changed!')) %]
   </p>
 
  </form>
