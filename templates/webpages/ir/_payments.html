@@ -19,6 +19,7 @@
       <th>[% 'Source' | $T8 %]</th>
       <th>[% 'Memo' | $T8 %]</th>
       <th>[% 'Amount' | $T8 %]</th>
+      <th></th>
 [% IF show_exchangerate %]
       <th>[% 'Exch' | $T8 %]</th>
 [% END %]
@@ -75,6 +76,11 @@
        [% LxERP.format_amount($paid, 2, 1) %]
     [% END %]
      </td>
+     <td>
+       [% IF $changeable && loop.last && paid_missing > 0 %]
+         <input type='button' id='is_set_to_paid_missing' value='[% 'Set to paid missing' | $T8 %]'>
+       [% END %]
+     </td>
 
 [% IF show_exchangerate %]
      <td align="center">
@@ -129,3 +135,6 @@
 
     </td>
   </tr>
+    <script type='text/javascript'>
+     $('#is_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+    </script>
