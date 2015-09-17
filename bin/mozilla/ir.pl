@@ -429,6 +429,7 @@ sub form_footer {
     show_delete         => ($::instance_conf->get_ir_changeable == 2)
                              ? ($form->current_date(\%myconfig) eq $form->{gldate})
                              : ($::instance_conf->get_ir_changeable == 1),
+    today               => DateTime->today,
   });
 ##print $form->parse_html_template('ir/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser

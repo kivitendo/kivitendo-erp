@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE HTML %]
   <tr>
    <td>
     <table width="100%">
@@ -43,7 +44,11 @@
 
     <td align="center">
     [% IF $changeable %]
-      [% L.date_tag('datepaid_'_ i, $datepaid) %]
+      [% IF $datepaid %]
+        [% L.date_tag('datepaid_'_ i, $datepaid) %]
+      [% ELSE %]
+        [% L.date_tag('datepaid_'_ i, today) %]
+      [% END %]
     [% ELSE %]
       <input type="hidden" name="datepaid_[% i %]" value="[% $datepaid %]">[% $datepaid %]
     [% END %]
@@ -106,7 +111,7 @@
       <td></td>
       <td></td>
       <td align="center">[% 'Total' | $T8 %]</td>
-      <td align="center">[% LxERP.foramt_amount(totalpaid, 2) | html %]</td>
+      <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
     </tr>
     <tr>
       <td></td>
