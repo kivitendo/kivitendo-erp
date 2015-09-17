@@ -922,7 +922,7 @@ sub ar_transactions {
   push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto employee_id salesman_id business_id);
+  push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber cusordnumber transaction_description notes project_id transdatefrom transdateto duedatefrom duedateto employee_id salesman_id business_id);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);

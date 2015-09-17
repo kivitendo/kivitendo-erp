@@ -106,13 +106,25 @@
      </tr>
     [% END %]
      <tr>
-      <th align=right nowrap>[% 'From' | $T8 %]</th>
+      <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
       <td>
+       [% 'From' | $T8 %]
        [% L.date_tag('transdatefrom') %]
       </td>
      <th align=right>[% 'Bis' | $T8 %]</th>
      <td>
       [% L.date_tag('transdateto') %]
+     </td>
+    </tr>
+     <tr>
+      <th align=right nowrap>[% 'Due Date' | $T8 %]</th>
+      <td>
+       [% 'From' | $T8 %]
+       [% L.date_tag('duedatefrom') %]
+      </td>
+     <th align=right>[% 'Bis' | $T8 %]</th>
+     <td>
+      [% L.date_tag('duedateto') %]
      </td>
     </tr>
 
