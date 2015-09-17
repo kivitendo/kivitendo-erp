@@ -153,7 +153,7 @@ Returns the full relative file name associated with this instance. If
 it has been created for "customer.csv" then the value returned might
 be C<users/session_files/e8789b98721347/customer.csv>.
 
-=item C<open, %params]>
+=item C<open [%params]>
 
 Opens the file_name given at creation with the given parameters.
 

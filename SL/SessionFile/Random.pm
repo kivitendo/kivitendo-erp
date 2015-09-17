@@ -37,19 +37,20 @@ SL::SessionFile::Random - SessionFile with a random name
 
   use SL::SessionFile::Random;
 
-  # Create a session file named "customer.csv" (relative names only)
-  my $sfile = SL::SessionFile::Random->new("w");
+  # Create a session file with a unique random name
+  my $sfile = SL::SessionFile::Random->new(mode => "w");
   $sfile->fh->print("col1;col2;col3\n" .
                     "value1;value2;value3\n");
   $sfile->fh->close;
 
 =head1 DESCRIPTION
 
-This modules gives you a random file in the current session cache that is guaranteed to be unique
+This modules gives you a random file in the current session cache that is
+guaranteed to be unique.
 
 =head1 FUNCTIONS
 
-same as SL::SessioNFile
+same as SL::SessionFile
 
 =head1 BUGS
 
