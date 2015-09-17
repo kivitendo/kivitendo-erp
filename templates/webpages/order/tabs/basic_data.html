@@ -321,6 +321,36 @@ function row_set_keyboard_events(rows) {
   });
 }
 
+var email_dialog;
+
+function show_email_dialog(html) {
+  var id            = 'jqueryui_popup_dialog';
+  var dialog_params = {
+    id:     id,
+    width:  800,
+    height: 500,
+    modal:  true,
+    close: function(event, ui) {
+      email_dialog.remove();
+    },
+  };
+
+  $('#' + id).remove();
+
+  email_dialog = $('<div style="display:none" id="' + id + '"></div>').appendTo('body');
+  email_dialog.html(html);
+  email_dialog.dialog(dialog_params);
+
+  $('.cancel').click(close_email_dialog);
+
+  return true;
+}
+
+close_email_dialog = function() {
+  email_dialog.dialog("close");
+}
+
+
 $(function(){
   $('#order_[%- cv_id %]').change(reload_cv_dependend_selections);
   $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
