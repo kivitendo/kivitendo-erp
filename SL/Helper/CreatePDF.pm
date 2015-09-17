@@ -66,6 +66,7 @@ sub create_parsed_file {
     form      => $form,
     myconfig  => \%::myconfig,
     userspath => $tmpdir,
+    variable_content_types => $params{variable_content_types},
   );
 
   my $result = $parser->parse($temp_fh);
