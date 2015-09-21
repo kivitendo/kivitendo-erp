@@ -2063,6 +2063,7 @@ sub save_periodic_invoices_config {
 
   my $config = { active                  => $::form->{active}     ? 1 : 0,
                  terminated              => $::form->{terminated} ? 1 : 0,
+                 direct_debit            => $::form->{direct_debit} ? 1 : 0,
                  periodicity             => (any { $_ eq $::form->{periodicity}             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES)              ? $::form->{periodicity}             : 'm',
                  order_value_periodicity => (any { $_ eq $::form->{order_value_periodicity} } ('p', @SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIODICITIES)) ? $::form->{order_value_periodicity} : 'p',
                  start_date_as_date      => $::form->{start_date_as_date},

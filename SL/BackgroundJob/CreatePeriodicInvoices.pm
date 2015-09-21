@@ -200,6 +200,7 @@ sub _create_periodic_invoice {
     $invoice->assign_attributes(deliverydate => $period_start_date,
                                 intnotes     => $intnotes,
                                 employee     => $order->employee, # new_from sets employee to import user
+                                direct_debit => $config->direct_debit,
                                );
 
     _replace_vars(object => $invoice, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'notes' ? 'html' : 'text')) for qw(notes intnotes transaction_description);

@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   active                  => { type => 'boolean', default => 'true' },
   ar_chart_id             => { type => 'integer', not_null => 1 },
   copies                  => { type => 'integer' },
+  direct_debit            => { type => 'boolean', default => 'false', not_null => 1 },
   end_date                => { type => 'date' },
   extend_automatically_by => { type => 'integer' },
   first_billing_date      => { type => 'date' },

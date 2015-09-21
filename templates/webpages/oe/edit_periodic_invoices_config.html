@@ -73,6 +73,11 @@
     </tr>
 
     <tr>
+     <th align="right">[%- LxERP.t8('direct debit') %]</th>
+     <td valign="top">[% L.checkbox_tag("direct_debit", checked=direct_debit) %]</td>
+    </tr>
+
+    <tr>
      <th align="right">[%- LxERP.t8('Print automatically') %]</th>
      <td valign="top">
       [% L.checkbox_tag("print", onclick => "toggle_printer_id_ctrl()", checked => print) %]
