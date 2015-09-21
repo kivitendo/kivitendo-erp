@@ -912,7 +912,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype direct_debit);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -958,10 +958,11 @@ sub ar_transactions {
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
     'customertype'            => { 'text' => $locale->text('Customer type'), },
+    'direct_debit'            => { 'text' => $locale->text('direct debit'), },
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -1077,6 +1078,8 @@ sub ar_transactions {
       $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
       $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
                           $locale->text("AR Transaction (abbreviation)");
+
+    $ar->{direct_debit} = $ar->{direct_debit} ? $::locale->text('yes') : $::locale->text('no');
 
     my $row = { };
 
