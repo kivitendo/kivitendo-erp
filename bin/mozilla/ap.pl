@@ -871,7 +871,7 @@ sub ap_transactions {
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate transaction_description notes employee globalprojectnumber
-       vendornumber country ustid taxzone payment_terms charts);
+       vendornumber country ustid taxzone payment_terms charts direct_debit);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto department);
@@ -902,9 +902,10 @@ sub ap_transactions {
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
+    'direct_debit'            => { 'text' => $locale->text('direct debit'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -979,6 +980,8 @@ sub ap_transactions {
         : $is_storno        ? $locale->text("AP Transaction Storno (one letter abbreviation)")
         :                     $locale->text("AP Transaction (abbreviation)");
     }
+
+    $ap->{direct_debit} = $ap->{direct_debit} ? $::locale->text('yes') : $::locale->text('no');
 
     my $row = { };
 

@@ -416,7 +416,7 @@ sub ap_transactions {
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
-    qq|  a.globalproject_id, a.storno, a.storno_id, | .
+    qq|  a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
@@ -513,7 +513,7 @@ sub ap_transactions {
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description))) {
+  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 
