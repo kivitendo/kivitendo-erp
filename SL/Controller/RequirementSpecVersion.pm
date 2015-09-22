@@ -7,7 +7,6 @@ use parent qw(SL::Controller::Base);
 use Carp;
 use List::MoreUtils qw(any);
 
-use SL::ClientJS;
 use SL::DB::Customer;
 use SL::DB::Project;
 use SL::DB::RequirementSpec;
@@ -17,7 +16,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(requirement_spec version js) ],
+  'scalar --get_set_init' => [ qw(requirement_spec version) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -69,14 +68,14 @@ sub action_create {
   my %attributes = %{ delete($::form->{rs_version}) || {} };
   my @errors     = SL::DB::RequirementSpecVersion->new(%attributes, version_number => 1)->validate;
 
-  return $self->js->error(@errors)->render($self) if @errors;
+  return $self->js->error(@errors)->render if @errors;
 
   my $db     = $self->requirement_spec->db;
   my @result = $self->requirement_spec->create_version(%attributes);
 
   if (!@result) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
-    return $self->js->error($::locale->text('Saving failed. Error message from the database: #1'), $db->error)->render($self);
+    return $self->js->error($::locale->text('Saving failed. Error message from the database: #1'), $db->error)->render;
   }
 
   $self->version($result[0]);
@@ -87,7 +86,7 @@ sub action_create {
     ->html('#requirement_spec_version', $version_info_html)
     ->html('#versioned_copies_list',    $version_list_html)
     ->dialog->close('#jqueryui_popup_dialog')
-    ->render($self);
+    ->render;
 }
 
 #
@@ -111,11 +110,6 @@ sub init_requirement_spec {
 sub init_version {
   my ($self) = @_;
   $self->version(SL::DB::RequirementSpecVersion->new(id => $::form->{id})->load) if $::form->{id};
-}
-
-sub init_js {
-  my ($self, %params) = @_;
-  $self->js(SL::ClientJS->new);
 }
 
 sub has_item_changed {

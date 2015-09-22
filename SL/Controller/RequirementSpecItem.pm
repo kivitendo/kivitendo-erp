@@ -23,7 +23,7 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(item visible_item visible_section clicked_item sections) ],
-  'scalar --get_set_init' => [ qw(complexities risks js predefined_texts) ],
+  'scalar --get_set_init' => [ qw(complexities risks predefined_texts) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -39,7 +39,7 @@ sub action_ajax_list {
 
   if (!$::form->{clicked_id}) {
     # Clicked on "sections" in the tree. Do nothing.
-    return $self->render($self->js);
+    return $self->render;
   }
 
   my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load;
@@ -98,7 +98,7 @@ sub action_dragged_and_dropped {
   my $new_section         = $self->item->section;
   my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
 
-  return $self->invalidate_version->render($self) if !$old_visible_section || ($new_type eq 'section');
+  return $self->invalidate_version->render if !$old_visible_section || ($new_type eq 'section');
 
   # From here on $old_visible_section is definitely set.
 
@@ -533,11 +533,6 @@ sub init_predefined_texts {
   return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted(where => [ useable_for_sections => 1 ]);
 }
 
-sub init_js {
-  my ($self) = @_;
-  $self->js(SL::ClientJS->new);
-}
-
 sub replace_bottom {
   my ($self, $item_or_id) = @_;
 
@@ -709,7 +704,7 @@ sub add_function_block {
   $self->js->show('#sub-function-block-container-' . $parent_id) if $new_type eq 'sub-function-block';
   $self->add_new_item_form(insert_position => $insert_position, insert_reference => $insert_reference, display_reference => $display_reference);
 
-  $self->js->render($self);
+  $self->js->render;
 }
 
 sub is_item_visible {

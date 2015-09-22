@@ -7,7 +7,6 @@ use parent qw(SL::Controller::Base);
 
 use File::Spec ();
 
-use SL::ClientJS;
 use SL::Common ();
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
@@ -29,7 +28,7 @@ use SL::Template::LaTeX;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
-  'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
+  'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source
                                   current_text_block_output_position models time_based_units html_template cvar_configs includeable_cvar_configs include_cvars) ],
 );
 
@@ -84,7 +83,7 @@ sub action_ajax_edit {
   $self->js
     ->hide('#basic_settings')
     ->after('#basic_settings', $html)
-    ->render($self);
+    ->render;
 }
 
 sub action_ajax_edit_project_link {
@@ -95,7 +94,7 @@ sub action_ajax_edit_project_link {
   $self->js
     ->hide('#basic_settings')
     ->after('#basic_settings', $html)
-    ->render($self);
+    ->render;
 }
 
 sub action_ajax_show_time_and_cost_estimate {
@@ -116,7 +115,7 @@ sub action_ajax_edit_time_and_cost_estimate {
    ->after('#time_cost_estimate', $html)
    ->on('#time_cost_estimate INPUT[type=text]', 'keydown', 'kivi.requirement_spec.time_cost_estimate_input_key_down')
    ->action_if($first && $first->id, 'focus', '#time_and_cost_estimate_form_complexity_id_' . $first->id)
-   ->render($self);
+   ->render;
 }
 
 sub action_ajax_save_time_and_cost_estimate {
@@ -140,7 +139,7 @@ sub action_ajax_save_time_and_cost_estimate {
   my $html = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 }, initially_hidden => !!$::form->{keep_open});
   $self->js->replaceWith('#time_cost_estimate', $html);
 
-  return $self->js->render($self) if $::form->{keep_open};
+  return $self->js->render if $::form->{keep_open};
 
   $self->js->remove('#time_cost_estimate_form_container');
 
@@ -149,7 +148,7 @@ sub action_ajax_save_time_and_cost_estimate {
     $self->js->html('#column-content', $html);
   }
 
-  $self->js->render($self);
+  $self->js->render;
 }
 
 sub action_show {
@@ -200,7 +199,7 @@ sub action_destroy {
 sub action_revert_to {
   my ($self, %params) = @_;
 
-  return $self->js->error(t8('Cannot revert a versioned copy.'))->render($self) if $self->requirement_spec->working_copy_id;
+  return $self->js->error(t8('Cannot revert a versioned copy.'))->render if $self->requirement_spec->working_copy_id;
 
   my $versioned_copy = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
 
@@ -209,7 +208,7 @@ sub action_revert_to {
   $version->update_attributes(working_copy_id => $self->requirement_spec->id);
 
   flash_later('info', t8('The requirement spec has been reverted to version #1.', $versioned_copy->version->version_number));
-  $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render($self);
+  $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render;
 }
 
 sub action_create_pdf {
@@ -269,7 +268,7 @@ sub action_paste_template {
   my $template = SL::DB::RequirementSpec->new(id => $::form->{template_id})->load;
   my %result   = $self->requirement_spec->paste_template($template);
 
-  return $self->js->error($self->requirement_spec->error)->render($self) if !%result;
+  return $self->js->error($self->requirement_spec->error)->render if !%result;
 
   $self->render_pasted_text_block($_) for sort { $a->position <=> $b->position } @{ $result{text_blocks} };
   $self->render_pasted_section($_)    for sort { $a->position <=> $b->position } @{ $result{sections}    };
@@ -284,7 +283,7 @@ sub action_paste_template {
     ->show(       '#additional_parts_list_container')
     ->remove(     '#additional_parts_form_container');
 
-  $self->invalidate_version->render($self);
+  $self->invalidate_version->render;
 }
 
 sub action_renumber_sections {
@@ -329,7 +328,6 @@ sub setup {
   return 1;
 }
 
-sub init_js                     { SL::ClientJS->new                                           }
 sub init_complexities           { SL::DB::Manager::RequirementSpecComplexity->get_all_sorted  }
 sub init_default_project_status { SL::DB::Manager::ProjectStatus->find_by(name => 'planning') }
 sub init_default_project_type   { SL::DB::ProjectType->new(id => 1)->load                     }
@@ -411,7 +409,7 @@ sub create_or_update {
   my @errors = $self->requirement_spec->validate;
 
   if (@errors) {
-    return $self->js->error(@errors)->render($self) if $::request->is_ajax;
+    return $self->js->error(@errors)->render if $::request->is_ajax;
 
     flash('error', @errors);
     $self->render('requirement_spec/new', title => $title);
@@ -428,7 +426,7 @@ sub create_or_update {
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
     @errors = ($::locale->text('Saving failed. Error message from the database: #1', $db->error));
-    return $self->js->error(@errors)->render($self) if $::request->is_ajax;
+    return $self->js->error(@errors)->render if $::request->is_ajax;
 
     $self->requirement_spec->id(undef) if $is_new;
     flash('error', @errors);
@@ -445,7 +443,7 @@ sub create_or_update {
       ->replaceWith('#basic_settings',          $basics_html)
       ->remove('#basic_settings_form')
       ->flash('info', $info)
-      ->render($self);
+      ->render;
   }
 
   flash_later('info', $info);
@@ -612,7 +610,7 @@ sub update_project_link_none_keep_existing {
     ->replaceWith('#basic_settings', $self->render('requirement_spec/_show_basic_settings', { output => 0 }))
     ->remove('#project_link_form')
     ->flash('info', t8('The project link has been updated.'))
-    ->render($self);
+    ->render;
 }
 
 sub update_project_link_new {
@@ -620,7 +618,7 @@ sub update_project_link_new {
 
   return $self->js
     ->replaceWith('#project_link_form', $self->render('requirement_spec/_new_project_form', { output => 0 }))
-    ->render($self);
+    ->render;
 }
 
 sub update_project_link_create {
@@ -634,7 +632,7 @@ sub update_project_link_create {
 
   my @errors = $project->validate;
 
-  return $self->js->error(@errors)->render($self) if @errors;
+  return $self->js->error(@errors)->render if @errors;
 
   my $db = $self->requirement_spec->db;
   if (!$db->do_transaction(sub {
@@ -643,7 +641,7 @@ sub update_project_link_create {
 
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
-    return $self->js->error(t8('Saving failed. Error message from the database: #1', $db->error))->render($self);
+    return $self->js->error(t8('Saving failed. Error message from the database: #1', $db->error))->render;
   }
 
   return $self->invalidate_version
@@ -651,7 +649,7 @@ sub update_project_link_create {
     ->remove('#project_link_form')
     ->flash('info', t8('The project has been created.'))
     ->flash('info', t8('The project link has been updated.'))
-    ->render($self);
+    ->render;
 }
 
 sub init_models {

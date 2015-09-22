@@ -8,7 +8,6 @@ use parent qw(SL::Controller::Base);
 use List::MoreUtils qw(uniq);
 use List::Util qw(first);
 
-use SL::ClientJS;
 use SL::DB::Customer;
 use SL::DB::Order;
 use SL::DB::Part;
@@ -23,7 +22,7 @@ use constant FORMS_SELECTOR => '#quotations_and_orders_article_assignment,#quota
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(parts) ],
-  'scalar --get_set_init' => [ qw(requirement_spec rs_order js h_unit_name all_customers all_parts_time_unit section_order_part) ],
+  'scalar --get_set_init' => [ qw(requirement_spec rs_order h_unit_name all_customers all_parts_time_unit section_order_part) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -42,20 +41,20 @@ sub action_new {
   my ($self) = @_;
 
   if (!@{ $self->all_parts_time_unit }) {
-    return $self->js->flash('error', t8('This function requires the presence of articles with a time-based unit such as "h" or "min".'))->render($self);
+    return $self->js->flash('error', t8('This function requires the presence of articles with a time-based unit such as "h" or "min".'))->render;
   }
 
   my $html = $self->render('requirement_spec_order/new', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
   $self->js->hide(LIST_SELECTOR())
            ->after(LIST_SELECTOR(), $html)
-           ->render($self);
+           ->render;
 }
 
 sub action_create {
   my ($self)         = @_;
 
   if (!$::auth->assert($::form->{quotation} ? 'sales_quotation_edit' : 'sales_order_edit', 1)) {
-    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render($self);
+    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render;
   }
 
   # 1. Update sections with selected part IDs.
@@ -85,7 +84,7 @@ sub action_create {
   $self->js->replaceWith(LIST_SELECTOR(), $html)
            ->remove(FORMS_SELECTOR())
            ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been created.', $order->quonumber) : t8('Sales order #1 has been created.', $order->ordnumber))
-           ->render($self);
+           ->render;
 }
 
 sub action_update {
@@ -95,7 +94,7 @@ sub action_update {
   my $sections = $self->requirement_spec->sections_sorted;
 
   if (!$::auth->assert($order->quotation ? 'sales_quotation_edit' : 'sales_order_edit', 1)) {
-    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render($self);
+    return $self->js->flash('error', t8("You do not have the permissions to access this function."))->render;
   }
 
   my (@orderitems, %sections_seen);
@@ -116,7 +115,7 @@ sub action_update {
 
   $self->js->hide(LIST_SELECTOR())
            ->after(LIST_SELECTOR(), $html)
-           ->render($self);
+           ->render;
 }
 
 sub action_do_update {
@@ -143,21 +142,21 @@ sub action_do_update {
   $self->js->replaceWith(LIST_SELECTOR(), $html)
            ->remove(FORMS_SELECTOR())
            ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been updated.', $order->quonumber) : t8('Sales order #1 has been updated.', $order->ordnumber))
-           ->render($self);
+           ->render;
 }
 
 sub action_edit_assignment {
   my ($self) = @_;
 
   if (!@{ $self->all_parts_time_unit }) {
-    return $self->js->flash('error', t8('This function requires the presence of articles with a time-based unit such as "h" or "min".'))->render($self);
+    return $self->js->flash('error', t8('This function requires the presence of articles with a time-based unit such as "h" or "min".'))->render;
   }
 
   my $html   = $self->render('requirement_spec_order/edit_assignment', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
   $self->js->hide(LIST_SELECTOR())
            ->after(LIST_SELECTOR(), $html)
            ->reinit_widgets
-           ->render($self);
+           ->render;
 }
 
 sub action_save_assignment {
@@ -168,7 +167,7 @@ sub action_save_assignment {
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
   $self->js->replaceWith(LIST_SELECTOR(), $html)
            ->remove(FORMS_SELECTOR())
-           ->render($self);
+           ->render;
 }
 
 sub action_delete {
@@ -182,7 +181,7 @@ sub action_delete {
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
   $self->js->replaceWith(LIST_SELECTOR(), $html)
            ->flash('info', $order->quotation ? t8('Sales quotation #1 has been deleted.', $order->quonumber) : t8('Sales order #1 has been deleted.', $order->ordnumber))
-           ->render($self);
+           ->render;
 }
 
 #
@@ -202,11 +201,6 @@ sub setup {
 sub init_requirement_spec {
   my ($self) = @_;
   $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id})->load) if $::form->{requirement_spec_id};
-}
-
-sub init_js {
-  my ($self) = @_;
-  $self->js(SL::ClientJS->new);
 }
 
 sub init_all_customers { SL::DB::Manager::Customer->get_all_sorted }

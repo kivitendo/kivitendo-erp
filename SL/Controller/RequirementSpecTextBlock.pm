@@ -8,7 +8,6 @@ use Carp;
 use Params::Validate ();
 use Time::HiRes ();
 
-use SL::ClientJS;
 use SL::Clipboard;
 use SL::Controller::Helper::RequirementSpec;
 use SL::DB::RequirementSpec;
@@ -23,7 +22,7 @@ use constant SORTABLE_PICTURE_LIST => 'kivi.requirement_spec.make_text_block_pic
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(text_block) ],
-  'scalar --get_set_init' => [ qw(predefined_texts js picture) ],
+  'scalar --get_set_init' => [ qw(predefined_texts picture) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -66,7 +65,7 @@ sub action_ajax_add {
 
   $self->add_new_text_block_form(output_position => $new_where, insert_after_id => $::form->{id}, requirement_spec_id => $::form->{requirement_spec_id});
 
-  $self->invalidate_version->render($self);
+  $self->invalidate_version->render;
 }
 
 sub action_ajax_edit {
@@ -434,11 +433,6 @@ sub init_picture {
   return SL::DB::RequirementSpecPicture->new(id => $::form->{picture_id} || $::form->{id})->load;
 }
 
-sub init_js {
-  my ($self) = @_;
-  $self->js(SL::ClientJS->new);
-}
-
 sub invalidate_version {
   my ($self) = @_;
 
@@ -495,7 +489,7 @@ sub paste_picture {
     $self->text_block->save;
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $self->text_block->db->error);
-    return $self->js->error($::locale->text('Saving failed. Error message from the database: #1', $self->text_block->db->error))->render($self);
+    return $self->js->error($::locale->text('Saving failed. Error message from the database: #1', $self->text_block->db->error))->render;
   }
 
   my $html = $self->render('requirement_spec_text_block/_text_block_picture', { output => 0 }, picture => $self->picture);
@@ -503,7 +497,7 @@ sub paste_picture {
   $self->invalidate_version
     ->append('#text-block-' . $self->text_block->id . '-pictures', $html)
     ->show('#text-block-' . $self->text_block->id . '-pictures')
-    ->render($self);
+    ->render;
 }
 
 1;
