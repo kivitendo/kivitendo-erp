@@ -11,13 +11,12 @@ use SL::DB::Warehouse;
 use SL::DB::Unit;
 use SL::WH;
 use SL::Locale::String qw(t8);
-use SL::ClientJS;
 use SL::Presenter;
 use SL::DBUtils;
 use SL::Helper::Flash;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(warehouses units js p) ],
+  'scalar --get_set_init' => [ qw(warehouses units p) ],
   'scalar'                => [ qw(warehouse bin unit part) ],
 );
 
@@ -100,7 +99,7 @@ sub action_part_changed {
     ->replaceWith('#bin_id', $self->build_bin_select)
     ->replaceWith('#unit_id', $self->build_unit_select)
     ->focus('#warehouse_id')
-    ->render($self);
+    ->render;
 }
 
 sub action_warehouse_changed {
@@ -109,7 +108,7 @@ sub action_warehouse_changed {
   $self->js
     ->replaceWith('#bin_id', $self->build_bin_select)
     ->focus('#bin_id')
-    ->render($self);
+    ->render;
 }
 
 sub action_mini_stock {
@@ -117,7 +116,7 @@ sub action_mini_stock {
 
   $self->js
     ->html('#stock', $self->render('inventory/_stock', { output => 0 }))
-    ->render($self);
+    ->render;
 }
 
 #================================================================
@@ -136,10 +135,6 @@ sub init_warehouses {
 
 sub init_units {
   SL::DB::Manager::Unit->get_all;
-}
-
-sub init_js {
-  SL::ClientJS->new;
 }
 
 sub init_p {
