@@ -2471,6 +2471,7 @@ $self->{texts} = {
   'Soldtotal does not make sense without any bsooqr options' => 'Option "Menge in gewählten Belegen" ohne gewählte Belege wird ignoriert.',
   'Solution'                    => 'Lösung',
   'Sort By'                     => 'Sortiert nach',
+  'Sort and Save'               => 'Sortieren und Speichern',
   'Source'                      => 'Beleg',
   'Source BIC'                  => 'Quell-BIC',
   'Source IBAN'                 => 'Quell-IBAN',

@@ -42,6 +42,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff);
 use SL::ReportGenerator;
 use SL::WH;
+use Sort::Naturally;
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -1542,7 +1543,7 @@ sub dispatcher {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_out_default
+  foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_out_default sort
                          transfer_in transfer_in_default mark_closed save_as_new invoice delete)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
@@ -1723,4 +1724,37 @@ sub transfer_in_out_default {
   $form->{callback} = 'do.pl?action=edit&type=purchase_delivery_order&id=' . $form->escape($form->{id}) if $params{direction} eq 'in';
   $form->redirect;
 
+}
+sub sort {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %temp_hash;
+
+  croak ("Delivery Order needs to be saved") unless $form->{id};
+
+  # hashify partnumbers, positions. key is delivery_order_items_id
+  for my $i (1 .. ($form->{rowcount}) ) {
+    $temp_hash{$form->{"delivery_order_items_id_$i"}} = { runningnumber => $form->{"runningnumber_$i"}, partnumber => $form->{"partnumber_$i"} };
+  }
+  # naturally sort partnumbers and get a sorted array of doi_ids
+  my @sorted_doi_ids =  sort { ncmp($temp_hash{$a}->{"partnumber"}, $temp_hash{$b}->{"partnumber"}) }  keys %temp_hash;
+
+  #$main::lxdebug->message(0, 'sortiert, vorher :' . Dumper(%temp_hash));
+  #$main::lxdebug->message(0, 'sortiert, nachher:' . Dumper(@sorted_doi_ids));
+
+  my $new_number = 1;
+  for (@sorted_doi_ids) {
+    # reposition old runningnumber with the new order 1 .. n
+    $form->{"runningnumber_$temp_hash{$_}->{runningnumber}"} = $new_number;
+
+    #$main::lxdebug->message(0, 'hier jetzt:' . 'ferner' . $temp_hash{$_}->{runningnumber} .
+    # 'mit' . $form->{"runningnumber_{$temp_hash{$_}->{runningnumber}}"}); #" = $new_number;
+
+    $new_number++;
+  }
+    # update or save directly
+    # update_delivery_order;
+    $main::lxdebug->leave_sub();
+    save();
 }
