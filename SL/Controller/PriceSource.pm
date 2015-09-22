@@ -5,14 +5,13 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(any uniq apply);
-use SL::ClientJS;
 use SL::Locale::String qw(t8);
 use SL::PriceSource;
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(record_item) ],
- 'scalar --get_set_init' => [ qw(js record) ],
+ 'scalar --get_set_init' => [ qw(record) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -53,7 +52,7 @@ sub render_price_dialog {
 #     $self->js->show('#dialog_flash_error');
 #   }
 
-  $self->js->render($self);
+  $self->js->render;
 }
 
 
@@ -63,10 +62,6 @@ sub render_price_dialog {
 
 sub check_auth {
   $::auth->assert('edit_prices');
-}
-
-sub init_js {
-  SL::ClientJS->new
 }
 
 sub init_record {
