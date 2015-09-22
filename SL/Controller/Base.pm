@@ -13,7 +13,8 @@ use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar => [ qw(action_name) ],
+  scalar                  => [ qw(action_name) ],
+  'scalar --get_set_init' => [ qw(js) ],
 );
 
 #
@@ -175,6 +176,10 @@ sub controller_name {
   my $class = ref($_[0]) || $_[0];
   $class    =~ s/^SL::Controller:://;
   return $class;
+}
+
+sub init_js {
+  SL::ClientJS->new(controller => $_[0])
 }
 
 #
@@ -614,6 +619,10 @@ name the dispatching resolved to.
 
 Returns the global presenter object by calling
 L<SL::Presenter/get>.
+
+=item C<js>
+
+Returns an L<SL::ClientJS> instance for this controller.
 
 =back
 
