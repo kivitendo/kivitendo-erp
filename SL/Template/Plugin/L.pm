@@ -69,6 +69,7 @@ sub simple_format { return _call_presenter('simple_format', @_); }
 sub part_picker   { return _call_presenter('part_picker',   @_); }
 sub chart_picker  { return _call_presenter('chart_picker',  @_); }
 sub customer_vendor_picker   { return _call_presenter('customer_vendor_picker',   @_); }
+sub project_picker           { return _call_presenter('project_picker',           @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;

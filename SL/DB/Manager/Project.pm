@@ -30,6 +30,10 @@ __PACKAGE__->add_filter_specs(
     return () if $value ne 'orphaned';
     return __PACKAGE__->is_not_used_filter($prefix);
   },
+  all => sub {
+    my ($key, $value, $prefix) = @_;
+    return or => [ map { $prefix . $_ => $value } qw(projectnumber description customer.name) ]
+  }
 );
 
 our %project_id_column_prefixes = (
@@ -49,6 +53,7 @@ sub _sort_spec {
       customer     => 'customer.name',
       project_type => 'project_type.description',
       project_status => 'project_status.description',
+      customer_and_description => [ qw(customer.name project.description) ],
     });
 }
 

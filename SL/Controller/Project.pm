@@ -23,15 +23,17 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 
 use Data::Dumper;
+use JSON;
+use Rose::DB::Object::Helpers qw(as_tree);
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project linked_records) ],
- 'scalar --get_set_init' => [ qw(models customers project_types project_statuses) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects) ],
 );
 
-__PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_project',        only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('check_auth',   except => [ qw(ajax_autocomplete) ]);
+__PACKAGE__->run_before('load_project', only   => [ qw(edit update destroy) ]);
 
 #
 # actions
@@ -102,6 +104,52 @@ sub action_destroy {
   $self->redirect_to(action => 'search');
 }
 
+sub action_ajax_autocomplete {
+  my ($self, %params) = @_;
+
+  $::form->{filter}{'all:substr:multi::ilike'} =~ s{[\(\)]+}{}g;
+
+  # if someone types something, and hits enter, assume he entered the full name.
+  # if something matches, treat that as sole match
+  # unfortunately get_models can't do more than one per package atm, so we d it
+  # the oldfashioned way.
+  if ($::form->{prefer_exact}) {
+    my $exact_matches;
+    if (1 == scalar @{ $exact_matches = SL::DB::Manager::Project->get_all(
+      query => [
+        obsolete => 0,
+        SL::DB::Manager::Project->type_filter($::form->{filter}{type}),
+        or => [
+          description   => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
+          projectnumber => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
+        ]
+      ],
+      limit => 2,
+    ) }) {
+      $self->projects($exact_matches);
+    }
+  }
+
+  $::form->{sort_by} = 'customer_and_description';
+
+  my @hashes = map {
+   +{
+     value         => $_->full_description(style => 'full'),
+     label         => $_->full_description(style => 'full'),
+     id            => $_->id,
+     projectnumber => $_->projectnumber,
+     description   => $_->description,
+     cvars         => { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $_->cvars_by_config } },
+    }
+  } @{ $self->projects }; # neato: if exact match triggers we don't even need the init_projects
+
+  $self->render(\ SL::JSON::to_json(\@hashes), { layout => 0, type => 'json', process => 0 });
+}
+
+sub action_test_page {
+  $_[0]->render('project/test_page');
+}
+
 #
 # filters
 #
@@ -116,6 +164,14 @@ sub check_auth {
 
 sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
 sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
+
+sub init_projects {
+  if ($::form->{no_paginate}) {
+    $_[0]->models->disable_plugin('paginated');
+  }
+
+  $_[0]->models->get;
+}
 
 sub init_customers {
   my ($self)      = @_;
@@ -251,6 +307,7 @@ sub init_models {
       projectnumber  => t8('Project Number'),
       project_type   => t8('Project Type'),
       project_status => t8('Project Status'),
+      customer_and_description => 1,
     },
     with_objects => [ 'customer', 'project_status', 'project_type' ],
   );

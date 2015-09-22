@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(project);
+our @EXPORT = qw(project project_picker);
 
 use Carp;
 
@@ -27,6 +27,25 @@ sub project {
     $params{no_link} ? '' : '</a>',
   );
   return $self->escaped_text($text);
+}
+
+sub project_picker {
+  my ($self, $name, $value, %params) = @_;
+
+  $value      = SL::DB::Manager::Project->find_by(id => $value) if $value && !ref $value;
+  my $id      = delete($params{id}) || $self->name_to_id($name);
+  my @classes = $params{class} ? ($params{class}) : ();
+  push @classes, 'project_autocomplete';
+
+  my $ret =
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
+    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(customer_id)) .
+    $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
+
+  $::request->layout->add_javascripts('autocomplete_project.js');
+  $::request->presenter->need_reinit_widgets($id);
+
+  $self->html_tag('span', $ret, class => 'project_picker');
 }
 
 1;

@@ -60,6 +60,14 @@ sub full_description {
   } elsif ($params{style} =~ m/description/) {
     $description = $self->description;
 
+  } elsif ($params{style} =~ m/full/) {
+    $description = $self->projectnumber;
+    if ($self->description && do { my $desc = quotemeta $self->description; $self->projectnumber !~ m/$desc/ }) {
+      $description .= ' ' . $self->description;
+    }
+
+    $description = $self->customer->name . " (${description})";
+
   } else {
     $description = $self->projectnumber;
     if ($self->description && do { my $desc = quotemeta $self->description; $self->projectnumber !~ m/$desc/ }) {
@@ -127,6 +135,13 @@ Returns only the project's number.
 =item C<projectdescription> (or simply C<description>)
 
 Returns only the project's description.
+
+=item C<full>
+
+Returns the customer name followed by the project number and project
+description in parenthesis (e.g. "Evil Corp (12345 World
+domination)"). If the project's description is already part of the
+project's number then it will not be appended.
 
 =back
 
