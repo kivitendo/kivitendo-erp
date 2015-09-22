@@ -21,7 +21,7 @@ use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id js) ],
+  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -183,7 +183,6 @@ sub action_create_print_all_download {
 # filters
 #
 
-sub init_js       { SL::ClientJS->new(controller => $_[0]) }
 sub init_printers { SL::DB::Manager::Printer->get_all_sorted }
 sub init_invoice_ids { [] }
 
@@ -426,10 +425,6 @@ Action for watching status, default is refreshing every 5 seconds
 
 If the above is done (did I already said: boring linear?). Documents will
 be either printed or downloaded.
-
-=item C<init_js>
-
-Inits js/kivi.MassInvoiceCreatePrint;
 
 =item C<init_printers>
 
