@@ -13,12 +13,11 @@ use SL::DB::Pricegroup;
 use SL::DB::PartsGroup;
 use SL::DB::Business;
 use SL::Helper::Flash;
-use SL::ClientJS;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(models price_rule vc js pricegroups partsgroups businesses) ],
+ 'scalar --get_set_init' => [ qw(models price_rule vc pricegroups partsgroups businesses) ],
 );
 
 # __PACKAGE__->run_before('check_auth');
@@ -87,7 +86,7 @@ sub action_add_item_row {
     ->js
     ->before('#price_rule_new_items', $html)
     ->reinit_widgets
-    ->render($self);
+    ->render;
 }
 
 sub action_price_type_help {
@@ -265,10 +264,6 @@ sub init_price_rule {
 
 sub init_vc {
   $::form->{filter}{type};
-}
-
-sub init_js {
-  SL::ClientJS->new;
 }
 
 sub init_businesses {
