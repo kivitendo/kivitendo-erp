@@ -23,7 +23,7 @@ sub run {
   # if checks are not set in config set it to true
   foreach my $check (qw(check_on_sales_invoice check_on_purchase_invoice check_on_ar_transaction check_on_ap_transaction check_on_gl_transaction)) {
     my $check_set = 1;
-    if (!$::lx_office_conf{datev_check}->{$check}) {
+    if ($::lx_office_conf{datev_check}->{$check} == 0 && defined ($::lx_office_conf{datev_check}->{$check})) {
       $check_set = 0;
     }
 
