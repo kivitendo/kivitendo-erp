@@ -33,6 +33,7 @@
   [% L.button_tag('save()', LxERP.t8('Save')) %]
   [% L.button_tag('create_pdf()', LxERP.t8('Create PDF')) %]
   [% L.button_tag('email()', LxERP.t8('E-mail')) %]
+  [% L.button_tag('save_and_delivery_order()', LxERP.t8('Save and Delivery Order')) %]
 [%- IF SELF.order.id && ( (SELF.cv == 'customer' && INSTANCE_CONF.get_sales_order_show_delete) || (SELF.cv == 'vendor' && INSTANCE_CONF.get_purchase_order_show_delete) ) %]
   [% L.button_tag('delete_order()', LxERP.t8('Delete'), confirm=LxERP.t8("Are you sure?")) %]
 [%- END %]
@@ -77,6 +78,14 @@ function email() {
   if (!check_cv()) return;
   var data = $('#order_form').serialize();
   data += '&action=Order/show_email_dialog';
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+}
+
+function save_and_delivery_order() {
+  if (!check_cv()) return;
+  var data = $('#order_form').serialize();
+  data += '&action=Order/save_and_delivery_order';
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }

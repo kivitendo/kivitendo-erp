@@ -2371,6 +2371,7 @@ $self->{texts} = {
   'Save and AP Transaction'     => 'Speichern und Kreditorenbuchung erfassen',
   'Save and AR Transaction'     => 'Speichern und Debitorenbuchung erfassen',
   'Save and Close'              => 'Speichern und schließen',
+  'Save and Delivery Order'     => 'Speichern und Lieferschein',
   'Save and Invoice'            => 'Speichern und Rechnung erfassen',
   'Save and Order'              => 'Speichern und Auftrag erfassen',
   'Save and Quotation'          => 'Speichern und Angebot',

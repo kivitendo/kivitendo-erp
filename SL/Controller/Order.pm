@@ -37,7 +37,7 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(edit update save create_pdf send_email) ]);
+                        only => [ qw(edit update save save_and_delivery_order create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
                         only => [ qw(save save_and_delivery_order create_pdf send_email) ]);
@@ -241,6 +241,25 @@ sub action_send_email {
       ->render($self);
 }
 
+sub action_save_and_delivery_order {
+  my ($self) = @_;
+
+  my $errors = $self->_save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+  flash_later('info', $::locale->text('The order has been saved'));
+
+  my @redirect_params = (
+    controller => 'oe.pl',
+    action     => 'oe_delivery_order_from_order',
+    id         => $self->order->id,
+  );
+
+  $self->redirect_to(@redirect_params);
+}
 
 sub action_customer_vendor_changed {
   my ($self) = @_;

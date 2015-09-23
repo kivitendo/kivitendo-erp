@@ -1934,6 +1934,19 @@ sub delivery_order {
   $main::lxdebug->leave_sub();
 }
 
+sub oe_delivery_order_from_order {
+
+  return if !$::form->{id};
+
+  my $order = SL::DB::Order->new(id => $::form->{id})->load;
+  $order->flatten_to_form($::form, format_amounts => 1);
+
+  # fake last empty row
+  $::form->{rowcount}++;
+
+  delivery_order();
+}
+
 sub e_mail {
   $main::lxdebug->enter_sub();
 
