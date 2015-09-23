@@ -77,6 +77,11 @@ sub subtract_businessdays {
   $self->add_business_duration(%params);
 }
 
+sub end_of_month {
+  my ($self) = @_;
+  return $self->truncate(to => 'month')->add(months => 1)->subtract(days => 1);
+}
+
 1;
 
 __END__
@@ -120,6 +125,11 @@ Note that only dates can be parsed at the moment, not the time
 component (as opposed to L<to_kivitendo>).
 
 The legacy name C<from_lxoffice> is still supported.
+
+=item C<end_of_month>
+
+Sets the object to the last day of object's month at midnight. Returns
+the object itself.
 
 =back
 
