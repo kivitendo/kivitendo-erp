@@ -11,8 +11,12 @@
 
     <itemizedlist>
       <listitem>
-        <para>im kivitendo-Forum: <ulink
+        <para>im Community-Forum: <ulink
         url="https://forum.kivitendo.org:32443">https://forum.kivitendo.org:32443</ulink></para>
+      </listitem>
+      <listitem>
+        <para>im Kunden-Forum: <ulink
+        url="http://redmine.kivitendo-premium.de/projects/forum/boards/">http://redmine.kivitendo-premium.de/projects/forum/boards/</ulink></para>
       </listitem>
       <listitem>
         <para>in der doc/UPGRADE Datei im doc-Verzeichnis der Installation</para>
@@ -574,6 +578,9 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
         <note>
           <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein
           Plus ‘<literal>+</literal>’ gesetzt werden.</para>
+          <para>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss noch explizit
+          das cgi-Modul mittels <programlisting>a2enmod cgi</programlisting> aktiviert
+          werden.</para>
         </note>
 
         <para>Auf einigen Webservern werden manchmal die Grafiken und
@@ -755,6 +762,15 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
           <constant>/url/for/kivitendo-erp-fcgid/</constant> die
           FastCGI-Version.</para>
         </sect3>
+      </sect2>
+      <sect2>
+        <title>Weitergehende Konfiguration</title>
+          <para>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung von kivitendo
+          nur über https-verschlüsselten Verbindungen, sowie weiteren Zusatzmassnahmen,
+          wie beispielsweise Basic Authenticate.
+          Die Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser Anleitung, hier ein
+          Hinweis auf einen entsprechenden <ulink
+        url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag (Stand Sept. 2015)</ulink></para>
       </sect2>
     </sect1>
 
@@ -1646,7 +1662,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           </para>
         </sect3>
       </sect2>
-      
+
       <sect2 id="Vorlagen-rev-odt">
         <title>Der Druckvorlagensatz rev-odt</title>
 
