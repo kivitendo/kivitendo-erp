@@ -119,7 +119,7 @@ sub new_from {
     $item_parent_column    = 'order';
   }
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(cp_id currency_id customer_id cusordnumber department_id employee_id globalproject_id intnotes language_id notes
+  my %args = ( map({ ( $_ => $source->$_ ) } qw(cp_id currency_id customer_id cusordnumber delivery_term_id department_id employee_id globalproject_id intnotes language_id notes
                                                 ordnumber payment_id reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id transaction_description vendor_id
                                              )),
                closed    => 0,
