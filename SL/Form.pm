@@ -1301,6 +1301,9 @@ sub generate_attachment_filename {
   } elsif ($attachment_filename && $self->{"${prefix}number"}) {
     $attachment_filename .=  "_" . $self->{"${prefix}number"} . $self->get_extension_for_format();
 
+  } elsif ($attachment_filename) {
+    $attachment_filename .=  $self->get_extension_for_format();
+
   } else {
     $attachment_filename = "";
   }
