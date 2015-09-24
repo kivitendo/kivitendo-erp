@@ -148,8 +148,7 @@ CODE
 
   eval <<CODE;
     package SL::DB::AUTO::$package;
-    use SL::DB::Object;
-    use base qw(SL::DB::Object);
+    use parent qw(SL::DB::Object);
 
     __PACKAGE__->meta->table('$table');
     $schema_str
@@ -208,6 +207,7 @@ CODE
   }
 
   $definition =~ s/(meta->table.*)\n/$1\n$schema_str/m if $schema;
+  $definition =~ s{^use base}{use parent}m;
 
   my $full_definition = <<CODE;
 # This file has been auto-generated. Do not modify it; it will be overwritten
@@ -274,8 +274,7 @@ package SL::DB::Manager::${package};
 
 use strict;
 
-use SL::DB::Helper::Manager;
-use base qw(SL::DB::Helper::Manager);
+use parent qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::${package}' }
 
