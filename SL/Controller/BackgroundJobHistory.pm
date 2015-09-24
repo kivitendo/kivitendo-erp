@@ -68,7 +68,7 @@ sub check_task_server {
 }
 
 sub add_stylesheet {
-  $::request->{layout}->use_stylesheet('lx-office-erp/background_jobs.css');
+  $::request->{layout}->use_stylesheet('background_jobs.css');
 }
 
 sub make_filter_summary {
