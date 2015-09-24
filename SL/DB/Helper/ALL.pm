@@ -42,6 +42,8 @@ use SL::DB::Department;
 use SL::DB::Draft;
 use SL::DB::Dunning;
 use SL::DB::DunningConfig;
+use SL::DB::EmailJournal;
+use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;
 use SL::DB::Exchangerate;
 use SL::DB::Finanzamt;

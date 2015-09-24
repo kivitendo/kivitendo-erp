@@ -6,7 +6,7 @@ use parent qw(Rose::Object);
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar => [ qw(myconfig mailer form) ]
+  scalar => [ qw(myconfig mailer form status extended_status) ]
 );
 
 my %security_config = (
@@ -18,18 +18,33 @@ my %security_config = (
 sub init {
   my ($self) = @_;
 
-  Rose::Object::init(@_);
+  Rose::Object::init(
+    @_,
+    status          => 'failed',
+    extended_status => 'no send attempt made',
+  );
 
   my $cfg           = $::lx_office_conf{mail_delivery} || {};
   $self->{security} = exists $security_config{lc $cfg->{security}} ? lc $cfg->{security} : 'none';
   my $sec_cfg       = $security_config{ $self->{security} };
 
-  eval "require $sec_cfg->{require_module}" or die "$@";
+  eval "require $sec_cfg->{require_module}" or do {
+    $self->extended_status("$@");
+    die $self->extended_status;
+  };
 
   $self->{smtp} = $sec_cfg->{package}->new($cfg->{host} || 'localhost', Port => $cfg->{port} || $sec_cfg->{port});
-  die unless $self->{smtp};
+  if (!$self->{smtp}) {
+    $self->extended_status('SMTP connection could not be initialized');
+    die $self->extended_status;
+  }
 
-  $self->{smtp}->starttls(SSL_verify_mode => 0) || die if $self->{security} eq 'tls';
+  if ($self->{security} eq 'tls') {
+    $self->{smtp}->starttls(SSL_verify_mode => 0) or do {
+      $self->extended_status("$@");
+      die $self->extended_status;
+    };
+  }
 
   # Backwards compatibility: older Versions used 'user' instead of the
   # intended 'login'. Support both.
@@ -37,15 +52,18 @@ sub init {
 
   return 1 unless $login;
 
-  $self->{smtp}->auth($login, $cfg->{password}) or die;
+  if (!$self->{smtp}->auth($login, $cfg->{password})) {
+    $self->extended_status('SMTP authentication failed');
+    die $self->extended_status;
+  }
 }
 
 sub start_mail {
   my ($self, %params) = @_;
 
-  $self->{smtp}->mail($params{from});
-  $self->{smtp}->recipient(@{ $params{to} });
-  $self->{smtp}->data;
+  $self->{smtp}->mail($params{from})         or do { $self->extended_status($self->{smtp}->message); die $self->extended_status; };
+  $self->{smtp}->recipient(@{ $params{to} }) or do { $self->extended_status($self->{smtp}->message); die $self->extended_status; };
+  $self->{smtp}->data                        or do { $self->extended_status($self->{smtp}->message); die $self->extended_status; };
 }
 
 sub print {
@@ -76,8 +94,12 @@ sub print {
 sub send {
   my ($self) = @_;
 
-  $self->{smtp}->dataend;
+  my $ok = $self->{smtp}->dataend;
+  $self->extended_status($self->{smtp}->message);
+  $self->status('ok') if $ok;
+
   $self->{smtp}->quit;
+
   delete $self->{smtp};
 }
 

@@ -25,8 +25,12 @@ package Mailer;
 use Email::Address;
 use Email::MIME::Creator;
 use File::Slurp;
+use List::UtilsBy qw(bundle_by);
 
 use SL::Common;
+use SL::DB::EmailJournal;
+use SL::DB::EmailJournalAttachment;
+use SL::DB::Employee;
 use SL::MIME;
 use SL::Template;
 
@@ -185,7 +189,7 @@ sub send {
   # Create driver for delivery method (sendmail/SMTP)
   $self->{driver} = eval { $self->_create_driver };
   if (!$self->{driver}) {
-    $::lxdebug->leave_sub();
+    $self->_store_in_journal('failed', 'driver could not be created; check your configuration');
     return "send email : $@";
   }
 
@@ -198,20 +202,71 @@ sub send {
     'X-Mailer'           => "kivitendo $self->{version}",
   ];
 
-  # Clean up To/Cc/Bcc address fields
-  $self->_cleanup_addresses;
-  $self->_create_address_headers;
+  my $error;
+  my $ok = eval {
+    # Clean up To/Cc/Bcc address fields
+    $self->_cleanup_addresses;
+    $self->_create_address_headers;
 
-  my $email = $self->_create_message;
+    my $email = $self->_create_message;
 
-  # $::lxdebug->message(0, "message: " . $email->as_string);
-  # return "boom";
+    # $::lxdebug->message(0, "message: " . $email->as_string);
+    # return "boom";
 
-  $self->{driver}->start_mail(from => $self->{from}, to => [ map { @{ $self->{addresses}->{$_} } } qw(to cc bcc) ]);
-  $self->{driver}->print($email->as_string);
-  $self->{driver}->send;
+    $self->{driver}->start_mail(from => $self->{from}, to => [ $self->_all_recipients ]);
+    $self->{driver}->print($email->as_string);
+    $self->{driver}->send;
 
-  return '';
+    1;
+  };
+
+  $error = $@ if !$ok;
+
+  $self->_store_in_journal;
+
+  return $ok ? '' : "send email: $error";
+}
+
+sub _all_recipients {
+  my ($self) = @_;
+
+  $self->{addresses} ||= {};
+  return map { @{ $self->{addresses}->{$_} || [] } } qw(to cc bcc);
+}
+
+sub _store_in_journal {
+  my ($self, $status, $extended_status) = @_;
+
+  $status          //= $self->{driver}->status if $self->{driver};
+  $status          //= 'failed';
+  $extended_status //= $self->{driver}->extended_status if $self->{driver};
+  $extended_status //= 'unknown error';
+
+  my @attachments = grep { $_ } map {
+    my $part = $self->_create_attachment_part($_);
+    if ($part) {
+      SL::DB::EmailJournalAttachment->new(
+        name      => $part->filename,
+        mime_type => $part->content_type,
+        content   => $part->body,
+      )
+    }
+  } @{ $self->{attachments} || [] };
+
+  my $headers = join "\r\n", (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
+
+  SL::DB::EmailJournal->new(
+    sender          => SL::DB::Manager::Employee->current,
+    from            => $self->{from}    // '',
+    recipients      => join(', ', $self->_all_recipients),
+    subject         => $self->{subject} // '',
+    headers         => $headers,
+    body            => $self->{message} // '',
+    sent_on         => DateTime->now_local,
+    attachments     => \@attachments,
+    status          => $status,
+    extended_status => $extended_status,
+  )->save;
 }
 
 1;
