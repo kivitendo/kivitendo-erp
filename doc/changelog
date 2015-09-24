@@ -15,6 +15,18 @@ Größere neue Features:
     Benutzer. Auf der aktuellen Testumgebung (8000 bogomips) konnten hier 440 Objekte
     in 2 Minuten gewandelt und in weiteren 5 Minuten als PDF erzeugt werden.
 
+- E-Mail-Journal
+
+  Alle aus kivitendo verschickten E-Mails werden in einem Journal
+  gespeichert und können von Benutzern später erneut eingesehen
+  werden. Dabei wird auch der Versandstatus (erfolgreich/
+  fehlgeschlagen) hinterlegt. Anhänge können erneut heruntergeladen
+  werden.
+
+  Administratoren (Recht »config«) können dabei alle verschickten
+  E-Mails einsehen, normale BenutzerInnen hingegen nur die von ihnen
+  selber verschickten.
+
 
 2015-08-20 - Release 3.3
 
