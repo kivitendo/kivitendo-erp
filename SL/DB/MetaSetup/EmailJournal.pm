@@ -13,7 +13,7 @@ __PACKAGE__->meta->columns(
   extended_status => { type => 'text', not_null => 1 },
   from            => { type => 'text', not_null => 1 },
   headers         => { type => 'text', not_null => 1 },
-  id              => { type => 'integer', not_null => 1, sequence => 'email_journal_id_seq1' },
+  id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime           => { type => 'timestamp', default => 'now()', not_null => 1 },
   recipients      => { type => 'text', not_null => 1 },
