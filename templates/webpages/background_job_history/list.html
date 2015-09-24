@@ -27,7 +27,7 @@
   [%- FOREACH entry = ENTRIES %]
   <tr class="listrow[% loop.count % 2 %]" id="background_job_history_id_[% entry.id %]">
    <td>
-    <a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]">
+    <a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.models.get_callback) %]">
      [%- HTML.escape(entry.package_name) %]
     </a>
    </td>
