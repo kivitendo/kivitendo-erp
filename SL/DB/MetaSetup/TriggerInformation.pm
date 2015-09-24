@@ -4,7 +4,7 @@ package SL::DB::TriggerInformation;
 
 use strict;
 
-use base qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
 __PACKAGE__->meta->table('trigger_information');
 

@@ -4,7 +4,7 @@ package SL::DB::SepaExportItem;
 
 use strict;
 
-use base qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
 __PACKAGE__->meta->table('sepa_export_items');
 

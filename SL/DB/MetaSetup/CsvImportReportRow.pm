@@ -4,7 +4,7 @@ package SL::DB::CsvImportReportRow;
 
 use strict;
 
-use base qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
 __PACKAGE__->meta->table('csv_import_report_rows');
 
