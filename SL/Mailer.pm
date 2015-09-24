@@ -121,26 +121,25 @@ sub _create_address_headers {
 sub _create_attachment_part {
   my ($self, $attachment) = @_;
 
-  my $source_file_name;
-
   my %attributes = (
     disposition  => 'attachment',
     encoding     => 'base64',
   );
 
+  my $attachment_content;
+
   if (ref($attachment) eq "HASH") {
     $attributes{filename} = $attachment->{name};
-    $source_file_name     = $attachment->{filename};
+    $attachment_content   = $attachment->{content} // eval { read_file($attachment->{filename}) };
 
   } else {
     # strip path
     $attributes{filename} =  $attachment;
     $attributes{filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
     $attributes{filename} =~ s:.*/::g;
-    $source_file_name     =  $attachment;
+    $attachment_content   =  eval { read_file($attachment) };
   }
 
-  my $attachment_content = eval { read_file($source_file_name) };
   return undef if !defined $attachment_content;
 
   my $application             = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? 'text' : 'application';
