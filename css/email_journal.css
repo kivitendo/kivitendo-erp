@@ -1,0 +1,13 @@
+/* E-Mail-Journal */
+.email_journal_details tbody pre {
+  margin: 0px;
+}
+
+.email_journal_details tbody th {
+  text-align: right;
+  vertical-align: top;
+}
+
+.email_journal_details tbody td {
+  vertical-align: top;
+}

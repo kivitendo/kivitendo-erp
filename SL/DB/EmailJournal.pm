@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::EmailJournal;
 use SL::DB::Manager::EmailJournal;
+use SL::DB::Helper::AttrSorted;
 
 __PACKAGE__->meta->add_relationship(
   attachments  => {
@@ -14,5 +15,7 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_sorted('attachments');
 
 1;

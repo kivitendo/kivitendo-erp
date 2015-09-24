@@ -966,6 +966,13 @@
   module: fu.pl
   params:
     action: search
+- parent: productivity_reports
+  id: productivity_reports_email_journal
+  name: Email journal
+  order: 200
+  module: controller.pl
+  params:
+    action: EmailJournal/list
 - id: system
   name: System
   icon: system
