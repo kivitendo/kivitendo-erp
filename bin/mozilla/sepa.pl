@@ -234,9 +234,12 @@ sub bank_transfer_list {
     'employee'    => { 'text' => $locale->text('Employee'), },
     'executed'    => { 'text' => $locale->text('Executed'), },
     'closed'      => { 'text' => $locale->text('Closed'), },
+    num_invoices  => { 'text' => $locale->text('Number of invoices'), },
+    sum_amounts   => { 'text' => $locale->text('Sum of all amounts'), },
   );
 
-  my @columns = qw(selected id export_date employee executed closed);
+  my @columns = qw(selected id export_date employee executed closed invoices netamount);
+  my %column_alignment = map { ($_ => 'right') } qw(num_invoices sum_amounts);
 
   foreach my $name (qw(id export_date employee executed closed)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
@@ -246,6 +249,7 @@ sub bank_transfer_list {
   $column_defs{selected}->{visible} = $open_available                                ? 'HTML' : 0;
   $column_defs{executed}->{visible} = $form->{l_executed} && $form->{l_not_executed} ? 1 : 0;
   $column_defs{closed}->{visible}   = $form->{l_closed}   && $form->{l_open}         ? 1 : 0;
+  $column_defs{$_}->{align}         = $column_alignment{$_} for keys %column_alignment;
 
   my @options = ();
   push @options, ($vc eq 'customer' ? $::locale->text('Customer') : $locale->text('Vendor')) . ' : ' . $form->{f_vc} if ($form->{f_vc});
@@ -278,11 +282,13 @@ sub bank_transfer_list {
   my $edit_url = build_std_url('action=bank_transfer_edit', 'callback');
 
   foreach my $export (@{ $exports }) {
-    my $row = { map { $_ => { 'data' => $export->{$_} } } keys %{ $export } };
+    my $row = { map { $_ => { 'data' => $export->{$_}, 'align' => $column_alignment{$_} } } keys %{ $export } };
 
     map { $row->{$_}->{data} = $export->{$_} ? $locale->text('yes') : $locale->text('no') } qw(executed closed);
 
     $row->{id}->{link} = $edit_url . '&id=' . E($export->{id}) . '&vc=' . E($vc);
+
+    $row->{$_}->{data} = $::form->format_amount(\%::myconfig, $row->{$_}->{data}, 2) for qw(sum_amounts);
 
     if (!$export->{closed}) {
       $row->{selected}->{raw_data} =

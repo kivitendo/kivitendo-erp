@@ -364,6 +364,12 @@ sub list_exports {
 
   my $query =
     qq|SELECT se.id, se.employee_id, se.executed, se.closed, itime::date AS export_date,
+         (SELECT COUNT(*)
+          FROM sepa_export_items sei
+          WHERE (sei.sepa_export_id = se.id)) AS num_invoices,
+         (SELECT SUM(sei.amount)
+          FROM sepa_export_items sei
+          WHERE (sei.sepa_export_id = se.id)) AS sum_amounts,
          e.name AS employee
        FROM sepa_export se
        LEFT JOIN (
