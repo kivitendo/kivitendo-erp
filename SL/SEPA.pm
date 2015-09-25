@@ -49,13 +49,13 @@ sub retrieve_open_invoices {
 
        FROM ${arap}
        LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
-       LEFT JOIN (SELECT sei.ap_id, SUM(sei.amount) AS amount
+       LEFT JOIN (SELECT sei.${arap}_id, SUM(sei.amount) AS amount
                   FROM sepa_export_items sei
                   LEFT JOIN sepa_export se ON (sei.sepa_export_id = se.id)
                   WHERE NOT se.closed
                     AND (se.vc = '${vc}')
-                  GROUP BY sei.ap_id)
-         AS open_transfers ON (${arap}.id = open_transfers.ap_id)
+                  GROUP BY sei.${arap}_id)
+         AS open_transfers ON (${arap}.id = open_transfers.${arap}_id)
 
        LEFT JOIN payment_terms pt ON (${payment_term_type}.payment_id = pt.id)
 
