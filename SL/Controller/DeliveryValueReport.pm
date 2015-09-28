@@ -74,47 +74,46 @@ sub prepare_report {
 
   my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
 
-  # if csv report export no units (better calculation in
+  # if csv report export no units
   my $rp_csv_mod  = ($csv_option eq 'CSV') ? 1 : '';
 
   my %column_defs = (
-    reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date     } },
-    description       => {      sub => sub { $_[0]->description                                          },
-                           obj_link => sub { $self->link_to($_[0]->part)                                 } },
-    partnumber        => {      sub => sub { $_[0]->part->partnumber                                     },
-                           obj_link => sub { $self->link_to($_[0]->part)                                 } },
+    reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date          } },
+    description       => {      sub => sub { $_[0]->description                                               },
+                           obj_link => sub { $self->link_to($_[0]->part)                                      } },
+    partnumber        => {      sub => sub { $_[0]->part->partnumber                                          },
+                           obj_link => sub { $self->link_to($_[0]->part)                                      } },
     qty               => {      sub => sub { $_[0]->qty_as_number .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                     } },
+                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
     netto_qty         => {      sub => sub { $::form->format_amount(\%::myconfig,
                                               ($_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount) /
-                                                                         ($_[0]->price_factor || 1), 2)) },},
-    unit              => {      sub => sub {  $_[0]->unit                                                                    },
-                            visible => $rp_csv_mod                                                                           },
+                                                                         ($_[0]->price_factor || 1), 2))       },},
+    unit              => {      sub => sub {  $_[0]->unit                                                      },
+                            visible => $rp_csv_mod                                                             },
     shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    netto_shipped_qty => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_shipped_qty}, 2)             },},
-    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty} - $_[0]{delivered_qty} - $_[0]{do_closed_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
+                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
+    netto_shipped_qty => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_shipped_qty}, 2) },},
+    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}
+                                               - $_[0]{delivered_qty} - $_[0]{do_closed_qty}, 2) .
+                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
     delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{delivered_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    netto_delivered_qty => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_delivered_qty}, 2)          },},
-
-    netto_not_shipped_qty => {      sub => sub { $::form->format_amount(\%::myconfig,(
-                                                    ($_[0]->qty - $_[0]{shipped_qty} - $_[0]{delivered_qty} - $_[0]{do_closed_qty})
-                                                  * ($_[0]->sellprice * (1 - $_[0]->discount) / ($_[0]->price_factor || 1)), 2))  },},
+                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
+    netto_delivered_qty => {    sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_delivered_qty}, 2) },},
+    netto_not_shipped_qty => {  sub => sub { $::form->format_amount(\%::myconfig,(($_[0]->qty -
+                                             $_[0]{shipped_qty} - $_[0]{delivered_qty} - $_[0]{do_closed_qty})
+                                             * ($_[0]->sellprice * (1 - $_[0]->discount) /
+                                                                             ($_[0]->price_factor || 1)), 2))  },},
     do_closed_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{do_closed_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                        },},
-
-    netto_do_closed_qty => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_do_closed_qty}, 2)            },
-                            visible => $mode eq 'delivery_value_report'                                                     },
-    ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
-                           obj_link => sub { $self->link_to($_[0]->order)                                                    } },
-    vendor            => {      sub => sub { $_[0]->order->vendor->name                                                      },
+                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           },},
+    netto_do_closed_qty => {    sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_do_closed_qty}, 2) },},
+    ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                           },
+                           obj_link => sub { $self->link_to($_[0]->order)                                      } },
+    vendor            => {      sub => sub { $_[0]->order->vendor->name                                        },
                             visible => $vc eq 'vendor',
-                           obj_link => sub { $self->link_to($_[0]->order->vendor)                                            } },
-    customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
+                           obj_link => sub { $self->link_to($_[0]->order->vendor)                              } },
+    customer          => {      sub => sub { $_[0]->order->customer->name                                      },
                             visible => $vc eq 'customer',
-                           obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+                           obj_link => sub { $self->link_to($_[0]->order->customer)                            } },
   );
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
@@ -123,11 +122,9 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'DeliveryValueReport',
     output_format         => 'HTML',
-    top_info_text         => ($vc eq 'customer') ?  (($mode eq 'delivery_plan') ? $::locale->text('Delivery Plan for currently outstanding sales orders') :
-                                                   $::locale->text('Delivery Value Report for currently open sales orders')) :
-                                                   ($mode eq 'delivery_value_report') ? $::locale->text('Delivery Value Report for currently outstanding purchase orders') :
-                                                   $::locale->text('Delivery Plan for currently outstanding purchase orders'),
-    title                 => ($mode eq 'delivery_plan') ? $::locale->text('Delivery Plan') : $::locale->text('Delivery Value Report'),
+    top_info_text         => ($vc eq 'customer') ? t8('Delivery Value Report for currently open sales orders') :
+                                                   t8('Delivery Value Report for currently outstanding purchase orders'),
+    title                 => $::locale->text('Delivery Value Report'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
@@ -154,7 +151,6 @@ sub prepare_report {
 sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my $mode   = 'delivery_value_report';
   my ($business, $employee);
 
   my $filter = $::form->{filter} || {};
@@ -179,6 +175,7 @@ sub make_filter_summary {
     [ $employee,                                                      $::locale->text('Employee')                                           ],
   );
 
+  # flags for with_object 'part'
   my %flags = (
     part     => $::locale->text('Parts'),
     service  => $::locale->text('Services'),
@@ -203,7 +200,6 @@ sub make_filter_summary {
 sub init_models {
   my ($self) = @_;
   my $vc     = $self->vc;
-  $main::lxdebug->message(0, 'vc hier:' . $vc);
   SL::Controller::Helper::GetModels->new(
     controller            => $self,
     model                 => 'OrderItem',
@@ -214,15 +210,16 @@ sub init_models {
       },
       %sort_columns,
     },
-    # show only open orders
-    query                 => [ 'order.closed' => '0',  "order.${vc}_id" => { gt => 0 } ],
-    with_objects          => [ 'order', "order.$vc" ],
+    # show only open (sales|purchase) orders
+    query                 => [ 'order.closed' => '0',  "order.${vc}_id" => { gt => 0 },
+                               'order.quotation' => 0                                  ],
+    with_objects          => [ 'order', "order.$vc", 'part' ],
     additional_url_params => { vc => $vc},
-  );
+  )
 }
 
 sub init_vc {
-  return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";
+  return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryValueReport) has no vc defined";
 }
 sub init_all_employees {
   return SL::DB::Manager::Employee->get_all_sorted;
@@ -259,20 +256,19 @@ sub link_to {
 sub calc_qtys_price {
   my ($self, $orderitems) = @_;
   # using $orderitem->shipped_qty 40 times is far too slow. need to do it manually
-  #
+  # also for calc net values
 
   return unless scalar @$orderitems;
 
   my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
 
   my $query = <<SQL;
-    SELECT oi.id, doi.qty, doi.qty, doi.unit, doe.delivered, doe.closed, -- dois.qty as qty_stocked,
+    SELECT oi.id, doi.qty, doi.unit, doe.delivered, doe.closed,
            oi.sellprice, oi.discount, oi.price_factor
     FROM record_links rl
     INNER JOIN delivery_order_items doi ON (doi.id = rl.to_id)
     INNER JOIN orderitems oi            ON (oi.id  = rl.from_id)
     INNER JOIN delivery_orders doe      ON (doe.id = doi.delivery_order_id)
-    --INNER JOIN delivery_order_items_stock dois ON (doi.id = dois.delivery_order_item_id)
     WHERE rl.from_table = 'orderitems'
       AND rl.to_table   = 'delivery_order_items'
       AND oi.id IN (@{[ join ', ', ("?")x @$orderitems ]})
@@ -285,19 +281,15 @@ SQL
     $item->{shipped_qty}   ||= 0;
     $item->{delivered_qty} ||= 0;
     $item->{do_closed_qty} ||= 0;
-    $item->{shipped_qty}    += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} unless ($row->{delivered} || $row->{closed});
-    $item->{delivered_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} if ($row->{delivered} && !$row->{closed});
-    $item->{do_closed_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} if ($row->{closed});
-    #$item->{do_closed_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty_stocked} if ($row->{closed});
+    $item->{shipped_qty}    += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  unless ($row->{delivered} || $row->{closed});
+    $item->{delivered_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  if ($row->{delivered} && !$row->{closed});
+    $item->{do_closed_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  if ($row->{closed});
     $item->{not_shipped_qty} += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} unless ($row->{delivered});
-    #  my $price_factor = $self->price_factor || 1;
-    #$self->_delivered_qty;
-    #$item->{netto_qty}              += $row->{qty} * $row->{sellprice} * (1 - $row->{discount} ) / ($row->{price_factor} || 1);
-    # no sum
-    $item->{netto_shipped_qty}      = $item->{shipped_qty} * $row->{sellprice} * (1 - $row->{discount} ) / ($row->{price_factor} || 1);
-#    $item->{netto_not_shipped_qty}  += $item->{shipped_qty} * $row->{sellprice} * (1 - $row->{discount} ) / ($row->{price_factor} || 1);
-    $item->{netto_delivered_qty}    = $item->{delivered_qty} * $row->{sellprice} * (1 - $row->{discount} ) / ($row->{price_factor} || 1);
-    $item->{netto_do_closed_qty}    = $item->{do_closed_qty} * $row->{sellprice} * (1 - $row->{discount} ) / ($row->{price_factor} || 1);
+
+    my $price_factor = $row->{price_factor} || 1;
+    $item->{netto_shipped_qty}   = $item->{shipped_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
+    $item->{netto_delivered_qty} = $item->{delivered_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
+    $item->{netto_do_closed_qty} = $item->{do_closed_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
 
   }
 }
@@ -342,13 +334,57 @@ Currently the report even works correctly even if the same part has been manuall
  other metadata for the position has been altered. This is due to the fact that a hidden converted_from_previous_document is
 used in the position.
 
-  from_table |   id    | to_table             |   id
-  orderitems |    7    | delivery_order_items |   11
+The main intelligence is this query (qty_stocked as comments):
+
+    SELECT oi.id,and more metadata , -- dois.qty as qty_stocked,
+    FROM record_links rl
+    INNER JOIN delivery_order_items doi ON (doi.id = rl.to_id)
+    INNER JOIN orderitems oi            ON (oi.id  = rl.from_id)
+    INNER JOIN delivery_orders doe      ON (doe.id = doi.delivery_order_id)
+    --INNER JOIN delivery_order_items_stock dois ON (doi.id = dois.delivery_order_item_id)
+    WHERE rl.from_table = 'orderitems'
+      AND rl.to_table   = 'delivery_order_items'
+
+Get all entries which were converted from orderitems to delivery_order_items (WHERE).
+The persistent id are in rl, therefore we can fetch orderitems and delivery_order_items.
+The join on delivery_orders (doe) is only needed for the current state of the delivery order (closed, delivered).
 
 =head1 FUNCTIONS
 
 =over 2
 
-=item C<action_list_sales_delivery_orders>
+=item C<action_list>
 
-L
+=item C<prepare_report>
+
+=item C<make_filter_summary>
+
+=item C<calc_qtys_price>
+
+=item C<link_to>
+
+=item C<init_models>
+
+=item C<init_vc>
+
+=item C<init_all_employees>
+
+=item C<init_all_businesses>
+
+=back
+
+=head1 TODOS
+
+Currently no foreign currencies and OrderItems with taxincluded are calculated / supported. The report can be easily extended
+for the real stocked qty. The report is really easy to implement and customise if your model is focussed straight.
+For long term maintaineance it would be wise to add more testcases for the conversion from orders to delivery_orders.
+Right now record_links are tested only from document to document and the convert_invoice method (via task server) has a
+test case with record_links items included. Furhtermore I personally dislike the calcs in the %columns_def, but for a quick report
+this is ok, though if we redesign this further, the taxincluded / currency cases should be implemented as well.
+
+
+=head1 AUTHOR
+
+Jan Büren E<lt>jan@kivitendo-premium.deE<gt> (based on DeliveryPlan.pm by Sven)
+
+=cut

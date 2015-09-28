@@ -27,6 +27,16 @@ Größere neue Features:
   E-Mails einsehen, normale BenutzerInnen hingegen nur die von ihnen
   selber verschickten.
 
+- Lieferwertbericht
+
+  Bei offenen Aufträgen genauer anzeigen, welche Stand die Einzelpositionen aktuell haben.
+  Details:
+  Auftragspositionen werden mit Lieferscheinen ausgeliefert. Lieferscheine können
+  prinzipiell drei Status haben: Offen, geliefert und / oder geschlossen. Für diese drei Fälle
+  wird im Bericht die  Warenbewegungen eindeutig über die Verknüpfung von Auftragsposition
+  zu Lieferscheinposition mitverfolgt. Ferner wird der Nettowarenwert für den Fall
+   Hauptwährung und Netto-Auftrag berechnet.
+
 
 2015-08-20 - Release 3.3
 

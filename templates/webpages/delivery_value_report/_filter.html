@@ -78,14 +78,14 @@
                      style      => 'width: 200px') %]
    </td>
   </tr>
-  <!-- tr>
+  <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>
      [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.part,     value='part',     label=LxERP.t8('Part')) %]
      [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.service,  value='service',  label=LxERP.t8('Service')) %]
      [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.assembly, value='assembly', label=LxERP.t8('Assembly')) %]
    </td>
-  </tr -->
+  </tr>
  </table>
 
 [% L.hidden_tag('action', 'DeliveryValueReport/dispatch') %]
