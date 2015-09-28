@@ -127,7 +127,7 @@ sub calc_qtys {
   my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
 
   my $query = <<SQL;
-    SELECT oi.id, doi.qty, doi.qty, doi.unit, doe.delivered
+    SELECT oi.id, doi.qty, doi.unit, doe.delivered
     FROM record_links rl
     INNER JOIN delivery_order_items doi ON (doi.delivery_order_id = rl.to_id)
     INNER JOIN delivery_orders doe ON (doe.id = rl.to_id)
