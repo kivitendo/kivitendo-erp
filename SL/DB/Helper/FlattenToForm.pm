@@ -7,8 +7,6 @@ our @EXPORT = qw(flatten_to_form);
 
 use List::MoreUtils qw(any);
 
-use SL::CVar;
-
 sub flatten_to_form {
   my ($self, $form, %params) = @_;
 
@@ -102,21 +100,19 @@ sub _copy {
 }
 
 sub _copy_custom_variables {
-  my ($src, $form, $prefix, $postfix) = @_;
+  my ($src, $form, $prefix, $postfix, $format_amounts) = @_;
 
-  my ($module, $sub_module, $trans_id) = ref($src) eq 'SL::DB::OrderItem'         ? ('IC', 'orderitems',           $src->id)
-                                       : ref($src) eq 'SL::DB::DeliveryOrderItem' ? ('IC', 'delivery_order_items', $src->id)
-                                       : ref($src) eq 'SL::DB::InvoiceItem'       ? ('IC', 'invoice',              $src->id)
-                                       :                                            ('CT', undef,                  _has($src, 'customer_id') ? $src->customer_id : $src->vendor_id);
+  my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem))
+          ? $src
+          : $src->customervendor;
 
-  return unless $trans_id;
+  foreach my $cvar (@{ $obj->cvars_by_config }) {
+    my $value = ($cvar->config->type =~ m{^(?:bool|customer|vendor|part)$})
+              ? $cvar->value
+              : $cvar->value_as_text;
 
-  my $cvars = CVar->get_custom_variables(dbh        => $src->db->dbh,
-                                         module     => $module,
-                                         sub_module => $sub_module,
-                                         trans_id   => $trans_id,
-                                        );
-  map { $form->{ $prefix . $_->{name} . $postfix } = $_->{value} } @{ $cvars };
+    $form->{ $prefix . $cvar->config->name . $postfix } = $value;
+  }
 
   return $src;
 }
