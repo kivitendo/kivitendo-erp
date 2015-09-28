@@ -306,9 +306,6 @@ sub generate_report {
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
   my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto employee_id datesort category l_subtotal);
   push @hidden_variables, map { "l_${_}" } @columns;
-  foreach ( @hidden_variables ) {
-      print URL "$_\n";
-  };
 
   my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
 
@@ -332,8 +329,6 @@ sub generate_report {
 
 
   my $callback = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
-  print URL $callback;
-  close URL;
 
   $form->{l_credit_accno}     = 'Y';
   $form->{l_debit_accno}      = 'Y';
