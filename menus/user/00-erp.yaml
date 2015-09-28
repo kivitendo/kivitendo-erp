@@ -363,8 +363,7 @@
   order: 900
   access: delivery_value_report
   params:
-    action: DeliveryPlan/list
-    mode: delivery_value_report
+    action: DeliveryValueReport/list
     vc: customer
 - parent: ar_reports
   id: ar_reports_financial_controlling
@@ -481,9 +480,8 @@
   order: 600
   access: delivery_value_report
   params:
-    action: DeliveryPlan/list
+    action: DeliveryValueReport/list
     vc: vendor
-    mode: delivery_value_report
 - id: warehouse
   name: Warehouse
   icon: warehouse
