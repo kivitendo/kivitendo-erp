@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
-[% USE L %]
+[% USE L %][%- USE LxERP -%]
 <h1>[% title %]</h1>
 
 [% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
@@ -12,7 +12,7 @@
 
  <form name="Form" method="post" action="dn.pl">
 
-  <table width="100%">
+  <table width="100%" id="dunning_invoice_list">
    <th class="listheading" colspan="2">[% 'Current / Next Level' | $T8 %]</th>
 
    <th class="listheading">
@@ -35,11 +35,14 @@
    <th class="listheading">[% 'Dunning Duedate' | $T8 %]</th>
    <th class="listheading">[% 'Total Fees' | $T8 %]</th>
    <th class="listheading">[% 'Interest' | $T8 %]</th>
+   [% IF l_include_direct_debit %]
+    <th class="listheading">[% 'direct debit' | $T8 %]</th>
+   [% END %]
 
    <!-- Ausgabe der einzelnen Zeilen -->
 
    [% FOREACH row = DUNNINGS %]
-    <tr class="listrow[% loop.count % 2 %]">
+    <tr class="listrow[% loop.count % 2 %][% IF row.direct_debit %] direct_debit[% END %]">
 
      <td>
       <input type="hidden" name="inv_id_[% loop.count %]" size="2" value="[% HTML.escape(row.id) %]">
@@ -68,6 +71,11 @@
      <td>[% HTML.escape(row.next_duedate) %]</td>
      <td align="right"><input type="hidden" name="fee_[% loop.count %]" size="6" value="[% HTML.escape(row.fee) %]">[% HTML.escape(row.fee) %]</td>
      <td align="right"><input type="hidden" name="interest_[% loop.count %]" size="6" value="[% HTML.escape(row.interest) %]">[% HTML.escape(row.interest) %]</td>
+     [% IF l_include_direct_debit %]
+     <td>
+      [% IF row.direct_debit %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]
+     </td>
+     [% END %]
     </tr>
    [% END %]
   </table>

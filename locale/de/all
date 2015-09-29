@@ -1377,6 +1377,7 @@ $self->{texts} = {
   'Include in Report'           => 'In Bericht aufnehmen',
   'Include in drop-down menus'  => 'In Aufklappmenü aufnehmen',
   'Include invalid warehouses ' => 'Ungültige Lager berücksichtigen',
+  'Include invoices with direct debit' => 'Inklusive Rechnungen mit Lastschrifteinzug',
   'Includeable in reports'      => 'In Berichten anzeigbar',
   'Included in reports by default' => 'In Berichten standardmäßig enthalten',
   'Including'                   => 'Enthaltene',

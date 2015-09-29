@@ -70,8 +70,13 @@
    </tr>
 
    <tr>
-    <th align="right" nowrap>[% 'Group Invoices' | $T8 %]</th>
-    <td><input type="checkbox" value="1" name="groupinvoices" checked></td>
+    <th align="right" nowrap><label for="groupinvoices">[% 'Group Invoices' | $T8 %]</label></th>
+    <td><input type="checkbox" value="1" id="groupinvoices" name="groupinvoices" checked></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap><label for="l_include_direct_debit">[% 'Include invoices with direct debit' | $T8 %]</label></th>
+    <td><input type="checkbox" value="1" id="l_include_direct_debit" name="l_include_direct_debit"></td>
    </tr>
   </table>
 

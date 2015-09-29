@@ -523,11 +523,16 @@ sub get_invoices {
        WHERE dunning_level = (SELECT MAX(dunning_level) FROM dunning_config)|;
   my ($id_for_max_dunning_level) = selectrow_query($form, $dbh, $query);
 
+  if (!$form->{l_include_direct_debit}) {
+    $where .= qq| AND NOT COALESCE(a.direct_debit, FALSE) |;
+  }
+
   $query =
     qq|SELECT
          a.id, a.ordnumber, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
+         a.direct_debit,
 
          cfg.dunning_description, cfg.dunning_level,
 
