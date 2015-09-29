@@ -27,6 +27,9 @@ __PACKAGE__->run_before('add_stylesheet');
 sub action_list {
   my ($self) = @_;
 
+  if ( $::instance_conf->get_email_journal == 0 ) {
+      flash('info',  $::locale->text('In client config the mail saving into the journal is actual disabled.'));
+  }
   $self->render('email_journal/list',
                 title   => $::locale->text('Email journal'),
                 ENTRIES => $self->models->get,

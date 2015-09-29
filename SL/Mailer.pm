@@ -236,12 +236,18 @@ sub _all_recipients {
 sub _store_in_journal {
   my ($self, $status, $extended_status) = @_;
 
+  my $journal_enable = $::instance_conf->get_email_journal;
+
+  return if $journal_enable == 0;
+
   $status          //= $self->{driver}->status if $self->{driver};
   $status          //= 'failed';
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 
-  my @attachments = grep { $_ } map {
+  my @attachments;
+
+  @attachments = grep { $_ } map {
     my $part = $self->_create_attachment_part($_);
     if ($part) {
       SL::DB::EmailJournalAttachment->new(
@@ -250,7 +256,7 @@ sub _store_in_journal {
         content   => $part->body,
       )
     }
-  } @{ $self->{attachments} || [] };
+  } @{ $self->{attachments} || [] } if $journal_enable > 1;
 
   my $headers = join "\r\n", (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
 

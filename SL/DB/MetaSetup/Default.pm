@@ -46,6 +46,7 @@ __PACKAGE__->meta->columns(
   dunning_ar_amount_fee                     => { type => 'integer' },
   dunning_ar_amount_interest                => { type => 'integer' },
   duns                                      => { type => 'text' },
+  email_journal                             => { type => 'integer', default => 2 },
   expense_accno_id                          => { type => 'integer' },
   fxgain_accno_id                           => { type => 'integer' },
   fxloss_accno_id                           => { type => 'integer' },
