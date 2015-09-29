@@ -268,6 +268,7 @@
           <th>[% 'Source' | $T8 %]</th>
           <th>[% 'Memo' | $T8 %]</th>
           <th>[% 'Amount' | $T8 %]</th>
+          <th></th>
           [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
             <th>[% 'Exch' | $T8 %]</th>
           [% END %]
@@ -317,6 +318,12 @@
               [% ELSE %]
                 [% $temp | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
+              [% END %]
+            </td>
+
+            <td>
+              [% IF changeable && loop.last && paid_missing > 0 %]
+                <input type="button" id="ap_set_to_paid_missing" value="[% "Set to paid missing" | $T8 %]">
               [% END %]
             </td>
 
@@ -377,3 +384,7 @@
 </table>
 </div>
 </div>
+
+<script type='text/javascript'>
+ $('#ap_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+</script>

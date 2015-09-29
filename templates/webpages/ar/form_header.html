@@ -202,6 +202,7 @@
          <th>[% 'Source' | $T8 %]</th>
          <th>[% 'Memo' | $T8 %]</th>
          <th>[% 'Amount' | $T8 %]</th>
+         <th></th>
 [%- IF show_exch %]
          <th>[% 'Exch' | $T8 %]</th>
 [%- END %]
@@ -238,6 +239,11 @@
   [%- ELSE %]
          [% row.paid | html %]<input type=hidden name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
   [%- END %]
+         </td>
+         <td>
+           [% IF row.changeable && loop.last && paid_missing > 0 %]
+             <input type="button" id="ar_set_to_paid_missing" value="[% "Set to paid missing" | $T8 %]">
+           [% END %]
          </td>
 [%- IF show_exch %]
          <td align=center>
@@ -289,3 +295,7 @@
 </table>
 </div>
 </div>
+
+<script type='text/javascript'>
+ $('#ar_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });
+</script>
