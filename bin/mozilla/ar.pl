@@ -442,6 +442,7 @@ sub form_header {
     ARselected           => $ARselected,
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
+    today                => DateTime->today,
   });
 
   $main::lxdebug->leave_sub();

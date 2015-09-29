@@ -410,7 +410,9 @@ sub form_header {
 
   $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};
 
-  print $form->parse_html_template('ap/form_header');
+  print $form->parse_html_template('ap/form_header', {
+    today => DateTime->today,
+  });
 
   $main::lxdebug->leave_sub();
 }

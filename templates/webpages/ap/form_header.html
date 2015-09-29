@@ -283,7 +283,7 @@
             [% temp = "datepaid_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                [% L.date_tag(temp, $temp) %]
+                [% L.date_tag(temp, $temp ? $temp : today) %]
               [% ELSE %]
                 [% $temp | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">

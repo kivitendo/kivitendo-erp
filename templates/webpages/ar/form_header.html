@@ -213,7 +213,7 @@
         <tr>
          <td align=center>
   [%- IF row.changeable %]
-          [% L.date_tag('datepaid_' _ loop.count, row.datepaid) %]
+          [% L.date_tag('datepaid_' _ loop.count, row.datepaid ? row.datepaid : today) %]
   [%- ELSE %]
          [% row.datepaid | html %][% L.hidden_tag('datepaid_' _ loop.count, row.datepaid) %]
   [%- END %]
