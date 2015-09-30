@@ -11,6 +11,8 @@ use SL::DB::Invoice;
 use SL::DB::Printer;
 use SL::SessionFile;
 use SL::Template;
+use SL::Locale::String qw(t8);
+use SL::Webdav;
 
 use constant WAITING_FOR_EXECUTION       => 0;
 use constant CONVERTING_DELIVERY_ORDERS  => 1;
@@ -105,6 +107,24 @@ sub convert_invoices_to_pdf {
       $create_params{variables}->prepare_for_printing;
 
       push @pdf_file_names, $ctrl->create_pdf(%create_params);
+
+      # copy file to webdav folder
+      if ($::instance_conf->get_webdav_documents) {
+        my $webdav = SL::Webdav->new(
+          type     => 'invoice',
+          number   => $invoice->invnumber,
+        );
+        my $webdav_file = SL::Webdav::File->new(
+          webdav   => $webdav,
+          filename => t8('Invoice') . '_' . $invoice->invnumber . '.pdf',
+        );
+        eval {
+          $webdav_file->store(file => $pdf_file_names[-1]);
+          1;
+        } or do {
+          push @{ $data->{print_errors} }, { id => $invoice->id, number => $invoice->invnumber, message => $@ };
+        }
+      }
 
       $data->{num_printed}++;
 
