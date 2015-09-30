@@ -33,6 +33,7 @@
 
 use POSIX qw(strftime);
 use List::Util qw(sum first max);
+use List::UtilsBy qw(sort_by);
 
 use SL::AR;
 use SL::FU;
@@ -409,8 +410,8 @@ sub form_header {
       gldate           => $form->{"gldate_$i"},
     };
 
-  # default account for current assets (i.e. 1801 - SKR04) if no account is selected
-  $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+    # default account for current assets (i.e. 1801 - SKR04) if no account is selected
+    $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
     $payment->{selectAR_paid} =
       NTI($cgi->popup_menu('-name' => "AR_paid_$i",
@@ -428,6 +429,12 @@ sub form_header {
 
     push @payments, $payment;
   }
+
+  my @empty = grep { $_->{paid} eq '' } @payments;
+  @payments = (
+    (sort_by { DateTime->from_kivitendo($_->{datepaid}) } grep { $_->{paid} ne '' } @payments),
+    @empty,
+  );
 
   $form->{totalpaid} = sum map { $_->{paid} } @payments;
 

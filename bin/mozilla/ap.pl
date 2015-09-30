@@ -32,7 +32,8 @@
 #======================================================================
 
 use POSIX qw(strftime);
-use List::Util qw(sum);
+use List::Util qw(max sum);
+use List::UtilsBy qw(sort_by);
 
 use SL::AP;
 use SL::FU;
@@ -185,6 +186,25 @@ sub create_links {
      $form->datetonum($form->{closedto}, \%myconfig));
 
   $main::lxdebug->leave_sub();
+}
+
+sub _sort_payments {
+  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AR_paid paid_project_id);
+  my @payments =
+    grep { $_->{paid} != 0 }
+    map  {
+      my $idx = $_;
+      +{ map { ($_ => delete($::form->{"${_}_${idx}"})) } @fields }
+    } (1..$::form->{paidaccounts});
+
+  @payments = sort_by { DateTime->from_kivitendo($_->{datepaid}) } @payments;
+
+  $::form->{paidaccounts} = max scalar(@payments), 1;
+
+  foreach my $idx (1 .. scalar(@payments)) {
+    my $payment = $payments[$idx - 1];
+    $::form->{"${_}_${idx}"} = $payment->{$_} for @fields;
+  }
 }
 
 sub form_header {
@@ -371,6 +391,8 @@ sub form_header {
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
   $form->{totalpaid} = 0;
+
+  _sort_payments();
 
   if ( $form->{'paid_'. $form->{paidaccounts}} ) {
     $form->{paidaccounts}++;

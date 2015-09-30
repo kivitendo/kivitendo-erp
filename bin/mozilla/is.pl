@@ -39,6 +39,7 @@ use Data::Dumper;
 use DateTime;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
+use List::UtilsBy qw(sort_by);
 use English qw(-no_match_vars);
 
 use SL::DB::Default;
@@ -400,6 +401,25 @@ sub form_header {
   $main::lxdebug->leave_sub();
 }
 
+sub _sort_payments {
+  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AR_paid);
+  my @payments =
+    grep { $_->{paid} != 0 }
+    map  {
+      my $idx = $_;
+      +{ map { ($_ => delete($::form->{"${_}_${idx}"})) } @fields }
+    } (1..$::form->{paidaccounts});
+
+  @payments = sort_by { DateTime->from_kivitendo($_->{datepaid}) } @payments;
+
+  $::form->{paidaccounts} = max scalar(@payments), 1;
+
+  foreach my $idx (1 .. scalar(@payments)) {
+    my $payment = $payments[$idx - 1];
+    $::form->{"${_}_${idx}"} = $payment->{$_} for @fields;
+  }
+}
+
 sub form_footer {
   $main::lxdebug->enter_sub();
 
@@ -446,6 +466,8 @@ sub form_footer {
   }
 
   # payments
+  _sort_payments();
+
   my $totalpaid = 0;
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
