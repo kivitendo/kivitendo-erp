@@ -53,6 +53,7 @@ sub flatten_to_form {
   my $format_amounts = $params{format_amounts} ? 1 : 0;
   my $format_notnull = $params{format_amounts} ? 2 : 0;
   my $format_percent = $params{format_amounts} ? 3 : 0;
+  my $format_noround = $params{format_amounts} ? 4 : 0;
   foreach my $item (@{ $self->items_sorted }) {
     next if _has($item, 'assemblyitem');
 
@@ -63,7 +64,8 @@ sub flatten_to_form {
     _copy($item->part,    $form, '',        "_${idx}", 0,               qw(listprice));
     _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
                                                                            subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate));
-    _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(qty sellprice marge_total marge_percent lastcost));
+    _copy($item,          $form, '',        "_${idx}", $format_noround, qw(qty sellprice));
+    _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(marge_total marge_percent lastcost));
     _copy($item,          $form, '',        "_${idx}", $format_percent, qw(discount));
     _copy($item->project, $form, 'project', "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
 
@@ -95,6 +97,7 @@ sub _copy {
   map { $form->{"${prefix}${_}${postfix}"} =                $::form->format_amount(\%::myconfig, $src->$_ * 1, 2)       } @columns if  $format_amounts == 1;
   map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1, 2) : 0   } @columns if  $format_amounts == 2;
   map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 100, 2) : 0 } @columns if  $format_amounts == 3;
+  map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1)    : 0   } @columns if  $format_amounts == 4;
 
   return $src;
 }
