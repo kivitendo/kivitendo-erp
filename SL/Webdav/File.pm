@@ -4,6 +4,8 @@ use strict;
 use parent qw(Rose::Object);
 
 use File::Spec;
+use File::Copy ();
+use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(webdav filename loaded) ],
@@ -36,14 +38,19 @@ sub load {
 sub store {
   my ($self, %params) = @_;
 
+  croak 'Invalid call. Only data or file can be set' if ($params{data} && $params{file});
+
   $self->load unless $self->loaded;
 
   my $last = $self->latest_version;
   my $object;
 
   if (!$last) {
+    my ($basename, undef, $extension) = SL::Webdav::Object->new(filename => $self->filename, webdav => $self->webdav)->parse_filename;
     my $new_version  = $self->webdav->version_scheme->first_version;
-    $object = SL::Webdav::Object->new(filename => $self->filename, webdav => $self->webdav);
+    my $sep          = $self->webdav->version_scheme->separator;
+    my $new_filename = $basename . $sep . $new_version . "." . $extension;
+    $object = SL::Webdav::Object->new(filename => $new_filename, webdav => $self->webdav);
 
     $self->add_objects($object);
   } else {
@@ -63,11 +70,18 @@ sub store {
     }
   }
 
-  open my $fh, '>:raw', $object->full_filedescriptor or die "could not open " . $object->filename . ": $!";
+  if ($params{file}) {
+    croak 'No valid file' unless -f $params{file};
+    File::Copy::copy($params{file}, $object->full_filedescriptor) or croak "Copy failed from $params{file} to @{[ $object->filename ]}: $!";
+  } else {
 
-  $fh->print(${ $params{data} });
+    open my $fh, '>:raw', $object->full_filedescriptor or die "could not open " . $object->filename . ": $!";
 
-  close $fh;
+    $fh->print(${ $params{data} });
+
+    close $fh;
+  }
+
 
   return $object;
 }
@@ -98,6 +112,9 @@ SL::Webdav::File - Webdav file manipulation
   my $data = SL::Helper::CreatePDF->create_pdf(...);
   my $webdav_object = $webdav_file->store(data => \$data);
 
+  # use file instead of data
+  my $webdav_object = $webdav_file->store(file => $path_to_file);
+
   # force new version
   my $webdav_object = $webdav_file->store(data => \$data, new_version => 1);
 
@@ -126,8 +143,12 @@ Loads objects from disk.
 
 =item C<store PARAMS>
 
-Store a new version on disk. C<data> is expected to contain a reference to the
-data to be written in raw encoding.
+Store a new version on disk. If C<data> is present, it is expected to contain a
+reference to the data to be written in raw encoding.
+
+If C<file> is a valid filename then it will be copied.
+
+C<file> and C<data> are exclusive.
 
 If param C<new_version> is set, force a new version, even if the versioning
 scheme would keep the old one.
