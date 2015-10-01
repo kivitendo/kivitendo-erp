@@ -28,6 +28,12 @@ __PACKAGE__->meta->add_relationship(
     column_map      => { id => 'ap_id' },
     manager_args    => { with_objects => [ 'sepa_export' ] }
   },
+  sepa_exports      => {
+    type            => 'many to many',
+    map_class       => 'SL::DB::SepaExportItem',
+    map_from        => 'ap',
+    map_to          => 'sepa_export',
+  },
   custom_shipto     => {
     type            => 'one to one',
     class           => 'SL::DB::Shipto',

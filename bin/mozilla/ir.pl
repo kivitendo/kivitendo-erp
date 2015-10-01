@@ -36,6 +36,7 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::DB::Default;
+use SL::DB::PurchaseInvoice;
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 
@@ -259,6 +260,7 @@ sub form_header {
   my %TMPL_VAR = ();
   my @custom_hiddens;
 
+  $TMPL_VAR{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $form->{id})->load if $form->{id};
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
