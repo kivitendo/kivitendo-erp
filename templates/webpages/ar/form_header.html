@@ -69,16 +69,11 @@
               </tr>
 [%- END %]
               <tr>
-                <td></td>
-                <td colspan=3>
-                  <table width=100%>
-                    <tr>
-                      <th align=left nowrap>[% 'Credit Limit' | $T8 %]</th>
-                      <td>[% LxERP.format_amount(creditlimit, 0) %][% L.hidden_tag('creditlimit', LxERP.format_amount(creditlimit, 0)) %]</td>
-                      <th align=left nowrap>[% 'Remaining' | $T8 %]</th>
-                      <td class="plus[% creditlimit < 0 ? 0 : 1 %]">[% LxERP.format_amount(creditremaining, 0) %][% L.hidden_tag('creditremaining', LxERP.format_amount(creditremaining, 0)) %]</td>
-                    </tr>
-                  </table>
+                <th align="right" valign="top">[% LxERP.t8("Credit Limit") %]</th>
+                <td>
+                 [% LxERP.format_amount(creditlimit, 0) %][% L.hidden_tag('creditlimit', LxERP.format_amount(creditlimit, 0)) %];
+                 [% LxERP.t8("Remaining") %]
+                 <span class="plus[% creditremaining < 0 ? 0 : 1 %]">[% LxERP.format_amount(creditremaining, 0) %][% L.hidden_tag('creditremaining', LxERP.format_amount(creditremaining, 0)) %]</span>
                 </td>
               </tr>
               <tr>
