@@ -6,6 +6,7 @@ use POSIX qw(strftime);
 
 use Data::Dumper;
 use SL::DB::BankAccount;
+use SL::DB::SepaExport;
 use SL::Chart;
 use SL::CT;
 use SL::Form;
@@ -544,6 +545,15 @@ sub bank_transfer_download_sepa_xml {
                                  'execution_date' => $requested_execution_date,
                                  'end_to_end_id'  => $item->{end_to_end_id},
                                  'date_of_signature' => $item->{mandate_date_of_signature}, });
+  }
+
+  # Store the message ID used in each of the entries in order to
+  # facilitate finding them by looking at bank statements.
+  foreach my $id (@ids) {
+    SL::DB::SepaExportMessageId->new(
+      sepa_export_id => $id,
+      message_id     => $message_id,
+    )->save;
   }
 
   my $xml = $sepa_xml->to_xml();

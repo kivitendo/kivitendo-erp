@@ -103,6 +103,7 @@ use SL::DB::RequirementSpec;
 use SL::DB::SchemaInfo;
 use SL::DB::SepaExport;
 use SL::DB::SepaExportItem;
+use SL::DB::SepaExportMessageId;
 use SL::DB::Shipto;
 use SL::DB::Status;
 use SL::DB::Tax;
