@@ -214,6 +214,8 @@
            <td nowrap>[% 'Document Project Number' | $T8 %]</td>
            <td align=right><input name="l_transaction_description" id="l_transaction_description" class=checkbox type=checkbox value=Y[% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]></td>
            <td nowrap>[% 'Transaction description' | $T8 %]</td>
+           <td align=right><input name="l_dunning_description" id="l_dunning_description" class=checkbox type=checkbox value=Y></td>
+           <td nowrap>[% 'Dunning level' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_taxzone" id="l_taxzone" class=checkbox type=checkbox value=Y></td>

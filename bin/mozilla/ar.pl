@@ -922,7 +922,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype direct_debit);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype direct_debit dunning_description);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -969,6 +969,7 @@ sub ar_transactions {
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
     'customertype'            => { 'text' => $locale->text('Customer type'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
+    dunning_description       => { 'text' => $locale->text('Dunning level'), },
     %column_defs_cvars,
   );
 

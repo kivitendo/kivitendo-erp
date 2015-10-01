@@ -467,6 +467,7 @@ sub ar_transactions {
     qq|  c.id as customer_id, | .
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
+    qq|  dc.dunning_description, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
@@ -481,6 +482,7 @@ sub ar_transactions {
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
+    qq|LEFT JOIN dunning_config dc ON (a.dunning_config_id = dc.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
