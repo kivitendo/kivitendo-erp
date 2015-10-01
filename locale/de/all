@@ -2254,6 +2254,7 @@ $self->{texts} = {
   'SEPA XML download'           => 'SEPA-XML-Download',
   'SEPA creditor ID'            => 'SEPA-Kreditoren-Identifikation',
   'SEPA exports:'               => 'SEPA-Exporte:',
+  'SEPA message IDs'            => 'SEPA-Nachrichten-IDs',
   'SEPA strings'                => 'SEPA-Überweisungen',
   'Saldo Credit'                => 'Saldo Haben',
   'Saldo Debit'                 => 'Saldo Soll',

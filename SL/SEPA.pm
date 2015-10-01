@@ -370,6 +370,9 @@ sub list_exports {
          (SELECT SUM(sei.amount)
           FROM sepa_export_items sei
           WHERE (sei.sepa_export_id = se.id)) AS sum_amounts,
+         (SELECT string_agg(semi.message_id, ', ')
+          FROM sepa_export_message_ids semi
+          WHERE semi.sepa_export_id = se.id) AS message_ids,
          e.name AS employee
        FROM sepa_export se
        LEFT JOIN (

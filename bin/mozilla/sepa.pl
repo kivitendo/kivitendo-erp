@@ -237,9 +237,10 @@ sub bank_transfer_list {
     'closed'      => { 'text' => $locale->text('Closed'), },
     num_invoices  => { 'text' => $locale->text('Number of invoices'), },
     sum_amounts   => { 'text' => $locale->text('Sum of all amounts'), },
+    message_ids   => { 'text' => $locale->text('SEPA message IDs'), },
   );
 
-  my @columns = qw(selected id export_date employee executed closed invoices netamount);
+  my @columns = qw(selected id export_date employee executed closed num_invoices sum_amounts message_ids);
   my %column_alignment = map { ($_ => 'right') } qw(num_invoices sum_amounts);
 
   foreach my $name (qw(id export_date employee executed closed)) {
