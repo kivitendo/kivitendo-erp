@@ -209,7 +209,7 @@ sub bank_transfer_list {
 
   my %filter         = map  +( $_ => $form->{"f_${_}"} ),
                        grep  { $form->{"f_${_}"} }
-                             (qw(vc invnumber),
+                             (qw(vc invnumber message_id),
                               map { ("${_}_date_from", "${_}_date_to") }
                                   qw(export requested_execution execution));
   $filter{executed}  = $form->{l_executed} ? 1 : 0 if ($form->{l_executed} != $form->{l_not_executed});

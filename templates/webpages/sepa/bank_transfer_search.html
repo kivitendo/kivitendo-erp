@@ -18,6 +18,11 @@
     </tr>
 
     <tr>
+     <td align="right">[% LxERP.t8("SEPA message ID") %]</td>
+     <td>[% L.input_tag("f_message_id") %]</td>
+    </tr>
+
+    <tr>
      <td align="right">[% 'Export date from' | $T8 %]</td>
      <td>
        [% L.date_tag('f_export_date_from') %]

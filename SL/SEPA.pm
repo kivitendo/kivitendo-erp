@@ -326,6 +326,17 @@ sub list_exports {
     $joins_sub{$arap} = 1;
   }
 
+  if ($filter->{message_id}) {
+    push @values, '%' . $filter->{message_id} . '%';
+    push @where,  <<SQL;
+      se.id IN (
+        SELECT sepa_export_id
+        FROM sepa_export_message_ids
+        WHERE message_id ILIKE ?
+      )
+SQL
+  }
+
   if ($filter->{vc}) {
     push @where_sub,  "vc.name ILIKE ?";
     push @values_sub, '%' . $filter->{vc} . '%';
