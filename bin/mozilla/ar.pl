@@ -40,6 +40,7 @@ use SL::FU;
 use SL::IS;
 use SL::PE;
 use SL::DB::Default;
+use SL::DB::Invoice;
 use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
@@ -149,6 +150,7 @@ sub create_links {
   my %myconfig = %main::myconfig;
 
   $form->create_links("AR", \%myconfig, "customer");
+  $form->{invoice_obj} = $form->{id} ? SL::DB::Invoice->new(id => $form->{id})->load : undef;
 
   my %saved;
   if (!$params{dont_save}) {

@@ -50,6 +50,24 @@
                 [% L.hidden_tag('customer_id', customer_id) %]
                 [% L.hidden_tag('terms', terms) %]
               </tr>
+[%- IF max_dunning_level || invoice_obj.dunning_config_id  %]
+              <tr>
+                <th align="right" valign="top">[% LxERP.t8("Dunning status") %]</th>
+                <td valign="top">
+                 [% IF invoice_obj.dunning_config_id %]
+                  <span class="dunned_invoice">[% LxERP.t8("This invoice's dunning level: #1", invoice_obj.dunning_config.dunning_description) %]</span>
+                  [% IF max_dunning_level %]<br>[% END %]
+                 [% END %]
+                 [% IF max_dunning_level %]
+                  <span class="customer_dunning_level">
+                   [% LxERP.t8("Customer's current maximum dunning level: #1", max_dunning_level) %]
+                   <br>
+                   [% LxERP.t8("Dunned open amount: #1", LxERP.format_amount(dunning_amount, 2)) %]
+                  </span>
+                 [% END %]
+                </td>
+              </tr>
+[%- END %]
               <tr>
                 <td></td>
                 <td colspan=3>
