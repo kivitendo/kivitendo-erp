@@ -28,7 +28,7 @@ sub action_list {
   my ($self) = @_;
 
   if ( $::instance_conf->get_email_journal == 0 ) {
-      flash('info',  $::locale->text('In client config the mail saving into the journal is actual disabled.'));
+    flash('info',  $::locale->text('Storing the emails in the journal is currently disabled in the client configuration.'));
   }
   $self->render('email_journal/list',
                 title   => $::locale->text('Email journal'),
