@@ -42,6 +42,7 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 use SL::DB::Default;
+use SL::DB::PurchaseInvoice;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -216,6 +217,8 @@ sub form_header {
   my $cgi      = $::request->{cgi};
 
   $main::auth->assert('general_ledger');
+
+  $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
 
   $form->{title_} = $form->{title};
   $form->{title} = $form->{title} eq 'Add' ? $locale->text('Add Accounts Payables Transaction') : $locale->text('Edit Accounts Payables Transaction');
