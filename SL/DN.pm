@@ -529,7 +529,7 @@ sub get_invoices {
 
   $query =
     qq|SELECT
-         a.id, a.ordnumber, a.transdate, a.invnumber, a.amount, a.language_id,
+         a.id, a.invoice, a.ordnumber, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
          a.direct_debit,
