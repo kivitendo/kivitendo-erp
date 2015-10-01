@@ -2253,6 +2253,7 @@ $self->{texts} = {
   'SCREENED'                    => 'Angezeigt',
   'SEPA XML download'           => 'SEPA-XML-Download',
   'SEPA creditor ID'            => 'SEPA-Kreditoren-Identifikation',
+  'SEPA exports'                => 'SEPA-Exporte',
   'SEPA exports:'               => 'SEPA-Exporte:',
   'SEPA message ID'             => 'SEPA-Nachrichten-ID',
   'SEPA message IDs'            => 'SEPA-Nachrichten-IDs',

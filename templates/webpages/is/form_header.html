@@ -108,6 +108,17 @@
           </td>
         </tr>
 [%- END %]
+[%- IF invoice_obj.sepa_exports.as_list.size %]
+        <tr>
+          <th align="right">[% LxERP.t8("SEPA exports") %]</th>
+          <td>
+           [% FOREACH export = invoice_obj.sepa_exports.as_list %]
+            <a href="sepa.pl?action=bank_transfer_edit&vc=customer&id=[% HTML.url(export.id) %]">[% HTML.escape(export.id) %]</a>
+            [% UNLESS loop.last %], [% END %]
+           [% END %]
+          </td>
+        </tr>
+[%- END %]
 [%- IF business %]
         <tr>
           <th align="right">[% 'Customer type' | $T8 %]</th>
