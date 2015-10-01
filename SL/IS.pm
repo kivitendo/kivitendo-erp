@@ -1895,9 +1895,11 @@ sub retrieve_invoice {
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
            a.marge_total, a.marge_percent, a.direct_debit, a.delivery_term_id,
+           dc.dunning_description,
            e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)
+         LEFT JOIN dunning_config dc ON (a.dunning_config_id = dc.id)
          WHERE a.id = ?|;
     $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
     map { $form->{$_} = $ref->{$_} } keys %{ $ref };

@@ -90,11 +90,21 @@
             <span class="plus[% IF is_credit_remaining_negativ %]0[% ELSE %]1[% END %]">[% LxERP.format_amount(creditremaining,0 ,'0') %]</span>
           </td>
         </tr>
-[%- IF max_dunning_level %]
+[%- IF max_dunning_level || dunning_description  %]
         <tr>
-          <th align="right">[% 'Max. Dunning Level' | $T8 %]:</th>
-          <td>
-            <b>[% max_dunning_level %]</b>; [% 'Dunning Amount' | $T8 %]: <b>[% LxERP.format_amount(dunning_amount,2) %]</b>
+          <th align="right" valign="top">[% LxERP.t8("Dunning status") %]</th>
+          <td valign="top">
+           [% IF dunning_description %]
+            <span class="dunned_invoice">[% LxERP.t8("This invoice's dunning level: #1", dunning_description) %]</span>
+            [% IF max_dunning_level %]<br>[% END %]
+           [% END %]
+           [% IF max_dunning_level %]
+            <span class="customer_dunning_level">
+             [% LxERP.t8("Customer's current maximum dunning level: #1", max_dunning_level) %]
+             <br>
+             [% LxERP.t8("Dunned open amount: #1", LxERP.format_amount(dunning_amount, 2)) %]
+            </span>
+           [% END %]
           </td>
         </tr>
 [%- END %]

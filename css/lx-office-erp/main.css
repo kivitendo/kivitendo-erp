@@ -477,3 +477,10 @@ div.cpc_block span.cpc_block_second_row {
 span.toggle_selected {
   font-weight: bold;
 }
+.dunned_invoice {
+  font-weight: bold;
+  color: #f00;
+}
+.customer_dunning_level {
+  font-weight: bold;
+}
