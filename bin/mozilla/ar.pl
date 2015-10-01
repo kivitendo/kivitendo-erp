@@ -140,6 +140,12 @@ sub display_form {
   $main::lxdebug->leave_sub();
 }
 
+sub _retrieve_invoice_object {
+  return undef if !$::form->{id};
+  return $::form->{invoice_obj} if $::form->{invoice_obj} && $::form->{invoice_obj}->id == $::form->{id};
+  return SL::DB::Invoice->new(id => $::form->{id})->load;
+}
+
 sub create_links {
   $main::lxdebug->enter_sub();
 
@@ -150,7 +156,7 @@ sub create_links {
   my %myconfig = %main::myconfig;
 
   $form->create_links("AR", \%myconfig, "customer");
-  $form->{invoice_obj} = $form->{id} ? SL::DB::Invoice->new(id => $form->{id})->load : undef;
+  $form->{invoice_obj} = _retrieve_invoice_object();
 
   my %saved;
   if (!$params{dont_save}) {
@@ -217,6 +223,8 @@ sub form_header {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
+
+  $form->{invoice_obj} = _retrieve_invoice_object();
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($notes, $department, $customer, $employee, $amount, $project);

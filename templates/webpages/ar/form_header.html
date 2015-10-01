@@ -76,6 +76,17 @@
                  <span class="plus[% creditremaining < 0 ? 0 : 1 %]">[% LxERP.format_amount(creditremaining, 0) %][% L.hidden_tag('creditremaining', LxERP.format_amount(creditremaining, 0)) %]</span>
                 </td>
               </tr>
+[%- IF invoice_obj.sepa_exports.as_list.size %]
+              <tr>
+                <th align="right">[% LxERP.t8("SEPA exports") %]</th>
+                <td>
+                 [% FOREACH export = invoice_obj.sepa_exports.as_list %]
+                  <a href="sepa.pl?action=bank_transfer_edit&vc=customer&id=[% HTML.url(export.id) %]">[% HTML.escape(export.id) %]</a>
+                  [% UNLESS loop.last %], [% END %]
+                 [% END %]
+                </td>
+              </tr>
+[%- END %]
               <tr>
                 <th align=right>[% 'Currency' | $T8 %]</th>
                 <td><select name=currency>[% selectcurrency %]</select></td>
