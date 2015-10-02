@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(models vc all_employees all_businesses) ],
 );
 
-
+__PACKAGE__->run_before(sub { $::auth->assert('delivery_value_report'); });
 
 my %sort_columns = (
   reqdate                 => t8('Reqdate'),
