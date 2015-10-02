@@ -15,7 +15,7 @@ use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right mode vc all_employees all_businesses) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right vc all_employees all_businesses) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -25,14 +25,12 @@ my %sort_columns = (
   description       => t8('Description'),
   partnumber        => t8('Part Number'),
   qty               => t8('Qty'),
-  unit              => t8('Unit'),
   shipped_qty       => t8('shipped'),
   delivered_qty     => t8('transferred in / out'),
   not_shipped_qty   => t8('not shipped'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
-  value_of_goods    => t8('Value of transferred goods'),
 );
 
 
@@ -52,15 +50,12 @@ sub prepare_report {
   my ($self)      = @_;
 
   my $vc          = $self->vc;
-  my $mode        = $self->mode;
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
-  my $csv_option  = $::form->{report_generator_output_format};
   $self->{report} = $report;
 
-  my @columns     = qw(reqdate customer vendor ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty value_of_goods);
+  my @columns     = qw(reqdate customer vendor ordnumber partnumber description qty shipped_qty not_shipped_qty delivered_qty);
 
   my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
-  my $rp_csv_mod  = ($csv_option eq 'CSV' && $mode eq 'delivery_value_report') ? 1 : '';
 
   my %column_defs = (
     reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
@@ -68,16 +63,10 @@ sub prepare_report {
                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
     partnumber        => {      sub => sub { $_[0]->part->partnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
-    qty               => {      sub => sub { $_[0]->qty_as_number .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    unit              => {      sub => sub {  $_[0]->unit                                                                    },
-                            visible => $rp_csv_mod                                                                           },
-    shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
-    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{delivered_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                                         } },
+    qty               => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
+    shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) . ' ' . $_[0]->unit } },
+    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}, 2) . ' ' . $_[0]->unit } },
+    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{delivered_qty}, 2) .' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
     vendor            => {      sub => sub { $_[0]->order->vendor->name                                                      },
@@ -86,8 +75,6 @@ sub prepare_report {
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
                             visible => $vc eq 'customer',
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
-    value_of_goods    => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->value_of_goods, 2) . ' ' . $_[0]->taxincluded },
-                            visible => $mode eq 'delivery_value_report' },
   );
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
@@ -96,17 +83,15 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'DeliveryPlan',
     output_format         => 'HTML',
-    top_info_text         => ($vc eq 'customer') ?  (($mode eq 'delivery_plan') ? $::locale->text('Delivery Plan for currently outstanding sales orders') :
-                                                   $::locale->text('Delivery Value Report for currently open sales orders')) :
-                                                   ($mode eq 'delivery_value_report') ? $::locale->text('Delivery Value Report for currently outstanding purchase orders') :
+    top_info_text         => ($vc eq 'customer') ? $::locale->text('Delivery Plan for currently outstanding sales orders') :
                                                    $::locale->text('Delivery Plan for currently outstanding purchase orders'),
-    title                 => ($mode eq 'delivery_plan') ? $::locale->text('Delivery Plan') : $::locale->text('Delivery Value Report'),
+    title                 => $::locale->text('Delivery Plan'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter vc mode));
+  $report->set_export_options(qw(list filter vc));
   $report->set_options_from_form;
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
@@ -152,7 +137,6 @@ SQL
 sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my $mode   = $self->mode;
   my ($business, $employee);
 
   my $filter = $::form->{filter} || {};
@@ -197,16 +181,11 @@ sub make_filter_summary {
 sub delivery_plan_query {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my $mode   = $self->mode;
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
   # check delivered state for delivery_orders (transferred out) if enabled
-  # OR if we are delivery_value_report mode
-  my $filter_delivered = ($::instance_conf->get_delivery_plan_calculate_transferred_do ||
-                          $mode eq 'delivery_value_report' ) ?
-                          "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
-  # Show ALL open orders in delivery_value_report mode
-  my $comment_show_all_open_orders = ($mode eq 'delivery_value_report' ) ? "-- " : "";
+  my $filter_delivered = ($::instance_conf->get_delivery_plan_calculate_transferred_do) ?
+      "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
   [
   "order.${vc}_id" => { gt => 0 },
   'order.closed' => 0,
@@ -299,7 +278,7 @@ sub delivery_plan_query {
         FROM record_links rl
         WHERE oi.trans_id = rl.from_id AND rl.from_table = 'oe' AND rl.to_table = 'delivery_orders'
       ) AND
-      $comment_show_all_open_orders coalesce(sum, 0) < oi.qty AND
+      coalesce(sum, 0) < oi.qty AND
       oe.${vc}_id IS NOT NULL AND
       $oe_owner
       (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
@@ -310,20 +289,20 @@ sub delivery_plan_query {
 sub init_models {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my $mode   = $self->mode;
+
   SL::Controller::Helper::GetModels->new(
-    controller            => $self,
-    model                 => 'OrderItem',
-    sorted                => {
-      _default              => {
-        by                    => 'reqdate',
-        dir                   => 1,
+    controller   => $self,
+    model        => 'OrderItem',
+    sorted       => {
+      _default     => {
+        by           => 'reqdate',
+        dir          => 1,
       },
       %sort_columns,
     },
-    query                 => $self->delivery_plan_query,
-    with_objects          => [ 'order', "order.$vc", 'part' ],
-    additional_url_params => { vc => $vc, mode => $mode},
+    query        => $self->delivery_plan_query,
+    with_objects => [ 'order', "order.$vc", 'part' ],
+    additional_url_params => { vc => $vc},
   );
 }
 
@@ -332,9 +311,6 @@ sub init_all_edit_right {
 }
 sub init_vc {
   return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";
-}
-sub init_mode {
-  return $::form->{mode} if ($::form->{mode} eq 'delivery_value_report' || $::form->{mode} eq 'delivery_plan') || croak "self (DeliveryPlan) has no mode defined";
 }
 
 sub init_all_employees {
