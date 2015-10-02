@@ -437,6 +437,8 @@ sub parse {
       $contents = "[% TAGS $self->{tag_start} $self->{tag_end} %]\n" . $contents;
     }
 
+    $form->prepare_global_vars;
+
     $::form->init_template->process(\$contents, $form, \$new_contents) || die $::form->template->error;
   } else {
     $new_contents = $self->parse_block($contents);
