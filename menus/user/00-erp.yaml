@@ -356,7 +356,6 @@
   params:
     action: DeliveryPlan/list
     vc: customer
-    mode: delivery_plan
 - parent: ar_reports
   id: ar_reports_delivery_value_report
   name: Delivery Value Report
@@ -472,7 +471,6 @@
   access: delivery_plan
   params:
     action: DeliveryPlan/list
-    mode: delivery_plan
     vc: vendor
 - parent: ap_reports
   id: ap_reports_delivery_value_report
