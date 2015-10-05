@@ -44,3 +44,47 @@ sub record { goto &order }
 
 1;
 
+__END__
+
+=pod
+
+=head1 NAME
+
+SL::DB::OrderItems: Rose model for orderitems
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<shipped_qty>
+
+returns the number of orderitems which are already linked to Delivery Orders.
+The linked key is parts_id and not orderitems (id) -> delivery_order_items (id).
+Therefore this function is not safe for identical parts_id.
+Sample call:
+C<$::form-E<gt>format_amount(\%::myconfig, $_[0]-E<gt>shipped_qty);>
+
+=back
+
+=head1 TODO
+
+Older versions of OrderItem.pm had more functions which where used for calculating the
+qty for the different states of the Delivery Order.
+For example to get the qty in already marked as delivered Delivery Orders:
+
+C<delivered_qty>
+
+return $self-E<gt>_delivered_qty;
+
+  sub _delivered_qty {
+  (..)
+    my @d_orders_delivered = grep { $_-E<gt>delivered } @$d_orders;
+    my @doi_delivered      = grep { $_-E<gt>parts_id == $self-E<gt>parts_id } map { $_-E<gt>orderitems } @d_orders_delivered;
+  }
+
+In general the function C<shipped_qty> and all (project) related functions should be marked deprecate,
+ because of the better linked item to item data in the record_links table.
+
+
+
+
