@@ -92,7 +92,6 @@
    [%- END %]
    [%- END %]
    [%- IF id %]
-    <input class="submit" type="submit" name="action_sort" id="sort_button" value="[% 'Sort and Save' | $T8 %]">
      <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
    [%- UNLESS closed %]
    <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">

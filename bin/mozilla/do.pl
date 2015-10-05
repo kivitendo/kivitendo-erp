@@ -42,7 +42,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff);
 use SL::ReportGenerator;
 use SL::WH;
-use Sort::Naturally;
+use Sort::Naturally ();
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -1725,8 +1725,11 @@ sub transfer_in_out_default {
   $form->redirect;
 
 }
+
 sub sort {
   $main::lxdebug->enter_sub();
+
+  check_do_access();
 
   my $form     = $main::form;
   my %temp_hash;
@@ -1738,23 +1741,43 @@ sub sort {
     $temp_hash{$form->{"delivery_order_items_id_$i"}} = { runningnumber => $form->{"runningnumber_$i"}, partnumber => $form->{"partnumber_$i"} };
   }
   # naturally sort partnumbers and get a sorted array of doi_ids
-  my @sorted_doi_ids =  sort { ncmp($temp_hash{$a}->{"partnumber"}, $temp_hash{$b}->{"partnumber"}) }  keys %temp_hash;
+  my @sorted_doi_ids =  sort { Sort::Naturally::ncmp($temp_hash{$a}->{"partnumber"}, $temp_hash{$b}->{"partnumber"}) }  keys %temp_hash;
 
-  #$main::lxdebug->message(0, 'sortiert, vorher :' . Dumper(%temp_hash));
-  #$main::lxdebug->message(0, 'sortiert, nachher:' . Dumper(@sorted_doi_ids));
 
   my $new_number = 1;
+
   for (@sorted_doi_ids) {
-    # reposition old runningnumber with the new order 1 .. n
     $form->{"runningnumber_$temp_hash{$_}->{runningnumber}"} = $new_number;
-
-    #$main::lxdebug->message(0, 'hier jetzt:' . 'ferner' . $temp_hash{$_}->{runningnumber} .
-    # 'mit' . $form->{"runningnumber_{$temp_hash{$_}->{runningnumber}}"}); #" = $new_number;
-
     $new_number++;
   }
-    # update or save directly
-    # update_delivery_order;
     $main::lxdebug->leave_sub();
     save();
 }
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+do.pl - Script for all calls to delivery order
+
+
+=head1 FUNCTIONS
+
+=over 2
+
+=item C<sort>
+
+Sorts all position with Natural Sort. Can be activated in form_footer.html like this
+C<E<lt>input class="submit" type="submit" name="action_sort" id="sort_button" value="[% 'Sort and Save' | $T8 %]"E<gt>>
+
+=back
+
+=head1 TODO
+
+Sort and Save can be implemented as an optional button if configuration ca be set by client config.
+Example coding for database scripts and templates in (git show af2f24b8), check also
+autogeneration for rose (scripts/rose_auto_create_model.pl --h)
