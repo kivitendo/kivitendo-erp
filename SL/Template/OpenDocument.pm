@@ -70,30 +70,50 @@ my %html_replace = (
 sub _format_html {
   my ($self, $content, %params) = @_;
 
-  $content                      =~ s{ ^<p> | </p>$ }{}gx;
-  $content                      =~ s{ \r+ }{}gx;
-  $content                      =~ s{ \n+ }{ }gx;
-  $content                      =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
+  my $in_p        = 0;
+  my $p_start_tag = qq|<text:p text:style-name="@{[ $self->{current_text_style} ]}">|;
+  my $prefix      = '';
+  my $suffix      = '';
 
-  my $in_p                      = 1;
-  my $p_start_tag               = qq|<text:p text:style-name="@{[ $self->{current_text_style} ]}">|;
-  my $ul_start_tag              = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
-  my $ol_start_tag              = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
-  my $ul_li_start_tag           = qq|<text:list-item><text:p text:style-name="PKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
-  my $ol_li_start_tag           = qq|<text:list-item><text:p text:style-name="PKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
+  my (@tags_to_open, @tags_to_close);
+  for (my $idx = scalar(@{ $self->{tag_stack} }) - 1; $idx >= 0; --$idx) {
+    my $tag = $self->{tag_stack}->[$idx];
+
+    next if $tag =~ m{/>$};
+    last if $tag =~ m{^<table};
+
+    if ($tag =~ m{^<text:p}) {
+      $in_p        = 1;
+      $p_start_tag = $tag;
+      last;
+
+    } else {
+      $suffix  =  "${tag}${suffix}";
+      $tag     =~ s{ .*>}{>};
+      $prefix .=  '</' . substr($tag, 1);
+    }
+  }
+
+  $content            =~ s{ ^<p> | </p>$ }{}gx if $in_p;
+  $content            =~ s{ \r+ }{}gx;
+  $content            =~ s{ \n+ }{ }gx;
+  $content            =~ s{ (?:\&nbsp;|\s)+ }{ }gx;
+
+  my $ul_start_tag    = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
+  my $ol_start_tag    = qq|<text:list xml:id="list@{[ int rand(9999999999999999) ]}" text:style-name="LKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
+  my $ul_li_start_tag = qq|<text:list-item><text:p text:style-name="PKIVITENDOitemize@{[ $self->{current_text_style} ]}">|;
+  my $ol_li_start_tag = qq|<text:list-item><text:p text:style-name="PKIVITENDOenumerate@{[ $self->{current_text_style} ]}">|;
 
   my @parts = map {
     if (substr($_, 0, 1) eq '<') {
       s{ +}{}g;
       if ($_ eq '</p>') {
         $in_p--;
-        '</text:p>';
+        $in_p == 0 ? '</text:p>' : '';
 
       } elsif ($_ eq '<p>') {
-        if (!$in_p) {
-          $in_p = 1;
-          $p_start_tag;
-        }
+        $in_p++;
+        $in_p == 1 ? $p_start_tag : '';
 
       } elsif ($_ eq '<ul>') {
         $self->{used_list_styles}->{itemize}->{$self->{current_text_style}}   = 1;
@@ -114,10 +134,9 @@ sub _format_html {
     }
   } split(m{(<.*?>)}x, $content);
 
-  my $out  = join('', @parts);
-  $out    .= $p_start_tag if !$in_p;
+  my $out  = join('', $prefix, @parts, $suffix);
 
-  # $::lxdebug->message(0, "out $out");
+  # $::lxdebug->dump(0, "prefix parts suffix", [ $prefix, join('', @parts), $suffix ]);
 
   return $out;
 }
@@ -216,6 +235,8 @@ sub parse_block {
 
       $self->{current_text_style} = $1 if $tag =~ m|text:style-name\s*=\s*"([^"]+)"|;
 
+      push @{ $self->{tag_stack} }, $tag;
+
       if ($tag =~ m|<table:table-row|) {
         $contents =~ m|^(.*?)(</table:table-row[^>]*>)|;
         my $table_row = $1;
@@ -259,6 +280,11 @@ sub parse_block {
 
       } else {
         $new_contents .= $tag;
+      }
+
+      if ($tag =~ m{^</ | />$}x) {
+        # $::lxdebug->message(0, "popping top tag is $tag top " . $self->{tag_stack}->[-1]);
+        pop @{ $self->{tag_stack} };
       }
 
     } else {
@@ -358,6 +384,7 @@ sub parse {
 
     $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
   } else {
+    $self->{tag_stack} = [];
     $new_contents = $self->parse_block($contents);
   }
   if (!defined($new_contents)) {
