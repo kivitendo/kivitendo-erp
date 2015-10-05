@@ -8,12 +8,15 @@
 Größere neue Features:
 
 - Massenkonvertierung von Lieferscheinen nach Rechnung mit direktem Ausdruck (optional)
-    Die manuelle Umwandlung von Lieferscheinen zu Rechnungen stößt bei größeren Daten-
-    mengen an die Grenze der Anwendergeduld. Entsprechend können Lieferschein-Objekte
-    direkt in Rechnungsobjekte gewandelt und zum Drucker geschickt werden. Die Ab-
-    arbeitung erfolgt als Hintergrund-Job mit Status-Information (alle 5 sek) an den
-    Benutzer. Auf der aktuellen Testumgebung (8000 bogomips) konnten hier 440 Objekte
-    in 2 Minuten gewandelt und in weiteren 5 Minuten als PDF erzeugt werden.
+
+  Die manuelle Umwandlung von Lieferscheinen zu Rechnungen stößt bei größeren Daten-
+  mengen an die Grenze der Anwendergeduld. Entsprechend können Lieferschein-Objekte
+  direkt in Rechnungsobjekte gewandelt und zum Drucker geschickt werden. Die Ab-
+  arbeitung erfolgt als Hintergrund-Job mit Status-Information (alle 5 sek) an den
+  Benutzer. Auf der aktuellen Testumgebung (8000 bogomips) konnten hier 440 Objekte
+  in 2 Minuten gewandelt und in weiteren 5 Minuten als PDF erzeugt werden. Die Rechnungen
+  werden auch entsprechend im WebDAV archiviert, falls diese Option mandantenseitig
+  eingestellt ist.
 
 - E-Mail-Journal
 
@@ -35,7 +38,7 @@ Größere neue Features:
   prinzipiell drei Status haben: Offen, geliefert und / oder geschlossen. Für diese drei Fälle
   wird im Bericht die  Warenbewegungen eindeutig über die Verknüpfung von Auftragsposition
   zu Lieferscheinposition mitverfolgt. Ferner wird der Nettowarenwert für den Fall
-   Hauptwährung und Netto-Auftrag berechnet.
+  Hauptwährung und Netto-Auftrag berechnet.
 
 
 2015-08-20 - Release 3.3
