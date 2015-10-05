@@ -43,7 +43,9 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
 
     var data = {
       number_of_invoices: $('#cpa_number_of_invoices').val(),
-      printer_id:         $('#cpa_printer_id').val()
+      printer_id:         $('#cpa_printer_id').val(),
+      copy_printer_id:    $('#cpa_copy_printer_id').val(),
+      transdate:          $('#transdate').val()
     };
     kivi.submit_ajax_form('controller.pl?action=MassInvoiceCreatePrint/create_print_all_start', '[name^=filter\\.]', data);
   };

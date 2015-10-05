@@ -21,7 +21,7 @@ use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id) ],
+  'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id today) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -118,7 +118,7 @@ sub action_create_print_all_start {
 
   $self->sales_delivery_order_models->disable_plugin('paginated');
 
-  my @records           = @{ $self->sales_delivery_order_models->get };
+  my @records          = @{ $self->sales_delivery_order_models->get };
   my $num              = min(scalar(@records), $::form->{number_of_invoices} // scalar(@records));
 
   my $job              = SL::DB::BackgroundJob->new(
@@ -129,6 +129,8 @@ sub action_create_print_all_start {
   )->set_data(
     record_ids         => [ map { $_->id } @records[0..$num - 1] ],
     printer_id         => $::form->{printer_id},
+    copy_printer_id    => $::form->{copy_printer_id},
+    transdate          => $::form->{transdate},
     status             => SL::BackgroundJob::MassRecordCreationAndPrinting->WAITING_FOR_EXECUTION(),
     num_created        => 0,
     num_printed        => 0,
@@ -185,6 +187,7 @@ sub action_create_print_all_download {
 
 sub init_printers { SL::DB::Manager::Printer->get_all_sorted }
 sub init_invoice_ids { [] }
+sub init_today         { DateTime->today_local }
 
 sub init_sales_delivery_order_models {
   my ($self) = @_;
@@ -434,6 +437,12 @@ Gets all printer commands
 
 Gets a list of (empty) invoice ids
 
+=item C<init_today>
+
+Gets the current day. Currently used in custom code.
+Has to be initialised (get_set_init) and can be used as default for
+a date tag like C<[% L.date_tag("transdate", SELF.today, id=transdate) %]>.
+
 =item C<init_sales_delivery_order_models>
 
 Calls _init_sales_delivery_order_models with a param
@@ -449,8 +458,9 @@ Gets all invoice_models via the ids in invoice_ids (at the beginning no ids exis
 
 =item C<init_default_printer_id>
 
-Gets the default printer for sales_invoices. Maybe this function is not used, but
-might be useful in the next version (working in client project).
+Gets the default printer for sales_invoices. Currently this function is not called, but
+might be useful in the next version.Calling template code and Controller already expect a default:
+C<L.select_tag("", printers, title_key="description", default=SELF.default_printer_id, id="cpa_printer_id") %]>
 
 =item C<setup>
 
@@ -475,12 +485,6 @@ Should be more generalized. Right now just one conversion (delivery order to inv
 Using BackgroundJobs to mass create / transfer stuff is the way to do it. The original idea
 was taken from one client project (mosu) with some extra (maybe not standard compliant) customized
 stuff (using cvars for extra filters and a very compressed Controller for linking (ODSalesOrder.pm)).
-
-Filtering needs to be extended for Delivery Order Number (Natural Sort).
-
-A second printer (copy) needs to be implemented.
-
-Both todos are marked in the template code.
 
 
 =head1 AUTHOR

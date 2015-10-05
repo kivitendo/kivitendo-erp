@@ -22,6 +22,8 @@ use constant DONE                        => 3;
 # my $data             = {
 #   record_ids          => [ 123, 124, 127, ],
 #   printer_id         => 4711,
+#   copy_printer_id    => 4711,
+#   transdate          => $today || $custom_transdate,
 #   num_created        => 0,
 #   num_printed        => 0,
 #   invoice_ids        => [ 234, 235, ],
@@ -48,8 +50,8 @@ sub create_invoices {
       $number                  = $sales_delivery_order->donumber;
 
       if (!$db->do_transaction(sub {
-        $invoice = $sales_delivery_order->convert_to_invoice(item_filter => \&delivery_order_item_filter, queue_sort => 1) || die $db->error;
-        # $delivery_order->post_save_sanity_check; # just a hint at e8521eee (#90 od)
+        $invoice = $sales_delivery_order->convert_to_invoice(sub { $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) :
+                                                                         undef }->() ) || die $db->error;
         1;
       })) {
         die $db->error;
@@ -166,25 +168,29 @@ sub convert_invoices_to_pdf {
 sub print_pdfs {
   my ($self)     = @_;
 
-  my $job_obj    = $self->{job_obj};
-  my $data       = $job_obj->data_as_hash;
-  my $printer_id = $data->{printer_id};
+  my $job_obj         = $self->{job_obj};
+  my $data            = $job_obj->data_as_hash;
+  my $printer_id      = $data->{printer_id};
+  my $copy_printer_id = $data->{copy_printer_id};
 
   return if !$printer_id;
 
-  my $printer = SL::DB::Printer->new(id => $printer_id)->load;
-  my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
   my $out;
 
-  if (!open $out, '|-', $command) {
-    push @{ $data->{print_errors} }, { message => $::locale->text('Could not execute printer command: #1', $!) };
-    $job_obj->update_attributes(data_as_hash => $data);
-    return;
+  foreach  my $local_printer_id ($printer_id, $copy_printer_id) {
+    next unless $local_printer_id;
+    my $printer = SL::DB::Printer->new(id => $local_printer_id)->load;
+    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
+    if (!open $out, '|-', $command) {
+      push @{ $data->{print_errors} }, { message => $::locale->text('Could not execute printer command: #1', $!) };
+      $job_obj->update_attributes(data_as_hash => $data);
+      return;
+    }
+    binmode $out;
+    print $out $self->{merged_pdf};
+    close $out;
   }
 
-  binmode $out;
-  print $out $self->{merged_pdf};
-  close $out;
 }
 
 sub run {
@@ -228,6 +234,8 @@ my $job              = SL::DB::BackgroundJob->new(
   )->set_data(
     record_ids         => [ map { $_->id } @records[0..$num - 1] ],
     printer_id         => $::form->{printer_id},
+    copy_printer_id    => $::form->{copy_printer_id},
+    transdate          => $::form->{transdate} || undef,
     status             => SL::BackgroundJob::MassRecordCreationAndPrinting->WAITING_FOR_EXECUTION(),
     num_created        => 0,
     num_printed        => 0,
@@ -266,6 +274,11 @@ This background job has 4 states which are described by the four constants above
 
 Converts the source objects (DeliveryOrder) to destination objects (Invoice).
 On success objects will be saved.
+If param C<data->{transdate}> is set, this will be the transdate. No safety checks are done.
+The original conversion from order to delivery order had a post_save_sanity_check
+C<$delivery_order-E<gt>post_save_sanity_check; # just a hint at e8521eee (#90 od)>
+The params of convert_to_invoice are created on the fly with a anonym sub, as a alternative check
+ perlsecret Enterprise ()x!!
 
 =item C<convert_invoices_to_pdf>
 
@@ -273,7 +286,8 @@ Takes the new destination objects and merges them via print template in one pdf.
 
 =item C<print_pdfs>
 
-Sent the pdf to the printer command (if checked).
+Sent the pdf to the printer command.
+If param C<data->{copy_printer_id}> is set, the pdf will be sent to a second printer command.
 
 =back
 
@@ -281,6 +295,12 @@ Sent the pdf to the printer command (if checked).
 
 Currently the calculation from the gui (form) differs from the calculation via convert (PTC).
 Furthermore mass conversion with foreign currencies could lead to problems (daily rate check).
+
+=head1 TODO
+
+It would be great to extend this Job for general background printing. The original project
+code converted sales order to delivery orders (84e7c540) this could be merged in unstable.
+The states should be CONVERTING_SOURCE_RECORDS, PRINTING_DESTINATION_RECORDS etc
 
 =head1 AUTHOR
 
