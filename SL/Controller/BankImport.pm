@@ -7,6 +7,7 @@ use SL::Locale::String qw(t8);
 use SL::DB::CsvImportProfile;
 use SL::Helper::MT940;
 
+__PACKAGE__->run_before('check_auth');
 
 sub action_upload_mt940 {
   my ($self, %params) = @_;
@@ -34,6 +35,10 @@ sub action_import_mt940 {
   $self->redirect_to(controller => 'controller.pl', action => 'CsvImport/test', 'profile.type' => 'bank_transactions', 'profile.id' => $profile->id, force_profile => 1);
 
 };
+
+sub check_auth {
+  $::auth->assert('bank_transaction');
+}
 
 1;
 
