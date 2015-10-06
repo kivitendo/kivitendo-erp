@@ -316,10 +316,10 @@ sub all_transactions {
 # RP->trial_balance() I tried to figure out which bizarre flow through the
 # program would happen to set that var, so that it would be used here later on,
 # (which would be nonsense, since you would normally load chart before
-# claculating balance of said charts) and then decided that any mechanic that
+# calculating balance of said charts) and then decided that any mechanic that
 # complex should fail anyway.
 
-# if anyone is missing a time check on charts, that broke arounf the time
+# if anyone is missing a time check on charts, that broke around the time
 # trial_balance was rewritten, this would be it
 
       $query .=
