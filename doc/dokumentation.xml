@@ -1008,7 +1008,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="Administratorpasswort">
         <title>Administratorpasswort</title>
 
-        <para>Das Passwort, das zum Zugriff auf das Aministrationsinterface
+        <para>Das Passwort, das zum Zugriff auf das Administrationsinterface von kivitendo
         benutzt wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch
         nur dort und nicht mehr im Administrationsinterface selber geändert
         werden. Der Parameter dazu heißt <varname>admin_password</varname> im
