@@ -854,6 +854,13 @@
   access: report
   params:
     action: LiquidityProjection/show
+- parent: reports
+  id: reports_gdpdu_export
+  name: GDPDU Export
+  order: 1000
+  access: report
+  params:
+    action: Gdpdu/filter
 - id: batch_printing
   name: Batch Printing
   icon: printing

@@ -1,0 +1,44 @@
+[%- USE HTML %]
+[%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+[%- PROCESS 'common/flash.html' %]
+
+<p>[% 'This export will include all records in the given time range and all supplicant information from checked entities. You will receive a single zip file. Please extract this file onto the data medium requested by your auditor.' | $T8 %]</p>
+
+<form>
+
+<table>
+  <tr>
+    <td>[% 'From Date' | $T8 %]</td>
+    <td>[% L.date_tag('from', SELF.from) %]</td>
+  </tr>
+  <tr>
+    <td>[% 'To Date' | $T8 %]</td>
+    <td>[% L.date_tag('to', SELF.to) %]</td>
+  </tr>
+  <tr>
+    <td>[% 'Include in Report' | $T8 %]</td>
+    <td>
+      [% L.checkbox_tag('tables.ar', label=LxERP.t8('Invoices'), checked=1) %]
+      [% L.checkbox_tag('tables.ap', label=LxERP.t8('Purchase Invoices'), checked=1) %]
+      [% L.checkbox_tag('tables.gl', label=LxERP.t8('GL Transactions'), checked=1) %]
+      [% L.checkbox_tag('tables.delivery_orders', label=LxERP.t8('Delivery Orders'), checked=1) %]
+      [% L.checkbox_tag('tables.oe', label=LxERP.t8('Quotations and orders'), checked=1) %]
+      [% L.checkbox_tag('tables.customer', label=LxERP.t8('Customers'), checked=1) %]
+      [% L.checkbox_tag('tables.vendor', label=LxERP.t8('Vendors'), checked=1) %]
+      [% L.checkbox_tag('tables.parts', label=LxERP.t8('Parts'), checked=1) %]
+      [% L.checkbox_tag('tables.acc_trans', label=LxERP.t8('Transactions'), checked=1) %]
+      [% L.checkbox_tag('tables.chart', label=LxERP.t8('Charts'), checked=1) %]
+    </td>
+  </tr>
+</table>
+
+[% L.hidden_tag('action', 'Gdpdu/dispatch') %]
+
+[% L.submit_tag('action_export', LxERP.t8('Export')) %]
+
+</form>
