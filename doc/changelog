@@ -40,6 +40,9 @@ Größere neue Features:
   zu Lieferscheinposition mitverfolgt. Ferner wird der Nettowarenwert für den Fall
   Hauptwährung und Netto-Auftrag berechnet.
 
+Kleinere neue Features und Detailverbesserungen:
+
+  - Konkurrierende Schreibprozesse beim Speichern von Belegen verhindern.
 
 2015-08-20 - Release 3.3
 
