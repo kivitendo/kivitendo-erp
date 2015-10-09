@@ -2614,8 +2614,8 @@ sub mtime_ischanged {
   $ref->{mtime} ||= $ref->{itime};
 
   if ($self->{lastmtime} && $self->{lastmtime} ne $ref->{mtime} ) {
-      my $etxt = ($option eq 'mail') ? "The document has been changed from other user. Please reopen it in another window and copy the changes to the new window" :
-                                       "The document has been changed from other user. No mail was sent. Please reopen it in another window and copy the changes to the new window";
+      my $etxt = ($option eq 'mail') ? "The document has been changed by another user. Please reopen it in another window and copy the changes to the new window" :
+                                       "The document has been changed by another user. No mail was sent. Please reopen it in another window and copy the changes to the new window";
       $self->error($main::locale->text($etxt));
     ::end_of_request();
   }
