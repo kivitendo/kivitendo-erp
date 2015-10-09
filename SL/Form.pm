@@ -1801,6 +1801,10 @@ sub set_payment_options {
   $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
   $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
   $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
+  $self->{payment_terms} =~ s/<\%bic\%>/$self->{bic}/g;
+  $self->{payment_terms} =~ s/<\%iban\%>/$self->{iban}/g;
+  $self->{payment_terms} =~ s/<\%mandate_date_of_signature\%>/$self->{mandate_date_of_signature}/g;
+  $self->{payment_terms} =~ s/<\%mandator_id\%>/$self->{mandator_id}/g;
 
   map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
 
