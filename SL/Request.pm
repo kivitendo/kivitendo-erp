@@ -251,7 +251,7 @@ sub _recode_recursively {
         # Workaround for a bug: converting $from->[$idx] directly
         # leads to 'undef'. I don't know why. Converting a copy works,
         # though.
-        $to->[$idx] = $iconv->convert("" . $from->[$idx]);
+        $to->[$idx] = $iconv->convert("" . $from->[$idx]) if defined $from->[$idx] && !defined $to->[$idx];
       } else {
         $to->[$idx] ||= {} if 'HASH'  eq ref $from->[$idx];
         $to->[$idx] ||= [] if 'ARRAY' eq ref $from->[$idx];
