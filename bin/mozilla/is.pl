@@ -292,7 +292,10 @@ sub form_header {
   my %TMPL_VAR = ();
   my @custom_hiddens;
 
-  $TMPL_VAR{invoice_obj} = SL::DB::Invoice->new(id => $form->{id})->load if $form->{id};
+  if ($form->{id}) {
+    require SL::DB::Invoice;
+    $TMPL_VAR{invoice_obj} = SL::DB::Invoice->new(id => $form->{id})->load;
+  }
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
