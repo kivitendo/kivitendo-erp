@@ -685,7 +685,7 @@ sub retrieve {
          dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
          d.description AS department, dord.language_id,
          dord.shipto_id,
-         dord.itime,dord.mtime,
+         dord.itime, dord.mtime,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
          dord.taxzone_id, dord.taxincluded, dord.payment_id, (SELECT cu.name FROM currencies cu WHERE cu.id=dord.currency_id) AS currency,
          dord.delivery_term_id, dord.itime::DATE AS insertdate
@@ -720,7 +720,7 @@ sub retrieve {
     }
   }
   $sth->finish();
-  $form->{mtime} = $form->{itime} if !$form->{mtime};
+  $form->{mtime}   ||= $form->{itime};
   $form->{lastmtime} = $form->{mtime};
   $form->{donumber_array} =~ s/\s*$//g;
   $form->{ordnumber_array} =~ s/ //;

@@ -1794,9 +1794,8 @@ sub sales_order {
   my $locale   = $main::locale;
 
   check_oe_access();
-
-  $form->mtime_ischanged('oe');
   $main::auth->assert('sales_order_edit');
+  $form->mtime_ischanged('oe');
 
   if ($form->{type} eq "purchase_order") {
     delete($form->{ordnumber});
@@ -1944,7 +1943,6 @@ sub e_mail {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
-  my $locale   = $main::locale;
 
   check_oe_access();
 

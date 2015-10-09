@@ -947,7 +947,7 @@ sub retrieve {
         map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
       }
     }
-    $form->{mtime} = $form->{itime} if ! $form->{mtime};
+    $form->{mtime}   ||= $form->{itime};
     $form->{lastmtime} = $form->{mtime};
 
     # if not given, fill transdate with current_date
