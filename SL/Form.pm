@@ -2604,21 +2604,18 @@ sub all_vc {
 }
 
 sub mtime_ischanged {
-  my ($self, $relation, $option) = @_;
+  my ($self, $table, $option) = @_;
 
-  return unless $self->{id};  # maybe better croak, but i have no api doc to refer to ...
+  return                                       unless $self->{id};
+  croak ("wrong call, no valid table defined") unless $table =~ /(oe|ar|ap|delivery_orders|parts)/;
 
-  my $query = "SELECT mtime, itime FROM " . $relation . " WHERE id = ?";
-  my $ref = selectfirst_hashref_query($self, $self->get_standard_dbh, $query, $self->{id});
-  $ref->{mtime} = $ref->{itime} if !$ref->{mtime};
+  my $query       = "SELECT mtime, itime FROM " . $table . " WHERE id = ?";
+  my $ref         = selectfirst_hashref_query($self, $self->get_standard_dbh, $query, $self->{id});
+  $ref->{mtime} ||= $ref->{itime};
 
   if ($self->{lastmtime} && $self->{lastmtime} ne $ref->{mtime} ) {
-      my $etxt = $main::locale->text("The document has been changed from other user. Please reopen it in another window and copy the changes to the new window");
-
-      $etxt = $main::locale->text("The document has been changed from other user. No mail was sent. Please reopen it in another window and copy the changes to the new window")
-        if ($option eq 'mail');
-      # ^^ I prefer:
-      # my $etxt = ($option eq 'mail') ? locale1 : locale2;
+      my $etxt = ($option eq 'mail') ? "The document has been changed from other user. Please reopen it in another window and copy the changes to the new window" :
+                                       "The document has been changed from other user. No mail was sent. Please reopen it in another window and copy the changes to the new window";
       $self->error($main::locale->text($etxt));
     ::end_of_request();
   }
@@ -2792,7 +2789,7 @@ sub create_links {
     foreach my $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
-    $self->{mtime} ||= $self->{itime};
+    $self->{mtime}   ||= $self->{itime};
     $self->{lastmtime} = $self->{mtime};
     my $transdate = "current_date";
     if ($self->{transdate}) {
@@ -3758,6 +3755,17 @@ Used to override the default favicon.
 =item title
 
 A html page title will be generated from this
+
+=item mtime_ischanged
+
+Tries to avoid concurrent write operations to records by checking the database mtime with a fetched one.
+
+Can be used / called with any table, that has itime and mtime attributes.
+Valid C<table> names are: oe, ar, ap, delivery_orders, parts.
+Can be called wit C<option> mail to generate a different error message.
+
+Returns undef if no save operation has been done yet ($self->{id} not present).
+Returns undef if no concurrent write process is detected otherwise a error message.
 
 =back
 
