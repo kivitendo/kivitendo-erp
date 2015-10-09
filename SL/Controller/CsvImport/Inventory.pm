@@ -35,7 +35,8 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(trans_id oe_id delivery_order_items_stock_id bestbefore trans_type_id project_id)};
+  delete @{$profile}{qw(trans_id oe_id delivery_order_items_stock_id trans_type_id project_id)};
+  delete @{$profile}{qw(bestbefore)}    if !$::instance_conf->get_show_bestbefore;
 
   return $profile;
 }
@@ -116,6 +117,9 @@ sub setup_displayable_columns {
                                  { name => 'warehouse',    description => $::locale->text('Warehouse')               },
                                  { name => 'warehouse_id', description => $::locale->text('Warehouse (database ID)') },
                                 );
+  if ($::instance_conf->get_show_bestbefore) {
+    $self->add_displayable_columns({ name => 'bestbefore', description => $::locale->text('Best Before') });
+  }
 }
 
 sub check_warehouse {
@@ -289,18 +293,13 @@ sub check_qty{
   }
 
   # Actual quantity is read from stock or is the result of transfers for the
-  # same part, warehouse, bin and chargenumber done before.
+  # same part, warehouse, bin, chargenumber and bestbefore date (if
+  # show_bestbefore is enabled) done before.
   my $key = join '+', $object->parts_id, $object->warehouse_id, $object->bin_id, $object->chargenumber;
-  if (!exists $self->{resulting_quantities}->{$key}) {
-    my $query = <<SQL;
-      SELECT sum(qty) FROM inventory
-        WHERE parts_id = ? AND warehouse_id = ? AND bin_id = ? AND chargenumber = ?
-        GROUP BY warehouse_id, bin_id, chargenumber
-SQL
+  $key   .= join '+', $key, $object->bestbefore    if $::instance_conf->get_show_bestbefore;
 
-    my ($stocked_qty) = selectrow_query($::form, $::form->get_standard_dbh, $query,
-                                        $object->parts_id, $object->warehouse_id, $object->bin_id, $object->chargenumber);
-    $self->{resulting_quantities}->{$key} = $stocked_qty;
+  if (!exists $self->{resulting_quantities}->{$key}) {
+    $self->{resulting_quantities}->{$key} = _get_stocked_qty($object);
   }
   my $actual_qty = $self->{resulting_quantities}->{$key};
 
@@ -401,6 +400,33 @@ sub save_objects {
   }
 
   $self->SUPER::save_objects(%params);
+}
+
+sub _get_stocked_qty {
+  my ($object) = @_;
+
+  my $bestbefore_filter  = '';
+  my $bestbefore_val_cnt = 0;
+  if ($::instance_conf->get_show_bestbefore) {
+    $bestbefore_filter  = ($object->bestbefore) ? 'AND bestbefore = ?' : 'AND bestbefore IS NULL';
+    $bestbefore_val_cnt = ($object->bestbefore) ? 1                    : 0;
+  }
+
+  my $query = <<SQL;
+    SELECT sum(qty) FROM inventory
+      WHERE parts_id = ? AND warehouse_id = ? AND bin_id = ? AND chargenumber = ? $bestbefore_filter
+      GROUP BY warehouse_id, bin_id, chargenumber
+SQL
+
+  my @values = ($object->parts_id,
+                $object->warehouse_id,
+                $object->bin_id,
+                $object->chargenumber);
+  push @values, $object->bestbefore if $bestbefore_val_cnt;
+
+  my ($stocked_qty) = selectrow_query($::form, $::form->get_standard_dbh, $query, @values);
+
+  return $stocked_qty;
 }
 
 sub _wh_id_and_description_ident {
