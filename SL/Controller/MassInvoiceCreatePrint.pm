@@ -216,7 +216,6 @@ sub _init_sales_delivery_order_models {
    query        => [
       '!customer_id' => undef,
       or             => [ closed    => undef, closed    => 0 ],
-      or             => [ delivered => undef, delivered => 0 ],
     ],
   );
 }
@@ -277,6 +276,9 @@ sub create_pdfs {
       template  => $self->find_template(name => 'invoice', printer_id => $params{printer_id}),
       variables => Form->new(''),
       return    => 'file_name',
+      variable_content_types => { longdescription => 'html',
+                                  partnotes       => 'html',
+                                  notes           => 'html',}
     );
 
     $create_params{variables}->{$_} = $params{variables}->{$_} for keys %{ $params{variables} };
@@ -346,8 +348,8 @@ sub make_filter_summary {
 
   my @filters = (
     [ $filter->{customer}{"name:substr::ilike"}, t8('Customer') ],
-    [ $filter->{"transdate:date::ge"},           t8('Delivery Date') . " " . t8('From Date') ],
-    [ $filter->{"transdate:date::le"},           t8('Delivery Date') . " " . t8('To Date')   ],
+    [ $filter->{"transdate:date::ge"},           t8('Transdate') . " " . t8('From Date') ],
+    [ $filter->{"transdate:date::le"},           t8('Transdate') . " " . t8('To Date')   ],
   );
 
   for (@filters) {

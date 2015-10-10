@@ -101,7 +101,12 @@ sub convert_invoices_to_pdf {
         template  => $ctrl->find_template(name => 'invoice', printer_id => $printer_id),
         variables => Form->new(''),
         return    => 'file_name',
+        variable_content_types => { longdescription => 'html',
+                                    partnotes       => 'html',
+                                    notes           => 'html',}
       );
+
+
 
       $create_params{variables}->{$_} = $variables{$_} for keys %variables;
 
