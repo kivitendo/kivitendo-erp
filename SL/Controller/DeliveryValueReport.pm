@@ -314,7 +314,7 @@ SL::Controller::DeliveryValueReport - Controller for Delivery Value Report
 
 Controller class for Delivery Value Report
 
-The goal of the record is to determine which goods and at what costs are already delivered, transfered in
+The goal of the report is to determine which goods and at what costs are already delivered, transfered in
 relation to open orders, orders in process.
 
 
@@ -331,7 +331,7 @@ for individual item reqdates.
 After some arguing we decided to implement persistent ids for all items and link them directly via record_links.
 This linking has been secrectly active since version 3.2, therefore this redesign is possible.
 Currently the report even works correctly even if the same part has been manually put in another position, renamed or some
- other metadata for the position has been altered. This is due to the fact that a hidden converted_from_previous_document is
+other metadata for the position has been altered. This is due to the fact that a hidden converted_from_previous_document is
 used in the position.
 
 The main intelligence is this query (qty_stocked as comments):
