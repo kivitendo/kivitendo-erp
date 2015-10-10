@@ -1,4 +1,4 @@
-use Test::More tests => 38;
+use Test::More tests => 42;
 
 use strict;
 
@@ -98,7 +98,7 @@ sub reset_state {
                  'sellprice' => '242.20000',
                  #'warehouse_id' => 64702,
                  'weight' => '0.79',
-                 description        => "Nussbaum, Gr.5, Unterfilz weinrot, genietet[[Aufschnittbreite: 11,0, Kernform: US]]\"" ,
+                 description        => "Pflaumenbaum, Gr.5, Unterfilz weinrot, genietet[[Aufschnittbreite: 11,0, Kernform: US]]\"" ,
                  buchungsgruppen_id => $buchungsgruppe->id,
                  unit               => $unit->name,
                  id                 => 26321,
@@ -142,9 +142,9 @@ reset_state();
 my $do1 = new_delivery_order('department_id'    => 32149,
                              'donumber'         => 'L20199',
                              'employee_id'      => 31915,
-                             'intnotes'         => 'Achtung: Neue Lieferadresse ab 16.02.2015 in der Carl-von-Ossietzky-Str.32!   13.02.2015/MH
+                             'intnotes'         => 'Achtung: Neue Lieferadresse ab 16.02.2015 in der Otto-Merck-Str. 7a!   13.02.2015/MH
 
-                                            Steinway-Produkte (201...) immer plus 25% dazu rechnen / BK 13.02.2014',
+                                            Yamaha-Produkte (201...) immer plus 25% dazu rechnen / BK 13.02.2014',
                               'ordnumber'       => 'A16399',
                               'payment_id'      => 11276,
                               'salesman_id'     => 31915,
@@ -158,16 +158,17 @@ my $do1 = new_delivery_order('department_id'    => 32149,
                               'cusordnumber'    => 'b84da',
                               'customer_id'     => $customer->id,
                               'id'              => 464003,
+                              'notes'           => '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>',
 );
 
 my $do1_item1 = SL::DB::DeliveryOrderItem->new('delivery_order_id' => 464003,
                                                'description' => "Flügel Hammerkopf bestehend aus:
                                                                  Bass/Diskant 26/65 Stück, Gesamtlänge 80/72, Bohrlänge 56/48
-                                                                 Nussbaum, Gr.5, Unterfilz weinrot, genietet[[Aufschnittbreite: 11,0, Kernform: US]]",
+                                                                 Pflaumenbaum, Gr.5, Unterfilz weinrot, genietet[[Aufschnittbreite: 11,0, Kernform: US]]",
                                                'discount' => '0.25',
                                                'id' => 144736,
                                                'lastcost' => '49.95000',
-                                               'longdescription' => '',
+                                               'longdescription'    => "<ol><li>27</li><li>28</li><li>29</li><li><sub>asdf</sub></li><li><sub>asdf</sub></li><li><sup>oben</sup></li></ol><p><s>kommt nicht mehr vor</s></p>",
                                                'marge_price_factor' => 1,
                                                'mtime' => undef,
                                                'ordnumber' => 'A16399',
@@ -211,11 +212,14 @@ Kapseln mit Yamaha Profil, Kerbenabstand 3,6 mm mit eingedrehten Abnickschrauben
 
 # test delivery order before any conversion
 ok($do1->donumber eq "L20199", 'Delivery Order Number created');
+ok($do1->notes eq '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>', "do RichText notes saved");
 ok((not $do1->closed) , 'Delivery Order is not closed');
 ok($do1_item1->parts_id eq '26321', 'doi linked with part');
 ok($do1_item1->qty == 2, 'qty check doi');
-ok($do1_item2->position == 2, 'doi2 position check');
-ok(2 ==  scalar@{ SL::DB::Manager::DeliveryOrderItem->get_all(where => [ delivery_order_id => $do1->id ]) }, 'two doi linked');
+ok($do1_item1->longdescription eq  "<ol><li>27</li><li>28</li><li>29</li><li><sub>asdf</sub></li><li><sub>asdf</sub></li><li><sup>oben</sup></li></ol><p><s>kommt nicht mehr vor</s></p>",
+     "do item1 rich text longdescripition");
+ok ($do1_item2->position == 2, 'doi2 position check');
+ok (2 ==  scalar@{ SL::DB::Manager::DeliveryOrderItem->get_all(where => [ delivery_order_id => $do1->id ]) }, 'two doi linked');
 
 
 # convert this do to invoice
@@ -228,6 +232,7 @@ ok ($invoice->shipvia eq "DHL, Versand am 06.03.2015, 1 Paket  17,00 kg", "ship 
 ok ($invoice->shippingpoint eq "Maisenhaus", "shipping point check");
 ok ($invoice->ordnumber eq "A16399", "ordnumber check");
 ok ($invoice->donumber eq "L20199", "donumber check");
+ok ($invoice->notes eq '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>', "do RichText notes saved");
 ok(($do1->closed) , 'Delivery Order is closed after conversion');
 ok (SL::DB::PaymentTerm->new(id => $invoice->{payment_id})->load->description eq "14Tage 2%Skonto, 30Tage netto", 'payment term description check');
 
@@ -280,6 +285,8 @@ ok(@ {$invoice->items_sorted}[0]->parts_id eq '26321', 'invoiceitem 1 linked wit
 ok(2 ==  scalar@{ $invoice->invoiceitems }, 'two invoice items linked with invoice');
 is(@ {$invoice->items_sorted}[0]->position, 1, "position 1 order correct");
 is(@ {$invoice->items_sorted}[1]->position, 2, "position 2 order correct");
+is(@ {$invoice->items_sorted}[0]->longdescription, "<ol><li>27</li><li>28</li><li>29</li><li><sub>asdf</sub></li><li><sub>asdf</sub></li><li><sup>oben</sup></li></ol><p><s>kommt nicht mehr vor</s></p>",
+     "invoice item1 rich text longdescripition");
 is(@ {$invoice->items_sorted}[0]->part->partnumber, 'v-519160549', "partnumber 1 correct");
 is(@ {$invoice->items_sorted}[1]->part->partnumber, 'v-120160086', "partnumber 2 correct");
 is(@ {$invoice->items_sorted}[0]->qty, '2.00000', "pos 1 qty");
