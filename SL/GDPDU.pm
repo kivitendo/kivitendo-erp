@@ -178,7 +178,7 @@ sub table {
       ->tag('Format', $date_format)
     })
     ->tag('DecimalSymbol', '.')
-    ->tag('DigitGroupingSymbol', '')
+    ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
     ->tag('VariableLength', sub { $self
       ->columns($table)
       ->foreign_keys($table)
@@ -474,6 +474,19 @@ Hopefully there are no bugs there.
 
 It's currently disallowed to export the whole dataset. It's not clear if this
 is wanted.
+
+=item *
+
+It is not possible to set an empty C<DigiGroupingSymbol> since then the import
+will just work with the default. This was asked in their forum, and the
+response actually was:
+
+  Einfache Lösung: Definieren Sie das Tausendertrennzeichen als Komma, auch
+  wenn es nicht verwendet wird. Sollten Sie das Komma bereits als Feldtrenner
+  verwenden, so wählen Sie als Tausendertrennzeichen eine Alternative wie das
+  Pipe-Symbol |.
+
+L<http://www.gdpdu-portal.com/forum/index.php?mode=thread&id=1392>
 
 =back
 
