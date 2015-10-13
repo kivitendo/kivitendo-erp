@@ -180,6 +180,9 @@ sub table {
     ->tag('DecimalSymbol', '.')
     ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
     ->tag('VariableLength', sub { $self
+      ->tag('ColumnDelimiter', ',')
+      ->tag('RecordDelimiter', '&x0A;')
+      ->tag('TextEncapsulator', '"')
       ->columns($table)
       ->foreign_keys($table)
     })
