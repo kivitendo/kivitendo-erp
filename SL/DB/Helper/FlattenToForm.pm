@@ -97,7 +97,7 @@ sub _copy {
   map { $form->{"${prefix}${_}${postfix}"} =                $::form->format_amount(\%::myconfig, $src->$_ * 1, 2)       } @columns if  $format_amounts == 1;
   map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1, 2) : 0   } @columns if  $format_amounts == 2;
   map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 100, 2) : 0 } @columns if  $format_amounts == 3;
-  map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1)    : 0   } @columns if  $format_amounts == 4;
+  map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1, -2) : 0  } @columns if  $format_amounts == 4;
 
   return $src;
 }
