@@ -73,7 +73,8 @@ my %column_types = (
   'Rose::DB::Object::Metadata::Column::Date'      => sub { $_[0]->tag('Date', sub { $_[0]->tag('Format', $date_format) }) },
   'Rose::DB::Object::Metadata::Column::Timestamp' => sub { $_[0]->tag('Date', sub { $_[0]->tag('Format', $date_format) }) },
   'Rose::DB::Object::Metadata::Column::Float'     => sub { $_[0]->tag('Numeric') },
-  'Rose::DB::Object::Metadata::Column::Boolean'   => sub { $_[0]->tag('AlphaNumeric', sub { $_[0]
+  'Rose::DB::Object::Metadata::Column::Boolean'   => sub { $_[0]
+    ->tag('AlphaNumeric')
     ->tag('Map', sub { $_[0]
       ->tag('From', 1)
       ->tag('To', t8('true'))
@@ -83,10 +84,10 @@ my %column_types = (
       ->tag('To', t8('false'))
     })
     ->tag('Map', sub { $_[0]
-      ->tag('From', 0)
+      ->tag('From', '')
       ->tag('To', t8('false'))
     })
-  }) },
+  },
 );
 
 sub generate_export {
