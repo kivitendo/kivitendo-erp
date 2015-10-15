@@ -145,6 +145,7 @@
                 <th class="listheading" nowrap width="5" >[%- 'Qty'          | $T8 %] </th>
                 <th class="listheading" nowrap width="5" >[%- 'Price Factor' | $T8 %] </th>
                 <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
+                <th class="listheading" nowrap width="5" >[%- 'Price Source' | $T8 %] </th>
                 <th class="listheading" nowrap width="15">[%- 'Price'        | $T8 %] </th>
                 <th class="listheading" nowrap width="5" >[%- 'Discount'     | $T8 %] </th>
                 <th class="listheading" nowrap width="10">[%- 'Extended'     | $T8 %] </th>
@@ -272,6 +273,87 @@ function delete_order_item_row(clicked) {
   recalc_amounts_and_taxes();
 }
 
+function price_chooser_item_row(clicked) {
+  var row = $(clicked).parents("tbody").first();
+  var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
+
+  var data = $('#order_form').serialize();
+  data += '&action=Order/price_popup';
+  data += '&item_id=' + item_id_dom.val();
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+}
+
+function update_price_source(item_id, source, descr, price_str) {
+  var row = $('#item_' + item_id).parents("tbody").first();
+  var source_elt = $(row).find('[name="order.orderitems[].active_price_source"]');
+  var button_elt = $(row).find('[name="price_chooser_button"]');
+
+  button_elt.val(button_elt.val().replace(/.*\|/, descr + " |"));
+  source_elt.val(source);
+
+  var editable_div_elt = $(row).find('[name="editable_price"]');
+  var not_editable_div_elt = $(row).find('[name="not_editable_price"]');
+  if ([%- AUTH.assert('edit_prices', 1) %] == 1 && source == '') {
+    // editable
+    $(editable_div_elt).show();
+    $(not_editable_div_elt).hide();
+    $(editable_div_elt).find(':input').prop("disabled", false);
+    $(not_editable_div_elt).find(':input').prop("disabled", true);
+  } else {
+    // not editable
+    $(editable_div_elt).hide();
+    $(not_editable_div_elt).show();
+    $(editable_div_elt).find(':input').prop("disabled", true);
+    $(not_editable_div_elt).find(':input').prop("disabled", false);
+  }
+
+  if (price_str) {
+    var price_elt = $(row).find('[name="order.orderitems[].sellprice_as_number"]');
+    var html_elt  = $(row).find('[name="sellprice_text"]');
+    price_elt.val(price_str);
+    html_elt.html(price_str);
+    recalc_amounts_and_taxes();
+  }
+
+  kivi.io.close_dialog();
+}
+
+function update_discount_source(item_id, source, descr, discount_str) {
+  var row = $('#item_' + item_id).parents("tbody").first();
+  var source_elt = $(row).find('[name="order.orderitems[].active_discount_source"]');
+  var button_elt = $(row).find('[name="price_chooser_button"]');
+
+  button_elt.val(button_elt.val().replace(/\|.*/, "| " + descr));
+  source_elt.val(source);
+
+  var editable_div_elt = $(row).find('[name="editable_discount"]');
+  var not_editable_div_elt = $(row).find('[name="not_editable_discount"]');
+  if ([%- AUTH.assert('edit_prices', 1) %] == 1 && source == '') {
+    // editable
+    $(editable_div_elt).show();
+    $(not_editable_div_elt).hide();
+    $(editable_div_elt).find(':input').prop("disabled", false);
+    $(not_editable_div_elt).find(':input').prop("disabled", true);
+  } else {
+    // not editable
+    $(editable_div_elt).hide();
+    $(not_editable_div_elt).show();
+    $(editable_div_elt).find(':input').prop("disabled", true);
+    $(not_editable_div_elt).find(':input').prop("disabled", false);
+  }
+
+  if (discount_str) {
+    var discount_elt = $(row).find('[name="order.orderitems[].discount_as_percent"]');
+    var html_elt     = $(row).find('[name="discount_text"]');
+    discount_elt.val(discount_str);
+    html_elt.html(discount_str);
+    recalc_amounts_and_taxes();
+  }
+
+  kivi.io.close_dialog();
+}
+
 function reformat_number(event) {
   $(event.target).val(kivi.format_amount(kivi.parse_amount($(event.target).val()), -2));
 }
@@ -357,8 +439,13 @@ close_email_dialog = function() {
 
 $(function(){
   $('#order_[%- cv_id %]').change(reload_cv_dependend_selections);
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
+  [%- IF SELF.cv == 'customer' %]
+    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
+  [%- ELSE %]
+    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.lastcost, -2)) });
+  [%- END %]
   $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_description').val(o.description) });
+  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
   $('.add_item_input').keydown(function(event) {
     if(event.keyCode == 13) {
       event.preventDefault();

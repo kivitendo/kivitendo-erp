@@ -7,6 +7,7 @@
 
   <tr class="listrow0">
     <td style='display:none'>
+      [% L.hidden_tag("orderitem_ids[+]", ID) %]
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
     </td>
@@ -47,18 +48,45 @@
                       class="recalc") %]
     </td>
     <td>
-      [%- L.input_tag("order.orderitems[].sellprice_as_number",
-                      ITEM.sellprice_as_number,
-                      size = 10,
-                      style='text-align:right',
-                      class="recalc") %]
+      [%- L.button_tag("price_chooser_item_row(this)",
+                       ITEM.active_price_source.source_description _ ' | ' _ ITEM.active_discount_source.source_description,
+                       name = "price_chooser_button") %]
     </td>
     <td>
-      [%- L.input_tag("order.orderitems[].discount_as_percent",
-                      ITEM.discount_as_percent,
-                      size = 5,
-                      style='text-align:right',
-                      class="recalc") %]
+      [%- L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source.source) %]
+      [%- SET EDIT_PRICE = (AUTH.assert('edit_prices', 1) && ITEM.active_price_source.source == '') %]
+      <div name="editable_price" [%- IF !EDIT_PRICE %]style="display:none"[%- END %]>
+        [%- L.input_tag("order.orderitems[].sellprice_as_number",
+                        ITEM.sellprice_as_number,
+                        size = 10,
+                        style='text-align:right',
+                        disabled=(EDIT_PRICE? '' : 1),
+                        class="recalc reformat_number") %]
+      </div>
+      <div name="not_editable_price" [%- IF EDIT_PRICE %]style="display:none"[%- END %]>
+        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", style='text-align:right') %]
+        [%- L.hidden_tag("order.orderitems[].sellprice_as_number",
+                         ITEM.sellprice_as_number,
+                         disabled=(EDIT_PRICE? 1 : '')) %]
+      </div>
+    </td>
+    <td>
+      [%- L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source.source) %]
+      [%- SET EDIT_DISCOUNT = (AUTH.assert('edit_prices', 1) && ITEM.active_discount_source.source == '') %]
+      <div name="editable_discount" [%- IF !EDIT_DISCOUNT %]style="display:none"[%- END %]>
+        [%- L.input_tag("order.orderitems[].discount_as_percent",
+                        ITEM.discount_as_percent,
+                        size = 5,
+                        style='text-align:right',
+                        disabled=(EDIT_DISCOUNT? '' : 1),
+                        class="recalc reformat_number") %]
+      </div>
+      <div name="not_editable_discount" [%- IF EDIT_DISCOUNT %]style="display:none"[%- END %]>
+        [%- L.div_tag(ITEM.discount_as_percent, name="discount_text", style='text-align:right') %]
+        [%- L.hidden_tag("order.orderitems[].discount_as_percent",
+                         ITEM.discount_as_percent,
+                         disabled=(EDIT_DISCOUNT? 1 : '')) %]
+      </div>
     </td>
     <td align="right">
       [%- L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]

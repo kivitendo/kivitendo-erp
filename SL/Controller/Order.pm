@@ -18,12 +18,13 @@ use SL::DB::Employee;
 use SL::DB::Project;
 use SL::DB::Default;
 use SL::DB::Unit;
+use SL::DB::Price;
 
 use SL::Helper::DateTime;
 use SL::Helper::CreatePDF qw(:all);
 
 use List::Util qw(max first);
-use List::MoreUtils qw(none pairwise);
+use List::MoreUtils qw(none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
 
@@ -315,17 +316,40 @@ sub action_add_item {
   my $item = SL::DB::OrderItem->new;
   $item->assign_attributes(%$form_attr);
 
-  my $part        = SL::DB::Part->new(id => $form_attr->{parts_id})->load;
-  my $cv_method   = $self->cv;
-  my $cv_discount = $self->order->$cv_method? $self->order->$cv_method->discount : 0.0;
+  my $part         = SL::DB::Part->new(id => $form_attr->{parts_id})->load;
+
+  my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
+
+  my $price_src;
+  if ($item->sellprice) {
+    $price_src = $price_source->price_from_source("");
+    $price_src->price($item->sellprice);
+  } else {
+    $price_src = $price_source->best_price
+           ? $price_source->best_price
+           : $price_source->price_from_source("");
+    $price_src->price(0) if !$price_source->best_price;
+  }
+
+  my $discount_src;
+  if ($item->discount) {
+    $discount_src = $price_source->discount_from_source("");
+    $discount_src->discount($item->discount);
+  } else {
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
+  }
 
   my %new_attr;
-  $new_attr{part}        = $part;
-  $new_attr{description} = $part->description if ! $item->description;
-  $new_attr{qty}         = 1.0                if ! $item->qty;
-  $new_attr{unit}        = $part->unit;
-  $new_attr{sellprice}   = $part->sellprice   if ! $item->sellprice;
-  $new_attr{discount}    = $cv_discount       if ! $item->discount;
+  $new_attr{part}                   = $part;
+  $new_attr{description}            = $part->description if ! $item->description;
+  $new_attr{qty}                    = 1.0                if ! $item->qty;
+  $new_attr{sellprice}              = $price_src->price;
+  $new_attr{discount}               = $discount_src->discount;
+  $new_attr{active_price_source}    = $price_src;
+  $new_attr{active_discount_source} = $discount_src;
 
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
@@ -362,6 +386,15 @@ sub action_recalc_amounts_and_taxes {
   $self->_js_redisplay_linetotals;
   $self->_js_redisplay_amounts_and_taxes;
   $self->js->render();
+}
+
+sub action_price_popup {
+  my ($self) = @_;
+
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
+  my $item = $self->order->items->[$idx];
+
+  $self->render_price_dialog($item);
 }
 
 sub _js_redisplay_linetotals {
@@ -476,6 +509,27 @@ sub build_tax_rows {
 }
 
 
+sub render_price_dialog {
+  my ($self, $record_item) = @_;
+
+  my $price_source = SL::PriceSource->new(record_item => $record_item, record => $self->order);
+
+  $self->js
+    ->run(
+      'kivi.io.price_chooser_dialog',
+      t8('Available Prices'),
+      $self->render('order/tabs/_price_sources_dialog', { output => 0 }, price_source => $price_source)
+    )
+    ->reinit_widgets;
+
+#   if (@errors) {
+#     $self->js->text('#dialog_flash_error_content', join ' ', @errors);
+#     $self->js->show('#dialog_flash_error');
+#   }
+
+  $self->js->render;
+}
+
 sub _make_order {
   my ($self) = @_;
 
@@ -490,7 +544,6 @@ sub _make_order {
 
   return $order;
 }
-
 
 sub _recalc {
   my ($self) = @_;
@@ -520,12 +573,10 @@ sub _get_unalterable_data {
     if ($item->id) {
       # load data from orderitems (db)
       my $db_item = SL::DB::OrderItem->new(id => $item->id)->load;
-      $item->$_($db_item->$_) for qw(active_discount_source active_price_source longdescription);
+      $item->$_($db_item->$_) for qw(longdescription);
     } else {
       # set data from part (or other sources)
       $item->longdescription($item->part->notes);
-      #$item->active_price_source('');
-      #$item->active_discount_source('');
     }
 
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
@@ -590,6 +641,13 @@ sub _pre_render {
   $self->{all_delivery_terms}  = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
+
+  foreach  my $item (@{$self->order->items}) {
+    my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
+    $item->active_price_source(   $price_source->price_from_source(   $item->active_price_source   ));
+    $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
+
+  }
 
   $::request->{layout}->use_javascript("${_}.js")  for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
 }
