@@ -510,7 +510,9 @@ sub spawn_xvfb {
 
   $main::lxdebug->message(LXDebug->DEBUG2(), "  xauthority $xauthority\n");
 
-  system("xauth add \"${display}\" . \"${mcookie}\"");
+  if (system("xauth add \"${display}\" . \"${mcookie}\"") == -1) {
+    die "system call to xauth failed: $!";
+  }
   if ($? != 0) {
     $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started (xauth: $!)";
     $main::lxdebug->leave_sub();
@@ -673,10 +675,12 @@ sub convert_to_pdf {
   }
 
   if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
-    system($::lx_office_conf{applications}->{openofficeorg_writer},
-           "-minimized", "-norestore", "-nologo", "-nolockcheck", "-headless",
-           "file:${filename}.odt",
-           "macro://" . (split('/', $filename))[-1] . "/Standard.Conversion.ConvertSelfToPDF()");
+    if (system($::lx_office_conf{applications}->{openofficeorg_writer},
+               "-minimized", "-norestore", "-nologo", "-nolockcheck", "-headless",
+               "file:${filename}.odt",
+               "macro://" . (split('/', $filename))[-1] . "/Standard.Conversion.ConvertSelfToPDF()") == -1) {
+      die "system call to $::lx_office_conf{applications}->{openofficeorg_writer} failed: $!";
+    }
   } else {
     if (!$self->spawn_openoffice()) {
       $main::lxdebug->leave_sub();

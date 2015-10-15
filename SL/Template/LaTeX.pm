@@ -482,8 +482,10 @@ sub convert_to_postscript {
   $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
-    system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
-           "> $form->{tmpfile}.err");
+    if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
+               "> $form->{tmpfile}.err") == -1) {
+      die "system call to $latex failed: $!";
+    }
     if ($?) {
       $ENV{HOME} = $old_home;
       $ENV{openin_any} = $old_openin_any;
@@ -494,12 +496,14 @@ sub convert_to_postscript {
 
   $form->{tmpfile} =~ s/tex$/dvi/;
 
-  system("dvips $form->{tmpfile} -o -q > /dev/null");
+  if (system("dvips $form->{tmpfile} -o -q > /dev/null") == -1) {
+    die "system call to dvips failed: $!";
+  }
   $ENV{HOME} = $old_home;
   $ENV{openin_any} = $old_openin_any;
 
   if ($?) {
-    $self->{"error"} = "dvips : $!";
+    $self->{"error"} = "dvips : $?";
     $self->cleanup('dvips');
     return 0;
   }
@@ -532,8 +536,11 @@ sub convert_to_pdf {
   $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
-    system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
-           "> $form->{tmpfile}.err");
+    if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
+               "> $form->{tmpfile}.err") == -1) {
+      die "system call to $latex failed: $!";
+    }
+
     if ($?) {
       $ENV{HOME}     = $old_home;
       $ENV{openin_any} = $old_openin_any;
