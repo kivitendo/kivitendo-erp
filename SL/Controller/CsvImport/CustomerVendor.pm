@@ -14,7 +14,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(table languages_by businesses_by) ],
+ 'scalar --get_set_init' => [ qw(table languages_by businesses_by salesmen_by) ],
 );
 
 sub set_profile_defaults {
@@ -50,6 +50,12 @@ sub init_languages_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_languages } } ) } qw(id description article_code) };
 }
 
+sub init_salesmen_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ SL::DB::Manager::Employee->get_all } } ) } qw(id name) };
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -74,6 +80,7 @@ sub check_objects {
     $self->check_delivery_term($entry);
     $self->check_taxzone($entry,  take_default => 1);
     $self->check_currency($entry, take_default => 1);
+    $self->check_salesman($entry);
     $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };
@@ -196,6 +203,35 @@ sub check_business {
   return 1;
 }
 
+sub check_salesman {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not salesman ID is valid.
+  if ($object->salesman_id && !$self->salesmen_by->{id}->{ $object->salesman_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid salesman');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->salesman_id && $entry->{raw_data}->{salesman}) {
+    my $salesman = $self->salesmen_by->{name}->{ $entry->{raw_data}->{salesman} };
+
+    if (!$salesman) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid salesman');
+      return 0;
+    }
+
+    $object->salesman_id($salesman->id);
+
+    # register salesman_id for method copying later
+    $self->clone_methods->{salesman_id} = 1;
+  }
+
+  return 1;
+}
+
 sub save_objects {
   my ($self, %params) = @_;
 
@@ -224,7 +260,8 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(business datevexport language payment delivery_term salesman salesman_id taxincluded terms)};
+  delete @{$profile}{qw(business datevexport language payment delivery_term taxincluded terms)};
+  delete @{$profile}{qw(salesman salesman_id)}    if $::instance_conf->get_vertreter;
 
   return $profile;
 }
@@ -280,6 +317,12 @@ sub setup_displayable_columns {
                                  { name => 'ustid',             description => $::locale->text('sales tax identification number') },
                                  { name => 'zipcode',           description => $::locale->text('Zipcode')                         },
                                 );
+
+  if (!$::instance_conf->get_vertreter) {
+    $self->add_displayable_columns({ name => 'salesman_id', description => $::locale->text('Salesman (database ID)') });
+    $self->add_displayable_columns({ name => 'salesman',    description => $::locale->text('Salesman') });
+  }
+
 }
 
 # TODO:
