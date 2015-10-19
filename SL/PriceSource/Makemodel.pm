@@ -30,7 +30,11 @@ sub price_from_source {
 
   my $makemodel = SL::DB::Manager::MakeModel->find_by(id => $spec);
 
-  # TODO: if someone deletes the prices entry, this fails. add a fallback
+  return SL::PriceSource::Price->new(
+    price_source => $self,
+    missing      => t8('This makemodel price does not exist anymore'),
+  ) if !$makemodel;
+
   return $self->make_price_from_makemodel($makemodel);
 
 }
@@ -56,6 +60,5 @@ sub make_price_from_makemodel {
     price_source => $self,
   );
 }
-
 
 1;
