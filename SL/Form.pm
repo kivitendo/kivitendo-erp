@@ -66,6 +66,7 @@ use SL::IC;
 use SL::IS;
 use SL::Layout::Dispatcher;
 use SL::Locale;
+use SL::Locale::String;
 use SL::Mailer;
 use SL::Menu;
 use SL::MoreCommon qw(uri_encode uri_decode);
@@ -2614,9 +2615,10 @@ sub mtime_ischanged {
   $ref->{mtime} ||= $ref->{itime};
 
   if ($self->{lastmtime} && $self->{lastmtime} ne $ref->{mtime} ) {
-      my $etxt = ($option eq 'mail') ? "The document has been changed by another user. Please reopen it in another window and copy the changes to the new window" :
-                                       "The document has been changed by another user. No mail was sent. Please reopen it in another window and copy the changes to the new window";
-      $self->error($main::locale->text($etxt));
+      $self->error(($option eq 'mail') ?
+        t8("The document has been changed by another user. No mail was sent. Please reopen it in another window and copy the changes to the new window") :
+        t8("The document has been changed by another user. Please reopen it in another window and copy the changes to the new window")
+      );
     ::end_of_request();
   }
 }
