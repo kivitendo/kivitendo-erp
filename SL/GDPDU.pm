@@ -1,7 +1,6 @@
 package SL::GDPDU;
 
 # TODO:
-# translations
 # optional: background jobable
 
 use strict;
@@ -64,8 +63,8 @@ my $date_format = 'DD.MM.YYYY';
 
 # callbacks that produce the xml spec for these column types
 my %column_types = (
-  'Rose::DB::Object::Metadata::Column::Integer'   => sub { $_[0]->tag('Numeric', sub { $_[0]->tag('Accuracy', 0) }) },
-  'Rose::DB::Object::Metadata::Column::BigInt'    => sub { $_[0]->tag('Numeric', sub { $_[0]->tag('Accuracy', 0) }) },
+  'Rose::DB::Object::Metadata::Column::Integer'   => sub { $_[0]->tag('Numeric') },  # see Caveats for integer issues
+  'Rose::DB::Object::Metadata::Column::BigInt'    => sub { $_[0]->tag('Numeric') },  # see Caveats for integer issues
   'Rose::DB::Object::Metadata::Column::Text'      => sub { $_[0]->tag('AlphaNumeric') },
   'Rose::DB::Object::Metadata::Column::Varchar'   => sub { $_[0]->tag('AlphaNumeric') },
   'Rose::DB::Object::Metadata::Column::Character' => sub { $_[0]->tag('AlphaNumeric') },
@@ -181,8 +180,7 @@ sub table {
     ->tag('DecimalSymbol', '.')
     ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
     ->tag('VariableLength', sub { $self
-      ->tag('ColumnDelimiter', ',')
-      ->tag('RecordDelimiter', '&#x0A;')
+      ->tag('ColumnDelimiter', ',')       # see CAVEATS for missing RecordDelimiter
       ->tag('TextEncapsulator', '"')
       ->columns($table)
       ->foreign_keys($table)
@@ -259,7 +257,7 @@ sub foreign_keys {
 sub do_csv_export {
   my ($self, $table) = @_;
 
-  my $csv = Text::CSV_XS->new({ binary => 1, eol => "\n", sep_char => ",", quote_char => '"' });
+  my $csv = Text::CSV_XS->new({ binary => 1, eol => "\r\n", sep_char => ",", quote_char => '"' });
 
   my ($fh, $filename) = File::Temp::tempfile();
   binmode($fh, ':utf8');
@@ -453,8 +451,9 @@ and C<DD> are supported, timestamps do not exist.
 
 =item *
 
-Number pasing seems to be fragile. Official docs state that behaviour for too
-low C<Accuracy> settings is undefined.
+Number parsing seems to be fragile. Official docs state that behaviour for too
+low C<Accuracy> settings is undefined. Accuracy of 0 is not taken to mean
+Integer but instead generates a warning for redudancy.
 
 There is no dedicated integer type.
 
@@ -491,6 +490,23 @@ response actually was:
   Pipe-Symbol |.
 
 L<http://www.gdpdu-portal.com/forum/index.php?mode=thread&id=1392>
+
+=item *
+
+It is not possible to define a C<RecordDelimiter> with XML entities. &#x0A;
+generates the error message:
+
+  C<RecordDelimiter>-Wert (&#x0A;) sollte immer aus ein oder zwei Zeichen
+  bestehen.
+
+Instead we just use the implicit default RecordDelimiter CRLF.
+
+=item *
+
+Not confirmed yet:
+
+Foreign keys seem only to work with previously defined tables (which would be
+utterly insane).
 
 =back
 
