@@ -154,7 +154,7 @@ sub do_xml_file {
     })
     ->tag('Media', sub { $self
       ->tag('Name', t8('DataSet #1', 1));
-      for (@{ $self->tables }) { $self
+      for (reverse $self->sorted_tables) { $self  # see CAVEATS for table order
         ->table($_)
       }
     })
