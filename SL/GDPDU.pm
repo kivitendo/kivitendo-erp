@@ -177,7 +177,7 @@ sub table {
       })
       ->tag('Format', $date_format)
     })
-    ->tag('UTF8'),
+    ->tag('UTF8')
     ->tag('DecimalSymbol', '.')
     ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
     ->tag('VariableLength', sub { $self
