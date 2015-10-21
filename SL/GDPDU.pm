@@ -323,6 +323,8 @@ sub do_csv_export {
       $self->export_ids->{$table}{$keep_col} ||= {};
       $self->export_ids->{$table}{$keep_col}{$row->[$col_index{$keep_col}]}++;
     }
+    s/\r\n/ /g for @$row; # see CAVEATS
+
     $csv->print($fh, $row) or $csv->error_diag;
   }
   $sth->finish();
@@ -508,6 +510,12 @@ Not confirmed yet:
 
 Foreign keys seem only to work with previously defined tables (which would be
 utterly insane).
+
+=item *
+
+The CSV import library used in IDEA is not able to parse newlines (or more
+exactly RecordDelimiter) in data. So this export substites all of these with
+spaces.
 
 =back
 
