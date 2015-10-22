@@ -873,17 +873,20 @@ sub reverse_invoice {
         #adjust allocated
         $form->update_balance($dbh, "invoice", "allocated", qq|id = $pthref->{id}|, $qty);
 
-        $form->update_balance($dbh, "acc_trans", "amount",
-                              qq|    (trans_id = $pthref->{trans_id})
-                                 AND (chart_id = $ref->{expense_accno_id})
-                                 AND (transdate = '$pthref->{transdate}')|,
-                              $amount);
+        if  ( $::instance_conf->get_inventory_system eq 'perpetual' ) {
 
-        $form->update_balance($dbh, "acc_trans", "amount",
-                              qq|    (trans_id = $pthref->{trans_id})
-                                 AND (chart_id = $ref->{inventory_accno_id})
-                                 AND (transdate = '$pthref->{transdate}')|,
-                              $amount * -1);
+          $form->update_balance($dbh, "acc_trans", "amount",
+                                qq|    (trans_id = $pthref->{trans_id})
+                                   AND (chart_id = $ref->{expense_accno_id})
+                                   AND (transdate = '$pthref->{transdate}')|,
+                                $amount);
+
+          $form->update_balance($dbh, "acc_trans", "amount",
+                                qq|    (trans_id = $pthref->{trans_id})
+                                   AND (chart_id = $ref->{inventory_accno_id})
+                                   AND (transdate = '$pthref->{transdate}')|,
+                                $amount * -1);
+        }
 
         last if (($ref->{allocated} -= $qty) <= 0);
       }
