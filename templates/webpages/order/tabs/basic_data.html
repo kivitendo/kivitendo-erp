@@ -152,7 +152,7 @@
             </thead>
 
             [%- FOREACH item = SELF.order.items_sorted %]
-              [%- PROCESS order/tabs/_row.html ITEM=item %]
+              [%- PROCESS order/tabs/_row.html ITEM=item ID=item.id %]
             [%- END %]
 
           </table>
