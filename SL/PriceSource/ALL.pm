@@ -10,19 +10,19 @@ use SL::PriceSource::Business;
 use SL::PriceSource::PriceRules;
 
 my %price_sources_by_name = (
-  master_data => 'SL::PriceSource::MasterData',
-  customer    => 'SL::PriceSource::Customer',
-  vendor      => 'SL::PriceSource::Vendor',
-  pricegroup  => 'SL::PriceSource::Pricegroup',
-  makemodel   => 'SL::PriceSource::Makemodel',
-  business    => 'SL::PriceSource::Business',
-  price_rules => 'SL::PriceSource::PriceRules',
+  master_data       => 'SL::PriceSource::MasterData',
+  customer_discount => 'SL::PriceSource::Customer',
+  vendor_discount   => 'SL::PriceSource::Vendor',
+  pricegroup        => 'SL::PriceSource::Pricegroup',
+  makemodel         => 'SL::PriceSource::Makemodel',
+  business          => 'SL::PriceSource::Business',
+  price_rules       => 'SL::PriceSource::PriceRules',
 );
 
 my @price_sources_order = qw(
   master_data
-  customer
-  vendor
+  customer_discount
+  vendor_discount
   pricegroup
   makemodel
   business
