@@ -31,6 +31,8 @@ sub price_from_source {
   : do { die "unknown spec '$spec'" };
 }
 
+sub discount_from_source { }
+
 sub best_price {
   $_[0]->record->is_sales
   ? $_[0]->make_sellprice

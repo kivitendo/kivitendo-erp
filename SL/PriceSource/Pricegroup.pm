@@ -44,6 +44,8 @@ sub price_from_source {
   return $self->make_price($price);
 }
 
+sub discount_from_source { }
+
 sub best_price {
   my ($self, %params) = @_;
 

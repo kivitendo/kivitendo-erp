@@ -345,7 +345,7 @@ sub display_row {
     if ($form->{"id_${i}"} && !$is_delivery_order) {
       my $price_source  = SL::PriceSource->new(record_item => $record_item, record => $record);
       my $price         = $price_source->price_from_source($::form->{"active_price_source_$i"});
-      my $discount      = $price_source->price_from_source($::form->{"active_discount_source_$i"});
+      my $discount      = $price_source->discount_from_source($::form->{"active_discount_source_$i"});
       my $best_price    = $price_source->best_price;
       my $best_discount = $price_source->best_discount;
       $column_data{price_source} .= $cgi->button(-value => $price->source_description, -onClick => "kivi.io.price_chooser($i)");

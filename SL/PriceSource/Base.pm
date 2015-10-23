@@ -21,6 +21,8 @@ sub best_discounts { die 'best_discounts needs to be implemented' }
 
 sub price_from_source { die 'price_from_source needs to be implemented:' . "@_" }
 
+sub discount_from_source { die 'discount_from_source needs to be implemented:' . "@_" }
+
 sub part {
   $_[0]->record_item->part;
 }

@@ -29,7 +29,9 @@ sub available_discounts {
   );
 }
 
-sub price_from_source {
+sub price_from_source { }
+
+sub discount_from_source {
   my ($self, $source, $spec) = @_;
 
   my $customer = SL::DB::Customer->load_cached($spec);

@@ -31,6 +31,17 @@ sub price_from_source {
     : empty_price();
 }
 
+sub discount_from_source {
+  my ($self, $source) = @_;
+  my ($source_name, $spec) = split m{/}, $source, 2;
+
+  my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
+
+  return $class
+    ? $class->new(record_item => $self->record_item, record => $self->record)->discount_from_source($source, $spec)
+    : empty_discount();
+}
+
 sub available_prices {
   map { $_->available_prices } $_[0]->all_price_sources;
 }
@@ -51,6 +62,12 @@ sub best_discount {
 sub empty_price {
   SL::PriceSource::Price->new(
     description => t8('None (PriceSource)'),
+  );
+}
+
+sub empty_discount {
+  SL::PriceSource::Discount->new(
+    description => t8('None (PriceSource Discount)'),
   );
 }
 
@@ -136,18 +153,35 @@ not have to be registered in C<record>.
 
 Attempts to retrieve a formerly calculated price with the same conditions
 
+=item C<discount_from_source>
+
+Attempts to retrieve a formerly calculated discount with the same conditions
+
 =item C<available_prices>
 
 Returns all available prices.
+
+=item C<available_discounts>
+
+Returns all available discounts.
 
 =item C<best_price>
 
 Attempts to get the best available price. returns L<empty_price> if no price is found.
 
+=item C<best_discount>
+
+Attempts to get the best available discount. returns L<empty_discount> if no discount is found.
+
 =item C<empty_price>
 
 A special empty price, that does not change the previously entered price, and
 opens the price field to manual changes.
+
+=item C<empty_discount>
+
+A special empty discount, that does not change the previously entered discount, and
+opens the discount field to manual changes.
 
 =back
 
@@ -155,6 +189,7 @@ opens the price field to manual changes.
 
 L<SL::PriceSource::Base>,
 L<SL::PriceSource::Price>,
+L<SL::PriceSource::Discount>,
 L<SL::PriceSource::ALL>
 
 =head1 BUGS AND CAVEATS

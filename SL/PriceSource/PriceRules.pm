@@ -45,11 +45,22 @@ sub price_from_source {
   my ($self, $source, $spec) = @_;
 
   my $rule = SL::DB::Manager::PriceRule->find_by(id => $spec);
-  if ($rule->price_type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT()) {
-    return $self->make_discount_from_rule($rule);
-  } else {
+  if ($rule->price_type != SL::DB::Manager::PriceRule::PRICE_DISCOUNT()) {
     return $self->make_price_from_rule($rule);
   }
+
+  return;
+}
+
+sub discount_from_source {
+  my ($self, $source, $spec) = @_;
+
+  my $rule = SL::DB::Manager::PriceRule->find_by(id => $spec);
+  if ($rule->price_type == SL::DB::Manager::PriceRule::PRICE_DISCOUNT()) {
+    return $self->make_discount_from_rule($rule);
+  }
+
+  return;
 }
 
 sub best_price {

@@ -39,6 +39,8 @@ sub price_from_source {
 
 }
 
+sub discount_from_source { }
+
 sub best_price {
   my ($self, %params) = @_;
 
