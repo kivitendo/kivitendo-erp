@@ -1134,6 +1134,7 @@ $self->{texts} = {
   'Error: Invalid price factor' => 'Fehler: Preisfaktor ungültig',
   'Error: Invalid price group'  => 'Fehler: Preisgruppe ungültig',
   'Error: Invalid project'      => 'Fehler: Projekt ungültig',
+  'Error: Invalid salesman'     => 'Fehler: Ungültiger Verkäufer',
   'Error: Invalid shipto'       => 'Fehler: Lieferadresse ungültig',
   'Error: Invalid tax zone'     => 'Fehler: Steuerzone ungültig',
   'Error: Invalid vendor in column make_#1' => 'Fehler: Lieferant ungültig in Spalte make_#1',

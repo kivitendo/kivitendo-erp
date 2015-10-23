@@ -915,6 +915,7 @@ $self->{texts} = {
   'Error: Invalid price factor' => '',
   'Error: Invalid price group'  => '',
   'Error: Invalid project'      => '',
+  'Error: Invalid salesman'     => '',
   'Error: Invalid shipto'       => '',
   'Error: Invalid tax zone'     => '',
   'Error: Invalid vendor in column make_#1' => '',
