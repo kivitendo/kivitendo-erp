@@ -265,7 +265,16 @@ C<NULL> in the database).
 
 Assigns the attributes from C<%attributes> by calling the
 C<assign_attributes> function and saves the object afterwards. Returns
-the object itself.
+the object itself or error if referential integrity is broken.
+Correct usage:
+
+ update_attributes(warehouse_id => wh_id, bin_id => bin_id);
+
+Wrong usage:
+
+ update_attributes(warehouse_id => wh_id);
+ update_attributes(bin_id       => bin_id);
+
 
 =item _get_manager_class
 
