@@ -850,9 +850,10 @@ Adds data to the report. A given hash_ref is interpreted as a single line of
 data, every array_ref as a collection of lines.  Every line will be expected to
 be in a key => value format. Note that the rows have to already have been
 sorted.
-The ReportGenerator is only able to sort pre-sorted data by column direction
-(ascending or descending), and provides links to sorting and a visual cue as to
-which column was sorted by.
+
+The ReportGenerator is only able to display pre-sorted data and to indicate by
+which column and in which direction the data has been sorted via visual clues
+in the column headers. It also provides links to invert the sort direction.
 
 =item add_separator
 
