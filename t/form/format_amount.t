@@ -51,6 +51,8 @@ is($::form->format_amount($config, 10, -2), '10,00' , 'autotrim does not harm in
 is($::form->format_amount($config, 10, 0), '10', 'autotrim does not harm integers 4');
 
 is($::form->format_amount($config, 0, 0), '0' , 'trivial zero');
+is($::form->format_amount($config, -0.002, 2), '0,00' , 'negative zero');
+is($::form->format_amount($config, -0.002, 3), '-0,002' , 'negative zero');
 
 # dash stuff
 

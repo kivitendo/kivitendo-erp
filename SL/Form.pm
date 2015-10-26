@@ -822,6 +822,7 @@ sub format_amount {
   my $force_places = defined $places && $places >= 0;
 
   $amount = $self->round_amount($amount, abs $places) if $force_places;
+  $neg    = 0 if $amount == 0; # don't show negative zero
   $amount = sprintf "%.*f", ($force_places ? $places : 10), abs $amount; # 6 is default for %fa
 
   # before the sprintf amount was a number, afterwards it's a string. because of the dynamic nature of perl
