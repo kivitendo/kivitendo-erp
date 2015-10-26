@@ -982,7 +982,9 @@ sub round_amount {
   # part. If an overflow occurs then apply that overflow to the part
   # before the decimal sign as well using integer arithmetic again.
 
-  my $amount_str = sprintf '%.*f', $places + 10, abs($amount);
+  my $int_amount = int(abs $amount);
+  my $str_places = max(min(10, 16 - length("$int_amount") - $places), $places);
+  my $amount_str = sprintf '%.*f', $places + $str_places, abs($amount);
 
   return $amount unless $amount_str =~ m{^(\d+)\.(\d+)$};
 
