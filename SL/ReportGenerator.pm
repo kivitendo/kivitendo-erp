@@ -819,7 +819,7 @@ Then there are too many results, you need pagination, you want to print or expor
 
 The ReportGenerator class was designed because this exact scenario happened about half a dozen times in kivitendo.
 It's purpose is to manage all those formating, culling, sorting, and templating.
-Which makes it almost as complicated to use as doing the work for yourself.
+Which makes it almost as complicated to use as doing the work by yourself.
 
 =head1 FUNCTIONS
 
@@ -839,16 +839,20 @@ Sets the order of columns. Any columns not present here are appended in alphabet
 
 =item set_sort_indicator $column,$direction
 
-Sets sorting ot the table by specifying a column and a direction, where the direction will be evaluated to ascending if true.
-Note that this is only for displaying. The data has to be presented already sorted.
+Sets sorting of the table by specifying a column and a direction, where the direction will be evaluated to ascending if true.
+Note that this is only for displaying. The data has to have already been sorted when it was added.
 
 =item add_data \@data
 
 =item add_data \%data
 
-Adds data to the report. A given hash_ref is interpreted as a single line of data, every array_ref as a collection of lines.
-Every line will be expected to be in a kay => value format. Note that the rows have to be already sorted.
-ReportGenerator does only colum sorting on its own, and provides links to sorting and visual cue as to which column was sorted by.
+Adds data to the report. A given hash_ref is interpreted as a single line of
+data, every array_ref as a collection of lines.  Every line will be expected to
+be in a key => value format. Note that the rows have to already have been
+sorted.
+The ReportGenerator is only able to sort pre-sorted data by column direction
+(ascending or descending), and provides links to sorting and a visual cue as to
+which column was sorted by.
 
 =item add_separator
 
@@ -857,12 +861,12 @@ Adds a separator line to the report.
 =item add_control \%data
 
 Adds a control element to the data. Control elements are an experimental feature to add functionality to a report the regular data cannot.
-Every control element needs to set IS_CONTROL_DATA, in order to be recongnized by the template.
+Every control element needs to set IS_CONTROL_DATA, in order to be recognized by the template.
 Currently the only control element is a colspan element, which can be used as a mini header further down the report.
 
 =item clear_data
 
-Deletes all data filled into the report, but keeps options set.
+Deletes all data added to the report, but keeps options set.
 
 =item set_options %options
 
@@ -896,7 +900,7 @@ Escapes HTML characters in $value and substitutes newlines with '<br>'. Returns 
 =item prepare_html_content $column,$name,@column_headers
 
 Parses the data, and sets internal data needed for certain output format. Must be called once before the template is invoked.
-Should not be called extrenally, since all render and generate functions invoke it anyway.
+Should not be called externally, since all render and generate functions invoke it anyway.
 
 =item generate_html_content
 
