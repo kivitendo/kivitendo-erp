@@ -37,6 +37,18 @@ große Features:
     nun wird alternativ zur 'type'-Spalte die 'pclass'-Spalte mit zwei Buchstaben geparsed und entsprechend
     classification_id,assembly sowie inventory_accno_id gesetzt (oder type_id falls neue Implementierung eingebaut).
 
+- Option "Preis separat ausweisen" als neue Artikel-Klassifizierung
+    
+    - neuer boolcher Wert in parts_classification "report_separate"
+    - editierbar unter Artikelklassifikation
+    - In Aufträgen und Rechnungen werden die Zwischensummen LaTeX zur Verfügung gestellt.
+    -  <%partsclass_XXX_subtotal%>  wobei XXX die Abkürzung der Klassifikation ist.
+    -  <%merchandise_value_subtotal%> der Rest der Positionen.
+    
+    Hintergrund:
+       Preise von Artikeln wie "Verpackung" oder "Transport" müssen
+       oftmals separat ausgewiesen werden, genau so wie der reine Warenwert.
+
 kleinere neue Features und Detailverbesserungen:
 
   - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen

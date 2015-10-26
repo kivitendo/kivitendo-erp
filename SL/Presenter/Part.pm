@@ -6,7 +6,7 @@ use SL::DB::Part;
 use SL::DB::Manager::PartsClassification;
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation type_and_classification);
+our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation separate_abbreviation);
 
 use Carp;
 
@@ -78,6 +78,11 @@ sub classification_abbreviation {
   my ($self, $id) = @_;
   $main::lxdebug->message(LXDebug->DEBUG2(),"classif=".$id);
   return $::locale->text(SL::DB::Manager::PartsClassification->get_abbreviation($id));
+}
+
+sub separate_abbreviation {
+  my ($self, $id) = @_;
+  return $::locale->text(SL::DB::Manager::PartsClassification->get_separate_abbreviation($id));
 }
 
 sub select_classification {

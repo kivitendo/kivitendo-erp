@@ -2356,6 +2356,7 @@ $self->{texts} = {
   'Report and misc. Preferences' => 'Sonstige Einstellungen',
   'Report date'                 => 'Berichtsdatum',
   'Report for'                  => 'Bericht für',
+  'Report seperately'           => 'Preis separat ausweisen',
   'Reports'                     => 'Berichte',
   'Representative'              => 'Vertreter',
   'Representative for Customer' => 'Vertreter für Kunden',

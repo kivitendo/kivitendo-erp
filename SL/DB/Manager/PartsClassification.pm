@@ -19,4 +19,10 @@ sub get_abbreviation {
   return $obj->abbreviation?$obj->abbreviation:undef;
 }
 
+sub get_separate_abbreviation {
+  my ($class,$id) = @_;
+  my $obj = $class->get_first(query => [ id => $id ]);
+  return $obj->report_separate?$obj->abbreviation:'';
+}
+
 1;
