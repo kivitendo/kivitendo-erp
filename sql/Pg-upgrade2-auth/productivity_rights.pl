@@ -1,6 +1,6 @@
 # @tag: productivity_rights
 # @description: Setzt das Recht die Produktivität einzusehen und das Recht den Link zum Admin-Menü anzuzeigen wieder wie vorher
-# @depends: release_3_0_0
+# @depends: release_3_2_0 add_master_rights
 package SL::DBUpgrade2::productivity_rights;
 
 use strict;

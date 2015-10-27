@@ -1,6 +1,6 @@
 # @tag: rights_for_showing_ar_and_ap_transactions
 # @description: Setzt das Recht zur Anzeige von Debitoren- und Kreditorenbuchungen im Rechnungsbericht
-# @depends: release_3_0_0
+# @depends: release_3_2_0 add_master_rights
 package SL::DBUpgrade2::rights_for_showing_ar_and_ap_transactions;
 
 use strict;

@@ -1,6 +1,6 @@
 # @tag: sales_letter_rights
-# @description: Setzt das neue Recht den Lieferplan anzuzeigen
-# @depends: release_3_2_0
+# @description: Setzt das neue Recht die Brieffunktion anzuzeigen
+# @depends: release_3_2_0 add_master_rights
 package SL::DBUpgrade2::sales_letter_rights;
 
 use strict;
