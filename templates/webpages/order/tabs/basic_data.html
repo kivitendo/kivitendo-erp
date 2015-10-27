@@ -56,6 +56,11 @@
             <td>[% L.input_tag('order.transaction_description', SELF.order.transaction_description, style='width: 300px') %]</td>
           </tr>
 
+          <tr>
+            <th align="right">[% 'Project Number' | $T8 %]</th>
+            <td>[% L.project_picker('order.globalproject_id', SELF.order.globalproject_id, style='width: 300px') %]</td>
+          </tr>
+
         </table>
       </td>
 
@@ -114,11 +119,6 @@
           <tr>
             <th width="70%" align="right" nowrap>[% 'Insert Date' | $T8 %]</th>
             <td>[% SELF.order.itime_as_date %]</td>
-          </tr>
-
-          <tr>
-            <th width="70%" align="right" nowrap>[% 'Project Number' | $T8 %]</th>
-            <td>[%- L.select_tag('order.globalproject_id', SELF.all_projects, default=SELF.order.globalproject_id, title_key='projectnumber', with_empty = 1) %]</td>
           </tr>
 
         </table>
