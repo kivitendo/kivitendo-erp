@@ -20,21 +20,6 @@
     <td>[% 'To Date' | $T8 %]</td>
     <td>[% L.date_tag('to', SELF.to) %]</td>
   </tr>
-  <tr>
-    <td>[% 'Include in Report' | $T8 %]</td>
-    <td>
-      [% L.checkbox_tag('tables.ar', label=LxERP.t8('Invoices'), checked=1) %]
-      [% L.checkbox_tag('tables.ap', label=LxERP.t8('Purchase Invoices'), checked=1) %]
-      [% L.checkbox_tag('tables.gl', label=LxERP.t8('GL Transactions'), checked=1) %]
-      [% L.checkbox_tag('tables.delivery_orders', label=LxERP.t8('Delivery Orders'), checked=1) %]
-      [% L.checkbox_tag('tables.oe', label=LxERP.t8('Quotations and orders'), checked=1) %]
-      [% L.checkbox_tag('tables.customer', label=LxERP.t8('Customers'), checked=1) %]
-      [% L.checkbox_tag('tables.vendor', label=LxERP.t8('Vendors'), checked=1) %]
-      [% L.checkbox_tag('tables.parts', label=LxERP.t8('Parts'), checked=1) %]
-      [% L.checkbox_tag('tables.acc_trans', label=LxERP.t8('Transactions'), checked=1) %]
-      [% L.checkbox_tag('tables.chart', label=LxERP.t8('Charts'), checked=1) %]
-    </td>
-  </tr>
 </table>
 
 [% L.hidden_tag('action', 'Gdpdu/dispatch') %]

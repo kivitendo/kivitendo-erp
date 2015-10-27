@@ -32,12 +32,17 @@ use strict;
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
 use SL::DB;
+use SL::HTML::Util ();
 
 use Data::Dumper;
 use DateTime;
 use Exporter qw(import);
 use File::Path;
-use List::Util qw(max sum);
+use IO::File;
+use List::MoreUtils qw(any);
+use List::Util qw(min max sum);
+use List::UtilsBy qw(partition_by sort_by);
+use Text::CSV_XS;
 use Time::HiRes qw(gettimeofday);
 
 {
@@ -45,13 +50,14 @@ use Time::HiRes qw(gettimeofday);
   use constant {
     DATEV_ET_BUCHUNGEN => $i++,
     DATEV_ET_STAMM     => $i++,
+    DATEV_ET_CSV       => $i++,
 
     DATEV_FORMAT_KNE   => $i++,
     DATEV_FORMAT_OBE   => $i++,
   };
 }
 
-my @export_constants = qw(DATEV_ET_BUCHUNGEN DATEV_ET_STAMM DATEV_FORMAT_KNE DATEV_FORMAT_OBE);
+my @export_constants = qw(DATEV_ET_BUCHUNGEN DATEV_ET_STAMM DATEV_ET_CSV DATEV_FORMAT_KNE DATEV_FORMAT_OBE);
 our @EXPORT_OK = (@export_constants);
 our %EXPORT_TAGS = (CONSTANTS => [ @export_constants ]);
 
@@ -324,6 +330,8 @@ sub kne_export {
     $result = $self->kne_buchungsexport;
   } elsif ($self->exporttype == DATEV_ET_STAMM) {
     $result = $self->kne_stammdatenexport;
+  } elsif ($self->exporttype == DATEV_ET_CSV) {
+    $result = $self->csv_export_for_tax_accountant;
   } else {
     die 'unrecognized exporttype';
   }
@@ -349,9 +357,10 @@ sub _sign {
 
 sub _get_transactions {
   $main::lxdebug->enter_sub();
-  my $self     = shift;
-  my $fromto   = shift;
-  my $progress_callback = shift || sub {};
+
+  my ($self, %params)   = @_;
+  my $fromto            = $params{from_to};
+  my $progress_callback = $params{progress_callback} || sub {};
 
   my $form     =  $main::form;
 
@@ -374,18 +383,21 @@ sub _get_transactions {
   my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
   my $query    =
-    qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
+    qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
          ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate,
-         ct.name, ct.ustid,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
+         ct.name, ct.ustid, ct.customernumber AS vcnumber, ct.id AS customer_id, NULL AS vendor_id,
+         c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
          t.rate AS taxrate,
          'ar' as table
+         tc.accno AS tax_accno, tc.description AS tax_accname,
+         ar.notes
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
        LEFT JOIN chart c     ON (ac.chart_id    = c.id)
        LEFT JOIN tax t       ON (ac.tax_id      = t.id)
+       LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -393,18 +405,21 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
+       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
          ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate,
-         ct.name,ct.ustid,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
+         ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
+         c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
          t.rate AS taxrate,
          'ap' as table
+         tc.accno AS tax_accno, tc.description AS tax_accname,
+         ap.notes
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
        LEFT JOIN chart c   ON (ac.chart_id  = c.id)
        LEFT JOIN tax t     ON (ac.tax_id    = t.id)
+       LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -412,17 +427,20 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
+       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey, ac.memo,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz, NULL as deliverydate,
-         gl.description AS name, NULL as ustid,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
+         gl.description AS name, NULL as ustid, '' AS vcname, NULL AS customer_id, NULL AS vendor_id,
+         c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
          t.rate AS taxrate,
          'gl' as table
+         tc.accno AS tax_accno, tc.description AS tax_accname,
+         gl.notes
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
        LEFT JOIN tax t   ON (ac.tax_id    = t.id)
+       LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -812,7 +830,7 @@ sub kne_buchungsexport {
 
   my $fromto = $self->fromto;
 
-  $self->_get_transactions($fromto);
+  $self->_get_transactions(from_to => $fromto);
 
   return if $self->errors;
 
@@ -1080,6 +1098,128 @@ sub kne_stammdatenexport {
   $main::lxdebug->leave_sub();
 
   return { 'download_token' => $self->download_token, 'filenames' => \@filenames };
+}
+
+sub _format_accno {
+  my ($accno) = @_;
+  return $accno . ('0' x (6 - min(length($accno), 6)));
+}
+
+sub csv_export_for_tax_accountant {
+  my ($self) = @_;
+
+  $self->_get_transactions(from_to => $self->fromto);
+
+  foreach my $transaction (@{ $self->{DATEV} }) {
+    foreach my $entry (@{ $transaction }) {
+      $entry->{sortkey} = join '-', map { lc } (DateTime->from_kivitendo($entry->{transdate})->strftime('%Y%m%d'), $entry->{name}, $entry->{reference});
+    }
+  }
+
+  my %transactions =
+    partition_by { $_->[0]->{table} }
+    sort_by      { $_->[0]->{sortkey} }
+    grep         { 2 == scalar(@{ $_ }) }
+    @{ $self->{DATEV} };
+
+  my %column_defs = (
+    acc_trans_id      => { 'text' => $::locale->text('ID'), },
+    amount            => { 'text' => $::locale->text('Amount'), },
+    credit_accname    => { 'text' => $::locale->text('Credit Account Name'), },
+    credit_accno      => { 'text' => $::locale->text('Credit Account'), },
+    debit_accname     => { 'text' => $::locale->text('Debit Account Name'), },
+    debit_accno       => { 'text' => $::locale->text('Debit Account'), },
+    invnumber         => { 'text' => $::locale->text('Reference'), },
+    name              => { 'text' => $::locale->text('Name'), },
+    notes             => { 'text' => $::locale->text('Notes'), },
+    tax               => { 'text' => $::locale->text('Tax'), },
+    taxkey            => { 'text' => $::locale->text('Taxkey'), },
+    tax_accname       => { 'text' => $::locale->text('Tax Account Name'), },
+    tax_accno         => { 'text' => $::locale->text('Tax Account'), },
+    transdate         => { 'text' => $::locale->text('Invoice Date'), },
+    vcnumber          => { 'text' => $::locale->text('Customer/Vendor Number'), },
+  );
+
+  my @columns = qw(
+    acc_trans_id name           vcnumber
+    transdate    invnumber      amount
+    debit_accno  debit_accname
+    credit_accno credit_accname
+    tax
+    tax_accno    tax_accname    taxkey
+    notes
+  );
+
+  my %filenames_by_type = (
+    ar => $::locale->text('AR Transactions'),
+    ap => $::locale->text('AP Transactions'),
+    gl => $::locale->text('GL Transactions'),
+  );
+
+  my @filenames;
+  foreach my $type (qw(ap ar)) {
+    my %csvs = (
+      invoices   => {
+        content  => '',
+        filename => sprintf('%s %s - %s.csv', $filenames_by_type{$type}, $self->from->to_kivitendo, $self->to->to_kivitendo),
+        csv      => Text::CSV_XS->new({
+          binary   => 1,
+          eol      => "\n",
+          sep_char => ";",
+        }),
+      },
+      payments   => {
+        content  => '',
+        filename => sprintf('Zahlungen %s %s - %s.csv', $filenames_by_type{$type}, $self->from->to_kivitendo, $self->to->to_kivitendo),
+        csv      => Text::CSV_XS->new({
+          binary   => 1,
+          eol      => "\n",
+          sep_char => ";",
+        }),
+      },
+    );
+
+    foreach my $csv (values %csvs) {
+      $csv->{out} = IO::File->new($self->export_path . '/' . $csv->{filename}, '>:encoding(utf8)') ;
+      $csv->{csv}->print($csv->{out}, [ map { $column_defs{$_}->{text} } @columns ]);
+
+      push @filenames, $csv->{filename};
+    }
+
+    foreach my $transaction (@{ $transactions{$type} }) {
+      my $is_payment     = any { $_->{link} =~ m{A[PR]_paid} } @{ $transaction };
+      my $csv            = $is_payment ? $csvs{payments} : $csvs{invoices};
+
+      my ($soll, $haben) = map { $transaction->[$_] } ($transaction->[0]->{amount} > 0 ? (1, 0) : (0, 1));
+      my $tax            = defined($soll->{tax_accno})  ? $soll : $haben;
+      my $amount         = defined($soll->{net_amount}) ? $soll : $haben;
+      $haben->{notes}    = ($haben->{memo} || $soll->{memo}) if $is_payment;
+      $haben->{notes}  //= '';
+      $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
+      $haben->{notes}    =~ s{\r}{}g;
+      $haben->{notes}    =~ s{\n+}{ }g;
+
+      my %row            = (
+        amount           => $::form->format_amount({ numberformat => '1000,00' }, abs($amount->{amount}), 2),
+        debit_accno      => _format_accno($soll->{accno}),
+        debit_accname    => $soll->{accname},
+        credit_accno     => _format_accno($haben->{accno}),
+        credit_accname   => $haben->{accname},
+        tax              => $::form->format_amount({ numberformat => '1000,00' }, abs($amount->{amount}) - abs($amount->{net_amount}), 2),
+        notes            => $haben->{notes},
+        (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
+        (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
+      );
+
+      $csv->{csv}->print($csv->{out}, [ map { $row{$_} } @columns ]);
+    }
+
+    $_->{out}->close for values %csvs;
+  }
+
+  $self->add_filenames(@filenames);
+
+  return { download_token => $self->download_token, filenames => \@filenames };
 }
 
 sub DESTROY {

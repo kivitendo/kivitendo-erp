@@ -12,7 +12,7 @@ use SL::Locale::String qw(t8);
 use SL::Helper::Flash;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(from to tables) ],
+  'scalar --get_set_init' => [ qw(from to) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -39,8 +39,7 @@ sub action_export {
     location   => $::instance_conf->get_address,
     from       => $self->from,
     to         => $self->to,
-    tables     => $self->tables,
-    all_tables => !@{ $self->tables } && $::form->{all_tables},
+    all_tables => $::form->{all_tables},
   );
 
   my $filename = $gdpdu->generate_export;
@@ -56,19 +55,6 @@ sub check_inputs {
   my ($self) = @_;
 
   my $error = 0;
-
-  if ($::form->{tables}) {
-    $self->tables([ keys %{ $::form->{tables} } ]);
-    # theese three get inferred
-    push @{ $self->tables }, 'invoice'              if $::form->{tables}{ar} || $::form->{tables}{ap};
-    push @{ $self->tables }, 'orderitems'           if $::form->{tables}{oe};
-    push @{ $self->tables }, 'delivery_order_items' if $::form->{tables}{delivery_orders};
-  }
-
-  if (!@{ $self->tables } && !$::form->{all_tables}) {
-    flash('error', t8('No, I really do need checked tables to export.'));
-    $error = 1;
-  }
 
   if (!$::form->{from}) {
     my $epoch = DateTime->new(day => 1, month => 1, year => 1900);
@@ -86,6 +72,5 @@ sub check_inputs {
 
 sub init_from { DateTime->from_kivitendo($::form->{from}) }
 sub init_to { DateTime->from_kivitendo($::form->{to}) }
-sub init_tables { [ ] }
 
 1;

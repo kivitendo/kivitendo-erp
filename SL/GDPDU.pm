@@ -13,15 +13,16 @@ use XML::Writer;
 use Archive::Zip;
 use File::Temp ();
 use File::Spec ();
-use List::UtilsBy qw(partition_by);
+use List::MoreUtils qw(any);
+use List::UtilsBy qw(partition_by sort_by);
 
 use SL::DB::Helper::ALL; # since we work on meta data, we need everything
 use SL::DB::Helper::Mappings;
 use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(from to tables writer company location) ],
-  'scalar --get_set_init' => [ qw(files tempfiles export_ids) ],
+  scalar                  => [ qw(from to writer company location) ],
+  'scalar --get_set_init' => [ qw(files tempfiles export_ids tables) ],
 );
 
 # in this we find:
@@ -32,19 +33,41 @@ use Rose::Object::MakeMethods::Generic (
 # keep:        arrayref of columns that should be saved for further referencing
 # tables:      arrayref with one column and one or many table.column references that were kept earlier
 my %known_tables = (
-  ar                    => { name => t8('Invoice'),                 description => t8('Sales Invoices and Accounts Receivables'),   keep => [ qw(id customer_id vendor_id) ], transdate => 'transdate', },
-  ap                    => { name => t8('Purchase Invoice'),        description => t8('Purchase Invoices and Accounts Payables'),   keep => [ qw(id customer_id vendor_id) ], transdate => 'transdate', },
-  oe                    => { name => t8('Orders'),                  description => t8('Orders and Quotations, Sales and Purchase'), keep => [ qw(id customer_id vendor_id) ], transdate => 'transdate', },
-  delivery_orders       => { name => t8('Delivery Orders'),         description => t8('Delivery Orders'),                           keep => [ qw(id customer_id vendor_id) ], transdate => 'transdate', },
-  gl                    => { name => t8('General Ledger'),          description => t8('General Ledger Entries'),                    keep => [ qw(id) ],                       transdate => 'transdate', },
-  invoice               => { name => t8('Invoice Positions'),       description => t8('Positions for all Invoices'),                keep => [ qw(parts_id) ], tables => [ trans_id => "ar.id", "ap.id" ] },
-  orderitems            => { name => t8('OrderItems'),              description => t8('Positions for all Orders'),                  keep => [ qw(parts_id) ], tables => [ trans_id => "oe.id" ] },
-  delivery_order_items  => { name => t8('Delivery Order Items'),    description => t8('Positions for all Delivery Orders'),                      keep => [ qw(parts_id) ], tables => [ delivery_order_id => "delivery_orders.id" ] },
-  acc_trans             => { name => t8('Transactions'),            description => t8('All general ledger entries'),                keep => [ qw(chart_id) ], tables => [ trans_id => "ar.id", "ap.id", "oe.id", "delivery_orders.id", "gl.id" ] },
-  chart                 => { name => t8('Charts'),                  description => t8('Chart of Accounts'),                                                   tables => [ id => "acc_trans.chart_id" ] },
-  customer              => { name => t8('Customers'),               description => t8('Customer Master Data'),                                                tables => [ id => "ar.customer_id", "ap.customer_id", "oe.customer_id", "delivery_orders.customer_id" ] },
-  vendor                => { name => t8('Vendors'),                 description => t8('Vendor Master Data'),                                                  tables => [ id => "ar.vendor_id",   "ap.vendor_id",   "oe.vendor_id",   "delivery_orders.vendor_id" ] },
-  parts                 => { name => t8('Parts'),                   description => t8('Parts, Services, and Assemblies'),                                     tables => [ id => "invoice.parts_id", "orderitems.parts_id", "delivery_order_items.parts_id" ] },
+  chart                 => { name => t8('Charts'),                  description => t8('Chart of Accounts'),       primary_key => 'accno'     },
+  customer              => { name => t8('Customers'),               description => t8('Customer Master Data'),                                    },
+  vendor                => { name => t8('Vendors'),                 description => t8('Vendor Master Data'),                                               },
+);
+
+my %datev_column_defs = (
+  acc_trans_id      => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), primary_key => 1 },
+  amount            => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Amount'), },
+  credit_accname    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account Name'), },
+  credit_accno      => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account'), },
+  debit_accname     => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Debit Account Name'), },
+  debit_accno       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Debit Account'), },
+  invnumber         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Reference'), },
+  name              => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Name'), },
+  notes             => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Notes'), },
+  tax               => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax'), },
+  taxkey            => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Taxkey'), },
+  tax_accname       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account Name'), },
+  tax_accno         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account'), },
+  transdate         => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Invoice Date'), },
+  vcnumber          => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Customer/Vendor Number'), },
+  customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer ID'), },
+  vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor ID'), },
+);
+
+my @datev_columns = qw(
+  acc_trans_id
+  customer_id vendor_id
+  name           vcnumber
+  transdate    invnumber      amount
+  debit_accno  debit_accname
+  credit_accno credit_accname
+  tax
+  tax_accno    tax_accname    taxkey
+  notes
 );
 
 # rows in this listing are tiers.
@@ -108,6 +131,8 @@ sub generate_export {
     $self->do_csv_export($_);
   }
 
+  $self->do_datev_csv_export;
+
   # write xml file
   $self->do_xml_file;
 
@@ -157,6 +182,7 @@ sub do_xml_file {
       for (reverse $self->sorted_tables) { $self  # see CAVEATS for table order
         ->table($_)
       }
+      $self->do_datev_xml_table;
     })
   });
   close($fh);
@@ -194,7 +220,11 @@ sub _table_columns {
   my $package = SL::DB::Helper::Mappings::get_package_for_table($table);
 
   # PrimaryKeys must come before regular columns, so partition first
-  partition_by { 1 * $_->is_primary_key_member } $package->meta->columns;
+  partition_by {
+    $known_tables{$table}{primary_key}
+      ? 1 * ($_ eq $known_tables{$table}{primary_key})
+      : 1 * $_->is_primary_key_member
+  } $package->meta->columns;
 }
 
 sub columns {
@@ -253,6 +283,140 @@ sub foreign_keys {
       $_[0]->tag('References', $rel->class->meta->table);
    });
   }
+}
+
+sub do_datev_xml_table {
+  my ($self) = @_;
+  my $writer = $self->writer;
+
+  $self->tag('Table', sub { $self
+    ->tag('URL', "transaction.csv")
+    ->tag('Name', t8('Transactions'))
+    ->tag('Description', t8('Transactions'))
+    ->tag('Validity', sub { $self
+      ->tag('Range', sub { $self
+        ->tag('From', $self->from->to_kivitendo(dateformat => 'dd.mm.yyyy'))
+        ->tag('To',   $self->to->to_kivitendo(dateformat => 'dd.mm.yyyy'))
+      })
+      ->tag('Format', $date_format)
+    })
+    ->tag('UTF8')
+    ->tag('DecimalSymbol', '.')
+    ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
+    ->tag('VariableLength', sub { $self
+      ->tag('ColumnDelimiter', ',')       # see CAVEATS for missing RecordDelimiter
+      ->tag('TextEncapsulator', '"')
+      ->datev_columns
+      ->datev_foreign_keys
+    })
+  });
+}
+
+sub datev_columns {
+  my ($self, $table) = @_;
+
+  my %cols_by_primary_key = partition_by { $datev_column_defs{$_}{primary_key} } @datev_columns;
+  $::lxdebug->dump(0,  "cols", \%cols_by_primary_key);
+
+  for my $column (@{ $cols_by_primary_key{1} }) {
+    my $type = $column_types{ $datev_column_defs{$column}{type} };
+
+    die "unknown col type @{[ $column ]}" unless $type;
+
+    $self->tag('VariablePrimaryKey', sub { $self
+      ->tag('Name', $column);
+      $type->($self);
+    })
+  }
+
+  for my $column (@{ $cols_by_primary_key{''} }) {
+    my $type = $column_types{ $datev_column_defs{$column}{type} };
+
+    die "unknown col type @{[ ref $column]}" unless $type;
+
+    $self->tag('VariableColumn', sub { $self
+      ->tag('Name', $column);
+      $type->($self);
+    })
+  }
+
+  $self;
+}
+
+sub datev_foreign_keys {
+  my ($self) = @_;
+  # hard code weeee
+  $self->tag('ForeignKey', sub { $_[0]
+    ->tag('Name', 'customer_id')
+    ->tag('References', 'customer')
+  });
+  $self->tag('ForeignKey', sub { $_[0]
+    ->tag('Name', 'vendor_id')
+    ->tag('References', 'vendor')
+  });
+  $self->tag('ForeignKey', sub { $_[0]
+    ->tag('Name', $_)
+    ->tag('References', 'chart')
+  }) for qw(debit_accno credit_accno tax_accno);
+}
+
+sub do_datev_csv_export {
+  my ($self) = @_;
+
+  my $datev = SL::DATEV->new(from => $self->from, to => $self->to);
+
+  $datev->_get_transactions(from_to => $datev->fromto);
+
+  for my $transaction (@{ $datev->{DATEV} }) {
+    for my $entry (@{ $transaction }) {
+      $entry->{sortkey} = join '-', map { lc } (DateTime->from_kivitendo($entry->{transdate})->strftime('%Y%m%d'), $entry->{name}, $entry->{reference});
+    }
+  }
+
+  my @transactions = sort_by { $_->[0]->{sortkey} } @{ $datev->{DATEV} };
+
+  my $csv = Text::CSV_XS->new({
+    binary   => 1,
+    eol      => "\n",
+    sep_char => ";",
+  });
+
+  my ($fh, $filename) = File::Temp::tempfile();
+  binmode($fh, ':utf8');
+
+  $self->files->{"transactions.csv"} = $filename;
+  push @{ $self->tempfiles }, $filename;
+
+  for my $transaction (@transactions) {
+    my $is_payment     = any { $_->{link} =~ m{A[PR]_paid} } @{ $transaction };
+
+    my ($soll, $haben) = map { $transaction->[$_] } ($transaction->[0]->{amount} > 0 ? (1, 0) : (0, 1));
+    my $tax            = defined($soll->{tax_accno})  ? $soll : $haben;
+    my $amount         = defined($soll->{net_amount}) ? $soll : $haben;
+    $haben->{notes}    = ($haben->{memo} || $soll->{memo}) if $haben->{memo} || $soll->{memo};
+    $haben->{notes}  //= '';
+    $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
+    $haben->{notes}    =~ s{\r}{}g;
+    $haben->{notes}    =~ s{\n+}{ }g;
+
+    my %row            = (
+      customer_id      => $soll->{customer_id} || $haben->{customer_id},
+      vendor_id        => $soll->{vendor_id} || $haben->{vendor_id},
+      amount           => abs($amount->{amount}),
+      debit_accno      => $soll->{accno},
+      debit_accname    => $soll->{accname},
+      credit_accno     => $haben->{accno},
+      credit_accname   => $haben->{accname},
+      tax              => abs($amount->{amount}) - abs($amount->{net_amount}),
+      notes            => $haben->{notes},
+      (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
+      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
+    );
+
+    $csv->print($fh, [ map { $row{$_} } @datev_columns ]);
+  }
+
+  # and build xml spec for it
 }
 
 sub do_csv_export {
@@ -382,6 +546,7 @@ sub all_tables {
 sub init_files { +{} }
 sub init_export_ids { +{} }
 sub init_tempfiles { [] }
+sub init_tables { [ grep { $known_tables{$_} } @export_table_order ] }
 
 sub API_VERSION {
   DateTime->new(year => 2002, month => 8, day => 14)->to_kivitendo;
