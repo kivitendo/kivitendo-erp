@@ -375,11 +375,7 @@ sub do_datev_csv_export {
 
   my @transactions = sort_by { $_->[0]->{sortkey} } @{ $datev->{DATEV} };
 
-  my $csv = Text::CSV_XS->new({
-    binary   => 1,
-    eol      => "\n",
-    sep_char => ";",
-  });
+  my $csv = Text::CSV_XS->new({ binary => 1, eol => "\r\n", sep_char => ",", quote_char => '"' });
 
   my ($fh, $filename) = File::Temp::tempfile();
   binmode($fh, ':utf8');
