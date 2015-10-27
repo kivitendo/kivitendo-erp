@@ -62,7 +62,6 @@ sub prepare_report {
   my ($self)      = @_;
 
   my $vc          = $self->vc;
-  my $mode        = 'delivery_value_report';
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   my $csv_option  = $::form->{report_generator_output_format};
   $self->{report} = $report;
