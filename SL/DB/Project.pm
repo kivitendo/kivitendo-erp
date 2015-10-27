@@ -48,6 +48,12 @@ sub is_projectnumber_unique {
   return !SL::DB::Manager::Project->get_first(where => \@filter);
 }
 
+sub displayable_name {
+  my ($self) = @_;
+
+  return join ' ', grep $_, $self->projectnumber, $self->description;
+}
+
 sub full_description {
   my ($self, %params) = @_;
 
@@ -112,6 +118,11 @@ database table. Returns a boolean value.
 Returns trueish if the project number is not used for any other
 project in the database. Also returns trueish if no project number has
 been set yet.
+
+=item C<displayable_name>
+
+Returns a human-readable description of the project, consisting of projectnumber
+and description.
 
 =item C<full_description %params>
 
