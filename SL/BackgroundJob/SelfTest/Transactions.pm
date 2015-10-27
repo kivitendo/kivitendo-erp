@@ -15,13 +15,14 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 17);
+  $self->tester->plan(tests => 18);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
   $self->check_balanced_individual_transactions;
   $self->check_verwaiste_acc_trans_eintraege;
   $self->check_verwaiste_invoice_eintraege;
+  $self->check_ar_acc_trans_amount;
   $self->check_netamount_laut_invoice_ar;
   $self->check_invnumbers_unique;
   $self->check_summe_stornobuchungen;
@@ -426,6 +427,28 @@ sub check_every_account_with_taxkey {
   } else {
     $self->tester->ok(1, "Jedes Konto hat einen gültigen Steuerschlüssel!");
   }
+}
+
+sub check_ar_acc_trans_amount {
+  my ($self) = @_;
+
+  my $query = qq|
+          select ar.invnumber, ar.netamount, ac.amount
+           from ar left join acc_trans ac on (ac.trans_id = ar.id) where ac.chart_link like 'AR_amount%' AND ac.amount <> ar.netamount|;
+
+  my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query);
+
+  if ( scalar @{ $ar_amount_not_ac_amount } > 0 ) {
+    $self->tester->ok(0, "Folgende Ausgangsrechnungen haben einen falschen Netto-Wert im Nebenbuch:");
+
+    for my $ar_ac_amount_nok (@{ $ar_amount_not_ac_amount } ) {
+      $self->tester->diag("Rechnungsnummer: $ar_ac_amount_nok->{invnumber} Hauptbuch-Wert: $ar_ac_amount_nok->{amount}
+                            Nebenbuch-Wert: $ar_ac_amount_nok->{netamount}");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch-Nettowert und Nebenbuch-Nettowert stimmen überein.");
+  }
+
 }
 
 1;
