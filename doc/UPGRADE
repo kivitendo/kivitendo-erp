@@ -4,6 +4,16 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v?????
+==================
+
+* Der in der Dokumentation beschriebene Mechanismus für die CGI-Anbindung
+  (2.6.1 Grundkonfiguration mittels CGI) wurde geändert. Ein einfacher Alias
+  auf das Programmverzeichnis funktioniert nicht mehr, und es muss immer ein
+  AliasMatch auf einen dispatcher eingerichtet werden. Die Dokumentation wurde
+  aktualisiert. Für Benutzer der empfohlenen FastCGI Anbindung ändert sich
+  nichts.
+
 Upgrade auf v3.3.0
 ==================
 

@@ -560,10 +560,11 @@ exit</programlisting>
         anderen Datei hinzu, die beim Starten des Webservers eingelesen
         wird:</para>
 
-        <programlisting>AddHandler cgi-script .pl
+        <programlisting>AliasMatch ^/kivitendo-erp/[^/]+\.pl /var/www/kivitendo-erp/dispatcher.pl
 Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 
 &lt;Directory /var/www/kivitendo-erp&gt;
+ AddHandler cgi-script .pl
  Options ExecCGI Includes FollowSymlinks
 &lt;/Directory&gt;
 
