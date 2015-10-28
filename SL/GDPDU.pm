@@ -33,9 +33,9 @@ use Rose::Object::MakeMethods::Generic (
 # keep:        arrayref of columns that should be saved for further referencing
 # tables:      arrayref with one column and one or many table.column references that were kept earlier
 my %known_tables = (
-  chart                 => { name => t8('Charts'),                  description => t8('Chart of Accounts'),       primary_key => 'accno'     },
-  customer              => { name => t8('Customers'),               description => t8('Customer Master Data'),                                    },
-  vendor                => { name => t8('Vendors'),                 description => t8('Vendor Master Data'),                                               },
+  chart    => { name => t8('Charts'),    description => t8('Chart of Accounts'),    primary_key => 'accno', columns => [ qw(id accno description) ],     },
+  customer => { name => t8('Customers'), description => t8('Customer Master Data'), columns => [ qw(id name department_1 department_2 street zipcode city country contact phone fax email notes customernumber taxnumber obsolete ustid) ] },
+  vendor   => { name => t8('Vendors'),   description => t8('Vendor Master Data'),   columns => [ qw(id name department_1 department_2 street zipcode city country contact phone fax email notes customernumber taxnumber obsolete ustid) ] },
 );
 
 my %datev_column_defs = (
@@ -219,11 +219,20 @@ sub _table_columns {
   my ($table) = @_;
   my $package = SL::DB::Helper::Mappings::get_package_for_table($table);
 
+  my %white_list;
+  my $use_white_list = 0;
+  if ($known_tables{$table}{columns}) {
+    $use_white_list = 1;
+    $white_list{$_} = 1 for @{ $known_tables{$table}{columns} || [] };
+  }
+
   # PrimaryKeys must come before regular columns, so partition first
   partition_by {
     $known_tables{$table}{primary_key}
       ? 1 * ($_ eq $known_tables{$table}{primary_key})
       : 1 * $_->is_primary_key_member
+  } grep {
+    $use_white_list ? $white_list{$_->name} : 1
   } $package->meta->columns;
 }
 
