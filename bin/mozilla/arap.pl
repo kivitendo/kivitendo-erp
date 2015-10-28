@@ -77,6 +77,8 @@ sub check_name {
       $form->{"${name}_id"} = $new_id;
 
       _reset_salesman_id();
+      delete @{ $form }{qw(payment_id)};
+
       IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
       IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
 
@@ -119,6 +121,8 @@ sub check_name {
         $form->{"old$name"}   = qq|$form->{$name}--$form->{"${name}_id"}|;
 
         _reset_salesman_id();
+        delete @{ $form }{qw(payment_id)};
+
         IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
         IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
 
