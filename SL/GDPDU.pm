@@ -412,7 +412,7 @@ sub do_datev_csv_export {
       debit_accname    => $soll->{accname},
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
-      tax              => abs($amount->{amount}) - abs($amount->{net_amount}),
+      tax              => defined $amount->{net_amount} ? abs($amount->{amount}) - abs($amount->{net_amount}) : 0,
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
