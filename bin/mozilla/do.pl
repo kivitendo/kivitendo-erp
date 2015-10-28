@@ -30,6 +30,7 @@
 # Delivery orders
 #======================================================================
 
+use Carp;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use POSIX qw(strftime);
