@@ -57,6 +57,7 @@ my %datev_column_defs = (
   vcnumber          => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Customer/Vendor Number'), },
   customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer (database ID)'), },
   vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor (database ID)'), },
+  itime             => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Create Date'), },
 );
 
 my @datev_columns = qw(
@@ -68,7 +69,7 @@ my @datev_columns = qw(
   credit_accno credit_accname
   taxdescription tax
   tax_accno    tax_accname    taxkey
-  notes
+  notes itime
 );
 
 # rows in this listing are tiers.
@@ -416,6 +417,7 @@ sub do_datev_csv_export {
       tax              => defined $amount->{net_amount} ? abs($amount->{amount}) - abs($amount->{net_amount}) : 0,
       taxdescription   => defined($soll->{tax_accno}) ? $soll->{taxdescription} : $haben->{taxdescription},
       notes            => $haben->{notes},
+      itime            => $soll->{itime},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
     );
