@@ -49,13 +49,14 @@ my %datev_column_defs = (
   name              => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Name'), },
   notes             => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Notes'), },
   tax               => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax'), },
+  taxdescription    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('tax_taxdescription'), },
   taxkey            => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Taxkey'), },
   tax_accname       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account Name'), },
   tax_accno         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account'), },
   transdate         => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Invoice Date'), },
   vcnumber          => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Customer/Vendor Number'), },
-  customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer ID'), },
-  vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor ID'), },
+  customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer (database ID)'), },
+  vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor (database ID)'), },
 );
 
 my @datev_columns = qw(
@@ -65,7 +66,7 @@ my @datev_columns = qw(
   transdate    invnumber      amount
   debit_accno  debit_accname
   credit_accno credit_accname
-  tax
+  taxdescription tax
   tax_accno    tax_accname    taxkey
   notes
 );
@@ -324,7 +325,7 @@ sub do_datev_xml_table {
 sub datev_columns {
   my ($self, $table) = @_;
 
-  my %cols_by_primary_key = partition_by { $datev_column_defs{$_}{primary_key} } @datev_columns;
+  my %cols_by_primary_key = partition_by { 1 * $datev_column_defs{$_}{primary_key} } @datev_columns;
   $::lxdebug->dump(0,  "cols", \%cols_by_primary_key);
 
   for my $column (@{ $cols_by_primary_key{1} }) {
@@ -338,7 +339,7 @@ sub datev_columns {
     })
   }
 
-  for my $column (@{ $cols_by_primary_key{''} }) {
+  for my $column (@{ $cols_by_primary_key{0} }) {
     my $type = $column_types{ $datev_column_defs{$column}{type} };
 
     die "unknown col type @{[ ref $column]}" unless $type;
@@ -413,6 +414,7 @@ sub do_datev_csv_export {
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
       tax              => defined $amount->{net_amount} ? abs($amount->{amount}) - abs($amount->{net_amount}) : 0,
+      taxdescription   => defined($soll->{tax_accno}) ? $soll->{taxdescription} : $haben->{taxdescription},
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
