@@ -85,6 +85,9 @@ my @export_table_order = qw(
 
 # needed because the standard dbh sets datestyle german and we don't want to mess with that
 my $date_format = 'DD.MM.YYYY';
+my $number_format = '1000.00';
+
+my $myconfig = { numberformat => $number_format };
 
 # callbacks that produce the xml spec for these column types
 my %column_types = (
@@ -407,19 +410,15 @@ sub do_datev_csv_export {
     $haben->{notes}    =~ s{\n+}{ }g;
 
     my %row            = (
-      customer_id      => $soll->{customer_id} || $haben->{customer_id},
-      vendor_id        => $soll->{vendor_id} || $haben->{vendor_id},
-      amount           => abs($amount->{amount}),
+      amount           => $::form->format_amount($myconfig, abs($amount->{amount}),5),
       debit_accno      => $soll->{accno},
       debit_accname    => $soll->{accname},
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
-      tax              => defined $amount->{net_amount} ? abs($amount->{amount}) - abs($amount->{net_amount}) : 0,
-      taxdescription   => defined($soll->{tax_accno}) ? $soll->{taxdescription} : $haben->{taxdescription},
+      tax              => defined $amount->{net_amount} ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5) : 0,
       notes            => $haben->{notes},
-      itime            => $soll->{itime},
-      (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno)),
-      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate)),
+      (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno taxdescription)),
+      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
     );
 
     $csv->print($fh, [ map { $row{$_} } @datev_columns ]);
