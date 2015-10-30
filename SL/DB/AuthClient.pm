@@ -171,7 +171,7 @@ L<SL::DBConnect/get_options> so the UTF-8 flag will be set properly.
 
 =item C<validate>
 
-Returns an array of human-readable error message if the object must
+Returns an array of human-readable error messages if the object must
 not be saved and an empty list if nothing's wrong.
 
 =item C<webdav_symlink_basename>

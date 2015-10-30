@@ -55,9 +55,9 @@ like L<SL::DB::ActsAsList>. The module does not export any function by
 default, but all of the public ones can be requested in the usual
 way.
 
-Each function can be called either as fully qualified name with the
+Each function can be called either as a fully qualified name with the
 object instance as the first argument or (if the function is imported)
-as an intance method on the object instance.
+as an instance method on the object instance.
 
 =head1 FUNCTIONS
 
