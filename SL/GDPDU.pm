@@ -39,7 +39,7 @@ my %known_tables = (
 );
 
 my %datev_column_defs = (
-  acc_trans_id      => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), primary_key => 1 },
+  acc_trans_id      => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), },
   amount            => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Amount'), },
   credit_accname    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account Name'), },
   credit_accno      => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account'), },
