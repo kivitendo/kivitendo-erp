@@ -330,7 +330,6 @@ sub datev_columns {
   my ($self, $table) = @_;
 
   my %cols_by_primary_key = partition_by { 1 * $datev_column_defs{$_}{primary_key} } @datev_columns;
-  $::lxdebug->dump(0,  "cols", \%cols_by_primary_key);
 
   for my $column (@{ $cols_by_primary_key{1} }) {
     my $type = $column_types{ $datev_column_defs{$column}{type} };
