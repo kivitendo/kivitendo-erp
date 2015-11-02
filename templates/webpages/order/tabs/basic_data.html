@@ -143,6 +143,8 @@
 
   [%- PROCESS order/tabs/_item_input.html %]
 
+  [% L.button_tag('show_multi_items_dialog()', LxERP.t8('Add multiple parts')) %]</td>
+
   <table width="100%">
     <tr>
       <td>
@@ -279,6 +281,28 @@ function add_item() {
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
+
+function show_multi_items_dialog() {
+  if (!check_cv()) return;
+
+  kivi.popup_dialog({
+    url: 'controller.pl?action=Order/show_multi_items_dialog',
+    data: { type: $('#type').val(),
+            callback: 'Order/add_multi_items',
+            callback_data_id: 'order_form' },
+    id: 'jq_multi_items_dialog',
+    dialog: {
+      title: kivi.t8('Add multiple items'),
+      width:  800,
+      height: 500
+    }
+  });
+  return true;
+}
+
+function close_multi_items_dialog() {
+  $('#jq_multi_items_dialog').dialog('close');
+};
 
 function delete_order_item_row(clicked) {
   var row = $(clicked).parents("tbody").first();

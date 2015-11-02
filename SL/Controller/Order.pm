@@ -20,9 +20,12 @@ use SL::DB::Project;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Price;
+use SL::DB::Part;
 
 use SL::Helper::DateTime;
 use SL::Helper::CreatePDF qw(:all);
+
+use SL::Controller::Helper::GetModels;
 
 use List::Util qw(max first);
 use List::MoreUtils qw(none pairwise first_index);
@@ -31,7 +34,7 @@ use File::Spec;
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(order valid_types type cv p) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models) ],
 );
 
 
@@ -333,51 +336,7 @@ sub action_add_item {
 
   return unless $form_attr->{parts_id};
 
-  my $item = SL::DB::OrderItem->new;
-  $item->assign_attributes(%$form_attr);
-
-  my $part         = SL::DB::Part->new(id => $form_attr->{parts_id})->load;
-
-  my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
-
-  my $price_src;
-  if ($item->sellprice) {
-    $price_src = $price_source->price_from_source("");
-    $price_src->price($item->sellprice);
-  } else {
-    $price_src = $price_source->best_price
-           ? $price_source->best_price
-           : $price_source->price_from_source("");
-    $price_src->price(0) if !$price_source->best_price;
-  }
-
-  my $discount_src;
-  if ($item->discount) {
-    $discount_src = $price_source->discount_from_source("");
-    $discount_src->discount($item->discount);
-  } else {
-    $discount_src = $price_source->best_discount
-                  ? $price_source->best_discount
-                  : $price_source->discount_from_source("");
-    $discount_src->discount(0) if !$price_source->best_discount;
-  }
-
-  my %new_attr;
-  $new_attr{part}                   = $part;
-  $new_attr{description}            = $part->description if ! $item->description;
-  $new_attr{qty}                    = 1.0                if ! $item->qty;
-  $new_attr{sellprice}              = $price_src->price;
-  $new_attr{discount}               = $discount_src->discount;
-  $new_attr{active_price_source}    = $price_src;
-  $new_attr{active_discount_source} = $discount_src;
-
-  # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
-  # they cannot be retrieved via custom_variables until the order/orderitem is
-  # saved. Adding empty custom_variables to new orderitem here solves this problem.
-  $new_attr{custom_variables} = [];
-
-  $item->assign_attributes(%new_attr);
-
+  my $item = _make_item($self->order, $form_attr);
   $self->order->add_items($item);
 
   $self->_recalc();
@@ -390,6 +349,63 @@ sub action_add_item {
     ->val('.add_item_input', '')
     ->run('row_table_scroll_down')
     ->run('row_set_keyboard_events_by_id', $item_id)
+    ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
+    ->on('.reformat_number', 'change', 'reformat_number')
+    ->focus('#add_item_parts_id_name');
+
+  $self->_js_redisplay_amounts_and_taxes;
+  $self->js->render();
+}
+
+sub action_show_multi_items_dialog {
+  require SL::DB::PartsGroup;
+  $_[0]->render('order/tabs/_multi_items_dialog', { layout => 0 },
+                all_partsgroups => SL::DB::Manager::PartsGroup->get_all);
+}
+
+sub action_multi_items_update_result {
+  my $max_count = 100;
+  my $count = $_[0]->multi_items_models->count;
+
+  if ($count == 0) {
+    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('No results.'));
+    $_[0]->render($text, { layout => 0 });
+  } elsif ($count > $max_count) {
+    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('Too many results (#1 from #2).', $count, $max_count));
+    $_[0]->render($text, { layout => 0 });
+  } else {
+    my $multi_items = $_[0]->multi_items_models->get;
+    $_[0]->render('order/tabs/_multi_items_result', { layout => 0 },
+                  multi_items => $multi_items);
+  }
+}
+
+sub action_add_multi_items {
+  my ($self) = @_;
+
+  my @form_attr = grep { $_->{qty_as_number} } @{ $::form->{add_multi_items} };
+  return $self->js->render() unless scalar @form_attr;
+
+  my @items;
+  foreach my $attr (@form_attr) {
+    push @items, _make_item($self->order, $attr);
+  }
+  $self->order->add_items(@items);
+
+  $self->_recalc();
+
+  foreach my $item (@items) {
+    my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+    my $row_as_html = $self->p->render('order/tabs/_row', ITEM => $item, ID => $item_id);
+
+    $self->js
+        ->append('#row_table_id', $row_as_html)
+        ->run('row_set_keyboard_events_by_id', $item_id);
+  }
+
+  $self->js
+    ->run('close_multi_items_dialog')
+    ->run('row_table_scroll_down')
     ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
     ->on('.reformat_number', 'change', 'reformat_number')
     ->focus('#add_item_parts_id_name');
@@ -483,6 +499,23 @@ sub init_order {
   _make_order();
 }
 
+sub init_multi_items_models {
+  SL::Controller::Helper::GetModels->new(
+    controller     => $_[0],
+    model          => 'Part',
+    with_objects   => [ qw(unit_obj) ],
+    disable_plugin => 'paginated',
+    source         => $::form->{multi_items},
+    sorted         => {
+      _default    => {
+        by  => 'partnumber',
+        dir => 1,
+      },
+      partnumber  => t8('Partnumber'),
+      description => t8('Description')}
+  );
+}
+
 sub _check_auth {
   my ($self) = @_;
 
@@ -563,6 +596,58 @@ sub _make_order {
   $order->assign_attributes(%{$::form->{order}});
 
   return $order;
+}
+
+sub _make_item {
+  my ($record, $attr) = @_;
+
+  my $item = SL::DB::OrderItem->new;
+  $item->assign_attributes(%$attr);
+
+  my $part         = SL::DB::Part->new(id => $attr->{parts_id})->load;
+  my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
+
+  $item->unit($part->unit) if !$item->unit;
+
+  my $price_src;
+  if ($item->sellprice) {
+    $price_src = $price_source->price_from_source("");
+    $price_src->price($item->sellprice);
+  } else {
+    $price_src = $price_source->best_price
+           ? $price_source->best_price
+           : $price_source->price_from_source("");
+    $price_src->price(0) if !$price_source->best_price;
+  }
+
+  my $discount_src;
+  if ($item->discount) {
+    $discount_src = $price_source->discount_from_source("");
+    $discount_src->discount($item->discount);
+  } else {
+    $discount_src = $price_source->best_discount
+                  ? $price_source->best_discount
+                  : $price_source->discount_from_source("");
+    $discount_src->discount(0) if !$price_source->best_discount;
+  }
+
+  my %new_attr;
+  $new_attr{part}                   = $part;
+  $new_attr{description}            = $part->description if ! $item->description;
+  $new_attr{qty}                    = 1.0                if ! $item->qty;
+  $new_attr{sellprice}              = $price_src->price;
+  $new_attr{discount}               = $discount_src->discount;
+  $new_attr{active_price_source}    = $price_src;
+  $new_attr{active_discount_source} = $discount_src;
+
+  # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
+  # they cannot be retrieved via custom_variables until the order/orderitem is
+  # saved. Adding empty custom_variables to new orderitem here solves this problem.
+  $new_attr{custom_variables} = [];
+
+  $item->assign_attributes(%new_attr);
+
+  return $item;
 }
 
 sub _recalc {

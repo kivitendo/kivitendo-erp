@@ -2,6 +2,7 @@ namespace("kivi").setupLocale({
 "A transaction description is required.":"Die Vorgangsbezeichnung muss eingegeben werden.",
 "Add function block":"Funktionsblock hinzufügen",
 "Add linked record":"Verknüpften Beleg hinzufügen",
+"Add multiple items":"Mehrere Artikel hinzufügen",
 "Add picture":"Bild hinzufügen",
 "Add picture to text block":"Bild dem Textblock hinzufügen",
 "Add section":"Abschnitt hinzufügen",
