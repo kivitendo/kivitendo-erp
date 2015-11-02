@@ -22,11 +22,7 @@ sub run {
   # kivitendo's behaviour isn't changed by this update
   # if checks are not set in config set it to true
   foreach my $check (qw(check_on_sales_invoice check_on_purchase_invoice check_on_ar_transaction check_on_ap_transaction check_on_gl_transaction)) {
-    my $check_set = 1;
-    if ($::lx_office_conf{datev_check}->{$check} == 0 && defined ($::lx_office_conf{datev_check}->{$check})) {
-      $check_set = 0;
-    }
-
+    my $check_set     = defined($::lx_office_conf{datev_check}->{$check}) && ($::lx_office_conf{datev_check}->{$check} == 0) ? 0 : 1;
     my $update_column = "UPDATE defaults SET datev_$check = '$check_set';";
     $self->db_query($update_column);
   }

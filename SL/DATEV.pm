@@ -263,7 +263,7 @@ sub _fill {
   my $fill_char = shift;
   my $alignment = shift || 'right';
 
-  my $text_len  = length $text;
+  my $text_len  = length($text // '');
 
   if ($field_len < $text_len) {
     $text = substr $text, 0, $field_len;

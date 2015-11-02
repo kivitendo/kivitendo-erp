@@ -222,11 +222,11 @@ sub selectall_as_map {
   my %hash;
   if ('' eq ref $value_col) {
     while (my $ref = $sth->fetchrow_hashref()) {
-      $hash{$ref->{$key_col}} = $ref->{$value_col};
+      $hash{$ref->{$key_col} // ''} = $ref->{$value_col};
     }
   } else {
     while (my $ref = $sth->fetchrow_hashref()) {
-      $hash{$ref->{$key_col}} = { map { $_ => $ref->{$_} } @{ $value_col } };
+      $hash{$ref->{$key_col} // ''} = { map { $_ => $ref->{$_} } @{ $value_col } };
     }
   }
 

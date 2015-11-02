@@ -1120,7 +1120,7 @@ sub _parse_rights_string {
       push @{$cur_ary}, $token;
 
     } else {
-      push @{$cur_ary}, $self->{RIGHTS}->{$login}->{$token} * 1;
+      push @{$cur_ary}, ($self->{RIGHTS}->{$login}->{$token} // 0) * 1;
     }
   }
 

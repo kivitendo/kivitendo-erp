@@ -103,7 +103,7 @@ sub build_tree {
   my %by_parent;
   # order them by parent
   for my $node ($self->nodes) {
-    push @{ $by_parent{ $node->{parent} } //= [] }, $node;
+    push @{ $by_parent{ $node->{parent} // '' } //= [] }, $node;
   }
 
   my $tree = { };
