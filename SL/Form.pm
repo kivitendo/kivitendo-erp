@@ -839,7 +839,7 @@ sub format_amount {
   if ($places || $p[1]) {
     $amount .= $d[0]
             .  ( $p[1] || '' )
-            .  (0 x (abs($places || 0) - length ($p[1]||'')));           # pad the fraction
+            .  (0 x max(abs($places || 0) - length ($p[1]||''), 0));     # pad the fraction
   }
 
   $amount = do {
