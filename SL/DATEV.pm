@@ -958,7 +958,7 @@ sub kne_buchungsexport {
   print(EV $ev_header);
 
   foreach my $file (@ed_versionset) {
-    print(EV $ed_versionset[$file]);
+    print(EV $file);
   }
   close(EV);
   ###
