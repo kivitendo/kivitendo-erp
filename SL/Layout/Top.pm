@@ -8,7 +8,7 @@ sub pre_content {
 
   $self->presenter->render('menu/header',
     now        => DateTime->now_local,
-    is_fastcgi => $::dispatcher ? scalar($::dispatcher->interface_type =~ /fastcgi/i) : (),
+    is_fastcgi => $::dispatcher ? scalar($::dispatcher->interface_type =~ /fastcgi/i) : 0,
     is_links   => scalar($ENV{HTTP_USER_AGENT}         =~ /links/i),
   );
 }
