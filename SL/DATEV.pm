@@ -258,12 +258,12 @@ sub clean_temporary_directories {
 sub _fill {
   $main::lxdebug->enter_sub();
 
-  my $text      = shift;
+  my $text      = shift // '';
   my $field_len = shift;
   my $fill_char = shift;
   my $alignment = shift || 'right';
 
-  my $text_len  = length($text // '');
+  my $text_len  = length $text;
 
   if ($field_len < $text_len) {
     $text = substr $text, 0, $field_len;
@@ -674,7 +674,7 @@ sub make_kne_data_header {
   $header    .= _fill($stamm->{dfvkz}, 2, '0');
   $header    .= _fill($stamm->{beraternr}, 7, '0');
   $header    .= _fill($stamm->{mandantennr}, 5, '0');
-  $header    .= _fill($stamm->{abrechnungsnr} . $jahr, 6, '0');
+  $header    .= _fill(($stamm->{abrechnungsnr} // '') . $jahr, 6, '0');
 
   $header .= $self->from ? $self->from->strftime('%d%m%y') : '';
   $header .= $self->to   ? $self->to->strftime('%d%m%y')   : '';
@@ -899,10 +899,10 @@ sub kne_buchungsexport {
         if ($transaction->[$haben]->{'name'} ne "") {
           $buchungstext = "\x1E" . $transaction->[$haben]->{'name'} . "\x1C";
         }
-        if ($transaction->[$haben]->{'ustid'} ne "") {
+        if (($transaction->[$haben]->{'ustid'} // '') ne "") {
           $ustid = "\xBA" . $transaction->[$haben]->{'ustid'} . "\x1C";
         }
-        if ($transaction->[$haben]->{'duedate'} ne "") {
+        if (($transaction->[$haben]->{'duedate'} // '') ne "") {
           $belegfeld2 = "\xBE" . &datetofour($transaction->[$haben]->{'duedate'}, 1) . "\x1C";
         }
       }
