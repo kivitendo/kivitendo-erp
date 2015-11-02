@@ -71,7 +71,6 @@ sub format_amount {
   my $self   = shift;
   my $amount = shift;
   my $width  = shift;
-  our $stellen;
 
   $amount =~ s/-//;
   my ($places, $decimal_places) = split m/\./, "$amount";
@@ -81,7 +80,7 @@ sub format_amount {
 
   if (0 < $width) {
     $width  -= 2;
-    $places  = sprintf("\%0${stellen}d", $places);
+    $places  = sprintf("\%0${width}d", $places);
   }
 
   $decimal_places .= '0' if (2 > length $decimal_places);
