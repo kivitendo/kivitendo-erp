@@ -304,7 +304,7 @@ sub do_datev_xml_table {
   my $writer = $self->writer;
 
   $self->tag('Table', sub { $self
-    ->tag('URL', "transaction.csv")
+    ->tag('URL', "transactions.csv")
     ->tag('Name', t8('Transactions'))
     ->tag('Description', t8('Transactions'))
     ->tag('Validity', sub { $self
