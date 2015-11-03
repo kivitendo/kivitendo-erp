@@ -3007,7 +3007,6 @@ $self->{texts} = {
   'To Date'                     => 'Bis',
   'To continue please change the taxkey 0 to another value.' => 'Um fortzufahren, ändern Sie bitte den Steuerschlüssel 0 auf einen anderen Wert.',
   'To user login'               => 'Zum Benutzerlogin',
-  'Toggle details'              => 'Details anzeigen/verbergen',
   'Toggle marker'               => 'Markierung umschalten',
   'Top'                         => 'Oben',
   'Top (CSS)'                   => 'Oben (mit CSS)',
