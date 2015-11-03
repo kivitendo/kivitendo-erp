@@ -43,7 +43,7 @@ sub action_show {
 
   $self->entry(SL::DB::EmailJournal->new(id => $::form->{id})->load);
 
-  if (!$self->can_view_all && ($self->entry->sender_id != SL::DB::Manager::Emplyee->current->id)) {
+  if (!$self->can_view_all && ($self->entry->sender_id != SL::DB::Manager::Employee->current->id)) {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
@@ -57,7 +57,7 @@ sub action_download_attachment {
 
   my $attachment = SL::DB::EmailJournalAttachment->new(id => $::form->{id})->load;
 
-  if (!$self->can_view_all && ($attachment->email_journal->sender_id != SL::DB::Manager::Emplyee->current->id)) {
+  if (!$self->can_view_all && ($attachment->email_journal->sender_id != SL::DB::Manager::Employee->current->id)) {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
