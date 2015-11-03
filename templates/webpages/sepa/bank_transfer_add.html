@@ -52,7 +52,7 @@
      <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
 
 
-     <tr class="listrow[% loop.count % 2 %]">
+     <tr class="listrow[% IF !invoice.vc_bank_info_ok && invoice.checked %]_error[% END %]">
       <td align="center">
        [%- IF invoice.vc_bank_info_ok %]
         <input type="checkbox" name="bank_transfers[].selected" value="1"[% IF invoice.checked %] checked[% END %]>
@@ -64,7 +64,11 @@
          [%- GET HTML.escape(invoice.vcname);
              SET previous_vcname = invoice.vcname;
              IF !invoice.vc_bank_info_ok;
-               GET ' <sup>(1)</sup>';
+               IF invoice.checked;
+                 GET ' <sup>(2)</sup>';
+               ELSE;
+                 GET ' <sup>(1)</sup>';
+               END;
                SET show_vc_bank_info_footnote = '1';
              END; -%]
         </a>
@@ -106,6 +110,19 @@
     [%- ELSE %]
      [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
      [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
+    [%- END %]
+   </p>
+
+   <p>
+    <sup>(2)</sup>
+    [%- IF is_vendor %]
+     [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN and the BIC." | $T8 %]
+     [% LxERP.t8("Additionally the invoice is not marked for direct debit and would have been checked automatically had the bank information been entered.") %]
+    [%- ELSE %]
+     [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+     [% "The required information consists of the IBAN, the BIC, the mandator ID and the mandate's date of signature." | $T8 %]
+     [% LxERP.t8("Additionally the invoice is marked for direct debit and would have been checked automatically had the bank information been entered.") %]
     [%- END %]
    </p>
   [%- END %]
