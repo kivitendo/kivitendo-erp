@@ -420,6 +420,8 @@ sub do_datev_csv_export {
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
     );
 
+    $row{$_} =~ s/\r?\n/ /g for @datev_columns; # see CAVEATS
+
     $csv->print($fh, [ map { $row{$_} } @datev_columns ]);
   }
 
