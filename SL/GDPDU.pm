@@ -405,8 +405,6 @@ sub do_datev_csv_export {
     $haben->{notes}    = ($haben->{memo} || $soll->{memo}) if $haben->{memo} || $soll->{memo};
     $haben->{notes}  //= '';
     $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
-    $haben->{notes}    =~ s{\r}{}g;
-    $haben->{notes}    =~ s{\n+}{ }g;
 
     my %row            = (
       amount           => $::form->format_amount($myconfig, abs($amount->{amount}),5),
@@ -420,7 +418,7 @@ sub do_datev_csv_export {
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
     );
 
-    $row{$_} =~ s/\r?\n/ /g for @datev_columns; # see CAVEATS
+    _normalize_cell($_) for values %row; # see CAVEATS
 
     $csv->print($fh, [ map { $row{$_} } @datev_columns ]);
   }
@@ -496,7 +494,7 @@ sub do_csv_export {
       $self->export_ids->{$table}{$keep_col} ||= {};
       $self->export_ids->{$table}{$keep_col}{$row->[$col_index{$keep_col}]}++;
     }
-    s/\r\n/ /g for @$row; # see CAVEATS
+    _normalize_cell($_) for @$row; # see CAVEATS
 
     $csv->print($fh, $row) or $csv->error_diag;
   }
@@ -550,6 +548,11 @@ sub all_tables {
   my ($self, $yesno) = @_;
 
   $self->tables(\@export_table_order) if $yesno;
+}
+
+sub _normalize_cell {
+  $_[0] =~ s/\r\n/ /g;
+  $_[0] =~ s/,/;/g;
 }
 
 sub init_files { +{} }
@@ -690,6 +693,17 @@ utterly insane).
 The CSV import library used in IDEA is not able to parse newlines (or more
 exactly RecordDelimiter) in data. So this export substites all of these with
 spaces.
+
+=item *
+
+Neither it is able to parse escaped C<ColumnDelimiter> in data. It just splits
+on that symbol no matter what surrounds or preceeds it.
+
+=item *
+
+Fun fact: Some auditors do not have a full license of the IDEA software, and
+can't do table joins. So it's best to provide denormalized data for them, so
+that the auditor may infer which object is meant.
 
 =back
 
