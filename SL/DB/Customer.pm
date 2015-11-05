@@ -41,6 +41,15 @@ sub _before_save_set_customernumber {
   return 1;
 }
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The customer name is missing.') if !$self->name;
+
+  return @errors;
+}
+
 sub short_address {
   my ($self) = @_;
 

@@ -113,6 +113,18 @@ sub action_show {
 sub _save {
   my ($self) = @_;
 
+  my @errors = $self->{cv}->validate;
+  if (@errors) {
+    flash('error', @errors);
+    $self->_pre_render();
+    $self->render(
+      'customer_vendor/form',
+      title => ($self->is_vendor() ? t8('Edit Vendor') : t8('Edit Customer')),
+      %{$self->{template_args}}
+    );
+    ::end_of_request();
+  }
+
   my $db = $self->{cv}->db;
 
   $db->do_transaction(sub {
@@ -193,34 +205,23 @@ sub _save {
 sub action_save {
   my ($self) = @_;
 
-  if (!$self->{cv}->name) {
-    flash('error', t8('Customer missing!'));
-    $self->_pre_render();
-    $self->render(
-      'customer_vendor/form',
-      title => ($self->is_vendor() ? t8('Edit Vendor') : t8('Edit Customer')),
-      %{$self->{template_args}}
-    );
-  } else {
+  $self->_save();
 
-    $self->_save();
+  my @redirect_params = (
+    action => 'edit',
+    id     => $self->{cv}->id,
+    db     => ($self->is_vendor() ? 'vendor' : 'customer'),
+  );
 
-    my @redirect_params = (
-      action => 'edit',
-      id     => $self->{cv}->id,
-      db     => ($self->is_vendor() ? 'vendor' : 'customer'),
-    );
-
-    if ( $self->{contact}->cp_id ) {
-      push(@redirect_params, contact_id => $self->{contact}->cp_id);
-    }
-
-    if ( $self->{shipto}->shipto_id ) {
-      push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
-    }
-
-    $self->redirect_to(@redirect_params);
+  if ( $self->{contact}->cp_id ) {
+    push(@redirect_params, contact_id => $self->{contact}->cp_id);
   }
+
+  if ( $self->{shipto}->shipto_id ) {
+    push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+  }
+
+  $self->redirect_to(@redirect_params);
 }
 
 sub action_save_and_close {

@@ -41,6 +41,15 @@ sub _before_save_set_vendornumber {
   return 1;
 }
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The vendor name is missing.') if !$self->name;
+
+  return @errors;
+}
+
 sub displayable_name {
   my $self = shift;
 
