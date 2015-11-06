@@ -82,6 +82,18 @@ sub end_of_month {
   return $self->truncate(to => 'month')->add(months => 1)->subtract(days => 1);
 }
 
+sub next_workday {
+  my ($self, %params) = @_;
+
+  my $extra_days = $params{extra_days} // 1;
+  $self->add(days => $extra_days);
+
+  my $day_of_week = $self->day_of_week;
+  $self->add(days => (8 - $day_of_week)) if $day_of_week >= 6;
+
+  return $self;
+}
+
 1;
 
 __END__
@@ -130,6 +142,21 @@ The legacy name C<from_lxoffice> is still supported.
 
 Sets the object to the last day of object's month at midnight. Returns
 the object itself.
+
+=item C<next_workday %params>
+
+Sets the object to the next workday. The recognized parameter is:
+
+=over 2
+
+=item * C<extra_days> - optional: If C<extra_days> is given, then
+that amount of days is added to the objects date and if the resulting
+date is not a workday, the object is set to the next workday.
+Defaults to 1.
+
+=back
+
+Returns the object itself.
 
 =back
 
