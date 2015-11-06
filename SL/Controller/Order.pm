@@ -51,6 +51,7 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
+  $self->order->reqdate(DateTime->today_local->next_workday) if !$self->order->reqdate;
 
   $self->_pre_render();
   $self->render(

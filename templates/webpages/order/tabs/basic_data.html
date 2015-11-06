@@ -117,6 +117,11 @@
           </tr>
 
           <tr>
+            <th width="70%" align="right" nowrap>[% 'Reqdate' | $T8 %]</th>
+            <td>[% L.date_tag('order.reqdate', SELF.order.reqdate) %]</td>
+          </tr>
+
+          <tr>
             <th width="70%" align="right" nowrap>[% 'Insert Date' | $T8 %]</th>
             <td>[% SELF.order.itime_as_date %]</td>
           </tr>
