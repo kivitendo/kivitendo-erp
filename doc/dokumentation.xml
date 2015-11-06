@@ -517,8 +517,15 @@ psql template1</programlisting>
 
         führen Sie die folgenden Kommandos aus:</para>
 
-        <programlisting>create language 'plpgsql';
+        <programlisting>CREATE EXTENSION IF NOT EXISTS plpgsql;
 \q</programlisting>
+
+       <note>
+        <para><literal>CREATE EXTENSION</literal> ist seit Version 9.1 die bevorzugte Syntax um die Sprache <literal>plpgsql</literal> anzulegen. In diesen Versionen ist die Extension meist auch schon vorhanden. Sollten Sie eine ältere Version von Postgres haben, benutzen Sie stattdessen den folgenden Befehl.</para>
+        <programlisting>CREATE LANGUAGE 'plpgsql';
+\q</programlisting>
+       </note>
+
       </sect2>
 
       <sect2 id="Datenbankbenutzer-anlegen">
