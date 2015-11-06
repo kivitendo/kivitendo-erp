@@ -13,7 +13,7 @@ __PACKAGE__->make_manager_methods;
 
 sub _sort_spec {
   return (
-    default => [ 'sent_on', 1 ],
+    default => [ 'sent_on', 0 ],
     columns => {
       SIMPLE => 'ALL',
       sender => 'sender.name',
