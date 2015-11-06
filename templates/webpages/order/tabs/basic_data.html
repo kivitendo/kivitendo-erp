@@ -41,6 +41,15 @@
             <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', style='width: 300px', class='recalc') %]</td>
           </tr>
 
+[%- IF SELF.all_departments.size %]
+          <tr>
+            <th align="right">[% 'Department' | $T8 %]</th>
+            <td>
+              [% L.select_tag('order.department_id', SELF.all_departments, default=SELF.order.department_id, title_key='description', with_empty=1, style='width:300px') %]
+            </td>
+          </tr>
+[%- END %]
+
           <tr>
             <th align="right">[% 'Shipping Point' | $T8 %]</th>
             <td>[% L.input_tag('order.shippingpoint', SELF.order.shippingpoint, style='width: 300px') %]</td>
