@@ -39,7 +39,7 @@ my %known_tables = (
 );
 
 my %datev_column_defs = (
-  acc_trans_id      => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), },
+  trans_id          => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), },
   amount            => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Amount'), },
   credit_accname    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account Name'), },
   credit_accno      => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account'), },
@@ -61,7 +61,7 @@ my %datev_column_defs = (
 );
 
 my @datev_columns = qw(
-  acc_trans_id
+  trans_id
   customer_id vendor_id
   name           vcnumber
   transdate    invnumber      amount
@@ -415,7 +415,7 @@ sub do_datev_csv_export {
       tax              => defined $amount->{net_amount} ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5) : 0,
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno taxdescription)),
-      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(acc_trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
+      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
     );
 
     _normalize_cell($_) for values %row; # see CAVEATS
