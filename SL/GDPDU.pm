@@ -594,7 +594,7 @@ The name of the company, needed for the supplier header
 
 =item location
 
-Location of the company, needed for the suupplier header
+Location of the company, needed for the supplier header
 
 =item from
 
@@ -605,64 +605,64 @@ tables will be culled to match what is needed for these records.
 
 =item tables
 
-A list of tables to be exported.
+Ooptional list of tables to be exported. Defaults to all tables.
 
 =item all_tables
 
-Alternative to C<tables>, enables all known tables.
+Optional alternative to C<tables>, forces all known tables.
 
 =back
 
 =item C<generate_export>
 
-Do the work. Will return an absolut path to a temp file where all export files
+Do the work. Will return an absolute path to a temp file where all export files
 are zipped together.
 
 =back
 
 =head1 CAVEATS
 
+Sigh. There are a lot of issues with the IDEA software that were found out by
+trial and error.
+
+=head2 Problems in the Specification
+
 =over 4
 
 =item *
 
-Date format is shit. The official docs state that only C<YY>, C<YYYY>, C<MM>,
-and C<DD> are supported, timestamps do not exist.
+The specced date format is capable of only C<YY>, C<YYYY>, C<MM>,
+and C<DD>. There are no timestamps or timezones.
 
 =item *
 
-Number parsing seems to be fragile. Official docs state that behaviour for too
-low C<Accuracy> settings is undefined. Accuracy of 0 is not taken to mean
-Integer but instead generates a warning for redudancy.
+Numbers have the same issue. There is not dedicated integer type, and hinting
+at an integer type by setting accuracy to 0 generates a warning for redundant
+accuracy.
 
-There is no dedicated integer type.
-
-=item *
-
-Currently C<ar> and C<ap> have a foreign key to themself with the name
-C<storno_id>. If this foreign key is present in the C<INDEX.XML> then the
-storno records have to be too. Since this is extremely awkward to code and
-confusing for the examiner as to why there are records outside of the time
-range, this export skips all self-referential foreign keys.
+Also the number parsing is documented to be fragile. Official docs state that
+behaviour for too low C<Accuracy> settings is undefined.
 
 =item *
 
-Documentation for foreign keys is extremely weird. Instead of giving column
-maps it assumes that foreign keys map to the primary keys given for the target
-table, and in that order. Foreign keys to keys that are not primary seems to be
-impossible. Changing type is also not allowed (which actually makes sense).
-Hopefully there are no bugs there.
+Foreign key definition is broken. Instead of giving column maps it assumes that
+foreign keys map to the primary keys given for the target table, and in that
+order. Also the target table must be known in full before defining a foreign key.
+
+As a consequence any additional keys apart from primary keys are not possible.
+Self-referencing tables are also not possible.
 
 =item *
 
-It's currently disallowed to export the whole dataset. It's not clear if this
-is wanted.
+The spec does not support splitting data sets into smaller chunks. For data
+sets that exceed 700MB the spec helpfully suggests: "Use a bigger medium, such
+as a DVD".
 
 =item *
 
-It is not possible to set an empty C<DigiGroupingSymbol> since then the import
+It is not possible to set an empty C<DigitGroupingSymbol> since then the import
 will just work with the default. This was asked in their forum, and the
-response actually was:
+response actually was to use a bogus grouping symbol that is not used:
 
   Einfache Lösung: Definieren Sie das Tausendertrennzeichen als Komma, auch
   wenn es nicht verwendet wird. Sollten Sie das Komma bereits als Feldtrenner
@@ -681,12 +681,11 @@ generates the error message:
 
 Instead we just use the implicit default RecordDelimiter CRLF.
 
-=item *
+=back
 
-Not confirmed yet:
+=head2 Bugs in the IDEA software
 
-Foreign keys seem only to work with previously defined tables (which would be
-utterly insane).
+=over 4
 
 =item *
 
@@ -699,11 +698,42 @@ spaces.
 Neither it is able to parse escaped C<ColumnDelimiter> in data. It just splits
 on that symbol no matter what surrounds or preceeds it.
 
+=back
+
+=head2 Problems outside of the software
+
+=over 4
+
 =item *
 
-Fun fact: Some auditors do not have a full license of the IDEA software, and
-can't do table joins. So it's best to provide denormalized data for them, so
-that the auditor may infer which object is meant.
+The law states that "all business related data" should be made available. In
+practice there's no definition for what makes data "business related", and
+different auditors seems to want different data.
+
+Currently we export most of the transactional data with supplementing
+customers, vendors and chart of accounts.
+
+=item *
+
+While the standard explicitely state to provide data normalized, in practice
+autditors aren't trained database operators and can not create complex vies on
+normalized data on their own. The reason this works for other software is, that
+DATEV and SAP seem to have written import plugins for their internal formats in
+the IDEA software.
+
+So what is really exported is not unlike a DATEV export. Each transaction gets
+splitted into chunks of 2 positions (3 with tax on one side). Those get
+denormalized into a single data row with credfit/debit/tax fields. The charts
+get denormalized into it as well, in addition to their account number serving
+as a foreign key.
+
+Customers and vendors get denormalized into this as well, but are linked by ids
+to their tables. And the reason for this is...
+
+=item *
+
+Some auditors do not have a full license of the IDEA software, and
+can't do table joins.
 
 =back
 
