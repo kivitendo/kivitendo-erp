@@ -1,8 +1,5 @@
 package SL::Controller::Gdpdu;
 
-# TODO:
-#  - depending exclusive checkboses via javascript
-
 use strict;
 
 use parent qw(SL::Controller::Base);
@@ -39,7 +36,6 @@ sub action_export {
     location   => $::instance_conf->get_address,
     from       => $self->from,
     to         => $self->to,
-    all_tables => $::form->{all_tables},
   );
 
   my $filename = $gdpdu->generate_export;
