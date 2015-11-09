@@ -4,3 +4,14 @@
 
 <br>
 [% L.project_picker('project_id', '', style='width: 600px') %] text<br>
+
+Runtime test:<br>
+<div id='runtime_picker'>'
+
+<script>
+$(function() {
+  $('#runtime_picker').html('[% L.project_picker("project2_id") %]');
+  kivi.reinit_widgets();
+})
+</script>
+

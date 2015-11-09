@@ -236,6 +236,11 @@ namespace("kivi", function(ns) {
         kivi.PartPicker($(elt));
       });
 
+    if (ns.ProjectPicker)
+      ns.run_once_for('input.project_autocomplete', 'project_picker', function(elt) {
+        kivi.ProjectPicker($(elt));
+      });
+
     if (ns.CustomerVendorPicker)
       ns.run_once_for('input.customer_vendor_autocomplete', 'customer_vendor_picker', function(elt) {
         kivi.CustomerVendorPicker($(elt));
