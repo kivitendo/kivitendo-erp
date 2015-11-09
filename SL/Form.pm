@@ -469,7 +469,7 @@ sub header {
   # standard css for all
   # this should gradually move to the layouts that need it
   $layout->use_stylesheet("$_.css") for qw(
-    main menu common list_accounts jquery.autocomplete
+    common main menu list_accounts jquery.autocomplete
     jquery.multiselect2side
     ui-lightness/jquery-ui
     jquery-ui.custom
