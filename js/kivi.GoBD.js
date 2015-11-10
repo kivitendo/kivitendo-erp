@@ -1,4 +1,4 @@
-namespace('kivi.Gdpdu', function(ns) {
+namespace('kivi.GoBD', function(ns) {
   ns.grey_invalid_options = function(el){
     console.log(el);
     if ($(el).prop('checked')) {
@@ -20,4 +20,4 @@ namespace('kivi.Gdpdu', function(ns) {
   }
 });
 
-$(kivi.Gdpdu.setup);
+$(kivi.GoBD.setup);

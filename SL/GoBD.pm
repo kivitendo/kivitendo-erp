@@ -1,4 +1,4 @@
-package SL::GDPDU;
+package SL::GoBD;
 
 # TODO:
 # optional: background jobable
@@ -557,7 +557,7 @@ sub tag {
 }
 
 sub make_comment {
-  my $gdpdu_version = API_VERSION();
+  my $gobd_version  = API_VERSION();
   my $kivi_version  = $::form->read_version;
   my $person        = $::myconfig{name};
   my $contact       = join ', ',
@@ -565,8 +565,8 @@ sub make_comment {
     (t8("Tel")   . ": $::myconfig{tel}" )   x!! $::myconfig{tel},
     (t8("Fax")   . ": $::myconfig{fax}" )   x!! $::myconfig{fax};
 
-  t8('DataSet for GDPdU version #1. Created with kivitendo #2 by #3 (#4)',
-    $gdpdu_version, $kivi_version, $person, $contact
+  t8('DataSet for GoBD version #1. Created with kivitendo #2 by #3 (#4)',
+    $gobd_version, $kivi_version, $person, $contact
   );
 }
 
@@ -620,7 +620,7 @@ __END__
 
 =head1 NAME
 
-SL::GDPDU - IDEA export generator
+SL::GoBD - IDEA export generator
 
 =head1 FUNCTIONS
 

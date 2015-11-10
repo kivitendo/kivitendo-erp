@@ -1,11 +1,11 @@
-package SL::Controller::Gdpdu;
+package SL::Controller::GoBD;
 
 use strict;
 
 use parent qw(SL::Controller::Base);
 
 use DateTime;
-use SL::GDPDU;
+use SL::GoBD;
 use SL::Locale::String qw(t8);
 use SL::Helper::Flash;
 
@@ -23,8 +23,8 @@ sub action_filter {
   $self->from(DateTime->today->add(years => -1)->add(days => 1)) if !$self->from;
   $self->to(DateTime->today)                                     if !$self->to;
 
-  $::request->layout->add_javascripts('kivi.Gdpdu.js');
-  $self->render('gdpdu/filter', current_year => DateTime->today->year, title => t8('GDPDU Export'));
+  $::request->layout->add_javascripts('kivi.GoBD.js');
+  $self->render('gobd/filter', current_year => DateTime->today->year, title => t8('GoBD Export'));
 }
 
 sub action_export {
@@ -35,16 +35,16 @@ sub action_export {
     return;
   }
 
-  my $gdpdu = SL::GDPDU->new(
+  my $gobd = SL::GoBD->new(
     company    => $::instance_conf->get_company,
     location   => $::instance_conf->get_address,
     from       => $self->from,
     to         => $self->to,
   );
 
-  my $filename = $gdpdu->generate_export;
+  my $filename = $gobd->generate_export;
 
-  $self->send_file($filename, name => t8('gdpdu-#1-#2.zip', $self->from->ymd, $self->to->ymd), unlink => 1);
+  $self->send_file($filename, name => t8('gobd-#1-#2.zip', $self->from->ymd, $self->to->ymd), unlink => 1);
 }
 
 #--- other stuff

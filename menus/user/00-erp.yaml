@@ -855,12 +855,12 @@
   params:
     action: LiquidityProjection/show
 - parent: reports
-  id: reports_gdpdu_export
-  name: GDPDU Export
+  id: reports_gobd_export
+  name: GoBD Export
   order: 1000
   access: report
   params:
-    action: Gdpdu/filter
+    action: GoBD/filter
 - id: batch_printing
   name: Batch Printing
   icon: printing
