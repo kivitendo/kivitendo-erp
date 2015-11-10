@@ -22,21 +22,49 @@ use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(from to writer company location) ],
-  'scalar --get_set_init' => [ qw(files tempfiles export_ids tables) ],
+  'scalar --get_set_init' => [ qw(files tempfiles export_ids tables csv_headers) ],
 );
 
 # in this we find:
 # key:         table name
 # name:        short name, translated
 # description: long description, translated
-# transdate:   column used to filter from/to, empty if table is filtered otherwise
-# keep:        arrayref of columns that should be saved for further referencing
-# tables:      arrayref with one column and one or many table.column references that were kept earlier
+# columns:     list of columns to export. export all columns if not present
+# primary_key: override primary key
 my %known_tables = (
   chart    => { name => t8('Charts'),    description => t8('Chart of Accounts'),    primary_key => 'accno', columns => [ qw(id accno description) ],     },
-  customer => { name => t8('Customers'), description => t8('Customer Master Data'), columns => [ qw(id name department_1 department_2 street zipcode city country contact phone fax email notes customernumber taxnumber obsolete ustid) ] },
-  vendor   => { name => t8('Vendors'),   description => t8('Vendor Master Data'),   columns => [ qw(id name department_1 department_2 street zipcode city country contact phone fax email notes customernumber taxnumber obsolete ustid) ] },
+  customer => { name => t8('Customers'), description => t8('Customer Master Data'), columns => [ qw(id customernumber name department_1 department_2 street zipcode city country contact phone fax email notes taxnumber obsolete ustid) ] },
+  vendor   => { name => t8('Vendors'),   description => t8('Vendor Master Data'),   columns => [ qw(id vendornumber name department_1 department_2 street zipcode city country contact phone fax email notes taxnumber obsolete ustid) ] },
 );
+
+my %column_titles = (
+   chart => {
+     id             => t8('ID'),
+     accno          => t8('Account Number'),
+     description    => t8('Description'),
+   },
+   customer_vendor => {
+     id             => t8('ID'),
+     name           => t8('Name'),
+     department_1   => t8('Department 1'),
+     department_2   => t8('Department 2'),
+     street         => t8('Street'),
+     zipcode        => t8('Zipcode'),
+     city           => t8('City'),
+     country        => t8('Country'),
+     contact        => t8('Contact'),
+     phone          => t8('Phone'),
+     fax            => t8('Fax'),
+     email          => t8('E-mail'),
+     notes          => t8('Notes'),
+     customernumber => t8('Customer Number'),
+     vendornumber   => t8('Vendor Number'),
+     taxnumber      => t8('Tax Number'),
+     obsolete       => t8('Obsolete'),
+     ustid          => t8('Tax ID number'),
+   },
+);
+$column_titles{$_} = $column_titles{customer_vendor} for qw(customer vendor);
 
 my %datev_column_defs = (
   trans_id          => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('ID'), },
@@ -211,6 +239,9 @@ sub table {
     ->tag('UTF8')
     ->tag('DecimalSymbol', '.')
     ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
+    ->tag('Range', sub { $self
+      ->tag('From', $self->csv_headers ? 2 : 1)
+    })
     ->tag('VariableLength', sub { $self
       ->tag('ColumnDelimiter', ',')       # see CAVEATS for missing RecordDelimiter
       ->tag('TextEncapsulator', '"')
@@ -252,7 +283,7 @@ sub columns {
     die "unknown col type @{[ ref $column ]}" unless $type;
 
     $self->tag('VariablePrimaryKey', sub { $self
-      ->tag('Name', $column->name);
+      ->tag('Name', $column_titles{$table}{$column->name});
       $type->($self);
     })
   }
@@ -263,7 +294,7 @@ sub columns {
     die "unknown col type @{[ ref $column]}" unless $type;
 
     $self->tag('VariableColumn', sub { $self
-      ->tag('Name', $column->name);
+      ->tag('Name', $column_titles{$table}{$column->name});
       $type->($self);
     })
   }
@@ -293,7 +324,7 @@ sub foreign_keys {
     }
 
     $self->tag('ForeignKey', sub {
-      $_[0]->tag('Name', $_) for keys %key_columns;
+      $_[0]->tag('Name',  $column_titles{$table}{$_}) for keys %key_columns;
       $_[0]->tag('References', $rel->class->meta->table);
    });
   }
@@ -317,6 +348,9 @@ sub do_datev_xml_table {
     ->tag('UTF8')
     ->tag('DecimalSymbol', '.')
     ->tag('DigitGroupingSymbol', '|')     # see CAVEATS in documentation
+    ->tag('Range', sub { $self
+      ->tag('From', $self->csv_headers ? 2 : 1)
+    })
     ->tag('VariableLength', sub { $self
       ->tag('ColumnDelimiter', ',')       # see CAVEATS for missing RecordDelimiter
       ->tag('TextEncapsulator', '"')
@@ -337,7 +371,7 @@ sub datev_columns {
     die "unknown col type @{[ $column ]}" unless $type;
 
     $self->tag('VariablePrimaryKey', sub { $self
-      ->tag('Name', $column);
+      ->tag('Name', $datev_column_defs{$column}{text});
       $type->($self);
     })
   }
@@ -348,7 +382,7 @@ sub datev_columns {
     die "unknown col type @{[ ref $column]}" unless $type;
 
     $self->tag('VariableColumn', sub { $self
-      ->tag('Name', $column);
+      ->tag('Name', $datev_column_defs{$column}{text});
       $type->($self);
     })
   }
@@ -360,15 +394,15 @@ sub datev_foreign_keys {
   my ($self) = @_;
   # hard code weeee
   $self->tag('ForeignKey', sub { $_[0]
-    ->tag('Name', 'customer_id')
+    ->tag('Name', $datev_column_defs{customer_id}{text})
     ->tag('References', 'customer')
   });
   $self->tag('ForeignKey', sub { $_[0]
-    ->tag('Name', 'vendor_id')
+    ->tag('Name', $datev_column_defs{vendor_id}{text})
     ->tag('References', 'vendor')
   });
   $self->tag('ForeignKey', sub { $_[0]
-    ->tag('Name', $_)
+    ->tag('Name', $datev_column_defs{$_}{text})
     ->tag('References', 'chart')
   }) for qw(debit_accno credit_accno tax_accno);
 }
@@ -395,6 +429,10 @@ sub do_datev_csv_export {
 
   $self->files->{"transactions.csv"} = $filename;
   push @{ $self->tempfiles }, $filename;
+
+  if ($self->csv_headers) {
+    $csv->print($fh, [ map { _normalize_cell($datev_column_defs{$_}{text}) } @datev_columns ]);
+  }
 
   for my $transaction (@transactions) {
     my $is_payment     = any { $_->{link} =~ m{A[PR]_paid} } @{ $transaction };
@@ -441,6 +479,10 @@ sub do_csv_export {
   my %cols_by_primary_key = _table_columns($table);
   my @columns = (@{ $cols_by_primary_key{1} }, @{ $cols_by_primary_key{0} });
   my %col_index = do { my $i = 0; map {; "$_" => $i++ } @columns };
+
+  if ($self->csv_headers) {
+    $csv->print($fh, [ map { _normalize_cell($column_titles{$table}{$_->name}) } @columns ]) or die $csv->error_diag;
+  }
 
   # and normalize date stuff
   my @select_tokens = map { (ref $_) =~ /Time/ ? $_->name . '::date' : $_->name } @columns;
@@ -553,12 +595,14 @@ sub all_tables {
 sub _normalize_cell {
   $_[0] =~ s/\r\n/ /g;
   $_[0] =~ s/,/;/g;
+  $_[0]
 }
 
 sub init_files { +{} }
 sub init_export_ids { +{} }
 sub init_tempfiles { [] }
 sub init_tables { [ grep { $known_tables{$_} } @export_table_order ] }
+sub init_csv_headers { 1 }
 
 sub API_VERSION {
   DateTime->new(year => 2002, month => 8, day => 14)->to_kivitendo;
@@ -602,6 +646,10 @@ Location of the company, needed for the supplier header
 
 Will only include records in the specified date range. Data pulled from other
 tables will be culled to match what is needed for these records.
+
+=item csv_headers
+
+Optional. If set, will include a header line in the exported CSV files. Default true.
 
 =item tables
 
@@ -697,6 +745,11 @@ spaces.
 
 Neither it is able to parse escaped C<ColumnDelimiter> in data. It just splits
 on that symbol no matter what surrounds or preceeds it.
+
+=item *
+
+Despite the standard specifying UTF-8 as a valid encoding the IDEA software
+will just downgrade everything to latin1.
 
 =back
 
