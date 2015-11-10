@@ -9,14 +9,18 @@
 
 <p>[% 'This export will include all records in the given time range and all supplicant information from checked entities. You will receive a single zip file. Please extract this file onto the data medium requested by your auditor.' | $T8 %]</p>
 
-<form>
+<form id='filter_form'>
 
 <table>
   <tr>
-    <td>[% 'From Date' | $T8 %]</td>
-    <td>[% L.date_tag('from', SELF.from) %]</td>
+    <td>[% L.radio_button_tag('method', value='year', checked=1) %]
+    <td>[% 'Year' | $T8 %]</td>
+    <td>[% L.select_tag('year', SELF.available_years, default=current_year) %]</td>
   </tr>
   <tr>
+    <td>[% L.radio_button_tag('method') %]
+    <td>[% 'From Date' | $T8 %]</td>
+    <td>[% L.date_tag('from', SELF.from) %]</td>
     <td>[% 'To Date' | $T8 %]</td>
     <td>[% L.date_tag('to', SELF.to) %]</td>
   </tr>

@@ -4,9 +4,12 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use DateTime;
 use SL::GDPDU;
 use SL::Locale::String qw(t8);
 use SL::Helper::Flash;
+
+use SL::DB::AccTransaction;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(from to) ],
@@ -20,7 +23,8 @@ sub action_filter {
   $self->from(DateTime->today->add(years => -1)->add(days => 1)) if !$self->from;
   $self->to(DateTime->today)                                     if !$self->to;
 
-  $self->render('gdpdu/filter', title => t8('GDPDU Export'));
+  $::request->layout->add_javascripts('kivi.Gdpdu.js');
+  $self->render('gdpdu/filter', current_year => DateTime->today->year, title => t8('GDPDU Export'));
 }
 
 sub action_export {
@@ -52,18 +56,37 @@ sub check_inputs {
 
   my $error = 0;
 
-  if (!$::form->{from}) {
-    my $epoch = DateTime->new(day => 1, month => 1, year => 1900);
-    flash('info', t8('No start date given, setting to #1', $epoch->to_kivitendo));
-    $self->from($epoch);
-  }
+  if ($::form->{method} eq 'year') {
+    if ($::form->{year}) {
+      $self->from(DateTime->new(year => $::form->{year}, month => 1,  day => 1));
+      $self->to(  DateTime->new(year => $::form->{year}, month => 12, day => 31));
+    } else {
+      $error = 1;
+      flash('error', t8('No year given for method year'));
+    }
+  } else {
+    if (!$::form->{from}) {
+      my $epoch = DateTime->new(day => 1, month => 1, year => 1900);
+      flash('info', t8('No start date given, setting to #1', $epoch->to_kivitendo));
+      $self->from($epoch);
+    }
 
-  if (!$::form->{to}) {
-    flash('info', t8('No end date given, setting to today'));
-    $self->to(DateTime->today);
+    if (!$::form->{to}) {
+      flash('info', t8('No end date given, setting to today'));
+      $self->to(DateTime->today);
+    }
   }
 
   !$error;
+}
+
+sub available_years {
+  my ($self) = @_;
+
+  my $first_trans = SL::DB::Manager::AccTransaction->get_first(sort_by => 'transdate', limit => 1);
+
+  return [] unless $first_trans;
+  return [ reverse $first_trans->transdate->year .. DateTime->today->year ];
 }
 
 sub init_from { DateTime->from_kivitendo($::form->{from}) }
