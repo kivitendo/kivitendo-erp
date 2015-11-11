@@ -605,6 +605,7 @@
 - parent: general_ledger
   id: general_ledger_gobd_export
   name: GoBD Export
+  icon: gobd
   order: 450
   access: general_ledger
   params:
