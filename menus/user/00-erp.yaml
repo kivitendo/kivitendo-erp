@@ -603,6 +603,13 @@
   params:
     action: export
 - parent: general_ledger
+  id: general_ledger_gobd_export
+  name: GoBD Export
+  order: 450
+  access: general_ledger
+  params:
+    action: GoBD/filter
+- parent: general_ledger
   id: general_ledger_reports
   name: Reports
   icon: gl_report
@@ -854,13 +861,6 @@
   access: report
   params:
     action: LiquidityProjection/show
-- parent: reports
-  id: reports_gobd_export
-  name: GoBD Export
-  order: 1000
-  access: report
-  params:
-    action: GoBD/filter
 - id: batch_printing
   name: Batch Printing
   icon: printing
