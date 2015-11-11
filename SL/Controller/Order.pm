@@ -9,6 +9,7 @@ use SL::Locale::String;
 use SL::SessionFile::Random;
 use SL::PriceSource;
 use SL::Form;
+use SL::Webdav;
 
 use SL::DB::Order;
 use SL::DB::Customer;
@@ -152,6 +153,24 @@ sub action_create_pdf {
   $form->{format}    = 'pdf';
 
   my $pdf_filename = $form->generate_attachment_filename();
+
+  # copy file to webdav folder
+  if ($self->order->ordnumber && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $self->type,
+      number   => $self->order->ordnumber,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $pdf_filename,
+    );
+    eval {
+      $webdav_file->store(data => \$pdf);
+      1;
+    } or do {
+      $self->js->flash('error', t8('Storing PDF to webdav folder failed: #1', $@));
+    }
+  }
 
   $self->js
     ->run('download_pdf', $pdf_filename, $key)
@@ -649,6 +668,19 @@ sub _pre_render {
     $item->active_price_source(   $price_source->price_from_source(   $item->active_price_source   ));
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
 
+  }
+
+  if ($self->order->ordnumber && $::instance_conf->get_webdav) {
+    my $webdav = SL::Webdav->new(
+      type     => $self->type,
+      number   => $self->order->ordnumber,
+    );
+    my $webdav_path = $webdav->webdav_path;
+    my @all_objects = $webdav->get_all_objects;
+    @{ $self->{template_args}->{WEBDAV} } = map { { name => $_->filename,
+                                                    type => t8('File'),
+                                                    link => File::Spec->catdir($webdav_path, $_->filename),
+                                                } } @all_objects;
   }
 
   $::request->{layout}->use_javascript("${_}.js")  for qw(ckeditor/ckeditor ckeditor/adapters/jquery);

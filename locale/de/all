@@ -2576,6 +2576,7 @@ $self->{texts} = {
   'Stocked Qty'                 => 'Lagermenge',
   'Stop task server'            => 'Task-Server beenden',
   'Stopping the task server failed. Output:' => 'Das Beenden des Task-Servers schlug fehl.',
+  'Storing PDF to webdav folder failed: #1' => 'Speichern der PDF im WebDAV Ordner fehlgeschlagen: #1',
   'Storing the emails in the journal is currently disabled in the client configuration.' => 'Das Speichern von versendeten E-Mails ist derzeit in der Mandantenkonfigurierung abgeschaltet.',
   'Storno'                      => 'Storno',
   'Storno (one letter abbreviation)' => 'S',
