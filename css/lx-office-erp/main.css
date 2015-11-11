@@ -413,6 +413,7 @@ label {
 }
 .customer-vendor-picker-undefined,
 .chartpicker-undefined,
+.projectpicker-undefined,
 .partpicker-undefined {
   color: red;
   font-style: italic;
