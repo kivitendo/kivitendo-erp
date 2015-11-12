@@ -60,6 +60,12 @@ __PACKAGE__->meta->add_relationship(
       sort_by      => 'acc_trans_id ASC',
     },
   },
+  dunnings       => {
+    type         => 'one to many',
+    class        => 'SL::DB::Dunning',
+    column_map   => { id => 'trans_id' },
+    manager_args => { with_objects => [ 'dunnings' ] }
+  },
 );
 
 __PACKAGE__->meta->initialize;

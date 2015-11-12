@@ -10,6 +10,8 @@ use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::ReportGenerator;
+use SL::Controller::Helper::ParseFilter;
 
 use SL::DB::Customer;
 use SL::DB::Vendor;
@@ -25,6 +27,9 @@ use SL::DB::FollowUp;
 use SL::DB::FollowUpLink;
 use SL::DB::History;
 use SL::DB::Currency;
+use SL::DB::Invoice;
+
+use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(customer_models vendor_models) ],
@@ -465,7 +470,6 @@ sub action_search_contact {
 
   print $::form->redirect_header($url);
 }
-
 
 sub action_get_delivery {
   my ($self) = @_;
@@ -941,7 +945,14 @@ sub _pre_render {
     ],
     with_objects => ['follow_up'],
   );
-
+  
+  $self->{open_items} = SL::DB::Manager::Invoice->get_all_count(
+    query => [
+      customer_id => $self->{cv}->id,
+      paid => {lt_sql => 'amount'},      
+    ],
+  );
+  
   $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');

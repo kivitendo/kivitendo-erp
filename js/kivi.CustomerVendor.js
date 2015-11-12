@@ -208,6 +208,7 @@ namespace('kivi.CustomerVendor', function(ns) {
   };
 
   this.inline_report = function(target, source, data){
+//    alert("HALLO S " + source + " --T " + target + " tt D " + data);
     $.ajax({
       url:        source,
       success:    function (rsp) {
