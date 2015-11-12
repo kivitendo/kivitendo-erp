@@ -1,0 +1,33 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE HTML %]
+<div id="invoice_statistic">
+  <table width="100%">
+    <tbody>
+      <tr>
+        <td class="listheading">[% 'Invoice Number' | $T8 %]</td>
+        <td class="listheading">[% 'Invoice Date' | $T8 %]</td>
+        <td class="listheading">[% 'Amount' | $T8 %]</td>
+        <td class="listheading">[% 'Inv. Duedate' | $T8 %]</td>
+        <td class="listheading">[% 'Paid' | $T8 %]</td>
+        <td class="listheading">[% 'Open Amount' | $T8 %]</td>
+      </tr>
+
+      [%- FOREACH row = invoices %]
+      <tr class="listrow[% loop.count % 2 %]">
+        <td>[% row.invnumber | html %]</td>
+        <td>[% row.transdate.to_kivitendo | html %]</td>
+        <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
+        <td>[% row.duedate.to_kivitendo | html %]</td>
+        <td>[%- LxERP.format_amount(row.paid, 2) %]</td>
+        <td>[%- LxERP.format_amount(row.amount - row.paid, 2) %]
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+
+      
+    </tbody>
+  </table>
+</div>

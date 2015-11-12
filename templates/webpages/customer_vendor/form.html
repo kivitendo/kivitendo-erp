@@ -36,6 +36,7 @@
       [% IF SELF.cv.id %]
         <li><a href="#price_rules">[% 'Price Rules' | $T8 %]</a></li>
       [% END %]
+      <li><a href="[% 'controller.pl?action=CustomerVendorTurnover/list_turnover&id=' _ SELF.cv.id | html %]">[% LxERP.t8('Turnovers') %] [%- IF SELF.open_items > 0 %] <span style="background-color:red;color:black;">&nbsp; $&nbsp; </span>[% END %]</a></li>
     </ul>
 
     [% PROCESS "customer_vendor/tabs/billing.html" %]

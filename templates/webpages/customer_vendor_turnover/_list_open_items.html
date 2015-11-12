@@ -1,0 +1,39 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE HTML %]
+<div class="listtop">[%- HTML.escape(title) %]</div>
+
+<div id="sales_report">
+  <table width="100%">
+    <tbody>
+      <tr>
+        <td class="listheading">[% 'Invoice Number' | $T8 %]</td>
+        <td class="listheading">[% 'Invoice Date' | $T8 %]</td>
+        <td class="listheading">[% 'Amount' | $T8 %]</td>
+        <td class="listheading">[% 'Inv. Duedate' | $T8 %]</td>
+        <td class="listheading">[% 'Paid' | $T8 %]</td>
+        <td class="listheading">[% 'Open Amount' | $T8 %]</td>
+        <td class="listheading">[% 'Dunnings' | $T8 %]</td>
+      </tr>
+
+      [%- FOREACH row = OPEN_ITEMS %]
+      <tr class="listrow[% loop.count % 2 %]">
+        <td>[% row.invnumber | html %]</td>
+        <td>[% row.transdate.to_kivitendo | html %]</td>
+        <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
+        <td>[% row.duedate.to_kivitendo | html %]</td>
+        <td>[%- LxERP.format_amount(row.paid, 2) %]</td>
+        <td>[%- LxERP.format_amount(row.amount - row.paid,2) %]
+        <td>
+        [%- IF row.dunning_config_id != '' %]
+          [%- FOREACH dun = row.dunnings %]
+          [% dun.dunning_id | html %] -- [% dun.duedate.to_kivitendo | html %] -- [% dun.dunning_level | html %] -- [% dun.fee %]<br>
+          [% END %]
+        [% END %]
+        </td>
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div> 
