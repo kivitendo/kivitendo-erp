@@ -42,10 +42,12 @@
                       class="recalc") %]
     </td>
     <td nowrap>
-      [%- L.input_tag("order.orderitems[].unit",
-                      ITEM.unit,
-                      size = 5,
-                      class="recalc") %]
+      [%- L.select_tag("order.orderitems[].unit",
+                      ITEM.part.available_units,
+                      default = ITEM.unit,
+                      title_key = 'name',
+                      value_key = 'name',
+                      class = 'unitselect') %]
     </td>
     <td>
       [%- L.button_tag("price_chooser_item_row(this)",

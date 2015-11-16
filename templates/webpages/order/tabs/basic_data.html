@@ -272,6 +272,32 @@ function reload_cv_dependend_selections() {
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 
+function unit_change(event) {
+  var row = $(event.target).parents("tbody").first();
+  var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
+  var sellprice_dom = $(row).find('[name="order.orderitems[].sellprice_as_number"]');
+  var select_elt = $(row).find('[name="order.orderitems[].unit"]');
+
+  var oldval = $(select_elt).data('oldval');
+  $(select_elt).data('oldval', $(select_elt).val());
+
+  var data = $('#order_form').serialize();
+  data += '&action=Order/unit_changed';
+  data += '&item_id=' + item_id_dom.val();
+  data += '&old_unit=' + oldval;
+  data += '&sellprice_dom_id=' + sellprice_dom.attr('id');
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+}
+
+function update_sellprice(item_id, price_str) {
+  var row = $('#item_' + item_id).parents("tbody").first();
+  var price_elt = $(row).find('[name="order.orderitems[].sellprice_as_number"]');
+  var html_elt  = $(row).find('[name="sellprice_text"]');
+  price_elt.val(price_str);
+  html_elt.html(price_str);
+}
+
 function add_item() {
   if ($('#add_item_parts_id').val() == '') return;
   if (!check_cv()) return;
@@ -445,6 +471,21 @@ function row_set_keyboard_events(rows) {
   });
 }
 
+function set_unit_change_with_oldval_by_id(item_id) {
+  var row = $('#item_' + item_id).parents("tbody").first();
+  var select_elt = $(row).find('[name="order.orderitems[].unit"]');
+
+  set_unit_change_with_oldval(select_elt);
+}
+
+function set_unit_change_with_oldval(selects) {
+  selects.each(function(idx,elt) {
+    $(elt).data('oldval', $(elt).val());
+  });
+
+  selects.change(unit_change);
+}
+
 var email_dialog;
 
 function show_email_dialog(html) {
@@ -494,6 +535,8 @@ $(function(){
   row_set_keyboard_events($('.row_entry'));
   $('.recalc').change(recalc_amounts_and_taxes);
   $('.reformat_number').change(reformat_number);
+
+  set_unit_change_with_oldval($('.unitselect'));
 });
 
 </script>

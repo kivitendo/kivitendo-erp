@@ -329,6 +329,24 @@ sub action_customer_vendor_changed {
   $self->js->render();
 }
 
+sub action_unit_changed {
+  my ($self) = @_;
+
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
+  my $item = $self->order->items->[$idx];
+
+  my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
+  $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
+
+  $self->_recalc();
+
+  $self->js
+    ->run('update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
+  $self->_js_redisplay_linetotals;
+  $self->_js_redisplay_amounts_and_taxes;
+  $self->js->render();
+}
+
 sub action_add_item {
   my ($self) = @_;
 
@@ -349,6 +367,7 @@ sub action_add_item {
     ->val('.add_item_input', '')
     ->run('row_table_scroll_down')
     ->run('row_set_keyboard_events_by_id', $item_id)
+    ->run('set_unit_change_with_oldval_by_id', $item_id)
     ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
     ->on('.reformat_number', 'change', 'reformat_number')
     ->focus('#add_item_parts_id_name');
@@ -400,7 +419,8 @@ sub action_add_multi_items {
 
     $self->js
         ->append('#row_table_id', $row_as_html)
-        ->run('row_set_keyboard_events_by_id', $item_id);
+        ->run('row_set_keyboard_events_by_id', $item_id)
+        ->run('set_unit_change_with_oldval_by_id', $item_id);
   }
 
   $self->js
