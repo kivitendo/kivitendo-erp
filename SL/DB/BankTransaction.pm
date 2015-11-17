@@ -151,7 +151,7 @@ sub get_agreement_with_invoice {
   my $cvname;
   $cvname = $invoice->customer->name if $invoice->is_sales;
   $cvname = $invoice->vendor->name   if ! $invoice->is_sales;
-  if ( $cvname && $self->purpose =~ /\b$cvname\b/i ) {
+  if ( $cvname && $self->purpose =~ /\b\Q$cvname\E\b/i ) {
     $agreement += $points{cust_vend_name_in_purpose};
     $rule_matches .= 'cust_vend_name_in_purpose(' . $points{'cust_vend_name_in_purpose'} . ') ';
   };
