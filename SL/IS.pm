@@ -529,6 +529,7 @@ sub invoice_details {
 
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+  $form->{department}    = SL::DB::Manager::Department->find_by(id => $form->{department_id})->load->description if $form->{department_id};
 
   $form->{username} = $myconfig->{name};
 
