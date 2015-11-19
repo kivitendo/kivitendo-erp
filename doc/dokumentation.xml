@@ -1091,7 +1091,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
         gespeichert werden, so muss der Parameter <varname>module</varname>
         den Wert <literal>DB</literal> enthalten. In diesem Fall können sowohl
-        der Administrator als auch die Benutzer selber ihre Psaswörter in
+        der Administrator als auch die Benutzer selber ihre Passwörter in
         kivitendo ändern.</para>
 
         <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server
