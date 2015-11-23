@@ -76,7 +76,7 @@ my %datev_column_defs = (
   invnumber         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Reference'), },
   name              => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Name'), },
   notes             => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Notes'), },
-  tax               => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax'), },
+  tax               => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Tax'), },
   taxdescription    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('tax_taxdescription'), },
   taxkey            => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Taxkey'), },
   tax_accname       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account Name'), },
