@@ -44,7 +44,7 @@ my %column_titles = (
      description    => t8('Description'),
    },
    customer_vendor => {
-     id             => t8('ID'),
+     id             => t8('ID (lit)'),
      name           => t8('Name'),
      department_1   => t8('Department 1'),
      department_2   => t8('Department 2'),

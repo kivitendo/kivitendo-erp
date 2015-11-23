@@ -1417,6 +1417,7 @@ $self->{texts} = {
   'I'                           => 'I',
   'IBAN'                        => 'IBAN',
   'ID'                          => 'Buchungsnummer',
+  'ID (lit)'                    => 'ID',
   'ID of own bank account'      => 'Datenbank-ID des Bankkontos',
   'ID-Nummer'                   => 'ID-Nummer (intern)',
   'ID/Acc_ID'                   => 'ID/Acc_ID',
