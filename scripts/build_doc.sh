@@ -39,7 +39,7 @@ fi
 dobudish=$(ls -d doc/build/dobudish* 2> /dev/null)
 
 if [[ -z $dobudish ]] || [[ ! -d ${dobudish} ]]; then
-  echo "There's no dobudish directory inside doc/build."
+  echo "There's no dobudish directory inside doc/build OR more than one file / dir starting with dobudish (hint: zip file downloaded there?)."
   exit 1
 fi
 
