@@ -71,8 +71,12 @@ my %datev_column_defs = (
   amount            => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Amount'), },
   credit_accname    => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account Name'), },
   credit_accno      => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Account'), },
+  credit_amount     => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Credit Amount'), },
+  credit_tax        => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Credit Tax (lit)'), },
   debit_accname     => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Debit Account Name'), },
   debit_accno       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Debit Account'), },
+  debit_amount      => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Debit Amount'), },
+  debit_tax         => { type => 'Rose::DB::Object::Metadata::Column::Numeric', text => t8('Debit Tax (lit)'), },
   invnumber         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Reference'), },
   name              => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Name'), },
   notes             => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Notes'), },
@@ -93,8 +97,8 @@ my @datev_columns = qw(
   customer_id vendor_id
   name           vcnumber
   transdate    invnumber      amount
-  debit_accno  debit_accname
-  credit_accno credit_accname
+  debit_accno  debit_accname debit_amount debit_tax
+  credit_accno credit_accname credit_amount credit_tax
   taxdescription tax
   tax_accno    tax_accname    taxkey
   notes itime
@@ -444,17 +448,32 @@ sub do_datev_csv_export {
     $haben->{notes}  //= '';
     $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
 
+    my $net_amount = defined $amount->{net_amount}
+                   ? $::form->format_amount($myconfig, abs($amount->{net_amount}), 5)
+                   : 0;
+    my $tax_amount = defined $amount->{net_amount}
+                   ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5)
+                   : 0;
+
     my %row            = (
       amount           => $::form->format_amount($myconfig, abs($amount->{amount}),5),
       debit_accno      => $soll->{accno},
       debit_accname    => $soll->{accname},
+      debit_amount     => -$soll->{amount},
+      debit_tax        => $soll->{tax_accno} ? $tax_amount : 0,
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
-      tax              => defined $amount->{net_amount} ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5) : 0,
+      credit_amount    => $haben->{amount},
+      credit_tax       => $haben->{tax_accno} ? $tax_amount : 0,
+      tax              => $tax_amount,
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno taxdescription)),
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
     );
+
+#     if ($row{debit_amount} + $row{debit_tax} - ($row{credit_amount} + $row{credit_tax}) > 0.005) {
+#       $::lxdebug->dump(0,  "broken taxes", [ $transaction, \%row,  $row{debit_amount} + $row{debit_tax}, $row{credit_amount} + $row{credit_tax} ]);
+#     }
 
     _normalize_cell($_) for values %row; # see CAVEATS
 
