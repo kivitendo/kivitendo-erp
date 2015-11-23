@@ -748,6 +748,23 @@ on that symbol no matter what surrounds or preceeds it.
 
 =item *
 
+Oh and of course C<TextEncapsulator> is also not allowed in data. It's just
+stripped at the beginning and end of data.
+
+=item *
+
+And the character "!" is used internally as a warning signal and must not be
+present in the data as well.
+
+=item *
+
+C<VariableLength> data is truncated on import to 512 bytes (Note: it said
+characters, but since they are mutilating data into a single byte encoding
+anyway, they most likely meant bytes). The auditor recommends splitting into
+multiple columns.
+
+=item *
+
 Despite the standard specifying UTF-8 as a valid encoding the IDEA software
 will just downgrade everything to latin1.
 
