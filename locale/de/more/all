@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+# -*- coding: utf-8; -*-
+# vim: fenc=utf-8
+
+use utf8;
+
+# These are additional texts for custom translations.
+# The format is the same as for the normal file all, only
+# with another key (more_texts instead of texts).
+# You can overload current translation with custom ones (see example
+# in comments).
+# The file has the form of 'english text'  => 'foreign text',
+
+$self->{more_texts} = {
+
+  #'Ship via'                    => 'Terms of delivery',
+  #'Shipping Point'              => 'Delivery times and new roman',
+}
