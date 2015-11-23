@@ -595,6 +595,8 @@ sub all_tables {
 sub _normalize_cell {
   $_[0] =~ s/\r\n/ /g;
   $_[0] =~ s/,/;/g;
+  $_[0] =~ s/"/'/g;
+  $_[0] =~ s/!/./g;
   $_[0]
 }
 
