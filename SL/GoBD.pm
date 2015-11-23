@@ -448,9 +448,6 @@ sub do_datev_csv_export {
     $haben->{notes}  //= '';
     $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
 
-    my $net_amount = defined $amount->{net_amount}
-                   ? $::form->format_amount($myconfig, abs($amount->{net_amount}), 5)
-                   : 0;
     my $tax_amount = defined $amount->{net_amount}
                    ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5)
                    : 0;
@@ -459,11 +456,11 @@ sub do_datev_csv_export {
       amount           => $::form->format_amount($myconfig, abs($amount->{amount}),5),
       debit_accno      => $soll->{accno},
       debit_accname    => $soll->{accname},
-      debit_amount     => -$soll->{amount},
+      debit_amount     => $::form->format_amount($myconfig, abs(-$soll->{amount}),5),
       debit_tax        => $soll->{tax_accno} ? $tax_amount : 0,
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
-      credit_amount    => $haben->{amount},
+      credit_amount    => $::form->format_amount($myconfig, abs($haben->{amount}),5),,
       credit_tax       => $haben->{tax_accno} ? $tax_amount : 0,
       tax              => $tax_amount,
       notes            => $haben->{notes},
