@@ -438,7 +438,7 @@ sub do_datev_csv_export {
     my $is_payment     = any { $_->{link} =~ m{A[PR]_paid} } @{ $transaction };
 
     my ($soll, $haben) = map { $transaction->[$_] } ($transaction->[0]->{amount} > 0 ? (1, 0) : (0, 1));
-    my $tax            = defined($soll->{tax_amount}) ? $soll : defined($haben->{tax_amount}) ? $haben : {};
+    my $tax            = defined($soll->{tax_accno}) ? $soll : defined($haben->{tax_accno}) ? $haben : {};
     my $amount         = defined($soll->{net_amount}) ? $soll : $haben;
     $haben->{notes}    = ($haben->{memo} || $soll->{memo}) if $haben->{memo} || $soll->{memo};
     $haben->{notes}  //= '';
