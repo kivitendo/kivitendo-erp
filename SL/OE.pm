@@ -535,14 +535,14 @@ sub save {
       $pricegroup_id *= 1;
       $pricegroup_id  = undef if !$pricegroup_id;
 
-      if ( $::instance_conf->get_order_always_project && !$form->{"globalproject_id"} && ( $form->{type} eq 'sales_order' ) ) {
+      # force new project, if not set yet
+      if ($::instance_conf->get_order_always_project && !$form->{"globalproject_id"} && ($form->{type} eq 'sales_order')) {
         my $new_project = SL::DB::Project->new(
-          projectnumber => $form->{ordnumber},
-          description   => $form->{customer},
-          active        => 1,
-          project_type_id =>  $::instance_conf->get_project_type_id,
+          projectnumber     => $form->{ordnumber},
+          description       => $form->{customer},
+          active            => 1,
+          project_type_id   => $::instance_conf->get_project_type_id,
           project_status_id => $::instance_conf->get_project_status_id,
-          # id            => $form->{globalproject_id}
         );
         $new_project->save;
         $form->{"globalproject_id"} = $new_project->id;

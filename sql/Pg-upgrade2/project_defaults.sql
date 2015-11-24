@@ -1,6 +1,6 @@
--- @tag: add_project_defaults 
+-- @tag: add_project_defaults
 -- @description: Standardprojekttyp und Standardprojectstatus
--- @depends: release_3_2_0
+-- @depends: release_3_3_0
 ALTER TABLE defaults ADD COLUMN order_always_project boolean DEFAULT false;
 ALTER TABLE defaults ADD COLUMN project_status_id integer;
 ALTER TABLE defaults ADD COLUMN project_type_id integer;
