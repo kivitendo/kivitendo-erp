@@ -90,6 +90,7 @@ my %datev_column_defs = (
   customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer (database ID)'), },
   vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor (database ID)'), },
   itime             => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Create Date'), },
+  gldate            => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Booking Date'), },
 );
 
 my @datev_columns = qw(
@@ -101,7 +102,7 @@ my @datev_columns = qw(
   credit_accno credit_accname credit_amount credit_tax
   taxdescription tax
   tax_accno    tax_accname    taxkey
-  notes itime
+  notes itime gldate
 );
 
 # rows in this listing are tiers.
@@ -465,7 +466,7 @@ sub do_datev_csv_export {
       tax              => $tax_amount,
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno taxdescription)),
-      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(trans_id invnumber name vcnumber transdate itime customer_id vendor_id)),
+      (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(trans_id invnumber name vcnumber transdate gldate itime customer_id vendor_id)),
     );
 
 #     if ($row{debit_amount} + $row{debit_tax} - ($row{credit_amount} + $row{credit_tax}) > 0.005) {

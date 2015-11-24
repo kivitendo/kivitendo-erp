@@ -383,7 +383,7 @@ sub _get_transactions {
   my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
   my $query    =
-    qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
+    qq|SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
          ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate, ar.itime::date,
          ct.name, ct.ustid, ct.customernumber AS vcnumber, ct.id AS customer_id, NULL AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
@@ -405,7 +405,7 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
+       SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
          ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate, ap.itime::date,
          ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
@@ -427,7 +427,7 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey, ac.memo,
+       SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,gl.id, ac.amount, ac.taxkey, ac.memo,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz, NULL as deliverydate, gl.itime::date,
          gl.description AS name, NULL as ustid, '' AS vcname, NULL AS customer_id, NULL AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
