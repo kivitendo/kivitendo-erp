@@ -211,7 +211,7 @@ sub payment_transactions {
     push(@values, conv_i($form->{filter_amount}));
   }
 
-  $query .= " ORDER BY 3,7,8 LIMIT 6";
+  $query .= " ORDER BY 3,7,8";
 
   $form->{PR} = selectall_hashref_query($form, $dbh, $query, @values);
 
