@@ -26,7 +26,7 @@ sub new {
   }
 
   my $path   = $self->prepare_path;
-  $file_name =~ s:.*/::g;
+  $file_name =~ s{.*/}{}g;
   $file_name =  "${path}/${file_name}";
 
   $self->file_name($file_name);
