@@ -449,21 +449,21 @@ sub do_datev_csv_export {
     $haben->{notes}  //= '';
     $haben->{notes}    =  SL::HTML::Util->strip($haben->{notes});
 
-    my $tax_amount = defined $amount->{net_amount}
-                   ? $::form->format_amount($myconfig, abs($amount->{amount}) - abs($amount->{net_amount}), 5)
-                   : 0;
+    my $tax_amount = defined $amount->{net_amount} ? abs($amount->{amount}) - abs($amount->{net_amount}) : 0;
+
+    $tax = {} if abs($tax_amount) < 0.001;
 
     my %row            = (
       amount           => $::form->format_amount($myconfig, abs($amount->{amount}),5),
       debit_accno      => $soll->{accno},
       debit_accname    => $soll->{accname},
       debit_amount     => $::form->format_amount($myconfig, abs(-$soll->{amount}),5),
-      debit_tax        => $soll->{tax_accno} ? $tax_amount : 0,
+      debit_tax        => $soll->{tax_accno} ? $::form->format_amount($myconfig, $tax_amount, 5) : 0,
       credit_accno     => $haben->{accno},
       credit_accname   => $haben->{accname},
       credit_amount    => $::form->format_amount($myconfig, abs($haben->{amount}),5),,
-      credit_tax       => $haben->{tax_accno} ? $tax_amount : 0,
-      tax              => $tax_amount,
+      credit_tax       => $haben->{tax_accno} ? $::form->format_amount($myconfig, $tax_amount, 5) : 0,
+      tax              => $::form->format_amount($myconfig, $tax_amount, 5),
       notes            => $haben->{notes},
       (map { ($_ => $tax->{$_})                    } qw(taxkey tax_accname tax_accno taxdescription)),
       (map { ($_ => ($haben->{$_} // $soll->{$_})) } qw(trans_id invnumber name vcnumber transdate gldate itime customer_id vendor_id)),
