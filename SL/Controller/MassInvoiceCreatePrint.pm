@@ -137,6 +137,7 @@ sub action_create_print_all_start {
     invoice_ids        => [ ],
     conversion_errors  => [ ],
     print_errors       => [ ],
+    session_id         => $::auth->get_session_id,
 
   )->update_next_run_at;
 

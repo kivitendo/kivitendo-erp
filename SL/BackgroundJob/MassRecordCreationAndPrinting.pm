@@ -30,6 +30,7 @@ use constant DONE                        => 3;
 #   conversion_errors  => [ { id => 124, number => 'A981723', message => "Stuff went boom" }, ],
 #   print_errors       => [ { id => 234, number => 'L87123123', message => "Printer is out of coffee" }, ],
 #   pdf_file_name      => 'qweqwe.pdf',
+#   session_id         => $::auth->get_session_id,
 # };
 
 sub create_invoices {
@@ -153,7 +154,7 @@ sub convert_invoices_to_pdf {
 
       if (!$printer_id) {
         my $file_name = 'mass_invoice' . $job_obj->id . '.pdf';
-        my $sfile     = SL::SessionFile->new($file_name, mode => 'w');
+        my $sfile     = SL::SessionFile->new($file_name, mode => 'w', session_id => $data->{session_id});
         $sfile->fh->print($self->{merged_pdf});
         $sfile->fh->close;
 
