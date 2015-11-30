@@ -15,6 +15,8 @@ use SL::Presenter;
 use SL::DBUtils;
 use SL::Helper::Flash;
 
+use English qw(-no_match_vars);
+
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(warehouses units p) ],
   'scalar'                => [ qw(warehouse bin unit part) ],
@@ -43,34 +45,49 @@ sub action_stock_in {
 sub action_stock {
   my ($self) = @_;
 
+  my $transfer_error;
   my $qty = $::form->parse_amount(\%::myconfig, $::form->{qty});
   if (!$qty) {
-    flash_later('error', t8('Cannot stock without amount'));
+    $transfer_error = t8('Cannot stock without amount');
   } elsif ($qty < 0) {
-    flash_later('error', t8('Cannot stock negative amounts'));
+    $transfer_error = t8('Cannot stock negative amounts');
   } else {
     # do stock
-    WH->transfer({
-      parts         => $self->part,
-      dst_bin       => $self->bin,
-      dst_wh        => $self->warehouse,
-      qty           => $qty,
-      unit          => $self->unit,
-      transfer_type => 'stock',
-      chargenumber  => $::form->{chargenumber},
-      bestbefore    => $::form->{bestbefore},
-      ean           => $::form->{ean},
-      comment       => $::form->{comment},
+    $::form->throw_on_error(sub {
+      eval {
+        WH->transfer({
+          parts         => $self->part,
+          dst_bin       => $self->bin,
+          dst_wh        => $self->warehouse,
+          qty           => $qty,
+          unit          => $self->unit,
+          transfer_type => 'stock',
+          chargenumber  => $::form->{chargenumber},
+          bestbefore    => $::form->{bestbefore},
+          ean           => $::form->{ean},
+          comment       => $::form->{comment},
+        });
+        1;
+      } or do { $transfer_error = $EVAL_ERROR->getMessage; }
     });
 
-    if ($::form->{write_default_bin}) {
-      $self->part->load;   # onhand is calculated in between. don't mess that up
-      $self->part->bin($self->bin);
-      $self->part->warehouse($self->warehouse);
-      $self->part->save;
-    }
+    if (!$transfer_error) {
+      if ($::form->{write_default_bin}) {
+        $self->part->load;   # onhand is calculated in between. don't mess that up
+        $self->part->bin($self->bin);
+        $self->part->warehouse($self->warehouse);
+        $self->part->save;
+      }
 
-    flash_later('info', t8('Transfer successful'));
+      flash_later('info', t8('Transfer successful'));
+    }
+  }
+
+  my %additional_redirect_params = ();
+  if ($transfer_error) {
+    flash_later('error', $transfer_error);
+    $additional_redirect_params{$_}  = $::form->{$_} for qw(qty chargenumber bestbefore ean comment);
+    $additional_redirect_params{qty} = $qty;
   }
 
   # redirect
@@ -80,6 +97,7 @@ sub action_stock {
     bin_id       => $self->bin->id,
     warehouse_id => $self->warehouse->id,
     unit_id      => $self->unit->id,
+    %additional_redirect_params,
   );
 }
 

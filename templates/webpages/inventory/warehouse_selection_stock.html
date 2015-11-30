@@ -29,25 +29,25 @@
 
   <tr>
    <th align="right" nowrap>[% 'Charge number' | $T8 %]</th>
-   <td>[% L.input_tag('chargenumber', SELF.chargenumber, size=30) %]</td>
+   <td>[% L.input_tag('chargenumber', FORM.chargenumber, size=30) %]</td>
   </tr>
 
 [% IF INSTANCE_CONF.get_show_bestbefore %]
   <tr>
    <th align="right" nowrap>[% 'Best Before' | $T8 %]</th>
-   <td>[% L.date_tag('bestbefore', SELF.bestbefore) %]</td>
+   <td>[% L.date_tag('bestbefore', FORM.bestbefore) %]</td>
   </tr>
 [%- END %]
 
   <tr>
    <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
-   <td><input name="ean" size="30" value="[% HTML.escape(ean) %]"></td>
+   <td>[% L.input_tag('ean', FORM.ean, size=30) %]</td>
   </tr>
 
   <tr>
    <th align="right" nowrap>[% 'Quantity' | $T8 %]</th>
    <td>
-    <input name="qty" size="10" value="[% HTML.escape(LxERP.format_amount(qty)) %]">
+    [% L.input_tag('qty', LxERP.format_amount(FORM.qty), size=10) %]
 [%- IF SELF.part.unit %]
     [% L.select_tag('unit_id', SELF.part.available_units, title_key='name', default=SELF.unit.id) %]
 [%- ELSE %]
@@ -58,7 +58,7 @@
 
   <tr>
    <th align="right" nowrap>[% 'Optional comment' | $T8 %]</th>
-   <td><input name="comment" size="60" value="[% HTML.escape(comment) %]"></td>
+   <td>[% L.input_tag('comment', FORM.comment, size=60) %]</td>
   </tr>
  </table>
 
