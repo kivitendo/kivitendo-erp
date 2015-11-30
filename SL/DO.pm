@@ -390,9 +390,9 @@ SQL
         do_query($form, $dbh, $query, conv_i($sinfo->{"delivery_order_items_stock_id"}),
                   conv_i($form->{"delivery_order_items_id_$i"}), $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
                   conv_i($sinfo->{bin_id}));
-       $h_item_stock_id->finish();
-      # write back the id to the form (important if only transfer was clicked (id fk for invoice)
-      $form->{"stock_${in_out}_$i"} = YAML::Dump($stock_info);
+        $h_item_stock_id->finish();
+        # write back the id to the form (important if only transfer was clicked (id fk for invoice)
+        $form->{"stock_${in_out}_$i"} = YAML::Dump($stock_info);
       }
       @values = ($form->{"delivery_order_items_id_$i"}, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
                  conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}),
