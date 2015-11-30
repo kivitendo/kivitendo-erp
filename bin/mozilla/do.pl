@@ -1737,9 +1737,7 @@ sub transfer_in_out_default {
   undef (@all_requests);
   foreach my $i (1 .. $form->{rowcount}) {
     next unless ($form->{"id_$i"} && $form->{"stock_${prefix}_$i"});
-    foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_${prefix}_$i"}) }) {
-      push @all_requests, $request;
-    }
+    push @all_requests, @{ DO->unpack_stock_information('packed' => $form->{"stock_${prefix}_$i"}) };
   }
   DO->transfer_in_out('direction' => $prefix,
                       'requests'  => \@all_requests);
