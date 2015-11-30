@@ -977,13 +977,9 @@ $main::lxdebug->enter_sub();
     $max_qty_parts += $ref->{sum};
     $i++;
     if (($ref->{chargenumber} || $ref->{bestbefore}) && $ref->{sum} != 0){
-      $error=1;
+      $error = 1;
     }
   }
-  #if ($i < 1){
-  #  $error = 2;
-  #}
-
   $main::lxdebug->leave_sub();
 
   return ($max_qty_parts, $error);
