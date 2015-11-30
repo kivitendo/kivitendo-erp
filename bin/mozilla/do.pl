@@ -1720,6 +1720,9 @@ sub transfer_in_out_default {
   # dieser array_ref ist für DO->save da:
   # einmal die all_requests in YAML verwandeln, damit delivery_order_items_stock
   # gefüllt werden kann.
+  # could be dumped to the form in the first loop,
+  # but maybe bin_id and warehouse_id has changed to the "korrekturlager" with
+  # allowed negative qty ($::instance_conf->get_warehouse_id_ignore_onhand) ...
   my $i = 0;
   foreach (@all_requests){
     $i++;
@@ -1729,6 +1732,15 @@ sub transfer_in_out_default {
 
   save(no_redirect => 1); # Wir können auslagern, deshalb beleg speichern
                           # und in delivery_order_items_stock speichern
+
+  # ... and fill back the persistent dois_id for inventory fk
+  undef (@all_requests);
+  foreach my $i (1 .. $form->{rowcount}) {
+    next unless ($form->{"id_$i"} && $form->{"stock_${prefix}_$i"});
+    foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_${prefix}_$i"}) }) {
+      push @all_requests, $request;
+    }
+  }
   DO->transfer_in_out('direction' => $prefix,
                       'requests'  => \@all_requests);
 
