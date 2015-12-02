@@ -107,8 +107,6 @@ sub invoice_links {
   $form->{vc} = 'vendor';
 
   # create links
-  $form->{webdav}   = $::instance_conf->get_webdav;
-
   $form->create_links("AP", \%myconfig, "vendor");
 
   #quote all_vendor Bug 133

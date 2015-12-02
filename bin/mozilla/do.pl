@@ -173,8 +173,6 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::instance_conf->get_webdav;
-
   my $editing = $form->{id};
 
   DO->retrieve('vc'  => $form->{vc},

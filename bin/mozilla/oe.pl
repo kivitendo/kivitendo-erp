@@ -240,9 +240,7 @@ sub order_links {
   # get customer/vendor
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
-  # retrieve order/quotation and webdav config
-  $form->{webdav}   = $::instance_conf->get_webdav;
-
+  # retrieve order/quotation
   my $editing = $form->{id};
 
   OE->retrieve(\%myconfig, \%$form);
@@ -567,7 +565,6 @@ sub form_footer {
   $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number_id;
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     webdav          => $::instance_conf->get_webdav,
      tpca_reminder   => $tpca_reminder,
      print_options   => print_options(inline => 1),
      label_edit      => $locale->text("Edit the $form->{type}"),

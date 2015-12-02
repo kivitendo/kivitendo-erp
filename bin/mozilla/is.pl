@@ -140,8 +140,6 @@ sub invoice_links {
   $form->{vc} = 'customer';
 
   # create links
-  $form->{webdav}   = $::instance_conf->get_webdav;
-
   $form->create_links("AR", \%myconfig, "customer");
 
   if ($form->{all_customer}) {
