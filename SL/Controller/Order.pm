@@ -34,6 +34,7 @@ use File::Spec;
 
 use Rose::Object::MakeMethods::Generic
 (
+ scalar => [ qw(item_ids_to_delete) ],
  'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models) ],
 );
 
@@ -42,7 +43,7 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(edit update save save_and_delivery_order create_pdf send_email) ]);
+                        only => [ qw(update save save_and_delivery_order create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
                         only => [ qw(save save_and_delivery_order create_pdf send_email) ]);
@@ -70,6 +71,8 @@ sub action_add {
 sub action_edit {
   my ($self) = @_;
 
+  $self->_load_order;
+  $self->_recalc();
   $self->_pre_render();
   $self->render(
     'order/form',
@@ -333,7 +336,7 @@ sub action_unit_changed {
   my ($self) = @_;
 
   my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
-  my $item = $self->order->items->[$idx];
+  my $item = $self->order->items_sorted->[$idx];
 
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
   $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
@@ -354,7 +357,7 @@ sub action_add_item {
 
   return unless $form_attr->{parts_id};
 
-  my $item = _make_item($self->order, $form_attr);
+  my $item = _new_item($self->order, $form_attr);
   $self->order->add_items($item);
 
   $self->_recalc();
@@ -407,7 +410,7 @@ sub action_add_multi_items {
 
   my @items;
   foreach my $attr (@form_attr) {
-    push @items, _make_item($self->order, $attr);
+    push @items, _new_item($self->order, $attr);
   }
   $self->order->add_items(@items);
 
@@ -448,7 +451,7 @@ sub action_price_popup {
   my ($self) = @_;
 
   my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
-  my $item = $self->order->items->[$idx];
+  my $item = $self->order->items_sorted->[$idx];
 
   $self->render_price_dialog($item);
 }
@@ -456,7 +459,7 @@ sub action_price_popup {
 sub _js_redisplay_linetotals {
   my ($self) = @_;
 
-  my @data = map {$::form->format_amount(\%::myconfig, $_->{linetotal}, 2, 0)} @{ $self->order->items };
+  my @data = map {$::form->format_amount(\%::myconfig, $_->{linetotal}, 2, 0)} @{ $self->order->items_sorted };
   $self->js
     ->run('redisplay_linetotals', \@data);
 }
@@ -516,7 +519,7 @@ sub init_p {
 }
 
 sub init_order {
-  _make_order();
+  $_[0]->_make_order;
 }
 
 sub init_multi_items_models {
@@ -603,6 +606,14 @@ sub render_price_dialog {
   $self->js->render;
 }
 
+sub _load_order {
+  my ($self) = @_;
+
+  return if !$::form->{id};
+
+  $self->order(SL::DB::Manager::Order->find_by(id => $::form->{id}));
+}
+
 sub _make_order {
   my ($self) = @_;
 
@@ -613,12 +624,51 @@ sub _make_order {
   $order   = SL::DB::Manager::Order->find_by(id => $::form->{id}) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems => []);
 
+  my $form_orderitems = delete $::form->{order}->{orderitems};
   $order->assign_attributes(%{$::form->{order}});
+
+  # remove deleted items
+  $self->item_ids_to_delete([]);
+  foreach my $idx (reverse 0..$#{$order->orderitems}) {
+    my $item = $order->orderitems->[$idx];
+    if (none { $item->id == $_->{id} } @{$form_orderitems}) {
+      splice @{$order->orderitems}, $idx, 1;
+      push @{$self->item_ids_to_delete}, $item->id;
+    }
+  }
+
+  my @items;
+  my $pos = 1;
+  foreach my $form_attr (@{$form_orderitems}) {
+    my $item = _make_item($order, $form_attr);
+    $item->position($pos);
+    push @items, $item;
+    $pos++;
+  }
+  $order->add_items(grep {!$_->id} @items);
 
   return $order;
 }
 
+
+# Make item objects from form values. For items already existing read from db.
+# Create a new item else. And assign attributes.
 sub _make_item {
+  my ($record, $attr) = @_;
+
+  my $item;
+  $item = first { $_->id == $attr->{id} } @{$record->items} if $attr->{id};
+
+  # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
+  # they cannot be retrieved via custom_variables until the order/orderitem is
+  # saved. Adding empty custom_variables to new orderitem here solves this problem.
+  $item ||= SL::DB::OrderItem->new(custom_variables => []);
+  $item->assign_attributes(%$attr);
+
+  return $item;
+}
+
+sub _new_item {
   my ($record, $attr) = @_;
 
   my $item = SL::DB::OrderItem->new;
@@ -742,7 +792,8 @@ sub _save {
 
   $db->do_transaction(
     sub {
-      $self->order->save();
+      SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete};
+      $self->order->save(cascade => 1);
   }) || push(@{$errors}, $db->error);
 
   return $errors;
@@ -768,11 +819,10 @@ sub _pre_render {
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 
-  foreach  my $item (@{$self->order->items}) {
+  foreach my $item (@{$self->order->orderitems}) {
     my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
     $item->active_price_source(   $price_source->price_from_source(   $item->active_price_source   ));
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
-
   }
 
   if ($self->order->ordnumber && $::instance_conf->get_webdav) {
