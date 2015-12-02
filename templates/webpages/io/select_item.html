@@ -12,6 +12,9 @@
     [%- END %]
     <th>[% LxERP.t8('Number') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
+    [%- IF SHOW_NOTES %]
+      <th>[% LxERP.t8('Long Description') %]</th>
+    [%- END %]
     <th>[% LxERP.t8('Other Matches') %]</th>
     <th>[% LxERP.t8('Price') %]</th>
     [%- IF IS_PURCHASE %]
@@ -30,6 +33,10 @@
     [%- END %]
     <td>[% HTML.escape(item.partnumber) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
+    [%- IF SHOW_NOTES %]
+      [% USE P %]
+      <td>[% P.restricted_html(item.notes) %]</td>
+    [%- END %]
     <td>[% HTML.escape(item.matches).join('<br>') %]</td>
     <td align="right">[% LxERP.format_amount(item.display_sellprice, 2) %]</td>
     [%- IF IS_PURCHASE %]

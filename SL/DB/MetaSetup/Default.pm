@@ -94,6 +94,7 @@ __PACKAGE__->meta->columns(
   sepa_creditor_id                          => { type => 'text' },
   servicenumber                             => { type => 'text' },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
+  show_longdescription_select_item          => { type => 'boolean', default => 'false' },
   show_weight                               => { type => 'boolean', default => 'false', not_null => 1 },
   signature                                 => { type => 'text' },
   sonumber                                  => { type => 'text' },

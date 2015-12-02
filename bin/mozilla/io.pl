@@ -520,6 +520,7 @@ sub select_item {
                                                          ITEM_LIST       => \@item_list,
                                                          IS_ASSEMBLY     => $mode eq 'IC',
                                                          IS_PURCHASE     => $mode eq 'IS',
+                                                         SHOW_NOTES      => $::instance_conf->get_show_longdescription_select_item(),
                                                          PRE_ENTERED_QTY => $pre_entered_qty, });
 
   $main::lxdebug->leave_sub();

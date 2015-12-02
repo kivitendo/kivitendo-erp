@@ -162,6 +162,11 @@
    <td align="right">[% LxERP.t8('Project Status') %]</td>
    <td>[% L.select_tag('defaults.project_status_id', SELF.all_project_statuses, default=SELF.defaults.project_status_id, title_key='description', with_empty=0, style="width: 200px") %]</td>
   </tr>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Select Mulit-Item Options") %]</td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Show parts longdescription (notes) in select list') %]</td>
+   <td>[% L.yes_no_tag('defaults.show_longdescription_select_item', SELF.defaults.show_longdescription_select_item) %]</td>
+  </tr>
 
  </table>
 </div>

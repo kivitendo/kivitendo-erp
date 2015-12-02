@@ -2232,7 +2232,7 @@ sub retrieve_item {
     qq|SELECT
          p.id, p.partnumber, p.description, p.sellprice,
          p.listprice, p.inventory_accno_id, p.lastcost,
-         p.ean,
+         p.ean, p.notes,
 
          c1.accno AS inventory_accno,
          c1.new_chart_id AS inventory_new_chart,
