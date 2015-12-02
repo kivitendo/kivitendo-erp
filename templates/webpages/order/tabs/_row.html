@@ -31,15 +31,13 @@
       [%- L.input_tag("order.orderitems[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 5,
-                      style='text-align:right',
-                      class="recalc reformat_number") %]
+                      class="recalc reformat_number numeric") %]
     </td>
     <td>
       [%- L.input_tag("order.orderitems[].price_factor",
                       ITEM.price_factor,
                       size = 5,
-                      style='text-align:right',
-                      class="recalc") %]
+                      class="recalc numeric") %]
     </td>
     <td nowrap>
       [%- L.select_tag("order.orderitems[].unit",
@@ -57,16 +55,15 @@
     <td>
       [%- L.hidden_tag("order.orderitems[].active_price_source", ITEM.active_price_source.source) %]
       [%- SET EDIT_PRICE = (AUTH.assert('edit_prices', 1) && ITEM.active_price_source.source == '') %]
-      <div name="editable_price" [%- IF !EDIT_PRICE %]style="display:none"[%- END %]>
+      <div name="editable_price" [%- IF !EDIT_PRICE %]style="display:none"[%- END %] class="numeric">
         [%- L.input_tag("order.orderitems[].sellprice_as_number",
                         ITEM.sellprice_as_number,
                         size = 10,
-                        style='text-align:right',
                         disabled=(EDIT_PRICE? '' : 1),
-                        class="recalc reformat_number") %]
+                        class="recalc reformat_number numeric") %]
       </div>
       <div name="not_editable_price" [%- IF EDIT_PRICE %]style="display:none"[%- END %]>
-        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", style='text-align:right') %]
+        [%- L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric") %]
         [%- L.hidden_tag("order.orderitems[].sellprice_as_number",
                          ITEM.sellprice_as_number,
                          disabled=(EDIT_PRICE? 1 : '')) %]
@@ -75,16 +72,15 @@
     <td>
       [%- L.hidden_tag("order.orderitems[].active_discount_source", ITEM.active_discount_source.source) %]
       [%- SET EDIT_DISCOUNT = (AUTH.assert('edit_prices', 1) && ITEM.active_discount_source.source == '') %]
-      <div name="editable_discount" [%- IF !EDIT_DISCOUNT %]style="display:none"[%- END %]>
+      <div name="editable_discount" [%- IF !EDIT_DISCOUNT %]style="display:none"[%- END %] class="numeric">
         [%- L.input_tag("order.orderitems[].discount_as_percent",
                         ITEM.discount_as_percent,
                         size = 5,
-                        style='text-align:right',
                         disabled=(EDIT_DISCOUNT? '' : 1),
-                        class="recalc reformat_number") %]
+                        class="recalc reformat_number numeric") %]
       </div>
       <div name="not_editable_discount" [%- IF EDIT_DISCOUNT %]style="display:none"[%- END %]>
-        [%- L.div_tag(ITEM.discount_as_percent, name="discount_text", style='text-align:right') %]
+        [%- L.div_tag(ITEM.discount_as_percent, name="discount_text", class="numeric") %]
         [%- L.hidden_tag("order.orderitems[].discount_as_percent",
                          ITEM.discount_as_percent,
                          disabled=(EDIT_DISCOUNT? 1 : '')) %]

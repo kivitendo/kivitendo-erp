@@ -3,7 +3,7 @@
 <table width="100%">
     <tr>
       <td>[% 'for all' | $T8 %]
-      <td>[% L.input_tag("multi_items.all_qty", '', size = 5, style='text-align:right') %]</td>
+      <td>[% L.input_tag("multi_items.all_qty", '', size = 5, class='numeric') %]</td>
     </tr>
     <tr>
       <td colspan="5"><hr></td>
@@ -13,8 +13,8 @@
       <td></td>
       <td>
         [% L.hidden_tag("add_multi_items[+].parts_id", item.id) %]
-        [% L.input_tag("add_multi_items[].qty_as_number", '', size = 5, style='text-align:right',
-                       class = 'multi_items_qty', onclick = 'set_qty_to_one(this)') %]
+        [% L.input_tag("add_multi_items[].qty_as_number", '', size = 5,
+                       class = 'multi_items_qty numeric', onclick = 'set_qty_to_one(this)') %]
       </td>
       <td>[% HTML.escape(item.unit) %]</td>
       <td>[% HTML.escape(item.partnumber) %]</td>
