@@ -507,7 +507,8 @@ sub select_item {
   $::form->header;
 
   my @item_list = map {
-    $_->{display_sellprice} /= $_->{price_factor} if ($_->{price_factor});
+    # maybe there is a better backend function or way to calc
+    $_->{display_sellprice} = ($_->{price_factor}) ? $_->{sellprice} / $_->{price_factor} : $_->{sellprice};
     $_;
   } @{ $::form->{item_list} };
 
