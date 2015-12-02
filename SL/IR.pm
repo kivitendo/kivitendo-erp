@@ -800,6 +800,8 @@ SQL
 
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_purchase_invoice) {
+    # if we need department for kostenstelle in DATEV check
+    $form->{department} = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
     my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
     $transdate  ||= DateTime->today;
 
