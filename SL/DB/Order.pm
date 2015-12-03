@@ -164,6 +164,22 @@ sub convert_to_delivery_order {
     $delivery_order->save;
     $custom_shipto->save if $custom_shipto;
     $self->link_to_record($delivery_order);
+    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
+    foreach my $item (@{ $delivery_order->items }) {
+      foreach (qw(orderitems)) {    # expand if needed (delivery_order_items)
+        if ($item->{"converted_from_${_}_id"}) {
+          die unless $item->{id};
+          RecordLinks->create_links('mode'       => 'ids',
+                                    'from_table' => $_,
+                                    'from_ids'   => $item->{"converted_from_${_}_id"},
+                                    'to_table'   => 'delivery_order_items',
+                                    'to_id'      => $item->{id},
+          ) || die;
+          delete $item->{"converted_from_${_}_id"};
+        }
+      }
+    }
+
     $self->update_attributes(delivered => 1);
     1;
   })) {

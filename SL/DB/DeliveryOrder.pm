@@ -164,14 +164,15 @@ sub new_from {
     $item_parents{$source_item_id} ||= $source_item->$item_parent_column;
     my $item_parent                  = $item_parents{$source_item_id};
 
-    SL::DB::DeliveryOrderItem->new(map({ ( $_ => $source_item->$_ ) }
+    my $current_do_item = SL::DB::DeliveryOrderItem->new(map({ ( $_ => $source_item->$_ ) }
                                          qw(base_qty cusordnumber description discount lastcost longdescription marge_price_factor parts_id price_factor price_factor_id
                                             project_id qty reqdate sellprice serialnumber transdate unit active_discount_source active_price_source
                                          )),
                                    custom_variables => \@custom_variables,
                                    ordnumber        => ref($item_parent) eq 'SL::DB::Order' ? $item_parent->ordnumber : $source_item->ordnumber,
                                  );
-
+    $current_do_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
+    $current_do_item;
   } @{ $items };
 
   @items = grep { $params{item_filter}->($_) } @items if $params{item_filter};
@@ -197,8 +198,9 @@ sub convert_to_invoice {
     require SL::DB::Invoice;
     $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
     $self->link_to_record($invoice);
+    # TODO extend link_to_record for items, otherwise long-term no d.r.y.
     foreach my $item (@{ $invoice->items }) {
-      foreach (qw(delivery_order_items)) {    # expand if needed (delivery_order_items)
+      foreach (qw(delivery_order_items)) {    # expand if needed (orderitems)
         if ($item->{"converted_from_${_}_id"}) {
           die unless $item->{id};
           RecordLinks->create_links('mode'       => 'ids',
