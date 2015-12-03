@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -28,11 +28,26 @@ var CKBUILDER_CONFIG = {
 	skin: 'moono',
 	preset: 'full',
 	ignore: [
+		'.bender',
+		'bender.js',
+		'bender-err.log',
+		'bender-out.log',
 		'dev',
-		'.gitignore',
+		'.DS_Store',
+		'.editorconfig',
 		'.gitattributes',
+		'.gitignore',
+		'gruntfile.js',
+		'.idea',
+		'.jscsrc',
+		'.jshintignore',
+		'.jshintrc',
+		'less',
+		'.mailmap',
+		'node_modules',
+		'package.json',
 		'README.md',
-		'.mailmap'
+		'tests'
 	],
 	plugins : {
 		'about' : 1,
