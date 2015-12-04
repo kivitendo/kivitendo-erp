@@ -35,6 +35,7 @@ sub action_export {
     return;
   }
 
+  my $filename;
   my $gobd = SL::GoBD->new(
     company    => $::instance_conf->get_company,
     location   => $::instance_conf->get_address,
@@ -42,7 +43,16 @@ sub action_export {
     to         => $self->to,
   );
 
-  my $filename = $gobd->generate_export;
+  eval {
+    $filename = $gobd->generate_export;
+  } or do {
+    my $errors = $@;
+    flash('error', t8('The export failed because of malformed transactions. Please fix those before exporting.'));
+
+    $::lxdebug->dump(0,  "GoBD errors:", \@$errors);
+    $self->action_filter;
+    return;
+  };
 
   $self->send_file($filename, name => t8('gobd-#1-#2.zip', $self->from->ymd, $self->to->ymd), unlink => 1);
 }

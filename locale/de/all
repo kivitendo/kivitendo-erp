@@ -2904,6 +2904,7 @@ $self->{texts} = {
   'The execution schedule is invalid.' => 'Der Ausführungszeitplan ist ungültig.',
   'The execution type is invalid.' => 'Der Ausführungstyp ist ungültig.',
   'The existing record has been created from the link target to add.' => 'Der bestehende Beleg wurde aus dem auszuwählenden Verknüpfungsziel erstellt.',
+  'The export failed because of malformed transactions. Please fix those before exporting.' => 'Es sind fehlerhafte Buchungen im Exportzeitraum vorhanden. Bitte korrigieren Sie diese vor dem Export.',
   'The factor is missing in row %d.' => 'Der Faktor fehlt in Zeile %d.',
   'The factor is missing.'      => 'Der Faktor fehlt.',
   'The file has been sent to the printer.' => 'Die Datei wurde an den Drucker geschickt.',

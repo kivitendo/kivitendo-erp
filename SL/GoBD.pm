@@ -419,6 +419,10 @@ sub do_datev_csv_export {
 
   $datev->_get_transactions(from_to => $datev->fromto);
 
+  if ($datev->errors) {
+    die [ $datev->errors ];
+  }
+
   for my $transaction (@{ $datev->{DATEV} }) {
     for my $entry (@{ $transaction }) {
       $entry->{sortkey} = join '-', map { lc } (DateTime->from_kivitendo($entry->{transdate})->strftime('%Y%m%d'), $entry->{name}, $entry->{reference});
