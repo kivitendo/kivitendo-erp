@@ -49,6 +49,11 @@ sub flatten_to_form {
   $form->{department} = $self->department->description if _has($self, 'department_id');
   $form->{rowcount}   = scalar(@{ $self->items });
 
+  my $items_name = ref($self) eq 'SL::DB::Order'         ? 'orderitems'
+                 : ref($self) eq 'SL::DB::DeliveryOrder' ? 'delivery_order_items'
+                 : ref($self) eq 'SL::DB::Invoice'       ? 'invoice'
+                 : '';
+
   my $idx = 0;
   my $format_amounts = $params{format_amounts} ? 1 : 0;
   my $format_notnull = $params{format_amounts} ? 2 : 0;
@@ -60,6 +65,7 @@ sub flatten_to_form {
     $idx++;
 
     $form->{"partsgroup_${idx}"} = $item->part->partsgroup->partsgroup if _has($item->part, 'partsgroup_id');
+    _copy($item,          $form, "${items_name}_",   "_${idx}", 0,      qw(id)) if $items_name;
     _copy($item->part,    $form, '',        "_${idx}", 0,               qw(id partnumber weight));
     _copy($item->part,    $form, '',        "_${idx}", 0,               qw(listprice));
     _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
