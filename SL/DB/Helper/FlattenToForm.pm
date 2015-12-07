@@ -65,16 +65,16 @@ sub flatten_to_form {
     $idx++;
 
     $form->{"partsgroup_${idx}"} = $item->part->partsgroup->partsgroup if _has($item->part, 'partsgroup_id');
-    _copy($item,          $form, "${items_name}_",   "_${idx}", 0,      qw(id)) if $items_name;
-    _copy($item->part,    $form, '',        "_${idx}", 0,               qw(id partnumber weight));
-    _copy($item->part,    $form, '',        "_${idx}", 0,               qw(listprice));
-    _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
-                                                                           subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate
-                                                                           active_price_source active_discount_source));
-    _copy($item,          $form, '',        "_${idx}", $format_noround, qw(qty sellprice));
-    _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(marge_total marge_percent lastcost));
-    _copy($item,          $form, '',        "_${idx}", $format_percent, qw(discount));
-    _copy($item->project, $form, 'project', "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
+    _copy($item,          $form, "${items_name}_", "_${idx}", 0,               qw(id)) if $items_name;
+    _copy($item->part,    $form, '',               "_${idx}", 0,               qw(id partnumber weight));
+    _copy($item->part,    $form, '',               "_${idx}", 0,               qw(listprice));
+    _copy($item,          $form, '',               "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
+                                                                                  subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate
+                                                                                  active_price_source active_discount_source));
+    _copy($item,          $form, '',              "_${idx}", $format_noround, qw(qty sellprice));
+    _copy($item,          $form, '',              "_${idx}", $format_amounts, qw(marge_total marge_percent lastcost));
+    _copy($item,          $form, '',              "_${idx}", $format_percent, qw(discount));
+    _copy($item->project, $form, 'project',       "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
 
     _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}");
 
