@@ -1000,7 +1000,7 @@ SL::WH - Warehouse backend
 
 =head1 DESCRIPTION
 
-Backend for lx-office warehousing functions.
+Backend for kivitendo warehousing functions.
 
 =head1 FUNCTIONS
 
@@ -1014,7 +1014,7 @@ is called like this:
     qty              => 12.45,
     transfer_type    => 'transfer',
     src_warehouse_id => 12,
-    stc_bin_id       => 23,
+    src_bin_id       => 23,
     dst_warehouse_id => 25,
     dst_bin_id       => 167,
   });
