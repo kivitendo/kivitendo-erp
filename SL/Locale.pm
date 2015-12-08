@@ -394,6 +394,9 @@ sub parse_date_to_object {
 
   return undef if !defined $string;
 
+  return DateTime->today_local                      if lc($string) eq 'today';
+  return DateTime->today_local->subtract(days => 1) if lc($string) eq 'yesterday';
+
   $params{dateformat}        ||= $::myconfig{dateformat}   || 'yy-mm-dd';
   $params{numberformat}      ||= $::myconfig{numberformat} || '1,000.00';
   my $num_separator            = $params{numberformat} =~ m{,\d+$} ? ',' : '.';
