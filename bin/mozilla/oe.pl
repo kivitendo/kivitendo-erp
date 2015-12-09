@@ -592,6 +592,8 @@ sub update {
 
   set_headings($form->{"id"} ? "edit" : "add");
 
+  $form->{insertdate} = SL::DB::Order->new(id => $form->{id})->load->itime_as_date if $form->{id};
+
   $form->{update} = 1;
 
   &check_name($form->{vc});
