@@ -47,7 +47,6 @@ use SL::DB::Customer;
 use SL::DB::PaymentTerm;
 
 require "bin/mozilla/io.pl";
-require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/drafts.pl";
 
@@ -1091,6 +1090,27 @@ sub credit_note {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub display_form {
+  $::lxdebug->enter_sub;
+
+  $::auth->assert('invoice_edit');
+
+  relink_accounts();
+
+  my $new_rowcount = $::form->{"rowcount"} * 1 + 1;
+  $::form->{"project_id_${new_rowcount}"} = $::form->{"globalproject_id"};
+
+  $::form->language_payment(\%::myconfig);
+
+  Common::webdav_folder($::form);
+
+  form_header();
+  display_row(++$::form->{rowcount});
+  form_footer();
+
+  $::lxdebug->leave_sub;
 }
 
 sub yes {

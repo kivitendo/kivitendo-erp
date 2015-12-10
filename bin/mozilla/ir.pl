@@ -41,7 +41,6 @@ use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 
 require "bin/mozilla/io.pl";
-require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
@@ -848,6 +847,27 @@ sub delete {
 |;
 
   $main::lxdebug->leave_sub();
+}
+
+sub display_form {
+  $::lxdebug->enter_sub;
+
+  $::auth->assert('vendor_invoice_edit');
+
+  relink_accounts();
+
+  my $new_rowcount = $::form->{"rowcount"} * 1 + 1;
+  $::form->{"project_id_${new_rowcount}"} = $::form->{"globalproject_id"};
+
+  $::form->language_payment(\%::myconfig);
+
+  Common::webdav_folder($::form);
+
+  form_header();
+  display_row(++$::form->{rowcount});
+  form_footer();
+
+  $::lxdebug->leave_sub;
 }
 
 sub yes {

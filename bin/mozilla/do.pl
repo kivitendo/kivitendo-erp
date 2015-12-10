@@ -46,7 +46,6 @@ use SL::WH;
 use Sort::Naturally ();
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
-require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -1538,6 +1537,27 @@ sub mark_closed {
   $main::lxdebug->leave_sub();
 }
 
+sub display_form {
+  $::lxdebug->enter_sub;
+
+  $::auth->assert('purchase_delivery_order_edit | sales_delivery_order_edit');
+
+  relink_accounts();
+  retrieve_partunits();
+
+  my $new_rowcount = $::form->{"rowcount"} * 1 + 1;
+  $::form->{"project_id_${new_rowcount}"} = $::form->{"globalproject_id"};
+
+  $::form->language_payment(\%::myconfig);
+
+  Common::webdav_folder($::form);
+
+  form_header();
+  display_row(++$::form->{rowcount});
+  form_footer();
+
+  $::lxdebug->leave_sub;
+}
 
 sub yes {
   call_sub($main::form->{yes_nextsub});

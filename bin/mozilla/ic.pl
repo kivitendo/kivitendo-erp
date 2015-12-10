@@ -51,7 +51,6 @@ use strict;
 our ($form, $locale, %myconfig, $lxdebug, $auth);
 
 require "bin/mozilla/io.pl";
-require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -2116,6 +2115,27 @@ sub ajax_autocomplete {
         $form->parse_html_template('ic/ajax_autocomplete');
 
   $main::lxdebug->leave_sub();
+}
+
+sub display_form {
+  $::lxdebug->enter_sub;
+
+  $auth->assert('part_service_assembly_edit');
+
+  relink_accounts();
+
+  $::form->language_payment(\%::myconfig);
+
+  Common::webdav_folder($::form);
+
+  form_header();
+  price_row($::form->{price_rows});
+  makemodel_row(++$::form->{makemodel_rows}) if $::form->{item} =~ /^(part|service)$/;
+  assembly_row(++$::form->{assembly_rows})   if $::form->{item} eq 'assembly';
+
+  form_footer();
+
+  $::lxdebug->leave_sub;
 }
 
 sub back_to_record {
