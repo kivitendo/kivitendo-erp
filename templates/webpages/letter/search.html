@@ -1,16 +1,7 @@
 [% USE HTML %]
 [% USE T8 %]
-<body onload="on_load()">
-
- <script type="text/javascript">
-  <!--
-      function on_load() {
-        Calendar.setup({ inputField : "date_from", ifFormat :"[% MYCONFIG.jsc_dateformat %]", align : "BR", button : "date_from_trigger" });
-        Calendar.setup({ inputField : "date_to",   ifFormat :"[% MYCONFIG.jsc_dateformat %]", align : "BR", button : "date_to_trigger" });
-        document.Form.subject.focus();
-      }
-    -->
- </script>
+[% USE L %]
+<body>
 
  <div class="listtop">[% title %]</div>
 
@@ -62,11 +53,9 @@
     <tr>
      <td align='right'>[% 'From' | $T8 %]</td>
      <td>
-      <input name="date_from" id="date_from" size="12">
-      <input type="button" name="date_from_button" id="date_from_trigger" value="?">
+      [% L.date_tag('date_from') %]
       [% 'To (time)' | $T8 %]
-      <input name="date_to" id="date_to" size="12">
-      <input type="button" name="date_to_button" id="date_to_trigger" value="?">
+      [% L.date_tag('date_to') %]
      </td>
     </tr>
 <!--
