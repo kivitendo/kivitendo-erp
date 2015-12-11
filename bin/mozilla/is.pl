@@ -95,6 +95,8 @@ sub edit {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{AUTH} = $::auth;
+
   $form->{taxincluded_changed_by_user} = 1;
 
   # show history button

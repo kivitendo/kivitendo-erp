@@ -36,7 +36,9 @@
 [%- END %]
 [%- IF id %]
   <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+  [%- IF AUTH.assert('general_ledger', 1) %]
   <li><a href="[% 'controller.pl?action=AccTrans/list_transactions&trans_id=' _ HTML.url(id) | html %]">[% LxERP.t8('Transactions') %]</a></li>
+  [%- END %]
 [%- END %]
  </ul>
 
