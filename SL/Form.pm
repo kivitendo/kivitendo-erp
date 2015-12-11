@@ -627,7 +627,6 @@ sub _prepare_html_template {
       s/m+/\%m/gi;
       s/y+/\%Y/gi;
     } $::myconfig{"dateformat"};
-    $additional_params->{"myconfig"} ||= \%::myconfig;
   }
 
   $additional_params->{AUTH}          = $::auth;
