@@ -628,10 +628,6 @@ sub _prepare_html_template {
   $additional_params->{LXDEBUG}       = $::lxdebug;
   $additional_params->{MYCONFIG}      = \%::myconfig;
 
-  if (my $debug_options = $::lx_office_conf{debug}{options}) {
-    map { $additional_params->{'DEBUG_' . uc($_)} = $debug_options->{$_} } keys %$debug_options;
-  }
-
   if ($main::auth && $main::auth->{RIGHTS} && $main::auth->{RIGHTS}->{$self->{login}}) {
     while (my ($key, $value) = each %{ $main::auth->{RIGHTS}->{$self->{login}} }) {
       $additional_params->{"AUTH_RIGHTS_" . uc($key)} = $value;
