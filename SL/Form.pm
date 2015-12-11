@@ -631,7 +631,12 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
+  $additional_params->{AUTH}          = $::auth;
   $additional_params->{INSTANCE_CONF} = $::instance_conf;
+  $additional_params->{LOCALE}        = $::locale;
+  $additional_params->{LXCONFIG}      = \%::lx_office_conf;
+  $additional_params->{LXDEBUG}       = $::lxdebug;
+  $additional_params->{MYCONFIG}      = \%::myconfig;
 
   if (my $debug_options = $::lx_office_conf{debug}{options}) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $debug_options->{$_} } keys %$debug_options;
