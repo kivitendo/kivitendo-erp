@@ -621,14 +621,6 @@ sub _prepare_html_template {
     ::end_of_request();
   }
 
-  if (%main::myconfig) {
-    $::myconfig{jsc_dateformat} = apply {
-      s/d+/\%d/gi;
-      s/m+/\%m/gi;
-      s/y+/\%Y/gi;
-    } $::myconfig{"dateformat"};
-  }
-
   $additional_params->{AUTH}          = $::auth;
   $additional_params->{INSTANCE_CONF} = $::instance_conf;
   $additional_params->{LOCALE}        = $::locale;
