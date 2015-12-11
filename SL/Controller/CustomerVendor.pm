@@ -597,6 +597,7 @@ sub action_ajaj_autocomplete {
     if (1 == scalar @{ $exact_matches = $manager->get_all(
       query => [
         obsolete => 0,
+        (salesman_id => SL::DB::Manager::Employee->current->id) x !$::auth->assert('customer_vendor_all_edit', 1),
         or => [
           name    => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           $number => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
@@ -959,6 +960,9 @@ sub init_customer_models {
       },
       customernumber => t8('Customer Number'),
     },
+    query => [
+     ( salesman_id => SL::DB::Manager::Employee->current->id) x !$::auth->assert('customer_vendor_all_edit', 1),
+    ],
   );
 }
 
