@@ -37,10 +37,10 @@
  <script type="text/javascript">
    function calculate_qty() {
 [%- FOREACH row = VARIABLES %]
-     var [% row.name %] = parse_amount('[% myconfig.numberformat %]', document.getElementsByName("[% row.name %]")[0].value);
+     var [% row.name %] = parse_amount('[% MYCONFIG.numberformat %]', document.getElementsByName("[% row.name %]")[0].value);
 [%- END %]
      var result = [% formel %];
-     result = number_format(result, 2, '[% myconfig.numberformat %]');
+     result = number_format(result, 2, '[% MYCONFIG.numberformat %]');
      window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
      self.close();
    }
