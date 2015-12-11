@@ -12,7 +12,7 @@
     [%- END %]
     <th>[% LxERP.t8('Number') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
-    [%- IF SHOW_NOTES %]
+    [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
       <th>[% LxERP.t8('Long Description') %]</th>
     [%- END %]
     <th>[% LxERP.t8('Other Matches') %]</th>
@@ -33,7 +33,7 @@
     [%- END %]
     <td>[% HTML.escape(item.partnumber) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
-    [%- IF SHOW_NOTES %]
+    [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
       [% USE P %]
       <td>[% P.restricted_html(item.notes) %]</td>
     [%- END %]

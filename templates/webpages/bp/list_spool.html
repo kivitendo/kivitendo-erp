@@ -46,7 +46,7 @@
   <td>[% L.link(url(row.module _ '.pl', action='edit' ,type=type, callback=list_spool__callback, id=row.id), row.quonumber) %]</td>
 [%- END %]
   <td>[% row.name | html %]</td>
-  <td>[% L.link(spool _ '/' _ row.spoolfile, row.spoolfile) %][% L.hidden_tag('spoolfile_' _ loop.count, row.spoolfile) %]</td>
+  <td>[% L.link(LXCONFIG.paths.spool _ '/' _ row.spoolfile, row.spoolfile) %][% L.hidden_tag('spoolfile_' _ loop.count, row.spoolfile) %]</td>
  </tr>
 [%- END %]
 

@@ -23,13 +23,13 @@
       <option value=inline [% SM.inline %]>[% 'In-line' | $T8 %]</option>
 [%- ELSE %]
       <option value=screen [% OP.screen %]>[% 'Screen' | $T8 %]</option>
-  [%- IF got_printer && show_latex %]
+  [%- IF MYCONFIG.printer && LXCONFIG.primt_templates.latex %]
       <option value=printer [% OP.printer %]>[% 'Printer' | $T8 %]</option>
   [%- END %]
 [%- END %]
      </select>
     </td>
-[%- IF got_printer && show_latex && !is_email %]
+[%- IF MYCONFIG.printer && LXCONFIG.primt_templates.latex && !is_email %]
       <td>[% 'Copies' | $T8 %]<input name=copies size=2 value=[% copies %]></td>
 [%- END %]
   </tr>

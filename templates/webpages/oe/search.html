@@ -25,7 +25,7 @@
                  id_sub        = 'vc_keys',
                  label_key     = 'name',
                  select        = vc_select,
-                 limit         = vclimit,
+                 limit         = MYCONFIG.vclimit,
                  show_empty    = 1,
                  allow_textbox = 1,
                  class         = 'initial_focus',
@@ -46,7 +46,7 @@
                  DATA          = ALL_DEPARTMENTS,
                  id_key        = 'id',
                  label_key     = 'description',
-                 limit         = vclimit,
+                 limit         = MYCONFIG.vclimit,
                  show_empty    = 1,
                  allow_textbox = 1,
             -%]
@@ -87,12 +87,12 @@
      <th align="right">[% 'Project Number' | $T8 %]</th>
      <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
-                 name          =  vclimit < ALL_PROJECTS.size ? 'projectnumber' : 'project_id',
+                 name          =  MYCONFIG.vclimit < ALL_PROJECTS.size ? 'projectnumber' : 'project_id',
                  style         = "width: 250px",
                  DATA          =  ALL_PROJECTS,
                  id_key        = 'id',
                  label_key     = 'projectnumber',
-                 limit         = vclimit,
+                 limit         = MYCONFIG.vclimit,
                  show_empty    = 1,
                  allow_textbox = 1,
             -%]

@@ -115,9 +115,7 @@ sub search {
   $form->header;
 
   $form->get_lists('partsgroup'    => 'ALL_PARTSGROUPS');
-  print $form->parse_html_template('ic/search', { %is_xyz,
-                                                  dateformat => $myconfig{dateformat},
-                                                  limit => $myconfig{vclimit}, });
+  print $form->parse_html_template('ic/search', { %is_xyz, });
 
   $lxdebug->leave_sub();
 }    #end search()

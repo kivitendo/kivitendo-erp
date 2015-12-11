@@ -232,7 +232,7 @@
       </td>
      </tr>
 
-     [%- IF AUTH_RIGHTS_SALES_QUOTATION_EDIT %]
+     [%- IF AUTH.assert('sales_quotation_edit', 'may_fail') %]
      <tr>
       <th align="right">[% 'Show overdue sales quotations and requests for quotations...' | $T8 %]</th>
       <td>

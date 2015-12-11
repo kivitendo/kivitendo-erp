@@ -187,7 +187,6 @@ sub list_spool {
 
   $::form->header;
   print $::form->parse_html_template('bp/list_spool', {
-     spool        => $::lx_office_conf{paths}->{spool},
      href         => build_std_url('bp.pl', @href_options),
      is_invoice   => scalar ($::form->{type} =~ /^invoice$/),
      is_order     => scalar ($::form->{type} =~ /_order$/),

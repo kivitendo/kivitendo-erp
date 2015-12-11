@@ -786,7 +786,6 @@ sub search {
   $form->header();
 
   print $form->parse_html_template('oe/search', {
-    %myconfig,
     is_order => scalar($form->{type} =~ /_order/),
   });
 

@@ -17,7 +17,7 @@
   <tr>
     <th align=right nowrap>[% 'Subject' | $T8 %]</th>
     <td><input name=subject size=30 value="[% subject %]"></td>
-[% IF show_bcc %]
+[% IF AUTH.assert('email_bcc', 'may_fail') %]
     <th align=right nowrap=true>[% 'Bcc' | $T8 %]</th>
     <td><input name=bcc size=30 value="[% bcc | $T8 %]"></td>
 [%- END %]

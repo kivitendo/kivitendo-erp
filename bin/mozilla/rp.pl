@@ -199,8 +199,6 @@ sub report {
     year                => DateTime->today->year,
     today               => DateTime->today,
     nextsub             => $nextsub,
-    accrual             => $::instance_conf->get_accounting_method ne 'cash',
-    cash                => $::instance_conf->get_accounting_method eq 'cash',
     is_payments         => $is_payments,
     is_trial_balance    => $is_trial_balance,
     is_balance_sheet    => $is_balance_sheet,
@@ -1131,7 +1129,6 @@ sub e_mail {
 
   $::form->header;
   print $::form->parse_html_template('rp/e_mail', {
-    show_bcc      => $::auth->assert('email_bcc', 'may fail'),
     print_options => print_options(inline => 1),
     hidden_values => \@hidden_values,
   });
@@ -1630,8 +1627,6 @@ sub print_options {
   $::form->{SM}{ $::form->{sendmode} } = "selected";
 
   my $output = $::form->parse_html_template('rp/print_options', {
-    got_printer => $::myconfig{printer},
-    show_latex  => $::lx_office_conf{print_templates}->{latex},
     is_email    => $::form->{media} eq 'email',
   });
 

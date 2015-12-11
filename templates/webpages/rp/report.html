@@ -62,8 +62,8 @@
   <tr>
     <th align=left>[% 'Method' | $T8 %]</th>
     <td colspan=3>
-      [% L.radio_button_tag('method', value='accrual', checked=accrual, label=LxERP.t8('Accrual')) %]
-      [% L.radio_button_tag('method', value='cash', checked=cash, label=LxERP.t8('cash')) %]
+      [% L.radio_button_tag('method', value='accrual', checked=(INSTANCE_CONF.get_accounting_method=='accrual'), label=LxERP.t8('Accrual')) %]
+      [% L.radio_button_tag('method', value='cash', checked=(INSTANCE_CONF.get_accounting_method=='cash'), label=LxERP.t8('cash')) %]
     </td>
   </tr>
 [%- END %]
