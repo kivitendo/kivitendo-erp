@@ -621,15 +621,6 @@ sub _prepare_html_template {
     ::end_of_request();
   }
 
-  if ($self->{"DEBUG"}) {
-    $additional_params->{"DEBUG"} = $self->{"DEBUG"};
-  }
-
-  if ($additional_params->{"DEBUG"}) {
-    $additional_params->{"DEBUG"} =
-      "<br><em>DEBUG INFORMATION:</em><pre>" . $additional_params->{"DEBUG"} . "</pre>";
-  }
-
   if (%main::myconfig) {
     $::myconfig{jsc_dateformat} = apply {
       s/d+/\%d/gi;
