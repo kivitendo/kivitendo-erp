@@ -5,8 +5,8 @@
  <script type="text/javascript">
   <!--
       function on_load() {
-        Calendar.setup({ inputField : "date_from", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "date_from_trigger" });
-        Calendar.setup({ inputField : "date_to",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "date_to_trigger" });
+        Calendar.setup({ inputField : "date_from", ifFormat :"[% MYCONFIG.jsc_dateformat %]", align : "BR", button : "date_from_trigger" });
+        Calendar.setup({ inputField : "date_to",   ifFormat :"[% MYCONFIG.jsc_dateformat %]", align : "BR", button : "date_to_trigger" });
         document.Form.subject.focus();
       }
     -->
@@ -33,12 +33,12 @@
              id_key        = 'id',
              label_key     = 'name',
              select        = vc_select,
-             limit         = myconfig_vclimit,
+             limit         = MYCONFIG.vclimit,
              allow_textbox = 1,
              show_empty    = 1,
              force_textbox = limit_exceeded_all_customer
              onChange      = "document.getElementById('update_button').click();" -%]
-[%- IF myconfig_vclimit > ALL_CUSTOMERS.size %]
+[%- IF MYCONFIG.vclimit > ALL_CUSTOMERS.size %]
        <input type="hidden" name='selectcustomer' value="1">
 [%- END %]
      </td>

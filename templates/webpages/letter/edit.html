@@ -36,7 +36,7 @@
              id_sub        = 'vc_keys',
              label_key     = 'name',
              select        = vc_select,
-             limit         = myconfig_vclimit,
+             limit         = MYCONFIG.vclimit,
              allow_textbox = 1,
              force_textbox = limit_exceeded_all_customer
              onChange      = "document.getElementById('update_button').click();" -%]
@@ -46,7 +46,7 @@
         <input type='hidden' name='letter.oldcustomer' value='[% letter.oldcustomer | html %]'>
         <input type='hidden' name='letter.customer_id' value='[% letter.customer_id | html %]'>
         <input type='hidden' name='customer_id' value='[% customer_id | html %]'>
-[%- UNLESS myconfig_vclimit < ALL_CUSTOMERS.size %]
+[%- UNLESS MYCONFIG.vclimit < ALL_CUSTOMERS.size %]
         <input type="hidden" name="letter.select[% vc %]" value="1">
 [%- END %]
       </tr>
@@ -196,7 +196,7 @@
 
     <script type="text/javascript">
      <!--
-       Calendar.setup({ inputField : "date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "date_button" });
+       Calendar.setup({ inputField : "date", ifFormat :"[% MYCONFIG.jsc_dateformat %]", align : "BL", button : "date_button" });
      //-->
     </script>
     <script type="text/javascript" src="js/show_vc_details.js"></script>

@@ -19,7 +19,7 @@
     <table>
      <tr>
       <th align="right">[% 'Name' | $T8 %]</th>
-      <td><input name="name" size="15" value="[% HTML.escape(myconfig_name) %]"></td>
+      <td><input name="name" size="15" value="[% HTML.escape(MYCONFIG.name) %]"></td>
      </tr>
 
      <tr>
@@ -35,30 +35,30 @@
 
      <tr>
       <th align="right">[% 'E-mail' | $T8 %]</th>
-      <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
+      <td><input name="email" size="30" value="[% HTML.escape(MYCONFIG.email) %]"></td>
      </tr>
 
      <tr valign="top">
       <th align="right">[% 'Signature' | $T8 %]</th>
-      <td><textarea id="signature" name="signature" class="toggletextarea" rows="5" cols="50">[% HTML.escape(myconfig_signature) %] </textarea>
+      <td><textarea id="signature" name="signature" class="toggletextarea" rows="5" cols="50">[% HTML.escape(MYCONFIG.signature) %] </textarea>
          <span id="full_signature" class="toggletextarea"> <textarea readonly name="full_signature" rows="10" cols="50" >[% HTML.escape(full_signature) %]</textarea> </span>
          <a href="#" class="togglelink">[% 'Check full signature' | $T8 %]</a>
          <a href="#" id="edit_signature" class="togglelink">[% 'Edit user signature' | $T8 %]</a>
           </td> </tr>
      <tr>
       <th align="right">[% 'Phone' | $T8 %]</th>
-      <td><input name="tel" size="14" value="[% HTML.escape(myconfig_tel) %]"></td>
+      <td><input name="tel" size="14" value="[% HTML.escape(MYCONFIG.tel) %]"></td>
      </tr>
 
      <tr>
       <th align="right">[% 'Fax' | $T8 %]</th>
-      <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
+      <td><input name="fax" size="14" value="[% HTML.escape(MYCONFIG.fax) %]"></td>
      </tr>
 
       <tr>
         <th align="right">[% 'taxincluded checked' | $T8 %]</th>
         <td>
-          [% L.yes_no_tag('taxincluded_checked', myconfig_taxincluded_checked) %]
+          [% L.yes_no_tag('taxincluded_checked', MYCONFIG.taxincluded_checked) %]
         </td>
       </tr>
 
@@ -73,7 +73,7 @@
               ['last_description', LxERP.t8('Last row, description')],
               ['last_partnumber', LxERP.t8('Last row, partnumber')],
             ],
-            default => myconfig_focus_position)
+            default => MYCONFIG.focus_position)
           %]
         </td>
       </tr>
@@ -81,7 +81,7 @@
       <tr>
         <th align="right">[% 'Item multi selection with qty' | $T8 %]</th>
         <td>
-          [% L.yes_no_tag('item_multiselect', myconfig_item_multiselect) %]
+          [% L.yes_no_tag('item_multiselect', MYCONFIG.item_multiselect) %]
         </td>
       </tr>
 
@@ -112,7 +112,7 @@
 
      <tr>
       <th align="right">[% 'Dropdown Limit' | $T8 %]</th>
-      <td><input name="vclimit" size="10" value="[% HTML.escape(myconfig_vclimit) %]"></td>
+      <td><input name="vclimit" size="10" value="[% HTML.escape(MYCONFIG.vclimit) %]"></td>
      </tr>
 
      <tr>
@@ -133,9 +133,9 @@
       <th align="right">[% 'Setup Menu' | $T8 %]</th>
       <td>
        <select name="menustyle">
-        <option value="old"[% IF myconfig_menustyle == 'old' %] selected[% END %]>[% 'Old (on the side)' | $T8 %]</option>
-        <option value="v3"[% IF myconfig_menustyle == 'v3' %] selected[% END %]>[% 'Top (CSS)' | $T8 %]</option>
-        <option value="neu"[% IF myconfig_menustyle == 'neu' %] selected[% END %]>[% 'Top (Javascript)' | $T8 %]</option>
+        <option value="old"[% IF MYCONFIG.menustyle == 'old' %] selected[% END %]>[% 'Old (on the side)' | $T8 %]</option>
+        <option value="v3"[% IF MYCONFIG.menustyle == 'v3' %] selected[% END %]>[% 'Top (CSS)' | $T8 %]</option>
+        <option value="neu"[% IF MYCONFIG.menustyle == 'neu' %] selected[% END %]>[% 'Top (Javascript)' | $T8 %]</option>
        </select>
       </td>
      </tr>
@@ -144,8 +144,8 @@
       <th align="right">[% 'Form details (second row)' | $T8 %]</th>
       <td>
        <select name="show_form_details">
-        <option value="1"[% IF  myconfig_show_form_details %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
-        <option value="0"[% IF !myconfig_show_form_details %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
+        <option value="1"[% IF  MYCONFIG.show_form_details %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
+        <option value="0"[% IF !MYCONFIG.show_form_details %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
        </select>
       </td>
      </tr>
@@ -154,8 +154,8 @@
       <th align="right">[% 'Show custom variable search inputs' | $T8 %]</th>
       <td>
        <select name="hide_cvar_search_options">
-        <option value="0"[% IF !myconfig_hide_cvar_search_options %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
-        <option value="1"[% IF  myconfig_hide_cvar_search_options %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
+        <option value="0"[% IF !MYCONFIG.hide_cvar_search_options %] selected[% END %]>[% 'Show by default' | $T8 %]</option>
+        <option value="1"[% IF  MYCONFIG.hide_cvar_search_options %] selected[% END %]>[% 'Hide by default' | $T8 %]</option>
        </select>
       </td>
      </tr>
@@ -163,7 +163,7 @@
      <tr>
       <th align="right">[% 'Number of columns of custom variables in form details (second row)' | $T8 %]</th>
       <td>
-        [% L.input_tag('form_cvars_nr_cols',  myconfig_form_cvars_nr_cols || 3,  size = 5) %]
+        [% L.input_tag('form_cvars_nr_cols',  MYCONFIG.form_cvars_nr_cols || 3,  size = 5) %]
       </td>
      </tr>
 
@@ -173,7 +173,7 @@
    <div id="page_print_options">
 
     <table>
-     <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
+     <input name="printer" type="hidden" value="[% HTML.escape(MYCONFIG.printer) %]">
 
      <tr>
       <th align="right">[% 'Default template format' | $T8 %]</th>
@@ -192,13 +192,13 @@
      <tr>
       <th align="right">[% 'Default printer' | $T8 %]</th>
       <td>
-       [% L.select_tag('default_printer_id', PRINTERS, default = myconfig_default_printer_id, title_key = 'printer_description', with_empty = 1) %]
+       [% L.select_tag('default_printer_id', PRINTERS, default = MYCONFIG.default_printer_id, title_key = 'printer_description', with_empty = 1) %]
       </td>
      </tr>
 
      <tr>
       <th align="right">[% 'Number of copies' | $T8 %]</th>
-      <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
+      <td><input name="copies" size="10" value="[% HTML.escape(MYCONFIG.copies) %]"></td>
      </tr>
     </table>
    </div>

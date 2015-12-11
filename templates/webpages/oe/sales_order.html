@@ -85,7 +85,7 @@
   <script type='text/javascript'>
     $(function() {
       setTimeout(function(){
-        [% SWITCH( myconfig_focus_position ) %]
+        [% SWITCH( MYCONFIG.focus_position ) %]
           [% CASE 'last_partnumber' %]
             $('#display_row tr.row:gt(-3):lt(-1) input[name*="partnumber"]').focus();
           [% CASE 'last_description' %]
