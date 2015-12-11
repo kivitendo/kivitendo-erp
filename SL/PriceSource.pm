@@ -92,43 +92,73 @@ part, customer, vendor, date, quantity etc, which was previously not possible.
 =head1 BACKGROUND AND PHILOSOPHY
 
 sql ledger and subsequently Lx-Office had three prices per part: sellprice,
-listprice and lastcost. At the moment a part is loaded into a record, the
-applicable price is copied and after that it is free to be changed.
+listprice and lastcost. When adding an item to a record, the applicable price
+was copied and after that it was free to be changed.
 
 Later on additional things were added. Various types of discount, vendor pricelists
-and the infamous price groups. The problem is not that those didn't work, the
-problem is, that they had to guess too much when to change a price with the
+and the infamous price groups. The problem was not that those didn't work, the
+problem was they had to guess too much when to change a price with the
 available price from the database, and when to leave the user entered price.
+
+The result was that the price of an item in a record seemed to change on a
+whim, and the origin of the price itself being opaque.
 
 Unrelated to that, users asked for more ways to store special prices, based on
 qty (block pricing, bulk discount), based on date (special offers), based on
 customers (special terms), up to full blown calculation modules.
 
 On a third front sales personnel asked for ways to see what price options a
-position in a quotation has, and wanted information available when a price
-offer changed.
+position in a quotation has, and wanted information available when prices
+changed to make better informed choices about sales later in the workflow.
 
-Price sources put that together by making some compromises:
+Price sources now extend the previous pricing by attaching a source to every
+price in records. The information it provides are:
 
 =over 4
 
 =item 1.
 
-Only change the price on creation of a position or when asked to.
+Where did this price originate?
 
 =item 2.
 
-Either set the price from a price source and let it be read only, or use a free
-price.
+If this price would be calculated today, is it still the same as it was when
+this record was created?
 
 =item 3.
 
-Save the origin of each price with the record so that the calculation can be
-reproduced.
+If I want to price an item in this record now, which prices are available?
 
 =item 4.
 
-Make price calculation flexible and pluggable.
+Which one is the "best"?
+
+=back
+
+=head1 GUARANTEES
+
+To ensure price source prices are comprehensible and reproucible, some
+invariants are guaranteed:
+
+=over 4
+
+=item 1.
+
+Price sources will never on their own change a price. They will offer options,
+and it is up to the user to change a price.
+
+=item 2.
+
+If a price is set from a source, it is read only. A price edited manually is by
+definition not a sourced price.
+
+=item 3.
+
+A price should be able to repeat the calculations done to arrive at the price
+when it was first used. If these calculations are no longer applicable (special
+offer expired) this should be signalled. If the calculations result in a
+different price, this should be signalled. If the calculations fail (needed
+information is no longer present) this must be signalled.
 
 =back
 
@@ -137,8 +167,20 @@ without their explicit consent, eliminating all problems originating from
 trying to be smart. The second and third one ensure that later on the
 calculation can be repeated so that invalid prices can be caught (because for
 example the special offer is no longer valid), and so that sales personnel have
-information about rising or falling prices. The fourth point ensures that
-insular calculation processes can be developed independent of the core code.
+information about rising or falling prices.
+
+=head1 STRUCTURE
+
+Price sources are managed by this package (L<SL::PriceSource>), and all
+external access should be by using it's interface.
+
+Each source is an instance of L<SL::PriceSource::Base> and the available
+implementations are recorded in L<SL::PriceSource::ALL>. Prices and discounts
+returned by interface methods are instances of L<SL::PriceSource::Price> and
+L<SL::PriceSource::Discout>.
+
+Returned prices and discounts should be checked for entries in C<invalid> and
+C<missing>, see documentation in their classes.
 
 =head1 INTERFACE METHODS
 
@@ -198,22 +240,48 @@ L<SL::PriceSource::ALL>
 
 =item *
 
-The current simple model of price sources providing a simple value in simple
-cases doesn't work well in situations where prices are modified by other
-properties. The same problem also causes headaches when trying to use price
-sources to compute positions in assemblies.
+The current model of price sources requires a record and a record_item for
+every price calculation. This means that price structures can never be used
+when no record is available, such as calculation the worth of assembly rows.
 
-The solution should be to split price sources in simple ones, which do not
-manage their interactions with record_items, but can be used in contexts
-without record_items, and complex ones which do, but have to be fed a dummy
-record_item. For the former there should be a wrapper that handles interactions
-with units, price_factors etc..
+A possible solution is to either split price sources into simple and complex
+ones (where the former do not require records).
+
+Another would be to have default values for the inpout normally taken from
+records (like qty defaulting to 1).
+
+A last one would be to provide an alternative input channel for needed
+properties.
+
+=item *
+
+Discount sources were implemented as a copy of the prices with slightly
+different semantics. Need to do a real design. A requirement is, that a sinle
+source can provide both prices and discounts (needed for price_rules).
+
+=item *
+
+Priorities are implemented ad hoc. The semantics which are chosen by the "best"
+accessors are unintuitive because they do not guarantee anything. Better
+terminology might help.
+
+=item *
+
+It is currently not possible to link a price to the price of the generating
+record_item (i.e. the price of a delivery order item to the order item it was
+generated from). This is crucial to enterprises that calculate all their prices
+in orders, and update those after they made delivery orders.
 
 =item *
 
 Currently it is only possible to provide additional prices, but not to restrict
 prices. Potential scenarios include credit limit customers which do not receive
 benefits from sales, or general ALLOW, DENY order calculation.
+
+=item *
+
+Composing price sources are disallowed for clarity, but all price sources need
+to be aware of units. This is madness.
 
 =back
 
