@@ -628,12 +628,6 @@ sub _prepare_html_template {
   $additional_params->{LXDEBUG}       = $::lxdebug;
   $additional_params->{MYCONFIG}      = \%::myconfig;
 
-  if ($main::auth && $main::auth->{RIGHTS} && $main::auth->{RIGHTS}->{$self->{login}}) {
-    while (my ($key, $value) = each %{ $main::auth->{RIGHTS}->{$self->{login}} }) {
-      $additional_params->{"AUTH_RIGHTS_" . uc($key)} = $value;
-    }
-  }
-
   $main::lxdebug->leave_sub();
 
   return $file;
