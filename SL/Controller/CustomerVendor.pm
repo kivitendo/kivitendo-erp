@@ -61,6 +61,29 @@ __PACKAGE__->run_before(
     'ajaj_get_contact',
   ]
 );
+
+# make sure this comes after _load_customer_vendor
+__PACKAGE__->run_before(
+  '_check_customer_vendor_all_edit',
+  only => [
+    'edit',
+    'show',
+    'update',
+    'delete',
+    'save',
+    'save_and_ap_transaction',
+    'save_and_ar_transaction',
+    'save_and_close',
+    'save_and_invoice',
+    'save_and_order',
+    'save_and_quotation',
+    'save_and_rfq',
+    'delete',
+    'delete_contact',
+    'delete_shipto',
+  ]
+);
+
 __PACKAGE__->run_before(
   '_create_customer_vendor',
   only => [
