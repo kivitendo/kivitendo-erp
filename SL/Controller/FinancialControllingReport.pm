@@ -243,6 +243,7 @@ sub init_models {
     query => [
       SL::DB::Manager::Order->type_filter('sales_order'),
       '!closed' => 1,
+      (salesman_id => SL::DB::Manager::Employee->current->id) x !$::auth->assert('sales_all_edit', 1),
       or        => [
         globalproject_id => undef,
         and              => [
