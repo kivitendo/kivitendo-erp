@@ -1,9 +1,7 @@
 [% USE HTML %]
 [% USE T8 %]
 [% USE L %]
-<body>
-
- <div class="listtop">[% title %]</div>
+ <h1>[% title %]</h1>
 
  <form action="letter.pl" method="post" name="Form">
   <input type="hidden" name="nextsub" value="report">
@@ -58,17 +56,6 @@
       [% L.date_tag('date_to') %]
      </td>
     </tr>
-<!--
-    <tr>
-     <td align="right">[% 'Include in Report' | $T8 %]</td>
-     <td>
-
-      <table>
-      </table>
-
-     </td>
-    </tr>
--->
    </table>
   </p>
 
@@ -76,6 +63,3 @@
    <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
-
-</body>
-</html>

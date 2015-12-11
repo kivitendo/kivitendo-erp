@@ -1,9 +1,7 @@
 [%- USE HTML %]
 [%- USE T8 %]
 [%- USE L %]
-<body onload="[% onload %]" width=100%>
-
- <div class="listtop">[% title %]</div>
+ <h1>[% title %]</h1>
 
  <form action='letter.pl' method='POST'>
 
@@ -193,6 +191,3 @@
 <input class="submit" type="submit" name="action_save_letter_draft" value="[% 'Save Draft' | $T8 %]">
 
  </form>
-
-</body>
-
