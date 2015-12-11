@@ -137,7 +137,7 @@ Which one is the "best"?
 
 =head1 GUARANTEES
 
-To ensure price source prices are comprehensible and reproucible, some
+To ensure price source prices are comprehensible and reproducible, some
 invariants are guaranteed:
 
 =over 4
@@ -280,7 +280,7 @@ benefits from sales, or general ALLOW, DENY order calculation.
 
 =item *
 
-Composing price sources are disallowed for clarity, but all price sources need
+Composing price sources is disallowed for clarity, but all price sources need
 to be aware of units. This is madness.
 
 =back
