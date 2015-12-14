@@ -1285,9 +1285,9 @@ sub retrieve_item {
     qq|SELECT
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
          p.unit, p.assembly, p.onhand, p.formel,
-         p.not_discountable,
+         p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
          p.inventory_accno_id, p.price_factor_id,
-         p.ean, p.notes,
+         p.ean,
 
          pfac.factor AS price_factor,
 
