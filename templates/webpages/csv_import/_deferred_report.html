@@ -19,7 +19,9 @@
   }
 
   $(document).ready(function(){
-    get_report('#csv_import_report', 'controller.pl', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %] });
+    [%- IF SELF.background_job.data_as_hash.report_id %]
+      get_report('#csv_import_report', 'controller.pl', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %] });
+    [%- END %]
   });
 
 
