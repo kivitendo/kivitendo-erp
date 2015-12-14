@@ -1,4 +1,4 @@
-[% USE LxERP %][% USE HTML %][% USE L %]
+[% USE LxERP %][% USE HTML %][% USE L %][% USE P %]
 <h1>[% title %]</h1>
 
  <form method="post" action="[% HTML.escape(script) %]">
@@ -34,8 +34,7 @@
     <td>[% HTML.escape(item.partnumber) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
     [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
-      [% USE P %]
-      <td>[% P.restricted_html(item.notes) %]</td>
+      <td>[% P.restricted_html(item.longdescription) %]</td>
     [%- END %]
     <td>[% HTML.escape(item.matches).join('<br>') %]</td>
     <td align="right">[% LxERP.format_amount(item.display_sellprice, 2) %]</td>
