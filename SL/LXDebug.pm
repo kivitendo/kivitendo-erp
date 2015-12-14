@@ -18,7 +18,7 @@ use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
 
 use Data::Dumper;
-use POSIX qw(strftime getppid);
+use POSIX qw(strftime getpid);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
 use SL::Request ();
@@ -262,7 +262,7 @@ sub _write {
   no warnings;
   my ($self, $prefix, $message) = @_;
   my @now  = gettimeofday();
-  my $date = strftime("%Y-%m-%d %H:%M:%S." . sprintf('%03d', int($now[1] / 1000)) . " $$ [" . getppid() . "] ${prefix}: ", localtime($now[0]));
+  my $date = strftime("%Y-%m-%d %H:%M:%S." . sprintf('%03d', int($now[1] / 1000)) . " $$ [" . getpid() . "] ${prefix}: ", localtime($now[0]));
   local *FILE;
 
   chomp($message);
