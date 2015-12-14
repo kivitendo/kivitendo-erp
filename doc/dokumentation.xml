@@ -2933,7 +2933,7 @@ empfang@revamp-it.ch
               <term><varname>template_meta.language.template_code</varname></term>
 
               <listitem>
-                <para>Vorlagenürzel der verwendeten Sprache, identisch mit dem
+                <para>Vorlagenkürzel der verwendeten Sprache, identisch mit dem
                 Kürzel das im Dateinamen verwendetet wird.</para>
               </listitem>
             </varlistentry>
