@@ -1,16 +1,23 @@
 package SL::Template::Plugin::JavaScript;
 
-use base qw( Template::Plugin );
-use Template::Plugin;
+use base qw( Template::Plugin::Filter );
 
 use strict;
 
-sub new {
-  my ($class, $context, @args) = @_;
+my $cached_instance;
 
-  return bless {
-    CONTEXT => $context,
-  }, $class;
+sub new {
+  my $class = shift;
+
+  return $cached_instance ||= $class->SUPER::new(@_);
+}
+
+sub init {
+  my $self = shift;
+
+  $self->install_filter($self->{ _ARGS }->[0] || 'js');
+
+  return $self;
 }
 
 #
@@ -36,6 +43,11 @@ sub escape {
   $text =~ s/$re/'\\' . ($control_chars{$1} || $1)/egs;
 
   return $text;
+}
+
+sub filter {
+  my ($self, $text) = @_;
+  return $self->escape($text);
 }
 
 sub replace_with {
@@ -91,6 +103,11 @@ value is not wrapped in quotes. Example:
 
   <input type="submit" value="Delete"
          onclick="if (confirm('Do you really want to delete this: [% JavaScript.escape(obj.description) %]') return true; else return false;">
+
+You can also use the filter syntax instead:
+
+  <input type="submit" value="Delete"
+         onclick="if (confirm('Do you really want to delete this: [% obj.description | js %]') return true; else return false;">
 
 =item C<replace_with $selector, $template, %locals>
 
