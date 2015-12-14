@@ -245,6 +245,14 @@ sub _parse_data {
     my $row = $self->_csv->getline($self->_io);
     if ($row) {
       my $header = $self->_header_by_row($row);
+      if (!$header) {
+        push @errors, [
+          0,
+          "Cannot get header for row. Maybe row name and datatype field not matching.",
+          0,
+          0];
+        last;
+      }
       my %hr;
       @hr{@{ $header }} = @$row;
       push @data, \%hr;
