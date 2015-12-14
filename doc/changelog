@@ -3,7 +3,7 @@
 ###############################
 
 
-2015-xx-xx - Release 3.x.x
+2016-xx-xx - Release 3.x.x
 
 Größere neue Features:
 
@@ -52,6 +52,8 @@ Kleinere neue Features und Detailverbesserungen:
   - Projekte können automatisch beim Speichern eines Verkaufsauftrags angelegt werden.
 
   - Langtext kann in der Auswahlliste bei mehreren Treffern im Positionsbeleg  zusätzlich angezeigt werden.
+
+  - Besseren kivi-Adventssupport
 
 2015-08-20 - Release 3.3
 

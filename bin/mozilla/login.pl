@@ -30,6 +30,7 @@
 use SL::DB::Default;
 use SL::Form;
 use SL::Git;
+use DateTime;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/todo.pl";
@@ -54,6 +55,7 @@ sub company_logo {
 
   my $git             = SL::Git->new;
   ($form->{git_head}) = $git->get_log(since => 'HEAD~1', until => 'HEAD') if $git->is_git_installation;
+  $form->{xmas}       = '_xmas' if (DateTime->today->month == 12 && DateTime->today->day < 27);
 
   # create the logo screen
   $form->header() unless $form->{noheader};
