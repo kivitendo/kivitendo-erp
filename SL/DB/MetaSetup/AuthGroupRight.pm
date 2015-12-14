@@ -4,15 +4,15 @@ package SL::DB::AuthGroupRight;
 
 use strict;
 
-use base qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
 __PACKAGE__->meta->table('group_rights');
 __PACKAGE__->meta->schema('auth');
 
 __PACKAGE__->meta->columns(
+  granted  => { type => 'boolean', not_null => 1 },
   group_id => { type => 'integer', not_null => 1 },
   right    => { type => 'text', not_null => 1 },
-  granted  => { type => 'boolean', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'group_id', 'right' ]);
@@ -23,8 +23,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { group_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

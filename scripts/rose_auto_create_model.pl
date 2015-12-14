@@ -13,7 +13,7 @@ use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use English qw( -no_match_vars );
 use Getopt::Long;
-use List::MoreUtils qw(none);
+use List::MoreUtils qw(apply none uniq);
 use List::UtilsBy qw(partition_by);
 use Pod::Usage;
 use Rose::DB::Object 0.809;
@@ -340,6 +340,22 @@ sub usage {
   pod2usage(verbose => 99, sections => 'SYNOPSIS');
 }
 
+sub list_all_tables {
+  my ($db) = @_;
+
+  my @schemas = (undef, uniq apply { s{\..*}{} } grep { m{\.} } keys %{ $package_names{KIVITENDO} });
+  my @tables;
+
+  foreach my $schema (@schemas) {
+    $db->schema($schema);
+    push @tables, map { $schema ? "${schema}.${_}" : $_ } $db->list_tables;
+  }
+
+  $db->schema(undef);
+
+  return @tables;
+}
+
 sub make_tables {
   my %tables_by_domain;
   if ($config{all}) {
@@ -347,7 +363,7 @@ sub make_tables {
 
     foreach my $domain (@domains) {
       my $db  = SL::DB::create(undef, $domain);
-      $tables_by_domain{$domain} = [ grep { my $table = $_; none { $_ eq $table } @{ $blacklist{$domain} } } $db->list_tables ];
+      $tables_by_domain{$domain} = [ grep { my $table = $_; none { $_ eq $table } @{ $blacklist{$domain} } } list_all_tables($db) ];
       $db->disconnect;
     }
 

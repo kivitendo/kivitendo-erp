@@ -4,7 +4,7 @@ package SL::DB::AuthClientGroup;
 
 use strict;
 
-use base qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
 __PACKAGE__->meta->table('clients_groups');
 __PACKAGE__->meta->schema('auth');
@@ -27,8 +27,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { group_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;
