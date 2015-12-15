@@ -43,6 +43,11 @@ sub clear {
   %cache = ();
 }
 
+sub disconnect_all_and_clear {
+  $_->disconnect for values %cache;
+  %cache = ();
+}
+
 sub _args2str {
   my (@args) = @_;
 

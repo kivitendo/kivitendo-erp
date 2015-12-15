@@ -61,10 +61,8 @@ password =</pre><p>Nutzt man wiederkehrende Rechnungen, kann man unter
         <code class="varname">[periodic_invoices]</code> den Login eines Benutzers
         angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
         mit Informationen über die erstellten Rechnungen bekommt.</p><p>kivitendo bringt eine eigene Komponente zur zeitgesteuerten Ausführung bestimmter Aufgaben mit, den <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Taskserver</a>. Er wird u.a. für Features wie die <a class="link" href="ch03.html#features.periodic-invoices" title="3.1. Wiederkehrende Rechnungen">wiederkehrenden Rechnungen</a> benötigt, erledigt aber auch andere erforderliche Aufgaben
-        und muss daher in Betrieb genommen werden. Der Taskserver benötigt zwei Konfigurationseinstellungen, die unter
-        <code class="varname">[task_server]</code> anzugeben sind: ein Mandant (entweder der Mandantenname oder eine Datenbank-ID, Variable
-        <code class="varname">client</code>), aus dem die Datenbankkonfiguration entnommen wird, sowie ein Login (Variable <code class="varname">login</code>)
-        eines Benutzers, der für gewisse Dinge wie die Rechnungserstellung als Verkäufer eingetragen wird.</p><p>Für Entwickler finden sich unter <code class="varname">[debug]</code>
+        und muss daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Task-Server</a>
+        genauer beschrieben.</p><p>Für Entwickler finden sich unter <code class="varname">[debug]</code>
         wichtige Funktionen, um die Fehlersuche zu erleichtern.</p></div><div class="sect2" title="2.4.3. Versionen vor 2.6.3"><div class="titlepage"><div><div><h3 class="title"><a name="config.config-file.prior-versions"></a>2.4.3. Versionen vor 2.6.3</h3></div></div></div><p>In älteren kivitendo Versionen gab es im Verzeichnis
         <code class="filename">config</code> die Dateien
         <code class="filename">authentication.pl</code> und

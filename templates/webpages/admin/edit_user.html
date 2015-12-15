@@ -1,5 +1,5 @@
 [%- USE HTML %]
-[%- USE L %][%- USE LxERP -%]
+[%- USE L %][%- USE LxERP -%][%- USE JavaScript -%]
 
 [%- INCLUDE 'common/flash.html' %]
 
@@ -157,7 +157,7 @@
  [% L.button_tag("submit_with_action('save_user')", LxERP.t8("Save")) %]
  [% IF SELF.user.id %]
   [% L.button_tag("save_as_new()", LxERP.t8("Save as new")) %]
-  [% L.button_tag("submit_with_action('delete_user')", LxERP.t8("Delete"), confirm=LxERP.t8("Are you sure?")) %]
+  [% L.button_tag("submit_delete()", LxERP.t8("Delete"), confirm=LxERP.t8("Are you sure?")) %]
  [%- END %]
 </p>
 
@@ -168,6 +168,16 @@
   function submit_with_action(action) {
     $("#action").val("Admin/" + action);
     $("#form").submit();
+  }
+
+  function submit_delete() {
+[% SET used_for_task_server_in_clients = SELF.is_user_used_for_task_server(SELF.user) %]
+[% IF used_for_task_server_in_clients %]
+   alert('[% LxERP.t8('The user cannot be deleted as it is used in the following clients: #1', used_for_task_server_in_clients) | js %]');
+   return false;
+[% ELSE %]
+    submit_with_action('delete_user');
+[% END %]
   }
 
   function save_as_new() {

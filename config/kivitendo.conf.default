@@ -146,12 +146,6 @@ openofficeorg_daemon = 1
 openofficeorg_daemon_port = 2002
 
 [task_server]
-# kivitendo client (either its name or its database ID) for database
-# access (both 'client' and 'login' are required)
-client =
-# kivitendo user (login) name to use for certain jobs (both 'client'
-# and 'login' are required)
-login =
 # Set to 1 for debug messages in /tmp/kivitendo-debug.log
 debug = 0
 # Chose a system user the daemon should run under when started as root.

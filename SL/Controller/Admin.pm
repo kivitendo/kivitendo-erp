@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 
 use IO::Dir;
 use List::Util qw(first);
+use List::UtilsBy qw(sort_by);
 
 use SL::Common ();
 use SL::DB::AuthUser;
@@ -671,5 +672,13 @@ sub authenticate_root {
 
   return undef;
 }
+
+sub is_user_used_for_task_server {
+  my ($self, $user) = @_;
+
+  return undef if !$user;
+  return join ', ', sort_by { lc } map { $_->name } @{ SL::DB::Manager::AuthClient->get_all(where => [ task_server_user_id => $user->id ]) };
+}
+
 
 1;

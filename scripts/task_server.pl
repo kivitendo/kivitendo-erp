@@ -32,6 +32,7 @@ use File::Spec;
 use List::Util qw(first);
 use POSIX qw(setuid setgid);
 use SL::Auth;
+use SL::DB::AuthClient;
 use SL::DB::BackgroundJob;
 use SL::BackgroundJob::ALL;
 use SL::Form;
@@ -48,14 +49,17 @@ our %lx_office_conf;
 
 sub debug {
   return if !$lx_office_conf{task_server}->{debug};
-  $::lxdebug->message(0, @_);
+  $::lxdebug->message(LXDebug::DEBUG1(), join(' ', "task server:", @_));
+}
+
+sub enabled_clients {
+  return SL::DB::Manager::AuthClient->get_all(where => [ '!task_server_user_id' => undef ]);
 }
 
 sub initialize_kivitendo {
-  chdir $exe_dir;
+  my ($client) = @_;
 
-  my $login  = $lx_office_conf{task_server}->{login};
-  my $client = $lx_office_conf{task_server}->{client};
+  chdir $exe_dir;
 
   package main;
 
@@ -64,7 +68,13 @@ sub initialize_kivitendo {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
-  die "No client configured or no client found with the name/ID '$client'" unless $::auth->set_client($client);
+
+  return if !$client;
+
+  $::auth->set_client($client->id);
+
+  $::form->{__ERROR_HANDLER} = sub { die @_ };
+
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
     cgi            => CGI->new({}),
@@ -76,10 +86,10 @@ sub initialize_kivitendo {
   $::auth->restore_session;
   $::auth->create_or_refresh_session;
 
+  my $login = $client->task_server_user->login;
+
   die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode} || $::lx_office_conf{system}->{language});
-
-  $::form->{__ERROR_HANDLER} = sub { die @_ };
 }
 
 sub cleanup_kivitendo {
@@ -93,7 +103,13 @@ sub cleanup_kivitendo {
   $::form     = undef;
   $::myconfig = ();
   $::request  = undef;
+  $::auth     = undef;
+}
+
+sub clean_before_sleeping {
   Form::disconnect_standard_dbh;
+  SL::DBConnect::Cache->disconnect_all_and_clear;
+  SL::DB->db_cache->clear;
 }
 
 sub drop_privileges {
@@ -155,17 +171,23 @@ sub notify_on_failure {
 
   $params{client} = $::auth->client;
 
-  my $body;
-  $template->process($cfg->{email_template}, \%params, \$body);
+  eval {
+    my $body;
+    $template->process($cfg->{email_template}, \%params, \$body);
 
-  Mailer->new(
-    from         => $cfg->{email_from},
-    to           => $email_to,
-    subject      => $cfg->{email_subject},
-    content_type => 'text/plain',
-    charset      => 'utf-8',
-    message      => Encode::decode('utf-8', $body),
-  )->send;
+    Mailer->new(
+      from         => $cfg->{email_from},
+      to           => $email_to,
+      subject      => $cfg->{email_subject},
+      content_type => 'text/plain',
+      charset      => 'utf-8',
+      message      => Encode::decode('utf-8', $body),
+    )->send;
+
+    1;
+  } or do {
+    debug("Sending a failure notification failed with an exception: $@");
+  };
 }
 
 sub gd_preconfig {
@@ -173,31 +195,49 @@ sub gd_preconfig {
 
   SL::LxOfficeConf->read($self->{configfile});
 
-  die "Missing section [task_server] in config file"                 unless $lx_office_conf{task_server};
-  die "Missing key 'login' in section [task_server] in config file"  unless $lx_office_conf{task_server}->{login};
-  die "Missing key 'client' in section [task_server] in config file" unless $lx_office_conf{task_server}->{client};
+  die "Missing section [task_server] in config file" unless $lx_office_conf{task_server};
+
+  if ($lx_office_conf{task_server}->{login} || $lx_office_conf{task_server}->{client}) {
+    print STDERR <<EOT;
+ERROR: The keys 'login' and/or 'client' are still present in the
+section [task_server] in the configuration file. These keys are
+deprecated. You have to configure the clients for which to run the
+task server in the web admin interface.
+
+The task server will refuse to start until the keys have been removed from
+the configuration file.
+EOT
+    exit 2;
+  }
 
   drop_privileges();
-  initialize_kivitendo();
 
   return ();
 }
 
-sub gd_run {
-  while (1) {
-    my $ok = eval {
-      initialize_kivitendo();
+sub run_once_for_all_clients {
+  initialize_kivitendo();
 
-      debug("Retrieving jobs");
+  my $clients = enabled_clients();
+
+  foreach my $client (@{ $clients }) {
+    debug("Running for client ID " . $client->id . " (" . $client->name . ")");
+
+    my $ok = eval {
+      initialize_kivitendo($client);
 
       my $jobs = SL::DB::Manager::BackgroundJob->get_all_need_to_run;
 
-      debug("  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if @{ $jobs };
+      if (@{ $jobs }) {
+        debug(" Executing the following jobs: " . join(' ', map { $_->package_name } @{ $jobs }));
+      } else {
+        debug(" No jobs to execute found");
+      }
 
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
         # them somehow.
-        initialize_kivitendo();
+        initialize_kivitendo($client);
 
         my $history = $job->run;
 
@@ -214,8 +254,16 @@ sub gd_run {
     }
 
     cleanup_kivitendo();
+  }
+}
+
+sub gd_run {
+  while (1) {
+    run_once_for_all_clients();
 
     debug("Sleeping");
+
+    clean_before_sleeping();
 
     my $seconds = 60 - (localtime)[0];
     if (!eval {

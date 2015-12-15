@@ -49,6 +49,13 @@
     [% L.input_tag("client.dbpasswd", SELF.client.dbpasswd, class="contains_dbsettings", type="password") %]
    </td>
   </tr>
+
+  <tr>
+   <th align="right">[% LxERP.t8("Run task server for this client with the following user") %]</th>
+   <td>
+    [% L.select_tag("client.task_server_user_id", SELF.all_users, with_empty=1, empty_title=LxERP.t8("Do not run the task server for this client"), title_key="login", default=SELF.client.task_server_user_id) %]
+   </td>
+  </tr>
  </table>
 
  <div>

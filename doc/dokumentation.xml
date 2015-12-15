@@ -419,10 +419,8 @@ password =</programlisting>
         <para>kivitendo bringt eine eigene Komponente zur zeitgesteuerten Ausführung bestimmter Aufgaben mit, den <link
         linkend="config.task-server">Taskserver</link>. Er wird u.a. für Features wie die <link
         linkend="features.periodic-invoices">wiederkehrenden Rechnungen</link> benötigt, erledigt aber auch andere erforderliche Aufgaben
-        und muss daher in Betrieb genommen werden. Der Taskserver benötigt zwei Konfigurationseinstellungen, die unter
-        <varname>[task_server]</varname> anzugeben sind: ein Mandant (entweder der Mandantenname oder eine Datenbank-ID, Variable
-        <varname>client</varname>), aus dem die Datenbankkonfiguration entnommen wird, sowie ein Login (Variable <varname>login</varname>)
-        eines Benutzers, der für gewisse Dinge wie die Rechnungserstellung als Verkäufer eingetragen wird.</para>
+        und muss daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt <link linkend="config.task-server">Task-Server</link>
+        genauer beschrieben.</para>
 
         <para>Für Entwickler finden sich unter <varname>[debug]</varname>
         wichtige Funktionen, um die Fehlersuche zu erleichtern.</para>
@@ -789,6 +787,12 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
       diese zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Prozess wird u.a. für die Erzeugung der wiederkehrenden
       Rechnungen und weitere essenzielle Aufgaben benutzt.</para>
 
+      <para>Der Task-Server muss einmalig global in der Konfigurationsdatei konfiguriert werden. Danach wird er für jeden Mandanten, für den
+      er laufen soll, in der Adminsitrationsmaske eingeschaltet.</para>
+
+      <para>Beachten Sie, dass der Task-Server in den Boot-Vorgang Ihres Servers integriert werden muss, damit er automatisch gestartet
+      wird. Dies kann kivitendo nicht für Sie erledigen.</para>
+
       <sect2 id="Konfiguration-des-Task-Servers">
         <title>Verfügbare und notwendige Konfigurationsoptionen</title>
 
@@ -799,28 +803,6 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
 
         <variablelist>
           <varlistentry>
-            <term><varname>client</varname></term>
-
-            <listitem>
-              <para>Name oder Datenbank-ID eines vorhandenen kivitendo-Mandanten, der benutzt wird, um die zu verwendende
-              Datenbankverbindung auszulesen. Der Mandant muss in der Administration angelegt werden. Diese Option muss angegeben
-              werden.</para>
-
-              <para>Diese Option kam mit Release v3.x.0 hinzu und muss daher in Konfigurationen, die von älteren Versionen aktualisiert
-              wurden, ergänzt werden.</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term><varname>login</varname></term>
-
-            <listitem>
-              <para>gültiger kivitendo-Benutzername, der z.B. als Verkäufer beim Erzeugen wiederkehrender Rechnungen benötigt wird. Der
-              Benutzer muss in der Administration angelegt werden. Diese Option muss angegeben werden.</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
             <term><varname>run_as</varname></term>
 
             <listitem>
@@ -830,7 +812,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
               Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
               (siehe see <xref
               linkend="Manuelle-Installation-des-Programmpaketes" />). Daher
-              ist es sinnvoll, hier denselben Systembenutzer einzutragen,
+              ist es erforderlich, hier denselben Systembenutzer einzutragen,
               unter dem auch der Webserver läuft.</para>
             </listitem>
           </varlistentry>
@@ -843,6 +825,17 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
             </listitem>
           </varlistentry>
         </variablelist>
+      </sect2>
+
+      <sect2 id="Konfiguration-der-Mandanten-fuer-den-Task-Servers">
+        <title>Konfiguration der Mandanten für den Task-Server</title>
+
+        <para>Ist der Task-Server grundlegend konfiguriert, so muss anschließend jeder Mandant, für den der Task-Server laufen soll,
+        einmalig konfiguriert werden. Dazu kann in der Maske zum Bearbeiten von Mandanten im Administrationsbereich eine
+        kivitendo-Benutzerkennung ausgewählt werden, unter der der Task-Server seine Arbeit verrichtet.</para>
+
+        <para>Ist in dieser Einstellung keine Benutzerkennung ausgewählt, so wird der Task-Server für diesen Mandanten keine Aufgaben
+        ausführen.</para>
       </sect2>
 
       <sect2 id="Einbinden-in-den-Boot-Prozess">

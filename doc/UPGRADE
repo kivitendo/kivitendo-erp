@@ -14,6 +14,19 @@ Upgrade auf v?????
   aktualisiert. Für Benutzer der empfohlenen FastCGI Anbindung ändert sich
   nichts.
 
+* Der Task-Server ist nun mandantenfähig. Für jeden Mandanten, für den
+  der Task-Server laufen soll, muss in der Administrationsoberfläche
+  in der Konfiguration des Mandanten hinterlegt werden, welchen
+  kivitendo-Benutzer der Task-Server nutzen soll. Ist bei einem
+  Mandanten kein Benutzer hinterlegt, so ignoriert der Task-Server
+  diesen Mandanten.
+
+  Im Gegenzug wurden die beiden Konfigurations-Einstellungen »client«
+  und »login« aus dem Abschnitt [task_server] entfernt. Der
+  Task-Server prüft beim Starten allerdings, ob diese Einstellungen
+  noch existieren und verweigert den Start mit einer hilfreichen
+  Fehlermeldung, solange sie noch vorhanden sind.
+
 Upgrade auf v3.3.0
 ==================
 
