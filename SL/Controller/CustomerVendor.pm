@@ -826,6 +826,16 @@ sub _load_customer_vendor {
   }
 }
 
+sub _check_customer_vendor_all_edit {
+  my ($self) = @_;
+
+  unless ($::auth->assert('customer_vendor_all_edit', 1)) {
+    die($::locale->text("You don't have the rights to edit this customer.") . "\n")
+      if $self->{cv}->is_customer and
+         SL::DB::Manager::Employee->current->id != $self->{cv}->salesman_id;
+  };
+};
+
 sub _create_customer_vendor {
   my ($self) = @_;
 
