@@ -32,6 +32,7 @@ use File::Spec;
 use List::Util qw(first);
 use POSIX qw(setuid setgid);
 use SL::Auth;
+use SL::DBUpgrade2;
 use SL::DB::AuthClient;
 use SL::DB::BackgroundJob;
 use SL::BackgroundJob::ALL;
@@ -206,6 +207,18 @@ task server in the web admin interface.
 
 The task server will refuse to start until the keys have been removed from
 the configuration file.
+EOT
+    exit 2;
+  }
+
+  initialize_kivitendo();
+
+  my $dbupdater_auth = SL::DBUpgrade2->new(form => $::form, auth => 1)->parse_dbupdate_controls;
+  if ($dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect)) {
+    print STDERR <<EOT;
+The authentication database requires an upgrade. Please login to
+kivitendo's administration interface in order to apply it. The task
+server cannot start until the upgrade has been applied.
 EOT
     exit 2;
   }
