@@ -17,7 +17,7 @@
      <th colspan="2" align="center">[% LxERP.t8("Useable for…") %]</th>
     </tr>
     <tr class="listheading">
-     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[% LxERP.t8("Description") %]</th>
      <th>[% LxERP.t8("Title") %]</th>
      <th>[% LxERP.t8("Content") %]</th>
@@ -29,7 +29,7 @@
     <tbody>
     [%- FOREACH requirement_spec_predefined_text = REQUIREMENT_SPEC_PREDEFINED_TEXTS %]
     <tr class="listrow[% loop.count % 2 %]" id="requirement_spec_predefined_text_id_[% requirement_spec_predefined_text.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td>
       <a href="[% SELF.url_for(action => 'edit', id => requirement_spec_predefined_text.id) %]">
        [%- HTML.escape(requirement_spec_predefined_text.description) -%]

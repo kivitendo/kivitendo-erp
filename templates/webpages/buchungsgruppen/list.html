@@ -6,7 +6,7 @@
  <table width="100%" id="buchungsgruppen_list">
   <thead>
    <tr class="listheading">
-    <th align="center" width="1%"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+    <th align="center" width="1%"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
     <th width="20%">[% 'Description' | $T8 %]</th>
     <th width="20%">[% 'Inventory Account' | $T8 %]</th>
      [%- FOREACH tz = TAXZONES %]
@@ -19,7 +19,7 @@
   <tbody>
    [%- FOREACH bg = BUCHUNGSGRUPPEN %]
     <tr class="listrow" id="bg_id_[% bg.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td><a href="[% SELF.url_for(action='edit', id=bg.id) %]">[% HTML.escape(bg.description) %]</a></td>
      <td>[% HTML.escape(CHARTLIST.${bg.id}.inventory_accno) %]</td>
      [%- FOREACH tz = TAXZONES %]

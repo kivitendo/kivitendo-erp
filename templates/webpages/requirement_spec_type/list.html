@@ -13,7 +13,7 @@
    <table id="requirement_spec_type_list">
     <thead>
     <tr class="listheading">
-     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[%- LxERP.t8('Description') %]</th>
      <th>[%- LxERP.t8('Section number format') %]</th>
      <th>[%- LxERP.t8('Function block number format') %]</th>
@@ -23,7 +23,7 @@
     <tbody>
     [%- FOREACH requirement_spec_type = REQUIREMENT_SPEC_TYPES %]
     <tr class="listrow[% loop.count % 2 %]" id="requirement_spec_type_id_[% requirement_spec_type.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td>
       <a href="[% SELF.url_for(action => 'edit', id => requirement_spec_type.id) %]">
        [%- HTML.escape(requirement_spec_type.description) %]

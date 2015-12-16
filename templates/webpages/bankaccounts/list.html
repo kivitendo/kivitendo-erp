@@ -6,7 +6,7 @@
  <table width="100%" id="bankaccount_list">
   <thead>
    <tr class="listheading">
-    <th align="center" width="1%"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+    <th align="center" width="1%"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
     <th>[% 'Name' | $T8 %]</th>
     <th>[% 'IBAN' | $T8 %]</th>
     <th>[% 'Bank' | $T8 %]</th>
@@ -20,7 +20,7 @@
   <tbody>
    [%- FOREACH account = BANKACCOUNTS %]
     <tr class="listrow" id="account_id_[% account.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td><a href="[% SELF.url_for(action='edit', id=account.id) %]">[% HTML.escape(account.name) %]</a></td>
      <td>[% HTML.escape(account.iban) %]</a></td>
      <td>[% HTML.escape(account.bank) %]</a></td>

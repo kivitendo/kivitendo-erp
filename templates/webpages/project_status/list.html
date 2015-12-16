@@ -13,7 +13,7 @@
    <table id="project_status_list">
     <thead>
     <tr class="listheading">
-     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+     <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[%- 'Name' | $T8 %]</th>
      <th>[%- 'Description' | $T8 %]</th>
     </tr>
@@ -22,7 +22,7 @@
     <tbody>
     [%- FOREACH project_status = PROJECT_STATUS %]
     <tr class="listrow[% loop.count % 2 %]" id="project_status_id_[% project_status.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
      <td><a href="[% SELF.url_for(action => 'edit', id => project_status.id) %]">[% project_status.name | html %]</a></td>
      <td><a href="[% SELF.url_for(action => 'edit', id => project_status.id) %]">[% project_status.description | html %]</a></td>
     </tr>
