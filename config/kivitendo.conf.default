@@ -65,6 +65,21 @@ bind_password =
 # and "en" (English, not perfect) are available.
 language = de
 
+# The memory limits given here determine the maximum process size
+# (vsz, the total amount of memory this process uses including memory
+# swapped out or shared with other processes) or resident set size
+# (rss, the amount of memory not swapped out/shared with other
+# processes). If either limit is reached at the end of the request
+# then the kivitendo process will exit.
+#
+# This only makes sense when running under FCGI. The FCGI manager will
+# then automatically start a new process.
+#
+# Numbers can be postfixed with KB, MB, GB. If no number is given or
+# the number is 0 then no checking will be performed.
+memory_limit_rss =
+memory_limit_vsz =
+
 [paths]
 # path to temporary files (must be writeable by the web server)
 userspath = users
