@@ -383,10 +383,10 @@ WHERE
         if (defined $invoice->{datepaid}) {
           $self->tester->diag("datepaid = $invoice->{datepaid})");
         }
-        $self->tester->diag("Überzahlung!") if $invoice->{"paid via acc_trans"} > $invoice->{amount};
+        $self->tester->diag("Überzahlung bei Rechnung: $invoice->{invnumber}") if $invoice->{"paid via acc_trans"} > $invoice->{amount};
       } elsif ( $invoice->{"amount"} - $invoice->{"paid via acc_trans"} != $invoice->{"open via ar"} && $invoice->{"paid via ar"} != $invoice->{"paid via acc_trans"}) {
         $self->tester->diag("amount - paid_via_acc_trans !=  open_via_ar");
-        $self->tester->diag("Überzahlung!") if $invoice->{"paid via acc_trans"} > $invoice->{amount};
+        $self->tester->diag("Überzahlung bei Rechnung: $invoice->{invnumber}") if $invoice->{"paid via acc_trans"} > $invoice->{amount};
       } else {
         # nothing wrong
       }
