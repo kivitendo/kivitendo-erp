@@ -204,7 +204,7 @@ sub check_summe_stornobuchungen {
 
   $self->tester->ok($summe_stornobuchungen_ap == 0, 'Summe aller Einkaufsrechnungen (stornos + stornierte) soll 0 sein');
   $self->tester->ok($summe_stornobuchungen_ar == 0, 'Summe aller Verkaufsrechnungen (stornos + stornierte) soll 0 sein');
-  $self->tester->diag("Summe Einkaufsrechnungen (ar): $summe_stornobuchungen_ar") if $summe_stornobuchungen_ar;
+  $self->tester->diag("Summe Verkaufsrechnungen (ar): $summe_stornobuchungen_ar") if $summe_stornobuchungen_ar;
   $self->tester->diag("Summe Einkaufsrechnungen (ap): $summe_stornobuchungen_ap") if $summe_stornobuchungen_ap;
 }
 
