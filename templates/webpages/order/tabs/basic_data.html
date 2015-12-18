@@ -154,6 +154,7 @@
             <thead>
               <tr class="listheading">
                 <th class="listheading" style='display:none'></th>
+                <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
                 <th class="listheading" nowrap width="15">[%- 'Partnumber'   | $T8 %] </th>
@@ -334,6 +335,7 @@ function delete_order_item_row(clicked) {
   var row = $(clicked).parents("tbody").first();
   $(row).remove();
 
+  renumber_positions();
   recalc_amounts_and_taxes();
 }
 
@@ -515,6 +517,12 @@ close_email_dialog = function() {
   email_dialog.dialog("close");
 }
 
+function renumber_positions() {
+  $('.row_entry [name="position"]').each(function(idx, elt) {
+    $(elt).html(idx+1);
+  });
+}
+
 
 $(function(){
   $('#order_[%- cv_id %]').change(reload_cv_dependend_selections);
@@ -539,4 +547,7 @@ $(function(){
   set_unit_change_with_oldval($('.unitselect'));
 });
 
+$('#row_table_id').on('sortstop', function(event, ui) {
+  renumber_positions();
+});
 </script>

@@ -11,6 +11,11 @@
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
     </td>
+    <td>
+      <div name="position" class="numeric">
+        [% HTML.escape(ITEM.position) %]
+      </div>
+    </td>
     <td align="center">
       <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
     </td>
