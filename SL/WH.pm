@@ -348,12 +348,12 @@ sub get_warehouse_journal {
   }
 
   if ($form->{fromdate}) {
-    push @filter_ary, "?::DATE <= i1.itime::DATE";
+    push @filter_ary, "? <= i1.shippingdate";
     push @filter_vars, $form->{fromdate};
   }
 
   if ($form->{todate}) {
-    push @filter_ary, "?::DATE >= i1.itime::DATE";
+    push @filter_ary, "? >= i1.shippingdate";
     push @filter_vars, $form->{todate};
   }
 
@@ -383,8 +383,8 @@ sub get_warehouse_journal {
   my $sort_order = $form->{order};
 
   $sort_col      = $filter{sort}         unless $sort_col;
-  $sort_order    = ($sort_col = 'itime') unless $sort_col;
-  $sort_col      = 'itime'               if     $sort_col eq 'date';
+  $sort_order    = ($sort_col = 'shippingdate') unless $sort_col;
+  $sort_col      = 'shippingdate'               if     $sort_col eq 'date';
   $sort_order    = $filter{order}        unless $sort_order;
   my $sort_spec  = "${sort_col} " . ($sort_order ? " DESC" : " ASC");
 
@@ -409,8 +409,9 @@ sub get_warehouse_journal {
      "trans_id"             => "i1.trans_id",
      "oe_id"                => "COALESCE(i1.oe_id, i2.oe_id)",
      "invoice_id"           => "COALESCE(i1.invoice_id, i2.invoice_id)",
-     "date"                 => "i1.itime::DATE",
+     "date"                 => "i1.shippingdate",
      "itime"                => "i1.itime",
+     "shippingdate"         => "i1.shippingdate",
      "employee"             => "e.name",
      "projectnumber"        => "COALESCE(pr.projectnumber, '$filter{na}')",
      };
@@ -431,13 +432,14 @@ sub get_warehouse_journal {
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
   for my $i ('trans', 'out', 'in') {
     $select{$i} = join ', ', map { +/^l_/; ($select_tokens{$i}{"$'"} || $select_tokens{'trans'}{"$'"}) . " AS r_$'" }
-          ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_itime) );
+          ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
   }
 
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
-        ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_itime) );
+        ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
+
   my $query =
   qq|SELECT DISTINCT $select{trans}
     FROM inventory i1
@@ -658,7 +660,7 @@ sub get_warehouse_report {
   }
 
   if ($filter{date}) {
-    push @filter_ary, "i.itime <= ?";
+    push @filter_ary, "i.shippingdate <= ?";
     push @filter_vars, $filter{date};
   }
   if (!$filter{include_invalid_warehouses}){
