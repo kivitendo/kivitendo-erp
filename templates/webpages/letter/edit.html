@@ -1,193 +1,150 @@
 [%- USE HTML %]
 [%- USE T8 %]
 [%- USE L %]
- <h1>[% title %]</h1>
+[%- USE P %]
+[%- USE LxERP %]
+<h1>[% title | html %]</h1>
 
- <form action='letter.pl' method='POST'>
-
+<form action='controller.pl' method='POST'>
   <input type="hidden" name="letter.id" value="[% letter.id | html %]">
-  <input type="hidden" name="letter.draft_id" value="[% letter.draft_id | html %]">
-  <input type="hidden" name="title" value="[% title | html %]">
+  <input type="hidden" name="draft.id" value="[% draft.id | html %]">
   <input type="hidden" name="type" value="[% type | html %]">
-  <input type="hidden" name="print_nextsub" value="print_letter">
 
+  [%- PROCESS 'common/flash.html' %]
 
-<p>
- <table width=100%>
-  [%- IF SAVED_MESSAGE %]
-  <tr>
-    <td colspan=2>[% SAVED_MESSAGE %]</td>
-  </tr>
-  <tr height=10px><td></td></tr>
-  [%- END %]
-  <tr>
-   <td width=50%>
-    <!-- upper left block -->
-     <table width=90%>
-      <tr>
-       <th align='right'>[% 'Customer' | $T8 %]:</th>
-       <td>
-        [%- INCLUDE 'generic/multibox.html'
-             name          = 'letter.customer',
-             style         = 'width:60%',
-             DATA          = ALL_CUSTOMERS,
-             id_sub        = 'vc_keys',
-             label_key     = 'name',
-             select        = vc_select,
-             limit         = MYCONFIG.vclimit,
-             allow_textbox = 1,
-             force_textbox = limit_exceeded_all_customer
-             onChange      = "document.getElementById('update_button').click();" -%]
+<table width=100%>
+<tr>
+ <td width=50%>
+  <!-- upper left block -->
+   <table width=90%>
+    <tr>
+     <th align='right'>[% 'Customer' | $T8 %]:</th>
+     <td>[% P.customer_vendor_picker('letter.vc_id', letter.vc_id, type='customer') %]
 [%- IF letter.customer_id %]
-        <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')">
+      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')">
 [%- END %]
-        <input type='hidden' name='letter.oldcustomer' value='[% letter.oldcustomer | html %]'>
-        <input type='hidden' name='letter.customer_id' value='[% letter.customer_id | html %]'>
-        <input type='hidden' name='customer_id' value='[% customer_id | html %]'>
-[%- UNLESS MYCONFIG.vclimit < ALL_CUSTOMERS.size %]
-        <input type="hidden" name="letter.select[% vc %]" value="1">
-[%- END %]
-      </tr>
-      <tr>
-       <th align='right'>[% 'Contact Person' | $T8 %]</th>
-       <td>
-        [%- INCLUDE 'generic/multibox.html'
-             name       = 'letter.cp_id',
-             style      = 'width:100%',
-             DATA       = ALL_CONTACTS,
-             id_key     = 'cp_id',
-             label_sub  = 'ct_labels',
-             show_empty = 1 -%]
-       </td>
-      </tr>
-      <tr>
-       <th align='right'>[% 'Your Reference' | $T8 %]:</th>
-       <td><input name='letter.reference' style='width:70%' value='[% letter.reference %]'></td>
-      </tr>
-     </table>
-    <!-- /upper left block -->
-   </td>
-   <td width=50%>
-    <!-- upper right block -->
-     <table align=center width=90%>
-      <tr>
-       <th align='right'>[% 'Letternumber' | $T8 %]:</th>
-       <td><input name='letter.letternumber' style='width:70%' value='[% letter.letternumber %]'></td>
-      </tr>
-      <tr>
-       <th align='right'>[% 'Date' | $T8 %]:</th>
-        <td>[% L.date_tag('letter.date', letter.date, readonly=readonly) %]</td>
-       </td>
-      </tr>
-     </table>
-    <!-- /upper right block -->
-   </td>
-  </tr>
+     </td>
+    </tr>
+    <tr>
+     <th align='right'>[% 'Contact Person' | $T8 %]</th>
+     <td>[% L.select_tag('letter.cp_id', letter.cp_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
+    </tr>
+    <tr>
+     <th align='right'>[% 'Your Reference' | $T8 %]:</th>
+     <td><input name='letter.reference' style='width:70%' value='[% letter.reference | html %]'></td>
+    </tr>
+   </table>
+  <!-- /upper left block -->
+ </td>
+ <td width=50%>
+  <!-- upper right block -->
+   <table align=center width=90%>
+    <tr>
+     <th align='right'>[% 'Letternumber' | $T8 %]:</th>
+     <td><input name='letter.letternumber' style='width:70%' value='[% letter.letternumber | html %]'></td>
+    </tr>
+    <tr>
+     <th align='right'>[% 'Date' | $T8 %]:</th>
+      <td>[% L.date_tag('letter.date_as_date', letter.date_as_date, readonly=readonly) %]</td>
+     </td>
+    </tr>
+   </table>
+  <!-- /upper right block -->
+ </td>
+</tr>
 
-  <tr height=20></tr>
+<tr height=20></tr>
 
-  <tr>
-   <td colspan=2 width=100%>
-    <!-- central block -->
-     <table width=80%>
-      <tr>
-       <th align=right>[% 'Subject' | $T8 %]</th>
-       <td><textarea name='letter.subject' style='width:100%;font-weight:bold' rows=1>[% letter.subject %]</textarea></td>
-      </tr>
-       <th align=right>[% 'Greeting' | $T8 %]</th>
-       <td><input name='letter.greeting' style='width:100%;font-weight:bold' value="[% letter.greeting | html %]"></td>
-      </tr>
-      <tr>
-      <tr>
-       <th align=right>[% 'Body' | $T8 %]</th>
-       <td><textarea name='letter.body' style='width:100%' rows=20>[% letter.body | html %]</textarea></td>
-      </tr>
-      <tr height=10></tr>
-       <th align=right>[% 'Internal Notes' | $T8 %]</th>
-       <td><textarea name='letter.intnotes' style='width:100%' rows=4>[% letter.intnotes | html %]</textarea></td>
-      </tr>
+<tr>
+ <td colspan=2 width=100%>
+  <!-- central block -->
+   <table width=80%>
+    <tr>
+     <th align=right>[% 'Subject' | $T8 %]</th>
+     <td><textarea name='letter.subject' style='width:100%;font-weight:bold' rows=1>[% letter.subject | html %]</textarea></td>
+    </tr>
+     <th align=right>[% 'Greeting' | $T8 %]</th>
+     <td><input name='letter.greeting' style='width:100%;font-weight:bold' value="[% letter.greeting | html %]"></td>
+    </tr>
+    <tr>
+    <tr>
+     <th align=right>[% 'Body' | $T8 %]</th>
+     <td><textarea name='letter.body' style='width:100%' rows=20>[% letter.body | html %]</textarea></td>
+    </tr>
+    <tr height=10></tr>
+     <th align=right>[% 'Internal Notes' | $T8 %]</th>
+     <td><textarea name='letter.intnotes' style='width:100%' rows=4>[% letter.intnotes | html %]</textarea></td>
+    </tr>
 
-      <tr>
-       <th></th>
-       <td>
-        <table width=90%>
-         <tr>
-          <td>
-           <table width=100%>
-            <tr>
-             <td>[% 'Employee' | $T8 %]</td>
-            </tr>
-            <tr>
-             <td>
-              [%- INCLUDE 'generic/multibox.html'
-                   name          = 'letter.employee_id',
-                   default       = letter.employee_id,
-                   style         = 'width:70%;font-weight:bold',
-                   DATA          = ALL_EMPLOYEES,
-                   id_key        = 'id',
-                   label_key     = 'name',
-                   limit         = vclimit,
-                   show_empty    = 1,
-                   allow_textbox = 0,
-                   force_textbox = limit_exceeded_ALL_EMPLOYEES
-                   onChange      = "document.getElementById('update_button').click();" -%]
-             </td>
-            </tr>
-            <!-- tr><td><input name="employee_position" style=width:70% value='[% employee_position %]'></td></tr -->
-           </table>
-          </td>
-          <td>
-           <table width=100%>
-            <tr>
-             <td>[% 'Salesman' | $T8 %]</td>
-            </tr>
-            <tr>
-             <td>
-              [%- INCLUDE 'generic/multibox.html'
-                   name          = 'letter.salesman_id',
-                   default       = letter.salesman_id,
-                   style         = 'width:70%;font-weight:bold',
-                   DATA          = ALL_SALESMEN,
-                   id_key        = 'id',
-                   label_key     = 'name',
-                   limit         = vclimit,
-                   show_empty    = 1,
-                   allow_textbox = 0,
-                   force_textbox = limit_exceeded_ALL_SALESMAN
-                   onChange      = "document.getElementById('update_button').click();" -%]
-             </td>
-            </tr>
-           </table>
-          </td>
-          <td>
-          </td>
-         </tr>
-        </table>
-       </td>
-      </tr>
-     </table>
-    <!-- /central block -->
-   </td>
-  </tr>
-  <tr>
-    <td colspan=3><hr size="3" noshade></td>
-  </tr>
-  <tr>
-   <td>
-     [% print_options %]
-   </td>
-  </tr>
- </table>
-</p>
+    <tr>
+     <th></th>
+     <td>
+      <table width=90% align='center'>
+       <tr>
+        <td>
+         <table width=100%>
+          <tr>
+           <td>[% 'Employee' | $T8 %]</td>
+          </tr>
+          <tr>
+           <td>
+            [%- L.select_tag('letter.employee_id', employees, default=letter.employee_id, title_key='safe_name', class='bold', allow_empty=1, style='width:70%') %]
+           </td>
+          </tr>
+         </table>
+        </td>
+        <td>
+         <table width=100%>
+          <tr>
+           <td>[% 'Salesman' | $T8 %]</td>
+          </tr>
+          <tr>
+           <td>
+            [%- L.select_tag('letter.salesman_id', employees, default=letter.salesman_id, title_key='safe_name', class='bold', allow_empty=1, style='width:70%') %]
+           </td>
+          </tr>
+         </table>
+        </td>
+        <td>
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+   </table>
+  <!-- /central block -->
+ </td>
+</tr>
+<tr>
+  <td colspan=3><hr size="3" noshade></td>
+</tr>
+<tr>
+ <td>
+   [% print_options %]
+ </td>
+</tr>
+</table>
 
-<input type="hidden" name="action" value="dispatcher">
+<input type="hidden" name="action" value="Letter/dispatch">
 <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
 
 [%- IF letter.letternumber %]
-  <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
+  <input class="submit" type="submit" name="action_print_letter" value="[% 'Print' | $T8 %]">
 [% END %]
 
 <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
+[% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure you want to delete this letter?')) %]
 <input class="submit" type="submit" name="action_save_letter_draft" value="[% 'Save Draft' | $T8 %]">
 
- </form>
+</form>
+
+
+<script type='text/javascript'>
+  $(function(){
+    $('#letter_vc_id').change(function(){
+      var data = $('form').serializeArray();
+      data.push({ name: 'action_update_contacts', value: 1 });
+      $.post('controller.pl', data, kivi.eval_json_result);
+    })
+  })
+</script>

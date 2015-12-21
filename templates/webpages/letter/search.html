@@ -1,65 +1,57 @@
 [% USE HTML %]
 [% USE T8 %]
 [% USE L %]
- <h1>[% title %]</h1>
+[% USE LxERP %]
+<form action="controller.pl" method="post" name="Form">
 
- <form action="letter.pl" method="post" name="Form">
-  <input type="hidden" name="nextsub" value="report">
+<div class='filter_toggle'>
+<a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
+  [% SELF.filter_summary | html %]
+</div>
+<div class='filter_toggle' style='display:none'>
+<a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Hide Filter' | $T8 %]</a>
 
-  <p>
-   <table>
-    <tr>
-     <th align='right'>[% 'Letternumber' | $T8 %]</th>
-     <td><input name='letternumber' style='width:250px' value='[% letternumber %]'></th>
-    </tr>
-    <tr>
-     <td align="right">[% 'Customer' | $T8 %]</td>
-     <td>
-        [%- INCLUDE 'generic/multibox.html'
-             name          = 'customer',
-             style         = 'width:250px',
-             DATA          = ALL_CUSTOMERS,
-             id_key        = 'id',
-             label_key     = 'name',
-             select        = vc_select,
-             limit         = MYCONFIG.vclimit,
-             allow_textbox = 1,
-             show_empty    = 1,
-             force_textbox = limit_exceeded_all_customer
-             onChange      = "document.getElementById('update_button').click();" -%]
-[%- IF MYCONFIG.vclimit > ALL_CUSTOMERS.size %]
-       <input type="hidden" name='selectcustomer' value="1">
-[%- END %]
-     </td>
-    </tr>
 
-    <tr>
-     <td align="right">[% 'Contact' | $T8 %]</td>
-     <td><input name="contact" style='width:250px'></td>
-    </tr>
+ <table id='filter_table'>
+  <tr>
+   <th align='right'>[% 'Letternumber' | $T8 %]</th>
+   <td>[% L.input_tag('filter.letternumber:substr::ilike', filter.letternumber_substr__ilike, style='width:250px') %]</th>
+  </tr>
+  <tr>
+   <td align="right">[% 'Customer' | $T8 %]</td>
+   <td>[% L.customer_vendor_picker('filter.vc_id', filter.vc_id, type='customer', style='width:250px') %]</td>
+  </tr>
 
-    <tr>
-     <td align="right">[% 'Subject' | $T8 %]</td>
-     <td><input name="subject" style='width:250px'></td>
-    </tr>
+  <tr>
+   <td align="right">[% 'Contact' | $T8 %]</td>
+   <td>[% L.input_tag('filter.contact.cp_name:substr::ilike', filter.contact.cp_name_substr__ilike, style='width:250px') %]</th>
+  </tr>
 
-    <tr>
-     <td align="right">[% 'Body' | $T8 %]</td>
-     <td><input name="body" style='width:250px'></td>
-    </tr>
+  <tr>
+   <td align="right">[% 'Subject' | $T8 %]</td>
+   <td>[% L.input_tag('filter.subject:substr::ilike', filter.subject_substr__ilike, style='width:250px') %]</th>
+  </tr>
 
-    <tr>
-     <td align='right'>[% 'From' | $T8 %]</td>
-     <td>
-      [% L.date_tag('date_from') %]
-      [% 'To (time)' | $T8 %]
-      [% L.date_tag('date_to') %]
-     </td>
-    </tr>
-   </table>
-  </p>
+  <tr>
+   <td align="right">[% 'Body' | $T8 %]</td>
+   <td>[% L.input_tag('filter.body:substr::ilike', filter.body_substr__ilike, style='width:250px') %]</th>
+  </tr>
 
-  <p>
-   <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
-  </p>
- </form>
+  <tr>
+   <td align='right'>[% 'From' | $T8 %]</td>
+   <td> [% L.date_tag('filter.date:date::ge', filter.date_date__ge) %]
+        [% 'To (time)' | $T8 %]
+        [% L.date_tag('filter.date:date::le', filter.date_date__le) %]</td>
+  </tr>
+ </table>
+
+ [% L.hidden_tag('sort_by', FORM.sort_by) %]
+ [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+ [% L.hidden_tag('page', FORM.page) %]
+ [% L.hidden_tag('action', 'Letter/dispatch') %]
+ [% L.submit_tag('action_list', LxERP.t8('Continue')) %]
+
+<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").prop("selectedIndex", 0);'>[% 'Reset' | $T8 %]</a>
+</div>
+
+</form>

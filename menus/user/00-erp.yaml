@@ -262,9 +262,8 @@
   name: Add Letter
   order: 800
   access: sales_letter_edit
-  module: letter.pl
   params:
-    action: add
+    action: Letter/add
 - parent: ar
   id: ar_invoices
   name: Invoices
@@ -376,9 +375,8 @@
   name: Letters
   order: 1100
   access: sales_letter_report
-  module: letter.pl
   params:
-    action: search
+    action: Letter/list
 - id: ap
   name: AP
   icon: ap

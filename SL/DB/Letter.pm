@@ -6,10 +6,34 @@ package SL::DB::Letter;
 use strict;
 
 use SL::DB::MetaSetup::Letter;
+use SL::DB::Manager::Letter;
+
+__PACKAGE__->meta->add_relationships(
+  customer  => {
+    type                   => 'many to one',
+    class                  => 'SL::DB::Customer',
+    column_map             => { vc_id => 'id' },
+  },
+
+);
 
 __PACKAGE__->meta->initialize;
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
+sub new_from_draft {
+  my ($class, $draft) = @_;
+
+  my $self = $class->new;
+
+  if (!ref $draft) {
+    require SL::DB::LetterDraft;
+    $draft = SL::DB::LetterDraft->new(id => $draft)->load;
+  }
+
+  $self->assign_attributes(map { $_ => $draft->$_ } $draft->meta->columns);
+
+  $self->id(undef);
+
+  $self;
+}
 
 1;

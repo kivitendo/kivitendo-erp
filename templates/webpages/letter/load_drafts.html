@@ -2,11 +2,9 @@
 [%- USE HTML %]
 <h1>[% 'Load letter draft' | $T8 %]</h1>
 
- <form method="post" name="Form" action="letter.pl">
+ <form method="post" name="Form" action="controller.pl">
+  <p>[% 'The following drafts have been saved and can be loaded.' | $T8 %]</p>
   <table width="100%">
-   <tr>
-    <td>
-     [% 'The following drafts have been saved and can be loaded.' | $T8 %]
     </td>
    </tr>
    <tr>
@@ -22,19 +20,19 @@
       [% FOREACH row = LETTER_DRAFTS %]
        <tr class="listrow[% loop.count % 2 %]">
         <td><input type="checkbox" name="checked_[% row.id %]" value="1"></td>
-        <td>[% HTML.escape(row.date) %]</td>
-        <td><a href="letter.pl?action=edit&callback=letter.pl&draft=1&id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a></td>
-        <td>[% HTML.escape(row.customer) %]</td>
+        <td>[% row.date | html %]</td>
+        <td><a href="[% SELF.url_for(action='edit', 'draft.id'=row.id) %]">[% row.subject | html %]</a></td>
+        <td>[% row.customer | html %]</td>
        </tr>
       [% END %]
      </table>
     </td>
    </tr>
    <tr>
-     <input type="hidden" name="action" value="dispatcher">
-     <input type="hidden" name="draft" value="1"><!-- maybe not needed -->
-     <input type="submit" class="submit" name="letter_draft_action" value="[% 'Skip' | $T8 %]">
-     <input type="submit" class="submit" name="letter_draft_action" value="[% 'Delete drafts' | $T8 %]">
+    <td>
+     <input type="hidden" name="action" value="Letter/dispatch">
+     <input type="submit" class="submit" name="action_skip_draft" value="[% 'Skip' | $T8 %]">
+     <input type="submit" class="submit" name="action_delete_draft" value="[% 'Delete drafts' | $T8 %]">
    </td>
    </tr>
   </table>
