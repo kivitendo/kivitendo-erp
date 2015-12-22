@@ -3548,6 +3548,7 @@ $self->{texts} = {
   'shipped'                     => 'verschickt',
   'singular first char'         => 'S',
   'soldtotal'                   => 'Verkaufte Anzahl',
+  'sort items'                  => 'Positionen sortieren',
   'stock'                       => 'Einlagerung',
   'submit'                      => 'abschicken',
   'succeeded'                   => 'erfolgreich',

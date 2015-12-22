@@ -91,5 +91,6 @@ namespace("kivi").setupLocale({
 "Version actions":"Aktionen für Versionen",
 "Yes":"Ja",
 "flat-rate position":"Pauschalposition",
+"sort items":"Positionen sortieren",
 "time and effort based position":"Aufwandsposition"
 });
