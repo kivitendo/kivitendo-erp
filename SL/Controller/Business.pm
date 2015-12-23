@@ -23,8 +23,8 @@ sub action_list {
   my ($self) = @_;
 
   $self->render('business/list',
-                title       => $::locale->text('Businesses'),
-                BUSINESSS => SL::DB::Manager::Business->get_all_sorted);
+                title      => $::locale->text('Businesses'),
+                BUSINESSES => SL::DB::Manager::Business->get_all_sorted);
 }
 
 sub action_new {

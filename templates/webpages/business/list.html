@@ -4,7 +4,7 @@
 [%- INCLUDE 'common/flash.html' %]
 
  <form method="post" action="controller.pl">
-  [% IF !BUSINESSS.size %]
+  [% IF !BUSINESSES.size %]
    <p>
     [%- LxERP.t8('No business has been created yet.') %]
    </p>
@@ -23,7 +23,7 @@
     </thead>
 
     <tbody>
-    [%- FOREACH business = BUSINESSS %]
+    [%- FOREACH business = BUSINESSES %]
     <tr class="listrow[% loop.count % 2 %]" id="business_id_[% business.id %]">
      <td>
       <a href="[% SELF.url_for(action => 'edit', id => business.id) %]">
