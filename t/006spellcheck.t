@@ -41,17 +41,18 @@ existant
 fomr
 invoce
 paramater
+pirce
 postition
+primt
 puchase
 puhs
 sekf
 sucess
 varsion
-pirce
 wether
 );
 
-$testcount = scalar(@Support::Files::testitems);
+$testcount = scalar(@Support::Files::files);
 }
 
 use Test::More tests => $testcount;
@@ -70,7 +71,7 @@ my $fh;
     }
 }
 
-my @testitems = @Support::Files::testitems;
+my @testitems = @Support::Files::files;
 
 # at last, here we actually run the test...
 my $evilwordsregexp = join('|', @evilwords);
