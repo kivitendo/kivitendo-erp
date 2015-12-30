@@ -59,7 +59,7 @@ sub get_account {
   my $dbh = $form->dbconnect($myconfig);
   my $query = qq{
     SELECT c.accno, c.description, c.charttype, c.category,
-      c.link, c.pos_bilanz, c.pos_eur, c.new_chart_id, c.valid_from,
+      c.link, c.pos_bilanz, c.pos_eur, c.pos_er, c.new_chart_id, c.valid_from,
       c.pos_bwa, datevautomatik,
       tk.taxkey_id, tk.pos_ustva, tk.tax_id,
       tk.tax_id || '--' || tk.taxkey_id AS tax, tk.startdate
@@ -301,6 +301,7 @@ sub save_account {
                   pos_bwa   = ?,
                   pos_bilanz = ?,
                   pos_eur = ?,
+                  pos_er = ?,
                   new_chart_id = ?,
                   valid_from = ?,
                   datevautomatik = ?
@@ -315,6 +316,7 @@ sub save_account {
                   conv_i($form->{pos_bwa}),
                   conv_i($form->{pos_bilanz}),
                   conv_i($form->{pos_eur}),
+                  conv_i($form->{pos_er}),
                   conv_i($form->{new_chart_id}),
                   conv_date($form->{valid_from}),
                   ($form->{datevautomatik} eq 'T') ? 'true':'false',

@@ -5,7 +5,7 @@
 
 DELETE FROM chart;
 
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik, valid_from) VALUES
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_er, datevautomatik, valid_from) VALUES
 ('1',    'AKTIVEN','H','','','1',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('10',   'UMLAUFSVERMÖGEN','H','','','10',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('100',  'Flüssige Mittel','H','','','100',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),

@@ -21,6 +21,7 @@ __PACKAGE__->meta->columns(
   new_chart_id   => { type => 'integer' },
   pos_bilanz     => { type => 'integer' },
   pos_bwa        => { type => 'integer' },
+  pos_er         => { type => 'integer' },
   pos_eur        => { type => 'integer' },
   taxkey_id      => { type => 'integer' },
   valid_from     => { type => 'date' },
