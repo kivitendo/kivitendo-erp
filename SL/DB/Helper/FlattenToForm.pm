@@ -18,6 +18,12 @@ sub flatten_to_form {
                                     orddate quodate reqdate gldate duedate deliverydate datepaid transdate delivery_term_id));
   $form->{currency} = $form->{curr} = $self->currency_id ? $self->currency->name || '' : '';
 
+  if ( $vc eq 'customer' ) {
+    $form->{customer_id} = $self->customer_id;
+  } else {
+    $form->{vendor_id} = $self->vendor_id;
+  };
+
   if (_has($self, 'transdate')) {
     my $transdate_idx = ref($self) eq 'SL::DB::Order'   ? ($self->quotation ? 'quodate' : 'orddate')
                       : ref($self) eq 'SL::DB::Invoice' ? 'invdate'
