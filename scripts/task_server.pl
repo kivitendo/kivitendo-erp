@@ -274,6 +274,8 @@ sub run_once_for_all_clients {
 
 sub gd_run {
   while (1) {
+    $SIG{'ALRM'} = 'IGNORE';
+
     run_once_for_all_clients();
 
     debug("Sleeping");
@@ -282,7 +284,8 @@ sub gd_run {
 
     my $seconds = 60 - (localtime)[0];
     if (!eval {
-      local $SIG{'ALRM'} = sub {
+      $SIG{'ALRM'} = sub {
+        $SIG{'ALRM'} = 'IGNORE';
         debug("Got woken up by SIGALRM");
         die "Alarm!\n"
       };
