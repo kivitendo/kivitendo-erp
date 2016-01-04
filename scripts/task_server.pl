@@ -111,6 +111,8 @@ sub clean_before_sleeping {
   Form::disconnect_standard_dbh;
   SL::DBConnect::Cache->disconnect_all_and_clear;
   SL::DB->db_cache->clear;
+
+  File::Temp::cleanup();
 }
 
 sub drop_privileges {
