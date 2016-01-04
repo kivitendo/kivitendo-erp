@@ -43,15 +43,7 @@ sub run {
     # 3804 existiert, wir gehen davon aus, daß der Benutzer das Konto schon selber angelegt hat und
     # ordnungsgemäß benutzt
 
-    if ($::form->{account_exists} ) {
-      # Benutzer hat Meldung bestätigt
-      print "Konto existiert, Upgrade &uuml;berspringen\n";
-      return 1;
-    }
-
-    # Meldung anzeigen und auf Rückgabe warten
-    print_3804_already_exists();
-    return 2;
+    return 1;
   }
 
     # noch keine Buchungen mit taxkey 13 und Konto 3804 existiert noch nicht,
