@@ -34,14 +34,6 @@ sub _get {
   }
 }
 
-sub country_modes {
-  my ($self) = @_;
-  return (
-    'CH' => 'Switzerland',
-    'DE' => 'Germany',
-  )
-}
-
 sub AUTOLOAD {
   our $AUTOLOAD;
 
