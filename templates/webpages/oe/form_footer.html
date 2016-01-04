@@ -108,6 +108,12 @@
                 <td align='right'>[% LxERP.format_amount(invsubtotal, 2) %]</td>
               </tr>
 [%- END %]
+[%- IF rounding %]
+              <tr>
+                <th align='right'>[% 'Rounding' | $T8 %]</th>
+                <td align='right'>[% LxERP.format_amount(rounding, 2) %]</td>
+              </tr>
+[%- END %]
               [% tax %]
               <tr>
                 <th align="right">[% 'Total' | $T8 %]</th>
