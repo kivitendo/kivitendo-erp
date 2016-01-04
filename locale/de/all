@@ -2004,6 +2004,7 @@ $self->{texts} = {
   'Posustva_coa'                => 'USTVA Kennz.',
   'Pre-defined Texts'           => 'Vordefinierte Textblöcke',
   'Preamble'                    => 'Einleitung',
+  'Precision'                   => 'Genauigkeit',
   'Preferences'                 => 'Einstellungen',
   'Preferences saved!'          => 'Einstellungen gespeichert!',
   'Prefix for the new bins\' names' => 'Namenspr&auml;fix f&uuml;r die neuen Lagerpl&auml;tze',

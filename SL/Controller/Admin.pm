@@ -21,7 +21,7 @@ use SL::Layout::AdminLogin;
 use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
-                                  all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
+                                  all_dateformats all_numberformats all_countrycodes all_countrymodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
                                   all_dbsources all_used_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
 );
 
@@ -112,12 +112,13 @@ sub action_show {
 sub action_new_user {
   my ($self) = @_;
 
+  my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
   $self->user(SL::DB::AuthUser->new(
     config_values => {
       vclimit      => 200,
-      countrycode  => "de",
-      numberformat => "1.000,00",
-      dateformat   => "dd.mm.yy",
+      countrycode  => $defaults->language('de'),
+      numberformat => $defaults->numberformat('1.000,00'),
+      dateformat   => $defaults->dateformat('dd.mm.yy'),
       stylesheet   => "kivitendo.css",
       menustyle    => "neu",
     },
@@ -498,8 +499,8 @@ sub init_all_users         { SL::DB::Manager::AuthUser  ->get_all_sorted        
 sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted                                                     }
 sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
-sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00'   ]                                              }
-sub init_all_stylesheets   { [ qw(lx-office-erp.css kivitendo.css) ]                                                         }
+sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ]                                    }
+sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
 sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
 sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }
@@ -551,6 +552,11 @@ sub init_all_countrycodes {
   return [ map { id => $_, title => $cc{$_} }, sort { $cc{$a} cmp $cc{$b} } keys %cc ];
 }
 
+sub init_all_countrymodes {
+  my %cm = SL::DefaultManager->country_modes;
+  return [ map { id => $_, title => "$_ ($cm{$_})" }, sort keys %cm ];
+}
+
 #
 # filters
 #
@@ -558,12 +564,13 @@ sub init_all_countrycodes {
 sub setup_layout {
   my ($self, $action) = @_;
 
+  my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
   $::request->layout(SL::Layout::Dispatcher->new(style => 'admin'));
   $::form->{favicon} = "favicon.ico";
   %::myconfig        = (
-    countrycode      => 'de',
-    numberformat     => '1.000,00',
-    dateformat       => 'dd.mm.yy',
+    countrycode      => $defaults->language('de'),
+    numberformat     => $defaults->numberformat('1.000,00'),
+    dateformat       => $defaults->dateformat('dd.mm.yy'),
   ) if !%::myconfig;
 }
 
@@ -628,6 +635,17 @@ sub database_administration_login_form {
 
 sub create_dataset_form {
   my ($self, %params) = @_;
+
+  my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
+  $::form->{favicon} = "favicon.ico";
+  $::form->{countrymode}          = $defaults->country('DE');
+  $::form->{chart}                = $defaults->chart_of_accounts('Germany-DATEV-SKR03EU');
+  $::form->{defaultcurrency}      = $defaults->currency('EUR');
+  $::form->{precision}            = $defaults->precision(0.01);
+  $::form->{accounting_method}    = $defaults->accounting_method('cash');
+  $::form->{inventory_system}     = $defaults->inventory_system('periodic');
+  $::form->{profit_determination} = $defaults->profit_determination('balance');
+
   $self->render('admin/create_dataset', title => (t8('Database Administration') . " / " . t8('Create Dataset')));
 }
 

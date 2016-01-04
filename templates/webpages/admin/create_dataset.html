@@ -22,28 +22,43 @@
   </tr>
 
   <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Country') %]</th>
+   <td>[% L.select_tag('countrymode', SELF.all_countrymodes, title_key="title", default=(FORM.countrymode), onchange='select_country_defaults(this.value)') %]</td>
+  </tr>
+
+  <tr>
+   <td colspan="1"> </td>
+   <td><hr size="1" noshade></td>
+  </tr>
+
+  <tr>
    <th align="right" nowrap>[% LxERP.t8('Default currency') %]</th>
-   <td>[% L.input_tag('defaultcurrency', FORM.defaultcurrency || 'EUR') %]</td>
+   <td>[% L.input_tag('defaultcurrency', FORM.defaultcurrency) %]</td>
+  </tr>
+
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8('Precision') %]</th>
+   <td>[% L.input_tag('precision', FORM.precision) %]</td>
   </tr>
 
   <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Create Chart of Accounts') %]</th>
-   <td>[% L.select_tag('chart', SELF.all_charts, onchange='comment_selected_chart(this.value)', default=(FORM.chart || 'Germany-DATEV-SKR03EU')) %]</td>
+   <td>[% L.select_tag('chart', SELF.all_charts, default=(FORM.chart), onchange='comment_selected_chart(this.value)') %]</td>
   </tr>
 
   <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Accounting method') %]</th>
-   <td>[% L.select_tag('accounting_method', SELF.all_accounting_methods, title_key='name', default=(FORM.accounting_method || 'cash')) %]</td>
+   <td>[% L.select_tag('accounting_method', SELF.all_accounting_methods, title_key='name', default=(FORM.accounting_method)) %]</td>
   </tr>
 
   <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Inventory system') %]</th>
-   <td>[% L.select_tag('inventory_system', SELF.all_inventory_systems, title_key='name', default=(FORM.inventory_system || 'periodic')) %]</td>
+   <td>[% L.select_tag('inventory_system', SELF.all_inventory_systems, title_key='name', default=(FORM.inventory_system)) %]</td>
   </tr>
 
   <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Profit determination') %]</th>
-   <td>[% L.select_tag('profit_determination', SELF.all_profit_determinations, title_key='name', default=(FORM.profit_determination || 'income')) %]</td>
+   <td>[% L.select_tag('profit_determination', SELF.all_profit_determinations, title_key='name', default=(FORM.profit_determination)) %]</td>
   </tr>
  </table>
 
@@ -67,30 +82,35 @@
 
 function comment_selected_chart(s) {
   if (s == 'Austria') {
-   alert("SKR07 Austria ist noch Stand 2002." +
+    alert("SKR07 Austria ist noch Stand 2002." +
          "\n" +
          "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
          "\n" +
          "fuer Kunden im Ausland." +
          "\n" +
          "Hinweis vom 20.09.2011");
-
-  } else if (s == 'Swiss-German') {
-   alert("Hinweis: Das ist weder ein Schweizer Kontorahmen nach Kaefer noch ein " +
-         "Schweizer KMU-Kontenrahmen, sondern ein angelehnter KMU-Kontenrahmen fuer " +
-         "ein EDV-Dienstleistungsunternehmen mit Stand 2006 (Bspw. 32001 Hardware, " +
-         "statt 3200 Warenertrag)." +
-         "\n" +
-         "Ferner sind keine Buchungsgruppe vorkonfiguriert, somit wird " +
-         "standardmaessig keine Rechnung mit Steuer ausgewiesen." +
-         "\n" +
-         "Zum schnellen Testen und Zusammenhaenge verstehen waehlen Sie lieber einen " +
-         "deutschen Kontenrahmen aus (SKR03 oder SKR04) und passen die Steuer an." +
-         "\n" +
-         "Hinweis vom 21.09.2011");
   }
-
   return true;
 }
+
+function select_country_defaults(country) {
+  if (/^CH/.test(country)) {
+    document.getElementById('defaultcurrency').value='CHF';
+    document.getElementById('precision').value='0.05';
+    document.getElementById('chart').value='Switzerland-deutsch-MWST-2014';
+    document.getElementById('accounting_method').value='accrual';
+    document.getElementById('inventory_system').value='periodic';
+    document.getElementById('profit_determination').value='balance';
+  } else {
+    document.getElementById('defaultcurrency').value='EUR';
+    document.getElementById('precision').value='0.01';
+    document.getElementById('chart').value='Germany-DATEV-SKR03EU';
+    document.getElementById('accounting_method').value='cash';
+    document.getElementById('inventory_system').value='periodic';
+    document.getElementById('profit_determination').value='income';
+  }
+  return true;
+}
+
    -->
 </script>
