@@ -947,9 +947,14 @@ sub parse_amount {
 }
 
 sub round_amount {
-  my ($self, $amount, $places) = @_;
+  my ($self, $amount, $places, $adjust) = @_;
 
   return 0 if !defined $amount;
+
+  if ($adjust) {
+    my $precision = $::instance_conf->get_precision || 0.01;
+    return $self->round_amount( $self->round_amount($amount / $precision, 0) * $precision, $places);
+  }
 
   # We use Perl's knowledge of string representation for
   # rounding. First, convert the floating point number to a string

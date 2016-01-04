@@ -76,6 +76,7 @@ __PACKAGE__->meta->columns(
   payments_changeable                       => { type => 'integer', default => '0', not_null => 1 },
   pdonumber                                 => { type => 'text' },
   ponumber                                  => { type => 'text' },
+  precision                                 => { type => 'numeric', precision => 15, scale => 5, default => '0.01', not_null => 1 },
   profit_determination                      => { type => 'text' },
   project_status_id                         => { type => 'integer' },
   project_type_id                           => { type => 'integer' },
