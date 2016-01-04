@@ -750,7 +750,7 @@ sub language_header {
   $::form->header;
 
   print $::form->parse_html_template('am/language_header', {
-    numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00' ],
+    numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ],
     dateformats => [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ],
   });
 
@@ -816,7 +816,7 @@ sub config {
 
   _build_cfg_options('dateformat', qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
   _build_cfg_options('timeformat', qw(hh:mm hh:mm:ss));
-  _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
+  _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00"));
 
   my @formats = ();
   if ($::lx_office_conf{print_templates}->{opendocument}
