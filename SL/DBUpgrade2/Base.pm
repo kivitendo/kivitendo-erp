@@ -11,6 +11,7 @@ use File::Basename ();
 use File::Copy ();
 use File::Path ();
 use List::MoreUtils qw(uniq);
+use SL::DBUtils qw(selectfirst_hashref_query);
 use version;
 
 use Rose::Object::MakeMethods::Generic (
@@ -97,7 +98,9 @@ sub add_print_templates {
     croak "File '${src_dir}/$_' does not exist" unless -f "${src_dir}/$_";
   }
 
-  return 1 unless my $template_dir = $::instance_conf->reload->get_templates;
+  # can't use Rose or InstanceConf here because defaults might not be fully upgraded yet.
+  my $defaults = selectfirst_hashref_query($::form, $::form->get_standard_dbh, "SELECT * FROM defaults");
+  return 1 unless my $template_dir = $defaults->{template};
   $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: template_dir $template_dir");
 
   foreach my $src_file (@files) {

@@ -3,6 +3,8 @@
 -- Korrigiert: November 2015
 -- Grundlage: Revision OR Stand 1.1.2013, insbesondere Art. 957a Abs. 2
 
+ALTER TABLE chart ADD COLUMN pos_er INTEGER;
+
 DELETE FROM chart;
 
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_er, datevautomatik, valid_from) VALUES

@@ -277,23 +277,44 @@ sub dbcreate {
 
   &dbconnect_vars($form, $form->{db});
 
+  # make a shim myconfig so that rose db connections work
+  $::myconfig{$_}     = $form->{$_} for qw(dbhost dbport dbuser dbpasswd);
+  $::myconfig{dbname} = $form->{db};
+
   $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
-  my $dbupdater = SL::DBUpgrade2->new(form => $form);
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, return_on_error => 1, silent => 1)->parse_dbupdate_controls;
   # create the tables
   $dbupdater->process_query($dbh, "sql/lx-office.sql");
-
-  # process update-scripts needed before 1st user-login
-  $self->create_schema_info_table($form, $dbh);
-  $dbupdater->process_query($dbh, "sql/Pg-upgrade2/defaults_add_precision.sql");
-  $dbh->do("INSERT INTO schema_info (tag, login) VALUES ('defaults_add_precision', 'admin')");
-
-  # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?, precision = ?|;
-  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency precision countrymode));
+  $query = qq|UPDATE defaults SET coa = ?|;
+  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart));
+
+  $dbh->disconnect;
+
+  # update new database
+  $self->dbupdate2(form => $form, updater => $dbupdater, database => $form->{db}, silent => 1);
+
+  $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
+    or $form->dberror;
+
+  $query = "SELECT * FROM currencies WHERE name = ?";
+  my $curr = selectfirst_hashref_query($form, $dbh, $query, $form->{defaultcurrency});
+  if (!$curr->{id}) {
+    do_query($form, $dbh, "INSERT INTO currencies (name) VALUES (?)", $form->{defaultcurrency});
+    $curr = selectfirst_hashref_query($form, $dbh, $query, $form->{defaultcurrency});
+  }
+
+  $query = qq|UPDATE defaults SET accounting_method = ?, profit_determination = ?, inventory_system = ?, precision = ?, currency_id = ?|;
+  do_query($form, $dbh, $query,
+    $form->{accounting_method},
+    $form->{profit_determination},
+    $form->{inventory_system},
+    $form->parse_amount(\%::myconfig, $form->{precision_as_number}),
+    $curr->{id},
+  );
 
   $dbh->disconnect;
 
@@ -385,13 +406,14 @@ sub dbupdate2 {
   my $form            = $params{form};
   my $dbupdater       = $params{updater};
   my $db              = $params{database};
+  my $silent          = $params{silent};
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $dbupdater->{all_controls} };
 
   &dbconnect_vars($form, $db);
 
   # Flush potentially held database locks.
-  $form->get_standard_dbh->commit;
+#   $form->get_standard_dbh->commit;
 
   my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
 
@@ -406,7 +428,7 @@ sub dbupdate2 {
     # been applied correctly and if the update has not requested user
     # interaction.
     $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
-    print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
+    print $form->parse_html_template("dbupgrade/upgrade_message2", $control) unless $silent;
 
     $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }

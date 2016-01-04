@@ -36,6 +36,7 @@ sub run {
   }
 
   my @well_known_taxes = (
+      # German SKR03
       { taxkey => 0,  rate => 0,    taxdescription => qr{keine.*steuer}i,                       categories => 'ALQCIE' },
       { taxkey => 1,  rate => 0,    taxdescription => qr{frei}i,                                categories => 'ALQCIE' },
       { taxkey => 2,  rate => 0.07, taxdescription => qr{umsatzsteuer}i,                        categories => 'I' },
@@ -56,7 +57,15 @@ sub run {
       { taxkey => 18, rate => 0.07, taxdescription => qr{innergem.*erwerb.*erm}i,               categories => 'E' },
       { taxkey => 19, rate => 0.16, taxdescription => qr{innergem.*erwerb.*voll}i,              categories => 'E' },
       { taxkey => 19, rate => 0.19, taxdescription => qr{innergem.*erwerb.*voll}i,              categories => 'E' },
-      );
+
+      # Swiss
+      { taxkey => 2,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'I' },
+      { taxkey => 3,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'I' },
+      { taxkey => 4,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 5,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 6,  rate => 0.08,  taxdescription => qr{mwst}i,                                categories => 'E' },
+      { taxkey => 7,  rate => 0.025, taxdescription => qr{mwst}i,                                categories => 'E' },
+  );
 
   $query = qq|SELECT taxkey, taxdescription, rate, id AS tax_id FROM tax order by taxkey, rate;|;
 
