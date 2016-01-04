@@ -28,7 +28,7 @@ INSERT INTO tax
   (0, 0, 'Keine Steuer');
 SQL
     $self->db_query($insert_taxkey0);
-    print $::locale->text("taxkey 0 with taxrate 0 was created.");
+#     print $::locale->text("taxkey 0 with taxrate 0 was created.");
   };
 
   my $insert_taxkeys = <<SQL;
