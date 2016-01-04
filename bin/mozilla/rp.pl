@@ -101,15 +101,16 @@ use strict;
 # $form->parse_html_template('rp/html_report_susa')
 
 my $rp_access_map = {
-  'projects'         => 'report',
-  'ar_aging'         => 'general_ledger',
-  'ap_aging'         => 'general_ledger',
-  'receipts'         => 'cash',
-  'payments'         => 'cash',
-  'trial_balance'    => 'report',
-  'income_statement' => 'report',
-  'bwa'              => 'report',
-  'balance_sheet'    => 'report',
+  'projects'           => 'report',
+  'ar_aging'           => 'general_ledger',
+  'ap_aging'           => 'general_ledger',
+  'receipts'           => 'cash',
+  'payments'           => 'cash',
+  'trial_balance'      => 'report',
+  'income_statement'   => 'report',
+  'erfolgsrechnung'    => 'report',
+  'bwa'                => 'report',
+  'balance_sheet'      => 'report',
 };
 
 sub check_rp_access {
@@ -129,6 +130,7 @@ sub report {
   my %title = (
     balance_sheet        => $::locale->text('Balance Sheet'),
     income_statement     => $::locale->text('Income Statement'),
+    erfolgsrechnung      => $::locale->text('Erfolgsrechnung'),
     trial_balance        => $::locale->text('Trial Balance'),
     ar_aging             => $::locale->text('Search AR Aging'),
     ap_aging             => $::locale->text('Search AP Aging'),
@@ -142,6 +144,8 @@ sub report {
 
   $::form->{title} = $title{$::form->{report}};
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
+  $::form->{fromdate} = DateTime->today->truncate(to => 'year')->to_kivitendo;
+  $::form->{todate} = DateTime->today->truncate(to => 'year')->add(years => 1)->add(days => -1)->to_kivitendo;
 
   # get departments
   $::form->all_departments(\%::myconfig);
@@ -152,13 +156,14 @@ sub report {
 
   $::form->get_lists("projects" => { "key" => "ALL_PROJECTS", "all" => 1 });
 
-  my $is_projects         = $::form->{report} eq "projects";
-  my $is_income_statement = $::form->{report} eq "income_statement";
-  my $is_bwa              = $::form->{report} eq "bwa";
-  my $is_balance_sheet    = $::form->{report} eq "balance_sheet";
-  my $is_trial_balance    = $::form->{report} eq "trial_balance";
-  my $is_aging            = $::form->{report} =~ /^a[rp]_aging$/;
-  my $is_payments         = $::form->{report} =~ /(receipts|payments)$/;
+  my $is_projects            = $::form->{report} eq "projects";
+  my $is_income_statement    = $::form->{report} eq "income_statement";
+  my $is_erfolgsrechnung     = $::form->{report} eq "erfolgsrechnung";
+  my $is_bwa                 = $::form->{report} eq "bwa";
+  my $is_balance_sheet       = $::form->{report} eq "balance_sheet";
+  my $is_trial_balance       = $::form->{report} eq "trial_balance";
+  my $is_aging               = $::form->{report} =~ /^a[rp]_aging$/;
+  my $is_payments            = $::form->{report} =~ /(receipts|payments)$/;
 
   my ($label, $nextsub, $vc);
   if ($is_aging) {
@@ -191,20 +196,21 @@ sub report {
 
   $::form->header;
   print $::form->parse_html_template('rp/report', {
-    paymentaccounts     => $paymentaccounts,
-    selection           => $selection,
-    is_aging            => $is_aging,
-    vc                  => $vc,
-    label               => $label,
-    year                => DateTime->today->year,
-    today               => DateTime->today,
-    nextsub             => $nextsub,
-    is_payments         => $is_payments,
-    is_trial_balance    => $is_trial_balance,
-    is_balance_sheet    => $is_balance_sheet,
-    is_bwa              => $is_bwa,
-    is_income_statement => $is_income_statement,
-    is_projects         => $is_projects,
+    paymentaccounts        => $paymentaccounts,
+    selection              => $selection,
+    is_aging               => $is_aging,
+    vc                     => $vc,
+    label                  => $label,
+    year                   => DateTime->today->year,
+    today                  => DateTime->today,
+    nextsub                => $nextsub,
+    is_payments            => $is_payments,
+    is_trial_balance       => $is_trial_balance,
+    is_balance_sheet       => $is_balance_sheet,
+    is_bwa                 => $is_bwa,
+    is_income_statement    => $is_income_statement,
+    is_erfolgsrechnung     => $is_erfolgsrechnung,
+    is_projects            => $is_projects,
   });
 
   $::lxdebug->leave_sub;
@@ -394,6 +400,25 @@ sub generate_income_statement {
 
   $main::lxdebug->leave_sub();
 }
+
+sub generate_erfolgsrechnung {
+  $::lxdebug->enter_sub;
+  $::auth->assert('report');
+
+  $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
+  $::form->{padding}       = "&emsp;";
+  $::form->{bold}          = "<b>";
+  $::form->{endbold}       = "</b>";
+  $::form->{br}            = "<br>";
+
+  my $data = RP->erfolgsrechnung(\%::myconfig, $::form);
+
+  $::form->header();
+  print $::form->parse_html_template('rp/erfolgsrechnung', $data);
+
+  $::lxdebug->leave_sub;
+}
+
 
 sub generate_balance_sheet {
   $::lxdebug->enter_sub;
