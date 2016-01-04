@@ -217,7 +217,9 @@ $(function() {
               <tr>
                 <th align="left">[% 'Taxkey' | $T8 %]</th>
                 <th align="left">[% 'valid from' | $T8 %]</th>
-                <th align="left">[% 'pos_ustva' | $T8 %]</th>
+                [% IF country_mode != 'CH' %]
+                  <th align="left">[% 'pos_ustva' | $T8 %]</th>
+                [% END %]
                 <th align="left">[% 'delete' | $T8 %] ? </th>
               </tr>
 [% FOREACH tk = ACCOUNT_TAXKEYS %]
@@ -227,14 +229,18 @@ $(function() {
                 <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="[% tk.id %]">
                 <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
                 <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
-                <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
+                [% IF country_mode != 'CH' %]
+                  <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
+                [% END %]
                 <td><input name="taxkey_del_[% tk.runningnumber %]" type="checkbox"
                 class="checkbox" value="delete"></td>
     [% ELSE %]
                 <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="NEW">
                 <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
                 <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
-                <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
+                [% IF country_mode != 'CH' %]
+                  <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
+                [% END %]
                 <td>&nbsp;</td>
     [% END %]
               </tr>
@@ -251,6 +257,7 @@ $(function() {
           <th align="left">[% 'EUER' | $T8 %]</th>
           <td colspan="3"><select name="pos_eur">[% select_eur %]</select></td>
         </tr>
+     [% IF country_mode != 'CH' %]
         <tr>
           <th align="left">[% 'BWA' | $T8 %]</th>
           <td colspan="3"><select name="pos_bwa">[% select_bwa %]</select></td>
@@ -264,6 +271,7 @@ $(function() {
           <th align="left">[% 'Datevautomatik' | $T8 %]</th>
           <td colspan="3"><input name="datevautomatik" type="checkbox" class="checkbox" value="T" [% IF datevautomatik %]checked [% END %]>[% 'If checked the taxkey will not be exported in the DATEV Export, but only IF chart taxkeys differ from general ledger taxkeys' | $T8 %] </td>
         </tr>
+     [% END %]
         <tr>
           <th align="left">[% 'Folgekonto' | $T8 %]</th>
           <td><select name="new_chart_id">[% selectnewaccount %]</select></td>

@@ -65,6 +65,10 @@ bind_password =
 # and "en" (English, not perfect) are available.
 language = de
 
+# Set default_manager for admin forms. Currently "german"
+# and "swiss" are available.
+default_manager = german
+
 # The memory limits given here determine the maximum process size
 # (vsz, the total amount of memory this process uses including memory
 # swapped out or shared with other processes) or resident set size

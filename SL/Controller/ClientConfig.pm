@@ -29,6 +29,7 @@ sub action_edit {
   my ($self, %params) = @_;
 
   $::form->{use_templates} = $self->defaults->templates ? 'existing' : 'new';
+  $::form->{country_mode} = $self->defaults->country_mode;
   $self->edit_form;
 }
 

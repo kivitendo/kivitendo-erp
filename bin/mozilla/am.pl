@@ -214,38 +214,47 @@ sub account_header {
   }
 
   my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  my %eur = (
-          1  => "Umsatzerlöse",
-          2  => "sonstige Erlöse",
-          3  => "Privatanteile",
-          4  => "Zinserträge",
-          5  => "Ausserordentliche Erträge",
-          6  => "Vereinnahmte Umsatzst.",
-          7  => "Umsatzsteuererstattungen",
-          8  => "Wareneingänge",
-          9  => "Löhne und Gehälter",
-          10 => "Gesetzl. sozialer Aufw.",
-          11 => "Mieten",
-          12 => "Gas, Strom, Wasser",
-          13 => "Instandhaltung",
-          14 => "Steuern, Versich., Beiträge",
-          15 => "Kfz-Steuern",
-          16 => "Kfz-Versicherungen",
-          17 => "Sonst. Fahrzeugkosten",
-          18 => "Werbe- und Reisekosten",
-          19 => "Instandhaltung u. Werkzeuge",
-          20 => "Fachzeitschriften, Bücher",
-          21 => "Miete für Einrichtungen",
-          22 => "Rechts- und Beratungskosten",
-          23 => "Bürobedarf, Porto, Telefon",
-          24 => "Sonstige Aufwendungen",
-          25 => "Abschreibungen auf Anlagever.",
-          26 => "Abschreibungen auf GWG",
-          27 => "Vorsteuer",
-          28 => "Umsatzsteuerzahlungen",
-          29 => "Zinsaufwand",
-          30 => "Ausserordentlicher Aufwand",
-          31 => "Betriebliche Steuern");
+  my %eur;
+  if (($form->{country_mode} = SL::DB::Default->get->country_mode) eq 'CH') {
+    %eur = (
+         1  => "Ertrag",
+         6  => "Aufwand",
+    );
+  } else {
+    %eur = (
+         1  => "Umsatzerlöse",
+         2  => "sonstige Erlöse",
+         3  => "Privatanteile",
+         4  => "Zinserträge",
+         5  => "Ausserordentliche Erträge",
+         6  => "Vereinnahmte Umsatzst.",
+         7  => "Umsatzsteuererstattungen",
+         8  => "Wareneingänge",
+         9  => "Löhne und Gehälter",
+         10 => "Gesetzl. sozialer Aufw.",
+         11 => "Mieten",
+         12 => "Gas, Strom, Wasser",
+         13 => "Instandhaltung",
+         14 => "Steuern, Versich., Beiträge",
+         15 => "Kfz-Steuern",
+         16 => "Kfz-Versicherungen",
+         17 => "Sonst. Fahrzeugkosten",
+         18 => "Werbe- und Reisekosten",
+         19 => "Instandhaltung u. Werkzeuge",
+         20 => "Fachzeitschriften, Bücher",
+         21 => "Miete für Einrichtungen",
+         22 => "Rechts- und Beratungskosten",
+         23 => "Bürobedarf, Porto, Telefon",
+         24 => "Sonstige Aufwendungen",
+         25 => "Abschreibungen auf Anlagever.",
+         26 => "Abschreibungen auf GWG",
+         27 => "Vorsteuer",
+         28 => "Umsatzsteuerzahlungen",
+         29 => "Zinsaufwand",
+         30 => "Ausserordentlicher Aufwand",
+         31 => "Betriebliche Steuern",
+    );
+  }
   foreach my $item (sort({ $a <=> $b } keys(%eur))) {
     my $text = H($::locale->{iconv_utf8}->convert($eur{$item}));
     if ($item == $form->{pos_eur}) {
