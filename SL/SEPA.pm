@@ -49,7 +49,7 @@ sub retrieve_open_invoices {
 
        FROM ${arap}
        LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
-       LEFT JOIN (SELECT sei.${arap}_id, SUM(sei.amount) AS amount
+       LEFT JOIN (SELECT sei.${arap}_id, SUM(sei.amount) + SUM(COALESCE(sei.skonto_amount,0)) AS amount
                   FROM sepa_export_items sei
                   LEFT JOIN sepa_export se ON (sei.sepa_export_id = se.id)
                   WHERE NOT se.closed
