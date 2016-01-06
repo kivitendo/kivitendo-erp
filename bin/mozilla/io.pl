@@ -1118,7 +1118,7 @@ sub print_options {
   $form->{PD}{ $form->{formname} } = "selected";
   $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
-  $form->{SM}{ $form->{formname} } = "selected";
+  $form->{SM}{ $form->{sendmode} } = "selected";
 
   push @FORMNAME, grep $_,
     ($form->{type} eq 'purchase_order') ? (
