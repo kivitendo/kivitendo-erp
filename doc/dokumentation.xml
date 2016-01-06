@@ -3320,7 +3320,7 @@ empfang@revamp-it.ch
             </varlistentry>
 
             <varlistentry>
-              <term><varname>shiptodepartment1</varname></term>
+              <term><varname>shiptodepartment_1</varname></term>
 
               <listitem>
                 <para>Abteilung 1 (Lieferadresse) <link
@@ -3329,7 +3329,7 @@ empfang@revamp-it.ch
             </varlistentry>
 
             <varlistentry>
-              <term><varname>shiptodepartment2</varname></term>
+              <term><varname>shiptodepartment_2</varname></term>
 
               <listitem>
                 <para>Abteilung 2 (Lieferadresse) <link
