@@ -1,0 +1,25 @@
+[%- USE L %]
+[%- USE LxERP %]
+<table  width="100%">
+  <tr><td>
+    [%- L.hidden_tag("action","YearlyTransactions/dispatch") %]
+    [%- L.hidden_tag("cb_date",SELF.cb_date) %]
+    [%- L.hidden_tag("cb_startdate",SELF.cb_startdate) %]
+    [%- L.hidden_tag("cb_reference",SELF.cb_reference) %]
+    [%- L.hidden_tag("cb_description",SELF.cb_description) %]
+    [%- L.hidden_tag("ob_date",SELF.ob_date) %]
+    [%- L.hidden_tag("ob_reference",SELF.ob_reference) %]
+    [%- L.hidden_tag("ob_description",SELF.ob_description) %]
+    [%- L.hidden_tag("cbob_chart",SELF.cbob_chart) %]
+    [%- L.hidden_tag("rowcount",SELF.row_count) %]
+    [%- L.submit_tag("action_generate", LxERP.t8('generate cb/ob transactions for selected charts'),
+                    confirm=LxERP.t8('Are you sure to generate cb/ob transactions?')) %]
+    [%- L.submit_tag("action_filter", LxERP.t8('back')) %]
+    </td>
+  </tr>
+</table></form>
+<script type='text/javascript'>
+$(function(){
+  $('#multi_all').checkall("input[name^='multi_id']");
+});
+</script>  
