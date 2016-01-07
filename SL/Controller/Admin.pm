@@ -490,7 +490,7 @@ sub action_lock_system {
 
 sub init_db_cfg            { $::lx_office_conf{'authentication/database'}                                                    }
 sub init_is_locked         { SL::System::InstallationLock->is_locked                                                         }
-sub init_client            { SL::DB::Manager::AuthClient->find_by(id => ($::form->{id} || ($::form->{client}  || {})->{id})) }
+sub init_client            { SL::DB::Manager::AuthClient->find_by(id => (($::form->{client} || {})->{id} || $::form->{id}))  }
 sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}    || {})->{id}))->load        }
 sub init_group             { SL::DB::AuthGroup ->new(id => ($::form->{id} || ($::form->{group}   || {})->{id}))->load        }
 sub init_printer           { SL::DB::Printer   ->new(id => ($::form->{id} || ($::form->{printer} || {})->{id}))->load        }
