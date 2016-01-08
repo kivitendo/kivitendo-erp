@@ -121,6 +121,13 @@
   </script>
 
   [%- ELSE %]
+   [%- SET has_executed = 0;
+       FOREACH item = export.items;
+         IF item.executed;
+           SET has_executed = 1;
+         END ;
+       END ;
+       IF has_executed %]
   <p>
    <input type="submit" class="submit" name="action_bank_transfer_payment_list_as_pdf" value="[% 'Payment list as PDF' | $T8 %]">
   </p>
@@ -132,6 +139,7 @@
     [%- END %]
    [%- END %]
   [%- END %]
+  [% END %]
 
      <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  </form>
