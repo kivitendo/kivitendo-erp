@@ -173,7 +173,7 @@
   function submit_delete() {
 [% SET used_for_task_server_in_clients = SELF.is_user_used_for_task_server(SELF.user) %]
 [% IF used_for_task_server_in_clients %]
-   alert('[% LxERP.t8('The user cannot be deleted as it is used in the following clients: #1', used_for_task_server_in_clients) | js %]');
+   alert('[% JavaScript.escape(LxERP.t8('The user cannot be deleted as it is used in the following clients: #1', used_for_task_server_in_clients)) %]');
    return false;
 [% ELSE %]
     submit_with_action('delete_user');
