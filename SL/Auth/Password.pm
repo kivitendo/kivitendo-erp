@@ -3,7 +3,6 @@ package SL::Auth::Password;
 use strict;
 
 use Carp;
-use Digest::MD5 ();
 use Digest::SHA ();
 use Encode ();
 use PBKDF2::Tiny ();
@@ -49,15 +48,6 @@ sub hash {
   if ($params{algorithm} =~ m/^SHA256/) {
     return '{' . $params{algorithm} . '}' . Digest::SHA::sha256_hex($salt . $params{password});
 
-  } elsif ($params{algorithm} =~ m/^SHA1/) {
-    return '{' . $params{algorithm} . '}' . Digest::SHA::sha1_hex($salt . $params{password});
-
-  } elsif ($params{algorithm} =~ m/^MD5/) {
-    return '{' . $params{algorithm} . '}' . Digest::MD5::md5_hex($salt . $params{password});
-
-  } elsif ($params{algorithm} eq 'CRYPT') {
-    return '{CRYPT}' . crypt($params{password}, substr($params{login}, 0, 2));
-
   } elsif ($params{algorithm} =~ m/^PBKDF2/) {
     return $class->hash_pkkdf2(password => $params{password}, stored_password => $params{stored_password});
 
@@ -86,7 +76,7 @@ sub parse {
   my ($class, $password, $default_algorithm) = @_;
 
   return ($1, $2) if $password =~ m/^\{ ([^\}]+) \} (.+)/x;
-  return ($default_algorithm || 'CRYPT', $password);
+  return ($default_algorithm || 'PBKDF2', $password);
 }
 
 1;

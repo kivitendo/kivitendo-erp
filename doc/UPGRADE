@@ -35,6 +35,14 @@ Upgrade auf v?????
   noch existieren und verweigert den Start mit einer hilfreichen
   Fehlermeldung, solange sie noch vorhanden sind.
 
+* Die Unterstützung unsicherer Passwort-Hashing-Mechanism wurde
+  entfernt. Für BenutzerInnen, die noch alte Mechanismen verwenden,
+  müssen die Passwörter einmalig in der Administrationsoberfläche
+  zurückgesetzt werden.
+
+  Dies betrifft nur Accounts, deren Passwort sich das letzte Mal vor
+  kivitendo 2.7.0 geändert hat.
+
 Upgrade auf v3.3.0
 ==================
 
