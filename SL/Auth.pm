@@ -168,8 +168,8 @@ sub authenticate_root {
     return ERR_PASSWORD;
   }
 
-  $password             = SL::Auth::Password->hash(login => 'root', password => $password);
   my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password}->());
+  $password             = SL::Auth::Password->hash(login => 'root', password => $password, stored_password => $admin_password);
 
   my $result = $password eq $admin_password ? OK : ERR_PASSWORD;
   $self->set_session_value(SESSION_KEY_ROOT_AUTH() => $result);

@@ -7,6 +7,14 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v?????
 ==================
 
+* Neue Perl-Modul-Abhängigkeiten:
+
+  * PBKDF2::Tiny
+
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+  $ scripts/installation_check.pl -ro
+
 * Der in der Dokumentation beschriebene Mechanismus für die CGI-Anbindung
   (2.6.1 Grundkonfiguration mittels CGI) wurde geändert. Ein einfacher Alias
   auf das Programmverzeichnis funktioniert nicht mehr, und es muss immer ein

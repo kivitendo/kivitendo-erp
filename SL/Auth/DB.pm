@@ -38,17 +38,15 @@ sub authenticate {
 
   my $stored_password = $self->{auth}->get_stored_password($login);
 
-  my ($algorithm, $algorithm2);
-
   # Empty password hashes in the database mean just that -- empty
   # passwords. Hash it for easier comparison.
-  $stored_password               = SL::Auth::Password->hash(password => $stored_password) unless $stored_password;
-  ($algorithm, $stored_password) = SL::Auth::Password->parse($stored_password);
-  ($algorithm2, $password)       = SL::Auth::Password->parse(SL::Auth::Password->hash(password => $password, algorithm => $algorithm, login => $login));
+  $stored_password    = SL::Auth::Password->hash(password => $stored_password) unless $stored_password;
+  my ($algorithm)     = SL::Auth::Password->parse($stored_password);
+  my $hashed_password = SL::Auth::Password->hash(password => $password, algorithm => $algorithm, login => $login, stored_password => $stored_password);
 
   $main::lxdebug->leave_sub();
 
-  return $password eq $stored_password ? OK : ERR_PASSWORD;
+  return $hashed_password eq $stored_password ? OK : ERR_PASSWORD;
 }
 
 sub can_change_password {

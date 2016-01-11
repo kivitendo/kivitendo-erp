@@ -55,6 +55,12 @@ Kleinere neue Features und Detailverbesserungen:
 
   - Besseren kivi-Adventssupport
 
+Sicherheit:
+
+  - Das sichere Passwort-Hash-Verfahren PBKDF2 wird nun unterstützt
+    und standardmäßig bei allen zukünftigen Passwortänderungen
+    benutzt.
+
 2015-08-20 - Release 3.3
 
 Größere neue Features:
