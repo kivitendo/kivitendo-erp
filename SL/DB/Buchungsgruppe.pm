@@ -6,15 +6,9 @@ use SL::DB::MetaSetup::Buchungsgruppe;
 use SL::DB::Manager::Buchungsgruppe;
 use SL::DB::Helper::ActsAsList;
 
-__PACKAGE__->meta->add_relationship(
-  inventory_account => {
-    type          => 'many to one',
-    class         => 'SL::DB::Chart',
-    column_map    => { inventory_accno_id => 'id' },
-  },
-);
-
 __PACKAGE__->meta->initialize;
+
+sub inventory_account { goto &inventory_accno; }
 
 sub validate {
   my ($self) = @_;
