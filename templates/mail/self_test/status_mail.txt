@@ -3,6 +3,7 @@ kivitendo selftest report.
 Host:   [% host %]
 Path:   [% path %]
 DB:     [% database %]
+Client: [% client %]
 Result: [% SELF.aggreg.get_status %]
 
 ------------

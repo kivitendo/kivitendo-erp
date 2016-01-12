@@ -153,7 +153,8 @@ sub _prepare_report {
   my %params = (
     SELF     => $self,
     host     => hostname,
-    database => $::myconfig{dbname},
+    database => $::auth->client->{dbname},
+    client   => $::auth->client->{name},
     path     => $FindBin::Bin,
   );
 
