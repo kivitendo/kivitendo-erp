@@ -7,21 +7,34 @@ namespace('kivi.SalesPurchase', function(ns) {
       return;
     }
 
+    var params = { element: $element,
+                   runningnumber: row,
+                   partnumber: $('#partnumber_' + row).val() || '',
+                   description: $('#description_' + row).val() || '',
+                   default_longdescription: $('#longdescription_' + row).val() || ''
+                 };
+    this.edit_longdescription_with_params(params);
+  };
+
+  this.edit_longdescription_with_params = function(params) {
     var $container = $('#popup_edit_longdescription_input_container');
     var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog" wrap="soft" style="width: 750px; height: 220px;"></textarea>');
 
     $container.children().remove();
     $container.append($edit);
-    $container.data('element', $element);
 
-    $edit.val($element.val());
+    if (params.element) {
+      $container.data('element', params.element);
+    }
+
+    $edit.val(params.default_longdescription);
 
     kivi.init_text_editor($edit);
 
-    $('#popup_edit_longdescription_runningnumber').html(row);
-    $('#popup_edit_longdescription_partnumber').html($('#partnumber_' + row).val() || '');
+    $('#popup_edit_longdescription_runningnumber').html(params.runningnumber);
+    $('#popup_edit_longdescription_partnumber').html(params.partnumber);
 
-    var description = ($('#description_' + row).val() || '').replace(/[\n\r]+/, '');
+    var description = params.description.replace(/[\n\r]+/, '');
     if (description.length >= 50)
       description = description.substring(0, 50) + "…";
     $('#popup_edit_longdescription_description').html(description);
