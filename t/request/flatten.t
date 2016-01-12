@@ -45,6 +45,15 @@ f { a => [ { c => 1, d => 2 }, { c => 3, d => 4 }, ] },
   [ 'a[].d', 4  ],
 ], 'array of hashes';
 
+f { a => [ { a => 1, b => 2 }, { a => 3, c => 4 }, ] },
+[
+  [ 'a[+].a', 1 ],
+  [ 'a[].b', 2 ],
+  [ 'a[+].a', 3 ],
+  [ 'a[].c', 4  ],
+], 'array of hashes with not existing keys';
+
+
 # tests from Hash::Flatten below
 f {
   'x' => 1,
