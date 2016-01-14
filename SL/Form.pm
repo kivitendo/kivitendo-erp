@@ -480,7 +480,7 @@ sub header {
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
     jquery/jquery.form jquery/fixes client_js
     jquery/jquery.tooltipster.min
-    common part_selection switchmenuframe
+    common part_selection
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
   $self->{favicon} ||= "favicon.ico";

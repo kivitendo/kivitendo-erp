@@ -22,7 +22,6 @@ sub javascripts_inline {
 sub javascripts {
   qw(
     js/jquery.cookie.js
-    js/switchmenuframe.js
   );
 }
 
