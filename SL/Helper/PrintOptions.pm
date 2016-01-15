@@ -22,6 +22,8 @@ sub get_print_options {
   my $locale   = $params{locale}   || $::locale;
   my $options  = $params{options};
 
+  my $prefix = $options->{dialog_name_prefix} || '';
+
   # names 3 parameters and returns a hashref, for use in templates
   sub opthash { +{ value => shift, selected => shift, oname => shift } }
   my (@FORMNAME, @LANGUAGE_ID, @FORMAT, @SENDMODE, @MEDIA, @PRINTER_ID, @SELECTS) = ();
@@ -122,6 +124,7 @@ sub get_print_options {
     );
 
   my %template_vars = (
+    name_prefix          => $prefix || '',
     display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
@@ -132,6 +135,4 @@ sub get_print_options {
   return $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 }
 
-
 1;
-
