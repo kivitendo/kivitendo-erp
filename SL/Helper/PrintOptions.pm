@@ -107,16 +107,17 @@ sub get_print_options {
       if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
   @SELECTS = map {
-    sname => $_->[1],
-    DATA  => $_->[0],
-    show  => !$options->{"hide_" . $_->[1]} && scalar @{ $_->[0] }
+    sname  => $_->[1],
+    DATA   => $_->[0],
+    show   => !$options->{"hide_" . $_->[1]} && scalar @{ $_->[0]},
+    hname  => $locale->text($_->[2])
   },
-  [ \@FORMNAME,    'formname',    ],
-  [ \@LANGUAGE_ID, 'language_id', ],
-  [ \@FORMAT,      'format',      ],
-  [ \@SENDMODE,    'sendmode',    ],
-  [ \@MEDIA,       'media',       ],
-  [ \@PRINTER_ID,  'printer_id',  ];
+  [ \@FORMNAME,    'formname',    'Formname' ],
+  [ \@LANGUAGE_ID, 'language_id', 'Language' ],
+  [ \@FORMAT,      'format',      'Format'   ],
+  [ \@SENDMODE,    'sendmode',    'Sendmode' ],
+  [ \@MEDIA,       'media',       'Media'    ],
+  [ \@PRINTER_ID,  'printer_id',  'Printer'  ];
 
   my %dont_display_groupitems = (
     'dunning' => 1,
@@ -125,6 +126,7 @@ sub get_print_options {
 
   my %template_vars = (
     name_prefix          => $prefix || '',
+    show_headers         => $options->{show_headers},
     display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
