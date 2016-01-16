@@ -10,6 +10,7 @@ use SL::SessionFile::Random;
 use SL::PriceSource;
 use SL::Form;
 use SL::Webdav;
+use SL::Template;
 
 use SL::DB::Order;
 use SL::DB::Customer;
@@ -21,9 +22,12 @@ use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Price;
 use SL::DB::Part;
+use SL::DB::Printer;
+use SL::DB::Language;
 
 use SL::Helper::DateTime;
 use SL::Helper::CreatePDF qw(:all);
+use SL::Helper::PrintOptions;
 
 use SL::Controller::Helper::GetModels;
 
@@ -43,10 +47,10 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(update save save_and_delivery_order create_pdf send_email) ]);
+                        only => [ qw(update save save_and_delivery_order print create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
-                        only => [ qw(save save_and_delivery_order create_pdf send_email) ]);
+                        only => [ qw(save save_and_delivery_order print create_pdf send_email) ]);
 
 #
 # actions
@@ -135,30 +139,78 @@ sub action_save {
   $self->redirect_to(@redirect_params);
 }
 
-sub action_create_pdf {
+sub action_print {
   my ($self) = @_;
 
-  my $pdf;
-  my @errors = _create_pdf($self->order, \$pdf);
-  if (scalar @errors) {
-    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+  my $format      = $::form->{print_options}->{format};
+  my $media       = $::form->{print_options}->{media};
+  my $formname    = $::form->{print_options}->{formname};
+  my $copies      = $::form->{print_options}->{copies};
+  my $groupitems  = $::form->{print_options}->{groupitems};
+
+  # only pdf by now
+  if (none { $format eq $_ } qw(pdf)) {
+    return $self->js->flash('error', t8('Format \'#1\' is not supported yet/anymore.', $format))->render;
   }
 
-  my $sfile = SL::SessionFile::Random->new(mode => "w");
-  $sfile->fh->print($pdf);
-  $sfile->fh->close;
+  # only screen or printer by now
+  if (none { $media eq $_ } qw(screen printer)) {
+    return $self->js->flash('error', t8('Media \'#1\' is not supported yet/anymore.', $media))->render;
+  }
 
-  my $key = join('_', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  $::auth->set_session_value("Order::create_pdf-${key}" => $sfile->file_name);
+  my $language;
+  $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
   my $form = Form->new;
   $form->{ordnumber} = $self->order->ordnumber;
-  $form->{formname}  = $self->type;
   $form->{type}      = $self->type;
-  $form->{language}  = 'de';
-  $form->{format}    = 'pdf';
+  $form->{format}    = $format;
+  $form->{formname}  = $formname;
+  $form->{language}  = '_' . $language->template_code if $language;
+  my $pdf_filename   = $form->generate_attachment_filename();
 
-  my $pdf_filename = $form->generate_attachment_filename();
+  my $pdf;
+  my @errors = _create_pdf($self->order, \$pdf, { format     => $format,
+                                                  formname   => $formname,
+                                                  language   => $language,
+                                                  groupitems => $groupitems });
+  if (scalar @errors) {
+    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
+  }
+
+  if ($media eq 'screen') {
+    # screen/download
+    my $sfile = SL::SessionFile::Random->new(mode => "w");
+    $sfile->fh->print($pdf);
+    $sfile->fh->close;
+
+    my $key = join('_', Time::HiRes::gettimeofday(), int rand 1000000000000);
+    $::auth->set_session_value("Order::create_pdf-${key}" => $sfile->file_name);
+
+    $self->js
+    ->run('download_pdf', $pdf_filename, $key)
+    ->flash('info', t8('The PDF has been created'));
+
+  } elsif ($media eq 'printer') {
+    # printer
+    my $printer_id = $::form->{print_options}->{printer_id};
+    my $printer;
+    $printer = SL::DB::Printer->new(id => $printer_id)->load if $printer_id;
+    if (!$printer) {
+      return $self->js->flash('error', t8('Printer not found.'))->render;
+    }
+
+    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
+
+    for my $i (1 .. $copies) {
+      open my $out, '|-', $command or die $!;
+      binmode $out;
+      print $out $pdf;
+      close $out;
+    }
+
+    $self->js->flash('info', t8('The PDF has been printed'));
+  }
 
   # copy file to webdav folder
   if ($self->order->ordnumber && $::instance_conf->get_webdav_documents) {
@@ -178,9 +230,7 @@ sub action_create_pdf {
     }
   }
 
-  $self->js
-    ->run('download_pdf', $pdf_filename, $key)
-    ->flash('info', t8('The PDF has been created'))->render($self);
+  $self->js->render;
 }
 
 sub action_download_pdf {
@@ -853,6 +903,20 @@ sub _pre_render {
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 
+  my $print_form = Form->new('');
+  $print_form->{type}      = $self->type;
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+  $self->{print_options}   = SL::Helper::PrintOptions->get_print_options(
+    form => $print_form,
+    options => {dialog_name_prefix => 'print_options.',
+                show_headers       => 1,
+                no_queue           => 1,
+                no_postscript      => 1,
+                no_opendocument    => 1,
+                no_html            => 1},
+  );
+
   foreach my $item (@{$self->order->orderitems}) {
     my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
     $item->active_price_source(   $price_source->price_from_source(   $item->active_price_source   ));
@@ -878,23 +942,42 @@ sub _pre_render {
 sub _create_pdf {
   my ($order, $pdf_ref, $params) = @_;
 
+  my @errors = ();
+
   my $print_form = Form->new('');
-  $print_form->{type}     = $order->type;
-  $print_form->{formname} = $order->type;
-  $print_form->{format}   = $params->{format} || 'pdf',
-  $print_form->{media}    = $params->{media}  || 'file';
+  $print_form->{type}        = $order->type;
+  $print_form->{formname}    = $params->{formname} || $order->type;
+  $print_form->{format}      = $params->{format}   || 'pdf';
+  $print_form->{media}       = $params->{media}    || 'file';
+  $print_form->{groupitems}  = $params->{groupitems};
+  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
+  $print_form->{language}    = $params->{language}->template_code if $print_form->{language};
+  $print_form->{language_id} = $params->{language}->id            if $print_form->{language};
 
   $order->flatten_to_form($print_form, format_amounts => 1);
   # flatten_to_form sets payment_terms from customer/vendor - we do not want that here
   delete $print_form->{payment_terms} if !$print_form->{payment_id};
 
-  my @errors = ();
+  # search for the template
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $print_form->{formname},
+    email       => $print_form->{media} eq 'email',
+    language    => $params->{language},
+    printer_id  => $print_form->{printer_id},  # todo
+  );
+
+  if (!defined $template_file) {
+    push @errors, $::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
+  }
+
+  return @errors if scalar @errors;
+
   $print_form->throw_on_error(sub {
     eval {
       $print_form->prepare_for_printing;
 
       $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
-        template  => SL::Helper::CreatePDF->find_template(name => $print_form->{formname}),
+        template  => $template_file,
         variables => $print_form,
         variable_content_types => {
           longdescription => 'html',

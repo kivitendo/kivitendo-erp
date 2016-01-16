@@ -2,6 +2,15 @@
 [%- USE LxERP %]
 [%- USE L %]
 
+<div id="print_options" style="display:none">
+  <form method="post" action="controller.pl" id="print_options_form">
+    [% SELF.print_options %]
+    <br>
+    [% L.button_tag('print()', LxERP.t8('Print')) %]
+    <a href="#" onclick="$('#print_options').dialog('close');">[% LxERP.t8("Cancel") %]</a>
+  </form>
+</div>
+
 <form method="post" action="controller.pl" id="order_form">
   <div class="listtop">[% FORM.title %]</div>
 
@@ -31,7 +40,7 @@
   [% L.hidden_tag('action', 'Order/dispatch') %]
 
   [% L.button_tag('save()', LxERP.t8('Save')) %]
-  [% L.button_tag('create_pdf()', LxERP.t8('Create PDF')) %]
+  [% L.button_tag('show_print_options()', LxERP.t8('Print')) %]
   [% L.button_tag('email()', LxERP.t8('E-mail')) %]
   [% L.button_tag('save_and_delivery_order()', LxERP.t8('Save and Delivery Order')) %]
 [%- IF SELF.order.id && ( (SELF.cv == 'customer' && INSTANCE_CONF.get_sales_order_show_delete) || (SELF.cv == 'vendor' && INSTANCE_CONF.get_purchase_order_show_delete) ) %]
@@ -58,10 +67,25 @@ function save() {
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 
-function create_pdf() {
+function show_print_options() {
   if (!check_cv()) return;
+
+  kivi.popup_dialog({
+    id: 'print_options',
+    dialog: {
+      title: kivi.t8('Print options'),
+      width:  800,
+      height: 300
+    }
+  });
+}
+
+function print() {
+  $('#print_options').dialog('close');
+
   var data = $('#order_form').serializeArray();
-  data.push({ name: 'action', value: 'Order/create_pdf' });
+  data = data.concat($('#print_options_form').serializeArray());
+  data.push({ name: 'action', value: 'Order/print' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
