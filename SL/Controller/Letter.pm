@@ -200,17 +200,24 @@ sub action_print_letter {
   $::form->get_employee_data('prefix' => 'employee', 'id' => $letter->{employee_id});
   $::form->get_employee_data('prefix' => 'salesman', 'id' => $letter->{salesman_id});
 
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => 'letter',
+    printer_id  => $::form->{printer_id},
+    language_id => $::form->{language_id},
+    formname    => 'letter',
+    format      => 'pdf',
+  );
+
+  if (!defined $template_file) {
+    $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
+  }
+
   my %create_params = (
-    template  => scalar(SL::Helper::CreatePDF->find_template(
-      name        => 'letter',
-      printer_id  => $::form->{printer_id},
-      language_id => $::form->{language_id},
-      formname    => 'letter',
-      format      => 'pdf',
-    )),
+    template  => $template_file,
     variables => $::form,
     return    => 'file_name',
   );
+
   my $pdf_file_name;
   eval {
     $pdf_file_name = SL::Helper::CreatePDF->create_pdf(%create_params);
