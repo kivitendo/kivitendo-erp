@@ -66,6 +66,8 @@ sub add {
 
   return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
+  $form->{show_details} = $::myconfig{show_form_details};
+
   if ($form->{type} eq "credit_note") {
     $form->{title} = $locale->text('Add Credit Note');
 
@@ -95,6 +97,7 @@ sub edit {
 
   $main::auth->assert('invoice_edit');
 
+  $form->{show_details}                = $::myconfig{show_form_details};
   $form->{taxincluded_changed_by_user} = 1;
 
   # show history button

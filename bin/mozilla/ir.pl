@@ -65,6 +65,8 @@ sub add {
 
   return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
+  $form->{show_details} = $::myconfig{show_form_details};
+
   $form->{title} = $locale->text('Record Vendor Invoice');
 
   &invoice_links;
@@ -81,6 +83,8 @@ sub edit {
   my $locale   = $main::locale;
 
   $main::auth->assert('vendor_invoice_edit');
+
+  $form->{show_details} = $::myconfig{show_form_details};
 
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;

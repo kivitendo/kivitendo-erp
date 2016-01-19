@@ -155,6 +155,8 @@ sub add {
     "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}"
     unless $form->{callback};
 
+  $form->{show_details} = $::myconfig{show_form_details};
+
   &order_links;
   &prepare_order;
   &display_form;
@@ -169,6 +171,7 @@ sub edit {
 
   check_oe_access();
 
+  $form->{show_details}                = $::myconfig{show_form_details};
   $form->{taxincluded_changed_by_user} = 1;
 
   # show history button

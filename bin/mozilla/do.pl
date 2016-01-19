@@ -95,6 +95,7 @@ sub add {
 
   set_headings("add");
 
+  $form->{show_details} = $::myconfig{show_form_details};
   $form->{callback} = build_std_url('action=add', 'type', 'vc') unless ($form->{callback});
 
   order_links();
@@ -110,6 +111,8 @@ sub edit {
   check_do_access();
 
   my $form     = $main::form;
+
+  $form->{show_details} = $::myconfig{show_form_details};
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
