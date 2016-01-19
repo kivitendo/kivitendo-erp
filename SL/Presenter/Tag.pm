@@ -13,7 +13,7 @@ use Carp;
 
 my %_valueless_attributes = map { $_ => 1 } qw(
   checked compact declare defer disabled ismap multiple noresize noshade nowrap
-  readonly selected
+  readonly selected hidden
 );
 
 sub _call_on {
