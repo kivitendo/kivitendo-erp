@@ -156,7 +156,7 @@ sub check_netamount_laut_invoice_ar {
     where a.transdate >= ? and a.transdate <= ?;|;
   my ($netamount_laut_invoice) =  selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
-  $query = qq| select sum(netamount) from ar where transdate >= ? and transdate <= ?; |;
+  $query = qq| select sum(netamount) from ar where transdate >= ? and transdate <= ? AND invoice; |;
   my ($netamount_laut_ar) =  selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
   my $correct = $netamount_laut_invoice - $netamount_laut_ar == 0;
