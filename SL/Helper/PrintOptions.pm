@@ -136,3 +136,97 @@ sub get_print_options {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Helper::PrintOptions - A helper for generating the print options for
+templates
+
+=head1 SYNOPSIS
+
+  # render your template with print_options
+  $self->render('letter/edit',
+    %params,
+    letter        => $letter,
+    print_options => SL::Helper::PrintOptions->get_print_options (
+      options => { no_postscript   => 1,
+                   no_opendocument => 1,
+                   no_html         => 1,
+                   no_queue        => 1 }),
+
+  );
+
+Then, in the template, you can render the options with
+    C<[% print_options %]>. Look at the template
+    C<generic/print_options> to see, which variables you get back.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<get_print_options %params>
+
+Parses the template C<generic/print_options>. It does some guessings
+    and settings according to the params, (namely C<form>).
+
+
+The recognized parameters are:
+
+=over 2
+
+=item * C<form>: defaults to $::form if not given. There are several
+    keys in C<form> which control the output of the options,
+    e.g. C<format>, C<media>, C<copies>, C<printers>, C<printer_id>,
+    C<type>, C<formname>, ...
+
+=item * C<myconfig>: defaults to %::myconfig
+
+=item * C<locale>: defaults to $::locale
+
+=item * C<options>: Options can be:
+
+* C<dialog_name_prefix>: a string prefixed to the template
+    variables. E.g. if prefix is C<mypref_> the value for copies
+    returned from the user is in $::form->{mypref_copies}
+
+* C<show_header>: render headings for the input elements
+
+* C<no_queue>: if set, do not show option for printing to queue
+
+* C<no_opendocument>: if set, do not show option for printing
+    opendocument format
+
+* C<no_postscript>: if set, do not show option for printing
+    postscript format
+
+* C<no_html>: if set, do not show option for printing
+    html format
+
+* C<no_opendocument_pdf>
+
+* C<no_excel>
+
+* and some more
+
+=back
+
+=back
+
+=head1 AUTHOR
+
+?
+
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt> (I just moved
+    it from io.pl to here and did some minor changes)
+
+=head1 BUGS
+
+incomplete documentation
+
+=cut
