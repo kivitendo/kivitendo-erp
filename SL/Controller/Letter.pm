@@ -319,7 +319,12 @@ sub _display {
     PCF           => [ map { key => $_, value => t8(ucfirst $_) }, PAGE_CREATED_FOR_VALUES() ],
     letter        => $letter,
     employees     => $self->all_employees,
-    print_options => SL::Helper::PrintOptions->get_print_options,
+    print_options => SL::Helper::PrintOptions->get_print_options (
+      options => { no_postscript   => 1,
+                   no_opendocument => 1,
+                   no_html         => 1,
+                   no_queue        => 1 }),
+
   );
 }
 
