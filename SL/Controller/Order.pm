@@ -81,6 +81,25 @@ sub action_update {
   );
 }
 
+sub action_delete {
+  my ($self) = @_;
+
+  my $errors = $self->_delete();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  flash_later('info', $::locale->text('The order has been deleted'));
+  my @redirect_params = (
+    action => 'edit',
+    type   => $self->type,
+  );
+
+  $self->redirect_to(@redirect_params);
+}
+
 sub action_save {
   my ($self) = @_;
 
@@ -340,6 +359,26 @@ sub _get_unalterable_data {
     }
     $item->parse_custom_variable_values;
   }
+}
+
+
+sub _delete {
+  my ($self) = @_;
+
+  my $errors = [];
+  my $db = $self->order->db;
+
+  $db->do_transaction(
+    sub {
+      my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $self->order->id ]) };
+      $self->order->delete;
+      my $spool = $::lx_office_conf{paths}->{spool};
+      unlink map { "$spool/$_" } @spoolfiles if $spool;
+
+      1;
+  }) || push(@{$errors}, $db->error);
+
+  return $errors;
 }
 
 

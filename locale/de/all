@@ -2839,6 +2839,7 @@ $self->{texts} = {
   'The number of days for full payment' => 'Die Anzahl Tage, bis die Rechnung in voller Höhe bezahlt werden muss',
   'The numbering will start at 1 with each requirement spec.' => 'Die Nummerierung beginnt bei jedem Pflichtenheft bei 1.',
   'The option field is empty.'  => 'Das Optionsfeld ist leer.',
+  'The order has been deleted'  => 'Der Auftrag wurde gelöscht.',
   'The order has been saved'    => 'Der Auftrag wurde gespeichert.',
   'The package name is invalid.' => 'Der Paketname ist ungültig.',
   'The parts for this delivery order have already been transferred in.' => 'Die Artikel dieses Lieferscheins wurden bereits eingelagert.',
