@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE HTML %]
 
 <div id="print_options" style="display:none">
   <form method="post" action="controller.pl" id="print_options_form">
@@ -25,6 +26,9 @@
       <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
 [%- IF INSTANCE_CONF.get_webdav %]
       <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+[%- END %]
+[%- IF SELF.order.id %]
+      <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Order&object_id=[% HTML.url(SELF.order.id) %]">[% 'Linked Records' | $T8 %]</a></li>
 [%- END %]
     </ul>
 
