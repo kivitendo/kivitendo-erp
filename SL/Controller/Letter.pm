@@ -11,6 +11,7 @@ use SL::DB::LetterDraft;
 use SL::DB::Employee;
 use SL::Helper::Flash qw(flash);
 use SL::Helper::CreatePDF;
+use SL::Helper::PrintOptions;
 use SL::Locale::String qw(t8);
 use SL::IS;
 use SL::ReportGenerator;
@@ -302,8 +303,6 @@ sub _display {
 
   my $letter = $self->letter;
 
-  require 'bin/mozilla/io.pl';
-
  $params{title} ||= t8('Edit Letter');
 
   $::form->{type}             = 'letter';   # needed for print_options
@@ -320,7 +319,7 @@ sub _display {
     PCF           => [ map { key => $_, value => t8(ucfirst $_) }, PAGE_CREATED_FOR_VALUES() ],
     letter        => $letter,
     employees     => $self->all_employees,
-    print_options => print_options(inline => 1),
+    print_options => SL::Helper::PrintOptions->get_print_options,
   );
 }
 
