@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 18);
+  $self->tester->plan(tests => 20);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -23,6 +23,7 @@ sub run {
   $self->check_verwaiste_acc_trans_eintraege;
   $self->check_verwaiste_invoice_eintraege;
   $self->check_ar_acc_trans_amount;
+  $self->check_ap_acc_trans_amount;
   $self->check_netamount_laut_invoice_ar;
   $self->check_invnumbers_unique;
   $self->check_summe_stornobuchungen;
@@ -35,6 +36,7 @@ sub run {
   $self->check_overpayments;
   $self->check_every_account_with_taxkey;
   $self->calc_saldenvortraege;
+  $self->check_missing_tax_bookings;
 }
 
 sub _setup {
@@ -446,10 +448,59 @@ sub check_ar_acc_trans_amount {
                             Nebenbuch-Wert: $ar_ac_amount_nok->{netamount}");
     }
   } else {
-    $self->tester->ok(1, "Hauptbuch-Nettowert und Nebenbuch-Nettowert stimmen überein.");
+    $self->tester->ok(1, "Hauptbuch-Nettowert und Debitoren-Nebenbuch-Nettowert  stimmen überein.");
   }
 
 }
+
+sub check_ap_acc_trans_amount {
+  my ($self) = @_;
+
+  my $query = qq|
+          select ap.invnumber, ap.netamount, ac.amount
+           from ap left join acc_trans ac on (ac.trans_id = ap.id) where ac.chart_link like 'AP_amount%' AND ac.amount <> ap.netamount*-1|;
+
+  my $ap_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query);
+
+  if ( scalar @{ $ap_amount_not_ac_amount } > 0 ) {
+    $self->tester->ok(0, "Folgende Eingangsrechnungen haben einen falschen Netto-Wert im Nebenbuch:");
+
+    for my $ap_ac_amount_nok (@{ $ap_amount_not_ac_amount } ) {
+      $self->tester->diag("Rechnungsnummer: $ap_ac_amount_nok->{invnumber} Hauptbuch-Wert: $ap_ac_amount_nok->{amount}
+                            Nebenbuch-Wert: $ap_ac_amount_nok->{netamount}");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch-Nettowert und Kreditoren-Nebenbuch-Nettowert stimmen überein.");
+  }
+
+}
+
+
+sub check_missing_tax_bookings {
+
+  my ($self) = @_;
+
+  # check tax bookings. all taxkey <> 0 should have tax bookings in acc_trans
+
+  my $query = qq| select trans_id, chart.accno,transdate from acc_trans left join chart on (chart.id = acc_trans.chart_id)
+                    WHERE taxkey <> 0 AND trans_id NOT IN
+                    (select trans_id from acc_trans where chart_link ilike '%tax%' and trans_id IN
+                    (SELECT trans_id from acc_trans where taxkey <> 0))|;
+
+  my $missing_tax_bookings = selectall_hashref_query($::form, $self->dbh, $query);
+
+  if ( scalar @{ $missing_tax_bookings } > 0 ) {
+    $self->tester->ok(0, "Folgende Konten weisen Buchungen ohne Steuer auf:");
+
+    for my $acc_trans_nok (@{ $missing_tax_bookings } ) {
+      $self->tester->diag("Kontonummer: $acc_trans_nok->{accno} Belegdatum: $acc_trans_nok->{transdate} Trans-ID: $acc_trans_nok->{trans_id}.
+                           Kann über System -> Korrekturen im Hauptbuch bereinigt werden.");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch-Nettowert und Nebenbuch-Nettowert stimmen überein.");
+  }
+}
+
 
 1;
 
