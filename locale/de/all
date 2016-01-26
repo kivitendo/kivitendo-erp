@@ -2893,6 +2893,7 @@ $self->{texts} = {
   'The tax zone is in use and cannot be deleted.' => 'Die Steuerzone wird benutzt und kann nicht gelöscht werden',
   'The taxzone has been created.' => 'Die Steuerzone wurde erstellt.',
   'The taxzone has been saved.' => 'Die Steuerzone wurde gespeichert.',
+  'The third reason is that wrong (taxkey) settings for the credit / debit CSV-import were used.' => 'Der dritte Grund ist, dass fehlerhafte Einstellungen (Steuerschlüssel) beim Kreditoren / Debitoren CSV-Import benutzt worden sind.',
   'The third way is to download the module from the above mentioned URL and to install the module manually following the installations instructions contained in the source archive.' => 'Die dritte Variante besteht darin, das Paket von der oben genannten URL herunterzuladen und es manuell zu installieren. Beachten Sie dabei die im Paket enthaltenen Installationsanweisungen.',
   'The three columns "make_X", "model_X" and "lastcost_X" with the same number "X" are used to import vendor part numbers and vendor prices.' => 'Die drei Spalten "make_X", "model_X" und "lastcost_X" mit derselben Nummer "X" werden zum Import von Lieferantenartikelnummern und -preisen genutzt.',
   'The title is missing.'       => 'Der Titel fehlt.',
