@@ -354,7 +354,7 @@ sub prepare_report {
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
     letternumber          => { text => t8('Letternumber'), sub => sub { $_[0]->letternumber },
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
-    vc_id                 => { text => t8('Customer'),      sub => sub { $_[0]->customer->displayable_name } },
+    vc_id                 => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->vc_id)->displayable_name } },
     contact               => { text => t8('Contact'),       sub => sub { $_[0]->contact ? $_[0]->contact->full_name : '' } },
   );
 
