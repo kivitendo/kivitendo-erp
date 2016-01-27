@@ -101,6 +101,12 @@
    <td>[% LxERP.t8("If enabled a column will be shown in sales and purchase orders that lists both the amount and the value not shipped yet for each item.") %]</td>
   </tr>
 
+  <tr>
+   <td align="right">[% LxERP.t8("Warn before saving orders with duplicate parts (new controller only)") %]</td>
+   <td>[% L.yes_no_tag("defaults.order_warn_duplicate_parts", SELF.defaults.order_warn_duplicate_parts) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there are two or more positions of the same part (new controller only).") %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
   <tr>

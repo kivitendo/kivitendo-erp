@@ -14,8 +14,30 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
-  ns.save = function() {
+  ns.check_save_duplicate_parts = function() {
+    var id_arr = $('[name="order.orderitems[].parts_id"]').map(function() {return this.value;}).get();
+
+    var i, obj = {}, pos = [];
+
+    for (i = 0; i < id_arr.length; i++) {
+      var id = id_arr[i];
+      if (obj.hasOwnProperty(id)) {
+        pos.push(i + 1);
+      }
+      obj[id] = 0;
+    }
+
+    if (pos.length > 0) {
+      return confirm(kivi.t8("There are duplicate parts at positions") + "\n"
+                     + pos.join(', ') + "\n"
+                     + kivi.t8("Do you really want to save?"));
+    }
+    return true;
+  };
+
+  ns.save = function(warn_on_duplicates) {
     if (!ns.check_cv()) return;
+    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/save' });
@@ -23,8 +45,9 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.save_and_delivery_order = function() {
+  ns.save_and_delivery_order = function(warn_on_duplicates) {
     if (!ns.check_cv()) return;
+    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/save_and_delivery_order' });
