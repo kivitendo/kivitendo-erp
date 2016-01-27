@@ -17,7 +17,7 @@ sub _sort_spec {
   return ( columns => { SIMPLE    => 'ALL',
                         customer  => [ 'lower(customer.name)', ],
                       },
-           default => [ 'date', 1 ],
+           default => [ 'date', 0 ],
            nulls   => { }
          );
 }
