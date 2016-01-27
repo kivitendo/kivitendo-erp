@@ -542,13 +542,7 @@ sub init_models {
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
     model        => 'Letter',
-    sorted       => {
-      _default     => {
-        by           => 'letternumber',
-        dir          => 1,
-      },
-      %sort_columns,
-    },
+    sorted       => \%sort_columns,
     with_objects => [ 'contact', 'salesman', 'employee' ],
   );
 }
