@@ -27,6 +27,10 @@ sub make_sort_string {
 
   my $sort_by_str = $sort_spec->{columns}->{$sort_by};
   $sort_by_str    = [ $sort_by_str ] unless ref($sort_by_str) eq 'ARRAY';
+
+  # generaate tiebreaker
+  push @$sort_by_str, @{ $sort_spec->{tiebreaker} };
+
   $sort_by_str    = join(', ', map { "${_} ${sort_dir_str}${nulls_str}" } @{ $sort_by_str });
 
   return wantarray ? ($sort_by, $sort_dir, $sort_by_str) : $sort_by_str;
@@ -50,6 +54,7 @@ sub _make_sort_spec {
   my %sort_spec = defined &{ "${class}::_sort_spec" } ? $class->_sort_spec : ();
 
   my $meta = $class->object_class->meta;
+  my $table = $meta->table;
 
   if (!$sort_spec{default}) {
     my @primary_keys = $meta->primary_key;
@@ -59,8 +64,6 @@ sub _make_sort_spec {
   $sort_spec{columns} ||= { SIMPLE => [ map { "$_" } $meta->columns ] };
 
   if ($sort_spec{columns}->{SIMPLE}) {
-    my $table = $meta->table;
-
     if (!ref($sort_spec{columns}->{SIMPLE}) && ($sort_spec{columns}->{SIMPLE} eq 'ALL')) {
       map { $sort_spec{columns}->{"$_"} ||= "${table}.${_}"} @{ $meta->columns };
       delete $sort_spec{columns}->{SIMPLE};
@@ -68,6 +71,8 @@ sub _make_sort_spec {
       map { $sort_spec{columns}->{$_} = "${table}.${_}" } @{ delete($sort_spec{columns}->{SIMPLE}) };
     }
   }
+
+  $sort_spec{tiebreaker} ||= [ map { "${table}.${_}" } $meta->primary_key ];
 
   return \%sort_spec;
 }
@@ -210,6 +215,15 @@ Example:
              customer_name           => 'FIRST',
              default                 => 'LAST',
            },
+
+=item C<tiebreaker>
+
+Optional tiebreaker sorting that gets appended to any user requested sorting.
+Needed to make sorting by non unique columns deterministic.
+
+If present must be an arrayref of column sort specs (see C<column>).
+
+Defaults to primary keys.
 
 =back
 
