@@ -47,6 +47,7 @@ sub flatten_to_form {
   $form->{employee}   = $self->employee->name          if _has($self, 'employee_id');
   $form->{language}   = $self->language->template_code if _has($self, 'language_id');
   $form->{department} = $self->department->description if _has($self, 'department_id');
+  $form->{business}   = $self->$vc->business->description if _has($self->$vc, 'business_id');
   $form->{rowcount}   = scalar(@{ $self->items });
 
   my $items_name = ref($self) eq 'SL::DB::Order'         ? 'orderitems'
