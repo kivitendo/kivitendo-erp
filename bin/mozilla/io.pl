@@ -1245,6 +1245,17 @@ sub print_form {
     $order                = 1;
   }
 
+  if (($form->{type} eq 'sales_order') && ($form->{formname} eq 'ic_supply') ) {
+    $inv                  = "inv";
+    $due                  = "due";
+    $form->{"${inv}date"} = $form->{transdate};
+    $form->{"invdate"}    = $form->{transdate};
+    $form->{invnumber}    = $form->{ordnumber};
+    $form->{label}        = $locale->text('Intra-Community supply');
+    $numberfld            = "sonumber";
+    $order                = 1;
+  }
+
   if ($form->{formname} eq 'request_quotation') {
     $inv                  = "quo";
     $due                  = "req";

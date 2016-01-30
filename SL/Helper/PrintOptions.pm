@@ -51,6 +51,7 @@ sub get_print_options {
     ($form->{type} eq 'sales_order') ? (
       opthash("sales_order",         $form->{PD}{sales_order},         $locale->text('Confirmation')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
+      opthash("ic_supply",           $form->{PD}{ic_supply},            $locale->text('Intra-Community supply')),
     ) : undef,
     ($form->{type} =~ /sales_quotation$/) ?
       opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
