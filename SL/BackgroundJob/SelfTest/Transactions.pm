@@ -435,8 +435,9 @@ sub check_ar_acc_trans_amount {
   my ($self) = @_;
 
   my $query = qq|
-          select ar.invnumber, ar.netamount, ac.amount
-           from ar left join acc_trans ac on (ac.trans_id = ar.id) where ac.chart_link like 'AR_amount%' AND ac.amount <> ar.netamount|;
+          select sum(ac.amount) as amount, ar.invnumber,ar.netamount
+          from acc_trans ac left join ar on (ac.trans_id = ar.id)
+          where ac.chart_link like 'AR_amount%' group by invnumber,netamount having sum(ac.amount) <> ar.netamount|;
 
   my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query);
 
@@ -457,8 +458,9 @@ sub check_ap_acc_trans_amount {
   my ($self) = @_;
 
   my $query = qq|
-          select ap.invnumber, ap.netamount, ac.amount
-           from ap left join acc_trans ac on (ac.trans_id = ap.id) where ac.chart_link like 'AP_amount%' AND ac.amount <> ap.netamount*-1|;
+          select sum(ac.amount) as amount, ap.invnumber,ap.netamount
+          from acc_trans ac left join ap on (ac.trans_id = ap.id)
+          where ac.chart_link like 'AR_amount%' group by invnumber,netamount having sum(ac.amount) <> ap.netamount*-1|;
 
   my $ap_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query);
 
