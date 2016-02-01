@@ -40,10 +40,12 @@
                       class="recalc reformat_number numeric") %]
     </td>
     <td>
-      [%- L.input_tag("order.orderitems[].price_factor",
-                      ITEM.price_factor,
-                      size = 5,
-                      class="recalc numeric") %]
+      [%- L.select_tag("order.orderitems[].price_factor_id",
+                       ALL_PRICE_FACTORS,
+                       default = ITEM.price_factor_id,
+                       title_key = 'description',
+                       with_empty = 1,
+                       class="recalc") %]
     </td>
     <td nowrap>
       [%- L.select_tag("order.orderitems[].unit",

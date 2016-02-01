@@ -21,6 +21,7 @@ use SL::DB::Project;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Price;
+use SL::DB::PriceFactor;
 use SL::DB::Part;
 use SL::DB::Printer;
 use SL::DB::Language;
@@ -39,7 +40,7 @@ use File::Spec;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors) ],
 );
 
 
@@ -413,7 +414,11 @@ sub action_add_item {
   $self->_recalc();
 
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $row_as_html = $self->p->render('order/tabs/_row', ITEM => $item, ID => $item_id);
+  my $row_as_html = $self->p->render('order/tabs/_row',
+                                     ITEM              => $item,
+                                     ID                => $item_id,
+                                     ALL_PRICE_FACTORS => $self->all_price_factors
+  );
 
   $self->js
     ->append('#row_table_id', $row_as_html)
@@ -472,7 +477,11 @@ sub action_add_multi_items {
 
   foreach my $item (@items) {
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    my $row_as_html = $self->p->render('order/tabs/_row', ITEM => $item, ID => $item_id);
+    my $row_as_html = $self->p->render('order/tabs/_row',
+                                       ITEM              => $item,
+                                       ID                => $item_id,
+                                       ALL_PRICE_FACTORS => $self->all_price_factors
+    );
 
     $self->js
         ->append('#row_table_id', $row_as_html)
@@ -627,6 +636,10 @@ sub init_multi_items_models {
       partnumber  => t8('Partnumber'),
       description => t8('Description')}
   );
+}
+
+sub init_all_price_factors {
+  SL::DB::Manager::PriceFactor->get_all;
 }
 
 sub _check_auth {
@@ -797,8 +810,9 @@ sub _new_item {
 
   my %new_attr;
   $new_attr{part}                   = $part;
-  $new_attr{description}            = $part->description if ! $item->description;
-  $new_attr{qty}                    = 1.0                if ! $item->qty;
+  $new_attr{description}            = $part->description     if ! $item->description;
+  $new_attr{qty}                    = 1.0                    if ! $item->qty;
+  $new_attr{price_factor_id}        = $part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
