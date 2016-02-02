@@ -174,12 +174,14 @@ sub action_print_letter {
 
   $self->export_letter_to_form($letter);
   $::form->{formname} = "letter";
-  $::form->{format} = "pdf";
+  $::form->{type}     = "letter";
+  $::form->{format}   = "pdf";
 
   my $language_saved      = $::form->{language_id};
   my $greeting_saved      = $::form->{greeting};
   my $cp_id_saved         = $::form->{cp_id};
 
+  $::form->{customer_id} = $self->letter->vc_id;
   IS->customer_details(\%::myconfig, $::form);
 
   if (!$cp_id_saved) {
@@ -245,6 +247,7 @@ sub action_print_letter {
       my $file = IO::File->new($pdf_file_name, 'r') || croak("Cannot open file '$pdf_file_name'");
       my $size = -s $pdf_file_name;
       my $content_type    =  'application/pdf';
+      $::form->{letternumber} = $self->letter->letternumber;
       my $attachment_name =  $::form->generate_attachment_filename;
       $attachment_name    =~ s:.*//::g;
 
