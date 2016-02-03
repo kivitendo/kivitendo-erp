@@ -22,7 +22,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -47,18 +47,19 @@ _=\\_
 ³=$^3$
 °=$^\\circ$
 §=\\S\s
-®=\\textregistered\s
-©=\\textcopyright\s
+®={\\textregistered}
+©={\\textcopyright}
 \xad=\\-
 ➔=$\\rightarrow$
 →=$\\rightarrow$
 ←=$\\leftarrow$
 \xa0=~
-|=\\textbar\s
+|={\\textbar}
 −={\\textemdash}
 ≤=$\\leq$
 ≥=$\\geq$
 ‐={}-{}
+​=\hspace{0pt}
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
