@@ -6,6 +6,7 @@ use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::DB::MetaSetup::Vendor;
 use SL::DB::Manager::Vendor;
+use SL::DB::Helper::IBANValidation;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
@@ -46,6 +47,7 @@ sub validate {
 
   my @errors;
   push @errors, $::locale->text('The vendor name is missing.') if !$self->name;
+  push @errors, $self->validate_ibans;
 
   return @errors;
 }

@@ -1,6 +1,3 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::BankAccount;
 
 use strict;
@@ -8,6 +5,7 @@ use strict;
 use SL::DB::MetaSetup::BankAccount;
 use SL::DB::Manager::BankAccount;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::IBANValidation;
 
 __PACKAGE__->meta->initialize;
 
@@ -39,6 +37,7 @@ sub validate {
   };
 
   push @errors, $::locale->text('The IBAN is missing.') unless $self->{iban};
+  push @errors, $self->validate_ibans;
 
   return @errors;
 }

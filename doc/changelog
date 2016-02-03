@@ -42,6 +42,9 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - IBANs werden beim Speichern auf Gültigkeit geprüft (betrifft
+    Kunden-/Lieferantenstammdaten sowie Bankkonten)
+
   - Konkurrierende Schreibprozesse beim Speichern von Belegen verhindern.
 
   - SelfTest um einen Test erweitert. Hauptbuch-Nettowert weicht vom Nebenbuch-Netto-Wert ab

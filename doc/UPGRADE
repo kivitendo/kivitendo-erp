@@ -9,6 +9,7 @@ Upgrade auf v?????
 
 * Neue Perl-Modul-Abhängigkeiten:
 
+  * Algorithm::CheckDigits
   * PBKDF2::Tiny
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
