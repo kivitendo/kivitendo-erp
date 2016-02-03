@@ -59,7 +59,7 @@ _=\\_
 ≤=$\\leq$
 ≥=$\\geq$
 ‐={}-{}
-​=\hspace{0pt}
+​={\\hspace{0pt}}
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
