@@ -91,7 +91,7 @@
           <%if reqdate%> && \scriptsize \lieferdatum: <%reqdate%>\\<%end reqdate%>
           <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
           <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
-          <%foreach si_number%><%if si_number%> && \scriptsize \charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%><%end si_chargenumber%>\\<%end si_number%>
+          <%foreach si_number%><%if si_chargenumber%> && \scriptsize \charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%><%end si_chargenumber%>\\<%end si_number%>
 
           \\[-0.8em]
 <%end number%>
