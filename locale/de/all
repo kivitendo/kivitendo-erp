@@ -2564,6 +2564,7 @@ $self->{texts} = {
   'Summen- und Saldenliste'     => 'Summen- und Saldenliste',
   'Superuser name'              => 'Datenbankadministrator',
   'Supplies'                    => 'Lieferungen',
+  'Surname'                     => 'Nachname',
   'Switzerland'                 => 'Schweiz',
   'System'                      => 'System',
   'System currently down for maintenance!' => 'kivitendo ist momentan zwecks Wartungsarbeiten nicht zugänglich.',
