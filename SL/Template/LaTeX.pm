@@ -66,6 +66,13 @@ my %html_replace = (
   '<br>'      => "\\newline ",
 );
 
+sub _lb_to_space {
+  my ($to_replace) = @_;
+
+  my $vspace = '\vspace*{0.5cm}';
+  return $vspace x (length($to_replace) / length($html_replace{'<br>'}));
+}
+
 sub _format_html {
   my ($self, $content, %params) = @_;
 
@@ -86,7 +93,11 @@ sub _format_html {
   } split(m{(<.*?>)}x, $content);
 
   $content =  join '', @parts;
-  $content =~ s{ (?: [\n\s] | \\newline )+$ }{}gx;
+  $content =~ s{ (?: [\n\s] | \\newline )+ $ }{}gx;                                         # remove line breaks at the end of the text
+  $content =~ s{ ^ \s+ }{}gx;                                                               # remove white space at the start of the text
+  $content =~ s{ ^ ( \\newline \  )+ }{ _lb_to_space($1) }gxe;                              # convert line breaks at the start of the text to vertical space
+  $content =~ s{ ( \n\n+ ) ( \\newline \  )+ }{ $1 . _lb_to_space($2) }gxe;                 # convert line breaks at the start of a paragraph to vertical space
+  $content =~ s{ ( \\end\{ [^\}]+ \} \h* ) ( \\newline \  )+ }{ $1 . _lb_to_space($2) }gxe; # convert line breaks after LaTeX environments like lists to vertical space
 
   return $content;
 }
