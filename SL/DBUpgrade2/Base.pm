@@ -143,6 +143,26 @@ SQL
   $self->db_query(qq|ALTER TABLE $params{schema}."$params{table}" DROP CONSTRAINT "${_}"|) for map { $_->[0] } @{ $constraints };
 }
 
+sub convert_column_to_html {
+  my ($self, $table, $column) = @_;
+
+  my $sth = $self->dbh->prepare(qq|UPDATE $table SET $column = ? WHERE id = ?|) || $self->dberror;
+
+  foreach my $row (selectall_hashref_query($::form, $self->dbh, qq|SELECT id, $column FROM $table WHERE $column IS NOT NULL|)) {
+    next if !$row->{$column} || (($row->{$column} =~ m{^<[a-z]+>}) && ($row->{$column} =~ m{</[a-z]+>$}));
+
+    my $new_content = "" . $::request->presenter->escape($row->{$column});
+    $new_content    =~ s{\r}{}g;
+    $new_content    =~ s{\n\n+}{</p><p>}g;
+    $new_content    =~ s{\n}{<br />}g;
+    $new_content    =  "<p>${new_content}</p>" if $new_content;
+
+    $sth->execute($new_content, $row->{id}) if $new_content ne $row->{$column};
+  }
+
+  $sth->finish;
+}
+
 1;
 __END__
 
@@ -316,6 +336,11 @@ C<acc_trans> yet.
 
 This method is the entry point for the actual upgrade. Each upgrade
 script must provide this method.
+
+=item C<convert_column_to_html $table, $column>
+
+Converts the content of a single column from text to HTML suitable for
+use with the ckeditor.
 
 =back
 
