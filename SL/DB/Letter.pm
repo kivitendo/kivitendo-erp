@@ -1,10 +1,8 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::Letter;
 
 use strict;
 
+use SL::DB::Helper::AttrHTML;
 use SL::DB::MetaSetup::Letter;
 use SL::DB::Manager::Letter;
 
@@ -18,6 +16,8 @@ __PACKAGE__->meta->add_relationships(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_html('body');
 
 sub new_from_draft {
   my ($class, $draft) = @_;

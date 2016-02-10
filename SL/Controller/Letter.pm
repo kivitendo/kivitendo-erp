@@ -221,6 +221,9 @@ sub action_print_letter {
     template  => $template_file,
     variables => $::form,
     return    => 'file_name',
+    variable_content_types => {
+      body                 => 'html',
+    },
   );
 
   my $pdf_file_name;
@@ -305,6 +308,8 @@ sub action_delete_drafts {
 
 sub _display {
   my ($self, %params) = @_;
+
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
 
   my $letter = $self->letter;
 
