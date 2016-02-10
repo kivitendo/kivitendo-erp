@@ -3,9 +3,11 @@ package SL::Controller::Letter;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use POSIX qw(strftime);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
+use SL::CT;
 use SL::DB::Letter;
 use SL::DB::LetterDraft;
 use SL::DB::Employee;
