@@ -423,12 +423,9 @@ sub action_add_item {
   $self->js
     ->append('#row_table_id', $row_as_html)
     ->val('.add_item_input', '')
+    ->run('init_row_handlers')
     ->run('row_table_scroll_down')
-    ->run('row_set_keyboard_events_by_id', $item_id)
-    ->run('set_unit_change_with_oldval_by_id', $item_id)
     ->run('renumber_positions')
-    ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
-    ->on('.reformat_number', 'change', 'reformat_number')
     ->focus('#add_item_parts_id_name');
 
   $self->_js_redisplay_amounts_and_taxes;
@@ -483,18 +480,14 @@ sub action_add_multi_items {
                                        ALL_PRICE_FACTORS => $self->all_price_factors
     );
 
-    $self->js
-        ->append('#row_table_id', $row_as_html)
-        ->run('row_set_keyboard_events_by_id', $item_id)
-        ->run('set_unit_change_with_oldval_by_id', $item_id);
+    $self->js->append('#row_table_id', $row_as_html);
   }
 
   $self->js
     ->run('close_multi_items_dialog')
+    ->run('init_row_handlers')
     ->run('row_table_scroll_down')
     ->run('renumber_positions')
-    ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
-    ->on('.reformat_number', 'change', 'reformat_number')
     ->focus('#add_item_parts_id_name');
 
   $self->_js_redisplay_amounts_and_taxes;
