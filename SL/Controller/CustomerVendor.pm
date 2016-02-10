@@ -264,7 +264,6 @@ sub _transaction {
 
   $self->_save();
 
-  my $callback = $::form->escape($::form->{callback}, 1);
   my $name = $::form->escape($self->{cv}->name, 1);
   my $db = $self->is_vendor() ? 'vendor' : 'customer';
 
@@ -275,7 +274,7 @@ sub _transaction {
     $db .'_id' => $self->{cv}->id,
     $db        => $name,
     type       => $::form->{type},
-    callback   => $callback,
+    callback   => $::form->{callback},
   );
 
   print $::form->redirect_header($url);
