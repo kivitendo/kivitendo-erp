@@ -65,6 +65,7 @@ namespace("kivi").setupLocale({
 "Save and keep open":"Speichern und geöffnet lassen",
 "Section/Function block actions":"Abschnitts-/Funktionsblockaktionen",
 "Select template to paste":"Einzufügende Vorlage auswählen",
+"Subject":"Betreff",
 "Text block actions":"Textblockaktionen",
 "Text block picture actions":"Aktionen für Textblockbilder",
 "The IBAN is missing.":"Die IBAN fehlt.",

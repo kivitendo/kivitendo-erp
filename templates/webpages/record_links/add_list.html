@@ -10,8 +10,10 @@
   [% IF date_column %]
    <th>[%- LxERP.t8("Date") %]</th>
   [% END %]
-  <th>[% IF SELF.link_type == 'requirement_spec' %][%- LxERP.t8("Title") %][% ELSE %][%- LxERP.t8("Transaction description") %][% END %]</th>
-  <th>[%- LxERP.t8("Project") %]</th>
+  <th>[% HTML.escape(description_title) %]</th>
+  [% IF project_column %]
+   <th>[%- LxERP.t8("Project") %]</th>
+  [% END %]
  </tr>
 
  [%- FOREACH object = OBJECTS %]
@@ -23,7 +25,9 @@
    <td>[%- HTML.escape(object.$date_column.to_kivitendo) %]</td>
   [% END %]
   <td>[%- HTML.escape(object.$description_column) %]</td>
-  <td>[%- P.project(object.$project_column, no_link=1) %]</td>
+  [% IF project_column %]
+   <td>[%- P.project(object.$project_column, no_link=1) %]</td>
+  [% END %]
  </tr>
  [%- END %]
 </table>

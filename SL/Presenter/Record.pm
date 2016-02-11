@@ -60,6 +60,8 @@ sub grouped_record_list {
   $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
   $output .= _sepa_transfer_list(          $self, $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
 
+  $output .= _letter_list(                 $self, $groups{letters},                  %params) if $groups{letters};
+
   $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output);
 
   return $output;
@@ -180,6 +182,7 @@ sub _group_records {
     sepa_transfers           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
     gl_transactions          => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
     bank_transactions        => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
+    letters                  => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
   );
 
   my %groups;
@@ -488,6 +491,24 @@ sub _sepa_transfer_list {
 sub _sepa_collection_list {
   my ($self, $list, %params) = @_;
   _sepa_export_list($self, $list, %params, type => 'sepa_collection');
+}
+
+sub _letter_list {
+  my ($self, $list, %params) = @_;
+
+  return $self->record_list(
+    $list,
+    title   => $::locale->text('Letters'),
+    type    => 'letter',
+    columns => [
+      [ $::locale->text('Date'),         'date'                                                ],
+      [ $::locale->text('Letternumber'), sub { $self->letter($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Customer'),     'customer'                                            ],
+      [ $::locale->text('Reference'),    'reference'                                           ],
+      [ $::locale->text('Subject'),      'subject'                                             ],
+    ],
+    %params,
+  );
 }
 
 1;

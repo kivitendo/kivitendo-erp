@@ -3,6 +3,7 @@ package SL::DB::Letter;
 use strict;
 
 use SL::DB::Helper::AttrHTML;
+use SL::DB::Helper::LinkedRecords;
 use SL::DB::MetaSetup::Letter;
 use SL::DB::Manager::Letter;
 

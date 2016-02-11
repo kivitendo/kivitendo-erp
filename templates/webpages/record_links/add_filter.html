@@ -31,7 +31,7 @@
    <td>[% L.input_tag('vc_name', is_sales ? SELF.object.customer.name : SELF.object.vendor.name, style=style) %]</td>
   </tr>
 
-  <tr>
+  <tr id="record_links_add_filter_project_row">
    <td>[%- LxERP.t8("Project") %]:</td>
    <td>[% L.select_tag('globalproject_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, style=style) %]</td>
   </tr>
@@ -59,10 +59,8 @@
 <!--
 $(function() {
   $('#record_links_add input[name=vc_name]').focus();
-  $('#record_links_add_filter_link_type').change(function() {
-    var title = $('#record_links_add_filter_link_type').val() == 'requirement_spec' ? kivi.t8('Title') : kivi.t8('Transaction description');
-    $('#record_links_add_filter_title').html(title);
-  });
+  $('#record_links_add_filter_link_type').change(record_links_change_form_to_match_type);
+  record_links_change_form_to_match_type();
 });
 
 function record_links_reset_form() {
@@ -90,6 +88,22 @@ function add_selected_record_links() {
       $('#record_links_add').dialog('close');
     }
   });
+}
+
+function record_links_change_form_to_match_type() {
+  var type  = $('#record_links_add_filter_link_type').val();
+  var title = type == 'requirement_spec' ? kivi.t8('Title')
+            : type == 'letter'           ? kivi.t8('Subject')
+            :                              kivi.t8('Transaction description');
+
+  if (type == 'letter') {
+    $('#record_links_add_filter_project_row').hide();
+
+  } else {
+    $('#record_links_add_filter_project_row').show();
+  }
+
+  $('#record_links_add_filter_title').html(title);
 }
 -->
 </script>

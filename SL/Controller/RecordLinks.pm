@@ -10,6 +10,7 @@ use SL::DB::Helper::Mappings;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
+use SL::DB::Letter;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
 use SL::DB::RequirementSpec;
@@ -25,14 +26,15 @@ __PACKAGE__->run_before('check_object_params', only => [ qw(ajax_list ajax_delet
 __PACKAGE__->run_before('check_link_params',   only => [ qw(                                                           ajax_add_list ajax_add_do) ]);
 
 my %link_type_defaults = (
-  filter      => 'type_filter',
-  project     => 'globalproject',
-  description => 'transaction_description',
-  date        => 'transdate',
+  filter            => 'type_filter',
+  project           => 'globalproject',
+  description       => 'transaction_description',
+  description_title => t8('Transaction description'),
+  date              => 'transdate',
 );
 
 my @link_type_specifics = (
-  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => 'working_copy_filter', },
+  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id',           description => 'title',   description_title => t8('Title'),   date => undef, project => 'project', filter => 'working_copy_filter', },
   { title => t8('Sales quotation'),         type => 'sales_quotation',         model => 'Order',           number => 'quonumber', },
   { title => t8('Sales Order'),             type => 'sales_order',             model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales delivery order'),    type => 'sales_delivery_order',    model => 'DeliveryOrder',   number => 'donumber',  },
@@ -41,6 +43,7 @@ my @link_type_specifics = (
   { title => t8('Purchase Order'),          type => 'purchase_order',          model => 'Order',           number => 'ordnumber', },
   { title => t8('Purchase delivery order'), type => 'purchase_delivery_order', model => 'DeliveryOrder',   number => 'donumber',  },
   { title => t8('Purchase Invoice'),        type => 'purchase_invoice',        model => 'PurchaseInvoice', number => 'invnumber', },
+  { title => t8('Letter'),                  type => 'letter',                  model => 'Letter',          number => 'letternumber', description => 'subject', description_title => t8('Subject'), date => 'date', project => undef },
 );
 
 my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;
@@ -114,18 +117,22 @@ sub action_ajax_add_list {
   my ($self) = @_;
 
   my $manager     = 'SL::DB::Manager::' . $self->link_type_desc->{model};
-  my $vc          = $self->link_type =~ m/sales_|^invoice|requirement_spec$/ ? 'customer' : 'vendor';
+  my $vc          = $self->link_type =~ m/sales_|^invoice|requirement_spec|letter/ ? 'customer' : 'vendor';
   my $project     = $self->link_type_desc->{project};
+  my $project_id  = "${project}_id";
   my $description = $self->link_type_desc->{description};
   my $filter      = $self->link_type_desc->{filter};
 
-  my @where = $filter ? $manager->$filter($self->link_type) : ();
+  my @where = $filter && $manager->can($filter) ? $manager->$filter($self->link_type) : ();
   push @where, ("${vc}.${vc}number"     => { ilike => '%' . $::form->{vc_number} . '%' })               if $::form->{vc_number};
   push @where, ("${vc}.name"            => { ilike => '%' . $::form->{vc_name}   . '%' })               if $::form->{vc_name};
   push @where, ($description            => { ilike => '%' . $::form->{transaction_description} . '%' }) if $::form->{transaction_description};
-  push @where, ("${project}_id"         => $::form->{globalproject_id})                                 if $::form->{globalproject_id};
+  push @where, ($project_id             => $::form->{globalproject_id})                                 if $::form->{globalproject_id} && $manager->can($project_id);
 
-  my $objects = $manager->get_all_sorted(where => \@where, with_objects => [ $vc, $project ]);
+  my @with_objects = ($vc);
+  push @with_objects, $project if $manager->can($project_id);
+
+  my $objects = $manager->get_all_sorted(where => \@where, with_objects => \@with_objects);
   my $output  = $self->render(
     'record_links/add_list',
     { output => 0 },
@@ -133,6 +140,7 @@ sub action_ajax_add_list {
     vc                 => $vc,
     number_column      => $self->link_type_desc->{number},
     description_column => $description,
+    description_title  => $self->link_type_desc->{description_title},
     project_column     => $project,
     date_column        => $self->link_type_desc->{date},
   );
