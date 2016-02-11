@@ -29,6 +29,7 @@ __PACKAGE__->meta->columns(
   discount         => { type => 'float', scale => 4 },
   email            => { type => 'text' },
   fax              => { type => 'text' },
+  gln              => { type => 'text' },
   greeting         => { type => 'text' },
   homepage         => { type => 'text' },
   iban             => { type => 'text' },

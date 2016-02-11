@@ -21,6 +21,7 @@ __PACKAGE__->meta->columns(
   shiptodepartment_2 => { type => 'text' },
   shiptoemail        => { type => 'text' },
   shiptofax          => { type => 'text' },
+  shiptogln          => { type => 'text' },
   shiptoname         => { type => 'text' },
   shiptophone        => { type => 'text' },
   shiptostreet       => { type => 'text' },
