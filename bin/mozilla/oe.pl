@@ -477,7 +477,7 @@ sub form_header {
      qw(id action type vc formname media format proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
         max_dunning_level dunning_amount shiptoname shiptostreet shiptozipcode
-        CFDD_shipto CFDD_shipto_id shiptocity shiptocountry shiptocontact shiptophone shiptofax
+        CFDD_shipto CFDD_shipto_id shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
         show_details useasnew),

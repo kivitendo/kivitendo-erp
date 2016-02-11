@@ -22,7 +22,7 @@ __PACKAGE__->add_filter_specs(
 sub _sort_spec {
   return ( default => [ 'name', 1 ],
            columns => { SIMPLE => 'ALL',
-                        map { ( $_ => "lower(customer.$_)" ) } qw(customernumber vendornumber name contact phone fax email street taxnumber business invnumber ordnumber quonumber)
+                        map { ( $_ => "lower(customer.$_)" ) } qw(customernumber vendornumber name contact phone fax email street gln taxnumber business invnumber ordnumber quonumber)
                       });
 }
 

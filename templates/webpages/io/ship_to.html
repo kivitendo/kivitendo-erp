@@ -9,6 +9,7 @@
       shiptozipcode:      "[% JavaScript.escape(vc_obj.zipcode) %]",
       shiptocity:         "[% JavaScript.escape(vc_obj.city) %]",
       shiptocountry:      "[% JavaScript.escape(vc_obj.country) %]",
+      shiptogln:          "[% JavaScript.escape(vc_obj.gln) %]",
       shiptocontact:      "[% JavaScript.escape(vc_obj.contact) %]",
       shiptocp_gender:    "[% JavaScript.escape(vc_obj.cp_gender) %]",
       shiptophone:        "[% JavaScript.escape(vc_obj.phone) %]",
@@ -25,6 +26,7 @@
       shiptozipcode:      "[% JavaScript.escape(shipto.shiptozipcode) %]",
       shiptocity:         "[% JavaScript.escape(shipto.shiptocity) %]",
       shiptocountry:      "[% JavaScript.escape(shipto.shiptocountry) %]",
+      shiptogln:          "[% JavaScript.escape(shipto.shiptogln) %]",
       shiptocontact:      "[% JavaScript.escape(shipto.shiptocontact) %]",
       shiptocp_gender:    "[% JavaScript.escape(shipto.shiptocp_gender) %]",
       shiptophone:        "[% JavaScript.escape(shipto.shiptophone) %]",
@@ -121,6 +123,11 @@
     <th align="right" nowrap>[% LxERP.t8('Country') %]</th>
     <td>[% HTML.escape(country) %]</td>
     <td>[% L.input_tag("shiptocountry", shiptocountry, "size", "35") %]</td>
+   </tr>
+   <tr>
+    <th align="right" nowrap>[% LxERP.t8('GLN') %]</th>
+    <td>[% HTML.escape(gln) %]</td>
+    <td>[% L.input_tag("shiptogln", shiptogln, "size", "35") %]</td>
    </tr>
    <tr>
     <th align="right" nowrap>[% LxERP.t8('Contact') %]</th>

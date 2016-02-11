@@ -24,7 +24,7 @@ sub _sort_spec {
     default => [ 'name', 1 ],
     columns => {
       SIMPLE => 'ALL',
-      map { ( $_ => "lower(vendor.$_)" ) } qw(account_number bank bank_code bcc bic cc city contact country department_1 department_2 depositor email fax greeting homepage iban language
+      map { ( $_ => "lower(vendor.$_)" ) } qw(account_number bank bank_code bcc bic cc city contact country department_1 department_2 depositor email fax gln greeting homepage iban language
                                               name notes phone street taxnumber user_password username ustid v_customer_id vendornumber zipcode)
     });
 }

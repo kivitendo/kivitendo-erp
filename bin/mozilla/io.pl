@@ -1643,11 +1643,10 @@ sub ship_to {
   map { $::form->{$_} = $::form->parse_amount(\%::myconfig, $::form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
   # get details for customer/vendor
-  call_sub($::form->{vc} . "_details", qw(name department_1 department_2 street zipcode city country contact email phone fax), $::form->{vc} . "number");
-
+  call_sub($::form->{vc} . "_details", qw(name department_1 department_2 street zipcode city country gln contact email phone fax), $::form->{vc} . "number");
   $::form->{rowcount}--;
 
-  my @shipto_vars   = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
+  my @shipto_vars   = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln
                          shiptocontact shiptocp_gender shiptophone shiptofax shiptoemail
                          shiptodepartment_1 shiptodepartment_2);
   my $previous_form = $::auth->save_form_in_session(skip_keys => [ @shipto_vars, qw(header shipto_id) ]);

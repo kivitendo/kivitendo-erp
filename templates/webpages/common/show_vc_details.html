@@ -67,6 +67,11 @@
   </tr>
 
   <tr>
+   <td align="right">[% 'GLN' | $T8 %]</td>
+   <td>[% HTML.escape(gln) %]</td>
+  </tr>
+
+  <tr>
    <td align="right">[% 'Contact Person' | $T8 %]</td>
    <td>[% IF greeting %][% HTML.escape(greeting) %] [% END %][% HTML.escape(contact) %]</td>
   </tr>
@@ -211,6 +216,11 @@
    <tr>
     <td align="right">[% 'Country' | $T8 %]</td>
     <td>[% HTML.escape(row.shiptocountry) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'GLN' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptogln) %]</td>
    </tr>
 
    <tr>

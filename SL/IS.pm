@@ -591,6 +591,7 @@ sub customer_details {
       $ref->{street} = $customer->street;
       $ref->{zipcode} = $customer->zipcode;
       $ref->{country} = $customer->country;
+      $ref->{gln} = $customer->gln;
     }
     my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
     if ($contact) {
