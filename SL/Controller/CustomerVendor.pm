@@ -535,7 +535,7 @@ sub action_ajaj_get_shipto {
         my $name = 'shipto'. $_;
         $name => $self->{shipto}->$name;
       }
-      qw(_id name department_1 department_2 street zipcode city country contact phone fax email)
+      qw(_id name department_1 department_2 street zipcode city gln country contact phone fax email)
     )
   };
 
