@@ -75,6 +75,7 @@ sub search {
       "zipcode"            => "ct.zipcode",
       "city"               => "ct.city",
       "country"            => "ct.country",
+      "gln"                => "ct.gln",
       "discount"           => "ct.discount",
       "insertdate"         => "ct.itime",
       "salesman"           => "e.name",
@@ -141,6 +142,19 @@ sub search {
                       ))
                      )";
     push @values, ('%' . $form->{addr_country} . '%') x 2;
+  }
+
+  if ($form->{addr_gln}) {
+    $where .= " AND ((lower(ct.gln) LIKE lower(?))
+                     OR
+                     (ct.id IN (
+                        SELECT so.trans_id
+                        FROM shipto so
+                        WHERE (so.module = 'CT')
+                          AND (lower(so.shiptogln) LIKE lower(?))
+                      ))
+                     )";
+    push @values, ('%' . $form->{addr_gln} . '%') x 2;
   }
 
   if ( $form->{status} eq 'orphaned' ) {

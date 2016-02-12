@@ -145,6 +145,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{zipcode}"   if $form->{addr_zipcode};
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{street}"    if $form->{addr_street};
   push @options, $locale->text('Billing/shipping address (country)') . " : $form->{country}"   if $form->{addr_country};
+  push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"  if $form->{addr_gln};
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
@@ -170,7 +171,7 @@ sub list_names {
     'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
-    'country',   'insertdate',           'pricegroup'
+    'country',   'gln',     'insertdate',           'pricegroup'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -197,6 +198,7 @@ sub list_names {
     'zipcode'           => { 'text' => $locale->text('Zipcode'), },
     'city'              => { 'text' => $locale->text('City'), },
     'country'           => { 'text' => $locale->text('Country'), },
+    'gln'               => { 'text' => $locale->text('GLN'), },
     'salesman'          => { 'text' => $locale->text('Salesman'), },
     'discount'          => { 'text' => $locale->text('Discount'), },
     'payment'           => { 'text' => $locale->text('Payment Terms'), },
@@ -209,7 +211,7 @@ sub list_names {
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
-      addr_city addr_country business_id salesman_id insertdateto insertdatefrom
+      addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),
