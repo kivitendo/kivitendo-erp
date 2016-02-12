@@ -112,6 +112,7 @@ sub setup_displayable_columns {
                                  { name => 'shiptodepartment_2', description => $::locale->text('Department 2')                  },
                                  { name => 'shiptoemail',        description => $::locale->text('E-mail')                        },
                                  { name => 'shiptofax',          description => $::locale->text('Fax')                           },
+                                 { name => 'shiptogln',          description => $::locale->text('GLN')                           },
                                  { name => 'shiptoname',         description => $::locale->text('Name')                          },
                                  { name => 'shiptophone',        description => $::locale->text('Phone')                         },
                                  { name => 'shiptostreet',       description => $::locale->text('Street')                        },

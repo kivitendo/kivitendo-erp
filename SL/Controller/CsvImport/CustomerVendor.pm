@@ -85,7 +85,7 @@ sub check_objects {
 
     next if @{ $entry->{errors} };
 
-    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(name department_1 department_2 street zipcode city country contact phone fax homepage email cc bcc
+    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(name department_1 department_2 street zipcode city country gln contact phone fax homepage email cc bcc
                                                                      taxnumber account_number bank_code bank username greeting taxzone));
 
     push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
@@ -296,6 +296,7 @@ sub setup_displayable_columns {
                                  { name => 'discount',          description => $::locale->text('Discount')                        },
                                  { name => 'email',             description => $::locale->text('E-mail')                          },
                                  { name => 'fax',               description => $::locale->text('Fax')                             },
+                                 { name => 'gln',               description => $::locale->text('GLN')                             },
                                  { name => 'greeting',          description => $::locale->text('Greeting')                        },
                                  { name => 'homepage',          description => $::locale->text('Homepage')                        },
                                  { name => 'iban',              description => $::locale->text('IBAN')                            },
