@@ -909,7 +909,7 @@ sub trial_balance {
   }
   $sth->finish;
 
-  if (!$form->{method} ne "cash") {
+  if ($form->{method} ne "cash") {  # better eq 'accrual'
     $sth = prepare_execute_query($form, $dbh, $fetch_accounts_before_from);
     while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
