@@ -42,6 +42,8 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+  - Neues Feld GLN bei Kunden/Lieferanten und Lieferadressen.
+
   - IBANs werden beim Speichern auf Gültigkeit geprüft (betrifft
     Kunden-/Lieferantenstammdaten sowie Bankkonten)
 

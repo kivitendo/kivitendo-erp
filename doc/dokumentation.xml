@@ -3228,6 +3228,15 @@ empfang@revamp-it.ch
             </varlistentry>
 
             <varlistentry>
+              <term><varname>gln</varname></term>
+
+              <listitem>
+                <para>GLN (Globale Lokationsnummer)</para>
+              </listitem>
+            </varlistentry>
+
+
+            <varlistentry>
               <term><varname>greeting</varname></term>
 
               <listitem>
@@ -3351,6 +3360,15 @@ empfang@revamp-it.ch
 
               <listitem>
                 <para>Fax (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>shiptogln</varname></term>
+
+              <listitem>
+                <para>GLN (Globale Lokationsnummer) (Lieferadresse) <link
                 linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
               </listitem>
             </varlistentry>
