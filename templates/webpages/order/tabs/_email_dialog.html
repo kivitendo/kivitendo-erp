@@ -49,16 +49,7 @@
 
 <br>
 [% L.hidden_tag('action', 'Order/dispatch') %]
-[% L.button_tag('send_email()', LxERP.t8('Continue')) %]
-<a href="#" onclick="close_email_dialog();">[%- LxERP.t8("Cancel") %]</a>
-
-<script type='text/javascript'>
-function send_email() {
-  var data = $('#order_form').serializeArray();
-  data = data.concat($('#email_form').serializeArray());
-  data.push({ name: 'action', value: 'Order/send_email' });
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-</script>
+[% L.button_tag('kivi.Order.send_email()', LxERP.t8('Continue')) %]
+<a href="#" onclick="kivi.Order.close_email_dialog();">[%- LxERP.t8("Cancel") %]</a>
 
 </form>

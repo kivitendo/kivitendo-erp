@@ -20,7 +20,7 @@
       <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
     </td>
     <td align="center">
-      [%- L.button_tag("delete_order_item_row(this)",
+      [%- L.button_tag("kivi.Order.delete_order_item_row(this)",
                        LxERP.t8("X"),
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
@@ -31,7 +31,7 @@
       [% L.input_tag("order.orderitems[].description",
                      ITEM.description,
                      style='width: 300px') %]
-      [%- L.button_tag("show_longdescription_dialog(this)", LxERP.t8("L")) %]
+      [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
     <td>
       [%- L.input_tag("order.orderitems[].qty_as_number",
@@ -56,7 +56,7 @@
                       class = 'unitselect') %]
     </td>
     <td>
-      [%- L.button_tag("price_chooser_item_row(this)",
+      [%- L.button_tag("kivi.Order.price_chooser_item_row(this)",
                        ITEM.active_price_source.source_description _ ' | ' _ ITEM.active_discount_source.source_description,
                        name = "price_chooser_button") %]
     </td>

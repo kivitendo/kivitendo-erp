@@ -189,7 +189,7 @@ sub action_print {
     $::auth->set_session_value("Order::create_pdf-${key}" => $sfile->file_name);
 
     $self->js
-    ->run('download_pdf', $pdf_filename, $key)
+    ->run('kivi.Order.download_pdf', $pdf_filename, $key)
     ->flash('info', t8('The PDF has been created'));
 
   } elsif ($media eq 'printer') {
@@ -275,7 +275,7 @@ sub action_show_email_dialog {
 
   my $dialog_html = $self->render('order/tabs/_email_dialog', { output => 0 });
   $self->js
-      ->run('show_email_dialog', $dialog_html)
+      ->run('kivi.Order.show_email_dialog', $dialog_html)
       ->reinit_widgets
       ->render($self);
 }
@@ -315,7 +315,7 @@ sub action_send_email {
 
   $self->js
       ->val('#order_intnotes', $intnotes)
-      ->run('close_email_dialog')
+      ->run('kivi.Order.close_email_dialog')
       ->render($self);
 }
 
@@ -395,7 +395,7 @@ sub action_unit_changed {
   $self->_recalc();
 
   $self->js
-    ->run('update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
+    ->run('kivi.Order.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
   $self->_js_redisplay_linetotals;
   $self->_js_redisplay_amounts_and_taxes;
   $self->js->render();
@@ -423,9 +423,9 @@ sub action_add_item {
   $self->js
     ->append('#row_table_id', $row_as_html)
     ->val('.add_item_input', '')
-    ->run('init_row_handlers')
-    ->run('row_table_scroll_down')
-    ->run('renumber_positions')
+    ->run('kivi.Order.init_row_handlers')
+    ->run('kivi.Order.row_table_scroll_down')
+    ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
   $self->_js_redisplay_amounts_and_taxes;
@@ -484,10 +484,10 @@ sub action_add_multi_items {
   }
 
   $self->js
-    ->run('close_multi_items_dialog')
-    ->run('init_row_handlers')
-    ->run('row_table_scroll_down')
-    ->run('renumber_positions')
+    ->run('kivi.Order.close_multi_items_dialog')
+    ->run('kivi.Order.init_row_handlers')
+    ->run('kivi.Order.row_table_scroll_down')
+    ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
   $self->_js_redisplay_amounts_and_taxes;
@@ -523,7 +523,7 @@ sub action_reorder_items {
     @to_sort = sort { $b->{order_by} cmp $a->{order_by} } @to_sort;
   }
   $self->js
-    ->run('redisplay_items', \@to_sort)
+    ->run('kivi.Order.redisplay_items', \@to_sort)
     ->render;
 }
 
@@ -553,7 +553,7 @@ sub _js_redisplay_linetotals {
 
   my @data = map {$::form->format_amount(\%::myconfig, $_->{linetotal}, 2, 0)} @{ $self->order->items_sorted };
   $self->js
-    ->run('redisplay_linetotals', \@data);
+    ->run('kivi.Order.redisplay_linetotals', \@data);
 }
 
 sub _js_redisplay_amounts_and_taxes {
@@ -946,7 +946,7 @@ sub _pre_render {
                                                 } } @all_objects;
   }
 
-  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase kivi.Order ckeditor/ckeditor ckeditor/adapters/jquery);
 }
 
 sub _create_pdf {

@@ -7,7 +7,7 @@
   <form method="post" action="controller.pl" id="print_options_form">
     [% SELF.print_options %]
     <br>
-    [% L.button_tag('print()', LxERP.t8('Print')) %]
+    [% L.button_tag('kivi.Order.print()', LxERP.t8('Print')) %]
     <a href="#" onclick="$('#print_options').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </form>
 </div>
@@ -43,91 +43,12 @@
 
   [% L.hidden_tag('action', 'Order/dispatch') %]
 
-  [% L.button_tag('save()', LxERP.t8('Save')) %]
-  [% L.button_tag('show_print_options()', LxERP.t8('Print')) %]
-  [% L.button_tag('email()', LxERP.t8('E-mail')) %]
-  [% L.button_tag('save_and_delivery_order()', LxERP.t8('Save and Delivery Order')) %]
+  [% L.button_tag('kivi.Order.save()', LxERP.t8('Save')) %]
+  [% L.button_tag('kivi.Order.show_print_options()', LxERP.t8('Print')) %]
+  [% L.button_tag('kivi.Order.email()', LxERP.t8('E-mail')) %]
+  [% L.button_tag('kivi.Order.save_and_delivery_order()', LxERP.t8('Save and Delivery Order')) %]
 [%- IF SELF.order.id && ( (SELF.cv == 'customer' && INSTANCE_CONF.get_sales_order_show_delete) || (SELF.cv == 'vendor' && INSTANCE_CONF.get_purchase_order_show_delete) ) %]
-  [% L.button_tag('delete_order()', LxERP.t8('Delete'), confirm=LxERP.t8("Are you sure?")) %]
+  [% L.button_tag('kivi.Order.delete_order()', LxERP.t8('Delete'), confirm=LxERP.t8("Are you sure?")) %]
 [%- END %]
 
 </form>
-
-
-<script type='text/javascript'>
-
-function delete_order() {
-  var data = $('#order_form').serializeArray();
-  data.push({ name: 'action', value: 'Order/delete' });
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-
-function save() {
-  if (!check_cv()) return;
-  var data = $('#order_form').serializeArray();
-  data.push({ name: 'action', value: 'Order/save' });
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-
-function show_print_options() {
-  if (!check_cv()) return;
-
-  kivi.popup_dialog({
-    id: 'print_options',
-    dialog: {
-      title: kivi.t8('Print options'),
-      width:  800,
-      height: 300
-    }
-  });
-}
-
-function print() {
-  $('#print_options').dialog('close');
-
-  var data = $('#order_form').serializeArray();
-  data = data.concat($('#print_options_form').serializeArray());
-  data.push({ name: 'action', value: 'Order/print' });
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-
-function download_pdf(pdf_filename, key) {
-  var data = [];
-  data.push({ name: 'action', value: 'Order/download_pdf' });
-  data.push({ name: 'type', value: $('#type').val() });
-  data.push({ name: 'pdf_filename', value: pdf_filename });
-  data.push({ name: 'key', value: key });
-  $.download("controller.pl", data);
-}
-
-function email() {
-  if (!check_cv()) return;
-  var data = $('#order_form').serializeArray();
-  data.push({ name: 'action', value: 'Order/show_email_dialog' });
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-
-function save_and_delivery_order() {
-  if (!check_cv()) return;
-  var data = $('#order_form').serializeArray();
-  data.push({ name: 'action', value: 'Order/save_and_delivery_order' });
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-
-function check_cv() {
-  if ($('#order_[%- cv_id %]').val() == '') {
-    [%- IF SELF.cv == 'customer' %]
-      alert(kivi.t8('Please select a customer.'));
-    [%- ELSE %]
-      alert(kivi.t8('Please select a vendor.'));
-    [%- END %]
-    return false;
-  }
-  return true;
-}
-</script>

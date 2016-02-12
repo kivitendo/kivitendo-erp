@@ -4,6 +4,7 @@
 [%- USE LxERP %]
 [% SET best_price = price_source.best_price %]
 [% SET best_discount = price_source.best_discount %]
+[% SET price_editable = AUTH.assert('edit_prices', 1) %]
   <h2>[% 'Prices' | $T8 %]</h2>
 
   <table>
@@ -16,7 +17,7 @@
    </tr>
    <tr class='listrow'>
 [%- IF price_source.record_item.active_price_source %]
-    <td>[% L.button_tag('update_price_source(\'' _ FORM.item_id _ '\', \'\', \'' _ LxERP.t8('None (PriceSource)') _ '\')', LxERP.t8('Select')) %]</td>
+    <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'\', \'' _ LxERP.t8('None (PriceSource)') _ '\', \'\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
 [%- ELSE %]
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [%- END %]
@@ -28,9 +29,9 @@
    [%- FOREACH price IN price_source.available_prices %]
     <tr class='listrow'>
 [%- IF price_source.record_item.active_price_source != price.source %]
-     <td>[% L.button_tag('update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\')', LxERP.t8('Select')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
 [%- ELSIF price_source.record_item.sellprice * 1 != price.price * 1 %]
-     <td>[% L.button_tag('update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\')', LxERP.t8('Update Price')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_price_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ LxERP.format_amount(price.price, -2) _ '\', ' _ price_editable _ ')', LxERP.t8('Update Price')) %]</td>
 [%- ELSE %]
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [% END %]
@@ -58,7 +59,7 @@
    </tr>
    <tr class='listrow'>
 [%- IF price_source.record_item.active_discount_source %]
-    <td>[% L.button_tag('update_discount_source(\'' _ FORM.item_id _ '\', \'\', \'' _ LxERP.t8('None (PriceSource Discount)') _ '\')', LxERP.t8('Select')) %]</td>
+    <td>[% L.button_tag('kivi.Order.update_discount_source(\'' _ FORM.item_id _ '\', \'\', \'' _ LxERP.t8('None (PriceSource Discount)') _ '\', \'\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
 [%- ELSE %]
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [%- END %]
@@ -70,9 +71,9 @@
    [%- FOREACH price IN price_source.available_discounts %]
     <tr class='listrow'>
 [%- IF price_source.record_item.active_discount_source != price.source %]
-     <td>[% L.button_tag('update_discount_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ price.discount_as_percent _ '\')', LxERP.t8('Select')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_discount_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ price.discount_as_percent _ '\', ' _ price_editable _ ')', LxERP.t8('Select')) %]</td>
 [%- ELSIF price_source.record_item.discount * 1 != price.discount * 1 %]
-     <td>[% L.button_tag('update_discount_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ price.discount_as_percent  _ '\')', LxERP.t8('Update Discount')) %]</td>
+     <td>[% L.button_tag('kivi.Order.update_discount_source(\'' _ FORM.item_id _ '\', \'' _ price.source _ '\', \'' _ price.source_description _ '\', \'' _ price.discount_as_percent  _ '\', ' _ price_editable _ ')', LxERP.t8('Update Discount')) %]</td>
 [%- ELSE %]
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [% END %]
