@@ -746,7 +746,6 @@ sub trial_balance {
           $customer_join
           WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
             $dpt_where_without_arapgl
-            $dpt_where
             $customer_where
             $project
           GROUP BY c.accno, c.category, c.description |;
@@ -931,7 +930,6 @@ sub trial_balance {
           $customer_join
           WHERE $where
             $dpt_where_without_arapgl
-            $dpt_where
             $customer_where
             $project
           AND (ac.amount < 0)
@@ -943,7 +941,6 @@ sub trial_balance {
           $customer_join
           WHERE $where
             $dpt_where_without_arapgl
-            $dpt_where
             $customer_where
             $project
           AND ac.amount > 0
@@ -954,7 +951,6 @@ sub trial_balance {
          $customer_join
          WHERE $saldowhere
            $dpt_where_without_arapgl
-           $dpt_where
            $customer_where
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
@@ -965,7 +961,6 @@ sub trial_balance {
          $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
-           $dpt_where
            $customer_where
            $project
          AND ac.amount > 0
@@ -977,7 +972,6 @@ sub trial_balance {
          $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
-           $dpt_where
            $customer_where
            $project
          AND ac.amount < 0
@@ -988,7 +982,6 @@ sub trial_balance {
         $customer_join
         WHERE $where
           $dpt_where_without_arapgl
-          $dpt_where
           $customer_where
           $project
         AND c.accno = ?) AS last_transaction
@@ -1065,7 +1058,6 @@ sub trial_balance {
         $customer_join
         WHERE $where
           $dpt_where_without_arapgl
-          $dpt_where
           $customer_where
           $project
         AND c.accno = ?) AS last_transaction
