@@ -1932,6 +1932,12 @@ sub retrieve_invoice {
       ($form->{"delivery_${vc}_string"}) = selectrow_query($form, $dbh, qq|SELECT name FROM customer WHERE id = ?|, $id);
     }
 
+    # get shipto
+    $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|;
+    $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
+    delete($ref->{id});
+    map { $form->{$_} = $ref->{$_} } keys %$ref;
+
     # get printed, emailed
     $query = qq|SELECT printed, emailed, spoolfile, formname FROM status WHERE trans_id = ?|;
     $sth = prepare_execute_query($form, $dbh, $query, $id);
