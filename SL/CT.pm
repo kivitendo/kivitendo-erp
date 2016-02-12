@@ -118,6 +118,28 @@ sub search {
     push @values, '%' . $form->{cp_name} . '%';
   }
 
+  if ($form->{addr_street}) {
+    $where .= qq| AND ((ct.street ILIKE ?) | .
+              qq|      OR | .
+              qq|      (ct.id IN ( | .
+              qq|         SELECT sc.trans_id FROM shipto sc | .
+              qq|         WHERE (sc.module = 'CT') | .
+              qq|           AND (sc.shiptostreet ILIKE ?) | .
+              qq|      ))) |;
+    push @values, ('%' . $form->{addr_street} . '%') x 2;
+  }
+
+  if ($form->{addr_zipcode}) {
+    $where .= qq| AND ((ct.zipcode ILIKE ?) | .
+              qq|      OR | .
+              qq|      (ct.id IN ( | .
+              qq|         SELECT sc.trans_id FROM shipto sc | .
+              qq|         WHERE (sc.module = 'CT') | .
+              qq|           AND (sc.shiptozipcode ILIKE ?) | .
+              qq|      ))) |;
+    push @values, ('%' . $form->{addr_zipcode} . '%') x 2;
+  }
+
   if ($form->{addr_city}) {
     $where .= " AND ((lower(ct.city) LIKE lower(?))
                      OR
@@ -216,16 +238,6 @@ sub search {
   if ($cvar_where) {
     $where .= qq| AND ($cvar_where)|;
     push @values, @cvar_values;
-  }
-
-  if ($form->{addr_street}) {
-    $where .= qq| AND (ct.street ILIKE ?)|;
-    push @values, '%' . $form->{addr_street} . '%';
-  }
-
-  if ($form->{addr_zipcode}) {
-    $where .= qq| AND (ct.zipcode ILIKE ?)|;
-    push @values, $form->{addr_zipcode} . '%';
   }
 
   my $pg_select = $form->{l_pricegroup} ? qq|, pg.pricegroup as pricegroup | : '';
