@@ -35,10 +35,10 @@
     <th align="right" nowrap>[% 'Billing/shipping address (street)' | $T8 %]</th>
     <td><input name="addr_street" size="35"></td>
    </tr>
- <tr>
+   <tr>
     <th align="right" nowrap>[% 'Billing/shipping address (zipcode)' | $T8 %]</th>
     <td><input name="addr_zipcode" size="35"></td>
- </tr>
+   </tr>
    <tr>
     <th align="right" nowrap>[% 'Billing/shipping address (city)' | $T8 %]</th>
     <td><input name="addr_city" size="35"></td>
@@ -176,7 +176,7 @@
        <td>
         <input name="l_country" id="l_country" type="checkbox" class="checkbox" value="Y" checked>
         <label for="l_country">[% 'Country' | $T8 %]</label>
-      </td>
+       </td>
       </tr>
       <tr>
        <td>
@@ -198,14 +198,14 @@
       </tr>
       [% IF IS_CUSTOMER %]
       <tr>
-      <td>
-       <input name="l_salesman" id="l_salesman" type="checkbox" class="checkbox" value="Y">
-       <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
-      </td>
-      <td>
-       <input name="l_pricegroup" id="l_pricegroup" type="checkbox" class="checkbox" value="Y">
-       <label for="l_pricegroup">[% 'Pricegroup' | $T8 %]</label>
-      </td>
+       <td>
+        <input name="l_salesman" id="l_salesman" type="checkbox" class="checkbox" value="Y">
+        <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
+       </td>
+       <td>
+        <input name="l_pricegroup" id="l_pricegroup" type="checkbox" class="checkbox" value="Y">
+        <label for="l_pricegroup">[% 'Pricegroup' | $T8 %]</label>
+       </td>
       </tr>
       [% END %]
 
