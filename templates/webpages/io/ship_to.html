@@ -63,9 +63,9 @@
 
 [% select_options = [ [ 0, LxERP.t8("Billing Address") ] ] ;
    FOREACH shipto = vc_obj.shipto ;
-     city  = shipto.shiptozipcode _ ' ' _ shipto.shiptocity ;
-     title = [ shipto.shiptoname, shipto.shiptostreet, city ] ;
-     CALL select_options.import([ [ loop.count, title.grep('\S').join("; ") ] ]) ;
+     tmpcity  = shipto.shiptozipcode _ ' ' _ shipto.shiptocity ;
+     tmptitle = [ shipto.shiptoname, shipto.shiptostreet, tmpcity ] ;
+     CALL select_options.import([ [ loop.count, tmptitle.grep('\S').join("; ") ] ]) ;
    END ;
    '' %]
 
