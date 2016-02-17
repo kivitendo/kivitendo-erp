@@ -4,7 +4,7 @@
 [% PROCESS 'common/select_warehouse_bin.html' %]
  <h1>[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</h1>
 
-[% PROCESS 'common/flash.html' %]
+[% INCLUDE 'common/flash.html' %]
 
  <form method="post" name="ic" action="[% script %]">
 
