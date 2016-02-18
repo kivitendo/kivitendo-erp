@@ -15,10 +15,16 @@ function on_keydown_quicksearch(event) {
   if (!value)
     return true;
 
-  var url = "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=" + encodeURIComponent(value);
+  url = {
+    frame_header_contact_search: "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=",
+    frame_header_parts_search:   "ic.pl?action=generate_report&INPUT_ENCODING=utf-8&searchitems=assembly&all="
+  }[element.attr('id')];
 
-  window.location.href = url;
+  window.location.href = url + encodeURIComponent(value);
 
   return false;
 }
-$(function(){ $('#frame_header_contact_search').keydown(on_keydown_quicksearch) });
+$(function(){
+  $('#frame_header_contact_search').keydown(on_keydown_quicksearch);
+  $('#frame_header_parts_search').keydown(on_keydown_quicksearch);
+});

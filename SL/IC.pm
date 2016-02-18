@@ -872,6 +872,13 @@ sub all_parts {
     }
   }
 
+  # special case smart search
+  if ($form->{all}) {
+    $form->{"l_$_"} = 1 for qw(partnumber description unit sellprice lastcost cvar_packaging linetotal);
+    push @where_tokens, "p.partnumber ILIKE ? OR p.description ILIKE ?";
+    push @bind_vars,    "%$form->{all}%", "%$form->{all}%";
+  }
+
   # special case insertdate
   if (grep { $form->{$_} } qw(insertdatefrom insertdateto)) {
     $form->{"l_insertdate"} = 1;

@@ -18,7 +18,7 @@ sub stylesheets {
 }
 
 sub javascripts {
-  ('jquery-ui.js', 'quicksearch_input.js') x!! $::auth->assert('customer_vendor_edit', 1),
+  ('jquery-ui.js', 'quicksearch_input.js') x!! $::auth->assert('customer_vendor_edit|part_service_assembly_edit', 1),
   ('jquery-ui.js', 'glquicksearch.js')     x!! $::auth->assert('general_ledger', 1)
 }
 

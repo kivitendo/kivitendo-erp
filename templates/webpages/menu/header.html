@@ -5,6 +5,9 @@
  <span class="frame-header-element frame-header-left">
     [<a href="controller.pl?action=LoginScreen/user_login" target="_blank" title="[% 'Open a further kivitendo window or tab' | $T8 %]">[% 'New window/tab' | $T8 %]</a>]
     [<a href="JavaScript:top.print();" title="[% 'Hardcopy' | $T8 %]">[% 'Print' | $T8 %]</a>]
+[%- IF AUTH.assert('part_service_assembly_edit', 1) %]
+    [<input name="frame_header_parts_search" id="frame_header_parts_search" placeholder="[% 'Search parts' | $T8 %]" size="14">]
+[%- END %]
 [%- IF AUTH.assert('customer_vendor_edit|customer_vendor_edit_all', 1) %]
     [<input name="frame_header_contact_search" id="frame_header_contact_search" placeholder="[% 'Search contacts' | $T8 %]" size="14">]
 [%- END %]
