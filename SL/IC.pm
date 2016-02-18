@@ -673,7 +673,7 @@ sub assembly_item {
   my $query =
     qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
        p.weight, p.onhand, p.unit, pg.partsgroup, p.lastcost,
-       p.price_factor_id, pfac.factor AS price_factor
+       p.price_factor_id, pfac.factor AS price_factor, p.notes as longdescription
        FROM parts p
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
        LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
