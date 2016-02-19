@@ -653,7 +653,10 @@ SQL
     $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? 'buy' : 'sell');
   }
 
-  $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
+  # from inputfield (exchangerate) or hidden (forex)
+  my $exchangerate_from_form = $form->{forex} || $form->parse_amount($myconfig, $form->{exchangerate});
+
+  $form->{exchangerate} = $exchangerate || $exchangerate_from_form;
 
   my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 
