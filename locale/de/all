@@ -926,6 +926,7 @@ $self->{texts} = {
   'Do not set this comment'     => 'Diesen Kommentar nicht setzen',
   'Do not set this warehouse'   => 'Dieses Lager nicht setzen',
   'Do you really want do continue?' => 'Wollen Sie wirklich fortfahren?',
+  'Do you really want to cancel this invoice?' => 'Wollen Sie diese Rechnung wirklich stornieren?',
   'Do you really want to cancel?' => 'Wollen Sie wirklich abbrechen?',
   'Do you really want to close the following SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.' => 'Wollen Sie wirklich die folgenden SEPA-Exporte abschließen? Für Überweisungen, die noch nicht gebucht wurden, werden dann keine Zahlungen verbucht.',
   'Do you really want to close the following SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.' => 'Wollen Sie wirklich die folgenden SEPA-Exporte abschließen? Für Überweisungen, die noch nicht gebucht wurden, werden dann keine Zahlungen verbucht.',

@@ -121,7 +121,7 @@
 
     <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
 [% IF  show_storno %]
-    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
+    [% L.submit_tag("action", LxERP.t8("Storno"), confirm=LxERP.t8('Do you really want to cancel this invoice?')) %]
 [% END %]
     <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
     <input class="submit" type="submit" name="action" value="[% 'Use As New' | $T8 %]">
