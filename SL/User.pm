@@ -449,7 +449,7 @@ sub get_default_myconfig {
     css_path     => 'css',      # Needed for menunew, see SL::Layout::Base::get_stylesheet_for_user
     dateformat   => $defaults->dateformat('dd.mm.yy'),
     numberformat => $defaults->numberformat('1.000,00'),
-    stylesheet   => 'kivitendo.css',
+    stylesheet   => $defaults->stylesheet('kivitendo.css'),
     timeformat   => $defaults->timeformat('hh:mm'),
     %user_config,
   );
