@@ -1907,7 +1907,7 @@ sub retrieve_invoice {
       qq|SELECT
            a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
            a.orddate, a.quodate, a.globalproject_id,
-           a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
+           a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.storno_id, a.gldate,
            a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,

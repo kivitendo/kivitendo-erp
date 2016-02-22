@@ -170,8 +170,10 @@
 [% IF id && !is_type_credit_note %]
     <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
-[% IF show_delete && !storno %]
+[% IF show_delete && (!storno || storno_id) %]
     <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+[% END %]
+[% IF show_delete && !storno %]
     <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
     <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
