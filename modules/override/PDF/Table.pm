@@ -331,7 +331,7 @@ sub table {
         do {
           $myone = 0;
           # This RegEx will split any word that is longer than {25} symbols
-          $row->[$j] =~ s#(\b\S{$max_word_len}?)(\S.+\b)# $1 $2#;
+          $row->[$j] =~ s#(\b\S{$max_word_len}?)(\S.*?\b)# $1 $2#;
           $myone = 1 if ( defined $2 );
         } while( $myone );
         $row->[$j] =~ s/^\s+//;
