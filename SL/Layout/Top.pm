@@ -3,6 +3,8 @@ package SL::Layout::Top;
 use strict;
 use parent qw(SL::Layout::Base);
 
+use SL::Controller::TopQuickSearch;
+
 sub pre_content {
   my ($self) = @_;
 
@@ -10,6 +12,7 @@ sub pre_content {
     now        => DateTime->now_local,
     is_fastcgi => $::dispatcher ? scalar($::dispatcher->interface_type =~ /fastcgi/i) : 0,
     is_links   => scalar($ENV{HTTP_USER_AGENT}         =~ /links/i),
+    quick_search => SL::Controller::TopQuickSearch->new,
   );
 }
 
@@ -18,8 +21,8 @@ sub stylesheets {
 }
 
 sub javascripts {
-  ('jquery-ui.js', 'quicksearch_input.js') x!! $::auth->assert('customer_vendor_edit|part_service_assembly_edit', 1),
-  ('jquery-ui.js', 'glquicksearch.js')     x!! $::auth->assert('general_ledger', 1)
+  'jquery-ui.js',
+  'kivi.QuickSearch.js',
 }
 
 1;
