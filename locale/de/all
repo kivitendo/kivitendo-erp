@@ -2414,6 +2414,7 @@ $self->{texts} = {
   'Service, assembly or part'   => 'Dienstleistung, Erzeugnis oder Ware',
   'Services'                    => 'Dienstleistungen',
   'Set (set to)'                => 'Setze',
+  'Set count for one or more of the items to select them' => 'Zum Selektieren bitte Menge für einen oder mehrere Artikel setzen',
   'Set eMail text'              => 'E-Mail Text eingeben',
   'Set to paid missing'         => 'Fehlbetrag setzen',
   'Settings'                    => 'Einstellungen',

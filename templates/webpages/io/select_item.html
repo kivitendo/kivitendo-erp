@@ -1,4 +1,5 @@
 [% USE LxERP %][% USE HTML %][% USE L %][% USE P %]
+[% SET COLS = 8 %]
 <h1>[% title %]</h1>
 
  <form method="post" action="[% HTML.escape(script) %]">
@@ -13,11 +14,13 @@
     <th>[% LxERP.t8('Number') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
     [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
+      [% SET COLS = COLS + 1 %]
       <th>[% LxERP.t8('Long Description') %]</th>
     [%- END %]
     <th>[% LxERP.t8('Other Matches') %]</th>
     <th>[% LxERP.t8('Price') %]</th>
     [%- IF IS_PURCHASE %]
+      [% SET COLS = COLS + 1 %]
      <th>[% LxERP.t8('ROP') %]</th>
     [%- END %]
     <th>[% LxERP.t8('Qty') %]</th>
@@ -46,7 +49,7 @@
    </tr>
    [%- END %]
 
-   <tr><td colspan="8"><hr size="3" noshade></td></tr>
+   <tr><td colspan="[% COLS %]"><hr size="3" noshade></td></tr>
   </table>
 
   [% L.hidden_tag('select_item_mode', MODE) %]

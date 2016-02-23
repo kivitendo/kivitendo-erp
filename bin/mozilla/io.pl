@@ -503,7 +503,9 @@ sub select_item {
   _check_io_auth();
 
   my $previous_form = $::auth->save_form_in_session(form => $::form);
-  $::form->{title}  = $::locale->text('Select from one of the items below');
+  $::form->{title}  = $::myconfig{item_multiselect} ?
+      $::locale->text('Set count for one or more of the items to select them'):
+      $::locale->text('Select from one of the items below');
   $::form->header;
 
   my @item_list = map {
