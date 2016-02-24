@@ -386,6 +386,7 @@ sub show_history {
   $form->{title} = $locale->text("History");
   $form->header(no_layout => 1);
 
+  my $callback = build_std_url(qw(action longdescription trans_id_type input_name));
   my $restriction;
   if ( $form->{trans_id_type} eq 'glid' ) {
     $restriction = "AND ( snumbers LIKE 'invnumber%' OR what_done LIKE '%Buchungsnummer%' OR snumbers LIKE 'gltransaction%' ) ";
@@ -400,6 +401,7 @@ sub show_history {
     "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
     uc($sort)      => 1,
     uc($sort)."BY" => $sortby,
+    callback       => $callback,
   } );
 
   $dbh->disconnect();
