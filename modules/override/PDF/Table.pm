@@ -939,32 +939,11 @@ sub CalcColumnWidths
         $calc_widths->[$j] = $col_props->[$j]->{min_w} || 0;;
     }
 
-    # Allow columns to expand to max_w before applying extra space equally.
-    my $is_last_iter;
-    for (;;)
-    {
-        my $span = ($avail_width - $min_width) / scalar( @$col_props);
-        last if $span <= 0;
-
-        $min_width = 0;
-        my $next_will_be_last_iter = 1;
-        for(my $j = 0; $j < scalar(@$col_props); $j++ )
-        {
-            my $new_w = $calc_widths->[$j] + $span;
-
-            if (!$is_last_iter && $new_w > $col_props->[$j]->{max_w})
-            {
-                $new_w = $col_props->[$j]->{max_w}
-            }
-            if ($calc_widths->[$j] != $new_w )
-            {
-                $calc_widths->[$j] = $new_w;
-                $next_will_be_last_iter = 0;
-            }
-            $min_width += $new_w;
-        }
-        last if $is_last_iter;
-        $is_last_iter = $next_will_be_last_iter;
+    my $span = 0;
+    # Calculate how much can be added to every column to fit the available width
+    $span = ($avail_width - $min_width) / scalar( @$col_props);
+    for (my $j = 0; $j < scalar(@$col_props); $j++ ) {
+      $calc_widths->[$j] = $col_props->[$j]->{min_w} + $span;
     }
 
     return ($calc_widths,$avail_width);
