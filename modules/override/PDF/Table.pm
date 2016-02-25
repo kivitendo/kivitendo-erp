@@ -129,8 +129,8 @@ sub text_block
     # Check if any text to display
     unless( defined( $text) and length($text) > 0 )
     {
-        carp "Warning: No input text found. Trying to add dummy '-' and not to break everything.\n";
-        $text = '-';
+#         carp "Warning: No input text found. Trying to add dummy '-' and not to break everything.\n";
+        $text = ' ';
     }
 
     # Strip any <CR> and Split the text into paragraphs
@@ -648,7 +648,7 @@ sub table
             # Added to resolve infite loop bug with returned undef values
             for(my $d = 0; $d < scalar(@{$record}) ; $d++)
             { 
-                $record->[$d] = '-' unless( defined $record->[$d]); 
+                $record->[$d] = ' ' unless( defined $record->[$d]);
             }
 
             # Choose colors for this row
