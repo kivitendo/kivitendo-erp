@@ -8,6 +8,8 @@ use warnings;
 package PDF::Table;
 
 use Carp;
+use List::Util qw(sum);
+
 our $VERSION = '0.10.1';
 
 print __PACKAGE__.' is version: '.$VERSION.$/ if($ENV{'PDF_TABLE_DEBUG'});
@@ -548,6 +550,7 @@ sub table
     # Calc real column widths and expand table width if needed.
     my $calc_column_widths;
     ($calc_column_widths, $width) = CalcColumnWidths( $col_props, $width );
+    my $num_cols = scalar @{ $calc_column_widths };
 
     # Lets draw what we have!
     my $row_index    = 0;
@@ -570,7 +573,7 @@ sub table
             # Check for safety reasons
             if( $bot_marg < 0 )
             {   # This warning should remain i think
-                carp "!!! Warning: !!! Incorrect Table Geometry! start_h (${height}) is above start_y (${table_top_y}). Setting bottom margin to end of sheet!\n";
+                #carp "!!! Warning: !!! Incorrect Table Geometry! start_h (${height}) is above start_y (${table_top_y}). Setting bottom margin to end of sheet!\n";
                 $bot_marg = 0;
             }
 
@@ -592,7 +595,7 @@ sub table
             # Check for safety reasons
             if( $bot_marg < 0 )
             {   # This warning should remain i think
-                carp "!!! Warning: !!! Incorrect Table Geometry! next_y or start_y (${next_y}) is above next_h or start_h (${next_h}). Setting bottom margin to end of sheet!\n";
+                #carp "!!! Warning: !!! Incorrect Table Geometry! next_y or start_y (${next_y}) is above next_h or start_h (${next_h}). Setting bottom margin to end of sheet!\n";
                 $bot_marg = 0;
             }
 
@@ -680,6 +683,7 @@ sub table
             my $cur_x        = $xbase;
             my $leftovers    = undef;   # Reference to text that is returned from textblock()
             my $do_leftovers = 0;
+            my ($colspan, @vertical_lines);
 
             # Process every cell(column) from current row
             for( my $column_idx = 0; $column_idx < scalar( @$record); $column_idx++ )
@@ -732,19 +736,31 @@ sub table
                                        //  $col_props->[$column_idx]->{'default_text'}
                                        //  $default_text;
 
+                my $this_width;
+                if (!$first_row && $cell_props->[$row_index][$column_idx]->{colspan}) {
+                    $colspan     = -1 == $cell_props->[$row_index][$column_idx]->{colspan}
+                                 ? $num_cols - $column_idx
+                                 : $cell_props->[$row_index][$column_idx]->{colspan};
+                    my $last_idx = $column_idx + $colspan - 1;
+                    $this_width  = sum @{ $calc_column_widths }[$column_idx..$last_idx];
+
+                } else {
+                    $this_width = $calc_column_widths->[$column_idx];
+                }
+
                 # If the content is wider than the specified width, we need to add the text as a text block
                 if( $record->[$column_idx] !~ m/(.\n.)/ and
                     $record_widths->[$column_idx] and
-                    $record_widths->[$column_idx] <= $calc_column_widths->[$column_idx]
+                    $record_widths->[$column_idx] <= $this_width
                 ){
                     my $space = $pad_left;
                     if ($justify eq 'right')
                     {
-                        $space = $calc_column_widths->[$column_idx] -($txt->advancewidth($record->[$column_idx]) + $pad_right);
+                        $space = $this_width -($txt->advancewidth($record->[$column_idx]) + $pad_right);
                     }
                     elsif ($justify eq 'center')
                     {
-                        $space = ($calc_column_widths->[$column_idx] - $txt->advancewidth($record->[$column_idx])) / 2;
+                        $space = ($this_width - $txt->advancewidth($record->[$column_idx])) / 2;
                     }
                     $txt->translate( $cur_x + $space, $text_start );
                     my %text_options;
@@ -759,7 +775,7 @@ sub table
                         $record->[$column_idx],
                         x        => $cur_x + $pad_left,
                         y        => $text_start,
-                        w        => $calc_column_widths->[$column_idx] - $pad_left - $pad_right,
+                        w        => $this_width - $pad_left - $pad_right,
                         h        => $cur_y - $bot_marg - $pad_top - $pad_bot,
                         align    => $justify,
                         lead     => $lead
@@ -793,6 +809,9 @@ sub table
                 }
 
                 $cur_x += $calc_column_widths->[$column_idx];
+
+                push @vertical_lines, (!$colspan || (1 >= $colspan)) ? 1 : 0;
+                $colspan-- if $colspan;
             }
             if( $do_leftovers )
             {
@@ -826,6 +845,12 @@ sub table
                     $gfx_bg->fill();
                 }
                 $cur_x += $calc_column_widths->[$column_idx];
+
+                if ($line_w && $vertical_lines[$column_idx] && ($column_idx != (scalar(@{ $record }) - 1))) {
+                    $gfx->move($cur_x, $cur_y);
+                    $gfx->vline($cur_y - $row_h);
+                    $gfx->fillcolor($border_color);
+                }
             }#End of for(my $column_idx....
 
             $cur_y -= $current_row_height;
@@ -846,13 +871,8 @@ sub table
             {
                 $gfx->move(  $xbase, $table_top_y);
                 $gfx->vline( $cur_y );
-                my $cur_x = $xbase;
-                for( my $j = 0; $j < $columns_number; $j++ )
-                {
-                    $cur_x += $calc_column_widths->[$j];
-                    $gfx->move(  $cur_x, $table_top_y );
-                    $gfx->vline( $cur_y );
-                }
+                $gfx->move($xbase + sum(@{ $calc_column_widths }[0..$num_cols - 1]), $table_top_y);
+                $gfx->vline( $cur_y );
             }
 
             # ACTUALLY draw all the lines
