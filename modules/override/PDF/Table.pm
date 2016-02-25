@@ -860,7 +860,7 @@ sub table
 
                 if ($line_w && $vertical_lines[$column_idx] && ($column_idx != (scalar(@{ $record }) - 1))) {
                     $gfx->move($cur_x, $cur_y);
-                    $gfx->vline($cur_y - $row_h);
+                    $gfx->vline($cur_y - $current_row_height);
                     $gfx->fillcolor($border_color);
                 }
             }#End of for(my $column_idx....
