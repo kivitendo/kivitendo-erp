@@ -370,7 +370,7 @@ sub table
     #=====================================
     # Disable header row into the table
     my $header_props = undef;
-    my @header_rows;
+    my (@header_rows, @header_row_cell_props);
     # Check if the user enabled it ?
     if(defined $arg{'header_props'} and ref( $arg{'header_props'}) eq 'HASH')
     {
@@ -428,7 +428,8 @@ sub table
 
     # Copy the header row if header is enabled
     if (defined $header_props) {
-      map { push @header_rows, $$data[$_] } (0..$header_props->{num_header_rows} - 1);
+      map { push @header_rows,           $$data[$_]       } (0..$header_props->{num_header_rows} - 1);
+      map { push @header_row_cell_props, $$cell_props[$_] } (0..$header_props->{num_header_rows} - 1);
     }
     # Determine column widths based on content
 
@@ -440,7 +441,7 @@ sub table
     #  the actual widths of the column/row intersection
     my $row_col_widths = [];
     # An array ref with the widths of the header row 
-    my @header_row_props;
+    my @header_row_widths;
  
     # Scalars that hold sum of the maximum and minimum widths of all columns 
     my ( $max_col_w  , $min_col_w   ) = ( 0,0 );
@@ -451,7 +452,7 @@ sub table
 
     for( my $row_idx = 0; $row_idx < scalar(@$data) ; $row_idx++ )
     {
-        push @header_row_props, [] if $row_idx < $header_props->{num_header_rows};
+        push @header_row_widths, [] if $row_idx < $header_props->{num_header_rows};
 
         my $column_widths = []; #holds the width of each column
         # Init the height for this row
@@ -535,7 +536,7 @@ sub table
         
         # Copy the calculated row properties of header row. 
         if (ref $header_props && $row_idx < $header_props->{num_header_rows}) {
-          push @header_row_props, [ @{ $column_widths } ];
+          push @header_row_widths, [ @{ $column_widths } ];
         }
     }
 
@@ -581,7 +582,7 @@ sub table
             {
                 for my $idx (0 .. $header_props->{num_header_rows} - 1) {
                   unshift @$data,           [ @{ $header_rows[$idx]      } ];
-                  unshift @$row_col_widths, [ @{ $header_row_props[$idx] } ];
+                  unshift @$row_col_widths, [ @{ $header_row_widths[$idx] } ];
                   unshift @$rows_height,    $header_row_heights[$idx];
                 }
                 $remaining_header_rows = $header_props->{num_header_rows};
@@ -712,12 +713,15 @@ sub table
 
                 my $this_width;
                 if (!$remaining_header_rows && $cell_props->[$row_index][$column_idx]->{colspan}) {
-                    $colspan     = -1 == $cell_props->[$row_index][$column_idx]->{colspan} 
-                                 ? $num_cols - $column_idx
-                                 : $cell_props->[$row_index][$column_idx]->{colspan};
+                    $colspan = $cell_props->[$row_index][$column_idx]->{colspan};
+                } elsif ($remaining_header_rows && $header_row_cell_props[$header_props->{num_header_rows} - $remaining_header_rows][$column_idx]->{colspan}) {
+                    $colspan = $header_row_cell_props[$header_props->{num_header_rows} - $remaining_header_rows][$column_idx]->{colspan};
+                }
+
+                if ($colspan) {
+                    $colspan     = $num_cols - $column_idx if (-1 == $colspan);
                     my $last_idx = $column_idx + $colspan - 1;
                     $this_width  = sum @{ $calc_column_widths }[$column_idx..$last_idx];
-
                 } else {
                     $this_width = $calc_column_widths->[$column_idx];
                 }
