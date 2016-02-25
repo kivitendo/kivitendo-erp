@@ -673,8 +673,8 @@ sub table
 
 
             # Choose colors for this row
-            $background_color = $row_index % 2 ? $background_color_even  : $background_color_odd;
-            $font_color       = $row_index % 2 ? $font_color_even        : $font_color_odd;
+            $background_color = ($row_index - $header_props->{num_header_rows}) % 2 ? $background_color_even  : $background_color_odd;
+            $font_color       = ($row_index - $header_props->{num_header_rows}) % 2 ? $font_color_even        : $font_color_odd;
 
             #Determine current row height
             my $current_row_height = $pad_top + $pre_calculated_row_height + $pad_bot;
@@ -746,9 +746,9 @@ sub table
                                        //  $default_text;
 
                 my $this_width;
-                if (!$remaining_header_rows && $cell_props->[$row_index][$column_idx]->{colspan}) {
-                    $colspan = $cell_props->[$row_index][$column_idx]->{colspan};
-                } elsif ($remaining_header_rows && $header_row_cell_props[$header_props->{num_header_rows} - $remaining_header_rows][$column_idx]->{colspan}) {
+                if (!$remaining_header_rows && $cell_props->[$row_index + $header_props->{num_header_rows}][$column_idx]->{colspan}) {
+                    $colspan = $cell_props->[$row_index + $header_props->{num_header_rows}][$column_idx]->{colspan};
+                } elsif ($remaining_header_rows && ($header_row_cell_props[$header_props->{num_header_rows} - $remaining_header_rows][$column_idx]->{colspan})) {
                     $colspan = $header_row_cell_props[$header_props->{num_header_rows} - $remaining_header_rows][$column_idx]->{colspan};
                 }
 
@@ -846,7 +846,7 @@ sub table
                 }
 
                 # Get the most specific value if none was already set from header_props
-                $cell_bg_color ||= $cell_props->[$row_index][$column_idx]->{'background_color'}
+                $cell_bg_color ||= $cell_props->[$row_index + $header_props->{num_header_rows}][$column_idx]->{'background_color'}
                                ||  $col_props->[$column_idx]->{'background_color'}
                                ||  $background_color;
 
