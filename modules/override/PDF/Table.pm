@@ -614,11 +614,9 @@ sub table
 
             if( ref $header_props and $header_props->{'repeat'})
             {
-                for my $idx (0 .. $header_props->{num_header_rows} - 1) {
-                  unshift @$data,           [ @{ $header_rows[$idx]      } ];
-                  unshift @$row_col_widths, [ @{ $header_row_widths[$idx] } ];
-                  unshift @$rows_height,    $header_row_heights[$idx];
-                }
+                unshift @$data,           @header_rows;
+                unshift @$row_col_widths, @header_row_widths;
+                unshift @$rows_height,    @header_row_heights;
                 $remaining_header_rows = $header_props->{num_header_rows};
                 $first_row = 1;
             }
