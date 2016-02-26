@@ -24,7 +24,7 @@ sub _get {
   return if !$name;
 
   $manager_cache{$name} ||= do {
-    die "'$name' doesn't look like a default manager." unless $name =~ /^\w+$/a;
+    die "'$name' doesn't look like a default manager." unless $name =~ /^\w+$/;
 
     my $package = 'SL::DefaultManager::' . camelify($name);
 
