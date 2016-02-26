@@ -15,7 +15,7 @@ use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right vc all_employees all_businesses) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right vc use_linked_items all_employees all_businesses) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -91,7 +91,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter vc));
+  $report->set_export_options(qw(list filter vc use_linked_items));
   $report->set_options_from_form;
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->finalize; # for filter laundering
@@ -111,17 +111,8 @@ sub calc_qtys {
 
   my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
 
-  my $query = <<SQL;
-    SELECT oi.id, doi.qty, doi.unit, doe.delivered
-    FROM record_links rl
-    INNER JOIN delivery_order_items doi ON (doi.delivery_order_id = rl.to_id)
-    INNER JOIN delivery_orders doe ON (doe.id = rl.to_id)
-    INNER JOIN orderitems oi ON (oi.trans_id = rl.from_id)
-    WHERE rl.from_table = 'oe'
-      AND rl.to_table   = 'delivery_orders'
-      AND oi.parts_id   = doi.parts_id
-      AND oi.id IN (@{[ join ', ', ("?")x @$orderitems ]})
-SQL
+  my $query = $self->use_linked_items ? _calc_qtys_query_linked_items(scalar @$orderitems)
+            :                           _calc_qtys_query_match_parts(scalar @$orderitems);
 
   my $result = SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, $query, map { $_->id } @$orderitems);
 
@@ -132,6 +123,40 @@ SQL
     $item->{shipped_qty}    += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty};
     $item->{delivered_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} if $row->{delivered};
   }
+}
+
+sub _calc_qtys_query_match_parts {
+  my ($num_items) = @_;
+
+  my $query = <<SQL;
+    SELECT oi.id, doi.qty, doi.unit, doe.delivered
+    FROM record_links rl
+    INNER JOIN delivery_order_items doi ON (doi.delivery_order_id = rl.to_id)
+    INNER JOIN delivery_orders doe ON (doe.id = rl.to_id)
+    INNER JOIN orderitems oi ON (oi.trans_id = rl.from_id)
+    WHERE rl.from_table = 'oe'
+      AND rl.to_table   = 'delivery_orders'
+      AND oi.parts_id   = doi.parts_id
+      AND oi.id IN (@{[ join ', ', ("?")x $num_items ]})
+SQL
+
+  return $query;
+}
+
+sub _calc_qtys_query_linked_items {
+  my ($num_items) = @_;
+
+  my $query = <<SQL;
+    SELECT rl.from_id as id, doi.qty, doi.unit, doe.delivered
+    FROM record_links rl
+    INNER JOIN delivery_order_items doi ON (doi.id = rl.to_id)
+    INNER JOIN delivery_orders doe ON (doe.id = doi.delivery_order_id)
+    WHERE rl.from_table LIKE 'orderitems'
+      AND rl.to_table   LIKE 'delivery_order_items'
+      AND rl.from_id IN (@{[ join ', ', ("?")x $num_items ]})
+SQL
+
+  return $query;
 }
 
 sub make_filter_summary {
@@ -282,13 +307,73 @@ sub delivery_plan_query {
       oe.${vc}_id IS NOT NULL AND
       $oe_owner
       (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
-  " ],
+  " ], # make emacs happy again: '
+  ]
+}
+
+sub delivery_plan_query_linked_items {
+  my ($self) = @_;
+  my $vc     = $self->vc;
+  my $employee_id = SL::DB::Manager::Employee->current->id;
+  my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
+  # check delivered state for delivery_orders (transferred out) if enabled
+  my $filter_delivered = ($::instance_conf->get_delivery_plan_calculate_transferred_do) ?
+      "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
+
+  [
+  "order.${vc}_id" => { gt => 0 },
+  'order.closed' => 0,
+  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
+
+  # filter by shipped_qty < qty, read from innermost to outermost
+  'id' => [ \"
+    SELECT id FROM (
+      SELECT oi.qty, oi.id, SUM(doi.qty) AS doi_qty
+      FROM orderitems oi, oe, record_links rl, delivery_order_items doi
+      WHERE
+        oe.id = oi.trans_id AND
+        oe.${vc}_id IS NOT NULL AND
+        (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+        NOT oe.closed AND
+        $oe_owner
+        doi.id = rl.to_id AND
+        rl.from_table = 'orderitems'AND
+        rl.to_table   = 'delivery_order_items' AND
+        rl.from_id = oi.id
+        $filter_delivered
+      GROUP BY oi.id
+    ) linked
+    WHERE qty > doi_qty
+
+    UNION ALL
+
+    -- 2. since the join over record_links fails for items not in any delivery order
+    --    retrieve those without record_links at all
+    SELECT oi.id FROM orderitems oi, oe
+    WHERE
+      oe.id = oi.trans_id AND
+      oe.${vc}_id IS NOT NULL AND
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      NOT oe.closed AND
+      $oe_owner
+      oi.id NOT IN (
+        SELECT from_id
+        FROM record_links rl
+        WHERE
+          rl.from_table ='orderitems' AND
+          rl.to_table = 'delivery_order_items'
+      )
+
+  " ], # make emacs happy again: " ]
   ]
 }
 
 sub init_models {
   my ($self) = @_;
   my $vc     = $self->vc;
+
+  my $query = $self->use_linked_items ? $self->delivery_plan_query_linked_items
+            :                           $self->delivery_plan_query;
 
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
@@ -300,9 +385,9 @@ sub init_models {
       },
       %sort_columns,
     },
-    query        => $self->delivery_plan_query,
+    query        => $query,
     with_objects => [ 'order', "order.$vc", 'part' ],
-    additional_url_params => { vc => $vc},
+    additional_url_params => { vc => $vc, use_linked_items => $self->use_linked_items },
   );
 }
 
@@ -311,6 +396,10 @@ sub init_all_edit_right {
 }
 sub init_vc {
   return $::form->{vc} if ($::form->{vc} eq 'customer' || $::form->{vc} eq 'vendor') || croak "self (DeliveryPlan) has no vc defined";
+}
+
+sub init_use_linked_items {
+  !!$::form->{use_linked_items};
 }
 
 sub init_all_employees {
