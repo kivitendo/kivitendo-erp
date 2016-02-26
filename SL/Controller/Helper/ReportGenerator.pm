@@ -19,6 +19,9 @@ our @EXPORT = qw(
 
 sub action_report_generator_export_as_pdf {
   my ($self) = @_;
+
+  delete $::form->{action_report_generator_export_as_pdf};
+
   if ($::form->{report_generator_pdf_options_set}) {
     my $saved_form = save_form();
 
@@ -48,6 +51,9 @@ sub action_report_generator_export_as_pdf {
 
 sub action_report_generator_export_as_csv {
   my ($self) = @_;
+
+  delete $::form->{action_report_generator_export_as_csv};
+
   if ($::form->{report_generator_csv_options_set}) {
     $self->report_generator_do('CSV');
     return;
