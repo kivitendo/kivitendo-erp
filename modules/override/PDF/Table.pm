@@ -505,8 +505,12 @@ sub table
                 $rows_height->[$row_idx] = $cell_font_size;
             }
 
+            if (!defined $data->[$row_idx][$column_idx]) {
+              $data->[$row_idx][$column_idx] = ' ';
+            }
+
             # This should fix a bug with very long words like serial numbers etc.
-            if( $max_word_len > 0 )
+            if( $max_word_len > 0 && $data->[$row_idx][$column_idx])
             {
                 $data->[$row_idx][$column_idx] =~ s#(\S{$max_word_len})(?=\S)#$1 #g;
             }
