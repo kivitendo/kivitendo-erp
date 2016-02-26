@@ -43,12 +43,8 @@ sub _setup {
   my ($self) = @_;
 
   # TODO FIXME calc dates better, unless this is wanted
-#  my $year =
-  #$self->fromdate(DateTime->new(day => 1, month => 1, year => DateTime->today->year));
-  #$self->todate($self->fromdate->clone->add(years => 1)->add(days => -1));
-  $self->fromdate(DateTime->new(day => 1, month => 1, year => 2015));
+  $self->fromdate(DateTime->new(day => 1, month => 1, year => DateTime->today->year));
   $self->todate($self->fromdate->clone->add(years => 1)->add(days => -1));
-  $main::lxdebug->message(0, 'hier und dort:' . $self->fromdate . ' mit ' . $self->todate);
   $self->dbh($::form->get_standard_dbh);
 }
 
