@@ -371,89 +371,30 @@
 </form>
 
 <script type="text/javascript">
-function format_date(yy, mm, dd) {
-  var format = "[% dateformat %]";
-  format = format.replace("yyyy", "yy");
-  format = format.replace("yy", yy);
-  format = format.replace("mm", mm);
-  format = format.replace("dd", dd);
-  return format;
-}
 function set_from_to(duetyp, year) {
-  switch(duetyp) {
-    case '1':
-      document.getElementById('fromdate').value=format_date(year, '01', '01');
-      document.getElementById('todate').value=format_date(year, '01', '31');
-    break;
-    case '2':
-      document.getElementById('fromdate').value=format_date(year, '02', '01');
-      if(year % 4) document.getElementById('todate').value=format_date(year, '02', '28');
-      else document.getElementById('todate').value=format_date(year, '2', '29');
-    break;
-    case '3':
-      document.getElementById('fromdate').value=format_date(year, '03', '01');
-      document.getElementById('todate').value=format_date(year, '03', '31');
-    break;
-    case '4':
-      document.getElementById('fromdate').value=format_date(year, '04', '01');
-      document.getElementById('todate').value=format_date(year, '04', '30');
-    break;
-    case '5':
-      document.getElementById('fromdate').value=format_date(year, '05', '01');
-      document.getElementById('todate').value=format_date(year, '05', '31');
-    break;
-    case '6':
-      document.getElementById('fromdate').value=format_date(year, '06', '01');
-      document.getElementById('todate').value=format_date(year, '06', '30');
-    break;
-    case '7':
-      document.getElementById('fromdate').value=format_date(year, '07', '01');
-      document.getElementById('todate').value=format_date(year, '07', '31');
-    break;
-    case '8':
-      document.getElementById('fromdate').value=format_date(year, '08', '01');
-      document.getElementById('todate').value=format_date(year, '08', '31');
-    break;
-    case '9':
-      document.getElementById('fromdate').value=format_date(year, '09', '01');
-      document.getElementById('todate').value=format_date(year, '09', '30');
-    break;
-    case '10':
-      document.getElementById('fromdate').value=format_date(year, '10', '01');
-      document.getElementById('todate').value=format_date(year, '10', '31');
-    break;
-    case '11':
-      document.getElementById('fromdate').value=format_date(year, '11', '01');
-      document.getElementById('todate').value=format_date(year, '11', '30');
-    break;
-    case '12':
-      document.getElementById('fromdate').value=format_date(year, '12', '01');
-      document.getElementById('todate').value=format_date(year, '12', '31');
-    break;
-    case '13':
-      document.getElementById('fromdate').value=format_date(year, '01', '01');
-      document.getElementById('todate').value=format_date(year, '12', '31');
-    break;
-    case 'A':
-      document.getElementById('fromdate').value=format_date(year, '01', '01');
-      document.getElementById('todate').value=format_date(year, '03', '31');
-    break;
-    case 'B':
-      document.getElementById('fromdate').value=format_date(year, '04', '01');
-      document.getElementById('todate').value=format_date(year, '06', '30');
-    break;
-    case 'C':
-      document.getElementById('fromdate').value=format_date(year, '07', '01');
-      document.getElementById('todate').value=format_date(year, '09', '31');
-    break;
-    case 'D':
-      document.getElementById('fromdate').value=format_date(year, '10', '01');
-      document.getElementById('todate').value=format_date(year, '12', '31');
-    break;
-    default:
-      document.getElementById('fromdate').value=format_date(year, '01', '01');
-      document.getElementById('todate').value=format_date(year, '12', '31');
-  }
+  var date = {
+    1:  [ 1,  1, 1,  31 ],
+    2:  [ 2,  1, 2,  new Date(year, 1, 29).getMonth() == 1 ? 29 : 28 ],
+    3:  [ 3,  1, 3,  31 ],
+    4:  [ 4,  1, 4,  30 ],
+    5:  [ 5,  1, 5,  31 ],
+    6:  [ 6,  1, 6,  30 ],
+    7:  [ 7,  1, 7,  31 ],
+    8:  [ 8,  1, 8,  31 ],
+    9:  [ 9,  1, 9,  30 ],
+    10: [ 10, 1, 10, 31 ],
+    11: [ 11, 1, 11, 30 ],
+    12: [ 12, 1, 12, 31 ],
+    13: [  1, 1, 12, 31 ],
+    'A': [ 1,  1, 3,  31 ],
+    'B': [ 4,  1, 6,  30 ],
+    'C': [ 7,  1, 9,  30 ],
+    'D': [ 10, 1, 12, 31 ]
+  }[duetyp];
+
+  $('#fromdate').val(kivi.format_date(new Date(year, date[0]-1, date[1])));
+  $('#todate').val(kivi.format_date(new Date(year, date[2]-1, date[3])));
+
   return true;
 }
 </script>
