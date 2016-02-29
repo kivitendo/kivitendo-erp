@@ -229,7 +229,7 @@ sub post {
     my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
                                                 sort_by => 'id ASC',
                                                 limit   => 1)->[0];
-    croak("No AR chart found and no parameter `ar_id' given") unless $chart;
+    croak("No AR chart found and no parameter 'ar_id' given") unless $chart;
     $params{ar_id} = $chart->id;
   }
 
@@ -387,6 +387,8 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 SL::DB::Invoice: Rose model for invoices (table "ar")
@@ -458,7 +460,7 @@ Posts the invoice. Required parameters are:
 
 =item * C<ar_id>
 
-The ID of the accounds receivable chart the invoices amounts are
+The ID of the accounts receivable chart the invoice's amounts are
 posted to. If it is not set then the first chart configured for
 accounts receivables is used.
 
@@ -484,7 +486,7 @@ the part's buchungsgruppen.
 and recorded in C<acc_trans>.
 
 =item 6. Items in C<invoice> are updated according to their allocation
-status (regarding for costs of goold sold). Will only be done if
+status (regarding costs of goods sold). Will only be done if
 kivitendo is not configured to use Einnahmenüberschussrechnungen.
 
 =item 7. The invoice and its items are saved.
@@ -493,7 +495,7 @@ kivitendo is not configured to use Einnahmenüberschussrechnungen.
 
 Returns C<$self> on success and C<undef> on failure. The whole process
 is run inside a transaction. If it fails then nothing is saved to or
-changed in the database. A new transaction is only started if none is
+changed in the database. A new transaction is only started if none are
 active.
 
 =item C<basic_info $field>
@@ -503,6 +505,7 @@ See L<SL::DB::Object::basic_info>.
 =back
 
 =head1 TODO
+
  As explained in the new_from example, it is possible to set transdate to a new value.
  From a user / programm point of view transdate is more than holy and there should be
  some validity checker available for controller code. At least the same logic like in
