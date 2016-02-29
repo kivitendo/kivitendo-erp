@@ -48,7 +48,7 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(update save save_and_delivery_order print create_pdf send_email) ]);
+                        only => [ qw(save save_and_delivery_order print create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
                         only => [ qw(save save_and_delivery_order print create_pdf send_email) ]);
@@ -78,19 +78,6 @@ sub action_edit {
 
   $self->_load_order;
   $self->_recalc();
-  $self->_pre_render();
-  $self->render(
-    'order/form',
-    title => $self->type eq _sales_order_type()    ? $::locale->text('Edit Sales Order')
-           : $self->type eq _purchase_order_type() ? $::locale->text('Edit Purchase Order')
-           : '',
-    %{$self->{template_args}}
-  );
-}
-
-sub action_update {
-  my ($self) = @_;
-
   $self->_pre_render();
   $self->render(
     'order/form',
