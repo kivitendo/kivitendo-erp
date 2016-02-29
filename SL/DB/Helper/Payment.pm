@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount transactions open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction);
+our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -605,15 +605,6 @@ sub get_payment_suggestions {
   };
   return 1;
 };
-
-sub transactions {
-  my ($self) = @_;
-
-  return unless $self->id;
-
-  require SL::DB::AccTransaction;
-  SL::DB::Manager::AccTransaction->get_all(query => [ trans_id => $self->id ]);
-}
 
 sub validate_payment_type {
   my $payment_type = shift;
