@@ -696,6 +696,8 @@ SQL
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
+  $form->new_lastmtime('oe');
+
   $form->{ordtotal} = $amount;
 
   $form->{name} = $form->{ $form->{vc} };

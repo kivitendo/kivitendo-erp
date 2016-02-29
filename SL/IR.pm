@@ -690,7 +690,7 @@ SQL
   if ($payments_only) {
     $query = qq|UPDATE ap SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query, $form->{paid}, conv_i($form->{id}));
-
+    $form->new_lastmtime('ap');
     if (!$provided_dbh) {
       $dbh->commit();
       $dbh->disconnect();
@@ -745,6 +745,7 @@ SQL
     do_query($form, $dbh, $query, conv_i($form->{id}));
   }
 
+  $form->new_lastmtime('ap');
 
   $form->{name} = $form->{vendor};
   $form->{name} =~ s/--\Q$form->{vendor_id}\E//;

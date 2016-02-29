@@ -399,6 +399,8 @@ sub save {
   );
   do_query($form, $dbh, $query, @values);
 
+  $form->new_lastmtime('parts');
+
   # delete translation records
   do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
 
@@ -569,6 +571,8 @@ sub update_assembly {
   my @values = ($qty * ($form->{sellprice} - $sellprice),
              $qty * ($form->{weight} - $weight), conv_i($id));
   do_query($form, $dbh, $query, @values);
+
+  $form->new_lastmtime('parts') if $id == $form->{id};
 
   $main::lxdebug->leave_sub();
 }

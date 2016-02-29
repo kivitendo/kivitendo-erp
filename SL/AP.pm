@@ -148,6 +148,8 @@ sub post_transaction {
                   $form->{id});
     do_query($form, $dbh, $query, @values);
 
+    $form->new_lastmtime('ap');
+
     # add individual transactions
     for my $i (1 .. $form->{rowcount}) {
       if ($form->{"amount_$i"} != 0) {
@@ -349,6 +351,7 @@ sub post_transaction {
   if ($payments_only) {
     $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{invpaid}, $form->{invpaid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
+    $form->new_lastmtime('ap');
   }
 
   IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
@@ -808,6 +811,8 @@ sub storno {
   $query = qq|UPDATE ap SET paid = amount + paid, storno = 't' WHERE id = ?|;
   do_query($form, $dbh, $query, $id);
 
+  $form->new_lastmtime('ap') if $id == $form->{id};
+
   # now copy acc_trans entries
   $query = qq|SELECT a.*, c.link FROM acc_trans a LEFT JOIN chart c ON a.chart_id = c.id WHERE a.trans_id = ? ORDER BY a.acc_trans_id|;
   my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
@@ -826,6 +831,8 @@ sub storno {
   }
 
   map { IO->set_datepaid(table => 'ap', id => $_, dbh => $dbh) } ($id, $new_id);
+
+  $form->new_lastmtime('ap') if $storno_id == $form->{id};
 
   $dbh->commit;
 

@@ -1244,6 +1244,8 @@ SQL
     $query = qq|UPDATE ar SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{paid}, conv_i($form->{id}));
 
+    $form->new_lastmtime('ar');
+
     $dbh->commit if !$provided_dbh;
 
     $main::lxdebug->leave_sub();
@@ -1298,6 +1300,8 @@ SQL
     do_query($form, $dbh, $query, "Rechnung storniert am $form->{invdate} ", conv_i($form->{"storno_id"}));
     do_query($form, $dbh, qq|UPDATE ar SET paid = amount WHERE id = ?|, conv_i($form->{"id"}));
   }
+
+  $form->new_lastmtime('ar');
 
   $form->{name} = $form->{customer};
   $form->{name} =~ s/--\Q$form->{customer_id}\E//;

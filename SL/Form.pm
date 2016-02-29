@@ -2590,6 +2590,19 @@ sub all_vc {
   $main::lxdebug->leave_sub();
 }
 
+sub new_lastmtime {
+  my ($self, $table, $option) = @_;
+
+  return                                       unless $self->{id};
+  croak ("wrong call, no valid table defined") unless $table =~ /^(oe|ar|ap|delivery_orders|parts)$/;
+
+  my $query       = "SELECT mtime, itime FROM " . $table . " WHERE id = ?";
+  my $ref         = selectfirst_hashref_query($self, $self->get_standard_dbh, $query, $self->{id});
+  $ref->{mtime} ||= $ref->{itime};
+  $self->{lastmtime} = $ref->{mtime};
+  $main::lxdebug->message(LXDebug->DEBUG2(),"new lastmtime=".$self->{lastmtime});
+}
+
 sub mtime_ischanged {
   my ($self, $table, $option) = @_;
 

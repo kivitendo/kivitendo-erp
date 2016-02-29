@@ -477,6 +477,8 @@ SQL
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
+  $form->new_lastmtime('delivery_orders');
+
   $form->{name} = $form->{ $form->{vc} };
   $form->{name} =~ s/--$form->{"$form->{vc}_id"}//;
 
@@ -605,6 +607,7 @@ sub close_orders {
   do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
 
   $dbh->commit() unless ($params{dbh});
+  $form->new_lastmtime('delivery_orders');
 
   $main::lxdebug->leave_sub();
 }
