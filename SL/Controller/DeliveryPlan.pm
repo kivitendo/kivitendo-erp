@@ -208,9 +208,7 @@ sub delivery_plan_query {
   my $vc     = $self->vc;
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
-  # check delivered state for delivery_orders (transferred out) if enabled
-  my $filter_delivered = ($::instance_conf->get_delivery_plan_calculate_transferred_do) ?
-      "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
+
   [
   "order.${vc}_id" => { gt => 0 },
   'order.closed' => 0,
@@ -239,7 +237,6 @@ sub delivery_plan_query {
           rl.to_table = 'delivery_orders' AND
           rl.to_id = doi.delivery_order_id AND
           oi.parts_id = doi.parts_id
-          $filter_delivered
       ) tuples GROUP BY parts_id, trans_id, qty
     ) partials
     LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
@@ -292,8 +289,6 @@ sub delivery_plan_query {
           (oe.quotation = 'f' OR oe.quotation IS NULL) AND NOT oe.closed
       ) rl
       LEFT JOIN delivery_order_items doi ON (rl.to_id = doi.delivery_order_id)
-      WHERE 1 = 1
-      $filter_delivered
       GROUP BY rl.from_id, doi.parts_id
     ) agg ON (agg.oid = oi.trans_id AND agg.parts_id = oi.parts_id)
     LEFT JOIN oe ON oe.id = oi.trans_id
@@ -316,9 +311,6 @@ sub delivery_plan_query_linked_items {
   my $vc     = $self->vc;
   my $employee_id = SL::DB::Manager::Employee->current->id;
   my $oe_owner = $_[0]->all_edit_right ? '' : " oe.employee_id = $employee_id AND";
-  # check delivered state for delivery_orders (transferred out) if enabled
-  my $filter_delivered = ($::instance_conf->get_delivery_plan_calculate_transferred_do) ?
-      "AND (SELECT delivered from delivery_orders where id = doi.delivery_order_id)" : '';
 
   [
   "order.${vc}_id" => { gt => 0 },
@@ -340,7 +332,6 @@ sub delivery_plan_query_linked_items {
         rl.from_table = 'orderitems'AND
         rl.to_table   = 'delivery_order_items' AND
         rl.from_id = oi.id
-        $filter_delivered
       GROUP BY oi.id
     ) linked
     WHERE qty > doi_qty

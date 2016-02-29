@@ -97,15 +97,5 @@
     [% LxERP.t8('Any stock contents containing a best before date will be impossible to stock out otherwise.') %]
    </td>
   </tr>
-  <tr><td colspan="3"><hr /></td></tr>
- <tr>
-  <td align="right">[% LxERP.t8('Delivery Plan check for transferred delivery orders') %]</td>
-   <td>
-    [% L.yes_no_tag('defaults.delivery_plan_calculate_transferred_do', SELF.defaults.delivery_plan_calculate_transferred_do) %]
-   </td>
-   <td>
-   [% LxERP.t8('The default delivery value report only checks if all delivery orders have been created not if the goods are transferred. This feature will check if all the goods are transferred. Caveat: Only the state of the delivery orders are checked not partial transferred delivery orders (in technical terms: the table inventory is not checked') %]
-   </td>
-  </tr>
  </table>
 </div>
