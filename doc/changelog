@@ -40,6 +40,13 @@ Größere neue Features:
   zu Lieferscheinposition mitverfolgt. Ferner wird der Nettowarenwert für den Fall
   Hauptwährung und Netto-Auftrag berechnet.
 
+Debitorenbuchungsimport
+
+  Neuer Menüpunkt im CSV Importer. Anwendungsbeispiele:
+  * bei einer Migration zu kivitendo die offenen Posten übernehmen
+  * wenn kivitendo für die Buchhaltung benutzt wird, die Rechnungen aber mit
+    einem externen Programm erstellt werden
+
 Kleinere neue Features und Detailverbesserungen:
 
   - Neues Feld GLN bei Kunden/Lieferanten und Lieferadressen.

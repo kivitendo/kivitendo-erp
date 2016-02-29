@@ -187,6 +187,18 @@ sub init_profile {
     eval "require " . $class;
 
     my %unwanted = map { ( $_ => 1 ) } (qw(itime mtime), map { $_->name } @{ $class->meta->primary_key_columns });
+
+    # TODO: execeptions for AccTransaction and Invoice wh
+    if ( $class =~ m/^SL::DB::AccTransaction/ ) {
+      my %unwanted_acc_trans = map { ( $_ => 1 ) } (qw(acc_trans_id trans_id cleared fx_transaction ob_transaction cb_transaction itime mtime chart_link tax_id description gldate memo source transdate), map { $_->name } @{ $class->meta->primary_key_columns });
+      @unwanted{keys %unwanted_acc_trans} = values %unwanted_acc_trans;
+    };
+    if ( $class =~ m/^SL::DB::Invoice/ ) {
+      # remove fields that aren't needed / shouldn't be set for ar transaction
+      my %unwanted_ar = map { ( $_ => 1 ) } (qw(closed currency currency_id datepaid dunning_config_id gldate invnumber_for_credit_note invoice marge_percent marge_total amount netamount paid shippingpoint shipto_id shipvia storno storno_id type cp_id), map { $_->name } @{ $class->meta->primary_key_columns });
+      @unwanted{keys %unwanted_ar} = values %unwanted_ar;
+    };
+
     my %prof;
     $prof{datatype} = '';
     for my $col ($class->meta->columns) {
@@ -268,7 +280,7 @@ sub fix_field_lengths {
 
   my %field_lengths_by_ri = $self->field_lengths;
   foreach my $entry (@{ $self->controller->data }) {
-    next unless @{ $entry->{errors} };
+    next unless defined $entry->{errors} && @{ $entry->{errors} };
     my %field_lengths = %{ $field_lengths_by_ri{ $entry->{raw_data}->{datatype} } };
     map { $entry->{object}->$_(substr($entry->{object}->$_, 0, $field_lengths{$_})) if $entry->{object}->$_ } keys %field_lengths;
   }

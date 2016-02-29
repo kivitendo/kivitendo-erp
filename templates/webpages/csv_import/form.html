@@ -135,7 +135,7 @@
     [%- LxERP.t8('One of the columns "qty" or "target_qty" must be given. If "target_qty" is given, the quantity to transfer for each transfer will be calculate, so that the quantity for this part, warehouse and bin will result in the given "target_qty" after each transfer.') %]
    </p>
 
-[%- ELSIF SELF.type == 'orders' %]
+[%- ELSIF SELF.type == 'orders' OR SELF.type == 'ar_transactions' %]
    <p>
     [1]:
     [% LxERP.t8('The column "datatype" must be present and must be at the same position / column in each data set. The values must be the row names (see settings) for order and item data respectively.') %]
@@ -260,6 +260,8 @@
  [%- INCLUDE 'csv_import/_form_inventories.html' %]
 [%- ELSIF SELF.type == 'orders' %]
  [%- INCLUDE 'csv_import/_form_orders.html' %]
+[%- ELSIF SELF.type == 'ar_transactions' %]
+ [%- INCLUDE 'csv_import/_form_artransactions.html' %]
 [%- ELSIF SELF.type == 'bank_transactions' %]
  [%- INCLUDE 'csv_import/_form_banktransactions.html' %]
 [%- END %]
