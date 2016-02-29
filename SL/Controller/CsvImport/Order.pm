@@ -25,7 +25,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by price_factors_by pricegroups_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by) ],
 );
 
 
@@ -211,20 +211,6 @@ sub init_contacts_by {
   return $cby;
 }
 
-sub init_departments_by {
-  my ($self) = @_;
-
-  my $all_departments = SL::DB::Manager::Department->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_departments } } ) } qw(id description) };
-}
-
-sub init_projects_by {
-  my ($self) = @_;
-
-  my $all_projects = SL::DB::Manager::Project->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_projects } } ) } qw(id projectnumber description) };
-}
-
 sub init_ct_shiptos_by {
   my ($self) = @_;
 
@@ -343,37 +329,6 @@ sub handle_order {
 
   $self->handle_salesman($entry);
   $self->handle_employee($entry);
-}
-
-# ToDo: salesman by name
-sub handle_salesman {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-  my $vc_obj;
-  $vc_obj    = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
-  $vc_obj    = SL::DB::Vendor->new(id   => $object->vendor_id)->load   if (!$vc_obj && $object->vendor_id);
-
-  # salesman from customer/vendor or login if not given
-  if (!$object->salesman) {
-    if ($vc_obj && $vc_obj->salesman_id) {
-      $object->salesman(SL::DB::Manager::Employee->find_by(id => $vc_obj->salesman_id));
-    } else {
-      $object->salesman(SL::DB::Manager::Employee->find_by(login => $::myconfig{login}));
-    }
-  }
-}
-
-# ToDo: employee by name
-sub handle_employee {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # employee from login if not given
-  if (!$object->employee_id) {
-    $object->employee_id(SL::DB::Manager::Employee->find_by(login => $::myconfig{login})->id);
-  }
 }
 
 sub check_language {
@@ -501,71 +456,6 @@ sub check_contact {
 
   if ($object->cp_id) {
     $entry->{info_data}->{contact} = $self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }->cp_name;
-  }
-
-  return 1;
-}
-
-sub check_department {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not department ID is valid.
-  if ($object->department_id && !$self->departments_by->{id}->{ $object->department_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid department');
-    return 0;
-  }
-
-  # Map description to ID if given.
-  if (!$object->department_id && $entry->{raw_data}->{department}) {
-    my $dep = $self->departments_by->{description}->{ $entry->{raw_data}->{department} };
-    if (!$dep) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid department');
-      return 0;
-    }
-
-    $object->department_id($dep->id);
-  }
-
-  return 1;
-}
-
-sub check_project {
-  my ($self, $entry, %params) = @_;
-
-  my $id_column          = ($params{global} ? 'global' : '') . 'project_id';
-  my $number_column      = ($params{global} ? 'global' : '') . 'projectnumber';
-  my $description_column = ($params{global} ? 'global' : '') . 'project';
-
-  my $object = $entry->{object};
-
-  # Check whether or not projetc ID is valid.
-  if ($object->$id_column && !$self->projects_by->{id}->{ $object->$id_column }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid project');
-    return 0;
-  }
-
-  # Map number to ID if given.
-  if (!$object->$id_column && $entry->{raw_data}->{$number_column}) {
-    my $proj = $self->projects_by->{projectnumber}->{ $entry->{raw_data}->{$number_column} };
-    if (!$proj) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid project');
-      return 0;
-    }
-
-    $object->$id_column($proj->id);
-  }
-
-  # Map description to ID if given.
-  if (!$object->$id_column && $entry->{raw_data}->{$description_column}) {
-    my $proj = $self->projects_by->{description}->{ $entry->{raw_data}->{$description_column} };
-    if (!$proj) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid project');
-      return 0;
-    }
-
-    $object->$id_column($proj->id);
   }
 
   return 1;
