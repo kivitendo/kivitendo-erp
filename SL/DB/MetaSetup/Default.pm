@@ -16,8 +16,10 @@ __PACKAGE__->meta->columns(
   allow_sales_invoice_from_sales_order      => { type => 'boolean', default => 'true', not_null => 1 },
   allow_sales_invoice_from_sales_quotation  => { type => 'boolean', default => 'true', not_null => 1 },
   ap_changeable                             => { type => 'integer', default => 2, not_null => 1 },
+  ap_chart_id                               => { type => 'integer' },
   ap_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
   ar_changeable                             => { type => 'integer', default => 2, not_null => 1 },
+  ar_chart_id                               => { type => 'integer' },
   ar_paid_accno_id                          => { type => 'integer' },
   ar_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
   articlenumber                             => { type => 'text' },
@@ -124,6 +126,15 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  ap_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { ap_chart_id => 'id' },
+  },
+
+  ar_chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { ar_chart_id => 'id' },
+  },
   bin => {
     class       => 'SL::DB::Bin',
     key_columns => { bin_id => 'id' },

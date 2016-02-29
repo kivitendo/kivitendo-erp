@@ -44,5 +44,16 @@
    <td align="right">[% LxERP.t8("Current assets account") %]</td>
    <td>[% L.chart_picker('defaults.ar_paid_accno_id', SELF.defaults.ar_paid_accno_id, type='AR_paid', choose=1, style=style) %]<td>
   </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Payable account") %]</td>
+   <td>[% L.chart_picker('defaults.ap_chart_id', SELF.defaults.ap_chart_id, type='AP', choose=1, style=style) %]<td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Receivable account") %]</td>
+   <td>[% L.chart_picker('defaults.ar_chart_id', SELF.defaults.ar_chart_id, type='AR', choose=1, style=style) %]<td>
+  </tr>
+
  </table>
 </div>
