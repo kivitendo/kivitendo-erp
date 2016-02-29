@@ -3,9 +3,9 @@ package SL::DB::Invoice;
 use strict;
 
 use Carp;
-use List::Util qw(first);
+use List::Util qw(first sum);
 
-use Rose::DB::Object::Helpers ();
+use Rose::DB::Object::Helpers qw(has_loaded_related);
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::Payment qw(:ALL);
@@ -282,6 +282,163 @@ sub _post_add_acctrans {
   }
 }
 
+sub add_ar_amount_row {
+  my ($self, %params ) = @_;
+
+  # only allow this method for ar invoices (Debitorenbuchung)
+  die "not an ar invoice" if $self->invoice and not $self->customer_id;
+
+  die "add_ar_amount_row needs a chart object as chart param" unless $params{chart} && $params{chart}->isa('SL::DB::Chart');
+  die unless $params{chart}->link =~ /AR_amount/;
+
+  my $acc_trans = [];
+
+  my $roundplaces = 2;
+  my ($netamount,$taxamount);
+
+  $netamount = $params{amount} * 1;
+  my $tax = SL::DB::Manager::Tax->find_by(id => $params{tax_id}) || die "Can't find tax with id " . $params{tax_id};
+
+  if ( $tax and $tax->rate != 0 ) {
+    ($netamount, $taxamount) = Form->calculate_tax($params{amount}, $tax->rate, $self->taxincluded, $roundplaces);
+  };
+  next unless $netamount; # netamount mustn't be zero
+
+  my $sign = $self->customer_id ? 1 : -1;
+  my $acc = SL::DB::AccTransaction->new(
+    amount     => $netamount * $sign,
+    chart_id   => $params{chart}->id,
+    chart_link => $params{chart}->link,
+    transdate  => $self->transdate,
+    taxkey     => $tax->taxkey,
+    tax_id     => $tax->id,
+    project_id => $params{project_id},
+  );
+
+  $self->add_transactions( $acc );
+  push( @$acc_trans, $acc );
+
+  if ( $taxamount ) {
+     my $acc = SL::DB::AccTransaction->new(
+       amount     => $taxamount * $sign,
+       chart_id   => $tax->chart_id,
+       chart_link => $tax->chart->link,
+       transdate  => $self->transdate,
+       taxkey     => $tax->taxkey,
+       tax_id     => $tax->id,
+     );
+     $self->add_transactions( $acc );
+     push( @$acc_trans, $acc );
+  };
+  return $acc_trans;
+};
+
+sub create_ar_row {
+  my ($self, %params) = @_;
+  # to be called after adding all AR_amount rows, adds an AR row
+
+  # only allow this method for ar invoices (Debitorenbuchung)
+  die if $self->invoice and not $self->customer_id;
+  die "create_ar_row needs a chart object as a parameter" unless $params{chart} and ref($params{chart}) eq 'SL::DB::Chart';
+
+  my @transactions = @{$self->transactions};
+  # die "invoice has no acc_transactions" unless scalar @transactions > 0;
+  return 0 unless scalar @transactions > 0;
+
+  my $chart = $params{chart} || SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ar_chart_id);
+  die "illegal chart in create_ar_row" unless $chart;
+
+  die "receivables chart must have link 'AR'" unless $chart->link eq 'AR';
+
+  my $acc_trans = [];
+
+  # hardcoded entry for no tax: tax_id and taxkey should be 0
+  my $tax = SL::DB::Manager::Tax->find_by(id => 0, taxkey => 0) || die "Can't find tax with id 0 and taxkey 0";
+
+  my $sign = $self->customer_id ? -1 : 1;
+  my $acc = SL::DB::AccTransaction->new(
+    amount     => $self->amount * $sign,
+    chart_id   => $params{chart}->id,
+    chart_link => $params{chart}->link,
+    transdate  => $self->transdate,
+    taxkey     => $tax->taxkey,
+    tax_id     => $tax->id,
+  );
+  $self->add_transactions( $acc );
+  push( @$acc_trans, $acc );
+  return $acc_trans;
+};
+
+sub validate_acc_trans {
+  my ($self, %params) = @_;
+  # should be able to check unsaved invoice objects with several acc_trans lines
+
+  die "validate_acc_trans can't check invoice object with empty transactions" unless $self->transactions;
+
+  my @transactions = @{$self->transactions};
+  # die "invoice has no acc_transactions" unless scalar @transactions > 0;
+  return 0 unless scalar @transactions > 0;
+  return 0 unless $self->has_loaded_related('transactions');
+  if ( $params{debug} ) {
+    printf("starting validatation of invoice %s with trans_id %s and taxincluded %s\n", $self->invnumber, $self->id, $self->taxincluded);
+    foreach my $acc ( @transactions ) {
+      printf("chart: %s  amount: %s   tax_id: %s  link: %s\n", $acc->chart->accno, $acc->amount, $acc->tax_id, $acc->chart->link);
+    };
+  };
+
+  my $acc_trans_sum = sum map { $_->amount } @transactions;
+
+  unless ( $::form->round_amount($acc_trans_sum, 10) == 0 ) {
+    my $string = "sum of acc_transactions isn't 0: $acc_trans_sum\n";
+
+    if ( $params{debug} ) {
+      foreach my $trans ( @transactions ) {
+          $string .= sprintf("  %s %s %s\n", $trans->chart->accno, $trans->taxkey, $trans->amount);
+      };
+    };
+    return 0;
+  };
+
+  # only use the first AR entry, so it also works for paid invoices
+  my @ar_transactions = map { $_->amount } grep { $_->chart_link eq 'AR' } @transactions;
+  my $ar_sum = $ar_transactions[0];
+  # my $ar_sum = sum map { $_->amount } grep { $_->chart_link eq 'AR' } @transactions;
+
+  unless ( $::form->round_amount($ar_sum * -1,2) == $::form->round_amount($self->amount,2) ) {
+    if ( $params{debug} ) {
+      printf("debug: (ar_sum) %s = %s (amount)\n",  $::form->round_amount($ar_sum * -1,2) , $::form->round_amount($self->amount, 2) );
+      foreach my $trans ( @transactions ) {
+        printf("  %s %s %s %s\n", $trans->chart->accno, $trans->taxkey, $trans->amount, $trans->chart->link);
+      };
+    };
+    die sprintf("sum of ar (%s) isn't equal to invoice amount (%s)", $::form->round_amount($ar_sum * -1,2), $::form->round_amount($self->amount,2));
+  };
+
+  return 1;
+};
+
+sub recalculate_amounts {
+  my ($self, %params) = @_;
+  # calculate and set amount and netamount from acc_trans objects
+
+  croak ("Can only recalculate amounts for ar transactions") if $self->invoice;
+
+  return undef unless $self->has_loaded_related('transactions');
+
+  my ($netamount, $taxamount);
+
+  my @transactions = @{$self->transactions};
+
+  foreach my $acc ( @transactions ) {
+    $netamount += $acc->amount if $acc->chart->link =~ /AR_amount/;
+    $taxamount += $acc->amount if $acc->chart->link =~ /AR_tax/;
+  };
+
+  $self->amount($netamount+$taxamount);
+  $self->netamount($netamount);
+};
+
+
 sub _post_create_assemblyitem_entries {
   my ($self, $assembly_entries) = @_;
 
@@ -501,6 +658,63 @@ active.
 =item C<basic_info $field>
 
 See L<SL::DB::Object::basic_info>.
+
+=item C<recalculate_amounts %params>
+
+Calculate and set amount and netamount from acc_trans objects by summing up the
+values of acc_trans objects with AR_amount and AR_tax link charts.
+amount and netamount are set to the calculated values.
+
+=item C<validate_acc_trans>
+
+Checks if the sum of all associated acc_trans objects is 0 and checks whether
+the amount of the AR acc_transaction matches the AR amount. Only the first AR
+line is checked, because the sum of all AR lines is 0 for paid invoices.
+
+Returns 0 or 1.
+
+Can be called with a debug parameter which writes debug info to STDOUT, which is
+useful in console mode or while writing tests.
+
+ my $ar = SL::DB::Manager::Invoice->get_first();
+ $ar->validate_acc_trans(debug => 1);
+
+=item C<create_ar_row %params>
+
+Creates a new acc_trans entry for the receivable (AR) entry of an existing AR
+invoice object, which already has some income and tax acc_trans entries.
+
+The acc_trans entry is also returned inside an array ref.
+
+Mandatory params are
+
+=over 2
+
+=item * chart as an RDBO object, e.g. for bank. Must be a 'paid' chart.
+
+=back
+
+Currently the amount of the invoice object is used for the acc_trans amount.
+Use C<recalculate_amounts> before calling this mehtod if amount it isn't known
+yet or you didn't set it manually.
+
+=item C<add_ar_amount_row %params>
+
+Add a new entry for an existing AR invoice object. Creates an acc_trans entry,
+and also adds an acc_trans tax entry, if the tax has an associated tax chart.
+Also all acc_trans entries that were created are returned inside an array ref.
+
+Mandatory params are
+
+=over 2
+
+=item * chart as an RDBO object, should be an income chart (link = AR_amount)
+
+=item * tax_id
+
+=item * amount
+
+=back
 
 =back
 
