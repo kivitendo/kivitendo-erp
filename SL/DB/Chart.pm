@@ -77,20 +77,15 @@ sub formatted_balance_dc {
 
 sub number_of_transactions {
   my ($self) = @_;
-
-  my ($acc_trans) = $self->db->dbh->selectrow_array('select count(acc_trans_id) from acc_trans where chart_id = ?', {}, $self->id);
-
-  return $acc_trans;
+  require SL::DB::AccTransaction;
+  return SL::DB::Manager::AccTransaction->get_all_count( where => [ chart_id => $self->id ] );
 };
 
 sub has_transaction {
   my ($self) = @_;
 
-  my ($id) = $self->db->dbh->selectrow_array('select acc_trans_id from acc_trans where chart_id = ? limit 1', {}, $self->id) || 0;
-
-  $id ? return 1 : return 0;
-
-};
+  $self->db->dbh->selectrow_array('select exists(select 1 from acc_trans where chart_id = ?)', {}, $self->id);
+}
 
 sub displayable_name {
   my ($self) = @_;
@@ -160,6 +155,10 @@ the asofdate as the current day, and the accounting_method "accrual".
 
 Returns a formatted version of C<get_balance>, taking the absolute value and
 adding the translated abbreviation for debit or credit after the number.
+
+=item C<number_of_transactions>
+
+Returns number of transactions that exist for this chart in acc_trans.
 
 =item C<has_transaction>
 
