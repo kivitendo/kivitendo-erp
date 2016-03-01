@@ -55,6 +55,9 @@ sub get_account {
 
   my ($self, $myconfig, $form) = @_;
 
+
+  my $chart_obj = SL::DB::Manager::Chart->find_by(id => $form->{id}) || die "Can't open chart";
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
   my $query = qq{
@@ -173,16 +176,9 @@ sub get_account {
     $sth->finish;
 
   }
-  # check if we have any transactions
-  $query = qq|SELECT a.trans_id FROM acc_trans a
-              WHERE a.chart_id = ?|;
-  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-  $sth = $dbh->prepare($query);
-  $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  ($form->{orphaned}) = $sth->fetchrow_array;
-  $form->{orphaned} = !$form->{orphaned};
-  $sth->finish;
+  # check if there any transactions for this chart
+  $form->{orphaned} = $chart_obj->has_transaction ? 0 : 1;
 
   # check if new account is active
   $form->{new_chart_valid} = 0;
