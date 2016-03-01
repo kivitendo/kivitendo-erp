@@ -181,17 +181,8 @@ sub get_account {
   $form->{orphaned} = $chart_obj->has_transaction ? 0 : 1;
 
   # check if new account is active
-  $form->{new_chart_valid} = 0;
-  if ($form->{new_chart_id}) {
-    $query = qq|SELECT current_date-valid_from FROM chart
-                WHERE id = ?|;
-    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-    my ($count) = selectrow_query($form, $dbh, $query, $form->{id});
-    if ($count >=0) {
-      $form->{new_chart_valid} = 1;
-    }
-    $sth->finish;
-  }
+  # The old sql query was broken since at least 2006 and always returned 0
+  $form->{new_chart_valid} = $chart_obj->new_chart_valid;
 
   $dbh->disconnect;
 

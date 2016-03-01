@@ -87,6 +87,16 @@ sub has_transaction {
   $self->db->dbh->selectrow_array('select exists(select 1 from acc_trans where chart_id = ?)', {}, $self->id);
 }
 
+sub new_chart_valid {
+  my ($self) = @_;
+
+  if ( $self->valid_from && DateTime->today >= $self->valid_from ) {
+    return 1;
+  } else {
+    return 0;
+  };
+}
+
 sub displayable_name {
   my ($self) = @_;
 
@@ -169,6 +179,12 @@ or not.
 
 Returns the date of the last transaction of the chart in the database, which
 may lie in the future.
+
+=item C<new_chart_valid>
+
+Checks whether a follow-up chart is configured, and returns 1 or 0 depending on
+whether the valid_from date is before or after the current date.
+Is this even used anywhere?
 
 =back
 
