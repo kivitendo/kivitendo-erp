@@ -39,7 +39,7 @@ sub action_ajax_list {
 
   if (!$::form->{clicked_id}) {
     # Clicked on "sections" in the tree. Do nothing.
-    return $self->render;
+    return $self->render($self->js);
   }
 
   my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load;
