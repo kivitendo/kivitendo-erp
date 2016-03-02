@@ -13,6 +13,8 @@ use FindBin;
 use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::Common;
+use SL::Locale::String qw(t8);
+use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   array => [
@@ -66,6 +68,7 @@ sub run {
     $self->_send_email;
   }
 
+  croak t8("Unsuccessfully executed:" . join ("\n", $self->errors)) if $self->errors;
   return 1;
 }
 
@@ -156,6 +159,7 @@ sub _prepare_report {
     database => $::auth->client->{dbname},
     client   => $::auth->client->{name},
     path     => $FindBin::Bin,
+    errors   => $self->errors,
   );
 
   my $output;

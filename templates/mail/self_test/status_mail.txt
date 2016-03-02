@@ -1,5 +1,10 @@
 kivitendo selftest report.
 
+[% IF errors %]
+  General error(s) have occured.
+  [% errors %]
+[% END %]
+
 Host:   [% host %]
 Path:   [% path %]
 DB:     [% database %]
