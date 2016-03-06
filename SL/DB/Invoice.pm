@@ -5,7 +5,7 @@ use strict;
 use Carp;
 use List::Util qw(first sum);
 
-use Rose::DB::Object::Helpers qw(has_loaded_related);
+use Rose::DB::Object::Helpers qw(has_loaded_related forget_related);
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::Payment qw(:ALL);

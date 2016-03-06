@@ -154,6 +154,8 @@ sub pay_invoice {
                                                      source     => $params{source},
                                                      taxkey     => 0,
                                                      tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+
+        # the acc_trans entries are saved individually, not added to $self and then saved all at once
         $new_acc_trans->save;
 
         $reference_amount -= abs($amount);
@@ -192,6 +194,11 @@ sub pay_invoice {
     $self->paid($self->paid+$paid_amount) if $paid_amount;
     $self->datepaid($transdate_obj);
     $self->save;
+
+    # make sure transactions will be reloaded the next time $self->transactions
+    # is called, as pay_invoice saves the acc_trans objects individually rather
+    # than adding them to the transaction relation array.
+    $self->forget_related('transactions');
 
   my $datev_check = 0;
   if ( $is_sales )  {
@@ -374,8 +381,8 @@ sub check_skonto_configuration {
 
   my $skonto_configured = 1; # default is assume skonto works
 
-  my $transactions = $self->transactions;
-  foreach my $transaction (@{ $transactions }) {
+  # my $transactions = $self->transactions;
+  foreach my $transaction (@{ $self->transactions }) {
     # find all transactions with an AR_amount or AP_amount link
     my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->{taxkey}]);
     croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
@@ -448,8 +455,8 @@ sub skonto_charts {
 
   my $reference_ARAP_amount = 0;
 
-  my $transactions = $self->transactions;
-  foreach my $transaction (@{ $transactions }) {
+  # my $transactions = $self->transactions;
+  foreach my $transaction (@{ $self->transactions }) {
     # find all transactions with an AR_amount or AP_amount link
     $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->{chart_link}) };
     # second condition is that we can determine an automatic Skonto account for each AR_amount entry
@@ -659,8 +666,8 @@ Example:
   $ap->pay_invoice(chart_id      => $bank->chart_id,
                    amount        => $ap->open_amount,
                    transdate     => DateTime->now->to_kivitendo,
-                   memo          => 'foobar;
-                   source        => 'barfoo;
+                   memo          => 'foobar',
+                   source        => 'barfoo',
                    payment_type  => 'without_skonto',  # default if not specified
                   );
 
@@ -668,8 +675,8 @@ or with skonto:
   $ap->pay_invoice(chart_id      => $bank->chart_id,
                    amount        => $ap->amount,       # doesn't need to be specified
                    transdate     => DateTime->now->to_kivitendo,
-                   memo          => 'foobar;
-                   source        => 'barfoo;
+                   memo          => 'foobar',
+                   source        => 'barfoo',
                    payment_type  => 'with_skonto',
                   );
 
@@ -932,23 +939,6 @@ for sales and purchase, and to also make these rules configurable in the
 defaults. E.g. when creating a SEPA bank transfer for vendor invoices a company
 might always want to pay quickly making use of skonto, while another company
 might always want to pay as late as possible.
-
-=item C<transactions>
-
-Returns all acc_trans Objects of an ar/ap object.
-
-Example in console to print account numbers and booked amounts of an invoice:
-  my $invoice = invoice(invnumber => '144');
-  foreach my $acc_trans ( @{ $invoice->transactions } ) {
-    print $acc_trans->chart->accno . " : " . $acc_trans->amount_as_number . "\n"
-  };
-  # 1200 : 226,00000
-  # 1800 : -226,00000
-  # 4300 : 100,00000
-  # 3801 : 7,00000
-  # 3806 : 19,00000
-  # 4400 : 100,00000
-  # 1200 : -226,00000
 
 =item C<get_payment_select_options_for_bank_transaction $banktransaction_id %params>
 

@@ -257,11 +257,11 @@ sub new_item {
 }
 
 sub number_of_payments {
-  my $transactions = shift;
+  my $invoice = shift;
 
   my $number_of_payments;
   my $paid_amount;
-  foreach my $transaction ( @$transactions ) {
+  foreach my $transaction ( @{ $invoice->transactions } ) {
     if ( $transaction->chart_link =~ /(AR_paid|AP_paid)/ ) {
       $paid_amount += $transaction->amount ;
       $number_of_payments++;
@@ -271,9 +271,9 @@ sub number_of_payments {
 };
 
 sub total_amount {
-  my $transactions = shift;
+  my $invoice = shift;
 
-  my $total = sum map { $_->amount } @$transactions;
+  my $total = sum map { $_->amount } @{ $invoice->transactions };
 
   return $::form->round_amount($total, 5);
 
@@ -305,8 +305,8 @@ sub test_default_invoice_one_item_19_without_skonto() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
@@ -345,8 +345,8 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid() {
   $params{amount} = '-10.00';
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
@@ -383,8 +383,8 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
 
@@ -418,8 +418,8 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
 
@@ -456,8 +456,8 @@ sub test_default_invoice_two_items_19_7_without_skonto() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
@@ -488,8 +488,8 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment() {
                          transdate    => DateTime->today_local->to_kivitendo,
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax without skonto incomplete payment';
 
@@ -524,8 +524,8 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments() {
                          transdate    => DateTime->today_local->to_kivitendo
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax not included';
 
@@ -567,8 +567,8 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
                          transdate    => DateTime->today_local->to_kivitendo
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax not included';
 
@@ -609,8 +609,8 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
                          transdate    => DateTime->today_local->to_kivitendo
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax not included';
 
@@ -647,8 +647,8 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
                          transdate    => DateTime->today_local->to_kivitendo
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax not included';
 
@@ -689,8 +689,8 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   $params{payment_type} = 'difference_as_skonto';
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
@@ -727,8 +727,8 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
   $params{payment_type} = 'difference_as_skonto';
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
@@ -756,8 +756,8 @@ sub test_default_purchase_invoice_two_charts_19_7_without_skonto() {
 
   $purchase_invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice->transactions);
-  my $total = total_amount($purchase_invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
+  my $total = total_amount($purchase_invoice);
 
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
@@ -781,8 +781,8 @@ sub test_default_purchase_invoice_two_charts_19_7_with_skonto() {
 
   $purchase_invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice->transactions);
-  my $total = total_amount($purchase_invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
+  my $total = total_amount($purchase_invoice);
 
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
@@ -802,8 +802,8 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_
                           chart_id     => $bank_account->chart_id,
                           transdate    => DateTime->today_local->to_kivitendo
                          );
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice->transactions);
-  my $total = total_amount($purchase_invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
+  my $total = total_amount($purchase_invoice);
 
   my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
 
@@ -837,8 +837,8 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_pa
                           transdate    => DateTime->today_local->to_kivitendo
                          );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice->transactions);
-  my $total = total_amount($purchase_invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($purchase_invoice);
+  my $total = total_amount($purchase_invoice);
 
   my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
 
@@ -871,8 +871,8 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt 50/50';
 
@@ -909,8 +909,8 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
@@ -946,8 +946,8 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included() {
 
   $invoice->pay_invoice( %params );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
@@ -985,8 +985,8 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple() {
                          transdate    => DateTime->today_local->to_kivitendo
                        );
 
-  my ($number_of_payments, $paid_amount) = number_of_payments($invoice->transactions);
-  my $total = total_amount($invoice->transactions);
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
 
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
