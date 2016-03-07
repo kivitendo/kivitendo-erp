@@ -1011,6 +1011,7 @@ $self->{texts} = {
   'EUER'                        => 'Einnahmen-/Überschussrechnung',
   'Earlier versions of kivitendo contained bugs which might have led to wrong entries in the general ledger.' => 'Frühere Versionen von kivitendo enthielten Bugs, die zu falschen Einträgen im Hauptbuch geführt haben können.',
   'Edit'                        => 'Bearbeiten',
+  'Edit (experimental)'         => 'Bearbeiten (experimentell)',
   'Edit Access Rights'          => 'Zugriffsrechte bearbeiten',
   'Edit Access Rights for Follow-Ups' => 'Zugriff auf meine Wiedervorlagen regeln',
   'Edit Account'                => 'Kontodaten bearbeiten',
