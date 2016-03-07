@@ -272,6 +272,10 @@ function delete_order_item_row(clicked) {
   recalc_amounts_and_taxes();
 }
 
+function reformat_number(event) {
+  $(event.target).val(kivi.format_amount(kivi.parse_amount($(event.target).val()), -2));
+}
+
 function recalc_amounts_and_taxes() {
   var data = $('#order_form').serialize();
   data += '&action=Order/recalc_amounts_and_taxes';
@@ -364,6 +368,7 @@ $(function(){
   });
   row_set_keyboard_events($('.row_entry'));
   $('.recalc').change(recalc_amounts_and_taxes);
+  $('.reformat_number').change(reformat_number);
 });
 
 </script>

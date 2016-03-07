@@ -347,6 +347,7 @@ sub action_add_item {
     ->run('row_table_scroll_down')
     ->run('row_set_keyboard_events_by_id', $item_id)
     ->on('.recalc', 'change', 'recalc_amounts_and_taxes')
+    ->on('.reformat_number', 'change', 'reformat_number')
     ->focus('#add_item_parts_id_name');
 
   $self->_js_redisplay_amounts_and_taxes;
