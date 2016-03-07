@@ -269,8 +269,8 @@
 
 <script type='text/javascript'>
 function reload_cv_dependend_selections() {
-  var data = $('#order_form').serialize();
-  data += '&action=Order/customer_vendor_changed';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/customer_vendor_changed' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -284,11 +284,11 @@ function unit_change(event) {
   var oldval = $(select_elt).data('oldval');
   $(select_elt).data('oldval', $(select_elt).val());
 
-  var data = $('#order_form').serialize();
-  data += '&action=Order/unit_changed';
-  data += '&item_id=' + item_id_dom.val();
-  data += '&old_unit=' + oldval;
-  data += '&sellprice_dom_id=' + sellprice_dom.attr('id');
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/unit_changed' });
+  data.push({ name: 'item_id', value: item_id_dom.val() });
+  data.push({ name: 'old_unit', value: oldval });
+  data.push({ name: 'sellprice_dom_id', value: sellprice_dom.attr('id') });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -307,8 +307,8 @@ function add_item() {
 
   $('#row_table_id thead a img').remove();
 
-  var data = $('#order_form').serialize();
-  data += '&action=Order/add_item';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/add_item' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -349,9 +349,9 @@ function price_chooser_item_row(clicked) {
   var row = $(clicked).parents("tbody").first();
   var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
 
-  var data = $('#order_form').serialize();
-  data += '&action=Order/price_popup';
-  data += '&item_id=' + item_id_dom.val();
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/price_popup' });
+  data.push({ name: 'item_id', value: item_id_dom.val() });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -431,8 +431,8 @@ function reformat_number(event) {
 }
 
 function recalc_amounts_and_taxes() {
-  var data = $('#order_form').serialize();
-  data += '&action=Order/recalc_amounts_and_taxes';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/recalc_amounts_and_taxes' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -544,10 +544,10 @@ function reorder_items(order_by) {
 
   $('#' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="[%- LxERP.t8('sort items') %]">');
 
-  var data = $('#order_form').serialize();
-  data += '&action=Order/reorder_items';
-  data += '&order_by=' + order_by;
-  data += '&sort_dir=' + dir;
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/reorder_items' });
+  data.push({ name: 'order_by', value: order_by });
+  data.push({ name: 'sort_dir', value: dir });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
@@ -572,10 +572,11 @@ function show_longdescription_dialog(clicked) {
   var longdescription;
 
   if (!longdescription_elt.length) {
-    var data = 'action=Order/get_item_longdescription';
-    data += '&type=' + $('#type').val();
-    data += '&item_id=' + $(row).find('[name="order.orderitems[+].id"]').val();
-    data += '&parts_id=' + $(row).find('[name="order.orderitems[].parts_id"]').val();
+    var data = [];
+    data.push({ name: 'action', value: 'Order/get_item_longdescription' });
+    data.push({ name: 'type', value: $('#type').val() });
+    data.push({ name: 'item_id', value: $(row).find('[name="order.orderitems[+].id"]').val() });
+    data.push({ name: 'parts_id', value: $(row).find('[name="order.orderitems[].parts_id"]').val() });
     $.ajax({
       url: 'controller.pl',
       data: data,

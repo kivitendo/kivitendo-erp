@@ -52,40 +52,41 @@ function delete_order() {
 
 function save() {
   if (!check_cv()) return;
-  var data = $('#order_form').serialize();
-  data += '&action=Order/save';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/save' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 
 function create_pdf() {
   if (!check_cv()) return;
-  var data = $('#order_form').serialize();
-  data += '&action=Order/create_pdf';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/create_pdf' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 
 function download_pdf(pdf_filename, key) {
-  var data = 'action=Order/download_pdf';
-  data += '&type=' + $('#type').val();
-  data += '&pdf_filename=' + pdf_filename;
-  data += '&key=' + key;
+  var data = [];
+  data.push({ name: 'action', value: 'Order/download_pdf' });
+  data.push({ name: 'type', value: $('#type').val() });
+  data.push({ name: 'pdf_filename', value: pdf_filename });
+  data.push({ name: 'key', value: key });
   $.download("controller.pl", data);
 }
 
 function email() {
   if (!check_cv()) return;
-  var data = $('#order_form').serialize();
-  data += '&action=Order/show_email_dialog';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/show_email_dialog' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 
 function save_and_delivery_order() {
   if (!check_cv()) return;
-  var data = $('#order_form').serialize();
-  data += '&action=Order/save_and_delivery_order';
+  var data = $('#order_form').serializeArray();
+  data.push({ name: 'action', value: 'Order/save_and_delivery_order' });
 
   $.post("controller.pl", data, kivi.eval_json_result);
 }

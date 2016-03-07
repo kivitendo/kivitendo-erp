@@ -23,8 +23,8 @@
 
 <script type='text/javascript'>
 function update_result() {
-  var data = $('#multi_items_form').serialize();
-  data += '&type=[%- FORM.type %]';
+  var data = $('#multi_items_form').serializeArray();
+  data.push({ name: 'type', value: '[%- FORM.type %]' });
   $.ajax({
     url: 'controller.pl?action=Order/multi_items_update_result',
     data: data,
@@ -43,10 +43,9 @@ function update_result() {
 }
 
 function add_multi_items() {
-  var data = $('#[%- FORM.callback_data_id %]').serialize();
-  data += '&';
-  data += $('#multi_items_form').serialize();
-  data += '&action=[%- FORM.callback %]';
+  var data = $('#[%- FORM.callback_data_id %]').serializeArray();
+  data = data.concat($('#multi_items_form').serializeArray());
+  data.push({ name: 'action', value: '[%- FORM.callback %]' });
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 

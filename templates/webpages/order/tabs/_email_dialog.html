@@ -54,10 +54,9 @@
 
 <script type='text/javascript'>
 function send_email() {
-  var data = $('#order_form').serialize();
-  data += '&';
-  data += $('#email_form').serialize();
-  data += '&action=Order/send_email';
+  var data = $('#order_form').serializeArray();
+  data = data.concat($('#email_form').serializeArray());
+  data.push({ name: 'action', value: 'Order/send_email' });
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 </script>
