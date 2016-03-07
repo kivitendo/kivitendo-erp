@@ -1,0 +1,26 @@
+[%- USE T8 %][%- USE HTML %][%- USE LxERP %][%- USE L %]
+
+ <div>
+  <table id="input_row_table_id">
+    <thead>
+      <tr class="listheading">
+        <th class="listheading" nowrap >[%- 'Part'         | $T8 %] </th>
+        <th class="listheading" nowrap >[%- 'Description'  | $T8 %] </th>
+        <th class="listheading" nowrap width="5" >[%- 'Qty'          | $T8 %] </th>
+        <th class="listheading" nowrap width="15">[%- 'Price'        | $T8 %] </th>
+        <th class="listheading" nowrap width="5" >[%- 'Discount'     | $T8 %] </th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr valign="top" class="listrow">
+        <td>[% L.part_picker('add_item.parts_id', '', fat_set_item=1, style='width: 300px', class="add_item_input") %]</td>
+        <td>[% L.input_tag('add_item.description', '', class="add_item_input") %]</td>
+        <td>[% L.input_tag('add_item.qty_as_number', '', size = 5, style='text-align:right', class="add_item_input") %]</td>
+        <td>[% L.input_tag('add_item.sellprice_as_number', '', size = 10, style='text-align:right', class="add_item_input") %]</td>
+        <td>[% L.input_tag('add_item.discount_as_percent', '', size = 5, style='text-align:right', class="add_item_input") %]</td>
+        <td>[% L.button_tag('add_item()', LxERP.t8('Add part')) %]</td>
+      </tr>
+    </tbody>
+  </table>
+ </div>

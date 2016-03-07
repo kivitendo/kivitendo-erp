@@ -1,0 +1,95 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<tbody class="row_entry">
+
+  <tr class="listrow0">
+    <td style='display:none'>
+      [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
+      [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
+    </td>
+    <td align="center">
+      <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
+    </td>
+    <td align="center">
+      [%- L.button_tag("delete_order_item_row(this)",
+                       LxERP.t8("X"),
+                       confirm=LxERP.t8("Are you sure?")) %]
+    </td>
+    <td>
+      [% HTML.escape(ITEM.part.partnumber) %]
+    </td>
+    <td>
+      [% L.input_tag("order.orderitems[].description",
+                     ITEM.description,
+                     style='width: 300px') %]
+    </td>
+    <td>
+      [%- L.input_tag("order.orderitems[].qty_as_number",
+                      ITEM.qty_as_number,
+                      size = 5,
+                      style='text-align:right',
+                      class="recalc") %]
+    </td>
+    <td>
+      [%- L.input_tag("order.orderitems[].price_factor",
+                      ITEM.price_factor,
+                      size = 5,
+                      style='text-align:right',
+                      class="recalc") %]
+    </td>
+    <td nowrap>
+      [%- L.input_tag("order.orderitems[].unit",
+                      ITEM.unit,
+                      size = 5,
+                      class="recalc") %]
+    </td>
+    <td>
+      [%- L.input_tag("order.orderitems[].sellprice_as_number",
+                      ITEM.sellprice_as_number,
+                      size = 10,
+                      style='text-align:right',
+                      class="recalc") %]
+    </td>
+    <td>
+      [%- L.input_tag("order.orderitems[].discount_as_percent",
+                      ITEM.discount_as_percent,
+                      size = 5,
+                      style='text-align:right',
+                      class="recalc") %]
+    </td>
+    <td align="right">
+      [%- L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal") %]
+    </td>
+
+  </tr>
+
+  <tr class="listrow1" style="display:none">
+    <td colspan="100%">
+      <table>
+        <tr class="listrow1">
+          [%- SET n = 0 %]
+          [%- FOREACH var = ITEM.cvars_by_config %]
+            [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
+            [%- SET n = n + 1 %]
+            <th>
+              [% var.config.description %]
+            </th>
+            <td>
+              [% L.hidden_tag('order.orderitems[].custom_variables[+].config_id', var.config.id) %]
+              [% L.hidden_tag('order.orderitems[].custom_variables[].id', var.id) %]
+              [% L.hidden_tag('order.orderitems[].custom_variables[].sub_module', var.sub_module) %]
+              [% INCLUDE 'common/render_cvar_input.html' var_name='order.orderitems[].custom_variables[].unparsed_value' %]
+            </td>
+            [%- IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
+              </tr><tr class="listrow1">
+            [%- END %]
+          [%- END %]
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+</tbody>

@@ -52,6 +52,8 @@ namespace("kivi").setupLocale({
 "Part picker":"Artikelauswahl",
 "Paste":"Einfügen",
 "Paste template":"Vorlage einfügen",
+"Please select a customer.":"Bitte wählen Sie einen Kunden aus.",
+"Please select a vendor.":"Bitte wählen Sie einen Lieferanten aus.",
 "Price Types":"Preistypen",
 "Project link actions":"Projektverknüpfungs-Aktionen",
 "Quotations/Orders actions":"Aktionen für Angebote/Aufträge",
