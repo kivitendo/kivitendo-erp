@@ -1,0 +1,19 @@
+- parent: ar
+  id: ar_add_sales_order_experimental
+  name: Add Sales Order (experimental)
+  icon: sales_order_add
+  order: 350
+  access: sales_order_edit
+  params:
+    action: Order/add
+    type: sales_order
+
+- parent: ap
+  id: ap_add_purchase_order_experimental
+  name: Add Purchase Order (experimental)
+  icon: purchase_order_add
+  order: 350
+  access: purchase_order_edit
+  params:
+    action: Order/add
+    type: purchase_order
