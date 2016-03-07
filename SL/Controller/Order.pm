@@ -998,3 +998,93 @@ sub _purchase_order_type {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::Order - controller for orders
+
+=head1 TODO
+
+=over 2
+
+=item *
+
+testing
+
+
+=item *
+
+currency
+
+
+=item *
+
+customer/vendor details ('D'-button)
+
+
+=item *
+
+credit limit
+
+
+=item *
+
+more workflows (save as new / invoice)
+
+
+=item *
+
+price sources: little symbols showing better price / better discount
+
+
+=item *
+
+custom shipto address
+
+
+=item *
+
+periodic invoices
+
+
+=item *
+
+more details on second row (marge, ...)
+
+
+=item *
+
+language / part translations
+
+
+=item *
+
+access rights
+
+
+=item *
+
+preset salesman from customer
+
+
+=item *
+
+display weights
+
+
+=item *
+
+force project if enabled in client config
+
+
+=back
+
+=head1 AUTHOR
+
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+=cut
