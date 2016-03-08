@@ -47,6 +47,17 @@ Debitorenbuchungsimport
   * wenn kivitendo für die Buchhaltung benutzt wird, die Rechnungen aber mit
     einem externen Programm erstellt werden
 
+- experimentelle Auftragsmaske als Controller
+
+  Aufträge können mit einer neuen, experimentellen Maske erfasst werden. Diese
+  Maske ist als Controller implementiert und soll nach erfolgreichen Tests die
+  alte Maske irgendwann ablösen. Es sind allerdings noch nicht alle Funktionen
+  der alten Maske implementiert (siehe auch POD in SL/Controller/Order.pm).
+  Um die neue Maske nicht im Menü zu haben, können die beiden commits
+  "Auftrags-Controller: Menüeinträge" und "Auftrags-Controller: Link zum neuen
+  Controller aus Auftragsliste (zum Testen)." bzw. deren Änderungen rückgängig
+  gemacht werden.
+
 Kleinere neue Features und Detailverbesserungen:
 
   - Neues Feld GLN bei Kunden/Lieferanten und Lieferadressen.
