@@ -26,6 +26,9 @@ namespace('kivi.SalesPurchase', function(ns) {
     if (params.element) {
       $container.data('element', params.element);
     }
+    if (params.set_function) {
+      $container.data('setFunction', params.set_function);
+    }
 
     $edit.val(params.default_longdescription);
 
@@ -50,10 +53,13 @@ namespace('kivi.SalesPurchase', function(ns) {
   };
 
   this.set_longdescription = function() {
-    $('#popup_edit_longdescription_input_container')
-      .data('element')
-      .val( $('#popup_edit_longdescription_input').val() );
-
+    if ($('#popup_edit_longdescription_input_container').data('setFunction')) {
+      $('#popup_edit_longdescription_input_container').data('setFunction')($('#popup_edit_longdescription_input').val());
+    } else {
+      $('#popup_edit_longdescription_input_container')
+        .data('element')
+        .val( $('#popup_edit_longdescription_input').val() );
+    }
     $('#edit_longdescription_dialog').dialog('close');
   };
 
