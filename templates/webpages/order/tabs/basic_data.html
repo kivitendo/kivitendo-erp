@@ -38,7 +38,7 @@
 
           <tr>
             <th align="right">[% 'Steuersatz' | $T8 %]</th>
-            <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', style='width: 300px') %]</td>
+            <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', style='width: 300px', class='recalc') %]</td>
           </tr>
 
           <tr>
@@ -210,16 +210,21 @@
 
             <td align="right">
               <table>
-                [%- IF NOT taxincluded %]
-                <tr>
+                <tr id="taxincluded_row_id" [%- IF !SELF.taxes.size %]style="display:none"[%- END %]>
+                  <td align=right colspan="2">
+                    <label for="order.taxincluded"><b>[% 'Tax Included' | $T8 %]</b></label>
+                    [% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %]
+                  </td>
+                </tr>
+
+                <tr id="subtotal_row_id" [%- IF SELF.order.taxincluded %]style="display:none"[%- END %]>
                   <th align="right">[%- 'Subtotal' | $T8 %]</th>
                   <td align="right">
                     [%- L.div_tag(SELF.order.netamount_as_number, id='netamount_id') %]
                   </td>
                 </tr>
-                [%- END %]
                 [%- FOREACH tax = SELF.taxes %]
-                  [%- PROCESS order/tabs/_tax_row.html TAX=tax %]
+                  [%- PROCESS order/tabs/_tax_row.html TAX=tax TAXINCLUDED=SELF.order.taxincluded %]
                 [%- END %]
                 <tr id="amount_row_id">
                   <th align="right">[%- 'Total' | $T8 %]</th>
@@ -244,10 +249,10 @@
 
 <script type='text/javascript'>
 function reload_cv_dependend_selections() {
-  $.post("controller.pl", { 'action': 'Order/customer_vendor_changed',
-                            'cv_id':  function(){ return $('#order_[%- cv_id%]').val() },
-                            'type':   function(){ return $('#type').val() },
-                          }, kivi.eval_json_result);
+  var data = $('#order_form').serialize();
+  data += '&action=Order/customer_vendor_changed';
+
+  $.post("controller.pl", data, kivi.eval_json_result);
 }
 
 function add_item() {
