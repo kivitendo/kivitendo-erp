@@ -3,6 +3,8 @@
 [%- USE LxERP %]
 [%- USE L %]
 
+[%- INCLUDE 'generic/set_longdescription.html' %]
+
 <div id="ui-tabs-basic-data">
   <table width="100%">
     <tr valign="top">
@@ -558,6 +560,47 @@ function redisplay_items(data) {
   });
   $(new_rows).appendTo($('#row_table_id'));
   renumber_positions();
+}
+
+function show_longdescription_dialog(clicked) {
+  var row = $(clicked).parents("tbody").first();
+  var position = $(row).find('[name="position"]').html();
+  var partnumber = $(row).find('[name="partnumber"]').html();
+  var description_elt = $(row).find('[name="order.orderitems[].description"]');
+  var description = description_elt.val();
+  var longdescription_elt = $(row).find('[name="order.orderitems[].longdescription"]');
+  var longdescription;
+
+  if (!longdescription_elt.length) {
+    var data = 'action=Order/get_item_longdescription';
+    data += '&type=' + $('#type').val();
+    data += '&item_id=' + $(row).find('[name="order.orderitems[+].id"]').val();
+    data += '&parts_id=' + $(row).find('[name="order.orderitems[].parts_id"]').val();
+    $.ajax({
+      url: 'controller.pl',
+      data: data,
+      method: "GET",
+      async: false,
+      dataType: 'text',
+      success: function(val){
+        longdescription = val;
+      }
+    });
+  } else {
+    longdescription = longdescription_elt.val();
+  }
+
+  var params = { runningnumber: position,
+                 partnumber: partnumber,
+                 description: description,
+                 default_longdescription: longdescription,
+                 set_function: function(val){
+                   longdescription_elt.remove();
+                   $('<input type="hidden" name="order.orderitems[].longdescription">').insertAfter(description_elt).val(val);
+                 }
+               };
+
+  kivi.SalesPurchase.edit_longdescription_with_params(params);
 }
 
 $(function(){

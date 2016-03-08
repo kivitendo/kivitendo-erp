@@ -25,12 +25,13 @@
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
     <td>
-      [% HTML.escape(ITEM.part.partnumber) %]
+      <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
     </td>
     <td>
       [% L.input_tag("order.orderitems[].description",
                      ITEM.description,
                      style='width: 300px') %]
+      [%- L.button_tag("show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
     <td>
       [%- L.input_tag("order.orderitems[].qty_as_number",

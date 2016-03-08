@@ -481,6 +481,18 @@ sub action_price_popup {
   $self->render_price_dialog($item);
 }
 
+sub action_get_item_longdescription {
+  my $longdescription;
+
+  if ($::form->{item_id}) {
+    $longdescription = SL::DB::OrderItem->new(id => $::form->{item_id})->load->longdescription;
+  } elsif ($::form->{parts_id}) {
+    $longdescription = SL::DB::Part->new(id => $::form->{parts_id})->load->notes;
+  }
+  $_[0]->render(\ $longdescription, { type => 'text' });
+}
+
+
 sub _js_redisplay_linetotals {
   my ($self) = @_;
 
@@ -684,11 +696,15 @@ sub _make_item {
   my $item;
   $item = first { $_->id == $attr->{id} } @{$record->items} if $attr->{id};
 
+  my $is_new = !$item;
+
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $item ||= SL::DB::OrderItem->new(custom_variables => []);
+
   $item->assign_attributes(%$attr);
+  $item->longdescription($item->part->notes) if $is_new && !defined $attr->{longdescription};
 
   return $item;
 }
@@ -735,6 +751,8 @@ sub _new_item {
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
 
+  $new_attr{longdescription}        = $part->notes if ! defined $attr->{longdescription};
+
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
@@ -770,15 +788,6 @@ sub _get_unalterable_data {
   my ($self) = @_;
 
   foreach my $item (@{ $self->order->items }) {
-    if ($item->id) {
-      # load data from orderitems (db)
-      my $db_item = SL::DB::OrderItem->new(id => $item->id)->load;
-      $item->$_($db_item->$_) for qw(longdescription);
-    } else {
-      # set data from part (or other sources)
-      $item->longdescription($item->part->notes);
-    }
-
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
     # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
     foreach my $var (@{ $item->cvars_by_config }) {
@@ -863,7 +872,7 @@ sub _pre_render {
                                                 } } @all_objects;
   }
 
-  $::request->{layout}->use_javascript("${_}.js")  for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery);
 }
 
 sub _create_pdf {
