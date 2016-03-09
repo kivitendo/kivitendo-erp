@@ -70,7 +70,7 @@ function check_right_date_format(input_name) {
     // 31122014 -> 12.04.2014
     // 12312014 -> 12/31/2014
     // 31122014 -> 31/12/2014
-    
+
     if (input_name.value.match(/^\d{8}$/)) {
       input_name.value = input_name.value.replace(/^(\d\d)(\d\d)(\d\d\d\d)$/, "$1" + seperator + "$2" + seperator + "$3")
     } else if (input_name.value.match(/^\d{6}$/)) {
@@ -90,7 +90,7 @@ function check_right_date_format(input_name) {
       var month = today.getMonth() + 1;
       var year = today.getYear();
       if( day.length == 1 && day < 10) {
-        day='0'+day; 
+        day='0'+day;
       };
       if(month<10) {
         month='0'+month;
@@ -100,7 +100,7 @@ function check_right_date_format(input_name) {
         input_name.value = day + seperator + month + seperator + year;
       } else {
         input_name.value = month + seperator + day + seperator + year;
-      } 
+      }
     };
   }
 
