@@ -1,4 +1,4 @@
-ackage SL::BackgroundJob::SelfTest::Transactions;
+package SL::BackgroundJob::SelfTest::Transactions;
 
 use utf8;
 use strict;
