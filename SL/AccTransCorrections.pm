@@ -262,6 +262,10 @@ sub _check_trans_invoices_inventory_with_taxkeys {
   my $self   = shift;
   my %params = @_;
 
+  # ist nur für bestandsmethode notwendig. bei der Aufwandsmethode
+  # können Warenkonten mit Steuerschlüssel sein (5400 in SKR04)
+  return 0 if $::instance_conf->get_inventory_system eq 'periodic';
+
   if (!$params{transaction}->[0]->{invoice}) {
     $main::lxdebug->leave_sub();
     return 0;
@@ -802,6 +806,10 @@ sub fix_invoice_inventory_with_taxkeys {
 
   my $self     = shift;
   my %params   = @_;
+
+  # ist nur für bestandsmethode notwendig. bei der Aufwandsmethode
+  # können Warenkonten mit Steuerschlüssel sein (5400 in SKR04)
+  return 0 if $::instance_conf->get_inventory_system eq 'periodic';
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
