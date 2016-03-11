@@ -58,6 +58,10 @@ Debitorenbuchungsimport
   Controller aus Auftragsliste (zum Testen)." bzw. deren Änderungen rückgängig
   gemacht werden.
 
+- Der Task-Server ist nun mandantenfähig. Unbedingt die Anmerkungen in
+  doc/UPGRADE dazu lesen, da hier Änderungen in der Administationsoberfläche
+ _nötig sind.
+
 Kleinere neue Features und Detailverbesserungen:
 
   - Neues Feld GLN bei Kunden/Lieferanten und Lieferadressen.
