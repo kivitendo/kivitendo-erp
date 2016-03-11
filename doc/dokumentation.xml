@@ -91,28 +91,24 @@
             <para>Debian</para>
             <itemizedlist>
                <listitem>
-                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden, und <literal>Rose::DB::Object</literal> ist zu alt)</para>
+                 <para>7.0 "Wheezy"</para>
                </listitem>
                <listitem>
-                 <para>7.0 "Wheezy"</para>
+                 <para>8.0 "Jessie"</para>
                </listitem>
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>Ubuntu 12.04 LTS "Precise Pangolin", 12.10 "Quantal Quetzal", 13.04 "Precise Pangolin", 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS Alpha </para>
+            <para>Ubuntu 12.04 LTS "Precise Pangolin", 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS Alpha </para>
           </listitem>
 
           <listitem>
-            <para>openSUSE 12.2, 12.3 und 13.1</para>
+            <para>openSUSE LEAP 42.1</para>
           </listitem>
 
           <listitem>
-            <para>SuSE Linux Enterprice Server 11</para>
-          </listitem>
-
-          <listitem>
-            <para>Fedora 16 bis 19</para>
+            <para>Fedora 22</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -139,9 +135,15 @@
 
           <listitem><para><literal>Algorithm::CheckDigits</literal></para></listitem>
 
+          <listitem><para><literal>CGI</literal></para></listitem>
+
+          <listitem><para><literal>Clone</literal></para></listitem>
+
           <listitem><para><literal>Config::Std</literal></para></listitem>
 
           <listitem><para><literal>DateTime</literal></para></listitem>
+
+          <listitem><para><literal>DateTime::Format::Strptime</literal></para></listitem>
 
           <listitem><para><literal>DBI</literal></para></listitem>
 
@@ -155,9 +157,19 @@
 
           <listitem><para><literal>File::Copy::Recursive</literal></para></listitem>
 
+          <listitem><para><literal>GD</literal></para></listitem>
+
+          <listitem><para><literal>HTML::Parser</literal></para></listitem>
+
+          <listitem><para><literal>HTML::Restrict</literal></para></listitem>
+
+          <listitem><para><literal>Image::Info</literal></para></listitem>
+
           <listitem><para><literal>JSON</literal></para></listitem>
 
           <listitem><para><literal>List::MoreUtils</literal></para></listitem>
+
+          <listitem><para><literal>List::UtilsBy</literal></para></listitem>
 
           <listitem><para><literal>Net::SMTP::SSL</literal> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<xref
           linkend="config.sending-email.smtp"/>")</para></listitem>
@@ -176,6 +188,10 @@
           <listitem><para><literal>Rose::DB</literal></para></listitem>
 
           <listitem><para><literal>Rose::DB::Object</literal> Version 0.788 oder neuer</para></listitem>
+
+          <listitem><para><literal>String::ShellQuote</literal></para></listitem>
+
+          <listitem><para><literal>Sort::Naturally</literal></para></listitem>
 
           <listitem><para><literal>Template</literal></para></listitem>
 
@@ -242,22 +258,22 @@ cpan HTML::Restrict</programlisting>
         </sect3>
 
         <sect3>
-          <title>Fedora Core</title>
+          <title>Fedora</title>
 
-          <para>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</para>
+          <para>Für Fedora stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</para>
 
-          <programlisting>yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
+          <programlisting>dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
   perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
   perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-parent postgresql-server</programlisting>
+  perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced</programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</para>
 
-          <programlisting>yum install perl-CPAN
-cpan Config::Std</programlisting>
+          <programlisting>cpan Config::Std HTML::Restrict</programlisting>
 
         </sect3>
 
@@ -267,17 +283,17 @@ cpan Config::Std</programlisting>
           <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</para>
 
-          <programlisting>zypper install apache2 perl-Archive-Zip perl-Clone \
+          <programlisting>zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
   perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \
   perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML postgresql-server</programlisting>
+  perl-URI perl-XML-Writer perl-YAML perl-CPAN \
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server</programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</para>
 
-          <programlisting>yum install perl-CPAN
-cpan Rose::Db::Object</programlisting>
+          <programlisting>cpan Rose::Db::Object</programlisting>
 
         </sect3>
       </sect2>
@@ -309,7 +325,7 @@ tar xvzf kivitendo-erp-3.4.0.tgz</programlisting>
       <para>Die Verzeichnisse <filename>users</filename>, <filename>spool</filename> und <filename>webdav</filename> müssen für den Benutzer
       beschreibbar sein, unter dem der Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer- und
       Gruppennamen sind bei verschiedenen Distributionen unterschiedlich (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-      core <constant>apache</constant> oder bei OpenSUSE <constant>wwwrun</constant>).</para>
+      <constant>apache</constant> oder bei OpenSUSE <constant>wwwrun</constant>).</para>
 
       <para>Der folgende Befehl ändert den Besitzer für die oben genannten
       Verzeichnisse auf einem Debian/Ubuntu-System:</para>
@@ -872,7 +888,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         anstelle eines symbolischen Links verwendet werden können.</para>
 
         <sect3>
-          <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE, ältere Fedora Core)</title>
+          <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE, ältere Fedora)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/system-v/kivitendo-task-server</filename>
@@ -891,7 +907,7 @@ insserv kivitendo-task-server</programlisting>
             </listitem>
 
             <listitem>
-              <para>Ältere OpenSUSE und ältere Fedora Core:</para>
+              <para>Ältere OpenSUSE und ältere Fedora:</para>
 
               <programlisting>chkconfig --add kivitendo-task-server</programlisting>
             </listitem>
@@ -919,7 +935,7 @@ insserv kivitendo-task-server</programlisting>
         </sect3>
 
         <sect3>
-          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere Fedora Core, neuere Ubuntu)</title>
+          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere Fedora, neuere Ubuntu)</title>
 
           <para>Verlinken Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
           <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
@@ -1431,18 +1447,6 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             Verschlüsselung aktiviert werden.</para></listitem>
           </varlistentry>
         </variablelist>
-
-        <para>Wird Verschlüsselung über TLS oder SSL aktiviert, so werden zusätzliche Perl-Module benötigt. Diese sind:</para>
-
-        <itemizedlist>
-          <listitem><para>TLS-Verschlüsselung: Modul <literal>Net::SSLGlue</literal> (Debian-Paketname
-          <literal>libnet-sslglue-perl</literal>, Fedora Core: <literal>perl-Net-SSLGlue</literal>, openSUSE:
-          <literal>perl-Net-SSLGlue</literal></para></listitem>
-
-          <listitem><para>SSL-Verschlüsselung: Modul <literal>Net::SMTP::SSL</literal> (Debian-Paketname
-          <literal>libnet-smtp-ssl-perl</literal>, Fedora Core: <literal>perl-Net-SMTP-SSL</literal>, openSUSE:
-          <literal>perl-Net-SMTP-SSL</literal></para></listitem>
-        </itemizedlist>
       </sect2>
     </sect1>
 
@@ -1456,7 +1460,17 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <para><programlisting>apt-get install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
   exlive-latex-extra texlive-lang-german texlive-generic-extra</programlisting></para>
 
-      <para>TODO: RPM-Pakete.</para>
+      <para>Für Fedora benötigen Sie die folgenden Pakete:</para>
+
+      <para><programlisting>dnf install texlive-collection-latex texlive-collection-latexextra \
+  texlive-collection-latexrecommended texlive-collection-langgerman \
+  texlive-collection-langenglish</programlisting></para>
+
+      <para>Für openSUSE benötigen Sie die folgenden Pakete:</para>
+
+      <para><programlisting>zypper install texlive-collection-latex texlive-collection-latexextra \
+  texlive-collection-latexrecommended texlive-collection-langgerman \
+  texlive-collection-langenglish</programlisting></para>
 
       <para>kivitendo bringt drei alternative Vorlagensätze mit:</para>
       <itemizedlist>
@@ -6429,19 +6443,19 @@ $self->{more_texts} = {
         <para>Für die Ausführung werden neben den für kivitendo eh schon benötigten Module noch weitere Perl-Module benötigt. Diese sind:</para>
 
         <itemizedlist>
-          <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
+          <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora:
           <literal>perl-Test-Deep</literal>; openSUSE: <literal>perl-Test-Deep</literal>)</para></listitem>
-          <listitem><para><literal>Test::Exception</literal> (Debian-Paketname: <literal>libtest-exception-perl</literal>; Fedora Core:
+          <listitem><para><literal>Test::Exception</literal> (Debian-Paketname: <literal>libtest-exception-perl</literal>; Fedora:
           <literal>perl-Test-Exception</literal>; openSUSE: <literal>perl-Test-Exception</literal>)</para></listitem>
-          <listitem><para><literal>Test::Output</literal> (Debian-Paketname: <literal>libtest-output-perl</literal>; Fedora Core:
+          <listitem><para><literal>Test::Output</literal> (Debian-Paketname: <literal>libtest-output-perl</literal>; Fedora:
           <literal>perl-Test-Output</literal>; openSUSE: <literal>perl-Test-Output</literal>)</para></listitem>
           <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
           <listitem><para><literal>LWP::Simple</literal> aus dem Paket <literal>libwww-perl</literal> (Debian-Panetname:
-          <literal>libwww-perl</literal>; Fedora Core: <literal>perl-libwww-perl</literal>; openSUSE:
+          <literal>libwww-perl</literal>; Fedora: <literal>perl-libwww-perl</literal>; openSUSE:
           <literal>perl-libwww-perl</literal>)</para></listitem>
-          <listitem><para><literal>URI::Find</literal> (Debian-Panetname: <literal>liburi-find-perl</literal>; Fedora Core:
+          <listitem><para><literal>URI::Find</literal> (Debian-Panetname: <literal>liburi-find-perl</literal>; Fedora:
           <literal>perl-URI-Find</literal>; openSUSE: <literal>perl-URI-Find</literal>)</para></listitem>
         </itemizedlist>
 
