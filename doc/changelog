@@ -90,6 +90,20 @@ Sicherheit:
     Mechanismen verwenden, müssen die Passwörter einmalig in der
     Administrationsoberfläche zurückgesetzt werden.
 
+Bugfixes:
+
+- Bugfix #83	odt-Parser erzeugt fehlerhafte Rechnung mit inkonsistenter content.xml
+- Bugfix #84	Leerer Kunde lässt sich speichern
+- Bugfix #100	Fehler bei Upgrade auf 3.3.0
+- Bugfix #109	Bei "Auslagern über Standardlagerplatz" wird delivery_order_items_stock_id in inventory nicht gesetzt
+- Bugfix #111	Liste mit Artikeln zeigt immer Preis 0 bei der Auswahl von Artikeln in Verkaufs- bzw. Einkaufsdokumenten
+- Bugfix #113	Performance Order Controller
+- Bugfix #115	Hilfelink beim Editieren der Vorlagen falsch
+- Bugfix #116	falscher Link in Kapitel 1 der Doku zum Forum
+- Bugfix #123	SuSa wirft Fehler bei Ist-Versteuerung
+- Bugfix #128	ISE durch fehlerhaften Callback nach EK Rechnungsbuchung
+- Bugfix #136	Historien Sortierung defekt
+
 2015-08-20 - Release 3.3
 
 Größere neue Features:
