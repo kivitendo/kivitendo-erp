@@ -771,16 +771,6 @@
     action: report
     report: trial_balance
 - parent: reports
-  id: reports_erfolgsrechnung
-  name: Erfolgsrechnung
-  icon: income_statement
-  order: 300
-  access: report
-  module: rp.pl
-  params:
-    action: report
-    report: erfolgsrechnung
-- parent: reports
   id: reports_income_statement
   name: Income Statement
   icon: income_statement
