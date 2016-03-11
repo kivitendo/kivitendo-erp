@@ -1,0 +1,3 @@
+-- @tag: release_3_4_0
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.4.0 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_3_0 remove_index defaults_drop_delivery_plan_calculate_transferred_do use_html_in_letter first_aggregator requirement_spec_parts_foreign_key_cascade defaults_show_longdescription_select_item defaults_enable_email_journal defaults_add_rnd_accno_ids sepa_contained_in_message_ids buchungsgruppen_forein_keys customer_vendor_shipto_add_gln ar_ap_default periodic_invoices_direct_debit_flag defaults_order_warn_duplicate_parts chart_pos_er add_project_defaults project_mtime_trigger defaults_add_precision
