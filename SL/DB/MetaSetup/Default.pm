@@ -135,6 +135,7 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Chart',
     key_columns => { ar_chart_id => 'id' },
   },
+
   bin => {
     class       => 'SL::DB::Bin',
     key_columns => { bin_id => 'id' },
