@@ -3,7 +3,7 @@
 ###############################
 
 
-2016-xx-xx - Release 3.x.x
+2016-03-12 - Release 3.4.0
 
 Größere neue Features:
 
@@ -78,6 +78,11 @@ Kleinere neue Features und Detailverbesserungen:
 
   - Besseren kivi-Adventssupport
 
+  - Lieferplan berücksichtigt optional die verküpften items. Lieferplan
+    funktioniert jetzt genauso wie der Lieferwertbericht über die items zu
+    items Verknüpfung. Die verbesserte Auswertung muss aber explizit im Filter
+    des Lieferplans angehakt werden.
+
 Sicherheit:
 
   - Das sichere Passwort-Hash-Verfahren PBKDF2 wird nun unterstützt
@@ -92,6 +97,7 @@ Sicherheit:
 
 Bugfixes:
 
+- Bugfix #13 Lieferplan berechnet die verschickte Menge nicht richtig bei unterschiedlichen Lieferterminen in denselben Lieferschein
 - Bugfix #83	odt-Parser erzeugt fehlerhafte Rechnung mit inkonsistenter content.xml
 - Bugfix #84	Leerer Kunde lässt sich speichern
 - Bugfix #100	Fehler bei Upgrade auf 3.3.0
