@@ -5,7 +5,15 @@
       die Pakete mit:</p><p>
             </p><pre class="programlisting">apt-get install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
   exlive-latex-extra texlive-lang-german texlive-generic-extra</pre><p>
-         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>RB</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>rev-odt</p></li></ul></div><p>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version 3.3 entfernt, da er nicht mehr gepflegt wurde.</p><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
+         </p><p>Für Fedora benötigen Sie die folgenden Pakete:</p><p>
+            </p><pre class="programlisting">dnf install texlive-collection-latex texlive-collection-latexextra \
+  texlive-collection-latexrecommended texlive-collection-langgerman \
+  texlive-collection-langenglish</pre><p>
+         </p><p>Für openSUSE benötigen Sie die folgenden Pakete:</p><p>
+            </p><pre class="programlisting">zypper install texlive-collection-latex texlive-collection-latexextra \
+  texlive-collection-latexrecommended texlive-collection-langgerman \
+  texlive-collection-langenglish</pre><p>
+         </p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>RB</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>rev-odt</p></li></ul></div><p>Der ehemalige Druckvorlagensatz "Standard" wurde mit der Version 3.3 entfernt, da er nicht mehr gepflegt wurde.</p><div class="sect2" title="2.12.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.12.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Es lässt sich ein initialer Vorlagensatz erstellen. Die LaTeX-System-Abhängigkeiten hierfür kann man prüfen mit:</p><pre class="programlisting">./scripts/installation_check.pl -lv</pre><p>Der Angemeldete Benutzer muss in einer Gruppe sein, die über das
               Recht "Konfiguration -&gt; Mandantenverwaltung" verfügt. Siehe auch <a class="xref" href="ch02s09.html#Gruppen-anlegen" title="2.9.4. Gruppen anlegen">Abschnitt&nbsp;2.9.4, „Gruppen anlegen“</a>.
         </p><p>Im Userbereich lässt sich unter:
         "<span class="guimenu">System</span> -&gt;

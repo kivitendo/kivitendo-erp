@@ -6,7 +6,7 @@
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</p><p>Anfang 2016 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version &gt;= 0.72 compiled werden, und <code class="literal">Rose::DB::Object</code> ist zu alt)</p></li><li class="listitem"><p>7.0 "Wheezy"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 12.04 LTS "Precise Pangolin", 12.10 "Quantal Quetzal", 13.04 "Precise Pangolin", 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS Alpha </p></li><li class="listitem"><p>openSUSE 12.2, 12.3 und 13.1</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 16 bis 19</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>7.0 "Wheezy"</p></li><li class="listitem"><p>8.0 "Jessie"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 12.04 LTS "Precise Pangolin", 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS Alpha </p></li><li class="listitem"><p>openSUSE LEAP 42.1</p></li><li class="listitem"><p>Fedora 22</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.4)
         benötigt.</p><p>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind. Um zu
         überprüfen, ob die erforderlichen Pakete installiert und aktuell genug sind, wird ein Script mitgeliefert, das wie folgt aufgerufen
@@ -16,9 +16,15 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">Algorithm::CheckDigits</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">CGI</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Clone</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">Config::Std</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">DateTime</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DateTime::Format::Strptime</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">DBI</code>
                   </p></li><li class="listitem"><p>
@@ -31,9 +37,19 @@
                      <code class="literal">FCGI</code> (nicht Versionen 0.68 bis 0.71 inklusive; siehe <a class="xref" href="ch02s06.html#Apache-Konfiguration.FCGI.WebserverUndPlugin" title="2.6.2.3. Getestete Kombinationen aus Webservern und Plugin">Abschnitt&nbsp;2.6.2.3, „Getestete Kombinationen aus Webservern und Plugin“</a>)</p></li><li class="listitem"><p>
                      <code class="literal">File::Copy::Recursive</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">GD</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">HTML::Parser</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">HTML::Restrict</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Image::Info</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">JSON</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">List::MoreUtils</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">List::UtilsBy</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Net::SMTP::SSL</code> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<a class="xref" href="ch02s11.html#config.sending-email.smtp" title="2.11.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
                      <code class="literal">Net::SSLGlue</code> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<a class="xref" href="ch02s11.html#config.sending-email.smtp" title="2.11.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
@@ -48,6 +64,10 @@
                      <code class="literal">Rose::DB</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Rose::DB::Object</code> Version 0.788 oder neuer</p></li><li class="listitem"><p>
+                     <code class="literal">String::ShellQuote</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Sort::Naturally</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">Template</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Text::CSV_XS</code>
@@ -77,7 +97,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e386"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e440"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
   libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
   liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
@@ -89,18 +109,18 @@
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git
 </pre><p>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Unter Ubuntu funktioniert das mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora Core"><div class="titlepage"><div><div><h4 class="title"><a name="d0e397"></a>2.2.2.2. Fedora Core</h4></div></div></div><p>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e451"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
   perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
   perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-parent postgresql-server</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">yum install perl-CPAN
-cpan Config::Std</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e408"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</p><pre class="programlisting">zypper install apache2 perl-Archive-Zip perl-Clone \
+  perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e462"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
+          installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
   perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \
   perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML postgresql-server</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">yum install perl-CPAN
-cpan Rose::Db::Object</pre></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s03.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 2. Installation und Grundkonfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.3. Manuelle Installation des Programmpaketes</td></tr></table></div></body></html>
+  perl-URI perl-XML-Writer perl-YAML perl-CPAN \
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s03.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 2. Installation und Grundkonfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.3. Manuelle Installation des Programmpaketes</td></tr></table></div></body></html>
