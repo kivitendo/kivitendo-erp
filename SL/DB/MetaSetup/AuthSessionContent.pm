@@ -18,5 +18,12 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'session_id', 'sess_key' ]);
 
+__PACKAGE__->meta->foreign_keys(
+  session => {
+    class       => 'SL::DB::AuthSession',
+    key_columns => { session_id => 'id' },
+  },
+);
+
 1;
 ;
