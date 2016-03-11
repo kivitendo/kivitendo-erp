@@ -2,7 +2,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.3.0: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.4.0: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -82,7 +82,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Anfang 2014 sind das folgende Systeme, von denen bekannt ist,
+        <para>Anfang 2016 sind das folgende Systeme, von denen bekannt ist,
         dass kivitendo auf ihnen läuft:</para>
 
         <itemizedlist>
@@ -100,7 +100,7 @@
           </listitem>
 
           <listitem>
-            <para>Ubuntu 12.04 LTS "Precise Pangolin", 12.10 "Quantal Quetzal", 13.04 "Precise Pangolin" und 14.04 "Trusty Tahr" LTS Alpha</para>
+            <para>Ubuntu 12.04 LTS "Precise Pangolin", 12.10 "Quantal Quetzal", 13.04 "Precise Pangolin", 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS Alpha </para>
           </listitem>
 
           <listitem>
@@ -137,6 +137,8 @@
 
           <listitem><para><literal>Archive::Zip</literal></para></listitem>
 
+          <listitem><para><literal>Algorithm::CheckDigits</literal></para></listitem>
+
           <listitem><para><literal>Config::Std</literal></para></listitem>
 
           <listitem><para><literal>DateTime</literal></para></listitem>
@@ -165,6 +167,8 @@
 
           <listitem><para><literal>Params::Validate</literal></para></listitem>
 
+          <listitem><para><literal>PBKDF2::Tiny</literal></para></listitem>
+
           <listitem><para><literal>PDF::API2</literal></para></listitem>
 
           <listitem><para><literal>Rose::Object</literal></para></listitem>
@@ -186,6 +190,7 @@
           <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
 
+        <para>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen: <literal>Algorithm::CheckDigits</literal><literal>PBKDF2::Tiny</literal></para>
         <para>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen: <literal>GD</literal>, <literal>HTML::Restrict</literal>, <literal>Image::Info</literal></para>
         <para>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <literal>File::Copy::Recursive</literal>.</para>
 
@@ -226,8 +231,10 @@
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
-  libimage-info-perl libgd-gd2-perl \
-  libfile-copy-recursive-perl postgresql</programlisting>
+  libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
+  libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
+  libcrypt-pbkdf2-perl git
+</programlisting>
 
           <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies muß per CPAN installiert werden. Unter Ubuntu funktioniert das mit:</para>
           <programlisting>apt-get install build-essential
@@ -281,11 +288,11 @@ cpan Rose::Db::Object</programlisting>
       <title>Manuelle Installation des Programmpaketes</title>
       <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github gehostet und kann
  <ulink url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink> heruntergeladen werden.</para>
-      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.3.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
+     <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-3.4.0.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
       (z.B.  <filename>/var/www/html/</filename>, <filename>/srv/www/htdocs</filename> oder <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www
-tar xvzf kivitendo-erp-3.3.0.tgz</programlisting>
+tar xvzf kivitendo-erp-3.4.0.tgz</programlisting>
 
       <para>Wechseln Sie in das entpackte Verzeichnis:</para>
 
@@ -313,6 +320,21 @@ tar xvzf kivitendo-erp-3.3.0.tgz</programlisting>
       Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in kivitendo angelegt wird:</para>
 
       <programlisting>chown www-data templates users</programlisting>
+        <note>
+         <para>Wir empfehlen eine Installation mittels des Versionsmanagager git. Hierfür muss ein git-Client installiert sein.
+          Damit ist man sehr viel flexibler für zukünftige Upgrades.
+          Installations-Anleitung (bitte die Pfade anpassen) bspw. wie folgt:
+          <programlisting>cd /usr/local/src/
+git clone https://github.com/kivitendo/kivitendo-erp.git
+cd kivitendo-erp/
+git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</programlisting>
+          Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
+          damit zu verwalten. Hierfür reicht ein simples
+          <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
+          nach dem letzten Kommando (weiterführende Informationen
+<ulink          url="http://git-scm.com/book/en/v2/Getting-Started-Git-Basics">getting started with git</ulink>).
+         </para>
+        </note>
     </sect1>
 
     <sect1 id="config.config-file">
@@ -703,22 +725,20 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 &lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
   Options ExecCGI Includes FollowSymlinks
-  Order Allow,Deny
-  Allow from All
+  Require all granted
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-  Order Deny,Allow
-  Deny from All
+Require all granted
 &lt;/DirectoryMatch&gt;</programlisting>
 
           <warning>
-            <para>Im Vergleich zu Apache 2.2 hat sich in Apache 2.4 die Syntax der Directorydirektiven verändert. Statt</para>
+            <para>Wer einen älteren Apache als Version 2.4 im Einsatz hat, muss entsprechend die Syntax der Directorydirektiven verändert. Statt</para>
+              <programlisting>Require all granted</programlisting>
+            <para> muß man Folgendes einstellen:</para>
               <programlisting>
   Order Allow,Deny
   Allow from All </programlisting>
-            <para> muß man jetzt Folgendes einstellen:</para>
-              <programlisting>Require all granted</programlisting>
           </warning>
 
           <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
@@ -884,7 +904,7 @@ insserv kivitendo-task-server</programlisting>
         </sect3>
 
         <sect3>
-          <title>Upstart-basierende Systeme (z.B. Ubuntu)</title>
+          <title>Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/upstart/kivitendo-task-server.conf</filename>
@@ -899,7 +919,7 @@ insserv kivitendo-task-server</programlisting>
         </sect3>
 
         <sect3>
-          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere Fedora Core)</title>
+          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere Fedora Core, neuere Ubuntu)</title>
 
           <para>Verlinken Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
           <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
@@ -956,20 +976,6 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
         <para>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</para>
-      </sect2>
-      <sect2 id="Prozesskontrolle2">
-        <title>Task-Server mit mehreren Mandanten</title>
-
-        <para>Beim Task-Server werden der zu verwendende Mandant und Login-Name des Benutzers, unter dem der Task-Server laufen soll, in die
-        Konfigurationsdatei geschrieben. Hat man mehrere Mandanten, muss man auch mehrere Konfigurationsdateien anlegen.</para>
-
-        <para>Die Konfigurationsdatei ist eine Kopie der Datei kivitendo.conf, wo in der Kategorie <varname>[task_server]</varname> die
-        gewünschten Werte für <varname>client</varname> und <varname>login</varname> eingetragen werden.</para>
-
-        <para>Der alternative Task-Server wird dann mit folgendem Befehl
-        gestartet:</para>
-
-        <programlisting>./scripts/task_server.pl -c config/DATEINAME.conf</programlisting>
       </sect2>
     </sect1>
 
@@ -1447,8 +1453,8 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       LaTeX System. Am einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter debianoiden Betriebssystemen installiert man
       die Pakete mit:</para>
 
-      <para><programlisting>aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
-  texlive-latex-extra texlive-lang-german texlive-generic-extra</programlisting></para>
+      <para><programlisting>apt-get install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
+  exlive-latex-extra texlive-lang-german texlive-generic-extra</programlisting></para>
 
       <para>TODO: RPM-Pakete.</para>
 
@@ -5216,18 +5222,18 @@ Beschreibung: &lt;%description%&gt;
             </para>
           </listitem>
           <listitem>
-            <para><option>Auslagern ohne Bestandsprüfung</option>Das obige Auslagern schlägt fehl, wenn die entsprechende Menge für
+            <para><option>Auslagern ohne Bestandsprüfung</option> Das obige Auslagern schlägt fehl, wenn die entsprechende Menge für
             die Lagerbewegung nicht vorhanden ist, möchte man dies auch ignorieren und ggf. dann nachpflegen, so kann man eine Negativ-Warenmenge mit dieser Option
             erlauben. Hierfür muss ein entsprechender Lagerplatz (Fehlbestand, o.ä.) konfiguriert sein.</para>
           </listitem>
        </itemizedlist>
         Zusätzliche Funktionshinweise:
          <itemizedlist>
-          <listitem><para><option>Standard-Lagerplatz</option>Ist dieser konfiguriert, wird dies auch als Standard-Voreinstellung bei der Neuerfassung von
+          <listitem><para><option>Standard-Lagerplatz</option> Ist dieser konfiguriert, wird dies auch als Standard-Voreinstellung bei der Neuerfassung von
           Stammdaten-> Waren / Dienstleistung / Erzeugnis verwendet.
           </para>
           </listitem>
-          <listitem><para><option>Standard-Lagerplatz verwenden, falls keiner in Stammdaten definiert</option>Wird beim 'Auslagern über Standardlagerplatz'
+          <listitem><para><option>Standard-Lagerplatz verwenden, falls keiner in Stammdaten definiert</option> Wird beim 'Auslagern über Standardlagerplatz'
           keine Standardlagerplatz zu der Ware gefunden, so wird mit dieser Option einfach der Standardlagerplatz verwendet.
           </para>
           </listitem>
