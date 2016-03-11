@@ -100,6 +100,9 @@ Kleinere neue Features und Detailverbesserungen:
     Konfigurierbares Feature, wo beim Speichern eines Auftrags automatisch ein Projekt
     mit der Auftragsnummer anlegt und dem Auftrag zugewiesen wird
 
+  - Memory-Limits für FCGI-Prozesse
+    Neuer Konfigurationsparameter in der Config, wo FCGI-Prozesse beendet
+    werden, wenn sie mehr Speicher als das Limit belegen
 
 Sicherheit:
 
