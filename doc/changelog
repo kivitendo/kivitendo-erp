@@ -87,6 +87,20 @@ Kleinere neue Features und Detailverbesserungen:
     items Verknüpfung. Die verbesserte Auswertung muss aber explizit im Filter
     des Lieferplans angehakt werden.
 
+  - Projektpicker
+
+  - Brieffunktion überarbeitet: Brieftext kann jetzt den HTML-Editor benutzen
+    und Briefe können mit Belegen verknüpft werden.
+
+  - kleinere Verbesserungen beim Zahlen von Rechnungen in den Belegmasken,
+    z.B. wird das aktuelle Datum vorbelegt und man kann den Fehlbetrag
+    übernehmen
+
+  - Feature: Aufträge immer mit Projektnummer speichern
+    Konfigurierbares Feature, wo beim Speichern eines Auftrags automatisch ein Projekt
+    mit der Auftragsnummer anlegt und dem Auftrag zugewiesen wird
+
+
 Sicherheit:
 
   - Das sichere Passwort-Hash-Verfahren PBKDF2 wird nun unterstützt
