@@ -99,15 +99,21 @@ sub transfer {
       $direction |= 1 if $src_bin;
       $direction |= 2 if $dst_bin;
 
-      my $transfer_type = $objectify->($transfer, 'transfer_type', 'SL::DB::TransferType', direction   => $directions[$direction],
-                                                                                           description => $transfer->{transfer_type});
+      my $transfer_type_id;
+      if ($transfer->{transfer_type_id}) {
+        $transfer_type_id = $transfer->{transfer_type_id};
+      } else {
+        my $transfer_type = $objectify->($transfer, 'transfer_type', 'SL::DB::TransferType', direction   => $directions[$direction],
+                                                                                             description => $transfer->{transfer_type});
+        $transfer_type_id = $transfer_type->id;
+      }
 
       my $stocktaking_qty = $transfer->{stocktaking_qty};
 
       my %params = (
           part             => $part,
           employee         => $employee,
-          trans_type       => $transfer_type,
+          trans_type_id    => $transfer_type_id,
           project          => $project,
           trans_id         => $trans_id,
           shippingdate     => !$transfer->{shippingdate} || $transfer->{shippingdate} eq 'current_date'

@@ -411,6 +411,7 @@ sub action_stock {
           qty           => $qty,
           unit          => $self->unit,
           transfer_type => 'stock',
+          transfer_type_id => $::form->{transfer_type_id},
           chargenumber  => $::form->{chargenumber},
           bestbefore    => $::form->{bestbefore},
           ean           => $::form->{ean},
