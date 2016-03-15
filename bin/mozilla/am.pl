@@ -261,7 +261,7 @@ sub account_header {
        1  => "Ertrag",
        6  => "Aufwand");
   foreach my $item (sort({ $a <=> $b } keys(%er))) {
-    my $text = H($::locale->{iconv_utf8}->convert($eur{$item}));
+    my $text = H($::locale->{iconv_utf8}->convert($er{$item}));
     if ($item == $form->{pos_er}) {
       $select_er .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     } else {
