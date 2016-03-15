@@ -53,138 +53,70 @@ use strict;
 sub get_account {
   $main::lxdebug->enter_sub();
 
+  # fetch chart-related data and set form fields
+  # get_account is called by add_account in am.pl
+  # always sets $form->{TAXKEY} and default_accounts
+  # loads chart data when $form->{id} is passed
+
   my ($self, $myconfig, $form) = @_;
 
-
-  my $chart_obj = SL::DB::Manager::Chart->find_by(id => $form->{id}) || die "Can't open chart";
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-  my $query = qq{
-    SELECT c.accno, c.description, c.charttype, c.category,
-      c.link, c.pos_bilanz, c.pos_eur, c.pos_er, c.new_chart_id, c.valid_from,
-      c.pos_bwa, datevautomatik,
-      tk.taxkey_id, tk.pos_ustva, tk.tax_id,
-      tk.tax_id || '--' || tk.taxkey_id AS tax, tk.startdate
-    FROM chart c
-    LEFT JOIN taxkeys tk
-    ON (c.id=tk.chart_id AND tk.id =
-      (SELECT id FROM taxkeys
-       WHERE taxkeys.chart_id = c.id AND startdate <= current_date
-       ORDER BY startdate DESC LIMIT 1))
-    WHERE c.id = ?
-    };
-
-
-  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-  my $sth = $dbh->prepare($query);
-  $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
-
-  my $ref = $sth->fetchrow_hashref("NAME_lc");
-
-  foreach my $key (keys %$ref) {
-    $form->{"$key"} = $ref->{"$key"};
-  }
-
-  $sth->finish;
-
   # get default accounts
-  $query = qq|SELECT inventory_accno_id, income_accno_id, expense_accno_id
-              FROM defaults|;
-  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  map { $form->{$_} = $::instance_conf->{$_} } qw(inventory_accno_id income_accno_id expense_accno_id);
 
-  $ref = $sth->fetchrow_hashref("NAME_lc");
-
-  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
-
-  $sth->finish;
-
-
-
-  # get taxkeys and description
-  $query = qq{
-    SELECT
-      id,
-      (SELECT accno FROM chart WHERE id=tax.chart_id) AS chart_accno,
-      taxkey,
-      id||'--'||taxkey AS tax,
-      taxdescription,
-      rate
-    FROM tax ORDER BY taxkey
-  };
-  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
+  require SL::DB::Tax;
+  my $taxes = SL::DB::Manager::Tax->get_all( with_objects => ['chart'] , sort_by => 'taxkey' );
   $form->{TAXKEY} = [];
+  foreach my $tk ( @{$taxes} ) {
+    push @{ $form->{TAXKEY} },  { id          => $tk->id,
+                                  chart_accno => $tk->chart_id ? $tk->chart->accno : undef,
+                                  taxkey      => $tk->taxkey,
+                                  tax         => $tk->id . '--' . $tk->taxkey,
+                                  rate        => $tk->rate
+                                };
+  };
 
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push @{ $form->{TAXKEY} }, $ref;
-  }
-
-  $sth->finish;
   if ($form->{id}) {
-    # get new accounts
-    $query = qq|SELECT id, accno,description
-                FROM chart
-                WHERE link = ?
-                ORDER BY accno|;
-    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-    $sth = $dbh->prepare($query);
-    $sth->execute($form->{link}) || $form->dberror($query . " ($form->{link})");
 
-    $form->{NEWACCOUNT} = [];
-    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-      push @{ $form->{NEWACCOUNT} }, $ref;
+    my $chart_obj = SL::DB::Manager::Chart->find_by(id => $form->{id}) || die "Can't open chart";
+
+    my @chart_fields = qw(accno description charttype category link pos_bilanz
+                          pos_eur pos_er new_chart_id valid_from pos_bwa datevautomatik);
+    foreach my $cf ( @chart_fields ) {
+      $form->{"$cf"} = $chart_obj->$cf;
     }
 
-    $sth->finish;
+    my $active_taxkey = $chart_obj->get_active_taxkey;
+    $form->{$_}  = $active_taxkey->$_ foreach qw(taxkey_id pos_ustva tax_id startdate);
+    $form->{tax} = $active_taxkey->tax_id . '--' . $active_taxkey->taxkey_id;
 
-    # get the taxkeys of account
+    # check if there are any transactions for this chart
+    $form->{orphaned} = $chart_obj->has_transaction ? 0 : 1;
 
-    $query = qq{
-      SELECT
-        tk.id,
-        tk.chart_id,
-        c.accno,
-        tk.tax_id,
-        t.taxdescription,
-        t.rate,
-        tk.taxkey_id,
-        tk.pos_ustva,
-        tk.startdate
-      FROM taxkeys tk
-      LEFT JOIN   tax t ON (t.id = tk.tax_id)
-      LEFT JOIN chart c ON (c.id = t.chart_id)
+    # check if new account is active
+    # The old sql query was broken since at least 2006 and always returned 0
+    $form->{new_chart_valid} = $chart_obj->new_chart_valid;
 
-      WHERE tk.chart_id = ?
-      ORDER BY startdate DESC
-    };
-    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
-    $sth = $dbh->prepare($query);
-
-    $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
-
+    # get the taxkeys of the account
     $form->{ACCOUNT_TAXKEYS} = [];
-
-    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-      push @{ $form->{ACCOUNT_TAXKEYS} }, $ref;
+    foreach my $taxkey ( @{ $chart_obj->taxkeys } ) {
+      push @{ $form->{ACCOUNT_TAXKEYS} }, { id             => $taxkey->id,
+                                            chart_id       => $taxkey->chart_id,
+                                            tax_id         => $taxkey->tax_id,
+                                            taxkey_id      => $taxkey->taxkey_id,
+                                            pos_ustva      => $taxkey->pos_ustva,
+                                            startdate      => $taxkey->startdate->to_kivitendo,
+                                            taxdescription => $taxkey->tax->taxdescription,
+                                            rate           => $taxkey->tax->rate,
+                                            accno          => $chart_obj->accno,
+                                          };
     }
 
-    $sth->finish;
+    # get new accounts (Folgekonto). Find all charts with the same link
+    $form->{NEWACCOUNT} = $chart_obj->db->dbh->selectall_arrayref('select id, accno,description from chart where link = ? order by accno', {Slice => {}}, $chart_obj->link);
 
-  }
-
-  # check if there any transactions for this chart
-  $form->{orphaned} = $chart_obj->has_transaction ? 0 : 1;
-
-  # check if new account is active
-  # The old sql query was broken since at least 2006 and always returned 0
-  $form->{new_chart_valid} = $chart_obj->new_chart_valid;
-
-  $dbh->disconnect;
+  } else { # set to orphaned for new charts, so chart_type can be changed (needed by $AccountIsPosted)
+    $form->{orphaned} = 1;
+  };
 
   $main::lxdebug->leave_sub();
 }
