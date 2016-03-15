@@ -107,7 +107,7 @@ sub get_account {
                                             startdate      => $taxkey->startdate->to_kivitendo,
                                             taxdescription => $taxkey->tax->taxdescription,
                                             rate           => $taxkey->tax->rate,
-                                            accno          => $chart_obj->accno,
+                                            accno          => $taxkey->tax->chart->accno,
                                           };
     }
 
