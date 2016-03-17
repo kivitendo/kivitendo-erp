@@ -38,7 +38,7 @@ my %sort_columns = (
   delivered_qty           => t8('transferred in / out'),
   netto_delivered_qty     => t8('Net value transferred in / out'),
   do_closed_qty           => t8('Qty in closed delivery orders'),
-  netto_do_closed_qty     => t8('Qty in closed delivery orders')
+  netto_do_closed_qty     => t8('Net value in closed delivery orders')
 );
 
 
