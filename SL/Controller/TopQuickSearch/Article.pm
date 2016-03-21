@@ -16,9 +16,9 @@ sub auth { 'part_service_assembly_edit' }
 
 sub name { 'article' }
 
-sub description_config { t8('Article') }
+sub description_config { t8('Articles') }
 
-sub description_field { t8('Article') }
+sub description_field { t8('Articles') }
 
 sub query_autocomplete {
   my ($self) = @_;

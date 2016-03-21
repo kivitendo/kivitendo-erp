@@ -68,13 +68,9 @@ sub init_module {
 
   $self->require_modules;
 
-  die t8('Need module') unless $::form->{module};
+  die 'Need module' unless $::form->{module};
 
-  $::lxdebug->dump(0,  "modules", \%modules_by_name);
-
-  die t8('Unknown module #1', $::form->{module}) unless my $class = $modules_by_name{$::form->{module}};
-
-  $::lxdebug->dump(0,  "auth:", $class->auth);
+  die 'Unknown module ' . $::form->{module} unless my $class = $modules_by_name{$::form->{module}};
 
   $::auth->assert($class->auth);
 
