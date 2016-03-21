@@ -12,6 +12,9 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 my @available_modules = qw(
+  SL::Controller::TopQuickSearch::Article
+  SL::Controller::TopQuickSearch::Part
+  SL::Controller::TopQuickSearch::Service
   SL::Controller::TopQuickSearch::Assembly
   SL::Controller::TopQuickSearch::Contact
   SL::Controller::TopQuickSearch::GLTransaction
