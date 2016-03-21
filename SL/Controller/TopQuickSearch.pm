@@ -11,13 +11,13 @@ use Rose::Object::MakeMethods::Generic (
  'scalar --get_set_init' => [ qw(module js) ],
 );
 
-my @available_modules = qw(
-  SL::Controller::TopQuickSearch::Article
-  SL::Controller::TopQuickSearch::Part
-  SL::Controller::TopQuickSearch::Service
-  SL::Controller::TopQuickSearch::Assembly
-  SL::Controller::TopQuickSearch::Contact
-  SL::Controller::TopQuickSearch::GLTransaction
+my @available_modules = (
+  'SL::Controller::TopQuickSearch::Article',
+  'SL::Controller::TopQuickSearch::Part',
+  'SL::Controller::TopQuickSearch::Service',
+  'SL::Controller::TopQuickSearch::Assembly',
+  'SL::Controller::TopQuickSearch::Contact',
+  'SL::Controller::TopQuickSearch::GLTransaction',
 );
 my %modules_by_name;
 
