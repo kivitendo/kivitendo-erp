@@ -1,4 +1,5 @@
 namespace('kivi', function(k){
+  'use strict';
   k.QuickSearch = function($real, options) {
     if ($real.data("quick_search"))
       return $real.data("quick_search");
@@ -13,8 +14,8 @@ namespace('kivi', function(k){
 
     function send_query(action, term, id, success) {
       var data = { module: o.module };
-      if (term != undefined) data.term = term;
-      if (id   != undefined) data.id   = id;
+      if (term !== undefined) data.term = term;
+      if (id   !== undefined) data.id   = id;
       $.ajax($.extend(o, {
         url:      'controller.pl?action=TopQuickSearch/' + action,
         dataType: "json",
@@ -29,7 +30,7 @@ namespace('kivi', function(k){
 
     $real.autocomplete({
       source: function(req, rsp) {
-        send_query('query_autocomplete', req.term, undefined, function (data){ rsp(data) });
+        send_query('query_autocomplete', req.term, undefined, function (data){ rsp(data); });
       },
       select: function(event, ui) {
         send_query('select_autocomplete', undefined, ui.item.id, kivi.eval_json_result);
@@ -37,18 +38,18 @@ namespace('kivi', function(k){
     });
     $real.keydown(function(event){
       if (event.which == KEY.ENTER) {
-        if ($real.val() != '') {
+        if ($real.val() !== '') {
           submit_search($real.val());
         }
       }
     });
 
     $real.data('quick_search', {});
-  }
+  };
 });
 
 $(function(){
   $('input[id^=top-quick-search]').each(function(_,e){
-    kivi.QuickSearch($(e), { module: $(e).attr('module') })
-  })
-})
+    kivi.QuickSearch($(e), { module: $(e).attr('module') });
+  });
+});
