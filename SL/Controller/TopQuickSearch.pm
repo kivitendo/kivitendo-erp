@@ -57,10 +57,20 @@ sub available_modules {
   map { $_->new } @available_modules;
 }
 
+sub enabled_modules {
+  my %enabled_names = map {
+    $_ => 1
+  } @{ $::instance_conf->get_quick_search_modules };
+
+  grep {
+    $enabled_names{$_->name}
+  } $_[0]->available_modules
+}
+
 sub active_modules {
   grep {
     $::auth->assert($_->auth, 1)
-  } $_[0]->available_modules
+  } $_[0]->enabled_modules
 }
 
 sub init_module {
@@ -118,8 +128,8 @@ my $search = SL::Controller::TopQuickSearch->new;
 This controller provides abstraction for different search plugins, and ensures
 that all follow a common useability scheme.
 
-Modules should be configurable, but currently are not. Diabling modules can be
-done by removing them from available_modules.
+Modules should be configurable per user, but currently are not. Disabling
+modules can be done by removing them from available_modules or in client_config.
 
 =head1 BEHAVIOUR REQUIREMENTS
 
@@ -161,21 +171,10 @@ the user should not see.
 
 =head1 INTERFACE
 
-Plugins need to provide:
-
- - name
- - localized description for config
- - localized description for textfield
- - autocomplete callback
- - redirect callback
-
-the frontend will only generate urls of the forms:
-  action=TopQuickSearch/autocomplete&module=<module>&term=<term>
-  action=TopQuickSearch/search&module=<module>&term=<term>
+The full interface is described in L<SL::Controller::TopQuickSeach::Base>
 
 =head1 TODO
 
- - filter available searches with auth
  - toggling with cofiguration doesn't work yet
 
 =head1 BUGS

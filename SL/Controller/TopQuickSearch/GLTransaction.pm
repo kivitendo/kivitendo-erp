@@ -12,7 +12,7 @@ use List::Util qw(sum);
 
 sub auth { 'general_ledger' }
 
-sub name { 'gl_transction' }
+sub name { 'gl_transaction' }
 
 sub description_config { t8('GL search') }
 

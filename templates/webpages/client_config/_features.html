@@ -174,5 +174,16 @@
    <td>[% L.yes_no_tag('defaults.show_longdescription_select_item', SELF.defaults.show_longdescription_select_item) %]</td>
   </tr>
 
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Enabled Quick Searched") %]</td></tr>
+  <tr>
+    <td align="right">[% 'Quick Searches that will be shown in the header in this client' | $T8 %]</td>
+    <td colspan=2>
+      <div class="clearfix">
+       [% L.select_tag("defaults.quick_search_modules[]", SELF.available_quick_search_modules, value_key="name", title_key="description_config", id="defaults_quick_searches", multiple=1, default=SELF.defaults.quick_search_modules) %]
+       [% L.multiselect2side("defaults_quick_searches", labelsx=LxERP.t8("All modules"), labeldx=LxERP.t8("Enabled modules")) %]
+      </div>
+    </td>
+  </tr>
+
  </table>
 </div>

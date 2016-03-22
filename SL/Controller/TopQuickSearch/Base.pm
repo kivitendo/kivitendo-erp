@@ -48,7 +48,7 @@ Internal name, must be plain ASCII.
 
 =item C<description_config>
 
-Localized name used in the configuration (NYI)
+Localized name used in the configuration.
 
 =item C<description_field>
 

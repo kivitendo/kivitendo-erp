@@ -16,11 +16,12 @@ use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::PriceSource::ALL;
 use SL::Template;
+use SL::Controller::TopQuickSearch;
 
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules
                                   all_project_statuses all_project_types
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options) ],
 );
@@ -189,6 +190,10 @@ sub init_all_price_sources {
   my @classes = SL::PriceSource::ALL->all_price_sources;
 
   [ map { [ $_->name, $_->description ] } @classes ];
+}
+
+sub init_available_quick_search_modules {
+  [ SL::Controller::TopQuickSearch->new->available_modules ];
 }
 
 #
