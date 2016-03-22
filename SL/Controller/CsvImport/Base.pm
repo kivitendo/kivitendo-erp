@@ -200,8 +200,8 @@ sub check_vc {
   }
 
   if (!$entry->{object}->$id_column) {
-    my $vc = $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} }
-          || $self->vc_by->{number}->{vendors}->{   $entry->{raw_data}->{vendornumber}   };
+    my $vc = ($entry->{raw_data}->{customernumber} && $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} })
+          || ($entry->{raw_data}->{vendornumber}   && $self->vc_by->{number}->{vendors}->{   $entry->{raw_data}->{vendornumber}   });
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
@@ -522,7 +522,7 @@ sub clean_fields {
 sub _save_history {
   my ($self, $object) = @_;
 
-  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors orders ar_transactions)) {
+  if (any { $self->controller->{type} && $_ eq $self->controller->{type} } qw(parts customers_vendors orders ar_transactions)) {
     my $snumbers = $self->controller->{type} eq 'parts'             ? 'partnumber_' . $object->partnumber
                  : $self->controller->{type} eq 'customers_vendors' ?
                      ($self->table eq 'customer' ? 'customernumber_' . $object->customernumber : 'vendornumber_' . $object->vendornumber)
