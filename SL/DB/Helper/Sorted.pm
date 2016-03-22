@@ -16,7 +16,7 @@ sub make_sort_string {
   my $sort_dir         = defined($params{sort_dir}) ? $params{sort_dir} * 1 : $sort_spec->{default}->[1];
   my $sort_dir_str     = $sort_dir ? 'ASC' : 'DESC';
 
-  my $sort_by          = $params{sort_by};
+  my $sort_by          = $params{sort_by} || { };
   $sort_by             = $sort_spec->{default}->[0] unless $sort_spec->{columns}->{$sort_by};
 
   my $nulls_str        = '';
