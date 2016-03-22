@@ -78,7 +78,7 @@ if ($check{a}) {
 $| = 1;
 
 if (!SL::LxOfficeConf->read(undef, 'may fail')) {
-  print_header('Could not load the config file. If you have dependancies from any features enabled in the configuration these will still show up as optional because of this. Please rerun this script after installing the dependancies needed to load the cofiguration.')
+  print_header('Could not load the config file. If you have dependancies from any features enabled in the configuration these will still show up as optional because of this. Please rerun this script after installing the dependancies needed to load the configuration.')
 } else {
   SL::InstallationCheck::check_for_conditional_dependencies();
 }

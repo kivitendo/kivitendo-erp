@@ -724,7 +724,7 @@ SL::CVar.pm - Custom Variables module
 
 Suppose the following scenario:
 
-You have a lot of parts in your database, and a set of properties cofigured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
+You have a lot of parts in your database, and a set of properties configured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
 
 Validity is assumed. If you modify validity, you actually save B<invalidity>.
 Invalidity is saved as a function of config_id, and the trans_id

@@ -188,7 +188,7 @@ sub init_profile {
 
     my %unwanted = map { ( $_ => 1 ) } (qw(itime mtime), map { $_->name } @{ $class->meta->primary_key_columns });
 
-    # TODO: execeptions for AccTransaction and Invoice wh
+    # TODO: exceptions for AccTransaction and Invoice wh
     if ( $class =~ m/^SL::DB::AccTransaction/ ) {
       my %unwanted_acc_trans = map { ( $_ => 1 ) } (qw(acc_trans_id trans_id cleared fx_transaction ob_transaction cb_transaction itime mtime chart_link tax_id description gldate memo source transdate), map { $_->name } @{ $class->meta->primary_key_columns });
       @unwanted{keys %unwanted_acc_trans} = values %unwanted_acc_trans;

@@ -33,9 +33,11 @@ BEGIN { # yes the indenting is off, deal with it
 CONTANTS
 anyways
 arbitary
+cofigur
 custemer
 databasa
 dependan
+execept
 existance
 existant
 fomr
