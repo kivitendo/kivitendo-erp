@@ -951,6 +951,8 @@ sub round_amount {
 
   return 0 if !defined $amount;
 
+  $places //= 0;
+
   if ($adjust) {
     my $precision = $::instance_conf->get_precision || 0.01;
     return $self->round_amount( $self->round_amount($amount / $precision, 0) * $precision, $places);
