@@ -3673,11 +3673,12 @@ sub calculate_tax {
 
   my ($self,$amount,$taxrate,$taxincluded,$roundplaces) = @_;
 
-  $roundplaces = 2 unless defined $roundplaces;
+  $roundplaces //= 2;
+  $taxincluded //= 0;
 
   my $tax;
 
-  if ($taxincluded *= 1) {
+  if ($taxincluded) {
     # calculate tax (unrounded), subtract from amount, round amount and round tax
     $tax       = $amount - ($amount / ($taxrate + 1)); # equivalent to: taxrate * amount / (taxrate + 1)
     $amount    = $self->round_amount($amount - $tax, $roundplaces);
