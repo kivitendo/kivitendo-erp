@@ -31,8 +31,8 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
-                                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file all_taxzones) ],
- 'scalar --get_set_init' => [ qw(worker task_server) ],
+                                 import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones) ],
+ 'scalar --get_set_init' => [ qw(worker task_server num_imported) ],
  'array'                 => [
    progress_tracker     => { },
    add_progress_tracker => {  interface => 'add', hash_key => 'progress_tracker' },
@@ -631,6 +631,8 @@ sub init_worker {
        : $self->{type} eq 'ar_transactions'   ? SL::Controller::CsvImport::ARTransaction->new(@args)
        :                                        die "Program logic error";
 }
+
+sub init_num_imported { 0 }
 
 sub setup_help {
   my ($self) = @_;
