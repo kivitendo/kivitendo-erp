@@ -115,13 +115,14 @@ SL::Controller::TopQuickSearch - Framework for pluggable quicksearch fields in t
 
 =head1 SYNOPSIS
 
-use SL::Controller::TopQuickSearch;
-my $search = SL::Controller::TopQuickSearch->new;
+  use SL::Controller::TopQuickSearch;
+  my $search = SL::Controller::TopQuickSearch->new;
+  $::request->layout->add_javascripts('kivi.QuickSearch.js');
 
-# in layout
-[%- FOREACH module = search.available_modules %]
-<input type='text' id='top-search-[% module.name %]'>
-[%- END %]
+  # in template
+  [%- FOREACH module = search.enabled_modules %]
+  <input type='text' id='top-search-[% module.name %]'>
+  [%- END %]
 
 =head1 DESCRIPTION
 
@@ -167,6 +168,10 @@ redirect should occur.
 Each search must check rights and must not present a backdoor into data that
 the user should not see.
 
+=item *
+
+By design the search must not try to guess C<exact matches>.
+
 =back
 
 =head1 INTERFACE
@@ -175,7 +180,8 @@ The full interface is described in L<SL::Controller::TopQuickSeach::Base>
 
 =head1 TODO
 
- - toggling with cofiguration doesn't work yet
+  * user configuration
+  * searches for orders, customers, vendors
 
 =head1 BUGS
 
