@@ -368,7 +368,7 @@ sub amount_less_skonto {
 
   my $is_sales = ref($self) eq 'SL::DB::Invoice';
 
-  my $percent_skonto = $self->percent_skonto;
+  my $percent_skonto = $self->percent_skonto || 0;
 
   return _round($self->amount - ( $self->amount * $percent_skonto) );
 
