@@ -540,7 +540,7 @@ sub add_transactions_to_ar {
       $ar_entry = $entry; # remember as last ar_entry
 
     } elsif ( defined $ar_entry && $entry->{raw_data}->{datatype} eq $self->_transaction_column ) {
-      push @{ $entry->{errors} }, $::locale->text('no tax_id in acc_trans')   unless $entry->{object}->tax_id || $entry->{object}->tax_id == 0;
+      push @{ $entry->{errors} }, $::locale->text('no tax_id in acc_trans') if !defined $entry->{object}->tax_id;
       next if @{ $entry->{errors} };
 
       my $acc_trans_objects = $ar_entry->{object}->add_ar_amount_row(
