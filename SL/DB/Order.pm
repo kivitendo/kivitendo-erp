@@ -210,6 +210,16 @@ sub date {
   goto &transdate;
 }
 
+sub digest {
+  my ($self) = @_;
+
+  sprintf "%s %s %s (%s)",
+    $self->number,
+    $self->customervendor->name,
+    $self->amount_as_number,
+    $self->date->to_kivitendo;
+}
+
 1;
 
 __END__
