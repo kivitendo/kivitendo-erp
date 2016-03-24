@@ -984,6 +984,7 @@ sub orders {
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
+  push @options, $locale->text('Quick Search')            . " : $form->{all}"                             if $form->{all};
   push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};
   if ( $form->{transdatefrom} or $form->{transdateto} ) {
     push @options, $locale->text('Order Date');

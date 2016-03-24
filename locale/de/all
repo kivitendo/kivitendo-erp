@@ -2187,6 +2187,7 @@ $self->{texts} = {
   'Quarterly'                   => 'quartalsweise',
   'Query Type'                  => 'Art der Abfrage',
   'Queue'                       => 'Warteschlange',
+  'Quick Search'                => 'Schnellsuche',
   'Quick Searches that will be shown in the header in this client' => 'Schnellsuchen, die in der Kopfzeile in diesem Mandanten gezeigt werden sollen',
   'Quotation'                   => 'Angebot',
   'Quotation Date'              => 'Angebotsdatum',

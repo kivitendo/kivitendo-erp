@@ -50,6 +50,7 @@ use SL::DBUtils;
 use SL::HTML::Restrict;
 use SL::IC;
 use SL::TransNumber;
+use Text::ParseWords;
 
 use strict;
 
@@ -283,6 +284,18 @@ SQL
   if ($form->{expected_billing_date_to}) {
     $query .= qq| AND (o.expected_billing_date <= ?)|;
     push @values, conv_date($form->{expected_billing_date_to});
+  }
+
+  if ($form->{all}) {
+    my @tokens = parse_line('\s+', 0, $form->{all});
+    # ordnumber quonumber customer.name vendor.name transaction_description
+    $query .= qq| AND (
+      o.ordnumber ILIKE ? OR
+      o.quonumber ILIKE ? OR
+      ct.name     ILIKE ? OR
+      o.transaction_description ILIKE ?
+    )| for @tokens;
+    push @values, ("%$_%")x4 for @tokens;
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
