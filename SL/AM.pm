@@ -149,6 +149,9 @@ sub save_account {
   # strip blanks from accno
   map { $form->{$_} =~ s/ //g; } qw(accno);
 
+  # collapse multiple (horizontal) whitespace in chart description (Ticket 148)
+  map { $form->{$_} =~ s/\h+/ /g } qw(description);
+
   my ($query, $sth);
 
   if ($form->{id} eq "NULL") {
