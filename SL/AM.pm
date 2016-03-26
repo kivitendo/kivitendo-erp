@@ -143,19 +143,8 @@ sub save_account {
     }
   }
 
-  $form->{link} = "";
-  foreach my $item ($form->{AR},            $form->{AR_amount},
-                    $form->{AR_tax},        $form->{AR_paid},
-                    $form->{AP},            $form->{AP_amount},
-                    $form->{AP_tax},        $form->{AP_paid},
-                    $form->{IC},            $form->{IC_sale},
-                    $form->{IC_cogs},       $form->{IC_taxpart},
-                    $form->{IC_income},     $form->{IC_expense},
-                    $form->{IC_taxservice}
-    ) {
-    $form->{link} .= "${item}:" if ($item);
-  }
-  chop $form->{link};
+  my @link_order = qw(AR AR_amount AR_tax AR_paid AP AP_amount AP_tax AP_paid IC IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
+  $form->{link} = join ':', grep $_, map $form->{$_}, @link_order;
 
   # strip blanks from accno
   map { $form->{$_} =~ s/ //g; } qw(accno);
