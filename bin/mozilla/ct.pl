@@ -146,6 +146,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{addr_street}"  if $form->{addr_street};
   push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}" if $form->{addr_country};
   push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"     if $form->{addr_gln};
+  push @options, $locale->text('Quick Search')                       . " : $form->{all}"          if $form->{all};
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});

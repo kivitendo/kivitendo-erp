@@ -40,6 +40,7 @@ package CT;
 use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
+use Text::ParseWords;
 
 use strict;
 
@@ -222,6 +223,15 @@ sub search {
   if($form->{insertdateto}) {
     $where .= qq| AND (ct.itime::DATE <= ?)|;
     push @values, conv_date($form->{insertdateto});
+  }
+
+  if ($form->{all}) {
+    my @tokens = parse_line('\s+', 0, $form->{all});
+      $where .= qq| AND (
+          ct.${cv}number ILIKE ? OR
+          ct.name        ILIKE ?
+          )| for @tokens;
+    push @values, ("%$_%")x2 for @tokens;
   }
 
   # Nur Kunden finden, bei denen ich selber der Verkäufer bin

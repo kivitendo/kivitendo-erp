@@ -22,6 +22,8 @@ my @available_modules = (
   'SL::Controller::TopQuickSearch::RequestForQuotation',
   'SL::Controller::TopQuickSearch::PurchaseOrder',
   'SL::Controller::TopQuickSearch::GLTransaction',
+  'SL::Controller::TopQuickSearch::Customer',
+  'SL::Controller::TopQuickSearch::Vendor',
 );
 my %modules_by_name;
 
@@ -185,7 +187,6 @@ The full interface is described in L<SL::Controller::TopQuickSeach::Base>
 =head1 TODO
 
   * user configuration
-  * searches for orders, customers, vendors
 
 =head1 BUGS
 
