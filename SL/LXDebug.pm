@@ -296,9 +296,10 @@ sub begin_request {
 }
 
 sub end_request {
-  my $self = shift;
+  my ($self, %params) = @_;
   return 1 unless want_request_timer();
-  $self->_write("time", $self->get_request_time);
+
+  $self->_write("time", sprintf('%f (%s/%s)', $self->get_request_time, $params{script_name}, $params{action}));
 
   $self->{calldepth} = 0;
 }

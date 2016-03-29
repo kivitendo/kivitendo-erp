@@ -324,7 +324,7 @@ sub handle_request {
     $self->{request}->Finish;
   }
 
-  $::lxdebug->end_request;
+  $::lxdebug->end_request(routing_type => $routing_type, script_name => $script_name, action => $action);
 
   # cleanup
   $::auth->save_session;
