@@ -186,11 +186,13 @@ sub process_query {
             return $errstr // '<unknown database error>' if $self->{return_on_error};
             $sth->finish();
             $dbh->rollback();
-            $form->dberror("The database update/creation did not succeed. " .
-                           "The file ${filename} containing the following " .
-                           "query failed:<br>${query}<br>" .
-                           "The error message was: ${errstr}<br>" .
-                           "All changes in that file have been reverted.");
+            if (!ref $version_or_control || ref $version_or_control ne 'HASH' || !$version_or_control->{may_fail})  {
+              $form->dberror("The database update/creation did not succeed. " .
+                             "The file ${filename} containing the following " .
+                             "query failed:<br>${query}<br>" .
+                             "The error message was: ${errstr}<br>" .
+                             "All changes in that file have been reverted.")
+            }
           }
           $sth->finish();
 
