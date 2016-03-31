@@ -24,12 +24,12 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  created_by => {
+  created_by_employee => {
     class       => 'SL::DB::Employee',
     key_columns => { created_by => 'id' },
   },
 
-  created_for => {
+  created_for_employee => {
     class       => 'SL::DB::Employee',
     key_columns => { created_for_user => 'id' },
   },
