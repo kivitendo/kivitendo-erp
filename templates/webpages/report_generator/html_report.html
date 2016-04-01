@@ -35,10 +35,14 @@
      [%- IF col.align %] align="[% HTML.escape(col.align) %]" style="text-align: [% HTML.escape(col.align) %]"[% END -%]
      [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
      >
-      [%- IF col.link -%]<a class="[% col.link_class ? col.link_class : 'report-generator-header-link' %]" href="[% HTML.escape(col.link) %]">[%- END -%]
-      [%- col.text -%]
-      [%- IF col.show_sort_indicator -%]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[%- END -%]
-      [%- IF col.link -%]</a>[%- END -%]
+      [%- IF col.raw_data %]
+       [% col.raw_data %]
+      [% ELSE %]
+       [%- IF col.link -%]<a class="[% col.link_class ? col.link_class : 'report-generator-header-link' %]" href="[% HTML.escape(col.link) %]">[%- END -%]
+       [%- col.text -%]
+       [%- IF col.show_sort_indicator -%]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[%- END -%]
+       [%- IF col.link -%]</a>[%- END -%]
+      [%- END %]
      </th>
     [% END %]
    </tr>
