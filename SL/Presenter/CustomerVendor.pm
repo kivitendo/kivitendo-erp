@@ -5,9 +5,14 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(customer vendor customer_vendor_picker);
+our @EXPORT = qw(customer_vendor customer vendor customer_vendor_picker);
 
 use Carp;
+
+sub customer_vendor {
+  my ($self, $customer_vendor, %params) = @_;
+  return _customer_vendor($self, $customer_vendor, ref($customer_vendor) eq 'SL::DB::Customer' ? 'customer' : 'vendor', %params);
+}
 
 sub customer {
   my ($self, $customer, %params) = @_;
@@ -135,6 +140,14 @@ If falsish (the default) then the vendor's name will be linked to
 the "edit vendor" dialog from the master data menu.
 
 =back
+
+=item C<customer_vendor $object, %params>
+
+Returns a rendered version (actually an instance of
+L<SL::Presenter::EscapedText>) of the customer or vendor object
+C<$object> by calling either L</customer> or L</vendor> depending on
+C<$object>'s type. See the respective functions for available
+parameters.
 
 =back
 
