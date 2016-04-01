@@ -1,4 +1,21 @@
-[% USE T8 %][% USE HTML %] <form method="post" action="dispatcher.pl?M=ar">
+[% USE T8 %][% USE HTML %][%- USE LxERP -%][%- USE L -%]
+
+  [% IF ALL_PRINTERS.size %]
+   <p>
+    [% LxERP.t8("Print destination") %]:
+    [% SET  printers = [ { description=LxERP.t8("Download PDF, do not print") } ] ;
+       CALL printers.import(ALL_PRINTERS);
+       L.select_tag("printer_id", printers, title_key="description", default=printer_id) %]
+   </p>
+  [% END %]
+
+  <p>
+   [% L.hidden_tag("action", "MassInvoiceCreatePrint/dispatch") %]
+   [% L.submit_tag("action_print", LxERP.t8("Print")) %]
+  </p>
+ </form>
+
+ <form method="post" action="dispatcher.pl?M=ar">
 
   <input name="callback" type="hidden" value="[% callback %]">
 
@@ -8,4 +25,3 @@
   <input class="submit" type="submit" name="A_sales_invoice" value="[%- 'Sales Invoice' | $T8 %]">
 
  </form>
-

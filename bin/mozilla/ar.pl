@@ -931,7 +931,7 @@ sub ar_transactions {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   @columns =
-    qw(transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
+    qw(ids transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype direct_debit dunning_description);
 
@@ -949,6 +949,7 @@ sub ar_transactions {
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
+    'ids'                     => { raw_data => $::request->presenter->checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
     'transdate'               => { 'text' => $locale->text('Date'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'type'                    => { 'text' => $locale->text('Type'), },
@@ -993,6 +994,8 @@ sub ar_transactions {
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+
+  $column_defs{ids}->{visible} = 'HTML';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -1057,7 +1060,10 @@ sub ar_transactions {
     push @options, $locale->text('Closed');
   }
 
+  $form->{ALL_PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
+
   $report->set_options('top_info_text'        => join("\n", @options),
+                       'raw_top_info_text'    => $form->parse_html_template('ar/ar_transactions_header'),
                        'raw_bottom_info_text' => $form->parse_html_template('ar/ar_transactions_bottom'),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
@@ -1114,6 +1120,12 @@ sub ar_transactions {
 
     $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
       . "&id=" . E($ar->{id}) . "&callback=${callback}";
+
+    $row->{ids} = {
+      raw_data =>  $::request->presenter->checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),
+      valign   => 'center',
+      align    => 'center',
+    };
 
     my $row_set = [ $row ];
 
