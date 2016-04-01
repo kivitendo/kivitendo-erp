@@ -39,6 +39,7 @@ use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::Util qw(trim);
 use Data::Dumper;
 
 use strict;
@@ -457,7 +458,7 @@ sub ap_transactions {
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
+    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
   }
   if ($form->{department}) {
     # ähnlich wie commit 0bbfb33b6aa8e38bb6c81d1684ab7d08e5b5c5af abteilung
@@ -493,11 +494,11 @@ sub ap_transactions {
 
   if ($form->{transdatefrom}) {
     $where .= " AND a.transdate >= ?";
-    push(@values, $form->{transdatefrom});
+    push(@values, trim($form->{transdatefrom}));
   }
   if ($form->{transdateto}) {
     $where .= " AND a.transdate <= ?";
-    push(@values, $form->{transdateto});
+    push(@values, trim($form->{transdateto}));
   }
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {

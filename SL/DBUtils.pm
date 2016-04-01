@@ -1,5 +1,7 @@
 package SL::DBUtils;
 
+use SL::Util qw(trim);
+
 require Exporter;
 our @ISA = qw(Exporter);
 
@@ -30,7 +32,9 @@ sub conv_b {
 
 sub conv_date {
   my ($value) = @_;
-  return (defined($value) && "$value" ne "") ? $value : undef;
+  return undef if !defined $value;
+  $value = trim($value);
+  return $value eq "" ? undef : $value;
 }
 
 sub conv_dateq {

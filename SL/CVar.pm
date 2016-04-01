@@ -9,6 +9,7 @@ use Data::Dumper;
 
 use SL::DBUtils;
 use SL::MoreCommon qw(listify);
+use SL::Util qw(trim);
 
 sub get_configs {
   $main::lxdebug->enter_sub();
@@ -355,7 +356,7 @@ sub build_filter_query {
       next unless ($params{filter}->{$name});
 
       push @sub_where,  qq|cvar.text_value ILIKE ?|;
-      push @sub_values, '%' . $params{filter}->{$name} . '%'
+      push @sub_values, '%' . trim($params{filter}->{$name}) . '%'
 
     } elsif ($config->{type} eq 'select') {
       next unless ($params{filter}->{$name});
@@ -406,7 +407,7 @@ sub build_filter_query {
       }
 
       push @sub_where,  qq|cvar.number_value $op ?|;
-      push @sub_values, $form->parse_amount($myconfig, $params{filter}->{$name});
+      push @sub_values, $form->parse_amount($myconfig, trim($params{filter}->{$name}));
 
     } elsif ($config->{type} eq 'bool') {
       next unless ($params{filter}->{$name});
@@ -418,12 +419,12 @@ sub build_filter_query {
 
       my $table = $config->{type};
       push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM $table WHERE name ILIKE ?)|;
-      push @sub_values, "%$params{filter}->{$name}%";
+      push @sub_values, "%" . trim($params{filter}->{$name}) . "%";
     } elsif ($config->{type} eq 'part') {
       next unless $params{filter}->{$name};
 
       push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM parts WHERE partnumber ILIKE ?)|;
-      push @sub_values, "%$params{filter}->{$name}%";
+      push @sub_values, "%" . trim($params{filter}->{$name}) . "%";
     }
 
     if (@sub_where) {

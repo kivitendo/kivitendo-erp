@@ -45,6 +45,7 @@ use SL::Template;
 use SL::DB::Printer;
 use SL::DB::Language;
 use SL::TransNumber;
+use SL::Util qw(trim);
 
 use strict;
 
@@ -491,7 +492,7 @@ sub get_invoices {
 
   } elsif ($form->{customer}) {
     $where .= qq| AND (ct.name ILIKE ?)|;
-    push(@values, '%' . $form->{customer} . '%');
+    push(@values, '%' . trim($form->{customer}) . '%');
   }
 
   my %columns = (
@@ -503,7 +504,7 @@ sub get_invoices {
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
     $where .= qq| AND $columns{$key} ILIKE ?|;
-    push(@values, '%' . $form->{$key} . '%');
+    push(@values, '%' . trim($form->{$key}) . '%');
   }
 
   if ($form->{dunning_level}) {
@@ -514,7 +515,7 @@ sub get_invoices {
   $form->{minamount} = $form->parse_amount($myconfig,$form->{minamount});
   if ($form->{minamount}) {
     $where .= qq| AND ((a.amount - a.paid) > ?) |;
-    push(@values, $form->{minamount});
+    push(@values, trim($form->{minamount}));
   }
 
   my $query =

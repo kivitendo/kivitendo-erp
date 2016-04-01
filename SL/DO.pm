@@ -46,6 +46,7 @@ use SL::HTML::Restrict;
 use SL::RecordLinks;
 use SL::IC;
 use SL::TransNumber;
+use SL::Util qw(trim);
 
 use strict;
 
@@ -110,12 +111,12 @@ sub transactions {
 
   } elsif ($form->{$vc}) {
     push @where,  qq|ct.name ILIKE ?|;
-    push @values, '%' . $form->{$vc} . '%';
+    push @values, '%' . trim($form->{$vc}) . '%';
   }
 
   if ($form->{"cp_name"}) {
     push @where, "(cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push @values, ('%' . $form->{"cp_name"} . '%')x2;
+    push @values, ('%' . trim($form->{"cp_name"}) . '%')x2;
   }
 
   foreach my $item (qw(employee_id salesman_id)) {
@@ -131,7 +132,7 @@ sub transactions {
   foreach my $item (qw(donumber ordnumber cusordnumber transaction_description)) {
     next unless ($form->{$item});
     push @where,  qq|dord.$item ILIKE ?|;
-    push @values, '%' . $form->{$item} . '%';
+    push @values, '%' . trim($form->{$item}) . '%';
   }
 
   if (($form->{open} || $form->{closed}) &&
@@ -146,7 +147,7 @@ sub transactions {
 
   if ($form->{serialnumber}) {
     push @where, 'dord.id IN (SELECT doi.delivery_order_id FROM delivery_order_items doi WHERE doi.serialnumber LIKE ?)';
-    push @values, '%' . $form->{serialnumber} . '%';
+    push @values, '%' . trim($form->{serialnumber}) . '%';
   }
 
   if($form->{transdatefrom}) {

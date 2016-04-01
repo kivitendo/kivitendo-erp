@@ -50,6 +50,7 @@ use SL::DBUtils;
 use SL::HTML::Restrict;
 use SL::IC;
 use SL::TransNumber;
+use SL::Util qw(trim);
 use Text::ParseWords;
 
 use strict;
@@ -172,12 +173,12 @@ SQL
 
   } elsif ($form->{$vc}) {
     $query .= " AND ct.name ILIKE ?";
-    push(@values, '%' . $form->{$vc} . '%');
+    push(@values, '%' . trim($form->{$vc}) . '%');
   }
 
   if ($form->{"cp_name"}) {
     $query .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
+    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
   }
 
   if (!$main::auth->assert('sales_all_edit', 1)) {
@@ -208,12 +209,12 @@ SQL
 
   if ($form->{$ordnumber}) {
     $query .= qq| AND o.$ordnumber ILIKE ?|;
-    push(@values, '%' . $form->{$ordnumber} . '%');
+    push(@values, '%' . trim($form->{$ordnumber}) . '%');
   }
 
   if ($form->{cusordnumber}) {
     $query .= qq| AND o.cusordnumber ILIKE ?|;
-    push(@values, '%' . $form->{cusordnumber} . '%');
+    push(@values, '%' . trim($form->{cusordnumber}) . '%');
   }
 
   if($form->{transdatefrom}) {
@@ -248,7 +249,7 @@ SQL
 
   if ($form->{shippingpoint}) {
     $query .= qq| AND o.shippingpoint ILIKE ?|;
-    push(@values, '%' . $form->{shippingpoint} . '%');
+    push(@values, '%' . trim($form->{shippingpoint}) . '%');
   }
 
   if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
@@ -258,7 +259,7 @@ SQL
 
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
-    push(@values, '%' . $form->{transaction_description} . '%');
+    push(@values, '%' . trim($form->{transaction_description}) . '%');
   }
 
   if ($form->{periodic_invoices_active} ne $form->{periodic_invoices_inactive}) {
@@ -273,7 +274,7 @@ SQL
   if (($form->{order_probability_value} || '') ne '') {
     my $op  = $form->{order_probability_value} eq 'le' ? '<=' : '>=';
     $query .= qq| AND (o.order_probability ${op} ?)|;
-    push @values, $form->{order_probability_value};
+    push @values, trim($form->{order_probability_value});
   }
 
   if ($form->{expected_billing_date_from}) {

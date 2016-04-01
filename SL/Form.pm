@@ -75,6 +75,7 @@ use SL::PrefixedNumber;
 use SL::Request;
 use SL::Template;
 use SL::User;
+use SL::Util;
 use SL::X;
 use Template;
 use URI;
@@ -3001,19 +3002,9 @@ sub current_date {
 }
 
 sub like {
-  $main::lxdebug->enter_sub();
-
   my ($self, $string) = @_;
 
-  if ($string !~ /%/) {
-    $string = "%$string%";
-  }
-
-  $string =~ s/\'/\'\'/g;
-
-  $main::lxdebug->leave_sub();
-
-  return $string;
+  return "%" . SL::Util::trim($string // '') . "%";
 }
 
 sub redo_rows {

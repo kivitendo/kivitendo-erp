@@ -41,6 +41,7 @@ use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::TransNumber;
+use SL::Util qw(trim);
 
 use strict;
 
@@ -499,7 +500,7 @@ sub ar_transactions {
 
   if ($form->{customernumber}) {
     $where .= " AND c.customernumber = ?";
-    push(@values, $form->{customernumber});
+    push(@values, trim($form->{customernumber}));
   }
   if ($form->{customer_id}) {
     $where .= " AND a.customer_id = ?";
@@ -510,7 +511,7 @@ sub ar_transactions {
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . $form->{"cp_name"} . '%')x2);
+    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
   }
   if ($form->{business_id}) {
     my $business_id = $form->{business_id};
@@ -523,7 +524,7 @@ sub ar_transactions {
     push(@values, $department_id);
   }
   if ($form->{department}) {
-    my $department = "%" . $form->{department} . "%";
+    my $department = "%" . trim($form->{department}) . "%";
     $where .= " AND d.description ILIKE ?";
     push(@values, $department);
   }
@@ -547,19 +548,19 @@ sub ar_transactions {
 
   if ($form->{transdatefrom}) {
     $where .= " AND a.transdate >= ?";
-    push(@values, $form->{transdatefrom});
+    push(@values, trim($form->{transdatefrom}));
   }
   if ($form->{transdateto}) {
     $where .= " AND a.transdate <= ?";
-    push(@values, $form->{transdateto});
+    push(@values, trim($form->{transdateto}));
   }
   if ($form->{duedatefrom}) {
     $where .= " AND a.duedate >= ?";
-    push(@values, $form->{duedatefrom});
+    push(@values, trim($form->{duedatefrom}));
   }
   if ($form->{duedateto}) {
     $where .= " AND a.duedate <= ?";
-    push(@values, $form->{duedateto});
+    push(@values, trim($form->{duedateto}));
   }
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {
