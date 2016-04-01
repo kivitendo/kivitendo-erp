@@ -287,7 +287,7 @@ sub prepare_html_content {
       'align'                    => $column->{align},
       'link'                     => $column->{link},
       'text'                     => $column->{text},
-      'raw_data'                 => $column->{raw_data},
+      'raw_header_data'          => $column->{raw_header_data},
       'show_sort_indicator'      => $name eq $opts->{sort_indicator_column},
       'sort_indicator_direction' => $opts->{sort_indicator_direction},
     };

@@ -35,8 +35,8 @@
      [%- IF col.align %] align="[% HTML.escape(col.align) %]" style="text-align: [% HTML.escape(col.align) %]"[% END -%]
      [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
      >
-      [%- IF col.raw_data %]
-       [% col.raw_data %]
+      [%- IF col.raw_header_data %]
+       [% col.raw_header_data %]
       [% ELSE %]
        [%- IF col.link -%]<a class="[% col.link_class ? col.link_class : 'report-generator-header-link' %]" href="[% HTML.escape(col.link) %]">[%- END -%]
        [%- col.text -%]

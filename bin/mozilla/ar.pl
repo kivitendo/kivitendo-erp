@@ -949,7 +949,7 @@ sub ar_transactions {
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
-    'ids'                     => { raw_data => $::request->presenter->checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
+    'ids'                     => { raw_header_data => $::request->presenter->checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
     'transdate'               => { 'text' => $locale->text('Date'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'type'                    => { 'text' => $locale->text('Type'), },
