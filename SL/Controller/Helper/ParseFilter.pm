@@ -8,6 +8,7 @@ our @EXPORT = qw(parse_filter);
 use DateTime;
 use SL::Helper::DateTime;
 use List::MoreUtils qw(uniq);
+use SL::Util qw(trim);
 use SL::MoreCommon qw(listify);
 use Data::Dumper;
 use Text::ParseWords;
@@ -24,9 +25,10 @@ my %filters = (
   date    => sub { DateTime->from_lxoffice($_[0]) },
   number  => sub { $::form->parse_amount(\%::myconfig, $_[0]) },
   percent => sub { $::form->parse_amount(\%::myconfig, $_[0]) / 100 },
-  head    => sub { $_[0] . '%' },
-  tail    => sub { '%' . $_[0] },
-  substr  => sub { '%' . $_[0] . '%' },
+  head    => sub { trim($_[0]) . '%' },
+  tail    => sub { '%' . trim($_[0]) },
+  substr  => sub { '%' . trim($_[0]) . '%' },
+  trim    => sub { trim($_[0]) },
 );
 
 my %methods = (
@@ -432,22 +434,22 @@ Pasres the input string with C<< Form->parse_amount >>
 
 Parses the input string with C<< Form->parse_amount / 100 >>
 
+=item trim
+
+Removes whitespace characters (to be precice, characters with the \p{WSpace}
+property from beginning and end of the value.
+
 =item head
 
-Adds "%" at the end of the string.
+Adds "%" at the end of the string and applies C<trim>.
 
 =item tail
 
-Adds "%" at the end of the string.
+Adds "%" at the end of the string and applies C<trim>.
 
 =item substr
 
-Adds "% .. %" around the search string.
-
-=item eq_ignore_empty
-
-Ignores this item if it's empty. Otherwise compares it with the
-standard SQL C<=> operator.
+Adds "% .. %" around the search string and applies C<trim>.
 
 =back
 
@@ -471,6 +473,11 @@ If the value is undefined or an empty string then this parameter will
 be completely removed from the query. Otherwise a falsish filter value
 will match for C<NULL> and C<FALSE>; trueish values will only match
 C<TRUE>.
+
+=item eq_ignore_empty
+
+Ignores this item if it's empty. Otherwise compares it with the
+standard SQL C<=> operator.
 
 =back
 

@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 38;
+use Test::More tests => 41;
 use Test::Deep;
 use Data::Dumper;
 
@@ -420,3 +420,21 @@ test {
   with_objects => [ 'part' ],
 }, 'complex methods modifying the key';
 
+
+test {
+  'customer:substr::ilike' => ' Meyer'
+}, {
+  query => [ customer => { ilike => '%Meyer%' } ]
+}, 'auto trim 1';
+
+test {
+  'customer:head::ilike' => ' Meyer '
+}, {
+  query => [ customer => { ilike => 'Meyer%' } ]
+}, 'auto trim 2';
+
+test {
+  'customer:tail::ilike' => "\nMeyer\x{a0}"
+}, {
+  query => [ customer => { ilike => '%Meyer' } ]
+}, 'auto trim 2';
