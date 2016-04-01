@@ -66,6 +66,7 @@ sub redirect_to_object {
   SL::Controller::Base->new->url_for(
     controller => 'CustomerVendor',
     action     => 'edit',
+    db         => $_[0]->db,
     id         => $_[1],
   );
 }
