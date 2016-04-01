@@ -6,7 +6,7 @@ use parent qw(Exporter);
 
 use Carp;
 
-our @EXPORT_OK = qw(_hashify camelify snakify);
+our @EXPORT_OK = qw(_hashify camelify snakify trim);
 
 sub _hashify {
   my $keep = shift;
@@ -29,6 +29,12 @@ sub snakify {
   $str =~ s/_([[:upper:]])/'_' . lc($1)/ge;
   $str =~ s/(?<!^)([[:upper:]])/'_' . lc($1)/ge;
   lc $str;
+}
+
+sub trim {
+  my $value = shift;
+  $value    =~ s{^ \p{WSpace}+ | \p{WSpace}+ $}{}xg if defined($value);
+  return $value;
 }
 
 1;
@@ -89,6 +95,14 @@ underscore-style, e.g. for the string C<EvenWorseExample> it will
 return C<even_worse_example>.
 
 L</camilify> does the reverse.
+
+=item C<trim $string>
+
+Removes all leading and trailing whitespaces from C<$string> and
+returns it. Whitespaces within the string won't be changed.
+
+This function considers everything matching the Unicode character
+property "Whitespace" (C<WSpace>) to be a whitespace.
 
 =back
 
