@@ -133,6 +133,11 @@ sub login {
     return LOGIN_OK();
   }
 
+  # Store the fact that we're applying database upgrades at the
+  # moment. That way functions called from the layout modules that may
+  # require updated tables can chose only to use basic features.
+  $::request->applying_database_upgrades(1);
+
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
 

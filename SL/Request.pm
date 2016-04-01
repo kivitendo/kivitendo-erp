@@ -18,6 +18,7 @@ our @EXPORT_OK = qw(flatten unflatten read_cgi_input);
 
 use Rose::Object::MakeMethods::Generic
 (
+  scalar                  => [ qw(applying_database_upgrades) ],
   'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type) ],
 );
 

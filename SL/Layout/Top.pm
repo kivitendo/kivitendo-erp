@@ -8,11 +8,17 @@ use SL::Controller::TopQuickSearch;
 sub pre_content {
   my ($self) = @_;
 
+  my @options;
+  # Only enable the quick search functionality if all database
+  # upgrades have already been applied as quick search requires
+  # certain columns that are only created by said database upgrades.
+  push @options, (quick_search => SL::Controller::TopQuickSearch->new) unless $::request->applying_database_upgrades;
+
   $self->presenter->render('menu/header',
     now        => DateTime->now_local,
     is_fastcgi => $::dispatcher ? scalar($::dispatcher->interface_type =~ /fastcgi/i) : 0,
     is_links   => scalar($ENV{HTTP_USER_AGENT}         =~ /links/i),
-    quick_search => SL::Controller::TopQuickSearch->new,
+    @options,
   );
 }
 
