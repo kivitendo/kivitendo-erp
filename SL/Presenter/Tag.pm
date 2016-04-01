@@ -7,7 +7,7 @@ use SL::HTML::Restrict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag man_days_tag name_to_id select_tag stringify_attributes restricted_html);
+our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag stringify_attributes restricted_html);
 
 use Carp;
 
@@ -60,6 +60,11 @@ sub input_tag {
   $attributes{type} ||= 'text';
 
   return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
+}
+
+sub hidden_tag {
+  my ($self, $name, $value, %attributes) = @_;
+  return $self->input_tag($name, $value, %attributes, type => 'hidden');
 }
 
 sub man_days_tag {
@@ -187,6 +192,36 @@ sub select_tag {
   }
 
   return $self->html_tag('select', $code, %attributes, name => $name);
+}
+
+sub checkbox_tag {
+  my ($self, $name, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $name);
+
+  $attributes{value}   = 1 unless defined $attributes{value};
+  my $label            = delete $attributes{label};
+  my $checkall         = delete $attributes{checkall};
+  my $for_submit       = delete $attributes{for_submit};
+
+  if ($attributes{checked}) {
+    $attributes{checked} = 'checked';
+  } else {
+    delete $attributes{checked};
+  }
+
+  my $code  = '';
+  $code    .= $self->hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
+  $code    .= $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
+
+  return $code;
+}
+
+sub javascript {
+  my ($self, $data) = @_;
+  return $self->html_tag('script', $data, type => 'text/javascript');
 }
 
 sub _set_id_attribute {

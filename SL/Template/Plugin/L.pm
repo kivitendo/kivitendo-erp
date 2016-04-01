@@ -62,8 +62,11 @@ sub _call_presenter {
 
 sub name_to_id    { return _call_presenter('name_to_id',    @_); }
 sub html_tag      { return _call_presenter('html_tag',      @_); }
+sub hidden_tag    { return _call_presenter('hidden_tag',    @_); }
 sub select_tag    { return _call_presenter('select_tag',    @_); }
+sub checkbox_tag  { return _call_presenter('checkbox_tag',  @_); }
 sub input_tag     { return _call_presenter('input_tag',     @_); }
+sub javascript    { return _call_presenter('javascript',    @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
 sub part_picker   { return _call_presenter('part_picker',   @_); }
@@ -95,30 +98,6 @@ sub textarea_tag {
   return $self->html_tag('textarea', $content, %attributes, name => $name);
 }
 
-sub checkbox_tag {
-  my ($self, $name, %attributes) = _hashify(2, @_);
-
-  _set_id_attribute(\%attributes, $name);
-  $attributes{value}   = 1 unless defined $attributes{value};
-  my $label            = delete $attributes{label};
-  my $checkall         = delete $attributes{checkall};
-  my $for_submit       = delete $attributes{for_submit};
-
-  if ($attributes{checked}) {
-    $attributes{checked} = 'checked';
-  } else {
-    delete $attributes{checked};
-  }
-
-  my $code  = '';
-  $code    .= $self->hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
-  $code    .= $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
-  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
-  $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
-
-  return $code;
-}
-
 sub radio_button_tag {
   my ($self, $name, %attributes) = _hashify(2, @_);
 
@@ -139,11 +118,6 @@ sub radio_button_tag {
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
 
   return $code;
-}
-
-sub hidden_tag {
-  my ($self, $name, $value, %attributes) = _hashify(3, @_);
-  return $self->input_tag($name, $value, %attributes, type => 'hidden');
 }
 
 sub div_tag {
@@ -204,11 +178,6 @@ sub yes_no_tag {
   my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   return $self->select_tag($name, [ [ 1 => $::locale->text('Yes') ], [ 0 => $::locale->text('No') ] ], default => $value ? 1 : 0, %attributes);
-}
-
-sub javascript {
-  my ($self, $data) = @_;
-  return $self->html_tag('script', $data, type => 'text/javascript');
 }
 
 sub stylesheet_tag {
