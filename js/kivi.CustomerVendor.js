@@ -46,8 +46,6 @@ namespace('kivi.CustomerVendor', function(ns) {
       var cvar  = cvars[key];
       var $ctrl = $('#contact_cvars_'+ key);
 
-      console.log($ctrl, cvar);
-
       if (cvar.type == 'bool')
         $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
 
