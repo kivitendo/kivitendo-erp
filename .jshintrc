@@ -1,0 +1,12 @@
+{
+  "laxcomma" : true,   // tolerate "," at the beginning of lines
+  "laxbreak" : true,   // tolerate "+" at the beginning of lines
+  "jquery": true,      // assume jquery is loaded
+  "asi" : true,        // tolerate satements without ";" yet
+  "eqeqeq" : false,    // don't require === for comparisons yet
+ // "strict" : true
+
+  "globals" : {
+    "predef": [ "kivi" ]
+  }
+}
