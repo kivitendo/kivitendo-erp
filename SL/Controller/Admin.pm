@@ -21,7 +21,7 @@ use SL::Layout::AdminLogin;
 use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
-                                  all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
+                                  all_dateformats all_numberformats all_countrycodes all_countrymodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
                                   all_dbsources all_used_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
 );
 
@@ -550,6 +550,11 @@ sub init_all_rights {
 sub init_all_countrycodes {
   my %cc = User->country_codes;
   return [ map { id => $_, title => $cc{$_} }, sort { $cc{$a} cmp $cc{$b} } keys %cc ];
+}
+
+sub init_all_countrymodes {
+  my %cm = SL::DefaultManager->country_modes;
+  return [ map { id => $_, title => "$_ ($cm{$_})" }, sort keys %cm ];
 }
 
 #
