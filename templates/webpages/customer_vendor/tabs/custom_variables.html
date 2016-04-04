@@ -5,7 +5,7 @@
     <table>
       [% FOREACH var = SELF.cv.cvars_by_config %]
         <tr>
-          <th align="left" valign="top" nowrap>[% var.config.description | html %]</th>
+          <th align="right" valign="top" nowrap>[% var.config.description | html %]</th>
 
           <td valign="top">
             [% INCLUDE 'common/render_cvar_input.html'
