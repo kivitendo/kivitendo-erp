@@ -155,9 +155,7 @@ namespace('kivi.CustomerVendor', function(ns) {
           showMap();
         });
       for(var i in $mapSearchElements)
-        $mapSearchElements[i].keyup(function() {
-          testInputs();
-        });
+        $mapSearchElements[i].keyup(testInputs);
       this.testInputs();
     };
 
