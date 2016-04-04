@@ -8,7 +8,7 @@ namespace('kivi.CustomerVendor', function(ns) {
 
       $.getJSON(url, function(data) {
         for(var key in data)
-          $(document.getElementById('shipto_'+ key)).val(data[key]);
+          $('#shipto_'+ key).val(data[key]);
 
         $('#action_delete_shipto').show();
 
@@ -70,7 +70,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     $.getJSON(url, function(data) {
       var contact = data.contact;
       for(var key in contact)
-        $(document.getElementById('contact_'+ key)).val(contact[key])
+        $('#contact_'+ key).val(contact[key])
 
       kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars);
 
