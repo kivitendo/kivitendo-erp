@@ -456,7 +456,7 @@ sub table
 
     for( my $row_idx = 0; $row_idx < scalar(@$data) ; $row_idx++ )
     {
-        push @header_row_widths, [] if $row_idx < $header_props->{num_header_rows};
+        #push @header_row_widths, [] if $row_idx < $header_props->{num_header_rows};
 
         my $column_widths = []; #holds the width of each column
         # Init the height for this row
