@@ -873,8 +873,9 @@ ns.tabs_before_activate = function(event, ui) {
 // -------------------------------------------------------------------------
 
 ns.create_context_menus = function(data) {
+  var general_actions;
   if (data.is_template) {
-    var general_actions = {
+    general_actions = {
         sep98:           "---------"
       , general_actions: { name: kivi.t8('Requirement spec template actions'), className: 'context-menu-heading' }
       // , sep99:           "---------"
@@ -893,7 +894,7 @@ ns.create_context_menus = function(data) {
     });
 
   } else {                      // if (is_template)
-    var general_actions = {
+    general_actions = {
         sep98:              "---------"
       , general_actions:    { name: kivi.t8('Requirement spec actions'), className: 'context-menu-heading' }
       , create_pdf:         { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: kivi.requirement_spec.create_reqspec_pdf }
@@ -901,7 +902,7 @@ ns.create_context_menus = function(data) {
       , create_version:     { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
       , copy_reqspec:       { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
       , delete_reqspec:     { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
-      , sep_paste_template: "---------"
+      , sep_renumber:       "---------"
       , renumber:           { name: kivi.t8('Renumber sections and function blocks'), icon: "renumber", callback: kivi.requirement_spec.renumber }
       , sep_paste_template: "---------"
       , paste_template:     { name: kivi.t8('Paste template'),     icon: "paste",  callback: kivi.requirement_spec.paste_template }

@@ -198,17 +198,18 @@ namespace('kivi.Order', function(ns) {
 
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
+        var row;
         if(event.keyCode == 40 && event.shiftKey == true) {
           // shift arrow down
           event.preventDefault();
-          var row = $(event.target).parents(".row_entry").first();
+          row = $(event.target).parents(".row_entry").first();
           $(row).children().not(':first').show();
           return false;
         }
         if(event.keyCode == 38 && event.shiftKey == true) {
           // shift arrow up
           event.preventDefault();
-          var row = $(event.target).parents(".row_entry").first();
+          row = $(event.target).parents(".row_entry").first();
           $(row).children().not(':first').hide();
           return false;
         }

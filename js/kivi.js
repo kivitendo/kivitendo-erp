@@ -111,20 +111,21 @@ namespace("kivi", function(ns) {
   };
 
   ns.t8 = function(text, params) {
-    var text = ns._locale[text] || text;
+    text = ns._locale[text] || text;
+    var key, value
 
     if( Object.prototype.toString.call( params ) === '[object Array]' ) {
       var len = params.length;
 
       for(var i=0; i<len; ++i) {
-        var key = i + 1;
-        var value = params[i];
+        key = i + 1;
+        value = params[i];
         text = text.split("#"+ key).join(value);
       }
     }
     else if( typeof params == 'object' ) {
-      for(var key in params) {
-        var value = params[key];
+      for(key in params) {
+        value = params[key];
         text = text.split("#{"+ key +"}").join(value);
       }
     }
