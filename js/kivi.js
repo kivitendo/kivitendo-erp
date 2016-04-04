@@ -31,7 +31,7 @@ namespace("kivi", function(ns) {
   ns.parse_date = function(date) {
     var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
     date     = new Date(
-      ((parts[ ns._date_format.y ] || 0) * 1) || (new Date).getFullYear(),
+      ((parts[ ns._date_format.y ] || 0) * 1) || (new Date()).getFullYear(),
        (parts[ ns._date_format.m ] || 0) * 1 - 1, // Months are 0-based.
        (parts[ ns._date_format.d ] || 0) * 1
     );
