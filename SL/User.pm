@@ -46,6 +46,7 @@ use SL::DBUtils;
 use SL::Iconv;
 use SL::Inifile;
 use SL::System::InstallationLock;
+use SL::DefaultManager;
 
 use strict;
 
@@ -291,12 +292,34 @@ sub dbcreate {
   my $dbupdater = SL::DBUpgrade2->new(form => $form, return_on_error => 1, silent => 1)->parse_dbupdate_controls;
   # create the tables
   $dbupdater->process_query($dbh, "sql/lx-office.sql");
-
-  # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
-  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
+  $query = qq|UPDATE defaults SET coa = ?|;
+  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart));
+
+  $dbh->disconnect;
+
+  # update new database
+  $self->dbupdate2(form => $form, updater => $dbupdater, database => $form->{db}, silent => 1);
+
+  $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
+    or $form->dberror;
+
+  $query = "SELECT * FROM currencies WHERE name = ?";
+  my $curr = selectfirst_hashref_query($form, $dbh, $query, $form->{defaultcurrency});
+  if (!$curr->{id}) {
+    do_query($form, $dbh, "INSERT INTO currencies (name) VALUES (?)", $form->{defaultcurrency});
+    $curr = selectfirst_hashref_query($form, $dbh, $query, $form->{defaultcurrency});
+  }
+
+  $query = qq|UPDATE defaults SET accounting_method = ?, profit_determination = ?, inventory_system = ?, precision = ?, currency_id = ?|;
+  do_query($form, $dbh, $query,
+    $form->{accounting_method},
+    $form->{profit_determination},
+    $form->{inventory_system},
+    $form->parse_amount(\%::myconfig, $form->{precision_as_number}),
+    $curr->{id},
+  );
 
   $dbh->disconnect;
 
@@ -424,14 +447,15 @@ sub data {
 
 sub get_default_myconfig {
   my ($self_or_class, %user_config) = @_;
+  my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
 
   return (
-    countrycode  => 'de',
+    countrycode  => $defaults->language('de'),
     css_path     => 'css',      # Needed for menunew, see SL::Layout::Base::get_stylesheet_for_user
-    dateformat   => 'dd.mm.yy',
-    numberformat => '1.000,00',
-    stylesheet   => 'kivitendo.css',
-    timeformat   => 'hh:mm',
+    dateformat   => $defaults->dateformat('dd.mm.yy'),
+    numberformat => $defaults->numberformat('1.000,00'),
+    stylesheet   => $defaults->stylesheet('kivitendo.css'),
+    timeformat   => $defaults->timeformat('hh:mm'),
     %user_config,
   );
 }
