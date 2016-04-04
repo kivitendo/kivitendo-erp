@@ -164,6 +164,7 @@ sub init_modules {
     { module => 'IC',               description => t8('Parts, services and assemblies') },
     { module => 'Projects',         description => t8('Projects')                       },
     { module => 'RequirementSpecs', description => t8('Requirement Specs')              },
+    { module => 'ShipTo',           description => t8('Shipping Address')               },
   )];
 }
 
