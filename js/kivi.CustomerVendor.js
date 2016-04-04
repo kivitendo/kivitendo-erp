@@ -117,7 +117,7 @@ namespace('kivi.CustomerVendor', function(ns) {
 
     var isNotEmpty = function() {
       for(var i in $mapSearchElements)
-        if( ($mapSearchElements[i].attr('id') != prefix + 'country') && ($mapSearchElements[i].val() == '') )
+        if( ($mapSearchElements[i].attr('id') != prefix + 'country') && ($mapSearchElements[i].val() === '') )
           return false;
       return true;
     };
@@ -137,7 +137,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       }
 
       source_address = source_address || '';
-      var query      = source_address != '' ? 'saddr=' + encodeURIComponent(source_address) + '&daddr=' : 'q=';
+      var query      = source_address !== '' ? 'saddr=' + encodeURIComponent(source_address) + '&daddr=' : 'q=';
       var url        = 'https://maps.google.com/maps?' + query + encodeURIComponent(searchString);
 
       window.open(url, '_blank');
@@ -187,7 +187,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       return true;
 
     var number = $input.val().replace(/\s+/g, '');
-    if (number == '')
+    if (number === '')
       $action.hide();
     else
       $action.prop('href', 'controller.pl?action=CTI/call&number=' + encodeURIComponent(number)).show();
