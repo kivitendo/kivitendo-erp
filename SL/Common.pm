@@ -447,6 +447,13 @@ sub get_shipto_by_id {
 
   map { $form->{"${prefix}${_}"} = $ref->{$_} } keys %{ $ref } if $ref;
 
+  my $cvars = CVar->get_custom_variables(
+    dbh      => $dbh,
+    module   => 'ShipTo',
+    trans_id => $shipto_id,
+  );
+  $form->{"${prefix}shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
+
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();

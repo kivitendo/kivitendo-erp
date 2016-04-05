@@ -15,6 +15,9 @@
       shiptophone:        "[% JavaScript.escape(vc_obj.phone) %]",
       shiptofax:          "[% JavaScript.escape(vc_obj.fax) %]",
       shiptoemail:        "[% JavaScript.escape(vc_obj.email) %]"
+[% FOREACH var = cvars %]
+      , "shiptocvar_[% JavaScript.escape(var.config.name) %]": ""
+[% END %]
     }
 
   [% FOREACH shipto = vc_obj.shipto %]
@@ -32,6 +35,9 @@
       shiptophone:        "[% JavaScript.escape(shipto.shiptophone) %]",
       shiptofax:          "[% JavaScript.escape(shipto.shiptofax) %]",
       shiptoemail:        "[% JavaScript.escape(shipto.shiptoemail) %]"
+    [% FOREACH var = shipto.cvars_by_config %]
+      , "shiptocvar_[% JavaScript.escape(var.config.name) %]": "[% JavaScript.escape(var.value_as_text) %]"
+    [% END %]
     }
   [% END %]
   ];
@@ -156,6 +162,13 @@
     <td>[% HTML.escape(email) %]</td>
     <td>[% L.input_tag("shiptoemail", shiptoemail, "size", "35") %]</td>
    </tr>
+[% FOREACH var = cvars %]
+   <tr valign="top">
+    <th align="right" nowrap>[% HTML.escape(var.config.description) %]</th>
+    <td></td>
+    <td>[% INCLUDE 'common/render_cvar_input.html' cvar_name_prefix='shiptocvar_' %]</td>
+   </tr>
+[% END %]
   </table>
 
   <hr size="3" noshade>

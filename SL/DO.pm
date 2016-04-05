@@ -263,6 +263,11 @@ sub save {
   if ($form->{id}) {
 
     # only delete shipto complete
+    $query = qq|DELETE FROM custom_variables
+                WHERE (config_id IN (SELECT id        FROM custom_variable_configs WHERE (module = 'ShipTo')))
+                  AND (trans_id  IN (SELECT shipto_id FROM shipto                  WHERE (module = 'DO') AND (trans_id = ?)))|;
+    do_query($form, $dbh, $query, $form->{id});
+
     $query = qq|DELETE FROM shipto WHERE trans_id = ? AND module = 'DO'|;
     do_query($form, $dbh, $query, conv_i($form->{id}));
 
@@ -747,6 +752,15 @@ sub retrieve {
     delete $ref->{id};
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish();
+
+    if ($form->{shipto_id}) {
+      my $cvars = CVar->get_custom_variables(
+        dbh      => $dbh,
+        module   => 'ShipTo',
+        trans_id => $form->{shipto_id},
+      );
+      $form->{"shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
+    }
 
     # get printed, emailed and queued
     $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;

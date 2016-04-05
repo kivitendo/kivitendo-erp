@@ -1818,6 +1818,11 @@ sub reverse_invoice {
   # delete acc_trans
   my @values = (conv_i($form->{id}));
   do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
+
+  $query = qq|DELETE FROM custom_variables
+              WHERE (config_id IN (SELECT id        FROM custom_variable_configs WHERE (module = 'ShipTo')))
+                AND (trans_id  IN (SELECT shipto_id FROM shipto                  WHERE (module = 'AR') AND (trans_id = ?)))|;
+  do_query($form, $dbh, $query, @values);
   do_query($form, $dbh, qq|DELETE FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|, @values);
 
   $main::lxdebug->leave_sub();
@@ -2048,6 +2053,21 @@ sub retrieve_invoice {
       $stw->finish;
     }
     $sth->finish;
+
+    # Fetch shipping address.
+    $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'AR'|;
+    $ref   = selectfirst_hashref_query($form, $dbh, $query, $form->{id});
+
+    $form->{$_} = $ref->{$_} for grep { $_ ne 'id' } keys %$ref;
+
+    if ($form->{shipto_id}) {
+      my $cvars = CVar->get_custom_variables(
+        dbh      => $dbh,
+        module   => 'ShipTo',
+        trans_id => $form->{shipto_id},
+      );
+      $form->{"shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
+    }
 
     Common::webdav_folder($form);
   }

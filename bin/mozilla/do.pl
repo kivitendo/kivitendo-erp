@@ -327,6 +327,11 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part));
 
+  my @custom_hidden;
+  push @custom_hidden, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
+
+  $::form->{HIDDENS} = [ map { +{ name => $_, value => $::form->{$_} } } (@custom_hidden) ];
+
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
   # und Erweiterung für Bug 1760:

@@ -380,6 +380,8 @@ sub form_header {
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
+  push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
+
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
     id action type media format queued printed emailed title vc discount

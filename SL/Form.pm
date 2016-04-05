@@ -1848,14 +1848,19 @@ sub get_shipto {
     my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
     my $ref = selectfirst_hashref_query($self, $dbh, $query, $self->{shipto_id});
     map({ $self->{$_} = $ref->{$_} } keys(%$ref));
+
+    my $cvars = CVar->get_custom_variables(
+      dbh      => $dbh,
+      module   => 'ShipTo',
+      trans_id => $self->{shipto_id},
+    );
+    $self->{"shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
   }
 
   $main::lxdebug->leave_sub();
 }
 
 sub add_shipto {
-  $main::lxdebug->enter_sub();
-
   my ($self, $dbh, $id, $module) = @_;
 
   my $shipto;
@@ -1869,54 +1874,68 @@ sub add_shipto {
     push(@values, $self->{"shipto${item}"});
   }
 
-  if ($shipto) {
-    if ($self->{shipto_id}) {
-      my $query = qq|UPDATE shipto set
-                       shiptoname = ?,
-                       shiptodepartment_1 = ?,
-                       shiptodepartment_2 = ?,
-                       shiptostreet = ?,
-                       shiptozipcode = ?,
-                       shiptocity = ?,
-                       shiptocountry = ?,
-                       shiptogln = ?,
-                       shiptocontact = ?,
-                       shiptocp_gender = ?,
-                       shiptophone = ?,
-                       shiptofax = ?,
-                       shiptoemail = ?
-                     WHERE shipto_id = ?|;
-      do_query($self, $dbh, $query, @values, $self->{shipto_id});
-    } else {
-      my $query = qq|SELECT * FROM shipto
-                     WHERE shiptoname = ? AND
-                       shiptodepartment_1 = ? AND
-                       shiptodepartment_2 = ? AND
-                       shiptostreet = ? AND
-                       shiptozipcode = ? AND
-                       shiptocity = ? AND
-                       shiptocountry = ? AND
-                       shiptogln = ? AND
-                       shiptocontact = ? AND
-                       shiptocp_gender = ? AND
-                       shiptophone = ? AND
-                       shiptofax = ? AND
-                       shiptoemail = ? AND
-                       module = ? AND
-                       trans_id = ?|;
-      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
-      if(!$insert_check){
-        $query =
-          qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
-                                 shiptostreet, shiptozipcode, shiptocity, shiptocountry, shiptogln,
-                                 shiptocontact, shiptocp_gender, shiptophone, shiptofax, shiptoemail, module)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
-        do_query($self, $dbh, $query, $id, @values, $module);
-      }
+  return if !$shipto;
+
+  my $shipto_id = $self->{shipto_id};
+
+  if ($self->{shipto_id}) {
+    my $query = qq|UPDATE shipto set
+                     shiptoname = ?,
+                     shiptodepartment_1 = ?,
+                     shiptodepartment_2 = ?,
+                     shiptostreet = ?,
+                     shiptozipcode = ?,
+                     shiptocity = ?,
+                     shiptocountry = ?,
+                     shiptogln = ?,
+                     shiptocontact = ?,
+                     shiptocp_gender = ?,
+                     shiptophone = ?,
+                     shiptofax = ?,
+                     shiptoemail = ?
+                   WHERE shipto_id = ?|;
+    do_query($self, $dbh, $query, @values, $self->{shipto_id});
+  } else {
+    my $query = qq|SELECT * FROM shipto
+                   WHERE shiptoname = ? AND
+                     shiptodepartment_1 = ? AND
+                     shiptodepartment_2 = ? AND
+                     shiptostreet = ? AND
+                     shiptozipcode = ? AND
+                     shiptocity = ? AND
+                     shiptocountry = ? AND
+                     shiptogln = ? AND
+                     shiptocontact = ? AND
+                     shiptocp_gender = ? AND
+                     shiptophone = ? AND
+                     shiptofax = ? AND
+                     shiptoemail = ? AND
+                     module = ? AND
+                     trans_id = ?|;
+    my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
+    if(!$insert_check){
+      my $insert_query =
+        qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
+                               shiptostreet, shiptozipcode, shiptocity, shiptocountry, shiptogln,
+                               shiptocontact, shiptocp_gender, shiptophone, shiptofax, shiptoemail, module)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      do_query($self, $dbh, $insert_query, $id, @values, $module);
+
+      $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
     }
+
+    $shipto_id = $insert_check->{shipto_id};
   }
 
-  $main::lxdebug->leave_sub();
+  return unless $shipto_id;
+
+  CVar->save_custom_variables(
+    dbh         => $dbh,
+    module      => 'ShipTo',
+    trans_id    => $shipto_id,
+    variables   => $self,
+    name_prefix => 'shipto',
+  );
 }
 
 sub get_employee {
@@ -3375,10 +3394,17 @@ sub prepare_for_printing {
     $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  # Load shipping address from database if shipto_id is set.
-  if ($self->{shipto_id}) {
-    my $shipto  = SL::DB::Shipto->new(shipto_id => $self->{shipto_id})->load;
+  # Load shipping address from database. If shipto_id is set then it's
+  # one from the customer's/vendor's master data. Otherwise look an a
+  # customized address linking back to the current record.
+  my $shipto_module = $self->{type} =~ /_delivery_order$/                                             ? 'DO'
+                    : $self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/ ? 'OE'
+                    :                                                                                   'AR';
+  my $shipto        = $self->{shipto_id} ? SL::DB::Shipto->new(shipto_id => $self->{shipto_id})->load
+                    :                      SL::DB::Manager::Shipto->get_first(where => [ module => $shipto_module, trans_id => $self->{id} ]);
+  if ($shipto) {
     $self->{$_} = $shipto->$_ for grep { m{^shipto} } map { $_->name } @{ $shipto->meta->columns };
+    $self->{"shiptocvar_" . $_->config->name} = $_->value_as_text for @{ $shipto->cvars_by_config };
   }
 
   my $language = $self->{language} ? '_' . $self->{language} : '';

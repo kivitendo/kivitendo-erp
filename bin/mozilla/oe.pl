@@ -473,6 +473,9 @@ sub form_header {
   if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {
       $form->{shipto_id} = $form->{CFDD_shipto_id};
   }
+
+  push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
+
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
      qw(id action type vc formname media format proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
@@ -1731,6 +1734,8 @@ sub check_for_direct_delivery {
     return;
   }
 
+  my $cvars = SL::DB::Shipto->new->cvars_by_config;
+
   if ($form->{shipto_id}) {
     Common->get_shipto_by_id(\%myconfig, $form, $form->{shipto_id}, "CFDD_");
 
@@ -1738,11 +1743,13 @@ sub check_for_direct_delivery {
     map { $form->{"CFDD_${_}"} = $form->{$_ } } grep /^shipto/, keys %{ $form };
   }
 
+  $_->value($::form->{"CFDD_shiptocvar_" . $_->config->name}) for @{ $cvars };
+
   delete $form->{action};
   $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ($_ ne 'login') && ($_ ne 'password') && (ref $_ eq "") } keys %{ $form } ];
 
   $form->header();
-  print $form->parse_html_template("oe/check_for_direct_delivery");
+  print $form->parse_html_template("oe/check_for_direct_delivery", { cvars => $cvars });
 
   $main::lxdebug->leave_sub();
 
