@@ -4,6 +4,7 @@ use strict;
 use Carp;
 use Data::Dumper;
 use List::Util qw(first);
+use List::UtilsBy qw(sort_by);
 
 use constant META_CVARS => 'cvars_config';
 
@@ -97,6 +98,8 @@ sub make_cvar_by_configs {
       }
       @$configs
     );
+
+    @return = sort_by { $_->config->sortkey } @return;
 
     return \@return;
   }
