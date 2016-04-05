@@ -4,6 +4,10 @@ use strict;
 
 use SL::DB::MetaSetup::Shipto;
 use SL::DB::Manager::Shipto;
+use SL::DB::Helper::CustomVariables (
+  module      => 'ShipTo',
+  cvars_alias => 1,
+);
 
 our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact
                            shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2);

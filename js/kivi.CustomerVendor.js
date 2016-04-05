@@ -2,28 +2,23 @@ namespace('kivi.CustomerVendor', function(ns) {
 
   this.selectShipto = function(params) {
     var shiptoId = $('#shipto_shipto_id').val();
+    var url      = 'controller.pl?action=CustomerVendor/ajaj_get_shipto&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&shipto_id='+ shiptoId;
 
-    if( shiptoId ) {
-      var url = 'controller.pl?action=CustomerVendor/ajaj_get_shipto&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&shipto_id='+ shiptoId;
+    $.getJSON(url, function(data) {
+      var shipto = data.shipto;
+      for(var key in shipto)
+        $('#shipto_'+ key).val(shipto[key])
 
-      $.getJSON(url, function(data) {
-        for(var key in data)
-          $('#shipto_'+ key).val(data[key]);
+      kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.shipto_cvars, 'shipto_cvars_');
 
+      if ( shiptoId )
         $('#action_delete_shipto').show();
+      else
+        $('#action_delete_shipto').hide();
 
-        if( params.onFormSet )
-          params.onFormSet();
-      });
-    }
-    else {
-      $('#shipto :input').not(':button, :submit, :reset, :hidden').val('');
-
-      $('#action_delete_shipto').hide();
-
-      if( params.onFormSet )
+      if ( params.onFormSet )
         params.onFormSet();
-    }
+    });
   };
 
   this.selectDelivery = function(fromDate, toDate) {
@@ -41,10 +36,10 @@ namespace('kivi.CustomerVendor', function(ns) {
     }
   };
 
-  this.setCustomVariablesFromAJAJ = function(cvars) {
+  this.setCustomVariablesFromAJAJ = function(cvars, prefix) {
     for (var key in cvars) {
       var cvar  = cvars[key];
-      var $ctrl = $('#contact_cvars_'+ key);
+      var $ctrl = $('#' + prefix + key);
 
       if (cvar.type == 'bool')
         $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
@@ -70,7 +65,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       for(var key in contact)
         $('#contact_'+ key).val(contact[key])
 
-      kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars);
+      kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars, 'contact_cvars_');
 
       if ( contactId )
         $('#action_delete_contact').show();

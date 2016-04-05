@@ -198,7 +198,7 @@ sub _save {
 
     $self->{shipto}->trans_id($self->{cv}->id);
     if( $self->{shipto}->shiptoname ne '' ) {
-      $self->{shipto}->save();
+      $self->{shipto}->save(cascade => 1);
     }
 
     my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
@@ -529,7 +529,8 @@ sub action_get_delivery {
 sub action_ajaj_get_shipto {
   my ($self) = @_;
 
-  my $data = {
+  my $data = {};
+  $data->{shipto} = {
     map(
       {
         my $name = 'shipto'. $_;
@@ -538,6 +539,8 @@ sub action_ajaj_get_shipto {
       qw(_id name department_1 department_2 street zipcode city gln country contact phone fax email)
     )
   };
+
+  $data->{shipto_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{shipto}->cvars_by_config);
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -755,6 +758,7 @@ sub _instantiate_args {
 
   $self->_copy_form_to_cvars(target => $self->{cv},      source => $::form->{cv_cvars});
   $self->_copy_form_to_cvars(target => $self->{contact}, source => $::form->{contact_cvars});
+  $self->_copy_form_to_cvars(target => $self->{shipto},  source => $::form->{shipto_cvars});
 }
 
 sub _load_customer_vendor {
