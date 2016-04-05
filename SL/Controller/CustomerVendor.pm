@@ -565,29 +565,7 @@ sub action_ajaj_get_contact {
     )
   };
 
-  $data->{contact_cvars} = {
-    map {
-      my $cvar   = $_;
-      my $result = { type => $cvar->config->type };
-
-      if ($cvar->config->type eq 'number') {
-        $result->{value} = $::form->format_amount(\%::myconfig, $cvar->value, -2);
-
-      } elsif ($result->{type} =~ m{customer|vendor|part}) {
-        my $object       = $cvar->value;
-        my $method       = $result->{type} eq 'part' ? 'description' : 'name';
-
-        $result->{id}    = int($cvar->number_value) || undef;
-        $result->{value} = $object ? $object->$method // '' : '';
-
-      } else {
-        $result->{value} = $cvar->value;
-      }
-
-      ( $cvar->config->name => $result )
-
-    } grep { $_->is_valid } @{ $self->{contact}->cvars_by_config }
-  };
+  $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -706,6 +684,17 @@ sub is_orphaned {
   return $self->{_is_orphaned} = !$dummy;
 }
 
+sub _copy_form_to_cvars {
+  my ($self, %params) = @_;
+
+  foreach my $cvar (@{ $params{target}->cvars_by_config }) {
+    my $value = $params{source}->{$cvar->config->name};
+    $value    = $::form->parse_amount(\%::myconfig, $value) if $cvar->config->type eq 'number';
+
+    $cvar->value($value);
+  }
+}
+
 sub _instantiate_args {
   my ($self) = @_;
 
@@ -727,16 +716,6 @@ sub _instantiate_args {
   }
 
   $self->{cv}->hourly_rate($::instance_conf->get_customer_hourly_rate) if $self->is_customer && !$self->{cv}->hourly_rate;
-
-  foreach my $cvar (@{$self->{cv}->cvars_by_config()}) {
-    my $value = $::form->{cv_cvars}->{$cvar->config->name};
-
-    if ( $cvar->config->type eq 'number' ) {
-      $value = $::form->parse_amount(\%::myconfig, $value);
-    }
-
-    $cvar->value($value);
-  }
 
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
@@ -774,15 +753,8 @@ sub _instantiate_args {
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
 
-  foreach my $cvar (@{$self->{contact}->cvars_by_config()}) {
-    my $value = $::form->{contact_cvars}->{$cvar->config->name};
-
-    if ( $cvar->config->type eq 'number' ) {
-      $value = $::form->parse_amount(\%::myconfig, $value);
-    }
-
-    $cvar->value($value);
-  }
+  $self->_copy_form_to_cvars(target => $self->{cv},      source => $::form->{cv_cvars});
+  $self->_copy_form_to_cvars(target => $self->{contact}, source => $::form->{contact_cvars});
 }
 
 sub _load_customer_vendor {
@@ -952,6 +924,37 @@ sub _pre_render {
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
+}
+
+sub _prepare_cvar_configs_for_ajaj {
+  my ($self, $cvars) = @_;
+
+  return {
+    map {
+      my $cvar   = $_;
+      my $result = { type => $cvar->config->type };
+
+      if ($cvar->config->type eq 'number') {
+        $result->{value} = $::form->format_amount(\%::myconfig, $cvar->value, -2);
+
+      } elsif ($result->{type} eq 'date') {
+        $result->{value} = $cvar->value ? $cvar->value->to_kivitendo : undef;
+
+      } elsif ($result->{type} =~ m{customer|vendor|part}) {
+        my $object       = $cvar->value;
+        my $method       = $result->{type} eq 'part' ? 'description' : 'name';
+
+        $result->{id}    = int($cvar->number_value) || undef;
+        $result->{value} = $object ? $object->$method // '' : '';
+
+      } else {
+        $result->{value} = $cvar->value;
+      }
+
+      ( $cvar->config->name => $result )
+
+    } grep { $_->is_valid } @{ $cvars }
+  };
 }
 
 sub normalize_name {
