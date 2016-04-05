@@ -4337,6 +4337,8 @@ empfang@revamp-it.ch
           Mitarbeiter des Unternehmens enthält. Diese Variable steht dann
           unter dem Namen <varname>vc_cvar_number_of_employees</varname> zur
           Verfügung.</para>
+
+          <para>Die benutzerdefinierten Variablen der Lieferadressen stehen unter einem ähnlichen Namensschema zur Verfügung. Hier lautet der Präfix <varname>shiptocvar_</varname>.</para>
         </sect3>
       </sect2>
 
