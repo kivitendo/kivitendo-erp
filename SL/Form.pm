@@ -586,17 +586,6 @@ sub set_standard_title {
   $::lxdebug->leave_sub;
 }
 
-sub prepare_global_vars {
-  my ($self) = @_;
-
-  $self->{AUTH}            = $::auth;
-  $self->{INSTANCE_CONF}   = $::instance_conf;
-  $self->{LOCALE}          = $::locale;
-  $self->{LXCONFIG}        = $::lx_office_conf;
-  $self->{LXDEBUG}         = $::lxdebug;
-  $self->{MYCONFIG}        = \%::myconfig;
-}
-
 sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 

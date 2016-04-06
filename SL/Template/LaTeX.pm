@@ -448,9 +448,9 @@ sub parse {
       $contents = "[% TAGS $self->{tag_start} $self->{tag_end} %]\n" . $contents;
     }
 
-    $form->prepare_global_vars;
+    my $globals = global_vars();
 
-    $::form->init_template->process(\$contents, $form, \$new_contents) || die $::form->template->error;
+    $::form->init_template->process(\$contents, { %$form, %$globals }, \$new_contents) || die $::form->template->error;
   } else {
     $new_contents = $self->parse_block($contents);
   }
@@ -635,6 +635,17 @@ sub parse_and_create_pdf {
 
   return (error     => $error) if $error;
   return (file_name => do { $tex_file_name =~ s/tex$/pdf/; $tex_file_name });
+}
+
+sub global_vars {
+  {
+    AUTH            => $::auth,
+    INSTANCE_CONF   => $::instance_conf,
+    LOCALE          => $::locale,
+    LXCONFIG        => $::lx_office_conf,
+    LXDEBUG         => $::lxdebug,
+    MYCONFIG        => \%::myconfig,
+  };
 }
 
 1;
