@@ -136,16 +136,7 @@ sub new_from {
   # save it, too.
   my $custom_shipto;
   if (!$source->shipto_id && $source->id) {
-    my $old = $source->custom_shipto;
-    if ($old) {
-      $custom_shipto = SL::DB::Shipto->new(
-        map  { +($_ => $old->$_) }
-        grep { !m{^ (?: itime | mtime | shipto_id | trans_id ) $}x }
-        map  { $_->name }
-        @{ $old->meta->columns }
-      );
-      $custom_shipto->module('DO');
-    }
+    $custom_shipto = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
 
   } else {
     $args{shipto_id} = $source->shipto_id;
