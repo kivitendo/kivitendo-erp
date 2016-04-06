@@ -213,18 +213,6 @@ sub _create_periodic_invoice {
 
     $invoice->post(ar_id => $config->ar_chart_id) || die;
 
-    # like $form->add_shipto, but we don't need to check for a manual exception,
-    # because we can already assume this (otherwise no shipto_id from order)
-    if ($order->shipto_id) {
-
-      my $shipto_oe = SL::DB::Manager::Shipto->find_by(shipto_id => $order->shipto_id);
-      my $shipto_ar = $shipto_oe->clone_and_reset;
-
-      $shipto_ar->module('AR');            # alter module OE -> AR
-      $shipto_ar->trans_id($invoice->id);  # alter trans_id -> new id from invoice
-      $shipto_ar->save;
-    }
-
     $order->link_to_record($invoice);
 
     foreach my $item (@{ $invoice->items }) {
