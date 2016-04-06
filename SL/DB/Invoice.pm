@@ -164,7 +164,7 @@ sub new_from {
   my $terms = $source->can('payment_id') ? $source->payment_terms : undef;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
-                                                cp_id language_id taxzone_id shipto_id globalproject_id transaction_description currency_id delivery_term_id payment_id), @columns),
+                                                cp_id language_id taxzone_id globalproject_id transaction_description currency_id delivery_term_id payment_id), @columns),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => $terms ? $terms->calc_date(reference_date => DateTime->today_local) : DateTime->today_local,
@@ -180,6 +180,17 @@ sub new_from {
     $args{orddate}      = $source->transdate;
   } else {
     $args{quodate}      = $source->transdate;
+  }
+
+  # Custom shipto addresses (the ones specific to the sales/purchase
+  # record and not to the customer/vendor) are only linked from shipto
+  # → ar. Meaning ar.shipto_id will not be filled in that
+  # case.
+  if (!$source->shipto_id && $source->id) {
+    $args{custom_shipto} = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
+
+  } else {
+    $args{shipto_id} = $source->shipto_id;
   }
 
   my $invoice = $class->new(%args);
