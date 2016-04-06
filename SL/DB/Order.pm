@@ -157,12 +157,11 @@ sub convert_to_invoice {
 sub convert_to_delivery_order {
   my ($self, @args) = @_;
 
-  my ($delivery_order, $custom_shipto);
+  my $delivery_order;
   if (!$self->db->with_transaction(sub {
     require SL::DB::DeliveryOrder;
-    ($delivery_order, $custom_shipto) = SL::DB::DeliveryOrder->new_from($self, @args);
+    $delivery_order = SL::DB::DeliveryOrder->new_from($self, @args);
     $delivery_order->save;
-    $custom_shipto->save if $custom_shipto;
     $self->link_to_record($delivery_order);
     # TODO extend link_to_record for items, otherwise long-term no d.r.y.
     foreach my $item (@{ $delivery_order->items }) {
@@ -183,10 +182,10 @@ sub convert_to_delivery_order {
     $self->update_attributes(delivered => 1);
     1;
   })) {
-    return wantarray ? () : undef;
+    return undef;
   }
 
-  return wantarray ? ($delivery_order, $custom_shipto) : $delivery_order;
+  return $delivery_order;
 }
 
 sub number {
@@ -261,16 +260,8 @@ C<true>, and C<$self> is saved.
 The arguments in C<%params> are passed to
 L<SL::DB::DeliveryOrder::new_from>.
 
-Returns C<undef> on failure. Otherwise the return value depends on the
-context. In list context the new delivery order and a shipto instance
-will be returned. In scalar instance only the delivery order instance
-is returned.
-
-Custom shipto addresses (the ones specific to the sales/purchase
-record and not to the customer/vendor) are only linked from C<shipto>
-to C<delivery_orders>. Meaning C<delivery_orders.shipto_id> will not
-be filled in that case. That's why a separate shipto object is created
-and returned.
+Returns C<undef> on failure. Otherwise the new delivery order will be
+returned.
 
 =head2 C<convert_to_invoice %params>
 

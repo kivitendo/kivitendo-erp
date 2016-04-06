@@ -130,13 +130,10 @@ sub new_from {
 
   # Custom shipto addresses (the ones specific to the sales/purchase
   # record and not to the customer/vendor) are only linked from
-  # shipto -> delivery_orders. Meaning delivery_orders.shipto_id
-  # will not be filled in that case. Therefore we have to return the
-  # new shipto object as a separate object so that the caller can
-  # save it, too.
-  my $custom_shipto;
+  # shipto → delivery_orders. Meaning delivery_orders.shipto_id
+  # will not be filled in that case.
   if (!$source->shipto_id && $source->id) {
-    $custom_shipto = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
+    $args{custom_shipto} = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
 
   } else {
     $args{shipto_id} = $source->shipto_id;
@@ -172,7 +169,7 @@ sub new_from {
 
   $delivery_order->items(\@items);
 
-  return ($delivery_order, $custom_shipto);
+  return $delivery_order;
 }
 
 sub customervendor {
@@ -258,18 +255,8 @@ quotations and purchase orders) are supported as sources.
 The conversion copies order items into delivery order items. Dates are copied
 as appropriate, e.g. the C<transdate> field will be set to the current date.
 
-Returns one or two objects depending on the context. In list context
-the new delivery order instance and a shipto instance will be
-returned. In scalar instance only the delivery order instance is
-returned.
-
-Custom shipto addresses (the ones specific to the sales/purchase
-record and not to the customer/vendor) are only linked from C<shipto>
-to C<delivery_orders>. Meaning C<delivery_orders.shipto_id> will not
-be filled in that case. That's why a separate shipto object is created
-and returned.
-
-The objects returned are not saved.
+Returns the new delivery order instance. The object returned is not
+saved.
 
 C<%params> can include the following options:
 
