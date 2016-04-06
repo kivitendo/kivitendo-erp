@@ -166,6 +166,8 @@ sub send_file {
   } else {
     $::locale->with_raw_io(\*STDOUT, sub { print $$file_name_or_content });
   }
+
+  return 1;
 }
 
 sub presenter {
