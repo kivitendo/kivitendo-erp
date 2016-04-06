@@ -232,7 +232,7 @@ sub clone_and_reset {
   my @mutators            = $meta->column_mutator_method_names;
   my @column_names        =
     grep     { $_->[0] && $_->[1] && !$_skip_fields_when_cloning{ $_->[0] } }
-    pairwise { [ $a, $b] } @accessors, @mutators;
+    pairwise { no warnings qw(once); [ $a, $b] } @accessors, @mutators;
 
   my $clone = $class->new(map { my $method = $_->[0]; ($_->[1] => $self->$method) } @column_names);
 
