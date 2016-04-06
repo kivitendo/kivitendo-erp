@@ -60,7 +60,8 @@ sub clone {
      grep { !m{^ (?: itime | mtime | shipto_id | trans_id ) $}x }
      map  { $_->name }
      @{ $self->meta->columns }),
-    module => $module,
+    module           => $module,
+    custom_variables => [ map { $_->clone_and_reset } @{ $self->custom_variables } ],
   );
 
   return $new_shipto;
