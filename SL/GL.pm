@@ -41,6 +41,7 @@ package GL;
 use Data::Dumper;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
+use SL::Util qw(trim);
 
 use strict;
 
@@ -230,9 +231,9 @@ sub all_transactions {
     $glwhere .= qq| AND g.reference ILIKE ?|;
     $arwhere .= qq| AND a.invnumber ILIKE ?|;
     $apwhere .= qq| AND a.invnumber ILIKE ?|;
-    push(@glvalues, '%' . $form->{reference} . '%');
-    push(@arvalues, '%' . $form->{reference} . '%');
-    push(@apvalues, '%' . $form->{reference} . '%');
+    push(@glvalues, $::form->like($form->{reference}));
+    push(@arvalues, $::form->like($form->{reference}));
+    push(@apvalues, $::form->like($form->{reference}));
   }
 
   if ($form->{department}) {
@@ -249,39 +250,39 @@ sub all_transactions {
     $glwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
     $arwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
     $apwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
-    push(@glvalues, '%' . $form->{source} . '%');
-    push(@arvalues, '%' . $form->{source} . '%');
-    push(@apvalues, '%' . $form->{source} . '%');
+    push(@glvalues, $::form->like($form->{source}));
+    push(@arvalues, $::form->like($form->{source}));
+    push(@apvalues, $::form->like($form->{source}));
   }
 
   # default Datumseinschränkung falls nicht oder falsch übergeben (sollte nie passieren)
   $form->{datesort} = 'transdate' unless $form->{datesort} =~ /^(transdate|gldate)$/;
 
-  if ($form->{datefrom}) {
+  if (trim($form->{datefrom})) {
     $glwhere .= " AND ac.$form->{datesort} >= ?";
     $arwhere .= " AND ac.$form->{datesort} >= ?";
     $apwhere .= " AND ac.$form->{datesort} >= ?";
-    push(@glvalues, $form->{datefrom});
-    push(@arvalues, $form->{datefrom});
-    push(@apvalues, $form->{datefrom});
+    push(@glvalues, trim($form->{datefrom}));
+    push(@arvalues, trim($form->{datefrom}));
+    push(@apvalues, trim($form->{datefrom}));
   }
 
-  if ($form->{dateto}) {
+  if (trim($form->{dateto})) {
     $glwhere .= " AND ac.$form->{datesort} <= ?";
     $arwhere .= " AND ac.$form->{datesort} <= ?";
     $apwhere .= " AND ac.$form->{datesort} <= ?";
-    push(@glvalues, $form->{dateto});
-    push(@arvalues, $form->{dateto});
-    push(@apvalues, $form->{dateto});
+    push(@glvalues, trim($form->{dateto}));
+    push(@arvalues, trim($form->{dateto}));
+    push(@apvalues, trim($form->{dateto}));
   }
 
-  if ($form->{description}) {
+  if (trim($form->{description})) {
     $glwhere .= " AND g.description ILIKE ?";
     $arwhere .= " AND ct.name ILIKE ?";
     $apwhere .= " AND ct.name ILIKE ?";
-    push(@glvalues, '%' . $form->{description} . '%');
-    push(@arvalues, '%' . $form->{description} . '%');
-    push(@apvalues, '%' . $form->{description} . '%');
+    push(@glvalues, $::form->like($form->{description}));
+    push(@arvalues, $::form->like($form->{description}));
+    push(@apvalues, $::form->like($form->{description}));
   }
 
   if ($form->{employee_id}) {
@@ -293,13 +294,13 @@ sub all_transactions {
     push(@apvalues, conv_i($form->{employee_id}));
   }
 
-  if ($form->{notes}) {
+  if (trim($form->{notes})) {
     $glwhere .= " AND g.notes ILIKE ?";
     $arwhere .= " AND a.notes ILIKE ?";
     $apwhere .= " AND a.notes ILIKE ?";
-    push(@glvalues, '%' . $form->{notes} . '%');
-    push(@arvalues, '%' . $form->{notes} . '%');
-    push(@apvalues, '%' . $form->{notes} . '%');
+    push(@glvalues, $::form->like($form->{notes}));
+    push(@arvalues, $::form->like($form->{notes}));
+    push(@apvalues, $::form->like($form->{notes}));
   }
 
   if ($form->{accno}) {
