@@ -37,6 +37,7 @@ package WH;
 use SL::AM;
 use SL::DBUtils;
 use SL::Form;
+use SL::Util qw(trim);
 
 use SL::DB::Unit;
 use SL::DB::Assembly;
@@ -329,32 +330,32 @@ sub get_warehouse_journal {
 
   if ($filter{partnumber}) {
     push @filter_ary, "p.partnumber ILIKE ?";
-    push @filter_vars, '%' . $filter{partnumber} . '%';
+    push @filter_vars, $::form->like($filter{partnumber});
   }
 
   if ($filter{description}) {
     push @filter_ary, "(p.description ILIKE ?)";
-    push @filter_vars, '%' . $filter{description} . '%';
+    push @filter_vars, $::form->like($filter{description});
   }
 
   if ($filter{chargenumber}) {
     push @filter_ary, "i1.chargenumber ILIKE ?";
-    push @filter_vars, '%' . $filter{chargenumber} . '%';
+    push @filter_vars, $::form->like($filter{chargenumber});
   }
 
-  if ($form->{bestbefore}) {
+  if (trim($form->{bestbefore})) {
     push @filter_ary, "?::DATE = i1.bestbefore::DATE";
-    push @filter_vars, $form->{bestbefore};
+    push @filter_vars, trim($form->{bestbefore});
   }
 
-  if ($form->{fromdate}) {
+  if (trim($form->{fromdate})) {
     push @filter_ary, "? <= i1.shippingdate";
-    push @filter_vars, $form->{fromdate};
+    push @filter_vars, trim($form->{fromdate});
   }
 
-  if ($form->{todate}) {
+  if (trim($form->{todate})) {
     push @filter_ary, "? >= i1.shippingdate";
-    push @filter_vars, $form->{todate};
+    push @filter_vars, trim($form->{todate});
   }
 
   if ($form->{l_employee}) {
@@ -631,12 +632,12 @@ sub get_warehouse_report {
 
   if ($filter{partnumber}) {
     push @filter_ary,  "p.partnumber ILIKE ?";
-    push @filter_vars, '%' . $filter{partnumber} . '%';
+    push @filter_vars, $::form->like($filter{partnumber});
   }
 
   if ($filter{description}) {
     push @filter_ary,  "p.description ILIKE ?";
-    push @filter_vars, '%' . $filter{description} . '%';
+    push @filter_vars, $::form->like($filter{description});
   }
 
   if ($filter{partsid}) {
@@ -646,22 +647,22 @@ sub get_warehouse_report {
 
   if ($filter{chargenumber}) {
     push @filter_ary,  "i.chargenumber ILIKE ?";
-    push @filter_vars, '%' . $filter{chargenumber} . '%';
+    push @filter_vars, $::form->like($filter{chargenumber});
   }
 
-  if ($form->{bestbefore}) {
+  if (trim($form->{bestbefore})) {
     push @filter_ary, "?::DATE = i.bestbefore::DATE";
-    push @filter_vars, $form->{bestbefore};
+    push @filter_vars, trim($form->{bestbefore});
   }
 
   if ($filter{ean}) {
     push @filter_ary,  "p.ean ILIKE ?";
-    push @filter_vars, '%' . $filter{ean} . '%';
+    push @filter_vars, $::form->like($filter{ean});
   }
 
-  if ($filter{date}) {
+  if (trim($filter{date})) {
     push @filter_ary, "i.shippingdate <= ?";
-    push @filter_vars, $filter{date};
+    push @filter_vars, trim($filter{date});
   }
   if (!$filter{include_invalid_warehouses}){
     push @filter_ary,  "NOT (w.invalid)";
