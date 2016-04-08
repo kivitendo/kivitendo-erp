@@ -473,6 +473,9 @@ sub get_accounts_g {
       $inwhere   = " AND (acc.transdate >= $fromdate)";
     } else {
       $where    .= " AND (ac.transdate >= $fromdate)";
+      # hotfix for projectfilter in guv and bwa
+      # fromdate is otherwise ignored if project is selected
+      $prwhere   = " AND (a.transdate  >= $fromdate)";
     }
   }
 
