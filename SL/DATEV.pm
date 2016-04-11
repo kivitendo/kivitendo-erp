@@ -377,7 +377,8 @@ sub _get_transactions {
          ct.name, ct.ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
-         t.rate AS taxrate
+         t.rate AS taxrate,
+         'ar' as table
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
@@ -395,7 +396,8 @@ sub _get_transactions {
          ct.name,ct.ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
-         t.rate AS taxrate
+         t.rate AS taxrate,
+         'ap' as table
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
@@ -413,7 +415,8 @@ sub _get_transactions {
          gl.description AS name, NULL as ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
-         t.rate AS taxrate
+         t.rate AS taxrate,
+         'gl' as table
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
@@ -539,7 +542,9 @@ sub _get_transactions {
       # Problem: we can't distinguish between AR and AP and normal invoices via boolean "invoice"
       # for AR and AP transaction exit the loop as soon as an AR or AP account is found
       # there must be only one AR or AP chart in the booking
-      if ( $trans->[$j]->{'link'} eq 'AR' or $trans->[$j]->{'link'} eq 'AP') {
+      # since it is possible to do this kind of things with GL too, make sure those don't get aborted in case someone
+      # manually pays an invoice in GL.
+      if ($trans->[$j]->{table} ne 'gl' and ($trans->[$j]->{'link'} eq 'AR' or $trans->[$j]->{'link'} eq 'AP')) {
         $notsplitindex = $j;   # position in booking with highest amount
         $absumsatz     = $trans->[$j]->{'amount'};
         last;
