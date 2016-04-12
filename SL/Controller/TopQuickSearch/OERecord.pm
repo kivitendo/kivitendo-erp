@@ -74,11 +74,11 @@ sub redirect_to_object {
 }
 
 sub type {
-  ...
+  die 'must be overwritten'
 }
 
 sub cv {
-  ...
+  die 'must be overwritten'
 }
 
 sub quotation {

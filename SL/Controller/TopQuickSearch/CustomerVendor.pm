@@ -98,15 +98,15 @@ sub init_models {
 }
 
 sub type {
-  ...
+  die 'must be overwritten'
 }
 
 sub cv {
-  ...
+  die 'must be overwritten'
 }
 
 sub model {
-  ...
+  die 'must be overwritten'
 };
 
 1;
