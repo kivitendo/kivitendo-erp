@@ -15,11 +15,11 @@ use Rose::Object::MakeMethods::Generic (
 # nope. this is only for subclassing
 sub auth { 'NOT ALLOWED' }
 
-sub name { ... }
+sub name { die 'must be overwritten' }
 
-sub description_config { ... }
+sub description_config { die 'must be overwritten' }
 
-sub description_field { ... }
+sub description_field { die 'must be overwritten' }
 
 sub query_autocomplete {
   my ($self) = @_;

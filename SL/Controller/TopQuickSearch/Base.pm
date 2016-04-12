@@ -3,19 +3,19 @@ package SL::Controller::TopQuickSearch::Base;
 use strict;
 use parent qw(Rose::Object);
 
-sub auth { ... }
+sub auth { die 'must be overwritten' }
 
-sub name { ... }
+sub name { die 'must be overwritten' }
 
-sub description_config { ... }
+sub description_config { die 'must be overwritten' }
 
-sub description_field { ... }
+sub description_field { die 'must be overwritten' }
 
-sub query_autocomplete { ... }
+sub query_autocomplete { die 'must be overwritten' }
 
-sub select_autocomplete { ... }
+sub select_autocomplete { die 'must be overwritten' }
 
-sub do_search { ... }
+sub do_search { die 'must be overwritten' }
 
 1;
 
