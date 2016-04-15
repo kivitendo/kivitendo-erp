@@ -243,6 +243,8 @@ namespace('kivi', function(k){
               id:   $(this).children('input.part_picker_id').val(),
               name: $(this).children('input.part_picker_description').val(),
               unit: $(this).children('input.part_picker_unit').val(),
+              partnumber:  $(this).children('input.part_picker_partnumber').val(),
+              description: $(this).children('input.part_picker_description').val(),
             });
             close_popup();
             $dummy.focus();
