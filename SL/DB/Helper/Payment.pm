@@ -162,7 +162,9 @@ sub pay_invoice {
         $paid_amount      += -1 * $amount;
         $skonto_amount_check -= $skonto_booking->{'skonto_amount'};
       };
-      die "difference_as_skonto calculated incorrectly, sum of calculated payments doesn't add up to open amount $total_open_amount, reference_amount = $reference_amount\n" unless _round($reference_amount) == 0;
+      if ( $params{payment_type} eq 'difference_as_skonto' ) {
+          die "difference_as_skonto calculated incorrectly, sum of calculated payments doesn't add up to open amount $total_open_amount, reference_amount = $reference_amount\n" unless _round($reference_amount) == 0;
+      }
 
     };
 
