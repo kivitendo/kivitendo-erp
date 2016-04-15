@@ -28,11 +28,24 @@ sub new {
     my $nodes_by_id = {};
     for my $file (@files) {
       my $data;
-      if ($yaml_xs) {
-        $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
-      } else {
-        $data = YAML::LoadFile(File::Spec->catfile($path, $file));
-      }
+      eval {
+        if ($yaml_xs) {
+          $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
+        } else {
+          $data = YAML::LoadFile(File::Spec->catfile($path, $file));
+        }
+        1;
+      } or do {
+        die "Error while parsing $file: $@";
+      };
+
+      # check if this file is internally consistent.
+      die 'not an array ref' unless $data && 'ARRAY' eq ref $data; # TODO get better diag to user
+
+      # in particular duplicate ids tend to come up as a user error when editing the menu files
+      my %uniq_ids;
+      $uniq_ids{$_->{id}}++ && die "Error in $file: duplicate id $_->{id}" for @$data;
+
       _merge($nodes, $nodes_by_id, $data);
     }
 
@@ -56,8 +69,6 @@ sub new {
 
 sub _merge {
   my ($nodes, $by_id, $data) = @_;
-
-  die 'not an array ref' unless $data && 'ARRAY' eq ref $data; # TODO check this sooner, to get better diag to user
 
   for my $node (@$data) {
     my $id = $node->{id};
