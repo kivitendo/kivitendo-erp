@@ -1467,6 +1467,7 @@ $self->{texts} = {
   'Internal Phone List'         => 'Interne Telefonliste',
   'Internal comment'            => 'Interne Bemerkungen',
   'Internet'                    => 'Internet',
+  'Intra-Community supply'      => 'Gelangensbestätigung',
   'Introduction of clients'     => 'Einführung von Mandanten',
   'Inv. Duedate'                => 'Rg. Fälligkeit',
   'Invalid'                     => 'Ungültig',

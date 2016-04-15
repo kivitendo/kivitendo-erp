@@ -4,6 +4,15 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.4.1
+==================
+
+* Neue Druckvariante Gelangensbestätigung für Verkaufs-Aufträge
+
+    Im Standard-Vorlagensatz RB befindet sich als Vorlage die ic_supply.tex
+    als Orientierung für die Anpassung an eigene Vorlagen. Eigene Vorlagen
+    müssen entsprechend um diesen Typ für die 3.4.1 erweitert werden.
+
 Upgrade auf v3.4.0
 ==================
 

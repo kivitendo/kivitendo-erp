@@ -1232,7 +1232,8 @@ sub get_formname_translation {
     sales_delivery_order    => $main::locale->text('Delivery Order'),
     purchase_delivery_order => $main::locale->text('Delivery Order'),
     dunning                 => $main::locale->text('Dunning'),
-    letter                  => $main::locale->text('Letter')
+    letter                  => $main::locale->text('Letter'),
+    ic_supply               => $main::locale->text('Intra-Community supply'),
   );
 
   $main::lxdebug->leave_sub();
