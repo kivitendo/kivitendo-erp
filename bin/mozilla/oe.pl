@@ -2116,6 +2116,34 @@ sub save_periodic_invoices_config {
   $::lxdebug->leave_sub();
 }
 
+sub _remove_full_delivered_rows {
+
+  my @fields = map { s/_1$//; $_ } grep { m/_1$/ } keys %{ $::form };
+  my @new_rows;
+
+  my $removed_rows = 0;
+  my $row          = 0;
+  while ($row < $::form->{rowcount}) {
+    $row++;
+    next unless $::form->{"id_$row"};
+    my $base_factor = SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor;
+    my $base_qty = $::form->parse_amount(\%::myconfig, $::form->{"qty_$row"}) *  $base_factor;
+    my $ship_qty = $::form->parse_amount(\%::myconfig, $::form->{"ship_$row"}) *  $base_factor;
+    #$main::lxdebug->message(LXDebug->DEBUG2(),"shipto=".$ship_qty." qty=".$base_qty);
+
+    if (!$ship_qty || ($ship_qty < $base_qty)) {
+      $::form->{"qty_$row"}  = $::form->format_amount(\%::myconfig, ($base_qty - $ship_qty) / $base_factor );
+      $::form->{"ship_$row"} = 0;
+      push @new_rows, { map { $_ => $::form->{"${_}_${row}"} } @fields };
+
+    } else {
+      $removed_rows++;
+    }
+  }
+  $::form->redo_rows(\@fields, \@new_rows, scalar(@new_rows), $::form->{rowcount});
+  $::form->{rowcount} -= $removed_rows;
+}
+
 sub _oe_remove_delivered_or_billed_rows {
   my (%params) = @_;
 
@@ -2124,6 +2152,18 @@ sub _oe_remove_delivered_or_billed_rows {
   my $ord_quot = SL::DB::Order->new(id => $params{id})->load;
   return if !$ord_quot;
 
+  # Prüfung ob itemlinks existieren, falls ja dann neue Implementierung
+
+  if (  $params{type} eq 'delivered' ) {
+      my $orderitem = SL::DB::Manager::OrderItem->get_first( where => [trans_id => $ord_quot->id]);
+      if ( $orderitem) {
+          my @links = $orderitem->linked_records(to => 'SL::DB::DeliveryOrderItem');
+          if ( scalar(@links ) > 0 ) {
+              #$main::lxdebug->message(LXDebug->DEBUG2(),"item recordlinks vorhanden");
+              return _remove_full_delivered_rows();
+          }
+      }
+  }
   my %args    = (
     direction => 'to',
     to        =>   $params{type} eq 'delivered' ? 'DeliveryOrder' : 'Invoice',

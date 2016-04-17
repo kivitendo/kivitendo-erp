@@ -319,7 +319,8 @@ sub display_row {
       $ship_qty          *= $all_units->{$form->{"partunit_$i"}}->{factor};
       $ship_qty          /= ( $all_units->{$form->{"unit_$i"}}->{factor} || 1 );
 
-      $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"};
+      $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"}
+      . $cgi->hidden(-name => "ship_$i", -value => $form->format_amount(\%myconfig, $form->{"ship_$i"}, $qty_dec));
 
       my $ship_missing_qty    = $form->{"qty_$i"} - $ship_qty;
       my $ship_missing_amount = $form->round_amount($ship_missing_qty * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
@@ -1770,36 +1771,21 @@ sub _update_ship {
 
   my $all_units = AM->retrieve_all_units();
 
-  my %ship = DO->get_shipped_qty('type'  => ($form->{type} eq 'purchase_order') ? 'purchase' : 'sales',
-                                 'oe_id' => $form->{id},);
+  my %ship = DO->get_shipped_qty('oe_id' => $form->{id});
 
   foreach my $i (1..$form->{rowcount}) {
     next unless ($form->{"id_${i}"});
 
     $form->{"ship_$i"} = 0;
 
-    my $ship_entry = $ship{$form->{"id_$i"}};
+    my $ship_entry = $ship{$i};
 
-    next if (!$ship_entry || ($ship_entry->{qty} <= 0));
+    next if (!$ship_entry || ($ship_entry->{qty_ordered} <= 0));
 
-    my $rowqty =
-      ($form->{simple_save} ? $form->{"qty_$i"} : $form->parse_amount(\%myconfig, $form->{"qty_$i"}))
-      * $all_units->{$form->{"unit_$i"}}->{factor}
-      / $all_units->{$form->{"partunit_$i"}}->{factor};
-
-    $form->{"ship_$i"}  = min($rowqty, $ship_entry->{qty});
-    $ship_entry->{qty} -= $form->{"ship_$i"};
-  }
-
-  foreach my $i (1..$form->{rowcount}) {
-    next unless ($form->{"id_${i}"});
-
-    my $ship_entry = $ship{$form->{"id_$i"}};
-
-    next if (!$ship_entry || ($ship_entry->{qty} <= 0.01));
-
-    $form->{"ship_$i"} += $ship_entry->{qty};
-    $ship_entry->{qty}  = 0;
+    my $rowqty = $ship_entry->{qty_ordered} - $ship_entry->{qty_notdelivered};
+    $rowqty   *= $all_units->{$form->{"unit_$i"}}->{factor} /
+                 $all_units->{$form->{"partunit_$i"}}->{factor} if !$form->{simple_save};
+    $form->{"ship_$i"}  = $rowqty;
   }
 
   $main::lxdebug->leave_sub();

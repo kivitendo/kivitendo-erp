@@ -536,56 +536,12 @@ sub mark_orders_if_delivered {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my @links    = RecordLinks->get_links('dbh'        => $dbh,
-                                        'from_table' => 'oe',
-                                        'to_table'   => 'delivery_orders',
-                                        'to_id'      => $params{do_id});
+  my %ship = $self->get_shipped_qty('do_id' => $form->{id}, 'delivered' => 1);
 
-  my $oe_id  = @links ? $links[0]->{from_id} : undef;
-
-  return $main::lxdebug->leave_sub() if (!$oe_id);
-
-  my $all_units = AM->retrieve_all_units();
-
-  my $query     = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
-                     FROM orderitems oi
-                     LEFT JOIN parts p ON (oi.parts_id = p.id)
-                     WHERE (oi.trans_id = ?)|;
-  my $sth       = prepare_execute_query($form, $dbh, $query, $oe_id);
-
-  my %shipped   = $self->get_shipped_qty('type'  => $params{type},
-                                         'oe_id' => $oe_id,);
-  my %ordered   = ();
-
-  while (my $ref = $sth->fetchrow_hashref()) {
-    $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
-
-    if ($ordered{$ref->{parts_id}}) {
-      $ordered{$ref->{parts_id}}->{baseqty} += $ref->{baseqty};
-    } else {
-      $ordered{$ref->{parts_id}}             = $ref;
-    }
+  foreach my $oe_id (keys %ship) {
+      do_query($form, $dbh,"UPDATE oe SET delivered = ".($ship{$oe_id}->{delivered}?"TRUE":"FALSE")." WHERE id = ?", $oe_id);
   }
-
-  $sth->finish();
-
-  map { $_->{baseqty} = $_->{qty} * $all_units->{$_->{unit}}->{factor} / $all_units->{$_->{partunit}}->{factor} } values %shipped;
-
-  my $delivered = 1;
-  foreach my $part (values %ordered) {
-    if (!$shipped{$part->{parts_id}} || ($shipped{$part->{parts_id}}->{baseqty} < $part->{baseqty})) {
-      $delivered = 0;
-      last;
-    }
-  }
-
-  if ($delivered) {
-    $query = qq|UPDATE oe
-                SET delivered = TRUE
-                WHERE id = ?|;
-    do_query($form, $dbh, $query, $oe_id);
-    $dbh->commit() if (!$params{dbh});
-  }
+  $dbh->commit() if (!$params{dbh});
 
   $main::lxdebug->leave_sub();
 }
@@ -1244,53 +1200,164 @@ sub transfer_in_out {
   $main::lxdebug->leave_sub();
 }
 
+
 sub get_shipped_qty {
   $main::lxdebug->enter_sub();
 
+  # Drei Fälle:
+  # $params{oe_id} : Alle Lieferscheine zu diesem Auftrag durchsuchen und pro Auftragsposition die Mengen zurückgeben
+  #                  Wird zur Darstellung der gelieferten Mengen im Auftrag benötigt
+  # $params{do_id} : Alle Aufträge zu diesem Lieferschein durchsuchen und pro Lieferscheinposition die Mengen zurückgeben
+  #                  Wird für LaTeX benötigt um im Lieferschein pro Position die Mengen auszugeben
+  # $params{delivered}: Alle Aufträge zum Lieferschein $params{do_id} prüfen ob sie vollständiger ausgeliefert sind
+  #                  Wird für das Setzen des 'delivered' Flag in der Datenbank beim "save" des Lieferscheins benötigt
+  
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(type oe_id));
-
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $dbh = $form->get_standard_dbh($myconfig);
+  my %ship = ();
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my @oe_ids;
 
-  my @links    = RecordLinks->get_links('dbh'        => $dbh,
-                                        'from_table' => 'oe',
-                                        'from_id'    => $params{oe_id},
-                                        'to_table'   => 'delivery_orders');
-  my @values   = map { $_->{to_id} } @links;
+  if ( $params{oe_id} ) {
+    push @oe_ids,  $params{oe_id};
+  }
+  elsif ($params{do_id}) {
+    my @links  = RecordLinks->get_links(  'dbh'        => $dbh,
+                                          'from_table' => 'oe',
+                                          'to_table'   => 'delivery_orders',
+                                          'to_id'      => $params{do_id});
 
-  if (!scalar @values) {
-    $main::lxdebug->leave_sub();
-    return ();
+    @oe_ids  = map { $_->{from_id} } @links;
   }
 
-  my $query =
-    qq|SELECT doi.parts_id, doi.qty, doi.unit, p.unit AS partunit
-       FROM delivery_order_items doi
-       LEFT JOIN delivery_orders o ON (doi.delivery_order_id = o.id)
-       LEFT JOIN parts p ON (doi.parts_id = p.id)
-       WHERE o.id IN (| . join(', ', ('?') x scalar @values) . qq|)|;
+  if (scalar (@oe_ids) > 0 ) {
 
-  my %ship      = ();
-  my $entries   = selectall_hashref_query($form, $dbh, $query, @values);
-  my $all_units = AM->retrieve_all_units();
+      #$main::lxdebug->message(LXDebug->DEBUG2(),"oeid=".$params{oe_id}." doid=".$params{do_id});
+      my $all_units = AM->retrieve_all_units();
+      my $query = qq|SELECT oi.id, oi.position, oi.parts_id, oi.qty, oi.unit, oi.trans_id,
+                                p.unit AS partunit FROM orderitems oi
+                                LEFT JOIN parts p ON (oi.parts_id = p.id)
+                                WHERE trans_id IN (| .
+                                       join(', ', ('?') x scalar @oe_ids) . qq|) ORDER BY position ASC|;
 
-  foreach my $entry (@{ $entries }) {
-    $entry->{qty} *= AM->convert_unit($entry->{unit}, $entry->{partunit}, $all_units);
+      my $orderitems = selectall_hashref_query($form, $dbh, $query, @oe_ids);
+      foreach my $oe_entry (@{ $orderitems }) {
+         $oe_entry->{qty} *= AM->convert_unit($oe_entry->{unit}, $oe_entry->{partunit}, $all_units);
+         $oe_entry->{qty_notdelivered} = $oe_entry->{qty};
 
-    if (!$ship{$entry->{parts_id}}) {
-      $ship{$entry->{parts_id}} = $entry;
-    } else {
-      $ship{$entry->{parts_id}}->{qty} += $entry->{qty};
-    }
+         # Bei oe Modus auf jeden Fall einen Record anlegen
+         if ( $params{oe_id} ) {
+             $ship{$oe_entry->{position}} = {
+                 'qty_ordered'      => $oe_entry->{qty} ,
+                 'qty_notdelivered' => $oe_entry->{qty}
+             };
+         }
+      }
+
+      my @dolinks  = RecordLinks->get_links('dbh'       => $dbh,
+                                           'from_table' => 'oe',
+                                           'to_table'   => 'delivery_orders',
+                                           'from_id'    => @oe_ids);
+
+      my @do_ids = map { $_->{to_id} }  @dolinks ;
+      if (scalar (@do_ids) == 0) {
+          $main::lxdebug->leave_sub();
+          return %ship;
+      }
+
+      my %oeitems_by_id       = map { $_->{id} => $_ } @{ $orderitems };
+
+
+      $query  = qq|SELECT doi.parts_id, doi.id, doi.qty, doi.unit, doi.position,
+                   doi.delivery_order_id, COALESCE(rlitem.from_id,0) as from_id,
+                   p.unit AS partunit
+                   FROM delivery_order_items doi
+                   LEFT JOIN parts p ON (doi.parts_id = p.id)
+                   LEFT JOIN record_links rlitem
+                   ON (rlitem.to_id = doi.id AND rlitem.to_table='delivery_order_items')
+                   WHERE doi.delivery_order_id IN (| . join(', ', ('?') x scalar @do_ids) . qq|)|;
+
+      my $deliveryorderitems = selectall_hashref_query($form, $dbh, $query, @do_ids);
+
+      # erst mal qty der links bearbeiten
+      foreach my $do_entry (@{ $deliveryorderitems }) {
+          $do_entry->{qty} *= AM->convert_unit($do_entry->{unit}, $do_entry->{partunit}, $all_units);
+          if ($do_entry->{from_id} > 0 ) {
+              # record link zwischen items vorhanden, kann auch von anderem Auftrag sein
+              my $oe_entry = $oeitems_by_id{$do_entry->{from_id}};
+              if ( $oe_entry ) {
+                  $oe_entry->{qty_notdelivered} -= $do_entry->{qty};
+                  # derzeit nur ein link pro do_item
+                  $do_entry->{oe_entry} = $oe_entry;
+              }
+          } else {
+              $main::lxdebug->message(LXDebug->DEBUG2(),"no entry for=".$do_entry->{id}." part=".$do_entry->{parts_id});
+          }
+      }
+      # nun den rest ohne links bearbeiten
+      foreach my $do_entry (@{ $deliveryorderitems }) {
+          next if $do_entry->{from_id} > 0;
+          next if $do_entry->{qty} == 0;
+
+          foreach my $oe_entry (@{ $orderitems }) {
+              #$main::lxdebug->message(LXDebug->DEBUG2(),"do oe_entry ".$oe_entry." id=".$oe_entry->{id}." not del=".$oe_entry->{qty_notdelivered});
+              next if $oe_entry->{qty_notdelivered} == 0;
+              if ( $do_entry->{parts_id} == $oe_entry->{parts_id} ) {
+                  # zu viele geliefert auf andere position ?
+                  if ( $oe_entry->{qty_notdelivered} < 0 ) {
+                      $do_entry->{qty} += - $oe_entry->{qty_notdelivered};
+                      $oe_entry->{qty_notdelivered} = 0;
+                  } else {
+                      if ( $do_entry->{qty} < $oe_entry->{qty_notdelivered} ) {
+                          $oe_entry->{qty_notdelivered} -= $do_entry->{qty};
+                          $do_entry->{qty} = 0;
+                      } else {
+                          $do_entry->{qty} -= $oe_entry->{qty_notdelivered};
+                          $oe_entry->{qty_notdelivered} = 0;
+                      }
+                      # derzeit nur ein link pro do_item
+                      $do_entry->{oe_entry} = $oe_entry if !$do_entry->{oe_entry};
+                  }
+              }
+              last if $do_entry->{qty} <= 0;
+          }
+
+      }
+      if ( $params{oe_id} ) {
+          map { $ship{$_->{position}}->{qty_notdelivered} = $_->{qty_notdelivered}; }  @{ $orderitems };
+      }
+      elsif ($params{do_id} && $params{delivered}) {
+          map {
+              if ( !$ship{$_->{trans_id}} ) {
+                  $ship{$_->{trans_id}} = { 'delivered' => 1 };
+              }
+              $ship{$_->{trans_id}}->{delivered} = 0 if $_->{qty_notdelivered} > 0;
+          }  @{ $orderitems };
+      }
+      elsif ($params{do_id}) {
+        foreach my $do_entry (@{ $deliveryorderitems }) {
+           next if $params{do_id} != $do_entry->{delivery_order_id};
+           my $position = $do_entry->{position};
+           if ( $position > 0 && $do_entry->{oe_entry}) {
+             if ( !$ship{$position} ) {
+                 $ship{$position} = {
+                 'qty_ordered'      => $do_entry->{oe_entry}->{qty} ,
+                 'qty_notdelivered' => $do_entry->{oe_entry}->{qty_notdelivered}
+                 };
+             }
+             else {
+                 $ship{$position}->{qty_ordered}      += $do_entry->{oe_entry}->{qty};
+                 $ship{$position}->{qty_notdelivered} += $do_entry->{oe_entry}->{qty_notdelivered};
+             }
+           }
+        }
+      }
   }
-
   $main::lxdebug->leave_sub();
-
   return %ship;
 }
 
