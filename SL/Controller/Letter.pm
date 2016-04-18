@@ -278,16 +278,17 @@ sub action_print_letter {
     }
 
     my $printer = SL::DB::Printer->new(id => $::form->{printer_id})->load;
-    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
+    $printer->print_document(
+      copies    => $::form->{copies},
+      file_name => $pdf_file_name,
+    );
 
-    open my $out, '|-', $command or die $!;
-    binmode $out;
-    print $out scalar(read_file($pdf_file_name));
-    close $out;
     Common::copy_file_to_webdav_folder($webdav_copy_args) if $::instance_conf->get_webdav_documents;
 
+    unlink $pdf_file_name;
+
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
-    $self->redirect_to(action => 'edit', id => $letter->{id}, 'printer_id' => $::form->{printer_id});
+    $self->redirect_to(action => 'edit', 'letter.id' => $self->letter->id, media => 'printer', printer_id => $::form->{printer_id});
     1;
   } or do {
     unlink $pdf_file_name;
@@ -331,6 +332,7 @@ sub _display {
   $::request->layout->add_javascripts('edit_part_window.js');
 
   $::form->{language_id} ||= $params{language_id};
+  $::form->{printers}      = SL::DB::Manager::Printer->get_all_sorted;
 
   $self->render('letter/edit',
     %params,
