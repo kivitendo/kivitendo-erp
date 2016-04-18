@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use Carp;
+use File::Basename;
 use POSIX qw(strftime);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
@@ -247,6 +248,14 @@ sub action_print_letter {
       return !$err;
     }
 
+    my $webdav_copy_args   = Form->new('');
+    %{ $webdav_copy_args } = (
+      %{ $::form },
+      tmpdir  => dirname($pdf_file_name),
+      tmpfile => basename($pdf_file_name),
+      cwd     => POSIX::getcwd(),
+    );
+
     if (!$::form->{printer_id} || $::form->{media} eq 'screen') {
 
       my $file = IO::File->new($pdf_file_name, 'r') || croak("Cannot open file '$pdf_file_name'");
@@ -263,7 +272,7 @@ sub action_print_letter {
       $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
       $file->close;
 
-      Common::copy_file_to_webdav_folder($::form) if $::instance_conf->get_webdav_documents;
+      Common::copy_file_to_webdav_folder($webdav_copy_args) if $::instance_conf->get_webdav_documents;
       unlink $pdf_file_name;
       return 1;
     }
@@ -275,7 +284,7 @@ sub action_print_letter {
     binmode $out;
     print $out scalar(read_file($pdf_file_name));
     close $out;
-    Common::copy_file_to_webdav_folder($::form) if $::instance_conf->get_webdav_documents;
+    Common::copy_file_to_webdav_folder($webdav_copy_args) if $::instance_conf->get_webdav_documents;
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
     $self->redirect_to(action => 'edit', id => $letter->{id}, 'printer_id' => $::form->{printer_id});
