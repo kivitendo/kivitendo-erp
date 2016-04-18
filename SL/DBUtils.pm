@@ -6,7 +6,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
-             dump_query quote_db_date
+             dump_query quote_db_date like
              selectfirst_hashref_query selectfirst_array_query
              selectall_hashref_query selectall_array_query
              selectall_as_map
@@ -386,6 +386,12 @@ sub add_token {
   return ($token, @vals);
 }
 
+sub like {
+  my ($string) = @_;
+
+  return "%" . SL::Util::trim($string // '') . "%";
+}
+
 1;
 
 
@@ -458,6 +464,12 @@ Database version of conv_date. Quotes STR before returning. Returns 'NULL' if ST
 
 Treats STR as a database date, quoting it. If STR equals current_date returns an escaped version which is treated as the current date by Postgres.
 Returns 'NULL' if STR is empty.
+
+=item like STR
+
+Turns C<STR> into an argument suitable for SQL's C<LIKE> and C<ILIKE>
+operators by Trimming the string C<STR> (removes leading and trailing
+whitespaces) and prepending and appending C<%>.
 
 =back
 

@@ -507,7 +507,7 @@ sub ar_transactions {
     push(@values, $form->{customer_id});
   } elsif ($form->{customer}) {
     $where .= " AND c.name ILIKE ?";
-    push(@values, $form->like($form->{customer}));
+    push(@values, like($form->{customer}));
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
@@ -531,7 +531,7 @@ sub ar_transactions {
   foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description)) {
     if ($form->{$column}) {
       $where .= " AND a.$column ILIKE ?";
-      push(@values, $form->like($form->{$column}));
+      push(@values, like($form->{$column}));
     }
   }
   if ($form->{"project_id"}) {

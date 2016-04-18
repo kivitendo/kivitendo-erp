@@ -454,7 +454,7 @@ sub ap_transactions {
     push(@values, $form->{vendor_id});
   } elsif ($form->{vendor}) {
     $where .= " AND v.name ILIKE ?";
-    push(@values, $form->like($form->{vendor}));
+    push(@values, like($form->{vendor}));
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
@@ -470,15 +470,15 @@ sub ap_transactions {
   }
   if ($form->{invnumber}) {
     $where .= " AND a.invnumber ILIKE ?";
-    push(@values, $form->like($form->{invnumber}));
+    push(@values, like($form->{invnumber}));
   }
   if ($form->{ordnumber}) {
     $where .= " AND a.ordnumber ILIKE ?";
-    push(@values, $form->like($form->{ordnumber}));
+    push(@values, like($form->{ordnumber}));
   }
   if ($form->{notes}) {
     $where .= " AND lower(a.notes) LIKE ?";
-    push(@values, $form->like($form->{notes}));
+    push(@values, like($form->{notes}));
   }
   if ($form->{project_id}) {
     $where .=

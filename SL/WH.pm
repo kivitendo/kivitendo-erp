@@ -330,17 +330,17 @@ sub get_warehouse_journal {
 
   if ($filter{partnumber}) {
     push @filter_ary, "p.partnumber ILIKE ?";
-    push @filter_vars, $::form->like($filter{partnumber});
+    push @filter_vars, like($filter{partnumber});
   }
 
   if ($filter{description}) {
     push @filter_ary, "(p.description ILIKE ?)";
-    push @filter_vars, $::form->like($filter{description});
+    push @filter_vars, like($filter{description});
   }
 
   if ($filter{chargenumber}) {
     push @filter_ary, "i1.chargenumber ILIKE ?";
-    push @filter_vars, $::form->like($filter{chargenumber});
+    push @filter_vars, like($filter{chargenumber});
   }
 
   if (trim($form->{bestbefore})) {
@@ -632,12 +632,12 @@ sub get_warehouse_report {
 
   if ($filter{partnumber}) {
     push @filter_ary,  "p.partnumber ILIKE ?";
-    push @filter_vars, $::form->like($filter{partnumber});
+    push @filter_vars, like($filter{partnumber});
   }
 
   if ($filter{description}) {
     push @filter_ary,  "p.description ILIKE ?";
-    push @filter_vars, $::form->like($filter{description});
+    push @filter_vars, like($filter{description});
   }
 
   if ($filter{partsid}) {
@@ -647,7 +647,7 @@ sub get_warehouse_report {
 
   if ($filter{chargenumber}) {
     push @filter_ary,  "i.chargenumber ILIKE ?";
-    push @filter_vars, $::form->like($filter{chargenumber});
+    push @filter_vars, like($filter{chargenumber});
   }
 
   if (trim($form->{bestbefore})) {
@@ -657,7 +657,7 @@ sub get_warehouse_report {
 
   if ($filter{ean}) {
     push @filter_ary,  "p.ean ILIKE ?";
-    push @filter_vars, $::form->like($filter{ean});
+    push @filter_vars, like($filter{ean});
   }
 
   if (trim($filter{date})) {

@@ -60,22 +60,22 @@ sub filter_parts {
 
   if ( $::form->{filter_partnumber} ) {
     $where .= ' AND partnumber ILIKE ?';
-    push(@values, $::form->like( $::form->{filter_partnumber} ));
+    push(@values, like( $::form->{filter_partnumber} ));
   }
 
   if ($::form->{filter_description}) {
     $where .= ' AND description ILIKE ?';
-    push(@values, $::form->like($::form->{filter_description}));
+    push(@values, like($::form->{filter_description}));
   }
 
   if ($::form->{filter_notes}) {
     $where .= ' AND notes ILIKE ?';
-    push(@values, $::form->like($::form->{filter_notes}));
+    push(@values, like($::form->{filter_notes}));
   }
 
   if ($::form->{filter_ean}) {
     $where .= ' AND ean ILIKE ?';
-    push(@values, $::form->like($::form->{filter_ean}));
+    push(@values, like($::form->{filter_ean}));
   }
 
   if ($::form->{filter_type} eq 'assembly') {

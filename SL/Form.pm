@@ -3010,12 +3010,6 @@ sub current_date {
   return $thisdate;
 }
 
-sub like {
-  my ($self, $string) = @_;
-
-  return "%" . SL::Util::trim($string // '') . "%";
-}
-
 sub redo_rows {
   $main::lxdebug->enter_sub();
 

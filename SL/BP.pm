@@ -187,12 +187,12 @@ sub get_spoolfiles {
     push(@values, conv_i($form->{"${vc}_id"}));
   } elsif ($form->{ $vc }) {
     $query .= " AND vc.name ILIKE ?";
-    push(@values, $form->like($form->{ $vc }));
+    push(@values, like($form->{ $vc }));
   }
   foreach my $column (qw(invnumber ordnumber quonumber donumber)) {
     if ($form->{$column}) {
       $query .= " AND a.$column ILIKE ?";
-      push(@values, $form->like($form->{$column}));
+      push(@values, like($form->{$column}));
     }
   }
 

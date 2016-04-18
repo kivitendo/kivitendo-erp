@@ -1266,7 +1266,7 @@ sub aging {
   if ($form->{$ct_id}) {
     $where .= qq| AND (ct.id = | . conv_i($form->{$ct_id}) . qq|)|;
   } elsif ($form->{ $form->{ct} }) {
-    $where .= qq| AND (ct.name ILIKE | . $dbh->quote($::form->like($form->{$ct})) . qq|)|;
+    $where .= qq| AND (ct.name ILIKE | . $dbh->quote(like($form->{$ct})) . qq|)|;
   }
 
   my $dpt_join;

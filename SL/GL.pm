@@ -231,9 +231,9 @@ sub all_transactions {
     $glwhere .= qq| AND g.reference ILIKE ?|;
     $arwhere .= qq| AND a.invnumber ILIKE ?|;
     $apwhere .= qq| AND a.invnumber ILIKE ?|;
-    push(@glvalues, $::form->like($form->{reference}));
-    push(@arvalues, $::form->like($form->{reference}));
-    push(@apvalues, $::form->like($form->{reference}));
+    push(@glvalues, like($form->{reference}));
+    push(@arvalues, like($form->{reference}));
+    push(@apvalues, like($form->{reference}));
   }
 
   if ($form->{department}) {
@@ -250,9 +250,9 @@ sub all_transactions {
     $glwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
     $arwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
     $apwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
-    push(@glvalues, $::form->like($form->{source}));
-    push(@arvalues, $::form->like($form->{source}));
-    push(@apvalues, $::form->like($form->{source}));
+    push(@glvalues, like($form->{source}));
+    push(@arvalues, like($form->{source}));
+    push(@apvalues, like($form->{source}));
   }
 
   # default Datumseinschränkung falls nicht oder falsch übergeben (sollte nie passieren)
@@ -280,9 +280,9 @@ sub all_transactions {
     $glwhere .= " AND g.description ILIKE ?";
     $arwhere .= " AND ct.name ILIKE ?";
     $apwhere .= " AND ct.name ILIKE ?";
-    push(@glvalues, $::form->like($form->{description}));
-    push(@arvalues, $::form->like($form->{description}));
-    push(@apvalues, $::form->like($form->{description}));
+    push(@glvalues, like($form->{description}));
+    push(@arvalues, like($form->{description}));
+    push(@apvalues, like($form->{description}));
   }
 
   if ($form->{employee_id}) {
@@ -298,9 +298,9 @@ sub all_transactions {
     $glwhere .= " AND g.notes ILIKE ?";
     $arwhere .= " AND a.notes ILIKE ?";
     $apwhere .= " AND a.notes ILIKE ?";
-    push(@glvalues, $::form->like($form->{notes}));
-    push(@arvalues, $::form->like($form->{notes}));
-    push(@apvalues, $::form->like($form->{notes}));
+    push(@glvalues, like($form->{notes}));
+    push(@arvalues, like($form->{notes}));
+    push(@apvalues, like($form->{notes}));
   }
 
   if ($form->{accno}) {

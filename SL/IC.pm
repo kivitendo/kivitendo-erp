@@ -591,12 +591,12 @@ sub retrieve_assemblies {
 
   if ($form->{partnumber}) {
     $where .= qq| AND (p.partnumber ILIKE ?)|;
-    push(@values, $::form->like($form->{partnumber}));
+    push(@values, like($form->{partnumber}));
   }
 
   if ($form->{description}) {
     $where .= qq| AND (p.description ILIKE ?)|;
-    push(@values, $::form->like($form->{description}));
+    push(@values, like($form->{description}));
   }
 
   # retrieve assembly items
@@ -652,7 +652,7 @@ sub assembly_item {
   while (my ($column, $table) = each(%columns)) {
     next unless ($form->{"${column}_$i"});
     $where .= qq| AND ${table}.${column} ILIKE ?|;
-    push(@values, $::form->like($form->{"${column}_$i"}));
+    push(@values, like($form->{"${column}_$i"}));
   }
 
   if ($form->{id}) {
@@ -917,7 +917,7 @@ sub all_parts {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
     push @where_tokens, "$table_prefix{$_}$_ ILIKE ?";
-    push @bind_vars,    $::form->like($form->{$_});
+    push @bind_vars,    like($form->{$_});
   }
 
   foreach (@simple_l_switches) {
@@ -958,11 +958,11 @@ sub all_parts {
   # fortunately makemodel doesn't need to be displayed later, so adding a special clause to where_token is sufficient.
   if ($form->{make}) {
     push @where_tokens, 'mv.name ILIKE ?';
-    push @bind_vars, $::form->like($form->{make});
+    push @bind_vars, like($form->{make});
   }
   if ($form->{model}) {
     push @where_tokens, 'mm.model ILIKE ?';
-    push @bind_vars, $::form->like($form->{model});
+    push @bind_vars, like($form->{model});
   }
 
   # special case: sorting by partnumber
@@ -1156,14 +1156,14 @@ sub _create_filter_for_priceupdate {
     next unless ($form->{$column});
 
     $where .= qq| AND $item ILIKE ?|;
-    push(@where_values, $::form->like($form->{$column}));
+    push(@where_values, like($form->{$column}));
   }
 
   foreach my $item (qw(description serialnumber)) {
     next unless ($form->{$item});
 
     $where .= qq| AND (${item} ILIKE ?)|;
-    push(@where_values, $::form->like($form->{$item}));
+    push(@where_values, like($form->{$item}));
   }
 
 
@@ -1197,7 +1197,7 @@ sub _create_filter_for_priceupdate {
   foreach my $column (qw(make model)) {
     next unless ($form->{$column});
     $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE $column ILIKE ?|;
-    push(@where_values, $::form->like($form->{$column}));
+    push(@where_values, like($form->{$column}));
   }
 
   $main::lxdebug->leave_sub();
@@ -1411,15 +1411,15 @@ sub get_parts {
 
   if ($sortorder eq "all") {
     $where .= qq| AND (partnumber ILIKE ?) AND (description ILIKE ?)|;
-    push(@values, $::form->like($form->{partnumber}), $::form->like($form->{description}));
+    push(@values, like($form->{partnumber}), like($form->{description}));
 
   } elsif ($sortorder eq "partnumber") {
     $where .= qq| AND (partnumber ILIKE ?)|;
-    push(@values, $::form->like($form->{partnumber}));
+    push(@values, like($form->{partnumber}));
 
   } elsif ($sortorder eq "description") {
     $where .= qq| AND (description ILIKE ?)|;
-    push(@values, $::form->like($form->{description}));
+    push(@values, like($form->{description}));
     $order = "description";
 
   }

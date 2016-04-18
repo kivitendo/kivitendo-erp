@@ -112,7 +112,7 @@ sub invoice_transactions {
     push(@values, $form->{customer_id});
   } elsif ($form->{customer}) {
     $where .= " AND ct.name ILIKE ?";
-    push(@values, $form->like($form->{customer}));
+    push(@values, like($form->{customer}));
   }
   if ($form->{customernumber}) {
     $where .= qq| AND ct.customernumber = ? |;
