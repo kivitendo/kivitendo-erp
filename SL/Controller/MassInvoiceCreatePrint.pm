@@ -325,12 +325,7 @@ sub download_or_print_documents {
     }
 
     my $printer = SL::DB::Printer->new(id => $params{printer_id})->load;
-    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
-
-    open my $out, '|-', $command or die $!;
-    binmode $out;
-    print $out $merged_pdf;
-    close $out;
+    $printer->print_document(content => $merged_pdf);
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
     return $self->redirect_to(action => 'list_invoices', printer_id => $params{printer_id});

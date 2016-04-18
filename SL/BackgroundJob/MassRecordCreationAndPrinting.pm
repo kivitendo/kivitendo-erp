@@ -185,16 +185,10 @@ sub print_pdfs {
 
   foreach  my $local_printer_id ($printer_id, $copy_printer_id) {
     next unless $local_printer_id;
-    my $printer = SL::DB::Printer->new(id => $local_printer_id)->load;
-    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
-    if (!open $out, '|-', $command) {
-      push @{ $data->{print_errors} }, { message => $::locale->text('Could not execute printer command: #1', $!) };
-      $job_obj->update_attributes(data_as_hash => $data);
-      return;
-    }
-    binmode $out;
-    print $out $self->{merged_pdf};
-    close $out;
+    SL::DB::Printer
+      ->new(id => $local_printer_id)
+      ->load
+      ->print_document(content => $self->{merged_pdf});
   }
 
 }

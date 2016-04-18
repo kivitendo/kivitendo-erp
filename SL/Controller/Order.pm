@@ -182,20 +182,10 @@ sub action_print {
   } elsif ($media eq 'printer') {
     # printer
     my $printer_id = $::form->{print_options}->{printer_id};
-    my $printer;
-    $printer = SL::DB::Printer->new(id => $printer_id)->load if $printer_id;
-    if (!$printer) {
-      return $self->js->flash('error', t8('Printer not found.'))->render;
-    }
-
-    my $command = SL::Template::create(type => 'ShellCommand', form => Form->new(''))->parse($printer->printer_command);
-
-    for my $i (1 .. $copies) {
-      open my $out, '|-', $command or die $!;
-      binmode $out;
-      print $out $pdf;
-      close $out;
-    }
+    SL::DB::Printer->new(id => $printer_id)->load->print_document(
+      copies  => $copies,
+      content => $pdf,
+    );
 
     $self->js->flash('info', t8('The PDF has been printed'));
   }
