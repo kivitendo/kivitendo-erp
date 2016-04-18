@@ -2227,7 +2227,7 @@ sub retrieve_item {
     my ($table, $field) = split m/\./, $column;
     next if !$form->{"${field}_${i}"};
     $where .= qq| AND lower(${column}) ILIKE ?|;
-    push @values, '%' . $form->{"${field}_${i}"} . '%';
+    push @values, like($form->{"${field}_${i}"});
   }
 
   my (%mm_by_id);
@@ -2239,7 +2239,7 @@ sub retrieve_item {
     my $mm_query = qq|
       SELECT parts_id, model FROM makemodel LEFT JOIN parts ON parts.id = parts_id WHERE NOT parts.obsolete AND model ILIKE ?;
     |;
-    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, '%' . $form->{"partnumber_$i"} . '%');
+    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, like($form->{"partnumber_$i"}));
     my @mm_ids     = map { $_->{parts_id} } @$mm_results;
     push @{$mm_by_id{ $_->{parts_id} } ||= []}, $_ for @$mm_results;
 

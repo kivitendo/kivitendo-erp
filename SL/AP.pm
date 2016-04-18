@@ -458,7 +458,7 @@ sub ap_transactions {
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
+    push(@values, (like($form->{"cp_name"}))x2);
   }
   if ($form->{department}) {
     # ähnlich wie commit 0bbfb33b6aa8e38bb6c81d1684ab7d08e5b5c5af abteilung

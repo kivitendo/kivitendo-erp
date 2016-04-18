@@ -62,7 +62,7 @@ sub retrieve_parts {
     next unless $form->{$_};
 
     $filter .= qq| AND ($_ ILIKE ?)|;
-    push @filter_values, '%' . $form->{$_} . '%';
+    push @filter_values, like($form->{$_});
   }
 
   if ($form->{no_assemblies}) {
@@ -110,7 +110,7 @@ sub retrieve_customers_or_vendors {
   my (@filter_values, $filter);
   if ($form->{"name"}) {
     $filter .= " AND (TABLE.name ILIKE ?)";
-    push(@filter_values, '%' . $form->{"name"} . '%');
+    push(@filter_values, like($form->{"name"}));
   }
   if (!$form->{"obsolete"}) {
     $filter .= " AND NOT TABLE.obsolete";
@@ -173,7 +173,7 @@ sub retrieve_delivery_customer {
   my (@filter_values, $filter);
   if ($form->{"name"}) {
     $filter .= qq| (name ILIKE ?) AND|;
-    push(@filter_values, '%' . $form->{"name"} . '%');
+    push(@filter_values, like($form->{"name"}));
   }
 
   $order_by =~ s/[^a-zA-Z_]//g;
@@ -209,7 +209,7 @@ sub retrieve_vendor {
   my (@filter_values, $filter);
   if ($form->{"name"}) {
     $filter .= qq| (name ILIKE ?) AND|;
-    push(@filter_values, '%' . $form->{"name"} . '%');
+    push(@filter_values, like($form->{"name"}));
   }
 
   $order_by =~ s/[^a-zA-Z_]//g;

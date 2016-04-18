@@ -23,6 +23,7 @@ use SL::DB::AccTransaction;
 use SL::DB::Tax;
 use SL::DB::Draft;
 use SL::DB::BankAccount;
+use SL::DBUtils qw(like);
 use SL::Presenter;
 use List::Util qw(max);
 
@@ -277,8 +278,8 @@ sub action_ajax_add_list {
   my @where_purchase = (amount => { ne => \'paid' });
 
   if ($::form->{invnumber}) {
-    push @where_sale,     (invnumber => { ilike => '%' . $::form->{invnumber} . '%'});
-    push @where_purchase, (invnumber => { ilike => '%' . $::form->{invnumber} . '%'});
+    push @where_sale,     (invnumber => { ilike => like($::form->{invnumber})});
+    push @where_purchase, (invnumber => { ilike => like($::form->{invnumber})});
   }
 
   if ($::form->{amount}) {
@@ -287,13 +288,13 @@ sub action_ajax_add_list {
   }
 
   if ($::form->{vcnumber}) {
-    push @where_sale,     ('customer.customernumber' => { ilike => '%' . $::form->{vcnumber} . '%'});
-    push @where_purchase, ('vendor.vendornumber'     => { ilike => '%' . $::form->{vcnumber} . '%'});
+    push @where_sale,     ('customer.customernumber' => { ilike => like($::form->{vcnumber})});
+    push @where_purchase, ('vendor.vendornumber'     => { ilike => like($::form->{vcnumber})});
   }
 
   if ($::form->{vcname}) {
-    push @where_sale,     ('customer.name' => { ilike => '%' . $::form->{vcname} . '%'});
-    push @where_purchase, ('vendor.name'   => { ilike => '%' . $::form->{vcname} . '%'});
+    push @where_sale,     ('customer.name' => { ilike => like($::form->{vcname})});
+    push @where_purchase, ('vendor.name'   => { ilike => like($::form->{vcname})});
   }
 
   if ($::form->{transdatefrom}) {

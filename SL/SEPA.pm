@@ -322,12 +322,12 @@ sub list_exports {
 
   if ($filter->{invnumber}) {
     push @where_sub,  "arap.invnumber ILIKE ?";
-    push @values_sub, '%' . $filter->{invnumber} . '%';
+    push @values_sub, like($filter->{invnumber});
     $joins_sub{$arap} = 1;
   }
 
   if ($filter->{message_id}) {
-    push @values, '%' . $filter->{message_id} . '%';
+    push @values, like($filter->{message_id});
     push @where,  <<SQL;
       se.id IN (
         SELECT sepa_export_id
@@ -339,7 +339,7 @@ SQL
 
   if ($filter->{vc}) {
     push @where_sub,  "vc.name ILIKE ?";
-    push @values_sub, '%' . $filter->{vc} . '%';
+    push @values_sub, like($filter->{vc});
     $joins_sub{$arap} = 1;
     $joins_sub{vc}    = 1;
   }

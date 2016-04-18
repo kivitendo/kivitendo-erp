@@ -492,7 +492,7 @@ sub get_invoices {
 
   } elsif ($form->{customer}) {
     $where .= qq| AND (ct.name ILIKE ?)|;
-    push(@values, '%' . trim($form->{customer}) . '%');
+    push(@values, like($form->{customer}));
   }
 
   my %columns = (
@@ -504,7 +504,7 @@ sub get_invoices {
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
     $where .= qq| AND $columns{$key} ILIKE ?|;
-    push(@values, '%' . trim($form->{$key}) . '%');
+    push(@values, like($form->{$key}));
   }
 
   if ($form->{dunning_level}) {
@@ -619,7 +619,7 @@ sub get_dunning {
 
   } elsif ($form->{customer}) {
     $where .= qq| AND (ct.name ILIKE ?)|;
-    push(@values, '%' . $form->{customer} . '%');
+    push(@values, like($form->{customer}));
   }
 
   my %columns = (
@@ -630,7 +630,7 @@ sub get_dunning {
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
     $where .= qq| AND $columns{$key} ILIKE ?|;
-    push(@values, '%' . $form->{$key} . '%');
+    push(@values, like($form->{$key}));
   }
 
   if ($form->{dunning_level}) {

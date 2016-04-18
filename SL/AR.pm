@@ -511,7 +511,7 @@ sub ar_transactions {
   }
   if ($form->{"cp_name"}) {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
+    push(@values, (like($form->{"cp_name"}))x2);
   }
   if ($form->{business_id}) {
     my $business_id = $form->{business_id};
@@ -524,7 +524,7 @@ sub ar_transactions {
     push(@values, $department_id);
   }
   if ($form->{department}) {
-    my $department = "%" . trim($form->{department}) . "%";
+    my $department = like($form->{department});
     $where .= " AND d.description ILIKE ?";
     push(@values, $department);
   }

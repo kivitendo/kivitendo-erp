@@ -104,19 +104,19 @@ sub search {
 
   if ($form->{"${cv}number"}) {
     $where .= " AND ct.${cv}number ILIKE ?";
-    push(@values, '%' . $form->{"${cv}number"} . '%');
+    push(@values, like($form->{"${cv}number"}));
   }
 
   foreach my $key (qw(name contact email)) {
     if ($form->{$key}) {
       $where .= " AND ct.$key ILIKE ?";
-      push(@values, '%' . $form->{$key} . '%');
+      push(@values, like($form->{$key}));
     }
   }
 
   if ($form->{cp_name}) {
     $where .= " AND ct.id IN (SELECT cp_cv_id FROM contacts WHERE lower(cp_name) LIKE lower(?))";
-    push @values, '%' . $form->{cp_name} . '%';
+    push @values, like($form->{cp_name});
   }
 
   if ($form->{addr_street}) {
@@ -127,7 +127,7 @@ sub search {
               qq|         WHERE (sc.module = 'CT') | .
               qq|           AND (sc.shiptostreet ILIKE ?) | .
               qq|      ))) |;
-    push @values, ('%' . $form->{addr_street} . '%') x 2;
+    push @values, (like($form->{addr_street})) x 2;
   }
 
   if ($form->{addr_zipcode}) {
@@ -138,7 +138,7 @@ sub search {
               qq|         WHERE (sc.module = 'CT') | .
               qq|           AND (sc.shiptozipcode ILIKE ?) | .
               qq|      ))) |;
-    push @values, ('%' . $form->{addr_zipcode} . '%') x 2;
+    push @values, (like($form->{addr_zipcode})) x 2;
   }
 
   if ($form->{addr_city}) {
@@ -151,7 +151,7 @@ sub search {
                           AND (lower(sc.shiptocity) LIKE lower(?))
                       ))
                      )";
-    push @values, ('%' . $form->{addr_city} . '%') x 2;
+    push @values, (like($form->{addr_city})) x 2;
   }
 
   if ($form->{addr_country}) {
@@ -164,7 +164,7 @@ sub search {
                           AND (lower(so.shiptocountry) LIKE lower(?))
                       ))
                      )";
-    push @values, ('%' . $form->{addr_country} . '%') x 2;
+    push @values, (like($form->{addr_country})) x 2;
   }
 
   if ($form->{addr_gln}) {
@@ -177,7 +177,7 @@ sub search {
                           AND (lower(so.shiptogln) LIKE lower(?))
                       ))
                      )";
-    push @values, ('%' . $form->{addr_gln} . '%') x 2;
+    push @values, (like($form->{addr_gln})) x 2;
   }
 
   if ( $form->{status} eq 'orphaned' ) {
@@ -431,7 +431,7 @@ sub search_contacts {
       'cp.cp_name      ILIKE ?',
       'cp.cp_givenname ILIKE ?',
       'cp.cp_email     ILIKE ?';
-    push @values, ('%' . $params{search_term} . '%') x 3;
+    push @values, (like($params{search_term})) x 3;
 
     if (($params{search_term} =~ m/\d/) && ($params{search_term} !~ m/[^\d \(\)+\-]/)) {
       my $number =  $params{search_term};

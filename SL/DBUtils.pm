@@ -348,9 +348,9 @@ sub add_token {
     id     => \&conv_i,
     bool   => \&conv_b,
     date   => \&conv_date,
-    start  => sub { $_[0] . '%' },
-    end    => sub { '%' . $_[0] },
-    substr => sub { '%' . $_[0] . '%' },
+    start  => sub { trim($_[0]) . '%' },
+    end    => sub { '%' . trim($_[0]) },
+    substr => sub { like($_[0]) },
   );
 
   my $_long_token = sub {

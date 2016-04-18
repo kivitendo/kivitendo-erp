@@ -2499,10 +2499,10 @@ sub get_name {
     my $where;
     if ($self->{customernumber} ne "") {
       $where = qq|(vc.customernumber ILIKE ?)|;
-      push(@values, '%' . $self->{customernumber} . '%');
+      push(@values, like($self->{customernumber}));
     } else {
       $where = qq|(vc.name ILIKE ?)|;
-      push(@values, '%' . $self->{$table} . '%');
+      push(@values, like($self->{$table}));
     }
 
     $query =
@@ -2519,7 +2519,7 @@ sub get_name {
          JOIN $table vc ON (a.${table}_id = vc.id)
          WHERE NOT (a.amount = a.paid) AND (vc.name ILIKE ?)
          ORDER BY vc.name~;
-    push(@values, '%' . $self->{$table} . '%');
+    push(@values, like($self->{$table}));
   }
 
   $self->{name_list} = selectall_hashref_query($self, $dbh, $query, @values);
@@ -2744,7 +2744,7 @@ sub create_links {
 
     $sth = $dbh->prepare($query);
 
-    do_statement($self, $sth, $query, '%' . $module . '%');
+    do_statement($self, $sth, $query, like($module));
 
     $self->{accounts} = "";
     while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
@@ -2819,7 +2819,7 @@ sub create_links {
                 ORDER BY c.accno|;
 
     $sth = $dbh->prepare($query);
-    do_statement($self, $sth, $query, "%$module%");
+    do_statement($self, $sth, $query, like($module));
 
     $self->{accounts} = "";
     while ($ref = $sth->fetchrow_hashref("NAME_lc")) {

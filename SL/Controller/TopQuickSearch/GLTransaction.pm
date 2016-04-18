@@ -8,6 +8,7 @@ use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
 use SL::DB::AccTransaction;
 use SL::Locale::String qw(t8);
+use SL::DBUtils qw(like);
 use List::Util qw(sum);
 
 sub auth { 'general_ledger' }
@@ -24,11 +25,11 @@ sub query_autocomplete {
   my $limit = $::form->{limit} || 40; # max number of results per type (AR/AP/GL)
   my $term  = $::form->{term}  || '';
 
-  my $descriptionquery = { ilike => '%' . $term . '%' };
-  my $referencequery   = { ilike => '%' . $term . '%' };
-  my $apinvnumberquery = { ilike => '%' . $term . '%' };
-  my $namequery        = { ilike => '%' . $term . '%' };
-  my $arinvnumberquery = { ilike => '%' . $term       };
+  my $descriptionquery = { ilike => like($term) };
+  my $referencequery   = { ilike => like($term) };
+  my $apinvnumberquery = { ilike => like($term) };
+  my $namequery        = { ilike => like($term) };
+  my $arinvnumberquery = { ilike => '%' . SL::Util::trim($term) };
   # ar match is more restrictive. Left fuzzy beginning so it also matches "Storno zu $INVNUMBER"
   # and numbers like 000123 if you only enter 123.
   # When used in quicksearch short numbers like 1 or 11 won't match because of the

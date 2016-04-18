@@ -210,7 +210,7 @@ sub follow_ups {
   foreach my $item (qw(subject body)) {
     next unless ($params{$item});
     $where .= qq| AND (n.${item} ILIKE ?)|;
-    push @values, '%' . $params{$item} . '%';
+    push @values, like($params{$item});
   }
 
   if ($params{reference}) {
@@ -219,7 +219,7 @@ sub follow_ups {
                               WHERE (ful.follow_up_id = fu.id)
                                 AND (ful.trans_info ILIKE ?)
                               LIMIT 1)|;
-    push @values, '%' . $params{reference} . '%';
+    push @values, like($params{reference});
   }
 
   if ($params{follow_up_date_from}) {

@@ -1234,7 +1234,7 @@ sub retrieve_item {
     my $field = (split m{\.}, $table_column)[1];
     next unless $form->{"${field}_${i}"};
     $where .= " AND lower(${table_column}) LIKE lower(?)";
-    push @values, '%' . $form->{"${field}_${i}"} . '%';
+    push @values, like($form->{"${field}_${i}"});
   }
 
   my (%mm_by_id);
@@ -1248,7 +1248,7 @@ sub retrieve_item {
       LEFT JOIN parts ON parts.id = parts_id
       WHERE NOT parts.obsolete AND model ILIKE ? AND (make IS NULL OR make = ?);
     |;
-    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, '%' . $form->{"partnumber_$i"} . '%', $::form->{vendor_id});
+    my $mm_results = selectall_hashref_query($::form, $dbh, $mm_query, like($form->{"partnumber_$i"}), $::form->{vendor_id});
     my @mm_ids     = map { $_->{parts_id} } @$mm_results;
     push @{$mm_by_id{ $_->{parts_id} } ||= []}, $_ for @$mm_results;
 

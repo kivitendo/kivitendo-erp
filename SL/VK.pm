@@ -120,7 +120,7 @@ sub invoice_transactions {
   }
   if ($form->{partnumber}) {
     $where .= qq| AND (p.partnumber ILIKE ?)|;
-    push(@values, '%' . $form->{partnumber} . '%');
+    push(@values, like($form->{partnumber}));
   }
   if ($form->{partsgroup_id}) {
     $where .= qq| AND (pg.id = ?)|;
@@ -128,7 +128,7 @@ sub invoice_transactions {
   }
   if ($form->{country}) {
     $where .= qq| AND (ct.country ILIKE ?)|;
-    push(@values, '%' . $form->{country} . '%');
+    push(@values, like($form->{country}));
   }
 
   # when filtering for parts by description we probably want to filter by the description of the part as per the master data
@@ -136,7 +136,7 @@ sub invoice_transactions {
   # at least in the translation case we probably want the report to also include translated articles, so we have to filter via parts.description
   if ($form->{description}) {
     $where .= qq| AND (p.description ILIKE ?)|;
-    push(@values, '%' . $form->{description} . '%');
+    push(@values, like($form->{description}));
   }
   if ($form->{transdatefrom}) {
     $where .= " AND ar.transdate >= ?";

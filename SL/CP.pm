@@ -76,7 +76,7 @@ sub paymentaccounts {
     qq|FROM chart | .
     qq|WHERE link LIKE ? |.
     qq|ORDER BY accno|;
-  my $sth = prepare_execute_query($form, $dbh, $query, '%' . $ARAP . '%');
+  my $sth = prepare_execute_query($form, $dbh, $query, like($ARAP));
 
   $form->{PR}{ $form->{ARAP} } = ();
   $form->{PR}{"$form->{ARAP}_paid"} = ();

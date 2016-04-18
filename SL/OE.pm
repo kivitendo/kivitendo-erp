@@ -159,7 +159,7 @@ sub transactions {
         WHERE proi.projectnumber ILIKE ? AND oi.trans_id = o.id
       ))
 SQL
-    push @values, "%" . $form->{"projectnumber"} . "%", "%" . $form->{"projectnumber"} . "%" ;
+    push @values, like($form->{"projectnumber"}), like($form->{"projectnumber"});
   }
 
   if ($form->{"business_id"}) {
@@ -173,12 +173,12 @@ SQL
 
   } elsif ($form->{$vc}) {
     $query .= " AND ct.name ILIKE ?";
-    push(@values, '%' . trim($form->{$vc}) . '%');
+    push(@values, like($form->{$vc}));
   }
 
   if ($form->{"cp_name"}) {
     $query .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
-    push(@values, ('%' . trim($form->{"cp_name"}) . '%')x2);
+    push(@values, (like($form->{"cp_name"}))x2);
   }
 
   if (!$main::auth->assert('sales_all_edit', 1)) {
@@ -209,12 +209,12 @@ SQL
 
   if ($form->{$ordnumber}) {
     $query .= qq| AND o.$ordnumber ILIKE ?|;
-    push(@values, '%' . trim($form->{$ordnumber}) . '%');
+    push(@values, like($form->{$ordnumber}));
   }
 
   if ($form->{cusordnumber}) {
     $query .= qq| AND o.cusordnumber ILIKE ?|;
-    push(@values, '%' . trim($form->{cusordnumber}) . '%');
+    push(@values, like($form->{cusordnumber}));
   }
 
   if($form->{transdatefrom}) {
@@ -249,7 +249,7 @@ SQL
 
   if ($form->{shippingpoint}) {
     $query .= qq| AND o.shippingpoint ILIKE ?|;
-    push(@values, '%' . trim($form->{shippingpoint}) . '%');
+    push(@values, like($form->{shippingpoint}));
   }
 
   if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
@@ -259,7 +259,7 @@ SQL
 
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
-    push(@values, '%' . trim($form->{transaction_description}) . '%');
+    push(@values, like($form->{transaction_description}));
   }
 
   if ($form->{periodic_invoices_active} ne $form->{periodic_invoices_inactive}) {
@@ -296,7 +296,7 @@ SQL
       ct.name     ILIKE ? OR
       o.transaction_description ILIKE ?
     )| for @tokens;
-    push @values, ("%$_%")x4 for @tokens;
+    push @values, (like($_))x4 for @tokens;
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',

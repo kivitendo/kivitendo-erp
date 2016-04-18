@@ -52,7 +52,7 @@ sub partsgroups {
 
   if ($form->{partsgroup}) {
     $where .= qq| AND partsgroup ILIKE ?|;
-    push(@values, '%' . $form->{partsgroup} . '%');
+    push(@values, like($form->{partsgroup}));
   }
 
   if ($form->{status} eq 'orphaned') {
@@ -174,7 +174,7 @@ sub pricegroups {
 
   if ($form->{pricegroup}) {
     $where .= qq| AND pricegroup ILIKE ?|;
-    push(@values, '%' . $form->{pricegroup} . '%');
+    push(@values, like($form->{pricegroup}));
   }
 
   if ($form->{status} eq 'orphaned') {

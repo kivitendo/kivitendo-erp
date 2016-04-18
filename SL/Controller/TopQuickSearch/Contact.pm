@@ -5,7 +5,7 @@ use parent qw(SL::Controller::TopQuickSearch::Base);
 
 use SL::Controller::CustomerVendor;
 use SL::DB::Vendor;
-use SL::DBUtils qw(selectfirst_array_query);
+use SL::DBUtils qw(selectfirst_array_query like);
 use SL::Locale::String qw(t8);
 
 sub auth { 'customer_vendor_edit' }
@@ -22,9 +22,9 @@ sub query_autocomplete {
   my $result = SL::DB::Manager::Contact->get_all(
     query => [
       or => [
-        cp_name      => { ilike => "%$::form->{term}%" },
-        cp_givenname => { ilike => "%$::form->{term}%" },
-        cp_email     => { ilike => "%$::form->{term}%" },
+        cp_name      => { ilike => like($::form->{term}) },
+        cp_givenname => { ilike => like($::form->{term}) },
+        cp_email     => { ilike => like($::form->{term}) },
       ],
       cp_cv_id => [ \'SELECT id FROM customer UNION SELECT id FROM vendor' ],
     ],

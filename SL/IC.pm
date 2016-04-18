@@ -878,7 +878,7 @@ sub all_parts {
   if ($form->{all}) {
     $form->{"l_$_"} = 1 for qw(partnumber description unit sellprice lastcost cvar_packaging linetotal);
     push @where_tokens, "p.partnumber ILIKE ? OR p.description ILIKE ?";
-    push @bind_vars,    "%$form->{all}%", "%$form->{all}%";
+    push @bind_vars,    (like($form->{all})) x 2;
   }
 
   # special case insertdate
@@ -1342,7 +1342,7 @@ sub create_links {
   # connect to database
   my $dbh = $form->get_standard_dbh;
 
-  my @values = ('%' . $module . '%');
+  my @values = like($module);
   my $query;
 
   if ($form->{id}) {

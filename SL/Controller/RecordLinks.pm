@@ -14,6 +14,7 @@ use SL::DB::Letter;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
 use SL::DB::RequirementSpec;
+use SL::DBUtils qw(like);
 use SL::JSON;
 use SL::Locale::String;
 
@@ -124,10 +125,10 @@ sub action_ajax_add_list {
   my $filter      = $self->link_type_desc->{filter};
 
   my @where = $filter && $manager->can($filter) ? $manager->$filter($self->link_type) : ();
-  push @where, ("${vc}.${vc}number"     => { ilike => '%' . $::form->{vc_number} . '%' })               if $::form->{vc_number};
-  push @where, ("${vc}.name"            => { ilike => '%' . $::form->{vc_name}   . '%' })               if $::form->{vc_name};
-  push @where, ($description            => { ilike => '%' . $::form->{transaction_description} . '%' }) if $::form->{transaction_description};
-  push @where, ($project_id             => $::form->{globalproject_id})                                 if $::form->{globalproject_id} && $manager->can($project_id);
+  push @where, ("${vc}.${vc}number"     => { ilike => like($::form->{vc_number}) })               if $::form->{vc_number};
+  push @where, ("${vc}.name"            => { ilike => like($::form->{vc_name}) })                 if $::form->{vc_name};
+  push @where, ($description            => { ilike => like($::form->{transaction_description}) }) if $::form->{transaction_description};
+  push @where, ($project_id             => $::form->{globalproject_id})                           if $::form->{globalproject_id} && $manager->can($project_id);
 
   my @with_objects = ($vc);
   push @with_objects, $project if $manager->can($project_id);

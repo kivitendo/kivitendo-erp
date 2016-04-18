@@ -1521,15 +1521,15 @@ sub payments {
   my $invnumber;
   my $reference;
   if ($form->{reference}) {
-    $reference = $dbh->quote('%' . $form->{reference} . '%');
+    $reference = $dbh->quote(like($form->{reference}));
     $invnumber = " AND (a.invnumber LIKE $reference)";
     $reference = " AND (a.reference LIKE $reference)";
   }
   if ($form->{source}) {
-    $where .= " AND (ac.source ILIKE " . $dbh->quote('%' . $form->{source} . '%') . ") ";
+    $where .= " AND (ac.source ILIKE " . $dbh->quote(like($form->{source})) . ") ";
   }
   if ($form->{memo}) {
-    $where .= " AND (ac.memo ILIKE " . $dbh->quote('%' . $form->{memo} . '%') . ") ";
+    $where .= " AND (ac.memo ILIKE " . $dbh->quote(like($form->{memo})) . ") ";
   }
 
   my %sort_columns =  (
