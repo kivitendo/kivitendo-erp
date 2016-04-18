@@ -12,7 +12,7 @@ use SL::CT;
 use SL::DB::Letter;
 use SL::DB::LetterDraft;
 use SL::DB::Employee;
-use SL::Helper::Flash qw(flash);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::CreatePDF;
 use SL::Helper::PrintOptions;
 use SL::Locale::String qw(t8);

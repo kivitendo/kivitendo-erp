@@ -10,6 +10,7 @@ einere neue Features und Detailverbesserungen:
   - Beim Speichern und Drucken von Briefen werden diese im
     WebDAV-Verzeichnis gespeichert, sofern das Feature in der
     Mandantenkonfiguration aktiv ist.
+  - Die Weiterleitung nach dem Löschen von Briefen wurde gefixt.
 
 
 2016-03-12 - Release 3.4.0
