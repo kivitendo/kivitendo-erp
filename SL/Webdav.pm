@@ -29,6 +29,7 @@ my %type_to_path = (
   part                    => 'waren',
   service                 => 'dienstleistungen',
   assembly                => 'erzeugnisse',
+  letter                  => 'briefe',
 );
 
 sub get_all_files {

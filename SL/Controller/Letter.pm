@@ -18,6 +18,8 @@ use SL::Helper::PrintOptions;
 use SL::Locale::String qw(t8);
 use SL::IS;
 use SL::ReportGenerator;
+use SL::Webdav;
+use SL::Webdav::File;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(letter all_employees models) ],
@@ -248,32 +250,21 @@ sub action_print_letter {
       return !$err;
     }
 
-    my $webdav_copy_args   = Form->new('');
-    %{ $webdav_copy_args } = (
-      %{ $::form },
-      tmpdir  => dirname($pdf_file_name),
-      tmpfile => basename($pdf_file_name),
-      cwd     => POSIX::getcwd(),
+    $::form->{letternumber} = $self->letter->letternumber;
+    my $attachment_name     = $::form->generate_attachment_filename;
+    my $webdav_file         = SL::Webdav::File->new(
+      filename => $attachment_name,
+      webdav   => SL::Webdav->new(
+        type   => 'letter',
+        number => $self->letter->letternumber,
+      ),
     );
 
     if (!$::form->{printer_id} || $::form->{media} eq 'screen') {
-
-      my $file = IO::File->new($pdf_file_name, 'r') || croak("Cannot open file '$pdf_file_name'");
-      my $size = -s $pdf_file_name;
-      my $content_type    =  'application/pdf';
-      $::form->{letternumber} = $self->letter->letternumber;
-      my $attachment_name =  $::form->generate_attachment_filename;
-      $attachment_name    =~ s:.*//::g;
-
-      print $::form->create_http_response(content_type        => $content_type,
-                                          content_disposition => 'attachment; filename="' . $attachment_name . '"',
-                                          content_length      => $size);
-
-      $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
-      $file->close;
-
-      Common::copy_file_to_webdav_folder($webdav_copy_args) if $::instance_conf->get_webdav_documents;
+      $self->send_file($pdf_file_name, name => $attachment_name);
+      $webdav_file->store(file => $pdf_file_name) if $::instance_conf->get_webdav_documents;
       unlink $pdf_file_name;
+
       return 1;
     }
 
@@ -283,8 +274,7 @@ sub action_print_letter {
       file_name => $pdf_file_name,
     );
 
-    Common::copy_file_to_webdav_folder($webdav_copy_args) if $::instance_conf->get_webdav_documents;
-
+    $webdav_file->store(file => $pdf_file_name) if $::instance_conf->get_webdav_documents;
     unlink $pdf_file_name;
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
