@@ -37,7 +37,7 @@
     </tr>
     <tr>
      <th align='right'>[% 'Contact Person' | $T8 %]</th>
-     <td>[% L.select_tag('letter.cp_id', letter.cp_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
+     <td>[% L.select_tag('letter.cp_id', letter.vc_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
     </tr>
     <tr>
      <th align='right'>[% 'Your Reference' | $T8 %]:</th>
