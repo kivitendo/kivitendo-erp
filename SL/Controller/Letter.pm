@@ -16,6 +16,7 @@ use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::CreatePDF;
 use SL::Helper::PrintOptions;
 use SL::Locale::String qw(t8);
+use SL::Mailer;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::Webdav;
@@ -172,7 +173,7 @@ sub action_list {
 }
 
 sub action_print_letter {
-  my ($self, $old_form) = @_;
+  my ($self, %params) = @_;
 
   my $display_form = $::form->{display_form} || "display_form";
   my $letter       = $self->_update;
@@ -231,38 +232,45 @@ sub action_print_letter {
 
   my $pdf_file_name;
   eval {
-    $pdf_file_name = SL::Helper::CreatePDF->create_pdf(%create_params);
+    $pdf_file_name          = SL::Helper::CreatePDF->create_pdf(%create_params);
+
+    $::form->{letternumber} = $self->letter->letternumber;
+    my $attachment_name     = $::form->generate_attachment_filename;
+
+    if ($::instance_conf->get_webdav_documents) {
+      my $webdav_file = SL::Webdav::File->new(
+        filename => $attachment_name,
+        webdav   => SL::Webdav->new(
+          type   => 'letter',
+          number => $self->letter->letternumber,
+        ),
+      );
+
+      $webdav_file->store(file => $pdf_file_name);
+    }
 
     # set some form defaults for printing webdav copy variables
     if ( $::form->{media} eq 'email') {
       my $mail             = Mailer->new;
       my $signature        = $::myconfig{signature};
-      $mail->{$_}          = $::form->{$_}               for qw(cc subject message bcc to);
+      $mail->{$_}          = $params{email}->{$_} for qw(to cc subject message bcc);
       $mail->{from}        = qq|"$::myconfig{name}" <$::myconfig{email}>|;
-      $mail->{fileid}      = time() . '.' . $$ . '.';
-      $mail->{attachments} =  [{ "filename" => $pdf_file_name,
-                                 "name"     => $::form->{attachment_name} }];
+      $mail->{attachments} = [{ filename => $pdf_file_name,
+                                name     => $params{email}->{attachment_filename} }];
       $mail->{message}    .=  "\n-- \n$signature";
       $mail->{message}     =~ s/\r//g;
 
-      # copy_file_to_webdav was already done via io.pl -> edit_e_mail
-      my $err = $mail->send;
-      return !$err;
-    }
+      $mail->send;
+      unlink $pdf_file_name;
 
-    $::form->{letternumber} = $self->letter->letternumber;
-    my $attachment_name     = $::form->generate_attachment_filename;
-    my $webdav_file         = SL::Webdav::File->new(
-      filename => $attachment_name,
-      webdav   => SL::Webdav->new(
-        type   => 'letter',
-        number => $self->letter->letternumber,
-      ),
-    );
+      flash_later('info', t8('The email has been sent.'));
+      $self->redirect_to(action => 'edit', 'letter.id' => $self->letter->id);
+
+      return 1;
+    }
 
     if (!$::form->{printer_id} || $::form->{media} eq 'screen') {
       $self->send_file($pdf_file_name, name => $attachment_name);
-      $webdav_file->store(file => $pdf_file_name) if $::instance_conf->get_webdav_documents;
       unlink $pdf_file_name;
 
       return 1;
@@ -274,17 +282,15 @@ sub action_print_letter {
       file_name => $pdf_file_name,
     );
 
-    $webdav_file->store(file => $pdf_file_name) if $::instance_conf->get_webdav_documents;
     unlink $pdf_file_name;
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
     $self->redirect_to(action => 'edit', 'letter.id' => $self->letter->id, media => 'printer', printer_id => $::form->{printer_id});
     1;
   } or do {
-    unlink $pdf_file_name;
+    unlink $pdf_file_name if $pdf_file_name;
     $::form->error(t8("Creating the PDF failed:") . " " . $@);
   };
-
 }
 
 sub action_update {
@@ -304,6 +310,49 @@ sub action_delete_drafts {
   my ($self) = @_;
   delete_letter_drafts();
   $self->action_add(skip_drafts => 1);
+}
+
+sub action_edit_email {
+  my ($self) = @_;
+
+  my $letter = $self->_update;
+  $self->export_letter_to_form($letter);
+
+  $::form->{formname}     = "letter";
+  $::form->{type}         = "letter";
+  $::form->{letternumber} = $self->letter->letternumber;
+
+  my @hiddens = map {
+    my $value = $letter->$_;
+    $value    = $value->to_kivitendo if ref($_) =~ m{Date};
+
+    { name => "letter.$_", value => $value }
+  } ($letter->meta->columns);
+
+  my %vars = (
+    script     => 'controller.pl',
+    title      => t8('Send letter via e-mail'),
+    email      => $letter->contact ? $letter->contact->cp_email : '',
+    subject    => $::form->generate_email_subject,
+    a_filename => $::form->generate_attachment_filename,
+    action     => 'Letter/send_email',
+    HIDDEN     => \@hiddens,
+    SHOW_BCC   => $::auth->assert('email_bcc', 'may fail'),
+  );
+
+  $self->render('generic/edit_email', %vars);
+}
+
+sub action_send_email {
+  my ($self) = @_;
+
+  $::form->{media} = 'email';
+  $self->action_print_letter(
+    email => {
+      to => $::form->{email},
+      map { ($_ => $::form->{$_}) } qw(cc bcc subject attachment_filename message)
+    }
+  );
 }
 
 sub _display {
@@ -428,19 +477,6 @@ sub make_filter_summary {
   }
 
   $self->{filter_summary} = join ', ', @filter_strings;
-}
-
-sub e_mail {
-  my $letter = _update();
-
-  $letter->check_number;
-  $letter->save;
-
-  $::form->{formname} = "letter";
-  $letter->export_to($::form);
-
-  $::form->{id} = $letter->{id};
-  edit_e_mail();
 }
 
 sub load_letter_draft {

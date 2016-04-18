@@ -1059,6 +1059,7 @@ sub edit_e_mail {
                                      a_filename    => $attachment_filename,
                                      subject       => $subject,
                                      print_options => print_options('inline' => 1),
+                                     action        => 'send_email',
                                      HIDDEN        => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
                                      SHOW_BCC      => $::auth->assert('email_bcc', 'may fail') });
 

@@ -63,10 +63,10 @@
   </tr>
 </table>
 
-<input type="hidden" name="nextsub" value="send_email">
+[% L.hidden_tag('action', action) %]
 
 <br>
-[% L.submit_tag('action', LxERP.t8('Continue'), onclick="return check_prerequisites();") %]
+[% L.submit_tag('dummy_action', LxERP.t8('Continue'), onclick="return check_prerequisites();") %]
 </form>
 
 <script type="text/javascript">

@@ -13,6 +13,7 @@ einere neue Features und Detailverbesserungen:
   - Die Weiterleitung nach dem Löschen von Briefen wurde gefixt.
   - Das Drucken von Briefen direkt auf Drucker wurde gefixt.
   - Die Auswahl einer Ansprechpersonen in der Brieffunktion wurde gefixt.
+  - Briefe können nun per E-Mail verschickt werden.
 
 
 2016-03-12 - Release 3.4.0
