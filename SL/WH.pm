@@ -39,9 +39,6 @@ use SL::DBUtils;
 use SL::Form;
 use SL::Util qw(trim);
 
-use SL::DB::Unit;
-use SL::DB::Assembly;
-
 use warnings;
 use strict;
 
@@ -161,17 +158,6 @@ sub transfer_assembly {
   my $self     = shift;
   my %params   = @_;
   Common::check_params(\%params, qw(assembly_id dst_warehouse_id login qty unit dst_bin_id chargenumber bestbefore comment));
-
-
-  my $unit = SL::DB::Manager::Unit->find_by(name => $params{unit});
-  if ($unit) {
-    my $assembly = SL::DB::Manager::Assembly->get_all(
-      query => [ id => $params{assembly_id} ],
-      with_objects => ['part'],
-      limit => 1,
-    )->[0];
-    $params{qty} = $unit->convert_to($params{qty}, $assembly->part->unit_obj);
-  }
 
 #  my $maxcreate=WH->check_assembly_max_create(assembly_id =>$params{'assembly_id'}, dbh => $my_dbh);
 
