@@ -162,9 +162,10 @@ sub new_from {
   }
 
   my $terms = $source->can('payment_id') ? $source->payment_terms : undef;
+  $terms = $source->customer->payment_terms if !defined $terms && $source->customer;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
-                                                cp_id language_id taxzone_id globalproject_id transaction_description currency_id delivery_term_id payment_id), @columns),
+                                                cp_id language_id taxzone_id globalproject_id transaction_description currency_id delivery_term_id), @columns),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => $terms ? $terms->calc_date(reference_date => DateTime->today_local) : DateTime->today_local,
@@ -174,6 +175,8 @@ sub new_from {
                paid        => 0,
                employee_id => (SL::DB::Manager::Employee->current || SL::DB::Employee->new(id => $source->employee_id))->id,
             );
+
+  $args{payment_id} = ( $terms ? $terms->id : $source->payment_id);
 
   if ($source->type =~ /_order$/) {
     $args{deliverydate} = $source->reqdate;
