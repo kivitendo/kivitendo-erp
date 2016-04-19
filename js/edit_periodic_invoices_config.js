@@ -1,13 +1,15 @@
 function edit_periodic_invoices_config() {
-  var width     = 750;
-  var height    = 550;
+  var width     = 800;
+  var height    = 650;
   var parm      = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
 
   var config    = $('#periodic_invoices_config').val();
+  var cus_id    = $('[name=customer_id]').val();
   var transdate = $('#transdate').val();
 
   var url       = "oe.pl?" +
     "action=edit_periodic_invoices_config&" +
+    "customer_id="              + encodeURIComponent(cus_id) + "&" +
     "periodic_invoices_config=" + encodeURIComponent(config) + "&" +
     "transdate="                + encodeURIComponent(transdate || '');
 

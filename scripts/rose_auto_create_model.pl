@@ -73,7 +73,7 @@ our %foreign_key_name_map     = (
     follow_ups                => { created_for_user => 'created_for_employee', created_by => 'created_by_employee', },
     follow_up_access          => { who => 'with_access', what => 'to_follow_ups_by', },
 
-    periodic_invoices_configs => { oe_id => 'order' },
+    periodic_invoices_configs => { oe_id => 'order', email_recipient_contact_id => 'email_recipient_contact' },
     reconciliation_links      => { acc_trans_id => 'acc_trans' },
   },
 );

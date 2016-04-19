@@ -73,6 +73,11 @@ hr {
 	height: 2px;
 }
 
+tr.rule-before th, tr.rule-before td {
+  padding-top: 2px;
+  border-top: 2px solid #EBEBEB;
+}
+
 /* I.E. & Chrome können das nicht! */
 /* input[type="radio"], input[type="checkbox"]{
 	width:1.15em;

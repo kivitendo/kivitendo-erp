@@ -77,7 +77,7 @@
      <td valign="top">[% L.checkbox_tag("direct_debit", checked=direct_debit) %]</td>
     </tr>
 
-    <tr>
+    <tr class="rule-before">
      <th align="right">[%- LxERP.t8('Print automatically') %]</th>
      <td valign="top">
       [% L.checkbox_tag("print", onclick => "toggle_printer_id_ctrl()", checked => print) %]
@@ -95,6 +95,36 @@
      <th align="right">[%- LxERP.t8('Copies') %]</th>
      <td valign="top">[% L.input_tag("copies", copies, size => 6, disabled => !print) %]</td>
     </tr>
+
+    <tr class="rule-before">
+     <th align="right">[%- LxERP.t8("Send invoice via email") %]</th>
+     <td>[% L.checkbox_tag("send_email", onclick => "toggle_send_email_ctrl()", checked=send_email) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[%- LxERP.t8("Contact to send to") %]</th>
+     <td>[% L.select_tag("email_recipient_contact_id", ALL_CONTACTS, title_key="full_name_dep", value_key="cp_id", default=email_recipient_contact_id, with_empty=1, disabled=!send_email, style=style) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[%- LxERP.t8("Other recipients") %]<sup>3</sup></th>
+     <td>[% L.input_tag("email_recipient_address", email_recipient_address, disabled=!send_email, style=style) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[%- LxERP.t8("Sender") %]</th>
+     <td>[% L.input_tag("email_sender", email_sender, disabled=!send_email, style=style) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[%- LxERP.t8("Subject") %]</th>
+     <td>[% L.input_tag("email_subject", email_subject, disabled=!send_email, style=style) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right" valign="top">[%- LxERP.t8("Message") %]</th>
+     <td valign="top">[% L.textarea_tag("email_body", email_body, disabled=!send_email, rows=8, style=style) %]</td>
+    </tr>
    </table>
   </p>
 
@@ -102,6 +132,7 @@
 
   <p>(1): [%- LxERP.t8('The end date is the last day for which invoices will possibly be created.') %]</p>
   <p>(2): [% LxERP.t8("If missing then the start date will be used.") %]</p>
+  <p>(3): [% LxERP.t8("Multiple addresses can be entered separated by commas.") %]</p>
 
   [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
 
@@ -117,6 +148,15 @@
       var disabled = !$('#print').prop('checked');
       $('#printer_id').prop('disabled', disabled);
       $('#copies').prop('disabled', disabled);
+    }
+
+    function toggle_send_email_ctrl() {
+      var disabled = !$('#send_email').prop('checked');
+      $('#email_recipient_contact_id').prop('disabled', disabled);
+      $('#email_recipient_address').prop('disabled', disabled);
+      $('#email_from').prop('disabled', disabled);
+      $('#email_subject').prop('disabled', disabled);
+      $('#email_body').prop('disabled', disabled);
     }
     -->
  </script>

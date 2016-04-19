@@ -2077,6 +2077,10 @@ sub edit_periodic_invoices_config {
   $::form->{AR}    = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
   $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
 
+  if ($::form->{customer_id}) {
+    $::form->{ALL_CONTACTS} = SL::DB::Manager::Contact->get_all_sorted(where => [ cp_cv_id => $::form->{customer_id} ]);
+  }
+
   $::form->header(no_layout => 1);
   print $::form->parse_html_template('oe/edit_periodic_invoices_config', $config);
 
@@ -2105,6 +2109,12 @@ sub save_periodic_invoices_config {
                  copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,
                  extend_automatically_by => $::form->{extend_automatically_by} * 1 || undef,
                  ar_chart_id             => $::form->{ar_chart_id} * 1,
+                 send_email                 => $::form->{send_email} ? 1 : 0,
+                 email_recipient_contact_id => $::form->{email_recipient_contact_id} * 1 || undef,
+                 email_recipient_address    => $::form->{email_recipient_address},
+                 email_sender               => $::form->{email_sender},
+                 email_subject              => $::form->{email_subject},
+                 email_body                 => $::form->{email_body},
                };
 
   $::form->{periodic_invoices_config} = YAML::Dump($config);
@@ -2214,4 +2224,3 @@ sub dispatcher {
 
   $::form->error($::locale->text('No action defined.'));
 }
-
