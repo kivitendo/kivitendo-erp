@@ -7,6 +7,7 @@ use parent qw(SL::BackgroundJob::Base);
 use Config::Std;
 use DateTime::Format::Strptime;
 use English qw(-no_match_vars);
+use List::MoreUtils qw(uniq);
 
 use SL::DB::AuthUser;
 use SL::DB::Default;
@@ -14,7 +15,9 @@ use SL::DB::Order;
 use SL::DB::Invoice;
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
+use SL::Helper::CreatePDF qw(create_pdf find_template);
 use SL::Mailer;
+use SL::Util qw(trim);
 
 sub create_job {
   $_[0]->create_standard_job('0 3 1 * *'); # first day of month at 3:00 am
@@ -24,6 +27,8 @@ sub run {
   my $self        = shift;
   $self->{db_obj} = shift;
 
+  $self->{job_errors} = [];
+
   my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
 
   foreach my $config (@{ $configs }) {
@@ -31,7 +36,7 @@ sub run {
     _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
   }
 
-  my (@new_invoices, @invoices_to_print);
+  my (@new_invoices, @invoices_to_print, @invoices_to_email);
 
   _log_msg("Number of configs: " . scalar(@{ $configs}));
 
@@ -47,20 +52,33 @@ sub run {
     _log_msg("Dates: " . join(' ', map { $_->to_lxoffice } @dates));
 
     foreach my $date (@dates) {
-      my $invoice = $self->_create_periodic_invoice($config, $date);
-      next unless $invoice;
+      my $data = $self->_create_periodic_invoice($config, $date);
+      next unless $data;
 
-      _log_msg("Invoice " . $invoice->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
-      push @new_invoices,      $invoice;
-      push @invoices_to_print, [ $invoice, $config ] if $config->print;
+      _log_msg("Invoice " . $data->{invoice}->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
+
+      push @new_invoices,      $data;
+      push @invoices_to_print, $data if $config->print;
+      push @invoices_to_email, $data if $config->send_email;
 
       # last;
     }
   }
 
-  _print_invoice(@{ $_ }) for @invoices_to_print;
+  $self->_print_invoice($_) for @invoices_to_print;
+  $self->_email_invoice($_) for @invoices_to_email;
 
-  _send_email(\@new_invoices, [ map { $_->[0] } @invoices_to_print ]) if @new_invoices;
+  $self->_send_summary_email(
+    [ map { $_->{invoice} } @new_invoices      ],
+    [ map { $_->{invoice} } @invoices_to_print ],
+    [ map { $_->{invoice} } @invoices_to_email ],
+  );
+
+  if (@{ $self->{job_errors} }) {
+    my $msg = @{ $self->{job_errors} };
+    _log_msg("Errors: $msg");
+    die $msg;
+  }
 
   return 1;
 }
@@ -177,8 +195,6 @@ sub _adjust_sellprices_for_period_lengths {
 }
 
 sub _create_periodic_invoice {
-  $main::lxdebug->enter_sub();
-
   my $self              = shift;
   my $config            = shift;
   my $period_start_date = shift;
@@ -242,8 +258,13 @@ sub _create_periodic_invoice {
     $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
     return undef;
   }
-  $main::lxdebug->leave_sub();
-  return $invoice;
+
+  return {
+    config            => $config,
+    period_start_date => $period_start_date,
+    invoice           => $invoice,
+    time_period_vars  => $time_period_vars,
+  };
 }
 
 sub _calculate_dates {
@@ -251,8 +272,8 @@ sub _calculate_dates {
   return $config->calculate_invoice_dates(end_date => DateTime->today_local);
 }
 
-sub _send_email {
-  my ($posted_invoices, $printed_invoices) = @_;
+sub _send_summary_email {
+  my ($self, $posted_invoices, $printed_invoices, $emailed_invoices) = @_;
 
   my %config = %::lx_office_conf;
 
@@ -274,7 +295,8 @@ sub _send_email {
   my $email_template = $config{periodic_invoices}->{email_template};
   my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/oe/periodic_invoices_email.txt" );
   my %params         = ( POSTED_INVOICES  => $posted_invoices,
-                         PRINTED_INVOICES => $printed_invoices );
+                         PRINTED_INVOICES => $printed_invoices,
+                         EMAILED_INVOICES => $emailed_invoices );
 
   my $output;
   $template->process($filename, \%params, \$output);
@@ -290,7 +312,10 @@ sub _send_email {
 }
 
 sub _print_invoice {
-  my ($invoice, $config) = @_;
+  my ($self, $data) = @_;
+
+  my $invoice       = $data->{invoice};
+  my $config        = $data->{config};
 
   return unless $config->print && $config->printer_id && $config->printer->printer_command;
 
@@ -319,8 +344,80 @@ sub _print_invoice {
     eval {
       $form->parse_template(\%::myconfig);
       1;
-    } || die $EVAL_ERROR->getMessage;
+    } or do {
+      push @{ $self->{job_errors} }, $EVAL_ERROR->getMessage;
+    };
   });
+}
+
+sub _email_invoice {
+  my ($self, $data) = @_;
+
+  $data->{config}->load;
+
+  return unless $data->{config}->send_email;
+
+  my @recipients =
+    uniq
+    map  { lc       }
+    grep { $_       }
+    map  { trim($_) }
+    (split(m{,}, $data->{config}->email_recipient_address),
+     $data->{config}->email_recipient_contact ? ($data->{config}->email_recipient_contact->cp_email) : ());
+
+  return unless @recipients;
+
+  my %create_params = (
+    template               => $self->find_template(name => 'invoice'),
+    variables              => Form->new(''),
+    return                 => 'file_name',
+    variable_content_types => {
+      longdescription => 'html',
+      partnotes       => 'html',
+      notes           => 'html',
+    },
+  );
+
+  $data->{invoice}->flatten_to_form($create_params{variables}, format_amounts => 1);
+  $create_params{variables}->prepare_for_printing;
+
+  my $pdf_file_name;
+
+  eval {
+    $pdf_file_name = $self->create_pdf(%create_params);
+
+    for (qw(email_subject email_body)) {
+      _replace_vars(
+        object           => $data->{config},
+        vars             => $data->{time_period_vars},
+        attribute        => $_,
+        attribute_format => 'text'
+      );
+    }
+
+    for my $recipient (@recipients) {
+      my $mail             = Mailer->new;
+      $mail->{from}        = $data->{config}->email_sender || $::lx_office_conf{periodic_invoices}->{email_from};
+      $mail->{to}          = $recipient;
+      $mail->{subject}     = $data->{config}->email_subject;
+      $mail->{message}     = $data->{config}->email_body;
+      $mail->{attachments} = [{
+        filename => $pdf_file_name,
+        name     => sprintf('%s %s.pdf', $::locale->text('Invoice'), $data->{invoice}->invnumber),
+      }];
+
+      my $error        = $mail->send;
+
+      push @{ $self->{job_errors} }, $error if $error;
+    }
+
+    1;
+
+  } or do {
+    push @{ $self->{job_errors} }, $EVAL_ERROR;
+  };
+
+  unlink $pdf_file_name if $pdf_file_name;
 }
 
 1;

@@ -17,6 +17,8 @@ einere neue Features und Detailverbesserungen:
   - Lagereingangs-Typ gefertigt hinzugefügt
   - Fertigungsdatum von Erzeugnissen und Bestandteilen von Erzeugnissen
     in Lagerbuchungen mitprotokollieren (Tagesdatum der Fertigung).
+  - Wiederkehrende Rechnungen können nun automatisch per E-Mail
+    verschickt werden.
 
 
 2016-03-12 - Release 3.4.0

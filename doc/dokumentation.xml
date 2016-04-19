@@ -2340,6 +2340,11 @@ empfang@revamp-it.ch
         </para>
 
         <para>
+         Diese Variablen können auch beim automatischen Versand der erzeugten Rechnungen per E-Mail genutzt werden, indem sie in den Feldern
+         für den Betreff oder die Nachricht verwendet werden.
+        </para>
+
+        <para>
           Diese Variablen werden in den folgenden Elementen des Auftrags ersetzt:
         </para>
 
