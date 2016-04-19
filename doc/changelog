@@ -12,6 +12,8 @@ einere neue Features und Detailverbesserungen:
     in Lagerbuchungen mitprotokollieren (Tagesdatum der Fertigung).
   - Wiederkehrende Rechnungen können nun automatisch per E-Mail
     verschickt werden.
+  - Die meisten Suchmasken ignorieren nun bei Teilwortsuchen führende
+    und anhängende Leerzeichen.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
