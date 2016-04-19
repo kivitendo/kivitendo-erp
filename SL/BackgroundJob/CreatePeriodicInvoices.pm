@@ -337,13 +337,8 @@ sub _print_invoice {
   $form->{OUT}          = $config->printer->printer_command;
   $form->{OUT_MODE}     = '|-';
 
-  $form->{TEMPLATE_DRIVER_OPTIONS} = {
-    variable_content_types => {
-      longdescription => 'html',
-      partnotes       => 'html',
-      notes           => 'html',
-    },
-  };
+  $form->{TEMPLATE_DRIVER_OPTIONS} = { };
+  $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = $form->get_variable_content_types();
 
   $form->prepare_for_printing;
 

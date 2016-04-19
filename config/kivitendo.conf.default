@@ -64,6 +64,10 @@ bind_password =
 # Set language for login and admin forms. Currently "de" (German)
 # and "en" (English, not perfect) are available.
 language = de
+# MassPrint Timeout
+# must be less than cgi timeout
+#
+massprint_timeout = 30
 
 # Set default_manager for admin forms. Currently "german"
 # and "swiss" are available.

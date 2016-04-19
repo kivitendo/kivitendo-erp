@@ -302,7 +302,7 @@ sub form_header {
 
   $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')';
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part));
 
   my @custom_hidden;
   push @custom_hidden, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
@@ -507,6 +507,7 @@ sub orders {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
@@ -544,7 +545,7 @@ sub orders {
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
-    'ids'                     => { 'text' => '', },
+    'ids'                     => { 'text' => '<input type="checkbox" id="multi_all" value="1">', 'align' => 'center' },
     'transdate'               => { 'text' => $locale->text('Delivery Order Date'), },
     'reqdate'                 => { 'text' => $locale->text('Reqdate'), },
     'id'                      => { 'text' => $locale->text('ID'), },
@@ -642,9 +643,25 @@ sub orders {
     push @options, $locale->text('Not delivered');
   }
 
+  # all_vc ruft get_employee auf, dort wird emloyee überschrieben, deshalb retten:
+  my $save_employee_id = $form->{'employee_id'};
+  my $save_employee    = $form->{'employee'};
+  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
+  $form->{'employee_id'} = $save_employee_id;
+  $form->{'employee'}    = $save_employee;
+
+  my $pr = SL::DB::Manager::Printer->find_by(
+      printer_description => $::locale->text("sales_delivery_order_printer"));
+  if ($pr ) {
+      $form->{printer_id} = $pr->id;
+  }
+
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom'),
+                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom',
+                        {
+                           print_options   => print_options(inline => 1,hide_language_id => 1),
+                        }),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
@@ -669,9 +686,10 @@ sub orders {
 
     my $row = { map { $_ => { 'data' => $dord->{$_} } } @columns };
 
+    my $ord_id = $dord->{id};
     $row->{ids}  = {
-      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $dord->{id})
-                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $ord_id)
+                    . $cgi->checkbox('-name' => "multi_id_${idx}",' id' => "multi_id_id_".$ord_id, '-value' => 1, '-label' => ''),
       'valign'   => 'center',
       'align'    => 'center',
     };

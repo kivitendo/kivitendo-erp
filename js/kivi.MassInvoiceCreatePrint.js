@@ -45,6 +45,7 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     var data = {
       action:             'MassInvoiceCreatePrint/create_print_all_start',
       number_of_invoices: $('#cpa_number_of_invoices').val(),
+      bothsided:          $('#cpa_bothsided').val(),
       printer_id:         $('#cpa_printer_id').val(),
       copy_printer_id:    $('#cpa_copy_printer_id').val(),
       transdate:          $('#transdate').val()

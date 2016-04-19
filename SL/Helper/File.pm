@@ -80,7 +80,10 @@ SL::Helper::File - Helper for $::Form to store generated PDF-Documents
 
  $self->store_pdf($self);
 
- $self->append_general_pdf_attachments($self) if ( $ext_for_format eq 'pdf' );
+ $self->append_general_pdf_attachments(filepath => $pdf_filename, type => $form->{type}) if ( $ext_for_format eq 'pdf' );
+
+#It is also used in MassPrint Helper
+# 
 
 =head1 DESCRIPTION
 

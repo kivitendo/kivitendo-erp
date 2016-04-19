@@ -1,10 +1,22 @@
 [%- USE T8 %]
 [% USE HTML %]
- [% 'New invoice' | $T8 %]<br>
+<table  width="100%">
+   <tr><td width = "200px" >
+ [% 'New invoice' | $T8 %]</td><td width = "150px">
  <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
  <input type="hidden" name="nextsub" value="invoice_multi">
  <input type="hidden" name="type" value="[% HTML.escape(type) %]">
  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
  <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
-</form>
+</td><td></td></tr></table></form>
+<form method="post" id="print_multi_id">
+[% print_options %]
+<div id="mass_print_dialog" style="display: none"></div>
+<table  width="100%">
+  <tr><td width="300px" align="right">[% 'Print selected delivery orders both sided' | $T8 %]</td>
+      <td><input type="checkbox" name="bothsided" value="1">
+<input type="hidden" name="type" value="[% HTML.escape(type) %]">
+<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+<input class="submit" type="button" name="action" id="print_multi_button" value="[% 'Print selected' | $T8 %]">
+</td><td></td></tr></table></form>

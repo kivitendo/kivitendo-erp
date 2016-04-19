@@ -12,12 +12,16 @@ use SL::DB::Printer;
 use SL::SessionFile;
 use SL::Template;
 use SL::Locale::String qw(t8);
+use SL::Helper::MassPrintCreatePDF qw(:all);
+use SL::Helper::CreatePDF qw(:all);
+use SL::Helper::File qw(store_pdf append_general_pdf_attachments);
 use SL::Webdav;
 
 use constant WAITING_FOR_EXECUTION       => 0;
 use constant CONVERTING_DELIVERY_ORDERS  => 1;
 use constant PRINTING_INVOICES           => 2;
 use constant DONE                        => 3;
+
 # Data format:
 # my $data             = {
 #   record_ids          => [ 123, 124, 127, ],
@@ -46,12 +50,17 @@ sub create_invoices {
     my $data   = $job_obj->data_as_hash;
 
     eval {
+      my $invoice;
       my $sales_delivery_order = SL::DB::DeliveryOrder->new(id => $delivery_order_id)->load;
       $number                  = $sales_delivery_order->donumber;
-      my %conversion_params    = $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) : ();
-      my $invoice              = $sales_delivery_order->convert_to_invoice(%conversion_params);
 
-      die $db->error if !$invoice;
+      if (!$db->with_transaction(sub {
+        $invoice = $sales_delivery_order->convert_to_invoice(sub { $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) :
+                                                                         undef }->() ) || die $db->error;
+        1;
+      })) {
+        die $db->error;
+      }
 
       $data->{num_created}++;
       push @{ $data->{invoice_ids} }, $invoice->id;
@@ -75,42 +84,36 @@ sub convert_invoices_to_pdf {
   my $db      = $job_obj->db;
 
   $job_obj->set_data(status => PRINTING_INVOICES())->save;
+  my $data = $job_obj->data_as_hash;
 
-  require SL::Controller::MassInvoiceCreatePrint;
-
-  my $printer_id = $job_obj->data_as_hash->{printer_id};
-  my $ctrl       = SL::Controller::MassInvoiceCreatePrint->new;
+  my $printer_id = $data->{printer_id};
+  if ( $data->{media} ne 'printer' ) {
+      undef $printer_id;
+      $data->{media} = 'file';
+  }
   my %variables  = (
     type         => 'invoice',
     formname     => 'invoice',
     format       => 'pdf',
     media        => $printer_id ? 'printer' : 'file',
+    printer_id   => $printer_id,
   );
 
   my @pdf_file_names;
 
   foreach my $invoice (@{ $self->{invoices} }) {
-    my $data = $job_obj->data_as_hash;
 
     eval {
-      my %create_params = (
-        template  => $ctrl->find_template(name => 'invoice', printer_id => $printer_id),
-        variables => Form->new(''),
+      my %params = (
+        variables => \%variables,
         return    => 'file_name',
-        variable_content_types => { longdescription => 'html',
-                                    partnotes       => 'html',
-                                    notes           => 'html',}
+        document  => $invoice,
       );
+      push @pdf_file_names, $self->create_massprint_pdf(%params);
 
+      $data->{num_printed}++;
 
-
-      $create_params{variables}->{$_} = $variables{$_} for keys %variables;
-
-      $invoice->flatten_to_form($create_params{variables}, format_amounts => 1);
-      $create_params{variables}->prepare_for_printing;
-
-      push @pdf_file_names, $ctrl->create_pdf(%create_params);
-
+      # OLD WebDAV Code, may be deleted:
       # copy file to webdav folder
       if ($::instance_conf->get_webdav_documents) {
         my $webdav = SL::Webdav->new(
@@ -129,8 +132,6 @@ sub convert_invoices_to_pdf {
         }
       }
 
-      $data->{num_printed}++;
-
       1;
 
     } or do {
@@ -140,52 +141,7 @@ sub convert_invoices_to_pdf {
     $job_obj->update_attributes(data_as_hash => $data);
   }
 
-  if (@pdf_file_names) {
-    my $data = $job_obj->data_as_hash;
-
-    eval {
-      $self->{merged_pdf} = $ctrl->merge_pdfs(file_names => \@pdf_file_names);
-      unlink @pdf_file_names;
-
-      if (!$printer_id) {
-        my $file_name = 'mass_invoice' . $job_obj->id . '.pdf';
-        my $sfile     = SL::SessionFile->new($file_name, mode => 'w', session_id => $data->{session_id});
-        $sfile->fh->print($self->{merged_pdf});
-        $sfile->fh->close;
-
-        $data->{pdf_file_name} = $file_name;
-      }
-
-      1;
-
-    } or do {
-      push @{ $data->{print_errors} }, { message => $@ };
-    };
-
-    $job_obj->update_attributes(data_as_hash => $data);
-  }
-}
-
-sub print_pdfs {
-  my ($self)     = @_;
-
-  my $job_obj         = $self->{job_obj};
-  my $data            = $job_obj->data_as_hash;
-  my $printer_id      = $data->{printer_id};
-  my $copy_printer_id = $data->{copy_printer_id};
-
-  return if !$printer_id;
-
-  my $out;
-
-  foreach  my $local_printer_id ($printer_id, $copy_printer_id) {
-    next unless $local_printer_id;
-    SL::DB::Printer
-      ->new(id => $local_printer_id)
-      ->load
-      ->print_document(content => $self->{merged_pdf});
-  }
-
+  $self->merge_massprint_pdf(file_names => \@pdf_file_names, type => 'invoice' ) if scalar(@pdf_file_names) > 0;
 }
 
 sub run {

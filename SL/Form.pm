@@ -2846,6 +2846,22 @@ sub lastname_used {
   $main::lxdebug->leave_sub();
 }
 
+sub get_variable_content_types {
+  my %html_variables  = (
+      longdescription => 'html',
+      partnotes       => 'html',
+      notes           => 'html',
+      orignotes       => 'html',
+      notes1          => 'html',
+      notes2          => 'html',
+      notes3          => 'html',
+      notes4          => 'html',
+      header_text     => 'html',
+      footer_text     => 'html',
+  );
+  return \%html_variables;
+}
+
 sub current_date {
   $main::lxdebug->enter_sub();
 

@@ -13,12 +13,12 @@ use SL::Controller::Helper::GetModels;
 use SL::DB::DeliveryOrder;
 use SL::DB::Order;
 use SL::DB::Printer;
+use SL::Helper::MassPrintCreatePDF qw(:all);
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::SessionFile;
 use SL::System::TaskServer;
-
 use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(invoice_models invoice_ids sales_delivery_order_models printers default_printer_id today) ],
@@ -130,6 +130,7 @@ sub action_create_print_all_start {
     record_ids         => [ map { $_->id } @records[0..$num - 1] ],
     printer_id         => $::form->{printer_id},
     copy_printer_id    => $::form->{copy_printer_id},
+    bothsided          => ($::form->{bothsided}?1:0),
     transdate          => $::form->{transdate},
     status             => SL::BackgroundJob::MassRecordCreationAndPrinting->WAITING_FOR_EXECUTION(),
     num_created        => 0,
@@ -172,7 +173,7 @@ sub action_create_print_all_download {
   $sfile->fh->close;
 
   my $type      = 'Invoices';
-  my $file_name =  t8($type) . '-' . DateTime->today_local->strftime('%Y%m%d%H%M%S') . '.pdf';
+  my $file_name =  t8($type) . '-' . DateTime->now_local->strftime('%Y%m%d%H%M%S') . '.pdf';
   $file_name    =~ s{[^\w\.]+}{_}g;
 
   return $self->send_file(
@@ -187,6 +188,7 @@ sub action_create_print_all_download {
 #
 
 sub init_printers { SL::DB::Manager::Printer->get_all_sorted }
+#sub init_att      { require SL::Controller::Attachments; SL::Controller::Attachments->new() }
 sub init_invoice_ids { [] }
 sub init_today         { DateTime->today_local }
 
@@ -268,30 +270,6 @@ sub setup {
 # helpers
 #
 
-sub create_pdfs {
-  my ($self, %params) = @_;
-
-  my @pdf_file_names;
-  foreach my $invoice (@{ $params{invoices} }) {
-    my %create_params = (
-      template  => $self->find_template(name => 'invoice', printer_id => $params{printer_id}),
-      variables => Form->new(''),
-      return    => 'file_name',
-      variable_content_types => { longdescription => 'html',
-                                  partnotes       => 'html',
-                                  notes           => 'html',}
-    );
-
-    $create_params{variables}->{$_} = $params{variables}->{$_} for keys %{ $params{variables} };
-
-    $invoice->flatten_to_form($create_params{variables}, format_amounts => 1);
-    $create_params{variables}->prepare_for_printing;
-
-    push @pdf_file_names, $self->create_pdf(%create_params);
-  }
-
-  return @pdf_file_names;
-}
 
 sub download_or_print_documents {
   my ($self, %params) = @_;
@@ -300,13 +278,13 @@ sub download_or_print_documents {
 
   eval {
     my %pdf_params = (
-      invoices        => $params{invoices},
-      printer_id      => $params{printer_id},
+      documents       => $params{invoices},
       variables       => {
         type        => 'invoice',
         formname    => 'invoice',
         format      => 'pdf',
         media       => $params{printer_id} ? 'printer' : 'file',
+        printer_id  => $params{printer_id},
       });
 
     @pdf_file_names = $self->create_pdfs(%pdf_params);
@@ -314,7 +292,7 @@ sub download_or_print_documents {
     unlink @pdf_file_names;
 
     if (!$params{printer_id}) {
-      my $file_name =  t8("Invoices") . '-' . DateTime->today_local->strftime('%Y%m%d%H%M%S') . '.pdf';
+      my $file_name =  t8("Invoices") . '-' . DateTime->now_local->strftime('%Y%m%d%H%M%S') . '.pdf';
       $file_name    =~ s{[^\w\.]+}{_}g;
 
       return $self->send_file(

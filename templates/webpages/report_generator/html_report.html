@@ -29,7 +29,7 @@
 
  [% IF DATA_PRESENT %]
  <p>
-  <table [% IF TABLE_CLASS %]class="[% TABLE_CLASS %]"[% END %] width="100%">
+  <table [% IF TABLE_CLASS %]class="[% TABLE_CLASS %]"[% END %] id="report_table_id" width="100%">
    [%- FOREACH row = HEADER_ROWS %]
    <tr>
     [% FOREACH col = row %]

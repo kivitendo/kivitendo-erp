@@ -12,7 +12,10 @@
   <td>[% LxERP.t8("Number of invoices to create") %]:</td>
   <td>[% L.input_tag('', num_delivery_orders, size="5", id="cpa_number_of_invoices") %]</td>
  </tr>
-
+ <tr>
+  <td>[% LxERP.t8("Print both sided") %]:</td>
+  <td>[% L.checkbox_tag('', id="cpa_bothsided") %]</td>
+ </tr>
  <tr>
   <td>[% LxERP.t8("Print destination") %]:</td>
   <td>
