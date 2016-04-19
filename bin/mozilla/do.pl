@@ -963,7 +963,8 @@ sub invoice_multi {
     IS->get_customer(\%myconfig, \%$form);
     $vc_discount = $form->{customer_discount};
   }
-  restore_form($saved_form);
+  # use payment terms from customer or vendor
+  restore_form($saved_form,0,qw(payment_id));
 
   $form->{rowcount} = 0;
   foreach my $ref (@{ $form->{form_details} }) {
