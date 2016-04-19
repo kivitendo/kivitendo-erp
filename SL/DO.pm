@@ -1211,7 +1211,7 @@ sub get_shipped_qty {
   #                  Wird für LaTeX benötigt um im Lieferschein pro Position die Mengen auszugeben
   # $params{delivered}: Alle Aufträge zum Lieferschein $params{do_id} prüfen ob sie vollständiger ausgeliefert sind
   #                  Wird für das Setzen des 'delivered' Flag in der Datenbank beim "save" des Lieferscheins benötigt
-  
+
   my $self     = shift;
   my %params   = @_;
 
