@@ -3386,6 +3386,7 @@ $self->{texts} = {
   'ar_aging_list'               => 'liste_offene_forderungen',
   'ar_chart isn\'t a valid chart' => 'Das Forderungskonto ist kein gültiges Konto.',
   'as at'                       => 'zum Stand',
+  'assembled'                   => 'Gefertigt',
   'assembly'                    => 'Erzeugnis',
   'assembly_list'               => 'erzeugnisliste',
   'averaged values, in invoice mode only useful when filtered by a part' => 'gemittelte Werte, im Rechnungsmodus nur sinnvoll wenn nach Artikel gefiltert wird',

@@ -67,6 +67,7 @@ use strict;
 #  $locale->text('used')
 #  $locale->text('return_material')
 #  $locale->text('release_material')
+#  $locale->text('assembled')
 
 # --------------------------------------------------------------------
 # Transfer

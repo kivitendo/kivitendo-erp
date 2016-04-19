@@ -14,6 +14,9 @@ einere neue Features und Detailverbesserungen:
   - Das Drucken von Briefen direkt auf Drucker wurde gefixt.
   - Die Auswahl einer Ansprechpersonen in der Brieffunktion wurde gefixt.
   - Briefe können nun per E-Mail verschickt werden.
+  - Lagereingangs-Typ gefertigt hinzugefügt
+  - Fertigungsdatum von Erzeugnissen und Bestandteilen von Erzeugnissen
+    in Lagerbuchungen mitprotokollieren (Tagesdatum der Fertigung).
 
 
 2016-03-12 - Release 3.4.0

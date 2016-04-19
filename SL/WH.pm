@@ -203,9 +203,11 @@ sub transfer_assembly {
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
   # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
-  my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty, trans_id, trans_type_id)
+  my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty,
+                           trans_id, trans_type_id, shippingdate)
                            VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
-                           (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
+                           (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'),
+                           (SELECT current_date))|;
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
   # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
@@ -289,9 +291,10 @@ sub transfer_assembly {
 
   # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
   my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore,
-                                                      comment, employee_id, qty, trans_id, trans_type_id)
+                                                      comment, employee_id, qty, trans_id, trans_type_id, shippingdate)
                                VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
-                               (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
+                               (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'assembled'),
+                               (select current_date))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
   do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id},
                $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty});
