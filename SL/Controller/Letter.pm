@@ -36,7 +36,7 @@ my %sort_columns = (
   date                  => t8('Date'),
   subject               => t8('Subject'),
   letternumber          => t8('Letternumber'),
-  vc_id                 => t8('Customer'),
+  customer_id           => t8('Customer'),
   contact               => t8('Contact'),
 );
 
@@ -94,7 +94,7 @@ sub action_update_contacts {
 
   my $letter = $self->letter;
 
-  if (!$self->letter->vc_id || !$self->letter->customer) {
+  if (!$self->letter->customer_id || !$self->letter->customer) {
     return $self->js
       ->replaceWith(
         '#letter_cp_id',
@@ -108,7 +108,7 @@ sub action_update_contacts {
   my $default;
   if (   $letter->contact
       && $letter->contact->cp_cv_id
-      && $letter->contact->cp_cv_id == $letter->vc_id) {
+      && $letter->contact->cp_cv_id == $letter->customer_id) {
     $default = $letter->contact->cp_id;
   } else {
     $default = '';
@@ -187,7 +187,7 @@ sub action_print_letter {
   my $greeting_saved      = $::form->{greeting};
   my $cp_id_saved         = $::form->{cp_id};
 
-  $::form->{customer_id} = $self->letter->vc_id;
+  $::form->{customer_id} = $self->letter->customer_id;
   IS->customer_details(\%::myconfig, $::form);
 
   if (!$cp_id_saved) {
@@ -405,8 +405,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(date subject letternumber vc_id contact date);
-  my @sortable = qw(date subject letternumber vc_id contact date);
+  my @columns  = qw(date subject letternumber customer_id contact date);
+  my @sortable = qw(date subject letternumber customer_id contact date);
 
   my %column_defs = (
     date                  => { text => t8('Date'),         sub => sub { $_[0]->date_as_date } },
@@ -414,7 +414,7 @@ sub prepare_report {
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
     letternumber          => { text => t8('Letternumber'), sub => sub { $_[0]->letternumber },
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
-    vc_id                 => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->vc_id)->displayable_name } },
+    customer_id           => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->customer_id)->displayable_name } },
     contact               => { text => t8('Contact'),       sub => sub { $_[0]->contact ? $_[0]->contact->full_name : '' } },
   );
 
@@ -571,7 +571,7 @@ sub init_letter {
                                            ->assign_attributes(%{ $::form->{letter} });
 
   if ($letter->cp_id) {
-#     $letter->vc_id($letter->contact->cp_cv_id);
+#     $letter->customer_id($letter->contact->cp_cv_id);
       # contacts don't have language_id yet
 #     $letter->greeting(GenericTranslations->get(
 #       translation_type => 'greetings::' . ($letter->contact->cp_gender eq 'f' ? 'female' : 'male'),

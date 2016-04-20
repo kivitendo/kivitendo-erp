@@ -7,15 +7,6 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::MetaSetup::Letter;
 use SL::DB::Manager::Letter;
 
-__PACKAGE__->meta->add_relationships(
-  customer  => {
-    type                   => 'many to one',
-    class                  => 'SL::DB::Customer',
-    column_map             => { vc_id => 'id' },
-  },
-
-);
-
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('body');

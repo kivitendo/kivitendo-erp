@@ -33,7 +33,7 @@
    <table width=90%>
     <tr>
      <th align='right'>[% 'Customer' | $T8 %]:</th>
-     <td>[% P.customer_vendor_picker('letter.vc_id', letter.vc_id, type='customer') %]
+     <td>[% P.customer_vendor_picker('letter.customer_id', letter.customer_id, type='customer') %]
 [%- IF letter.customer_id %]
       <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')">
 [%- END %]
@@ -41,7 +41,7 @@
     </tr>
     <tr>
      <th align='right'>[% 'Contact Person' | $T8 %]</th>
-     <td>[% L.select_tag('letter.cp_id', letter.vc_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
+     <td>[% L.select_tag('letter.cp_id', letter.customer_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
     </tr>
     <tr>
      <th align='right'>[% 'Your Reference' | $T8 %]:</th>
@@ -163,7 +163,7 @@
 
 <script type='text/javascript'>
   $(function(){
-    $('#letter_vc_id').change(function(){
+    $('#letter_customer_id').change(function(){
       var data = $('form').serializeArray();
       data.push({ name: 'action_update_contacts', value: 1 });
       $.post('controller.pl', data, kivi.eval_json_result);
