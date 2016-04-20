@@ -112,7 +112,7 @@
     </tr>
 
     <tr>
-     <th align="right">[%- LxERP.t8("Sender") %]</th>
+     <th align="right">[%- LxERP.t8("Sender") %]<sup>4</sup></th>
      <td>[% L.input_tag("email_sender", email_sender, disabled=!send_email, style=style) %]</td>
     </tr>
 
@@ -133,6 +133,7 @@
   <p>(1): [%- LxERP.t8('The end date is the last day for which invoices will possibly be created.') %]</p>
   <p>(2): [% LxERP.t8("If missing then the start date will be used.") %]</p>
   <p>(3): [% LxERP.t8("Multiple addresses can be entered separated by commas.") %]</p>
+  <p>(4): [% LxERP.t8("If left empty the default sender from the kivitendo configuration will be used.") %]</p>
 
   [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
 
