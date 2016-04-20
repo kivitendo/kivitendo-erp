@@ -20,9 +20,9 @@
       [% FOREACH row = LETTER_DRAFTS %]
        <tr class="listrow[% loop.count % 2 %]">
         <td><input type="checkbox" name="checked_[% row.id %]" value="1"></td>
-        <td>[% row.date | html %]</td>
+        <td>[% row.date.to_kivitendo | html %]</td>
         <td><a href="[% SELF.url_for(action='edit', 'draft.id'=row.id) %]">[% row.subject | html %]</a></td>
-        <td>[% row.customer | html %]</td>
+        <td>[% row.customer.displayable_name | html %]</td>
        </tr>
       [% END %]
      </table>
