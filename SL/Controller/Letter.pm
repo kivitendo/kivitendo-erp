@@ -23,7 +23,7 @@ use SL::Webdav;
 use SL::Webdav::File;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(letter all_employees models) ],
+  'scalar --get_set_init' => [ qw(letter all_employees models webdav_objects) ],
 );
 
 __PACKAGE__->run_before('check_auth_edit');
@@ -596,6 +596,27 @@ sub init_models {
 
 sub init_all_employees {
   SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
+}
+
+sub init_webdav_objects {
+  my ($self) = @_;
+
+  return [] if !$self->letter || !$self->letter->letternumber || !$::instance_conf->get_webdav;
+
+  my $webdav = SL::Webdav->new(
+    type     => 'letter',
+    number   => $self->letter->letternumber,
+  );
+
+  my $webdav_path = $webdav->webdav_path;
+  my @all_objects = $webdav->get_all_objects;
+
+  return [ map {
+    +{ name => $_->filename,
+       type => t8('File'),
+       link => File::Spec->catdir($webdav_path, $_->filename),
+     }
+  } @all_objects ];
 }
 
 sub check_auth_edit {

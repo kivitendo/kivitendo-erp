@@ -3,6 +3,7 @@
 [%- USE L %]
 [%- USE P %]
 [%- USE LxERP %]
+[%- SET WEBDAV = SELF.webdav_objects %]
 <h1>[% title | html %]</h1>
 
 <form action='controller.pl' method='POST'>
@@ -16,6 +17,9 @@
    <ul>
     <li><a href="#ui-tabs-letter">[% LxERP.t8("Letter") %]</a></li>
 [%- IF letter.id %]
+ [%- IF INSTANCE_CONF.get_webdav %]
+     <li><a href="#ui-tabs-webdav">[% LxERP.t8('WebDAV') %]</a></li>
+ [%- END %]
     <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Letter&object_id=[% HTML.url(letter.id) %]">[% LxERP.t8("Linked Records") %]</a></li>
 [%- END %]
    </ul>
@@ -136,6 +140,7 @@
 </table>
 
  </div>
+ [% PROCESS 'webdav/_list.html' %]
  <div id="ui-tabs-1">
   [%- LxERP.t8("Loading...") %]
  </div>
