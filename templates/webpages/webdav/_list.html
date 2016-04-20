@@ -1,9 +1,10 @@
-[% USE HTML %][% USE T8 %]
+[% USE HTML %][% USE T8 %][%- USE LxERP -%]
 
 [%- IF INSTANCE_CONF.get_webdav %]
 <div id="ui-tabs-webdav">
 <div class="listtop">[%- 'Documents in the WebDAV repository' | $T8 %]</div>
 
+[% IF WEBDAV && WEBDAV.size %]
  <table>
   <thead>
    <tr class="listheading">
@@ -21,6 +22,10 @@
 [%- END %]
   </tbody>
  </table>
+
+[% ELSE %]
+ <p>[% LxERP.t8("There are no documents in the WebDAV directory at the moment.") %]</p>
+[% END %]
 </div>
 
 [%- END %]

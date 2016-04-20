@@ -3011,6 +3011,7 @@ $self->{texts} = {
   'There are invalid taxnumbers in use.' => 'Es werden ungültige Steuerautomatik-Konten benutzt.',
   'There are invalid transactions in your database.' => 'Sie haben ungültige Buchungen in Ihrer Datenbank.',
   'There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!' => 'Einige Rechnungen konnten nicht durch die Bankbewegung #1 (Kontonummer: #2, Bankleitzahl: #3) bezahlt werden!',
+  'There are no documents in the WebDAV directory at the moment.' => 'Es befinden sich im WebDAV-Verzeichnis momentan keine Dokumente.',
   'There are no entries in the background job history.' => 'Es gibt keine Einträge im Hintergrund-Job-Verlauf.',
   'There are no entries that match the filter.' => 'Es gibt keine Einträge, auf die der Filter zutrifft.',
   'There are no items in stock.' => 'Dieser Artikel ist nicht eingelagert.',
