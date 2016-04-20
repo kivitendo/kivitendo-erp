@@ -308,7 +308,10 @@ sub action_skip_draft {
 
 sub action_delete_drafts {
   my ($self) = @_;
-  delete_letter_drafts();
+
+  my @ids = @{ $::form->{ids} || [] };
+  SL::DB::Manager::LetterDraft->delete_all(where => [ id => \@ids ]) if @ids;
+
   $self->action_add(skip_drafts => 1);
 }
 

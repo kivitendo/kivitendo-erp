@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%]
 <h1>[% 'Load letter draft' | $T8 %]</h1>
 
  <form method="post" name="Form" action="controller.pl">
@@ -19,7 +19,7 @@
 
       [% FOREACH row = LETTER_DRAFTS %]
        <tr class="listrow[% loop.count % 2 %]">
-        <td><input type="checkbox" name="checked_[% row.id %]" value="1"></td>
+        <td>[% L.checkbox_tag("ids[+]", value=row.id) %]</td>
         <td>[% row.date.to_kivitendo | html %]</td>
         <td><a href="[% SELF.url_for(action='edit', 'draft.id'=row.id) %]">[% row.subject | html %]</a></td>
         <td>[% row.customer.displayable_name | html %]</td>
@@ -32,7 +32,7 @@
     <td>
      <input type="hidden" name="action" value="Letter/dispatch">
      <input type="submit" class="submit" name="action_skip_draft" value="[% 'Skip' | $T8 %]">
-     <input type="submit" class="submit" name="action_delete_draft" value="[% 'Delete drafts' | $T8 %]">
+     <input type="submit" class="submit" name="action_delete_drafts" value="[% 'Delete drafts' | $T8 %]">
    </td>
    </tr>
   </table>
