@@ -45,4 +45,10 @@ sub full_name_dep {
     . join '', map { " ($_)" } grep $_, $self->cp_abteilung;
 }
 
+sub formal_greeting {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+  join ' ', grep $_, $self->cp_greeting, $self->cp_givenname, $self->cp_name;
+}
+
 1;

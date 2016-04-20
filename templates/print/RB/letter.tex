@@ -1,17 +1,22 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+$( SET customer = letter.customer )$
 \input{inheaders.tex}
-
+$( KiviLatex.required_packages_for_html )$
 
 % Variablen, die in settings verwendet werden
-\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
-\newcommand{\lxmedia} {<%media%>}
-\newcommand{\lxcurrency} {<%currency%>}
-\newcommand{\lxtitlebar} {<%titlebar%>}
+\newcommand{\lxlangcode}{$(template_meta.language.template_code)$}
+\newcommand{\lxmedia}{$(template_meta.media)$}
+\newcommand{\lxcurrency}{}
+\newcommand{\lxtitlebar}{}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
 % laufende Kopfzeile:
-%\ourhead{}{}{<%subject%>}{<%letternumber%>}{<%date%>}
+%\ourhead{}{}{$( KiviLatex.filter(letter.subject) )$}{$( KiviLatex.filter(letter.letternumber) )$}{$( KiviLatex.filter(letter.date.to_kivitendo) )$}
 \ourhead{}{}{}{}{}
 
 \begin{document}
@@ -22,53 +27,49 @@
 
 \begin{minipage}{14cm}
 
-  <%name%>
+  $( KiviLatex.filter(customer.name) )$
 
-  <%contact_formal%>
+  $( KiviLatex.filter(letter.contact.formar_greeting) )$
 
-  <%street%>
+  $( KiviLatex.filter(customer.street) )$
 
-  <%zipcode%> <%city%>
+  $( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$
 
-  <%country%>
+  $( KiviLatex.filter(customer.country) )$
 
 \end{minipage}
 
 \vspace{2.5cm}
-\hfill <%date%>
+\hfill $( KiviLatex.filter(letter.date.to_kivitendo) )$
 
-<%if reference%>
-\textbf{\ihrzeichen : <%reference%>}
-<%end if%>
-
-\vspace{1cm}
-
-<%if subject%>
-\textbf{\betreff : <%subject%>}
-<%end if%>
+$( IF letter.reference )$
+\textbf{\ihrzeichen : $( KiviLatex.filter(letter.reference) )$}
 
 \vspace{1cm}
+$( END )$
 
-  <%greeting%>
+$( IF letter.subject )$
+\textbf{\betreff : $( KiviLatex.filter(letter.subject) )$}
+
+\vspace{1cm}
+$( END )$
+
+$( KiviLatex.filter(letter.greeting) )$
 
 \vspace{0.5cm}
 
-  <%body%>
+$( KiviLatex.filter_html(letter.body) )$
 
 \vspace{0.5cm}
-
-  <%company_name%>
-
-\vspace*{0.5cm}
 
 \begin{minipage}{6cm}
 
-\textbf{<%employee_name%>}
+\textbf{$( KiviLatex.filter(letter.employee.name) )$}
 
 \end{minipage}
 \begin{minipage}{6cm}
 
-\textbf{<%salesman_name%>}
+\textbf{$( KiviLatex.filter(letter.salesman.name) )$}
 
 \end{minipage}
 

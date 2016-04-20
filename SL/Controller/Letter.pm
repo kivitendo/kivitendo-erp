@@ -178,37 +178,6 @@ sub action_print_letter {
   my $display_form = $::form->{display_form} || "display_form";
   my $letter       = $self->_update;
 
-  $self->export_letter_to_form($letter);
-  $::form->{formname} = "letter";
-  $::form->{type}     = "letter";
-  $::form->{format}   = "pdf";
-
-  my $language_saved      = $::form->{language_id};
-  my $greeting_saved      = $::form->{greeting};
-  my $cp_id_saved         = $::form->{cp_id};
-
-  $::form->{customer_id} = $self->letter->customer_id;
-  IS->customer_details(\%::myconfig, $::form);
-
-  if (!$cp_id_saved) {
-    # No contact was selected. Delete all contact variables because
-    # IS->customer_details() and IR->vendor_details() get the default
-    # contact anyway.
-    map({ delete($::form->{$_}); } grep(/^cp_/, keys(%{ $::form })));
-  }
-
-  $::form->{greeting} = $greeting_saved;
-  $::form->{language_id} = $language_saved;
-
-  if ($::form->{cp_id}) {
-    CT->get_contact(\%::myconfig, $::form);
-  }
-
-  $::form->{cp_contact_formal} = ($::form->{cp_greeting} ? "$::form->{cp_greeting} " : '') . ($::form->{cp_givenname} ? "$::form->{cp_givenname} " : '') . $::form->{cp_name};
-
-  $::form->get_employee_data('prefix' => 'employee', 'id' => $letter->{employee_id});
-  $::form->get_employee_data('prefix' => 'salesman', 'id' => $letter->{salesman_id});
-
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
     name        => 'letter',
     printer_id  => $::form->{printer_id},
@@ -221,20 +190,29 @@ sub action_print_letter {
     $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
   }
 
-  my %create_params = (
-    template  => $template_file,
-    variables => $::form,
-    return    => 'file_name',
-    variable_content_types => {
-      body                 => 'html',
-    },
-  );
-
-  my $pdf_file_name;
+  my %result;
   eval {
-    $pdf_file_name          = SL::Helper::CreatePDF->create_pdf(%create_params);
+    %result = SL::Template::LaTeX->parse_and_create_pdf(
+      $template_file,
+      SELF          => $self,
+      FORM          => $::form,
+      letter        => $letter,
+      template_meta => {
+        formname  => 'letter',
+        language  => SL::DB::Language->new,
+        extension => 'pdf',
+        format    => $::form->{format},
+        media     => $::form->{media},
+        printer   => SL::DB::Manager::Printer->find_by_or_create(id => $::form->{printer_id} || undef),
+        today     => DateTime->today,
+      },
+    );
 
-    $::form->{letternumber} = $self->letter->letternumber;
+    die $result{error} if $result{error};
+
+    $::form->{type}         = 'letter';
+    $::form->{formname}     = 'letter';
+    $::form->{letternumber} = $letter->letternumber;
     my $attachment_name     = $::form->generate_attachment_filename;
 
     if ($::instance_conf->get_webdav_documents) {
@@ -242,11 +220,11 @@ sub action_print_letter {
         filename => $attachment_name,
         webdav   => SL::Webdav->new(
           type   => 'letter',
-          number => $self->letter->letternumber,
+          number => $letter->letternumber,
         ),
       );
 
-      $webdav_file->store(file => $pdf_file_name);
+      $webdav_file->store(file => $result{file_name});
     }
 
     # set some form defaults for printing webdav copy variables
@@ -255,23 +233,23 @@ sub action_print_letter {
       my $signature        = $::myconfig{signature};
       $mail->{$_}          = $params{email}->{$_} for qw(to cc subject message bcc);
       $mail->{from}        = qq|"$::myconfig{name}" <$::myconfig{email}>|;
-      $mail->{attachments} = [{ filename => $pdf_file_name,
+      $mail->{attachments} = [{ filename => $result{file_name},
                                 name     => $params{email}->{attachment_filename} }];
       $mail->{message}    .=  "\n-- \n$signature";
       $mail->{message}     =~ s/\r//g;
 
       $mail->send;
-      unlink $pdf_file_name;
+      unlink $result{file_name};
 
       flash_later('info', t8('The email has been sent.'));
-      $self->redirect_to(action => 'edit', 'letter.id' => $self->letter->id);
+      $self->redirect_to(action => 'edit', 'letter.id' => $letter->id);
 
       return 1;
     }
 
     if (!$::form->{printer_id} || $::form->{media} eq 'screen') {
-      $self->send_file($pdf_file_name, name => $attachment_name);
-      unlink $pdf_file_name;
+      $self->send_file($result{file_name}, name => $attachment_name);
+      unlink $result{file_name};
 
       return 1;
     }
@@ -279,16 +257,16 @@ sub action_print_letter {
     my $printer = SL::DB::Printer->new(id => $::form->{printer_id})->load;
     $printer->print_document(
       copies    => $::form->{copies},
-      file_name => $pdf_file_name,
+      file_name => $result{file_name},
     );
 
-    unlink $pdf_file_name;
+    unlink $result{file_name};
 
     flash_later('info', t8('The documents have been sent to the printer \'#1\'.', $printer->printer_description));
-    $self->redirect_to(action => 'edit', 'letter.id' => $self->letter->id, media => 'printer', printer_id => $::form->{printer_id});
+    $self->redirect_to(action => 'edit', 'letter.id' => $letter->id, media => 'printer', printer_id => $::form->{printer_id});
     1;
   } or do {
-    unlink $pdf_file_name if $pdf_file_name;
+    unlink $result{file_name} if $result{file_name};
     $::form->error(t8("Creating the PDF failed:") . " " . $@);
   };
 }
