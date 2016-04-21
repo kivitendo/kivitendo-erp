@@ -397,6 +397,8 @@ sub like {
 
 __END__
 
+=encoding utf-8
+
 =head1 NAME
 
 SL::DBUTils.pm: All about database connections in kivitendo
@@ -426,23 +428,100 @@ SL::DBUTils.pm: All about database connections in kivitendo
 
 =head1 DESCRIPTION
 
-DBUtils is the attempt to reduce the amount of overhead it takes to retrieve information from the database in kivitendo. Previously it would take about 15 lines of code just to get one single integer out of the database, including failure procedures and importing the necessary packages. Debugging would take even more.
+DBUtils provides wrapper functions for low level database retrieval. It saves
+you the trouble of mucking around with statement handles for small databse
+queries and does exception handling in the common cases for you.
 
-Using DBUtils most database procedures can be reduced to defining the query, executing it, and retrieving the result. Let DBUtils handle the rest. Whenever there is a database operation not covered in DBUtils, add it here, rather than working around it in the backend code.
+Query and retrieval function share the parameter scheme:
 
-DBUtils relies heavily on two parameters which have to be passed to almost every function: $form and $dbh.
-  - $form is used for error handling only. It can be omitted in theory, but should not.
-  - $dbh is a handle to the database, as returned by the DBI::connect routine. If you don't have an active connection, you can query $form->get_standard_dbh() to get a generic no_auto connection. Don't forget to commit in this case!
+  query_or_retrieval(C<FORM, DBH, QUERY[, BINDVALUES]>)
+
+=over 4
+
+=item *
+
+C<FORM> is used for error handling only. It can be omitted in theory, but should
+not. In most cases you will call it with C<$::form>.
+
+=item *
+
+C<DBH> is a handle to the database, as returned by the C<DBI::connect> routine.
+If you don't have an active connection, you can use
+C<<$::form->get_standard_dbh>> to get a generic no_auto connection or get a
+C<Rose::DB::Object> handle from any RDBO class with
+C<<SL::DB::Part->new->db->dbh>>. The former will be without autocommit, the
+latter with autocommit.
+
+See C<PITFALLS AND CAVEATS> for common errors.
+
+=item *
+
+C<QUERY> must be exactly one query. You don't need to include the terminal
+C<;>. There must be no tainted data interpolated into the string. Instead use
+the DBI placeholder syntax.
+
+=item *
+
+All additional parameters will be used as C<BINDVALUES> for the query. Note
+that DBI can't bind arrays to a C<id IN (?)>, so you will need to generate a
+statement with exactly one C<?> for each bind value. DBI can however bind
+DateTime objects, and you should always pass these for date selections.
+
+=back
+
+=head1 PITFALLS AND CAVEATS
+
+=head2 Locking
+
+As mentioned above, there are two sources of database handles in the program:
+C<<$::form->get_standard_dbh>> and C<<SL::DB::Object->new->db->dbh>>. It's easy
+to produce deadlocks when using both of them. To reduce the likelyhood of
+locks, try to obey these rules:
+
+=over 4
+
+=item *
+
+In a controller that uses Rose objects, never use C<get_standard_dbh>.
+
+=item *
+
+In backend code, that has no preference, always accept the database handle as a
+parameter from the controller.
+
+=back
+
+=head2 Exports
+
+C<DBUtils> is one of the last modules in the program to use C<@EXPORT> instead
+of C<@EXPORT_OK>. This means it will flood your namespace with its functions,
+causing potential clashes. When writing new code, always either export nothing
+and call directly:
+
+  use SL::DBUtils ();
+  DBUtils::selectall_hashref_query(...)
+
+or export only what you need:
+
+  use SL::DBUtils qw(selectall_hashref_query);
+  selectall_hashref_query(...)
 
 
-Every function here should accomplish the follwing things:
-  - Easy debugging. Every handled query gets dumped via LXDebug, if specified there.
-  - Safe value binding. Although DBI is far from perfect in terms of binding, the rest of the bindings should happen here.
-  - Error handling. Should a query fail, an error message will be generated here instead of in the backend code invoking DBUtils.
+=head2 Peformance
 
-Note that binding is not perfect here either...
+Since it is really easy to write something like
 
-=head2 QUOTING FUNCTIONS
+  my $all_parts = selectall_hashref_query($::form, $dbh, 'SELECT * FROM parts');
+
+people do so from time to time. When writing code, consider this a ticking
+timebomb. Someone out there has a database with 1mio parts in it, and this
+statement just shovelled ate 2GB of memory and timeouted the request.
+
+Parts may be the obvious example, but the same applies to customer, vendors,
+records, projects or custom variables.
+
+
+=head1 QUOTING FUNCTIONS
 
 =over 4
 
@@ -450,7 +529,8 @@ Note that binding is not perfect here either...
 
 =item conv_i STR,DEFAULT
 
-Converts STR to an integer. If STR is empty, returns DEFAULT. If no DEFAULT is given, returns undef.
+Converts STR to an integer. If STR is empty, returns DEFAULT. If no DEFAULT is
+given, returns undef.
 
 =item conv_date STR
 
@@ -458,12 +538,15 @@ Converts STR to a date string. If STR is emptry, returns undef.
 
 =item conv_dateq STR
 
-Database version of conv_date. Quotes STR before returning. Returns 'NULL' if STR is empty.
+Database version of conv_date. Quotes STR before returning. Returns 'NULL' if
+STR is empty.
 
 =item quote_db_date STR
 
-Treats STR as a database date, quoting it. If STR equals current_date returns an escaped version which is treated as the current date by Postgres.
-Returns 'NULL' if STR is empty.
+Treats STR as a database date, quoting it. If STR equals current_date returns
+an escaped version which is treated as the current date by Postgres.
+
+Returns C<'NULL'> if STR is empty.
 
 =item like STR
 
@@ -473,29 +556,36 @@ whitespaces) and prepending and appending C<%>.
 
 =back
 
-=head2 QUERY FUNCTIONS
+=head1 QUERY FUNCTIONS
 
 =over 4
 
 =item do_query FORM,DBH,QUERY,ARRAY
 
-Uses DBI::do to execute QUERY on DBH using ARRAY for binding values. FORM is only needed for error handling, but should always be passed nevertheless. Use this for insertions or updates that don't need to be prepared.
+Uses DBI::do to execute QUERY on DBH using ARRAY for binding values. FORM is
+only needed for error handling, but should always be passed nevertheless. Use
+this for insertions or updates that don't need to be prepared.
 
-Returns the result of DBI::do which is -1 in case of an error and the number of affected rows otherwise.
+Returns the result of DBI::do which is -1 in case of an error and the number of
+affected rows otherwise.
 
 =item do_statement FORM,STH,QUERY,ARRAY
 
-Uses DBI::execute to execute QUERY on DBH using ARRAY for binding values. As with do_query, FORM is only used for error handling. If you are unsure what to use, refer to the documentation of DBI::do and DBI::execute.
+Uses DBI::execute to execute QUERY on DBH using ARRAY for binding values. As
+with do_query, FORM is only used for error handling. If you are unsure what to
+use, refer to the documentation of DBI::do and DBI::execute.
 
-Returns the result of DBI::execute which is -1 in case of an error and the number of affected rows otherwise.
+Returns the result of DBI::execute which is -1 in case of an error and the
+number of affected rows otherwise.
 
 =item prepare_execute_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes QUERY on DBH using DBI::prepare and DBI::execute. ARRAY is passed as binding values to execute.
+Prepares and executes QUERY on DBH using DBI::prepare and DBI::execute. ARRAY
+is passed as binding values to execute.
 
 =back
 
-=head2 RETRIEVAL FUNCTIONS
+=head1 RETRIEVAL FUNCTIONS
 
 =over 4
 
@@ -503,23 +593,30 @@ Prepares and executes QUERY on DBH using DBI::prepare and DBI::execute. ARRAY is
 
 =item selectrow_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as an arrayref of the first row.
+Prepares and executes a query using DBUtils functions, retireves the first row
+from the database, and returns it as an arrayref of the first row.
 
 =item selectfirst_hashref_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as a hashref of the first row.
+Prepares and executes a query using DBUtils functions, retireves the first row
+from the database, and returns it as a hashref of the first row.
 
 =item selectall_hashref_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves all data from the database, and returns it in hashref mode. This is slightly confusing, as the data structure will actually be a reference to an array, containing hashrefs for each row.
+Prepares and executes a query using DBUtils functions, retireves all data from
+the database, and returns it in hashref mode. This is slightly confusing, as
+the data structure will actually be a reference to an array, containing
+hashrefs for each row.
 
 =item selectall_as_map FORM,DBH,QUERY,KEY_COL,VALUE_COL,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves all data from the database, and creates a hash from the results using KEY_COL as the column for the hash keys and VALUE_COL for its values.
+Prepares and executes a query using DBUtils functions, retireves all data from
+the database, and creates a hash from the results using KEY_COL as the column
+for the hash keys and VALUE_COL for its values.
 
 =back
 
-=head2 UTILITY FUNCTIONS
+=head1 UTILITY FUNCTIONS
 
 =over 4
 
@@ -547,8 +644,10 @@ The parameter 'defs' is a hash reference. The keys are the column
 names as they may come from the application. The values are either
 scalars with SQL code or array references of SQL code. Example:
 
-'defs' => { 'customername' => 'lower(customer.name)',
-            'address'      => [ 'lower(customer.city)', 'lower(customer.street)' ], }
+  defs => {
+    customername => 'lower(customer.name)',
+    address      => [ 'lower(customer.city)', 'lower(customer.street)' ],
+  }
 
 'default' is the default column name to sort by. It must be a key of
 'defs' and should not be come from user input.
@@ -569,13 +668,18 @@ used instead.
 
 =back
 
-=head2 DEBUG FUNCTIONS
+=head1 DEBUG FUNCTIONS
 
 =over 4
 
 =item dump_query LEVEL,MSG,QUERY,ARRAY
 
-Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug. If MSG is given, it preceeds the QUERY dump in the logfiles. ARRAY is used to interpolate the '?' placeholders in QUERY, the resulting QUERY can be copy-pasted into a database frontend for debugging. Note that this method is also automatically called by each of the other QUERY FUNCTIONS, so there is in general little need to invoke it manually.
+Dumps a query using LXDebug->message, using LEVEL for the debug-level of
+LXDebug. If MSG is given, it preceeds the QUERY dump in the logfiles. ARRAY is
+used to interpolate the '?' placeholders in QUERY, the resulting QUERY can be
+copy-pasted into a database frontend for debugging. Note that this method is
+also automatically called by each of the other QUERY FUNCTIONS, so there is in
+general little need to invoke it manually.
 
 =back
 
@@ -603,9 +707,11 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
   my @values;
 
   if ($form->{language_values} ne "") {
-    $query = qq|SELECT l.id, l.description, tr.translation, tr.longdescription
-                  FROM language l
-                  LEFT OUTER JOIN translation tr ON (tr.language_id = l.id) AND (tr.parts_id = ?)|;
+    $query = qq|
+      SELECT l.id, l.description, tr.translation, tr.longdescription
+      FROM language l
+      LEFT JOIN translation tr ON (tr.language_id = l.id AND tr.parts_id = ?)
+    |;
     @values = (conv_i($form->{id}));
   } else {
     $query = qq|SELECT id, description FROM language|;
@@ -617,13 +723,13 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
 
 =head1 MODULE AUTHORS
 
-Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
-Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
+  Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+  Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =head1 DOCUMENTATION AUTHORS
 
-Udo Spallek E<lt>udono@gmx.netE<gt>
-Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
+  Udo Spallek E<lt>udono@gmx.netE<gt>
+  Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
