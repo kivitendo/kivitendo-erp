@@ -20,7 +20,7 @@ use SL::SessionFile;
 use SL::User;
 use SL::DBConnect;
 use SL::DBUpgrade2;
-use SL::DBUtils;
+use SL::DBUtils qw(do_query do_statement prepare_execute_query prepare_query selectall_array_query selectrow_query);
 
 use strict;
 
