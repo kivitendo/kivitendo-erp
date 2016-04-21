@@ -25,8 +25,10 @@ sub run {
 
     my $order_id_col = $order_id_cols{ $table };
     $query = qq|SELECT * FROM $table ORDER BY $order_id_col, id|;
+    my $query2 = qq|UPDATE $table SET position = ? WHERE id = ?|;
 
     my $sth = $self->dbh->prepare($query);
+    my $sth2 = $self->dbh->prepare($query2);
     $sth->execute || $::form->dberror($query);
 
     # set new position field in order of ids, starting by one for each order
@@ -40,10 +42,10 @@ sub run {
       }
       $last_order_id = $ref->{ $order_id_col };
 
-      $query = qq|UPDATE $table SET position = ? WHERE id = ?|;
-      $self->db_query($query, bind => [ $position, $ref->{id} ]);
+      $sth2->execute($position, $ref->{id});
     }
     $sth->finish;
+    $sth2->finish;
 
 
     $query = qq|ALTER TABLE $table ALTER COLUMN position SET NOT NULL|;

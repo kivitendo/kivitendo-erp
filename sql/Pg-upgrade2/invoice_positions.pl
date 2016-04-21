@@ -17,8 +17,10 @@ sub run {
 
 
   $query = qq|SELECT * FROM invoice ORDER BY trans_id, id|;
+  my $query2 = qq|UPDATE invoice SET position = ? WHERE id = ?|;
 
   my $sth = $self->dbh->prepare($query);
+  my $sth2 = $self->dbh->prepare($query2);
   $sth->execute || $::form->dberror($query);
 
   # set new position field in order of ids, starting by one for each invoice
@@ -32,10 +34,10 @@ sub run {
     }
     $last_invoice_id = $ref->{trans_id};
 
-    $query = qq|UPDATE invoice SET position = ? WHERE id = ?|;
-    $self->db_query($query, bind => [ $position, $ref->{id} ]);
+    $sth2->execute($position, $ref->{id});
   }
   $sth->finish;
+  $sth2->finish;
 
   $query = qq|ALTER TABLE invoice ALTER COLUMN position SET NOT NULL|;
   $self->db_query($query);
