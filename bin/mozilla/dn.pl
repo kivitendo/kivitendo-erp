@@ -37,7 +37,7 @@ use SL::IS;
 use SL::PE;
 use SL::DN;
 use SL::DB::Dunning;
-use SL::Helper::Flash;
+use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 

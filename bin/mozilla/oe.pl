@@ -41,7 +41,7 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
-use SL::MoreCommon qw(ary_diff);
+use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::PE;
 use SL::ReportGenerator;
 use List::MoreUtils qw(uniq any none);

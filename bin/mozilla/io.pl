@@ -57,7 +57,7 @@ use SL::DB::Language;
 use SL::DB::Printer;
 use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
-use SL::Helper::Flash;
+use SL::Helper::Flash qw(flash);
 
 require "bin/mozilla/common.pl";
 

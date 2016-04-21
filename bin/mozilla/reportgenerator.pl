@@ -13,7 +13,7 @@ use List::Util qw(max);
 
 use SL::Form;
 use SL::Common;
-use SL::MoreCommon;
+use SL::MoreCommon qw(restore_form save_form);
 use SL::ReportGenerator;
 
 use strict;

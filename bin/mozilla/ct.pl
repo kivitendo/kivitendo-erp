@@ -54,7 +54,6 @@ use SL::Request qw(flatten);
 use SL::DB::Business;
 use SL::DB::Default;
 use SL::DB::DeliveryTerm;
-use SL::Helper::Flash;
 use SL::ReportGenerator;
 use SL::MoreCommon qw(uri_encode);
 

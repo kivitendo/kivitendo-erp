@@ -13,8 +13,7 @@ use SL::Common;
 use SL::DB::Helper::Mappings;
 use SL::DBUtils qw(do_query);
 use SL::Form;
-use SL::MoreCommon;
-use SL::Helper::Flash;
+use SL::MoreCommon qw(restore_form save_form);
 
 use strict;
 

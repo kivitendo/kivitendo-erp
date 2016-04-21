@@ -38,7 +38,7 @@ use List::MoreUtils qw(any);
 use SL::AM;
 use SL::CVar;
 use SL::IC;
-use SL::Helper::Flash;
+use SL::Helper::Flash qw(flash);
 use SL::HTML::Util;
 use SL::ReportGenerator;
 

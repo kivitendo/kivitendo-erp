@@ -40,7 +40,7 @@ use SL::DB::DeliveryOrder;
 use SL::DO;
 use SL::IR;
 use SL::IS;
-use SL::MoreCommon qw(ary_diff);
+use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::WH;
 use Sort::Naturally ();
