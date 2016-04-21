@@ -11,7 +11,7 @@
 
 use SL::Common;
 use SL::DB::Helper::Mappings;
-use SL::DBUtils;
+use SL::DBUtils qw(do_query);
 use SL::Form;
 use SL::MoreCommon;
 use SL::Helper::Flash;
