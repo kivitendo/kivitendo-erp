@@ -92,7 +92,7 @@ sub _log_msg {
 sub _generate_time_period_variables {
   my $config            = shift;
   my $period_start_date = shift;
-  my $period_end_date   = $period_start_date->clone->truncate(to => 'month')->add(months => $config->get_billing_period_length)->subtract(days => 1);
+  my $period_end_date   = $period_start_date->clone->add(months => $config->get_billing_period_length)->subtract(days => 1);
 
   my @month_names       = ('',
                            $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
@@ -115,8 +115,8 @@ sub _generate_time_period_variables {
     previous_year       => [ $period_start_date->clone->truncate(to => 'year')->subtract(years => 1),   sub { $_[0]->year } ],
     next_year           => [ $period_start_date->clone->truncate(to => 'year')->add(     years => 1),   sub { $_[0]->year } ],
 
-    period_start_date   => [ $period_start_date->clone->truncate(to => 'month'), sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
-    period_end_date     => [ $period_end_date,                                   sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
+    period_start_date   => [ $period_start_date->clone, sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
+    period_end_date     => [ $period_end_date,          sub { $::locale->format_date(\%::myconfig, $_[0]) } ],
   };
 
   return $vars;
