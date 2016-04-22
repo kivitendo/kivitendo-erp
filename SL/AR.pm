@@ -473,6 +473,7 @@ sub ar_transactions {
     qq|  dc.dunning_description, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
+    qq|  d.description AS department, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
