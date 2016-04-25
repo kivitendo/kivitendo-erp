@@ -287,6 +287,33 @@ SQL
     push @values, conv_date($form->{expected_billing_date_to});
   }
 
+  if ($form->{parts_partnumber}) {
+    $query .= <<SQL;
+      AND EXISTS (
+        SELECT orderitems.trans_id
+        FROM orderitems
+        LEFT JOIN parts ON (orderitems.parts_id = parts.id)
+        WHERE (orderitems.trans_id = o.id)
+          AND (parts.partnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_partnumber});
+  }
+
+  if ($form->{parts_description}) {
+    $query .= <<SQL;
+      AND EXISTS (
+        SELECT orderitems.trans_id
+        FROM orderitems
+        WHERE (orderitems.trans_id = o.id)
+          AND (orderitems.description ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_description});
+  }
+
   if ($form->{all}) {
     my @tokens = parse_line('\s+', 0, $form->{all});
     # ordnumber quonumber customer.name vendor.name transaction_description

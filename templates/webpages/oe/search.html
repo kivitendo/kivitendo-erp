@@ -81,11 +81,14 @@
     </tr>
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>
-     <td colspan="3"><input name="transaction_description" style="width: 250px"></td>
+     <td><input name="transaction_description" style="width: 250px"></td>
+
+     <th align="right">[% 'Part Description' | $T8 %]</th>
+     <td><input name="parts_description" style="width: 250px"></td>
     </tr>
     <tr>
      <th align="right">[% 'Project Number' | $T8 %]</th>
-     <td colspan="3">
+     <td>
             [%- INCLUDE 'generic/multibox.html'
                  name          =  MYCONFIG.vclimit < ALL_PROJECTS.size ? 'projectnumber' : 'project_id',
                  style         = "width: 250px",
@@ -97,6 +100,9 @@
                  allow_textbox = 1,
             -%]
      </td>
+
+     <th align="right">[% 'Part Number' | $T8 %]</th>
+     <td><input name="parts_partnumber" style="width: 250px"></td>
     </tr>
     [%- UNLESS ALL_BUSINESS_TYPES.size == 0 %]
     <tr>
