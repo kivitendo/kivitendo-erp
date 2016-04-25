@@ -190,7 +190,7 @@ sub create_links {
 }
 
 sub _sort_payments {
-  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AR_paid paid_project_id);
+  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AP_paid paid_project_id);
   my @payments =
     grep { $_->{paid} != 0 }
     map  {

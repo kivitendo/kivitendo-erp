@@ -354,7 +354,7 @@ sub form_header {
 }
 
 sub _sort_payments {
-  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AR_paid);
+  my @fields   = qw(acc_trans_id gldate datepaid source memo paid AP_paid);
   my @payments =
     grep { $_->{paid} != 0 }
     map  {
