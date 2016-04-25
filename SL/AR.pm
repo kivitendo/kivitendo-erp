@@ -584,6 +584,33 @@ sub ar_transactions {
     }
   };
 
+  if ($form->{parts_partnumber}) {
+    $where .= <<SQL;
+      AND EXISTS (
+        SELECT invoice.trans_id
+        FROM invoice
+        LEFT JOIN parts ON (invoice.parts_id = parts.id)
+        WHERE (invoice.trans_id = a.id)
+          AND (parts.partnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_partnumber});
+  }
+
+  if ($form->{parts_description}) {
+    $where .= <<SQL;
+      AND EXISTS (
+        SELECT invoice.trans_id
+        FROM invoice
+        WHERE (invoice.trans_id = a.id)
+          AND (invoice.description ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_description});
+  }
+
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
                                                             'trans_id_field' => 'c.id',
                                                             'filter'         => $form,
