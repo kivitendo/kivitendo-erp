@@ -55,11 +55,13 @@
      </tr>
      <tr>
       <th align=right nowrap>[% 'Notes' | $T8 %]</th>
-      <td colspan=3><input name=notes size=40></td>
+      <td><input name=notes size=20></td>
+      <th align="right">[% 'Part Description' | $T8 %]</th>
+      <td><input name="parts_description" size="20"></td>
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td colspan="3">
+      <td>
             [%- INCLUDE 'generic/multibox.html'
                  name          =  'project_id',
                  style         = "width: 250px",
@@ -71,6 +73,8 @@
                  allow_textbox = 0,
             -%]
       </td>
+      <th align="right">[% 'Part Number' | $T8 %]</th>
+      <td><input name="parts_partnumber" size="20"></td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'From' | $T8 %]</th>

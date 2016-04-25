@@ -903,7 +903,8 @@ sub ap_transactions {
        vendornumber country ustid taxzone payment_terms charts direct_debit);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto department);
+  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto department
+                                           parts_partnumber parts_description);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 
@@ -959,6 +960,8 @@ sub ap_transactions {
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"        if ($form->{transaction_description});
+  push @options, $locale->text('Part Description')        . " : $form->{parts_description}"              if $form->{parts_description};
+  push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"               if $form->{parts_partnumber};
   push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)      if ($form->{transdatefrom});
   push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)      if ($form->{transdateto});
   push @options, $locale->text('Open')                                                                   if ($form->{open});
