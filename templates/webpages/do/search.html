@@ -86,12 +86,14 @@
 
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>
-     <td colspan="3"><input name="transaction_description" class="fixed_width"></td>
+     <td><input name="transaction_description" class="fixed_width"></td>
+     <th align="right">[% 'Part Description' | $T8 %]</th>
+     <td><input name="parts_description" size="20"></td>
     </tr>
 
     <tr>
      <th align="right">[% 'Project Number' | $T8 %]</th>
-     <td colspan="3">
+     <td>
       <select name="project_id" class="fixed_width">
        <option></option>
        [%- FOREACH row = ALL_PROJECTS %]
@@ -99,6 +101,8 @@
        [%- END %]
       </select>
      </td>
+     <th align="right">[% 'Part Number' | $T8 %]</th>
+     <td><input name="parts_partnumber" size="20"></td>
     </tr>
 
     <tr>

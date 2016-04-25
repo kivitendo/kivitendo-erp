@@ -558,7 +558,7 @@ sub orders {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
-                                          type vc employee_id salesman_id project_id
+                                          type vc employee_id salesman_id project_id parts_partnumber parts_description
                                           insertdatefrom insertdateto business_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
@@ -628,6 +628,12 @@ sub orders {
   }
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
+  }
+  if ($form->{parts_description}) {
+    push @options, $locale->text('Part Description') . " : $form->{parts_description}";
+  }
+  if ($form->{parts_partnumber}) {
+    push @options, $locale->text('Part Number') . " : $form->{parts_partnumber}";
   }
   if ( $form->{transdatefrom} or $form->{transdateto} ) {
     push @options, $locale->text('Delivery Order Date');

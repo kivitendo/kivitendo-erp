@@ -180,6 +180,33 @@ sub transactions {
     push @values, conv_date($form->{insertdateto});
   }
 
+  if ($form->{parts_partnumber}) {
+    push @where, <<SQL;
+      EXISTS (
+        SELECT delivery_order_items.delivery_order_id
+        FROM delivery_order_items
+        LEFT JOIN parts ON (delivery_order_items.parts_id = parts.id)
+        WHERE (delivery_order_items.delivery_order_id = dord.id)
+          AND (parts.partnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_partnumber});
+  }
+
+  if ($form->{parts_description}) {
+    push @where, <<SQL;
+      EXISTS (
+        SELECT delivery_order_items.delivery_order_id
+        FROM delivery_order_items
+        WHERE (delivery_order_items.delivery_order_id = dord.id)
+          AND (delivery_order_items.description ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_description});
+  }
+
   if (@where) {
     $query .= " WHERE " . join(" AND ", map { "($_)" } @where);
   }
