@@ -3,5 +3,4 @@
 -- @depends: release_3_3_0
 -- @encoding: utf-8
 
--- Bei LINET bereits existent:
--- CREATE TRIGGER mtime_project BEFORE UPDATE ON project FOR EACH ROW EXECUTE PROCEDURE set_mtime();
+CREATE TRIGGER mtime_project BEFORE UPDATE ON project FOR EACH ROW EXECUTE PROCEDURE set_mtime();
