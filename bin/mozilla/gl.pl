@@ -42,6 +42,7 @@ use SL::GL;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
+use SL::DBUtils qw(selectrow_query);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
