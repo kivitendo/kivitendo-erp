@@ -64,7 +64,10 @@ $dispatcher->pre_startup_checks;
 my $request = FCGI::Request();
 while ($request->Accept() >= 0) {
   $dispatcher->handle_request($request);
-  exit if _memory_usage_is_too_high();
+  if (_memory_usage_is_too_high()) {
+    $request->Flush();
+    last;
+  }
 }
 
 1;
