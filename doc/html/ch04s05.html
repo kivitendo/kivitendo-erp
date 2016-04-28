@@ -1,55 +1,102 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.5. Die kivitendo-Test-Suite</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s04.html" title="4.4. Translations and languages"><link rel="next" href="ch04s06.html" title="4.6. Stil-Richtlinien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.5. Die kivitendo-Test-Suite</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s04.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s06.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.5. Die kivitendo-Test-Suite"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.testsuite"></a>4.5. Die kivitendo-Test-Suite</h2></div></div></div><div class="sect2" title="4.5.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.intro"></a>4.5.1. Einführung</h3></div></div></div><p>kivitendo enthält eine Suite für automatisierte Tests. Sie basiert auf dem Standard-Perl-Modul <code class="literal">Test::More</code>.</p><p>Die grundlegenden Fakten sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Alle Tests liegen im Unterverzeichnis <code class="filename">t/</code>.</p></li><li class="listitem"><p>Ein Script (bzw. ein Test) in <code class="filename">t/</code> enthält einen oder mehrere Testfälle.</p></li><li class="listitem"><p>Alle Dateinamen von Tests enden auf <code class="literal">.t</code>. Es sind selbstständig ausführbare Perl-Scripte.</p></li><li class="listitem"><p>Die Test-Suite besteht aus der Gesamtheit aller Tests, sprich aller Scripte in <code class="filename">t/</code>, deren
-          Dateiname auf <code class="literal">.t</code> endet.</p></li></ul></div></div><div class="sect2" title="4.5.2. Voraussetzungen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.prerequisites"></a>4.5.2. Voraussetzungen</h3></div></div></div><p>Für die Ausführung werden neben den für kivitendo eh schon benötigten Module noch weitere Perl-Module benötigt. Diese sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="literal">Test::Deep</code> (Debian-Paketname: <code class="literal">libtest-deep-perl</code>; Fedora:
-          <code class="literal">perl-Test-Deep</code>; openSUSE: <code class="literal">perl-Test-Deep</code>)</p></li><li class="listitem"><p>
-                     <code class="literal">Test::Exception</code> (Debian-Paketname: <code class="literal">libtest-exception-perl</code>; Fedora:
-          <code class="literal">perl-Test-Exception</code>; openSUSE: <code class="literal">perl-Test-Exception</code>)</p></li><li class="listitem"><p>
-                     <code class="literal">Test::Output</code> (Debian-Paketname: <code class="literal">libtest-output-perl</code>; Fedora:
-          <code class="literal">perl-Test-Output</code>; openSUSE: <code class="literal">perl-Test-Output</code>)</p></li><li class="listitem"><p>
-                     <code class="literal">Test::Harness</code> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
-          Perl-Distribution und kann für frühere Versionen aus dem <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> bezogen
-          werden.</p></li><li class="listitem"><p>
-                     <code class="literal">LWP::Simple</code> aus dem Paket <code class="literal">libwww-perl</code> (Debian-Panetname:
-          <code class="literal">libwww-perl</code>; Fedora: <code class="literal">perl-libwww-perl</code>; openSUSE:
-          <code class="literal">perl-libwww-perl</code>)</p></li><li class="listitem"><p>
-                     <code class="literal">URI::Find</code> (Debian-Panetname: <code class="literal">liburi-find-perl</code>; Fedora:
-          <code class="literal">perl-URI-Find</code>; openSUSE: <code class="literal">perl-URI-Find</code>)</p></li></ul></div><p>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
-        müssen in der Konfigurationsdatei im Abschnit <code class="literal">testing/database</code> Datenbankverbindungsparameter angegeben
-        werden. Der hier angegebene Benutzer muss weiterhin das Recht haben, Datenbanken anzulegen und zu löschen.</p></div><div class="sect2" title="4.5.3. Existierende Tests ausführen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.execution"></a>4.5.3. 
-          Existierende Tests ausführen
-        </h3></div></div></div><p>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder, man lässt alle Tests auf einmal ausführen, oder man führt
-        gezielt einzelne Scripte aus. Für beide Fälle gibt es das Helferscript <code class="filename">t/test.pl</code>.</p><p>Will man die komplette Test-Suite ausführen, so muss man einfach nur <code class="filename">t/test.pl</code> ohne weitere Parameter aus
-        dem kivitendo-Basisverzeichnis heraus ausführen.</p><p>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen an <code class="filename">t/test.pl</code>. Beispielsweise:</p><pre class="programlisting">t/test.pl t/form/format_amount.t t/background_job/known_jobs.t</pre></div><div class="sect2" title="4.5.4. Bedeutung der verschiedenen Test-Scripte"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.meaning_of_scripts"></a>4.5.4. 
-          Bedeutung der verschiedenen Test-Scripte
-        </h3></div></div></div><p>Die Test-Suite umfasst Tests sowohl für Funktionen als auch für Programmierstil. Einige besonders zu erwähnende, weil auch
-        während der Entwicklung nützliche Tests sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="filename">t/001compile.t</code> -- compiliert alle Quelldateien und bricht bei Fehlern sofort ab</p></li><li class="listitem"><p>
-                     <code class="filename">t/002goodperl.t</code> -- überprüft alle Perl-Dateien auf Anwesenheit von '<code class="literal">use strict</code>'-Anweisungen</p></li><li class="listitem"><p>
-                     <code class="filename">t/003safesys.t</code> -- überprüft Aufrufe von <code class="function">system()</code> und <code class="function">exec()</code> auf Gültigkeit</p></li><li class="listitem"><p>
-                     <code class="filename">t/005no_tabs.t</code> -- überprüft, ob Dateien Tab-Zeichen enthalten</p></li><li class="listitem"><p>
-                     <code class="filename">t/006spelling.t</code> -- sucht nach häufigen Rechtschreibfehlern</p></li><li class="listitem"><p>
-                     <code class="filename">t/011pod.t</code> -- überprüft die Syntax von Dokumentation im POD-Format auf Gültigkeit</p></li></ul></div><p>Weitere Test-Scripte überprüfen primär die Funktionsweise einzelner Funktionen und Module.</p></div><div class="sect2" title="4.5.5. Neue Test-Scripte erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.create_new"></a>4.5.5. 
-          Neue Test-Scripte erstellen
-        </h3></div></div></div><p>Es wird sehr gern gesehen, wenn neue Funktionalität auch gleich mit einem Test-Script abgesichert wird. Auch bestehende
-        Funktion darf und soll ausdrücklich nachträglich mit Test-Scripten abgesichert werden.</p><div class="sect3" title="4.5.5.1. Ideen für neue Test-Scripte, die keine konkreten Funktionen testen"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.ideas_for_non_function_tests"></a>4.5.5.1. 
-            Ideen für neue Test-Scripte, die keine konkreten Funktionen testen
-          </h4></div></div></div><p> Ideen, die abgesehen von Funktionen noch nicht umgesetzt wurden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Überprüfung auf fehlende symbolische Links</p></li><li class="listitem"><p>Suche nach Nicht-ASCII-Zeichen in Perl-Code-Dateien (mit gewissen Einschränkungen wie das Erlauben von deutschen Umlauten)</p></li><li class="listitem"><p>Test auf DOS-Zeilenenden (\r\n anstelle von nur \n)</p></li><li class="listitem"><p>Überprüfung auf Leerzeichen am Ende von Zeilen</p></li><li class="listitem"><p>Test, ob alle zu übersetzenden Strings in <code class="filename">locale/de/all</code> vorhanden sind</p></li><li class="listitem"><p>Test, ob alle Webseiten-Templates in <code class="filename">templates/webpages</code> mit vom Perl-Modul <code class="literal">Template</code> compiliert werden können</p></li></ul></div></div><div class="sect3" title="4.5.5.2. Konvention für Verzeichnis- und Dateinamen"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.directory_and_test_names"></a>4.5.5.2. 
-            Konvention für Verzeichnis- und Dateinamen
-          </h4></div></div></div><p>Es gibt momentan eine wenige Richtlinien, wie Test-Scripte zu benennen sind. Bitte die folgenden Punkte als Richtlinie betrachten und ihnen soweit es geht folgen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Die Dateiendung muss <code class="filename">.t</code> lauten.</p></li><li class="listitem"><p>Namen sind englisch, komplett klein geschrieben und einzelne Wörter mit Unterstrichten getrennt (beispielsweise
-            <code class="filename">bad_function_params.t</code>).</p></li><li class="listitem"><p>Unterverzeichnisse sollten grob nach dem Themenbereich benannt sein, mit dem sich die Scripte darin befassen
-            (beispielsweise <code class="filename">background_jobs</code> für Tests rund um Hintergrund-Jobs).</p></li><li class="listitem"><p>Test-Scripte sollten einen überschaubaren Bereich von Funktionalität testen, der logisch zusammenhängend ist
-            (z.B. nur Tests für eine einzelne Funktion in einem Modul). Lieber mehrere Test-Scripte schreiben.</p></li></ul></div></div><div class="sect3" title="4.5.5.3. Minimales Skelett für eigene Scripte"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.minimal_example"></a>4.5.5.3. 
-            Minimales Skelett für eigene Scripte
-          </h4></div></div></div><p>Der folgenden Programmcode enthält das kleinstmögliche Testscript und kann als Ausgangspunkt für eigene Tests verwendet werden:</p><pre class="programlisting">use Test::More tests =&gt; 0;
+   <title>4.5. Die kivitendo-Test-Suite</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s04.html" title="4.4. Translations and languages"><link rel="next" href="ch04s06.html" title="4.6. Stil-Richtlinien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.5. Die kivitendo-Test-Suite</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s04.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s06.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.5. Die kivitendo-Test-Suite"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.testsuite"></a>4.5. Die kivitendo-Test-Suite</h2></div></div></div><div class="sect2" title="4.5.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.intro"></a>4.5.1. Einführung</h3></div></div></div><p>kivitendo enthält eine Suite für automatisierte Tests. Sie
+        basiert auf dem Standard-Perl-Modul
+        <code class="literal">Test::More</code>.</p><p>Die grundlegenden Fakten sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Alle Tests liegen im Unterverzeichnis
+            <code class="filename">t/</code>.</p></li><li class="listitem"><p>Ein Script (bzw. ein Test) in <code class="filename">t/</code>
+            enthält einen oder mehrere Testfälle.</p></li><li class="listitem"><p>Alle Dateinamen von Tests enden auf <code class="literal">.t</code>.
+            Es sind selbstständig ausführbare Perl-Scripte.</p></li><li class="listitem"><p>Die Test-Suite besteht aus der Gesamtheit aller Tests,
+            sprich aller Scripte in <code class="filename">t/</code>, deren Dateiname
+            auf <code class="literal">.t</code> endet.</p></li></ul></div></div><div class="sect2" title="4.5.2. Voraussetzungen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.prerequisites"></a>4.5.2. Voraussetzungen</h3></div></div></div><p>Für die Ausführung werden neben den für kivitendo eh schon
+        benötigten Module noch weitere Perl-Module benötigt. Diese
+        sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">Test::Deep</code> (Debian-Paketname:
+            <code class="literal">libtest-deep-perl</code>; Fedora:
+            <code class="literal">perl-Test-Deep</code>; openSUSE:
+            <code class="literal">perl-Test-Deep</code>)</p></li><li class="listitem"><p>
+                     <code class="literal">Test::Exception</code> (Debian-Paketname:
+            <code class="literal">libtest-exception-perl</code>; Fedora:
+            <code class="literal">perl-Test-Exception</code>; openSUSE:
+            <code class="literal">perl-Test-Exception</code>)</p></li><li class="listitem"><p>
+                     <code class="literal">Test::Output</code> (Debian-Paketname:
+            <code class="literal">libtest-output-perl</code>; Fedora:
+            <code class="literal">perl-Test-Output</code>; openSUSE:
+            <code class="literal">perl-Test-Output</code>)</p></li><li class="listitem"><p>
+                     <code class="literal">Test::Harness</code> 3.0.0 oder höher. Dieses
+            Modul ist ab Perl 5.10.1 Bestandteil der Perl-Distribution und
+            kann für frühere Versionen aus dem <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> bezogen werden.</p></li><li class="listitem"><p>
+                     <code class="literal">LWP::Simple</code> aus dem Paket
+            <code class="literal">libwww-perl</code> (Debian-Panetname:
+            <code class="literal">libwww-perl</code>; Fedora:
+            <code class="literal">perl-libwww-perl</code>; openSUSE:
+            <code class="literal">perl-libwww-perl</code>)</p></li><li class="listitem"><p>
+                     <code class="literal">URI::Find</code> (Debian-Panetname:
+            <code class="literal">liburi-find-perl</code>; Fedora:
+            <code class="literal">perl-URI-Find</code>; openSUSE:
+            <code class="literal">perl-URI-Find</code>)</p></li></ul></div><p>Weitere Voraussetzung ist, dass die Testsuite ihre eigene
+        Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
+        müssen in der Konfigurationsdatei im Abschnit
+        <code class="literal">testing/database</code> Datenbankverbindungsparameter
+        angegeben werden. Der hier angegebene Benutzer muss weiterhin das
+        Recht haben, Datenbanken anzulegen und zu löschen.</p></div><div class="sect2" title="4.5.3. Existierende Tests ausführen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.execution"></a>4.5.3. Existierende Tests ausführen</h3></div></div></div><p>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder,
+        man lässt alle Tests auf einmal ausführen, oder man führt gezielt
+        einzelne Scripte aus. Für beide Fälle gibt es das Helferscript
+        <code class="filename">t/test.pl</code>.</p><p>Will man die komplette Test-Suite ausführen, so muss man einfach
+        nur <code class="filename">t/test.pl</code> ohne weitere Parameter aus dem
+        kivitendo-Basisverzeichnis heraus ausführen.</p><p>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen
+        an <code class="filename">t/test.pl</code>. Beispielsweise:</p><pre class="programlisting">t/test.pl t/form/format_amount.t t/background_job/known_jobs.t</pre></div><div class="sect2" title="4.5.4. Bedeutung der verschiedenen Test-Scripte"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.meaning_of_scripts"></a>4.5.4. Bedeutung der verschiedenen Test-Scripte</h3></div></div></div><p>Die Test-Suite umfasst Tests sowohl für Funktionen als auch für
+        Programmierstil. Einige besonders zu erwähnende, weil auch während der
+        Entwicklung nützliche Tests sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="filename">t/001compile.t</code> -- compiliert alle
+            Quelldateien und bricht bei Fehlern sofort ab</p></li><li class="listitem"><p>
+                     <code class="filename">t/002goodperl.t</code> -- überprüft alle
+            Perl-Dateien auf Anwesenheit von '<code class="literal">use
+            strict</code>'-Anweisungen</p></li><li class="listitem"><p>
+                     <code class="filename">t/003safesys.t</code> -- überprüft Aufrufe von
+            <code class="function">system()</code> und <code class="function">exec()</code> auf
+            Gültigkeit</p></li><li class="listitem"><p>
+                     <code class="filename">t/005no_tabs.t</code> -- überprüft, ob Dateien
+            Tab-Zeichen enthalten</p></li><li class="listitem"><p>
+                     <code class="filename">t/006spelling.t</code> -- sucht nach häufigen
+            Rechtschreibfehlern</p></li><li class="listitem"><p>
+                     <code class="filename">t/011pod.t</code> -- überprüft die Syntax von
+            Dokumentation im POD-Format auf Gültigkeit</p></li></ul></div><p>Weitere Test-Scripte überprüfen primär die Funktionsweise
+        einzelner Funktionen und Module.</p></div><div class="sect2" title="4.5.5. Neue Test-Scripte erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.create_new"></a>4.5.5. Neue Test-Scripte erstellen</h3></div></div></div><p>Es wird sehr gern gesehen, wenn neue Funktionalität auch gleich
+        mit einem Test-Script abgesichert wird. Auch bestehende Funktion darf
+        und soll ausdrücklich nachträglich mit Test-Scripten abgesichert
+        werden.</p><div class="sect3" title="4.5.5.1. Ideen für neue Test-Scripte, die keine konkreten Funktionen testen"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.ideas_for_non_function_tests"></a>4.5.5.1. Ideen für neue Test-Scripte, die keine konkreten Funktionen
+          testen</h4></div></div></div><p>Ideen, die abgesehen von Funktionen noch nicht umgesetzt
+          wurden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Überprüfung auf fehlende symbolische Links</p></li><li class="listitem"><p>Suche nach Nicht-ASCII-Zeichen in Perl-Code-Dateien (mit
+              gewissen Einschränkungen wie das Erlauben von deutschen
+              Umlauten)</p></li><li class="listitem"><p>Test auf DOS-Zeilenenden (\r\n anstelle von nur \n)</p></li><li class="listitem"><p>Überprüfung auf Leerzeichen am Ende von Zeilen</p></li><li class="listitem"><p>Test, ob alle zu übersetzenden Strings in
+              <code class="filename">locale/de/all</code> vorhanden sind</p></li><li class="listitem"><p>Test, ob alle Webseiten-Templates in
+              <code class="filename">templates/webpages</code> mit vom Perl-Modul
+              <code class="literal">Template</code> compiliert werden können</p></li></ul></div></div><div class="sect3" title="4.5.5.2. Konvention für Verzeichnis- und Dateinamen"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.directory_and_test_names"></a>4.5.5.2. Konvention für Verzeichnis- und Dateinamen</h4></div></div></div><p>Es gibt momentan eine wenige Richtlinien, wie Test-Scripte zu
+          benennen sind. Bitte die folgenden Punkte als Richtlinie betrachten
+          und ihnen soweit es geht folgen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Die Dateiendung muss <code class="filename">.t</code>
+              lauten.</p></li><li class="listitem"><p>Namen sind englisch, komplett klein geschrieben und
+              einzelne Wörter mit Unterstrichten getrennt (beispielsweise
+              <code class="filename">bad_function_params.t</code>).</p></li><li class="listitem"><p>Unterverzeichnisse sollten grob nach dem Themenbereich
+              benannt sein, mit dem sich die Scripte darin befassen
+              (beispielsweise <code class="filename">background_jobs</code> für Tests
+              rund um Hintergrund-Jobs).</p></li><li class="listitem"><p>Test-Scripte sollten einen überschaubaren Bereich von
+              Funktionalität testen, der logisch zusammenhängend ist (z.B. nur
+              Tests für eine einzelne Funktion in einem Modul). Lieber mehrere
+              Test-Scripte schreiben.</p></li></ul></div></div><div class="sect3" title="4.5.5.3. Minimales Skelett für eigene Scripte"><div class="titlepage"><div><div><h4 class="title"><a name="devel.testsuite.minimal_example"></a>4.5.5.3. Minimales Skelett für eigene Scripte</h4></div></div></div><p>Der folgenden Programmcode enthält das kleinstmögliche
+          Testscript und kann als Ausgangspunkt für eigene Tests verwendet
+          werden:</p><pre class="programlisting">use Test::More tests =&gt; 0;
 
 use lib 't';
 
 use Support::TestSetup;
 
-Support::TestSetup::login();</pre><p>Wird eine vollständig initialisierte kivitendo-Umgebung benötigt (Stichwort: alle globalen Variablen wie
-          <code class="varname">$::auth</code>, <code class="varname">$::form</code> oder <code class="varname">$::lxdebug</code>), so muss in der Konfigurationsdatei
-          <code class="filename">config/kivitendo.conf</code> im Abschnitt <code class="literal">testing.login</code> ein gültiger Login-Name eingetragen
-          sein. Dieser wird für die Datenbankverbindung benötigt.</p><p>Wir keine vollständig initialisierte Umgebung benötigt, so kann die letzte Zeile <code class="code">Support::TestSetup::login();</code>
-          weggelassen werden, was die Ausführungszeit des Scripts leicht verringert.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s04.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s06.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.4. Translations and languages&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.6. Stil-Richtlinien</td></tr></table></div></body></html>
+Support::TestSetup::login();</pre><p>Wird eine vollständig initialisierte kivitendo-Umgebung
+          benötigt (Stichwort: alle globalen Variablen wie
+          <code class="varname">$::auth</code>, <code class="varname">$::form</code> oder
+          <code class="varname">$::lxdebug</code>), so muss in der Konfigurationsdatei
+          <code class="filename">config/kivitendo.conf</code> im Abschnitt
+          <code class="literal">testing.login</code> ein gültiger Login-Name eingetragen
+          sein. Dieser wird für die Datenbankverbindung benötigt.</p><p>Wir keine vollständig initialisierte Umgebung benötigt, so
+          kann die letzte Zeile <code class="code">Support::TestSetup::login();</code>
+          weggelassen werden, was die Ausführungszeit des Scripts leicht
+          verringert.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s04.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s06.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.4. Translations and languages&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.6. Stil-Richtlinien</td></tr></table></div></body></html>

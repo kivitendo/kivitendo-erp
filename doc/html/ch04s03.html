@@ -1,12 +1,20 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Datenbankupgrades werden über einzelne Upgrade-Scripte gesteuert, die sich im Verzeichnis <code class="filename">sql/Pg-upgrade2</code>
-        befinden. In diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren, die neben den eigentlich auszuführenden SQL- oder
-        Perl-Befehlen einige Kontrollinformationen enthält.</p><p>Kontrollinformationen definieren Abhängigkeiten und Prioritäten, sodass Datenbankscripte zwar in einer sicheren Reihenfolge
-        ausgeführt werden (z.B. darf ein <code class="literal">ALTER TABLE</code> erst ausgeführt werden, wenn die Tabelle mit <code class="literal">CREATE
-        TABLE</code> angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man keine Versionsnummern braucht.</p><p>kivitendo merkt sich dabei, welches der Upgradescripte in <code class="filename">sql/Pg-upgrade2</code> bereits durchgeführt wurde und
-        führt diese nicht erneut aus. Dazu dient die Tabelle "<code class="literal">schema_info</code>", die bei der Anmeldung automatisch angelegt
-        wird.</p></div><div class="sect2" title="4.3.2. Format der Kontrollinformationen"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format"></a>4.3.2. Format der Kontrollinformationen</h3></div></div></div><p>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
+   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Datenbankupgrades werden über einzelne Upgrade-Scripte
+        gesteuert, die sich im Verzeichnis
+        <code class="filename">sql/Pg-upgrade2</code> befinden. In diesem Verzeichnis
+        muss pro Datenbankupgrade eine Datei existieren, die neben den
+        eigentlich auszuführenden SQL- oder Perl-Befehlen einige
+        Kontrollinformationen enthält.</p><p>Kontrollinformationen definieren Abhängigkeiten und Prioritäten,
+        sodass Datenbankscripte zwar in einer sicheren Reihenfolge ausgeführt
+        werden (z.B. darf ein <code class="literal">ALTER TABLE</code> erst ausgeführt
+        werden, wenn die Tabelle mit <code class="literal">CREATE TABLE</code> angelegt
+        wurde), diese Reihenfolge aber so flexibel ist, dass man keine
+        Versionsnummern braucht.</p><p>kivitendo merkt sich dabei, welches der Upgradescripte in
+        <code class="filename">sql/Pg-upgrade2</code> bereits durchgeführt wurde und
+        führt diese nicht erneut aus. Dazu dient die Tabelle
+        "<code class="literal">schema_info</code>", die bei der Anmeldung automatisch
+        angelegt wird.</p></div><div class="sect2" title="4.3.2. Format der Kontrollinformationen"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format"></a>4.3.2. Format der Kontrollinformationen</h3></div></div></div><p>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
         Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
         hat dabei das folgende Format:</p><p>Für SQL-Upgradedateien:</p><pre class="programlisting">-- @key: value</pre><p>Für Perl-Upgradedateien:</p><pre class="programlisting"># @key: value</pre><p>Leerzeichen vor "<code class="varname">value</code>" werden
         entfernt.</p><p>Die folgenden Schlüsselworte werden verarbeitet:</p><div class="variablelist"><dl><dt><span class="term">
@@ -21,10 +29,14 @@
               erlaubt und sollten stattdessen mit Unterstrichen ersetzt
               werden.</p></dd><dt><span class="term">
                      <code class="varname">charset</code>
-                  </span></dt><dd><p>Empfohlen. Gibt den Zeichensatz an, in dem das Script geschrieben wurde, z.B. "<code class="literal">UTF-8</code>". Aus
-              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei Abwesenheit des Tags für SQL-Upgradedateien der Zeichensatz
-              "<code class="literal">ISO-8859-15</code>" angenommen. Perl-Upgradescripte hingegen müssen immer in UTF-8 encodiert sein und sollten
-              demnach auch ein "<code class="literal">use utf8;</code>" enthalten.</p></dd><dt><span class="term">
+                  </span></dt><dd><p>Empfohlen. Gibt den Zeichensatz an, in dem das Script
+              geschrieben wurde, z.B. "<code class="literal">UTF-8</code>". Aus
+              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
+              Abwesenheit des Tags für SQL-Upgradedateien der Zeichensatz
+              "<code class="literal">ISO-8859-15</code>" angenommen. Perl-Upgradescripte
+              hingegen müssen immer in UTF-8 encodiert sein und sollten
+              demnach auch ein "<code class="literal">use utf8;</code>"
+              enthalten.</p></dd><dt><span class="term">
                      <code class="varname">description</code>
                   </span></dt><dd><p>Benötigt. Eine Beschreibung, was in diesem Update
               passiert. Diese wird dem Benutzer beim eigentlichen
@@ -56,14 +68,22 @@
                      <code class="varname">ignore</code>
                   </span></dt><dd><p>Optional. Falls der Wert auf 1 (true) steht, wird das
               Skript bei der Anmeldung ignoriert und entsprechend nicht
-              ausgeführt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Format von in Perl geschriebenen Datenbankupgradescripten"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format-perl-files"></a>4.3.3. Format von in Perl geschriebenen Datenbankupgradescripten</h3></div></div></div><p>In Perl geschriebene Datenbankscripte werden nicht einfach so ausgeführt sondern müssen sich an gewisse Konventionen
-       halten. Dafür bekommen sie aber auch einige Komfortfunktionen bereitgestellt.</p><p>Ein Upgradescript stellt dabei eine vollständige Objektklasse dar, die vom Elternobjekt
-       "<code class="literal">SL::DBUpgrade2::Base</code>" erben und eine Funktion namens "<code class="literal">run</code>" zur Verfügung stellen muss. Das
-       Script wird ausgeführt, indem eine Instanz dieser Klasse erzeugt und darauf die erwähnte "<code class="literal">run</code>" aufgerufen
-       wird.</p><p>Zu beachten ist, dass sich der Paketname der Datei aus dem Wert für "<code class="literal">@tag</code>" ableitet. Dabei werden alle
-       Zeichen, die in Paketnamen ungültig wären (gerade Bindestriche), durch Unterstriche ersetzt. Insgesamt sieht der Paketname wie folgt
-       aus: "<code class="literal">SL::DBUpgrade2::tag</code>".</p><p>Welche Komfortfunktionen zur Verfügung stehen, erfahren Sie in der Perl-Dokumentation zum oben genannten Modul; aufzurufen mit
-       "<span class="command"><strong>perldoc SL/DBUpgrade2/Base.pm</strong></span>".</p><p>Ein Mindestgerüst eines gültigen Perl-Upgradescriptes sieht wie folgt aus:</p><pre class="programlisting"># @tag: beispiel-upgrade-file42
+              ausgeführt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Format von in Perl geschriebenen Datenbankupgradescripten"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format-perl-files"></a>4.3.3. Format von in Perl geschriebenen
+        Datenbankupgradescripten</h3></div></div></div><p>In Perl geschriebene Datenbankscripte werden nicht einfach so
+        ausgeführt sondern müssen sich an gewisse Konventionen halten. Dafür
+        bekommen sie aber auch einige Komfortfunktionen bereitgestellt.</p><p>Ein Upgradescript stellt dabei eine vollständige Objektklasse
+        dar, die vom Elternobjekt "<code class="literal">SL::DBUpgrade2::Base</code>"
+        erben und eine Funktion namens "<code class="literal">run</code>" zur Verfügung
+        stellen muss. Das Script wird ausgeführt, indem eine Instanz dieser
+        Klasse erzeugt und darauf die erwähnte "<code class="literal">run</code>"
+        aufgerufen wird.</p><p>Zu beachten ist, dass sich der Paketname der Datei aus dem Wert
+        für "<code class="literal">@tag</code>" ableitet. Dabei werden alle Zeichen, die
+        in Paketnamen ungültig wären (gerade Bindestriche), durch Unterstriche
+        ersetzt. Insgesamt sieht der Paketname wie folgt aus:
+        "<code class="literal">SL::DBUpgrade2::tag</code>".</p><p>Welche Komfortfunktionen zur Verfügung stehen, erfahren Sie in
+        der Perl-Dokumentation zum oben genannten Modul; aufzurufen mit
+        "<span class="command"><strong>perldoc SL/DBUpgrade2/Base.pm</strong></span>".</p><p>Ein Mindestgerüst eines gültigen Perl-Upgradescriptes sieht wie
+        folgt aus:</p><pre class="programlisting"># @tag: beispiel-upgrade-file42
 # @description: Ein schönes Beispielscript
 # @depends: release_3_1_0
 package SL::DBUpgrade2::beispiel_upgrade_file42;

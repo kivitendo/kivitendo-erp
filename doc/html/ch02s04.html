@@ -1,25 +1,26 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.4. kivitendo-Konfigurationsdatei</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes"><link rel="next" href="ch02s05.html" title="2.5. Anpassung der PostgreSQL-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. kivitendo-Konfigurationsdatei</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. kivitendo-Konfigurationsdatei"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="config.config-file"></a>2.4. kivitendo-Konfigurationsdatei</h2></div></div></div><div class="sect2" title="2.4.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="config.config-file.introduction"></a>2.4.1. Einführung</h3></div></div></div><p>In kivitendo gibt es nur noch eine Konfigurationsdatei,
-        die benötigt wird: <code class="filename">config/kivitendo.conf</code> (kurz:
-        "die Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation
-        von kivitendo bzw. der Migration von älteren Versionen angelegt
+   <title>2.4. kivitendo-Konfigurationsdatei</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.4.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes"><link rel="next" href="ch02s05.html" title="2.5. Anpassung der PostgreSQL-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. kivitendo-Konfigurationsdatei</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. kivitendo-Konfigurationsdatei"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="config.config-file"></a>2.4. kivitendo-Konfigurationsdatei</h2></div></div></div><div class="sect2" title="2.4.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="config.config-file.introduction"></a>2.4.1. Einführung</h3></div></div></div><p>In kivitendo gibt es nur noch eine Konfigurationsdatei, die
+        benötigt wird: <code class="filename">config/kivitendo.conf</code> (kurz: "die
+        Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation von
+        kivitendo bzw. der Migration von älteren Versionen angelegt
         werden.</p><p>Als Vorlage dient die Datei
         <code class="filename">config/kivitendo.conf.default</code> (kurz: "die
         Default-Datei"):</p><pre class="programlisting">$ cp config/kivitendo.conf.default config/kivitendo.conf</pre><p>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
         der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
         Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
         Abschnitte und Werte enthalten, die von denen der Default-Datei
-        abweichen.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
-          Vor der Umbenennung in kivitendo hieß diese Datei noch <code class="filename">config/lx_office.conf</code>. Aus Gründen der Kompatibilität
-          wird diese Datei eingelesen, sofern die Datei <code class="filename">config/kivitendo.conf</code> nicht existiert.
-         </p></td></tr></table></div><p>Diese Hauptkonfigurationsdatei ist dann eine
+        abweichen.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Vor der Umbenennung in kivitendo hieß diese Datei noch
+          <code class="filename">config/lx_office.conf</code>. Aus Gründen der
+          Kompatibilität wird diese Datei eingelesen, sofern die Datei
+          <code class="filename">config/kivitendo.conf</code> nicht existiert.</p></td></tr></table></div><p>Diese Hauptkonfigurationsdatei ist dann eine
         installationsspezifische Datei, d.h. sie enthält bspw. lokale
         Passwörter und wird auch nicht im Versionsmanagement (git)
         verwaltet.</p><p>Die Konfiguration ist ferner serverabhängig, d.h. für alle
         Mandaten, bzw. Datenbanken gleich.</p></div><div class="sect2" title="2.4.2. Abschnitte und Parameter"><div class="titlepage"><div><div><h3 class="title"><a name="config.config-file.sections-parameters"></a>2.4.2. Abschnitte und Parameter</h3></div></div></div><p>Die Konfigurationsdatei besteht aus mehreren Teilen, die
         entsprechend kommentiert sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="literal">authentication</code> (siehe Abschnitt "<a class="xref" href="ch02s08.html" title="2.8. Benutzerauthentifizierung und Administratorpasswort">Abschnitt&nbsp;2.8, „Benutzerauthentifizierung und Administratorpasswort“</a>" in diesem Kapitel)</p></li><li class="listitem"><p>
+                     <code class="literal">authentication</code> (siehe Abschnitt "<a class="xref" href="ch02s08.html" title="2.8. Benutzerauthentifizierung und Administratorpasswort">Abschnitt&nbsp;2.8, „Benutzerauthentifizierung und Administratorpasswort“</a>"
+            in diesem Kapitel)</p></li><li class="listitem"><p>
                      <code class="literal">authentication/database</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">authentication/ldap</code>
@@ -60,9 +61,13 @@ user     = postgres
 password =</pre><p>Nutzt man wiederkehrende Rechnungen, kann man unter
         <code class="varname">[periodic_invoices]</code> den Login eines Benutzers
         angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
-        mit Informationen über die erstellten Rechnungen bekommt.</p><p>kivitendo bringt eine eigene Komponente zur zeitgesteuerten Ausführung bestimmter Aufgaben mit, den <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Taskserver</a>. Er wird u.a. für Features wie die <a class="link" href="ch03.html#features.periodic-invoices" title="3.1. Wiederkehrende Rechnungen">wiederkehrenden Rechnungen</a> benötigt, erledigt aber auch andere erforderliche Aufgaben
-        und muss daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Task-Server</a>
-        genauer beschrieben.</p><p>Für Entwickler finden sich unter <code class="varname">[debug]</code>
+        mit Informationen über die erstellten Rechnungen bekommt.</p><p>kivitendo bringt eine eigene Komponente zur zeitgesteuerten
+        Ausführung bestimmter Aufgaben mit, den <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Taskserver</a>. Er wird u.a. für
+        Features wie die <a class="link" href="ch03.html#features.periodic-invoices" title="3.1. Wiederkehrende Rechnungen">wiederkehrenden Rechnungen</a>
+        benötigt, erledigt aber auch andere erforderliche Aufgaben und muss
+        daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt
+        <a class="link" href="ch02s07.html" title="2.7. Der Task-Server">Task-Server</a> genauer
+        beschrieben.</p><p>Für Entwickler finden sich unter <code class="varname">[debug]</code>
         wichtige Funktionen, um die Fehlersuche zu erleichtern.</p></div><div class="sect2" title="2.4.3. Versionen vor 2.6.3"><div class="titlepage"><div><div><h3 class="title"><a name="config.config-file.prior-versions"></a>2.4.3. Versionen vor 2.6.3</h3></div></div></div><p>In älteren kivitendo Versionen gab es im Verzeichnis
         <code class="filename">config</code> die Dateien
         <code class="filename">authentication.pl</code> und

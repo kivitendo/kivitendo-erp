@@ -19,9 +19,9 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
  Deny from All
 &lt;/Directory&gt;</pre><p>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
         das kivitendo-Archiv entpacket haben.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Vor den einzelnen Optionen muss bei einigen Distributionen ein
-          Plus ‘<code class="literal">+</code>’ gesetzt werden.</p><p>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss noch explizit
-          das cgi-Modul mittels </p><pre class="programlisting">a2enmod cgi</pre><p> aktiviert
-          werden.</p></td></tr></table></div><p>Auf einigen Webservern werden manchmal die Grafiken und
+          Plus ‘<code class="literal">+</code>’ gesetzt werden.</p><p>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss
+          noch explizit das cgi-Modul mittels </p><pre class="programlisting">a2enmod cgi</pre><p>
+          aktiviert werden.</p></td></tr></table></div><p>Auf einigen Webservern werden manchmal die Grafiken und
         Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
         geholfen, die folgende Option in die Konfiguration aufzunehmen:</p><pre class="programlisting">EnableSendfile Off</pre></div><div class="sect2" title="2.6.2. Konfiguration für FastCGI/FCGI"><div class="titlepage"><div><div><h3 class="title"><a name="Apache-Konfiguration.FCGI"></a>2.6.2. Konfiguration für FastCGI/FCGI</h3></div></div></div><div class="sect3" title="2.6.2.1. Was ist FastCGI?"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WasIstEs"></a>2.6.2.1. Was ist FastCGI?</h4></div></div></div><p>Direkt aus <a class="ulink" href="http://de.wikipedia.org/wiki/FastCGI" target="_top">Wikipedia</a>
           kopiert:</p><p>
@@ -45,10 +45,12 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
           wird nur die eigentliche Programmlogik ausgeführt.</p></div><div class="sect3" title="2.6.2.3. Getestete Kombinationen aus Webservern und Plugin"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WebserverUndPlugin"></a>2.6.2.3. Getestete Kombinationen aus Webservern und Plugin</h4></div></div></div><p>Folgende Kombinationen sind getestet:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Apache 2.2.11 (Ubuntu) und mod_fcgid.</p></li><li class="listitem"><p>Apache 2.2.11 / 2.2.22 (Ubuntu) und mod_fastcgi.</p></li><li class="listitem"><p>Apache 2.4.7 (Ubuntu 14.04.2 LTS) und mod_fcgid.</p></li></ul></div><p>Dabei wird mod_fcgid empfohlen, weil mod_fastcgi seit geraumer
           Zeit nicht mehr weiter entwickelt wird. Im Folgenden wird auf
           mod_fastcgi nicht mehr explizit eingegangen.</p><p>Als Perl Backend wird das Modul <code class="filename">FCGI.pm</code>
-          verwendet.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem strict in der Behandlung von Unicode, und verweigern
-            bestimmte Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrer Installation gibt, muss zwingend Version 0.68 oder
-            aber Version 0.72 und neuer eingesetzt werden.</p><p>Mit <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> lässt sie sich die Vorgängerversion wie folgt
-            installieren:</p><pre class="programlisting">force install M/MS/MSTROUT/FCGI-0.68.tar.gz</pre></td></tr></table></div></div><div class="sect3" title="2.6.2.4. Konfiguration des Webservers"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Konfiguration"></a>2.6.2.4. Konfiguration des Webservers</h4></div></div></div><p>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
+          verwendet.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem
+            strict in der Behandlung von Unicode, und verweigern bestimmte
+            Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrer
+            Installation gibt, muss zwingend Version 0.68 oder aber Version
+            0.72 und neuer eingesetzt werden.</p><p>Mit <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> lässt sie
+            sich die Vorgängerversion wie folgt installieren:</p><pre class="programlisting">force install M/MS/MSTROUT/FCGI-0.68.tar.gz</pre></td></tr></table></div></div><div class="sect3" title="2.6.2.4. Konfiguration des Webservers"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Konfiguration"></a>2.6.2.4. Konfiguration des Webservers</h4></div></div></div><p>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
           laufen zu lassen, empfiehlt es sich die Installation ersteinmal
           unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
           debuggen die beim ersten aufsetzen auftreten können. Sollte die
@@ -71,7 +73,9 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
 Require all granted
-&lt;/DirectoryMatch&gt;</pre><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Wer einen älteren Apache als Version 2.4 im Einsatz hat, muss entsprechend die Syntax der Directorydirektiven verändert. Statt</p><pre class="programlisting">Require all granted</pre><p> muß man Folgendes einstellen:</p><pre class="programlisting">
+&lt;/DirectoryMatch&gt;</pre><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Wer einen älteren Apache als Version 2.4 im Einsatz hat,
+            muss entsprechend die Syntax der Directorydirektiven verändert.
+            Statt</p><pre class="programlisting">Require all granted</pre><p>muß man Folgendes einstellen:</p><pre class="programlisting">
   Order Allow,Deny
   Allow from All </pre></td></tr></table></div><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
           die maximale Größe eines Requests. Diese sollte wie folgt
@@ -103,9 +107,10 @@ AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispat
 Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</pre><p>Dann ist unter <code class="filename">/url/for/kivitendo-erp/</code>
           die normale Version erreichbar, und unter
           <code class="constant">/url/for/kivitendo-erp-fcgid/</code> die
-          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e982"></a>2.6.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung von kivitendo
-          nur über https-verschlüsselten Verbindungen, sowie weiteren Zusatzmassnahmen,
-          wie beispielsweise Basic Authenticate.
-          Die Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser Anleitung, hier ein
-          Hinweis auf einen entsprechenden <a class="ulink" href="http://redmine.kivitendo-premium.de/boards/1/topics/142" target="_top">Foreneintrag (Stand Sept. 2015)</a>
+          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e982"></a>2.6.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
+        von kivitendo nur über https-verschlüsselten Verbindungen, sowie
+        weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
+        Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
+        Anleitung, hier ein Hinweis auf einen entsprechenden <a class="ulink" href="http://redmine.kivitendo-premium.de/boards/1/topics/142" target="_top">Foreneintrag
+        (Stand Sept. 2015)</a>
             </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s05.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s07.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.5. Anpassung der PostgreSQL-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.7. Der Task-Server</td></tr></table></div></body></html>

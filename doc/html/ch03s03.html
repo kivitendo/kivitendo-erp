@@ -121,8 +121,8 @@
                         <code class="varname">template_meta.language.description</code>
                      </span></dt><dd><p>Beschreibung der verwendeten Sprache</p></dd><dt><span class="term">
                         <code class="varname">template_meta.language.template_code</code>
-                     </span></dt><dd><p>Vorlagenkürzel der verwendeten Sprache, identisch mit dem
-                Kürzel das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Vorlagenkürzel der verwendeten Sprache, identisch mit
+                dem Kürzel das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
                         <code class="varname">template_meta.language.output_numberformat</code>
                      </span></dt><dd><p>Zahlenformat der verwendeten Sprache in der Form
                 "<code class="constant">1.000,00</code>". Experimentell! Nur
@@ -347,7 +347,8 @@
                         <code class="varname">delivery_term.description</code>
                      </span></dt><dd><p>Beschreibung der Lieferbedingung</p></dd><dt><span class="term">
                         <code class="varname">delivery_term.description_long</code>
-                     </span></dt><dd><p>Langtext bzw. übersetzter Langtext der Lieferbedingung</p></dd></dl></div></div></div><div class="sect2" title="3.3.8. Variablen in Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.invoice"></a>3.3.8. Variablen in Rechnungen</h3></div></div></div><div class="sect3" title="3.3.8.1. Allgemeine Variablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-allgemein"></a>3.3.8.1. Allgemeine Variablen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                     </span></dt><dd><p>Langtext bzw. übersetzter Langtext der
+                Lieferbedingung</p></dd></dl></div></div></div><div class="sect2" title="3.3.8. Variablen in Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.invoice"></a>3.3.8. Variablen in Rechnungen</h3></div></div></div><div class="sect3" title="3.3.8.1. Allgemeine Variablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-allgemein"></a>3.3.8.1. Allgemeine Variablen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">creditremaining</code>
                      </span></dt><dd><p>Verbleibender Kredit</p></dd><dt><span class="term">
                         <code class="varname">currency</code>
@@ -404,13 +405,16 @@
                         <code class="varname">description</code>
                      </span></dt><dd><p>Artikelbeschreibung</p></dd><dt><span class="term">
                         <code class="varname">cusordnumber_oe</code>
-                     </span></dt><dd><p>Bestellnummer des Kunden aus dem Auftrag, aus dem der Posten ursprünglich stammt (nur Verkauf)</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Bestellnummer des Kunden aus dem Auftrag, aus dem der
+                Posten ursprünglich stammt (nur Verkauf)</p></dd><dt><span class="term">
                         <code class="varname">discount</code>
                      </span></dt><dd><p>Rabatt als Betrag</p></dd><dt><span class="term">
                         <code class="varname">discount_sub</code>
                      </span></dt><dd><p>Zwischensumme mit Rabatt</p></dd><dt><span class="term">
                         <code class="varname">donumber_do</code>
-                     </span></dt><dd><p>Lieferscheinnummer des Lieferscheins, aus dem die Position ursprünglich stammt, wenn die Rechnung im Rahmen des Workflows aus einem  Lieferschein erstellt wurde.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Lieferscheinnummer des Lieferscheins, aus dem die
+                Position ursprünglich stammt, wenn die Rechnung im Rahmen des
+                Workflows aus einem Lieferschein erstellt wurde.</p></dd><dt><span class="term">
                         <code class="varname">drawing</code>
                      </span></dt><dd><p>Zeichnung</p></dd><dt><span class="term">
                         <code class="varname">ean</code>
@@ -424,7 +428,15 @@
                         <code class="varname">microfiche</code>
                      </span></dt><dd><p>Mikrofilm</p></dd><dt><span class="term">
                         <code class="varname">netprice</code>
-                     </span></dt><dd><p>Alternative zu <code class="varname">sellprice</code>, aber <code class="varname">netprice</code> entspricht dem effektiven Einzelpreis und beinhaltet Zeilenrabatt und Preisfaktor. <code class="varname">netprice</code> wird rückgerechnet aus Zeilensumme / Menge. Diese Variable ist nützlich, wenn man den gewährten Rabatt in der Druckvorlage nicht anzeigen möchte, aber Menge * Einzelpreis trotzdem die angezeigte Zeilensumme ergeben soll. <code class="varname">netprice</code> hat nichts mit Netto/Brutto im Sinne von Steuern zu tun.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Alternative zu <code class="varname">sellprice</code>, aber
+                <code class="varname">netprice</code> entspricht dem effektiven
+                Einzelpreis und beinhaltet Zeilenrabatt und Preisfaktor.
+                <code class="varname">netprice</code> wird rückgerechnet aus Zeilensumme
+                / Menge. Diese Variable ist nützlich, wenn man den gewährten
+                Rabatt in der Druckvorlage nicht anzeigen möchte, aber Menge *
+                Einzelpreis trotzdem die angezeigte Zeilensumme ergeben soll.
+                <code class="varname">netprice</code> hat nichts mit Netto/Brutto im
+                Sinne von Steuern zu tun.</p></dd><dt><span class="term">
                         <code class="varname">nodiscount_linetotal</code>
                      </span></dt><dd><p>Zeilensumme ohne Rabatt</p></dd><dt><span class="term">
                         <code class="varname">nodiscount_sub</code>
@@ -432,7 +444,12 @@
                         <code class="varname">number</code>
                      </span></dt><dd><p>Artikelnummer</p></dd><dt><span class="term">
                         <code class="varname">ordnumber_oe</code>
-                     </span></dt><dd><p>Auftragsnummer des Originalauftrags, aus dem der Posten ursprünglich stammt. Nützlich, wenn die Rechnung aus mehreren Lieferscheinen zusammengefasst wurde, oder wenn zwischendurch eine Sammelauftrag aus mehreren Aufträgen erstellt wurde. In letzterem Fall wird die unsprüngliche Auftragsnummer angezeigt.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Auftragsnummer des Originalauftrags, aus dem der Posten
+                ursprünglich stammt. Nützlich, wenn die Rechnung aus mehreren
+                Lieferscheinen zusammengefasst wurde, oder wenn zwischendurch
+                eine Sammelauftrag aus mehreren Aufträgen erstellt wurde. In
+                letzterem Fall wird die unsprüngliche Auftragsnummer
+                angezeigt.</p></dd><dt><span class="term">
                         <code class="varname">p_discount</code>
                      </span></dt><dd><p>Rabatt in Prozent</p></dd><dt><span class="term">
                         <code class="varname">partnotes</code>
@@ -462,11 +479,16 @@
                         <code class="varname">tax_rate</code>
                      </span></dt><dd><p>Steuersatz</p></dd><dt><span class="term">
                         <code class="varname">transdate_do</code>
-                     </span></dt><dd><p>Datum des Lieferscheins, wenn die Rechnung im Rahmen des Workflows aus einem Lieferschein stammte.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Datum des Lieferscheins, wenn die Rechnung im Rahmen des
+                Workflows aus einem Lieferschein stammte.</p></dd><dt><span class="term">
                         <code class="varname">transdate_oe</code>
-                     </span></dt><dd><p>Datum des Auftrags, wenn die Rechnung im Rahmen des Workflows aus einem Auftrag erstellt wurde. Wenn es Sammelaufträge gab wird das Datum des ursprünglichen Auftrags genommen.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Datum des Auftrags, wenn die Rechnung im Rahmen des
+                Workflows aus einem Auftrag erstellt wurde. Wenn es
+                Sammelaufträge gab wird das Datum des ursprünglichen Auftrags
+                genommen.</p></dd><dt><span class="term">
                         <code class="varname">transdate_quo</code>
-                     </span></dt><dd><p>Datum des Angebots, wenn die Position im Rahmen des Workflows aus einem Angebot stammte.</p></dd><dt><span class="term">
+                     </span></dt><dd><p>Datum des Angebots, wenn die Position im Rahmen des
+                Workflows aus einem Angebot stammte.</p></dd><dt><span class="term">
                         <code class="varname">unit</code>
                      </span></dt><dd><p>Einheit</p></dd><dt><span class="term">
                         <code class="varname">weight</code>
@@ -496,7 +518,9 @@
           <code class="varname">number_of_employees</code> definiert, die die Anzahl der
           Mitarbeiter des Unternehmens enthält. Diese Variable steht dann
           unter dem Namen <code class="varname">vc_cvar_number_of_employees</code> zur
-          Verfügung.</p></div></div><div class="sect2" title="3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dunning"></a>3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren</h3></div></div></div><div class="sect3" title="3.3.9.1. Namen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-vorlagennamen"></a>3.3.9.1. Namen der Vorlagen</h4></div></div></div><p>Die Namen der Vorlagen werden im System-Menü vom Benutzer
+          Verfügung.</p><p>Die benutzerdefinierten Variablen der Lieferadressen stehen
+          unter einem ähnlichen Namensschema zur Verfügung. Hier lautet der
+          Präfix <code class="varname">shiptocvar_</code>.</p></div></div><div class="sect2" title="3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dunning"></a>3.3.9. Variablen in Mahnungen und Rechnungen über Mahngebühren</h3></div></div></div><div class="sect3" title="3.3.9.1. Namen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-vorlagennamen"></a>3.3.9.1. Namen der Vorlagen</h4></div></div></div><p>Die Namen der Vorlagen werden im System-Menü vom Benutzer
           eingegeben. Wird für ein Mahnlevel die Option zur automatischen
           Erstellung einer Rechnung über die Mahngebühren und Zinsen
           aktiviert, so wird der Name der Vorlage für diese Rechnung aus dem
@@ -579,7 +603,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5166"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5325"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:
@@ -683,10 +707,13 @@
 ...
 &lt;%end%&gt;</pre><p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if"
           und dem "end" werden nur ausgegeben, wenn die Variable
-          <code class="varname">variablenname</code> gesetzt und ungleich 0 ist.</p><p>Handelt es sich bei der benannten Variable um ein Array, also um einen Variablennamen, über den man mit
-          <span class="command"><strong>&lt;%foreach variablenname%&gt;</strong></span> iteriert, so wird mit diesem Konstrukt darauf getestet, ob das Array Elemente
-          enthält. Somit würde im folgenden Beispiel nur dann eine Liste von Zahlungseingängen samt ihrer Überschrift "Zahlungseingänge"
-          ausgegeben, wenn tatsächlich welche getätigt wurden:</p><pre class="programlisting">&lt;%if payment%&gt;
+          <code class="varname">variablenname</code> gesetzt und ungleich 0 ist.</p><p>Handelt es sich bei der benannten Variable um ein Array, also
+          um einen Variablennamen, über den man mit <span class="command"><strong>&lt;%foreach
+          variablenname%&gt;</strong></span> iteriert, so wird mit diesem Konstrukt
+          darauf getestet, ob das Array Elemente enthält. Somit würde im
+          folgenden Beispiel nur dann eine Liste von Zahlungseingängen samt
+          ihrer Überschrift "Zahlungseingänge" ausgegeben, wenn tatsächlich
+          welche getätigt wurden:</p><pre class="programlisting">&lt;%if payment%&gt;
 Zahlungseingänge:
  &lt;%foreach payment%&gt;
    Am &lt;%paymentdate%&gt;: &lt;%payment%&gt; €
