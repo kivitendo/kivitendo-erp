@@ -136,9 +136,15 @@ sub check_verwaiste_invoice_eintraege {
   my ($self) = @_;
   my $query = qq|
      select * from invoice i
-      where trans_id not in (select id from ar union select id from ap order by id) |;
+      where trans_id not in (select id from ar WHERE ar.transdate >=? AND ar.transdate <=?
+                             UNION
+                             select id from ap WHERE ap.transdate >= ? and ap.transdate <= ?)
+      AND i.transdate >=? AND i.transdate <=?|;
 
-  my $verwaiste_invoice = selectall_hashref_query($::form, $self->dbh, $query);
+  my $verwaiste_invoice = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate,
+                                                  $self->fromdate, $self->todate, $self->fromdate, $self->todate);
+
+
   if (@$verwaiste_invoice) {
      $self->tester->ok(0, "Es gibt verwaiste invoice Einträge! (wo ar/ap-Eintrag fehlt)");
      for my $invoice ( @{ $verwaiste_invoice }) {
