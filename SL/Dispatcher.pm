@@ -226,14 +226,17 @@ sub _run_controller {
 sub handle_all_requests {
   my ($self) = @_;
 
+  my $restart;
   my $request = FCGI::Request();
   while ($request->Accept() >= 0) {
     $self->handle_request($request);
-    if (_memory_usage_is_too_high()) {
-      $request->Flush();
-      last;
+    if (($self->interface_type eq 'FastCGI') && _memory_usage_is_too_high()) {
+      $request->LastCall();
+      $restart = 1;
     }
   }
+
+  exec $0 if $restart;
 }
 
 sub handle_request {
