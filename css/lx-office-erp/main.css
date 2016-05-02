@@ -24,7 +24,10 @@ input, textarea, select {
 }
 
 select {
-  padding: 0px;
+  -moz-appearance: none;
+  appearance : none;
+  background: white url('../../image/select-down.png') no-repeat scroll right center;
+  padding: 0 14px 0 0;
 }
 
 input:focus, textarea:focus, select:focus {
