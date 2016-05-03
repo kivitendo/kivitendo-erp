@@ -41,6 +41,10 @@ use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
 use SL::User;
 
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(restart_after_request) ],
+);
+
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
 use constant END_OF_REQUEST => "END-OF-REQUEST\n";
@@ -226,17 +230,15 @@ sub _run_controller {
 sub handle_all_requests {
   my ($self) = @_;
 
-  my $restart;
   my $request = FCGI::Request();
   while ($request->Accept() >= 0) {
     $self->handle_request($request);
-    if (($self->interface_type eq 'FastCGI') && _memory_usage_is_too_high()) {
-      $request->LastCall();
-      $restart = 1;
-    }
+
+    $self->restart_after_request(1) if $self->_interface_is_fcgi && $self->_memory_usage_is_too_high;
+    $request->LastCall              if $self->restart_after_request;
   }
 
-  exec $0 if $restart;
+  exec $0 if $self->restart_after_request;
 }
 
 sub handle_request {
@@ -479,7 +481,7 @@ sub _watch_for_changed_files {
   my $ok = all { (stat($_))[9] == $fcgi_file_cache{$_} } keys %fcgi_file_cache;
   return if $ok;
   $::lxdebug->message(LXDebug::DEBUG1(), "Program modifications detected. Restarting.");
-  exit;
+  $self->restart_after_request(1);
 }
 
 sub get_standard_filehandles {
