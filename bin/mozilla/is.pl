@@ -605,7 +605,7 @@ sub update {
       if ($rows > 1) {
 
         select_item(mode => 'IS', pre_entered_qty => $form->{"qty_$i"});
-        ::end_of_request();
+        $::dispatcher->end_request;
 
       } else {
 
@@ -760,7 +760,7 @@ sub post {
   # if oldcustomer ne customer redo form
   if (&check_name('customer')) {
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {

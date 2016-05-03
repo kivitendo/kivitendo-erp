@@ -608,7 +608,7 @@ sub _prepare_html_template {
     my $info = "Web page template '${file}' not found.\n";
     $::form->header;
     print qq|<pre>$info</pre>|;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $additional_params->{AUTH}          = $::auth;
@@ -685,7 +685,7 @@ sub show_generic_error {
     SL::ClientJS->new
       ->error($error)
       ->render(SL::Controller::Base->new);
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   my $add_params = {
@@ -716,7 +716,7 @@ sub show_generic_error {
 
   $main::lxdebug->leave_sub();
 
-  ::end_of_request();
+  $::dispatcher->end_request;
 }
 
 sub show_generic_information {
@@ -736,7 +736,7 @@ sub show_generic_information {
 
   $main::lxdebug->leave_sub();
 
-  ::end_of_request();
+  $::dispatcher->end_request;
 }
 
 sub _store_redirect_info_in_session {
@@ -762,7 +762,7 @@ sub redirect {
     print $::form->redirect_header($self->{callback});
   }
 
-  ::end_of_request();
+  $::dispatcher->end_request;
 
   $main::lxdebug->leave_sub();
 }
@@ -2630,7 +2630,7 @@ sub mtime_ischanged {
         t8("The document has been changed by another user. No mail was sent. Please reopen it in another window and copy the changes to the new window") :
         t8("The document has been changed by another user. Please reopen it in another window and copy the changes to the new window")
       );
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 }
 

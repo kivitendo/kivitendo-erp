@@ -1846,7 +1846,7 @@ sub update {
         if ($rows > 1) {
           $form->{makemodel_rows}--;
           select_item(mode => 'IC', pre_entered_qty => $form->parse_amount(\%myconfig, $form->{"qty_$i"}));
-          ::end_of_request();
+          $::dispatcher->end_request;
         } else {
           map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
             qw(partnumber description unit partsgroup);

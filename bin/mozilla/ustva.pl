@@ -818,12 +818,12 @@ sub generate_ustva {
     } elsif ( $form->{format} eq '' ){ # No format error.
       $form->header;
       USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
-      ::end_of_request();
+      $::dispatcher->end_request;
 
     } else { # All other Formats are wrong
       $form->header;
       USTVA::error( $locale->text('Application Error. Wrong Format') . ": " . $form->{format} );
-      ::end_of_request();
+      $::dispatcher->end_request;
     }
 
 

@@ -429,7 +429,7 @@ sub update_delivery_order {
       if ($rows > 1) {
 
         select_item(mode => $mode, pre_entered_qty => $form->{"qty_$i"});
-        ::end_of_request();
+        $::dispatcher->end_request;
 
       } else {
 
@@ -741,7 +741,7 @@ sub save {
   # if the name changed get new values
   if (check_name($form->{vc})) {
     update();
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -759,7 +759,7 @@ sub save {
   if (!$params{no_redirect} && !$form->{print_and_save}) {
     delete @{$form}{ary_diff([keys %{ $form }], [qw(login id script type cursor_fokus)])};
     edit();
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
   $main::lxdebug->leave_sub();
 }
@@ -783,7 +783,7 @@ sub delete {
     # /saving the history
 
     $form->info($locale->text('Delivery Order deleted!'));
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->error($locale->text('Cannot delete delivery order!'));
@@ -1405,7 +1405,7 @@ sub transfer_in {
       update();
       $main::lxdebug->leave_sub();
 
-      ::end_of_request();
+      $::dispatcher->end_request;
     }
   }
 
@@ -1524,7 +1524,7 @@ sub transfer_out {
       update();
       $main::lxdebug->leave_sub();
 
-      ::end_of_request();
+      $::dispatcher->end_request;
     }
   }
   DO->transfer_in_out('direction' => 'out',

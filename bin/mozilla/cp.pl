@@ -459,7 +459,7 @@ sub check_form {
 
   if ($form->{currency} ne $form->{oldcurrency}) {
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
   my $selected_check = 1;

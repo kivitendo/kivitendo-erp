@@ -89,7 +89,7 @@ sub mini_error {
   } else {
     print STDERR "Error: @msg\n";
   }
-  ::end_of_request();
+  $::dispatcher->end_request;
 }
 
 sub _read_auth_config {

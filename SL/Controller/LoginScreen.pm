@@ -79,7 +79,7 @@ sub action_login {
   }
 
   # Database update available?
-  ::end_of_request() if User::LOGIN_DBUPDATE_AVAILABLE() == $result;
+  $::dispatcher->end_request if User::LOGIN_DBUPDATE_AVAILABLE() == $result;
 
   # Other login errors.
   if (User::LOGIN_OK() != $result) {

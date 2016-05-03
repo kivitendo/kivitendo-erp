@@ -126,7 +126,7 @@ sub save_follow_up {
   if ($form->{POPUP_MODE}) {
     $form->header();
     print $form->parse_html_template('fu/close_window');
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->{SAVED_MESSAGE} = $locale->text('Follow-Up saved.');
@@ -172,7 +172,7 @@ sub finish {
   if ($form->{POPUP_MODE}) {
     $form->header();
     print $form->parse_html_template('fu/close_window');
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->redirect() if ($form->{callback});
@@ -210,7 +210,7 @@ sub delete {
   if ($form->{POPUP_MODE}) {
     $form->header();
     print $form->parse_html_template('fu/close_window');
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->redirect() if ($form->{callback});

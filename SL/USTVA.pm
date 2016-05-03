@@ -401,7 +401,7 @@ sub info {
     </body>
     |;
 
-    ::end_of_request();
+    $::dispatcher->end_request;
 
   } else {
 

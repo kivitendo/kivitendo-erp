@@ -262,10 +262,10 @@ sub process_perl_script {
 
   if (!defined($result)) {
     print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $error });
-    ::end_of_request();
+    $::dispatcher->end_request;
   } elsif (1 != $result) {
     SL::System::InstallationLock->unlock if 2 == $result;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   if (ref($version_or_control) eq "HASH") {

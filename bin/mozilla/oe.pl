@@ -651,7 +651,7 @@ sub update {
       if ($rows > 1) {
 
         select_item(mode => $mode, pre_entered_qty => $form->{"qty_$i"});
-        ::end_of_request();
+        $::dispatcher->end_request;
 
       } else {
 
@@ -1195,7 +1195,7 @@ sub save_and_close {
       $form->{payment_id} = $payment_id;
     }
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -1303,7 +1303,7 @@ sub save {
       $form->{payment_id} = $payment_id;
     }
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -1366,7 +1366,7 @@ sub save {
   if(!$form->{print_and_save}) {
     delete @{$form}{ary_diff([keys %{ $form }], [qw(login id script type cursor_fokus)])};
     edit();
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
   $main::lxdebug->leave_sub();
 }
@@ -1402,7 +1402,7 @@ sub delete {
     }
     # /saving the history
     $form->info($msg);
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
   $form->error($err);
 
@@ -1454,7 +1454,7 @@ sub invoice {
   if (&check_name($form->{vc})) {
     $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed');
@@ -1756,7 +1756,7 @@ sub check_for_direct_delivery {
 
   $main::lxdebug->leave_sub();
 
-  ::end_of_request();
+  $::dispatcher->end_request;
 }
 
 sub purchase_order {

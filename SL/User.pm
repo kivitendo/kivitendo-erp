@@ -149,7 +149,7 @@ sub login {
 
   if ($form->{"show_dbupdate_warning"}) {
     print $form->parse_html_template("dbupgrade/warning", { unapplied_scripts => \@unapplied_scripts });
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   # update the tables
@@ -164,7 +164,7 @@ sub login {
   # If $self->dbupdate2 returns than this means all upgrade scripts
   # have been applied successfully, none required user
   # interaction. Otherwise the deeper layers would have called
-  # ::end_of_request() already, and return would not have returned to
+  # $::dispatcher->end_request already, and return would not have returned to
   # us. Therefore we can now use RDBO instances because their supposed
   # table structures do match the actual structures. So let's ensure
   # that the "employee" table contains the appropriate entries for all

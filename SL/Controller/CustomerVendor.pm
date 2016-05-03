@@ -145,7 +145,7 @@ sub _save {
       title => ($self->is_vendor() ? t8('Edit Vendor') : t8('Edit Customer')),
       %{$self->{template_args}}
     );
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   my $db = $self->{cv}->db;

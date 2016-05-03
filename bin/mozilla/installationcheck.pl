@@ -87,7 +87,7 @@ sub verify_installation {
 </html>
 |);
 
-  ::end_of_request();
+  $::dispatcher->end_request;
 }
 
 1;

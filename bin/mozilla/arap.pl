@@ -109,7 +109,7 @@ sub check_name {
           $form->error($locale->text("More than one #1 found matching, please be more specific.", $locale->text(ucfirst $name)));
         } else {
           &select_name($name);
-          ::end_of_request();
+          $::dispatcher->end_request;
         }
       }
 

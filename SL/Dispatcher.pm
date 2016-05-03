@@ -143,7 +143,7 @@ sub show_error {
   print $::form->parse_html_template($template, \%params);
   $::lxdebug->leave_sub;
 
-  ::end_of_request();
+  end_request();
 }
 
 sub pre_startup_setup {
@@ -305,7 +305,7 @@ sub handle_request {
       action       => $action,
     );
 
-    ::end_of_request() unless $auth_result{auth_ok};
+    $self->end_request unless $auth_result{auth_ok};
 
     delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
 
@@ -370,7 +370,7 @@ sub redirect_to_login {
   $action            .= '&error=' . $params{error} if $params{error};
 
   print $::request->cgi->redirect("controller.pl?action=${action}");
-  ::end_of_request();
+  $self->end_request;
 }
 
 sub unrequire_bin_mozilla {
@@ -498,7 +498,7 @@ sub _check_for_old_config_files {
   $::form->header;
   print $::form->parse_html_template('login_screen/old_configuration_files', { FILES => \@old_files });
 
-  ::end_of_request();
+  end_request();
 }
 
 sub _parse_number_with_unit {
@@ -549,11 +549,7 @@ sub _memory_usage_is_too_high {
   return 0;
 }
 
-package main;
-
-use strict;
-
-sub end_of_request {
+sub end_request {
   die SL::Dispatcher->END_OF_REQUEST;
 }
 

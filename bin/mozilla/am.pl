@@ -1634,7 +1634,7 @@ sub delete_warehouse {
 
     $form->header();
     print $form->parse_html_template('am/confirm_delete_warehouse');
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   if (AM->delete_warehouse(\%myconfig, $form)) {

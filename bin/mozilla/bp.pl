@@ -135,7 +135,7 @@ sub print {
         print $::locale->text('done');
         $::form->redirect($::locale->text('Marked entries printed!'));
       }
-      ::end_of_request();
+      $::dispatcher->end_request;
     }
   }
 
@@ -198,4 +198,3 @@ sub list_spool {
 }
 
 sub continue { call_sub($::form->{"nextsub"}); }
-

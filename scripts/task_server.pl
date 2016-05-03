@@ -297,17 +297,6 @@ sub gd_run {
   }
 }
 
-sub end_of_request {
-  $main::lxdebug->show_backtrace();
-  die <<EOF;
-Job called ::end_of_request()!
-
-This usually indicates success but should not be used by background jobs. A
-backtrace has been logged. Please tell the job author to have a look at it.
-EOF
-
-}
-
 chdir $exe_dir;
 
 mkdir SL::System::TaskServer::PID_BASE() if !-d SL::System::TaskServer::PID_BASE();

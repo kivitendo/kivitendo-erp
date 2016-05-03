@@ -860,7 +860,7 @@ sub validate_items {
   if ($form->{rowcount} == 1) {
     flash('warning', $::locale->text('The action you\'ve chosen has not been executed because the document does not contain any item yet.'));
     &update;
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   for my $i (1 .. $form->{rowcount} - 1) {
@@ -1147,7 +1147,7 @@ sub print {
     $form->{formname} = $formname;
     &edit();
     $::lxdebug->leave_sub();
-    ::end_of_request();
+    $::dispatcher->end_request;
   }
 
   &print_form($old_form);
@@ -1591,7 +1591,7 @@ sub print_form {
       }
 
       call_sub($display_form);
-      ::end_of_request();
+      $::dispatcher->end_request;
     }
 
     my $msg =
@@ -1605,7 +1605,7 @@ sub print_form {
   }
   if ($form->{printing}) {
    call_sub($display_form);
-   ::end_of_request();
+   $::dispatcher->end_request;
   }
 
   $main::lxdebug->leave_sub();
