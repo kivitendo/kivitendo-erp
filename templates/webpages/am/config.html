@@ -68,10 +68,12 @@
           [% L.select_tag(
             'focus_position',
             [
-              ['new_description', LxERP.t8('New row, description')],
-              ['new_partnumber', LxERP.t8('New row, partnumber')],
+              ['new_description',  LxERP.t8('New row, description')],
+              ['new_partnumber',   LxERP.t8('New row, partnumber')],
+              ['new_qty',          LxERP.t8('New row, qty')],
               ['last_description', LxERP.t8('Last row, description')],
-              ['last_partnumber', LxERP.t8('Last row, partnumber')],
+              ['last_partnumber',  LxERP.t8('Last row, partnumber')],
+              ['last_qty',         LxERP.t8('Last row, qty')],
             ],
             default => MYCONFIG.focus_position)
           %]
