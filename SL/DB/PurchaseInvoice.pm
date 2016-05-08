@@ -115,4 +115,87 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
 };
 
+sub create_ap_row {
+  my ($self, %params) = @_;
+  # needs chart as param
+  # to be called after adding all AP_amount rows
+
+  # only allow this method for ap invoices (Kreditorenbuchung)
+  die if $self->invoice and not $self->vendor_id;
+
+  my $acc_trans = [];
+  my $chart = $params{chart} || SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ap_chart_id);
+  die "illegal chart in create_ap_row" unless $chart;
+
+  die "receivables chart must have link 'AP'" . Dumper($chart) unless $chart->link eq 'AP';
+
+  # hardcoded entry for no tax, tax_id and taxkey should be 0
+  my $tax = SL::DB::Manager::Tax->find_by(id => 0, taxkey => 0) || die "Can't find tax with id 0 and taxkey 0";
+
+  my $sign = $self->vendor_id ? 1 : -1;
+  my $acc = SL::DB::AccTransaction->new(
+    amount     => $self->amount * $sign,
+    chart_id   => $params{chart}->id,
+    chart_link => $params{chart}->link,
+    transdate  => $self->transdate,
+    taxkey     => $tax->taxkey,
+    tax_id     => $tax->id,
+  );
+  $self->add_transactions( $acc );
+  push( @$acc_trans, $acc );
+  return $acc_trans;
+};
+
+sub add_ap_amount_row {
+  my ($self, %params ) = @_;
+
+  # only allow this method for ap invoices (Kreditorenbuchung)
+  die "not an ap invoice" if $self->invoice and not $self->vendor_id;
+
+  die "add_ap_amount_row needs a chart object as chart param" unless $params{chart} && $params{chart}->isa('SL::DB::Chart');
+  die unless $params{chart}->link =~ /AP_amount/;
+
+  my $acc_trans = [];
+
+  my $roundplaces = 2;
+  my ($netamount,$taxamount);
+
+  $netamount = $params{amount} * 1;
+  my $tax = SL::DB::Manager::Tax->find_by(id => $params{tax_id}) || die "Can't find tax with id " . $params{tax_id};
+
+  if ( $tax and $tax->rate != 0 ) {
+    ($netamount, $taxamount) = Form->calculate_tax($params{amount}, $tax->rate, $self->taxincluded, $roundplaces);
+  };
+  next unless $netamount; # netamount mustn't be zero
+
+  my $sign = $self->vendor_id ? -1 : 1;
+  my $acc = SL::DB::AccTransaction->new(
+    amount     => $netamount * $sign,
+    chart_id   => $params{chart}->id,
+    chart_link => $params{chart}->link,
+    transdate  => $self->transdate,
+    taxkey     => $tax->taxkey,
+    tax_id     => $tax->id,
+    project_id => $params{project_id},
+  );
+
+  $self->add_transactions( $acc );
+  push( @$acc_trans, $acc );
+
+  if ( $taxamount ) {
+     my $acc = SL::DB::AccTransaction->new(
+       amount     => $taxamount * $sign,
+       chart_id   => $tax->chart_id,
+       chart_link => $tax->chart->link,
+       transdate  => $self->transdate,
+       taxkey     => $tax->taxkey,
+       tax_id     => $tax->id,
+       project_id => $params{project_id},
+     );
+     $self->add_transactions( $acc );
+     push( @$acc_trans, $acc );
+  };
+  return $acc_trans;
+};
+
 1;
