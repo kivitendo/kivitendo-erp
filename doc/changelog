@@ -15,6 +15,7 @@ kleinere neue Features und Detailverbesserungen:
   - Die meisten Suchmasken ignorieren nun bei Teilwortsuchen führende
     und anhängende Leerzeichen.
   - Abteilung in Verkauf->Berichte-Rechnungen anzeigen lassen.
+  - Customer-Picker beim Projekt erzeugen eingebaut.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
