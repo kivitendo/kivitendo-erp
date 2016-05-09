@@ -154,40 +154,40 @@
 <hr size="3" noshade>
 
 <p>[% print_options %]</p>
-
+  <input type="hidden" name="action" value="dispatcher">
   [% IF id %]
 
-    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-    <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" accesskey="u" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
+    <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
+    <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% IF  show_storno %]
-    [% L.submit_tag("action", LxERP.t8("Storno"), "data-require-transaction-description"=INSTANCE_CONF.get_require_transaction_description_ps, confirm=LxERP.t8('Do you really want to cancel this invoice?')) %]
+    [% L.submit_tag("action_storno", LxERP.t8("Storno"), "data-require-transaction-description"=INSTANCE_CONF.get_require_transaction_description_ps, confirm=LxERP.t8('Do you really want to cancel this invoice?')) %]
 [% END %]
-    <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Use As New' | $T8 %]">
+    <input class="submit" type="submit" name="action_post_payment" value="[% 'Post Payment' | $T8 %]">
+    <input class="submit" type="submit" name="action_use_as_new" value="[% 'Use As New' | $T8 %]">
 
 [% IF id && !is_type_credit_note %]
-    <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" name="action_credit_note" value="[% 'Credit Note' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
 [% IF show_delete && (!storno || storno_id) %]
-    <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+    <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
 [% END %]
 [% IF show_delete && !storno %]
-    <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" name="action_post" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
-    <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
+    <input class="submit" type="submit" name="action_order" value="[% 'Order' | $T8 %]">
     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
  [% ELSE # no id %]
    [% UNLESS locked %]
-      <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Preview' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-      <input class="submit" type="submit" name="action" value="[% 'Post and E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-      <input class="submit" type="submit" name="action" value="[% 'Print and Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
+      <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
+      <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
+      <input class="submit" type="submit" name="action_preview" value="[% 'Preview' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action_post_and_e_mail" value="[% 'Post and E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action_print_and_post" value="[% 'Print and Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action_post" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+      <input class="submit" type="submit" name="action_save_draft" value="[% 'Save Draft' | $T8 %]">
    [%- END %]
  [% END # id %]
 
@@ -195,7 +195,7 @@
       [%#- button for saving history %]
       <input type="button" class="submit" onclick="set_history_window([% id | html %], 'glid');" name="history" id="history" value="[% 'history' | $T8 %]">
       [% IF INSTANCE_CONF.get_is_show_mark_as_paid %]
-          <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+          <input type="submit" class="submit" name="action_mark_as_paid" value="[% 'mark as paid' | $T8 %]">
       [% END %]
   [% END %]
 

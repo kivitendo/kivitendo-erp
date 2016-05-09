@@ -1174,3 +1174,18 @@ sub e_mail {
 
   $main::lxdebug->leave_sub();
 }
+
+sub dispatcher {
+  for my $action (qw(
+    print update ship_to e_mail storno post_payment use_as_new credit_note
+    delete post order preview post_and_e_mail print_and_post save_draft
+    mark_as_paid
+  )) {
+    if ($::form->{"action_$action"}) {
+      call_sub($action);
+      return;
+    }
+  }
+
+  $::form->error($::locale->text('No action defined.'));
+}
