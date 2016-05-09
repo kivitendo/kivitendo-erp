@@ -4,7 +4,7 @@
 
 2016-05-xx - Release 3.4.1
 
-einere neue Features und Detailverbesserungen:
+kleinere neue Features und Detailverbesserungen:
 
   - Auftrag um Druckvariante Gelangensbestätigung erweitert.
   - Lagereingangs-Typ gefertigt hinzugefügt
@@ -14,6 +14,7 @@ einere neue Features und Detailverbesserungen:
     verschickt werden.
   - Die meisten Suchmasken ignorieren nun bei Teilwortsuchen führende
     und anhängende Leerzeichen.
+  - Abteilung in Verkauf->Berichte-Rechnungen anzeigen lassen.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
