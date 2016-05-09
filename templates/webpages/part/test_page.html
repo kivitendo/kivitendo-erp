@@ -1,6 +1,6 @@
 [% USE L %]
 
-<h1>Waren Picker Testpage</h1>
+<h1>Part Picker Testpage</h1>
 
 <br>
 Alle: <br>
@@ -12,7 +12,49 @@ Nur Dienstleistungen: <br>
 Waren und Dienstleistungen: <br>
 [% L.part_picker('part_id4', undef, type='part,service') %]<br>
 
+<h2>Styling</h2>
+
+Ina span:
+<span>Leading text: [% L.part_picker('p1', undef, type='part,service') %] and text after with spacing</span><br>
+<span>Leading text:[% L.part_picker('p2', undef, type='part,service') %]and text after without spacing</span><br>
+<div>Leading text: [% L.part_picker('p3', undef, type='part,service') %] and text after with spacing with div</div><br>
+<div>Leading text:[% L.part_picker('p4', undef, type='part,service') %]and text after with spacing with div</div><br>
+
+<span>Picker + input next to each other: [% L.part_picker('p5', undef, type='part,service', width="100%") %]<input type=text></span>
+
+<div>[% L.part_picker('p6', undef, type='part,service', style="width:500px") %] 500px width</div>
+<div>[% L.part_picker('p7', undef, type='part,service', style="width:200px") %] 200px width</div>
+<div>[% L.part_picker('p8', undef, type='part,service', style="height:40px") %] 40px height</div>
+
 
 [%# FOREACH i IN 1..50 %]
 [%# L.part_picker('part_id_' _ i) %] <br>
 [%# END %]
+
+<h2>In tables</h2>
+
+<p>No classes:</p>
+
+<table>
+ <tr>
+  <th>Part picker in table heading</th>
+  <th>[% L.part_picker('p9', undef, type='part,service') %]</th>
+ </tr>
+ <tr>
+  <td>Part picker in table cell</td>
+  <td>[% L.part_picker('p10', undef, type='part,service') %]</td>
+ </tr>
+</table>
+
+<p>With classes:</p>
+
+<table>
+ <tr class=listheading>
+  <th>Part picker in table heading</th>
+  <th>[% L.part_picker('p11', undef, type='part,service') %]</th>
+ </tr>
+ <tr class=listrow>
+  <td>Part picker in table cell</td>
+  <td>[% L.part_picker('p12', undef, type='part,service') %]</td>
+ </tr>
+</table>
