@@ -993,49 +993,6 @@ sub preview {
 
 }
 
-sub delete {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('invoice_edit');
-
-  if ($form->{second_run}) {
-    $form->{print_and_post} = 0;
-  }
-  $form->header;
-
-  print qq|
-<form method="post" action="$form->{script}">
-|;
-
-  # delete action variable
-  map { delete $form->{$_} } qw(action header);
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
-  }
-
-  print qq|
-<h2 class="confirm">| . $locale->text('Confirm!') . qq|</h2>
-
-<h4>|
-    . $locale->text('Are you sure you want to delete Invoice Number')
-    . qq| $form->{invnumber}
-</h4>
-
-<p>
-<input name="action" class="submit" type="submit" value="|
-    . $locale->text('Yes') . qq|">
-</form>
-|;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub credit_note {
   $main::lxdebug->enter_sub();
 
@@ -1124,29 +1081,21 @@ sub display_form {
   $::lxdebug->leave_sub;
 }
 
-sub yes {
-  $main::lxdebug->enter_sub();
+sub delete {
+  $::auth->assert('invoice_edit');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('invoice_edit');
-
-  if (IS->delete_invoice(\%myconfig, \%$form)) {
+  if (IS->delete_invoice(\%::myconfig, $::form)) {
     # saving the history
-    if(!exists $form->{addition}) {
-      $form->{snumbers}  = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
-      $form->{what_done} = 'invoice';
-      $form->{addition}  = "DELETED";
-      $form->save_history;
+    if(!exists $::form->{addition}) {
+      $::form->{snumbers}  = 'invnumber' .'_'. $::form->{invnumber};
+      $::form->{what_done} = 'invoice';
+      $::form->{addition}  = "DELETED";
+      $::form->save_history;
     }
     # /saving the history
-    $form->redirect($locale->text('Invoice deleted!'));
+    $::form->redirect($::locale->text('Invoice deleted!'));
   }
-  $form->error($locale->text('Cannot delete invoice!'));
-
-  $main::lxdebug->leave_sub();
+  $::form->error($::locale->text('Cannot delete invoice!'));
 }
 
 sub post_and_e_mail {

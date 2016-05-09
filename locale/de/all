@@ -944,6 +944,7 @@ $self->{texts} = {
   'Do you really want to delete AR transaction #1?' => 'Wollen Sie wirklich die Debitorenbuchung #1 löschen?',
   'Do you really want to delete GL transaction #1?' => 'Wollen Sie wirklich die Dialogbuchung #1 löschen?',
   'Do you really want to delete the selected links?' => 'Wollen Sie wirklich die ausgewählten Verknüpfungen löschen?',
+  'Do you really want to delete this invoice?' => 'Wollen Sie diese Rechnung wirklich löschen?',
   'Do you really want to delete this object?' => 'Wollen Sie dieses Objekt wirklich löschen?',
   'Do you really want to delete this warehouse?' => 'Wollen Sie dieses Lager wirklich l&ouml;schen?',
   'Do you really want to revert to this version?' => 'Wollen Sie wirklich auf diese Version zurücksetzen?',

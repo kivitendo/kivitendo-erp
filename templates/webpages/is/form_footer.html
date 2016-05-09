@@ -155,8 +155,8 @@
 
 <p>[% print_options %]</p>
   <input type="hidden" name="action" value="dispatcher">
-  [% IF id %]
 
+  [% IF id %]
     <input class="submit" type="submit" accesskey="u" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
     <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
     <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
@@ -171,7 +171,7 @@
     <input class="submit" type="submit" name="action_credit_note" value="[% 'Credit Note' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% END %]
 [% IF show_delete && (!storno || storno_id) %]
-    <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+    [% L.submit_tag("action_delete", LxERP.t8("Delete"), confirm=LxERP.t8('Do you really want to delete this invoice?')) %]
 [% END %]
 [% IF show_delete && !storno %]
     <input class="submit" type="submit" name="action_post" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
