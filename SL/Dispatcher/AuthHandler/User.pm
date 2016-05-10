@@ -38,7 +38,9 @@ sub _error {
   my $self = shift;
 
   $::auth->punish_wrong_login;
-  print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=password');
+
+  require SL::Controller::Base;
+  SL::Controller::Base->new->redirect_to('controller.pl?action=LoginScreen/user_login&error=password');
   return 0;
 }
 
