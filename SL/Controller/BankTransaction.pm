@@ -79,9 +79,10 @@ sub action_list {
   push @where, (transdate => { lt => $todate })   if ($todate);
   my $bank_account = SL::DB::Manager::BankAccount->find_by( id => $::form->{filter}{bank_account} );
   # bank_transactions no younger than starting date,
+  # including starting date (same search behaviour as fromdate)
   # but OPEN invoices to be matched may be from before
   if ( $bank_account->reconciliation_starting_date ) {
-    push @where, (transdate => { gt => $bank_account->reconciliation_starting_date });
+    push @where, (transdate => { ge => $bank_account->reconciliation_starting_date });
   };
 
   my $bank_transactions = SL::DB::Manager::BankTransaction->get_all(where => [ amount => {ne => \'invoice_amount'},
