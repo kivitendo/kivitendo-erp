@@ -9,8 +9,8 @@ use SL::JSON ();
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(controller) ],
-  'scalar --get_set_init' => [ qw(_actions _flash _error) ],
+  scalar                  => [ qw() ],
+  'scalar --get_set_init' => [ qw(controller _actions _flash _error) ],
 );
 
 my %supported_methods = (
@@ -242,6 +242,12 @@ sub error {
   $self->_error(join ' ', grep { $_ } ($self->_error, @messages));
 
   return $self;
+}
+
+sub init_controller {
+  # fallback
+  require SL::Controller::Base;
+  SL::Controller::Base->new;
 }
 
 1;
