@@ -1491,11 +1491,6 @@ sub invoice {
   delete @{$form}{qw(id closed)};
   $form->{rowcount}--;
 
-  if ($form->{type} =~ /_order$/) {
-    $form->{exchangerate} = $exchangerate;
-    &create_backorder;
-  }
-
   my ($script);
   if (   $form->{type} eq 'purchase_order'
       || $form->{type} eq 'request_quotation') {
@@ -1580,76 +1575,6 @@ sub save_exchangerate {
                            $form->{exchangerate}, $form->{buysell});
 
   &invoice;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub create_backorder {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $form->{shipped} = 1;
-
-  # figure out if we need to create a backorder
-  # items aren't saved if qty != 0
-
-  my ($totalqty, $totalship);
-  for my $i (1 .. $form->{rowcount}) {
-    my $qty  = $form->{"qty_$i"};
-    my $ship = $form->{"ship_$i"};
-    $totalqty  += $qty;
-    $totalship += $ship;
-
-    $form->{"qty_$i"} = $qty - $ship;
-  }
-
-  if ($totalship == 0) {
-    map { $form->{"ship_$_"} = $form->{"qty_$_"} } (1 .. $form->{rowcount});
-    $form->{ordtotal} = 0;
-    $form->{shipped}  = 0;
-    return;
-  }
-
-  if ($totalqty == $totalship) {
-    map { $form->{"qty_$_"} = $form->{"ship_$_"} } (1 .. $form->{rowcount});
-    $form->{ordtotal} = 0;
-    return;
-  }
-
-  my @flds = (
-    qw(partnumber description qty ship unit sellprice discount id inventory_accno bin income_accno expense_accno listprice assembly taxaccounts partsgroup)
-  );
-
-  for my $i (1 .. $form->{rowcount}) {
-    map {
-      $form->{"${_}_$i"} =
-        $form->format_amount(\%myconfig, $form->{"${_}_$i"})
-    } qw(sellprice discount);
-  }
-
-  relink_accounts();
-
-  OE->save(\%myconfig, \%$form);
-
-  # rebuild rows for invoice
-  my @a     = ();
-  my $count = 0;
-
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"qty_$i"} = $form->{"ship_$i"};
-
-    if ($form->{"qty_$i"}) {
-      push @a, {};
-      my $j = $#a;
-      map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
-      $count++;
-    }
-  }
-
-  $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
-  $form->{rowcount} = $count;
 
   $main::lxdebug->leave_sub();
 }
