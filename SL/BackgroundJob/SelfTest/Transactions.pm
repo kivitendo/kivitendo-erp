@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 20);
+  $self->tester->plan(tests => 21);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -37,6 +37,7 @@ sub run {
   $self->check_every_account_with_taxkey;
   $self->calc_saldenvortraege;
   $self->check_missing_tax_bookings;
+  $self->check_bank_transactions_overpayments;
 }
 
 sub _setup {
@@ -516,6 +517,27 @@ sub check_missing_tax_bookings {
     }
   } else {
     $self->tester->ok(1, "Hauptbuch-Nettowert und Nebenbuch-Nettowert stimmen überein.");
+  }
+}
+
+sub check_bank_transactions_overpayments {
+  my ($self) = @_;
+
+  my $query = qq|
+       select id,amount,invoice_amount, purpose,transdate from bank_transactions where abs(invoice_amount) > abs(amount)
+         AND transdate >= ? AND transdate <= ? order by transdate|;
+
+  my $overpaids_bank_transactions =  selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  my $correct = 0 == @$overpaids_bank_transactions;
+
+  $self->tester->ok($correct, "Keine überbuchte Banktransaktion (der zugeordnete Betrag ist nicht höher, als der Überweisungsbetrag).");
+  for my $overpaid_bank_transaction (@{ $overpaids_bank_transactions }) {
+    $self->tester->diag("Überbuchte Bankbewegung!
+                         Verwendungszweck: $overpaid_bank_transaction->{purpose}
+                         Transaktionsdatum: $overpaid_bank_transaction->{transdate}
+                         Betrag= $overpaid_bank_transaction->{amount}  Zugeordneter Betrag = $overpaid_bank_transaction->{invoice_amount}
+                         Bitte kontaktieren Sie Ihren kivitendo-DB-Admin, der die Überweisung wieder zurücksetzt (Table: bank_transactions Column: invoice_amount).");
   }
 }
 
