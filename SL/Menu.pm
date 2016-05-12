@@ -43,8 +43,8 @@ sub new {
       die 'not an array ref' unless $data && 'ARRAY' eq ref $data; # TODO get better diag to user
 
       # in particular duplicate ids tend to come up as a user error when editing the menu files
-      my %uniq_ids;
-      $uniq_ids{$_->{id}}++ && die "Error in $file: duplicate id $_->{id}" for @$data;
+      #my %uniq_ids;
+      #$uniq_ids{$_->{id}}++ && die "Error in $file: duplicate id $_->{id}" for @$data;
 
       _merge($nodes, $nodes_by_id, $data);
     }
