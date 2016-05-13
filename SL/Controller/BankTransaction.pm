@@ -397,18 +397,18 @@ sub action_save_invoices {
         last;
       }
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
-      if ($invoice->amount <= $amount_of_transaction) {
+      if ($invoice->amount_open <= $amount_of_transaction) {
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
-                              amount       => $invoice->amount,
+                              amount       => $invoice->amount_open,
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
         if ($invoice->is_sales) {
-          $amount_of_transaction -= $sign * $invoice->amount;
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $invoice->amount);
+          $amount_of_transaction -= $sign * $invoice->amount_open;
+          $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $invoice->amount_open);
         } else {
-          $amount_of_transaction += $sign * $invoice->amount if (!$invoice->is_sales);
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $invoice->amount);
+          $amount_of_transaction += $sign * $invoice->amount_open if (!$invoice->is_sales);
+          $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $invoice->amount_open);
         }
       } else {
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
