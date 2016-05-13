@@ -46,7 +46,6 @@ use SL::DB::PurchaseInvoice;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
-require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 use strict;
@@ -91,11 +90,9 @@ sub add {
 
   $main::auth->assert('general_ledger');
 
-  return $main::lxdebug->leave_sub() if (load_draft_maybe());
-
   $form->{title} = "Add";
 
-  $form->{callback} = "ap.pl?action=add&DONT_LOAD_DRAFT=1" unless $form->{callback};
+  $form->{callback} = "ap.pl?action=add" unless $form->{callback};
 
   AP->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
@@ -326,6 +323,7 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/kivi.Draft.js"></script>|;
 
   $form->header();
 
@@ -714,7 +712,6 @@ sub post {
       $form->save_history;
     }
     # /saving the history
-    remove_draft() if $form->{remove_draft};
     # Dieser Text wird niemals ausgegeben: Probleme beim redirect?
     $form->redirect($locale->text('Transaction posted!')) unless $inline;
   } else {

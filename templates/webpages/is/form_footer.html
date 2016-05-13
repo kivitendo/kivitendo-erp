@@ -154,6 +154,8 @@
 <hr size="3" noshade>
 
 <p>[% print_options %]</p>
+
+<div id='form_action_bar'>
   <input type="hidden" name="action" value="dispatcher">
 
   [% IF id %]
@@ -187,7 +189,7 @@
       <input class="submit" type="submit" name="action_post_and_e_mail" value="[% 'Post and E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
       <input class="submit" type="submit" name="action_print_and_post" value="[% 'Print and Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
       <input class="submit" type="submit" name="action_post" value="[% 'Post' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-      <input class="submit" type="submit" name="action_save_draft" value="[% 'Save Draft' | $T8 %]">
+      [% L.button_tag('kivi.Draft.popup("is", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
    [%- END %]
  [% END # id %]
 
@@ -202,6 +204,7 @@
   [% IF callback %]
     <a href="[% callback %]">[% 'back' | $T8  %]</a>
   [% END %]
+</div>
 
 <input type="hidden" name="rowcount" value="[% rowcount %]">
 <input type="hidden" name="callback" value="[% callback | html %]">

@@ -45,7 +45,6 @@ use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
-require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 use strict;
@@ -87,8 +86,6 @@ sub add {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  return $main::lxdebug->leave_sub() if (load_draft_maybe());
-
   # saving the history
   if(!exists $form->{addition} && ($form->{id} ne "")) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
@@ -98,7 +95,7 @@ sub add {
   # /saving the history
 
   $form->{title}    = "Add";
-  $form->{callback} = "ar.pl?action=add&DONT_LOAD_DRAFT=1" unless $form->{callback};
+  $form->{callback} = "ar.pl?action=add" unless $form->{callback};
 
   AR->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
@@ -332,7 +329,8 @@ sub form_header {
 
   $form->{javascript} .=
     qq|<script type="text/javascript" src="js/show_vc_details.js"></script>| .
-    qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
+    qq|<script type="text/javascript" src="js/follow_up.js"></script>| .
+    qq|<script type="text/javascript" src="js/kivi.Draft.js"></script>|;
 
 #  $amount  = $locale->text('Amount');
 #  $project = $locale->text('Project');
@@ -740,7 +738,6 @@ sub post {
     $form->save_history;
   }
   # /saving the history
-  remove_draft() if $form->{remove_draft};
 
   $form->redirect($locale->text('Transaction posted!')) unless $inline;
 

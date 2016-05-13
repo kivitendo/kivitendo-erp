@@ -49,7 +49,6 @@ use SL::DB::PaymentTerm;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
-require "bin/mozilla/drafts.pl";
 
 use strict;
 
@@ -64,8 +63,6 @@ sub add {
   my $locale   = $main::locale;
 
   $main::auth->assert('invoice_edit');
-
-  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{show_details} = $::myconfig{show_form_details};
 
@@ -396,7 +393,7 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
 
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
@@ -863,8 +860,6 @@ sub post {
     }
   }
 
-  remove_draft() if $form->{remove_draft};
-
   if(!exists $form->{addition}) {
     $form->{snumbers}  =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
     $form->{what_done} = 'invoice';
@@ -1127,7 +1122,7 @@ sub e_mail {
 sub dispatcher {
   for my $action (qw(
     print update ship_to e_mail storno post_payment use_as_new credit_note
-    delete post order preview post_and_e_mail print_and_post save_draft
+    delete post order preview post_and_e_mail print_and_post
     mark_as_paid
   )) {
     if ($::form->{"action_$action"}) {

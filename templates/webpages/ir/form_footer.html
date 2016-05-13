@@ -138,7 +138,7 @@
    [% UNLESS locked %]
       <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
    [%- END %]
-      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
+      [% L.button_tag('kivi.Draft.popup("ir", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
  [% END # id %]
 
   [% IF id %]

@@ -1,5 +1,6 @@
 [% USE LxERP %]
 [% USE T8 %]
+[% USE L %]
 
   [% IF ( follow_up_length && follow_up_due_length ) %]
     [% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_up_length , follow_up_due_length) %]
@@ -9,13 +10,6 @@
   <input type="hidden" name="callback" value="[% callback | html %]">
   <input type="hidden" name="draft_id" value="[% draft_id | html %]">
   <input type="hidden" name="draft_description" value="[% draft_description | html %]">
-
-  <br>
-
-  [% IF ( !id && draft_id ) %]
-    <input type="checkbox" name="remove_draft" id="remove_draft" value="1" [% IF ( remove_draft ) %]checked[% END %]>
-    <label for="remove_draft">[% 'Remove draft when posting' | $T8 %]</label>
-  [% END %]
 
   <br>
 
@@ -41,7 +35,7 @@
   [% ELSE %]
     [% IF ( !is_closed ) %]
       <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Save draft' | $T8 %]">
+      [% L.button_tag('kivi.Draft.popup("ar", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
     [% END %]
   [% END %]
 

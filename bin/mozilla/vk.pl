@@ -42,7 +42,6 @@ use Data::Dumper;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
-require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 use strict;

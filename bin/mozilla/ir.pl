@@ -43,7 +43,6 @@ use List::UtilsBy qw(sort_by);
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
-require "bin/mozilla/drafts.pl";
 
 use strict;
 
@@ -62,8 +61,6 @@ sub add {
   if (!$::instance_conf->get_allow_new_purchase_invoice) {
     $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
   }
-
-  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{show_details} = $::myconfig{show_form_details};
 
@@ -344,7 +341,7 @@ sub form_header {
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{due_due})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
 
   $form->header();
 
@@ -806,7 +803,6 @@ sub post {
       $form->save_history;
     }
     # /saving the history
-    remove_draft() if $form->{remove_draft};
     $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'));

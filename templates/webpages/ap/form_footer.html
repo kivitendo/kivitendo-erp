@@ -12,11 +12,6 @@
 <input type=hidden name=draft_id value="[% draft_id %]">
 <input type=hidden name=draft_description value="[% draft_description | html %]">
 
-[%- IF ( !id && draft_id ) %]
-  [% L.checkbox_tag('remove_draft', checked=remove_draft, label=LxERP.t8('Remove draft when posting')) %]
-  <br>
-[%- END %]
-
 <br>
 
 <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
@@ -37,7 +32,7 @@
 
 [%- ELSIF show_post_draft %]
     <input class=submit type=submit name=action value="[% 'Post' | $T8 %]">
-    <input type="submit" name="action" value="[% 'Save draft' | $T8 %]" class="submit">
+    [% L.button_tag('kivi.Draft.popup("ap", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
 [%- END %]
 
 [%- IF id %]
