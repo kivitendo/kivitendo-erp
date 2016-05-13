@@ -1866,4 +1866,91 @@ sub income_statement {
   }
   $main::lxdebug->leave_sub();
 }
+
+sub erfolgsrechnung {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  $form->{company} = $::instance_conf->get_company;
+  $form->{address} = $::instance_conf->get_address;
+  #injection-filter
+  $form->{fromdate} =~ s/[^0-9\.]//g;
+  $form->{todate} =~ s/[^0-9\.]//g;
+  #input validation
+  $form->{fromdate} = "01.01.2000" if $form->{fromdate} !~ m/[0-9]*\.[0-9]*\.[0-9]*/;
+  $form->{todate} = $form->current_date(%{$myconfig}) if $form->{todate} !~ m/[0-9]*\.[0-9]*\.[0-9]*/;
+
+  my %categories = (I => "ERTRAG", E => "AUFWAND");
+  my $fromdate = conv_dateq($form->{fromdate});
+  my $todate = conv_dateq($form->{todate});
+
+  $form->{total} = 0;
+
+  foreach my $category ('I', 'E') {
+    my %category = (
+      name => $categories{$category},
+      total => 0,
+      accounts => get_accounts_ch($category),
+    );
+    foreach my $account (@{$category{accounts}}) {
+      $account->{total} += ($account->{category} eq $category ? 1 : -1) * get_total_ch($account->{id}, $fromdate, $todate);
+      $category{total} += $account->{total};
+      $account->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $account->{total}), 2);
+    }
+    $form->{total} += $category{total};
+    $category{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $category{total}), 2);
+    push(@{$form->{categories}}, \%category);
+  }
+  $form->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $form->{total}), 2);
+
+  $main::lxdebug->leave_sub();
+  return {};
+}
+
+sub get_accounts_ch {
+  $main::lxdebug->enter_sub();
+
+  my ($category) = @_;
+  my ($inclusion);
+
+  if ($category eq 'I') {
+    $inclusion = "AND pos_er = NULL OR pos_er > '0' AND pos_er <= '5'";
+  } elsif ($category eq 'E') {
+    $inclusion = "AND pos_er = NULL OR pos_er >= '6' AND pos_er < '100'";
+  } else {
+    $inclusion = "";
+  }
+
+  my $query = qq|
+    SELECT id, accno, description, category
+    FROM chart
+    WHERE category = '$category' $inclusion
+    ORDER BY accno
+  |;
+  my $accounts = _query($query);
+
+  $main::lxdebug->leave_sub();
+  return $accounts;
+}
+
+sub get_total_ch {
+  $main::lxdebug->enter_sub();
+
+  my ($chart_id, $fromdate, $todate) = @_;
+  my $total = 0;
+  my $query = qq|
+    SELECT SUM(amount)
+    FROM acc_trans
+    WHERE chart_id = '$chart_id'
+      AND transdate >= $fromdate
+      AND transdate <= $todate
+  |;
+  $total += _query($query)->[0]->{sum};
+
+  $main::lxdebug->leave_sub();
+  return $total;
+}
+
+sub _query {return selectall_hashref_query($::form, $::form->get_standard_dbh, @_);}
+
 1;
