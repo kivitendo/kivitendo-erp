@@ -1873,12 +1873,8 @@ sub erfolgsrechnung {
   my ($self, $myconfig, $form) = @_;
   $form->{company} = $::instance_conf->get_company;
   $form->{address} = $::instance_conf->get_address;
-  #injection-filter
-  $form->{fromdate} =~ s/[^0-9\.]//g;
-  $form->{todate} =~ s/[^0-9\.]//g;
-  #input validation
-  $form->{fromdate} = "01.01.2000" if $form->{fromdate} !~ m/[0-9]*\.[0-9]*\.[0-9]*/;
-  $form->{todate} = $form->current_date(%{$myconfig}) if $form->{todate} !~ m/[0-9]*\.[0-9]*\.[0-9]*/;
+  $form->{fromdate} = DateTime->new(year => 2000, month => 1, day => 1)->to_kivitendo unless $form->{fromdate};
+  $form->{todate} = $form->current_date(%{$myconfig}) unless $form->{todate};
 
   my %categories = (I => "ERTRAG", E => "AUFWAND");
   my $fromdate = conv_dateq($form->{fromdate});
@@ -1924,10 +1920,10 @@ sub get_accounts_ch {
   my $query = qq|
     SELECT id, accno, description, category
     FROM chart
-    WHERE category = '$category' $inclusion
+    WHERE category = ? $inclusion
     ORDER BY accno
   |;
-  my $accounts = _query($query);
+  my $accounts = _query($query, $category);
 
   $main::lxdebug->leave_sub();
   return $accounts;
@@ -1941,11 +1937,11 @@ sub get_total_ch {
   my $query = qq|
     SELECT SUM(amount)
     FROM acc_trans
-    WHERE chart_id = '$chart_id'
-      AND transdate >= $fromdate
-      AND transdate <= $todate
+    WHERE chart_id = ?
+      AND transdate >= ?
+      AND transdate <= ?
   |;
-  $total += _query($query)->[0]->{sum};
+  $total += _query($query, $chart_id, $fromdate, $todate)->[0]->{sum};
 
   $main::lxdebug->leave_sub();
   return $total;

@@ -107,6 +107,13 @@
        </tr>
 [%- END %]
 
+[%- IF rounding %]
+        <tr>
+          <th align='right'>[% 'Rounding' | $T8 %]</th>
+          <td align='right'>[% LxERP.format_amount(rounding, 2) %]</td>
+        </tr>
+[%- END %]
+
 [%# tax %]
 [% FOREACH item = taxaccounts_array %]
 [% SET description_ref = item _ '_description' %]
@@ -124,7 +131,6 @@
        </tr>
   [%- END %]
 [%- END %]
-
         <tr>
          <th align="right">[% 'Total' | $T8 %]</th>
          <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
