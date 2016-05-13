@@ -19,7 +19,7 @@
     <td>[% L.checkbox_tag('invoice_id[]', value=invoice.id) %]</td>
     <td>[%- invoice.invnumber %]</td>
     <td align="right">[%- LxERP.format_amount(invoice.amount, 2) %]</td>
-    <td align="right">[%- LxERP.format_amount(invoice.amount - invoice.paid, 2) %]</td>
+    <td align="right">[%- LxERP.format_amount(invoice.amount_open, 2) %]</td>
     <td align="right">[%- LxERP.format_amount(invoice.amount_less_skonto, 2) %]</td>
     <td align="right">[%- invoice.transdate_as_date %]</td>
     <td>[%- invoice.vendor.vendornumber %][%- invoice.customer.customernumber %]</td>

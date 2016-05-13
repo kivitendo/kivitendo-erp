@@ -1,8 +1,11 @@
 [% USE L %]
+[% USE T8 %]
+[% USE LxERP %]
 [% FOREACH invoice = INVOICES %]
   <div id="[% bt_id %].[% invoice.id %]">
     [% L.hidden_tag('invoice_ids.' _ bt_id _'[]', invoice.id) %]
-    [% invoice.invnumber %]
+    [% 'Invno.' | $T8 %]: [% invoice.invnumber %]
+    [% 'Amount' | $T8 %]: [% LxERP.format_amount(invoice.amount_open, 2) %]
     <a href=# onclick="delete_invoice([% bt_id %], [% invoice.id %])">x</a>
   </div>
 [% END %]
