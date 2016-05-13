@@ -95,15 +95,17 @@ sub _calculate_item {
   $item->fxsellprice($item->sellprice) if $data->{is_invoice};
 
   my $num_dec   = max 2, _num_decimal_places($item->sellprice);
-  my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
-  my $sellprice = _round($item->sellprice - $discount,              $num_dec);
+  # my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
+  # my $sellprice; # = _round($item->sellprice - $discount,           $num_dec);
+  my $sellprice = $item->sellprice; # don't include rounded discount into sellprice
+  # any time the sellprice is multiplied with qty discount has to be considered as part of the multiplication
 
   $item->price_factor(      ! $item->price_factor_obj   ? 1 : ($item->price_factor_obj->factor   || 1));
   $item->marge_price_factor(! $part->price_factor ? 1 : ($part->price_factor->factor || 1));
-  my $linetotal = _round($sellprice * $item->qty / $item->price_factor, 2) * $data->{exchangerate};
+  my $linetotal = _round($sellprice * (1-$item->discount) * $item->qty / $item->price_factor, 2) * $data->{exchangerate};
   $linetotal    = _round($linetotal,                                    2);
 
-  $data->{invoicediff} += $sellprice * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
+  $data->{invoicediff} += $sellprice * (1-$item->discount) * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
 
   my $linetotal_cost = 0;
 
@@ -141,7 +143,7 @@ sub _calculate_item {
     die "tax_amount != 0 but no chart_id for taxkey " . $taxkey->id . " tax " . $taxkey->tax->id;
   }
 
-  $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
+  $self->netamount($self->netamount + $sellprice * (1-$item->discount) * $item->qty / $item->price_factor);
 
   my $chart = $part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
   $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, tax_id => $taxkey->tax_id, amount => 0 };
@@ -244,7 +246,7 @@ sub _calculate_part_item {
 
     next unless $qty;
 
-    my $linetotal = _round(($entry->sellprice * $qty) / $base_factor, 2);
+    my $linetotal = _round(($entry->sellprice * (1-$entry->discount) * $qty) / $base_factor, 2);
 
     $data->{amounts_cogs}->{ $expense_income_chart->id } -= $linetotal;
     $data->{amounts_cogs}->{ $inventory_chart->id      } += $linetotal;
