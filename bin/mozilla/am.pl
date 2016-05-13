@@ -590,7 +590,7 @@ sub delete_account {
   $form->{title} = $locale->text('Delete Account');
 
   foreach my $id (
-    qw(inventory_accno_id income_accno_id expense_accno_id fxgain_accno_id fxloss_accno_id rndgain_accno_id rndloss_accno_id)
+    qw(inventory_accno_id income_accno_id expense_accno_id fxgain_accno_id fxloss_accno_id)
     ) {
     if ($form->{id} == $form->{$id}) {
       $form->error($locale->text('Cannot delete default account!'));

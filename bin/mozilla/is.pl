@@ -463,11 +463,6 @@ sub form_footer {
     }
   }
 
-  $form->{rounding} = $form->round_amount(
-    $form->round_amount($form->{invtotal}, 2, 1) - $form->round_amount($form->{invtotal}, 2), 2
-  );
-  $form->{invtotal} = $form->round_amount( $form->{invtotal}, 2, 1 );
-
   # follow ups
   if ($form->{id}) {
     $form->{follow_ups}            = FU->follow_ups('trans_id' => $form->{id}) || [];

@@ -539,6 +539,9 @@ sub form_footer {
               </tr> |;
       }
     }
+
+#    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0); # template does this
+
   } else {
     foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
@@ -560,10 +563,6 @@ sub form_footer {
     }
   }
 
-  $form->{rounding} = $form->round_amount(
-    $form->round_amount($form->{invtotal}, 2, 1) - $form->round_amount($form->{invtotal}, 2)
-  );
-  $form->{invtotal} = $form->round_amount( $form->{invtotal}, 2, 1);
   $form->{oldinvtotal} = $form->{invtotal};
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();

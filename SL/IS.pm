@@ -968,14 +968,7 @@ SQL
     }
   }
 
-  # Invoice Summary includes Rounding
-  my $rounding = $form->round_amount(
-    $form->round_amount($netamount + $tax, 2, 1) - $form->round_amount($netamount + $tax, 2), 2
-  );
-  my $rnd_accno = $rounding == 0 ? 0
-                : $rounding > 0  ? $form->{rndgain_accno}
-                :                  $form->{rndloss_accno};
-  $form->{amount}{ $form->{id} }{ $form->{AR} } = $form->round_amount($netamount + $tax, 2, 1);
+  $form->{amount}{ $form->{id} }{ $form->{AR} } = $netamount + $tax;
   $form->{paid} =
     $form->round_amount($form->{paid} * $form->{exchangerate} + $diff, 2);
 
@@ -1079,14 +1072,6 @@ SQL
         @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
         do_query($form, $dbh, $query, @values);
       }
-    }
-    if (!$payments_only && ($rnd_accno != 0)) {
-      $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
-             VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT id FROM tax WHERE taxkey=0), 0, ?, (SELECT link FROM chart WHERE accno = ?))|;
-      @values = (conv_i($trans_id), $rnd_accno, $rounding, conv_date($form->{invdate}), conv_i($project_id), $rnd_accno);
-      do_query($form, $dbh, $query, @values);
-      $rnd_accno = 0;
     }
   }
 
@@ -1252,7 +1237,7 @@ SQL
     return;
   }
 
-  $amount = $form->round_amount( $netamount + $tax, 2, 1);
+  $amount = $netamount + $tax;
 
   # save AR record
   #erweiterung fuer lieferscheinnummer (donumber) 12.02.09 jb
@@ -1897,9 +1882,7 @@ sub retrieve_invoice {
          (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
          (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
          (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
-         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
-         (SELECT c.accno FROM chart c WHERE d.rndgain_accno_id = c.id)   AS rndgain_accno,
-         (SELECT c.accno FROM chart c WHERE d.rndloss_accno_id = c.id)   AS rndloss_accno
+         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno
          ${query_transdate}
        FROM defaults d|;
 
