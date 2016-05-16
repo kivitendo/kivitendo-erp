@@ -325,7 +325,7 @@ sub add_ar_amount_row {
   die "not an ar invoice" if $self->invoice and not $self->customer_id;
 
   die "add_ar_amount_row needs a chart object as chart param" unless $params{chart} && $params{chart}->isa('SL::DB::Chart');
-  die unless $params{chart}->link =~ /AR_amount/;
+  die "chart must be an AR_amount chart" unless $params{chart}->link =~ /AR_amount/;
 
   my $acc_trans = [];
 
