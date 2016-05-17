@@ -709,7 +709,7 @@ Mandatory params are
 =back
 
 Currently the amount of the invoice object is used for the acc_trans amount.
-Use C<recalculate_amounts> before calling this mehtod if amount it isn't known
+Use C<recalculate_amounts> before calling this method if amount isn't known
 yet or you didn't set it manually.
 
 =item C<add_ar_amount_row %params>
