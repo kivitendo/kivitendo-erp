@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 21);
+  $self->tester->plan(tests => 23);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -38,6 +38,8 @@ sub run {
   $self->calc_saldenvortraege;
   $self->check_missing_tax_bookings;
   $self->check_bank_transactions_overpayments;
+  $self->check_ar_paid_acc_trans;
+  $self->check_ap_paid_acc_trans;
 }
 
 sub _setup {
@@ -538,6 +540,54 @@ sub check_bank_transactions_overpayments {
                          Transaktionsdatum: $overpaid_bank_transaction->{transdate}
                          Betrag= $overpaid_bank_transaction->{amount}  Zugeordneter Betrag = $overpaid_bank_transaction->{invoice_amount}
                          Bitte kontaktieren Sie Ihren kivitendo-DB-Admin, der die Überweisung wieder zurücksetzt (Table: bank_transactions Column: invoice_amount).");
+  }
+}
+
+sub check_ar_paid_acc_trans {
+  my ($self) = @_;
+
+  my $query = qq|
+          select sum(ac.amount) as paid_amount, ar.invnumber,ar.paid
+          from acc_trans ac left join ar on (ac.trans_id = ar.id)
+          WHERE ac.chart_link like '%AR_paid%'
+          AND ac.transdate >= ? AND ac.transdate <= ?
+          group by invnumber, paid having sum(ac.amount) <> ar.paid*-1|;
+
+  my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $ar_amount_not_ac_amount } > 0 ) {
+    $self->tester->ok(0, "Folgende Ausgangsrechnungen haben einen falschen Bezahl-Wert im Nebenbuch:");
+
+    for my $ar_ac_amount_nok (@{ $ar_amount_not_ac_amount } ) {
+      $self->tester->diag("Rechnungsnummer: $ar_ac_amount_nok->{invnumber} Hauptbuch-Wert: $ar_ac_amount_nok->{paid_amount}
+                            Nebenbuch-Wert: $ar_ac_amount_nok->{paid}");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch-Bezahlwert und Debitoren-Nebenbuch-Bezahlwert stimmen überein.");
+  }
+}
+
+sub check_ap_paid_acc_trans {
+  my ($self) = @_;
+
+  my $query = qq|
+          select sum(ac.amount) as paid_amount, ap.invnumber,ap.paid
+          from acc_trans ac left join ap on (ac.trans_id = ap.id)
+          WHERE ac.chart_link like '%AP_paid%'
+          AND ac.transdate >= ? AND ac.transdate <= ?
+          group by trans_id,invnumber,paid having sum(ac.amount) <> ap.paid|;
+
+  my $ap_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $ap_amount_not_ac_amount } > 0 ) {
+    $self->tester->ok(0, "Folgende Eingangsrechnungen haben einen falschen Bezahl-Wert im Nebenbuch:");
+
+    for my $ap_ac_amount_nok (@{ $ap_amount_not_ac_amount } ) {
+      $self->tester->diag("Rechnungsnummer: $ap_ac_amount_nok->{invnumber} Hauptbuch-Wert: $ap_ac_amount_nok->{paid_amount}
+                            Nebenbuch-Wert: $ap_ac_amount_nok->{paid}");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch Bezahl-Wert und Kreditoren-Nebenbuch-Bezahlwert stimmen überein.");
   }
 }
 
