@@ -41,11 +41,11 @@
 </tr>
 
 <tr>
- <th align="right" valign="top">[%- LxERP.t8('Default buchungsgruppe') %]:</th>
+ <th align="right" valign="top">[%- LxERP.t8('Default booking group') %]:</th>
  <td colspan="10" valign="top">
   [% L.select_tag('settings.default_buchungsgruppe', SELF.all_buchungsgruppen, title_key = 'description', default = SELF.profile.get('default_buchungsgruppe'), style => 'width: 300px') %]
   <br>
-  [% opts = [ [ 'never', LxERP.t8('Do not set default buchungsgruppe') ], [ 'all', LxERP.t8('Apply to all parts') ], [ 'missing', LxERP.t8('Apply to parts without buchungsgruppe') ] ] %]
+  [% opts = [ [ 'never', LxERP.t8('Do not set default booking group') ], [ 'all', LxERP.t8('Apply to all parts') ], [ 'missing', LxERP.t8('Apply to parts without booking group') ] ] %]
   [% L.select_tag('settings.apply_buchungsgruppe', opts, default = SELF.profile.get('apply_buchungsgruppe'), style = 'width: 300px') %]
  </td>
 </tr>

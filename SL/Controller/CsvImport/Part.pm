@@ -214,7 +214,7 @@ sub check_buchungsgruppe {
 
   return 1 if $object->buchungsgruppen_id;
 
-  push @{ $entry->{errors} }, $::locale->text('Error: Buchungsgruppe missing or invalid');
+  push @{ $entry->{errors} }, $::locale->text('Error: booking group missing or invalid');
   return 0;
 }
 
@@ -506,8 +506,8 @@ sub setup_displayable_columns {
   $self->add_cvar_columns_to_displayable_columns;
 
   $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                                                  },
-                                 { name => 'buchungsgruppen_id', description => $::locale->text('Buchungsgruppe (database ID)')                         },
-                                 { name => 'buchungsgruppe',     description => $::locale->text('Buchungsgruppe (name)')                                },
+                                 { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                          },
+                                 { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                 },
                                  { name => 'description',        description => $::locale->text('Description')                                          },
                                  { name => 'drawing',            description => $::locale->text('Drawing')                                              },
                                  { name => 'ean',                description => $::locale->text('EAN')                                                  },

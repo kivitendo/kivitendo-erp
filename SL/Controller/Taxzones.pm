@@ -146,8 +146,8 @@ sub create_or_update {
         $income_accno  = SL::DB::Manager::Chart->find_by( id => $income_accno_id )  if $income_accno_id;
         $expense_accno = SL::DB::Manager::Chart->find_by( id => $expense_accno_id ) if $expense_accno_id;
 
-        push(@errors, t8('Buchungsgruppe #1 needs a valid income account' , $bg->description)) unless $income_accno;
-        push(@errors, t8('Buchungsgruppe #1 needs a valid expense account', $bg->description)) unless $expense_accno;
+        push(@errors, t8('Booking group #1 needs a valid income account' , $bg->description)) unless $income_accno;
+        push(@errors, t8('Booking group #1 needs a valid expense account', $bg->description)) unless $expense_accno;
 
         my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by_or_create(buchungsgruppen_id => $bg->id, taxzone_id => $self->config->id);
         # if taxzonechart doesn't exist an empty new TaxzoneChart object is

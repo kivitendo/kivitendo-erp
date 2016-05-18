@@ -1013,7 +1013,7 @@
     action: list_account
 - parent: system
   id: system_buchungsgruppen
-  name: Buchungsgruppen
+  name: Booking groups
   order: 500
   params:
     action: Buchungsgruppen/list

@@ -35,7 +35,7 @@ sub action_list {
 
   $::form->header;
   $self->render('buchungsgruppen/list',
-                title           => t8('Buchungsgruppen'),
+                title           => t8('Booking groups'),
                 BUCHUNGSGRUPPEN => $buchungsgruppen,
                 CHARTLIST       => \%chartlist,
                 TAXZONES        => $taxzones);
@@ -45,7 +45,7 @@ sub action_new {
   my ($self) = @_;
 
   $self->config(SL::DB::Buchungsgruppe->new());
-  $self->show_form(title => t8('Add Buchungsgruppe'));
+  $self->show_form(title => t8('Add booking group'));
 }
 
 sub show_form {
@@ -63,7 +63,7 @@ sub action_edit {
   # orphaned method, where an IF-ELSE statement toggles between L.select_tag
   # and text.
 
-  $self->show_form(title     => t8('Edit Buchungsgruppe'),
+  $self->show_form(title     => t8('Edit booking group'),
                    CHARTLIST => SL::DB::TaxzoneChart->get_all_accounts_by_buchungsgruppen_id($self->config->id));
 }
 
@@ -90,8 +90,8 @@ sub action_delete {
         my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->config->id ]);
         foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
         $self->config->delete();
-        flash_later('info',  $::locale->text('The buchungsgruppe has been deleted.'));
-  }) || flash_later('error', $::locale->text('The buchungsgruppe is in use and cannot be deleted.'));
+        flash_later('info',  $::locale->text('The booking group has been deleted.'));
+  }) || flash_later('error', $::locale->text('The booking group is in use and cannot be deleted.'));
 
   $self->redirect_to(action => 'list');
 
@@ -173,7 +173,7 @@ sub create_or_update {
          # die with rollback of taxzone save if saving of any of the taxzone_charts fails
          # only show the $db->error if we haven't already identified the likely error ourselves
 
-  flash_later('info', $is_new ? t8('The Buchungsgruppe has been created.') : t8('The Buchungsgruppe has been saved.'));
+  flash_later('info', $is_new ? t8('The booking group has been created.') : t8('The booking group has been saved.'));
   $self->redirect_to(action => 'list');
 }
 

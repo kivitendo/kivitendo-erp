@@ -46,7 +46,7 @@
  [%- IF FORM.params.buchungsgruppe %]
   [%- FOREACH buchungsgruppe = SELF.liquidity.sorted.buchungsgruppe %]
    <tr class="listrow">
-    <td>[% IF loop.first %][% LxERP.t8("Buchungsgruppe") %][% END %]</td>
+    <td>[% IF loop.first %][% LxERP.t8("Booking group") %][% END %]</td>
     <td>[%- HTML.escape(buchungsgruppe) %]</td>
 
     [%- FOREACH month = SELF.liquidity.sorted.month %]
