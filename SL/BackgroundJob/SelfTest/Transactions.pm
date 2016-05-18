@@ -474,9 +474,9 @@ sub check_ap_acc_trans_amount {
   my $query = qq|
           select sum(ac.amount) as amount, ap.invnumber,ap.netamount
           from acc_trans ac left join ap on (ac.trans_id = ap.id)
-          WHERE ac.chart_link like 'AR_amount%'
+          WHERE ac.chart_link like '%AP_amount%'
           AND ac.transdate >= ? AND ac.transdate <= ?
-          group by invnumber,netamount having sum(ac.amount) <> ap.netamount*-1|;
+          group by invnumber,trans_id,netamount having sum(ac.amount) <> ap.netamount*-1|;
 
   my $ap_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
