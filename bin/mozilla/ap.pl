@@ -926,7 +926,7 @@ sub ap_transactions {
     'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
-    'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'taxzone'                 => { 'text' => $locale->text('Tax rate'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },

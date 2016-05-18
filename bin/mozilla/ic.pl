@@ -1043,7 +1043,7 @@ sub generate_report {
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
-    'shop'               => { 'text' => $locale->text('Shopartikel'), },
+    'shop'               => { 'text' => $locale->text('Shop article'), },
     'projectnumber'      => { 'text' => $locale->text('Project Number'), },
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
   );

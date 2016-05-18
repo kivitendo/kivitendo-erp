@@ -534,7 +534,7 @@ sub setup_displayable_columns {
                                  { name => 'price_factor',       description => $::locale->text('Price factor (name)')                                  },
                                  { name => 'rop',                description => $::locale->text('ROP')                                                  },
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                                            },
-                                 { name => 'shop',               description => $::locale->text('Shopartikel')                                          },
+                                 { name => 'shop',               description => $::locale->text('Shop article')                                         },
                                  { name => 'type',               description => $::locale->text('Article type')  . ' [3]'                             },
                                  { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')                                  },

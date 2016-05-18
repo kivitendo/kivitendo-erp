@@ -314,7 +314,7 @@
       </td>
 
       [% IF ( SELF.is_customer() ) %]
-        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+        <th align="right">[% 'Price group' | $T8 %]</th>
 
         <td>
           [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
@@ -324,7 +324,7 @@
     </tr>
 
     <tr>
-      <th align="right">[% 'Steuersatz' | $T8 %]</th>
+      <th align="right">[% 'Tax rate' | $T8 %]</th>
 
       <td>
         [% L.select_tag('cv.taxzone_id', SELF.all_taxzones, default = SELF.cv.taxzone_id, value_key = 'id', title_key = 'description') %]
