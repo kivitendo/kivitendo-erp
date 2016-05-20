@@ -2,6 +2,7 @@ package CVar;
 
 use strict;
 
+use Carp;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
 use Scalar::Util qw(blessed);
@@ -134,7 +135,7 @@ sub get_custom_variables {
       do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
 
-      $valid = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id});
+      $valid = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id}, sub_module => $params{sub_module});
     } else {
       $valid = !$cvar->{flag_defaults_to_invalid};
     }
@@ -588,9 +589,13 @@ sub save_custom_variables_validity {
   $main::lxdebug->leave_sub();
 }
 
-sub get_custom_variables_validity {
-  $main::lxdebug->enter_sub(2);
+my %_validity_sub_module_mapping = (
+  orderitems           => { table => 'orderitems',           result_column => 'parts_id', trans_id_column => 'id', },
+  delivery_order_items => { table => 'delivery_order_items', result_column => 'parts_id', trans_id_column => 'id', },
+  invoice              => { table => 'invoice',              result_column => 'parts_id', trans_id_column => 'id', },
+);
 
+sub get_custom_variables_validity {
   my $self     = shift;
   my %params   = @_;
 
@@ -601,11 +606,29 @@ sub get_custom_variables_validity {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT id FROM custom_variables_validity WHERE config_id = ? AND trans_id = ? LIMIT 1|;
+  my $query;
+
+  if ($params{sub_module}) {
+    my %mapping = %{ $_validity_sub_module_mapping{ $params{sub_module} } || croak("Invalid sub_module '" . $params{sub_module} . "'") };
+    $query = <<SQL;
+      SELECT cvv.id
+      FROM $mapping{table} mt
+      LEFT JOIN custom_variables_validity cvv ON (cvv.trans_id = mt.$mapping{result_column})
+      WHERE (cvv.config_id                = ?)
+        AND (mt.$mapping{trans_id_column} = ?)
+      LIMIT 1
+SQL
+  } else {
+    $query = <<SQL;
+      SELECT id
+      FROM custom_variables_validity
+      WHERE (config_id = ?)
+        AND (trans_id  = ?)
+      LIMIT 1
+SQL
+  }
 
   my ($invalid) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
-
-  $main::lxdebug->leave_sub(2);
 
   return !$invalid;
 }
