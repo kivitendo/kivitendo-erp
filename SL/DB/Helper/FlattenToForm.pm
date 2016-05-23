@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 our @EXPORT = qw(flatten_to_form);
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(uniq any);
 
 sub flatten_to_form {
   my ($self, $form, %params) = @_;
@@ -61,6 +61,8 @@ sub flatten_to_form {
                  : ref($self) eq 'SL::DB::Invoice'       ? 'invoice'
                  : '';
 
+  my %cvar_validity = _determine_cvar_validity($self, $vc);
+
   my $idx = 0;
   my $format_amounts = $params{format_amounts} ? 1 : 0;
   my $format_notnull = $params{format_amounts} ? 2 : 0;
@@ -83,7 +85,7 @@ sub flatten_to_form {
     _copy($item,          $form, '',              "_${idx}", $format_percent, qw(discount));
     _copy($item->project, $form, 'project',       "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
 
-    _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}");
+    _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}", $cvar_validity{items}->{ $item->parts_id });
 
     if (ref($self) eq 'SL::DB::Invoice') {
       my $date                          = $item->deliverydate ? $item->deliverydate->to_lxoffice : undef;
@@ -92,7 +94,7 @@ sub flatten_to_form {
     }
   }
 
-  _copy_custom_variables($self, $form, 'vc_cvar_', '');
+  _copy_custom_variables($self, $form, 'vc_cvar_', '', $cvar_validity{vc});
 
   return $self;
 }
@@ -117,13 +119,15 @@ sub _copy {
 }
 
 sub _copy_custom_variables {
-  my ($src, $form, $prefix, $postfix, $format_amounts) = @_;
+  my ($src, $form, $prefix, $postfix, $cvar_validity) = @_;
 
   my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem))
           ? $src
           : $src->customervendor;
 
   foreach my $cvar (@{ $obj->cvars_by_config }) {
+    next if $cvar_validity && !$cvar_validity->{ $cvar->config_id };
+
     my $value = ($cvar->config->type =~ m{^(?:bool|customer|vendor|part)$})
               ? $cvar->value
               : $cvar->value_as_text;
@@ -132,6 +136,25 @@ sub _copy_custom_variables {
   }
 
   return $src;
+}
+
+sub _determine_cvar_validity {
+  my ($self, $vc) = @_;
+
+  my @part_ids    = uniq map { $_->parts_id } @{ $self->items };
+  my @parts       = map { SL::DB::Part->new(id => $_)->load } @part_ids;
+
+  my %item_cvar_validity;
+  foreach my $part (@parts) {
+    $item_cvar_validity{ $part->id } = { map { ($_->config_id => $_->is_valid) } @{ $part->cvars_by_config } };
+  }
+
+  my %vc_cvar_validity = map { ($_->config_id => $_->is_valid) } @{ $self->$vc->cvars_by_config };
+
+  return (
+    items => \%item_cvar_validity,
+    vc    => \%vc_cvar_validity,
+  );
 }
 
 1;
