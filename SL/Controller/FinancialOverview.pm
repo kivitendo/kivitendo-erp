@@ -11,12 +11,13 @@ use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PurchaseInvoice;
+use SL::DBUtils;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(report number_columns year current_year objects subtotals_per_quarter salesman_id) ],
-  'scalar --get_set_init' => [ qw(employees types data) ],
+  'scalar --get_set_init' => [ qw(employees types data show_costs) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('report'); });
@@ -29,6 +30,7 @@ sub action_list {
   $self->get_objects;
   $self->calculate_one_time_data;
   $self->calculate_periodic_invoices;
+  $self->calculate_costs if $self->show_costs;
   $self->prepare_report;
   $self->list_data;
 }
@@ -55,6 +57,7 @@ sub prepare_report {
     requests_for_quotation => { text => t8('Requests for Quotation') },
     purchase_orders        => { text => t8('Purchase Orders')        },
     purchase_invoices      => { text => t8('Purchase Invoices')      },
+    costs                  => { text => t8('Costs')                  },
   );
 
   $column_defs{$_}->{align} = 'right' for @columns;
@@ -100,7 +103,15 @@ sub get_objects {
   $self->objects->{sales_orders} = [ grep { !$_->periodic_invoices_config || !$_->periodic_invoices_config->active } @{ $self->objects->{sales_orders} } ];
 }
 
-sub init_types { [ qw(sales_quotations sales_orders sales_orders_per_inv sales_invoices requests_for_quotation purchase_orders purchase_invoices) ] }
+sub init_show_costs { $::instance_conf->get_profit_determination eq 'balance' }
+
+sub init_types {
+  my ($self) = @_;
+  my @types  = qw(sales_quotations sales_orders sales_orders_per_inv sales_invoices requests_for_quotation purchase_orders purchase_invoices);
+  push @types, 'costs' if $self->show_costs;
+
+  return \@types;
+}
 
 sub init_data {
   my ($self) = @_;
@@ -126,7 +137,7 @@ sub calculate_one_time_data {
 
   foreach my $type (@{ $self->types }) {
     my $src_object_type = $type eq 'sales_orders_per_inv' ? 'sales_orders' : $type;
-    foreach my $object (@{ $self->objects->{ $src_object_type } }) {
+    foreach my $object (@{ $self->objects->{ $src_object_type } || [] }) {
       my $month                              = $object->transdate->month - 1;
       my $tdata                              = $self->data->{$type};
 
@@ -168,6 +179,48 @@ sub calculate_one_periodic_invoice {
   $sord->{months  }->[ $date->month   - 1 ] += $net;
   $sord->{quarters}->[ $date->quarter - 1 ] += $net;
   $sord->{year}                             += $net;
+}
+
+sub calculate_costs {
+  my ($self) = @_;
+
+  # Relevante BWA-Positionen für Kosten:
+  #  4 – Mat./Wareneinkauf
+  # 10 – Personalkosten
+  # 11 – Raumkosten
+  # 12 – Betriebl.Steuern
+  # 13 – Versicherungsbeiträge
+  # 14 – KFZ-Kosten ohne Steuern
+  # 15 – Werbe-/Reisekosten
+  # 16 – Kosten Warenabgabe
+  # 17 – Abschreibungen
+  # 18 – Reparatur/Instandhaltung
+  # 20 – Sonstige Kosten
+  my $query = <<SQL;
+    SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount,
+      EXTRACT(month FROM ac.transdate) AS month
+    FROM acc_trans ac
+    LEFT JOIN chart c ON (c.id = ac.chart_id)
+    WHERE (c.pos_bwa IN (4, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20))
+      AND (ac.transdate >= ?)
+      AND (ac.transdate <  ?)
+    GROUP BY month
+SQL
+
+  my @args = (
+    DateTime->new_local(day => 1, month => 1, year => $self->year)->to_kivitendo,
+    DateTime->new_local(day => 1, month => 1, year => $self->year + 1)->to_kivitendo,
+  );
+
+  my @results = selectall_hashref_query($::form, SL::DB::AccTransaction->new->db->dbh, $query, @args);
+  foreach my $row (@results) {
+    my $month                              = $row->{month} - 1;
+    my $tdata                              = $self->data->{costs};
+
+    $tdata->{months}->[$month]            += $row->{amount};
+    $tdata->{quarters}->[int($month / 3)] += $row->{amount};
+    $tdata->{year}                        += $row->{amount};
+  }
 }
 
 sub list_data {
