@@ -35,13 +35,9 @@
   [% L.submit_tag('action', LxERP.t8('Follow-Up'), onclick='follow_up_window()') %]
 [%- ELSE %]
 
- [%- IF draft_id %]
-      <p>[% L.checkbox_tag('remove_draft', checked=remove_draft, label=LxERP.t8('Remove Draft')) %]</p>
- [%- END %]
-
       [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
       [% L.submit_tag('action', LxERP.t8('Post')) %]
-      [% L.submit_tag('action', LxERP.t8('Save Draft')) %]
+      [% L.button_tag('kivi.Draft.popup("gl", "unknown", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
       [% L.hidden_tag('draft_id', draft_id) %]
       [% L.hidden_tag('draft_description', draft_description) %]
 [%- END %]

@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic (
 
 __PACKAGE__->run_before('check_auth');
 
-my %allowed_modules = map { $_ => "bin/mozilla/$_.pl" } qw(is ir ar ap);
+my %allowed_modules = map { $_ => "bin/mozilla/$_.pl" } qw(is ir ar ap gl);
 
 #
 # actions

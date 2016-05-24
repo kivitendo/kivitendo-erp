@@ -45,7 +45,6 @@ use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query);
 
 require "bin/mozilla/common.pl";
-require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 # this is for our long dates
@@ -83,8 +82,6 @@ sub add {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
-
-  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = "Add";
 
@@ -1160,7 +1157,7 @@ sub post {
 
   post_transaction();
 
-  $form->{callback} = build_std_url("action=add&DONT_LOAD_DRAFT=1", "show_details");
+  $form->{callback} = build_std_url("action=add", "show_details");
   $form->redirect($form->{callback});
 
   $main::lxdebug->leave_sub();
