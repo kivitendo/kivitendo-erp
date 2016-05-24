@@ -498,6 +498,11 @@ sub form_footer {
                                   ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));
     }
 
+    #deaktivieren von gebuchten Zahlungen ausserhalb der Bücherkontrolle, vorher prüfen ob heute eingegeben
+    if ($form->date_closed($form->{"gldate_$i"})) {
+      $form->{"changeable_$i"} = 0;
+    }
+
     $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
     if (!$form->{"AR_paid_$i"}) {
       $form->{"selectAR_paid_$i"} =~ s/option>$accno_arap--(.*?)</option selected>$accno_arap--$1</;
@@ -707,20 +712,15 @@ sub post_payment {
         $form->isblank("exchangerate_$i",
                        $locale->text('Exchangerate for payment missing!'));
       }
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
+      $form->error($locale->text('Cannot post payment for a closed period!'))
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
     }
   }
-  # Abgeschlossene Zeiträume nur für den letzten (aktuellen) Zahlungseingang prüfen
-  # Details s.a. Bug 1502
-  # Das Problem ist jetzt, dass man Zahlungseingänge nachträglich ändern kann
-  # Wobei dies für Installationen die sowieso nicht mit Bücherkontrolle arbeiten keinen
-  # keinen Unterschied macht.
-  # Optimal wäre, wenn gegen einen Zeitstempel des Zahlungsfelds geprüft würde ...
-  # Das Problem hierbei ist, dass in IS.pm post_invoice IMMER alle Zahlungseingänge aus $form
-  # erneut gespeichert werden. Prinzipiell wäre es besser NUR die Änderungen des Rechnungs-
-  # belegs (neue Zahlung aber nichts anderes) zu speichern ...
-  # Vielleicht könnte man ähnlich wie bei Rechnung löschen verfahren
-  $form->error($locale->text('Cannot post payment for a closed period!'))
-    if ($form->date_closed($form->{"datepaid_$form->{paidaccounts}"}, \%myconfig));
 
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
@@ -793,8 +793,13 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}

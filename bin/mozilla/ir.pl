@@ -431,6 +431,14 @@ sub form_footer {
                                   ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));
     }
 
+    $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+      if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+    #deaktivieren von Zahlungen ausserhalb der Bücherkontrolle
+    if ($form->date_closed($form->{"gldate_$i"})) {
+      $form->{"changeable_$i"} = 0;
+    }
+
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     if (!$form->{"AP_paid_$i"}) {
       $form->{"selectAP_paid_$i"} =~ s/option>$accno_arap--(.*?)>/option selected>$accno_arap--$1>/;
@@ -678,8 +686,13 @@ sub post_payment {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
 #        $form->{"exchangerate_$i"} = $form->{exchangerate} if ($invdate == $datepaid); # invdate isn't set here
@@ -774,8 +787,13 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}

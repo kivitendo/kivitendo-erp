@@ -426,6 +426,11 @@ sub form_header {
       $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
     }
 
+    #deaktivieren von gebuchten Zahlungen ausserhalb der Bücherkontrolle, vorher prüfen ob heute eingegeben
+    if ($form->date_closed($form->{"gldate_$i"})) {
+       $changeable = 0;
+    }
+
     $form->{'paidaccount_changeable_'. $i} = $changeable;
 
     $form->{'labelpaid_project_id_'. $i} = $project_labels{$form->{'paid_project_id_'. $i}};
@@ -594,8 +599,13 @@ sub post_payment {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
@@ -674,8 +684,13 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+      if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}

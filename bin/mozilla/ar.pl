@@ -435,6 +435,11 @@ sub form_header {
       : SL::DB::Default->get->payments_changeable == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
       :                                                           1;
 
+    #deaktivieren von gebuchten Zahlungen ausserhalb der Bücherkontrolle, vorher prüfen ob heute eingegeben
+    if ($form->date_closed($payment->{"gldate_$i"})) {
+        $payment->{changeable} = 0;
+    }
+
     push @payments, $payment;
   }
 
@@ -624,7 +629,13 @@ sub post_payment {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
-      $form->error($locale->text('Cannot post payment for a closed period!')) if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
+      $form->error($locale->text('Cannot post payment for a closed period!'))
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
 #        $form->{"exchangerate_$i"} = $form->{exchangerate} if ($invdate == $datepaid);
@@ -689,6 +700,7 @@ sub post {
 
   $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
     if ($form->date_max_future($transdate, \%myconfig));
+
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
   $form->error($locale->text('Zero amount posting!'))
@@ -705,8 +717,13 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+        if ($form->date_max_future($form->{"datepaid_$i"}, \%myconfig));
+
+      #Zusätzlich noch das Buchungsdatum in die Bücherkontrolle einbeziehen
+      # (Dient zur Prüfung ob ZE oder ZA geprüft werden soll)
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+        if ($form->date_closed($form->{"datepaid_$i"})  && !$form->date_closed($form->{"gldate_$i"}, \%myconfig));
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate} if ($transdate == $datepaid);
