@@ -38,6 +38,11 @@ use strict;
 
 my $num_sent = 0;
 
+my %mail_delivery_modules = (
+  sendmail => 'SL::Mailer::Sendmail',
+  smtp     => 'SL::Mailer::SMTP',
+);
+
 sub new {
   my ($type, %params) = @_;
   my $self = { %params };
@@ -54,7 +59,7 @@ sub _create_driver {
     myconfig => \%::myconfig,
   );
 
-  my $module = ($::lx_office_conf{mail_delivery}->{method} || 'smtp') ne 'smtp' ? 'SL::Mailer::Sendmail' : 'SL::Mailer::SMTP';
+  my $module = $mail_delivery_modules{ $::lx_office_conf{mail_delivery}->{method} };
   eval "require $module" or return undef;
 
   return $module->new(%params);

@@ -17,7 +17,10 @@ kleinere neue Features und Detailverbesserungen:
   - Abteilung in Verkauf->Berichte-Rechnungen anzeigen lassen.
   - Customer-Picker beim Projekt erzeugen eingebaut.
   - Es gibt jetzt Schnellsuchen zu den meisten Belegen und Stammdaten in der
-    Leiste am oberen Rand, konfigurierbar in der Mandantenkonfiguration.
+    Leiste am oberen Rand, konfigurierbar in der Mandantenkonfiguration
+  - Wird in der Konfiguration [mail_devlivery]/method auf einen leeren Wert
+	gesetzt wird jetzt Mailversand komplett ausgeschaltet, vorher wurde bei
+	Werten die nicht 'sendmail' oder 'smtp' sind SMTP als Vorauswahl benutzt.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im

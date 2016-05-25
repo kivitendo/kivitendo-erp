@@ -95,11 +95,11 @@ templates = templates
 memberfile = users/members
 
 [mail_delivery]
-# Delivery method can be 'sendmail' or 'smtp' (the default). For
-# 'method = sendmail' the parameter 'mail_delivery.sendmail' is used
-# as the executable to call. If 'applications.sendmail' still exists
-# (backwards compatibility) then 'applications.sendmail' will be used
-# instead of 'mail_delivery.sendmail'.
+# Delivery method can be 'sendmail' or 'smtp'. For 'method = sendmail' the
+# parameter 'mail_delivery.sendmail' is used as the executable to call. If
+# 'applications.sendmail' still exists (backwards compatibility) then
+# 'applications.sendmail' will be used instead of 'mail_delivery.sendmail'.
+# If method is empty, mail delivery is disabled.
 method = smtp
 # Location of sendmail for 'method = sendmail'
 sendmail = /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>
