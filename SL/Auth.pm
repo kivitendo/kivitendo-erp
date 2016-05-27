@@ -516,7 +516,7 @@ sub restore_session {
 
   $form   = $main::form;
 
-  # Don't fail if the auth DB doesn't yet.
+  # Don't fail if the auth DB doesn't exist yet.
   if (!( $dbh = $self->dbconnect(1) )) {
     return $self->session_restore_result(SESSION_NONE());
   }
