@@ -1483,7 +1483,7 @@ sub _determine_wh_and_bin {
                                                       parts_id => $part->id,
                                                       bin_id   => $bin_id);
     if ($error == 1) {
-      push @errors, $::locale->text('Part "#1" has chargenumber or best before date set. So it cannot be transfered automaticaly.',
+      push @errors, $::locale->text('Part "#1" has chargenumber or best before date set. So it cannot be transfered automatically.',
                                     $part->description);
     }
     my $form_unit_obj = SL::DB::Unit->new(name => $unit)->load;
