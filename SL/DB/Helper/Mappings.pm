@@ -152,6 +152,7 @@ my %kivitendo_package_names = (
   oe                             => 'order',
   parts                          => 'part',
   partsgroup                     => 'parts_group',
+  parts_price_history            => 'PartsPriceHistory',
   payment_terms                  => 'payment_term',
   periodic_invoices              => 'periodic_invoice',
   periodic_invoices_configs      => 'periodic_invoices_config',

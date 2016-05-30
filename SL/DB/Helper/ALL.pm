@@ -71,6 +71,7 @@ use SL::DB::Order;
 use SL::DB::OrderItem;
 use SL::DB::Part;
 use SL::DB::PartsGroup;
+use SL::DB::PartsPriceHistory;
 use SL::DB::PaymentTerm;
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
