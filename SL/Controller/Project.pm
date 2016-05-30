@@ -118,7 +118,6 @@ sub action_ajax_autocomplete {
     if (1 == scalar @{ $exact_matches = SL::DB::Manager::Project->get_all(
       query => [
         obsolete => 0,
-        SL::DB::Manager::Project->type_filter($::form->{filter}{type}),
         or => [
           description   => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           projectnumber => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
