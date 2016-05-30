@@ -116,6 +116,27 @@ namespace('kivi', function(k){
       timer = window.setTimeout(update_results, 100);
     }
 
+    function handle_changed_text(callbacks) {
+      $.ajax({
+        url: 'controller.pl?action=Project/ajax_autocomplete',
+        dataType: "json",
+        data: $.extend( ajax_data($dummy.val()), { prefer_exact: 1 } ),
+        success: function (data) {
+          if (data.length == 1) {
+            set_item(data[0]);
+            if (callbacks && callbacks.match_one) callbacks.match_one(data[0]);
+          } else if (data.length > 1) {
+            state = STATES.UNDEFINED;
+            if (callbacks && callbacks.match_many) callbacks.match_many(data);
+          } else {
+            state = STATES.UNDEFINED;
+            if (callbacks &&callbacks.match_none) callbacks.match_none();
+          }
+          annotate_state();
+        }
+      });
+    };
+
     $dummy.autocomplete({
       source: function(req, rsp) {
         $.ajax($.extend(o, {
@@ -150,26 +171,25 @@ namespace('kivi', function(k){
         } else if (state == STATES.PICKED) {
           return true;
         }
-        if (event.which == KEY.TAB) event.preventDefault();
-        $.ajax({
-          url: 'controller.pl?action=Project/ajax_autocomplete',
-          dataType: "json",
-          data: $.extend( ajax_data($dummy.val()), { prefer_exact: 1 } ),
-          success: function (data) {
-            if (data.length == 1) {
-              set_item(data[0]);
-              if (event.which == KEY.ENTER)
-                $('#update_button').click();
-            } else {
-            }
-            annotate_state();
-          }
-        });
-        if (event.which == KEY.ENTER)
+        if (event.which == KEY.TAB) {
+          event.preventDefault();
+          handle_changed_text();
+        }
+        if (event.which == KEY.ENTER) {
+          handle_changed_text({
+            match_one:  function(){$('#update_button').click();},
+          });
           return false;
+        }
       } else {
         state = STATES.UNDEFINED;
       }
+    });
+
+    $dummy.on('paste', function(){
+      setTimeout(function() {
+        handle_changed_text();
+      }, 1);
     });
 
     $dummy.blur(function(){
