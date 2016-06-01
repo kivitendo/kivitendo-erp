@@ -269,6 +269,7 @@ sub name_selected {
   my $i = $form->{ndx};
 
   _reset_salesman_id();
+  delete @{ $form }{qw(payment_id)};
 
   $form->{ $form->{vc} }    = $form->{"new_name_$i"};
   $form->{"$form->{vc}_id"} = $form->{"new_id_$i"};
