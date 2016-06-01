@@ -561,8 +561,6 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  $form->{invdate} = $form->{transdate};
-
   my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id notes);
 
   &check_name("customer");
