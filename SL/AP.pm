@@ -482,7 +482,7 @@ sub ap_transactions {
   }
   if ($form->{project_id}) {
     $where .=
-      qq|AND ((a.globalproject_id = ?) OR EXISTS | .
+      qq| AND ((a.globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM invoice i | .
       qq|   WHERE i.project_id = ? AND i.trans_id = a.id) | .
       qq| OR EXISTS | .
@@ -509,7 +509,7 @@ sub ap_transactions {
 
   if ($form->{parts_partnumber}) {
     $where .= <<SQL;
-      AND EXISTS (
+ AND EXISTS (
         SELECT invoice.trans_id
         FROM invoice
         LEFT JOIN parts ON (invoice.parts_id = parts.id)
@@ -523,7 +523,7 @@ SQL
 
   if ($form->{parts_description}) {
     $where .= <<SQL;
-      AND EXISTS (
+ AND EXISTS (
         SELECT invoice.trans_id
         FROM invoice
         WHERE (invoice.trans_id = a.id)
