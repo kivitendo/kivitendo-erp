@@ -59,7 +59,7 @@ sub discount_from_source {
       spec         => $customer->id,
       description  => t8('Customer Discount'),
       price_source => $self,
-      invalid      => t8('This discount is only valid for customer #1', $customer->full_description),
+      invalid      => t8('This discount is only valid for customer #1', $customer->displayable_name),
     )
   }
 
