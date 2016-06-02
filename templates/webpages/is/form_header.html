@@ -292,9 +292,9 @@
 [% IF resubmit && is_format_html %]
        window.open('about:blank','Beleg');
        document.invoice.target = 'Beleg';
-       document.invoice.submit();
+       $('#action_print').click();
 [% ELSIF resubmit %]
-       document.invoice.submit();
+       $('#action_print').click();
 [% ELSIF creditwarning != '' %]
        alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
 [% ELSE %]

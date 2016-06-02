@@ -161,7 +161,7 @@
   [% IF id %]
     <input class="submit" type="submit" accesskey="u" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
     <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
-    <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
+    <input class="submit" type="submit" name="action_print" id="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
     <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
 [% IF  show_storno %]
     [% L.submit_tag("action_storno", LxERP.t8("Storno"), "data-require-transaction-description"=INSTANCE_CONF.get_require_transaction_description_ps, confirm=LxERP.t8('Do you really want to cancel this invoice?')) %]
