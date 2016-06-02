@@ -166,7 +166,7 @@ starting one if none is currently active. Example:
   });
 
 One big difference to L<Rose::DB/do_transaction> is the return code
-handling. If a transaction is already active then C<with_transcation>
+handling. If a transaction is already active then C<with_transaction>
 simply returns the result of calling C<$code_ref> as-is.
 
 Otherwise the return value depends on the result of the underlying
