@@ -156,6 +156,8 @@
 <p>[% print_options %]</p>
 
 <div id='form_action_bar'>
+  <input type="hidden" name="action" value="dispatcher">
+
   [% IF id %]
     <input class="submit" type="submit" accesskey="u" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
     <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">

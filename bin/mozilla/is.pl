@@ -381,7 +381,6 @@ sub form_header {
   push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
 
   # hiddens
-  $form->{"action"} = "dispatcher";
   $TMPL_VAR{HIDDENS} = [qw(
     id action type media format queued printed emailed title vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
