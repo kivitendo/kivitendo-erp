@@ -382,7 +382,7 @@ sub form_header {
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
-    id action type media format queued printed emailed title vc discount
+    id type media format queued printed emailed title vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount dunning_description
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
