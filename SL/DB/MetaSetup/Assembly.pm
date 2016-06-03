@@ -14,13 +14,20 @@ __PACKAGE__->meta->columns(
   id          => { type => 'integer' },
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
-  parts_id    => { type => 'integer' },
+  parts_id    => { type => 'integer', not_null => 1 },
   qty         => { type => 'float', scale => 4 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'assembly_id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
+
+__PACKAGE__->meta->foreign_keys(
+  parts => {
+    class       => 'SL::DB::Part',
+    key_columns => { parts_id => 'id' },
+  },
+);
 
 1;
 ;
