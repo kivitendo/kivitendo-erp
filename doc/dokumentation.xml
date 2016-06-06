@@ -7144,7 +7144,7 @@ filenames</programlisting>
 
               <para>The last of which is very machine dependant. Remember that
               a lot of characters are forbidden by some filesystems, for
-              exmaple MS Windows doesn't like ':' in its files where Linux
+              example MS Windows doesn't like ':' in its files where Linux
               doesn't mind that. If you want the files created with your
               language pack to be portable, find all chars that could cause
               trouble.</para>
@@ -7616,7 +7616,7 @@ map { $form-&gt;{sum} += $form-&gt;{"row_$_"} } 1..$rowcount;</programlisting>
             </listitem>
 
             <listitem>
-              <para>Ein Spezialfall ist der ternäre Oprator "?:", der am
+              <para>Ein Spezialfall ist der ternäre Operator "?:", der am
               besten in einer übersichtlichen Tabellenstruktur organisiert
               wird. Beispiel:</para>
 
