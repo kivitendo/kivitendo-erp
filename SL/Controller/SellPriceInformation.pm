@@ -96,6 +96,9 @@ sub prepare_report {
   my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
+  my $title    = $::locale->text('Sales Price information');
+  $title      .= ': ' . $::locale->text($::form->{filter}->{order}{type}) if $::form->{filter}->{order}{type};
+
   my @columns  = qw(transdate ordnumber customer ship qty sellprice discount amount);
   my @visible  = qw(transdate ordnumber customer ship qty sellprice discount amount);
   my @sortable = qw(transdate ordnumber customer          sellprice discount       );
@@ -121,7 +124,7 @@ sub prepare_report {
     %{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
     top_info_text        => $self->displayable_filter($::form->{filter}),
-    title                => $::locale->text('Sales Price information'),
+    title                => $title,
   );
   $report->set_options_from_form;
 }
@@ -162,7 +165,6 @@ sub displayable_filter {
   my $column_defs = $self->column_defs;
   my @texts;
 
-  push @texts, [ $::locale->text('Type'),    $::locale->text($filter->{order}{type}) ] if $filter->{order}{type};
   push @texts, [ $::locale->text('Sort By'), $column_defs->{$self->{sort_by}}{text}  ] if $column_defs->{$self->{sort_by}}{text};
   push @texts, [ $::locale->text('Page'),    $::locale->text($self->{pages}{cur})    ] if $self->{pages}{cur} > 1;
 
