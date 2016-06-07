@@ -1,6 +1,22 @@
 [%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 %]
 <div id="features">
  <table>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("DATEV") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Datevautomatik') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_datev', SELF.defaults.feature_datev) %]</td>
+   <td>[% LxERP.t8('Use Datevautomatik') %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("UStVA") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('UStVA') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_ustva', SELF.defaults.feature_ustva) %]</td>
+   <td>[% LxERP.t8('Use UStVA') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("WebDAV") %]</td></tr>
 
   <tr>
@@ -12,6 +28,24 @@
    <td align="right">[% LxERP.t8('WebDAV save documents') %]</td>
    <td>[% L.yes_no_tag('defaults.webdav_documents', SELF.defaults.webdav_documents) %]</td>
    <td>[% LxERP.t8('Save document in WebDAV repository') %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Reports") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Balance') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_balance', SELF.defaults.feature_balance) %]</td>
+   <td>[% LxERP.t8('Use Balance Sheet') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('income') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_eurechnung', SELF.defaults.feature_eurechnung) %]</td>
+   <td>[% LxERP.t8('Use Income') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Erfolgsrechnung') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_erfolgsrechnung', SELF.defaults.feature_erfolgsrechnung) %]</td>
+   <td>[% LxERP.t8('Use Erfolgsrechnung') %]</td>
   </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Customer Master Data") %]</td></tr>
