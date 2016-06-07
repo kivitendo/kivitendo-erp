@@ -58,7 +58,7 @@ sub discount_from_source {
       spec         => $vendor->id,
       description  => t8('Vendor Discount'),
       price_source => $self,
-      invalid      => t8('This discount is only valid for vendor #1', $vendor->full_description),
+      invalid      => t8('This discount is only valid for vendor #1', $vendor->displayable_name),
     )
   }
 
