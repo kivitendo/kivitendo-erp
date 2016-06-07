@@ -633,13 +633,18 @@ sub create_dataset_form {
 
   my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
   $::form->{favicon} = "favicon.ico";
-  $::form->{countrymode}          = $defaults->country('DE');
-  $::form->{chart}                = $defaults->chart_of_accounts('Germany-DATEV-SKR03EU');
-  $::form->{defaultcurrency}      = $defaults->currency('EUR');
-  $::form->{precision}            = $defaults->precision(0.01);
-  $::form->{accounting_method}    = $defaults->accounting_method('cash');
-  $::form->{inventory_system}     = $defaults->inventory_system('periodic');
-  $::form->{profit_determination} = $defaults->profit_determination('balance');
+  $::form->{countrymode}             = $defaults->country('DE');
+  $::form->{chart}                   = $defaults->chart_of_accounts('Germany-DATEV-SKR03EU');
+  $::form->{defaultcurrency}         = $defaults->currency('EUR');
+  $::form->{precision}               = $defaults->precision(0.01);
+  $::form->{accounting_method}       = $defaults->accounting_method('cash');
+  $::form->{inventory_system}        = $defaults->inventory_system('periodic');
+  $::form->{profit_determination}    = $defaults->profit_determination('balance');
+  $::form->{feature_balance}         = $defaults->feature_balance(1);
+  $::form->{feature_datev}           = $defaults->feature_datev(1);
+  $::form->{feature_erfolgsrechnung} = $defaults->feature_erfolgsrechnung(0);
+  $::form->{feature_eurechnung}      = $defaults->feature_eurechnung(1);
+  $::form->{feature_ustva}           = $defaults->feature_ustva(1);
 
   $self->render('admin/create_dataset', title => (t8('Database Administration') . " / " . t8('Create Dataset')));
 }

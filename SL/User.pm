@@ -312,13 +312,29 @@ sub dbcreate {
     $curr = selectfirst_hashref_query($form, $dbh, $query, $form->{defaultcurrency});
   }
 
-  $query = qq|UPDATE defaults SET accounting_method = ?, profit_determination = ?, inventory_system = ?, precision = ?, currency_id = ?|;
+  $query = qq|UPDATE defaults SET
+    accounting_method = ?,
+    profit_determination = ?,
+    inventory_system = ?,
+    precision = ?,
+    currency_id = ?,
+    feature_balance = ?,
+    feature_datev = ?,
+    feature_erfolgsrechnung = ?,
+    feature_eurechnung = ?,
+    feature_ustva = ?
+  |;
   do_query($form, $dbh, $query,
     $form->{accounting_method},
     $form->{profit_determination},
     $form->{inventory_system},
     $form->parse_amount(\%::myconfig, $form->{precision_as_number}),
     $curr->{id},
+    $form->{feature_balance},
+    $form->{feature_datev},
+    $form->{feature_erfolgsrechnung},
+    $form->{feature_eurechnung},
+    $form->{feature_ustva}
   );
 
   $dbh->disconnect;
