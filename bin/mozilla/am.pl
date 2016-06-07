@@ -45,6 +45,7 @@ use SL::TODO;
 use SL::DB::Printer;
 use SL::DB::Tax;
 use SL::DB::Language;
+use SL::DB::Default;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -87,10 +88,17 @@ sub edit_account {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
+  my $defaults = SL::DB::Default->get;
 
   $main::auth->assert('config');
 
   $form->{title} = "Edit";
+  $form->{feature_balance} = $defaults->feature_balance;
+  $form->{feature_datev} = $defaults->feature_datev;
+  $form->{feature_erfolgsrechnung} = $defaults->feature_erfolgsrechnung;
+  $form->{feature_eurechnung} = $defaults->feature_eurechnung;
+  $form->{feature_ustva} = $defaults->feature_ustva;
+
   AM->get_account(\%myconfig, \%$form);
 
   foreach my $item (split(/:/, $form->{link})) {

@@ -58,7 +58,9 @@ $(function() {
    <li><a href="#ranges_of_numbers">[% LxERP.t8('Ranges of numbers') %]</a></li>
    <li><a href="#default_accounts">[% LxERP.t8('Default Accounts') %]</a></li>
    <li><a href="#posting_configuration">[% LxERP.t8('Posting Configuration') %]</a></li>
-   <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV check configuration') %]</a></li>
+   [% IF FORM.feature_datev %]
+     <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV check configuration') %]</a></li>
+   [% END %]
    <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
    <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
    <li><a href="#features">[% LxERP.t8('Features') %]</a></li>

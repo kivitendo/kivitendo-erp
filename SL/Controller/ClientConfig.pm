@@ -30,6 +30,7 @@ sub action_edit {
   my ($self, %params) = @_;
 
   $::form->{use_templates} = $self->defaults->templates ? 'existing' : 'new';
+  $::form->{feature_datev} = $self->defaults->feature_datev;
   $self->edit_form;
 }
 
