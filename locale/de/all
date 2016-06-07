@@ -2096,6 +2096,7 @@ $self->{texts} = {
   'Price group'                 => 'Preisgruppe',
   'Price group (database ID)'   => 'Preisgruppe (Datenbank-ID)',
   'Price group (name)'          => 'Preisgruppe (Name) ',
+  'Price history for master data' => 'Preisentwicklung für Stammdaten',
   'Price information'           => 'Preisinformation',
   'Price or discount must not be zero.' => 'Preis/Rabatt darf nicht 0,00 sein',
   'Price rules must have at least one rule.' => 'Preisregeln brauchen mindestens eine Bedingung.',

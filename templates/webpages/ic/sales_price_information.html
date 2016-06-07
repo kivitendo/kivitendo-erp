@@ -1,5 +1,6 @@
 <div id='sales_price_information_sales_order'></div>
 <div id='sales_price_information_sales_quotation'></div>
+<div id='parts_price_history'></div>
 
 <script type='text/javascript'>
   function get_report(target, source, data){
@@ -24,6 +25,7 @@
     if (ui.newPanel.attr('id') == 'sales_price_information') {
       get_report('#sales_price_information_sales_order', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_order' });
       get_report('#sales_price_information_sales_quotation', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_quotation' });
+      get_report('#parts_price_history', 'controller.pl', { action: 'PartsPriceHistory/list', 'filter.part_id': [% id %] });
     }
     return 1;
   });
