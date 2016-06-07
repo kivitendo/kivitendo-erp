@@ -164,7 +164,7 @@ sub displayable_filter {
 
   push @texts, [ $::locale->text('Type'),    $::locale->text($filter->{order}{type}) ] if $filter->{order}{type};
   push @texts, [ $::locale->text('Sort By'), $column_defs->{$self->{sort_by}}{text}  ] if $column_defs->{$self->{sort_by}}{text};
-  push @texts, [ $::locale->text('Page'),    $::locale->text($self->{pages}{cur})    ] if $self->{pages}{cur} != 1;
+  push @texts, [ $::locale->text('Page'),    $::locale->text($self->{pages}{cur})    ] if $self->{pages}{cur} > 1;
 
   return join '; ', map { "$_->[0]: $_->[1]" } @texts;
 }
