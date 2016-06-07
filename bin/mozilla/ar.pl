@@ -159,6 +159,7 @@ sub create_links {
   if (!$params{dont_save}) {
     %saved = map { ($_ => $form->{$_}) } qw(direct_debit id taxincluded);
     $saved{duedate} = $form->{duedate} if $form->{duedate};
+    $saved{currency} = $form->{currency} if $form->{currency};
   }
 
   IS->get_customer(\%myconfig, \%$form);

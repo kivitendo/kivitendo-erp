@@ -146,6 +146,7 @@ sub create_links {
   if (!$params{dont_save}) {
     %saved = map { ($_ => $form->{$_}) } qw(direct_debit taxincluded);
     $saved{duedate} = $form->{duedate} if $form->{duedate};
+    $saved{currency} = $form->{currency} if $form->{currency};
   }
 
   IR->get_vendor(\%myconfig, \%$form);
