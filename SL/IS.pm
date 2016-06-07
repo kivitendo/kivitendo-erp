@@ -525,10 +525,14 @@ sub invoice_details {
   $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
   $form->{paid}     = $form->format_amount($myconfig, $form->{paid}, 2);
 
-  $form->set_payment_options($myconfig, $form->{invdate});
+  $form->set_payment_options($myconfig, $form->{invdate}, 'sales_invoice');
 
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
-  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+  if ($form->{delivery_term} && $form->{language_id}) {
+    $form->{delivery_term}->description_long(        $form->{delivery_term}->translated_attribute('description_long',         $form->{language_id}));
+    $form->{delivery_term}->description_long_invoice($form->{delivery_term}->translated_attribute('description_long_invoice', $form->{language_id}));
+  }
+
   $form->{department}    = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
 
   $form->{username} = $myconfig->{name};

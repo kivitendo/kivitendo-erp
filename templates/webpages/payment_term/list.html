@@ -15,7 +15,8 @@
     <tr class="listheading">
      <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      <th>[%- 'Description' | $T8 %]</th>
-     <th>[%- 'Long Description' | $T8 %]</th>
+     <th>[%- 'Long Description (quotations & orders)' | $T8 %]</th>
+     <th>[%- 'Long Description (invoices)' | $T8 %]</th>
      <th>[% 'Automatic date calculation' | $T8 %]</th>
      <th align="right">[%- 'Netto Terms' | $T8 %]</th>
      <th align="right">[%- 'Skonto Terms' | $T8 %]</th>
@@ -33,6 +34,7 @@
       </a>
      </td>
      <td>[%- HTML.escape(payment_term.description_long) %]</td>
+     <td>[%- HTML.escape(payment_term.description_long_invoice) %]</td>
      <td>[% IF payment_term.auto_calculation %][% LxERP.t8("yes") %][% ELSE %][% LxERP.t8("no") %][% END %]</td>
      <td align="right">[%- HTML.escape(payment_term.terms_netto_as_number) %]</td>
      <td align="right">[%- HTML.escape(payment_term.terms_skonto_as_number) %]</td>

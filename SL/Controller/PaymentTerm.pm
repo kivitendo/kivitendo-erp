@@ -110,6 +110,7 @@ sub create_or_update {
   $self->{payment_term}->save;
   foreach my $language (@{ $self->{languages} }) {
     $self->{payment_term}->save_attribute_translation('description_long', $language, $::form->{"translation_" . $language->id});
+    $self->{payment_term}->save_attribute_translation('description_long_invoice', $language, $::form->{"translation_invoice_" . $language->id});
   }
 
   flash_later('info', $is_new ? $::locale->text('The payment term has been created.') : $::locale->text('The payment term has been saved.'));

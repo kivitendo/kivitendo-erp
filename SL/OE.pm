@@ -1584,18 +1584,17 @@ sub order_details {
   # format amounts
   $form->{quototal} = $form->{ordtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
 
-  if ($form->{type} =~ /_quotation/) {
-    $form->set_payment_options($myconfig, $form->{quodate});
-  } else {
-    $form->set_payment_options($myconfig, $form->{orddate});
-  }
+  $form->set_payment_options($myconfig, $form->{$form->{type} =~ /_quotation/ ? 'quodate' : 'orddate'}, $form->{type});
 
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;
 
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
-  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+  if ($form->{delivery_term} && $form->{language_id}) {
+    $form->{delivery_term}->description_long(        $form->{delivery_term}->translated_attribute('description_long',         $form->{language_id}));
+    $form->{delivery_term}->description_long_invoice($form->{delivery_term}->translated_attribute('description_long_invoice', $form->{language_id}));
+  }
 
   $form->{order} = SL::DB::Manager::Order->find_by(id => $form->{id}) if $form->{id};
 

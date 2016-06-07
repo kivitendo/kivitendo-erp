@@ -1697,16 +1697,17 @@ sub get_default_currency {
 }
 
 sub set_payment_options {
-  my ($self, $myconfig, $transdate) = @_;
+  my ($self, $myconfig, $transdate, $type) = @_;
 
   my $terms = $self->{payment_id} ? SL::DB::PaymentTerm->new(id => $self->{payment_id})->load : undef;
   return if !$terms;
+
+  my $is_invoice                = $type =~ m{invoice}i;
 
   $transdate                  ||= $self->{invdate} || $self->{transdate};
   my $due_date                  = $self->{duedate} || $self->{reqdate};
 
   $self->{$_}                   = $terms->$_ for qw(terms_netto terms_skonto percent_skonto);
-  $self->{payment_terms}        = $terms->description_long;
   $self->{payment_description}  = $terms->description;
   $self->{netto_date}           = $terms->calc_date(reference_date => $transdate, due_date => $due_date, terms => 'net')->to_kivitendo;
   $self->{skonto_date}          = $terms->calc_date(reference_date => $transdate, due_date => $due_date, terms => 'discount')->to_kivitendo;
@@ -1739,38 +1740,25 @@ sub set_payment_options {
   }
 
   if ($self->{"language_id"}) {
-    my $dbh   = $self->get_standard_dbh($myconfig);
-    my $query =
-      qq|SELECT t.translation, l.output_numberformat, l.output_dateformat, l.output_longdates | .
-      qq|FROM generic_translations t | .
-      qq|LEFT JOIN language l ON t.language_id = l.id | .
-      qq|WHERE (t.language_id = ?)
-           AND (t.translation_id = ?)
-           AND (t.translation_type = 'SL::DB::PaymentTerm/description_long')|;
-    my ($description_long, $output_numberformat, $output_dateformat,
-      $output_longdates) =
-      selectrow_query($self, $dbh, $query,
-                      $self->{"language_id"}, $self->{"payment_id"});
+    my $language             = SL::DB::Language->new(id => $self->{language_id})->load;
 
-    $self->{payment_terms} = $description_long if ($description_long);
+    $self->{payment_terms}   = $type =~ m{invoice}i ? $terms->translated_attribute('description_long_invoice', $language->id) : undef;
+    $self->{payment_terms} ||= $terms->translated_attribute('description_long', $language->id);
 
-    if ($output_dateformat) {
+    if ($language->output_dateformat) {
       foreach my $key (qw(netto_date skonto_date)) {
-        $self->{$key} =
-          $main::locale->reformat_date($myconfig, $self->{$key},
-                                       $output_dateformat,
-                                       $output_longdates);
+        $self->{$key} = $::locale->reformat_date($myconfig, $self->{$key}, $language->output_dateformat, $language->output_longdates);
       }
     }
 
-    if ($output_numberformat &&
-        ($output_numberformat ne $myconfig->{"numberformat"})) {
-      my $saved_numberformat = $myconfig->{"numberformat"};
-      $myconfig->{"numberformat"} = $output_numberformat;
-      map { $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}) } keys %amounts;
-      $myconfig->{"numberformat"} = $saved_numberformat;
+    if ($language->output_numberformat && ($language->output_numberformat ne $myconfig->{numberformat})) {
+      local $myconfig->{numberformat};
+      $myconfig->{"numberformat"} = $language->output_numberformat;
+      $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}) for keys %amounts;
     }
   }
+
+  $self->{payment_terms} =  $self->{payment_terms} || ($is_invoice ? $terms->description_long_invoice : undef) || $terms->description_long;
 
   $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
   $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;

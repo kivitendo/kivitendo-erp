@@ -14,7 +14,7 @@ __PACKAGE__->make_manager_methods;
 sub _sort_spec {
   return ( default => [ 'sortkey', 1 ],
            columns => { SIMPLE => 'ALL',
-                        map { ( $_ => "lower(payment_terms.${_})" ) } qw(description description_long),
+                        map { ( $_ => "lower(payment_terms.${_})" ) } qw(description description_long description_long_invoice),
                       });
 }
 

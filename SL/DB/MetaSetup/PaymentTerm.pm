@@ -9,17 +9,18 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('payment_terms');
 
 __PACKAGE__->meta->columns(
-  auto_calculation => { type => 'boolean', not_null => 1 },
-  description      => { type => 'text' },
-  description_long => { type => 'text' },
-  id               => { type => 'integer', not_null => 1, sequence => 'id' },
-  itime            => { type => 'timestamp', default => 'now()' },
-  mtime            => { type => 'timestamp' },
-  percent_skonto   => { type => 'float', scale => 4 },
-  ranking          => { type => 'integer' },
-  sortkey          => { type => 'integer', not_null => 1 },
-  terms_netto      => { type => 'integer' },
-  terms_skonto     => { type => 'integer' },
+  auto_calculation         => { type => 'boolean', not_null => 1 },
+  description              => { type => 'text' },
+  description_long         => { type => 'text' },
+  description_long_invoice => { type => 'text' },
+  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime                    => { type => 'timestamp', default => 'now()' },
+  mtime                    => { type => 'timestamp' },
+  percent_skonto           => { type => 'float', precision => 4, scale => 4 },
+  ranking                  => { type => 'integer' },
+  sortkey                  => { type => 'integer', not_null => 1 },
+  terms_netto              => { type => 'integer' },
+  terms_skonto             => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

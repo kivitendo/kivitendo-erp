@@ -6,28 +6,17 @@
 [%- INCLUDE 'common/flash.html' %]
 
   <table>
+   <tr class="listheading">
+    <th></th>
+    <th>[% LxERP.t8("General settings") %]</th>
+   </tr>
+
    <tr>
     <td>[%- 'Description' | $T8 %]</td>
     <td>
      <input name="payment_term.description" value="[%- HTML.escape(SELF.payment_term.description) %]">
     </td>
    </tr>
-
-   <tr>
-    <td>[%- 'Long Description' | $T8 %]</td>
-    <td>
-     <input name="payment_term.description_long" value="[%- HTML.escape(SELF.payment_term.description_long) %]" size="60">
-    </td>
-   </tr>
-
-   [%- FOREACH language = SELF.languages %]
-    <tr>
-     <td>[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</td>
-     <td>
-      <input name="translation_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long', language, 1)) %]" size="60">
-     </td>
-    </tr>
-   [%- END %]
 
    <tr>
     <td>[% LxERP.t8("Calculate due date automatically") %]</td>
@@ -54,6 +43,36 @@
      <input name="payment_term.percent_skonto_as_percent" value="[%- HTML.escape(SELF.payment_term.percent_skonto_as_percent) %]" size="6">%
     </td>
    </tr>
+
+   <tr class="listheading">
+    <th></th>
+    <th>[% LxERP.t8("Texts for quotations & orders") %]</th>
+    <th>[% LxERP.t8("Texts for invoices") %]</th>
+   </tr>
+
+   <tr>
+    <td>[%- 'Long Description' | $T8 %]</td>
+    <td>
+     <input name="payment_term.description_long" value="[%- HTML.escape(SELF.payment_term.description_long) %]" size="60">
+    </td>
+
+    <td>
+     <input name="payment_term.description_long_invoice" value="[%- HTML.escape(SELF.payment_term.description_long_invoice) %]" size="60">
+    </td>
+   </tr>
+
+   [%- FOREACH language = SELF.languages %]
+    <tr>
+     <td>[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</td>
+     <td>
+      <input name="translation_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long', language, 1)) %]" size="60">
+     </td>
+
+     <td>
+      <input name="translation_invoice_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long_invoice', language, 1)) %]" size="60">
+     </td>
+    </tr>
+   [%- END %]
   </table>
 
   <p>
