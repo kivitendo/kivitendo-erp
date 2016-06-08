@@ -6,6 +6,9 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - Erweitern der Zahlungsbedingungen um unterschiedliche Texte für
+    Angebote/Aufträge auf der einen Seite und Rechnungen auf der
+    anderen Seite
   - Auftrag um Druckvariante Gelangensbestätigung erweitert.
   - Lagereingangs-Typ gefertigt hinzugefügt
   - Fertigungsdatum von Erzeugnissen und Bestandteilen von Erzeugnissen
