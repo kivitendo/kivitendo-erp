@@ -322,7 +322,7 @@ sub handle_order {
 
   if ($vc_obj) {
     # copy from customer if not given
-    foreach (qw(payment_id language_id taxzone_id currency_id)) {
+    foreach (qw(payment_id delivery_term_id language_id taxzone_id currency_id)) {
       $object->$_($vc_obj->$_) unless $object->$_;
     }
   }
