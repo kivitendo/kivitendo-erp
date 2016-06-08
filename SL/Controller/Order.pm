@@ -57,6 +57,7 @@ __PACKAGE__->run_before('_get_unalterable_data',
 # actions
 #
 
+# add a new order
 sub action_add {
   my ($self) = @_;
 
@@ -73,6 +74,7 @@ sub action_add {
   );
 }
 
+# edit an existing order
 sub action_edit {
   my ($self) = @_;
 
@@ -88,6 +90,7 @@ sub action_edit {
   );
 }
 
+# delete the order
 sub action_delete {
   my ($self) = @_;
 
@@ -107,6 +110,7 @@ sub action_delete {
   $self->redirect_to(@redirect_params);
 }
 
+# save the order
 sub action_save {
   my ($self) = @_;
 
@@ -127,6 +131,14 @@ sub action_save {
   $self->redirect_to(@redirect_params);
 }
 
+# print the order
+#
+# This is called if "print" is pressed in the print dialog.
+# If PDF creation was requested and succeeded, the pdf is stored in a session
+# file and the filename is stored as session value with an unique key. A
+# javascript function with this key is then called. This function calls the
+# download action below (action_download_pdf), which offers the file for
+# download.
 sub action_print {
   my ($self) = @_;
 
@@ -211,6 +223,9 @@ sub action_print {
   $self->js->render;
 }
 
+# offer pdf for download
+#
+# It needs to get the key for the session value to get the pdf file.
 sub action_download_pdf {
   my ($self) = @_;
 
@@ -223,6 +238,7 @@ sub action_download_pdf {
   );
 }
 
+# open the email dialog
 sub action_show_email_dialog {
   my ($self) = @_;
 
@@ -257,6 +273,8 @@ sub action_show_email_dialog {
       ->render($self);
 }
 
+# send email
+#
 # Todo: handling error messages: flash is not displayed in dialog, but in the main form
 sub action_send_email {
   my ($self) = @_;
@@ -296,6 +314,8 @@ sub action_send_email {
       ->render($self);
 }
 
+# save the order and redirect to the frontend subroutine for a new
+# delivery order
 sub action_save_and_delivery_order {
   my ($self) = @_;
 
@@ -316,6 +336,9 @@ sub action_save_and_delivery_order {
   $self->redirect_to(@redirect_params);
 }
 
+# set form elements in respect of a changed customer or vendor
+#
+# This action is called on an change of the customer/vendor picker.
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
@@ -360,6 +383,7 @@ sub action_customer_vendor_changed {
   $self->js->render();
 }
 
+# called if a unit in an existing item row is changed
 sub action_unit_changed {
   my ($self) = @_;
 
@@ -378,6 +402,7 @@ sub action_unit_changed {
   $self->js->render();
 }
 
+# add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
 
@@ -409,12 +434,14 @@ sub action_add_item {
   $self->js->render();
 }
 
+# open the dialog for entering multiple items at once
 sub action_show_multi_items_dialog {
   require SL::DB::PartsGroup;
   $_[0]->render('order/tabs/_multi_items_dialog', { layout => 0 },
                 all_partsgroups => SL::DB::Manager::PartsGroup->get_all);
 }
 
+# update the filter results in the multi item dialog
 sub action_multi_items_update_result {
   my $max_count = 100;
 
@@ -435,6 +462,7 @@ sub action_multi_items_update_result {
   }
 }
 
+# add item rows for multiple items add once
 sub action_add_multi_items {
   my ($self) = @_;
 
@@ -471,6 +499,7 @@ sub action_add_multi_items {
   $self->js->render();
 }
 
+# recalculate all linetotals, amounts and taxes and redisplay them
 sub action_recalc_amounts_and_taxes {
   my ($self) = @_;
 
@@ -481,6 +510,7 @@ sub action_recalc_amounts_and_taxes {
   $self->js->render();
 }
 
+# redisplay item rows if the are sorted by an attribute
 sub action_reorder_items {
   my ($self) = @_;
 
@@ -504,6 +534,7 @@ sub action_reorder_items {
     ->render;
 }
 
+# show the popup to choose a price/discount source
 sub action_price_popup {
   my ($self) = @_;
 
@@ -513,6 +544,11 @@ sub action_price_popup {
   $self->render_price_dialog($item);
 }
 
+# get the longdescription for an item if the dialog to enter/change the
+# longdescription was opened and the longdescription is empty
+#
+# If this item is new, get the longdescription from Part.
+# Get it from OrderItem else.
 sub action_get_item_longdescription {
   my $longdescription;
 
@@ -523,7 +559,6 @@ sub action_get_item_longdescription {
   }
   $_[0]->render(\ $longdescription, { type => 'text' });
 }
-
 
 sub _js_redisplay_linetotals {
   my ($self) = @_;
@@ -591,6 +626,7 @@ sub init_order {
   $_[0]->_make_order;
 }
 
+# model used to filter/display the parts in the multi-items dialog
 sub init_multi_items_models {
   SL::Controller::Helper::GetModels->new(
     controller     => $_[0],
@@ -623,6 +659,9 @@ sub _check_auth {
   $::auth->assert($right);
 }
 
+# build the selection box for contacts
+#
+# Needed, if customer/vendor changed.
 sub build_contact_select {
   my ($self) = @_;
 
@@ -635,6 +674,9 @@ sub build_contact_select {
   );
 }
 
+# build the selection box for shiptos
+#
+# Needed, if customer/vendor changed.
 sub build_shipto_select {
   my ($self) = @_;
 
@@ -647,6 +689,9 @@ sub build_shipto_select {
   );
 }
 
+# build the rows for displaying taxes
+#
+# Called if amounts where recalculated and redisplayed.
 sub build_tax_rows {
   my ($self) = @_;
 
@@ -687,6 +732,12 @@ sub _load_order {
   $self->order(SL::DB::Manager::Order->find_by(id => $::form->{id}));
 }
 
+# load or create a new order object
+#
+# And assign changes from the for to this object.
+# If the order is loaded from db, check if items are deleted in the form,
+# remove them form the object and collect them for removing from db on saving.
+# Then create/update items from form (via _make_item) and add them.
 sub _make_order {
   my ($self) = @_;
 
@@ -723,7 +774,8 @@ sub _make_order {
   return $order;
 }
 
-
+# create or update items from form
+#
 # Make item objects from form values. For items already existing read from db.
 # Create a new item else. And assign attributes.
 sub _make_item {
@@ -745,6 +797,9 @@ sub _make_item {
   return $item;
 }
 
+# create a new item
+#
+# This is used to add one (or more) items
 sub _new_item {
   my ($record, $attr) = @_;
 
@@ -800,6 +855,9 @@ sub _new_item {
   return $item;
 }
 
+# recalculate prices and taxes
+#
+# Using the PriceTaxCalclulator. Store linetotals in the item objects.
 sub _recalc {
   my ($self) = @_;
 
@@ -820,7 +878,9 @@ sub _recalc {
   pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items}, @{$pat{items}};
 }
 
-
+# get data for saving, printing, ..., that is not changed in the form
+#
+# Only cvars for now.
 sub _get_unalterable_data {
   my ($self) = @_;
 
@@ -834,7 +894,9 @@ sub _get_unalterable_data {
   }
 }
 
-
+# delete the order
+#
+# And remove related files in the spool directory
 sub _delete {
   my ($self) = @_;
 
@@ -854,7 +916,9 @@ sub _delete {
   return $errors;
 }
 
-
+# save the order
+#
+# And delete items that are deleted in the form.
 sub _save {
   my ($self) = @_;
 
@@ -994,6 +1058,101 @@ __END__
 =head1 NAME
 
 SL::Controller::Order - controller for orders
+
+=head1 SYNOPSIS
+
+This is a new form to enter orders, completely rewritten with the use
+of controller and java script techniques.
+
+The aim is to provide the user a better expirience and a faster flow
+of work. Also the code should be more readable, more reliable and
+better to maintain.
+
+=head2 key features
+
+=over 2
+
+=item *
+One input row, so that input happens every time at the same place.
+
+=item *
+Use of pickers where possible.
+
+=item *
+Possibility to enter more than one item at once.
+
+=item *
+Save order only on "save" (and "save and delivery order"-workflow). No
+hidden save on "print" or "email". 
+
+=item *
+Item list in a scrollable area, so that the workflow buttons stay at
+the bottom.
+
+=item *
+Reordering item rows with drag and drop is possible. Sorting item rows is
+possible (by partnumber, description, qty, sellprice and discount for now).
+
+=item *
+No "update" is necessary. All entries and calculations are managed
+with ajax-calls and the page does only reload on "save".
+
+=item *
+User can see changes immediately, because of the use of java script
+and ajax.
+
+=back
+
+=head1 CODE
+
+=head2 layout
+
+=over 2
+
+=item *
+SL/Controller/Order.pm: the controller
+
+=item *
+template/webpages/order/form.html: main form
+
+=item *
+template/webpages/order/tabs/basic_data.html: main tab for basic_data
+
+This is the only tab here for now. "linked records" and "webdav" tabs are reused
+from generic code.
+
+=over 3
+
+=item *
+template/webpages/order/tabs/_item_input.html: the input line for items
+
+=item *
+template/webpages/order/tabs/_row.html: one row for already entered items
+
+=item *
+template/webpages/order/tabs/_tax_row.html: displaying tax information
+
+=item *
+template/webpages/order/tabs/_multi_items_dialog.html: dialog for entering more
+than one item at once
+
+=item *
+template/webpages/order/tabs/_multi_items_result.html: results for the filter in
+the multi items dialog
+
+=item *
+template/webpages/order/tabs/_price_sources_dialog.html: dialog for selecting
+price and discount sources
+
+=item *
+template/webpages/order/tabs/_email_dialog.html: email dialog
+
+=back
+
+=item *
+js/kivi.Order.js: java script functions
+
+=back
 
 =head1 TODO
 
