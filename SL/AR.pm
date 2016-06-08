@@ -671,6 +671,7 @@ sub setup_form {
   $form->{forex} = $form->{exchangerate};
   $exchangerate  = $form->{exchangerate} ? $form->{exchangerate} : 1;
 
+  # expected keys: AR, AR_paid, AR_tax, AR_amount 
   foreach my $key (keys %{ $form->{AR_links} }) {
     $j = 0;
     $k = 0;
@@ -699,15 +700,17 @@ sub setup_form {
         $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
         $form->{paidaccounts}++;
 
-      } else {
+      } else { # e.g. AR_amount, AR, AR_tax
 
         $akey = $key;
-        $akey =~ s/AR_//;
+        $akey =~ s/AR_//; # e.g. tax, amount, AR, used to store form key tax_$i, amount_$i, ...
 
-        if ($key eq "AR_tax" || $key eq "AP_tax") {
+        if ($key eq "AR_tax" || $key eq "AP_tax") { # AR_tax
           $form->{"${key}_$form->{acc_trans}{$key}->[$i-1]->{accno}"}  = "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
+          # determine the rounded tax amounts for each account, e.g. tax_1776
           $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"} = $form->round_amount($form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate, 2);
 
+          # check e.g. $form->{1776_rate}, does this make sense for AR_tax charts? Is this ever valid? If it was, totaltax would be calculated twice
           if ($form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"} > 0) {
             $totaltax += $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
             $taxrate  += $form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"};
@@ -718,10 +721,11 @@ sub setup_form {
           }
 
           $index                 = $form->{acc_trans}{$key}->[$i - 1]->{index};
-          $form->{"tax_$index"}  = $form->{acc_trans}{$key}->[$i - 1]->{amount};
+          $form->{"tax_$index"}  = $form->round_amount($form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate, 2); # convert the tax_$i amounts
+          # currently totaltax is the sum of rounded tax amounts, is this correct?
           $totaltax             += $form->{"tax_$index"};
 
-        } else {
+        } else { # e.g. AR_amount, AR
           $k++;
           $form->{"${akey}_$k"} = $form->round_amount($form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate, 2);
 

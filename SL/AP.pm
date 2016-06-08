@@ -746,7 +746,7 @@ sub setup_form {
           }
 
           $index                 = $form->{acc_trans}{$key}->[$i - 1]->{index};
-          $form->{"tax_$index"}  = $form->{acc_trans}{$key}->[$i - 1]->{amount} * -1;
+          $form->{"tax_$index"}  = $form->round_amount($form->{acc_trans}{$key}->[$i - 1]->{amount} * -1 / $exchangerate, 2);
           $totaltax             += $form->{"tax_$index"};
 
         } else {
