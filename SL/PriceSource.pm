@@ -247,7 +247,7 @@ when no record is available, such as calculation the worth of assembly rows.
 A possible solution is to either split price sources into simple and complex
 ones (where the former do not require records).
 
-Another would be to have default values for the inpout normally taken from
+Another would be to have default values for the input normally taken from
 records (like qty defaulting to 1).
 
 A last one would be to provide an alternative input channel for needed
@@ -256,7 +256,7 @@ properties.
 =item *
 
 Discount sources were implemented as a copy of the prices with slightly
-different semantics. Need to do a real design. A requirement is, that a sinle
+different semantics. Need to do a real design. A requirement is, that a single
 source can provide both prices and discounts (needed for price_rules).
 
 =item *
@@ -281,7 +281,21 @@ benefits from sales, or general ALLOW, DENY order calculation.
 =item *
 
 Composing price sources is disallowed for clarity, but all price sources need
-to be aware of units. This is madness.
+to be aware of units and price_factors. This is madness.
+
+=item *
+
+A common complaint is that prices from certain vendors are always negotiated
+and should use a default value but must be editable (like free prices) by
+default. This should be orthogonal for all prices.
+
+=item *
+
+The current implementation of lastcost is useless. Since it's one of the
+master_data prices it will always compete with listprice. But in real scenarios
+the listprice tends to go up, while lastcost stays the same, so lastcost
+usually wins. Lastcost could be lower priority, but a better design would be
+nice.
 
 =back
 
