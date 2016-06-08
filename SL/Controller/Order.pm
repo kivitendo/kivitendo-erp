@@ -942,8 +942,6 @@ sub _create_pdf {
   $print_form->{language_id} = $params->{language}->id            if $print_form->{language};
 
   $order->flatten_to_form($print_form, format_amounts => 1);
-  # flatten_to_form sets payment_terms from customer/vendor - we do not want that here
-  delete $print_form->{payment_terms} if !$print_form->{payment_id};
 
   # search for the template
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
