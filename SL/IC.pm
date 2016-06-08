@@ -262,16 +262,8 @@ sub save {
     }
 
     # get old price
-    $query = qq|SELECT sellprice, weight FROM parts WHERE id = ?|;
-    my ($sellprice, $weight) = selectrow_query($form, $dbh, $query, conv_i($form->{id}));
-
-    # if item is part of an assembly adjust all assemblies
-    $query = qq|SELECT id, qty FROM assembly WHERE parts_id = ?|;
-    $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-    while (my ($id, $qty) = $sth->fetchrow_array) {
-      &update_assembly($dbh, $form, $id, $qty, $sellprice * 1, $weight * 1);
-    }
-    $sth->finish;
+    $query = qq|SELECT sellprice FROM parts WHERE id = ?|;
+    my ($sellprice) = selectrow_query($form, $dbh, $query, conv_i($form->{id}));
 
     # delete makemodel records
     do_query($form, $dbh, qq|DELETE FROM makemodel WHERE parts_id = ?|, conv_i($form->{id}));
@@ -551,31 +543,6 @@ SQL
   $main::lxdebug->leave_sub();
 
   return $rc;
-}
-
-sub update_assembly {
-  $main::lxdebug->enter_sub();
-
-  my ($dbh, $form, $id, $qty, $sellprice, $weight) = @_;
-
-  my $query = qq|SELECT id, qty FROM assembly WHERE parts_id = ?|;
-  my $sth = prepare_execute_query($form, $dbh, $query, conv_i($id));
-
-  while (my ($pid, $aqty) = $sth->fetchrow_array) {
-    &update_assembly($dbh, $form, $pid, $aqty * $qty, $sellprice, $weight);
-  }
-  $sth->finish;
-
-  $query =
-    qq|UPDATE parts SET sellprice = sellprice + ?, weight = weight + ?
-       WHERE id = ?|;
-  my @values = ($qty * ($form->{sellprice} - $sellprice),
-             $qty * ($form->{weight} - $weight), conv_i($id));
-  do_query($form, $dbh, $query, @values);
-
-  $form->new_lastmtime('parts') if $id == $form->{id};
-
-  $main::lxdebug->leave_sub();
 }
 
 sub retrieve_assemblies {

@@ -24,6 +24,9 @@ kleinere neue Features und Detailverbesserungen:
   - Wird in der Konfiguration [mail_devlivery]/method auf einen leeren Wert
     gesetzt wird jetzt Mailversand komplett ausgeschaltet, vorher wurde bei
     Werten die nicht 'sendmail' oder 'smtp' sind SMTP als Vorauswahl benutzt.
+  - Änderungen des Verkaufspreises von Artikeln, die Bestandteile von
+    Erzeugnissen sind, haben nun keine Auswirkungen auf die
+    Verkaufspreise der Erzeugnisse mehr.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
