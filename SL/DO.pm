@@ -33,6 +33,7 @@
 
 package DO;
 
+use Carp;
 use List::Util qw(max);
 use YAML;
 
