@@ -847,7 +847,7 @@ sub _new_item {
 
 # recalculate prices and taxes
 #
-# Using the PriceTaxCalclulator. Store linetotals in the item objects.
+# Using the PriceTaxCalculator. Store linetotals in the item objects.
 sub _recalc {
   my ($self) = @_;
 
@@ -1058,36 +1058,44 @@ The aim is to provide the user a better expirience and a faster flow
 of work. Also the code should be more readable, more reliable and
 better to maintain.
 
-=head2 key features
+=head2 Key Features
 
-=over 2
+=over 4
 
 =item *
+
 One input row, so that input happens every time at the same place.
 
 =item *
+
 Use of pickers where possible.
 
 =item *
+
 Possibility to enter more than one item at once.
 
 =item *
+
 Save order only on "save" (and "save and delivery order"-workflow). No
-hidden save on "print" or "email". 
+hidden save on "print" or "email".
 
 =item *
+
 Item list in a scrollable area, so that the workflow buttons stay at
 the bottom.
 
 =item *
+
 Reordering item rows with drag and drop is possible. Sorting item rows is
 possible (by partnumber, description, qty, sellprice and discount for now).
 
 =item *
-No "update" is necessary. All entries and calculations are managed
-with ajax-calls and the page does only reload on "save".
+
+No C<update> is necessary. All entries and calculations are managed
+with ajax-calls and the page does only reload on C<save>.
 
 =item *
+
 User can see changes immediately, because of the use of java script
 and ajax.
 
@@ -1095,128 +1103,138 @@ and ajax.
 
 =head1 CODE
 
-=head2 layout
+=head2 Layout
 
-=over 2
+=over 4
 
-=item *
-SL/Controller/Order.pm: the controller
+=item * C<SL/Controller/Order.pm>
 
-=item *
-template/webpages/order/form.html: main form
+the controller
 
-=item *
-template/webpages/order/tabs/basic_data.html: main tab for basic_data
+=item * C<template/webpages/order/form.html>
 
-This is the only tab here for now. "linked records" and "webdav" tabs are reused
-from generic code.
+main form
 
-=over 3
+=item * C<template/webpages/order/tabs/basic_data.html>
 
-=item *
-template/webpages/order/tabs/_item_input.html: the input line for items
+Main tab for basic_data.
 
-=item *
-template/webpages/order/tabs/_row.html: one row for already entered items
+This is the only tab here for now. "linked records" and "webdav" tabs are
+reused from generic code.
 
-=item *
-template/webpages/order/tabs/_tax_row.html: displaying tax information
+=over 4
 
-=item *
-template/webpages/order/tabs/_multi_items_dialog.html: dialog for entering more
-than one item at once
+=item * C<template/webpages/order/tabs/_item_input.html>
 
-=item *
-template/webpages/order/tabs/_multi_items_result.html: results for the filter in
-the multi items dialog
+The input line for items
 
-=item *
-template/webpages/order/tabs/_price_sources_dialog.html: dialog for selecting
-price and discount sources
+=item * C<template/webpages/order/tabs/_row.html>
 
-=item *
-template/webpages/order/tabs/_email_dialog.html: email dialog
+One row for already entered items
+
+=item * C<template/webpages/order/tabs/_tax_row.html>
+
+Displaying tax information
+
+=item * C<template/webpages/order/tabs/_multi_items_dialog.html>
+
+Dialog for entering more than one item at once
+
+=item * C<template/webpages/order/tabs/_multi_items_result.html>
+
+Results for the filter in the multi items dialog
+
+=item * C<template/webpages/order/tabs/_price_sources_dialog.html>
+
+Dialog for selecting price and discount sources
+
+=item * C<template/webpages/order/tabs/_email_dialog.html>
+
+Email dialog
 
 =back
 
 =item *
+
 js/kivi.Order.js: java script functions
 
 =back
 
 =head1 TODO
 
-=over 2
+=over 4
+
+=item * testing
+
+=item * currency
+
+=item * customer/vendor details ('D'-button)
+
+=item * credit limit
+
+=item * more workflows (save as new / invoice)
+
+=item * price sources: little symbols showing better price / better discount
+
+=item * custom shipto address
+
+=item * periodic invoices
+
+=item * more details on second row (marge, ...)
+
+=item * language / part translations
+
+=item * access rights
+
+=item * preset salesman from customer
+
+=item * display weights
+
+=item * force project if enabled in client config
+
+=back
+
+=head1 KNOWN BUGS AND CAVEATS
+
+=over 4
 
 =item *
 
-testing
-
-
-=item *
-
-currency
-
+C<position> is not displayed until an order is saved
 
 =item *
 
-customer/vendor details ('D'-button)
-
-
-=item *
-
-credit limit
-
+Customer discount is not displayed as a valid discount in price source popup
+(this might be a bug in price sources)
 
 =item *
 
-more workflows (save as new / invoice)
-
-
-=item *
-
-price sources: little symbols showing better price / better discount
-
+No indication that double click expands second row, no exand all button
 
 =item *
 
-custom shipto address
-
-
-=item *
-
-periodic invoices
-
+Implementation of second row with a tbody for every item is not supported by
+our css.
 
 =item *
 
-more details on second row (marge, ...)
-
-
-=item *
-
-language / part translations
-
+As a consequence row striping does not currently work
 
 =item *
 
-access rights
-
-
-=item *
-
-preset salesman from customer
-
+Inline creation of parts is not currently supported
 
 =item *
 
-display weights
-
+Table header is not sticky in the scrolling area.
 
 =item *
 
-force project if enabled in client config
+Sorting does not include C<position>, neither does reordering.
 
+=item *
+
+C<show_smulti_items_dialog> does not use the currently inserted string for filtering.
 
 =back
 
