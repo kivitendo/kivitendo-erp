@@ -2,6 +2,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE HTML %]
+<h1>[% FORM.title %]</h1>
 
 <div id="print_options" style="display:none">
   <form method="post" action="controller.pl" id="print_options_form">
@@ -13,8 +14,6 @@
 </div>
 
 <form method="post" action="controller.pl" id="order_form">
-  <div class="listtop">[% FORM.title %]</div>
-
   [% L.hidden_tag('callback', FORM.callback) %]
   [% L.hidden_tag('type',     FORM.type) %]
   [% L.hidden_tag('id',       SELF.order.id) %]
