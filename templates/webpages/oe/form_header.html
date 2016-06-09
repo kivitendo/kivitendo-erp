@@ -37,7 +37,7 @@
 [%- IF INSTANCE_CONF.get_webdav %]
       <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]
-[%- IF id %]
+[%- IF id AND AUTH.assert('record_links', 1) %]
       <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Order&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
 [%- END %]
      </ul>

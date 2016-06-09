@@ -2,6 +2,11 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2016-xx-xx - Release 3.4.x Unstable
+
+  - Neues Recht "Verknüpfte Belege", standardmäßig erlaubt. Betrifft alle
+    Belege und die Projektstammdaten
+
 2016-07-05 - Release 3.4.1
 
 kleinere neue Features und Detailverbesserungen:
@@ -66,7 +71,6 @@ Bugfixes:
 - Bugfix #165	inventory.shippingdate wird nicht konsequent benutzt
 - Bugfix #166	Presenter Links gehen im ReportGenerator Export kaputt
 
-2016-03-12 - Release 3.4.0
 
 Größere neue Features:
 

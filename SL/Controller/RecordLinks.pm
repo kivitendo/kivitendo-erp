@@ -23,6 +23,7 @@ use Rose::Object::MakeMethods::Generic
   scalar => [ qw(object object_model object_id link_type link_direction link_type_desc) ],
 );
 
+__PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_object_params', only => [ qw(ajax_list ajax_delete ajax_add_select_type ajax_add_filter ajax_add_list ajax_add_do) ]);
 __PACKAGE__->run_before('check_link_params',   only => [ qw(                                                           ajax_add_list ajax_add_do) ]);
 
@@ -215,6 +216,10 @@ sub check_link_params {
   $self->link_direction($::form->{link_direction} =~ m/^(?:from|to)$/ ? $::form->{link_direction} :  die "Invalid link_direction");
 
   return 1;
+}
+
+sub check_auth {
+  $::auth->assert('record_links');
 }
 
 1;

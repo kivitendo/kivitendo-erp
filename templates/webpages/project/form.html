@@ -17,7 +17,7 @@
     [%- IF CUSTOM_VARIABLES.size %]
     <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
     [%- END %]
-    [%- IF SELF.project.id %]
+    [%- IF SELF.project.id and AUTH.assert('record_links', 1) %]
     <li><a href="#linked_records">[% 'Linked Records' | $T8 %]</a></li>
     [%- END %]
    </ul>
@@ -32,7 +32,7 @@
    </div>
    [%- END %]
 
-   [%- IF SELF.project.id %]
+   [%- IF SELF.project.id and AUTH.assert('record_links', 1) %]
    <div id="linked_records">
    [%- PROCESS 'project/_linked_records.html' records=SELF.linked_records %]
    </div>
