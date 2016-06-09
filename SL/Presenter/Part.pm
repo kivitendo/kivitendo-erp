@@ -123,7 +123,7 @@ selectors though, they are not selectable once overridden.
 C<part_picker> will register it's javascript for inclusion in the next header
 rendering. If you write a standard controller that only call C<render> once, it
 will just work.  In case the header is generated in a different render call
-(multiple blocks, ajax, old C<bin/moilla> style controllers) you need to
+(multiple blocks, ajax, old C<bin/mozilla> style controllers) you need to
 include C<js/autocomplete_part.js> yourself.
 
 =back
