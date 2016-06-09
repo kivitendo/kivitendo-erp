@@ -3,36 +3,26 @@ package SL::Controller::Order;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use SL::Helper::Flash;
+use SL::Helper::Flash qw(flash_later);
 use SL::Presenter;
-use SL::Locale::String;
+use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
-use SL::Form;
 use SL::Webdav;
-use SL::Template;
 
 use SL::DB::Order;
-use SL::DB::Customer;
-use SL::DB::Vendor;
-use SL::DB::TaxZone;
-use SL::DB::Employee;
-use SL::DB::Project;
 use SL::DB::Default;
 use SL::DB::Unit;
-use SL::DB::Price;
-use SL::DB::PriceFactor;
 use SL::DB::Part;
 use SL::DB::Printer;
 use SL::DB::Language;
 
-use SL::Helper::DateTime;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 
 use SL::Controller::Helper::GetModels;
 
-use List::Util qw(max first);
+use List::Util qw(first);
 use List::MoreUtils qw(none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
