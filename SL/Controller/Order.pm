@@ -1238,7 +1238,17 @@ Sorting does not include C<position>, neither does reordering.
 
 =item *
 
-C<show_smulti_items_dialog> does not use the currently inserted string for filtering.
+C<show_smulti_items_dialog> does not use the currently inserted string for
+filtering.
+
+=item * Performance
+
+Rendering a 50 items order takes twice as long as the old code.
+
+90% of that is rendering the (hidden) second rows, and 50% of those again are
+checks for is_valid and C<INCLUDE> on the cvar input template.
+
+Suggestion: fetch second rows when asked for.
 
 =back
 
