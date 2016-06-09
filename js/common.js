@@ -1,6 +1,6 @@
 function setupPoints(numberformat, wrongFormat) {
-  decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
-  if (numberformat.substring(1, 2).match(/\.|\,/)) {
+  decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,|\'/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,|\'/) ? 6 : 5));
+  if (numberformat.substring(1, 2).match(/\.|\,|\'/)) {
     thpoint = numberformat.substring(1, 2);
   }
   else {
@@ -43,6 +43,9 @@ function check_right_number_format(input_name) {
   }
   if(thpoint && thpoint == '.'){
     test_val = test_val.replace(/\./g, '');
+  }
+  if(thpoint && thpoint == "'"){
+    test_val = test_val.replace(/\'/g, '');
   }
   if(decpoint && decpoint == ','){
     test_val = test_val.replace(/,/g, '.');
