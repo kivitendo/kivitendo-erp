@@ -418,7 +418,7 @@ SQL
                                 dbh          => $dbh);
 
     # link previous items with invoice items See IS.pm (no credit note -> no invoice item)
-    foreach (qw(delivery_order_items orderitems)) {
+    foreach (qw(delivery_order_items orderitems invoice)) {
       if (!$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
         RecordLinks->create_links('dbh'        => $dbh,
                                   'mode'       => 'ids',
@@ -758,16 +758,18 @@ SQL
 
   Common::webdav_folder($form);
 
-  # Link this record to the records it was created from.
-  if ($form->{convert_from_oe_ids}) {
-    RecordLinks->create_links('dbh'        => $dbh,
-                              'mode'       => 'ids',
-                              'from_table' => 'oe',
-                              'from_ids'   => $form->{convert_from_oe_ids},
-                              'to_table'   => 'ap',
-                              'to_id'      => $form->{id},
+  # Link this record to the records it was created from order or invoice (storno)
+  foreach (qw(oe ap)) {
+    if ($form->{"convert_from_${_}_ids"}) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => $_,
+                                'from_ids'   => $form->{"convert_from_${_}_ids"},
+                                'to_table'   => 'ap',
+                                'to_id'      => $form->{id},
       );
-    delete $form->{convert_from_oe_ids};
+      delete $form->{"convert_from_${_}_ids"};
+    }
   }
 
   my @convert_from_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{convert_from_do_ids};

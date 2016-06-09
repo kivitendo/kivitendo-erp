@@ -334,7 +334,7 @@ sub form_header {
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
-    convert_from_do_ids convert_from_oe_ids show_details gldate useasnew
+    convert_from_do_ids convert_from_oe_ids convert_from_ap_ids show_details gldate useasnew
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
@@ -626,7 +626,8 @@ sub storno {
   $form->{paidaccounts} = 0;
   map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ gldate_ acc_trans_id_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
   # set new ids for storno invoice
-  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+  # set new persistent ids for storno invoice items
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -637,6 +638,8 @@ sub storno {
   }
   # /saving the history
 
+  # record link invoice to storno
+  $form->{convert_from_ap_ids} = $form->{id};
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
