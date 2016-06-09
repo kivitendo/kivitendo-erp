@@ -1204,10 +1204,6 @@ java script functions
 
 =item *
 
-C<position> is not displayed until an order is saved
-
-=item *
-
 Customer discount is not displayed as a valid discount in price source popup
 (this might be a bug in price sources)
 
@@ -1236,9 +1232,12 @@ Table header is not sticky in the scrolling area.
 
 Sorting does not include C<position>, neither does reordering.
 
+This behavior was implemented intentionally. But we can discuss, which behavior
+should be implemented.
+
 =item *
 
-C<show_smulti_items_dialog> does not use the currently inserted string for
+C<show_multi_items_dialog> does not use the currently inserted string for
 filtering.
 
 =item * Performance
