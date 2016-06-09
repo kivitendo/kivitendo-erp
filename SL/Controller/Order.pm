@@ -1154,9 +1154,9 @@ Email dialog
 
 =back
 
-=item *
+=item * C<js/kivi.Order.js>
 
-js/kivi.Order.js: java script functions
+java script functions
 
 =back
 
@@ -1191,6 +1191,10 @@ js/kivi.Order.js: java script functions
 =item * display weights
 
 =item * force project if enabled in client config
+
+=item * history
+
+=item * mtime check
 
 =back
 
