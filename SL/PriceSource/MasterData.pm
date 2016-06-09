@@ -75,6 +75,7 @@ sub make_lastcost {
     spec         => 'lastcost',
     description  => t8('Lastcost'),
     price_source => $self,
+    priority     => 2,
   );
 }
 
