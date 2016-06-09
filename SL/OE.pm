@@ -658,8 +658,12 @@ SQL
                                   dbh          => $dbh);
 
       # link previous items with orderitems
-      foreach (qw(orderitems invoice)) {
-        if (!$form->{saveasnew} && !$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}) {
+      # assume we have a new workflow if we link from invoice or order to quotation
+      # unluckily orderitems are used for quotation and orders - therefore one more
+      # check to be sure NOT to link from order to quotation
+      foreach (qw(orderitems)) {
+        if (!$form->{saveasnew} && !$form->{useasnew} && $form->{"converted_from_${_}_id_$i"}
+              && $form->{type} !~ 'quotation') {
           RecordLinks->create_links('dbh'        => $dbh,
                                     'mode'       => 'ids',
                                     'from_table' => $_,
@@ -762,7 +766,7 @@ SQL
   $form->{convert_from_oe_ids} =~ s/\s+$//;
   my @convert_from_oe_ids      =  split m/\s+/, $form->{convert_from_oe_ids};
   delete $form->{convert_from_oe_ids};
-  if (scalar @convert_from_oe_ids) {
+  if (!$form->{useasnew} && scalar @convert_from_oe_ids) {
     RecordLinks->create_links('dbh'        => $dbh,
                               'mode'       => 'ids',
                               'from_table' => 'oe',
@@ -920,7 +924,7 @@ sub retrieve {
 
   # if called in multi id mode, and still only got one id, switch back to single id
   if ($form->{"rowcount"} and $#ids == 0) {
-   $form->{"id"} = $ids[0];
+    $form->{"id"} = $ids[0];
     undef @ids;
     delete $form->{convert_from_oe_ids};
   }
