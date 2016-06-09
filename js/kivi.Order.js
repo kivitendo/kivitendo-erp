@@ -1,12 +1,12 @@
 namespace('kivi.Order', function(ns) {
   ns.check_cv = function() {
     if ($('#type').val() == 'sales_order') {
-      if ($('#order_customer_id').val() == '') {
+      if ($('#order_customer_id').val() === '') {
         alert(kivi.t8('Please select a customer.'));
         return false;
       }
     } else  {
-      if ($('#order_vendor_id').val() == '') {
+      if ($('#order_vendor_id').val() === '') {
         alert(kivi.t8('Please select a vendor.'));
         return false;
       }
@@ -199,14 +199,14 @@ namespace('kivi.Order', function(ns) {
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
         var row;
-        if(event.keyCode == 40 && event.shiftKey == true) {
+        if(event.keyCode == 40 && event.shiftKey === true) {
           // shift arrow down
           event.preventDefault();
           row = $(event.target).parents(".row_entry").first();
           $(row).children().not(':first').show();
           return false;
         }
-        if(event.keyCode == 38 && event.shiftKey == true) {
+        if(event.keyCode == 38 && event.shiftKey === true) {
           // shift arrow up
           event.preventDefault();
           row = $(event.target).parents(".row_entry").first();
@@ -246,7 +246,7 @@ namespace('kivi.Order', function(ns) {
     } else {
       dir = "1";
       src = "image/down.png";
-    };
+    }
 
     $('#' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
 
@@ -269,7 +269,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.add_item = function() {
-    if ($('#add_item_parts_id').val() == '') return;
+    if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
 
     $('#row_table_id thead a img').remove();
@@ -379,7 +379,7 @@ namespace('kivi.Order', function(ns) {
 
     var editable_div_elt = $(row).find('[name="editable_price"]');
     var not_editable_div_elt = $(row).find('[name="not_editable_price"]');
-    if (price_editable == 1 && source == '') {
+    if (price_editable == 1 && source === '') {
       // editable
       $(editable_div_elt).show();
       $(not_editable_div_elt).hide();
@@ -414,7 +414,7 @@ namespace('kivi.Order', function(ns) {
 
     var editable_div_elt = $(row).find('[name="editable_discount"]');
     var not_editable_div_elt = $(row).find('[name="not_editable_discount"]');
-    if (price_editable == 1 && source == '') {
+    if (price_editable == 1 && source === '') {
       // editable
       $(editable_div_elt).show();
       $(not_editable_div_elt).hide();
