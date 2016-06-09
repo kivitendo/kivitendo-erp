@@ -519,9 +519,15 @@ sub invoice_details {
   $form->{nodiscount}          = $form->format_amount($myconfig, $nodiscount, 2);
   $form->{yesdiscount}         = $form->format_amount($myconfig, $form->{nodiscount_total} - $nodiscount, 2);
 
-  $form->{invtotal} = ($form->{taxincluded}) ? $form->{total} : $form->{total} + $tax;
-  $form->{total}    = $form->format_amount($myconfig, $form->{invtotal} - $form->{paid}, 2);
+  my $grossamount = ($form->{taxincluded}) ? $form->{total} : $form->{total} + $tax;
+  $form->{invtotal} = $form->round_amount($grossamount, 2, 1);
+  $form->{rounding} = $form->round_amount(
+    $form->{invtotal} - $form->round_amount($grossamount, 2),
+    2
+  );
 
+  $form->{rounding} = $form->format_amount($myconfig, $form->{rounding}, 2);
+  $form->{total}    = $form->format_amount($myconfig, $form->{invtotal} - $form->{paid}, 2);
   $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
   $form->{paid}     = $form->format_amount($myconfig, $form->{paid}, 2);
 

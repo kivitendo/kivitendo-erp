@@ -1576,9 +1576,15 @@ sub order_details {
     $form->{subtotal_nofmt} = $form->{ordtotal};
   }
 
-  $form->{ordtotal} = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
+  my $grossamount = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
+  $form->{ordtotal} = $form->round_amount( $grossamount, 2, 1);
+  $form->{rounding} = $form->round_amount(
+    $form->{ordtotal} - $form->round_amount($grossamount, 2),
+    2
+  );
 
   # format amounts
+  $form->{rounding} = $form->format_amount($myconfig, $form->{rounding}, 2);
   $form->{quototal} = $form->{ordtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
 
   $form->set_payment_options($myconfig, $form->{$form->{type} =~ /_quotation/ ? 'quodate' : 'orddate'}, $form->{type});

@@ -5,7 +5,7 @@
 <tr valign=bottom>
   <td width=10>&nbsp;</td>
   <td>
-  
+
   <table width=100%>
   <tr valign=top>
     <td>
@@ -76,22 +76,22 @@
     <td colspan=2>
       <table width=100% border=1>
         <tr>
-	  <th width=17% align=left nowrap>Nummer</th>
-	  <th width=17% align=left>Datum</th>
-	  <th width=17% align=left>Gültig bis</th>
-	  <th width=17% align=left nowrap>Kontakt</th>
-	  <th width=17% align=left nowrap>Lagerplatz</th>
-	  <th width=15% align=left nowrap>Lieferung mit</th>
-	</tr>
+    <th width=17% align=left nowrap>Nummer</th>
+    <th width=17% align=left>Datum</th>
+    <th width=17% align=left>Gültig bis</th>
+    <th width=17% align=left nowrap>Kontakt</th>
+    <th width=17% align=left nowrap>Lagerplatz</th>
+    <th width=15% align=left nowrap>Lieferung mit</th>
+  </tr>
 
-	<tr>
-	  <td><%quonumber%></td>
-	  <td><%quodate%></td>
-	  <td><%reqdate%></td>
-	  <td><%employee%></td>
-	  <td><%shippingpoint%></td>
-	  <td><%shipvia%></td>
-	</tr>
+  <tr>
+    <td><%quonumber%></td>
+    <td><%quodate%></td>
+    <td><%reqdate%></td>
+    <td><%employee%></td>
+    <td><%shippingpoint%></td>
+    <td><%shipvia%></td>
+  </tr>
       </table>
     </td>
   </tr>
@@ -150,6 +150,11 @@
       <td colspan=2 align=right><%tax%></td>
     </tr>
 <%end tax%>
+
+<%if rounding%>
+      <th colspan=6 align=right>Rundung</th>
+      <td colspan=2 align=right><%rounding%></td>
+<%end rounding%>
 
     <tr>
       <td colspan=4>&nbsp;</td>

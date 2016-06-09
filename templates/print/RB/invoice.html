@@ -5,7 +5,7 @@
 <tr valign=bottom>
   <td width=10>&nbsp;</td>
   <td>
-  
+
   <table width=100%>
   <tr>
     <td>
@@ -33,14 +33,14 @@
 
 
   <table width=100% callspacing=0 cellpadding=0>
-    
+
   <tr>
     <td align=right>
     <table>
     <tr>
       <th align=right>Ausgestellt am</th><td width=10>&nbsp;</td><td><%invdate%></td>
     </tr>
-  
+
     <tr>
       <th align=right>Bezahlbar bis</th><td width=10>&nbsp;</td><td><%duedate%></td>
     </tr>
@@ -48,7 +48,7 @@
     <tr>
       <th align=right>Nummer</th><td>&nbsp;</td><td><%invnumber%></td></tr>
     </tr>
-  
+
     <tr>
       <th align=right>Lieferdatum</th><td>&nbsp;</td><td><%deliverydate%></td></tr>
     </tr>
@@ -85,7 +85,7 @@
       <br><%city%>
       <br><%country%>
       </td>
-      
+
       <td><%shiptoname%>
       <br><%shiptostreet%>
       <br><%shiptozipcode%>
@@ -100,7 +100,7 @@
   <tr>
     <td>&nbsp;</td>
   </tr>
-  
+
   <tr>
     <td>
     <table width=100%>
@@ -139,7 +139,7 @@ netprice = linetotal/qty
     <tr>
       <td colspan=7><hr noshade></td>
     </tr>
-    
+
 <%if taxincluded%>
     <tr>
       <th colspan=5 align=right>Total</th>
@@ -159,6 +159,13 @@ netprice = linetotal/qty
       <td colspan=2 align=right><%tax%></td>
     </tr>
 <%end tax%>
+
+<%if rounding%>
+    <tr>
+      <th colspan=5 align=right>Rundung</th>
+      <td colspan=2 align=right><%rounding%></td>
+    </tr>
+<%end rounding%>
 
 <%if paid%>
     <tr>
@@ -207,7 +214,7 @@ netprice = linetotal/qty
 </tr>
 
 <tr><td>&nbsp;</td></tr>
-  
+
 <tr>
   <td>
   <table width=100%>

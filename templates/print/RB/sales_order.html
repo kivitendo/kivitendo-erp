@@ -5,7 +5,7 @@
 <tr valign=bottom>
   <td width=10>&nbsp;</td>
   <td>
-  
+
   <table width=100%>
   <tr>
     <td>
@@ -33,14 +33,14 @@
 
 
   <table width=100% callspacing=0 cellpadding=0>
-    
+
   <tr>
     <td align=right>
     <table>
     <tr>
       <th align=right>Bestelldatum</th><td width=10>&nbsp;</td><td><%orddate%></td>
     </tr>
-  
+
     <tr>
       <th align=right>Lieferbar bei</th><td width=10>&nbsp;</td><td><%reqdate%></td>
     </tr>
@@ -48,7 +48,7 @@
     <tr>
       <th align=right>Bestellnummer</th><td>&nbsp;</td><td><%ordnumber%></td></tr>
     </tr>
-  
+
     <tr>
       <td>&nbsp;</td>
     </tr>
@@ -86,7 +86,7 @@
   <tr>
     <td>&nbsp;</td>
   </tr>
-  
+
   <tr>
     <td>
     <table width=100%>
@@ -119,7 +119,7 @@ adjust the colspan if you include this to shift subtotal one to the right
     <tr>
       <td colspan=7><hr noshade></td>
     </tr>
-    
+
 <%if taxincluded%>
     <tr>
       <th colspan=5 align=right>Total</th>
@@ -140,6 +140,11 @@ adjust the colspan if you include this to shift subtotal one to the right
       <td colspan=2 align=right><%tax%></td>
     </tr>
 <%end tax%>
+
+<%if rounding%>
+      <th colspan=5 align=right>Rundung</th>
+      <td colspan=2 align=right><%rounding%></td>
+<%end rounding%>
 
     <tr>
       <td colspan=2>&nbsp;</td>
@@ -184,7 +189,7 @@ adjust the colspan if you include this to shift subtotal one to the right
 </tr>
 
 <tr><td>&nbsp;</td></tr>
-  
+
 <tr>
   <td>
   <table width=100%>
