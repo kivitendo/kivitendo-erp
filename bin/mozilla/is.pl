@@ -966,6 +966,8 @@ sub storno {
   $form->{paidaccounts} = 0;
   map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ gldate_ acc_trans_id_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
 
+  # record link invoice to storno
+  $form->{convert_from_ar_ids} = $form->{id};
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
@@ -973,7 +975,8 @@ sub storno {
   $form->{invdate}   = DateTime->today->to_lxoffice;
   $form->{rowcount}++;
   # set new ids for storno invoice
-  delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
+  # set new persistent ids for storno invoice items
+  $form->{"converted_from_invoice_id_$_"} = delete $form->{"invoice_id_$_"} for 1 .. $form->{"rowcount"};
 
   post();
   $main::lxdebug->leave_sub();
