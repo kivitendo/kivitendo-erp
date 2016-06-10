@@ -604,8 +604,8 @@ sub customer_details {
       $ref->{cp_gender} = $contact->cp_gender;
     }
   }
-  # remove id and taxincluded before copy back
-  delete @$ref{qw(id taxincluded)};
+  # remove id,notes (double of customernotes) and taxincluded before copy back
+  delete @$ref{qw(id taxincluded notes)};
 
   @wanted_vars = grep({ $_ } @wanted_vars);
   if (scalar(@wanted_vars) > 0) {
