@@ -488,59 +488,11 @@ Examples:
   [ [ 'datatype', 'ordernumber', 'customer', 'transdate' ],
     [ 'datatype', 'partnumber', 'qty', 'sellprice' ] ]
 
-=item C<profile> [{profile => \%ACCESSORS, class => class, row_ident => ri},]
+=item C<profile> PROFILE_DATA
 
-This is an ARRAYREF to HASHREFs which may contain the keys C<profile>, C<class>
-and C<row_ident>.
+The profile mapping csv to the objects.
 
-The C<profile> is a HASHREF which may be used to map header fields to custom
-accessors. Example:
-
-  [ {profile => { listprice => listprice_as_number }} ]
-
-In this case C<listprice_as_number> will be used to read in values from the
-C<listprice> column.
-
-In case of a One-To-One relationship these can also be set over
-relationships by separating the steps with a dot (C<.>). This will work:
-
-  [ {profile => { customer => 'customer.name' }} ]
-
-And will result in something like this:
-
-  $obj->customer($obj->meta->relationship('customer')->class->new);
-  $obj->customer->name($csv_line->{customer})
-
-But beware, this will not try to look up anything in the database. You will
-simply receive objects that represent what the profile defined. If some of
-these information are unique, and should be connected to preexisting data, you
-will have to do that for yourself. Since you provided the profile, it is
-assumed you know what to do in this case.
-
-If no profile is given, any header field found will be taken as is.
-
-If the path in a profile entry is empty, the field will be subjected to
-C<strict_profile> and C<case_insensitive_header> checking, will be parsed into
-C<get_data>, but will not be attempted to be dispatched into objects.
-
-If C<class> is present, the line will be handed to the new sub of this class,
-and the return value used instead of the line itself.
-
-C<row_ident> is a string to recognize the right profile and class for each data
-line in multiplexed data. It must match the value in the column 'dataype' for
-each class.
-
-In case of multiplexed data, C<class> and C<row_ident> must be given.
-Example:
-  [ {
-      class     => 'SL::DB::Order',
-      row_ident => 'O'
-    },
-    {
-      class     => 'SL::DB::OrderItem',
-      row_ident => 'I',
-      profile   => {sellprice => sellprice_as_number}
-    } ]
+See section L</PROFILE> for information on this topic.
 
 =item C<ignore_unknown_columns>
 
@@ -566,6 +518,75 @@ If both C<case_insensitive_header> and C<strict_profile> is set, matched header
 columns will be accepted.
 
 =back
+
+=head1 PROFILE
+
+The profile is needed for mapping csv data to the accessors in the data object.
+
+The basic structure is:
+
+  PROFILE       := [ CLASS_PROFILE, CLASS_PROFILE* ]
+  CLASS_PROFILE := {
+                      profile   => { ACCESSORS },
+                      class     => $classname,
+                      row_ident => $row_ident,
+                   }
+  ACCESSORS     := $field => $accessor, ACCESSORS*
+
+The C<profile> is a HASHREF which may be used to map header fields to custom
+accessors. Example:
+
+  [
+    {
+      profile => {
+        listprice => 'listprice_as_number',
+      }
+    }
+  ]
+
+In this case C<listprice_as_number> will be used to store the values from the
+C<listprice> column.
+
+In case of a One-To-One relationship these can also be set over
+relationships by separating the steps with a dot (C<.>). This will work:
+
+  customer => 'customer.name',
+
+And will result in something like this:
+
+  $obj->customer($obj->meta->relationship('customer')->class->new);
+  $obj->customer->name($csv_line->{customer})
+
+Beware, this will not try to look up anything in the database! You will
+simply receive objects that represent what the profile defined. If some of
+these information are unique, or should be connected to preexisting data, you
+will have to do that for yourself. Since you provided the profile, it is
+assumed you know what to do in this case.
+
+If no profile is given, any header field found will be taken as is.
+
+If the path in a profile entry is empty, the field will be subjected to
+C<strict_profile> and C<case_insensitive_header> checking and will be parsed
+into C<get_data>, but will not be attempted to be dispatched into objects.
+
+C<class> must be present. A new instance will be created for each line before
+dispatching into it.
+
+C<row_ident> is used to determine the correct profile in multiplexed data and
+must be given there. It's not used in non-multiplexed data.
+
+Example:
+  [
+    {
+      class     => 'SL::DB::Order',
+      row_ident => 'O'
+    },
+    {
+      class     => 'SL::DB::OrderItem',
+      row_ident => 'I',
+      profile   => { sellprice => 'sellprice_as_number' }
+    },
+  ]
 
 =head1 ERROR HANDLING
 
