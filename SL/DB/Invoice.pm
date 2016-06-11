@@ -240,9 +240,14 @@ sub post {
 
   require SL::DB::Chart;
   if (!$params{ar_id}) {
-    my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
-                                                sort_by => 'id ASC',
-                                                limit   => 1)->[0];
+    my $chart;
+    if ($::instance_conf->get_ar_chart_id) {
+      $chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ar_chart_id);
+    } else {
+      $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
+                                               sort_by => 'id ASC',
+                                               limit   => 1)->[0];
+    };
     croak("No AR chart found and no parameter 'ar_id' given") unless $chart;
     $params{ar_id} = $chart->id;
   }
