@@ -143,8 +143,8 @@
         <title>Benötigte Perl-Pakete installieren</title>
 
         <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
-        Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.4)
-        benötigt.</para>
+        Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen Version
+        (s.a. Liste der unterstützten Betriebssysteme) benötigt.</para>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
         Bestandteil einer Standard-Perl-Installation sind. Um zu überprüfen,
@@ -5993,11 +5993,11 @@ Beschreibung: &lt;%description%&gt;
     </sect1>
 
     <sect1 id="features.warehouse">
-       
+
 
       <title>Mandantenkonfiguration Lager</title>
 
-       Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt: Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die Möglichkeit hier über den Menüpunkt Lager entsprechende Warenbewegungen durchzuführen. Ferner kann jede Position eines Lieferscheins ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf). Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet werden. Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und das Auswählen dieser Position zu einem Lager mit Lagerplatz. Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in der Mandatenkonfiguration gesetzt werden. 
+       Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt: Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die Möglichkeit hier über den Menüpunkt Lager entsprechende Warenbewegungen durchzuführen. Ferner kann jede Position eines Lieferscheins ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf). Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet werden. Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und das Auswählen dieser Position zu einem Lager mit Lagerplatz. Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in der Mandatenkonfiguration gesetzt werden.
 
       <itemizedlist>
         <listitem>
@@ -6017,7 +6017,7 @@ Beschreibung: &lt;%description%&gt;
         </listitem>
       </itemizedlist>
 
-       Zusätzliche Funktionshinweise: 
+       Zusätzliche Funktionshinweise:
 
       <itemizedlist>
         <listitem>
@@ -6035,7 +6035,7 @@ Beschreibung: &lt;%description%&gt;
         </listitem>
       </itemizedlist>
 
-       
+
     </sect1>
   </chapter>
 

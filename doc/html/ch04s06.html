@@ -58,7 +58,7 @@ map { $form-&gt;{sum} += $form-&gt;{"row_$_"} } 1..$rowcount;</pre></li><li clas
               Zeilen aufgeteilt, so sollten diese bis zu der Spalte eingerückt
               werden, in der die ersten Funktionsparameter in der ersten Zeile
               stehen. Beispiel:</p><pre class="programlisting">$sth = $dbh-&gt;prepare("SELECT * FROM some_table WHERE col = ?",
-                    $form-&gt;{some_col_value});</pre></li><li class="listitem"><p>Ein Spezialfall ist der ternäre Oprator "?:", der am
+                    $form-&gt;{some_col_value});</pre></li><li class="listitem"><p>Ein Spezialfall ist der ternäre Operator "?:", der am
               besten in einer übersichtlichen Tabellenstruktur organisiert
               wird. Beispiel:</p><pre class="programlisting">my $rowcount = $form-&gt;{"row_$i"} ? $i
              : $form-&gt;{oldcount} ? $form-&gt;{oldcount} + 1
