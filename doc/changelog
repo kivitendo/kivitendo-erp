@@ -27,6 +27,9 @@ kleinere neue Features und Detailverbesserungen:
   - Änderungen des Verkaufspreises von Artikeln, die Bestandteile von
     Erzeugnissen sind, haben nun keine Auswirkungen auf die
     Verkaufspreise der Erzeugnisse mehr.
+  - Kontoauszug verbuchen in der Übersicht den offenen Rechnungsbetrag
+    als visuelle Hilfe anzeigen und nur den maximal offenen Rechnungsbetrag
+    auch zuweisen.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
