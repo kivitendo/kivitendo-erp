@@ -405,7 +405,7 @@ sub action_save_invoices {
           $amount_of_transaction -= $sign * $invoice->open_amount;
           $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $invoice->open_amount);
         } else {
-          $amount_of_transaction += $sign * $invoice->open_amount if (!$invoice->is_sales);
+          $amount_of_transaction += $sign * $invoice->open_amount;
           $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $invoice->open_amount);
         }
         # ... and then pay the invoice
@@ -420,8 +420,7 @@ sub action_save_invoices {
                               amount       => $amount_of_transaction,
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
-        $bank_transaction->invoice_amount($bank_transaction->amount) if $invoice->is_sales;
-        $bank_transaction->invoice_amount($bank_transaction->amount) if !$invoice->is_sales;
+        $bank_transaction->invoice_amount($bank_transaction->amount);
         $amount_of_transaction = 0;
       }
 
