@@ -511,11 +511,12 @@ sub check_missing_tax_bookings {
   my $missing_tax_bookings = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
   if ( scalar @{ $missing_tax_bookings } > 0 ) {
-    $self->tester->ok(0, "Folgende Konten weisen Buchungen ohne Steuer auf:");
+    $self->tester->ok(0, "Folgende Konten weisen Buchungen ohne Steuerverknüpfung auf:");
 
     for my $acc_trans_nok (@{ $missing_tax_bookings } ) {
       $self->tester->diag("Kontonummer: $acc_trans_nok->{accno} Belegdatum: $acc_trans_nok->{transdate} Trans-ID: $acc_trans_nok->{trans_id}.
-                           Kann über System -> Korrekturen im Hauptbuch bereinigt werden.");
+                           Kann über System -> Korrekturen im Hauptbuch bereinigt werden. Falls es ein Zahlungskonto ist, wurde
+                           ggf. ein Brutto-Skonto-Konto mit einer Netto-Rechnung verknüpft. Kann nur per SQL geändert werden.");
     }
   } else {
     $self->tester->ok(1, "Hauptbuch-Nettowert und Nebenbuch-Nettowert stimmen überein.");
