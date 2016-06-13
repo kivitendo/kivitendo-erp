@@ -29,7 +29,7 @@ sub pay_invoice {
   my $is_sales = ref($self) eq 'SL::DB::Invoice';
   my $mult = $is_sales ? 1 : -1;  # multiplier for getting the right sign depending on ar/ap
 
-  my $paid_amount = 0; # the amount that will be later added to $self->paid
+  my $paid_amount = 0; # the amount that will be later added to $self->paid, should be in default currency
 
   # default values if not set
   $params{payment_type} = 'without_skonto' unless $params{payment_type};
@@ -38,7 +38,13 @@ sub pay_invoice {
   # check for required parameters
   Common::check_params(\%params, qw(chart_id transdate));
 
-  my $transdate_obj = $::locale->parse_date_to_object($params{transdate});
+  my $transdate_obj;
+  if (ref($params{transdate} eq 'DateTime')) {
+    print "found transdate ref\n"; sleep 2;
+    $transdate_obj = $params{transdate};
+  } else {
+   $transdate_obj = $::locale->parse_date_to_object($params{transdate});
+  };
   croak t8('Illegal date') unless ref $transdate_obj;
 
   # check for closed period
@@ -50,6 +56,31 @@ sub pay_invoice {
   # check for maximum number of future days
   if ( $::instance_conf->get_max_future_booking_interval > 0 ) {
     croak t8('Cannot post transaction above the maximum future booking date!') if $transdate_obj > DateTime->now->add( days => $::instance_conf->get_max_future_booking_interval );
+  };
+
+  # currency is either passed or use the invoice currency if it differs from the default currency
+  my ($exchangerate,$currency);
+  if ($params{currency} || $params{currency_id} || $self->currency_id != $::instance_conf->get_currency_id) {
+    if ($params{currency} || $params{currency_id} ) { # currency was specified
+      $currency = SL::DB::Manager::Currency->find_by(name => $params{currency}) || SL::DB::Manager::Currency->find_by(id => $params{currency_id});
+    } else { # use invoice currency
+      $currency = SL::DB::Manager::Currency->find_by(id => $self->currency_id);
+    };
+    die "no currency" unless $currency;
+    if ($currency->id == $::instance_conf->get_currency_id) {
+      $exchangerate = 1;
+    } else {
+      my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $currency->id,
+                                                        transdate   => $transdate_obj,
+                                                       );
+      if ($rate) {
+        $exchangerate = $is_sales ? $rate->buy : $rate->sell;
+      } else {
+        die "No exchange rate for " . $transdate_obj->to_kivitendo;
+      };
+    };
+  } else { # no currency param given or currency is the same as default_currency
+    $exchangerate = 1;
   };
 
   # input checks:
@@ -83,7 +114,7 @@ sub pay_invoice {
   my $memo   = $params{'memo'}   || '';
   my $source = $params{'source'} || '';
 
-  my $rounded_params_amount = _round( $params{amount} );
+  my $rounded_params_amount = _round( $params{amount} ); # / $exchangerate);
 
   my $db = $self->db;
   $db->do_transaction(sub {
@@ -107,19 +138,40 @@ sub pay_invoice {
       $pay_amount = $self->amount_less_skonto if $params{payment_type} eq 'with_skonto_pt';
 
       # bank account and AR/AP
-      $paid_amount += $pay_amount;
+      $paid_amount += $pay_amount * $exchangerate;
+
+      my $amount = (-1 * $pay_amount) * $mult;
+
 
       # total amount against bank, do we already know this by now?
       $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                    chart_id   => $account_bank->id,
                                                    chart_link => $account_bank->link,
-                                                   amount     => (-1 * $pay_amount) * $mult,
+                                                   amount     => $amount,
                                                    transdate  => $transdate_obj,
                                                    source     => $source,
                                                    memo       => $memo,
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
+
+      # deal with fxtransaction
+      if ( $self->currency_id != $::instance_conf->get_currency_id ) {
+        my $fxamount = _round($amount - ($amount * $exchangerate));
+        # print "amount: $amount, fxamount = $fxamount\n";
+        # print "amount - (amount * exchangerate) = " . $amount . " - (" . $amount . " - " . $exchangerate . ")\n";
+        $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
+                                                     chart_id       => $account_bank->id,
+                                                     chart_link     => $account_bank->link,
+                                                     amount         => $fxamount * -1,
+                                                     transdate      => $transdate_obj,
+                                                     source         => $source,
+                                                     memo           => $memo,
+                                                     taxkey         => 0,
+                                                     fx_transaction => 1,
+                                                     tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+        $new_acc_trans->save;
+      };
     };
 
     if ( $params{payment_type} eq 'difference_as_skonto' or $params{payment_type} eq 'with_skonto_pt' ) {
@@ -148,7 +200,7 @@ sub pay_invoice {
         my $amount = -1 * $skonto_booking->{skonto_amount};
         $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                      chart_id   => $skonto_booking->{'chart_id'},
-                                                     chart_link => SL::DB::Manager::Chart->find_by(id => $skonto_booking->{'chart_id'})->{'link'},
+                                                     chart_link => SL::DB::Manager::Chart->find_by(id => $skonto_booking->{'chart_id'})->link,
                                                      amount     => $amount * $mult,
                                                      transdate  => $transdate_obj,
                                                      source     => $params{source},
@@ -159,7 +211,7 @@ sub pay_invoice {
         $new_acc_trans->save;
 
         $reference_amount -= abs($amount);
-        $paid_amount      += -1 * $amount;
+        $paid_amount      += -1 * $amount * $exchangerate;
         $skonto_amount_check -= $skonto_booking->{'skonto_amount'};
       };
       if ( $params{payment_type} eq 'difference_as_skonto' ) {
@@ -186,14 +238,14 @@ sub pay_invoice {
     my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                   chart_id   => $reference_account->id,
                                                   chart_link => $reference_account->link,
-                                                  amount     => $arap_amount * $mult,
+                                                  amount     => _round($arap_amount * $mult * $exchangerate),
                                                   transdate  => $transdate_obj,
                                                   source     => '', #$params{source},
                                                   taxkey     => 0,
                                                   tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
     $arap_booking->save;
 
-    $self->paid($self->paid+$paid_amount) if $paid_amount;
+    $self->paid($self->paid + _round($paid_amount)) if $paid_amount;
     $self->datepaid($transdate_obj);
     $self->save;
 
@@ -386,10 +438,10 @@ sub check_skonto_configuration {
   # my $transactions = $self->transactions;
   foreach my $transaction (@{ $self->transactions }) {
     # find all transactions with an AR_amount or AP_amount link
-    my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->{taxkey}]);
+    my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->taxkey]);
     croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
 
-    $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->{chart_link}) };
+    $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->chart_link) };
     if ( $is_sales && $transaction->{chartlinks}->{AR_amount} ) {
       $skonto_configured = 0 unless $tax->skonto_sales_chart_id;
     } elsif ( !$is_sales && $transaction->{chartlinks}->{AP_amount}) {
@@ -717,6 +769,16 @@ or with skonto:
                    payment_type  => 'with_skonto',
                   );
 
+or in a certain currency:
+  $ap->pay_invoice(chart_id      => $bank->chart_id,
+                   amount        => 500,
+                   currency      => 'USD',
+                   transdate     => DateTime->now->to_kivitendo,
+                   memo          => 'foobar',
+                   source        => 'barfoo',
+                   payment_type  => 'with_skonto',
+                  );
+
 Allowed payment types are:
   without_skonto with_skonto_pt difference_as_skonto
 
@@ -767,6 +829,11 @@ are negative values in acc_trans. E.g. one invoice with a positive value for
 19% tax and a negative value for the acc_trans line with 7%
 
 Skonto doesn't/shouldn't apply if the invoice contains credited items.
+
+If no amount is given the whole open amout is paid.
+
+If neither currency or currency_id are given as params, the currency of the
+invoice is assumed to be the payment currency.
 
 =item C<reference_account>
 
