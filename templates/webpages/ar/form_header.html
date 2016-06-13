@@ -99,7 +99,7 @@
                 [% L.hidden_tag('forex', forex) %]
                 [% IF show_exch %]
                    <th align=right>[% 'Exchangerate' | $T8 %]</th>
--                  <td>[%- IF forex %][% L.hidden_tag('exchangerate', LxERP.format_amount(exchangerate, 2)) %][% LxERP.format_amount(exchangerate, 2) %][%- ELSE %][% L.input_tag('exchangerate', LxERP.format_amount(exchangerate, 2), size=10) %][%- END %]</td>
+                   <td>[%- IF forex %][% L.hidden_tag('exchangerate', LxERP.format_amount(exchangerate, 5)) %][% LxERP.format_amount(exchangerate, 5) %][%- ELSE %][% L.input_tag('exchangerate', LxERP.format_amount(exchangerate, 5), size=10) %][%- END %]</td>
                 [% END %]
               </tr>
               [% department_html %]
