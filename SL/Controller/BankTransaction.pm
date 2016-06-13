@@ -226,7 +226,9 @@ sub action_ajax_payment_suggestion {
 
   my $html;
   $html .= SL::Presenter->input_tag('invoice_ids.' . $::form->{bt_id} . '[]', $::form->{prop_id} , type => 'hidden');
-  $html .= SL::Presenter->escape( $invoice->invnumber );
+  # better in template code - but how to ajax this
+  $html .= SL::Presenter->escape(t8('Invno.') . ': ' . $invoice->invnumber . ' ');
+  $html .= SL::Presenter->escape(t8('Amount') . ': ' . $::form->format_amount(\%::myconfig, $invoice->open_amount, 2) . ' ');
   $html .= SL::Presenter->select_tag('invoice_skontos.' . $::form->{bt_id} . '[]', \@select_options,
                                               value_key => 'payment_type',
                                               title_key => 'display' ) if @select_options;
