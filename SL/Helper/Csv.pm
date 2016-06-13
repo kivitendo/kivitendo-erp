@@ -204,6 +204,7 @@ sub _check_header {
       foreach my $h (@{ $h_aref }) {
         my @names = (
           keys %{ $self->profile->[$p_num]->{profile} || {} },
+          keys %{ $self->profile->[$p_num]->{mapping} || {} },
         );
         for my $name (@names) {
           for my $i (0..$#$h) {
@@ -527,22 +528,20 @@ The basic structure is:
 
   PROFILE       := [ CLASS_PROFILE, CLASS_PROFILE* ]
   CLASS_PROFILE := {
-                      profile   => { ACCESSORS },
+                      profile   => { ACCESSORS+ },
                       class     => $classname,
                       row_ident => $row_ident,
+                      mapping   => { MAPPINGS* },
                    }
-  ACCESSORS     := $field => $accessor, ACCESSORS*
+  ACCESSORS     := $field => $accessor
+  MAPPINGS      := $alias => $field
 
-The C<profile> is a HASHREF which may be used to map header fields to custom
+The C<ACCESSORS> may be used to map header fields to custom
 accessors. Example:
 
-  [
-    {
-      profile => {
-        listprice => 'listprice_as_number',
-      }
-    }
-  ]
+  profile => {
+    listprice => 'listprice_as_number',
+  }
 
 In this case C<listprice_as_number> will be used to store the values from the
 C<listprice> column.
@@ -575,7 +574,32 @@ dispatching into it.
 C<row_ident> is used to determine the correct profile in multiplexed data and
 must be given there. It's not used in non-multiplexed data.
 
-Example:
+If C<mappings> is present, it must contain a hashref that maps strings to known
+fields. This can be used to add custom profiles for known sources, that don't
+comply with the expected header identities.
+
+Without strict profiles, mappings can also directly map header fields that
+should end up in the same accessor.
+
+Mappings can be identical to known fields and will be prefered during lookup,
+but will not replace the field, meaning that:
+
+  profile => {
+    name        => 'name',
+    description => 'description',
+  }
+  mapping => {
+    name        => 'description',
+    shortname   => 'name',
+  }
+
+will work as expected, and shortname will not end up in description. This also
+works with the case insensitive option. Note however that the case insensitive
+option will not enable true unicode collating.
+
+
+Here's a full example:
+
   [
     {
       class     => 'SL::DB::Order',
@@ -584,7 +608,8 @@ Example:
     {
       class     => 'SL::DB::OrderItem',
       row_ident => 'I',
-      profile   => { sellprice => 'sellprice_as_number' }
+      profile   => { sellprice => 'sellprice_as_number' },
+      mapping   => { 'Verkaufspreis' => 'sellprice' }
     },
   ]
 
@@ -600,6 +625,9 @@ Each entry is an object with the following attributes:
  col:    estimated line in file,
 
 Note that the last entry can be off, but will give an estimate.
+
+Error handling is also known to break on new Perl versions and need to be
+adjusted from time to time due to changes in Text::CSV_XS.
 
 =head1 CAVEATS
 

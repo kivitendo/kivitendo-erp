@@ -113,6 +113,7 @@ sub parse_profile {
   my $i = 0;
   foreach my $header (@{ $h_aref }) {
     my $spec = $self->_parse_profile(profile => $csv_profile->[$i]->{profile},
+                                     mapping => $csv_profile->[$i]->{mapping},
                                      class   => $csv_profile->[$i]->{class},
                                      header  => $header);
     push @specs, $spec;
@@ -132,20 +133,21 @@ sub _parse_profile {
   my $profile = $params{profile};
   my $class   = $params{class};
   my $header  = $params{header};
+  my $mapping = $params{mapping};
 
   my @specs;
 
   for my $col (@$header) {
     next unless $col;
-    if ($self->_csv->strict_profile) {
-      if (exists $profile->{$col}) {
-        push @specs, $self->make_spec($col, $profile->{$col}, $class);
-      } else {
-        $self->unknown_column($col, undef);
-      }
+    if (exists $mapping->{$col} && $profile->{$mapping->{$col}}) {
+      push @specs, $self->make_spec($col, $profile->{$mapping->{$col}}, $class);
+    } elsif (exists $mapping->{$col}) {
+      push @specs, $self->make_spec($col, $mapping->{$col}, $class);
+    } elsif (exists $profile->{$col}) {
+      push @specs, $self->make_spec($col, $profile->{$col}, $class);
     } else {
-      if (exists $profile->{$col}) {
-        push @specs, $self->make_spec($col, $profile->{$col}, $class);
+      if ($self->_csv->strict_profile) {
+        $self->unknown_column($col, undef);
       } else {
         push @specs, $self->make_spec($col, $col, $class);
       }

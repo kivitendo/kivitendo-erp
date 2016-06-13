@@ -1,4 +1,4 @@
-use Test::More tests => 75;
+use Test::More tests => 84;
 
 use lib 't';
 use utf8;
@@ -725,6 +725,88 @@ is_deeply $csv->get_data,
 ok $csv->get_objects->[0], 'multiplex: empty path gets ignored in object creation (strict profile)';
 
 #####
+
+# Mappings
+# simple case
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description,sellprice,lastcost_as_number,purchaseprice,
+Kaffee,0.12,'12,2','1,5234'
+EOL
+  sep_char => ',',
+  quote_char => "'",
+  profile => [
+    {
+      profile => { listprice => 'listprice_as_number' },
+      mapping => { purchaseprice => 'listprice' },
+      class   => 'SL::DB::Part',
+    }
+  ],
+);
+ok $csv->parse, 'simple mapping parses';
+is $csv->get_objects->[0]->listprice, 1.5234, 'simple mapping works';
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;purchaseprice;wiener;
+Kaffee;;0.12;1,221.52;ja wiener
+Beer;1123245;0.12;1.5234;nein kein wieder
+EOL
+  numberformat => '1,000.00',
+  ignore_unknown_columns => 1,
+  strict_profile => 1,
+  profile => [{
+    profile => { lastcost => 'lastcost_as_number' },
+    mapping => { purchaseprice => 'lastcost' },
+    class  => 'SL::DB::Part',
+  }]
+);
+ok $csv->parse, 'strict mapping parses';
+is $csv->get_objects->[0]->lastcost, 1221.52, 'strict mapping works';
+
+# swapping
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost;wiener;
+Kaffee;1;0.12;1,221.52;ja wiener
+Beer;1123245;0.12;1.5234;nein kein wieder
+EOL
+  numberformat => '1,000.00',
+  ignore_unknown_columns => 1,
+  strict_profile => 1,
+  profile => [{
+    mapping => { partnumber => 'description', description => 'partnumber' },
+    class  => 'SL::DB::Part',
+  }]
+);
+ok $csv->parse, 'swapping parses';
+is $csv->get_objects->[0]->partnumber, 'Kaffee', 'strict mapping works 1';
+is $csv->get_objects->[0]->description, '1', 'strict mapping works 2';
+
+# case insensitive shit
+$csv = SL::Helper::Csv->new(
+  file   => \"Description\nKaffee",        # " # make emacs happy
+  case_insensitive_header => 1,
+  profile => [{
+    mapping => { description => 'description' },
+    class  => 'SL::DB::Part'
+  }],
+);
+$csv->parse;
+is $csv->get_objects->[0]->description, 'Kaffee', 'case insensitive mapping without profile works';
+
+# case insensitive shit
+$csv = SL::Helper::Csv->new(
+  file   => \"Price\n4,99",        # " # make emacs happy
+  case_insensitive_header => 1,
+  profile => [{
+    profile => { sellprice => 'sellprice_as_number' },
+    mapping => { price => 'sellprice' },
+    class  => 'SL::DB::Part',
+  }],
+);
+$csv->parse;
+is $csv->get_objects->[0]->sellprice, 4.99, 'case insensitive mapping with profile works';
 
 
 # vim: ft=perl
