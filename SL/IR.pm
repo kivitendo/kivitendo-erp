@@ -1465,8 +1465,8 @@ sub vendor_details {
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{vendor_id}, @values);
 
-  # remove id and taxincluded before copy back
-  delete @$ref{qw(id taxincluded)};
+  # remove id,notes (double of vendornotes) and taxincluded before copy back
+  delete @$ref{qw(id taxincluded notes)};
 
   @wanted_vars = grep({ $_ } @wanted_vars);
   if (scalar(@wanted_vars) > 0) {
