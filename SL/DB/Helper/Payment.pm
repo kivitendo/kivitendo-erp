@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction create_bank_transaction);
+our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction create_bank_transaction exchangerate);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -15,6 +15,8 @@ use DateTime;
 use SL::DATEV qw(:CONSTANTS);
 use SL::Locale::String qw(t8);
 use List::Util qw(sum);
+use SL::DB::Exchangerate;
+use SL::DB::Currency;
 use Carp;
 
 #
@@ -40,7 +42,6 @@ sub pay_invoice {
 
   my $transdate_obj;
   if (ref($params{transdate} eq 'DateTime')) {
-    print "found transdate ref\n"; sleep 2;
     $transdate_obj = $params{transdate};
   } else {
    $transdate_obj = $::locale->parse_date_to_object($params{transdate});
@@ -115,6 +116,7 @@ sub pay_invoice {
   my $source = $params{'source'} || '';
 
   my $rounded_params_amount = _round( $params{amount} ); # / $exchangerate);
+  my $fx_gain_loss_amount = 0; # for fx_gain and fx_loss
 
   my $db = $self->db;
   $db->do_transaction(sub {
@@ -158,8 +160,6 @@ sub pay_invoice {
       # deal with fxtransaction
       if ( $self->currency_id != $::instance_conf->get_currency_id ) {
         my $fxamount = _round($amount - ($amount * $exchangerate));
-        # print "amount: $amount, fxamount = $fxamount\n";
-        # print "amount - (amount * exchangerate) = " . $amount . " - (" . $amount . " - " . $exchangerate . ")\n";
         $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
                                                      chart_id       => $account_bank->id,
                                                      chart_link     => $account_bank->link,
@@ -171,6 +171,28 @@ sub pay_invoice {
                                                      fx_transaction => 1,
                                                      tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
         $new_acc_trans->save;
+        # if invoice exchangerate differs from exchangerate of payment
+        # deal with fxloss and fxamount
+        if ($self->exchangerate and $self->exchangerate != 1 and $self->exchangerate != $exchangerate) {
+          my $fxgain_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxgain_accno_id) || die "Can't determine fxgain chart";
+          my $fxloss_chart = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id) || die "Can't determine fxloss chart";
+          my $gain_loss_amount = _round($amount * ($exchangerate - $self->exchangerate ) * -1,2);
+          my $gain_loss_chart = $gain_loss_amount > 0 ? $fxgain_chart : $fxloss_chart;
+          $fx_gain_loss_amount = $gain_loss_amount;
+
+          $new_acc_trans = SL::DB::AccTransaction->new(trans_id       => $self->id,
+                                                       chart_id       => $gain_loss_chart->id,
+                                                       chart_link     => $gain_loss_chart->link,
+                                                       amount         => $gain_loss_amount,
+                                                       transdate      => $transdate_obj,
+                                                       source         => $source,
+                                                       memo           => $memo,
+                                                       taxkey         => 0,
+                                                       fx_transaction => 0,
+                                                       tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+          $new_acc_trans->save;
+
+        };
       };
     };
 
@@ -238,14 +260,15 @@ sub pay_invoice {
     my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $self->id,
                                                   chart_id   => $reference_account->id,
                                                   chart_link => $reference_account->link,
-                                                  amount     => _round($arap_amount * $mult * $exchangerate),
+                                                  amount     => _round($arap_amount * $mult * $exchangerate - $fx_gain_loss_amount),
                                                   transdate  => $transdate_obj,
                                                   source     => '', #$params{source},
                                                   taxkey     => 0,
                                                   tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
     $arap_booking->save;
 
-    $self->paid($self->paid + _round($paid_amount)) if $paid_amount;
+    $fx_gain_loss_amount *= -1 if $self->is_sales;
+    $self->paid($self->paid + _round($paid_amount) + $fx_gain_loss_amount) if $paid_amount;
     $self->datepaid($transdate_obj);
     $self->save;
 
@@ -628,6 +651,17 @@ sub get_payment_select_options_for_bank_transaction {
 
 };
 
+sub exchangerate {
+  my ($self) = @_;
+
+  return 1 if $self->currency_id == $::instance_conf->get_currency_id;
+
+  my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $self->currency_id,
+                                                    transdate   => $self->transdate,
+                                                   );
+  return undef unless $rate;
+  $self->is_sales ? return $rate->sell : return $rate->buy;
+};
 
 sub get_payment_suggestions {
 
@@ -1068,6 +1102,11 @@ transactions from invoices to have something to test payments against.
 Amount is always relative to the absolute amount of the invoice, use positive
 values for sales and purchases.
 
+=item C<exchangerate>
+
+Returns the exchangerate in database format for the invoice according to that invoice's transdate.
+Returns 'sell' for sales, 'buy' for purchases.
+
 =back
 
 =head1 TODO AND CAVEATS
@@ -1078,10 +1117,6 @@ values for sales and purchases.
 
 when looking at open amount, maybe consider that there may already be queued
 amounts in SEPA Export
-
-=item *
-
-Can only handle default currency.
 
 =back
 

@@ -22,11 +22,12 @@ use SL::DB::Unit;
 use SL::DB::TaxZone;
 use SL::DB::BankAccount;
 use SL::DB::PaymentTerm;
+use SL::DBUtils qw(selectfirst_array_query);
 use Data::Dumper;
 
 my ($customer, $vendor, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $tax_9, $taxzone, $payment_terms, $bank_account);
-my ($transdate, $transdate2, $currency, $exchangerate, $exchangerate2);
-my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart);
+my ($transdate1, $transdate2, $transdate3, $transdate4, $currency, $exchangerate, $exchangerate2, $exchangerate3, $exchangerate4);
+my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart, $fxloss_chart, $fxgain_chart);
 
 my $ALWAYS_RESET = 1;
 
@@ -56,8 +57,10 @@ sub reset_state {
 
   clear_up();
 
-  $transdate  = DateTime->today;
+  $transdate1 = DateTime->today;
   $transdate2 = DateTime->today->add(days => 1);
+  $transdate3 = DateTime->today->add(days => 2);
+  $transdate4 = DateTime->today->add(days => 3);
 
   $buchungsgruppe  = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%', %{ $params{buchungsgruppe} }) || croak "No accounting group";
   $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%')                                || croak "No accounting group for 7\%";
@@ -72,14 +75,34 @@ sub reset_state {
   $currency_id     = $::instance_conf->get_currency_id;
 
   $currency = SL::DB::Currency->new(name => 'CUR')->save;
-  $exchangerate  = SL::DB::Exchangerate->new(transdate   => $transdate,
+
+  $fxgain_chart = SL::DB::Manager::Chart->find_by(accno => '2660') or die "Can't find fxgain_chart in test";
+  $fxloss_chart = SL::DB::Manager::Chart->find_by(accno => '2150') or die "Can't find fxloss_chart in test";
+
+  $currency->db->dbh->do('UPDATE defaults SET fxgain_accno_id = ' . $fxgain_chart->id);
+  $currency->db->dbh->do('UPDATE defaults SET fxloss_accno_id = ' . $fxloss_chart->id);
+  $::instance_conf->reload->data;
+  is($fxgain_chart->id,  $::instance_conf->get_fxgain_accno_id, "fxgain_chart was updated in defaults");
+  is($fxloss_chart->id,  $::instance_conf->get_fxloss_accno_id, "fxloss_chart was updated in defaults");
+
+  $exchangerate  = SL::DB::Exchangerate->new(transdate   => $transdate1,
                                              buy         => '1.33333',
                                              sell        => '1.33333',
                                              currency_id => $currency->id,
                                             )->save;
   $exchangerate2 = SL::DB::Exchangerate->new(transdate   => $transdate2,
-                                             buy         => '1.55555',
-                                             sell        => '1.55555',
+                                             buy         => '0.8',
+                                             sell        => '0.8',
+                                             currency_id => $currency->id,
+                                            )->save;
+  $exchangerate3 = SL::DB::Exchangerate->new(transdate   => $transdate3,
+                                             buy         => '1.55557',
+                                             sell        => '1.55557',
+                                             currency_id => $currency->id,
+                                            )->save;
+  $exchangerate4 = SL::DB::Exchangerate->new(transdate   => $transdate4,
+                                             buy         => '0.77777',
+                                             sell        => '0.77777',
                                              currency_id => $currency->id,
                                             )->save;
 
@@ -174,9 +197,9 @@ sub new_invoice {
     currency_id => $currency_id,
     employee_id => $employee->id,
     salesman_id => $employee->id,
-    gldate      => DateTime->today_local->to_kivitendo,
+    gldate      => $transdate1,
     taxzone_id  => $taxzone->id,
-    transdate   => DateTime->today_local->to_kivitendo,
+    transdate   => $transdate1,
     invoice     => 1,
     type        => 'invoice',
     %params,
@@ -195,9 +218,9 @@ sub new_purchase_invoice {
     invnumber   => 'newap ' . $purchase_invoice_counter ,
     currency_id => $currency_id,
     employee_id => $employee->id,
-    gldate      => DateTime->today_local->to_kivitendo,
+    gldate      => $transdate1,
     taxzone_id  => $taxzone->id,
-    transdate   => DateTime->today_local->to_kivitendo,
+    transdate   => $transdate1,
     invoice     => 0,
     type        => 'invoice',
     taxincluded => 0,
@@ -213,7 +236,7 @@ sub new_purchase_invoice {
                                         chart_id   => $expense_chart->id,
                                         chart_link => $expense_chart->link,
                                         amount     => '-100',
-                                        transdate  => $transdate,
+                                        transdate  => $transdate1,
                                         source     => '',
                                         taxkey     => 9,
                                         tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id);
@@ -225,7 +248,7 @@ sub new_purchase_invoice {
                                         chart_id   => $tax_chart->id,
                                         chart_link => $tax_chart->link,
                                         amount     => '-19',
-                                        transdate  => $transdate,
+                                        transdate  => $transdate1,
                                         source     => '',
                                         taxkey     => 0,
                                         tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id);
@@ -236,7 +259,7 @@ sub new_purchase_invoice {
                                         chart_id   => $expense_chart->id,
                                         chart_link => $expense_chart->link,
                                         amount     => '-100',
-                                        transdate  => $transdate,
+                                        transdate  => $transdate1,
                                         source     => '',
                                         taxkey     => 8,
                                         tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id);
@@ -249,7 +272,7 @@ sub new_purchase_invoice {
                                          chart_id   => $tax_chart->id,
                                          chart_link => $tax_chart->link,
                                          amount     => '-7',
-                                         transdate  => $transdate,
+                                         transdate  => $transdate1,
                                          source     => '',
                                          taxkey     => 0,
                                          tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id);
@@ -259,7 +282,7 @@ sub new_purchase_invoice {
                                                 chart_id   => $arap_chart->id,
                                                 chart_link => $arap_chart->link,
                                                 amount     => '226',
-                                                transdate  => $transdate,
+                                                transdate  => $transdate1,
                                                 source     => '',
                                                 taxkey     => 0,
                                                 tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
@@ -1032,7 +1055,7 @@ sub test_ar_currency_tax_not_included_and_payment {
       invoice      => 0,
       amount       => $amount,
       netamount    => $netamount,
-      transdate    => $transdate,
+      transdate    => $transdate1,
       taxincluded  => 0,
       customer_id  => $customer->id,
       taxzone_id   => $customer->taxzone_id,
@@ -1060,12 +1083,12 @@ sub test_ar_currency_tax_not_included_and_payment {
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 50,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 39.25,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
   # $invoice->pay_invoice(chart_id   => $bank->id,
   #                       amount     => 30,
@@ -1081,9 +1104,9 @@ sub test_ar_currency_tax_included {
   my $netamount = $::form->round_amount($amount / 1.19,2);
   my $invoice = SL::DB::Invoice->new(
       invoice      => 0,
-      amount       => 119, #$amount,
-      netamount    => 100, #$netamount,
-      transdate    => $transdate,
+      amount       => 119,
+      netamount    => 100,
+      transdate    => $transdate1,
       taxincluded  => 1,
       customer_id  => $customer->id,
       taxzone_id   => $customer->taxzone_id,
@@ -1109,20 +1132,20 @@ sub test_ar_currency_tax_included {
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 89.25,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
 
 };
 
 sub test_ap_currency_tax_not_included_and_payment {
-  my $netamount = $::form->round_amount(75 * $exchangerate->sell,2); #  75 in CUR, 100.00 in EUR
+  my $netamount = $::form->round_amount(75 * $exchangerate->buy,2); #  75 in CUR, 100.00 in EUR
   my $amount    = $::form->round_amount($netamount * 1.19,2);        # 100 in CUR, 119.00 in EUR
   my $invoice   = SL::DB::PurchaseInvoice->new(
       invoice      => 0,
       invnumber    => 'test_ap_currency_tax_not_included_and_payment',
       amount       => $amount,
       netamount    => $netamount,
-      transdate    => $transdate,
+      transdate    => $transdate1,
       taxincluded  => 0,
       vendor_id    => $vendor->id,
       taxzone_id   => $vendor->taxzone_id,
@@ -1149,30 +1172,26 @@ sub test_ap_currency_tax_not_included_and_payment {
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 50,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 39.25,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
-  # $invoice->pay_invoice(chart_id   => $bank->id,
-  #                       amount     => 30,
-  #                       transdate  => $transdate2->to_kivitendo,
-  #                      );
   is(scalar @{$invoice->transactions}, 9, 'ap transaction has 9 transactions (incl. fxtransactions)');
   is($invoice->paid, $invoice->amount, 'ap transaction paid = amount in default currency');
 };
 
 sub test_ap_currency_tax_included {
   # we want the acc_trans amount to be 100
-  my $amount    = $::form->round_amount(75 * $exchangerate->sell * 1.19);
+  my $amount    = $::form->round_amount(75 * $exchangerate->buy * 1.19);
   my $netamount = $::form->round_amount($amount / 1.19,2);
   my $invoice = SL::DB::PurchaseInvoice->new(
       invoice      => 0,
       amount       => 119, #$amount,
       netamount    => 100, #$netamount,
-      transdate    => $transdate,
+      transdate    => $transdate1,
       taxincluded  => 1,
       vendor_id    => $vendor->id,
       taxzone_id   => $vendor->taxzone_id,
@@ -1199,45 +1218,291 @@ sub test_ap_currency_tax_included {
   $invoice->pay_invoice(chart_id   => $bank->id,
                         amount     => 89.25,
                         currency   => 'CUR',
-                        transdate  => $transdate->to_kivitendo,
+                        transdate  => $transdate1->to_kivitendo,
                        );
 
 };
 
+sub test_ar_currency_tax_not_included_and_payment_2 {
+  my $title = 'test_ar_currency_tax_not_included_and_payment_2';
+  my $netamount = $::form->round_amount(125 * $exchangerate2->sell,2); # 125.00 in CUR, 100.00 in EUR
+  my $amount    = $::form->round_amount($netamount * 1.19,2);          # 148.75 in CUR, 119.00 in EUR
+  my $invoice   = SL::DB::Invoice->new(
+      invoice      => 0,
+      amount       => $amount,
+      netamount    => $netamount,
+      transdate    => $transdate2,
+      taxincluded  => 0,
+      customer_id  => $customer->id,
+      taxzone_id   => $customer->taxzone_id,
+      currency_id  => $currency->id,
+      transactions => [],
+      notes        => 'test_ar_currency_tax_not_included_and_payment 0.8',
+      invnumber    => 'test_ar_currency_tax_not_included_and_payment 0.8',
+  );
+  $invoice->add_ar_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ar_amount_chart,
+    tax_id     => $tax->id,
+  );
+
+  $invoice->create_ar_row(chart => $ar_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency->id , "$title: currency_id has been saved");
+  is($invoice->netamount   , 100           , "$title: ar amount has been converted");
+  is($invoice->amount      , 119           , "$title: ar amount has been converted");
+  is($invoice->taxincluded ,   0           , "$title: ar transaction doesn\"t have taxincluded");
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_amount_chart->id, trans_id => $invoice->id)->amount, '100.00000', $title . " " . $ar_amount_chart->accno . ": has been converted for currency");
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_chart->id, trans_id => $invoice->id)->amount, '-119.00000', $title  . " " . $ar_chart->accno . ': has been converted for currency');
+
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 123.45,
+                        currency   => 'CUR',
+                        transdate  => $transdate2->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 15.30,
+                        currency   => 'CUR',
+                        transdate  => $transdate3->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 10.00,
+                        currency   => 'CUR',
+                        transdate  => $transdate4->to_kivitendo,
+                       );
+  # $invoice->pay_invoice(chart_id   => $bank->id,
+  #                       amount     => 30,
+  #                       transdate  => $transdate2->to_kivitendo,
+  #                      );
+  my $fx_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, fx_transaction => 1 ], sort_by => ('acc_trans_id'));
+  is(scalar @{$fx_transactions}, 3, "$title: ar transaction has 3 fx transactions");
+  is($fx_transactions->[0]->amount, '24.69000', "$title fx transactions 1: 123.45-(123.45*0.8) = 24.69");
+
+  is(scalar @{$invoice->transactions}, 14, "$title ar transaction has 14 transactions (incl. fxtransactions and fx_gain)");
+  is($invoice->paid, $invoice->amount, "$title ar transaction paid = amount in default currency");
+};
+
+sub test_ar_currency_tax_not_included_and_payment_2_credit_note {
+  my $netamount = $::form->round_amount(-125 * $exchangerate2->sell,2); # 125.00 in CUR, 100.00 in EUR
+  my $amount    = $::form->round_amount($netamount * 1.19,2);          # 148.75 in CUR, 119.00 in EUR
+  my $invoice   = SL::DB::Invoice->new(
+      invoice      => 0,
+      amount       => $amount,
+      netamount    => $netamount,
+      transdate    => $transdate2,
+      taxincluded  => 0,
+      customer_id  => $customer->id,
+      taxzone_id   => $customer->taxzone_id,
+      currency_id  => $currency->id,
+      transactions => [],
+      notes        => 'test_ar_currency_tax_not_included_and_payment credit note 0.8',
+      invnumber    => 'test_ar_currency_tax_not_included_and_payment credit note 0.8',
+  );
+  $invoice->add_ar_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ar_amount_chart,
+    tax_id     => $tax->id,
+  );
+
+  $invoice->create_ar_row(chart => $ar_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency->id , 'currency_id has been saved');
+  is($invoice->netamount   , -100          , 'ar amount has been converted');
+  is($invoice->amount      , -119          , 'ar amount has been converted');
+  is($invoice->taxincluded ,   0           , 'ar transaction doesn\'t have taxincluded');
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_amount_chart->id, trans_id => $invoice->id)->amount, '-100.00000', $ar_amount_chart->accno . ': has been converted for currency');
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_chart->id, trans_id => $invoice->id)->amount, '119.00000', $ar_chart->accno . ': has been converted for currency');
+
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => -123.45,
+                        currency   => 'CUR',
+                        transdate  => $transdate2->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => -25.30,
+                        currency   => 'CUR',
+                        transdate  => $transdate2->to_kivitendo,
+                       );
+  my $fx_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, fx_transaction => 1 ], sort_by => ('acc_trans_id'));
+  is(scalar @{$fx_transactions}, 2, 'ar transaction has 2 fx transactions');
+  is($fx_transactions->[0]->amount, '-24.69000', 'fx transactions 1: 123.45-(123.45*0.8) = 24.69');
+
+  is(scalar @{$invoice->transactions}, 9, 'ar transaction has 9 transactions (incl. fxtransactions)');
+  is($invoice->paid, $invoice->amount, 'ar transaction paid = amount in default currency');
+};
+
+sub test_ap_currency_tax_not_included_and_payment_2 {
+  my $title = 'test_ap_currency_tax_not_included_and_payment_2';
+  my $netamount = $::form->round_amount(125 * $exchangerate2->sell,2); # 125.00 in CUR, 100.00 in EUR
+  my $amount    = $::form->round_amount($netamount * 1.19,2);          # 148.75 in CUR, 119.00 in EUR
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+      invoice      => 0,
+      amount       => $amount,
+      netamount    => $netamount,
+      transdate    => $transdate2,
+      taxincluded  => 0,
+      vendor_id    => $vendor->id,
+      taxzone_id   => $vendor->taxzone_id,
+      currency_id  => $currency->id,
+      transactions => [],
+      notes        => 'test_ap_currency_tax_not_included_and_payment_2 0.8 + 1.33333',
+      invnumber    => 'test_ap_currency_tax_not_included_and_payment_2 0.8 + 1.33333',
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency->id , "$title: currency_id has been saved");
+  is($invoice->netamount   ,  100          , "$title: ap amount has been converted");
+  is($invoice->amount      ,  119          , "$title: ap amount has been converted");
+  is($invoice->taxincluded ,    0          , "$title: ap transaction doesn\'t have taxincluded");
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_amount_chart->id, trans_id => $invoice->id)->amount, '-100.00000', $ap_amount_chart->accno . ': has been converted for currency');
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_chart->id, trans_id => $invoice->id)->amount, '119.00000', $ap_chart->accno . ': has been converted for currency');
+
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 10,
+                        currency   => 'CUR',
+                        transdate  => $transdate2->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 123.45,
+                        currency   => 'CUR',
+                        transdate  => $transdate3->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => 15.30,
+                        currency   => 'CUR',
+                        transdate  => $transdate4->to_kivitendo,
+                       );
+  my $fx_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, fx_transaction => 1 ], sort_by => ('acc_trans_id'));
+  is(scalar @{$fx_transactions}, 3, "$title: ap transaction has 3 fx transactions");
+  is($fx_transactions->[0]->amount,  '-2.00000', "$title: fx transaction 1:  10.00-( 10.00*0.80000) =   2.00000");
+  is($fx_transactions->[1]->amount,  '68.59000', "$title: fx transaction 2: 123.45-(123.45*1.55557) = -68.58511");
+  is($fx_transactions->[2]->amount,  '-3.40000', "$title: fx transaction 3:  15.30-(15.30 *0.77777) =   3.40012");
+
+  my $fx_loss_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_id => $fxloss_chart->id ], sort_by => ('acc_trans_id'));
+  my $fx_gain_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_id => $fxgain_chart->id ], sort_by => ('acc_trans_id'));
+  is($fx_gain_transactions->[0]->amount,   '0.34000', "$title: fx gain amount ok");
+  is($fx_loss_transactions->[0]->amount, '-93.28000', "$title: fx loss amount ok");
+
+  is(scalar @{$invoice->transactions}, 14, "$title: ap transaction has 14 transactions (incl. fxtransactions and gain_loss)");
+  is($invoice->paid, $invoice->amount, "$title: ap transaction paid = amount in default currency");
+  is(total_amount($invoice), 0,   "$title: even balance");
+};
+
+sub test_ap_currency_tax_not_included_and_payment_2_credit_note {
+  my $title = 'test_ap_currency_tax_not_included_and_payment_2_credit_note';
+  my $netamount = $::form->round_amount(-125 * $exchangerate2->sell,2); # 125.00 in CUR, 100.00 in EUR
+  my $amount    = $::form->round_amount($netamount * 1.19,2);          # 148.75 in CUR, 119.00 in EUR
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+      invoice      => 0,
+      amount       => $amount,
+      netamount    => $netamount,
+      transdate    => $transdate2,
+      taxincluded  => 0,
+      vendor_id    => $vendor->id,
+      taxzone_id   => $vendor->taxzone_id,
+      currency_id  => $currency->id,
+      transactions => [],
+      notes        => 'test_ap_currency_tax_not_included_and_payment credit note 0.8 + 1.33333',
+      invnumber    => 'test_ap_currency_tax_not_included_and_payment credit note 0.8 + 1.33333',
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->currency_id , $currency->id , "$title: currency_id has been saved");
+  is($invoice->netamount   , -100          , "$title: ap amount has been converted");
+  is($invoice->amount      , -119          , "$title: ap amount has been converted");
+  is($invoice->taxincluded ,   0           , "$title: ap transaction doesn\'t have taxincluded");
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_amount_chart->id, trans_id => $invoice->id)->amount, '100.00000', $ap_amount_chart->accno . ': has been converted for currency');
+  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_chart->id, trans_id => $invoice->id)->amount, '-119.00000', $ap_chart->accno . ': has been converted for currency');
+
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => -10,
+                        currency   => 'CUR',
+                        transdate  => $transdate2->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => -123.45,
+                        currency   => 'CUR',
+                        transdate  => $transdate3->to_kivitendo,
+                       );
+  $invoice->pay_invoice(chart_id   => $bank->id,
+                        amount     => -15.30,
+                        currency   => 'CUR',
+                        transdate  => $transdate4->to_kivitendo,
+                       );
+  my $fx_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, fx_transaction => 1 ], sort_by => ('acc_trans_id'));
+  is(scalar @{$fx_transactions}, 3, "$title: ap transaction has 3 fx transactions");
+  is($fx_transactions->[0]->amount,   '2.00000', "$title: fx transaction 1:  10.00-( 10.00*0.80000) =   2.00000");
+  is($fx_transactions->[1]->amount, '-68.59000', "$title: fx transaction 2: 123.45-(123.45*1.55557) = -68.58511");
+  is($fx_transactions->[2]->amount,   '3.40000', "$title: fx transaction 3:  15.30-(15.30 *0.77777) =   3.40012");
+
+  my $fx_gain_loss_transactions = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id, chart_id => $fxgain_chart->id ], sort_by => ('acc_trans_id'));
+  is($fx_gain_loss_transactions->[0]->amount, '93.28000', "$title: fx gain loss amount ok");
+
+  is(scalar @{$invoice->transactions}, 14, "$title: ap transaction has 14 transactions (incl. fxtransactions and gain_loss)");
+  is($invoice->paid, $invoice->amount, "$title: ap transaction paid = amount in default currency");
+  is(total_amount($invoice), 0,   "$title: even balance");
+};
+
 Support::TestSetup::login();
- # die;
 
 # test cases: without_skonto
- test_default_invoice_one_item_19_without_skonto();
- test_default_invoice_two_items_19_7_tax_with_skonto();
- test_default_invoice_two_items_19_7_without_skonto();
- test_default_invoice_two_items_19_7_without_skonto_incomplete_payment();
- test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
- test_default_purchase_invoice_two_charts_19_7_without_skonto();
- test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
- test_default_invoice_one_item_19_without_skonto_overpaid();
+test_default_invoice_one_item_19_without_skonto();
+test_default_invoice_two_items_19_7_tax_with_skonto();
+test_default_invoice_two_items_19_7_without_skonto();
+test_default_invoice_two_items_19_7_without_skonto_incomplete_payment();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
+test_default_purchase_invoice_two_charts_19_7_without_skonto();
+test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
+test_default_invoice_one_item_19_without_skonto_overpaid();
 
 # test cases: difference_as_skonto
- test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
- test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent();
- test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
- test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
- test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
- test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
+test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
+test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
+test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
 
 # test cases: with_skonto_pt
- test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
- test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
- test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
- test_default_purchase_invoice_two_charts_19_7_with_skonto();
- test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
- test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
+test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
+test_default_purchase_invoice_two_charts_19_7_with_skonto();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
+test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
 
 # test payment of ar and ap transactions with currency and tax included/not included
- test_ar_currency_tax_not_included_and_payment();
- test_ar_currency_tax_included();
- test_ap_currency_tax_not_included_and_payment();
- test_ap_currency_tax_included();
+# exchangerate = 1.33333
+test_ar_currency_tax_not_included_and_payment();
+test_ar_currency_tax_included();
+test_ap_currency_tax_not_included_and_payment();
+test_ap_currency_tax_included();
+
+test_ar_currency_tax_not_included_and_payment_2();              # exchangerate 0.8
+test_ar_currency_tax_not_included_and_payment_2_credit_note();  # exchangerate 0.8
+
+test_ap_currency_tax_not_included_and_payment_2();             # two exchangerates, with fx_gain_loss
+test_ap_currency_tax_not_included_and_payment_2_credit_note(); # two exchangerates, with fx_gain_loss
+
+{ local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
+  my ($acc_trans_sum)  = selectfirst_array_query($::form, $currency->db->dbh, 'SELECT SUM(amount) FROM acc_trans'); is($acc_trans_sum, '0.00000', "sum of all acc_trans is 0");
+}
 
 # remove all created data at end of test
 clear_up();
