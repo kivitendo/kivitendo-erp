@@ -319,6 +319,15 @@ sub post_transaction {
                              $form->{"exchangerate_$i"}), 2);
 
       if ($amount != 0) {
+        # fetch fxgain and fxloss chart info from defaults if charts aren't already filled in form
+        if ( !$form->{fxgain_accno} && $::instance_conf->get_fxgain_accno_id ) {
+          $form->{fxgain_accno} = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxgain_accno_id)->accno;
+        };
+        if ( !$form->{fxloss_accno} && $::instance_conf->get_fxloss_accno_id ) {
+          $form->{fxloss_accno} = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_fxloss_accno_id)->accno;
+        };
+        die "fxloss_accno missing" if $amount < 0 and not $form->{fxloss_accno};
+        die "fxgain_accno missing" if $amount > 0 and not $form->{fxgain_accno};
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id, chart_link) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
