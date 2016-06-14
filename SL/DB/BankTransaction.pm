@@ -64,6 +64,7 @@ sub get_agreement_with_invoice {
     exact_amount                => 4,
     exact_open_amount           => 4,
     invnumber_in_purpose        => 2,
+    own_invnumber_in_purpose    => 5,
     # overpayment                 => -1, # either other invoice is more likely, or several invoices paid at once
     payment_before_invoice      => -2,
     payment_within_30_days      => 1,
@@ -114,10 +115,15 @@ sub get_agreement_with_invoice {
   #search invoice number in purpose
   my $invnumber = $invoice->invnumber;
   # invnumbernhas to have at least 3 characters
-  if ( length($invnumber) > 2 && $self->purpose =~ /\b$invnumber\b/i ) {
+  my $squashed_purpose = $self->purpose;
+  $squashed_purpose =~ s/ //g;
+  if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
+    $agreement += $points{own_invnumber_in_purpose};
+    $rule_matches .= 'own_invnumber_in_purpose(' . $points{'own_invnumber_in_purpose'} . ') ';
+  } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
     $agreement += $points{invnumber_in_purpose};
     $rule_matches .= 'invnumber_in_purpose(' . $points{'invnumber_in_purpose'} . ') ';
-  };
+  }
 
   #check sign
   if ( $invoice->is_sales && $self->amount < 0 ) {
