@@ -153,6 +153,7 @@ sub pay_invoice {
                                                    transdate  => $transdate_obj,
                                                    source     => $source,
                                                    memo       => $memo,
+                                                   project_id => $params{project_id} ? $params{project_id} : undef,
                                                    taxkey     => 0,
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
@@ -792,6 +793,7 @@ Example:
                    memo          => 'foobar',
                    source        => 'barfoo',
                    payment_type  => 'without_skonto',  # default if not specified
+                   project_id    => 25,
                   );
 
 or with skonto:
