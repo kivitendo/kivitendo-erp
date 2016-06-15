@@ -75,7 +75,7 @@ sub run {
   );
 
   if (@{ $self->{job_errors} }) {
-    my $msg = @{ $self->{job_errors} };
+    my $msg = join "\n", @{ $self->{job_errors} };
     _log_msg("Errors: $msg");
     die $msg;
   }
