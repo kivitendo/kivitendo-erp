@@ -59,6 +59,7 @@ sub create_parsed_file {
   );
 
   $form->{tmpfile} = $tmpfile;
+  #(undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
   my $parser  = SL::Template::create(
     type      => ($params{template_type} || 'LaTeX'),
