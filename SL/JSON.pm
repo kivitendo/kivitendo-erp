@@ -28,7 +28,7 @@ sub to_json {
 }
 
 sub from_json {
-  goto &JSON::decode_json;
+  goto &JSON::from_json;
 }
 
 1;
