@@ -239,19 +239,13 @@ sub action_add_mapping_from_upload {
     return;
   }
 
-  my $csv = Text::CSV_XS->new({
-    binary      => 1,
-    sep_char    => $self->profile->get('sep_char'),
-    quote_char  => $self->profile->get('quote_char'),
-    escape_char => $self->profile->get('escape_char'),
-  });
+  my $csv = SL::Helper::Csv->new(
+    file => $file->file_name,
+    map { $_ => $self->profile->get($_) } qw(sep_char escape_char quote_char),
+  );
 
-  my $header = $csv->getline($file->fh) or do {
-    $self->js
-      ->flash('error', t8('No header found'))
-      ->render;
-    return;
-  };
+  $csv->_open_file;
+  my $header = $csv->check_header;
 
   for my $field (@$header) {
     next if $self->mappings_for_profile->{$field};
