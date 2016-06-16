@@ -341,6 +341,9 @@ sub _push_error {
   $self->_errors(\@new_errors);
 }
 
+sub specs {
+  $_[0]->dispatcher->_specs
+}
 
 1;
 

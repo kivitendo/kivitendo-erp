@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::BackgroundJob::Base);
 
 use YAML ();
+use SL::JSON;
 use SL::DB::CsvImportProfile;
 use SL::SessionFile::Random;
 
@@ -60,6 +61,7 @@ sub do_import {
   my $job = $self->{db_obj};
 
   $c->profile($self->profile);
+  $c->mappings(SL::JSON::from_json($self->profile->get('json_mappings'))) if $self->profile->get('json_mappings');
   $c->type($job->data_as_hash->{type});
   $c->{employee_id} = $job->data_as_hash->{employee_id};
 

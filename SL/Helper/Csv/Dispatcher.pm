@@ -160,7 +160,7 @@ sub _parse_profile {
 sub make_spec {
   my ($self, $col, $path, $cur_class) = @_;
 
-  my $spec = { key => $col, steps => [] };
+  my $spec = { key => $col, path => $path, steps => [] };
 
   return unless $path;
 

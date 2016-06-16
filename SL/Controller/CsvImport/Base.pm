@@ -34,7 +34,7 @@ sub run {
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
-                                  profile                => [{ profile => $profile, class => $self->class }],
+                                  profile                => [{ profile => $profile, class => $self->class, mapping => $self->controller->mappings_for_profile }],
                                   ignore_unknown_columns => 1,
                                   strict_profile         => 1,
                                   case_insensitive_header => 1,
@@ -54,9 +54,9 @@ sub run {
 
   return if ( !$self->csv->header || $self->csv->errors );
 
-  my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
-  $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
-  $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
+  my $headers         = { headers => [ map {; $_->{key} } @{ $self->csv->specs->[0] } ] };
+  $headers->{methods} = [ map { $_->{path} } @{ $self->csv->specs->[0] } ];
+  $headers->{used}    = { map { ($_ => 1) }  @{ $headers->{headers} } };
   $self->controller->headers($headers);
   $self->controller->raw_data_headers({ used => { }, headers => [ ] });
   $self->controller->info_headers({ used => { }, headers => [ ] });

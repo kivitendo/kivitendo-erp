@@ -292,6 +292,38 @@
   </div>
   <hr>
 
+[%- UNLESS SELF.worker.is_multiplexed %]
+  <h2>[% 'Mappings (csv_import)' | $T8 %]</h2>
+
+  <div class="mappings_toggle"[% UNLESS SELF.deferred || SELF.import_status %] style="display:none"[% END %]>
+   <a href="#" onClick="javascript:$('.mappings_toggle').toggle()">[% LxERP.t8("Show mappings (csv_import)") %]</a>
+  </div>
+  <div class="mappings_toggle"[% IF SELF.deferred || SELF.import_status %] style="display:none"[% END %]>
+   <p><a href="#" onClick="javascript:$('.mappings_toggle').toggle()">[% LxERP.t8("Hide mappings (csv_import)") %]</a></p>
+
+    <p>[% 'These mappings can be used to map heading from non standard csv files to known columns. These will also be saved in profiles, so you can save profiles for every source of formats.' | $T8 %]</p>
+
+  <table id="csv_import_mappings">
+   <tr class=listheading>
+    <th></th>
+    <th>[% 'Text in CSV File' | $T8 %]</th>
+    <th>[% 'Known Column' | $T8 %]</th>
+   </tr>
+   <tr id='mapping_empty' style='display:none'>
+    <td colspan=3>[% 'There is nothing here yet (csv_import)' | $T8 %]</td>
+   </tr>
+[%- FOREACH row = SELF.mappings %]
+   [% PROCESS 'csv_import/_mapping_item.html', item=row IF row.from %]
+[%- END %]
+   [% PROCESS 'csv_import/_mapping_item.html', item={} %]
+  </table>
+
+  <input type=button id='add_empty_mapping_line' value='[% 'Add empty line (csv_import)' | $T8 %]'>
+  <input type=button id='add_mapping_from_upload' value='[% 'Add headers from last uploaded file (csv_import)' | $T8 %]'>
+
+  </div>
+  <hr>
+[%- END %]
   [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
   [% L.submit_tag('action_import', LxERP.t8('Import'), style='display:none') %]
 
@@ -314,7 +346,14 @@
           return true;
         alert('[% LxERP.t8('Please enter a profile name.') %]');
         return false;
-      })
+      });
+      $('#add_empty_mapping_line').click(function(){
+        $.get('controller.pl', { action: 'CsvImport/add_empty_mapping_line', 'profile.type': $('#profile_type').val() }, kivi.eval_json_result);
+      });
+      $('#add_mapping_from_upload').click(function(){
+        $.get('controller.pl?action_add_mapping_from_upload=1', $('form').serialize() , kivi.eval_json_result);
+      });
+      $('#csv_import_mappings').on('click', '.remove_line', function(){ $(this).closest('tr').remove(); if (1==$('#csv_import_mappings tr:visible').length) $('#mapping_empty').show() });
     });
     -->
  </script>

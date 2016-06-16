@@ -32,7 +32,7 @@ use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
                                  import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones) ],
- 'scalar --get_set_init' => [ qw(worker task_server num_imported) ],
+ 'scalar --get_set_init' => [ qw(worker task_server num_imported mappings) ],
  'array'                 => [
    progress_tracker     => { },
    add_progress_tracker => {  interface => 'add', hash_key => 'progress_tracker' },
@@ -213,6 +213,59 @@ sub action_report {
   $self->render('csv_import/report', { layout => !($params{no_layout} || $::form->{no_layout}) });
 }
 
+sub action_add_empty_mapping_line {
+  my ($self) = @_;
+
+  $self->profile_from_form;
+  $self->setup_help;
+
+  $self->js
+    ->append('#csv_import_mappings', $self->render('csv_import/_mapping_item', { layout => 0, output => 0 }))
+    ->hide('#mapping_empty')
+    ->render;
+}
+
+sub action_add_mapping_from_upload {
+  my ($self) = @_;
+
+  $self->profile_from_form;
+  $self->setup_help;
+
+  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
+  if (!$file->fh) {
+    $self->js
+      ->flash('error', t8('No file has been uploaded yet.'))
+      ->render;
+    return;
+  }
+
+  my $csv = Text::CSV_XS->new({
+    binary      => 1,
+    sep_char    => $self->profile->get('sep_char'),
+    quote_char  => $self->profile->get('quote_char'),
+    escape_char => $self->profile->get('escape_char'),
+  });
+
+  my $header = $csv->getline($file->fh) or do {
+    $self->js
+      ->flash('error', t8('No header found'))
+      ->render;
+    return;
+  };
+
+  for my $field (@$header) {
+    next if $self->mappings_for_profile->{$field};
+    $self->js->append(
+      '#csv_import_mappings',
+      $self->render('csv_import/_mapping_item', { layout => 0, output => 0 }, item => { from => $field }),
+    );
+  }
+
+  $self->js
+    ->hide('#mapping_empty')
+    ->render;
+}
+
 
 #
 # filters
@@ -372,6 +425,7 @@ sub load_default_profile {
   $profile ||= SL::DB::CsvImportProfile->new(type => $self->{type}, login => $::myconfig{login});
 
   $self->profile($profile);
+  $self->mappings(SL::JSON::from_json($self->profile->get('json_mappings'))) if $self->profile->get('json_mappings');
   $self->worker->set_profile_defaults;
   $self->profile->set_defaults;
 }
@@ -416,6 +470,9 @@ sub profile_from_form {
   $self->profile->assign_attributes(%{ $::form->{profile} });
   $self->profile->settings(map({ { key => $_, value => $::form->{settings}->{$_} } } keys %{ $::form->{settings} }),
                            @settings);
+
+  $self->profile->set('json_mappings', JSON::to_json($self->mappings));
+
   $self->profile->set_defaults;
 }
 
@@ -662,6 +719,14 @@ sub check_task_server {
   flash('info', t8('The task server is not running at the moment but needed for this module'));
 
   1;
+}
+
+sub mappings_for_profile {
+  +{ map { $_->{from} => $_->{to} } @{ $_[0]->mappings } }
+}
+
+sub init_mappings {
+  $::form->{mappings} || []
 }
 
 1;
