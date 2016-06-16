@@ -75,7 +75,7 @@ sub processed_flags {
   }
 
   my $flags = $self->flags;
-  my $ret;
+  my $ret = {};
 
   foreach my $flag (split m/:/, $flags) {
     if ( $flag =~ m/(.*?)=(.*)/ ) {
