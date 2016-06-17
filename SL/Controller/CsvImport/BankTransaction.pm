@@ -56,6 +56,7 @@ sub check_objects {
   }
 
   $self->add_info_columns({ header => $::locale->text('Bank account'), method => 'local_bank_name' });
+  $self->add_raw_data_columns("currency", "currency_id") if grep { /^currency(?:_id)?$/ } @{ $self->csv->header };
 }
 
 sub check_existing {
