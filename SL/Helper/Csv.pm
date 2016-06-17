@@ -202,13 +202,13 @@ sub _check_header {
       my $h_aref = ($self->is_multiplexed)? $header : [ $header ];
       my $p_num  = 0;
       foreach my $h (@{ $h_aref }) {
-        my @names = (
-          keys %{ $self->profile->[$p_num]->{profile} || {} },
-          keys %{ $self->profile->[$p_num]->{mapping} || {} },
+        my %names = (
+          (map { $_ => $_                                     } keys %{ $self->profile->[$p_num]->{profile} || {} }),
+          (map { $_ => $self->profile->[$p_num]{mapping}{$_}  } keys %{ $self->profile->[$p_num]->{mapping} || {} }),
         );
-        for my $name (@names) {
+        for my $name (keys %names) {
           for my $i (0..$#$h) {
-            $h->[$i] = $name if lc $h->[$i] eq lc $name;
+            $h->[$i] = $names{$name} if lc $h->[$i] eq lc $name;
           }
         }
         $p_num++;
@@ -583,6 +583,9 @@ comply with the expected header identities.
 
 Without strict profiles, mappings can also directly map header fields that
 should end up in the same accessor.
+
+With case insensitive headings, mappings will also modify the headers, to fit
+the expected profile.
 
 Mappings can be identical to known fields and will be prefered during lookup,
 but will not replace the field, meaning that:
