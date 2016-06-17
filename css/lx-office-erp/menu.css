@@ -2,7 +2,7 @@
 body.menu {
   background-image: url("../../image/fade.png");background-repeat:repeat-x;
   font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size:8pt;
+  font-size: 80%;
   color: black;
 }
 
@@ -17,7 +17,6 @@ table.menunew td {
   padding: 0;
   color:white;
   font-family: Verdana, Arial, sans-serif;
-  font-size: 12px;
 }
 
 body.menunew {
@@ -162,7 +161,7 @@ div#menuv3 li li li li:hover ul
 #content.html-menu { margin-left: 190px; }
 #content.html-menu.folded { margin-left: 40px }
 #html-menu.folded:hover + #content.html-menu.folded { margin-left: 190px }
-#html-menu { float:left; width: 183px; font-size: 8pt; margin-top: 10px; overflow:hidden; }
+#html-menu { float:left; width: 183px; font-size: 85%; margin-top: 10px; overflow:hidden; }
 #html-menu.folded { width: 32px; }
 #html-menu.folded:hover { width: 183px; }
 #html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both; position:relative; }

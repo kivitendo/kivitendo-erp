@@ -27,7 +27,6 @@ select {
   -moz-appearance: none;
   -webkit-appearance: none;
   -o-appearance: none;
-  height: 16px;
   appearance : none;
   background: white url('../../image/select-down.png') no-repeat scroll right center;
   padding: 0 14px 0 0;
@@ -78,7 +77,7 @@ html {
 
 body {
   font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size: 10pt;
+  font-size: 80%;
   background-color: white;
   background-image: url("../../image/fade.png"); background-repeat:repeat-x;
   color: black;
@@ -88,25 +87,16 @@ body {
 td {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   color: black;
-  font-size: 8pt;
   font-weight: normal;
 }
 td.hover:hover {
-    color: black;
-/*          background-color: #FFFFCC;
-          font-size: 8pt;
-          text-decoration: none;
-          border:none;
-          borderWidth:0px;
-          borderColor:2557AD;
-*/
+  color: black;
 }
 
 
 th {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   color: black;
-  font-size: 8pt;
   font-weight: normal;
 }
 
@@ -122,7 +112,7 @@ div.login {
   color: #A0A0A0;
 }
 h1.login {
-  font-size: 18pt;
+  font-size: 150%;
 }
 table.login {
   background-color: #efedde;
@@ -147,7 +137,6 @@ div.admin {
     padding: 3px;
 }
 .message_ok {
-    font-size: 12pt;
     padding:5px;
     background-color: #ADFFB6;
     color: black;
@@ -157,7 +146,6 @@ div.admin {
     border-width:thin;
 }
 .message_error {
-    font-size: 12pt;
     padding:5px;
     background-color: #FFAAAA;
     color: black;
@@ -167,7 +155,6 @@ div.admin {
     border-width:thin;
 }
 .message_hint {
-    font-size: 12pt;
     padding:5px;
     background-color: #FFFE66;
     color: black;
@@ -177,7 +164,6 @@ div.admin {
     border-width:thin;
 }
 .message_error_label {
-    font-size: 0.8em;
     padding:5px;
     background-color: #FEE;
     font-weight:normal;
@@ -191,9 +177,9 @@ div.admin {
 */
 .listtop, h1 {
     background-color: rgb(236,233,216);
+    font-size: 100%;
     text-align:left;
     padding:5px;
-    font-size: 10pt;
     color: black;
     font-weight: bolder;
     border-style:dashed;
@@ -216,12 +202,12 @@ div.admin {
 }
 
 .listheading, .listheading th, #content h2 {
-    font-size: 9pt;
+    font-size: 95%;
     padding:3px;
     background-color:
     rgb(236,233,216);
     color: black;
-    font-weight: bolder;
+    font-weight: bold;
     text-align:left;
     background-image: url("../../image/fade.png");
     border-style:dotted;
@@ -229,7 +215,6 @@ div.admin {
 }
 
 .listheadingcontent {
-    font-size: 9pt;
     background-color:
     rgb(236,233,216);
     color: black;
@@ -238,7 +223,6 @@ div.admin {
 }
 
 .accountlistheading {
-    font-size: 10pt;
     padding:3px;
     color: white;
     font-weight: bold;
@@ -275,16 +259,16 @@ div.admin {
 .greenrow1 { background-color: rgb(0,250,0); color: black; vertical-align: top; }
 .greenrow0 { background-color: rgb(0,255,0); color: black; vertical-align: top; }
 
-.listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+.listsubtotal { background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
-.listtotal, .listtotal td { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+.listtotal, .listtotal td { background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
 /* Verkaufsbericht */
-.listmainsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px; padding-top: 0px;}
-.listmainsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px;}
-.listsubsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
-.listsubsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
-.listsortdescription { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: normal; padding-left: 30px}
+.listmainsortheader { background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px; padding-top: 0px;}
+.listmainsortsubtotal { background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px;}
+.listsubsortheader { background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsubsortsubtotal { background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsortdescription { background-color: rgb(236,233,216); color: black; font-weight: normal; padding-left: 30px}
 
 
 .submit {
@@ -306,12 +290,10 @@ div.admin {
 
 h2.confirm {
   color: blue;
-  font-size: 14pt;
 }
 
 h2.error {
   color: red;
-  font-size: 14pt;
 }
 
 fieldset {
@@ -378,13 +360,11 @@ label {
 }
 
 .coa_detail_emph {
-  font-size:10pt;
   font-weight:bold;
   color:darkred;
 }
 
 .coa_details_header {
-  font-size:8pt;
   padding:3px;
   font-weight:bolder;
   text-align:center;
@@ -393,7 +373,6 @@ label {
 }
 
 .coa_details_header2 {
-  font-size:8pt;
   padding:3px;
   font-weight:normal;
   text-align:left;
@@ -514,7 +493,6 @@ div.cpc_line span.cpc_block_second_row {
   display:none;
 }
 div.cpc_block span.cpc_block_second_row {
-  font-size:80%;
 }
 span.toggle_selected {
   font-weight: bold;

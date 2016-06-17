@@ -16,7 +16,6 @@
   border: 0;
   color: #000000;
   font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
-  font-size: 1.1em;
   overflow: hidden;
 }
 
@@ -111,7 +110,6 @@
   border-style: dashed;
   border-width: thin;
   color: black;
-  font-size: 10pt;
   font-weight: bolder;
   margin: 5px;
   padding: 5px;
