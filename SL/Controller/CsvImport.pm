@@ -720,7 +720,7 @@ sub mappings_for_profile {
 }
 
 sub init_mappings {
-  $::form->{mappings} || []
+  [ grep { $_->{from} } @{ $::form->{mappings} || [] } ]
 }
 
 1;
