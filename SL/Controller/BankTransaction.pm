@@ -250,6 +250,7 @@ sub action_filter_drafts {
 
   foreach my $draft ( @{ $drafts } ) {
     my $draft_as_object = YAML::Load($draft->form);
+    next unless $draft_as_object->{vendor_id};  # we cannot filter for vendor name, if this is a gl draft
     my $vendor = SL::DB::Manager::Vendor->find_by(id => $draft_as_object->{vendor_id});
     $draft->{vendor} = $vendor->name;
     $draft->{vendor_id} = $vendor->id;
