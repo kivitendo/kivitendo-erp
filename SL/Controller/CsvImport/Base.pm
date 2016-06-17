@@ -54,7 +54,7 @@ sub run {
 
   return if ( !$self->csv->header || $self->csv->errors );
 
-  my $headers         = { headers => [ map {; $_->{key} } @{ $self->csv->specs->[0] } ] };
+  my $headers         = { headers => [ grep { $self->csv->dispatcher->is_known($_, 0) } @{ $self->csv->header } ] };
   $headers->{methods} = [ map { $_->{path} } @{ $self->csv->specs->[0] } ];
   $headers->{used}    = { map { ($_ => 1) }  @{ $headers->{headers} } };
   $self->controller->headers($headers);
