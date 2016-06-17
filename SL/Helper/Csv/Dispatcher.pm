@@ -99,8 +99,8 @@ sub apply {
 }
 
 sub is_known {
-  my ($self, $col) = @_;
-  return grep { $col eq $_->{key} } $self->_specs;
+  my ($self, $col, $row) = @_;
+  return grep { $col eq $_->{key} } @{ $self->_specs->[$row // 0] };
 }
 
 sub parse_profile {
