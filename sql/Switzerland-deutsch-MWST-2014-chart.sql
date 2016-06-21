@@ -17,8 +17,8 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 ('1100', 'Forderungen aus Lieferungen und Leistungen','A','A','AR','1100',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('114',  'Übrige kurzfristige Forderungen','H','','','114',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('1140', 'Vorschüsse, kurzfristige Darlehen','A','A','AR','1140',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
-('1170', 'Vorsteuer auf Aufwand','A','A','','1170',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
-('1171', 'Vorsteuer auf Investitionen','A','A','','1171',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
+('1170', 'Vorsteuer auf Aufwand','A','A','AP_tax:IC_taxpart:IC_taxservice','1170',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
+('1171', 'Vorsteuer auf Investitionen','A','A','AP_tax:IC_taxpart:IC_taxservice','1171',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('1176', 'Verrechnungssteuer','A','A','','1176',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('120',  'Vorräte und nicht fakturierte Dienstleistungen','H','','','120',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('1200', 'Handelswaren','A','A','IC','1200',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
@@ -81,6 +81,7 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 ('32',   'HANDELSERLÖSE','H','','','32',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('3200', 'Handelserlöse 8%','A','I','AR_amount:IC_sale','3200',2,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('3201', 'Handelserlöse 2.5%','A','I','AR_amount:IC_sale','3201',3,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
+('3202', 'Handelserlöse 0%','A','I','AR_amount:IC_sale','3202',1,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('34',   'DIENSTLEISTUNGSERLÖSE','H','','','34',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('3400', 'Dienstleistungserlöse','A','I','AR_amount:IC_income','3400',2,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('36',   'ÜBRIGE ERLÖSE AUS LIEFERUNGEN UND LEISTUNGEN','H','','','36',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
@@ -100,6 +101,7 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 ('42',   'HANDELSWARENAUFWAND','H','','','42',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('4200', 'Einkauf Handelswaren 8%','A','E','AP_amount:IC_cogs','4200',4,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('4201', 'Einkauf Handelswaren 2.5%','A','E','AP_amount:IC_cogs','4201',5,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
+('4202', 'Einkauf Handelswaren 0%','A','E','AP_amount:IC_cogs','4202',1,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('4208', 'Bestandsänderungen Handelswaren','A','E','AP_amount:IC_cogs','4208',4,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('44',   'AUFWAND FÜR BEZOGENE DRITTLEISTUNGEN','H','','','44',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('4400', 'Aufwand für Drittleistungen','A','E','AP_amount:IC_expense','4400',4,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
@@ -170,11 +172,11 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 ('6900', 'Finanzaufwand','A','E','','6900',0,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('6940', 'Bankspesen','A','E','','6940',0,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('6942', 'Kursverluste','A','E','','6942',0,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
-('6943', 'Rundungsaufwand','A','E','','6943',0,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
+('6943', 'Rundungsaufwand','A','E','AP_amount:IC_cogs:IC_expense','6943',0,NULL,NULL,NULL,6,FALSE,'2011-01-01 00:00:00.000000'),
 ('695',  'Finanzertrag','H','','','695',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('6950', 'Finanzertrag','A','I','','6950',0,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('6952', 'Kursgewinne','A','I','','6952',0,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
-('6953', 'Rundungsertrag','A','I','','6953',0,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
+('6953', 'Rundungsertrag','A','I','AR_amount:IC_sale:IC_income','6953',0,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('6970', 'Mitgliederbeiträge','A','I','AR_amount:IC_income','6970',1,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('6980', 'Spenden','A','I','AR_amount:IC_income','6980',1,NULL,NULL,NULL,1,FALSE,'2011-01-01 00:00:00.000000'),
 ('7',    'BETRIEBLICHER NEBENERFOLG','H','','','7',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
@@ -212,15 +214,15 @@ INSERT INTO buchungsgruppen (
 ) VALUES (
   'Standard 8%',(SELECT id FROM chart WHERE accno = '1200'),
   (SELECT id FROM chart WHERE accno = '3200'), (SELECT id FROM chart WHERE accno = '4200'),
-  (SELECT id FROM chart WHERE accno = '3200'), (SELECT id FROM chart WHERE accno = '4200'),
-  (SELECT id FROM chart WHERE accno = '3200'), (SELECT id FROM chart WHERE accno = '4200'),
-  (SELECT id FROM chart WHERE accno = '3200'), (SELECT id FROM chart WHERE accno = '4200')
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202'),
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202'),
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202')
 ),(
   'Standard 2.5%',(SELECT id FROM chart WHERE accno = '1200'),
   (SELECT id FROM chart WHERE accno = '3201'), (SELECT id FROM chart WHERE accno = '4201'),
-  (SELECT id FROM chart WHERE accno = '3201'), (SELECT id FROM chart WHERE accno = '4201'),
-  (SELECT id FROM chart WHERE accno = '3201'), (SELECT id FROM chart WHERE accno = '4201'),
-  (SELECT id FROM chart WHERE accno = '3201'), (SELECT id FROM chart WHERE accno = '4201')
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202'),
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202'),
+  (SELECT id FROM chart WHERE accno = '3202'), (SELECT id FROM chart WHERE accno = '4202')
 );
 
 
@@ -240,12 +242,12 @@ INSERT INTO tax (taxkey, taxdescription, rate) VALUES
 (1, 'Mehrwertsteuerfrei', 0);
 
 INSERT INTO tax (taxkey, taxdescription, rate, taxnumber, chart_id) VALUES
-(2, 'MWST 8% Ertrag', 0.08000, '2200', (SELECT id FROM chart WHERE accno='2200')),
-(3, 'MWST 2.5% Ertrag', 0.02500, '2201', (SELECT id FROM chart WHERE accno='2201')),
-(4, 'MWST 8% Aufwand', 0.08000, '1170', (SELECT id FROM chart WHERE accno='1170')),
-(5, 'MWST 2.5% Aufwand', 0.02500, '1170', (SELECT id FROM chart WHERE accno='1170')),
-(6, 'MWST 8% Investitionen', 0.08000, '1171', (SELECT id FROM chart WHERE accno='1171')),
-(7, 'MWST 2.5% Investitionen', 0.02500, '1171', (SELECT id FROM chart WHERE accno='1171'));
+(2, 'MWST', 0.08000, '2200', (SELECT id FROM chart WHERE accno='2200')),
+(3, 'MWST', 0.02500, '2201', (SELECT id FROM chart WHERE accno='2201')),
+(4, 'MWST Aufwand', 0.08000, '1170', (SELECT id FROM chart WHERE accno='1170')),
+(5, 'MWST Aufwand', 0.02500, '1170', (SELECT id FROM chart WHERE accno='1170')),
+(6, 'MWST Investitionen', 0.08000, '1171', (SELECT id FROM chart WHERE accno='1171')),
+(7, 'MWST Investitionen', 0.02500, '1171', (SELECT id FROM chart WHERE accno='1171'));
 
 
 DELETE FROM taxkeys;
