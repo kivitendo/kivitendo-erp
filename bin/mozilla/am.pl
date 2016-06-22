@@ -46,6 +46,7 @@ use SL::DB::Printer;
 use SL::DB::Tax;
 use SL::DB::Language;
 use SL::DB::Default;
+use SL::DBUtils qw(selectall_array_query);
 use CGI;
 
 require "bin/mozilla/common.pl";
