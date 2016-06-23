@@ -889,6 +889,21 @@ sub order {
   $form->{old_salesman_id} = $form->{salesman_id};
 
   delete $form->{$_} foreach (qw(printed emailed queued));
+
+  # When creating a new sales order from a saved sales invoice, reset id,
+  # ordnumber, transdate and deliverydate as we are creating a new order. This
+  # workflow is probably mainly used as a template mechanism for creating new
+  # orders from existing invoices, so we probably don't want to link the items.
+  # Is this order function called anywhere else?
+  # The worksflows in oe already call sales_order and purchase_order in oe, not
+  # this general function which now only seems to be called from saved sales
+  # invoices
+  # Why is ordnumber set to invnumber above, does this ever make sense?
+
+  if ( $form->{script} eq 'is.pl' && $form->{type} eq 'invoice' ) {
+    delete $form->{$_} foreach (qw(ordnumber id transdate deliverydate));
+  };
+
   my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
