@@ -178,6 +178,8 @@ sub action_create_invoice {
   $self->{transaction} = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
 
+  my $use_vendor_filter = $self->{transaction}->{remote_account_number} && $vendor_of_transaction;
+
   my $drafts = SL::DB::Manager::Draft->get_all(where => [ module => 'ap'] , with_objects => 'employee');
 
   my @filtered_drafts;
@@ -191,15 +193,15 @@ sub action_create_invoice {
   }
 
   #Filter drafts
-  @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $vendor_of_transaction && $self->{transaction}->{remote_account_number};
+  @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $use_vendor_filter;
 
   my $all_vendors = SL::DB::Manager::Vendor->get_all();
 
   $self->render('bank_transactions/create_invoice', { layout  => 0 },
       title      => t8('Create invoice'),
       DRAFTS     => \@filtered_drafts,
-      vendor_id  => $vendor_of_transaction ? $vendor_of_transaction->id : undef,
-      vendor_name => $vendor_of_transaction ? $vendor_of_transaction->name : undef,
+      vendor_id  => $use_vendor_filter ? $vendor_of_transaction->id : undef,
+      vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
       ALL_VENDORS => $all_vendors,
       limit      => $myconfig{vclimit},
       callback   => $self->url_for(action                => 'list',
