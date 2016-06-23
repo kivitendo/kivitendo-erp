@@ -40,7 +40,15 @@ sub calculate_prices_and_taxes {
                items               => [ ],
              );
 
-  _get_exchangerate($self, \%data, %params);
+  # set exchangerate in $data>{exchangerate}
+  if ( ref($self) eq 'SL::DB::Order' ) {
+    # orders store amount in the order currency
+    $data{exchangerate} = 1;
+  } else {
+    # invoices store amount in the default currency
+    _get_exchangerate($self, \%data, %params);
+    # $data{exchangerate} = $self->exchangerate; # untested alternative for setting exchangerate
+  };
 
   $self->netamount(  0);
   $self->marge_total(0);
