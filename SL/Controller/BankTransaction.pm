@@ -191,7 +191,7 @@ sub action_create_invoice {
   }
 
   #Filter drafts
-  @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $vendor_of_transaction;
+  @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $vendor_of_transaction && $self->{transaction}->{remote_account_number};
 
   my $all_vendors = SL::DB::Manager::Vendor->get_all();
 
