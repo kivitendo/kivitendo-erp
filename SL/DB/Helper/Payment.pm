@@ -657,11 +657,13 @@ sub exchangerate {
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
+  die "transdate isn't a DateTime object:" . ref($self->transdate) unless ref($self->transdate) eq 'DateTime';
   my $rate = SL::DB::Manager::Exchangerate->find_by(currency_id => $self->currency_id,
                                                     transdate   => $self->transdate,
                                                    );
   return undef unless $rate;
-  $self->is_sales ? return $rate->sell : return $rate->buy;
+
+  return $self->is_sales ? $rate->buy : $rate->sell; # also undef if not defined
 };
 
 sub get_payment_suggestions {
@@ -1106,8 +1108,12 @@ values for sales and purchases.
 
 =item C<exchangerate>
 
-Returns the exchangerate in database format for the invoice according to that invoice's transdate.
-Returns 'sell' for sales, 'buy' for purchases.
+Returns 1 immediately if the record uses the default currency.
+
+Returns the exchangerate in database format for the invoice according to that
+invoice's transdate, returning 'buy' for sales, 'sell' for purchases.
+
+If no exchangerate can be found for that day undef is returned.
 
 =back
 
