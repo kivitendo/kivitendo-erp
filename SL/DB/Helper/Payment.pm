@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction create_bank_transaction exchangerate);
+our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction create_bank_transaction exchangerate forex);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -748,6 +748,11 @@ sub create_bank_transaction {
 };
 
 
+sub forex {
+  my ($self) = @_;
+  $self->currency_id == $::instance_conf->get_currency_id ? return 0 : return 1;
+};
+
 sub _round {
   my $value = shift;
   my $num_dec = 2;
@@ -1114,6 +1119,10 @@ Returns the exchangerate in database format for the invoice according to that
 invoice's transdate, returning 'buy' for sales, 'sell' for purchases.
 
 If no exchangerate can be found for that day undef is returned.
+
+=item C<forex>
+
+Returns 1 if record uses a different currency, 0 if the default currency is used.
 
 =back
 
