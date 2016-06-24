@@ -42,7 +42,7 @@ use SL::GL;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
-use SL::DBUtils qw(selectrow_query);
+use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -165,7 +165,7 @@ sub prepare_transaction {
         $form->{totalcredit} += $ref->{amount};
         $form->{"credit_$i"} = $ref->{amount};
       }
-      $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"taxchart_$i"} = $ref->{id}."--0.00000";
       $form->{"project_id_$i"} = $ref->{project_id};
       $i++;
     }
@@ -528,6 +528,11 @@ sub update {
   my $creditcount = 0;
   my ($debitcredit, $amount);
 
+  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
+  my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
+  $dbh->disconnect;
+
   my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
@@ -566,10 +571,10 @@ sub update {
         $form->{debitlock} = 1;
       }
       if ($debitcredit && $credittax) {
-        $form->{"taxchart_$i"} = "0--0.00";
+        $form->{"taxchart_$i"} = "$notax_id--0.00";
       }
       if (!$debitcredit && $debittax) {
-        $form->{"taxchart_$i"} = "0--0.00";
+        $form->{"taxchart_$i"} = "$notax_id--0.00";
       }
       $amount =
         ($form->{"debit_$i"} == 0)
@@ -577,11 +582,12 @@ sub update {
         : $form->{"debit_$i"};
       my $j = $#a;
       if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-        $form->{"taxchart_$i"} = "0--0.00";
+        $form->{"taxchart_$i"} = "$notax_id--0.00";
         $form->{"tax_$i"}      = 0;
       }
       my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-      if ($taxkey > 1) {
+      my $iswithouttax = grep { $_->{id} == $taxkey } @{ $zerotaxes };
+      if (!$iswithouttax) {
         if ($debitcredit) {
           $debittax = 1;
         } else {
@@ -994,6 +1000,7 @@ sub post_transaction {
 
   my $dbh = $form->dbconnect_noauto(\%myconfig);
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
+  my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
   $dbh->disconnect;
 
   my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
@@ -1050,7 +1057,8 @@ sub post_transaction {
       $form->{"tax_$i"}      = 0;
     }
     my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-    if ($taxkey > 1) {
+    my $iswithouttax = grep { $_->{id} == $taxkey } @{ $zerotaxes };
+    if (!$iswithouttax) {
       if ($debitcredit) {
         $debittax = 1;
       } else {
