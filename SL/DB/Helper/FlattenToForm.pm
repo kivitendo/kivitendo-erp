@@ -20,8 +20,10 @@ sub flatten_to_form {
 
   if ( $vc eq 'customer' ) {
     $form->{customer_id} = $self->customer_id;
+    $form->{customer}    = $self->customer->name if $self->customer;
   } else {
-    $form->{vendor_id} = $self->vendor_id;
+    $form->{vendor_id}   = $self->vendor_id;
+    $form->{vendor}      = $self->vendor->name if $self->vendor;
   };
 
   if (_has($self, 'transdate')) {
@@ -31,7 +33,7 @@ sub flatten_to_form {
     $form->{$transdate_idx} = $self->transdate->to_lxoffice;
   }
 
-  $form->{vc} = $vc if ref($self) =~ m{^SL::DB::(?:.*Invoice|Order)};
+  $form->{vc} = $vc if ref($self) =~ m{^SL::DB::(?:.*Invoice|.*Order)};
 
   my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit
                                department_1 department_2 discount email fax gln homepage iban language name
