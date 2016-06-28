@@ -436,6 +436,17 @@ sub action_save_invoices {
           );
 
       SL::DB::RecordLink->new(@props)->save;
+
+      # "close" a sepa_export_item if it exists
+      # currently only works, if there is only exactly one open sepa_export_item
+      if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
+        if ( scalar @$seis == 1 ) {
+          # moved the execution and the check for sepa_export into a method,
+          # this isn't part of a transaction, though
+          $seis->[0]->set_executed if $invoice->id == $seis->[0]->arap_id;
+        };
+      };
+
     }
     $bank_transaction->save;
   }

@@ -71,6 +71,7 @@ sub get_agreement_with_invoice {
     remote_account_number       => 3,
     skonto_exact_amount         => 5,
     wrong_sign                  => -1,
+    sepa_export_item            => 5,
   );
 
   my ($agreement,$rule_matches);
@@ -114,7 +115,7 @@ sub get_agreement_with_invoice {
 
   #search invoice number in purpose
   my $invnumber = $invoice->invnumber;
-  # invnumbernhas to have at least 3 characters
+  # invnumber has to have at least 3 characters
   my $squashed_purpose = $self->purpose;
   $squashed_purpose =~ s/ //g;
   if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
@@ -203,6 +204,28 @@ sub get_agreement_with_invoice {
       $rule_matches .= 'datebonus_negative(' . $points{'datebonus_negative'} . ') ';
     } else {
   # e.g. datediff > 120
+    };
+  };
+
+  # if there is exactly one non-executed sepa_export_item for the invoice
+  if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
+    if ( scalar @$seis == 1 ) {
+      my $sei = $seis->[0];
+
+      # test for amount and id matching only, sepa transfer date and bank
+      # transaction date needn't match
+      my $arap = $invoice->is_sales ? 'ar' : 'ap';
+      if (    abs($self->amount) == ($sei->amount)
+          && $invoice->id        == $sei->arap_id
+         ) {
+        $agreement += $points{sepa_export_item};
+          $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
+      };
+    } else {
+      # zero or more than one sepa_export_item, do nothing for this invoice
+      # zero: do nothing, no sepa_export_item exists, no match
+      # more than one: does this ever apply? Currently you can't create sepa
+      # exports for invoices that already have a non-executed sepa_export
     };
   };
 
