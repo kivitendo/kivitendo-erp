@@ -5,10 +5,9 @@
         einer Vorlage durch ihren Inhalt ersetzt, wenn sie in der Form
         <code class="function">&lt;%variablenname%&gt;</code> verwendet wird. Für
         LaTeX- und HTML-Vorlagen kann man die Form dieser Tags auch verändern
-        (siehe <a class="xref" href="ch03s03.html#dokumentenvorlagen-und-variablen.tag-style" title="3.3.4. Anfang und Ende der Tags verändern">Anfang und Ende der Tags verändern</a>).</p><p>Früher wurde hier nur über LaTeX gesprochen. Inzwischen
-        unterstützt kivitendo aber auch OpenDocument-Vorlagen. Sofern es nicht
-        ausdrücklich eingeschränkt wird, gilt das im Folgenden gesagte für
-        alle Vorlagenarten.</p><p>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
+        (siehe <a class="xref" href="ch03s03.html#dokumentenvorlagen-und-variablen.tag-style" title="3.3.4. Anfang und Ende der Tags verändern">Anfang und Ende der Tags verändern</a>).</p><p>kivitendo unterstützt LaTeX-, HTML- und OpenDocument-Vorlagen. 
+        Sofern es nicht ausdrücklich eingeschränkt wird, gilt das im 
+        Folgenden gesagte für alle Vorlagenarten.</p><p>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
         verfügbar als hier aufgelistet werden. Die meisten davon können
         allerdings innerhalb einer solchen Vorlage nicht sinnvoll verwendet
         werden. Wenn eine Auflistung dieser Variablen gewollt ist, so kann
@@ -386,6 +385,9 @@
                      </span></dt><dd><p>Angebotsdatum</p></dd><dt><span class="term">
                         <code class="varname">quonumber</code>
                      </span></dt><dd><p>Angebotsnummer</p></dd><dt><span class="term">
+                        <code class="varname">rounding</code>
+                     </span></dt><dd><p>Betrag, um den <code class="varname">invtotal</code> gerundet wurde 
+                (kann positiv oder negativ sein)</p></dd><dt><span class="term">
                         <code class="varname">shippingpoint</code>
                      </span></dt><dd><p>Versandort</p></dd><dt><span class="term">
                         <code class="varname">shipvia</code>
@@ -603,7 +605,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5325"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5493"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:

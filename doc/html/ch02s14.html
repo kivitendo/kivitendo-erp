@@ -37,11 +37,17 @@
                <code class="filename">config/kivitendo.conf</code> wird nun nicht mehr
         benötigt und kann entfernt werden. Dies muss manuell geschehen.</p></div><div class="sect2" title="2.14.3. Festlegen der Parameter"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.setting-parameters"></a>2.14.3. Festlegen der Parameter</h3></div></div></div><p>Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in
         der Admininstration können diese Optionen nun unabhängig voneinander
-        eingestellt werden.</p><p>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
+        eingestellt werden.</p><p>Für die Schweiz sind folgende Einstellungen üblich:
+		</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Sollversteuerung</p></li><li class="listitem"><p>Aufwandsmethode</p></li><li class="listitem"><p>Bilanzierung</p></li></ul></div><p>
+		Diese Einstellungen werden automatisch beim Erstellen einer neuen 
+		Datenbank vorausgewählt, wenn in <code class="filename">config/kivitendo.conf</code> unter 
+		<code class="varname">[system]</code> 
+               <code class="literal">default_manager = swiss</code> eingestellt ist.	
+        </p><p>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
         Variablen werden so gesetzt, daß sich an der Funktionalität nichts
         ändert.</p><p>Die aktuelle Konfiguration wird unter Nummernkreise und
         Standardkonten unter dem neuen Punkt "Einstellungen" (read-only)
-        angezeigt. Unter <span class="guimenu">System</span> -&gt;
+        angezeigt. Unter <span class="guimenu">System</span> →
         <span class="guisubmenu">Mandantenkonfiguration</span> können die
         Einstellungen auch geändert werden. Dabei ist zu beachten, dass eine
         Änderung vorhandene Daten so belässt und damit evtl. die Ergebnisse

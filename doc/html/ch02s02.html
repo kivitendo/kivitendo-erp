@@ -52,7 +52,8 @@
                      <code class="literal">JSON</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">List::MoreUtils</code>
-                  </p></li><li class="listitem"><p>
+                  </p></li><li class="listitem">-&gt;
+            <p>
                      <code class="literal">List::UtilsBy</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Net::SMTP::SSL</code> (optional, bei
@@ -82,7 +83,8 @@
                      <code class="literal">Text::Iconv</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">URI</code>
-                  </p></li><li class="listitem"><p>
+                  </p>-&gt;
+          </li><li class="listitem"><p>
                      <code class="literal">XML::Writer</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
@@ -109,7 +111,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e440"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e443"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
           Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -125,7 +127,7 @@
 </pre><p>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
           muß per CPAN installiert werden. Unter Ubuntu funktioniert das
           mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e451"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e454"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -135,7 +137,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e462"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e465"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
