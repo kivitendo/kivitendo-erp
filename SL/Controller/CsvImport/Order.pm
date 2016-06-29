@@ -3,7 +3,7 @@ package SL::Controller::CsvImport::Order;
 
 use strict;
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 
 use SL::Helper::Csv;
 use SL::Controller::CsvImport::Helper::Consistency;
@@ -18,6 +18,7 @@ use SL::DB::Pricegroup;
 use SL::DB::Project;
 use SL::DB::Shipto;
 use SL::DB::TaxZone;
+use SL::DB::Unit;
 use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
@@ -25,7 +26,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by units_by) ],
 );
 
 
@@ -237,6 +238,13 @@ sub init_pricegroups_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_pricegroups } } ) } qw(id pricegroup) };
 }
 
+sub init_units_by {
+  my ($self) = @_;
+
+  my $all_units = SL::DB::Manager::Unit->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_units } } ) } qw(name) };
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -370,11 +378,12 @@ sub handle_item {
 
   my $part_obj = SL::DB::Part->new(id => $object->parts_id)->load;
 
+  $self->handle_unit($entry);
+  $self->handle_sellprice($entry);
+
   # copy from part if not given
   $object->description($part_obj->description) unless $object->description;
   $object->longdescription($part_obj->notes)   unless $object->longdescription;
-  $object->unit($part_obj->unit)               unless $object->unit;
-  $object->sellprice($part_obj->sellprice)     unless defined $object->sellprice;
   $object->lastcost($part_obj->lastcost)       unless defined $object->lastcost;
 
   # set to 0 if not given
@@ -384,6 +393,48 @@ sub handle_item {
   $self->check_project($entry, global => 0);
   $self->check_price_factor($entry);
   $self->check_pricegroup($entry);
+}
+
+sub handle_unit {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Set unit from part if not given.
+  if (!$object->unit) {
+    $object->unit($object->part->unit);
+    return 1;
+  }
+
+  # Check whether or not unit is valid.
+  if ($object->unit && !$self->units_by->{name}->{ $object->unit }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid unit');
+    return 0;
+  }
+
+  # Check whether unit is convertible to parts unit
+  if (none { $object->unit eq $_ } map { $_->name } @{ $object->part->unit_obj->convertible_units }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid unit');
+    return 0;
+  }
+
+  return 1;
+}
+
+sub handle_sellprice {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Set sellprice from part if not given. Convert with respect to unit.
+  if (!defined $object->sellprice) {
+    my $sellprice = $object->part->sellprice;
+
+    if ($object->unit ne $object->part->unit) {
+      $sellprice = $object->unit_obj->convert_to($sellprice, $object->part->unit_obj);
+    }
+    $object->sellprice($sellprice);
+  }
 }
 
 sub check_part {

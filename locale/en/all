@@ -1167,6 +1167,7 @@ $self->{texts} = {
   'Error: Invalid salesman'     => '',
   'Error: Invalid shipto'       => '',
   'Error: Invalid tax zone'     => '',
+  'Error: Invalid unit'         => '',
   'Error: Invalid vendor in column make_#1' => '',
   'Error: Invalid warehouse'    => '',
   'Error: Name missing'         => '',

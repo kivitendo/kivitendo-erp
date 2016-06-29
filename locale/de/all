@@ -1167,6 +1167,7 @@ $self->{texts} = {
   'Error: Invalid salesman'     => 'Fehler: Ungültiger Verkäufer',
   'Error: Invalid shipto'       => 'Fehler: Lieferadresse ungültig',
   'Error: Invalid tax zone'     => 'Fehler: Steuerzone ungültig',
+  'Error: Invalid unit'         => 'Fehler: Einheit ungültig',
   'Error: Invalid vendor in column make_#1' => 'Fehler: Lieferant ungültig in Spalte make_#1',
   'Error: Invalid warehouse'    => 'Fehler: Ungültiges Lager',
   'Error: Name missing'         => 'Fehler: Name fehlt',
