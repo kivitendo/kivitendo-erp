@@ -34,6 +34,14 @@ sub create {
   return $db;
 }
 
+sub client {
+  create(undef, 'KIVITENDO');
+}
+
+sub auth {
+  create(undef, 'KIVITENDO_AUTH');
+}
+
 sub _register_db {
   my $domain = shift;
   my $type   = shift;

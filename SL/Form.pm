@@ -1436,7 +1436,7 @@ sub get_standard_dbh {
     undef $standard_dbh;
   }
 
-  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
+  $standard_dbh ||= SL::DB->create(undef, 'KIVITENDO')->dbh;
 
   $main::lxdebug->leave_sub(2);
 
