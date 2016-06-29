@@ -224,12 +224,20 @@ sub retrieve_buchungsgruppen {
 }
 
 sub save {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save, $self, $myconfig, $form);
+
+  $main::lxdebug->leave_sub();
+  return $rc;
+}
+
+sub _save {
   my ($self, $myconfig, $form) = @_;
   my @values;
   # connect to database, turn off AutoCommit
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
   # save the part
@@ -535,12 +543,7 @@ sub save {
 SQL
   do_query($form, $dbh, $query, ($form->{id}) x 2);
 
-  # commit
-  my $rc = $dbh->commit;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub retrieve_assemblies {
