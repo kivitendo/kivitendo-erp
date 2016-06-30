@@ -2073,6 +2073,7 @@ $self->{texts} = {
   'Pre-defined Texts'           => 'Vordefinierte Textblöcke',
   'Preamble'                    => 'Einleitung',
   'Precision'                   => 'Genauigkeit',
+  'Precision Note'              => '<b>Achtung:</b> Bei Genauigkeit 0.05 dürfen Verkaufsbelege aktuell nur in Standardwährung erstellt werden.',
   'Preferences'                 => 'Einstellungen',
   'Preferences saved!'          => 'Einstellungen gespeichert!',
   'Prefix for the new bins\' names' => 'Namenspr&auml;fix f&uuml;r die neuen Lagerpl&auml;tze',
