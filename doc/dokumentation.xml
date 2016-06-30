@@ -2926,7 +2926,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 	  <para>Soll bei einer bereits bestehenden Buchhaltung in Zukunft zusätzlich 
 	  die Erfolgsrechnung als Bericht verwendet werden, so müssen die Einstellungen 
 	  zu allen Erlös- und Aufwandskonten unter <varname>Sonstige 
-	  Einstellungen/Erfolgsrechnung</varname> neu gesetzt werden.</para>
+	  Einstellungen/Erfolgsrechnung</varname> überprüft und allenfalls neu gesetzt werden.</para>
     </sect1>
     
     <sect1 id="config.rounding">
@@ -2971,7 +2971,15 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       
       <para>Die in den Druckvorlagen zur Verfügung stehenden Variablen 
       <varname>quototal</varname>, <varname>ordtotal</varname> bzw. 
-      <varname>invtotal</varname> enthalten den gerundeten Betrag.</para>	  
+      <varname>invtotal</varname> enthalten den gerundeten Betrag.</para>
+      
+      <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege 
+      in anderen Währungen als der Standardwährung erstellt, so muss in 
+      kivitendo 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
+      <para>Das heisst, Firmen in der Schweiz, die teilweise Verkaufsrechnungen 
+      in Euro oder anderen Währungen erstellen wollen, müssen beim Erstellen 
+      der Datenbank als Genauigkeit 0.01 wählen und können zur Zeit die 
+      5er Rundung noch nicht nutzen.</para>	  
     </sect1>
 
     <sect1 id="config.client">
