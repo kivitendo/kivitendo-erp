@@ -260,6 +260,8 @@ sub post {
     $self->_post_add_acctrans({ $params{ar_id} => $self->amount * -1 });
 
     $self->_post_update_allocated($data{allocated});
+
+    $self->_post_book_rounding($data{rounding});
   };
 
   if ($self->db->in_transaction) {
@@ -293,6 +295,26 @@ sub _post_add_acctrans {
                                 project_id => $self->globalproject_id,
                                 transdate  => $self->transdate,
                                 chart_link => $chart_link)->save;
+  }
+}
+
+sub _post_book_rounding {
+  my ($self, $rounding) = @_;
+
+  my $tax_id = SL::DB::Manager::Tax->find_by(taxkey => 0)->id;
+  my $rnd_accno = $rounding == 0 ? 0
+                : $rounding > 0  ? SL::DB::Default->get->rndgain_accno_id
+                :                  SL::DB::Default->get->rndloss_accno_id
+  ;
+  if ($rnd_accno != 0) {
+    SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                chart_id   => $rnd_accno,
+                                amount     => $rounding,
+                                tax_id     => $tax_id,
+                                taxkey     => 0,
+                                project_id => $self->globalproject_id,
+                                transdate  => $self->transdate,
+                                chart_link => $rnd_accno)->save;
   }
 }
 
