@@ -249,12 +249,6 @@ sub post {
 
   my $worker = sub {
     my %data = $self->calculate_prices_and_taxes;
-    my $grossamount = $self->amount;
-    $self->amount($::form->round_amount($grossamount, 2, 1));
-    my $rounding = $::form->round_amount(
-      $self->amount - $grossamount,
-      2
-    );
 
     $self->_post_create_assemblyitem_entries($data{assembly_items});
     $self->save;
@@ -262,11 +256,12 @@ sub post {
     $self->_post_add_acctrans($data{amounts_cogs});
     $self->_post_add_acctrans($data{amounts});
     $self->_post_add_acctrans($data{taxes});
+
     $self->_post_add_acctrans({ $params{ar_id} => $self->amount * -1 });
 
     $self->_post_update_allocated($data{allocated});
 
-    $self->_post_book_rounding($rounding);
+    $self->_post_book_rounding($data{rounding});
   };
 
   if ($self->db->in_transaction) {

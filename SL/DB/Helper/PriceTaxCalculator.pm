@@ -57,7 +57,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items items);
+  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items items rounding);
 }
 
 sub _get_exchangerate {
@@ -185,10 +185,13 @@ sub _calculate_amounts {
   _dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
 
   my $tax              = sum values %{ $data->{taxes} };
-  $data->{arap_amount} = $netamount + $tax;
+  $amount              = $netamount + $tax;
+  my $grossamount      = _round($amount, 2, 1);
+  $data->{rounding}    = _round($grossamount - $amount, 2);
+  $data->{arap_amount} = $grossamount;
 
   $self->netamount(    $netamount);
-  $self->amount(       $netamount + $tax);
+  $self->amount(       $grossamount);
   $self->marge_percent($self->netamount ? ($self->netamount - $data->{lastcost_total}) * 100 / $self->netamount : 0);
 }
 
