@@ -1910,9 +1910,9 @@ sub get_accounts_ch {
   my ($inclusion);
 
   if ($category eq 'I') {
-    $inclusion = "AND pos_er = NULL OR pos_er > '0' AND pos_er <= '5'";
+    $inclusion = "AND pos_er = NULL OR pos_er = '1'";
   } elsif ($category eq 'E') {
-    $inclusion = "AND pos_er = NULL OR pos_er >= '6' AND pos_er < '100'";
+    $inclusion = "AND pos_er = NULL OR pos_er = '6'";
   } else {
     $inclusion = "";
   }
