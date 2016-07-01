@@ -30,6 +30,9 @@ kleinere neue Features und Detailverbesserungen:
   - Kontoauszug verbuchen in der Übersicht den offenen Rechnungsbetrag
     als visuelle Hilfe anzeigen und nur den maximal offenen Rechnungsbetrag
     auch zuweisen.
+  - Im CSV Import ist es jetzt möglich die Spalten aus der hochgeladenen Datei
+    den erwarteten Spalten zuzuordnen. Diese Zuordnung kann im Profil
+    gespeichert werden.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
