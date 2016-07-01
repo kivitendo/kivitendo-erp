@@ -42,6 +42,9 @@ Brieffunktion:
   - Das Drucken von Briefen direkt auf Drucker wurde gefixt.
   - Die Auswahl einer Ansprechpersonen in der Brieffunktion wurde gefixt.
   - Briefe können nun per E-Mail verschickt werden.
+  - Zum Drucken der Briefe wird jetzt das Template Toolkit
+    verwendet. Dazu muss die verwendete Briefvorlage angepasst werden
+    (siehe auch doc/UPGRADE).
 
 2016-03-12 - Release 3.4.0
 

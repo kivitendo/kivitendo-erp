@@ -13,6 +13,17 @@ Upgrade auf v3.4.1
     als Orientierung für die Anpassung an eigene Vorlagen. Eigene Vorlagen
     müssen entsprechend um diesen Typ für die 3.4.1 erweitert werden.
 
+* Druckvorlagen für Briefe
+
+    Die Erzeugung der Druckausgabe für die Brieffunktion wurde auf die
+    Verwendung des Template Toolkits umgestellt. Dazu muss die verwendete
+    Druckvorlage "letter.tex" angepasst werden. Im Standard-Vorlagensatz RB ist
+    das bereits geschehen. Falls keine manuellen Änderungen an der "letter.tex"
+    aus einer vorherigen Version gemacht wurden, reicht es, diese Datei
+    ("templates/print/RB/letter.tex") in das verwendete Vorlagenverzeichnis zu
+    kopieren. Ansonsten kann diese Datei als Beispiel dienen.
+
+
 Upgrade auf v3.4.0
 ==================
 
