@@ -43,6 +43,7 @@ use SL::DBUtils;
 use SL::HTML::Restrict;
 use SL::TransNumber;
 use SL::Util qw(trim);
+use SL::DB;
 
 use strict;
 
@@ -236,7 +237,7 @@ sub save {
 sub _save {
   my ($self, $myconfig, $form) = @_;
   my @values;
-  # connect to database, turn off AutoCommit
+
   my $dbh = SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
@@ -583,26 +584,27 @@ sub retrieve_assemblies {
 }
 
 sub delete {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_delete, $self, $myconfig, $form);
+
+  $main::lxdebug->leave_sub();
+  return $rc;
+}
+
+sub _delete {
   my ($self, $myconfig, $form) = @_;
   my @values = (conv_i($form->{id}));
-  # connect to database, turn off AutoCommit
-  my $dbh = $form->get_standard_dbh;
 
   my %columns = ( "assembly" => "id", "parts" => "id" );
 
   for my $table (qw(prices makemodel inventory assembly translation parts)) {
     my $column = defined($columns{$table}) ? $columns{$table} : "parts_id";
-    do_query($form, $dbh, qq|DELETE FROM $table WHERE $column = ?|, @values);
+    do_query($form, SL::DB->client->dbh, qq|DELETE FROM $table WHERE $column = ?|, @values);
   }
 
-  # commit
-  my $rc = $dbh->commit;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub assembly_item {
@@ -640,9 +642,6 @@ sub assembly_item {
     $where .= qq| ORDER BY p.description|;
   }
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
-
   my $query =
     qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
        p.weight, p.onhand, p.unit, pg.partsgroup, p.lastcost,
@@ -651,7 +650,7 @@ sub assembly_item {
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
        LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
        WHERE $where|;
-  $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
+  $form->{item_list} = selectall_hashref_query($form, SL::DB->client->dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 }
@@ -1227,15 +1226,23 @@ sub get_num_matches_for_priceupdate {
 }
 
 sub update_prices {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $num_updated = SL::DB->client->with_transaction(\&_update_prices, $self, $myconfig, $form);
+
+  $main::lxdebug->leave_sub();
+  return $num_updated;
+}
+
+sub _update_prices {
   my ($self, $myconfig, $form) = @_;
 
   my ($where, @where_values) = $self->_create_filter_for_priceupdate();
   my $num_updated = 0;
 
   # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   for my $column (qw(sellprice listprice)) {
     next if ($form->{$column} eq "");
@@ -1294,10 +1301,6 @@ sub update_prices {
 
   $sth_add->finish();
   $sth_multiply->finish();
-
-  my $rc= $dbh->commit;
-
-  $main::lxdebug->leave_sub();
 
   return $num_updated;
 }
