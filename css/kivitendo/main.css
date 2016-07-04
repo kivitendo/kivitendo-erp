@@ -392,6 +392,7 @@ label {
 }
 
 .part_picker {
+  padding-right: 16px;
 }
 .chart_picker {
   padding-right: 16px;
@@ -428,25 +429,6 @@ div.ppp_block {
   overflow:hidden;
   float:left;
   width: 350px;
-}
-span.ppp_popup_button {
-  position: absolute;
-  margin-left: -24px;
-  margin-top: 5px;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background: url("../../image/search.svg") no-repeat center right;
-  background-size: contain;
-}
-span.part_picker input {
-  padding-right: 20px;
-  box-sizing: padding-box;
-  -moz-box-sizing: padding-box;
-  -webkit-box-sizing: padding-box;
-}
-span.part_picker {
-  white-space: nowrap;
 }
 /* div.cpc_block { */
 /*   overflow:hidden; */

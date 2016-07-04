@@ -237,9 +237,11 @@ namespace('kivi', function(k){
     });
 
     // now add a picker div after the original input
-    var popup_button = $('<span>').addClass('ppp_popup_button');
-    $dummy.after(popup_button);
-    popup_button.click(open_dialog);
+    var pcont  = $('<span>').addClass('position-absolute');
+    var picker = $('<div>');
+    $dummy.after(pcont);
+    pcont.append(picker);
+    picker.addClass('icon16 search').click(open_dialog);
 
     var pp = {
       real:           function() { return $real },
