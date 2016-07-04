@@ -48,7 +48,7 @@ sub full_name_dep {
 sub formal_greeting {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
-  join ' ', grep $_, $self->cp_greeting, $self->cp_givenname, $self->cp_name;
+  join ' ', grep $_, $self->cp_title, $self->cp_givenname, $self->cp_name;
 }
 
 1;
