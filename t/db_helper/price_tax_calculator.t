@@ -177,6 +177,7 @@ sub test_default_invoice_one_item_19_tax_not_included() {
         taxkey_id                                => $taxkey->id,
       },
     ],
+    rounding                                    =>  0,
   }, "${title}: calculated data");
 }
 
@@ -264,6 +265,7 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
         taxkey_id                                => $taxkey2->id,
       },
     ],
+    rounding                                    =>  0,
   }, "${title}: calculated data");
 }
 
@@ -382,6 +384,7 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
         taxkey_id                                => $taxkeys{$item3->parts_id}->id,
       }
     ],
+    rounding                                    =>  0,
   }, "${title}: calculated data");
 }
 
@@ -445,6 +448,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
         taxkey_id                                => $taxkeys{$item->parts_id}->id,
       },
     ],
+    rounding                                    =>  0,
   }, "${title}: calculated data");
 }
 
