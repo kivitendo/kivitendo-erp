@@ -46,6 +46,15 @@ Brieffunktion:
     verwendet. Dazu muss die verwendete Briefvorlage angepasst werden
     (siehe auch doc/UPGRADE).
 
+Bugfixes:
+
+- Bugfix #132	Verknüpfte Belege: Stornorechnung ist nicht verknüpft mit Storno
+- Bugfix #144	Problem beim Rechnungsdruck: "an invoice item may only be linked back to 1 sales delivery item, something is wrong"
+- Bugfix #150	kivitendo 3.4 - Fehler beim Öffnen von Konten
+- Bugfix #152	Fehler in TopQuickSearch
+- Bugfix #165	inventory.shippingdate wird nicht konsequent benutzt
+- Bugfix #166	Presenter Links gehen im ReportGenerator Export kaputt
+
 2016-03-12 - Release 3.4.0
 
 Größere neue Features:
