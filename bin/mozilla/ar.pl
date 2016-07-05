@@ -1119,8 +1119,6 @@ sub ar_transactions {
     $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
     $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
-
     my $is_storno  = $ar->{storno} &&  $ar->{storno_id};
     my $has_storno = $ar->{storno} && !$ar->{storno_id};
 
@@ -1130,6 +1128,8 @@ sub ar_transactions {
       $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
       $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
                           $locale->text("AR Transaction (abbreviation)");
+
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
 
     $ar->{direct_debit} = $ar->{direct_debit} ? $::locale->text('yes') : $::locale->text('no');
 
