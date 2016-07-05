@@ -775,6 +775,7 @@ $self->{texts} = {
   'Customers and vendors'       => 'Kunden und Lieferanten',
   'Customized Report'           => 'Vorgewählte Zeiträume',
   'Czech Republic'              => 'Tschechien',
+  'DATEV'                       => 'DATEV',
   'DATEV - Export Assistent'    => 'DATEV-Exportassistent',
   'DATEV Angaben'               => 'DATEV-Angaben',
   'DATEV Export'                => 'DATEV-Export',
