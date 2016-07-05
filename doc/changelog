@@ -2,15 +2,15 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2016-05-xx - Release 3.4.1
+2016-07-05 - Release 3.4.1
 
 kleinere neue Features und Detailverbesserungen:
 
   - Erweitern der Zahlungsbedingungen um unterschiedliche Texte für
     Angebote/Aufträge auf der einen Seite und Rechnungen auf der
-    anderen Seite
+    anderen Seite.
   - Auftrag um Druckvariante Gelangensbestätigung erweitert.
-  - Lagereingangs-Typ gefertigt hinzugefügt
+  - Lagereingangs-Typ 'gefertigt' hinzugefügt.
   - Fertigungsdatum von Erzeugnissen und Bestandteilen von Erzeugnissen
     in Lagerbuchungen mitprotokollieren (Tagesdatum der Fertigung).
   - Wiederkehrende Rechnungen können nun automatisch per E-Mail
@@ -20,19 +20,30 @@ kleinere neue Features und Detailverbesserungen:
   - Abteilung in Verkauf->Berichte-Rechnungen anzeigen lassen.
   - Customer-Picker beim Projekt erzeugen eingebaut.
   - Es gibt jetzt Schnellsuchen zu den meisten Belegen und Stammdaten in der
-    Leiste am oberen Rand, konfigurierbar in der Mandantenkonfiguration
-  - Wird in der Konfiguration [mail_devlivery]/method auf einen leeren Wert
-    gesetzt wird jetzt Mailversand komplett ausgeschaltet, vorher wurde bei
+    Leiste am oberen Rand, konfigurierbar in der Mandantenkonfiguration (Details s.u.)
+  - Wird in der Konfigurations-Datei (kivitendo.conf)
+    [mail_delivery]/method auf einen leeren Wert gesetzt wird jetzt der
+    Mailversand komplett ausgeschaltet, vorher wurde bei
     Werten die nicht 'sendmail' oder 'smtp' sind SMTP als Vorauswahl benutzt.
   - Änderungen des Verkaufspreises von Artikeln, die Bestandteile von
     Erzeugnissen sind, haben nun keine Auswirkungen auf die
     Verkaufspreise der Erzeugnisse mehr.
-  - Kontoauszug verbuchen in der Übersicht den offenen Rechnungsbetrag
-    als visuelle Hilfe anzeigen und nur den maximal offenen Rechnungsbetrag
-    auch zuweisen.
+  - Beim Kontoauszug verbuchen wird in der Übersicht der offene Rechnungsbetrag
+    als visuelle Hilfe angezeigt und zusätzlich wird nur der maximal offene
+    Rechnungsbetrag zugewiesen.
   - Im CSV Import ist es jetzt möglich die Spalten aus der hochgeladenen Datei
     den erwarteten Spalten zuzuordnen. Diese Zuordnung kann im Profil
     gespeichert werden.
+  - Preishistorie der Stammdaten-Preise mitprotokollieren. Eine Übersicht
+    der Verkaufspreis-Änderungen wird zusätzlich in einem Reiter in den Stammdaten
+    angezeigt.
+  - Die nur rudimentär vorhandene Funktion: "Automatisches Erzeugen von
+    Aufträgen" (create_backorders) wurde entfernt.
+
+Schnellsuche in Bereichen:
+  - Für alle Belegtypen sowie die drei Waren-Typen gibt es Ein- und Abschaltbare
+    Schnellsuchen im Header-Bereich von kivitendo. Die Funktionsweise ist identisch
+    mit den bereits bekannten Schnellsuchen nach FiBu-Belegen und Ansprechpartnern.
 
 Brieffunktion:
   - Beim Speichern und Drucken von Briefen werden diese im
