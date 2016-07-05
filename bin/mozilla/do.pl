@@ -1791,7 +1791,7 @@ sub sort {
   my $form     = $main::form;
   my %temp_hash;
 
-  croak ("Delivery Order needs to be saved") unless $form->{id};
+  save(no_redirect => 1); # has to be done, at least for newly added positions
 
   # hashify partnumbers, positions. key is delivery_order_items_id
   for my $i (1 .. ($form->{rowcount}) ) {
