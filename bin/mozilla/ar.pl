@@ -171,6 +171,7 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
+  $form->{selectcurrency} = "";
   map { $form->{selectcurrency} .= "<option>$_\n" } $form->get_all_currencies(\%myconfig);
 
   # customers

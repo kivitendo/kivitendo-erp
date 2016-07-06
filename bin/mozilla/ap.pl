@@ -162,6 +162,7 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
+  $form->{selectcurrency} = "";
   map { my $quoted = H($_); $form->{selectcurrency} .= "<option value=\"${quoted}\">${quoted}\n" } $form->get_all_currencies(\%myconfig);
 
   # vendors
