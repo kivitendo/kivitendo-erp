@@ -12,6 +12,8 @@ Nur Dienstleistungen: <br>
 Waren und Dienstleistungen: <br>
 [% L.part_picker('part_id4', undef, type='part,service') %]<br>
 
+Pre-filled:<br>
+[% L.part_picker('part_id', pre_filled_part) %]<br>
 
 [%# FOREACH i IN 1..50 %]
 [%# L.part_picker('part_id_' _ i) %] <br>
