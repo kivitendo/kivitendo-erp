@@ -716,6 +716,7 @@ SQL
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
                 intnotes     = ?, storno_id   = ?, storno        = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?, delivery_term_id = ?,
+                currency_id = (SELECT id FROM currencies WHERE name = ?),
                 globalproject_id = ?, direct_debit = ?
               WHERE id = ?|;
   @values = (
@@ -725,6 +726,7 @@ SQL
             '1',                             $taxzone_id, $restricter->process($form->{notes}),               $form->{taxincluded} ? 't' : 'f',
                 $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), conv_i($form->{delivery_term_id}),
+                $form->{"currency"},
          conv_i($form->{globalproject_id}),
                 $form->{direct_debit} ? 't' : 'f',
          conv_i($form->{id})
