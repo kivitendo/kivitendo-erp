@@ -627,9 +627,9 @@ default_manager = german</programlisting>
 		<para>Die Einstellung <varname>default_manager = swiss</varname> bewirkt:</para>
 		<itemizedlist>
             <listitem>
-              <para>Beim Erstellen einer neuen Datenbank in der kivitendo Administration 
-              werden automatisch die Standard-Werte für die Schweiz voreingestellt: 
-              Währung CHF, 5er-Rundung, Schweizer KMU-Kontenplan, Sollversteuerung, 
+              <para>Beim Erstellen einer neuen Datenbank in der kivitendo Administration
+              werden automatisch die Standard-Werte für die Schweiz voreingestellt:
+              Währung CHF, 5er-Rundung, Schweizer KMU-Kontenplan, Sollversteuerung,
               Aufwandsmethode, Bilanzierung (die Werte können aber manuell angepasst werden).</para>
 			</listitem>
 			<listitem>
@@ -638,14 +638,14 @@ default_manager = german</programlisting>
 			</listitem>
 			<listitem>
 				<para>das verwendete Zahlenformat wird auf <varname>1'000.00</varname> eingestellt
-				 (unter Programm → Benutzereinstellungen veränderbar)</para>			
+				 (unter Programm → Benutzereinstellungen veränderbar)</para>
 			</listitem>
 			<listitem>
-				<para>DATEV-Automatik und UStVA werden nicht angezeigt, Erfolgsrechnung 
+				<para>DATEV-Automatik und UStVA werden nicht angezeigt, Erfolgsrechnung
 				ersetzt GUV ( unter Mandantenkonfiguration → Features veränderbar)</para>
 			</listitem>
 		</itemizedlist>
-		
+
         <para>Nutzt man wiederkehrende Rechnungen, kann man unter
         <varname>[periodic_invoices]</varname> den Login eines Benutzers
         angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
@@ -2157,7 +2157,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
         die vom Parser nicht korrekt gelesen werden kann.</para>
 
         <para>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
-        odt-Vorlagen bei Mahnungen, Briefen und Pflichtenheften einzusetzen. 
+        odt-Vorlagen bei Mahnungen, Briefen und Pflichtenheften einzusetzen.
         Entsprechende Vorlagen sind deshalb nicht vorhanden.</para>
 
         <para>Fehlermeldungen, Anregungen und Wünsche bitte senden an:
@@ -2284,18 +2284,18 @@ systemctl enable kivitendo-task-server.service</programlisting>
       enthalten.</para>
 
       <para>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
-      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die benutzt 
-      wird, wenn die Variable <literal>$openofficeorg_daemon</literal> gesetzt 
-      ist, startet ein LibreOffice oder OpenOffice, das auch nach der Umwandlung 
-      des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen wird dann diese 
-      laufende Instanz benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung 
-      deutlich reduziert wird, weil nicht für jedes Dokument ein LibreOffice bzw. 
-      OpenOffice gestartet werden muss. Der Nachteil ist, dass diese Methode 
-      Python und die Python-UNO-Bindings benötigt, die Bestandteil von LibreOffice 
+      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die benutzt
+      wird, wenn die Variable <literal>$openofficeorg_daemon</literal> gesetzt
+      ist, startet ein LibreOffice oder OpenOffice, das auch nach der Umwandlung
+      des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen wird dann diese
+      laufende Instanz benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung
+      deutlich reduziert wird, weil nicht für jedes Dokument ein LibreOffice bzw.
+      OpenOffice gestartet werden muss. Der Nachteil ist, dass diese Methode
+      Python und die Python-UNO-Bindings benötigt, die Bestandteil von LibreOffice
       bzw. OpenOffice sind.</para>
 
       <note>
-        <para>Für die Verbindung zu LibreOffice bzw. OpenOffice wird 
+        <para>Für die Verbindung zu LibreOffice bzw. OpenOffice wird
         normalerweise der Python-Interpreter
         <filename>/usr/bin/python</filename> benutzt.
         Sollte dies nicht der richtige sein, so kann man mit zwei
@@ -2307,7 +2307,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Zusätzlich ist es möglich, Pfade anzugeben, in denen Python
         neben seinen normalen Suchpfaden ebenfalls nach Modulen gesucht wird,
-        z.B. falls sich diese in einem gesonderten LibreOffice- bzw. 
+        z.B. falls sich diese in einem gesonderten LibreOffice- bzw.
         OpenOffice-Verzeichnis befinden. Diese zweite Variable heißt
         <literal>python_uno_path</literal> und befindet sich im Abschnitt
         <literal>environment</literal>. Sie ist standardmäßig leer. Werden
@@ -2318,8 +2318,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
       </note>
 
       <para>Ist <literal>$openofficeorg_daemon</literal> nicht gesetzt, so
-      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet 
-      und die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses 
+      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet
+      und die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses
       Makro muss in der Dokumentenvorlage enthalten sein und
       “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
       ‘<literal>templates/print/rev-odt/invoice.odt</literal>’
@@ -2328,16 +2328,16 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
       <para>Als letztes muss herausgefunden werden, welchen Namen
       OpenOffice bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen
-      gibt. Unter Debian ist dies momentan 
-      <literal>~/.config/libreoffice</literal>. kivitendo verwendet das 
+      gibt. Unter Debian ist dies momentan
+      <literal>~/.config/libreoffice</literal>. kivitendo verwendet das
       Verzeichnis <literal>users/.openoffice.org2</literal>.
       Eventuell muss dieses Verzeichnis umbenannt werden.</para>
 
       <para>Dieses Verzeichnis, wie auch das komplette
       <literal>users</literal>-Verzeichnis, muss vom Webserver beschreibbar
       sein. Dieses wurde bereits erledigt (siehe <xref
-      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber 
-      erneut überprüft werden, wenn die Konvertierung nach PDF 
+      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber
+      erneut überprüft werden, wenn die Konvertierung nach PDF
       fehlschlägt.</para>
 
       <sect2>
@@ -2501,7 +2501,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
                     <para>DDDBETRAG: &lt;%total%&gt; Einzahlungsbetrag oder 0,
                     falls Einzahlungsschein ohne Betrag</para>
                   </listitem>
-                  
+
                   <listitem>
 					<para>DDDEND: muss am Ende der Zeile vorhanden sein</para>
 				  </listitem>
@@ -2662,7 +2662,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
         <para>Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in
         der Admininstration können diese Optionen nun unabhängig voneinander
         eingestellt werden.</para>
-        
+
         <para>Für die Schweiz sind folgende Einstellungen üblich:
 		<itemizedlist>
             <listitem>
@@ -2675,9 +2675,9 @@ systemctl enable kivitendo-task-server.service</programlisting>
 				<para>Bilanzierung</para>
 			</listitem>
 		</itemizedlist>
-		Diese Einstellungen werden automatisch beim Erstellen einer neuen 
-		Datenbank vorausgewählt, wenn in <filename>config/kivitendo.conf</filename> unter 
-		<varname>[system]</varname> <literal>default_manager = swiss</literal> eingestellt ist.	
+		Diese Einstellungen werden automatisch beim Erstellen einer neuen
+		Datenbank vorausgewählt, wenn in <filename>config/kivitendo.conf</filename> unter
+		<varname>[system]</varname> <literal>default_manager = swiss</literal> eingestellt ist.
         </para>
 
         <para>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
@@ -2890,60 +2890,60 @@ systemctl enable kivitendo-task-server.service</programlisting>
       den Optionen mit EB-Buchungen wird vorausgesetzt, daß diese immer am 1.
       Tag des Wirtschaftsjahres gebucht werden. Zur Sicherheit wird das
       Startdatum im Bilanzbericht jetzt zusätzlich zum Stichtag mit angezeigt.
-      Das hilft auch bei der Kontrolle für den Abgleich mit der GuV bzw. 
+      Das hilft auch bei der Kontrolle für den Abgleich mit der GuV bzw.
       Erfolgsrechnung.</para>
     </sect1>
-    
+
     <sect1 id="config.erfolgsrechnung">
 	  <title>Erfolgsrechnung</title>
-	  
+
 	  <para>Seit der Version 3.4.1 existiert in kivitendo der Bericht <emphasis role="bold">
 	  Erfolgsrechnung</emphasis>.</para>
-	   
-	  <para>Die Erfolgsrechnung kann in der Mandantenkonfiguration unter Features 
+
+	  <para>Die Erfolgsrechnung kann in der Mandantenkonfiguration unter Features
 	  an- oder abgeschaltet werden. Mit der Einstellung <varname>default_manager = swiss
-	  </varname> in der <filename>config/kivitendo.conf</filename> wird beim neu Erstellen 
+	  </varname> in der <filename>config/kivitendo.conf</filename> wird beim neu Erstellen
 	  einer Datenbank automatisch die Anzeige der Erfolgsrechnung im Menü <guimenu>Berichte
 	  </guimenu> ausgewählt und ersetzt dort die GUV.</para>
-	  
-	  <para>Im Gegensatz zur GUV werden bei der Erfolgsrechnung sämtliche Aufwands- und 
+
+	  <para>Im Gegensatz zur GUV werden bei der Erfolgsrechnung sämtliche Aufwands- und
 	  Erlöskonten einzeln aufgelistet (analog zur Bilanz), sortiert nach ERTRAG und AUFWAND.</para>
-	  
-	  <para>Bei den Konteneinstellungen muss bei jedem Konto, das in der Erfolgsrechnung 
-	  erscheinen soll, unter <varname>Sonstige Einstellungen/Erfolgsrechnung</varname> 
-	  entweder <literal>01.Ertrag</literal> oder <literal>06.Aufwand</literal>  ausgewählt 
+
+	  <para>Bei den Konteneinstellungen muss bei jedem Konto, das in der Erfolgsrechnung
+	  erscheinen soll, unter <varname>Sonstige Einstellungen/Erfolgsrechnung</varname>
+	  entweder <literal>01.Ertrag</literal> oder <literal>06.Aufwand</literal>  ausgewählt
 	  werden.</para>
-	  
-	  <para>Wird bei einem Erlöskonto <literal>06.Aufwand</literal> ausgewählt, 
+
+	  <para>Wird bei einem Erlöskonto <literal>06.Aufwand</literal> ausgewählt,
 	  so wird dieses Konto als Aufwandsminderung unter AUFWAND aufgelistet.</para>
-	  
-	  <para>Wird bei einem Aufwandskonto <literal>01.Ertrag</literal> ausgewählt, 
+
+	  <para>Wird bei einem Aufwandskonto <literal>01.Ertrag</literal> ausgewählt,
 	  so wird dieses Konto als Ertragsminderung unter ERTRAG aufgelistet.</para>
-	  
-	  <para>Soll bei einer bereits bestehenden Buchhaltung in Zukunft zusätzlich 
-	  die Erfolgsrechnung als Bericht verwendet werden, so müssen die Einstellungen 
-	  zu allen Erlös- und Aufwandskonten unter <varname>Sonstige 
+
+	  <para>Soll bei einer bereits bestehenden Buchhaltung in Zukunft zusätzlich
+	  die Erfolgsrechnung als Bericht verwendet werden, so müssen die Einstellungen
+	  zu allen Erlös- und Aufwandskonten unter <varname>Sonstige
 	  Einstellungen/Erfolgsrechnung</varname> überprüft und allenfalls neu gesetzt werden.</para>
     </sect1>
-    
+
     <sect1 id="config.rounding">
 	  <title>Rundung in Verkaufsbelegen</title>
-	  
+
 	  <para>In der Schweiz hat die kleinste aktuell benutzte Münze den Wert von 5 Rappen (0.05 CHF).</para>
-	  
-	  <para>Auch wenn im elektronischen Zahlungsverkehr Beträge mit einer Genauigkeit 
-	  von 0.01 CHF verwendet werden können, ist es trotzdem nach wie vor üblich, 
+
+	  <para>Auch wenn im elektronischen Zahlungsverkehr Beträge mit einer Genauigkeit
+	  von 0.01 CHF verwendet werden können, ist es trotzdem nach wie vor üblich,
 	  Rechnungen mit auf 0.05 CHF gerundeten Beträgen auszustellen.</para>
-	  
-	  <para>In kivitendo kann seit der Version 3.4.1 die Einstellung für eine solche 
+
+	  <para>In kivitendo kann seit der Version 3.4.1 die Einstellung für eine solche
 	  Rundung pro Mandant / Datenbank festgelegt werden.</para>
-	  
-	  <para>Die Einstellung wird beim Erstellen der Datenbank bei <literal>Genauigkeit</literal> 
-	  festgelegt. Sie kann anschliessend über das Webinterface von kivitendo nicht mehr 
+
+	  <para>Die Einstellung wird beim Erstellen der Datenbank bei <literal>Genauigkeit</literal>
+	  festgelegt. Sie kann anschliessend über das Webinterface von kivitendo nicht mehr
 	  verändert werden.</para>
-	  
-	  <para>Abhängig vom Wert für <varname>default_manager</varname> in 
-	  <filename>config/kivitendo.conf</filename> werden dabei folgende 
+
+	  <para>Abhängig vom Wert für <varname>default_manager</varname> in
+	  <filename>config/kivitendo.conf</filename> werden dabei folgende
 	  Werte voreingestellt:</para>
 	  <itemizedlist>
         <listitem>
@@ -2953,30 +2953,30 @@ systemctl enable kivitendo-task-server.service</programlisting>
           <para>0.01 (default_manager = german)</para>
         </listitem>
       </itemizedlist>
-      <para>Der Wert wird in der Datenbank in der Tabelle <varname>defaults 
+      <para>Der Wert wird in der Datenbank in der Tabelle <varname>defaults
       </varname>in der Spalte <varname>precision</varname> gespeichert.</para>
-      
-      <para>In allen Verkaufsangeboten, Verkaufsaufträgen, Verkaufsrechnungen 
-      und Verkaufsgutschriften wird der Endbetrag inkl. MWST gerundet, 
+
+      <para>In allen Verkaufsangeboten, Verkaufsaufträgen, Verkaufsrechnungen
+      und Verkaufsgutschriften wird der Endbetrag inkl. MWST gerundet,
       wenn dieser nicht der eingestellten Genauigkeit entspricht.</para>
-      
-      <para>Beim Buchen einer Verkaufsrechnung wird der Rundungsbetrag 
-      automatisch auf die in der Mandantenkonfiguration festgelegten 
+
+      <para>Beim Buchen einer Verkaufsrechnung wird der Rundungsbetrag
+      automatisch auf die in der Mandantenkonfiguration festgelegten
       Standardkonten für Rundungserträge bzw. Rundungsaufwendungen gebucht.</para>
-      
+
       <para>(Die berechnete MWST wird durch den Rundungsbetrag nicht mehr verändert.)</para>
-      
-      <para>Die in den Druckvorlagen zur Verfügung stehenden Variablen 
-      <varname>quototal</varname>, <varname>ordtotal</varname> bzw. 
+
+      <para>Die in den Druckvorlagen zur Verfügung stehenden Variablen
+      <varname>quototal</varname>, <varname>ordtotal</varname> bzw.
       <varname>invtotal</varname> enthalten den gerundeten Betrag.</para>
-      
-      <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege 
-      in anderen Währungen als der Standardwährung erstellt, so muss in 
+
+      <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege
+      in anderen Währungen als der Standardwährung erstellt, so muss in
       kivitendo 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
-      <para>Das heisst, Firmen in der Schweiz, die teilweise Verkaufsrechnungen 
-      in Euro oder anderen Währungen erstellen wollen, müssen beim Erstellen 
-      der Datenbank als Genauigkeit 0.01 wählen und können zur Zeit die 
-      5er Rundung noch nicht nutzen.</para>	  
+      <para>Das heisst, Firmen in der Schweiz, die teilweise Verkaufsrechnungen
+      in Euro oder anderen Währungen erstellen wollen, müssen beim Erstellen
+      der Datenbank als Genauigkeit 0.01 wählen und können zur Zeit die
+      5er Rundung noch nicht nutzen.</para>
     </sect1>
 
     <sect1 id="config.client">
@@ -3491,8 +3491,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
         (siehe <xref
         linkend="dokumentenvorlagen-und-variablen.tag-style"/>).</para>
 
-        <para>kivitendo unterstützt LaTeX-, HTML- und OpenDocument-Vorlagen. 
-        Sofern es nicht ausdrücklich eingeschränkt wird, gilt das im 
+        <para>kivitendo unterstützt LaTeX-, HTML- und OpenDocument-Vorlagen.
+        Sofern es nicht ausdrücklich eingeschränkt wird, gilt das im
         Folgenden gesagte für alle Vorlagenarten.</para>
 
         <para>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
@@ -4787,11 +4787,11 @@ systemctl enable kivitendo-task-server.service</programlisting>
               <term><varname>rounding</varname></term>
 
               <listitem>
-                <para>Betrag, um den <varname>invtotal</varname> gerundet wurde 
+                <para>Betrag, um den <varname>invtotal</varname> gerundet wurde
                 (kann positiv oder negativ sein)</para>
               </listitem>
             </varlistentry>
-            
+
             <varlistentry>
               <term><varname>shippingpoint</varname></term>
 
@@ -6180,34 +6180,34 @@ Beschreibung: &lt;%description%&gt;
 
 
     </sect1>
-    
+
     <sect1 id="features.swiss-charts-of-accounts">
 	  <title>Schweizer Kontenpläne</title>
-	  
-	  <para>Seit der Version 3.4.1 stehen in kivitendo 2 Kontenpläne für 
-	  den Einsatz in der Schweiz zur Verfügung, einer für Firmen und 
-	  Organisationen, die nicht mehrwertsteuerpflichtig sind, und einer 
+
+	  <para>Seit der Version 3.4.1 stehen in kivitendo 2 Kontenpläne für
+	  den Einsatz in der Schweiz zur Verfügung, einer für Firmen und
+	  Organisationen, die nicht mehrwertsteuerpflichtig sind, und einer
 	  für Firmen, die mehrwertsteuerpflichtig sind.</para>
-	  
-	  <para>Die Kontenpläne orientieren sich am in der Schweiz üblicherweise 
-	  verwendeten KMU-Kontenrahmen und sind mit der Revision des Schweizerischen 
-	  Obligationenrechts (OR) vom 1.1.2013 kompatibel, insbesondere 
+
+	  <para>Die Kontenpläne orientieren sich am in der Schweiz üblicherweise
+	  verwendeten KMU-Kontenrahmen und sind mit der Revision des Schweizerischen
+	  Obligationenrechts (OR) vom 1.1.2013 kompatibel, insbesondere
 	  <literal>Art.957a Abs.2</literal>.</para>
-	  
-	  <para>Die Möglichkeit, Saldosteuersätze zu verwenden ist in der aktuellen 
+
+	  <para>Die Möglichkeit, Saldosteuersätze zu verwenden ist in der aktuellen
 	  Version von kivitendo noch nicht integriert.</para>
-	  
-	  <para>Trotzdem können auch Firmen, die per Saldosteuersatz mit der 
-	  Eidgenössischen Steuerverwaltung abrechnen, kivitendo bereits nutzen. 
-	  Dazu wird der Kontenplan mit MWST ausgewählt. Anschliessend müssen 
-	  alle Aufwandskonten editiert werden und dort der Steuersatz auf 0% 
+
+	  <para>Trotzdem können auch Firmen, die per Saldosteuersatz mit der
+	  Eidgenössischen Steuerverwaltung abrechnen, kivitendo bereits nutzen.
+	  Dazu wird der Kontenplan mit MWST ausgewählt. Anschliessend müssen
+	  alle Aufwandskonten editiert werden und dort der Steuersatz auf 0%
 	  gesetzt werden.</para>
-	  
+
 	  <para>So werden bei Kreditorenbuchungen keine Vorsteuern verbucht.</para>
-	  
-	  <para>Wünsche für Anpassungen an den Schweizer Kontenplänen sowie 
-	  Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne 
-	  bitte an <literal>empfang@revamp-it.ch</literal> senden.</para>    
+
+	  <para>Wünsche für Anpassungen an den Schweizer Kontenplänen sowie
+	  Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne
+	  bitte an <literal>empfang@revamp-it.ch</literal> senden.</para>
     </sect1>
   </chapter>
 
