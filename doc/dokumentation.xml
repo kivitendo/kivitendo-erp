@@ -1160,24 +1160,21 @@ insserv kivitendo-task-server</programlisting>
         </sect3>
 
         <sect3>
-          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere
-          Fedora, neuere Ubuntu)</title>
+          <title>systemd-basierende Systeme (z.B. neure openSUSE, neuere
+          Fedora, neuere Ubuntu und Debians)</title>
 
-          <para>Verlinken Sie die Datei
-          <filename>scripts/boot/systemd/kivitendo-task-server.service</filename>
-          nach <filename>/etc/systemd/system/</filename>. Passen Sie in der
-          kopierten Datei den Pfad zum Task-Server an (Zeile
-          <literal>ExecStart=....</literal> und
-          <literal>ExecStop=...</literal>). Binden Sie das Script in den
-          Boot-Prozess ein.</para>
+          <para>Kopieren Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
+          <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeilen
+          <literal>ExecStart=....</literal> und <literal>ExecStop=...</literal>).</para>
 
-          <para>Alle hierzu benötigten Befehle sehen so aus:</para>
+          <para>Machen Sie anschließend das Script systemd bekannt, und binden Sie es in den Boot-Prozess ein. Dazu führen Sie die folgenden
+          Befehl aus:</para>
 
-          <programlisting>cd /var/www/kivitendo-erp/scripts/boot/systemd
-ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
+          <programlisting>systemctl daemon-reload
+systemctl enable kivitendo-task-server.service</programlisting>
 
-          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden:</para>
+          <para>Wenn Sie den Task-Server jetzt sofort starten möchten, anstatt den Server neu zu starten, so können Sie das mit dem
+          folgenden Befehl tun:</para>
 
           <programlisting>systemctl start kivitendo-task-server.service</programlisting>
         </sect3>
