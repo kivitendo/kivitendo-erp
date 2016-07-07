@@ -238,7 +238,7 @@
             <para><literal>List::MoreUtils</literal></para>
           </listitem>
 
-          <listitem>-&gt;
+          <listitem>
             <para><literal>List::UtilsBy</literal></para>
           </listitem>
 
@@ -269,7 +269,7 @@
           <listitem>
             <para><literal>Rose::Object</literal></para>
           </listitem>
--&gt;
+
           <listitem>
             <para><literal>Rose::DB</literal></para>
           </listitem>
@@ -300,7 +300,7 @@
           </listitem>
 
           <listitem>
-            <para><literal>URI</literal></para>-&gt;
+            <para><literal>URI</literal></para>
           </listitem>
 
           <listitem>
@@ -6131,16 +6131,14 @@ Beschreibung: &lt;%description%&gt;
 
       <title>Mandantenkonfiguration Lager</title>
 
-       Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt: 
-       Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die Möglichkeit 
-       hier über den Menüpunkt Lager entsprechende Warenbewegungen durchzuführen. 
-       Ferner kann jede Position eines Lieferscheins ein-, bzw. ausgelagert werden 
-       (Einkauf-, bzw. Verkauf). Es können beliebig viele Lager mit beliebig vielen 
-       Lagerplätzen abgebildet werden. Die Lagerbewegungen über einen Lieferschein 
-       erfolgt durch Anklicken jeder Einzelposition und das Auswählen dieser Position 
-       zu einem Lager mit Lagerplatz. Dieses Verfahren lässt sich schrittweise 
-       vereinfachen, je nachdem wie die Einstellungen in der Mandatenkonfiguration 
-       gesetzt werden.
+      <para>
+       Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt: Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die
+       Möglichkeit hier über den Menüpunkt Lager entsprechende Warenbewegungen durchzuführen.  Ferner kann jede Position eines Lieferscheins
+       ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf). Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet
+       werden. Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und das Auswählen dieser Position zu
+       einem Lager mit Lagerplatz. Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in der
+       Mandatenkonfiguration gesetzt werden.
+      </para>
 
       <itemizedlist>
         <listitem>
@@ -6160,7 +6158,9 @@ Beschreibung: &lt;%description%&gt;
         </listitem>
       </itemizedlist>
 
+      <para>
        Zusätzliche Funktionshinweise:
+      </para>
 
       <itemizedlist>
         <listitem>
