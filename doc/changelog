@@ -32,6 +32,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Pflichtenhefte: wenn man im Workflow vom Pflichtenheft ein neues
   Angebot anlegt und später von diesem Angebot aus einen Auftrag, so
   wird auch der Auftrag direkt mit dem Pflichtenheft verknüpft.
+- Pflichtenhefte: wenn in einem Auftrag, das mit einem Pflichtenheft
+  verknüpft ist, ein Projekt ausgewählt, so wird dieses Projekt auch
+  automatisch beim verknüpften Pflichtenheft eingetragen.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

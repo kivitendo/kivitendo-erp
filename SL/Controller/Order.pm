@@ -1702,6 +1702,8 @@ sub save {
       $self->link_requirement_specs_linking_to_created_from_objects(@converted_from_oe_ids);
     }
 
+    $self->set_project_in_linked_requirement_specs if $self->order->globalproject_id;
+
     $self->save_history('SAVED');
 
     1;
@@ -2325,6 +2327,17 @@ sub link_requirement_specs_linking_to_created_from_objects {
       requirement_spec_id => $rs_order->requirement_spec_id,
       version_id          => $rs_order->version_id,
     )->save;
+  }
+}
+
+sub set_project_in_linked_requirement_specs {
+  my ($self) = @_;
+
+  my $rs_orders = SL::DB::Manager::RequirementSpecOrder->get_all(where => [ order_id => $self->order->id ]);
+  foreach my $rs_order (@{ $rs_orders }) {
+    next if $rs_order->requirement_spec->project_id == $self->order->globalproject_id;
+
+    $rs_order->requirement_spec->update_attributes(project_id => $self->order->globalproject_id);
   }
 }
 

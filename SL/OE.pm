@@ -841,6 +841,12 @@ SQL
     is_new             => $is_new,
   );
 
+  $self->_set_project_in_linked_requirement_spec(
+    type           => $form->{type},
+    project_id     => $form->{globalproject_id},
+    sales_order_id => $form->{id},
+  );
+
   $main::lxdebug->leave_sub();
 
   return 1;
@@ -878,6 +884,25 @@ sub _link_created_sales_order_to_requirement_specs_for_sales_quotations {
 
     1;
   });
+}
+
+sub _set_project_in_linked_requirement_spec {
+  my ($self, %params) = @_;
+
+  return if  $params{type} ne 'sales_order';
+  return if !$params{project_id} || !$params{sales_order_id};
+
+  my $query = <<SQL;
+    UPDATE requirement_specs
+    SET project_id = ?
+    WHERE id IN (
+      SELECT so.requirement_spec_id
+      FROM requirement_spec_orders so
+      WHERE so.order_id = ?
+    )
+SQL
+
+  do_query($::form, $::form->get_standard_dbh, $query, $params{project_id}, $params{sales_order_id});
 }
 
 sub save_periodic_invoices_config {
