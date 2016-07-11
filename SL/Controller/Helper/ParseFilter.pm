@@ -279,10 +279,10 @@ SL::Controller::Helper::ParseFilter - Convert a form filter spec into a RDBO get
 =head1 SYNOPSIS
 
   use SL::Controller::Helper::ParseFilter;
-  SL::DB::Object->get_all(parse_filter($::form->{filter}));
+  SL::DB::Manager::Object->get_all(parse_filter($::form->{filter}));
 
   # or more complex
-  SL::DB::Object->get_all(parse_filter($::form->{filter},
+  SL::DB::Manager::Object->get_all(parse_filter($::form->{filter},
     with_objects => [ qw(part customer) ]));
 
 =head1 DESCRIPTION
@@ -467,7 +467,7 @@ Adds "% .. %" around the search string and applies C<trim>.
 
 All these are recognized like the L<Rose::DB::Object> methods.
 
-=item lazu_bool_eq
+=item lazy_bool_eq
 
 If the value is undefined or an empty string then this parameter will
 be completely removed from the query. Otherwise a falsish filter value
