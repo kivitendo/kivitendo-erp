@@ -330,7 +330,7 @@ sub make_cvar_custom_filter {
         # remove rose aliases. query builder sadly is not reentrant, and will reuse the same aliases. :(
         $query{$key} =~ s{\bt\d+(?:\.)?\b}{}g;
 
-        # manually inline the values. again, rose doen't know how to handle bind params in subqueries :(
+        # manually inline the values. again, rose doesn't know how to handle bind params in subqueries :(
         $query{$key} =~ s{\?}{ $config->dbh->quote(shift @{ $bind_vals{$key} }) }xeg;
 
         $query{$key} =~ s{\n}{ }g;
