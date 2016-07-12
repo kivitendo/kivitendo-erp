@@ -954,7 +954,7 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all granted
+Require all denied
 &lt;/DirectoryMatch&gt;</programlisting>
 
           <warning>
@@ -969,6 +969,17 @@ Require all granted
             <programlisting>
   Order Allow,Deny
   Allow from All </programlisting>
+
+            <para>und statt</para>
+
+            <programlisting>Require all denied</programlisting>
+
+            <para>muss stehen:</para>
+
+            <programlisting>
+  Order Deny,Allow
+  Deny from All </programlisting>
+
           </warning>
 
           <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für

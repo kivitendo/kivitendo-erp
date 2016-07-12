@@ -72,12 +72,14 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-Require all granted
+Require all denied
 &lt;/DirectoryMatch&gt;</pre><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Wer einen älteren Apache als Version 2.4 im Einsatz hat,
             muss entsprechend die Syntax der Directorydirektiven verändert.
             Statt</p><pre class="programlisting">Require all granted</pre><p>muß man Folgendes einstellen:</p><pre class="programlisting">
   Order Allow,Deny
-  Allow from All </pre></td></tr></table></div><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
+  Allow from All </pre><p>und statt</p><pre class="programlisting">Require all denied</pre><p>muss stehen:</p><pre class="programlisting">
+  Order Deny,Allow
+  Deny from All </pre></td></tr></table></div><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
           die maximale Größe eines Requests. Diese sollte wie folgt
           hochgesetzt werden:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Das Ganze sollte dann so aussehen:</p><pre class="programlisting">AddHandler fcgid-script .fpl
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
@@ -107,7 +109,7 @@ AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispat
 Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</pre><p>Dann ist unter <code class="filename">/url/for/kivitendo-erp/</code>
           die normale Version erreichbar, und unter
           <code class="constant">/url/for/kivitendo-erp-fcgid/</code> die
-          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1011"></a>2.6.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
+          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1019"></a>2.6.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
         von kivitendo nur über https-verschlüsselten Verbindungen, sowie
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
