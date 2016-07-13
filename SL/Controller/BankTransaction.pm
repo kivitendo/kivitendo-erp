@@ -438,6 +438,7 @@ sub action_save_invoices {
       SL::DB::RecordLink->new(@props)->save;
 
       # "close" a sepa_export_item if it exists
+      # code duplicated in action_save_proposals!
       # currently only works, if there is only exactly one open sepa_export_item
       if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
         if ( scalar @$seis == 1 ) {
@@ -488,6 +489,17 @@ sub action_save_proposals {
         );
 
     SL::DB::RecordLink->new(@props)->save;
+
+    # code duplicated in action_save_invoices!
+    # "close" a sepa_export_item if it exists
+    # currently only works, if there is only exactly one open sepa_export_item
+    if ( my $seis = $arap->find_sepa_export_items({ executed => 0 }) ) {
+      if ( scalar @$seis == 1 ) {
+        # moved the execution and the check for sepa_export into a method,
+        # this isn't part of a transaction, though
+        $seis->[0]->set_executed if $arap->id == $seis->[0]->arap_id;
+      };
+    };
   }
 
   flash('ok', t8('#1 proposal(s) saved.', scalar @{ $::form->{proposal_ids} }));
