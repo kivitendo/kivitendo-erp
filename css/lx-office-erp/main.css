@@ -25,6 +25,8 @@ input, textarea, select {
 
 select {
   -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
   appearance : none;
   background: white url('../../image/select-down.png') no-repeat scroll right center;
   padding: 0 14px 0 0;
@@ -389,7 +391,6 @@ label {
 }
 
 .part_picker {
-  padding-right: 16px;
 }
 .chart_picker {
   padding-right: 16px;
@@ -425,6 +426,40 @@ div.ppp_block {
   float:left;
   width: 350px;
 }
+span.ppp_popup_button {
+  display: inline-block;
+  position: relative;
+  margin-left: -18px;
+  margin-top: 3px;
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+}
+
+td span.ppp_popup_button,
+th span.ppp_popup_button {
+  height: 9px;
+  width: 9px;
+  margin-left: -13px;
+}
+span.part_picker input {
+  padding-right: 20px;
+  background: white url("../../image/search.svg") no-repeat center right;
+  background-size: contain;
+  box-sizing: padding-box;
+  -moz-box-sizing: padding-box;
+  -webkit-box-sizing: padding-box;
+}
+
+td span.part_picker input,
+th span.part_picker input {
+  padding-right: 15px;
+}
+
+span.part_picker {
+ /* white-space: nowrap;*/
+}
+
 div.ppp_block span.ppp_block_number,
 div.cpc_block span.cpc_block_number
 {
@@ -481,3 +516,4 @@ a.red {
        background-color:#FF0000;
        border:none;
 }
+
