@@ -392,6 +392,12 @@ label {
 }
 
 .part_picker {
+  display: inline-block;
+}
+.part_picker:before {
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
 }
 .chart_picker {
   padding-right: 16px;
@@ -430,11 +436,11 @@ div.ppp_block {
   width: 350px;
 }
 span.ppp_popup_button {
-  position: absolute;
+  display: inline-block;
+  vertical-align: middle;
   margin-left: -24px;
-  margin-top: 5px;
-  width: 20px;
   height: 20px;
+  width: 20px;
   cursor: pointer;
   background: url("../../image/search.svg") no-repeat center right;
   background-size: contain;
