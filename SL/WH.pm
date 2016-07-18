@@ -887,6 +887,40 @@ sub get_basic_bin_info {
 
   return map { $_->{bin_id} => $_ } @{ $result };
 }
+
+sub get_basic_warehouse_info {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh();
+
+  my @ids      = 'ARRAY' eq ref $params{id} ? @{ $params{id} } : ($params{id});
+
+  my $query    =
+    qq|SELECT w.id AS warehouse_id, w.description AS warehouse_description
+       FROM warehouse w
+       WHERE w.id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+
+  my $result = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
+
+  if ('' eq ref $params{id}) {
+    $result = $result->[0] || { };
+    $main::lxdebug->leave_sub();
+
+    return $result;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return map { $_->{warehouse_id} => $_ } @{ $result };
+}
 #
 # Eingabe:  Teilenummer, Lagernummer (warehouse)
 # Ausgabe:  Die maximale Anzahl der Teile in diesem Lager
