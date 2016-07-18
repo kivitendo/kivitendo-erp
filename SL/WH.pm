@@ -187,8 +187,9 @@ sub transfer_assembly {
 
   my $use_default_warehouse = $::instance_conf->get_transfer_default_warehouse_for_assembly;
 
-  my $query = qq|select assembly.parts_id, assembly.qty, parts.warehouse_id from assembly inner join parts on assembly.parts_id = parts.id
-                  where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
+  my $query = qq|SELECT assembly.parts_id, assembly.qty, parts.warehouse_id
+                 FROM assembly INNER JOIN parts ON assembly.parts_id = parts.id
+                 WHERE assembly.id = ? AND (inventory_accno_id IS NOT NULL OR parts.assembly = TRUE)|;
 
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
@@ -206,14 +207,15 @@ sub transfer_assembly {
   my $schleife_durchlaufen=0; # Falls die Schleife nicht ausgeführt wird -> Keine Einzelteile definiert. Bessere Idee? jan
   while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) { #Schleife für select parts_id,(...) from assembly
     $schleife_durchlaufen=1;  # Erzeugnis definiert
-    my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
-    my $currentPart_ID = $hash_ref->{parts_id};
+
+    my $partsQTY          = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
+    my $currentPart_ID    = $hash_ref->{parts_id};
     my $currentPart_WH_ID = $use_default_warehouse ? $hash_ref->{warehouse_id} : $params{dst_warehouse_id};
-    my $warehouse_info = $self->get_basic_warehouse_info('id' => $currentPart_WH_ID);
-    my $warehouse_desc = $warehouse_info->{"warehouse_description"};
+    my $warehouse_info    = $self->get_basic_warehouse_info('id'=> $currentPart_WH_ID);
+    my $warehouse_desc    = $warehouse_info->{"warehouse_description"};
 
     # Überprüfen, ob diese Anzahl gefertigt werden kann
-    my $max_parts = $self->get_max_qty_parts(parts_id => $currentPart_ID, # $self->method() == this.method()
+    my $max_parts = $self->get_max_qty_parts(parts_id     => $currentPart_ID, # $self->method() == this.method()
                                              warehouse_id => $currentPart_WH_ID);
 
     if ($partsQTY  > $max_parts){
