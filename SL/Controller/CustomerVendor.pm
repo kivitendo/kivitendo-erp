@@ -3,6 +3,8 @@ package SL::Controller::CustomerVendor;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use List::MoreUtils qw(any);
+
 use SL::JSON;
 use SL::DBUtils;
 use SL::Helper::Flash;
@@ -197,7 +199,7 @@ sub _save {
     }
 
     $self->{shipto}->trans_id($self->{cv}->id);
-    if( $self->{shipto}->shiptoname ne '' ) {
+    if(any { $self->{shipto}->$_ ne '' } qw(shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax shiptoemail)) {
       $self->{shipto}->save(cascade => 1);
     }
 
