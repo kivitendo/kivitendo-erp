@@ -182,6 +182,10 @@ sub transfer_assembly {
   # on assembly.parts_id = parts.id  where assembly.id = ? and
   # (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
+  # Lager in dem die Bestandteile gesucht werden kann entweder das Ziellager sein oder ist per Mandantenkonfig
+  # auf das Standardlager des Bestandteiles schaltbar
+
+  my $use_default_warehouse = $::instance_conf->get_transfer_default_warehouse_for_assembly;
 
   my $query = qq|select assembly.parts_id, assembly.qty, parts.warehouse_id from assembly inner join parts on assembly.parts_id = parts.id
                   where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
@@ -204,7 +208,7 @@ sub transfer_assembly {
     $schleife_durchlaufen=1;  # Erzeugnis definiert
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
-    my $currentPart_WH_ID = $hash_ref->{warehouse_id};
+    my $currentPart_WH_ID = $use_default_warehouse ? $hash_ref->{warehouse_id} : $params{dst_warehouse_id};
     my $warehouse_info = $self->get_basic_warehouse_info('id' => $currentPart_WH_ID);
     my $warehouse_desc = $warehouse_info->{"warehouse_description"};
 

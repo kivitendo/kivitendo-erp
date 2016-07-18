@@ -116,6 +116,7 @@ __PACKAGE__->meta->columns(
   transfer_default_ignore_onhand            => { type => 'boolean', default => 'false' },
   transfer_default_services                 => { type => 'boolean', default => 'true' },
   transfer_default_use_master_default_bin   => { type => 'boolean', default => 'false' },
+  transfer_default_warehouse_for_assembly   => { type => 'boolean', default => 'false' },
   transport_cost_reminder_article_number_id => { type => 'integer' },
   vendornumber                              => { type => 'text' },
   version                                   => { type => 'varchar', length => 8 },
