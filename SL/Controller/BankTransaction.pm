@@ -381,8 +381,12 @@ sub action_save_invoices {
                        return -1 if (!$a->is_sales and $a->amount < 0);
                        return 1; } @invoices                    if $bank_transaction->amount < 0;
 
+    my $max_invoices = scalar(@invoices);
+    my $n_invoices   = 0;
+
     foreach my $invoice (@invoices) {
 
+      $n_invoices++ ;
       # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
       # This might be caused by the user reloading a page and resending the form
       die t8("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name)
@@ -402,7 +406,7 @@ sub action_save_invoices {
         last;
       }
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
-      if ($invoice->open_amount <= $amount_of_transaction) {
+      if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
         # first calculate new bank transaction amount ...
         if ($invoice->is_sales) {
           $amount_of_transaction -= $sign * $invoice->open_amount;
