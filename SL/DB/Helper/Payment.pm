@@ -743,7 +743,7 @@ sub create_bank_transaction {
     amount                => $::form->round_amount($amount, 2),
     currency              => $self->currency->id,
     remote_name           => $self->customervendor->depositor,
-    purpose               => $self->invnumber
+    purpose               => $params{purpose} || $self->invnumber
   )->save;
 };
 
@@ -1108,8 +1108,30 @@ transactions from invoices to have something to test payments against.
  my $ap = SL::DB::Manager::Invoice->find_by(id => 41);
  $ap->create_bank_transaction(amount => $ap->amount/2, transdate => DateTime->today->add(days => 5));
 
+To create a payment for 3 invoices that were all paid together, all with skonto:
+ my $ar1 = SL::DB::Manager::Invoice->find_by(invnumber=>'20');
+ my $ar2 = SL::DB::Manager::Invoice->find_by(invnumber=>'21');
+ my $ar3 = SL::DB::Manager::Invoice->find_by(invnumber=>'22');
+ $ar1->create_bank_transaction(amount  => ($ar1->amount_less_skonto + $ar2->amount_less_skonto + $ar2->amount_less_skonto),
+                               purpose => 'Rechnungen 20, 21, 22',
+                              );
+
 Amount is always relative to the absolute amount of the invoice, use positive
 values for sales and purchases.
+
+The following params can be passed to override the defaults:
+
+=over 2
+
+=item * amount
+
+=item * purpose
+
+=item * chart_id (the chart the amount is to be paid to)
+
+=item * transdate
+
+=back
 
 =item C<exchangerate>
 
