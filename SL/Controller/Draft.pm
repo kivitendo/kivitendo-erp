@@ -82,9 +82,15 @@ sub action_load {
     require $allowed_modules{ $self->draft->module };
   }
 
+
+  my $params = delete $::form->{form};
   my $new_form = YAML::Load($self->draft->form);
   $::form->{$_} = $new_form->{$_} for keys %$new_form;
   $::form->{"draft_$_"} = $self->draft->$_ for qw(id description);
+
+  if ($params && 'HASH' eq ref $params) {
+    $::form->{$_} = $params->{$_} for keys %$params;
+  }
 
   $::form->{script} = $self->draft->module . '.pl';
   ::update();
