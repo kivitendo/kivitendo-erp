@@ -252,7 +252,10 @@ namespace("kivi", function(ns) {
 
     if (elementId) {
       var cookieName      = 'jquery_ui_tab_'+ elementId;
-      tabsParams.active   = $.cookie(cookieName);
+      if (!window.location.hash) {
+        // only activate if there's no hash to overwrite it
+        tabsParams.active   = $.cookie(cookieName);
+      }
       tabsParams.activate = function(event, ui) {
         var i = ui.newTab.parent().children().index(ui.newTab);
         $.cookie(cookieName, i);
