@@ -68,7 +68,7 @@
      <td><input type="hidden" name="inv_duedate_[% loop.count %]" size="6" value="[% HTML.escape(row.duedate) %]">[% HTML.escape(row.duedate) %]</td>
      <td align="right"><input type="hidden" name="amount_[% loop.count %]" size="6" value="[% HTML.escape(row.amount) %]">[% HTML.escape(row.amount) %]</td>
      <td align="right"><input type="hidden" name="open_amount_[% loop.count %]" size="6" value="[% HTML.escape(row.open_amount) %]">[% HTML.escape(row.open_amount) %]</td>
-     <td>[% HTML.escape(row.next_duedate) %]</td>
+     <td>[% HTML.escape(row.dunning_duedate) %]</td>
      <td align="right"><input type="hidden" name="fee_[% loop.count %]" size="6" value="[% HTML.escape(row.fee) %]">[% HTML.escape(row.fee) %]</td>
      <td align="right"><input type="hidden" name="interest_[% loop.count %]" size="6" value="[% HTML.escape(row.interest) %]">[% HTML.escape(row.interest) %]</td>
      [% IF l_include_direct_debit %]
