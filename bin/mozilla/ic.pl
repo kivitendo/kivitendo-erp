@@ -384,7 +384,7 @@ sub generate_report {
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
   my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
-                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop);
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all);
 
   # calculate dependencies
   for (@itemstatus_keys, @callback_keys) {
