@@ -258,9 +258,14 @@ sub generate_report {
 
   my $cvar_configs = CVar->get_configs('module' => 'IC');
 
-  $form->{title} = (ucfirst $form->{searchitems}) . "s";
-  $form->{title} =~ s/ys$/ies/;
-  $form->{title} = $locale->text($form->{title});
+  my %titles = (
+    ''       => $locale->text('Articles'),
+    part     => $locale->text('Parts'),
+    service  => $locale->text('Services'),
+    assembly => $locale->text('Assemblies'),
+  );
+
+  $form->{title} = $titles{$form->{searchitems}};
 
   my %column_defs = (
     'bin'                => { 'text' => $locale->text('Bin'), },

@@ -52,7 +52,6 @@ sub redirect_to_search {
   SL::Controller::Base->new->url_for(
     controller  => 'ic.pl',
     action      => 'generate_report',
-    searchitems => 'assembly',
     all         => $_[0],
   );
 }
