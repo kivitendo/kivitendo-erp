@@ -218,9 +218,8 @@ sub action_ajax_payment_suggestion {
   # create an HTML blob to be used by the js function add_invoices in templates/webpages/bank_transactions/list.html
   # and return encoded as JSON
 
-  my $bt = SL::DB::Manager::BankTransaction->find_by( id => $::form->{bt_id} );
-  my $invoice = SL::DB::Manager::Invoice->find_by( id => $::form->{prop_id} );
-  $invoice = SL::DB::Manager::PurchaseInvoice->find_by( id => $::form->{prop_id} ) unless $invoice;
+  my $bt      = SL::DB::Manager::BankTransaction->find_by( id => $::form->{bt_id} );
+  my $invoice = SL::DB::Manager::Invoice->find_by( id => $::form->{prop_id} ) || SL::DB::Manager::PurchaseInvoice->find_by( id => $::form->{prop_id} );
 
   die unless $bt and $invoice;
 
@@ -345,9 +344,7 @@ sub action_ajax_accept_invoices {
 
   my @selected_invoices;
   foreach my $invoice_id (@{ $::form->{invoice_id} || [] }) {
-    my $invoice_object = SL::DB::Manager::Invoice->find_by(id => $invoice_id);
-    $invoice_object ||= SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
-
+    my $invoice_object = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
     push @selected_invoices, $invoice_object;
   }
 
@@ -375,11 +372,13 @@ sub action_save_invoices {
       push @invoices, (SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id));
     }
     @invoices = sort { return 1 if ($a->is_sales and $a->amount > 0);
-                          return 1 if (!$a->is_sales and $a->amount < 0);
-                          return -1; } @invoices                if $bank_transaction->amount > 0;
+                       return 1 if (!$a->is_sales and $a->amount < 0);
+                       return -1;
+                     } @invoices if $bank_transaction->amount > 0;
     @invoices = sort { return -1 if ($a->is_sales and $a->amount > 0);
                        return -1 if (!$a->is_sales and $a->amount < 0);
-                       return 1; } @invoices                    if $bank_transaction->amount < 0;
+                       return 1;
+                     } @invoices if $bank_transaction->amount < 0;
 
     my $max_invoices = scalar(@invoices);
     my $n_invoices   = 0;
