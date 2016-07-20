@@ -44,23 +44,28 @@ sub do_search {
   my $objects = $self->models->get;
 
   return !@$objects     ? ()
-       : @$objects == 1 ? redirect_to_part($objects->[0]->id)
-       :                  redirect_to_search($::form->{term});
+       : @$objects == 1 ? $self->redirect_to_part($objects->[0]->id)
+       :                  $self->redirect_to_search($::form->{term});
 }
 
 sub redirect_to_search {
+  my ($self, $term) = @_;
+
   SL::Controller::Base->new->url_for(
-    controller  => 'ic.pl',
-    action      => 'generate_report',
-    all         => $_[0],
+    controller   => 'ic.pl',
+    action       => 'generate_report',
+    all          => $term,
+    (searchitems => $self->type) x!!$self->type,
   );
 }
 
 sub redirect_to_part {
+  my ($self, $term) = @_;
+
   SL::Controller::Base->new->url_for(
     controller => 'ic.pl',
     action     => 'edit',
-    id         => $_[0],
+    id         => $term,
   );
 }
 
@@ -76,7 +81,7 @@ sub init_models {
     model      => 'Part',
     source     => {
       filter => {
-        ($self->type),
+        (type => $self->type) x!!$self->type,
         'all:substr:multi::ilike' => $::form->{term},
       },
     },
