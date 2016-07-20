@@ -909,7 +909,7 @@ sub orders {
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to
-                                                        parts_partnumber parts_description);
+                                                        parts_partnumber parts_description all);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
