@@ -4,8 +4,16 @@
 
 2016-xx-xx - Release 3.4.x Unstable
 
+kleinere neue Features und Detailverbesserungen:
+
   - Neues Recht "Verknüpfte Belege", standardmäßig erlaubt. Betrifft alle
     Belege und die Projektstammdaten
+
+Administrative Änderungen
+
+  - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes
+    beschleunigt. Dafür wird die benötigte Minimalversion von Postgres auf 9.1
+    angehoben.
 
 2016-07-05 - Release 3.4.1
 

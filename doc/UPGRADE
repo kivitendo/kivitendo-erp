@@ -10,6 +10,10 @@ Upgrade auf v3.4.x Unstable
 * In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
   multipliziert, um Lücken für neue Rechte zu schaffen.
 
+* Es wird jetzt Postgres 9.1 vorausgesetzt um GIN Indizes zu verwenden. Wenn
+  das auf dem Zielsystem absolut nicht möglich ist, muss das Upgradescript
+  sql/Pg-Upgrade2/trigram_indices.sql deaktiviert oder entfernt werden.
+
 
 Upgrade auf v3.4.1
 ==================
