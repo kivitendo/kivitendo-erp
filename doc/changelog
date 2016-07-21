@@ -6,6 +6,12 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - In der Lager-Mandantenkonfig gibt es das Feature "Zum Fertigen Standardlager des Bestandteils verwenden".
+    Statt das Ziellager des Erzeugnisses zu Verwenden, wird nun zur Prüfung der Fertigung das
+    Standardlager der einzelnen Bestandteile verwendet.
+    Hat das Betstandteil kein Standardlager, so wird das "Standard-Lager für Auslagern ohne Prüfung auf Bestand"
+    verwendet. Ist dieses nicht gesetzt, wird eine Fehlermeldung erzeugt.
+
   - Neues Recht "Verknüpfte Belege", standardmäßig erlaubt. Betrifft alle
     Belege und die Projektstammdaten
 
