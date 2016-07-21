@@ -210,6 +210,20 @@ sub transfer_assembly {
 
     my $partsQTY          = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID    = $hash_ref->{parts_id};
+
+    # Prüfen ob Erzeugnis-Teile Standardlager haben.
+    if ($use_default_warehouse && ! $hash_ref->{warehouse_id}) {
+      # Prüfen ob in Mandantenkonfiguration ein Standardlager aktiviert isti.
+      if ($::instance_conf->get_transfer_default_ignore_onhand) {
+        $hash_ref->{warehouse_id} = $::instance_conf->get_warehouse_id_ignore_onhand;
+      } else {
+        $kannNichtFertigen .= "Kein Standardlager: " .
+                            " Die Ware " . $self->get_part_description(parts_id => $currentPart_ID) .
+                            " hat kein Standardlager definiert " .
+                            ", um das Erzeugnis herzustellen. <br>";
+        next;
+      }
+    }
     my $currentPart_WH_ID = $use_default_warehouse ? $hash_ref->{warehouse_id} : $params{dst_warehouse_id};
     my $warehouse_info    = $self->get_basic_warehouse_info('id'=> $currentPart_WH_ID);
     my $warehouse_desc    = $warehouse_info->{"warehouse_description"};
