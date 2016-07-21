@@ -33,7 +33,8 @@ sub snakify {
 
 sub trim {
   my $value = shift;
-  $value    =~ s{^ \p{WSpace}+ | \p{WSpace}+ $}{}xg if defined($value);
+  $value    =~ s{^ \p{WSpace}+ }{}xg if defined($value);
+  $value    =~ s{ \p{WSpace}+ $}{}xg if defined($value);
   return $value;
 }
 
