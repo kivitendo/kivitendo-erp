@@ -10,7 +10,7 @@ kleinere neue Features und Detailverbesserungen:
     Statt das Ziellager des Erzeugnisses zu Verwenden, wird nun zur Prüfung der Fertigung das
     Standardlager der einzelnen Bestandteile verwendet.
     Hat das Bestandteil kein Standardlager, so wird das "Standard-Lager für Auslagern ohne Prüfung auf Bestand"
-    verwendeti und ohne Prüfung ausgelagert. Ist dieses nicht gesetzt, wird eine Fehlermeldung erzeugt.
+    verwendet und ohne Prüfung ausgelagert. Ist dieses nicht gesetzt, wird eine Fehlermeldung erzeugt.
 
   - Neues Recht "Verknüpfte Belege", standardmäßig erlaubt. Betrifft alle
     Belege und die Projektstammdaten
