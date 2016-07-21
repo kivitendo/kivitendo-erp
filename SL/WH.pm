@@ -228,6 +228,18 @@ sub transfer_assembly {
     my $warehouse_info    = $self->get_basic_warehouse_info('id'=> $currentPart_WH_ID);
     my $warehouse_desc    = $warehouse_info->{"warehouse_description"};
 
+    # Fertigen ohne Prüfung nach Bestand
+    if ($currentPart_WH_ID == $::instance_conf->get_warehouse_id_ignore_onhand) {
+      my $temppart_bin_id       = $::instance_conf->get_bin_id_ignore_onhand;
+      my $temppart_chargenumber = "";
+      my $temppart_bestbefore   = localtime();
+      my $temppart_qty          = $partsQTY * -1;
+
+      do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
+                     $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
+                     $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
+      next;
+    }
     # Überprüfen, ob diese Anzahl gefertigt werden kann
     my $max_parts = $self->get_max_qty_parts(parts_id     => $currentPart_ID, # $self->method() == this.method()
                                              warehouse_id => $currentPart_WH_ID);
