@@ -8,6 +8,7 @@ use strict;
 use SL::DB::MetaSetup::BankTransaction;
 use SL::DB::Manager::BankTransaction;
 use SL::DB::Helper::LinkedRecords;
+use Carp;
 
 require SL::DB::Invoice;
 require SL::DB::PurchaseInvoice;
@@ -49,7 +50,7 @@ sub linked_invoices {
 sub get_agreement_with_invoice {
   my ($self, $invoice) = @_;
 
-  die "first argument is not an invoice object"
+  carp "get_agreement_with_invoice needs an invoice object as its first argument"
     unless ref($invoice) eq 'SL::DB::Invoice' or ref($invoice) eq 'SL::DB::PurchaseInvoice';
 
   my %points = (
