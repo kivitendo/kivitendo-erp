@@ -700,6 +700,11 @@ active.
 
 See L<SL::DB::Object::basic_info>.
 
+=item C<closed>
+
+Returns 1 or 0, depending on whether the invoice is closed or not. Currently
+invoices that are overpaid also count as closed.
+
 =item C<recalculate_amounts %params>
 
 Calculate and set amount and netamount from acc_trans objects by summing up the
