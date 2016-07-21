@@ -357,25 +357,44 @@ sub action_save_invoices {
   my ($self) = @_;
 
   my $invoice_hash = delete $::form->{invoice_ids}; # each key (the bt line with a bt_id) contains an array of invoice_ids
+
+  # e.g. three partial payments with bt_ids 54, 55 and 56 for invoice with id 74:
+  # $invoice_hash = {
+  #         '55' => [
+  #                 '74'
+  #               ],
+  #         '54' => [
+  #                 '74'
+  #               ],
+  #         '56' => [
+  #                 '74'
+  #               ]
+  #       };
+  #
+  # or if the payment with bt_id 44 is used to pay invoices with ids 50, 51 and 52
+  # $invoice_hash = {
+  #           '44' => [ '50', '51', 52' ]
+  #         };
+
   my $skonto_hash  = delete $::form->{invoice_skontos} || {}; # array containing the payment type, could be empty
 
   # a bank_transaction may be assigned to several invoices, i.e. a customer
   # might pay several open invoices with one transaction
 
   while ( my ($bt_id, $invoice_ids) = each(%$invoice_hash) ) {
-    my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
-    my $sign = $bank_transaction->amount < 0 ? -1 : 1;
+    my $bank_transaction      = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
+    my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
 
     my @invoices;
     foreach my $invoice_id (@{ $invoice_ids }) {
       push @invoices, (SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id));
     }
-    @invoices = sort { return 1 if ($a->is_sales and $a->amount > 0);
+    @invoices = sort { return 1 if ( $a->is_sales and $a->amount > 0);
                        return 1 if (!$a->is_sales and $a->amount < 0);
                        return -1;
                      } @invoices if $bank_transaction->amount > 0;
-    @invoices = sort { return -1 if ($a->is_sales and $a->amount > 0);
+    @invoices = sort { return -1 if ( $a->is_sales and $a->amount > 0);
                        return -1 if (!$a->is_sales and $a->amount < 0);
                        return 1;
                      } @invoices if $bank_transaction->amount < 0;
@@ -420,7 +439,7 @@ sub action_save_invoices {
                               amount       => $invoice->open_amount,
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
-      } else {
+      } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
                               amount       => $amount_of_transaction,
