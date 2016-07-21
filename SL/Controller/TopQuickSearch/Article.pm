@@ -35,7 +35,8 @@ sub query_autocomplete {
 }
 
 sub select_autocomplete {
-  redirect_to_part($::form->{id});
+  my ($self) = @_;
+  $self->redirect_to_part($::form->{id});
 }
 
 sub do_search {
