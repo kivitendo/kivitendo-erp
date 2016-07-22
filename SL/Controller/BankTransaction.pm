@@ -85,13 +85,18 @@ sub action_list {
     push @where, (transdate => { ge => $bank_account->reconciliation_starting_date });
   };
 
-  my $bank_transactions = SL::DB::Manager::BankTransaction->get_all(where => [ amount => {ne => \'invoice_amount'},
-                                                                               local_bank_account_id => $::form->{filter}{bank_account},
-                                                                               @where ],
-                                                                    with_objects => [ 'local_bank_account', 'currency' ],
-                                                                    sort_by => $sort_by, limit => 10000);
+  my $bank_transactions = SL::DB::Manager::BankTransaction->get_all(
+    with_objects => [ 'local_bank_account', 'currency' ],
+    sort_by      => $sort_by,
+    limit        => 10000,
+    where        => [
+      amount                => {ne => \'invoice_amount'},
+      local_bank_account_id => $::form->{filter}{bank_account},
+      @where
+    ],
+  );
 
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where => [amount => { gt => \'paid' }], with_objects => 'customer');
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { gt => \'paid' }], with_objects => 'customer');
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { gt => \'paid' }], with_objects => 'vendor');
 
   my @all_open_invoices;
@@ -146,9 +151,12 @@ sub action_list {
   # * there must be only one exact match
   # * depending on whether sales or purchase the amount has to have the correct sign (so Gutschriften don't work?)
   my $proposal_threshold = 5;
-  my @proposals = grep { $_->{agreement} >= $proposal_threshold
-                         and 1 == scalar @{ $_->{proposals} }
-                         and (@{ $_->{proposals} }[0]->is_sales ? abs(@{ $_->{proposals} }[0]->amount - $_->amount) < 0.01  : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01) } @{ $bank_transactions };
+  my @proposals = grep {
+       ($_->{agreement} >= $proposal_threshold)
+    && (1 == scalar @{ $_->{proposals} })
+    && (@{ $_->{proposals} }[0]->is_sales ? abs(@{ $_->{proposals} }[0]->amount - $_->amount) < 0.01
+                                          : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01)
+  } @{ $bank_transactions };
 
   # sort bank transaction proposals by quality (score) of proposal
   $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 1;
@@ -167,8 +175,9 @@ sub action_assign_invoice {
 
   $self->{transaction} = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
 
-  $self->render('bank_transactions/assign_invoice', { layout  => 0 },
-                title      => t8('Assign invoice'),);
+  $self->render('bank_transactions/assign_invoice',
+                { layout => 0 },
+                title => t8('Assign invoice'),);
 }
 
 sub action_create_invoice {
@@ -196,19 +205,22 @@ sub action_create_invoice {
   @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $use_vendor_filter;
 
   my $all_vendors = SL::DB::Manager::Vendor->get_all();
-
-  $self->render('bank_transactions/create_invoice', { layout  => 0 },
-      title      => t8('Create invoice'),
-      DRAFTS     => \@filtered_drafts,
-      vendor_id  => $use_vendor_filter ? $vendor_of_transaction->id : undef,
-      vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
-      ALL_VENDORS => $all_vendors,
-      limit      => $myconfig{vclimit},
-      callback   => $self->url_for(action                => 'list',
+  my $callback    = $self->url_for(action                => 'list',
                                    'filter.bank_account' => $::form->{filter}->{bank_account},
                                    'filter.todate'       => $::form->{filter}->{todate},
-                                   'filter.fromdate'     => $::form->{filter}->{fromdate}),
-      );
+                                   'filter.fromdate'     => $::form->{filter}->{fromdate});
+
+  $self->render(
+    'bank_transactions/create_invoice',
+    { layout => 0 },
+    title       => t8('Create invoice'),
+    DRAFTS      => \@filtered_drafts,
+    vendor_id   => $use_vendor_filter ? $vendor_of_transaction->id   : undef,
+    vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
+    ALL_VENDORS => $all_vendors,
+    limit       => $myconfig{vclimit},
+    callback    => $callback,
+  );
 }
 
 sub action_ajax_payment_suggestion {
@@ -227,12 +239,13 @@ sub action_ajax_payment_suggestion {
 
   my $html;
   $html .= SL::Presenter->input_tag('invoice_ids.' . $::form->{bt_id} . '[]', $::form->{prop_id} , type => 'hidden');
-  # better in template code - but how to ajax this
-  $html .= SL::Presenter->escape(t8('Invno.') . ': ' . $invoice->invnumber . ' ');
+  $html .= SL::Presenter->escape(t8('Invno.')      . ': ' . $invoice->invnumber . ' ');
   $html .= SL::Presenter->escape(t8('Open amount') . ': ' . $::form->format_amount(\%::myconfig, $invoice->open_amount, 2) . ' ');
-  $html .= SL::Presenter->select_tag('invoice_skontos.' . $::form->{bt_id} . '[]', \@select_options,
-                                              value_key => 'payment_type',
-                                              title_key => 'display' ) if @select_options;
+  $html .= SL::Presenter->select_tag('invoice_skontos.' . $::form->{bt_id} . '[]',
+                                     \@select_options,
+                                     value_key => 'payment_type',
+                                     title_key => 'display' )
+    if @select_options;
   $html .= '<a href=# onclick="delete_invoice(' . $::form->{bt_id} . ',' . $::form->{prop_id} . ');">x</a>';
   $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id});
 
@@ -242,34 +255,36 @@ sub action_ajax_payment_suggestion {
 sub action_filter_drafts {
   my ($self) = @_;
 
-  $self->{transaction} = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
+  $self->{transaction}      = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
 
-  my $drafts = SL::DB::Manager::Draft->get_all(with_objects => 'employee');
+  my $drafts                = SL::DB::Manager::Draft->get_all(with_objects => 'employee');
 
   my @filtered_drafts;
 
   foreach my $draft ( @{ $drafts } ) {
     my $draft_as_object = YAML::Load($draft->form);
     next unless $draft_as_object->{vendor_id};  # we cannot filter for vendor name, if this is a gl draft
-    my $vendor = SL::DB::Manager::Vendor->find_by(id => $draft_as_object->{vendor_id});
-    $draft->{vendor} = $vendor->name;
+
+    my $vendor          = SL::DB::Manager::Vendor->find_by(id => $draft_as_object->{vendor_id});
+    $draft->{vendor}    = $vendor->name;
     $draft->{vendor_id} = $vendor->id;
+
     push @filtered_drafts, $draft;
   }
 
   my $vendor_name = $::form->{vendor};
-  my $vendor_id = $::form->{vendor_id};
+  my $vendor_id   = $::form->{vendor_id};
 
   #Filter drafts
-  @filtered_drafts = grep { $_->{vendor_id} == $vendor_id } @filtered_drafts if $vendor_id;
-  @filtered_drafts = grep { $_->{vendor} =~ /$vendor_name/i } @filtered_drafts if $vendor_name;
+  @filtered_drafts = grep { $_->{vendor_id} == $vendor_id      } @filtered_drafts if $vendor_id;
+  @filtered_drafts = grep { $_->{vendor}    =~ /$vendor_name/i } @filtered_drafts if $vendor_name;
 
   my $output  = $self->render(
-      'bank_transactions/filter_drafts',
-      { output      => 0 },
-      DRAFTS => \@filtered_drafts,
-      );
+    'bank_transactions/filter_drafts',
+    { output => 0 },
+    DRAFTS => \@filtered_drafts,
+  );
 
   my %result = ( count => 0, html => $output );
 
@@ -319,7 +334,7 @@ sub action_ajax_add_list {
     };
   }
 
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where => \@where_sale, with_objects => 'customer');
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => \@where_sale,     with_objects => 'customer');
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => \@where_purchase, with_objects => 'vendor');
 
   my @all_open_invoices = @{ $all_open_ar_invoices };
@@ -329,10 +344,10 @@ sub action_ajax_add_list {
   @all_open_invoices = sort { $a->id <=> $b->id } @all_open_invoices;
 
   my $output  = $self->render(
-      'bank_transactions/add_list',
-      { output      => 0 },
-      INVOICES => \@all_open_invoices,
-      );
+    'bank_transactions/add_list',
+    { output => 0 },
+    INVOICES => \@all_open_invoices,
+  );
 
   my %result = ( count => 0, html => $output );
 
@@ -348,9 +363,12 @@ sub action_ajax_accept_invoices {
     push @selected_invoices, $invoice_object;
   }
 
-  $self->render('bank_transactions/invoices', { layout => 0 },
-                INVOICES => \@selected_invoices,
-                bt_id    => $::form->{bt_id} );
+  $self->render(
+    'bank_transactions/invoices',
+    { layout => 0 },
+    INVOICES => \@selected_invoices,
+    bt_id    => $::form->{bt_id},
+  );
 }
 
 sub action_save_invoices {
@@ -418,9 +436,9 @@ sub action_save_invoices {
       };
       if ($amount_of_transaction == 0) {
         flash('warning',  $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
-                                            $bank_transaction->purpose,
-                                            $bank_transaction->remote_account_number,
-                                            $bank_transaction->remote_bank_code));
+                                          $bank_transaction->purpose,
+                                          $bank_transaction->remote_account_number,
+                                          $bank_transaction->remote_bank_code));
         last;
       }
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
@@ -451,11 +469,11 @@ sub action_save_invoices {
 
       # Record a record link from the bank transaction to the invoice
       my @props = (
-          from_table => 'bank_transactions',
-          from_id    => $bt_id,
-          to_table   => $invoice->is_sales ? 'ar' : 'ap',
-          to_id      => $invoice->id,
-          );
+        from_table => 'bank_transactions',
+        from_id    => $bt_id,
+        to_table   => $invoice->is_sales ? 'ar' : 'ap',
+        to_id      => $invoice->id,
+      );
 
       SL::DB::RecordLink->new(@props)->save;
 
@@ -467,8 +485,8 @@ sub action_save_invoices {
           # moved the execution and the check for sepa_export into a method,
           # this isn't part of a transaction, though
           $seis->[0]->set_executed if $invoice->id == $seis->[0]->arap_id;
-        };
-      };
+        }
+      }
 
     }
     $bank_transaction->save;
@@ -504,11 +522,11 @@ sub action_save_proposals {
 
     #create record link
     my @props = (
-        from_table => 'bank_transactions',
-        from_id    => $bt_id,
-        to_table   => $arap->is_sales ? 'ar' : 'ap',
-        to_id      => $arap->id,
-        );
+      from_table => 'bank_transactions',
+      from_id    => $bt_id,
+      to_table   => $arap->is_sales ? 'ar' : 'ap',
+      to_id      => $arap->id,
+    );
 
     SL::DB::RecordLink->new(@props)->save;
 
@@ -520,8 +538,8 @@ sub action_save_proposals {
         # moved the execution and the check for sepa_export into a method,
         # this isn't part of a transaction, though
         $seis->[0]->set_executed if $arap->id == $seis->[0]->arap_id;
-      };
-    };
+      }
+    }
   }
 
   flash('ok', t8('#1 proposal(s) saved.', scalar @{ $::form->{proposal_ids} }));
@@ -548,12 +566,12 @@ sub make_filter_summary {
   my @filter_strings;
 
   my @filters = (
-    [ $filter->{"transdate:date::ge"},  $::locale->text('Transdate')  . " " . $::locale->text('From Date') ],
-    [ $filter->{"transdate:date::le"},  $::locale->text('Transdate')  . " " . $::locale->text('To Date')   ],
-    [ $filter->{"valutadate:date::ge"}, $::locale->text('Valutadate') . " " . $::locale->text('From Date') ],
-    [ $filter->{"valutadate:date::le"}, $::locale->text('Valutadate') . " " . $::locale->text('To Date')   ],
-    [ $filter->{"amount:number"},       $::locale->text('Amount')                                          ],
-    [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                          ],
+    [ $filter->{"transdate:date::ge"},      $::locale->text('Transdate')  . " " . $::locale->text('From Date') ],
+    [ $filter->{"transdate:date::le"},      $::locale->text('Transdate')  . " " . $::locale->text('To Date')   ],
+    [ $filter->{"valutadate:date::ge"},     $::locale->text('Valutadate') . " " . $::locale->text('From Date') ],
+    [ $filter->{"valutadate:date::le"},     $::locale->text('Valutadate') . " " . $::locale->text('To Date')   ],
+    [ $filter->{"amount:number"},           $::locale->text('Amount')                                          ],
+    [ $filter->{"bank_account_id:integer"}, $::locale->text('Local bank account')                              ],
   );
 
   for (@filters) {
@@ -575,21 +593,21 @@ sub prepare_report {
   my @sortable    = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
   my %column_defs = (
-    transdate             => { sub => sub { $_[0]->transdate_as_date } },
-    valutadate            => { sub => sub { $_[0]->valutadate_as_date } },
+    transdate             => { sub   => sub { $_[0]->transdate_as_date } },
+    valutadate            => { sub   => sub { $_[0]->valutadate_as_date } },
     remote_name           => { },
     remote_account_number => { },
     remote_bank_code      => { },
-    amount                => { sub => sub { $_[0]->amount_as_number },
+    amount                => { sub   => sub { $_[0]->amount_as_number },
                                align => 'right' },
-    invoice_amount        => { sub => sub { $_[0]->invoice_amount_as_number },
+    invoice_amount        => { sub   => sub { $_[0]->invoice_amount_as_number },
                                align => 'right' },
-    invoices              => { sub => sub { $_[0]->linked_invoices } },
-    currency              => { sub => sub { $_[0]->currency->name } },
+    invoices              => { sub   => sub { $_[0]->linked_invoices } },
+    currency              => { sub   => sub { $_[0]->currency->name } },
     purpose               => { },
-    local_account_number  => { sub => sub { $_[0]->local_bank_account->account_number } },
-    local_bank_code       => { sub => sub { $_[0]->local_bank_account->bank_code } },
-    local_bank_name       => { sub => sub { $_[0]->local_bank_account->name } },
+    local_account_number  => { sub   => sub { $_[0]->local_bank_account->account_number } },
+    local_bank_code       => { sub   => sub { $_[0]->local_bank_account->bank_code } },
+    local_bank_name       => { sub   => sub { $_[0]->local_bank_account->name } },
     id                    => {},
   );
 
@@ -639,10 +657,10 @@ sub init_models {
 
   SL::Controller::Helper::GetModels->new(
     controller => $self,
-    sorted => {
+    sorted     => {
       _default => {
-        by    => 'transdate',
-        dir   => 0,   # 1 = ASC, 0 = DESC : default sort is newest at top
+        by  => 'transdate',
+        dir => 0,   # 1 = ASC, 0 = DESC : default sort is newest at top
       },
       transdate             => t8('Transdate'),
       remote_name           => t8('Remote name'),
