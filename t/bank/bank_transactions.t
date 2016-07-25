@@ -61,7 +61,7 @@ test_two_invoices();
 test_partial_payment();
 
 # remove all created data at end of test
-# clear_up();
+clear_up();
 
 done_testing();
 
