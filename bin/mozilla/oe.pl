@@ -425,7 +425,7 @@ sub form_header {
   # business
   $TMPL_VAR{business_label} = ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type'));
 
-  push @custom_hiddens, "customer_klass" if $form->{vc} eq 'customer';
+  push @custom_hiddens, "customer_pricegroup_id" if $form->{vc} eq 'customer';
 
   my $credittext = $locale->text('Credit Limit exceeded!!!');
 

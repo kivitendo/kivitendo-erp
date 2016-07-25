@@ -65,7 +65,7 @@
                  allow_textbox = 1,
                  onChange      = "document.getElementById('update_button').click();" -%]
             <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
-          <input type="hidden" name="customer_klass" value="[% HTML.escape(customer_klass) %]">
+          <input type="hidden" name="customer_pricegroup_id" value="[% HTML.escape(customer_pricegroup_id) %]">
           <input type="hidden" name="customer_id" value="[% HTML.escape(customer_id) %]">
           <input type="hidden" name="oldcustomer" value="[% HTML.escape(oldcustomer) %]">
           <input type="hidden" name="selectcustomer" value="[% HTML.escape(selectcustomer) %]">

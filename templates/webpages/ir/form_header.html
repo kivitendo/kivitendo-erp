@@ -63,7 +63,6 @@
                  onChange      = "document.getElementById('update_button').click();" -%]
             <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% vc | html %]')">
           </td>
-          <input type="hidden" name="vendor_klass" value="[% HTML.escape(vendor_klass) %]">
           <input type="hidden" name="vendor_id" value="[% HTML.escape(vendor_id) %]">
           <input type="hidden" name="oldvendor" value="[% HTML.escape(oldvendor) %]">
           <input type="hidden" name="selectvendor" value="[% HTML.escape(selectvendor) %]">

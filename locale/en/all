@@ -2079,7 +2079,6 @@ $self->{texts} = {
   'Preferences saved!'          => '',
   'Prefix for the new bins\' names' => '',
   'Preis'                       => '',
-  'Preisklasse'                 => '',
   'Prepare bank collection via SEPA XML' => '',
   'Prepare bank transfer via SEPA XML' => '',
   'Prepayment'                  => '',

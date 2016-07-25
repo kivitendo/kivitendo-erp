@@ -2080,7 +2080,6 @@ $self->{texts} = {
   'Preferences saved!'          => 'Einstellungen gespeichert!',
   'Prefix for the new bins\' names' => 'Namenspr&auml;fix f&uuml;r die neuen Lagerpl&auml;tze',
   'Preis'                       => 'Preis',
-  'Preisklasse'                 => 'Preisgruppe',
   'Prepare bank collection via SEPA XML' => 'Einzug via SEPA XML vorbereiten',
   'Prepare bank transfer via SEPA XML' => 'Überweisung via SEPA XML vorbereiten',
   'Prepayment'                  => 'Vorauszahlung',

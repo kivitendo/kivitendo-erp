@@ -193,8 +193,7 @@ sub get_pricegroups {
 
   my $i = 1;
   foreach my $pg (@{ $pricegroups }) {
-    $form->{"klass_$i"} = "$pg->{id}";
-    $form->{"price_$i"} = $form->format_amount($myconfig, $form->{"price_$i"}, -2);
+    $form->{"price_$i"}         = $form->format_amount($myconfig, $form->{"price_$i"}, -2);
     $form->{"pricegroup_id_$i"} = "$pg->{id}";
     $form->{"pricegroup_$i"}    = "$pg->{pricegroup}";
     $i++;

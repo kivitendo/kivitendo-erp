@@ -300,7 +300,7 @@ sub setup_displayable_columns {
                                  { name => 'greeting',          description => $::locale->text('Greeting')                        },
                                  { name => 'homepage',          description => $::locale->text('Homepage')                        },
                                  { name => 'iban',              description => $::locale->text('IBAN')                            },
-                                 { name => 'klass',             description => $::locale->text('Preisklasse')                     },
+                                 { name => 'pricegroup_id',     description => $::locale->text('Price group (database ID)')       },
                                  { name => 'language_id',       description => $::locale->text('Language (database ID)')          },
                                  { name => 'language',          description => $::locale->text('Language (name)')                 },
                                  { name => 'name',              description => $::locale->text('Name')                            },

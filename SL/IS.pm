@@ -2112,7 +2112,7 @@ sub get_customer {
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
          c.street, c.zipcode, c.city, c.country,
-         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,
+         c.notes AS intnotes, c.pricegroup_id as customer_pricegroup_id, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
          b.discount AS tradediscount, b.description AS business
        FROM customer c

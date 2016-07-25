@@ -251,7 +251,7 @@ sub search {
   }
 
   my $pg_select = $form->{l_pricegroup} ? qq|, pg.pricegroup as pricegroup | : '';
-  my $pg_join   = $form->{l_pricegroup} ? qq|LEFT JOIN pricegroup pg ON (ct.klass = pg.id) | : '';
+  my $pg_join   = $form->{l_pricegroup} ? qq|LEFT JOIN pricegroup pg ON (ct.pricegroup_id = pg.id) | : '';
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
     qq|  pt.description as payment | .

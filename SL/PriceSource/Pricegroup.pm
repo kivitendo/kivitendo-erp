@@ -54,9 +54,9 @@ sub best_price {
   my @prices    = $self->available_prices;
   my $customer  = $self->record->customer;
 
-  return () if !$customer || !$customer->klass;
+  return () if !$customer || !$customer->pricegroup_id;
 
-  my $best_price = first { $_->spec == $customer->klass } @prices;
+  my $best_price = first { $_->spec == $customer->pricegroup_id } @prices;
 
   return $best_price || ();
 }

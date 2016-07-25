@@ -38,7 +38,6 @@ __PACKAGE__->meta->columns(
   iban                      => { type => 'text' },
   id                        => { type => 'integer', not_null => 1, sequence => 'id' },
   itime                     => { type => 'timestamp', default => 'now()' },
-  klass                     => { type => 'integer', default => '0' },
   language                  => { type => 'text' },
   language_id               => { type => 'integer' },
   mandate_date_of_signature => { type => 'date' },
@@ -49,6 +48,7 @@ __PACKAGE__->meta->columns(
   obsolete                  => { type => 'boolean', default => 'false' },
   payment_id                => { type => 'integer' },
   phone                     => { type => 'text' },
+  pricegroup_id             => { type => 'integer' },
   salesman_id               => { type => 'integer' },
   street                    => { type => 'text' },
   taxincluded               => { type => 'boolean' },
@@ -89,6 +89,11 @@ __PACKAGE__->meta->foreign_keys(
   payment => {
     class       => 'SL::DB::PaymentTerm',
     key_columns => { payment_id => 'id' },
+  },
+
+  pricegroup => {
+    class       => 'SL::DB::Pricegroup',
+    key_columns => { pricegroup_id => 'id' },
   },
 
   taxzone => {

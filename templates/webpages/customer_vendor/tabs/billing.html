@@ -317,7 +317,7 @@
         <th align="right">[% 'Price group' | $T8 %]</th>
 
         <td>
-          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
+          [% L.select_tag('cv.pricegroup_id', SELF.all_pricegroups, default = SELF.cv.pricegroup_id, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
         </td>
       [% END  %]
 

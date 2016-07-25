@@ -350,7 +350,7 @@ sub get_vc_details {
   $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $vc_id);
 
   # Only show default pricegroup for customer, not vendor, which is why this is outside the main query
-  ($form->{pricegroup}) = selectrow_query($form, $dbh, qq|SELECT pricegroup FROM pricegroup WHERE id = ?|, $form->{klass});
+  ($form->{pricegroup}) = selectrow_query($form, $dbh, qq|SELECT pricegroup FROM pricegroup WHERE id = ?|, $form->{pricegroup_id});
 
   $dbh->disconnect();
 
