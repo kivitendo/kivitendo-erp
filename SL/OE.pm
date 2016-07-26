@@ -51,6 +51,7 @@ use SL::HTML::Restrict;
 use SL::IC;
 use SL::TransNumber;
 use SL::Util qw(trim);
+use SL::DB;
 use Text::ParseWords;
 
 use strict;
@@ -419,12 +420,22 @@ sub transactions_for_todo_list {
 }
 
 sub save {
+  my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $rc = SL::DB->client->with_transaction(\&_save, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+
+  return $rc;
+}
+
+sub _save {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
   my ($query, @values, $sth, $null);
@@ -793,8 +804,6 @@ SQL
 
   Common::webdav_folder($form);
 
-  my $rc = $dbh->commit;
-
   $self->save_periodic_invoices_config(dbh         => $dbh,
                                        oe_id       => $form->{id},
                                        config_yaml => $form->{periodic_invoices_config})
@@ -802,7 +811,7 @@ SQL
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return 1;
 }
 
 sub save_periodic_invoices_config {
@@ -846,37 +855,38 @@ sub _close_quotations_rfqs {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my $query    = qq|SELECT quotation FROM oe WHERE id = ?|;
-  my $sth      = prepare_query($form, $dbh, $query);
+  SL::DB->client->with_transaction(sub {
 
-  do_statement($form, $sth, $query, conv_i($params{to_id}));
+    my $query    = qq|SELECT quotation FROM oe WHERE id = ?|;
+    my $sth      = prepare_query($form, $dbh, $query);
 
-  my ($quotation) = $sth->fetchrow_array();
+    do_statement($form, $sth, $query, conv_i($params{to_id}));
 
-  if ($quotation) {
-    $main::lxdebug->leave_sub();
-    return;
-  }
+    my ($quotation) = $sth->fetchrow_array();
 
-  my @close_ids;
+    if ($quotation) {
+      return;
+    }
 
-  foreach my $from_id (@{ $params{from_id} }) {
-    $from_id = conv_i($from_id);
-    do_statement($form, $sth, $query, $from_id);
-    ($quotation) = $sth->fetchrow_array();
-    push @close_ids, $from_id if ($quotation);
-  }
+    my @close_ids;
 
-  $sth->finish();
+    foreach my $from_id (@{ $params{from_id} }) {
+      $from_id = conv_i($from_id);
+      do_statement($form, $sth, $query, $from_id);
+      ($quotation) = $sth->fetchrow_array();
+      push @close_ids, $from_id if ($quotation);
+    }
 
-  if (scalar @close_ids) {
-    $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_ids) . qq|)|;
-    do_query($form, $dbh, $query, @close_ids);
+    $sth->finish();
 
-    $dbh->commit() unless ($params{dbh});
-  }
+    if (scalar @close_ids) {
+      $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_ids) . qq|)|;
+      do_query($form, $dbh, $query, @close_ids);
+    }
+
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -903,12 +913,20 @@ sub delete {
 }
 
 sub retrieve {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_retrieve, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _retrieve {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, $query_add, @values, @ids, $sth);
 
@@ -1206,11 +1224,7 @@ sub retrieve {
 
   $self->load_periodic_invoice_config($form);
 
-  my $rc = $dbh->commit;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub retrieve_simple {
