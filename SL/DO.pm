@@ -47,6 +47,7 @@ use SL::HTML::Restrict;
 use SL::RecordLinks;
 use SL::IC;
 use SL::TransNumber;
+use SL::DB;
 use SL::Util qw(trim);
 
 use strict;
@@ -260,6 +261,16 @@ SQL
 }
 
 sub save {
+  my ($self) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $rc = SL::DB->client->with_transaction(\&_save, $self);
+
+  $main::lxdebug->leave_sub();
+  return $rc;
+}
+
+sub _save {
   $main::lxdebug->enter_sub();
 
   my ($self)   = @_;
@@ -267,8 +278,7 @@ sub save {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  # connect to database, turn off autocommit
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
   my ($query, @values, $sth, $null);
@@ -538,8 +548,6 @@ SQL
                                   'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
                                   'dbh'   => $dbh,);
 
-  my $rc = $dbh->commit();
-
   $form->{saved_donumber} = $form->{donumber};
   $form->{saved_ordnumber} = $form->{ordnumber};
   $form->{saved_cusordnumber} = $form->{cusordnumber};
@@ -548,7 +556,7 @@ SQL
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return 1;
 }
 
 sub mark_orders_if_delivered {
@@ -562,14 +570,15 @@ sub mark_orders_if_delivered {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my %ship = $self->get_shipped_qty('dbh' => $dbh, 'do_id' => $form->{id}, 'delivered' => 1);
+    my %ship = $self->get_shipped_qty('dbh' => $dbh, 'do_id' => $form->{id}, 'delivered' => 1);
 
-  foreach my $oe_id (keys %ship) {
-      do_query($form, $dbh,"UPDATE oe SET delivered = ".($ship{$oe_id}->{delivered}?"TRUE":"FALSE")." WHERE id = ?", $oe_id);
-  }
-  $dbh->commit() if (!$params{dbh});
+    foreach my $oe_id (keys %ship) {
+        do_query($form, $dbh,"UPDATE oe SET delivered = ".($ship{$oe_id}->{delivered}?"TRUE":"FALSE")." WHERE id = ?", $oe_id);
+    }
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -590,13 +599,14 @@ sub close_orders {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my $query    = qq|UPDATE delivery_orders SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar(@{ $params{ids} })) . qq|)|;
+    my $query    = qq|UPDATE delivery_orders SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar(@{ $params{ids} })) . qq|)|;
 
-  do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
+    do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
+  });
 
-  $dbh->commit() unless ($params{dbh});
   $form->new_lastmtime('delivery_orders');
 
   $main::lxdebug->leave_sub();
