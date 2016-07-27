@@ -54,6 +54,7 @@ use SL::DB::Default;
 use SL::DB::Tax;
 use SL::DB::TaxZone;
 use SL::TransNumber;
+use SL::DB;
 use Data::Dumper;
 
 use strict;
@@ -655,12 +656,19 @@ sub customer_details {
 }
 
 sub post_invoice {
+  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_invoice, $self, $myconfig, $form, $provided_dbh, $payments_only);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_invoice {
   my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $provided_dbh ? $provided_dbh : $form->get_standard_dbh;
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
   my ($query, $sth, $null, $project_id, @values);
@@ -1257,9 +1265,6 @@ SQL
 
     $form->new_lastmtime('ar');
 
-    $dbh->commit if !$provided_dbh;
-
-    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -1398,17 +1403,11 @@ SQL
     $datev->export;
 
     if ($datev->errors) {
-      $dbh->rollback;
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
     }
   }
 
-  my $rc = 1;
-  $dbh->commit if !$provided_dbh;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub transfer_out {
@@ -1580,12 +1579,19 @@ sub _delete_payments {
 }
 
 sub post_payment {
+  my ($self, $myconfig, $form, $locale) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_payment, $self, $myconfig, $form, $locale);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_payment {
   my ($self, $myconfig, $form, $locale) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -1641,11 +1647,7 @@ sub post_payment {
 
   restore_form($old_form);
 
-  my $rc = $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub process_assembly {
@@ -1843,12 +1845,19 @@ sub reverse_invoice {
 }
 
 sub delete_invoice {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_delete_invoice, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _delete_invoice {
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   &reverse_invoice($dbh, $form);
   _delete_transfers($dbh, $form, $form->{id});
@@ -1881,25 +1890,26 @@ sub delete_invoice {
 
   map { do_query($form, $dbh, $_, @values) } @queries;
 
-  my $rc = $dbh->commit;
+  my $spool = $::lx_office_conf{paths}->{spool};
+  map { unlink "$spool/$_" if -f "$spool/$_"; } @spoolfiles;
 
-  if ($rc) {
-    my $spool = $::lx_office_conf{paths}->{spool};
-    map { unlink "$spool/$_" if -f "$spool/$_"; } @spoolfiles;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub retrieve_invoice {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_retrieve_invoice, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _retrieve_invoice {
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   my ($sth, $ref, $query);
 
@@ -2086,11 +2096,7 @@ sub retrieve_invoice {
     Common::webdav_folder($form);
   }
 
-  my $rc = $dbh->commit;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub get_customer {
