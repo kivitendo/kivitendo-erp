@@ -47,17 +47,25 @@ use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::TaxZone;
+use SL::DB;
 use List::Util qw(min);
 
 use strict;
 
 sub post_invoice {
+  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_invoice, $self, $myconfig, $form, $provided_dbh, $payments_only);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_invoice {
   my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
@@ -691,12 +699,7 @@ SQL
     $query = qq|UPDATE ap SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query, $form->{paid}, conv_i($form->{id}));
     $form->new_lastmtime('ap');
-    if (!$provided_dbh) {
-      $dbh->commit();
-      $dbh->disconnect();
-    }
 
-    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -820,20 +823,11 @@ SQL
     $datev->export;
 
     if ($datev->errors) {
-      $dbh->rollback;
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
     }
   }
 
-  my $rc = 1;
-  if (!$provided_dbh) {
-    $rc = $dbh->commit();
-    $dbh->disconnect();
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub reverse_invoice {
@@ -919,31 +913,29 @@ sub delete_invoice {
   my ($self, $myconfig, $form) = @_;
   my $query;
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
-  &reverse_invoice($dbh, $form);
+  SL::DB->client->with_transaction(sub{
 
-  my @values = (conv_i($form->{id}));
+    &reverse_invoice($dbh, $form);
 
-  # delete zero entries
-  # wtf? use case for this?
-  $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
-  do_query($form, $dbh, $query);
+    my @values = (conv_i($form->{id}));
+
+    # delete zero entries
+    # wtf? use case for this?
+    $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
+    do_query($form, $dbh, $query);
 
 
-  my @queries = (
-    qq|DELETE FROM invoice WHERE trans_id = ?|,
-    qq|DELETE FROM ap WHERE id = ?|,
-  );
+    my @queries = (
+      qq|DELETE FROM invoice WHERE trans_id = ?|,
+      qq|DELETE FROM ap WHERE id = ?|,
+    );
 
-  map { do_query($form, $dbh, $_, @values) } @queries;
+    map { do_query($form, $dbh, $_, @values) } @queries;
+  });
 
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub retrieve_invoice {
@@ -1564,12 +1556,19 @@ sub _delete_payments {
 }
 
 sub post_payment {
+  my ($self, $myconfig, $form, $locale) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_payment, $self, $myconfig, $form, $locale);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_payment {
   my ($self, $myconfig, $form, $locale) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -1625,12 +1624,7 @@ sub post_payment {
 
   restore_form($old_form);
 
-  my $rc = $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub get_duedate {
