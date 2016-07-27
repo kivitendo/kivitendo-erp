@@ -168,7 +168,8 @@ sub convert_to_delivery_order {
       foreach (qw(orderitems)) {    # expand if needed (delivery_order_items)
         if ($item->{"converted_from_${_}_id"}) {
           die unless $item->{id};
-          RecordLinks->create_links('mode'       => 'ids',
+          RecordLinks->create_links('dbh'        => $self->db->dbh,
+                                    'mode'       => 'ids',
                                     'from_table' => $_,
                                     'from_ids'   => $item->{"converted_from_${_}_id"},
                                     'to_table'   => 'delivery_order_items',
