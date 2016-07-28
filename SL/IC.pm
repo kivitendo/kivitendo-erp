@@ -327,7 +327,6 @@ sub save {
          partnumber = ?,
          description = ?,
          makemodel = ?,
-         alternate = 'f',
          assembly = ?,
          listprice = ?,
          sellprice = ?,

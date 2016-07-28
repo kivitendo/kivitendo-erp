@@ -9,7 +9,6 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('parts');
 
 __PACKAGE__->meta->columns(
-  alternate          => { type => 'boolean', default => 'false' },
   assembly           => { type => 'boolean', default => 'false' },
   bin_id             => { type => 'integer' },
   bom                => { type => 'boolean', default => 'false' },

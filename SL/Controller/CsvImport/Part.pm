@@ -480,7 +480,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(alternate assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
+  delete @{$profile}{qw(assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
 
   $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 
