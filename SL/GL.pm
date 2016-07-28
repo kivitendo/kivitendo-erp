@@ -42,6 +42,7 @@ use Data::Dumper;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::Util qw(trim);
+use SL::DB;
 
 use strict;
 
@@ -49,22 +50,24 @@ sub delete_transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  SL::DB->with_transaction(sub {
+    do_query($form, SL::DB->client->dbh, qq|DELETE FROM gl WHERE id = ?|, conv_i($form->{id}));
+  });
 
-  # acc_trans entries are deleted by database triggers.
-  do_query($form, $dbh, qq|DELETE FROM gl WHERE id = ?|, conv_i($form->{id}));
-
-  # commit and redirect
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
-
-  $rc;
-
 }
 
 sub post_transaction {
+  my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $rc = SL::DB->client->with_transaction(\&_post_transaction, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
@@ -73,8 +76,7 @@ sub post_transaction {
 
   my $i;
 
-  # connect to database, turn off AutoCommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   # post the transaction
   # make up a unique handle and store in reference field
@@ -203,17 +205,11 @@ sub post_transaction {
     $datev->export;
 
     if ($datev->errors) {
-      $dbh->rollback;
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
     }
   }
 
-  # commit and redirect
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub all_transactions {
@@ -710,12 +706,20 @@ sub transaction {
 }
 
 sub storno {
+  my ($self, $form, $myconfig, $id) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_storno, $self, $form, $myconfig, $id);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _storno {
   my ($self, $form, $myconfig, $id) = @_;
 
   my ($query, $new_id, $storno_row, $acc_trans_rows);
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $query = qq|SELECT nextval('glid')|;
   ($new_id) = selectrow_query($form, $dbh, $query);
@@ -752,9 +756,7 @@ sub storno {
     do_query($form, $dbh, $query, (values %$row));
   }
 
-  $dbh->commit;
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub get_chart_balances {
