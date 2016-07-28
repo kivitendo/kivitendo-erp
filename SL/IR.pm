@@ -1218,7 +1218,7 @@ sub retrieve_item {
   my $i = $form->{rowcount};
 
   # don't include assemblies or obsolete parts
-  my $where = "NOT p.assembly = '1' AND NOT p.obsolete = '1'";
+  my $where = "NOT p.part_type = 'assembly' AND NOT p.obsolete = '1'";
   my @values;
 
   foreach my $table_column (qw(p.partnumber p.description pg.partsgroup)) {
@@ -1276,7 +1276,7 @@ sub retrieve_item {
   my $query =
     qq|SELECT
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
-         p.unit, p.assembly, p.onhand, p.formel,
+         p.unit, p.part_type, p.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
          p.inventory_accno_id, p.price_factor_id,
          p.ean,

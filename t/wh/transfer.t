@@ -26,7 +26,7 @@ SL::DB::Manager::Bin      ->delete_all(where => [ or => [ description => NAME() 
 SL::DB::Manager::Warehouse->delete_all(where => [ description => NAME() ]);
 
 # Create test data
-$part = SL::DB::Part->new(unit => 'mg', description => NAME(), partnumber => NAME());
+$part = SL::DB::Part->new(unit => 'mg', description => NAME(), partnumber => NAME(), part_type => 'part');
 $part->save();
 
 is(ref($part), 'SL::DB::Part', 'loading a part to test with id ' . $part->id);

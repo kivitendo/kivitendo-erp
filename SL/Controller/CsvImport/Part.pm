@@ -97,12 +97,12 @@ sub init_warehouses_by {
 sub init_parts_by {
   my ($self) = @_;
 
-#  my $parts_by = { id         => { map { ( $_->id => $_ ) } grep { !$_->assembly } @{ $self->existing_objects } },
+#  my $parts_by = { id         => { map { ( $_->id => $_ ) } grep { !$_->part_type = 'assembly' } @{ $self->existing_objects } },
 #                   partnumber => { part    => { },
 #                                   service => { } } };
 #
 #  foreach my $part (@{ $self->existing_objects }) {
-#    next if $part->assembly;
+#    next if $part->part_type eq 'assembly';
 #    $parts_by->{partnumber}->{ $part->type }->{ $part->partnumber } = $part;
 #  }
 
@@ -675,7 +675,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(alternate assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
+  delete @{$profile}{qw(bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
 
   $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 

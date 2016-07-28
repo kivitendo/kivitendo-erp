@@ -33,7 +33,7 @@ sub type_filter {
 
   $prefix //= '';
 
-  # this is to make selection like type => { part => 1, service => 1 } work
+  # this is to make selections like part_type => { part => 1, service => 1 } work
   if ('HASH' eq ref $type) {
     $type = [ grep { $type->{$_} } keys %$type ];
   }
@@ -43,16 +43,11 @@ sub type_filter {
 
   for my $type (@types) {
     if ($type =~ m/^part/) {
-      push @filter, (and => [ or                             => [ $prefix . assembly => 0, $prefix . assembly => undef ],
-                              "!${prefix}inventory_accno_id" => 0,
-                              "!${prefix}inventory_accno_id" => undef,
-                     ]);
+      push @filter, ($prefix . part_type => 'part');
     } elsif ($type =~ m/^service/) {
-      push @filter, (and => [ or => [ $prefix . assembly           => 0, $prefix . assembly           => undef ],
-                              or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
-                     ]);
-    } elsif ($type =~ m/^assembl/) {
-      push @filter, ($prefix . assembly => 1);
+      push @filter, ($prefix . part_type => 'service');
+    } elsif ($type =~ m/^assembly/) {
+      push @filter, ($prefix . part_type => 'assembly');
     }
   }
 

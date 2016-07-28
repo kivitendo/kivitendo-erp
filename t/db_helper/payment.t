@@ -147,6 +147,7 @@ sub reset_state {
     description        => 'Fourty-two fifty-four',
     lastcost           => 1.93,
     sellprice          => 2.34,
+    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe->id,
     unit               => $unit->name,
     %{ $params{part1} }
@@ -157,6 +158,7 @@ sub reset_state {
     description        => 'Zero EIGHT fifteeN @ 7%',
     lastcost           => 5.473,
     sellprice          => 9.714,
+    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe7->id,
     unit               => $unit->name,
     %{ $params{part2} }
@@ -166,6 +168,7 @@ sub reset_state {
     description        => 'Testware 19%',
     lastcost           => 0,
     sellprice          => 50,
+    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe->id,
     unit               => $unit->name,
     %{ $params{part3} }
@@ -175,6 +178,7 @@ sub reset_state {
     description        => 'Testware 7%',
     lastcost           => 0,
     sellprice          => 50,
+    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe7->id,
     unit               => $unit->name,
     %{ $params{part4} }
