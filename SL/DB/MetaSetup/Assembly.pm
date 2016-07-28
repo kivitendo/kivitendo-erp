@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('assembly');
 __PACKAGE__->meta->columns(
   assembly_id => { type => 'serial', not_null => 1 },
   bom         => { type => 'boolean' },
-  id          => { type => 'integer' },
+  id          => { type => 'integer', not_null => 1 },
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
   parts_id    => { type => 'integer', not_null => 1 },
@@ -23,7 +23,12 @@ __PACKAGE__->meta->primary_key_columns([ 'assembly_id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  parts => {
+  assembly_part => {
+    class       => 'SL::DB::Part',
+    key_columns => { id => 'id' },
+  },
+
+  part => {
     class       => 'SL::DB::Part',
     key_columns => { parts_id => 'id' },
   },

@@ -75,6 +75,8 @@ our %foreign_key_name_map     = (
 
     periodic_invoices_configs => { oe_id => 'order', email_recipient_contact_id => 'email_recipient_contact' },
     reconciliation_links      => { acc_trans_id => 'acc_trans' },
+
+    assembly                  => { parts_id => 'part', id => 'assembly_part' },
   },
 );
 
