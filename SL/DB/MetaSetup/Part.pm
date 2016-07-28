@@ -9,7 +9,6 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('parts');
 
 __PACKAGE__->meta->columns(
-  assembly           => { type => 'boolean', default => 'false' },
   bin_id             => { type => 'integer' },
   bom                => { type => 'boolean', default => 'false' },
   buchungsgruppen_id => { type => 'integer' },
@@ -34,6 +33,7 @@ __PACKAGE__->meta->columns(
   notes              => { type => 'text' },
   obsolete           => { type => 'boolean', default => 'false' },
   onhand             => { type => 'numeric', default => '0', precision => 25, scale => 5 },
+  part_type          => { type => 'enum', check_in => [ 'part', 'service', 'assembly', 'assortment' ], db_type => 'part_type_enum', not_null => 1 },
   partnumber         => { type => 'text', not_null => 1 },
   partsgroup_id      => { type => 'integer' },
   payment_id         => { type => 'integer' },

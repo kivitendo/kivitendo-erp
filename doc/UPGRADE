@@ -23,6 +23,10 @@ Upgrade auf v3.4.x Unstable
   (letter.tex) angepasst worden. Statt letter.customer muss der Adressat jetzt
   aus letter.custoemr_vendor erzeugt werden.
 
+* In der Tabelle parts wurde die Boolean-Spalte "assembly" entfernt. Zur
+  Erkennung von Waren/Dienstleistungen/Erzeugnissen gibt es nun in parts eine
+  neue Spalte part_type vom ENUM-Typ, der auf die Werte 'part', 'service',
+  'assembly' und 'assortment' beschränkt ist.
 
 Upgrade auf v3.4.1
 ==================
