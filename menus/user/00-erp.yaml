@@ -54,7 +54,7 @@
   module: ic.pl
   params:
     action: add
-    item: part
+    part_type: part
 - parent: master_data
   id: master_data_add_service
   name: Add Service
@@ -64,7 +64,7 @@
   module: ic.pl
   params:
     action: add
-    item: service
+    part_type: service
 - parent: master_data
   id: master_data_add_assembly
   name: Add Assembly
@@ -74,7 +74,7 @@
   module: ic.pl
   params:
     action: add
-    item: assembly
+    part_type: assembly
 - parent: master_data
   id: master_data_add_project
   name: Add Project
