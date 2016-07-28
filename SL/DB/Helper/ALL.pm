@@ -121,6 +121,7 @@ use SL::DB::Translation;
 use SL::DB::TriggerInformation;
 use SL::DB::Unit;
 use SL::DB::UnitsLanguage;
+use SL::DB::UserPreference;
 use SL::DB::VC;
 use SL::DB::Vendor;
 use SL::DB::Warehouse;

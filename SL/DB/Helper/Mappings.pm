@@ -201,6 +201,7 @@ my %kivitendo_package_names = (
   trigger_information            => 'trigger_information',
   units                          => 'unit',
   units_language                 => 'units_language',
+  user_preferences               => 'user_preference',
   vendor                         => 'vendor',
   warehouse                      => 'warehouse',
 );
