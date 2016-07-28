@@ -767,7 +767,7 @@ sub retrieve {
   # stuff different from the whole will not be overwritten, but saved with a suffix.
   $query =
     qq|SELECT doi.id AS delivery_order_items_id,
-         p.partnumber, p.assembly, p.listprice, doi.description, doi.qty,
+         p.partnumber, p.part_type, p.listprice, doi.description, doi.qty,
          doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.notes AS partnotes,
          doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
          doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,

@@ -61,36 +61,37 @@ sub is_type {
   return $self->type eq $type ? 1 : 0;
 }
 
-sub is_part     { $_[0]->is_type('part') }
-sub is_assembly { $_[0]->is_type('assembly') }
-sub is_service  { $_[0]->is_type('service') }
+sub is_part     { $_[0]->part_type eq 'part' }
+sub is_assembly { $_[0]->part_type eq 'assembly' }
+sub is_service  { $_[0]->part_type eq 'service' }
 
 sub type {
-  my ($self, $type) = @_;
-  if (@_ > 1) {
-    die 'invalid type' unless $type =~ /^(?:part|service|assembly)$/;
-    $self->assembly(          $type eq 'assembly' ? 1 : 0);
-    $self->inventory_accno_id($type ne 'service'  ? 1 : undef);
-  }
+  return $_[0]->part_type;
+  # my ($self, $type) = @_;
+  # if (@_ > 1) {
+  #   die 'invalid type' unless $type =~ /^(?:part|service|assembly)$/;
+  #   $self->assembly(          $type eq 'assembly' ? 1 : 0);
+  #   $self->inventory_accno_id($type ne 'service'  ? 1 : undef);
+  # }
 
-  return 'assembly' if $self->assembly;
-  return 'part'     if $self->inventory_accno_id;
-  return 'service';
+  # return 'assembly' if $self->assembly;
+  # return 'part'     if $self->inventory_accno_id;
+  # return 'service';
 }
 
 sub new_part {
   my ($class, %params) = @_;
-  $class->new(%params, type => 'part');
+  $class->new(%params, part_type => 'part');
 }
 
 sub new_assembly {
   my ($class, %params) = @_;
-  $class->new(%params, type => 'assembly');
+  $class->new(%params, part_type => 'assembly');
 }
 
 sub new_service {
   my ($class, %params) = @_;
-  $class->new(%params, type => 'service');
+  $class->new(%params, part_type => 'service');
 }
 
 sub orphaned {

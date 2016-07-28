@@ -604,7 +604,7 @@ sub item_selected {
 
     my @new_fields =
         qw(id partnumber description sellprice listprice inventory_accno
-           income_accno expense_accno bin unit weight assembly taxaccounts
+           income_accno expense_accno bin unit weight part_type taxaccounts
            partsgroup formel longdescription not_discountable partnotes lastcost
            price_factor_id price_factor);
 

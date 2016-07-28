@@ -189,7 +189,7 @@ sub transfer_assembly {
 
   my $query = qq|SELECT assembly.parts_id, assembly.qty, parts.warehouse_id
                  FROM assembly INNER JOIN parts ON assembly.parts_id = parts.id
-                 WHERE assembly.id = ? AND (inventory_accno_id IS NOT NULL OR parts.assembly = TRUE)|;
+                 WHERE assembly.id = ? AND parts.part_type != 'service'|;
 
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 

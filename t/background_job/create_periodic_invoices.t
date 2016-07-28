@@ -69,6 +69,7 @@ sub create_invoices {
     description        => 'Fourty-two fifty-four',
     lastcost           => 222.22,
     sellprice          => 333.33,
+    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe->id,
     unit               => $unit->name,
     %{ $params{part} }

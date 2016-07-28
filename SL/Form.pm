@@ -3227,16 +3227,13 @@ sub get_partsgroup {
   my @values;
 
   if ($p->{searchitems} eq 'part') {
-    $query .= qq|WHERE p.inventory_accno_id > 0|;
+    $query .= qq|WHERE p.part_type = 'part'|;
   }
   if ($p->{searchitems} eq 'service') {
-    $query .= qq|WHERE p.inventory_accno_id IS NULL|;
+    $query .= qq|WHERE p.part_type = 'service'|;
   }
   if ($p->{searchitems} eq 'assembly') {
-    $query .= qq|WHERE p.assembly = '1'|;
-  }
-  if ($p->{searchitems} eq 'labor') {
-    $query .= qq|WHERE (p.inventory_accno_id > 0) AND (p.income_accno_id IS NULL)|;
+    $query .= qq|WHERE p.part_type = 'assembly'|;
   }
 
   $query .= qq|ORDER BY partsgroup|;

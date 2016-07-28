@@ -77,10 +77,10 @@ sub get_part {
   $form->{lastmtime} = $form->{mtime};
   $form->{onhand} *= 1;
 
+  die "part needs a part_type" unless $form->{part_type}; # TODO from part_type enum conversion
   # part or service item
-  $form->{item} = ($form->{inventory_accno}) ? 'part' : 'service';
-  if ($form->{assembly}) {
-    $form->{item} = 'assembly';
+  $form->{item} = $form->{part_type};
+  if ($form->{item} eq 'assembly') {
 
     # retrieve assembly items
     $query =
@@ -247,7 +247,6 @@ sub save {
 
   my $makemodel = ($form->{make_1} || $form->{model_1} || ($form->{makemodel_rows} > 1)) ? 1 : 0;
 
-  $form->{assembly} = ($form->{item} eq 'assembly') ? 1 : 0;
 
   my ($query, $sth);
 
@@ -291,7 +290,7 @@ sub save {
     $form->{partnumber} ||= $trans_number->create_unique;
 
     ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
-    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit) VALUES (?, ?, ?)|, $form->{id}, $form->{partnumber}, $form->{unit});
+    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit, part_type) VALUES (?, ?, ?, ?)|, $form->{id}, $form->{partnumber}, $form->{unit}, $form->{item});
 
     $form->{orphaned} = 1;
   }
@@ -327,7 +326,6 @@ sub save {
          partnumber = ?,
          description = ?,
          makemodel = ?,
-         assembly = ?,
          listprice = ?,
          sellprice = ?,
          lastcost = ?,
@@ -353,6 +351,7 @@ sub save {
          has_sernumber = ?,
          not_discountable = ?,
          microfiche = ?,
+         part_type = ?,
          partsgroup_id = ?,
          price_factor_id = ?
          $priceupdate
@@ -360,7 +359,6 @@ sub save {
   @values = ($form->{partnumber},
              $form->{description},
              $makemodel ? 't' : 'f',
-             $form->{assembly} ? 't' : 'f',
              $form->{listprice},
              $form->{sellprice},
              $form->{lastcost},
@@ -384,6 +382,7 @@ sub save {
              $form->{has_sernumber} ? 't' : 'f',
              $form->{not_discountable} ? 't' : 'f',
              $form->{microfiche},
+             $form->{item},
              conv_i($partsgroup_id),
              conv_i($form->{price_factor_id}),
              conv_i($form->{id})
@@ -572,7 +571,7 @@ sub retrieve_assemblies {
           FROM parts p2, assembly a
           WHERE (p2.id = a.parts_id) AND (a.id = p.id)) AS inventory
        FROM parts p
-       WHERE NOT p.obsolete AND p.assembly $where|;
+       WHERE NOT p.obsolete AND p.part_type = 'assembly' $where|;
 
   $form->{assembly_items} = selectall_hashref_query($form, $dbh, $query, @values);
 
@@ -891,10 +890,9 @@ sub all_parts {
   }
 
   for ($form->{searchitems}) {
-    push @where_tokens, 'p.inventory_accno_id > 0'     if /part/;
-    push @where_tokens, 'p.inventory_accno_id IS NULL' if /service/;
-    push @where_tokens, 'NOT p.assembly'               if /service/;
-    push @where_tokens, '    p.assembly'               if /assembly/;
+    push @where_tokens, "p.part_type = 'part'"     if /part/;
+    push @where_tokens, "p.part_type = 'service'"  if /service/;
+    push @where_tokens, "p.part_type = 'assembly'" if /assembly/;
   }
 
   for ($form->{itemstatus}) {

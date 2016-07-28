@@ -77,7 +77,8 @@ sub flatten_to_form {
 
     $form->{"partsgroup_${idx}"} = $item->part->partsgroup->partsgroup if _has($item->part, 'partsgroup_id');
     _copy($item,          $form, "${items_name}_", "_${idx}", 0,               qw(id)) if $items_name;
-    _copy($item->part,    $form, '',               "_${idx}", 0,               qw(id partnumber weight assembly));
+    # TODO: is part_type correct here? Do we need to set part_type as default?
+    _copy($item->part,    $form, '',               "_${idx}", 0,               qw(id partnumber weight part_type));
     _copy($item->part,    $form, '',               "_${idx}", 0,               qw(listprice));
     _copy($item,          $form, '',               "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
                                                                                   subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate

@@ -1075,7 +1075,7 @@ sub retrieve {
            c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from as income_valid,
            c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from as expense_valid,
            oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,
-           p.partnumber, p.assembly, p.listprice, o.description, o.qty,
+           p.partnumber, p.part_type, p.listprice, o.description, o.qty,
            o.sellprice, o.parts_id AS id, o.unit, o.discount, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
            o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
            o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,

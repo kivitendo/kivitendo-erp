@@ -79,16 +79,15 @@ sub filter_parts {
   }
 
   if ($::form->{filter_type} eq 'assembly') {
-    $where .= ' AND assembly';
+    $where .= " AND part_type = 'assembly'";
   }
 
   if ($::form->{filter_type} eq 'service') {
-    $where .= ' AND inventory_accno_id IS NULL AND NOT assembly';
+    $where .= " AND part_type = 'service'";
   }
 
   if ($::form->{filter_type} eq 'part') {
-    $where .= ' AND inventory_accno_id IS NOT NULL';
-    $where .= ' AND NOT assembly';
+    $where .= " AND part_type = 'part'";
   }
 
   if ($::form->{filter_obsolete} eq 'obsolete') {

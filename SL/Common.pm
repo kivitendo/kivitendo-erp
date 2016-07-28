@@ -66,14 +66,14 @@ sub retrieve_parts {
   }
 
   if ($form->{no_assemblies}) {
-    $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
+    $filter .= qq| AND (NOT part_type = 'assembly')|;
   }
   if ($form->{assemblies}) {
-    $filter .= qq| AND assembly=TRUE|;
+    $filter .= qq| AND part_type = 'assembly'|;
   }
 
   if ($form->{no_services}) {
-    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|;
+    $filter .= qq| AND NOT (part_type = 'service' OR part_type = 'assembly')|;
   }
 
   substr($filter, 1, 3) = "WHERE" if ($filter);

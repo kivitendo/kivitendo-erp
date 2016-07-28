@@ -20,7 +20,7 @@ my $assembly_item_part = SL::DB::Manager::Part->find_by( partnumber => '19000' )
 
 is($assembly_part->inventory_accno_id, undef, "assembly doesn't have an inventory accno id");
 
-is($assembly_part->type, 'assembly', 'assembly has correct type');
+is($assembly_part->part_type, 'assembly', 'assembly has correct type');
 is( scalar @{$assembly_part->assemblies}, 2, 'assembly consists of two parts' );
 
 # fetch assembly item corresponding to partnumber 19000
@@ -46,6 +46,7 @@ sub reset_state {
 
   $part1 = SL::DB::Part->new_part(partnumber => '19000',
                                   unit       => $unit->name,
+                                  part_type  => 'part',
                                  )->save;
   $part2 = $part1->clone_and_reset($part1);
   $part2->partnumber($part1->partnumber + 1);
@@ -54,7 +55,6 @@ sub reset_state {
   $assembly_part = SL::DB::Part->new_assembly(partnumber         => 'as1',
                                                  description        => 'assembly',
                                                  unit               => $unit->name,
-                                                 inventory_accno_id => undef, # override
                                                 );
   $assembly_1 = SL::DB::Assembly->new(parts_id => $part1->id, qty => 3, bom => 1);
   $assembly_2 = SL::DB::Assembly->new(parts_id => $part2->id, qty => 3, bom => 1);

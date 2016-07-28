@@ -243,47 +243,48 @@ test {
 }, 'object test simple', class => 'SL::DB::Manager::Part';
 
 test {
-  'type' => 'assembly',
+  'part_type' => 'assembly',
 }, {
   query => [
-    'assembly' => 1
-  ],
+             'part_type',
+             'assembly'
+           ] ,
 }, 'object test without prefix', class => 'SL::DB::Manager::Part';
 
 test {
-  'part.type' => 'assembly',
+  'part.part_type' => 'assembly',
 }, {
   query => [
-    'part.assembly' => 1
-  ],
+             'part.part_type',
+             'assembly'
+           ]
 }, 'object test with prefix', class => 'SL::DB::Manager::OrderItem';
 
 test {
-  'type' => [ 'part', 'assembly' ],
+  'part_type' => [ 'part', 'assembly' ],
 }, {
   query => [
-    or => [
-     and => [ or => [ assembly => 0, assembly => undef ],
-              "!inventory_accno_id" => 0,
-              "!inventory_accno_id" => undef,
-     ],
-     assembly => 1,
-    ]
-  ],
+             'or',
+             [
+               'part_type',
+               'part',
+               'part_type',
+               'assembly'
+             ]
+           ]
 }, 'object test without prefix but complex value', class => 'SL::DB::Manager::Part';
-
 test {
-  'part.type' => [ 'part', 'assembly' ],
+  'part.part_type' => [ 'part', 'assembly' ],
 }, {
   query => [
-    or => [
-     and => [ or => [ 'part.assembly' => 0, 'part.assembly' => undef ],
-              "!part.inventory_accno_id" => 0,
-              "!part.inventory_accno_id" => undef,
-     ],
-     'part.assembly' => 1,
-    ]
-  ],
+             'or',
+             [
+               'part.part_type',
+               'part',
+               'part.part_type',
+               'assembly'
+             ]
+           ]
 }, 'object test with prefix but complex value', class => 'SL::DB::Manager::OrderItem';
 
 test {
