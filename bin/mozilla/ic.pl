@@ -79,9 +79,9 @@ sub add {
 
   $auth->assert('part_service_assembly_edit');
 
-  my $title                = 'Add ' . ucfirst $form->{item};
+  my $title                = 'Add ' . ucfirst $form->{part_type};
   $form->{title}           = $locale->text($title);
-  $form->{callback}        = "$form->{script}?action=add&item=$form->{item}" unless $form->{callback};
+  $form->{callback}        = "$form->{script}?action=add&part_type=$form->{part_type}" unless $form->{callback};
   $form->{unit_changeable} = 1;
 
   IC->get_pricegroups(\%myconfig, \%$form);
@@ -743,7 +743,7 @@ sub edit {
 
   $form->{"original_partnumber"} = $form->{"partnumber"};
 
-  my $title      = 'Edit ' . ucfirst $form->{item};
+  my $title      = 'Edit ' . ucfirst $form->{part_type};
   $form->{title} = $locale->text($title);
 
   &link_part;
@@ -763,8 +763,8 @@ sub link_part {
   map({ $form->{selectcurrency} .= "<option>$_\n" } $::form->get_all_currencies());
 
   # parts and assemblies have the same links
-  my $item = $form->{item};
-  if ($form->{item} eq 'assembly') {
+  my $item = $form->{part_type};
+  if ($form->{part_type} eq 'assembly') {
     $item = 'part';
   }
 
@@ -801,7 +801,7 @@ sub link_part {
   }
   chop $form->{taxaccounts};
 
-  if (($form->{item} eq "part") || ($form->{item} eq "assembly")) {
+  if (($form->{part_type} eq "part") || ($form->{part_type} eq "assembly")) {
     $form->{selectIC_income}  = $form->{selectIC_sale};
     $form->{selectIC_expense} = $form->{selectIC_cogs};
     $form->{IC_income}        = $form->{IC_sale};
@@ -820,7 +820,7 @@ sub link_part {
     map { $form->{selectpartsgroup} .= qq|<option value="$_->{partsgroup}--$_->{id}">$_->{partsgroup}\n| } @{ $form->{all_partsgroup} };
   }
 
-  if ($form->{item} eq 'assembly') {
+  if ($form->{part_type} eq 'assembly') {
 
     foreach my $i (1 .. $form->{assembly_rows}) {
       if ($form->{"partsgroup_id_$i"}) {
@@ -851,7 +851,7 @@ sub form_header {
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
   $form->{notes_rows}       =  max 4, $form->numtextrows($form->{notes}, 40), $form->numtextrows($form->{formel}, 40);
 
-  map { $form->{"is_$_"}  = ($form->{item} eq $_) } qw(part service assembly);
+  map { $form->{"is_$_"}  = ($form->{part_type} eq $_) } qw(part service assembly);
   map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
@@ -879,7 +879,7 @@ sub form_header {
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
 
-  if (($form->{partnumber} ne '') && !SL::TransNumber->new(number => $form->{partnumber}, type => $form->{item}, id => $form->{id})->is_unique) {
+  if (($form->{partnumber} ne '') && !SL::TransNumber->new(number => $form->{partnumber}, type => $form->{part_type}, id => $form->{id})->is_unique) {
     flash('info', $::locale->text('This partnumber is not unique. You should change it.'));
   }
 
@@ -1060,23 +1060,23 @@ sub update {
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
 
-  unless ($form->{item} eq 'assembly') {
+  unless ($form->{part_type} eq 'assembly') {
     # for assemblies check_form will parse sellprice and listprice, but not for parts or services
     $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(sellprice listprice ve gv);
   };
 
-  if ($form->{item} eq 'part') {
+  if ($form->{part_type} eq 'part') {
     $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(weight rop);
   }
 
   # same for makemodel lastcosts
   # but parse_amount not necessary for assembly component lastcosts
-  unless ($form->{item} eq "assembly") {
+  unless ($form->{part_type} eq "assembly") {
     map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
     $form->{lastcost} = $form->parse_amount(\%myconfig, $form->{lastcost});
   }
 
-  if ($form->{item} eq "assembly") {
+  if ($form->{part_type} eq "assembly") {
     my $i = $form->{assembly_rows};
 
     # if last row is empty check the form otherwise retrieve item
@@ -1124,7 +1124,7 @@ sub update {
       }
     }
 
-  } elsif (($form->{item} eq 'part') || ($form->{item} eq 'service')) {
+  } elsif (($form->{part_type} eq 'part') || ($form->{part_type} eq 'service')) {
     &check_form;
   }
 
@@ -1139,13 +1139,13 @@ sub save {
   my ($parts_id, %newform, $amount, $callback);
 
   # check if there is a part number - commented out, cause there is an automatic allocation of numbers
-  # $form->isblank("partnumber", $locale->text(ucfirst $form->{item}." Part Number missing!"));
+  # $form->isblank("partnumber", $locale->text(ucfirst $form->{part_type}." Part Number missing!"));
 
   # check if there is a description
   $form->isblank("description", $locale->text("Part Description missing!"));
 
-  $form->error($locale->text("Inventory quantity must be zero before you can set this $form->{item} obsolete!"))
-    if $form->{obsolete} && $form->{onhand} * 1 && $form->{item} ne 'service';
+  $form->error($locale->text("Inventory quantity must be zero before you can set this $form->{part_type} obsolete!"))
+    if $form->{obsolete} && $form->{onhand} * 1 && $form->{part_type} ne 'service';
 
   if (!$form->{buchungsgruppen_id}) {
     $form->error($locale->text("Parts must have an entry type.") . " " .
@@ -1192,7 +1192,7 @@ sub save {
     $::auth->restore_form_from_session($newform{previousform}, form => $form);
     $form->{taxaccounts} = $newform{taxaccount2};
 
-    if ($form->{item} eq 'assembly') {
+    if ($form->{part_type} eq 'assembly') {
 
       # undo number formatting
       map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
@@ -1383,8 +1383,8 @@ sub display_form {
 
   form_header();
   price_row($::form->{price_rows});
-  makemodel_row(++$::form->{makemodel_rows}) if $::form->{item} =~ /^(part|service)$/;
-  assembly_row(++$::form->{assembly_rows})   if $::form->{item} eq 'assembly';
+  makemodel_row(++$::form->{makemodel_rows}) if $::form->{part_type} =~ /^(part|service)$/;
+  assembly_row(++$::form->{assembly_rows})   if $::form->{part_type} eq 'assembly';
 
   form_footer();
 

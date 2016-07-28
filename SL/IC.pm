@@ -77,10 +77,8 @@ sub get_part {
   $form->{lastmtime} = $form->{mtime};
   $form->{onhand} *= 1;
 
-  die "part needs a part_type" unless $form->{part_type}; # TODO from part_type enum conversion
   # part or service item
-  $form->{item} = $form->{part_type};
-  if ($form->{item} eq 'assembly') {
+  if ($form->{part_type} eq 'assembly') {
 
     # retrieve assembly items
     $query =
@@ -253,7 +251,7 @@ sub save {
   my $priceupdate = ', priceupdate = current_date';
 
   if ($form->{id}) {
-    my $trans_number = SL::TransNumber->new(type => $form->{item}, dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
+    my $trans_number = SL::TransNumber->new(type => $form->{part_type}, dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
     if (!$trans_number->is_unique) {
       $::lxdebug->leave_sub;
       return 3;
@@ -266,7 +264,7 @@ sub save {
     # delete makemodel records
     do_query($form, $dbh, qq|DELETE FROM makemodel WHERE parts_id = ?|, conv_i($form->{id}));
 
-    if ($form->{item} eq 'assembly') {
+    if ($form->{part_type} eq 'assembly') {
       # delete assembly records
       do_query($form, $dbh, qq|DELETE FROM assembly WHERE id = ?|, conv_i($form->{id}));
     }
@@ -280,7 +278,7 @@ sub save {
     $priceupdate        = '' if (all { $previous_values->{$_} == $form->{$_} } qw(sellprice lastcost listprice));
 
   } else {
-    my $trans_number = SL::TransNumber->new(type => $form->{item}, dbh => $dbh, number => $form->{partnumber}, save => 1);
+    my $trans_number = SL::TransNumber->new(type => $form->{part_type}, dbh => $dbh, number => $form->{partnumber}, save => 1);
 
     if ($form->{partnumber} && !$trans_number->is_unique) {
       $::lxdebug->leave_sub;
@@ -290,7 +288,7 @@ sub save {
     $form->{partnumber} ||= $trans_number->create_unique;
 
     ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
-    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit, part_type) VALUES (?, ?, ?, ?)|, $form->{id}, $form->{partnumber}, $form->{unit}, $form->{item});
+    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit, part_type) VALUES (?, ?, ?, ?)|, $form->{id}, $form->{partnumber}, $form->{unit}, $form->{part_type});
 
     $form->{orphaned} = 1;
   }
@@ -301,7 +299,7 @@ sub save {
   }
 
   my ($subq_inventory, $subq_expense, $subq_income);
-  if ($form->{"item"} eq "part") {
+  if ($form->{part_type} eq "part") {
     $subq_inventory =
       qq|(SELECT bg.inventory_accno_id
           FROM buchungsgruppen bg
@@ -310,7 +308,7 @@ sub save {
     $subq_inventory = "NULL";
   }
 
-  if ($form->{"item"} ne "assembly") {
+  if ($form->{part_type} ne "assembly") {
     $subq_expense =
       qq|(SELECT tc.expense_accno_id
           FROM taxzone_charts tc
@@ -382,7 +380,7 @@ sub save {
              $form->{has_sernumber} ? 't' : 'f',
              $form->{not_discountable} ? 't' : 'f',
              $form->{microfiche},
-             $form->{item},
+             $form->{part_type},
              conv_i($partsgroup_id),
              conv_i($form->{price_factor_id}),
              conv_i($form->{id})
@@ -449,7 +447,7 @@ sub save {
     }
 
   # add assembly records
-  if ($form->{item} eq 'assembly') {
+  if ($form->{part_type} eq 'assembly') {
     # check additional assembly row
     my $i = $form->{assembly_rows};
     # if last row is not empty add them

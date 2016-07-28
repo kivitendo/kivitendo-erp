@@ -672,8 +672,8 @@ sub item_selected {
     map {
       $form->{"${_}_$i"} =
           $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-    } qw(sellprice lastcost qty) if $form->{item} ne 'assembly';
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{item} ne 'assembly';
+    } qw(sellprice lastcost qty) if $form->{part_type} ne 'assembly';
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100.0) if $form->{part_type} ne 'assembly';
 
     delete $form->{nextsub};
 
@@ -727,7 +727,7 @@ sub check_form {
   my $count = 0;
 
   # remove any makes or model rows
-  if ($form->{item} eq 'assembly') {
+  if ($form->{part_type} eq 'assembly') {
 
     # fuer assemblies auskommentiert. seiteneffekte? ;-) wird die woanders benoetigt?
     #$form->{sellprice} = 0;
@@ -760,7 +760,7 @@ sub check_form {
     $form->redo_rows(\@flds, \@a, $count, $form->{assembly_rows});
     $form->{assembly_rows} = $count;
 
-  } elsif ($form->{item} !~ m{^(?:part|service)$}) {
+  } elsif ($form->{part_type} !~ m{^(?:part|service)$}) {
     remove_emptied_rows(1);
 
     $form->{creditremaining} -= &invoicetotal;
