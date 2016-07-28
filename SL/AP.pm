@@ -40,17 +40,24 @@ use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::Util qw(trim);
+use SL::DB;
 use Data::Dumper;
 
 use strict;
 
 sub post_transaction {
+  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_transaction, $self, $myconfig, $form, $provided_dbh, $payments_only);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_transaction {
   my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
-  my $rc = 0; # return code auf false setzen
-  # connect to database
-  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
 
   my ($null, $taxrate, $amount);
   my $exchangerate = 0;
@@ -381,21 +388,11 @@ sub post_transaction {
     $datev->export;
 
     if ($datev->errors) {
-      $dbh->rollback;
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
     }
   }
 
-  if (!$provided_dbh) {
-    $dbh->commit();
-    $dbh->disconnect();
-  }
-
-  $rc = 1; #  Den return-code auf true setzen, aber nur falls beim commit alles i.O. ist
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub delete_transaction {
@@ -403,19 +400,14 @@ sub delete_transaction {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  # acc_trans entries are deleted by database triggers.
-  my $query = qq|DELETE FROM ap WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
+  SL::DB->client->with_transaction(sub {
+    my $query = qq|DELETE FROM ap WHERE id = ?|;
+    do_query($form, SL::DB->client->dbh, $query, $form->{id});
+  });
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return 1;
 }
 
 sub ap_transactions {
@@ -626,12 +618,19 @@ sub _delete_payments {
 }
 
 sub post_payment {
+  my ($self, $myconfig, $form, $locale) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_payment, $self, $myconfig, $form, $locale);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_payment {
   my ($self, $myconfig, $form, $locale) = @_;
 
-  # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -680,12 +679,7 @@ sub post_payment {
 
   restore_form($old_form);
 
-  my $rc = $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub setup_form {
@@ -819,12 +813,20 @@ sub setup_form {
 }
 
 sub storno {
+  my ($self, $form, $myconfig, $id) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_storno, $self, $form, $myconfig, $id);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _storno {
   my ($self, $form, $myconfig, $id) = @_;
 
   my ($query, $new_id, $storno_row, $acc_trans_rows);
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $query = qq|SELECT nextval('glid')|;
   ($new_id) = selectrow_query($form, $dbh, $query);
@@ -869,9 +871,7 @@ sub storno {
 
   map { IO->set_datepaid(table => 'ap', id => $_, dbh => $dbh) } ($id, $new_id);
 
-  $dbh->commit;
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 1;
