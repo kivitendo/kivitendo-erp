@@ -43,7 +43,7 @@ sub discount_from_source {
     )
   }
 
-  if (!$self->record->customer) {
+  if (!$self->record->can('customer') || !$self->record->customer) {
     return SL::PriceSource::Discount->new(
       discount     => $customer->discount,
       spec         => $customer->id,
