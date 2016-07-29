@@ -6,11 +6,11 @@
 Alle: <br>
 [% L.part_picker('part_id') %] text<br>
 Nur Waren: <br>
-[% L.part_picker('part_id2', undef, type='part') %]<br>
+[% L.part_picker('part_id2', undef, part_type='part') %]<br>
 Nur Dienstleistungen: <br>
-[% L.part_picker('part_id3', undef, type='service') %]<br>
+[% L.part_picker('part_id3', undef, part_type='service') %]<br>
 Waren und Dienstleistungen: <br>
-[% L.part_picker('part_id4', undef, type='part,service') %]<br>
+[% L.part_picker('part_id4', undef, part_type='part,service') %]<br>
 Pre-filled:<br>
 [% L.part_picker('part_id5', pre_filled_part) %]<br>
 Convertible unit 'Std': (only select parts with unit Tag/Std/Min)<br>
@@ -18,17 +18,17 @@ Convertible unit 'Std': (only select parts with unit Tag/Std/Min)<br>
 
 <h2>Styling</h2>
 
-Ina span:
-<span>Leading text: [% L.part_picker('p1', undef, type='part,service') %] and text after with spacing</span><br>
-<span>Leading text:[% L.part_picker('p2', undef, type='part,service') %]and text after without spacing</span><br>
-<div>Leading text: [% L.part_picker('p3', undef, type='part,service') %] and text after with spacing with div</div><br>
-<div>Leading text:[% L.part_picker('p4', undef, type='part,service') %]and text after with spacing with div</div><br>
+In a span:
+<span>Leading text: [% L.part_picker('p1', undef, part_type='part,service') %] and text after with spacing</span><br>
+<span>Leading text:[% L.part_picker('p2', undef, part_type='part,service') %]and text after without spacing</span><br>
+<div>Leading text: [% L.part_picker('p3', undef, part_type='part,service') %] and text after with spacing with div</div><br>
+<div>Leading text:[% L.part_picker('p4', undef, part_type='part,service') %]and text after with spacing with div</div><br>
 
-<span>Picker + input next to each other: [% L.part_picker('p5', undef, type='part,service', width="100%") %]<input type=text></span>
+<span>Picker + input next to each other: [% L.part_picker('p5', undef, part_type='part,service', width="100%") %]<input type=text></span>
 
-<div>[% L.part_picker('p6', undef, type='part,service', style="width:500px") %] 500px width</div>
-<div>[% L.part_picker('p7', undef, type='part,service', style="width:200px") %] 200px width</div>
-<div>[% L.part_picker('p8', undef, type='part,service', style="height:40px") %] 40px height</div>
+<div>[% L.part_picker('p6', undef, part_type='part,service', style="width:500px") %] 500px width</div>
+<div>[% L.part_picker('p7', undef, part_type='part,service', style="width:200px") %] 200px width</div>
+<div>[% L.part_picker('p8', undef, part_type='part,service', style="height:40px") %] 40px height</div>
 
 [%# FOREACH i IN 1..50 %]
 [%# L.part_picker('part_id_' _ i) %] <br>
@@ -41,11 +41,11 @@ Ina span:
 <table>
  <tr>
   <th>Part picker in table heading</th>
-  <th>[% L.part_picker('p9', undef, type='part,service') %]</th>
+  <th>[% L.part_picker('p9', undef, part_type='part,service') %]</th>
  </tr>
  <tr>
   <td>Part picker in table cell</td>
-  <td>[% L.part_picker('p10', undef, type='part,service') %]</td>
+  <td>[% L.part_picker('p10', undef, part_type='part,service') %]</td>
  </tr>
 </table>
 
@@ -54,10 +54,10 @@ Ina span:
 <table>
  <tr class=listheading>
   <th>Part picker in table heading</th>
-  <th>[% L.part_picker('p11', undef, type='part,service') %]</th>
+  <th>[% L.part_picker('p11', undef, part_type='part,service') %]</th>
  </tr>
  <tr class=listrow>
   <td>Part picker in table cell</td>
-  <td>[% L.part_picker('p12', undef, type='part,service') %]</td>
+  <td>[% L.part_picker('p12', undef, part_type='part,service') %]</td>
  </tr>
 </table>

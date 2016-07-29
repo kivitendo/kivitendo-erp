@@ -16,7 +16,7 @@ sub object_class { 'SL::DB::Part' }
 
 __PACKAGE__->make_manager_methods;
 __PACKAGE__->add_filter_specs(
-  type => sub {
+  part_type => sub {
     my ($key, $value, $prefix) = @_;
     return __PACKAGE__->type_filter($value, $prefix);
   },

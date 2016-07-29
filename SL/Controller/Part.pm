@@ -29,7 +29,7 @@ sub action_ajax_autocomplete {
     if (1 == scalar @{ $exact_matches = SL::DB::Manager::Part->get_all(
       query => [
         obsolete => 0,
-        SL::DB::Manager::Part->type_filter($::form->{filter}{type}),
+        SL::DB::Manager::Part->type_filter($::form->{filter}{part_type}),
         or => [
           description => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           partnumber  => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
@@ -48,7 +48,7 @@ sub action_ajax_autocomplete {
      id          => $_->id,
      partnumber  => $_->partnumber,
      description => $_->description,
-     type        => $_->type,
+     part_type   => $_->part_type,
      unit        => $_->unit,
      cvars       => { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $_->cvars_by_config } },
     }
