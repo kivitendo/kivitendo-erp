@@ -46,6 +46,7 @@ use SL::DB::Printer;
 use SL::DB::Language;
 use SL::TransNumber;
 use SL::Util qw(trim);
+use SL::DB;
 
 use strict;
 
@@ -55,7 +56,7 @@ sub get_config {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT * | .
@@ -73,18 +74,23 @@ sub get_config {
        FROM defaults|;
   ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}) = selectrow_query($form, $dbh, $query);
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
 sub save_config {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_config, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_config {
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, @values);
 
@@ -132,10 +138,7 @@ sub save_config {
   @values = (conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR}));
   do_query($form, $dbh, $query, @values);
 
-  $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub create_invoice_for_fees {
@@ -283,12 +286,22 @@ sub create_invoice_for_fees {
   $main::lxdebug->leave_sub();
 }
 
+
 sub save_dunning {
+  my ($self, $myconfig, $form, $rows) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_dunning, $self, $myconfig, $form, $rows);
+  $::lxdebug->leave_sub;
+
+  return $rc;
+}
+
+
+sub _save_dunning {
   my ($self, $myconfig, $form, $rows) = @_;
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, @values);
 
@@ -353,10 +366,7 @@ sub save_dunning {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
   }
 
-  $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub send_email {
@@ -479,7 +489,7 @@ sub get_invoices {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $where;
   my @values;
@@ -596,7 +606,6 @@ sub get_invoices {
   $query = qq|SELECT id, dunning_description FROM dunning_config ORDER BY dunning_level|;
   $form->{DUNNING_CONFIG} = selectall_hashref_query($form, $dbh, $query);
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -607,7 +616,7 @@ sub get_dunning {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $where = qq| WHERE (da.trans_id = a.id)|;
 
@@ -709,7 +718,6 @@ sub get_dunning {
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest);
   }
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -765,7 +773,7 @@ sub print_dunning {
   my ($self, $myconfig, $form, $dunning_id, $provided_dbh) = @_;
 
   # connect to database
-  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
 
   $dunning_id =~ s|[^\d]||g;
 
@@ -892,8 +900,6 @@ sub print_dunning {
 
   $form->parse_template($myconfig);
 
-  $dbh->disconnect() unless $provided_dbh;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -902,7 +908,7 @@ sub print_invoice_for_fees {
 
   my ($self, $myconfig, $form, $dunning_id, $provided_dbh) = @_;
 
-  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect($myconfig);
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
 
   my ($query, @values, $sth);
 
@@ -988,8 +994,6 @@ sub print_invoice_for_fees {
   push @{ $form->{DUNNING_PDFS} }, $filename;
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
                                            'name'     => "dunning_invoice_${dunning_id}.pdf" };
-
-  $dbh->disconnect() unless $provided_dbh;
 
   $main::lxdebug->leave_sub();
 }
