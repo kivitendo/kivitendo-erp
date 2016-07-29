@@ -37,7 +37,7 @@ sub part_picker {
 
   my $ret =
     $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type unit convertible_unit)) .
+    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(part_type unit convertible_unit)) .
     $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('autocomplete_part.js');
@@ -105,7 +105,7 @@ C<PART PICKER SPECIFICATION>.
 
 C<$value> can be a parts id or a C<Rose::DB:Object> instance.
 
-If C<%params> contains C<type> only parts of this type will be used
+If C<%params> contains C<part_type> only parts of this type will be used
 for autocompletion. You may comma separate multiple types as in
 C<part,assembly>.
 

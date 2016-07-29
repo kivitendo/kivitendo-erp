@@ -28,9 +28,9 @@ namespace('kivi', function(k){
       UNDEFINED: CLASSES.UNDEFINED
     }
     var real_id = $real.attr('id');
-    var $dummy  = $('#' + real_id + '_name');
-    var $type   = $('#' + real_id + '_type');
-    var $unit   = $('#' + real_id + '_unit');
+    var $dummy     = $('#' + real_id + '_name');
+    var $part_type = $('#' + real_id + '_part_type');
+    var $unit      = $('#' + real_id + '_unit');
     var $convertible_unit = $('#' + real_id + '_convertible_unit');
     var state   = STATES.PICKED;
     var last_real = $real.val();
@@ -63,8 +63,8 @@ namespace('kivi', function(k){
         current:  $real.val(),
       };
 
-      if ($type && $type.val())
-        data['filter.type'] = $type.val().split(',');
+      if ($part_type && $part_type.val())
+        data['filter.part_type'] = $part_type.val().split(',');
 
       if ($unit && $unit.val())
         data['filter.unit'] = $unit.val().split(',');
@@ -244,7 +244,7 @@ namespace('kivi', function(k){
     var pp = {
       real:           function() { return $real },
       dummy:          function() { return $dummy },
-      type:           function() { return $type },
+      part_type:      function() { return $part_type },
       unit:           function() { return $unit },
       convertible_unit: function() { return $convertible_unit },
       update_results: update_results,
