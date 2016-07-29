@@ -31,6 +31,7 @@ use strict;
 
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
+use SL::DB;
 
 use Data::Dumper;
 use DateTime;
@@ -233,7 +234,7 @@ sub dbh {
     $self->{provided_dbh} = 1;
   }
 
-  $self->{dbh} ||= $::form->get_standard_dbh;
+  $self->{dbh} ||= SL::DB->client->dbh;
 }
 
 sub provided_dbh {
@@ -285,14 +286,14 @@ sub get_datev_stamm {
 sub save_datev_stamm {
   my ($self, $data) = @_;
 
-  do_query($::form, $self->dbh, 'DELETE FROM datev');
+  SL::DB->client->with_transaction(sub {
+    do_query($::form, $self->dbh, 'DELETE FROM datev');
 
-  my @columns = qw(beraternr beratername dfvkz mandantennr datentraegernr abrechnungsnr);
+    my @columns = qw(beraternr beratername dfvkz mandantennr datentraegernr abrechnungsnr);
 
-  my $query = "INSERT INTO datev (" . join(', ', @columns) . ") VALUES (" . join(', ', ('?') x @columns) . ")";
-  do_query($::form, $self->dbh, $query, map { $data->{$_} } @columns);
-
-  $self->dbh->commit unless $self->provided_dbh;
+    my $query = "INSERT INTO datev (" . join(', ', @columns) . ") VALUES (" . join(', ', ('?') x @columns) . ")";
+    do_query($::form, $self->dbh, $query, map { $data->{$_} } @columns);
+  });
 }
 
 sub export {
@@ -1236,6 +1237,10 @@ This is a list of attributes set in either the C<new> or a method of the same na
 
 Set a database handle to use in the process. This allows for an export to be
 done on a transaction in progress without committing first.
+
+Note: If you don't want this code to commit, simply providing a dbh is not
+enough enymore. You'll have to wrap the call into a transaction yourself, so
+that the internal transaction does not commit.
 
 =item exporttype
 
