@@ -3,6 +3,7 @@
 package TODO;
 
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -59,42 +60,42 @@ sub save_user_config {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my $query    = qq|SELECT id FROM employee WHERE login = ?|;
+    my $query    = qq|SELECT id FROM employee WHERE login = ?|;
 
-  my ($id)     = selectfirst_array_query($form, $dbh, $query, $params{login});
+    my ($id)     = selectfirst_array_query($form, $dbh, $query, $params{login});
 
-  if (!$id) {
-    $main::lxdebug->leave_sub();
-    return;
-  }
+    if (!$id) {
+      $main::lxdebug->leave_sub();
+      return;
+    }
 
-  $query =
-    qq|SELECT show_after_login
-       FROM todo_user_config
-       WHERE employee_id = ?|;
+    $query =
+      qq|SELECT show_after_login
+         FROM todo_user_config
+         WHERE employee_id = ?|;
 
-  if (! selectfirst_hashref_query($form, $dbh, $query, $id)) {
-    do_query($form, $dbh, qq|INSERT INTO todo_user_config (employee_id) VALUES (?)|, $id);
-  }
+    if (! selectfirst_hashref_query($form, $dbh, $query, $id)) {
+      do_query($form, $dbh, qq|INSERT INTO todo_user_config (employee_id) VALUES (?)|, $id);
+    }
 
-  $query =
-    qq|UPDATE todo_user_config SET
-         show_after_login = ?,
-         show_follow_ups = ?,
-         show_follow_ups_login = ?,
-         show_overdue_sales_quotations = ?,
-         show_overdue_sales_quotations_login = ?
+    $query =
+      qq|UPDATE todo_user_config SET
+           show_after_login = ?,
+           show_follow_ups = ?,
+           show_follow_ups_login = ?,
+           show_overdue_sales_quotations = ?,
+           show_overdue_sales_quotations_login = ?
 
-       WHERE employee_id = ?|;
+         WHERE employee_id = ?|;
 
-  my @values = map { $params{$_} ? 't' : 'f' } qw(show_after_login show_follow_ups show_follow_ups_login show_overdue_sales_quotations show_overdue_sales_quotations_login);
-  push @values, $id;
+    my @values = map { $params{$_} ? 't' : 'f' } qw(show_after_login show_follow_ups show_follow_ups_login show_overdue_sales_quotations show_overdue_sales_quotations_login);
+    push @values, $id;
 
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->commit();
+    do_query($form, $dbh, $query, @values);
+  });
 
   $main::lxdebug->leave_sub();
 }
