@@ -36,6 +36,7 @@
 
 package CP;
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -192,13 +193,20 @@ SQL
 }
 
 sub process_payment {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_process_payment, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _process_payment {
   my ($self, $myconfig, $form) = @_;
   my $amount;
 
-  # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($paymentaccno) = split /--/, $form->{account};
 
@@ -356,17 +364,8 @@ sub process_payment {
       # /saving the history
     }
   }
-  my $rc;
-  # Hier wurden negativen Zahlungseingänge abgefangen
-  # da Zahlungsein- und ausgänge immer positiv sind
-  # Besser: in Oberfläche schon prüfen erledigt jb 10.2010
-    $rc = $dbh->commit;
 
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 1;
