@@ -35,6 +35,7 @@
 package BP;
 
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -83,8 +84,6 @@ sub get_vc {
     $sth->finish;
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -94,7 +93,7 @@ sub payment_accounts {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT DISTINCT ON (s.chart_id) c.accno, c.description | .
@@ -109,7 +108,6 @@ sub payment_accounts {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -119,8 +117,7 @@ sub get_spoolfiles {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, $arap, @values);
   my $invnumber = "invnumber";
@@ -227,7 +224,6 @@ sub get_spoolfiles {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -239,42 +235,36 @@ sub delete_spool {
 
   my $spool = $::lx_office_conf{paths}->{spool};
 
-  # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query;
+    my $query;
 
-  if ($form->{type} =~ /(check|receipt)/) {
-    $query = qq|DELETE FROM status WHERE spoolfile = ?|;
-  } else {
-    $query =
-      qq|UPDATE status SET spoolfile = NULL, printed = '1' | .
-      qq|WHERE spoolfile = ?|;
-  }
-  my $sth = $dbh->prepare($query) || $form->dberror($query);
-
-  foreach my $i (1 .. $form->{rowcount}) {
-    if ($form->{"checked_$i"}) {
-      $sth->execute($form->{"spoolfile_$i"}) || $form->dberror($query);
-      $sth->finish;
+    if ($form->{type} =~ /(check|receipt)/) {
+      $query = qq|DELETE FROM status WHERE spoolfile = ?|;
+    } else {
+      $query =
+        qq|UPDATE status SET spoolfile = NULL, printed = '1' | .
+        qq|WHERE spoolfile = ?|;
     }
-  }
+    my $sth = $dbh->prepare($query) || $form->dberror($query);
 
-  # commit
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
+    foreach my $i (1 .. $form->{rowcount}) {
+      if ($form->{"checked_$i"}) {
+        $sth->execute($form->{"spoolfile_$i"}) || $form->dberror($query);
+        $sth->finish;
+      }
+    }
 
-  if ($rc) {
     foreach my $i (1 .. $form->{rowcount}) {
       if ($form->{"checked_$i"}) {
         unlink(qq|$spool/$form->{"spoolfile_$i"}|);
       }
     }
-  }
+  });
 
   $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub print_spool {
@@ -285,7 +275,7 @@ sub print_spool {
   my $spool = $::lx_office_conf{paths}->{spool};
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|UPDATE status SET printed = '1' | .
@@ -315,8 +305,6 @@ sub print_spool {
 
     }
   }
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
