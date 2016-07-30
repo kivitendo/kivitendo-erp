@@ -56,7 +56,7 @@ sub redirect_to_search {
     controller   => 'ic.pl',
     action       => 'generate_report',
     all          => $term,
-    (searchitems => $self->type) x!!$self->type,
+    (searchitems => $self->part_type) x!!$self->part_type,
   );
 }
 
@@ -70,7 +70,7 @@ sub redirect_to_part {
   );
 }
 
-sub type {
+sub part_type {
   ()
 }
 
@@ -82,7 +82,7 @@ sub init_models {
     model      => 'Part',
     source     => {
       filter => {
-        (type => $self->type) x!!$self->type,
+        (part_type => $self->part_type) x!!$self->part_type,
         'all:substr:multi::ilike' => $::form->{term},
       },
     },
