@@ -11,6 +11,6 @@ sub description_config { t8('Assemblies') }
 
 sub description_field { t8('Assemblies') }
 
-sub type { 'assembly' }
+sub part_type { 'assembly' }
 
 1;
