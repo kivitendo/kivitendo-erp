@@ -144,6 +144,7 @@ sub report {
 
   $::form->{title} = $title{$::form->{report}};
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
+  $::request->{layout}->add_javascripts('autocomplete_project.js');
   $::form->{fromdate} = DateTime->today->truncate(to => 'year')->to_kivitendo;
   $::form->{todate} = DateTime->today->truncate(to => 'year')->add(years => 1)->add(days => -1)->to_kivitendo;
 

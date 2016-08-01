@@ -112,7 +112,7 @@
 [%- BLOCK projectnumber %]
   <tr>
     <th align=right nowrap>[% 'Project' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('project_id', ALL_PROJECTS, title_key = 'projectnumber', with_empty = 1) %]</td>
+    <td colspan=3>[% L.project_picker('project_id', '') %]</td>
   </tr>
 [%- END %]
 
