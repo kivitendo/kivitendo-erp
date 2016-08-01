@@ -7,6 +7,7 @@ use List::Util qw(first);
 
 use SL::DBUtils;
 use SL::Taxkeys;
+use SL::DB;
 
 sub new {
   my $type = shift;
@@ -698,7 +699,7 @@ sub fix_ap_ar_wrong_taxkeys {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my $query    = qq|SELECT 'ap' AS module,
                       at.acc_trans_id, at.trans_id, at.chart_id, at.amount, at.taxkey, at.transdate,
@@ -778,24 +779,24 @@ sub fix_ap_ar_wrong_taxkeys {
   }
 
   if (scalar @corrections) {
-    my $q_taxkey_only     = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
-    my $h_taxkey_only     = prepare_query($form, $dbh, $q_taxkey_only);
+    SL::DB->with_transaction(sub {
+      my $q_taxkey_only     = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
+      my $h_taxkey_only     = prepare_query($form, $dbh, $q_taxkey_only);
 
-    my $q_taxkey_chart_id = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
-    my $h_taxkey_chart_id = prepare_query($form, $dbh, $q_taxkey_chart_id);
+      my $q_taxkey_chart_id = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
+      my $h_taxkey_chart_id = prepare_query($form, $dbh, $q_taxkey_chart_id);
 
-    foreach my $entry (@corrections) {
-      if ($entry->{chart_id}) {
-        do_statement($form, $h_taxkey_chart_id, $q_taxkey_chart_id, $entry->{taxkey}, $entry->{chart_id}, $entry->{acc_trans_id});
-      } else {
-        do_statement($form, $h_taxkey_only, $q_taxkey_only, $entry->{taxkey}, $entry->{acc_trans_id});
+      foreach my $entry (@corrections) {
+        if ($entry->{chart_id}) {
+          do_statement($form, $h_taxkey_chart_id, $q_taxkey_chart_id, $entry->{taxkey}, $entry->{chart_id}, $entry->{acc_trans_id});
+        } else {
+          do_statement($form, $h_taxkey_only, $q_taxkey_only, $entry->{taxkey}, $entry->{acc_trans_id});
+        }
       }
-    }
 
-    $h_taxkey_only->finish();
-    $h_taxkey_chart_id->finish();
-
-    $dbh->commit() unless ($params{dbh});
+      $h_taxkey_only->finish();
+      $h_taxkey_chart_id->finish();
+    });
   }
 
   $main::lxdebug->leave_sub();
@@ -814,7 +815,7 @@ sub fix_invoice_inventory_with_taxkeys {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my $query    = qq|SELECT at.*, c.link
                     FROM acc_trans at
@@ -862,17 +863,16 @@ sub fix_invoice_inventory_with_taxkeys {
   }
 
   if (@corrections) {
-    $query = qq|UPDATE acc_trans SET taxkey = 0 WHERE acc_trans_id = ?|;
-    $sth   = prepare_query($form, $dbh, $query);
+    SL::DB->client->with_transaction(sub {
+      $query = qq|UPDATE acc_trans SET taxkey = 0 WHERE acc_trans_id = ?|;
+      $sth   = prepare_query($form, $dbh, $query);
 
-    foreach my $acc_trans_id (@corrections) {
-      do_statement($form, $sth, $query, $acc_trans_id);
-    }
+      foreach my $acc_trans_id (@corrections) {
+        do_statement($form, $sth, $query, $acc_trans_id);
+      }
 
-    $sth->finish();
-
-    $dbh->commit() unless ($params{dbh});
-#     $dbh->rollback();
+      $sth->finish();
+    });
   }
 
   $main::lxdebug->leave_sub();
@@ -889,41 +889,40 @@ sub fix_wrong_taxkeys {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my $q_taxkey_only  = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
-  my $h_taxkey_only  = prepare_query($form, $dbh, $q_taxkey_only);
+  SL::DB->client->with_transaction(sub {
+    my $q_taxkey_only  = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
+    my $h_taxkey_only  = prepare_query($form, $dbh, $q_taxkey_only);
 
-  my $q_taxkey_chart = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
-  my $h_taxkey_chart = prepare_query($form, $dbh, $q_taxkey_chart);
+    my $q_taxkey_chart = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
+    my $h_taxkey_chart = prepare_query($form, $dbh, $q_taxkey_chart);
 
-  my $q_transdate    = qq|SELECT transdate FROM acc_trans WHERE acc_trans_id = ?|;
-  my $h_transdate    = prepare_query($form, $dbh, $q_transdate);
+    my $q_transdate    = qq|SELECT transdate FROM acc_trans WHERE acc_trans_id = ?|;
+    my $h_transdate    = prepare_query($form, $dbh, $q_transdate);
 
-  foreach my $fix (@{ $params{fixes} }) {
-    next unless ($fix->{acc_trans_id});
+    foreach my $fix (@{ $params{fixes} }) {
+      next unless ($fix->{acc_trans_id});
 
-    do_statement($form, $h_taxkey_only, $q_taxkey_only, conv_i($fix->{taxkey}), conv_i($fix->{acc_trans_id}));
+      do_statement($form, $h_taxkey_only, $q_taxkey_only, conv_i($fix->{taxkey}), conv_i($fix->{acc_trans_id}));
 
-    next unless ($fix->{tax_entry_acc_trans_id});
+      next unless ($fix->{tax_entry_acc_trans_id});
 
-    do_statement($form, $h_transdate, $q_transdate, conv_i($fix->{tax_entry_acc_trans_id}));
-    my ($transdate) = $h_transdate->fetchrow_array();
+      do_statement($form, $h_transdate, $q_transdate, conv_i($fix->{tax_entry_acc_trans_id}));
+      my ($transdate) = $h_transdate->fetchrow_array();
 
-    my %all_taxes = $self->{taxkeys}->get_full_tax_info('transdate' => $transdate);
-    my $tax_info  = $all_taxes{taxkeys}->{ $fix->{taxkey} };
+      my %all_taxes = $self->{taxkeys}->get_full_tax_info('transdate' => $transdate);
+      my $tax_info  = $all_taxes{taxkeys}->{ $fix->{taxkey} };
 
-    next unless ($tax_info);
+      next unless ($tax_info);
 
-    do_statement($form, $h_taxkey_chart, $q_taxkey_chart, conv_i($fix->{taxkey}), conv_i($tax_info->{taxchart_id}), conv_i($fix->{tax_entry_acc_trans_id}));
-  }
+      do_statement($form, $h_taxkey_chart, $q_taxkey_chart, conv_i($fix->{taxkey}), conv_i($tax_info->{taxchart_id}), conv_i($fix->{tax_entry_acc_trans_id}));
+    }
 
-  $h_taxkey_only->finish();
-  $h_taxkey_chart->finish();
-  $h_transdate->finish();
-
-#   $dbh->rollback();
-  $dbh->commit() unless ($params{dbh});
+    $h_taxkey_only->finish();
+    $h_taxkey_chart->finish();
+    $h_transdate->finish();
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -939,19 +938,18 @@ sub delete_transaction {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  do_query($form, $dbh, qq|UPDATE ar SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
-  do_query($form, $dbh, qq|UPDATE ap SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
-  do_query($form, $dbh, qq|UPDATE gl SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
+  SL::DB->client->with_transaction(sub {
+    do_query($form, $dbh, qq|UPDATE ar SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
+    do_query($form, $dbh, qq|UPDATE ap SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
+    do_query($form, $dbh, qq|UPDATE gl SET storno_id = NULL WHERE storno_id = ?|, conv_i($params{trans_id}));
 
-  do_query($form, $dbh, qq|DELETE FROM ar        WHERE id       = ?|, conv_i($params{trans_id}));
-  do_query($form, $dbh, qq|DELETE FROM ap        WHERE id       = ?|, conv_i($params{trans_id}));
-  do_query($form, $dbh, qq|DELETE FROM gl        WHERE id       = ?|, conv_i($params{trans_id}));
-  do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, conv_i($params{trans_id}));
-
-#   $dbh->rollback();
-  $dbh->commit() unless ($params{dbh});
+    do_query($form, $dbh, qq|DELETE FROM ar        WHERE id       = ?|, conv_i($params{trans_id}));
+    do_query($form, $dbh, qq|DELETE FROM ap        WHERE id       = ?|, conv_i($params{trans_id}));
+    do_query($form, $dbh, qq|DELETE FROM gl        WHERE id       = ?|, conv_i($params{trans_id}));
+    do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, conv_i($params{trans_id}));
+  });
 
   $main::lxdebug->leave_sub();
 }
