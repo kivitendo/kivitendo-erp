@@ -66,17 +66,17 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { buchungsgruppen_id => 'id' },
   },
 
-  expense_accno => {
+  expense_account => {
     class       => 'SL::DB::Chart',
     key_columns => { expense_accno_id => 'id' },
   },
 
-  income_accno => {
+  income_account => {
     class       => 'SL::DB::Chart',
     key_columns => { income_accno_id => 'id' },
   },
 
-  inventory_accno => {
+  inventory_account => {
     class       => 'SL::DB::Chart',
     key_columns => { inventory_accno_id => 'id' },
   },
