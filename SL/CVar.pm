@@ -11,6 +11,7 @@ use Data::Dumper;
 use SL::DBUtils;
 use SL::MoreCommon qw(listify);
 use SL::Util qw(trim);
+use SL::DB;
 
 sub get_configs {
   $main::lxdebug->enter_sub();
@@ -200,8 +201,16 @@ sub get_custom_variables {
 }
 
 sub save_custom_variables {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_custom_variables, $self, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_custom_variables {
   my $self     = shift;
   my %params   = @_;
 
@@ -210,7 +219,7 @@ sub save_custom_variables {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my @configs  = $params{configs} ? @{ $params{configs} } : grep { $_->{module} eq $params{module} } @{ CVar->get_configs() };
 
@@ -267,9 +276,7 @@ sub save_custom_variables {
 
   $sth->finish();
 
-  $dbh->commit() unless $params{dbh};
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub render_inputs {
@@ -548,8 +555,16 @@ sub get_field_format_list {
 }
 
 sub save_custom_variables_validity {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_custom_variables_validity, $self, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_custom_variables_validity {
   my $self     = shift;
   my %params   = @_;
 
@@ -558,7 +573,7 @@ sub save_custom_variables_validity {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my (@where, @values);
   add_token(\@where, \@values, col => "config_id", val => $params{config_id}, esc => \&conv_i);
@@ -584,9 +599,7 @@ sub save_custom_variables_validity {
 
   $sth->finish();
 
-  $dbh->commit() unless $params{dbh};
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 my %_validity_sub_module_mapping = (
