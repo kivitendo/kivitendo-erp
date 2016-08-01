@@ -6,20 +6,29 @@ use List::Util qw(first);
 
 use SL::Common;
 use SL::DBUtils;
+use SL::DB;
 use SL::Notes;
 
 use strict;
 
 sub save {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save, $self, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save {
   my $self     = shift;
   my %params   = @_;
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
   my ($query, @values);
 
   if (!$params{id}) {
@@ -56,9 +65,7 @@ sub save {
 
   $sth->finish();
 
-  $dbh->commit() unless ($params{dbh});
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub finish {
@@ -72,11 +79,9 @@ sub finish {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $form->get_standard_dbh($myconfig);
-
-  do_query($form, $dbh, qq|UPDATE follow_ups SET done = TRUE WHERE id = ?|, conv_i($params{id}));
-
-  $dbh->commit();
+  SL::DB->client->with_transaction(sub {
+    do_query($form, SL::DB->client->dbh, qq|UPDATE follow_ups SET done = TRUE WHERE id = ?|, conv_i($params{id}));
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -92,15 +97,15 @@ sub delete {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = SL::DB->client->dbh;
 
-  my $id       = conv_i($params{id});
+    my $id       = conv_i($params{id});
 
-  do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|,                         $id);
-  do_query($form, $dbh, qq|DELETE FROM follow_ups      WHERE id = ?|,                                   $id);
-  do_query($form, $dbh, qq|DELETE FROM notes           WHERE (trans_id = ?) AND (trans_module = 'fu')|, $id);
-
-  $dbh->commit();
+    do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|,                         $id);
+    do_query($form, $dbh, qq|DELETE FROM follow_ups      WHERE id = ?|,                                   $id);
+    do_query($form, $dbh, qq|DELETE FROM notes           WHERE (trans_id = ?) AND (trans_module = 'fu')|, $id);
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -422,24 +427,24 @@ sub save_access_rights {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = SL::DB->client->dbh;
 
-  my ($id)     = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
+    my ($id)     = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $::myconfig{login});
 
-  do_query($form, $dbh, qq|DELETE FROM follow_up_access WHERE what = ?|, $id);
+    do_query($form, $dbh, qq|DELETE FROM follow_up_access WHERE what = ?|, $id);
 
-  my $query    = qq|INSERT INTO follow_up_access (who, what) VALUES (?, ?)|;
-  my $sth      = prepare_query($form, $dbh, $query);
+    my $query    = qq|INSERT INTO follow_up_access (who, what) VALUES (?, ?)|;
+    my $sth      = prepare_query($form, $dbh, $query);
 
-  while (my ($who, $access_allowed) = each %{ $params{access} }) {
-    next unless ($access_allowed);
+    while (my ($who, $access_allowed) = each %{ $params{access} }) {
+      next unless ($access_allowed);
 
-    do_statement($form, $sth, $query, conv_i($who), $id);
-  }
+      do_statement($form, $sth, $query, conv_i($who), $id);
+    }
 
-  $sth->finish();
-
-  $dbh->commit();
+    $sth->finish();
+  });
 
   $main::lxdebug->leave_sub();
 }
