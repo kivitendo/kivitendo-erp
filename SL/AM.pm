@@ -46,6 +46,7 @@ use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
 use SL::DB::Chart;
+use SL::DB;
 use SL::GenericTranslations;
 
 use strict;
@@ -122,15 +123,22 @@ sub get_account {
 }
 
 sub save_account {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_account, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_account {
   # TODO: it should be forbidden to change an account to a heading if there
   # have been bookings to this account in the past
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database, turn off AutoCommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   for (qw(AR_include_in_dropdown AP_include_in_dropdown summary_account)) {
     $form->{$form->{$_}} = $form->{$_} if $form->{$_};
@@ -356,30 +364,29 @@ SQL
 
   do_query($form, $dbh, $query, $form->{id});
 
-  # commit
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub delete_account {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_delete_account, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _delete_account {
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database, turn off AutoCommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT count(*) FROM acc_trans a
                  WHERE a.chart_id = ?|;
   my ($count) = selectrow_query($form, $dbh, $query, $form->{id});
 
   if ($count) {
-    $dbh->disconnect;
-    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -408,13 +415,7 @@ sub delete_account {
               WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
-  # commit and redirect
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  return 1;
 }
 
 sub lead {
@@ -422,8 +423,7 @@ sub lead {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT id, lead
                  FROM leads
@@ -437,7 +437,6 @@ sub lead {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -447,8 +446,7 @@ sub get_lead {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT l.id, l.lead | .
@@ -463,8 +461,6 @@ sub get_lead {
 
   $sth->finish;
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -474,8 +470,7 @@ sub save_lead {
   my ($self, $myconfig, $form) = @_;
   my ($query);
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my @values = ($form->{description});
   # id is the old record
@@ -491,8 +486,6 @@ sub save_lead {
   }
   do_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -502,14 +495,10 @@ sub delete_lead {
   my ($self, $myconfig, $form) = @_;
   my ($query);
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  $query = qq|DELETE FROM leads
-              WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  $dbh->disconnect;
+  SL::DB->client->with_transaction(sub {
+    $query = qq|DELETE FROM leads WHERE id = ?|;
+    do_query($form, SL::DB->client->dbh, $query, $form->{id});
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -519,8 +508,7 @@ sub language {
 
   my ($self, $myconfig, $form, $return_list) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     "SELECT id, description, template_code, article_code, " .
@@ -537,7 +525,6 @@ sub language {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -553,8 +540,7 @@ sub get_language {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     "SELECT description, template_code, article_code, " .
@@ -569,8 +555,6 @@ sub get_language {
 
   $sth->finish;
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -579,15 +563,13 @@ sub get_language_details {
 
   my ($self, $myconfig, $form, $id) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     "SELECT template_code, " .
     "  output_numberformat, output_dateformat, output_longdates " .
     "FROM language WHERE id = ?";
   my @res = selectrow_query($form, $dbh, $query, $id);
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -599,33 +581,32 @@ sub save_language {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-  my (@values, $query);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
+    my (@values, $query);
 
-  map({ push(@values, $form->{$_}); }
-      qw(description template_code article_code
-         output_numberformat output_dateformat output_longdates));
+    map({ push(@values, $form->{$_}); }
+        qw(description template_code article_code
+           output_numberformat output_dateformat output_longdates));
 
-  # id is the old record
-  if ($form->{id}) {
-    $query =
-      "UPDATE language SET " .
-      "  description = ?, template_code = ?, article_code = ?, " .
-      "  output_numberformat = ?, output_dateformat = ?, " .
-      "  output_longdates = ? " .
-      "WHERE id = ?";
-    push(@values, $form->{id});
-  } else {
-    $query =
-      "INSERT INTO language (" .
-      "  description, template_code, article_code, " .
-      "  output_numberformat, output_dateformat, output_longdates" .
-      ") VALUES (?, ?, ?, ?, ?, ?)";
-  }
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
+    # id is the old record
+    if ($form->{id}) {
+      $query =
+        "UPDATE language SET " .
+        "  description = ?, template_code = ?, article_code = ?, " .
+        "  output_numberformat = ?, output_dateformat = ?, " .
+        "  output_longdates = ? " .
+        "WHERE id = ?";
+      push(@values, $form->{id});
+    } else {
+      $query =
+        "INSERT INTO language (" .
+        "  description, template_code, article_code, " .
+        "  output_numberformat, output_dateformat, output_longdates" .
+        ") VALUES (?, ?, ?, ?, ?, ?)";
+    }
+    do_query($form, $dbh, $query, @values);
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -636,19 +617,17 @@ sub delete_language {
   my ($self, $myconfig, $form) = @_;
   my $query;
 
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  foreach my $table (qw(generic_translations units_language)) {
-    $query = qq|DELETE FROM $table WHERE language_id = ?|;
+    foreach my $table (qw(generic_translations units_language)) {
+      $query = qq|DELETE FROM $table WHERE language_id = ?|;
+      do_query($form, $dbh, $query, $form->{"id"});
+    }
+
+    $query = "DELETE FROM language WHERE id = ?";
     do_query($form, $dbh, $query, $form->{"id"});
-  }
-
-  $query = "DELETE FROM language WHERE id = ?";
-  do_query($form, $dbh, $query, $form->{"id"});
-
-  $dbh->commit();
-  $dbh->disconnect;
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -767,7 +746,7 @@ sub get_defaults {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my $defaults = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM defaults|) || {};
 
@@ -783,7 +762,7 @@ sub closedto {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT closedto, max_future_booking_interval, revtrans FROM defaults|;
   my $sth   = $dbh->prepare($query);
@@ -793,8 +772,6 @@ sub closedto {
 
   $sth->finish;
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -803,23 +780,23 @@ sub closebooks {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my ($query, @values);
+    my ($query, @values);
 
-  # is currently NEVER trueish (no more hidden revtrans in $form)
-  # if ($form->{revtrans}) {
-  #   $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '1'|;
-  # -> therefore you can only set this to false (which is already the default)
-  # and this flag is currently only checked in gl.pl. TOOD Can probably be removed
+    # is currently NEVER trueish (no more hidden revtrans in $form)
+    # if ($form->{revtrans}) {
+    #   $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '1'|;
+    # -> therefore you can only set this to false (which is already the default)
+    # and this flag is currently only checked in gl.pl. TOOD Can probably be removed
 
-    $query = qq|UPDATE defaults SET closedto = ?, max_future_booking_interval = ?, revtrans = '0'|;
-    @values = (conv_date($form->{closedto}), conv_i($form->{max_future_booking_interval}));
+      $query = qq|UPDATE defaults SET closedto = ?, max_future_booking_interval = ?, revtrans = '0'|;
+      @values = (conv_date($form->{closedto}), conv_i($form->{max_future_booking_interval}));
 
-  # set close in defaults
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
+    # set close in defaults
+    do_query($form, $dbh, $query, @values);
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -845,7 +822,7 @@ sub retrieve_units {
   my ($self, $myconfig, $form, $prefix) = @_;
   $prefix ||= '';
 
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   my $query = "SELECT *, base_unit AS original_base_unit FROM units";
 
@@ -934,7 +911,7 @@ sub units_in_use {
 
   my ($self, $myconfig, $form, $units) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   map({ $_->{"in_use"} = 0; } values(%{$units}));
 
@@ -970,8 +947,6 @@ sub units_in_use {
       }
     }
   }
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 }
@@ -1103,37 +1078,44 @@ sub add_unit {
 
   my ($self, $myconfig, $form, $name, $base_unit, $factor, $languages) = @_;
 
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query = qq|SELECT COALESCE(MAX(sortkey), 0) + 1 FROM units|;
-  my ($sortkey) = selectrow_query($form, $dbh, $query);
+    my $query = qq|SELECT COALESCE(MAX(sortkey), 0) + 1 FROM units|;
+    my ($sortkey) = selectrow_query($form, $dbh, $query);
 
-  $query = "INSERT INTO units (name, base_unit, factor, sortkey) " .
-    "VALUES (?, ?, ?, ?)";
-  do_query($form, $dbh, $query, $name, $base_unit, $factor, $sortkey);
+    $query = "INSERT INTO units (name, base_unit, factor, sortkey) " .
+      "VALUES (?, ?, ?, ?)";
+    do_query($form, $dbh, $query, $name, $base_unit, $factor, $sortkey);
 
-  if ($languages) {
-    $query = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
-    my $sth = $dbh->prepare($query);
-    foreach my $lang (@{$languages}) {
-      my @values = ($name, $lang->{"id"}, $lang->{"localized"}, $lang->{"localized_plural"});
-      $sth->execute(@values) || $form->dberror($query . " (" . join(", ", @values) . ")");
+    if ($languages) {
+      $query = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
+      my $sth = $dbh->prepare($query);
+      foreach my $lang (@{$languages}) {
+        my @values = ($name, $lang->{"id"}, $lang->{"localized"}, $lang->{"localized_plural"});
+        $sth->execute(@values) || $form->dberror($query . " (" . join(", ", @values) . ")");
+      }
+      $sth->finish();
     }
-    $sth->finish();
-  }
-
-  $dbh->commit();
-  $dbh->disconnect();
+  });
 
   $main::lxdebug->leave_sub();
 }
 
 sub save_units {
+  my ($self, $myconfig, $form, $units, $delete_units) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_units, $self, $myconfig, $form, $units, $delete_units);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_units {
   my ($self, $myconfig, $form, $units, $delete_units) = @_;
 
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($base_unit, $unit, $sth, $query);
 
@@ -1180,10 +1162,8 @@ sub save_units {
 
   $sth->finish();
   $sth_lang->finish();
-  $dbh->commit();
-  $dbh->disconnect();
 
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 sub taxes {
@@ -1191,8 +1171,7 @@ sub taxes {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT
                    t.id,
@@ -1217,7 +1196,6 @@ sub taxes {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1227,7 +1205,7 @@ sub get_tax_accounts {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   # get Accounts from chart
   my $query = qq{ SELECT
@@ -1259,8 +1237,6 @@ sub get_tax_accounts {
 
   $sth->finish;
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1269,8 +1245,7 @@ sub get_tax {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT
                    taxkey,
@@ -1321,19 +1296,24 @@ sub get_tax {
     $sth->finish;
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
 sub save_tax {
+  my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save_tax, $self, $myconfig, $form);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save_tax {
   my ($self, $myconfig, $form) = @_;
   my $query;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $form->{rate} = $form->{rate} / 100;
 
@@ -1384,10 +1364,6 @@ sub save_tax {
                               'language_id'      => $language_id,
                               'translation'      => $form->{translations}->{$language_id});
   }
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
 }
 
 sub delete_tax {
@@ -1396,14 +1372,10 @@ sub delete_tax {
   my ($self, $myconfig, $form) = @_;
   my $query;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
-
-  $query = qq|DELETE FROM tax
-              WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  $dbh->commit();
+  SL::DB->client->with_transaction(sub {
+    $query = qq|DELETE FROM tax WHERE id = ?|;
+    do_query($form, SL::DB->client->dbh, $query, $form->{id});
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1413,23 +1385,22 @@ sub save_price_factor {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query;
-  my @values = ($form->{description}, conv_i($form->{factor}));
+    my $query;
+    my @values = ($form->{description}, conv_i($form->{factor}));
 
-  if ($form->{id}) {
-    $query = qq|UPDATE price_factors SET description = ?, factor = ? WHERE id = ?|;
-    push @values, conv_i($form->{id});
+    if ($form->{id}) {
+      $query = qq|UPDATE price_factors SET description = ?, factor = ? WHERE id = ?|;
+      push @values, conv_i($form->{id});
 
-  } else {
-    $query = qq|INSERT INTO price_factors (description, factor, sortkey) VALUES (?, ?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM price_factors))|;
-  }
+    } else {
+      $query = qq|INSERT INTO price_factors (description, factor, sortkey) VALUES (?, ?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM price_factors))|;
+    }
 
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->commit();
+    do_query($form, $dbh, $query, @values);
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1439,8 +1410,7 @@ sub get_all_price_factors {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $form->{PRICE_FACTORS} = selectall_hashref_query($form, $dbh, qq|SELECT * FROM price_factors ORDER BY sortkey|);
 
@@ -1453,7 +1423,7 @@ sub get_price_factor {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT description, factor,
                    ((SELECT COUNT(*) FROM parts      WHERE price_factor_id = ?) +
@@ -1471,11 +1441,9 @@ sub delete_price_factor {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
-
-  do_query($form, $dbh, qq|DELETE FROM price_factors WHERE id = ?|, conv_i($form->{id}));
-  $dbh->commit();
+  SL::DB->client->with_transaction(sub {
+    do_query($form, SL::DB->client->dbh, qq|DELETE FROM price_factors WHERE id = ?|, conv_i($form->{id}));
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1485,35 +1453,34 @@ sub save_warehouse {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my ($query, @values, $sth);
+    my ($query, @values, $sth);
 
-  if (!$form->{id}) {
-    $query        = qq|SELECT nextval('id')|;
-    ($form->{id}) = selectrow_query($form, $dbh, $query);
+    if (!$form->{id}) {
+      $query        = qq|SELECT nextval('id')|;
+      ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query        = qq|INSERT INTO warehouse (id, sortkey) VALUES (?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM warehouse))|;
-    do_query($form, $dbh, $query, $form->{id});
-  }
-
-  do_query($form, $dbh, qq|UPDATE warehouse SET description = ?, invalid = ? WHERE id = ?|,
-           $form->{description}, $form->{invalid} ? 't' : 'f', conv_i($form->{id}));
-
-  if (0 < $form->{number_of_new_bins}) {
-    my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{id});
-    $query = qq|INSERT INTO bin (warehouse_id, description) VALUES (?, ?)|;
-    $sth   = prepare_query($form, $dbh, $query);
-
-    foreach my $i (1..$form->{number_of_new_bins}) {
-      do_statement($form, $sth, $query, conv_i($form->{id}), "$form->{prefix}" . ($i + $num_existing_bins));
+      $query        = qq|INSERT INTO warehouse (id, sortkey) VALUES (?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM warehouse))|;
+      do_query($form, $dbh, $query, $form->{id});
     }
 
-    $sth->finish();
-  }
+    do_query($form, $dbh, qq|UPDATE warehouse SET description = ?, invalid = ? WHERE id = ?|,
+             $form->{description}, $form->{invalid} ? 't' : 'f', conv_i($form->{id}));
 
-  $dbh->commit();
+    if (0 < $form->{number_of_new_bins}) {
+      my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{id});
+      $query = qq|INSERT INTO bin (warehouse_id, description) VALUES (?, ?)|;
+      $sth   = prepare_query($form, $dbh, $query);
+
+      foreach my $i (1..$form->{number_of_new_bins}) {
+        do_statement($form, $sth, $query, conv_i($form->{id}), "$form->{prefix}" . ($i + $num_existing_bins));
+      }
+
+      $sth->finish();
+    }
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1523,34 +1490,29 @@ sub save_bins {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my ($query, @values, $commit_necessary, $sth);
+    my ($query, @values, $sth);
 
-  @values = map { $form->{"id_${_}"} } grep { $form->{"delete_${_}"} } (1..$form->{rowcount});
+    @values = map { $form->{"id_${_}"} } grep { $form->{"delete_${_}"} } (1..$form->{rowcount});
 
-  if (@values) {
-    $query = qq|DELETE FROM bin WHERE id IN (| . join(', ', ('?') x scalar(@values)) . qq|)|;
-    do_query($form, $dbh, $query, @values);
+    if (@values) {
+      $query = qq|DELETE FROM bin WHERE id IN (| . join(', ', ('?') x scalar(@values)) . qq|)|;
+      do_query($form, $dbh, $query, @values);
+    }
 
-    $commit_necessary = 1;
-  }
+    $query = qq|UPDATE bin SET description = ? WHERE id = ?|;
+    $sth   = prepare_query($form, $dbh, $query);
 
-  $query = qq|UPDATE bin SET description = ? WHERE id = ?|;
-  $sth   = prepare_query($form, $dbh, $query);
+    foreach my $row (1..$form->{rowcount}) {
+      next if ($form->{"delete_${row}"});
 
-  foreach my $row (1..$form->{rowcount}) {
-    next if ($form->{"delete_${row}"});
+      do_statement($form, $sth, $query, $form->{"description_${row}"}, conv_i($form->{"id_${row}"}));
+    }
 
-    do_statement($form, $sth, $query, $form->{"description_${row}"}, conv_i($form->{"id_${row}"}));
-
-    $commit_necessary = 1;
-  }
-
-  $sth->finish();
-
-  $dbh->commit() if ($commit_necessary);
+    $sth->finish();
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1560,26 +1522,26 @@ sub delete_warehouse {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $rc = SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $id      = conv_i($form->{id});
-  my $query   = qq|SELECT i.bin_id FROM inventory i WHERE i.bin_id IN (SELECT b.id FROM bin b WHERE b.warehouse_id = ?) LIMIT 1|;
-  my ($count) = selectrow_query($form, $dbh, $query, $id);
+    my $id      = conv_i($form->{id});
+    my $query   = qq|SELECT i.bin_id FROM inventory i WHERE i.bin_id IN (SELECT b.id FROM bin b WHERE b.warehouse_id = ?) LIMIT 1|;
+    my ($count) = selectrow_query($form, $dbh, $query, $id);
 
-  if ($count) {
-    $main::lxdebug->leave_sub();
-    return 0;
-  }
+    if ($count) {
+      return 0;
+    }
 
-  do_query($form, $dbh, qq|DELETE FROM bin       WHERE warehouse_id = ?|, conv_i($form->{id}));
-  do_query($form, $dbh, qq|DELETE FROM warehouse WHERE id           = ?|, conv_i($form->{id}));
+    do_query($form, $dbh, qq|DELETE FROM bin       WHERE warehouse_id = ?|, conv_i($form->{id}));
+    do_query($form, $dbh, qq|DELETE FROM warehouse WHERE id           = ?|, conv_i($form->{id}));
 
-  $dbh->commit();
+    return 1;
+  });
 
   $main::lxdebug->leave_sub();
 
-  return 1;
+  return $rc;
 }
 
 sub get_all_warehouses {
@@ -1587,8 +1549,7 @@ sub get_all_warehouses {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT w.id, w.description, w.invalid,
                    (SELECT COUNT(b.description) FROM bin b WHERE b.warehouse_id = w.id) AS number_of_bins
@@ -1605,8 +1566,7 @@ sub get_warehouse {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $id    = conv_i($form->{id});
   my $query = qq|SELECT w.description, w.invalid
