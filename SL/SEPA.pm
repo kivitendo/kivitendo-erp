@@ -8,6 +8,7 @@ use Data::Dumper;
 use SL::DBUtils;
 use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
+use SL::DB;
 use SL::Locale::String qw(t8);
 use DateTime;
 
@@ -87,8 +88,16 @@ sub retrieve_open_invoices {
 }
 
 sub create_export {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_create_export, $self, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _create_export {
   my $self     = shift;
   my %params   = @_;
 
@@ -100,7 +109,7 @@ sub create_export {
   my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
   my $ARAP     = uc $arap;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my ($export_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('sepa_export_id_seq')|);
   my $query       =
@@ -189,10 +198,6 @@ sub create_export {
   $h_insert->finish();
   $h_item_id->finish();
 
-  $dbh->commit() unless ($params{dbh});
-
-  $main::lxdebug->leave_sub();
-
   return $export_id;
 }
 
@@ -267,15 +272,15 @@ sub close_export {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my @ids          = ref $params{id} eq 'ARRAY' ? @{ $params{id} } : ($params{id});
-  my $placeholders = join ', ', ('?') x scalar @ids;
-  my $query        = qq|UPDATE sepa_export SET closed = TRUE WHERE id IN ($placeholders)|;
+    my @ids          = ref $params{id} eq 'ARRAY' ? @{ $params{id} } : ($params{id});
+    my $placeholders = join ', ', ('?') x scalar @ids;
+    my $query        = qq|UPDATE sepa_export SET closed = TRUE WHERE id IN ($placeholders)|;
 
-  do_query($form, $dbh, $query, map { conv_i($_) } @ids);
-
-  $dbh->commit() unless ($params{dbh});
+    do_query($form, $dbh, $query, map { conv_i($_) } @ids);
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -402,8 +407,16 @@ SQL
 }
 
 sub post_payment {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_post_payment, $self, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_payment {
   my $self     = shift;
   my %params   = @_;
 
@@ -416,7 +429,7 @@ sub post_payment {
   my $mult     = $params{vc} eq 'customer' ? -1         : 1;
   my $ARAP     = uc $arap;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   my @items    = ref $params{items} eq 'ARRAY' ? @{ $params{items} } : ($params{items});
 
@@ -502,9 +515,7 @@ sub post_payment {
 
   map { $_->[0]->finish() } values %handles;
 
-  $dbh->commit() unless ($params{dbh});
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 1;
