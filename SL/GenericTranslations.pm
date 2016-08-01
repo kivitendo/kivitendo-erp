@@ -1,6 +1,7 @@
 package GenericTranslations;
 
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -90,8 +91,16 @@ sub list {
 }
 
 sub save {
+  my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
+  my $rc = SL::DB->client->with_transaction(\&_save, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _save {
   my $self     = shift;
   my %params   = @_;
 
@@ -100,7 +109,7 @@ sub save {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
   $params{translation} =~ s/^\s+//;
   $params{translation} =~ s/\s+$//;
@@ -139,9 +148,7 @@ sub save {
     do_query($form, $dbh, $q_insert, @v_insert);
   }
 
-  $dbh->commit() unless ($params{dbh});
-
-  $main::lxdebug->leave_sub();
+  return 1;
 }
 
 
