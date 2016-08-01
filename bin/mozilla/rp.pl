@@ -468,6 +468,18 @@ sub generate_projects {
   my $project            = $form->{project_id} ? SL::DB::Project->new(id => $form->{project_id})->load : undef;
   $form->{projectnumber} = $project ? $project->projectnumber : '';
 
+  # make sure todate and fromdate always have a value, even if the date fields
+  # were left empty or the inputs weren't valid dates/couldn't be parsed
+
+  $project = SL::DB::Project->new() unless $project;  # dummy object for dbh
+  unless ($::locale->parse_date_to_object($::form->{fromdate})) {
+    ($form->{fromdate}) = $project->db->dbh->selectrow_array('select min(transdate) from acc_trans');
+  };
+
+  unless ($::locale->parse_date_to_object($::form->{todate})) {
+    ($form->{todate})   = $project->db->dbh->selectrow_array('select max(transdate) from acc_trans');
+  };
+
   $form->{nextsub} = "generate_projects";
   $form->{title}   = $locale->text('Project Transactions');
   RP->trial_balance(\%myconfig, \%$form);
