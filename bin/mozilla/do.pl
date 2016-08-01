@@ -1796,6 +1796,11 @@ sub sort {
   # hashify partnumbers, positions. key is delivery_order_items_id
   for my $i (1 .. ($form->{rowcount}) ) {
     $temp_hash{$form->{"delivery_order_items_id_$i"}} = { runningnumber => $form->{"runningnumber_$i"}, partnumber => $form->{"partnumber_$i"} };
+    if ($form->{id} && $form->{"discount_$i"}) {
+      # prepare_order assumes a db value if there is a form->id and multiplies *100
+      # We hope for new controller code (no more format_amount/parse_amount distinction)
+      $form->{"discount_$i"} /=100;
+    }
   }
   # naturally sort partnumbers and get a sorted array of doi_ids
   my @sorted_doi_ids =  sort { Sort::Naturally::ncmp($temp_hash{$a}->{"partnumber"}, $temp_hash{$b}->{"partnumber"}) }  keys %temp_hash;
@@ -1807,6 +1812,12 @@ sub sort {
     $form->{"runningnumber_$temp_hash{$_}->{runningnumber}"} = $new_number;
     $new_number++;
   }
+  # all parse_amounts changes are in form (i.e. , to .) therefore we need
+  # another format_amount to change it back, for the next save ;-(
+  # works great except for row discounts (see above comment)
+  prepare_order();
+
+
     $main::lxdebug->leave_sub();
     save();
 }
