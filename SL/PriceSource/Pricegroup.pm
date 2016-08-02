@@ -23,7 +23,7 @@ sub available_prices {
   my $prices = SL::DB::Manager::Price->get_all(
     query        => [ parts_id => $item->parts_id, price => { gt => 0 } ],
     with_objects => 'pricegroup',
-    order_by     => 'pricegroup.id',
+    sort_by     => 'pricegroup.id',
   );
 
   return () unless @$prices;

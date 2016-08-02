@@ -23,7 +23,7 @@ sub cleanup {
   # get reports for the active session that aren't the latest
   $objects = $self->get_all(
     query => [ session_id => $::auth->get_session_id, ],
-    order_by => [ 'id' ],
+    sort_by => [ 'id' ],
   );
 
   # skip the last one
