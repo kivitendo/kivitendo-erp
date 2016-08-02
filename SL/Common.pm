@@ -24,6 +24,7 @@ use POSIX ();
 use Encode qw(decode);
 
 use SL::DBUtils;
+use SL::DB;
 
 sub unique_id {
   my ($a, $b) = gettimeofday();
@@ -407,33 +408,33 @@ sub save_email_status {
 
   return $main::lxdebug->leave_sub() if (!$form->{id} || !$table || !$form->{formname});
 
-  $dbh = $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    $dbh = SL::DB->client->dbh;
 
-  my ($intnotes) = selectrow_query($form, $dbh, qq|SELECT intnotes FROM $table WHERE id = ?|, $form->{id});
+    my ($intnotes) = selectrow_query($form, $dbh, qq|SELECT intnotes FROM $table WHERE id = ?|, $form->{id});
 
-  $intnotes =~ s|\r||g;
-  $intnotes =~ s|\n$||;
+    $intnotes =~ s|\r||g;
+    $intnotes =~ s|\n$||;
 
-  $intnotes .= "\n\n" if ($intnotes);
+    $intnotes .= "\n\n" if ($intnotes);
 
-  my $cc  = $form->{cc}  ? $main::locale->text('Cc') . ": $form->{cc}\n"   : '';
-  my $bcc = $form->{bcc} ? $main::locale->text('Bcc') . ": $form->{bcc}\n" : '';
-  my $now = scalar localtime;
+    my $cc  = $form->{cc}  ? $main::locale->text('Cc') . ": $form->{cc}\n"   : '';
+    my $bcc = $form->{bcc} ? $main::locale->text('Bcc') . ": $form->{bcc}\n" : '';
+    my $now = scalar localtime;
 
-  $intnotes .= $main::locale->text('[email]') . "\n"
-    . $main::locale->text('Date') . ": $now\n"
-    . $main::locale->text('To (email)') . ": $form->{email}\n"
-    . "${cc}${bcc}"
-    . $main::locale->text('Subject') . ": $form->{subject}\n\n"
-    . $main::locale->text('Message') . ": $form->{message}";
+    $intnotes .= $main::locale->text('[email]') . "\n"
+      . $main::locale->text('Date') . ": $now\n"
+      . $main::locale->text('To (email)') . ": $form->{email}\n"
+      . "${cc}${bcc}"
+      . $main::locale->text('Subject') . ": $form->{subject}\n\n"
+      . $main::locale->text('Message') . ": $form->{message}";
 
-  $intnotes =~ s|\r||g;
+    $intnotes =~ s|\r||g;
 
-  do_query($form, $dbh, qq|UPDATE $table SET intnotes = ? WHERE id = ?|, $intnotes, $form->{id});
+    do_query($form, $dbh, qq|UPDATE $table SET intnotes = ? WHERE id = ?|, $intnotes, $form->{id});
 
-  $form->save_status($dbh);
-
-  $dbh->commit();
+    $form->save_status($dbh);
+  });
 
   $main::lxdebug->leave_sub();
 }
