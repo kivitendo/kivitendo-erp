@@ -296,7 +296,7 @@ sub invoice_transactions {
 
     # The sellprice total can be calculated from sellprice or fxsellprice (the
     # value that was actually entered in the sellprice field and is always
-    # stored seperately).  However, for fxsellprice this method only works when
+    # stored separately).  However, for fxsellprice this method only works when
     # the tax is not included, because otherwise fxsellprice includes the tax
     # and there is no simple way to extract the tax rate of the article from
     # the big query.

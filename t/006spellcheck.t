@@ -49,6 +49,7 @@ primt
 puchase
 puhs
 sekf
+seperat
 sucess
 varsion
 wether

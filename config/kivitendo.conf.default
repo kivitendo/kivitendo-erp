@@ -276,7 +276,7 @@ dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
                      = log4perl.appender.A1.layout.ConversionPattern=%d %p> %F{1}:%L %M - %m%n
 
 # Activate certain global debug messages. If you want to combine
-# several options then list them seperated by spaces.
+# several options then list them separated by spaces.
 #
 # Possible values include:
 #   NONE   - no debug output (default)
