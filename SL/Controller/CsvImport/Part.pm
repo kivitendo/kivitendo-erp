@@ -91,7 +91,7 @@ sub init_parts_by {
 #  }
 
   my $parts_by = {};
-  my $sth = prepare_execute_query($::form, $::form->get_standard_dbh, 'SELECT partnumber FROM parts');
+  my $sth = prepare_execute_query($::form, SL::DB::Object->new->db->dbh, 'SELECT partnumber FROM parts');
   while (my ($partnumber) = $sth->fetchrow_array()) {
     $parts_by->{partnumber}{$partnumber} = 1;
   }
