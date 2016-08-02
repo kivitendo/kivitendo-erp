@@ -11,6 +11,7 @@
 
 use SL::Common;
 use SL::DB::Helper::Mappings;
+use SL::DB;
 use SL::DBUtils qw(do_query);
 use SL::Form;
 use SL::MoreCommon qw(restore_form save_form);
@@ -493,10 +494,12 @@ sub mark_as_paid_common {
   my $locale   = $main::locale;
 
   if($form->{mark_as_paid}) {
-    my $dbh ||= $form->get_standard_dbh($myconfig);
-    my $query = qq|UPDATE $db_name SET paid = amount, datepaid = current_date WHERE id = ?|;
-    do_query($form, $dbh, $query, $form->{id});
-    $dbh->commit();
+    SL::DB->client->with_transaction(sub {
+      my $dbh ||= SL::DB->client->dbh;
+      my $query = qq|UPDATE $db_name SET paid = amount, datepaid = current_date WHERE id = ?|;
+      do_query($form, $dbh, $query, $form->{id});
+      1;
+    }) or do { $::form->error(SL::DB->client->error) };
     $form->redirect($locale->text("Marked as paid"));
 
   } else {
