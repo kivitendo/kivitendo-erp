@@ -4,6 +4,7 @@ use SL::AM;
 use SL::Common;
 use SL::DBUtils;
 use SL::MoreCommon;
+use SL::DB;
 use Data::Dumper;
 
 use strict;
@@ -19,7 +20,7 @@ sub close_orders_if_billed {
   my $myconfig  = \%main::myconfig;
   my $form      = $main::form;
 
-  my $dbh       = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh       = $params{dbh} || SL::DB->client->dbh;
 
   # First, find all order IDs from which this invoice has been
   # created. Either directly by a conversion from an order to this invoice
@@ -150,10 +151,10 @@ sub close_orders_if_billed {
 
   # Close orders that have been billed fully.
   if (scalar @close_oe_ids) {
-    my $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_oe_ids) . qq|)|;
-    do_query($form, $dbh, $query, @close_oe_ids);
-
-    $dbh->commit unless $params{dbh};
+    SL::DB->client->with_transaction(sub {
+      my $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_oe_ids) . qq|)|;
+      do_query($form, $dbh, $query, @close_oe_ids);
+    });
   }
 
   $main::lxdebug->leave_sub();
