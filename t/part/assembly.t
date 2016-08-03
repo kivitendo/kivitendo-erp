@@ -42,7 +42,7 @@ sub reset_state {
 
   # create an assembly that consists of two parts
   my ($part1, $part2, $unit, $assembly_part, $assembly_1, $assembly_2);
-  my $unit = SL::DB::Manager::Unit->find_by(name => 'Stck') || die "Can't find unit 'Stck'";
+  $unit = SL::DB::Manager::Unit->find_by(name => 'Stck') || die "Can't find unit 'Stck'";
 
   $part1 = SL::DB::Part->new_part(partnumber => '19000',
                                   unit       => $unit->name,
@@ -51,13 +51,13 @@ sub reset_state {
   $part2->partnumber($part1->partnumber + 1);
   $part2->save;
 
-  my $assembly_part = SL::DB::Part->new_assembly(partnumber         => 'as1',
+  $assembly_part = SL::DB::Part->new_assembly(partnumber         => 'as1',
                                                  description        => 'assembly',
                                                  unit               => $unit->name,
                                                  inventory_accno_id => undef, # override
                                                 );
-  my $assembly_1 = SL::DB::Assembly->new(parts_id => $part1->id, qty => 3, bom => 1);
-  my $assembly_2 = SL::DB::Assembly->new(parts_id => $part2->id, qty => 3, bom => 1);
+  $assembly_1 = SL::DB::Assembly->new(parts_id => $part1->id, qty => 3, bom => 1);
+  $assembly_2 = SL::DB::Assembly->new(parts_id => $part2->id, qty => 3, bom => 1);
   $assembly_part->add_assemblies($assembly_1, $assembly_2);
   $assembly_part->save;
 };
