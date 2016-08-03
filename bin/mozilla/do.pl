@@ -828,7 +828,10 @@ sub invoice {
   }
 
   for my $i (1 .. $form->{rowcount}) {
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice lastcost basefactor discount);
     # für bug 1284
+    # adds a customer/vendor discount, unless we have a workflow case
+    # CAVEAT: has to be done, after the above parse_amount
     unless ($form->{"ordnumber"}) {
       if ($form->{discount}) { # Falls wir einen Lieferanten-/Kundenrabatt haben
         # und rabattfähig sind, dann
@@ -837,7 +840,6 @@ sub invoice {
         }
       }
     }
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice lastcost basefactor discount);
     $form->{"donumber_$i"} = $form->{donumber};
     $form->{"converted_from_delivery_order_items_id_$i"} = delete $form->{"delivery_order_items_id_$i"};
   }
