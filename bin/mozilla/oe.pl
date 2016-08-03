@@ -1464,7 +1464,7 @@ sub invoice {
   $form->{cp_id} *= 1;
 
   for my $i (1 .. $form->{rowcount}) {
-    for (qw(ship qty sellprice basefactor)) {
+    for (qw(ship qty sellprice basefactor discount)) {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
     $form->{"converted_from_orderitems_id_$i"} = delete $form->{"orderitems_id_$i"};
