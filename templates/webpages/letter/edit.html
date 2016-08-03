@@ -35,20 +35,12 @@
 [%- IF SELF.is_sales %]
     <tr>
      <th align='right'>[% 'Customer' | $T8 %]:</th>
-     <td>[% P.customer_vendor_picker('letter.customer_id', letter.customer_id, type='customer') %]
-[%- IF letter.customer_id %]
-      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')">
-[%- END %]
-     </td>
+     <td>[% P.customer_vendor_picker('letter.customer_id', letter.customer_id, type='customer') %]</td>
     </tr>
 [%- ELSE %]
     <tr>
      <th align='right'>[% 'Vendor' | $T8 %]:</th>
-     <td>[% P.customer_vendor_picker('letter.vendor_id', letter.vendor_id, type='vendor') %]
-[%- IF letter.vendor_id %]
-      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('vendor')">
-[%- END %]
-     </td>
+     <td>[% P.customer_vendor_picker('letter.vendor_id', letter.vendor_id, type='vendor') %]</td>
     </tr>
 [%- END %]
     <tr>
