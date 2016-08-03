@@ -23,7 +23,7 @@ use SL::Webdav;
 use SL::Webdav::File;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(letter all_employees models webdav_objects) ],
+  'scalar --get_set_init' => [ qw(letter all_employees models webdav_objects is_sales) ],
 );
 
 __PACKAGE__->run_before('check_auth_edit');
@@ -37,8 +37,11 @@ my %sort_columns = (
   subject               => t8('Subject'),
   letternumber          => t8('Letternumber'),
   customer_id           => t8('Customer'),
+  vendor_id             => t8('Vendor'),
   contact               => t8('Contact'),
 );
+
+### actions
 
 sub action_add {
   my ($self, %params) = @_;
@@ -60,8 +63,10 @@ sub action_edit {
   return $self->action_add
     unless $::form->{letter} || $::form->{draft};
 
-  $self->letter(SL::DB::Letter->new_from_draft($::form->{draft}{id}))
-    if $::form->{draft};
+  if ($::form->{draft}) {
+    $self->letter(SL::DB::Letter->new_from_draft($::form->{draft}{id}));
+    $self->is_sales($self->letter->is_sales);
+  }
 
   $self->_display(
     title  => t8('Edit Letter'),
@@ -94,7 +99,7 @@ sub action_update_contacts {
 
   my $letter = $self->letter;
 
-  if (!$self->letter->customer_id || !$self->letter->customer) {
+  if (!$self->letter->has_customer_vendor) {
     return $self->js
       ->replaceWith(
         '#letter_cp_id',
@@ -103,12 +108,12 @@ sub action_update_contacts {
       ->render;
   }
 
-  my $contacts = $letter->customer->contacts;
+  my $contacts = $letter->customer_vendor->contacts;
 
   my $default;
   if (   $letter->contact
       && $letter->contact->cp_cv_id
-      && $letter->contact->cp_cv_id == $letter->customer_id) {
+      && $letter->contact->cp_cv_id == $letter->customer_vendor_id) {
     $default = $letter->contact->cp_id;
   } else {
     $default = '';
@@ -336,6 +341,8 @@ sub action_send_email {
   );
 }
 
+### internal methods
+
 sub _display {
   my ($self, %params) = @_;
 
@@ -346,7 +353,7 @@ sub _display {
  $params{title} ||= t8('Edit Letter');
 
   $::form->{type}             = 'letter';   # needed for print_options
-  $::form->{vc}               = 'customer'; # needs to be for _get_contacts...
+  $::form->{vc}               = $letter->is_sales ? 'customer' : 'vendor'; # needs to be for _get_contacts...
 
   $::request->layout->add_javascripts('customer_or_vendor_selection.js');
   $::request->layout->add_javascripts('edit_part_window.js');
@@ -386,8 +393,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(date subject letternumber customer_id contact date);
-  my @sortable = qw(date subject letternumber customer_id contact date);
+  my @columns  = qw(date subject letternumber customer_id vendor_id contact date);
+  my @sortable = qw(date subject letternumber customer_id vendor_id contact date);
 
   my %column_defs = (
     date                  => { text => t8('Date'),         sub => sub { $_[0]->date_as_date } },
@@ -395,7 +402,8 @@ sub prepare_report {
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
     letternumber          => { text => t8('Letternumber'), sub => sub { $_[0]->letternumber },
                                obj_link => sub { $self->url_for(action => 'edit', 'letter.id' => $_[0]->id, callback => $self->models->get_callback) }  },
-    customer_id           => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->customer_id)->displayable_name } },
+    customer_id           => { text => t8('Customer'),      sub => sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0]->customer_id)->displayable_name }, visible => $self->is_sales },
+    vendor_id             => { text => t8('Vendor'),        sub => sub { SL::DB::Manager::Vendor->find_by_or_create(id => $_[0]->vendor_id)->displayable_name }, visible => !$self->is_sales},
     contact               => { text => t8('Contact'),       sub => sub { $_[0]->contact ? $_[0]->contact->full_name : '' } },
   );
 
@@ -413,10 +421,11 @@ sub prepare_report {
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list filter is_sales));
   $report->set_options_from_form;
 
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->add_additional_url_params(is_sales => $self->is_sales);
   $self->models->finalize;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
@@ -465,7 +474,11 @@ sub load_letter_draft {
 
   return 0 if $params{skip_drafts};
 
-  my $letter_drafts = SL::DB::Manager::LetterDraft->get_all;
+  my $letter_drafts = SL::DB::Manager::LetterDraft->get_all(
+    query => [
+      SL::DB::Manager::Letter->is_sales_filter($self->is_sales),
+    ]
+  );
 
   return unless @$letter_drafts;
 
@@ -552,7 +565,7 @@ sub init_letter {
                                            ->assign_attributes(%{ $::form->{letter} });
 
   if ($letter->cp_id) {
-#     $letter->customer_id($letter->contact->cp_cv_id);
+#     $letter->customer_vendor_id($letter->contact->cp_cv_id);
       # contacts don't have language_id yet
 #     $letter->greeting(GenericTranslations->get(
 #       translation_type => 'greetings::' . ($letter->contact->cp_gender eq 'f' ? 'female' : 'male'),
@@ -560,6 +573,8 @@ sub init_letter {
 #       allow_fallback   => 1
 #     ));
   }
+
+  $self->is_sales($letter->is_sales);
 
   $letter;
 }
@@ -570,6 +585,9 @@ sub init_models {
   SL::Controller::Helper::GetModels->new(
     controller   => $self,
     model        => 'Letter',
+    query        => [
+      SL::DB::Manager::Letter->is_sales_filter($self->is_sales),
+    ],
     sorted       => \%sort_columns,
     with_objects => [ 'contact', 'salesman', 'employee' ],
   );
@@ -600,6 +618,11 @@ sub init_webdav_objects {
   } @all_objects ];
 }
 
+sub init_is_sales {
+  die 'is_sales must be set' unless defined $::form->{is_sales};
+  $::form->{is_sales};
+}
+
 sub check_auth_edit {
   $::auth->assert('sales_letter_edit');
 }
@@ -622,13 +645,7 @@ SL::Controller::Letter - Letters CRUD and printing
 
 Simple letter CRUD controller with drafting capabilities.
 
-=head1 TODO
-
-  Customer/Vendor switch for dealing with vendor letters
-
 copy to webdav is crap
-
-customer/vendor stuff
 
 =head1 AUTHOR
 

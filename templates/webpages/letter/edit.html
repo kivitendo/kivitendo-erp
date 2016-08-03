@@ -10,6 +10,7 @@
   <input type="hidden" name="letter.id" value="[% letter.id | html %]">
   <input type="hidden" name="draft.id" value="[% draft.id | html %]">
   <input type="hidden" name="type" value="[% type | html %]">
+  [% L.hidden_tag('is_sales', SELF.is_sales) %]
 
   [%- INCLUDE 'common/flash.html' %]
 
@@ -31,6 +32,7 @@
  <td width=50%>
   <!-- upper left block -->
    <table width=90%>
+[%- IF SELF.is_sales %]
     <tr>
      <th align='right'>[% 'Customer' | $T8 %]:</th>
      <td>[% P.customer_vendor_picker('letter.customer_id', letter.customer_id, type='customer') %]
@@ -39,9 +41,19 @@
 [%- END %]
      </td>
     </tr>
+[%- ELSE %]
+    <tr>
+     <th align='right'>[% 'Vendor' | $T8 %]:</th>
+     <td>[% P.customer_vendor_picker('letter.vendor_id', letter.vendor_id, type='vendor') %]
+[%- IF letter.vendor_id %]
+      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('vendor')">
+[%- END %]
+     </td>
+    </tr>
+[%- END %]
     <tr>
      <th align='right'>[% 'Contact Person' | $T8 %]</th>
-     <td>[% L.select_tag('letter.cp_id', letter.customer_id ? letter.customer.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
+     <td>[% L.select_tag('letter.cp_id', letter.customer_vendor_id ? letter.customer_vendor.contacts : [], value_key='cp_id', title_key='full_name', default=letter.cp_id) %]</td>
     </tr>
     <tr>
      <th align='right'>[% 'Your Reference' | $T8 %]:</th>
@@ -164,6 +176,11 @@
 <script type='text/javascript'>
   $(function(){
     $('#letter_customer_id').change(function(){
+      var data = $('form').serializeArray();
+      data.push({ name: 'action_update_contacts', value: 1 });
+      $.post('controller.pl', data, kivi.eval_json_result);
+    });
+    $('#letter_vendor_id').change(function(){
       var data = $('form').serializeArray();
       data.push({ name: 'action_update_contacts', value: 1 });
       $.post('controller.pl', data, kivi.eval_json_result);

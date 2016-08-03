@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('letter_draft');
 __PACKAGE__->meta->columns(
   body         => { type => 'text' },
   cp_id        => { type => 'integer' },
-  customer_id  => { type => 'integer', not_null => 1 },
+  customer_id  => { type => 'integer' },
   date         => { type => 'date' },
   employee_id  => { type => 'integer' },
   greeting     => { type => 'text' },
@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   reference    => { type => 'text' },
   salesman_id  => { type => 'integer' },
   subject      => { type => 'text' },
+  vendor_id    => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -48,6 +49,11 @@ __PACKAGE__->meta->foreign_keys(
   salesman => {
     class       => 'SL::DB::Employee',
     key_columns => { salesman_id => 'id' },
+  },
+
+  vendor => {
+    class       => 'SL::DB::Vendor',
+    key_columns => { vendor_id => 'id' },
   },
 );
 

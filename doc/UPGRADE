@@ -19,6 +19,10 @@ Upgrade auf v3.4.x Unstable
   das auf dem Zielsystem absolut nicht möglich ist, muss das Upgradescript
   sql/Pg-Upgrade2/trigram_indices.sql deaktiviert oder entfernt werden.
 
+* Für das neue Feature Lieferantenbriefe ist die Standardvorlage für Briefe
+  (letter.tex) angepasst worden. Statt letter.customer muss der Adressat jetzt
+  aus letter.custoemr_vendor erzeugt werden.
+
 
 Upgrade auf v3.4.1
 ==================

@@ -264,6 +264,7 @@
   access: sales_letter_edit
   params:
     action: Letter/add
+    is_sales: 1
 - parent: ar
   id: ar_invoices
   name: Invoices
@@ -377,6 +378,7 @@
   access: sales_letter_report
   params:
     action: Letter/list
+    is_sales: 1
 - id: ap
   name: AP
   icon: ap
@@ -419,6 +421,14 @@
   params:
     action: add
     type: invoice
+- parent: ap
+  id: ap_add_letter
+  name: Add Letter
+  order: 450
+  access: purchase_letter_edit
+  params:
+    action: Letter/add
+    is_sales: 0
 - parent: ap
   id: ap_reports
   name: Reports
@@ -478,6 +488,14 @@
   params:
     action: DeliveryValueReport/list
     vc: vendor
+- parent: ap_reports
+  id: ap_reports_letters
+  name: Letters
+  order: 1100
+  access: purchase_letter_report
+  params:
+    action: Letter/list
+    is_sales: 0
 - id: warehouse
   name: Warehouse
   icon: warehouse

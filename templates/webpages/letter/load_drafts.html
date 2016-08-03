@@ -14,7 +14,11 @@
        <th class="listheading">&nbsp;</th>
        <th class="listheading">[% 'Date' | $T8 %]</th>
        <th class="listheading">[% 'Subject' | $T8 %]</th>
+[%- IF SELF.is_sales %]
        <th class="listheading">[% 'Customer' | $T8 %]</th>
+[%- ELSE %]
+       <th class="listheading">[% 'Vendor' | $T8 %]</th>
+[%- END %]
       </tr>
 
       [% FOREACH row = LETTER_DRAFTS %]
@@ -22,7 +26,11 @@
         <td>[% L.checkbox_tag("ids[+]", value=row.id) %]</td>
         <td>[% row.date.to_kivitendo | html %]</td>
         <td><a href="[% SELF.url_for(action='edit', 'draft.id'=row.id) %]">[% row.subject | html %]</a></td>
+[%- IF SELF.is_sales %]
         <td>[% row.customer.displayable_name | html %]</td>
+[%- ELSE %]
+        <td>[% row.vendor.displayable_name | html %]</td>
+[%- END %]
        </tr>
       [% END %]
      </table>
@@ -31,6 +39,7 @@
    <tr>
     <td>
      <input type="hidden" name="action" value="Letter/dispatch">
+     [% L.hidden_tag('is_sales', SELF.is_sales) %]
      <input type="submit" class="submit" name="action_skip_draft" value="[% 'Skip' | $T8 %]">
      <input type="submit" class="submit" name="action_delete_drafts" value="[% 'Delete drafts' | $T8 %]">
    </td>

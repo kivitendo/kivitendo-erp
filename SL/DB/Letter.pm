@@ -28,4 +28,28 @@ sub new_from_draft {
   $self;
 }
 
+sub is_sales {
+  die 'not an accessor' if @_ > 1;
+  $_[0]{customer_id} * 1;
+}
+
+sub has_customer_vendor {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+
+  return $self->is_sales
+    ? ($self->customer_id && $self->customer)
+    : ($self->vendor_id   && $self->vendor);
+}
+
+sub customer_vendor {
+  die 'not an accessor' if @_ > 1;
+  $_[0]->is_sales ? $_[0]->customer : $_[0]->vendor;
+}
+
+sub customer_vendor_id {
+  die 'not an accessor' if @_ > 1;
+  $_[0]->customer_id || $_[0]->vendor_id;
+}
+
 1;

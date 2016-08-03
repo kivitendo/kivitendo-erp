@@ -15,6 +15,9 @@ kleinere neue Features und Detailverbesserungen:
   - Neues Recht "Verknüpfte Belege", standardmäßig erlaubt. Betrifft alle
     Belege und die Projektstammdaten
 
+  - Briefe sind jetzt auch für Lieferanten verfügbar. Die neuen Rechte dafür
+    sind für Gruppen vergeben, die auch Einkaufsbelege bearbeiten dürfen.
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes
