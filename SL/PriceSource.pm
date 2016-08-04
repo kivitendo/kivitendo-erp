@@ -297,6 +297,16 @@ the listprice tends to go up, while lastcost stays the same, so lastcost
 usually wins. Lastcost could be lower priority, but a better design would be
 nice.
 
+=item *
+
+Guarantee 1 states that price sources will never change prices on their own.
+Further testing in the wild has shown that this is desirable within a record,
+but not when copying items from one record to another within a workflow.
+
+Specifically when changing from sales to purchase records prices don't make
+sense anymore. The guarantees should be updated to reflect this and
+transposition guidelines should be documented.
+
 =back
 
 =head1 AUTHOR
