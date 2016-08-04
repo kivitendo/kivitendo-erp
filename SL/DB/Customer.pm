@@ -67,5 +67,6 @@ sub displayable_name {
 sub is_customer { 1 };
 sub is_vendor   { 0 };
 sub payment_terms { goto &payment }
+sub number { goto &customernumber }
 
 1;
