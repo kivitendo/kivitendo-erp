@@ -217,7 +217,7 @@ sub get_chart {
   if (!exists $charts->{$taxzone}->{$type}) {
     require SL::DB::Buchungsgruppe;
     my $bugru    = SL::DB::Buchungsgruppe->load_cached($self->buchungsgruppen_id);
-    my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
+    my $chart_id = ($type eq 'inventory') ? ($self->is_part ? $bugru->inventory_accno_id : undef)
                  :                          $bugru->call_sub("${type}_accno_id", $taxzone);
 
     if ($chart_id) {
