@@ -1,0 +1,85 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<div id="assembly" name="assembly">
+
+<h2>[% 'Assembly items' | $T8 %]</h2>
+
+[% L.hidden_tag('assembly_id', SELF.part.id) %]
+
+<table id="assembly_items">
+ <thead>
+   <tr class="listheading">
+     <th class="listheading" style='display:none'></th>
+     <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
+     <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
+     <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+     <th id="partnumber_header_id"  class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("partnumber")' >[%- 'Partnumber'  | $T8 %]</a></th>
+     <th id="description_header_id" class="listheading" nowrap           ><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("description")'>[%- 'Description' | $T8 %]</a></th>
+     <th id="qty_header_id"         class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("qty")'        >[%- 'Qty'         | $T8 %]</a></th>
+     <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
+     <th class="listheading" nowrap width="5" >[%- 'BOM'          | $T8 %] </th>
+     <th class="listheading" nowrap width="5" >[%- 'Linetotal'    | $T8 %] </th>
+     <th id="sellprice_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("sellprice")' >[%- 'Sellprice'       | $T8 %]</a></th>
+     <th id="lastcost_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("lastcost")'   >[%- 'Lastcost'       | $T8 %]</a></th>
+     <th id="_header_id"   class="listheading" nowrap width="15" ><a href='#' onClick='javascript:kivi.Part.assembly_reorder_items("partsgroup")'         >[%- 'Group'       | $T8 %]</a></th>
+   </tr>
+ </thead>
+<tbody id="assembly_rows">
+  [% assembly_html %]
+</tbody>
+<tbody id="assembly_input">
+<tr>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td align="right">[% 'Part' | $T8 %]:</td>
+ <td>[% L.part_picker('add_assembly_item'   , ''  , style='width: 300px' , class="add_assembly_item_input") %]</td>
+ <td>[%- L.button_tag("kivi.Part.add_assembly_item()", LxERP.t8("Add")) %]</td>
+ <td></td>
+ <td></td>
+ <td align="right">[% 'Totals' | $T8 %]:</td>
+ <td id="assembly_sum"          class="numeric">[%- LxERP.format_amount(assembly_sum,          2, 0) %]</td>
+ <td id="assembly_sum_lastcost" class="numeric">[%- LxERP.format_amount(assembly_sum_lastcost, 2, 0) %]</td>
+ <td id="assembly_sum_diff"     class="numeric">[%- LxERP.format_amount(assembly_sum_diff,     2, 0) %]</td>
+</tr>
+<tr>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td align="right">[% L.button_tag("kivi.Part.set_assembly_sellprice()", LxERP.t8("Set sellprice")) %]</td>
+ <td></td>
+</tr>
+</tbody>
+</table>
+
+[% L.sortable_element('#assembly_rows') %]
+
+<div>
+<p>
+</p>
+</div>
+
+
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    $("#assembly").on( "focusout", ".recalc", function( event )  {
+      kivi.Part.assembly_recalc();
+    });
+
+    $('#assembly_rows').on('sortstop', function(event, ui) {
+      $('#assembly_item_row thead a img').remove();
+      kivi.Part.assembly_renumber_positions();
+    });
+  })
+</script>

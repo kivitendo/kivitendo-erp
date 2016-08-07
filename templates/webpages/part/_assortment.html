@@ -1,0 +1,76 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<div id="assortment" name="assortment">
+
+<h2>[% 'Assortment items' | $T8 %]</h2>
+
+[% L.hidden_tag('assortment_id', SELF.part.id) %]
+
+<table id="assortment_items">
+ <thead>
+   <tr class="listheading">
+     <th class="listheading" style='display:none'></th>
+     <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
+     <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
+     <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+     <th id="partnumber_header_id"  class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
+     <th id="description_header_id" class="listheading" nowrap           ><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("description")'>[%- 'Description' | $T8 %]</a></th>
+     <th id="qty_header_id"         class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("qty")'>        [%- 'Qty'         | $T8 %]</a></th>
+     <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
+     <th class="listheading" nowrap width="5" >[%- 'Linetotal'         | $T8 %] </th>
+     <th id="sellprice_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("sellprice")'> [%- 'Sellprice'       | $T8 %]</a></th>
+     <th id="lastcost_header_id"   class="listheading" nowrap width="10" ><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("lastcost")'> [%- 'Lastcost'       | $T8 %]</a></th>
+     <th id="_header_id"   class="listheading" nowrap width="15" ><a href='#' onClick='javascript:kivi.Part.assortment_reorder_items("partsgroup")'> [%- 'Group'       | $T8 %]</a></th>
+   </tr>
+ </thead>
+<tbody id="assortment_rows">
+  [% assortment_html %]
+</tbody>
+<tbody id="assortment_input">
+<tr>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td align="right">[% 'Part' | $T8 %]:</td>
+ <td>[% L.part_picker('add_assortment_item'   , ''  , style='width: 300px' , class="add_assortment_item_input") %]</td>
+ <td>[%- L.button_tag("kivi.Part.add_assortment_item()", LxERP.t8("Add")) %]</td>
+ <td></td>
+ <td align="right">[% 'Totals' | $T8 %]:</td>
+ <th id="assortment_sum"          class="numeric">[%- LxERP.format_amount(assortment_sum,          2, 0) %]</td>
+ <th id="assortment_sum_lastcost" class="numeric">[%- LxERP.format_amount(assortment_sum_lastcost, 2, 0) %]</td>
+ <th id="assortment_sum_diff"     class="numeric">[%- LxERP.format_amount(assortment_sum_diff,     2, 0) %]</td>
+</tr>
+<tr>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td></td>
+ <td align="right">[% L.button_tag("kivi.Part.set_assortment_sellprice()", LxERP.t8("Set sellprice")) %]</td>
+ <td></td>
+</tr>
+</tbody>
+</table>
+
+[% L.sortable_element('#assortment_rows') %]
+
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    $("#assortment").on( "focusout", ".recalc", function( event )  {
+      kivi.Part.assortment_recalc();
+    });
+
+    $('#assortment_rows').on('sortstop', function(event, ui) {
+      $('#assortment_item_row thead a img').remove();
+      kivi.Part.assortment_renumber_positions();
+    });
+  })
+</script>

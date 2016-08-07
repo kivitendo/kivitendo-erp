@@ -1,0 +1,22 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+    <td>
+      <table width=50%>
+        <tr>
+          <th class="listheading">[% 'Price group' | $T8 %]</th>
+          <th class="listheading">[% 'Price' | $T8 %]</th>
+        </tr>
+        [%- FOREACH pricegroup = SELF.PRICEGROUPS %]
+        <tr class="listrow[% loop.count % 2 %]">
+          <td style='display:none'>[% L.hidden_tag('prices[+].pricegroup_id', pricegroup.id, size=11) %]
+          [% L.hidden_tag('prices[].price_id', pricegroup.price_id, size=11) # id not used? %]</td>
+          <td width=50%>[% L.hidden_tag('prices[].pricegroup', pricegroup.pricegroup, size=30) %][% HTML.escape(pricegroup.pricegroup) %]</td>
+          <td width=50%>[% L.input_tag('prices[].price', pricegroup.price, size=11, class='numeric reformat_number') %]</td>
+        </tr>
+        [%- END %]
+      </table>
+    </td>
+  </tr>

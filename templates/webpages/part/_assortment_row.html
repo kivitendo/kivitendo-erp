@@ -1,0 +1,54 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE P %]
+  <tr class="listrow[% listrow %] assortment_item_row">
+    <td style='display:none'>
+      [% L.hidden_tag("assortment_items[+].parts_id", ASSORTMENT_ITEM.part.id) %]
+    </td>
+    <td align="center">
+      [%- L.button_tag("kivi.Part.delete_assortment_item_row(this)",
+                       LxERP.t8("X")) %] [% # , confirm=LxERP.t8("Are you sure?")) %]
+    </td>
+    <td>
+      <div name="position" class="numeric">
+        [% HTML.escape(ASSORTMENT_ITEM.position) %]
+      </div>
+    </td>
+    <td align="center">
+      <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
+    </td>
+    <td>
+      [% P.part(ASSORTMENT_ITEM.part) %]
+    </td>
+    <td>
+      [% HTML.escape(ASSORTMENT_ITEM.part.description) %]
+    </td>
+    <td>
+      [%- L.input_tag("assortment_items[].qty_as_number",
+                      ASSORTMENT_ITEM.qty_as_number,
+                      size = 10,
+                      class="recalc reformat_number numeric") %]
+    </td>
+    <td nowrap>
+      [%- L.select_tag("assortment_items[].unit",
+                      ASSORTMENT_ITEM.part.available_units,
+                      default = ASSORTMENT_ITEM.part.unit,
+                      title_key = 'name',
+                      value_key = 'name',
+                      class = 'unitselect') %]
+    </td>
+    <td align="right">
+      [%- L.div_tag(LxERP.format_amount(ASSORTMENT_ITEM.linetotal, 2, 0), name="linetotal") %]
+      </td>
+    <td align="right">
+      [% ASSORTMENT_ITEM.part.sellprice_as_number %]
+      </td>
+    <td align="right">
+      [% ASSORTMENT_ITEM.part.lastcost_as_number %]
+      </td>
+    <td align="right">
+      [% HTML.escape(ASSORTMENT_ITEM.part.partsgroup.partsgroup) %]
+      </td>
+  </tr>

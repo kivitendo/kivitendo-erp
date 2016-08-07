@@ -1,0 +1,55 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE P %]
+  <tr class="listrow[% listrow %] assembly_item_row">
+    <td style='display:none'>
+      [% L.hidden_tag("assembly_items[+].parts_id", ASSEMBLY_ITEM.part.id) %]
+    </td>
+    <td align="center">
+      [%- L.button_tag("kivi.Part.delete_assembly_item_row(this)",
+                       LxERP.t8("X")) %] [% # , confirm=LxERP.t8("Are you sure?")) %]
+    </td>
+    <td>
+      <div name="position" class="numeric">
+        [% HTML.escape(ASSEMBLY_ITEM.position) %]
+      </div>
+    </td>
+    <td align="center">
+      <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
+    </td>
+    <td>
+      [% P.part(ASSEMBLY_ITEM.part) %]
+    </td>
+    <td>
+      [% HTML.escape(ASSEMBLY_ITEM.part.description) %]
+    </td>
+    <td>
+      [%- L.input_tag("assembly_items[].qty_as_number",
+                      ASSEMBLY_ITEM.qty_as_number,
+                      size = 10,
+                      class="recalc reformat_number numeric") %]
+    </td>
+    <td nowrap>
+      [%- L.select_tag("assembly_items[].unit",
+                      ASSEMBLY_ITEM.part.available_units,
+                      default = ASSEMBLY_ITEM.part.unit,
+                      title_key = 'name',
+                      value_key = 'name',
+                      class = 'unitselect') %]
+    </td>
+    <td>[% L.checkbox_tag("assembly_items[].bom", checked=ASSEMBLY_ITEM.bom, for_submit=1) %]</td>
+    <td align="right">
+      [%- L.div_tag(LxERP.format_amount(ASSEMBLY_ITEM.linetotal, 2, 0), name="linetotal") %]
+      </td>
+    <td align="right">
+      [% ASSEMBLY_ITEM.part.sellprice_as_number %]
+      </td>
+    <td align="right">
+      [% ASSEMBLY_ITEM.part.lastcost_as_number %]
+      </td>
+    <td align="right">
+      [% HTML.escape(ASSEMBLY_ITEM.part.partsgroup.partsgroup) %]
+      </td>
+  </tr>
