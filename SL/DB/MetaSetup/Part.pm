@@ -15,14 +15,11 @@ __PACKAGE__->meta->columns(
   description        => { type => 'text' },
   drawing            => { type => 'text' },
   ean                => { type => 'text' },
-  expense_accno_id   => { type => 'integer' },
   formel             => { type => 'text' },
   gv                 => { type => 'numeric', precision => 15, scale => 5 },
   has_sernumber      => { type => 'boolean', default => 'false' },
   id                 => { type => 'integer', not_null => 1, sequence => 'id' },
   image              => { type => 'text' },
-  income_accno_id    => { type => 'integer' },
-  inventory_accno_id => { type => 'integer' },
   itime              => { type => 'timestamp', default => 'now()' },
   lastcost           => { type => 'numeric', precision => 15, scale => 5 },
   listprice          => { type => 'numeric', precision => 15, scale => 5 },
@@ -64,21 +61,6 @@ __PACKAGE__->meta->foreign_keys(
   buchungsgruppen => {
     class       => 'SL::DB::Buchungsgruppe',
     key_columns => { buchungsgruppen_id => 'id' },
-  },
-
-  expense_account => {
-    class       => 'SL::DB::Chart',
-    key_columns => { expense_accno_id => 'id' },
-  },
-
-  income_account => {
-    class       => 'SL::DB::Chart',
-    key_columns => { income_accno_id => 'id' },
-  },
-
-  inventory_account => {
-    class       => 'SL::DB::Chart',
-    key_columns => { inventory_accno_id => 'id' },
   },
 
   partsgroup => {
