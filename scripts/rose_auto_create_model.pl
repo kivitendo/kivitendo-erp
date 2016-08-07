@@ -77,6 +77,7 @@ our %foreign_key_name_map     = (
     reconciliation_links      => { acc_trans_id => 'acc_trans' },
 
     assembly                  => { parts_id => 'part', id => 'assembly_part' },
+    assortment_items          => { parts_id => 'part' },
   },
 );
 

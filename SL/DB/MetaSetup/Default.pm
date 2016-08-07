@@ -24,6 +24,7 @@ __PACKAGE__->meta->columns(
   ar_show_mark_as_paid                      => { type => 'boolean', default => 'true' },
   articlenumber                             => { type => 'text' },
   assemblynumber                            => { type => 'text' },
+  assortmentnumber                          => { type => 'text' },
   balance_startdate_method                  => { type => 'text' },
   bin_id                                    => { type => 'integer' },
   bin_id_ignore_onhand                      => { type => 'integer' },

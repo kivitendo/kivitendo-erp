@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::AccTransaction;
 use SL::DB::Assembly;
+use SL::DB::AssortmentItem;
 use SL::DB::AuthClient;
 use SL::DB::AuthClientUser;
 use SL::DB::AuthClientGroup;
