@@ -1,0 +1,87 @@
+[%- USE T8 %][%- USE HTML %][%- USE L %][%- USE LxERP %]
+
+<form method="post" id="multi_items_form" method="POST">
+
+<table id='multi_items_filter_table'>
+  <tr>
+    <th>[%- LxERP.t8("Description") %]/[%- LxERP.t8("Partnumber") %]:</th>
+    <td>[%- L.input_tag('multi_items.filter.all:substr:multi::ilike', '') %]</td>
+    <th>[%- LxERP.t8("Group") %]</th>
+    <td>[%- L.select_tag('multi_items.filter.partsgroup_id', all_partsgroups, title_key='displayable_name', value_key='id', with_empty=1) %]</td>
+  <tr>
+</table>
+
+[% L.button_tag('update_result()', LxERP.t8('Filter')) %]
+<a href='#' onClick='javascript:$("#multi_items_filter_table input").val("");$("#multi_items_filter_table input[type=checkbox]").prop("checked", 0);$("#multi_items_filter_table select").prop("selectedIndex", 0);'>[% 'Reset' | $T8 %]</a>
+
+<hr>
+<div id='multi_items_result'></div>
+<hr>
+
+[% L.button_tag('add_multi_items()', LxERP.t8('Continue'), id='continue_button') %]
+<a href="#" onclick="kivi.Part.close_multi_items_dialog();">[%- LxERP.t8("Cancel") %]</a>
+
+<script type='text/javascript'>
+function update_result() {
+  var data = $('#multi_items_form').serializeArray();
+  data.push({ name: 'type', value: '[%- FORM.type %]' });
+  $.ajax({
+    url: 'controller.pl?action=Part/multi_items_update_result',
+    data: data,
+    method: 'post',
+    success: function(data){
+      $('#multi_items_result').html(data);
+      enable_continue();
+    }
+  });
+}
+
+function disable_continue() {
+  // disable keydown-event and continue button to prevent
+  // impatient users to add parts multiple times
+  $('#multi_items_result input').off("keydown");
+  $('#continue_button').prop('disabled', true);
+}
+
+function enable_continue() {
+  $('#multi_items_result input').keydown(function(event) {
+    if(event.keyCode == 13) {
+      event.preventDefault();
+      add_multi_items();
+      return false;
+    }
+  });
+  $('#continue_button').prop('disabled', false);
+}
+
+function add_multi_items() {
+  // rows at all
+  var n_rows = $('.multi_items_qty').length;
+  if ( n_rows == 0) { return; }
+
+  // filled rows
+  n_rows = $('.multi_items_qty').filter(function() {
+    return $(this).val().length > 0;
+  }).length;
+  if ( n_rows == 0) { return; }
+
+  disable_continue();
+
+  var data = $('#[%- FORM.callback_data_id %]').serializeArray();
+  data = data.concat($('#multi_items_form').serializeArray());
+  data.push({ name: 'action', value: '[%- FORM.callback %]' });
+  $.post("controller.pl", data, kivi.eval_json_result);
+}
+
+$('#multi_items_filter_table input, #multi_items_filter_table select').keydown(function(event) {
+  if(event.keyCode == 13) {
+    event.preventDefault();
+    update_result();
+    return false;
+  }
+});
+
+$('#multi_items_filter_all_substr_multi_ilike').focus();
+</script>
+
+</form>

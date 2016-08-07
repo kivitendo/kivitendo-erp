@@ -47,6 +47,7 @@ namespace("kivi").setupLocale({
 "Edit text block":"Textblock bearbeiten",
 "Enter longdescription":"Langtext eingeben",
 "Function block actions":"Funktionsblockaktionen",
+"History":"Historie",
 "If you switch to a different tab without saving you will lose the data you've entered in the current tab.":"Wenn Sie auf einen anderen Tab wechseln, ohne vorher zu speichern, so gehen die im aktuellen Tab eingegebenen Daten verloren.",
 "Map":"Karte",
 "No":"Nein",
