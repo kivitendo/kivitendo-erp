@@ -24,5 +24,12 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
+__PACKAGE__->meta->foreign_keys(
+  vendor => {
+    class       => 'SL::DB::Vendor',
+    key_columns => { make => 'id' },
+  },
+);
+
 1;
 ;
