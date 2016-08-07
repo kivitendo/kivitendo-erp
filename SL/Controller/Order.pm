@@ -401,6 +401,7 @@ sub action_add_item {
   return unless $form_attr->{parts_id};
 
   my $item = _new_item($self->order, $form_attr);
+
   $self->order->add_items($item);
 
   $self->_recalc();
@@ -413,7 +414,31 @@ sub action_add_item {
   );
 
   $self->js
-    ->append('#row_table_id', $row_as_html)
+    ->append('#row_table_id', $row_as_html);
+
+  if ( $item->part->is_assortment ) {
+    $form_attr->{qty_as_number} = 1 unless $form_attr->{qty_as_number};
+    foreach my $assortment_item ( @{$item->part->assortment_items} ) {
+      my $attr = { parts_id => $assortment_item->parts_id,
+                   qty      => $assortment_item->qty * $::form->parse_amount(\%::myconfig, $form_attr->{qty_as_number}), # TODO $form_attr->{unit}
+                   unit     => $assortment_item->unit,
+                   description => $assortment_item->part->description,
+                 };
+      my $item = _new_item($self->order, $attr);
+      $self->order->add_items( $item );
+      $self->_recalc();
+      my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+      my $row_as_html = $self->p->render('order/tabs/_row',
+                                         ITEM              => $item,
+                                         ID                => $item_id,
+                                         ALL_PRICE_FACTORS => $self->all_price_factors
+      );
+      $self->js
+        ->append('#row_table_id', $row_as_html);
+    };
+  };
+
+  $self->js
     ->val('.add_item_input', '')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.row_table_scroll_down')
