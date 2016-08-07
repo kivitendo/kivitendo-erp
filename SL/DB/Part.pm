@@ -247,6 +247,37 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
 }
 
+sub clone_and_reset_deep {
+  my ($self) = @_;
+
+  my $clone = $self->clone_and_reset; # resets id and partnumber (primary key and unique constraint)
+  $clone->makemodels(       map { $_->clone_and_reset } @{$self->makemodels});
+  $clone->translations(     map { $_->clone_and_reset } @{$self->translations});
+
+  if ( $self->is_assortment ) {
+    $clone->assortment_items( map { $_->clone } @{$self->assortment_items} );
+      foreach my $ai ( @{ $clone->assortment_items } ) {
+        $ai->assortment_id(undef);
+      };
+  };
+
+  if ( $self->is_assembly ) {
+    $clone->assemblies( map { $_->clone_and_reset } @{$self->assemblies});
+  };
+
+  if ( $self->prices ) {
+    $clone->prices( map { $_->clone } @{$self->prices}); # pricegroup_id gets reset here because it is part of a unique contraint
+    if ( $clone->prices ) {
+      foreach my $price ( @{$clone->prices} ) {
+        $price->id(undef);
+        $price->parts_id(undef);
+      };
+    };
+  };
+
+  return $clone;
+}
+
 1;
 
 __END__
