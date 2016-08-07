@@ -6,6 +6,7 @@ package SL::DB::Price;
 use strict;
 
 use SL::DB::MetaSetup::Price;
+use Rose::DB::Object::Helpers qw(clone);
 
 __PACKAGE__->meta->initialize;
 
