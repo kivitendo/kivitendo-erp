@@ -51,30 +51,32 @@
   icon: part_add
   order: 300
   access: part_service_assembly_edit
-  module: ic.pl
   params:
-    action: add
-    part_type: part
+    action: Part/add_part
 - parent: master_data
   id: master_data_add_service
   name: Add Service
   icon: service_add
   order: 400
   access: part_service_assembly_edit
-  module: ic.pl
   params:
-    action: add
-    part_type: service
+    action: Part/add_service
 - parent: master_data
   id: master_data_add_assembly
   name: Add Assembly
   icon: assembly_add
   order: 500
   access: part_service_assembly_edit
-  module: ic.pl
   params:
-    action: add
-    part_type: assembly
+    action: Part/add_assembly
+- parent: master_data
+  id: master_data_add_assortment
+  name: Add Assortment
+  icon: assortment_add
+  order: 550
+  access: part_service_assembly_edit
+  params:
+    action: Part/add_assortment
 - parent: master_data
   id: master_data_add_project
   name: Add Project
@@ -169,6 +171,16 @@
   params:
     action: search
     searchitems: assembly
+- parent: master_data_reports
+  id: master_data_reports_assortments
+  name: Assortments
+  icon: assortment_report
+  order: 650
+  access: part_service_assortment_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: assortment
 - parent: master_data_reports
   id: master_data_reports_projects
   name: Projects

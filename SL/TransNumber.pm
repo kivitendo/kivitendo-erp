@@ -15,7 +15,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
 
-my @SUPPORTED_TYPES = qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly letter);
+my @SUPPORTED_TYPES = qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly assortment letter);
 
 sub new {
   my $class = shift;
@@ -67,10 +67,14 @@ sub _get_filters {
     $filters{where}         = 'COALESCE(quotation, FALSE)';
     $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
 
-  } elsif ($type =~ /part|service|assembly/) {
+  } elsif ($type =~ /^(part|service|assembly|assortment)$/) {
     $filters{trans_number}  = "partnumber";
-    $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
-    $filters{numberfield}   = $type eq 'assembly' ? 'assemblynumber' : $filters{numberfield};
+    my %numberfield_hash = ( service    => 'servicenumber',
+                             assembly   => 'assemblynumber',
+                             assortment => 'assortmentnumber',
+                             part       => 'articlenumber'
+                           );
+    $filters{numberfield}   = $numberfield_hash{$type};
     $filters{table}         = "parts";
   } elsif ($type =~ /letter/) {
     $filters{trans_number}  = "letternumber";

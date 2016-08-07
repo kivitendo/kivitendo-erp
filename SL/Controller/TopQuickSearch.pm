@@ -16,6 +16,7 @@ my @available_modules = (
   'SL::Controller::TopQuickSearch::Part',
   'SL::Controller::TopQuickSearch::Service',
   'SL::Controller::TopQuickSearch::Assembly',
+  'SL::Controller::TopQuickSearch::Assortment',
   'SL::Controller::TopQuickSearch::Contact',
   'SL::Controller::TopQuickSearch::SalesQuotation',
   'SL::Controller::TopQuickSearch::SalesOrder',
