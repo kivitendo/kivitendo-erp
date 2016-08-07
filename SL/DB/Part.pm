@@ -21,6 +21,7 @@ __PACKAGE__->meta->add_relationships(
   assemblies                     => {
     type         => 'one to many',
     class        => 'SL::DB::Assembly',
+    manager_args => { sort_by => 'position, oid' },
     column_map   => { id => 'id' },
   },
   prices         => {
