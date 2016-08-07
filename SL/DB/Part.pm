@@ -130,6 +130,11 @@ sub new_assortment {
   $class->new(%params, part_type => 'assortment');
 }
 
+sub last_modification {
+  my ($self) = @_;
+  return $self->mtime or $self->itime;
+};
+
 sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
