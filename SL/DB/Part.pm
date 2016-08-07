@@ -58,6 +58,29 @@ sub _before_save_set_partnumber {
   return 1;
 }
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The partnumber is missing.')     unless $self->partnumber;
+  push @errors, $::locale->text('The unit is missing.')           unless $self->unit;
+  push @errors, $::locale->text('The buchungsgruppe is missing.') unless $self->buchungsgruppen_id or $self->buchungsgruppe;
+
+  unless ( $self->id ) {
+    push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
+  };
+
+  if ($self->is_assortment && scalar @{$self->assortment_items} == 0) {
+    push @errors, $::locale->text('The assortment doesn\'t have any items.');
+  }
+
+  if ($self->is_assembly && scalar @{$self->assemblies} == 0) {
+    push @errors, $::locale->text('The assembly doesn\'t have any items.');
+  }
+
+  return @errors;
+}
+
 sub is_type {
   my $self = shift;
   my $type  = lc(shift || '');
