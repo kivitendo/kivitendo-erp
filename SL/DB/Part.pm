@@ -61,14 +61,15 @@ sub _before_save_set_partnumber {
 sub is_type {
   my $self = shift;
   my $type  = lc(shift || '');
-  die 'invalid type' unless $type =~ /^(?:part|service|assembly)$/;
+  die 'invalid type' unless $type =~ /^(?:part|service|assembly|assortment)$/;
 
   return $self->type eq $type ? 1 : 0;
 }
 
-sub is_part     { $_[0]->part_type eq 'part' }
-sub is_assembly { $_[0]->part_type eq 'assembly' }
-sub is_service  { $_[0]->part_type eq 'service' }
+sub is_part       { $_[0]->part_type eq 'part'       }
+sub is_assembly   { $_[0]->part_type eq 'assembly'   }
+sub is_service    { $_[0]->part_type eq 'service'    }
+sub is_assortment { $_[0]->part_type eq 'assortment' }
 
 sub type {
   return $_[0]->part_type;
@@ -99,6 +100,11 @@ sub new_service {
   $class->new(%params, part_type => 'service');
 }
 
+sub new_assortment {
+  my ($class, %params) = @_;
+  $class->new(%params, part_type => 'assortment');
+}
+
 sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
@@ -107,6 +113,8 @@ sub orphaned {
     SL::DB::InvoiceItem
     SL::DB::OrderItem
     SL::DB::Inventory
+    SL::DB::Assembly
+    SL::DB::AssortmentItem
   );
 
   for my $class (@relations) {
@@ -245,13 +253,15 @@ flavours called:
 
 =item Assembly - a collection of both parts and services
 
+=item Assortment - a collection of parts
+
 =back
 
 These types are sadly represented by data inside the class and cannot be
 migrated into a flag. To work around this, each C<Part> object knows what type
 it currently is. Since the type is data driven, there ist no explicit setting
 method for it, but you can construct them explicitly with C<new_part>,
-C<new_service>, and C<new_assembly>. A Buchungsgruppe should be supplied in this
+C<new_service>, C<new_assembly> and C<new_assortment>. A Buchungsgruppe should be supplied in this
 case, but it will use the default Buchungsgruppe if you don't.
 
 Matching these there are assorted helper methods dealing with types,

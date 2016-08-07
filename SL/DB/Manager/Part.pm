@@ -48,6 +48,8 @@ sub type_filter {
       push @filter, ($prefix . part_type => 'service');
     } elsif ($type =~ m/^assembly/) {
       push @filter, ($prefix . part_type => 'assembly');
+    } elsif ($type =~ m/^assortment/) {
+      push @filter, ($prefix . part_type => 'assortment');
     }
   }
 

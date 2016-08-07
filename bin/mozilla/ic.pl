@@ -590,7 +590,7 @@ sub generate_report {
       $soldtotal                  = 0 if ($form->{sold});
     }
 
-    my $edit_link               = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback');
+    my $edit_link               = build_std_url('script=controller.pl', 'action=Part/edit', 'id=' . E($ref->{id}), 'callback');
     $row->{partnumber}->{link}  = $edit_link;
     $row->{description}->{link} = $edit_link;
 
