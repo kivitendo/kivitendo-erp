@@ -47,6 +47,25 @@ kleinere neue Features und Detailverbesserungen:
     Verkaufsauträge finden zu können:
     Verkauf -> Berichte -> Auftragsartikelsuche
 
+  - Neuer Artikeltyp "Sortiment"
+    Einem Sortiment	können wie einem Erzeugnis mehrere Artikel zugeordnet
+    werden. Beim Hinzufügen eines Sortiments zu einem Beleg werden alle
+    Bestandteile des Sortiments als Einzelteile zum Beleg hinzugefügt, so als
+    ob man das manuell gemacht hätte. Der Sortimentsartikel wird ohne Preis
+    hinzugefügt und fungiert als Überschrift, und kann sogar gelöscht werden.
+    Nach dem Hinzufügen können die Einzelbestandteile auch gelöscht oder
+    verändert werden. Dadurch hat das Sortiment auch keinen festen Preis,
+    sondern der Preis im Beleg richtet sich nach dem Preis der
+    Einzelbestandteile, die je nach Kunde z.B. durch Preisgruppenpreise
+    variieren können.
+
+    Das Sortiment eignet sich z.B. als Definition von Gruppierungen von
+    Artikeln die häufig zusammen gekauft werden, z.B. ein Artikel in 10
+    Farbvariationen.
+
+    Einschränkungen: das "Auspacken" eines Sortiments beim Hinzufügen in einem
+    Beleg funktioniert derzeit nur beim neuen Auftragscontroller.
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes
