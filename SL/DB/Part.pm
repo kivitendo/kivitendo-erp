@@ -32,6 +32,7 @@ __PACKAGE__->meta->add_relationships(
   makemodels     => {
     type         => 'one to many',
     class        => 'SL::DB::MakeModel',
+    manager_args => { sort_by => 'sortorder' },
     column_map   => { id => 'parts_id' },
   },
   translations   => {
