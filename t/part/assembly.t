@@ -18,8 +18,6 @@ is( SL::DB::Manager::Part->get_all_count(), 3,  "total number of parts created i
 my $assembly_part      = SL::DB::Manager::Part->find_by( partnumber => 'as1' );
 my $assembly_item_part = SL::DB::Manager::Part->find_by( partnumber => '19000' );
 
-is($assembly_part->inventory_accno_id, undef, "assembly doesn't have an inventory accno id");
-
 is($assembly_part->part_type, 'assembly', 'assembly has correct type');
 is( scalar @{$assembly_part->assemblies}, 2, 'assembly consists of two parts' );
 
