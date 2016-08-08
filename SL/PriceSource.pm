@@ -307,6 +307,11 @@ Specifically when changing from sales to purchase records prices don't make
 sense anymore. The guarantees should be updated to reflect this and
 transposition guidelines should be documented.
 
+=item *
+
+Prices were originally planned as a context element rather than a modal popup.
+It would be great to have this now with better framework.
+
 =back
 
 =head1 AUTHOR
