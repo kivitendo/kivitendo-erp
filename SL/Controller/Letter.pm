@@ -577,7 +577,7 @@ sub init_letter {
 #     ));
   }
 
-  $self->is_sales($letter->is_sales);
+  $self->is_sales($letter->is_sales) if $letter->id;
 
   $letter;
 }
