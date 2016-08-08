@@ -67,6 +67,9 @@ sub get_print_options {
     ($form->{type} =~ /_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
       opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
+    ) : undef,
+    ($form->{type} =~ /^letter$/) ? (
+      opthash('letter',              $form->{PD}{letter},              $locale->text('Letter')),
     ) : undef;
 
   push @SENDMODE,
@@ -122,7 +125,6 @@ sub get_print_options {
 
   my %dont_display_groupitems = (
     'dunning' => 1,
-    'letter'  => 1,
     );
 
   my %template_vars = (

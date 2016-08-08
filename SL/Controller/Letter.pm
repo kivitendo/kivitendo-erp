@@ -9,9 +9,11 @@ use POSIX qw(strftime);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CT;
+use SL::DB::Employee;
+use SL::DB::Language;
 use SL::DB::Letter;
 use SL::DB::LetterDraft;
-use SL::DB::Employee;
+use SL::DB::Printer;
 use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::CreatePDF;
 use SL::Helper::PrintOptions;
@@ -359,6 +361,7 @@ sub _display {
   $::request->layout->add_javascripts('edit_part_window.js');
 
   $::form->{language_id} ||= $params{language_id};
+  $::form->{languages}   ||= SL::DB::Manager::Language->get_all_sorted;
   $::form->{printers}      = SL::DB::Manager::Printer->get_all_sorted;
 
   $self->render('letter/edit',
