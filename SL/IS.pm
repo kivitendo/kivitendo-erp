@@ -1656,8 +1656,7 @@ sub process_assembly {
   my ($dbh, $myconfig, $form, $position, $id, $totalqty) = @_;
 
   my $query =
-    qq|SELECT a.parts_id, a.qty, p.part_type, p.partnumber, p.description, p.unit,
-         p.inventory_accno_id, p.income_accno_id, p.expense_accno_id
+    qq|SELECT a.parts_id, a.qty, p.part_type, p.partnumber, p.description, p.unit
        FROM assembly a
        JOIN parts p ON (a.parts_id = p.id)
        WHERE (a.id = ?)|;
@@ -1797,7 +1796,7 @@ sub reverse_invoice {
 
   # reverse inventory items
   my $query =
-    qq|SELECT i.id, i.parts_id, i.qty, i.assemblyitem, p.part_type, p.inventory_accno_id
+    qq|SELECT i.id, i.parts_id, i.qty, i.assemblyitem, p.part_type
        FROM invoice i
        JOIN parts p ON (i.parts_id = p.id)
        WHERE i.trans_id = ?|;
@@ -2003,7 +2002,7 @@ sub _retrieve_invoice {
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
            i.project_id, i.serialnumber, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor, i.active_price_source, i.active_discount_source,
-           p.partnumber, p.part_type, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel, p.listprice,
+           p.partnumber, p.part_type, p.notes AS partnotes, p.formel, p.listprice,
            pr.projectnumber, pg.partsgroup, prg.pricegroup
 
          FROM invoice i

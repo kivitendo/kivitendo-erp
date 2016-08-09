@@ -1094,7 +1094,7 @@ sub _retrieve {
            c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from as expense_valid,
            oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,
            p.partnumber, p.part_type, p.listprice, o.description, o.qty,
-           o.sellprice, o.parts_id AS id, o.unit, o.discount, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
+           o.sellprice, o.parts_id AS id, o.unit, o.discount, p.notes AS partnotes, p.part_type,
            o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
            o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
            o.price_factor_id, o.price_factor, o.marge_price_factor, o.active_price_source, o.active_discount_source,
@@ -1126,10 +1126,10 @@ sub _retrieve {
       map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
 
       # Handle accounts.
-      if (!$ref->{"part_inventory_accno_id"}) {
+      if (!$ref->{"part_type"} eq 'part') {
         map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid));
       }
-      delete($ref->{"part_inventory_accno_id"});
+      # delete($ref->{"part_inventory_accno_id"});
 
       # in collective order, copy global ordnumber, transdate, cusordnumber into item scope
       #   unless already present there

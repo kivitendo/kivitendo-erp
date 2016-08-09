@@ -837,7 +837,7 @@ sub reverse_invoice {
 
   # reverse inventory items
   my $query =
-    qq|SELECT i.parts_id, p.inventory_accno_id, p.expense_accno_id, i.qty, i.allocated, i.sellprice
+    qq|SELECT i.parts_id, p.part_type, i.qty, i.allocated, i.sellprice
        FROM invoice i, parts p
        WHERE (i.parts_id = p.id)
          AND (i.trans_id = ?)|;
@@ -848,7 +848,7 @@ sub reverse_invoice {
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $netamount += $form->round_amount($ref->{sellprice} * $ref->{qty} * -1, 2);
 
-    next unless $ref->{inventory_accno_id};
+    next unless $ref->{part_type} eq 'part';
 
     # if $ref->{allocated} > 0 than we sold that many items
     next if ($ref->{allocated} <= 0);
@@ -1019,7 +1019,7 @@ sub retrieve_invoice {
         i.id AS invoice_id,
         i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
         i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount, i.active_price_source, i.active_discount_source,
-        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id,  pr.projectnumber, pg.partsgroup
+        p.partnumber, p.part_type, pr.projectnumber, pg.partsgroup
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
@@ -1043,8 +1043,7 @@ sub retrieve_invoice {
                                           );
     map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
 
-    map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
-    delete($ref->{"part_inventory_accno_id"});
+    map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_type"} eq 'part';
 
     foreach my $type (qw(inventory income expense)) {
       while ($ref->{"${type}_new_chart"} && ($ref->{"${type}_valid"} >=0)) {

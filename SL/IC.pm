@@ -44,6 +44,7 @@ use SL::HTML::Restrict;
 use SL::TransNumber;
 use SL::Util qw(trim);
 use SL::DB;
+use Carp;
 
 use strict;
 
@@ -1562,7 +1563,7 @@ sub retrieve_accounts {
   my %accno_by_part = map { $_->{id} => $_ }
     selectall_hashref_query($form, $dbh, <<SQL, @part_ids);
     SELECT
-      p.id, p.inventory_accno_id AS is_part,
+      p.id, p.part_type,
       bg.inventory_accno_id,
       tc.income_accno_id AS income_accno_id,
       tc.expense_accno_id AS expense_accno_id,
@@ -1595,7 +1596,7 @@ SQL
   while (my ($index => $part_id) = each %args) {
     my $ref = $accno_by_part{$part_id} or next;
 
-    $ref->{"inventory_accno_id"} = undef unless $ref->{"is_part"};
+    $ref->{"inventory_accno_id"} = undef unless $ref->{"part_type"} eq 'part';
 
     my %accounts;
     for my $type (qw(inventory income expense)) {
