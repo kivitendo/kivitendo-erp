@@ -8,6 +8,7 @@ use Carp;
 use List::MoreUtils qw(any none);
 use SL::DBUtils;
 use SL::PrefixedNumber;
+use SL::DB;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -23,7 +24,7 @@ sub new {
   croak "Invalid type " . $self->type if none { $_ eq $self->type } @SUPPORTED_TYPES;
 
   $self->dbh_provided($self->dbh);
-  $self->dbh($::form->get_standard_dbh) if !$self->dbh;
+  $self->dbh(SL::DB->client->dbh) if !$self->dbh;
   $self->save(1) unless defined $self->save;
   $self->business_id(undef) if $self->type ne 'customer';
 
@@ -115,42 +116,44 @@ sub create_unique {
 
   my $form    = $main::form;
   my %filters = $self->_get_filters();
+  my $number;
 
-  $self->dbh->begin_work if $self->dbh->{AutoCommit};
-
-  my $where = $filters{where} ? ' WHERE ' . $filters{where} : '';
-  my $query = <<SQL;
-    SELECT DISTINCT $filters{trans_number}, 1 AS in_use
-    FROM $filters{table}
-    $where
+  SL::DB->client->with_transaction(sub {
+    my $where = $filters{where} ? ' WHERE ' . $filters{where} : '';
+    my $query = <<SQL;
+      SELECT DISTINCT $filters{trans_number}, 1 AS in_use
+      FROM $filters{table}
+      $where
 SQL
 
-  do_query($form, $self->dbh, "LOCK TABLE " . $filters{table}) || die $self->dbh->errstr;
-  my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
+    do_query($form, $self->dbh, "LOCK TABLE " . $filters{table}) || die $self->dbh->errstr;
+    my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
 
-  my $business_number;
-  ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ? FOR UPDATE|, $self->business_id) if $self->business_id;
-  my $number         = $business_number;
-  ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
-  if ($filters{numberfield} eq 'assemblynumber' and length($number) < 1) {
-    $filters{numberfield} = 'articlenumber';
-    ($number)        = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
-  }
-  $number          ||= '';
-  my $sequence       = SL::PrefixedNumber->new(number => $number);
-
-  do {
-    $number = $sequence->get_next;
-  } while ($numbers_in_use{$number});
-
-  if ($self->save) {
-    if ($self->business_id && $business_number) {
-      do_query($form, $self->dbh, qq|UPDATE business SET customernumberinit = ? WHERE id = ?|, $number, $self->business_id);
-    } else {
-      do_query($form, $self->dbh, qq|UPDATE defaults SET $filters{numberfield} = ?|, $number);
+    my $business_number;
+    ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ? FOR UPDATE|, $self->business_id) if $self->business_id;
+    $number         = $business_number;
+    ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
+    if ($filters{numberfield} eq 'assemblynumber' and length($number) < 1) {
+      $filters{numberfield} = 'articlenumber';
+      ($number)        = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
     }
-    $self->dbh->commit if !$self->dbh_provided;
-  }
+    $number          ||= '';
+    my $sequence       = SL::PrefixedNumber->new(number => $number);
+
+    do {
+      $number = $sequence->get_next;
+    } while ($numbers_in_use{$number});
+
+    if ($self->save) {
+      if ($self->business_id && $business_number) {
+        do_query($form, $self->dbh, qq|UPDATE business SET customernumberinit = ? WHERE id = ?|, $number, $self->business_id);
+      } else {
+        do_query($form, $self->dbh, qq|UPDATE defaults SET $filters{numberfield} = ?|, $number);
+      }
+    }
+
+    1;
+  }) or do { die SL::DB->client->error };
 
   return $number;
 }
