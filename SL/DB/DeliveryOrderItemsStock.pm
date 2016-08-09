@@ -7,6 +7,14 @@ use strict;
 
 use SL::DB::MetaSetup::DeliveryOrderItemsStock;
 
+__PACKAGE__->meta->add_relationship(
+  inventory => {
+    type         => 'one to one',
+    class        => 'SL::DB::Inventory',
+    column_map   => { id => 'delivery_order_items_stock_id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
