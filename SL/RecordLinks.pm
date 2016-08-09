@@ -7,6 +7,7 @@ use SL::Common;
 use SL::DBUtils;
 use Data::Dumper;
 use List::Util qw(reduce);
+use SL::DB;
 
 sub create_links {
   $main::lxdebug->enter_sub();
@@ -54,19 +55,21 @@ sub create_links {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
 
-  my $query    = qq|INSERT INTO record_links (from_table, from_id, to_table, to_id) VALUES (?, ?, ?, ?)|;
-  my $sth      = prepare_query($form, $dbh, $query);
+    my $query    = qq|INSERT INTO record_links (from_table, from_id, to_table, to_id) VALUES (?, ?, ?, ?)|;
+    my $sth      = prepare_query($form, $dbh, $query);
 
-  foreach my $link (@links) {
-    next if ('HASH' ne ref $link);
-    next if (!$link->{from_table} || !$link->{from_id} || !$link->{to_table} || !$link->{to_id});
+    foreach my $link (@links) {
+      next if ('HASH' ne ref $link);
+      next if (!$link->{from_table} || !$link->{from_id} || !$link->{to_table} || !$link->{to_id});
 
-    do_statement($form, $sth, $query, $link->{from_table}, conv_i($link->{from_id}), $link->{to_table}, conv_i($link->{to_id}));
-  }
+      do_statement($form, $sth, $query, $link->{from_table}, conv_i($link->{from_id}), $link->{to_table}, conv_i($link->{to_id}));
+    }
 
-  $dbh->commit() unless ($params{dbh});
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -184,21 +187,23 @@ sub delete {
   my $myconfig   = \%main::myconfig;
   my $form       = $main::form;
 
-  my $dbh        = $params{dbh} || $form->get_standard_dbh($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh        = $params{dbh} || SL::DB->client->dbh;
 
-  # content
-  my (@where_tokens, @where_values);
+    # content
+    my (@where_tokens, @where_values);
 
-  for my $col (qw(from_table from_id to_table to_id)) {
-    add_token(\@where_tokens, \@where_values, col => $col, val => $params{$col}) if $params{$col};
-  }
+    for my $col (qw(from_table from_id to_table to_id)) {
+      add_token(\@where_tokens, \@where_values, col => $col, val => $params{$col}) if $params{$col};
+    }
 
-  my $where = @where_tokens ? "WHERE ". join ' AND ', map { "($_)" } @where_tokens : '';
-  my $query = "DELETE FROM record_links $where";
+    my $where = @where_tokens ? "WHERE ". join ' AND ', map { "($_)" } @where_tokens : '';
+    my $query = "DELETE FROM record_links $where";
 
-  do_query($form, $dbh, $query, @where_values);
+    do_query($form, $dbh, $query, @where_values);
 
-  $dbh->commit() unless ($params{dbh});
+    1;
+  }) or die { SL::DD->client->error };
 
   $main::lxdebug->leave_sub();
 }
