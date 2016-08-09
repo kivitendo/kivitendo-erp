@@ -16,6 +16,7 @@ use SL::DB::Helper::CustomVariables (
   module      => 'IC',
   cvars_alias => 1,
 );
+use List::Util qw(sum);
 
 __PACKAGE__->meta->add_relationships(
   assemblies                     => {
@@ -284,6 +285,34 @@ sub clone_and_reset_deep {
   return $clone;
 }
 
+sub assembly_sellprice_sum {
+  my ($self) = @_;
+
+  return unless $self->is_assembly;
+  sum map { $_->linetotal } @{$self->part->assemblies};
+};
+
+sub assembly_lastcost_sum {
+  my ($self) = @_;
+
+  return unless $self->is_assembly;
+  sum map { $_->linetotal } @{$self->part->assemblies};
+};
+
+sub assortment_sellprice_sum {
+  my ($self) = @_;
+
+  return unless $self->is_assortment;
+  sum map { $_->linetotal } @{$self->part->assortment_items};
+};
+
+sub assortment_lastcost_sum {
+  my ($self) = @_;
+
+  return unless $self->is_assortment;
+  sum map { $_->linetotal } @{$self->part->assortment_items};
+};
+
 1;
 
 __END__
@@ -421,6 +450,22 @@ assemblies.
 Used to set the accounting information from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
+
+=item C<assembly_sellprice_sum>
+
+Non-recursive sellprice sum of all the assembly item sellprices.
+
+=item C<assortment_sellprice_sum>
+
+Non-recursive sellprice sum of all the assortment item sellprices.
+
+=item C<assembly_lastcost_sum>
+
+Non-recursive lastcost sum of all the assembly item lastcosts.
+
+=item C<assortment_lastcost_sum>
+
+Non-recursive lastcost sum of all the assortment item lastcosts.
 
 =back
 
