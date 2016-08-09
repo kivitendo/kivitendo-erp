@@ -70,6 +70,8 @@ SQL
       # Erstelldatum, wenn keine Modifikation erfolgt ist (bei Stornos z.B.).
       do_query($form, $dbh, qq|UPDATE $table SET datepaid = COALESCE(mtime::date, itime::date) WHERE id = ?|, $id);
     }
+
+    1;
   }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
