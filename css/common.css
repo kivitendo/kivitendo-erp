@@ -72,3 +72,6 @@ input.grow_on_focus:focus { width: 150px }
 #dunning_invoice_list .direct_debit a {
   color: #aaa;
 }
+/* orderitems */
+.shipped     { color: green }
+.not_shipped { color: red   }

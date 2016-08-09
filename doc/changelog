@@ -41,6 +41,10 @@ kleinere neue Features und Detailverbesserungen:
   - Neuer Controller für Preisgruppen, die nun sortiert und ungültig gesetzt
     werden können.
 
+  - Neuer Berichte "Auftragsartikelsuche", um schnell Autragspositionen aus
+    Verkaufsauträge finden zu können:
+    Verkauf -> Berichte -> Auftragsartikelsuche
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes

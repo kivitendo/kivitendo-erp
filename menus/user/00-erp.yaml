@@ -349,6 +349,13 @@
   params:
     action: search
 - parent: ar_reports
+  id: ar_order_item_search
+  name: Order item search
+  order: 750
+  access: sales_order_edit
+  params:
+    action: OrderItem/search
+- parent: ar_reports
   id: ar_reports_delivery_plan
   name: Delivery Plan
   order: 800
