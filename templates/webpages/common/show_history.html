@@ -23,7 +23,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;[% 'Zeitpunkt' | $T8 %]&nbsp;
+           &nbsp;[% 'Time' | $T8 %]&nbsp;
           </td>
           <td valign="top">
            [% PROCESS column_header THIS_COLUMN=ITIME THIS_COLUMN_DOWN=ITIMEBY column='h.itime' %]
@@ -35,7 +35,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-            &nbsp;[% 'Mitarbeiter' | $T8 %]&nbsp;
+            &nbsp;[% 'Employee' | $T8 %]&nbsp;
           </td>
           <td valign="top">
            [% PROCESS column_header THIS_COLUMN=NAME THIS_COLUMN_DOWN=NAMEBY column='emp.name' %]
@@ -47,7 +47,7 @@
       <table>
         <tr>
           <td>
-            &nbsp;[% 'Aktion' | $T8 %]&nbsp;
+            &nbsp;[% 'Action' | $T8 %]&nbsp;
           </td>
         </tr>
       </table>
@@ -56,7 +56,7 @@
       <table>
         <tr>
           <td>
-            &nbsp;[% 'Zusatz' | $T8 %]&nbsp;
+            &nbsp;[% 'Addition' | $T8 %]&nbsp;
           </td>
         </tr>
       </table>
@@ -65,7 +65,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;[% 'ID-Nummer' | $T8 %]&nbsp;
+           &nbsp;[% 'ID number' | $T8 %]&nbsp;
           </td>
           <td valign="top">
             [% PROCESS column_header THIS_COLUMN=TRANS_ID THIS_COLUMN_DOWN=TRANS_IDBY column='h.trans_id' %]
@@ -77,7 +77,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;[% 'Belegnummer' | $T8 %]&nbsp;
+           &nbsp;[% 'Record number' | $T8 %]&nbsp;
           </td>
           <td valign="top">
             [% PROCESS column_header THIS_COLUMN=SNUMBERS THIS_COLUMN_DOWN=SNUMBERSBY column='h.snumbers' %]
@@ -112,7 +112,7 @@
 </tbody>
 </table>
 [% ELSE %]
-<b>[% 'Keine Suchergebnisse gefunden!' | $T8 %]</b><br>
+<b>[% 'No search results found!' | $T8 %]</b><br>
 [% END %]
 <p>
 [% IF NONEWWINDOW %]
