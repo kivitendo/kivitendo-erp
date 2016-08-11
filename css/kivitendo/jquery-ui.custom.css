@@ -123,3 +123,7 @@
 .jstree a {
   border-bottom: none;
 }
+/* show scrollbar vertical */
+.ui-tabs-panel {
+  overflow: scroll;
+}
