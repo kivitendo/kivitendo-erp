@@ -72,7 +72,7 @@ sub validate {
   my ($self) = @_;
 
   my @errors;
-  push @errors, $::locale->text('The partnumber is missing.')     unless $self->partnumber;
+  push @errors, $::locale->text('The partnumber is missing.')     if $self->id and !$self->partnumber;
   push @errors, $::locale->text('The unit is missing.')           unless $self->unit;
   push @errors, $::locale->text('The buchungsgruppe is missing.') unless $self->buchungsgruppen_id or $self->buchungsgruppe;
 
