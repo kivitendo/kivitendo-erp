@@ -4,6 +4,7 @@
 package SL::DB::CsvImportReport;
 
 use strict;
+use SL::DB;
 use SL::DBUtils;
 
 use SL::DB::MetaSetup::CsvImportReport;
@@ -56,20 +57,19 @@ sub folded_status {
 sub destroy {
   my ($self) = @_;
 
-  my $dbh = $self->db->dbh;
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  $dbh->begin_work;
+    do_query($::form, $dbh, 'DELETE FROM csv_import_report_status WHERE csv_import_report_id = ?', $self->id);
+    do_query($::form, $dbh, 'DELETE FROM csv_import_report_rows WHERE csv_import_report_id = ?', $self->id);
+    do_query($::form, $dbh, 'DELETE FROM csv_import_reports WHERE id = ?', $self->id);
 
-  do_query($::form, $dbh, 'DELETE FROM csv_import_report_status WHERE csv_import_report_id = ?', $self->id);
-  do_query($::form, $dbh, 'DELETE FROM csv_import_report_rows WHERE csv_import_report_id = ?', $self->id);
-  do_query($::form, $dbh, 'DELETE FROM csv_import_reports WHERE id = ?', $self->id);
-
-  if ($self->profile_id) {
-    do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
-    do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
-  }
-
-  $dbh->commit;
+    if ($self->profile_id) {
+      do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
+      do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 }
 
 1;
