@@ -3,10 +3,12 @@ package SL::Controller::CsvImport::Base;
 use strict;
 
 use English qw(-no_match_vars);
+use List::Util qw(min);
 use List::MoreUtils qw(pairwise any);
 
 use SL::Helper::Csv;
 
+use SL::DB;
 use SL::DB::BankAccount;
 use SL::DB::Customer;
 use SL::DB::Language;
@@ -461,30 +463,31 @@ sub save_objects {
 
   my $dbh = $data->[0]{object}->db;
 
-  $dbh->begin_work;
-  foreach my $entry_index (0 .. $#$data) {
-    my $entry = $data->[$entry_index];
-    next if @{ $entry->{errors} };
+  my $last_index = $#$data;
+  my $chunk_size = 100;      # one transaction and progress update every 100 objects
 
-    my $object = $entry->{object_to_save} || $entry->{object};
+  for my $chunk (0 .. $last_index / $chunk_size) {
+    $self->controller->track_progress(progress => ($chunk_size * $chunk)/scalar(@$data) * 100); # scale from 45..95%;
+    SL::DB->client->with_transaction(sub {
+      foreach my $entry_index ($chunk_size * $chunk .. min( $last_index, $chunk_size * ($chunk + 1) - 1 )) {
+        my $entry = $data->[$entry_index];
+        next if @{ $entry->{errors} };
 
-    my $ret;
-    if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
-      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $EVAL_ERROR);
-    } elsif ( !$ret ) {
-      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $object->db->error);
-    } else {
-      $self->_save_history($object);
-      $self->controller->num_imported($self->controller->num_imported + 1);
-    }
-  } continue {
-    if ($entry_index % 100 == 0) {
-      $dbh->commit;
-      $self->controller->track_progress(progress => $entry_index/scalar(@$data) * 100); # scale from 45..95%;
-      $dbh->begin_work;
-    }
+        my $object = $entry->{object_to_save} || $entry->{object};
+
+        my $ret;
+        if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
+          push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $EVAL_ERROR);
+        } elsif ( !$ret ) {
+          push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $object->db->error);
+        } else {
+          $self->_save_history($object);
+          $self->controller->num_imported($self->controller->num_imported + 1);
+        }
+      }
+    }) or do { die SL::DB->client->error };
   }
-  $dbh->commit;
+  $self->controller->track_progress(progress => 100);
 }
 
 sub field_lengths {
