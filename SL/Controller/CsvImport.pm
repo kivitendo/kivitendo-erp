@@ -2,6 +2,7 @@ package SL::Controller::CsvImport;
 
 use strict;
 
+use SL::DB;
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportReport;
@@ -515,53 +516,53 @@ sub save_report_single {
 
   $report->save(cascade => 1) or die $report->db->error;
 
-  my $dbh = $::form->get_standard_dbh;
-  $dbh->begin_work;
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
-  my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
+    my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+    my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
 
-  my $sth = $dbh->prepare($query);
-  my $sth2 = $dbh->prepare($query2);
+    my $sth = $dbh->prepare($query);
+    my $sth2 = $dbh->prepare($query2);
 
-  # save headers
-  my (@headers, @info_methods, @raw_methods, @methods);
+    # save headers
+    my (@headers, @info_methods, @raw_methods, @methods);
 
-  for my $i (0 .. $#{ $self->info_headers->{headers} }) {
-    next unless         $self->info_headers->{used}->{ $self->info_headers->{methods}->[$i] };
-    push @headers,      $self->info_headers->{headers}->[$i];
-    push @info_methods, $self->info_headers->{methods}->[$i];
-  }
-  for my $i (0 .. $#{ $self->headers->{headers} }) {
-    next unless         $self->headers->{used}->{ $self->headers->{headers}->[$i] };
-    push @headers,      $self->headers->{headers}->[$i];
-    push @methods,      $self->headers->{methods}->[$i];
-  }
-  for my $i (0 .. $#{ $self->raw_data_headers->{headers} }) {
-    next unless         $self->raw_data_headers->{used}->{ $self->raw_data_headers->{headers}->[$i] };
-    push @headers,      $self->raw_data_headers->{headers}->[$i];
-    push @raw_methods,  $self->raw_data_headers->{headers}->[$i];
-  }
+    for my $i (0 .. $#{ $self->info_headers->{headers} }) {
+      next unless         $self->info_headers->{used}->{ $self->info_headers->{methods}->[$i] };
+      push @headers,      $self->info_headers->{headers}->[$i];
+      push @info_methods, $self->info_headers->{methods}->[$i];
+    }
+    for my $i (0 .. $#{ $self->headers->{headers} }) {
+      next unless         $self->headers->{used}->{ $self->headers->{headers}->[$i] };
+      push @headers,      $self->headers->{headers}->[$i];
+      push @methods,      $self->headers->{methods}->[$i];
+    }
+    for my $i (0 .. $#{ $self->raw_data_headers->{headers} }) {
+      next unless         $self->raw_data_headers->{used}->{ $self->raw_data_headers->{headers}->[$i] };
+      push @headers,      $self->raw_data_headers->{headers}->[$i];
+      push @raw_methods,  $self->raw_data_headers->{headers}->[$i];
+    }
 
-  $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
+    $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
 
-  # col offsets
-  my $o1 =       @info_methods;
-  my $o2 = $o1 + @methods;
+    # col offsets
+    my $o1 =       @info_methods;
+    my $o2 = $o1 + @methods;
 
-  for my $row (0 .. $#{ $self->data }) {
-    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
-    my $data_row = $self->{data}[$row];
+    for my $row (0 .. $#{ $self->data }) {
+      $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
+      my $data_row = $self->{data}[$row];
 
-    $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
-    $sth->execute($report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
-    $sth->execute($report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
+      $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
+      $sth->execute($report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
+      $sth->execute($report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
 
-    $sth2->execute($report->id, $row + 1, 'information', $_) for @{ $data_row->{information} || [] };
-    $sth2->execute($report->id, $row + 1, 'errors', $_)      for @{ $data_row->{errors}      || [] };
-  }
-
-  $dbh->commit;
+      $sth2->execute($report->id, $row + 1, 'information', $_) for @{ $data_row->{information} || [] };
+      $sth2->execute($report->id, $row + 1, 'errors', $_)      for @{ $data_row->{errors}      || [] };
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 
   return $report->id;
 }
