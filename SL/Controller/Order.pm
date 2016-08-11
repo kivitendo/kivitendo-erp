@@ -326,7 +326,7 @@ sub action_save_and_delivery_order {
   $self->redirect_to(@redirect_params);
 }
 
-# set form elements in respect of a changed customer or vendor
+# set form elements in respect to a changed customer or vendor
 #
 # This action is called on an change of the customer/vendor picker.
 sub action_customer_vendor_changed {
@@ -477,7 +477,7 @@ sub action_multi_items_update_result {
   }
 }
 
-# add item rows for multiple items add once
+# add item rows for multiple items at once
 sub action_add_multi_items {
   my ($self) = @_;
 
@@ -525,7 +525,7 @@ sub action_recalc_amounts_and_taxes {
   $self->js->render();
 }
 
-# redisplay item rows if the are sorted by an attribute
+# redisplay item rows if they are sorted by an attribute
 sub action_reorder_items {
   my ($self) = @_;
 
@@ -563,7 +563,7 @@ sub action_price_popup {
 # longdescription was opened and the longdescription is empty
 #
 # If this item is new, get the longdescription from Part.
-# Get it from OrderItem else.
+# Otherwise get it from OrderItem.
 sub action_get_item_longdescription {
   my $longdescription;
 
