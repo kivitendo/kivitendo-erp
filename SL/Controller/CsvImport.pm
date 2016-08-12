@@ -587,75 +587,75 @@ sub save_report_multi {
 
   $report->save(cascade => 1) or die $report->db->error;
 
-  my $dbh = $::form->get_standard_dbh;
-  $dbh->begin_work;
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
-  my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
+    my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+    my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
 
-  my $sth = $dbh->prepare($query);
-  my $sth2 = $dbh->prepare($query2);
+    my $sth = $dbh->prepare($query);
+    my $sth2 = $dbh->prepare($query2);
 
-  # save headers
-  my ($headers, $info_methods, $raw_methods, $methods);
+    # save headers
+    my ($headers, $info_methods, $raw_methods, $methods);
 
-  for my $i (0 .. $#{ $self->worker->profile }) {
-    my $row_ident = $self->worker->profile->[$i]->{row_ident};
+    for my $i (0 .. $#{ $self->worker->profile }) {
+      my $row_ident = $self->worker->profile->[$i]->{row_ident};
 
-    for my $i (0 .. $#{ $self->info_headers->{$row_ident}->{headers} }) {
-      next unless                            $self->info_headers->{$row_ident}->{used}->{ $self->info_headers->{$row_ident}->{methods}->[$i] };
-      push @{ $headers->{$row_ident} },      $self->info_headers->{$row_ident}->{headers}->[$i];
-      push @{ $info_methods->{$row_ident} }, $self->info_headers->{$row_ident}->{methods}->[$i];
+      for my $i (0 .. $#{ $self->info_headers->{$row_ident}->{headers} }) {
+        next unless                            $self->info_headers->{$row_ident}->{used}->{ $self->info_headers->{$row_ident}->{methods}->[$i] };
+        push @{ $headers->{$row_ident} },      $self->info_headers->{$row_ident}->{headers}->[$i];
+        push @{ $info_methods->{$row_ident} }, $self->info_headers->{$row_ident}->{methods}->[$i];
+      }
+      for my $i (0 .. $#{ $self->headers->{$row_ident}->{headers} }) {
+        next unless                       $self->headers->{$row_ident}->{used}->{ $self->headers->{$row_ident}->{headers}->[$i] };
+        push @{ $headers->{$row_ident} }, $self->headers->{$row_ident}->{headers}->[$i];
+        push @{ $methods->{$row_ident} }, $self->headers->{$row_ident}->{methods}->[$i];
+      }
+
+      for my $i (0 .. $#{ $self->raw_data_headers->{$row_ident}->{headers} }) {
+      next unless                           $self->raw_data_headers->{$row_ident}->{used}->{ $self->raw_data_headers->{$row_ident}->{headers}->[$i] };
+      push @{ $headers->{$row_ident} },     $self->raw_data_headers->{$row_ident}->{headers}->[$i];
+      push @{ $raw_methods->{$row_ident} }, $self->raw_data_headers->{$row_ident}->{headers}->[$i];
     }
-    for my $i (0 .. $#{ $self->headers->{$row_ident}->{headers} }) {
-      next unless                       $self->headers->{$row_ident}->{used}->{ $self->headers->{$row_ident}->{headers}->[$i] };
-      push @{ $headers->{$row_ident} }, $self->headers->{$row_ident}->{headers}->[$i];
-      push @{ $methods->{$row_ident} }, $self->headers->{$row_ident}->{methods}->[$i];
+
     }
 
-    for my $i (0 .. $#{ $self->raw_data_headers->{$row_ident}->{headers} }) {
-    next unless                           $self->raw_data_headers->{$row_ident}->{used}->{ $self->raw_data_headers->{$row_ident}->{headers}->[$i] };
-    push @{ $headers->{$row_ident} },     $self->raw_data_headers->{$row_ident}->{headers}->[$i];
-    push @{ $raw_methods->{$row_ident} }, $self->raw_data_headers->{$row_ident}->{headers}->[$i];
-  }
+    for my $i (0 .. $#{ $self->worker->profile }) {
+      my $row_ident = $self->worker->profile->[$i]->{row_ident};
+      $sth->execute($report->id, $_, $i, $headers->{$row_ident}->[$_]) for 0 .. $#{ $headers->{$row_ident} };
+    }
 
-  }
+    # col offsets
+    my ($off1, $off2);
+    for my $i (0 .. $#{ $self->worker->profile }) {
+      my $row_ident = $self->worker->profile->[$i]->{row_ident};
+      my $n_info_methods = $info_methods->{$row_ident} ? scalar @{ $info_methods->{$row_ident} } : 0;
+      my $n_methods      = $methods->{$row_ident} ?      scalar @{ $methods->{$row_ident} }      : 0;
 
-  for my $i (0 .. $#{ $self->worker->profile }) {
-    my $row_ident = $self->worker->profile->[$i]->{row_ident};
-    $sth->execute($report->id, $_, $i, $headers->{$row_ident}->[$_]) for 0 .. $#{ $headers->{$row_ident} };
-  }
+      $off1->{$row_ident} = $n_info_methods;
+      $off2->{$row_ident} = $off1->{$row_ident} + $n_methods;
+    }
 
-  # col offsets
-  my ($off1, $off2);
-  for my $i (0 .. $#{ $self->worker->profile }) {
-    my $row_ident = $self->worker->profile->[$i]->{row_ident};
-    my $n_info_methods = $info_methods->{$row_ident} ? scalar @{ $info_methods->{$row_ident} } : 0;
-    my $n_methods      = $methods->{$row_ident} ?      scalar @{ $methods->{$row_ident} }      : 0;
+    my $n_header_rows = scalar @{ $self->worker->profile };
 
-    $off1->{$row_ident} = $n_info_methods;
-    $off2->{$row_ident} = $off1->{$row_ident} + $n_methods;
-  }
+    for my $row (0 .. $#{ $self->data }) {
+      $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
+      my $data_row = $self->{data}[$row];
+      my $row_ident = $data_row->{raw_data}{datatype};
 
-  my $n_header_rows = scalar @{ $self->worker->profile };
+      my $o1 = $off1->{$row_ident};
+      my $o2 = $off2->{$row_ident};
 
-  for my $row (0 .. $#{ $self->data }) {
-    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
-    my $data_row = $self->{data}[$row];
-    my $row_ident = $data_row->{raw_data}{datatype};
+      $sth->execute($report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
+      $sth->execute($report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
+      $sth->execute($report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };
 
-    my $o1 = $off1->{$row_ident};
-    my $o2 = $off2->{$row_ident};
-
-    $sth->execute($report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
-    $sth->execute($report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
-    $sth->execute($report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };
-
-    $sth2->execute($report->id, $row + $n_header_rows, 'information', $_) for @{ $data_row->{information} || [] };
-    $sth2->execute($report->id, $row + $n_header_rows, 'errors', $_)      for @{ $data_row->{errors}      || [] };
-  }
-
-  $dbh->commit;
+      $sth2->execute($report->id, $row + $n_header_rows, 'information', $_) for @{ $data_row->{information} || [] };
+      $sth2->execute($report->id, $row + $n_header_rows, 'errors', $_)      for @{ $data_row->{errors}      || [] };
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 
   return $report->id;
 }
