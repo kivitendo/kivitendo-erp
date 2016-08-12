@@ -1436,7 +1436,7 @@ sub get_standard_dbh {
     undef $standard_dbh;
   }
 
-  $standard_dbh ||= SL::DB->create(undef, 'KIVITENDO')->dbh;
+  $standard_dbh ||= SL::DB->client->dbh;
 
   $main::lxdebug->leave_sub(2);
 
@@ -3036,52 +3036,52 @@ sub update_status {
 
   my ($i, $id);
 
-  my $dbh = $self->dbconnect_noauto($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $query = qq|DELETE FROM status
-                 WHERE (formname = ?) AND (trans_id = ?)|;
-  my $sth = prepare_query($self, $dbh, $query);
+    my $query = qq|DELETE FROM status
+                   WHERE (formname = ?) AND (trans_id = ?)|;
+    my $sth = prepare_query($self, $dbh, $query);
 
-  if ($self->{formname} =~ /(check|receipt)/) {
-    for $i (1 .. $self->{rowcount}) {
-      do_statement($self, $sth, $query, $self->{formname}, $self->{"id_$i"} * 1);
-    }
-  } else {
-    do_statement($self, $sth, $query, $self->{formname}, $self->{id});
-  }
-  $sth->finish();
-
-  my $printed = ($self->{printed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
-  my $emailed = ($self->{emailed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
-
-  my %queued = split / /, $self->{queued};
-  my @values;
-
-  if ($self->{formname} =~ /(check|receipt)/) {
-
-    # this is a check or receipt, add one entry for each lineitem
-    my ($accno) = split /--/, $self->{account};
-    $query = qq|INSERT INTO status (trans_id, printed, spoolfile, formname, chart_id)
-                VALUES (?, ?, ?, ?, (SELECT c.id FROM chart c WHERE c.accno = ?))|;
-    @values = ($printed, $queued{$self->{formname}}, $self->{prinform}, $accno);
-    $sth = prepare_query($self, $dbh, $query);
-
-    for $i (1 .. $self->{rowcount}) {
-      if ($self->{"checked_$i"}) {
-        do_statement($self, $sth, $query, $self->{"id_$i"}, @values);
+    if ($self->{formname} =~ /(check|receipt)/) {
+      for $i (1 .. $self->{rowcount}) {
+        do_statement($self, $sth, $query, $self->{formname}, $self->{"id_$i"} * 1);
       }
+    } else {
+      do_statement($self, $sth, $query, $self->{formname}, $self->{id});
     }
     $sth->finish();
 
-  } else {
-    $query = qq|INSERT INTO status (trans_id, printed, emailed, spoolfile, formname)
-                VALUES (?, ?, ?, ?, ?)|;
-    do_query($self, $dbh, $query, $self->{id}, $printed, $emailed,
-             $queued{$self->{formname}}, $self->{formname});
-  }
+    my $printed = ($self->{printed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
+    my $emailed = ($self->{emailed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
 
-  $dbh->commit;
-  $dbh->disconnect;
+    my %queued = split / /, $self->{queued};
+    my @values;
+
+    if ($self->{formname} =~ /(check|receipt)/) {
+
+      # this is a check or receipt, add one entry for each lineitem
+      my ($accno) = split /--/, $self->{account};
+      $query = qq|INSERT INTO status (trans_id, printed, spoolfile, formname, chart_id)
+                  VALUES (?, ?, ?, ?, (SELECT c.id FROM chart c WHERE c.accno = ?))|;
+      @values = ($printed, $queued{$self->{formname}}, $self->{prinform}, $accno);
+      $sth = prepare_query($self, $dbh, $query);
+
+      for $i (1 .. $self->{rowcount}) {
+        if ($self->{"checked_$i"}) {
+          do_statement($self, $sth, $query, $self->{"id_$i"}, @values);
+        }
+      }
+      $sth->finish();
+
+    } else {
+      $query = qq|INSERT INTO status (trans_id, printed, emailed, spoolfile, formname)
+                  VALUES (?, ?, ?, ?, ?)|;
+      do_query($self, $dbh, $query, $self->{id}, $printed, $emailed,
+               $queued{$self->{formname}}, $self->{formname});
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -3167,20 +3167,21 @@ sub save_history {
   $main::lxdebug->enter_sub();
 
   my $self = shift;
-  my $dbh  = shift || $self->get_standard_dbh;
+  my $dbh  = shift || SL::DB->client->dbh;
+  SL::DB->client->with_transaction(sub {
 
-  if(!exists $self->{employee_id}) {
-    &get_employee($self, $dbh);
-  }
+    if(!exists $self->{employee_id}) {
+      &get_employee($self, $dbh);
+    }
 
-  my $query =
-   qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
-   qq|VALUES (?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
-  my @values = (conv_i($self->{id}), $self->{login},
-                $self->{addition}, $self->{what_done}, "$self->{snumbers}");
-  do_query($self, $dbh, $query, @values);
-
-  $dbh->commit;
+    my $query =
+     qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
+     qq|VALUES (?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
+    my @values = (conv_i($self->{id}), $self->{login},
+                  $self->{addition}, $self->{what_done}, "$self->{snumbers}");
+    do_query($self, $dbh, $query, @values);
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
