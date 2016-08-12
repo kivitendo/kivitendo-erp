@@ -197,13 +197,13 @@ sub create_or_update {
     return;
   }
 
-  my $dbh = $self->config->db;
-  $dbh->begin_work;
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  $self->config->save;
-  $self->_set_cvar_validity() if $is_new;
-
-  $dbh->commit;
+    $self->config->save;
+    $self->_set_cvar_validity() if $is_new;
+    1;
+  }) or do { die SL::DB->client->error };
 
   flash_later('info', $is_new ? t8('The custom variable has been created.') : t8('The custom variable has been saved.'));
   $self->redirect_to(action => 'list', module => $self->module);
