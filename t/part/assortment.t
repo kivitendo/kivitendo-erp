@@ -18,8 +18,10 @@ is( SL::DB::Manager::Part->get_all_count(), 3,  "total number of parts created i
 
 my $assortment = SL::DB::Manager::Part->find_by( partnumber => 'as1' );
 
-is( $assortment->part_type, 'assortment', 'assortment has correct part_type');
-is( scalar @{$assortment->assortment_items}, 2, 'assortment has two parts' );
+is($assortment->part_type,                  'assortment', 'assortment has correct part_type');
+is(scalar @{$assortment->assortment_items}, 2,            'assortment has two parts');
+is($assortment->assortment_sellprice_sum,   19.98,        'assortment sellprice sum ok');
+is($assortment->assortment_lastcost_sum,    13.32,        'assortment lastcost sum ok');
 
 my $assortment_item = $assortment->assortment_items->[0];
 is( $assortment_item->assortment->partnumber, 'as1', "assortment_item links back to correct assortment");
@@ -41,6 +43,7 @@ sub reset_state {
                                    description        => "assortment part 1",
                                    unit               => $unit->name,
                                    sellprice          => '3.33',
+                                   lastcost           => '2.22',
                                  )->save;
   $part2 = $part1->clone_and_reset($part1);
   $part2->partnumber( $part1->partnumber + 1 );
