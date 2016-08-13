@@ -350,7 +350,7 @@ flavours called:
 
 =item Assembly - a collection of both parts and services
 
-=item Assortment - a collection of parts
+=item Assortment - a collection of items (parts or assemblies)
 
 =back
 
