@@ -154,32 +154,32 @@ sub action_download_sample {
 sub action_report {
   my ($self, %params) = @_;
 
-  my $report_id = $params{report_id} || $::form->{id};
-
-  $self->{report}      = SL::DB::Manager::CsvImportReport->find_by(id => $report_id);
+  my $report_id   = $params{report_id} || $::form->{id};
+  $self->{report} = SL::DB::Manager::CsvImportReport->find_by(id => $report_id);
 
   if (!$self->{report}) {
     $::form->error(t8('No report with id #1', $report_id));
   }
-  my $num_rows         = $self->{report}->numrows;
-  my $num_cols         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
+
+  my $num_rows               = $self->{report}->numrows;
+  my $num_cols               = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
 
   # manual paginating, yuck
-  my $page = $::form->{page} || 1;
-  my $pages = {};
-  $pages->{per_page}        = $::form->{per_page} || 20;
-  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows, $pages->{per_page}) || 1;
-  $pages->{page}             = $page < 1 ? 1
-                            : $page > $pages->{max} ? $pages->{max}
-                            : $page;
-  $pages->{common}          = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
+  my $page                   = $::form->{page} || 1;
+  my $pages                  = {};
+  $pages->{per_page}         = $::form->{per_page} || 20;
+  $pages->{max}              = SL::DB::Helper::Paginated::ceil($num_rows, $pages->{per_page}) || 1;
+  $pages->{page}             = $page < 1             ? 1
+                             : $page > $pages->{max} ? $pages->{max}
+                             : $                       page;
+  $pages->{common}           = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
 
   $self->{report_numheaders} = $self->{report}->numheaders;
-  my $first_row_header = 0;
-  my $last_row_header  = $self->{report_numheaders} - 1;
-  my $first_row_data   = $pages->{per_page} * ($pages->{page}-1) + $self->{report_numheaders};
-  my $last_row_data    = min($pages->{per_page} * $pages->{page}, $num_rows) + $self->{report_numheaders} - 1;
-  $self->{display_rows} = [
+  my $first_row_header       = 0;
+  my $last_row_header        = $self->{report_numheaders} - 1;
+  my $first_row_data         = $pages->{per_page} * ($pages->{page}-1) + $self->{report_numheaders};
+  my $last_row_data          = min($pages->{per_page} * $pages->{page}, $num_rows) + $self->{report_numheaders} - 1;
+  $self->{display_rows}      = [
     $first_row_header
       ..
     $last_row_header,
@@ -202,13 +202,13 @@ sub action_report {
     ]
   );
 
-  my $rows             = SL::DB::Manager::CsvImportReportRow->get_all(query => \@query);
-  my $status           = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query);
+  my $rows               = SL::DB::Manager::CsvImportReportRow   ->get_all(query => \@query);
+  my $status             = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query);
 
   $self->{report_rows}   = $self->{report}->folded_rows(rows => $rows);
   $self->{report_status} = $self->{report}->folded_status(status => $status);
-  $self->{pages} = $pages;
-  $self->{base_url} = $self->url_for(action => 'report', id => $report_id, no_layout => $params{no_layout} || $::form->{no_layout} );
+  $self->{pages}         = $pages;
+  $self->{base_url}      = $self->url_for(action => 'report', id => $report_id, no_layout => $params{no_layout} || $::form->{no_layout} );
 
   $self->render('csv_import/report', { layout => !($params{no_layout} || $::form->{no_layout}) });
 }
