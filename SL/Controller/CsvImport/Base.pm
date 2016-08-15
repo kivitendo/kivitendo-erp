@@ -485,6 +485,7 @@ sub save_objects {
           $self->controller->num_imported($self->controller->num_imported + 1);
         }
       }
+      1;
     }) or do { die SL::DB->client->error };
   }
   $self->controller->track_progress(progress => 100);
