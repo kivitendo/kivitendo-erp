@@ -64,7 +64,7 @@ sub payment_transactions {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, @values);
 
@@ -215,8 +215,6 @@ sub payment_transactions {
 
   $form->{PR} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -259,7 +257,7 @@ sub get_statement_balance {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, @values);
 
@@ -276,8 +274,6 @@ sub get_statement_balance {
   }
 
   ($form->{statement_balance}) = selectrow_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }

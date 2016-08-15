@@ -37,6 +37,7 @@ package User;
 use IO::File;
 use Fcntl qw(:seek);
 
+use SL::DB;
 #use SL::Auth;
 use SL::DB::AuthClient;
 use SL::DB::Employee;
@@ -113,7 +114,7 @@ sub login {
   return LOGIN_AUTH_DBUPDATE_AVAILABLE() if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
 
   # check if database is down
-  my $dbh = $form->dbconnect_noauto;
+  my $dbh = SL::DB->client->dbh;
 
   # we got a connection, check the version
   my ($dbversion) = $dbh->selectrow_array(qq|SELECT version FROM defaults|);

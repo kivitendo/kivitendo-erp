@@ -1465,7 +1465,7 @@ sub paymentaccounts {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $ARAP = $form->{db} eq "ar" ? "AR" : "AP";
 
@@ -1476,8 +1476,6 @@ sub paymentaccounts {
        WHERE link LIKE '%${ARAP}_paid%'|;
   $form->{PR} = selectall_hashref_query($form, $dbh, $query);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1487,7 +1485,7 @@ sub payments {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn AutoCommit off
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $ml = 1;
   my $arap;
@@ -1607,8 +1605,6 @@ sub payments {
     }
     $sth_details->finish();
   }
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }

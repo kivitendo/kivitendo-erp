@@ -528,10 +528,9 @@ sub update {
   my $creditcount = 0;
   my ($debitcredit, $amount);
 
-  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my $dbh = SL::DB->client->dbh;
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
-  $dbh->disconnect;
 
   my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
@@ -998,10 +997,9 @@ sub post_transaction {
   my $debitcredit;
   my %split_safety = ();
 
-  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my $dbh = SL::DB->client->dbh;
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
-  $dbh->disconnect;
 
   my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
