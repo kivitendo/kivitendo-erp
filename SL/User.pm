@@ -433,9 +433,6 @@ sub dbupdate2 {
 
   &dbconnect_vars($form, $db);
 
-  # Flush potentially held database locks.
-#   $form->get_standard_dbh->commit;
-
   my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
 
   $dbh->do($form->{dboptions}) if ($form->{dboptions});
