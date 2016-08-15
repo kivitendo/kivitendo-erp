@@ -29,7 +29,7 @@ use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(models) ],
+  'scalar --get_set_init' => [ qw(models problems) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -394,20 +394,64 @@ sub action_save_invoices {
   #           '44' => [ '50', '51', 52' ]
   #         };
 
-  my $skonto_hash  = delete $::form->{invoice_skontos} || {}; # array containing the payment type, could be empty
+  $::form->{invoice_skontos} ||= {}; # hash of arrays containing the payment types, could be empty
 
   # a bank_transaction may be assigned to several invoices, i.e. a customer
   # might pay several open invoices with one transaction
 
-  while ( my ($bt_id, $invoice_ids) = each(%$invoice_hash) ) {
-    my $bank_transaction      = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
+  $self->problems([]);
+
+  while ( my ($bank_transaction_id, $invoice_ids) = each(%$invoice_hash) ) {
+    push @{ $self->problems }, $self->save_single_bank_transaction(
+      bank_transaction_id => $bank_transaction_id,
+      invoice_ids         => $invoice_ids,
+    );
+  }
+
+  $self->action_list();
+}
+
+sub save_single_bank_transaction {
+  my ($self, %params) = @_;
+
+  my %data = (
+    %params,
+    bank_transaction => SL::DB::Manager::BankTransaction->find_by(id => $params{bank_transaction_id}),
+    invoices         => [],
+  );
+
+  if (!$data{bank_transaction}) {
+    return {
+      %data,
+      result => 'error',
+      message => $::locale->text('The ID #1 is not a valid database ID.', $data{bank_transaction_id}),
+    };
+  }
+
+  my (@warnings);
+
+  my $worker = sub {
+    my $bt_id                 = $data{bank_transaction_id};
+    my $bank_transaction      = $data{bank_transaction};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
 
     my @invoices;
-    foreach my $invoice_id (@{ $invoice_ids }) {
-      push @invoices, (SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id));
+    foreach my $invoice_id (@{ $params{invoice_ids} }) {
+      my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
+      if (!$invoice) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("The ID #1 is not a valid database ID.", $invoice_id),
+        };
+      }
+
+      push @invoices, $invoice;
     }
+
+    $data{invoices} = \@invoices;
+
     @invoices = sort { return 1 if ( $a->is_sales and $a->amount > 0);
                        return 1 if (!$a->is_sales and $a->amount < 0);
                        return -1;
@@ -425,22 +469,31 @@ sub action_save_invoices {
       $n_invoices++ ;
       # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
       # This might be caused by the user reloading a page and resending the form
-      die t8("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name)
-        if _existing_record_link($bank_transaction, $invoice);
+      if (_existing_record_link($bank_transaction, $invoice)) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name),
+        };
+      }
+
+      if ($amount_of_transaction == 0) {
+        push @warnings, {
+          %data,
+          result  => 'warning',
+          message => $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
+                                     $bank_transaction->purpose, $bank_transaction->remote_account_number, $bank_transaction->remote_bank_code),
+        };
+        last;
+      }
 
       my $payment_type;
-      if ( defined $skonto_hash->{"$bt_id"} ) {
-        $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
+      if ( defined $::form->{invoice_skontos}->{"$bt_id"} ) {
+        $payment_type = shift(@{ $::form->{invoice_skontos}->{"$bt_id"} });
       } else {
         $payment_type = 'without_skonto';
       };
-      if ($amount_of_transaction == 0) {
-        flash('warning',  $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
-                                          $bank_transaction->purpose,
-                                          $bank_transaction->remote_account_number,
-                                          $bank_transaction->remote_bank_code));
-        last;
-      }
+
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
         # first calculate new bank transaction amount ...
@@ -490,9 +543,29 @@ sub action_save_invoices {
 
     }
     $bank_transaction->save;
-  }
 
-  $self->action_list();
+    # 'undef' means 'no error' here.
+    return undef;
+  };
+
+  my $error;
+  my $rez = $data{bank_transaction}->db->with_transaction(sub {
+    eval {
+      $error = $worker->();
+      1;
+
+    } or do {
+      $error = {
+        %data,
+        result  => 'error',
+        message => $@,
+      };
+    };
+
+    die if $error;
+  });
+
+  return grep { $_ } ($error, @warnings);
 }
 
 sub action_save_proposals {
@@ -651,6 +724,7 @@ sub _existing_record_link {
   return @$linked_records ? 1 : 0;
 };
 
+sub init_problems { [] }
 
 sub init_models {
   my ($self) = @_;
