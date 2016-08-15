@@ -243,7 +243,7 @@ sub process_perl_script {
   $dbh->begin_work;
 
   # setup dbup_ export vars & run script
-  my $old_dbh       = $::form->set_standard_dbh($dbh);
+  my $old_dbh       = SL::DB->client->dbh($dbh);
   my %dbup_myconfig = map { ($_ => $::form->{$_}) } qw(dbname dbuser dbpasswd dbhost dbport dbconnect);
   my $result        = eval {
     SL::DBUpgrade2::Base::execute_script(

@@ -85,19 +85,6 @@ use SL::DB::Tax;
 
 use strict;
 
-my $standard_dbh;
-
-END {
-  disconnect_standard_dbh();
-}
-
-sub disconnect_standard_dbh {
-  return unless $standard_dbh;
-
-  $standard_dbh->rollback();
-  undef $standard_dbh;
-}
-
 sub read_version {
   my ($self) = @_;
 
@@ -1388,68 +1375,28 @@ sub datetonum {
 }
 
 # Database routines used throughout
+# DB Handling got moved to SL::DB, these are only shims for compatibility
 
 sub dbconnect {
-  $main::lxdebug->enter_sub(2);
-
-  my ($self, $myconfig) = @_;
-
-  # connect to database
-  my $dbh = SL::DBConnect->connect or $self->dberror;
-
-  # set db options
-  if ($myconfig->{dboptions}) {
-    $dbh->do($myconfig->{dboptions}) || $self->dberror($myconfig->{dboptions});
-  }
-
-  $main::lxdebug->leave_sub(2);
-
-  return $dbh;
-}
-
-sub dbconnect_noauto {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig) = @_;
-
-  # connect to database
-  my $dbh = SL::DBConnect->connect(SL::DBConnect->get_connect_args(AutoCommit => 0)) or $self->dberror;
-
-  # set db options
-  if ($myconfig->{dboptions}) {
-    $dbh->do($myconfig->{dboptions}) || $self->dberror($myconfig->{dboptions});
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $dbh;
+  SL::DB->client->dbh;
 }
 
 sub get_standard_dbh {
-  $main::lxdebug->enter_sub(2);
+  my $dbh = SL::DB->client->dbh;
 
-  my $self     = shift;
-  my $myconfig = shift || \%::myconfig;
-
-  if ($standard_dbh && !$standard_dbh->{Active}) {
-    $main::lxdebug->message(LXDebug->INFO(), "get_standard_dbh: \$standard_dbh is defined but not Active anymore");
-    undef $standard_dbh;
+  if ($dbh && !$dbh->{Active}) {
+    $main::lxdebug->message(LXDebug->INFO(), "get_standard_dbh: \$dbh is defined but not Active anymore");
+    SL::DB->client->dbh(undef);
   }
 
-  $standard_dbh ||= SL::DB->client->dbh;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $standard_dbh;
+  SL::DB->client->dbh;
 }
 
-sub set_standard_dbh {
-  my ($self, $dbh) = @_;
-  my $old_dbh      = $standard_dbh;
-  $standard_dbh    = $dbh;
-
-  return $old_dbh;
+sub disconnect_standard_dbh {
+  SL::DB->client->dbh->rollback;
 }
+
+# /database
 
 sub date_closed {
   $main::lxdebug->enter_sub();
