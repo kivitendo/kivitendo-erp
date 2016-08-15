@@ -15,6 +15,7 @@ __PACKAGE__->meta->columns(
   numrows    => { type => 'integer', not_null => 1 },
   profile_id => { type => 'integer', not_null => 1 },
   session_id => { type => 'text', not_null => 1 },
+  test_mode  => { type => 'boolean', not_null => 1 },
   type       => { type => 'text', not_null => 1 },
 );
 

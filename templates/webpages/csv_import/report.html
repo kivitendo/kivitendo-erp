@@ -1,7 +1,20 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
- <h3>[%- LxERP.t8('Import result') %]</h3>
+ <h2>
+ [%- IF SELF.report.test_mode %]
+  [%- LxERP.t8('Import preview') %]
+ [%- ELSE %]
+  [%- LxERP.t8('Import result') %]
+ [%- END %]
+</h2>
+
+[%- IF SELF.report.test_mode %]
+ <p>
+  [% LxERP.t8("The following is only a preview.") %]
+  [% LxERP.t8("No entries have been imported yet.") %]
+ </p>
+[%- END %]
 
 [%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
  <table>

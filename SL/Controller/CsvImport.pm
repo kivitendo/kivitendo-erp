@@ -510,6 +510,7 @@ sub save_report_single {
     file       => '',
     numrows    => scalar @{ $self->data },
     numheaders => 1,
+    test_mode  => $params{test} ? 1 : 0,
   );
 
   $report->save(cascade => 1) or die $report->db->error;
@@ -580,6 +581,7 @@ sub save_report_multi {
     file       => '',
     numrows    => scalar @{ $self->data },
     numheaders => scalar @{ $self->worker->profile },
+    test_mode  => $params{test} ? 1 : 0,
   );
 
   $report->save(cascade => 1) or die $report->db->error;

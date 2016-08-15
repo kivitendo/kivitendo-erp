@@ -95,7 +95,7 @@ sub do_import {
     $result = $::locale->text('Import finished with errors.');
   } else {
 
-    my $report_id = $c->save_report(session_id => $session_id);
+    my $report_id = $c->save_report(session_id => $session_id, test => $test);
     $job->set_data(report_id => $report_id)->save;
 
     $c->track_progress(finished => 1);
