@@ -278,36 +278,36 @@ sub pay_invoice {
     # than adding them to the transaction relation array.
     $self->forget_related('transactions');
 
-  my $datev_check = 0;
-  if ( $is_sales )  {
-    if ( (  $self->invoice && $::instance_conf->get_datev_check_on_sales_invoice  ) ||
-         ( !$self->invoice && $::instance_conf->get_datev_check_on_ar_transaction )) {
-      $datev_check = 1;
-    };
-  } else {
-    if ( (  $self->invoice && $::instance_conf->get_datev_check_on_purchase_invoice ) ||
-         ( !$self->invoice && $::instance_conf->get_datev_check_on_ap_transaction   )) {
-      $datev_check = 1;
-    };
-  };
-
-  if ( $datev_check ) {
-
-    my $datev = SL::DATEV->new(
-      exporttype => DATEV_ET_BUCHUNGEN,
-      format     => DATEV_FORMAT_KNE,
-      dbh        => $db->dbh,
-      trans_id   => $self->{id},
-    );
-
-    $datev->clean_temporary_directories;
-    $datev->export;
-
-    if ($datev->errors) {
-      # this exception should be caught by do_transaction, which handles the rollback
-      die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
+    my $datev_check = 0;
+    if ( $is_sales )  {
+      if ( (  $self->invoice && $::instance_conf->get_datev_check_on_sales_invoice  ) ||
+           ( !$self->invoice && $::instance_conf->get_datev_check_on_ar_transaction )) {
+        $datev_check = 1;
+      }
+    } else {
+      if ( (  $self->invoice && $::instance_conf->get_datev_check_on_purchase_invoice ) ||
+           ( !$self->invoice && $::instance_conf->get_datev_check_on_ap_transaction   )) {
+        $datev_check = 1;
+      }
     }
-  };
+
+    if ( $datev_check ) {
+
+      my $datev = SL::DATEV->new(
+        exporttype => DATEV_ET_BUCHUNGEN,
+        format     => DATEV_FORMAT_KNE,
+        dbh        => $db->dbh,
+        trans_id   => $self->{id},
+      );
+
+      $datev->clean_temporary_directories;
+      $datev->export;
+
+      if ($datev->errors) {
+        # this exception should be caught by do_transaction, which handles the rollback
+        die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
+      }
+    }
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
 
