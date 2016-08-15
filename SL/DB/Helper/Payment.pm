@@ -119,7 +119,7 @@ sub pay_invoice {
   my $fx_gain_loss_amount = 0; # for fx_gain and fx_loss
 
   my $db = $self->db;
-  $db->do_transaction(sub {
+  $db->with_transaction(sub {
     my $new_acc_trans;
 
     # all three payment type create 1 AR/AP booking (the paid part)
@@ -304,10 +304,12 @@ sub pay_invoice {
       $datev->export;
 
       if ($datev->errors) {
-        # this exception should be caught by do_transaction, which handles the rollback
+        # this exception should be caught by with_transaction, which handles the rollback
         die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
       }
     }
+
+    1;
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
 
