@@ -25,11 +25,13 @@ use SL::DB::Draft;
 use SL::DB::BankAccount;
 use SL::DBUtils qw(like);
 use SL::Presenter;
+
+use List::MoreUtils qw(any);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(models) ],
+  'scalar --get_set_init' => [ qw(models problems) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -394,53 +396,117 @@ sub action_save_invoices {
   #           '44' => [ '50', '51', 52' ]
   #         };
 
-  my $skonto_hash  = delete $::form->{invoice_skontos} || {}; # array containing the payment type, could be empty
+  $::form->{invoice_skontos} ||= {}; # hash of arrays containing the payment types, could be empty
 
   # a bank_transaction may be assigned to several invoices, i.e. a customer
   # might pay several open invoices with one transaction
 
-  while ( my ($bt_id, $invoice_ids) = each(%$invoice_hash) ) {
-    my $bank_transaction      = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
+  $self->problems([]);
+
+  while ( my ($bank_transaction_id, $invoice_ids) = each(%$invoice_hash) ) {
+    push @{ $self->problems }, $self->save_single_bank_transaction(
+      bank_transaction_id => $bank_transaction_id,
+      invoice_ids         => $invoice_ids,
+    );
+  }
+
+  $self->action_list();
+}
+
+sub save_single_bank_transaction {
+  my ($self, %params) = @_;
+
+  my %data = (
+    %params,
+    bank_transaction => SL::DB::Manager::BankTransaction->find_by(id => $params{bank_transaction_id}),
+    invoices         => [],
+  );
+
+  if (!$data{bank_transaction}) {
+    return {
+      %data,
+      result => 'error',
+      message => $::locale->text('The ID #1 is not a valid database ID.', $data{bank_transaction_id}),
+    };
+  }
+
+  my (@warnings);
+
+  my $worker = sub {
+    my $bt_id                 = $data{bank_transaction_id};
+    my $bank_transaction      = $data{bank_transaction};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
+    my $payment_received      = $bank_transaction->amount > 0;
+    my $payment_sent          = $bank_transaction->amount < 0;
 
-    my @invoices;
-    foreach my $invoice_id (@{ $invoice_ids }) {
-      push @invoices, (SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id));
+    foreach my $invoice_id (@{ $params{invoice_ids} }) {
+      my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
+      if (!$invoice) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("The ID #1 is not a valid database ID.", $invoice_id),
+        };
+      }
+
+      push @{ $data{invoices} }, $invoice;
     }
-    @invoices = sort { return 1 if ( $a->is_sales and $a->amount > 0);
-                       return 1 if (!$a->is_sales and $a->amount < 0);
-                       return -1;
-                     } @invoices if $bank_transaction->amount > 0;
-    @invoices = sort { return -1 if ( $a->is_sales and $a->amount > 0);
-                       return -1 if (!$a->is_sales and $a->amount < 0);
-                       return 1;
-                     } @invoices if $bank_transaction->amount < 0;
 
-    my $max_invoices = scalar(@invoices);
+    if (   $payment_received
+        && any {    ( $_->is_sales && ($_->amount < 0))
+                 || (!$_->is_sales && ($_->amount > 0))
+               } @{ $data{invoices} }) {
+      return {
+        %data,
+        result  => 'error',
+        message => $::locale->text("Received payments can only be posted for sales invoices and purchase credit notes."),
+      };
+    }
+
+    if (   $payment_sent
+        && any {    ( $_->is_sales && ($_->amount > 0))
+                 || (!$_->is_sales && ($_->amount < 0))
+               } @{ $data{invoices} }) {
+      return {
+        %data,
+        result  => 'error',
+        message => $::locale->text("Sent payments can only be posted for purchase invoices and sales credit notes."),
+      };
+    }
+
+    my $max_invoices = scalar(@{ $data{invoices} });
     my $n_invoices   = 0;
 
-    foreach my $invoice (@invoices) {
+    foreach my $invoice (@{ $data{invoices} }) {
 
       $n_invoices++ ;
+
       # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
       # This might be caused by the user reloading a page and resending the form
-      die t8("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name)
-        if _existing_record_link($bank_transaction, $invoice);
+      if (_existing_record_link($bank_transaction, $invoice)) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name),
+        };
+      }
+
+      if (!$amount_of_transaction && $invoice->open_amount) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("A payment can only be posted for multiple invoices if the amount to post is equal to or bigger than the sum of the open amounts of the affected invoices."),
+        };
+      }
 
       my $payment_type;
-      if ( defined $skonto_hash->{"$bt_id"} ) {
-        $payment_type = shift(@{ $skonto_hash->{"$bt_id"} });
+      if ( defined $::form->{invoice_skontos}->{"$bt_id"} ) {
+        $payment_type = shift(@{ $::form->{invoice_skontos}->{"$bt_id"} });
       } else {
         $payment_type = 'without_skonto';
       };
-      if ($amount_of_transaction == 0) {
-        flash('warning',  $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
-                                          $bank_transaction->purpose,
-                                          $bank_transaction->remote_account_number,
-                                          $bank_transaction->remote_bank_code));
-        last;
-      }
+
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
         # first calculate new bank transaction amount ...
@@ -458,6 +524,7 @@ sub action_save_invoices {
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
+        my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
                               amount       => $amount_of_transaction,
@@ -465,6 +532,12 @@ sub action_save_invoices {
                               transdate    => $bank_transaction->transdate->to_kivitendo);
         $bank_transaction->invoice_amount($bank_transaction->amount);
         $amount_of_transaction = 0;
+
+        push @warnings, {
+          %data,
+          result  => 'warning',
+          message => $::locale->text('Invoice #1 was overpaid by #2.', $invoice->invnumber, $::form->format_amount(\%::myconfig, $overpaid_amount, 2)),
+        };
       }
 
       # Record a record link from the bank transaction to the invoice
@@ -490,9 +563,29 @@ sub action_save_invoices {
 
     }
     $bank_transaction->save;
-  }
 
-  $self->action_list();
+    # 'undef' means 'no error' here.
+    return undef;
+  };
+
+  my $error;
+  my $rez = $data{bank_transaction}->db->with_transaction(sub {
+    eval {
+      $error = $worker->();
+      1;
+
+    } or do {
+      $error = {
+        %data,
+        result  => 'error',
+        message => $@,
+      };
+    };
+
+    die if $error;
+  });
+
+  return grep { $_ } ($error, @warnings);
 }
 
 sub action_save_proposals {
@@ -651,6 +744,7 @@ sub _existing_record_link {
   return @$linked_records ? 1 : 0;
 };
 
+sub init_problems { [] }
 
 sub init_models {
   my ($self) = @_;
@@ -681,3 +775,68 @@ sub init_models {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::BankTransaction - Posting payments to invoices from
+bank transactions imported earlier
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<save_single_bank_transaction %params>
+
+Takes a bank transaction ID (as parameter C<bank_transaction_id> and
+tries to post its amount to a certain number of invoices (parameter
+C<invoice_ids>, an array ref of database IDs to purchase or sales
+invoice objects).
+
+The whole function is wrapped in a database transaction. If an
+exception occurs the bank transaction is not posted at all. The same
+is true if the code detects an error during the execution, e.g. a bank
+transaction that's already been posted earlier. In both cases the
+database transaction will be rolled back.
+
+If warnings but not errors occur the database transaction is still
+committed.
+
+The return value is an error object or C<undef> if the function
+succeeded. The calling function will collect all warnings and errors
+and display them in a nicely formatted table if any occurred.
+
+An error object is a hash reference containing the following members:
+
+=over 2
+
+=item * C<result> — can be either C<warning> or C<error>. Warnings are
+displayed slightly different than errors.
+
+=item * C<message> — a human-readable message included in the list of
+errors meant as the description of why the problem happened
+
+=item * C<bank_transaction_id>, C<invoice_ids> — the same parameters
+that the function was called with
+
+=item * C<bank_transaction> — the database object
+(C<SL::DB::BankTransaction>) corresponding to C<bank_transaction_id>
+
+=item * C<invoices> — an array ref of the database objects (either
+C<SL::DB::Invoice> or C<SL::DB::PurchaseInvoice>) corresponding to
+C<invoice_ids>
+
+=back
+
+=back
+
+=head1 AUTHOR
+
+Niclas Zimmermann E<lt>niclas@kivitendo-premium.deE<gt>,
+Geoffrey Richardson E<lt>information@richardson-bueren.deE<gt>
+
+=cut
