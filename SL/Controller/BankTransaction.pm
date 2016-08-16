@@ -755,3 +755,68 @@ sub init_models {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::BankTransaction - Posting payments to invoices from
+bank transactions imported earlier
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<save_single_bank_transaction %params>
+
+Takes a bank transaction ID (as parameter C<bank_transaction_id> and
+tries to post its amount to a certain number of invoices (parameter
+C<invoice_ids>, an array ref of database IDs to purchase or sales
+invoice objects).
+
+The whole function is wrapped in a database transaction. If an
+exception occurs the bank transaction is not posted at all. The same
+is true if the code detects an error during the execution, e.g. a bank
+transaction that's already been posted earlier. In both cases the
+database transaction will be rolled back.
+
+If warnings but not errors occur the database transaction is still
+committed.
+
+The return value is an error object or C<undef> if the function
+succeeded. The calling function will collect all warnings and errors
+and display them in a nicely formatted table if any occurred.
+
+An error object is a hash reference containing the following members:
+
+=over 2
+
+=item * C<result> — can be either C<warning> or C<error>. Warnings are
+displayed slightly different than errors.
+
+=item * C<message> — a human-readable message included in the list of
+errors meant as the description of why the problem happened
+
+=item * C<bank_transaction_id>, C<invoice_ids> — the same parameters
+that the function was called with
+
+=item * C<bank_transaction> — the database object
+(C<SL::DB::BankTransaction>) corresponding to C<bank_transaction_id>
+
+=item * C<invoices> — an array ref of the database objects (either
+C<SL::DB::Invoice> or C<SL::DB::PurchaseInvoice>) corresponding to
+C<invoice_ids>
+
+=back
+
+=back
+
+=head1 AUTHOR
+
+Niclas Zimmermann E<lt>niclas@kivitendo-premium.deE<gt>,
+Geoffrey Richardson E<lt>information@richardson-bueren.deE<gt>
+
+=cut
