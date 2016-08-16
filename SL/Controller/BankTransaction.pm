@@ -481,6 +481,7 @@ sub save_single_bank_transaction {
     foreach my $invoice (@{ $data{invoices} }) {
 
       $n_invoices++ ;
+
       # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
       # This might be caused by the user reloading a page and resending the form
       if (_existing_record_link($bank_transaction, $invoice)) {
@@ -491,14 +492,12 @@ sub save_single_bank_transaction {
         };
       }
 
-      if ($amount_of_transaction == 0) {
-        push @warnings, {
+      if (!$amount_of_transaction && $invoice->open_amount) {
+        return {
           %data,
-          result  => 'warning',
-          message => $::locale->text('There are invoices which could not be paid by bank transaction #1 (Account number: #2, bank code: #3)!',
-                                     $bank_transaction->purpose, $bank_transaction->remote_account_number, $bank_transaction->remote_bank_code),
+          result  => 'error',
+          message => $::locale->text("A payment can only be posted for multiple invoices if the amount to post is equal to or bigger than the sum of the open amounts of the affected invoices."),
         };
-        last;
       }
 
       my $payment_type;
