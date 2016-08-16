@@ -158,10 +158,11 @@ sub _check_header {
     foreach my $p_num (0..$n_header - 1) {
       my $h = $self->_csv->getline($self->_io);
 
+      my ($code, $string, $position, $record, $field) = $self->_csv->error_diag;
+
       $self->_push_error([
         $self->_csv->error_input,
-        $self->_csv->error_diag,
-        0,
+        $code, $string, $position, $record // 0,
       ]) unless $h;
 
       if ($self->is_multiplexed) {
@@ -259,19 +260,15 @@ sub _parse_data {
       push @data, \%hr;
     } else {
       last if $self->_csv->eof;
+
       # Text::CSV_XS 0.89 added record number to error_diag
-      if (qv(Text::CSV_XS->VERSION) >= qv('0.89')) {
-        push @errors, [
-          $self->_csv->error_input,
-          $self->_csv->error_diag,
-        ];
-      } else {
-        push @errors, [
-          $self->_csv->error_input,
-          $self->_csv->error_diag,
-          $self->_io->input_line_number,
-        ];
-      }
+      my ($code, $string, $position, $record, $field) = $self->_csv->error_diag;
+
+      push @errors, [
+        $self->_csv->error_input,
+        $code, $string, $position,
+        $record // $self->_io->input_line_number,
+      ];
     }
     last if $self->_csv->eof;
   }
