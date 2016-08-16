@@ -1503,6 +1503,7 @@ $self->{texts} = {
   'Invnumber'                   => 'Rechnungsnummer',
   'Invnumber missing!'          => 'Rechnungsnummer fehlt!',
   'Invoice'                     => 'Rechnung',
+  'Invoice #1 was overpaid by #2.' => 'Rechnung #1 wurde um #2 überzahlt.',
   'Invoice (one letter abbreviation)' => 'R',
   'Invoice Date'                => 'Rechnungsdatum',
   'Invoice Date missing!'       => 'Rechnungsdatum fehlt!',

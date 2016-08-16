@@ -524,6 +524,7 @@ sub save_single_bank_transaction {
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
+        my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
                               amount       => $amount_of_transaction,
@@ -531,6 +532,12 @@ sub save_single_bank_transaction {
                               transdate    => $bank_transaction->transdate->to_kivitendo);
         $bank_transaction->invoice_amount($bank_transaction->amount);
         $amount_of_transaction = 0;
+
+        push @warnings, {
+          %data,
+          result  => 'warning',
+          message => $::locale->text('Invoice #1 was overpaid by #2.', $invoice->invnumber, $::form->format_amount(\%::myconfig, $overpaid_amount, 2)),
+        };
       }
 
       # Record a record link from the bank transaction to the invoice
