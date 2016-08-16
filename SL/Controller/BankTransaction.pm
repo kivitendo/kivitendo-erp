@@ -25,6 +25,8 @@ use SL::DB::Draft;
 use SL::DB::BankAccount;
 use SL::DBUtils qw(like);
 use SL::Presenter;
+
+use List::MoreUtils qw(any);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
@@ -435,8 +437,9 @@ sub save_single_bank_transaction {
     my $bank_transaction      = $data{bank_transaction};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
+    my $payment_received      = $bank_transaction->amount > 0;
+    my $payment_sent          = $bank_transaction->amount < 0;
 
-    my @invoices;
     foreach my $invoice_id (@{ $params{invoice_ids} }) {
       my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
       if (!$invoice) {
@@ -447,24 +450,35 @@ sub save_single_bank_transaction {
         };
       }
 
-      push @invoices, $invoice;
+      push @{ $data{invoices} }, $invoice;
     }
 
-    $data{invoices} = \@invoices;
+    if (   $payment_received
+        && any {    ( $_->is_sales && ($_->amount < 0))
+                 || (!$_->is_sales && ($_->amount > 0))
+               } @{ $data{invoices} }) {
+      return {
+        %data,
+        result  => 'error',
+        message => $::locale->text("Received payments can only be posted for sales invoices and purchase credit notes."),
+      };
+    }
 
-    @invoices = sort { return 1 if ( $a->is_sales and $a->amount > 0);
-                       return 1 if (!$a->is_sales and $a->amount < 0);
-                       return -1;
-                     } @invoices if $bank_transaction->amount > 0;
-    @invoices = sort { return -1 if ( $a->is_sales and $a->amount > 0);
-                       return -1 if (!$a->is_sales and $a->amount < 0);
-                       return 1;
-                     } @invoices if $bank_transaction->amount < 0;
+    if (   $payment_sent
+        && any {    ( $_->is_sales && ($_->amount > 0))
+                 || (!$_->is_sales && ($_->amount < 0))
+               } @{ $data{invoices} }) {
+      return {
+        %data,
+        result  => 'error',
+        message => $::locale->text("Sent payments can only be posted for purchase invoices and sales credit notes."),
+      };
+    }
 
-    my $max_invoices = scalar(@invoices);
+    my $max_invoices = scalar(@{ $data{invoices} });
     my $n_invoices   = 0;
 
-    foreach my $invoice (@invoices) {
+    foreach my $invoice (@{ $data{invoices} }) {
 
       $n_invoices++ ;
       # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
