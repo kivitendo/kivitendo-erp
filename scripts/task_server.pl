@@ -94,8 +94,7 @@ sub initialize_kivitendo {
 }
 
 sub cleanup_kivitendo {
-  eval { SL::DB::Auth->new->db->dbh->rollback; };
-  eval { SL::DB::BackgroundJob->new->db->dbh->rollback; };
+  eval { SL::DB->client->dbh->rollback; };
 
   $::auth->save_session;
   $::auth->expire_sessions;
