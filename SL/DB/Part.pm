@@ -70,7 +70,7 @@ sub type {
   if (@_ > 1) {
     die 'invalid type' unless $type =~ /^(?:part|service|assembly)$/;
     $self->assembly(          $type eq 'assembly' ? 1 : 0);
-    $self->inventory_accno_id($type ne 'service'  ? 1 : undef);
+    $self->inventory_accno_id($type eq 'part'     ? 1 : undef);
   }
 
   return 'assembly' if $self->assembly;

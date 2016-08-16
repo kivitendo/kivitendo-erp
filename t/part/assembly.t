@@ -54,7 +54,6 @@ sub reset_state {
   $assembly_part = SL::DB::Part->new_assembly(partnumber         => 'as1',
                                                  description        => 'assembly',
                                                  unit               => $unit->name,
-                                                 inventory_accno_id => undef, # override
                                                 );
   $assembly_1 = SL::DB::Assembly->new(parts_id => $part1->id, qty => 3, bom => 1);
   $assembly_2 = SL::DB::Assembly->new(parts_id => $part2->id, qty => 3, bom => 1);
