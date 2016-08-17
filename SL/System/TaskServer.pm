@@ -10,7 +10,7 @@ use Rose::Object::MakeMethods::Generic (
 
 use File::Slurp;
 use File::Spec::Functions qw(:ALL);
-use File::Temp qw(tempfile);
+use File::Temp;
 
 use SL::System::Process;
 
@@ -82,12 +82,13 @@ sub _read_pid {
 sub _run_script_command {
   my ($self, $command) = @_;
 
-  my ($fh, $file_name) = tempfile();
   my $exe              = catfile(catdir(SL::System::Process->exe_dir, 'scripts'), 'task_server.pl');
+  my $temp_file        = File::Temp->new;
+  my $file_name        = $temp_file->filename;
+
+  $temp_file->close;
 
   system "${exe} ${command} >> ${file_name} 2>&1";
-
-  $fh->close;
 
   $self->last_command_output(read_file($file_name));
 
