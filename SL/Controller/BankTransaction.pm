@@ -533,11 +533,13 @@ sub save_single_bank_transaction {
         $bank_transaction->invoice_amount($bank_transaction->amount);
         $amount_of_transaction = 0;
 
-        push @warnings, {
-          %data,
-          result  => 'warning',
-          message => $::locale->text('Invoice #1 was overpaid by #2.', $invoice->invnumber, $::form->format_amount(\%::myconfig, $overpaid_amount, 2)),
-        };
+        if ($overpaid_amount >= 0.01) {
+          push @warnings, {
+            %data,
+            result  => 'warning',
+            message => $::locale->text('Invoice #1 was overpaid by #2.', $invoice->invnumber, $::form->format_amount(\%::myconfig, $overpaid_amount, 2)),
+          };
+        }
       }
 
       # Record a record link from the bank transaction to the invoice
