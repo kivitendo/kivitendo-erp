@@ -796,7 +796,8 @@ sub fix_ap_ar_wrong_taxkeys {
 
       $h_taxkey_only->finish();
       $h_taxkey_chart_id->finish();
-    });
+      1;
+    }) or do { die SL::DB->client->error };
   }
 
   $main::lxdebug->leave_sub();
@@ -872,7 +873,8 @@ sub fix_invoice_inventory_with_taxkeys {
       }
 
       $sth->finish();
-    });
+      1;
+    }) or do { die SL::DB->client->error };
   }
 
   $main::lxdebug->leave_sub();
@@ -922,7 +924,8 @@ sub fix_wrong_taxkeys {
     $h_taxkey_only->finish();
     $h_taxkey_chart->finish();
     $h_transdate->finish();
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -949,7 +952,8 @@ sub delete_transaction {
     do_query($form, $dbh, qq|DELETE FROM ap        WHERE id       = ?|, conv_i($params{trans_id}));
     do_query($form, $dbh, qq|DELETE FROM gl        WHERE id       = ?|, conv_i($params{trans_id}));
     do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, conv_i($params{trans_id}));
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

@@ -293,7 +293,8 @@ sub save_datev_stamm {
 
     my $query = "INSERT INTO datev (" . join(', ', @columns) . ") VALUES (" . join(', ', ('?') x @columns) . ")";
     do_query($::form, $self->dbh, $query, map { $data->{$_} } @columns);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 }
 
 sub export {

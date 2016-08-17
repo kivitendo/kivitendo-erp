@@ -578,7 +578,8 @@ sub mark_orders_if_delivered {
     foreach my $oe_id (keys %ship) {
         do_query($form, $dbh,"UPDATE oe SET delivered = ".($ship{$oe_id}->{delivered}?"TRUE":"FALSE")." WHERE id = ?", $oe_id);
     }
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -605,7 +606,8 @@ sub close_orders {
     my $query    = qq|UPDATE delivery_orders SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar(@{ $params{ids} })) . qq|)|;
 
     do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
-  });
+    1;
+  }) or die { SL::DB->client->error };
 
   $form->new_lastmtime('delivery_orders');
 

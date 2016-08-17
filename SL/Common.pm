@@ -434,7 +434,8 @@ sub save_email_status {
     do_query($form, $dbh, qq|UPDATE $table SET intnotes = ? WHERE id = ?|, $intnotes, $form->{id});
 
     $form->save_status($dbh);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

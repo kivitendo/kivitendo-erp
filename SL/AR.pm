@@ -452,7 +452,8 @@ sub delete_transaction {
     # acc_trans entries are deleted by database triggers.
     my $query = qq|DELETE FROM ar WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 

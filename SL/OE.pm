@@ -885,8 +885,8 @@ sub _close_quotations_rfqs {
       $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_ids) . qq|)|;
       do_query($form, $dbh, $query, @close_ids);
     }
-
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -905,7 +905,7 @@ sub delete {
     unlink map { "$spool/$_" } @spoolfiles if $spool;
 
     1;
-  });
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 

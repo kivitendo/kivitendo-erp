@@ -933,7 +933,8 @@ sub delete_invoice {
     );
 
     map { do_query($form, $dbh, $_, @values) } @queries;
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   return 1;
 }

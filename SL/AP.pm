@@ -403,7 +403,8 @@ sub delete_transaction {
   SL::DB->client->with_transaction(sub {
     my $query = qq|DELETE FROM ap WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 

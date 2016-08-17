@@ -280,7 +280,8 @@ sub close_export {
     my $query        = qq|UPDATE sepa_export SET closed = TRUE WHERE id IN ($placeholders)|;
 
     do_query($form, $dbh, $query, map { conv_i($_) } @ids);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

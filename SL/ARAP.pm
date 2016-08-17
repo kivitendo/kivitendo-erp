@@ -154,7 +154,8 @@ sub close_orders_if_billed {
     SL::DB->client->with_transaction(sub {
       my $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_oe_ids) . qq|)|;
       do_query($form, $dbh, $query, @close_oe_ids);
-    });
+      1;
+    }) or do { die SL::DB->client->error };
   }
 
   $main::lxdebug->leave_sub();

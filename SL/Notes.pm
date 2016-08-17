@@ -34,7 +34,8 @@ sub save {
     push @values, $params{subject}, $params{body}, conv_i($params{id});
 
     do_query($form, $dbh, $query, @values);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 
@@ -79,7 +80,8 @@ sub delete {
     do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id IN (SELECT DISTINCT id FROM follow_ups WHERE note_id = ?)|, $id);
     do_query($form, $dbh, qq|DELETE FROM follow_ups      WHERE note_id = ?|, $id);
     do_query($form, $dbh, qq|DELETE FROM notes           WHERE id = ?|, $id);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

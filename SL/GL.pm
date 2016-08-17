@@ -52,7 +52,8 @@ sub delete_transaction {
 
   SL::DB->with_transaction(sub {
     do_query($form, SL::DB->client->dbh, qq|DELETE FROM gl WHERE id = ?|, conv_i($form->{id}));
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

@@ -261,7 +261,8 @@ sub delete_spool {
         unlink(qq|$spool/$form->{"spoolfile_$i"}|);
       }
     }
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
   return 1;

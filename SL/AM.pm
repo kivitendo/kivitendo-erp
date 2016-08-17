@@ -498,7 +498,8 @@ sub delete_lead {
   SL::DB->client->with_transaction(sub {
     $query = qq|DELETE FROM leads WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -606,7 +607,8 @@ sub save_language {
         ") VALUES (?, ?, ?, ?, ?, ?)";
     }
     do_query($form, $dbh, $query, @values);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -627,7 +629,8 @@ sub delete_language {
 
     $query = "DELETE FROM language WHERE id = ?";
     do_query($form, $dbh, $query, $form->{"id"});
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -796,7 +799,8 @@ sub closebooks {
 
     # set close in defaults
     do_query($form, $dbh, $query, @values);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1097,7 +1101,8 @@ sub add_unit {
       }
       $sth->finish();
     }
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1375,7 +1380,8 @@ sub delete_tax {
   SL::DB->client->with_transaction(sub {
     $query = qq|DELETE FROM tax WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1400,7 +1406,8 @@ sub save_price_factor {
     }
 
     do_query($form, $dbh, $query, @values);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1443,7 +1450,8 @@ sub delete_price_factor {
 
   SL::DB->client->with_transaction(sub {
     do_query($form, SL::DB->client->dbh, qq|DELETE FROM price_factors WHERE id = ?|, conv_i($form->{id}));
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1480,7 +1488,8 @@ sub save_warehouse {
 
       $sth->finish();
     }
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1512,7 +1521,8 @@ sub save_bins {
     }
 
     $sth->finish();
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

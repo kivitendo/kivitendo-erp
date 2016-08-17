@@ -95,7 +95,8 @@ sub save_user_config {
     push @values, $id;
 
     do_query($form, $dbh, $query, @values);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }

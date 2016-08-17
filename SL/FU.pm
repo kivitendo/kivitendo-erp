@@ -81,7 +81,8 @@ sub finish {
 
   SL::DB->client->with_transaction(sub {
     do_query($form, SL::DB->client->dbh, qq|UPDATE follow_ups SET done = TRUE WHERE id = ?|, conv_i($params{id}));
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -105,7 +106,8 @@ sub delete {
     do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|,                         $id);
     do_query($form, $dbh, qq|DELETE FROM follow_ups      WHERE id = ?|,                                   $id);
     do_query($form, $dbh, qq|DELETE FROM notes           WHERE (trans_id = ?) AND (trans_module = 'fu')|, $id);
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -444,7 +446,8 @@ sub save_access_rights {
     }
 
     $sth->finish();
-  });
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
