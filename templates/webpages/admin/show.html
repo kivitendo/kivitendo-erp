@@ -54,6 +54,7 @@
     <th>[% LxERP.t8('Database Host') %]</th>
     <th>[% LxERP.t8('Database User') %]</th>
     <th>[% LxERP.t8('Default client') %]</th>
+    <th>[% LxERP.t8('Task server') %]</th>
    </tr>
 
 [%- FOREACH client = SELF.all_clients %]
@@ -64,6 +65,13 @@
     <td>[% HTML.escape(client.dbhost) %][% IF client.dbport %]:[%- HTML.escape(client.dbport) %][%- END %]</td>
     <td>[% HTML.escape(client.dbuser) %]</td>
     <td>[% IF client.is_default %][% LxERP.t8("Yes") %][%- ELSE %][% LxERP.t8("No") %][%- END %]</td>
+    <td>
+     [% IF client.task_server_user %]
+      [% LxERP.t8("execution as user '#1'", client.task_server_user.login) %]
+     [% ELSE %]
+      [% LxERP.t8("no execution for this client") %]
+     [% END %]
+    </td>
    </tr>
 [%- END %]
   </table>
