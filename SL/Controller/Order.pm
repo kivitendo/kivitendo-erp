@@ -93,7 +93,7 @@ sub action_delete {
 
   flash_later('info', $::locale->text('The order has been deleted'));
   my @redirect_params = (
-    action => 'edit',
+    action => 'add',
     type   => $self->type,
   );
 
