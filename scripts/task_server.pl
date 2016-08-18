@@ -64,7 +64,6 @@ sub initialize_kivitendo {
 
   package main;
 
-  Form::disconnect_standard_dbh;
   $::lxdebug       = LXDebug->new;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
@@ -107,7 +106,6 @@ sub cleanup_kivitendo {
 }
 
 sub clean_before_sleeping {
-  Form::disconnect_standard_dbh;
   SL::DBConnect::Cache->disconnect_all_and_clear;
   SL::DB->db_cache->clear;
 
