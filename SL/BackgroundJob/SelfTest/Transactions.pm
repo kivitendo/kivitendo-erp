@@ -599,8 +599,8 @@ sub check_zero_amount_paid_but_datepaid_exists {
   my $query = qq|(SELECT invnumber,datepaid from ar where datepaid is NOT NULL AND paid = 0
                     AND id not IN (select trans_id from acc_trans WHERE chart_link like '%paid%' AND acc_trans.trans_id = ar.id)
                     AND datepaid >= ? AND datepaid <= ?)
-                   UNION
-                (SELECT invnumber,datepaid from ap where datepaid is NOT NULL AND paid = 0
+                  UNION
+                 (SELECT invnumber,datepaid from ap where datepaid is NOT NULL AND paid = 0
                     AND id not IN (select trans_id from acc_trans WHERE chart_link like '%paid%' AND acc_trans.trans_id = ap.id)
                     AND datepaid >= ? AND datepaid <= ?)|;
 
@@ -616,7 +616,7 @@ sub check_zero_amount_paid_but_datepaid_exists {
                            Bezahl-Datum: $datepaid_should_be_null_nok->{datepaid}");
     }
   } else {
-    $self->tester->ok(1, "Hauptbuch Bezahl-Wert und Kreditoren-Nebenbuch-Bezahlwert stimmen überein.");
+    $self->tester->ok(1, "Kein Bezahl-Datum ohne Bezahl-Wert und ohne wirkliche Zahlungen gefunden (arap.datepaid, arap.paid konsistent).");
   }
 }
 
