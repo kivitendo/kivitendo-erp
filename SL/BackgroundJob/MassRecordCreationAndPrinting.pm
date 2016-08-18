@@ -46,17 +46,12 @@ sub create_invoices {
     my $data   = $job_obj->data_as_hash;
 
     eval {
-      my $invoice;
       my $sales_delivery_order = SL::DB::DeliveryOrder->new(id => $delivery_order_id)->load;
       $number                  = $sales_delivery_order->donumber;
+      my %conversion_params    = $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) : ();
+      my $invoice              = $sales_delivery_order->convert_to_invoice(%conversion_params);
 
-      if (!$db->do_transaction(sub {
-        $invoice = $sales_delivery_order->convert_to_invoice(sub { $data->{transdate} ? ('attributes' => { transdate => $data->{transdate} }) :
-                                                                         undef }->() ) || die $db->error;
-        1;
-      })) {
-        die $db->error;
-      }
+      die $db->error if !$invoice;
 
       $data->{num_created}++;
       push @{ $data->{invoice_ids} }, $invoice->id;
