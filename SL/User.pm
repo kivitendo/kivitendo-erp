@@ -127,7 +127,7 @@ sub login {
 
   my $dbupdater        = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
   my @unapplied_scripts = $dbupdater->unapplied_upgrade_scripts($dbh);
-  $dbh->disconnect;
+#   $dbh->disconnect;
 
   if (!@unapplied_scripts) {
     SL::DB::Manager::Employee->update_entries_for_authorized_users;
