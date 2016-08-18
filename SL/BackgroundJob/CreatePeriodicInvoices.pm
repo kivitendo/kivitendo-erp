@@ -205,7 +205,7 @@ sub _create_periodic_invoice {
 
   my $order   = $config->order;
   my $invoice;
-  if (!$self->{db_obj}->db->do_transaction(sub {
+  if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
     $invoice = SL::DB::Invoice->new_from($order);
@@ -254,6 +254,8 @@ sub _create_periodic_invoice {
     _log_msg("_create_invoice created for period start date $period_start_date id " . $invoice->id . " number " . $invoice->invnumber . " netamount " . $invoice->netamount . " amount " . $invoice->amount);
 
     # die $invoice->transaction_description;
+
+    1;
   })) {
     $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
     return undef;

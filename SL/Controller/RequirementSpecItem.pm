@@ -87,7 +87,7 @@ sub action_dragged_and_dropped {
   my $old_type            = $self->item->item_type;
   my $new_type            = !$dropped_item ? 'section' : $position =~ m/before|after/ ? $dropped_item->item_type : $dropped_item->child_type;
 
-  $self->item->db->do_transaction(sub {
+  $self->item->db->with_transaction(sub {
     $self->item->remove_from_list;
     $self->item->parent_id($position =~ m/before|after/ ? $dropped_item->parent_id : $dropped_item->id) if $dropped_item;
     $self->item->item_type($new_type);

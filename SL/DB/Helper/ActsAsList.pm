@@ -40,7 +40,7 @@ sub move_position_down {
 sub remove_from_list {
   my ($self) = @_;
 
-  my $worker = sub {
+  return $self->db->with_transaction(sub {
     remove_position($self);
 
     # Set to -1 manually because $self->update_attributes() would
@@ -56,9 +56,7 @@ sub remove_from_list {
 SQL
     $self->db->dbh->do($sql, undef, $self->$primary_key_col);
     $self->$column(undef);
-  };
-
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  });
 }
 
 sub add_to_list {
@@ -109,12 +107,10 @@ sub add_to_list {
       ${group_by}
 SQL
 
-  my $worker = sub {
+  return $self->db->with_transaction(sub {
     $self->db->dbh->do($query, undef, $new_position - 1, @values);
     $self->update_attributes($column => $new_position);
-  };
-
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  });
 }
 
 sub get_next_in_list {
@@ -144,7 +140,7 @@ sub reorder_list {
 
   my $self   = ref($class_or_self) ? $class_or_self : $class_or_self->new;
   my $column = column_name($self);
-  my $result = $self->db->do_transaction(sub {
+  my $result = $self->db->with_transaction(sub {
     my $query = qq|UPDATE | . $self->meta->table . qq| SET ${column} = ? WHERE id = ?|;
     my $sth   = $self->db->dbh->prepare($query) || die $self->db->dbh->errstr;
 
@@ -153,6 +149,8 @@ sub reorder_list {
     }
 
     $sth->finish;
+
+    1;
   });
 
   return $result;

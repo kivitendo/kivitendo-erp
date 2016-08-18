@@ -56,9 +56,9 @@ sub action_create_invoices {
   }
 
   my $db = SL::DB::Invoice->new->db;
+  my @invoices;
 
-  if (!$db->do_transaction(sub {
-    my @invoices;
+  if (!$db->with_transaction(sub {
     foreach my $id (@sales_delivery_order_ids) {
       my $delivery_order    = SL::DB::DeliveryOrder->new(id => $id)->load;
 
@@ -66,17 +66,17 @@ sub action_create_invoices {
       push @invoices, $invoice;
     }
 
-    my $key = sprintf('%d-%d', Time::HiRes::gettimeofday());
-    $::auth->set_session_value("MassInvoiceCreatePrint::ids-${key}" => [ map { $_->id } @invoices ]);
-
-    flash_later('info', t8('The invoices have been created. They\'re pre-selected below.'));
-    $self->redirect_to(action => 'list_invoices', ids => $key);
-
     1;
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
     $::form->error($db->error);
   }
+
+  my $key = sprintf('%d-%d', Time::HiRes::gettimeofday());
+  $::auth->set_session_value("MassInvoiceCreatePrint::ids-${key}" => [ map { $_->id } @invoices ]);
+
+  flash_later('info', t8('The invoices have been created. They\'re pre-selected below.'));
+  $self->redirect_to(action => 'list_invoices', ids => $key);
 }
 
 sub action_list_invoices {

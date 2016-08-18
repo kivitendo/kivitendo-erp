@@ -252,7 +252,7 @@ sub post {
     $params{ar_id} = $chart->id;
   }
 
-  my $worker = sub {
+  if (!$self->db->with_transaction(sub {
     my %data = $self->calculate_prices_and_taxes;
 
     $self->_post_create_assemblyitem_entries($data{assembly_items});
@@ -267,11 +267,9 @@ sub post {
     $self->_post_update_allocated($data{allocated});
 
     $self->_post_book_rounding($data{rounding});
-  };
 
-  if ($self->db->in_transaction) {
-    $worker->();
-  } elsif (!$self->db->do_transaction($worker)) {
+    1;
+  })) {
     $::lxdebug->message(LXDebug->WARN(), "convert_to_invoice failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
     return undef;
   }

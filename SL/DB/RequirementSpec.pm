@@ -145,7 +145,7 @@ sub create_copy {
   return $self->_create_copy(%params) if $self->db->in_transaction;
 
   my $copy;
-  if (!$self->db->do_transaction(sub { $copy = $self->_create_copy(%params) })) {
+  if (!$self->db->with_transaction(sub { $copy = $self->_create_copy(%params) })) {
     $::lxdebug->message(LXDebug->WARN(), "create_copy failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
     return undef;
   }

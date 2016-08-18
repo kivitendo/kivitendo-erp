@@ -893,9 +893,9 @@ sub _delete {
   my ($self) = @_;
 
   my $errors = [];
-  my $db = $self->order->db;
+  my $db     = $self->order->db;
 
-  $db->do_transaction(
+  $db->with_transaction(
     sub {
       my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $self->order->id ]) };
       $self->order->delete;
@@ -915,12 +915,11 @@ sub _save {
   my ($self) = @_;
 
   my $errors = [];
-  my $db = $self->order->db;
+  my $db     = $self->order->db;
 
-  $db->do_transaction(
-    sub {
-      SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete};
-      $self->order->save(cascade => 1);
+  $db->with_transaction(sub {
+    SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete};
+    $self->order->save(cascade => 1);
   }) || push(@{$errors}, $db->error);
 
   return $errors;
