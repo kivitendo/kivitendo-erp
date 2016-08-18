@@ -73,7 +73,7 @@ sub action_ajax_save {
   my ($self) = @_;
 
   my $db = $self->requirement_spec->db;
-  $db->do_transaction(sub {
+  $db->with_transaction(sub {
     # Make Emacs happy
     1;
     my $parts    = $::form->{additional_parts} || [];
@@ -81,8 +81,6 @@ sub action_ajax_save {
     $_->{position} = $position++ for @{ $parts };
 
     $self->requirement_spec->update_attributes(parts => $parts)->load;
-
-    1;
   }) or do {
     return $self->js->error(t8('Saving failed. Error message from the database: #1', $db->error))->render;
   };

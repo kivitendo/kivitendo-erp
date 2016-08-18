@@ -159,21 +159,52 @@ configuration.
 =item C<with_transaction $code_ref, @args>
 
 Executes C<$code_ref> with parameters C<@args> within a transaction,
-starting one if none is currently active. Example:
+starting one only if none is currently active. Example:
 
   return $self->db->with_transaction(sub {
     # do stuff with $self
   });
 
-One big difference to L<Rose::DB/do_transaction> is the return code
-handling. If a transaction is already active then C<with_transaction>
-simply returns the result of calling C<$code_ref> as-is.
+There are two big differences between C<with_transaction> and
+L<Rose::DB/do_transaction>: the handling of an already-running
+transaction and the handling of return values.
 
-Otherwise the return value depends on the result of the underlying
-transaction. If the transaction fails then C<undef> is returned in
-scalar context and an empty list in list context. If the transaction
-succeeds then the return value of C<$code_ref> is returned preserving
+The first difference revolves around when a transaction is started and
+committed/rolled back. Rose's C<do_transaction> will always start one,
+then execute the code reference and commit afterwards (or roll back if
+an exception occurs).
+
+This prevents the caller from combining several pieces of code using
+C<do_transaction> reliably as results committed by an inner
+transaction will be permanent even if the outer transaction is rolled
+back.
+
+Therefore our C<with_transaction> works differently: it will only
+start a transaction if no transaction is currently active on the
+database connection.
+
+The second big difference to L<Rose::DB/do_transaction> is the
+handling of returned values. Basically our C<with_transaction> will
+return the values that the code reference C<$code_ref> returns (or
+C<undef> if the transaction was rolled back). Rose's C<do_transaction>
+on the other hand will only return a value signaling the transaction's
+status.
+
+In more detail:
+
+=over 2
+
+=item * If a transaction is already active then C<with_transaction>
+will simply return the result of calling C<$code_ref> as-is preserving
 context.
+
+=item * If no transaction is started then C<$code_ref> will be wrapped
+in one. C<with_transaction>'s return value depends on the result of
+that transaction. If the it succeeds then the return value of
+C<$code_ref> will be returned preserving context. Otherwise C<undef>
+will be returned in scalar context and an empty list in list context.
+
+=back
 
 So if you want to differentiate between "transaction failed" and
 "succeeded" then your C<$code_ref> should never return C<undef>

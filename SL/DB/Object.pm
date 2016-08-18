@@ -140,21 +140,15 @@ sub load {
 sub save {
   my ($self, @args) = @_;
 
-  my ($result, $exception);
-  my $worker = sub {
-    $exception = $EVAL_ERROR unless eval {
-      SL::DB::Object::Hooks::run_hooks($self, 'before_save');
-      $result = $self->SUPER::save(@args);
-      SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
-      1;
-    };
+  my $result;
 
-    return $result;
-  };
+  $self->db->with_transaction(sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_save');
+    $result = $self->SUPER::save(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
 
-  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
-
-  die $exception if $exception;
+    1;
+  }) || die $self->error;
 
   return $result;
 }
@@ -162,21 +156,15 @@ sub save {
 sub delete {
   my ($self, @args) = @_;
 
-  my ($result, $exception);
-  my $worker = sub {
-    $exception = $EVAL_ERROR unless eval {
-      SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
-      $result = $self->SUPER::delete(@args);
-      SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
-      1;
-    };
+  my $result;
 
-    return $result;
-  };
+  $self->db->with_transaction(sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
+    $result = $self->SUPER::delete(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
 
-  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
-
-  die $exception if $exception;
+    1;
+  }) || die $self->error;
 
   return $result;
 }

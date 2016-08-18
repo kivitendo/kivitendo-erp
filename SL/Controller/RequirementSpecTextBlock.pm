@@ -184,7 +184,7 @@ sub action_dragged_and_dropped {
   my $dropped_type       = $position ne 'last' ? undef : $::form->{dropped_type} =~ m/^ text-blocks- (?:front|back) $/x ? $::form->{dropped_type} : die "Unknown 'dropped_type' parameter";
   my $old_where          = $self->text_block->output_position;
 
-  $self->text_block->db->do_transaction(sub {
+  $self->text_block->db->with_transaction(sub {
     1;
     $self->text_block->remove_from_list;
     $self->text_block->output_position($position =~ m/before|after/ ? $dropped_text_block->output_position : $::form->{dropped_type} eq 'text-blocks-front' ? 0 : 1);
@@ -482,7 +482,7 @@ sub show_list {
 sub paste_picture {
   my ($self, $copied) = @_;
 
-  if (!$self->text_block->db->do_transaction(sub {
+  if (!$self->text_block->db->with_transaction(sub {
     1;
     $self->picture($copied->to_object)->save;        # Create new picture from copied data and save
     $self->text_block->add_pictures($self->picture); # Add new picture to text block

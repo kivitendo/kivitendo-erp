@@ -152,7 +152,7 @@ sub _save {
 
   my $db = $self->{cv}->db;
 
-  $db->do_transaction(sub {
+  $db->with_transaction(sub {
     my $cvs_by_nr;
     if ( $self->is_vendor() ) {
       if ( $self->{cv}->vendornumber ) {
@@ -223,6 +223,8 @@ sub _save {
         $note->delete(cascade => 'delete');
       }
     }
+
+    1;
   }) || die($db->error);
 
 }
@@ -351,7 +353,7 @@ sub action_delete {
     $self->action_edit();
   } else {
 
-    $db->do_transaction(sub {
+    $db->with_transaction(sub {
       $self->{cv}->delete(cascade => 1);
 
       my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
@@ -379,7 +381,7 @@ sub action_delete_contact {
     SL::Helper::Flash::flash('error', $::locale->text('No contact selected to delete'));
   } else {
 
-    $db->do_transaction(sub {
+    $db->with_transaction(sub {
       if ( $self->{contact}->used ) {
         $self->{contact}->detach();
         $self->{contact}->save();
@@ -388,6 +390,8 @@ sub action_delete_contact {
         $self->{contact}->delete(cascade => 1);
         SL::Helper::Flash::flash('info', $::locale->text('Contact deleted.'));
       }
+
+      1;
     }) || die($db->error);
 
     $self->{contact} = $self->_new_contact_object;
@@ -405,7 +409,7 @@ sub action_delete_shipto {
     SL::Helper::Flash::flash('error', $::locale->text('No shipto selected to delete'));
   } else {
 
-    $db->do_transaction(sub {
+    $db->with_transaction(sub {
       if ( $self->{shipto}->used ) {
         $self->{shipto}->detach();
         $self->{shipto}->save(cascade => 1);
@@ -414,6 +418,8 @@ sub action_delete_shipto {
         $self->{shipto}->delete(cascade => 1);
         SL::Helper::Flash::flash('info', $::locale->text('Shipto deleted.'));
       }
+
+      1;
     }) || die($db->error);
 
     $self->{shipto} = SL::DB::Shipto->new();

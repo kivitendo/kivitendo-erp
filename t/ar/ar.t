@@ -72,7 +72,7 @@ sub ar {
 
   my $db = $invoice->db;
 
-  $db->do_transaction( sub {
+  $db->with_transaction( sub {
 
   my $tax = SL::DB::Manager::Tax->find_by(taxkey => 0, rate => 0);
 
@@ -90,6 +90,8 @@ sub ar {
   $invoice->create_ar_row( chart => $ar_chart );
 
   _save_and_pay_and_check(invoice => $invoice, bank => $bank, pay => 1, check => 1);
+
+  1;
 
   }) || die "something went wrong: " . $db->error;
   return $invoice->invnumber;
@@ -119,7 +121,7 @@ sub ar_with_tax {
 
   my $db = $invoice->db;
 
-  $db->do_transaction( sub {
+  $db->with_transaction( sub {
 
   # TODO: check for currency and exchange rate
 
@@ -140,6 +142,7 @@ sub ar_with_tax {
   $invoice->create_ar_row( chart => $ar_chart );
   _save_and_pay_and_check(invoice => $invoice, bank => $bank, pay => 1, check => 1);
 
+  1;
   }) || die "something went wrong: " . $db->error;
   return $invoice->invnumber;
 };

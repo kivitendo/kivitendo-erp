@@ -72,12 +72,13 @@ sub action_delete {
   # allow deletion of unused tax zones. Will fail, due to database
   # constraints, if tax zone is used anywhere
 
-  my $db = $self->{config}->db;
-  $db->do_transaction(sub {
-        my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ taxzone_id => $self->config->id ]);
-        foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
-        $self->config->delete();
-        flash_later('info',  $::locale->text('The tax zone has been deleted.'));
+  $self->{config}->db->with_transaction(sub {
+    my $taxzone_charts = SL::DB::Manager::TaxzoneChart->get_all(where => [ taxzone_id => $self->config->id ]);
+    foreach my $taxzonechart ( @{$taxzone_charts} ) { $taxzonechart->delete };
+    $self->config->delete();
+    flash_later('info',  $::locale->text('The tax zone has been deleted.'));
+
+    1;
   }) || flash_later('error', $::locale->text('The tax zone is in use and cannot be deleted.'));
 
   $self->redirect_to(action => 'list');
@@ -121,7 +122,7 @@ sub create_or_update {
   my @errors;
 
   my $db = $self->config->db;
-  $db->do_transaction( sub {
+  if (!$db->with_transaction(sub {
 
     # always allow editing of description and obsolete
     $self->config->assign_attributes( %{$params} ) ;
@@ -160,9 +161,13 @@ sub create_or_update {
         $taxzone_chart->save;
       }
     }
-  } ) || die @errors ? join("\n", @errors) . "\n" : $db->error . "\n";
-         # die with rollback of taxzone save if saving of any of the taxzone_charts fails
-         # only show the $db->error if we haven't already identified the likely error ourselves
+
+    1;
+  })) {
+    die @errors ? join("\n", @errors) . "\n" : $db->error . "\n";
+    # die with rollback of taxzone save if saving of any of the taxzone_charts fails
+    # only show the $db->error if we haven't already identified the likely error ourselves
+  }
 
   flash_later('info', $is_new ? t8('The taxzone has been created.') : t8('The taxzone has been saved.'));
   $self->redirect_to(action => 'list');

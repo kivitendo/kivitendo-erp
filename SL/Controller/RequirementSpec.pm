@@ -121,7 +121,7 @@ sub action_ajax_edit_time_and_cost_estimate {
 sub action_ajax_save_time_and_cost_estimate {
   my ($self) = @_;
 
-  $self->requirement_spec->db->do_transaction(sub {
+  $self->requirement_spec->db->with_transaction(sub {
     # Make Emacs happy
     1;
     foreach my $attributes (@{ $::form->{requirement_spec_items} || [] }) {
@@ -417,12 +417,13 @@ sub create_or_update {
   }
 
   my $db = $self->requirement_spec->db;
-  if (!$db->do_transaction(sub {
+  if (!$db->with_transaction(sub {
     if ($self->copy_source) {
       $self->requirement_spec($self->copy_source->create_copy(%{ $params }));
     } else {
       $self->requirement_spec->save(cascade => 1);
     }
+    1;
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
     @errors = ($::locale->text('Saving failed. Error message from the database: #1', $db->error));
@@ -635,7 +636,7 @@ sub update_project_link_create {
   return $self->js->error(@errors)->render if @errors;
 
   my $db = $self->requirement_spec->db;
-  if (!$db->do_transaction(sub {
+  if (!$db->with_transaction(sub {
     $project->save;
     $self->requirement_spec->update_attributes(project_id => $project->id);
 
