@@ -94,13 +94,13 @@ sub action_dragged_and_dropped {
     $self->item->add_to_list(position => $position, reference => $::form->{dropped_id} || undef);
   });
 
-  $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
-  my $new_section         = $self->item->section;
-  my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
-
   return $self->invalidate_version->render if !$old_visible_section || ($new_type eq 'section');
 
   # From here on $old_visible_section is definitely set.
+
+  $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
+  my $new_section         = $self->item->section;
+  my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
 
   my $old_parent  = SL::DB::RequirementSpecItem->new(id => $old_parent_id)->load;
   my $old_section = $old_parent->section;

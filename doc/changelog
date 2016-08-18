@@ -24,6 +24,13 @@ Administrative Änderungen
     beschleunigt. Dafür wird die benötigte Minimalversion von Postgres auf 9.1
     angehoben.
 
+Bugfixes:
+
+  - Pflichtenheftmodul: Es wurde eine Fehlermeldung angezeigt, wenn im
+    rechten Teil des Fensters aktuell Textblöcke zu sehen sind,
+    während Abschnitte oder Funktionsblöcke via Drag & Drop verschoben
+    wurden.
+
 2016-07-05 - Release 3.4.1
 
 kleinere neue Features und Detailverbesserungen:
