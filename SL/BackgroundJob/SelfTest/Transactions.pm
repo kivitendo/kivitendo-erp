@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 23);
+  $self->tester->plan(tests => 24);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -40,6 +40,7 @@ sub run {
   $self->check_bank_transactions_overpayments;
   $self->check_ar_paid_acc_trans;
   $self->check_ap_paid_acc_trans;
+  $self->check_zero_amount_paid_but_datepaid_exists;
 }
 
 sub _setup {
@@ -592,6 +593,32 @@ sub check_ap_paid_acc_trans {
   }
 }
 
+sub check_zero_amount_paid_but_datepaid_exists {
+  my ($self) = @_;
+
+  my $query = qq|(SELECT invnumber,datepaid from ar where datepaid is NOT NULL AND paid = 0
+                    AND id not IN (select trans_id from acc_trans WHERE chart_link like '%paid%' AND acc_trans.trans_id = ar.id)
+                    AND datepaid >= ? AND datepaid <= ?)
+                   UNION
+                (SELECT invnumber,datepaid from ap where datepaid is NOT NULL AND paid = 0
+                    AND id not IN (select trans_id from acc_trans WHERE chart_link like '%paid%' AND acc_trans.trans_id = ap.id)
+                    AND datepaid >= ? AND datepaid <= ?)|;
+
+  my $datepaid_should_be_null = selectall_hashref_query($::form, $self->dbh, $query,
+                                                         $self->fromdate, $self->todate,
+                                                         $self->fromdate, $self->todate);
+
+  if ( scalar @{ $datepaid_should_be_null } > 0 ) {
+    $self->tester->ok(0, "Folgende Rechnungen haben ein Bezahl-Datum, aber keinen Bezahl-Wert im Nebenbuch:");
+
+    for my $datepaid_should_be_null_nok (@{ $datepaid_should_be_null } ) {
+      $self->tester->diag("Rechnungsnummer: $datepaid_should_be_null_nok->{invnumber}
+                           Bezahl-Datum: $datepaid_should_be_null_nok->{datepaid}");
+    }
+  } else {
+    $self->tester->ok(1, "Hauptbuch Bezahl-Wert und Kreditoren-Nebenbuch-Bezahlwert stimmen überein.");
+  }
+}
 
 1;
 
