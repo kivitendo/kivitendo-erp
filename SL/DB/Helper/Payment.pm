@@ -387,7 +387,7 @@ sub open_amount {
   # if the difference is 0.01 Cent this may end up as 0.009999999999998
   # numerically, so round this value when checking for cent threshold >= 0.01
 
-  return $self->amount - $self->paid;
+  return ($self->amount // 0) - ($self->paid // 0);
 };
 
 sub open_percent {
