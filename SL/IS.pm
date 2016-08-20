@@ -1312,7 +1312,10 @@ SQL
     do_query($form, $dbh, qq|UPDATE ar SET paid = amount WHERE id = ?|, conv_i($form->{"id"}));
   }
 
-  $form->new_lastmtime('ar');
+  # maybe we are in a larger transaction and the current
+  # object is not yet persistent in the db, therefore we
+  # need the current dbh to get the not yet committed mtime
+  $form->new_lastmtime('ar', $provided_dbh);
 
   $form->{name} = $form->{customer};
   $form->{name} =~ s/--\Q$form->{customer_id}\E//;
