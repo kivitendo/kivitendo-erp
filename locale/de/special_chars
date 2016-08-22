@@ -22,7 +22,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -60,6 +60,7 @@ _=\\_
 ≥=$\\geq$
 ‐={}-{}
 ​={\\hspace{0pt}}
+Ω=$\\Omega$
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
