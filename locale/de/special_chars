@@ -1,5 +1,16 @@
 [HTML]
-order=& " < >
+order=& \xc3\xa4 \xc3\xb6 \xc3\xbc \xc3\x84 \xc3\x96 \xc3\x9c \xc3\x9f " < > \xc2\xa7 \xc2\xb2 \xc2\xb3 \xe2\x82\xac
+\xc3\xa4=&auml;
+\xc3\xb6=&ouml;
+\xc3\xbc=&uuml;
+\xc3\x84=&Auml;
+\xc3\x96=&Ouml;
+\xc3\x9c=&Uuml;
+\xc3\x9f=&szlig;
+\xc2\xa7=&sect;
+\xc2\xb2=&sup2;
+\xc2\xb3=&sup3;
+\xe2\x82\xac=&euro;
 "=&quot;
 &=&amp;
 <=&lt;
@@ -22,7 +33,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω μ Δ
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -60,6 +71,8 @@ _=\\_
 ≥=$\\geq$
 ‐={}-{}
 ​={\\hspace{0pt}}
+μ={\\textmu}
+Δ=$\\Delta$
 Ω=$\\Omega$
 
 [Template/OpenDocument]

@@ -29,7 +29,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ‐ Ω
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ‐ Ω ~ μ Δ
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -55,6 +55,9 @@ _=\\_
 ®=\\textregistered
 ©=\\textcopyright
 ‐={}-{}
+~=${}$~
+μ={\\textmu}
+Δ=$\\Delta$
 Ω=$\\Omega$
 
 [Template/OpenDocument]
