@@ -8,6 +8,18 @@ kleinere neue Features und Detailverbesserungen:
 
   - Für UStVA Voranmeldung über Elster gibt es die Anbindung über Geierlein (Installation/Config siehe Commit)
   
+  - CSV-Import von Artikel hat nun für existierende Artikel folgende Optionen:
+     1. Eigenschaften von existierenden Einträgen aktualisieren
+     2. Eigenschaften von existierenden Artikeln aktualisieren / Nicht vorhandene überspringen
+     3. Preise von vorhandenen Artikeln aktualisieren
+     4. Preise von vorhandenen Artikel aktualisieren / Nicht vorhandene überspringen
+     5. Mit neuer Artikelnummer einfügen
+     6. Eintrag überspringen
+    Zusätzlich können nun Spalten "Lager","Lagerort" als Name oder ID eingelesen werden,
+    sowie Übersetzungen z.B. als 'description_EN' oder 'description_IT'.
+    Auch cvars können als 'cvars_<name>' importiert werden.
+    Ebenfalls sind zusätzliche Bemerkungen an den einzelnen Importzeilen eingebaut.
+ 
   - In der Lager-Mandantenkonfig gibt es das Feature "Zum Fertigen Standardlager des Bestandteils verwenden".
     Statt das Ziellager des Erzeugnisses zu Verwenden, wird nun zur Prüfung der Fertigung das
     Standardlager der einzelnen Bestandteile verwendet.

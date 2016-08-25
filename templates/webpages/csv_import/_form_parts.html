@@ -3,7 +3,7 @@
 <tr>
  <th align="right">[%- LxERP.t8('Parts with existing part numbers') %]:</th>
  <td colspan="10">
-  [% opts = [ [ 'update_prices', LxERP.t8('Update prices of existing entries') ], [ 'insert_new', LxERP.t8('Insert with new part number') ], [ 'skip', LxERP.t8('Skip entry') ] ] %]
+  [% opts = [[ 'update_parts', LxERP.t8('Update properties of existing entries') ], [ 'update_parts_sn', LxERP.t8('Update properties of existing entries / skip non-existent') ], [ 'update_prices', LxERP.t8('Update prices of existing entries') ],[ 'update_prices_sn', LxERP.t8('Update prices of existing entries / skip non-existent') ] ,[ 'insert_new', LxERP.t8('Insert with new part number') ], [ 'skip', LxERP.t8('Skip entry') ] ] %]
   [% L.select_tag('settings.article_number_policy', opts, default = SELF.profile.get('article_number_policy'), style = 'width: 300px') %]
  </td>
 </tr>

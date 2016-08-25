@@ -24,6 +24,7 @@ use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table makemodel_columns) ],
  'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by partsgroups_by
+                                 warehouses_by bins_by
                                  translation_columns all_pricegroups) ],
 );
 
@@ -77,6 +78,21 @@ sub init_units_by {
   my $all_units = SL::DB::Manager::Unit->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_units } } ) } qw(name) };
 }
+
+sub init_bins_by {
+  my ($self) = @_;
+
+  my $all_bins = SL::DB::Manager::Bin->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_bins } } ) } qw(id description) };
+}
+
+sub init_warehouses_by {
+  my ($self) = @_;
+
+  my $all_warehouses = SL::DB::Manager::Warehouse->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_warehouses } } ) } qw(id description) };
+}
+
 
 sub init_parts_by {
   my ($self) = @_;
@@ -145,6 +161,7 @@ sub check_objects {
     $self->check_price_factor($entry);
     $self->check_payment($entry);
     $self->check_partsgroup($entry);
+    $self->check_warehouse_and_bin($entry);
     $self->handle_pricegroups($entry);
     $self->check_existing($entry) unless @{ $entry->{errors} };
     $self->handle_prices($entry) if $self->settings->{sellprice_adjustment};
@@ -156,10 +173,9 @@ sub check_objects {
   } continue {
     $i++;
   }
-
   $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
   $self->add_columns(qw(buchungsgruppen_id unit));
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup warehouse bin));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
   $self->add_cvar_raw_data_columns;
   map { $self->add_raw_data_columns("pricegroup_${_}") if exists $self->controller->data->[0]->{raw_data}->{"pricegroup_$_"} } (1..scalar(@{ $self->all_pricegroups }));
@@ -198,7 +214,10 @@ sub check_buchungsgruppe {
   $default_id    = undef unless $self->bg_by->{id}->{ $default_id };
 
   # 1. Use default ID if enforced.
-  $object->buchungsgruppen_id($default_id) if $default_id && ($self->settings->{apply_buchungsgruppe} eq 'all');
+  if ($default_id && ($self->settings->{apply_buchungsgruppe} eq 'all')) {
+    $object->buchungsgruppen_id($default_id);
+    push @{ $entry->{information} }, $::locale->text('Use default booking group because setting is \'all\'');
+  }
 
   # 2. Use supplied ID if valid
   $object->buchungsgruppen_id(undef) if $object->buchungsgruppen_id && !$self->bg_by->{id}->{ $object->buchungsgruppen_id };
@@ -210,11 +229,28 @@ sub check_buchungsgruppe {
   }
 
   # 4. Use default ID if not valid.
-  $object->buchungsgruppen_id($default_id) if !$object->buchungsgruppen_id && $default_id && ($self->settings->{apply_buchungsgruppe} eq 'missing');
-
+  if (!$object->buchungsgruppen_id && $default_id && ($self->settings->{apply_buchungsgruppe} eq 'missing')) {
+    $object->buchungsgruppen_id($default_id) ;
+    $entry->{buch_information} = $::locale->text('Use default booking group because wanted is missing');
+  }
   return 1 if $object->buchungsgruppen_id;
+  $entry->{buch_error} =  $::locale->text('Error: booking group missing or invalid');
+  return 0;
+}
 
-  push @{ $entry->{errors} }, $::locale->text('Error: booking group missing or invalid');
+sub _part_is_used {
+  my ($self, $part) = @_;
+
+  my $query =
+      qq|SELECT COUNT(parts_id) FROM invoice where parts_id = ?
+         UNION
+         SELECT COUNT(parts_id) FROM assembly where parts_id = ?
+         UNION
+         SELECT COUNT(parts_id) FROM orderitems where parts_id = ?
+        |;
+  foreach my $ref (selectall_hashref_query($::form, $part->db->dbh, $query, $part->id, $part->id, $part->id)) {
+    return 1 if $ref->{count} != 0;
+  }
   return 0;
 }
 
@@ -222,34 +258,129 @@ sub check_existing {
   my ($self, $entry) = @_;
 
   my $object = $entry->{object};
+  my $raw = $entry->{raw_data};
 
   if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
-    $entry->{part} = SL::DB::Manager::Part->find_by(partnumber => $object->partnumber);
+    $entry->{part} = SL::DB::Manager::Part->get_all( query => [ partnumber => $object->partnumber ], limit => 1,
+      with_objects => [ 'translations', 'custom_variables' ]
+    ) -> [0];
+    if ( !$entry->{part} ) {
+        $entry->{part} = SL::DB::Manager::Part->get_all( query => [ partnumber => $object->partnumber ], limit => 1,
+          with_objects => [ 'translations' ]
+        ) -> [0];
+    }
   }
 
   if ($entry->{part}) {
-    if ($self->settings->{article_number_policy} eq 'update_prices') {
-      if ($self->settings->{parts_type} eq 'mixed' && $entry->{part}->type ne $object->type) {
-        push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database with different type'));
-      } else {
-        map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
+    if ($entry->{part}->type ne $object->type ) {
+      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database with different type'));
+      return;
+    }
+    if ( $entry->{part}->unit != $object->unit || $entry->{part}->inventory_accno_id != $object->inventory_accno_id ) {
+      if ( $entry->{part}->onhand != 0 || $self->_part_is_used($entry->{part})) {
+        push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry with different unit or inventory_accno_id'));
+        return;
+      }
+    }
+  }
 
+  if ($self->settings->{article_number_policy} eq 'update_prices_sn' || $self->settings->{article_number_policy} eq 'update_parts_sn') {
+    if (!$entry->{part}) {
+      push(@{$entry->{errors}}, $::locale->text('Skipping non-existent article'));
+      return;
+    }
+  }
+
+  ## checking also doubles in csv !!
+  foreach my $csventry (@{ $self->controller->data }) {
+    if ( $entry != $csventry && $object->partnumber eq $csventry->{object}->partnumber ) {
+      if ( $csventry->{doublechecked} ) {
+        push(@{$entry->{errors}}, $::locale->text('Skipping due to same partnumber in csv file'));
+        return;
+      }
+    }
+  }
+  $entry->{doublechecked} = 1;
+
+  if ($entry->{part}) {
+    if ($self->settings->{article_number_policy} eq 'update_prices' || $self->settings->{article_number_policy} eq 'update_prices_sn') {
+      map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
+
+      # merge prices
+      my %prices_by_pricegroup_id = map { $_->pricegroup->id => $_ } $entry->{part}->prices, $object->prices;
+      $entry->{part}->prices(grep { $_ } map { $prices_by_pricegroup_id{$_->id} } @{ $self->all_pricegroups });
+
+      push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
+      $entry->{object_to_save} = $entry->{part};
+    } elsif ( $self->settings->{article_number_policy} eq 'update_parts' || $self->settings->{article_number_policy} eq 'update_parts_sn') {
+
+      # Update parts table
+      # copy only the data which is not explicit copied by  "methods"
+
+      map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ }  qw(description notes weight ean rop image
+                                                                           drawing ve gv
+                                                                           unit
+                                                                           has_sernumber not_discountable obsolete
+                                                                           payment_id
+                                                                           sellprice listprice lastcost);
+
+      if (defined $raw->{"sellprice"} || defined $raw->{"listprice"} || defined $raw->{"lastcost"}) {
         # merge prices
         my %prices_by_pricegroup_id = map { $_->pricegroup->id => $_ } $entry->{part}->prices, $object->prices;
         $entry->{part}->prices(grep { $_ } map { $prices_by_pricegroup_id{$_->id} } @{ $self->all_pricegroups });
-
-        push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
-        $entry->{object_to_save} = $entry->{part};
       }
-    } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
-      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));
 
+      # Update translation
+      my @translations;
+      push @translations, $entry->{part}->translations;
+      foreach my $language (@{ $self->all_languages }) {
+        my $desc;
+        $desc = $raw->{"description_". $language->article_code}  if defined $raw->{"description_". $language->article_code};
+        my $notes;
+        $notes = $raw->{"notes_". $language->article_code}  if defined $raw->{"notes_". $language->article_code};
+        next unless $desc || $notes;
+
+        push @translations, SL::DB::Translation->new(language_id     => $language->id,
+                                                     translation     => $desc,
+                                                     longdescription => $notes);
+      }
+      $entry->{part}->translations(\@translations) if @translations;
+
+      # Update cvars
+      my %type_to_column = ( text      => 'text_value',
+                             textfield => 'text_value',
+                             select    => 'text_value',
+                             date      => 'timestamp_value_as_date',
+                             timestamp => 'timestamp_value_as_date',
+                             number    => 'number_value_as_number',
+                             bool      => 'bool_value' );
+      my @cvars;
+      push @cvars, $entry->{part}->custom_variables;
+      foreach my $config (@{ $self->all_cvar_configs }) {
+        next unless exists $raw->{ "cvar_" . $config->name };
+        my $value  = $raw->{ "cvar_" . $config->name };
+        my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
+        push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => '');
+      }
+      $entry->{part}->custom_variables(\@cvars) if @cvars;
+
+      # save Part Update
+      push @{ $entry->{information} }, $::locale->text('Updating data of existing entry in database');
+
+      $entry->{object_to_save} = $entry->{part};
+      # copy all other data via "methods"
+      my $methods        = $self->controller->headers->{methods};
+      $entry->{object_to_save}->$_( $entry->{object}->$_ ) for @{ $methods }, keys %{ $self->clone_methods };
+
+    } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
+      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database')) if ( $entry->{part} );
     } else {
-      $object->partnumber('####');
-      push(@{$entry->{errors}}, $::locale->text('Skipping, for assemblies are not importable (yet)')) if $object->type eq 'assembly';
+      #$object->partnumber('####');
     }
   } else {
-    push(@{$entry->{errors}}, $::locale->text('Skipping, for assemblies are not importable (yet)')) if $object->type eq 'assembly';
+    # set error or info from buch if part not exists
+    push @{ $entry->{information} }, $entry->{buch_information} if $entry->{buch_information};
+    push @{ $entry->{errors} }, $entry->{buch_error} if $entry->{buch_error};
   }
 }
 
@@ -275,39 +406,47 @@ sub handle_shoparticle {
 sub check_type {
   my ($self, $entry) = @_;
 
-  my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
-  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
-
   my $type = $self->settings->{parts_type};
-  if ($type eq 'mixed') {
+
+  if ($type eq 'mixed' && $entry->{raw_data}->{type}) {
     $type = $entry->{raw_data}->{type} =~ m/^p/i ? 'part'
           : $entry->{raw_data}->{type} =~ m/^s/i ? 'service'
           : $entry->{raw_data}->{type} =~ m/^a/i ? 'assembly'
           :                                        undef;
   }
 
-  $entry->{object}->assembly($type eq 'assembly');
-
   # when saving income_accno_id or expense_accno_id use ids from the selected
   # $bg according to the default tax_zone (the one with the highest sort
   # order).  Alternatively one could use the ids from defaults, but they might
   # not all be set.
+  # Only use existing bg
 
-  $entry->{object}->income_accno_id( $bg->income_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
+  my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
 
-  if ($type eq 'part' || $type eq 'service') {
-    $entry->{object}->expense_accno_id( $bg->expense_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
+  # if not set there is an error occurred in check_buchungsgruppe()
+  # but if the part exists the new values for accno are ignored
+
+  if ( $bg ) {
+    $entry->{object}->income_accno_id( $bg->income_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
+    $self->clone_methods->{income_accno_id} = 1;
+
+    if ($type eq 'part' || $type eq 'service') {
+      $entry->{object}->expense_accno_id( $bg->expense_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
+      $self->clone_methods->{expense_accno_id} = 1;
+    }
   }
 
   if ($type eq 'part') {
-    $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
+    if ( $bg ) {
+      $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
+    }
+    else {
+      #use an existent bg
+      $entry->{object}->inventory_accno_id( SL::DB::Manager::Buchungsgruppe->get_first->id );
+    }
+  } elsif ($type eq 'assembly') {
+      $entry->{object}->assembly(1);
   }
-
-  if (none { $_ eq $type } qw(part service assembly)) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid part type');
-    return 0;
-  }
-
   return 1;
 }
 
@@ -332,8 +471,62 @@ sub check_price_factor {
     }
 
     $object->price_factor_id($pf->id);
+    $self->clone_methods->{price_factor_id} = 1;
   }
 
+  return 1;
+}
+
+sub check_warehouse_and_bin {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not warehouse id is valid.
+  if ($object->warehouse_id && !$self->warehouses_by->{id}->{ $object->warehouse_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid warehouse id');
+    return 0;
+  }
+  # Map name to ID if given.
+  if (!$object->warehouse_id && $entry->{raw_data}->{warehouse}) {
+    my $wh = $self->warehouses_by->{description}->{ $entry->{raw_data}->{warehouse} };
+
+    if (!$wh) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid warehouse name #1',$entry->{raw_data}->{warehouse});
+      return 0;
+    }
+
+    $object->warehouse_id($wh->id);
+  }
+  $self->clone_methods->{warehouse_id} = 1;
+
+  # Check whether or not bin id is valid.
+  if ($object->bin_id && !$self->bins_by->{id}->{ $object->bin_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin id');
+    return 0;
+  }
+  # Map name to ID if given.
+  if ($object->warehouse_id && !$object->bin_id && $entry->{raw_data}->{bin}) {
+    my $bin = $self->bins_by->{description}->{ $entry->{raw_data}->{bin} };
+
+    if (!$bin) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid bin name #1',$entry->{raw_data}->{bin});
+      return 0;
+    }
+
+    $object->bin_id($bin->id);
+  }
+  $self->clone_methods->{bin_id} = 1;
+
+  if ($object->warehouse_id && $object->bin_id ) {
+    my $bin = $self->bins_by->{id}->{ $object->bin_id };
+    if ( $bin->warehouse_id != $object->warehouse_id ) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Bin #1 is not from warehouse #2',
+                                                  $self->bins_by->{id}->{$object->bin_id}->description,
+                                                  $self->warehouses_by->{id}->{ $object->warehouse_id }->description);
+      return 0;
+    }
+  }
   return 1;
 }
 
@@ -359,6 +552,8 @@ sub check_partsgroup {
 
     $object->partsgroup_id($pg->id);
   }
+  # register payment_id for method copying later
+  $self->clone_methods->{partsgroup_id} = 1;
 
   return 1;
 }
@@ -480,7 +675,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
+  delete @{$profile}{qw(alternate assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
 
   $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 
@@ -505,9 +700,11 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                                                  },
-                                 { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                          },
-                                 { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                 },
+  $self->add_displayable_columns({ name => 'assembly',           description => $::locale->text('assembly')                                             },
+                                 { name => 'bin_id',             description => $::locale->text('Bin (database ID)')                                    },
+                                 { name => 'bin',                description => $::locale->text('Bin (name)')                                           },
+                                 { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                         },
+                                 { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                },
                                  { name => 'description',        description => $::locale->text('Description')                                          },
                                  { name => 'drawing',            description => $::locale->text('Drawing')                                              },
                                  { name => 'ean',                description => $::locale->text('EAN')                                                  },
@@ -515,6 +712,7 @@ sub setup_displayable_columns {
                                  { name => 'gv',                 description => $::locale->text('Business Volume')                                      },
                                  { name => 'has_sernumber',      description => $::locale->text('Has serial number')                                    },
                                  { name => 'image',              description => $::locale->text('Image')                                                },
+                                 { name => 'inventory_accno_id', description => $::locale->text('part')                                                 },
                                  { name => 'lastcost',           description => $::locale->text('Last Cost')                                            },
                                  { name => 'listprice',          description => $::locale->text('List Price')                                           },
                                  { name => 'make_X',             description => $::locale->text('Make (vendor\'s database ID, number or name; with X being a number)') . ' [1]' },
@@ -534,10 +732,12 @@ sub setup_displayable_columns {
                                  { name => 'price_factor',       description => $::locale->text('Price factor (name)')                                  },
                                  { name => 'rop',                description => $::locale->text('ROP')                                                  },
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                                            },
-                                 { name => 'shop',               description => $::locale->text('Shop article')                                         },
+                                 { name => 'shop',               description => $::locale->text('Shop article')                                          },
                                  { name => 'type',               description => $::locale->text('Article type')  . ' [3]'                             },
                                  { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')                                  },
+                                 { name => 'warehouse_id',       description => $::locale->text('Warehouse (database ID)')                              },
+                                 { name => 'warehouse',          description => $::locale->text('Warehouse (name)')                              },
                                  { name => 'weight',             description => $::locale->text('Weight')                                               },
                                 );
 
