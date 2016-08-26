@@ -1164,8 +1164,10 @@ An expiration date. Note that this is not by default used by C<warehouse_report>
 
 Creates an assembly if all defined items are available.
 
-One to n rows are inserted in inventory for the used parts and
-exactly one row is inserted in inventory for the created assembly.
+Assembly item(s) will be stocked out and the assembly will be stocked in,
+taking into account the qty and units which can be defined for each
+assembly item seperately.
+
 The calling params originate from C<transfer> but only parts_id with the
 attribute assembly are processed.
 
@@ -1197,13 +1199,14 @@ unsuccessfully with a return value of undef.
 
   assembly_id has to be an id in the table parts with the valid subset assembly.
 
-=item More than zero items need to be defined for this subset
+=item Assembly is composed of assembly item(s)
 
-  There has to be at least one date set in the table assembly referenced to this assembly_id.
+  There has to be at least one data set in the table assembly referenced to this assembly_id.
 
-=item The param qty needs to be in the set of positive integers
+=item Assembly cannot be destroyed or disassembled
 
-  No negative qty's can be assembled neither zero.
+  Assemblies are like cakes. You cannot disassemble it. NEVER.
+  No negative nor zero qty's are valid inputs.
 
 =item The assembly item(s) have to be in the same warehouse
 
@@ -1211,8 +1214,10 @@ unsuccessfully with a return value of undef.
 
 =item The assembly item(s) have to be in stock with the qty needed
 
-  The qty of all assembly item(s) are >= than the needed qty
-  to assemble the qty of assemblies (client configurable).
+  I can only make a cake by receipt if I have ALL ingredients and
+  in the needed stock amount.
+  The qty of stocked in assembly item(s) has to fit into the
+  number of the qty of the assemblies, which are going to be created (client configurable).
 
 =item assembly item(s) with the parts set 'service' are ignored
 
@@ -1223,13 +1228,13 @@ unsuccessfully with a return value of undef.
 Client configurable prerequisites can be changed with different
 prerequisites as described in client_config (s.a. next chapter).
 
-More prerequisites may be added in the future.
 
 =head2 default creation of assembly
 
-Inventory entries distinguish between directions (in/out) and transfer_types.
-Valid entries after a creation of an assembly are 'out' and 'used' for assembly
-items and 'in' and 'assembled' for the assembly.
+The valid state of the assembly item(s) used for the assembly process are
+'out' for the general direction and 'used' as the specific reason.
+The valid state of the assembly is 'in' for the direction and 'assembled'
+as the specific reason.
 
 The method is transaction safe, in case of errors not a single entry will be made
 in inventory.
