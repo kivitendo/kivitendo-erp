@@ -252,7 +252,7 @@ sub transfer_assembly {
       # 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
 
       $kannNichtFertigen .= "Zum Fertigen fehlen: " . abs($partsQTY - $max_parts) .
-                            " Einheiten der Ware: " . $self->get_part_description(parts_id => $currentPart_ID) . 
+                            " Einheiten der Ware: " . $self->get_part_description(parts_id => $currentPart_ID) .
                             " im Lager: " . $warehouse_desc .
                             ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
       next; # die weiteren Überprüfungen sind unnötig, daher das nächste elemente prüfen (genaue Ausgabe, was noch fehlt)
@@ -1159,6 +1159,101 @@ An optional comment.
 An expiration date. Note that this is not by default used by C<warehouse_report>.
 
 =back
+
+=head2 create_assembly \%PARAMS, [ \%PARAMS, ... ]
+
+Creates an assembly if all defined items are available.
+
+One to n rows are inserted in inventory for the used parts and
+exactly one row is inserted in inventory for the created assembly.
+The calling params originate from C<transfer> but only parts_id with the
+attribute assembly are processed.
+
+The typical params would be:
+
+  my %TRANSFER = (
+    'login'            => $::myconfig{login},
+    'dst_warehouse_id' => $form->{warehouse_id},
+    'dst_bin_id'       => $form->{bin_id},
+    'chargenumber'     => $form->{chargenumber},
+    'bestbefore'       => $form->{bestbefore},
+    'assembly_id'      => $form->{parts_id},
+    'qty'              => $form->{qty},
+    'comment'          => $form->{comment}
+  );
+
+=head3 Prerequisites
+
+All of these prerequisites have to be trueish, otherwise the function will exit
+unsuccessfully with a return value of undef.
+
+=over 4
+
+=item Mandantory params
+
+  assembly_id, qty, login, dst_warehouse_id and dst_bin_id are mandatory.
+
+=item Subset named 'Assembly' of data set 'Part'
+
+  assembly_id has to be an id in the table parts with the valid subset assembly.
+
+=item More than zero items need to be defined for this subset
+
+  There has to be at least one date set in the table assembly referenced to this assembly_id.
+
+=item The param qty needs to be in the set of positive integers
+
+  No negative qty's can be assembled neither zero.
+
+=item The assembly item(s) have to be in the same warehouse
+
+  inventory.warehouse_id equals dst_warehouse_id (client configurable).
+
+=item The assembly item(s) have to be in stock with the qty needed
+
+  The qty of all assembly item(s) are >= than the needed qty
+  to assemble the qty of assemblies (client configurable).
+
+=item assembly item(s) with the parts set 'service' are ignored
+
+  The subset 'Services' of part will not transferred for assembly item(s).
+
+=back
+
+Client configurable prerequisites can be changed with different
+prerequisites as described in client_config (s.a. next chapter).
+
+More prerequisites may be added in the future.
+
+=head2 default creation of assembly
+
+Inventory entries distinguish between directions (in/out) and transfer_types.
+Valid entries after a creation of an assembly are 'out' and 'used' for assembly
+items and 'in' and 'assembled' for the assembly.
+
+The method is transaction safe, in case of errors not a single entry will be made
+in inventory.
+
+Two prerequisites can be changed with this global parameters
+
+=over 2
+
+=item  $::instance_conf->get_transfer_default_warehouse_for_assembly
+
+  If trueish we try to get all the items form the default bins defined in parts
+  and do not try to find them in the destination warehouse. Returns an
+  error if not all items have set a default bin in parts.
+
+=item  $::instance_conf->get_bin_id_ignore_onhand
+
+  If trueish we can create assemblies even if we do not have enough items in stock.
+  The needed qty will be booked in a special bin, which has to be configured in
+  the client config.
+
+=back
+
+
+
 
 =head1 BUGS
 
