@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('assortment_items');
 
 __PACKAGE__->meta->columns(
   assortment_id => { type => 'integer', not_null => 1 },
+  charge        => { type => 'boolean', default => 'true' },
   itime         => { type => 'timestamp', default => 'now()' },
   mtime         => { type => 'timestamp' },
   parts_id      => { type => 'integer', not_null => 1 },
