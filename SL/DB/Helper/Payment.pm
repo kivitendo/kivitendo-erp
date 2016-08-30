@@ -706,6 +706,13 @@ sub get_payment_suggestions {
   return 1;
 };
 
+# locales for payment type
+#
+# $main::locale->text('without_skonto')
+# $main::locale->text('with_skonto_pt')
+# $main::locale->text('difference_as_skonto')
+#
+
 sub validate_payment_type {
   my $payment_type = shift;
 
