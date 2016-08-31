@@ -15,7 +15,7 @@ sub store {
 
   my $tuple = $self->get_tuple($key);
 
-  if ($tuple) {
+  if ($tuple && $tuple->{id}) {
     $tuple->{value}  = $value;
     $self->_update($tuple);
   } else {
