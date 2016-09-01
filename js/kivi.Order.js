@@ -182,6 +182,21 @@ namespace('kivi.Order', function(ns) {
     html_elt.html(price_str);
   };
 
+  ns.load_second_row = function(row) {
+    var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
+    var div_elt = $(row).find('[name="second_row"]');
+
+    if ($(div_elt).data('loaded') == 1) {
+      return;
+    }
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/load_second_row' });
+    data.push({ name: 'item_id', value: item_id_dom.val() });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+
   ns.init_row_handlers = function() {
     kivi.run_once_for('.recalc', 'on_change_recalc', function(elt) {
       $(elt).change(ns.recalc_amounts_and_taxes);
@@ -198,18 +213,18 @@ namespace('kivi.Order', function(ns) {
 
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
-        var row;
         if(event.keyCode == 40 && event.shiftKey === true) {
           // shift arrow down
           event.preventDefault();
-          row = $(event.target).parents(".row_entry").first();
+          var row = $(event.target).parents(".row_entry").first();
+          ns.load_second_row(row);
           $(row).children().not(':first').show();
           return false;
         }
         if(event.keyCode == 38 && event.shiftKey === true) {
           // shift arrow up
           event.preventDefault();
-          row = $(event.target).parents(".row_entry").first();
+          var row = $(event.target).parents(".row_entry").first();
           $(row).children().not(':first').hide();
           return false;
         }
@@ -217,6 +232,7 @@ namespace('kivi.Order', function(ns) {
       $(elt).dblclick(function(event) {
         event.preventDefault();
         var row = $(event.target).parents(".row_entry").first();
+        ns.load_second_row(row);
         $(row).children().not(':first').toggle();
         return false;
       });

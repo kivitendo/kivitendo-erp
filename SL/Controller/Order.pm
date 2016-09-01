@@ -594,6 +594,32 @@ sub action_get_item_longdescription {
   $_[0]->render(\ $longdescription, { type => 'text' });
 }
 
+# load the second row for an item (cvars only for now)
+#
+# This action gets the html code for the items second row by rendering a template for
+# the second row and calls a javascript function with this html code via client js.
+sub action_load_second_row {
+  my ($self) = @_;
+
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
+  my $item = $self->order->items_sorted->[$idx];
+
+  # Parse values from form (they are formated while rendering (template)).
+  # Workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+  # This parsing is not necessary at all, if we assure that the second row/cvars are only loaded once.
+  #foreach my $var (@{ $item->cvars_by_config }) {
+  #  $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+  #}
+  #$item->parse_custom_variable_values;
+
+  my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item);
+
+  $self->js
+    ->html('.row_entry:has(#item_' . $::form->{item_id} . ') [name = "second_row"]', $row_as_html)
+    ->data('.row_entry:has(#item_' . $::form->{item_id} . ') [name = "second_row"]', 'loaded', 1)
+    ->render();
+}
+
 sub _js_redisplay_linetotals {
   my ($self) = @_;
 
@@ -1288,15 +1314,6 @@ should be implemented.
 
 C<show_multi_items_dialog> does not use the currently inserted string for
 filtering.
-
-=item * Performance
-
-Rendering a 50 items order takes twice as long as the old code.
-
-90% of that is rendering the (hidden) second rows, and 50% of those again are
-checks for is_valid and C<INCLUDE> on the cvar input template.
-
-Suggestion: fetch second rows when asked for.
 
 =back
 

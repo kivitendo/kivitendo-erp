@@ -102,27 +102,9 @@
 
   <tr class="listrow1" style="display:none">
     <td colspan="100%">
-      <table>
-        <tr class="listrow1">
-          [%- SET n = 0 %]
-          [%- FOREACH var = ITEM.cvars_by_config %]
-            [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
-            [%- SET n = n + 1 %]
-            <th>
-              [% var.config.description %]
-            </th>
-            <td>
-              [% L.hidden_tag('order.orderitems[].custom_variables[+].config_id', var.config.id) %]
-              [% L.hidden_tag('order.orderitems[].custom_variables[].id', var.id) %]
-              [% L.hidden_tag('order.orderitems[].custom_variables[].sub_module', var.sub_module) %]
-              [% INCLUDE 'common/render_cvar_input.html' var_name='order.orderitems[].custom_variables[].unparsed_value' %]
-            </td>
-            [%- IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
-              </tr><tr class="listrow1">
-            [%- END %]
-          [%- END %]
-        </tr>
-      </table>
+      <div name="second_row">
+        [%- LxERP.t8("Loading...") %]
+      </div>
     </td>
   </tr>
 
