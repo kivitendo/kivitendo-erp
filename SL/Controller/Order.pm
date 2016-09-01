@@ -784,7 +784,7 @@ sub _make_item {
   $item->assign_attributes(%$attr);
   $item->longdescription($item->part->notes) if $is_new && !defined $attr->{longdescription};
   # item fields that currently can't be set in in row but are needed:
-  $item->lastcost($item->part->lastcost);
+  $item->lastcost($item->part->lastcost) if $is_new;
 
   return $item;
 }
