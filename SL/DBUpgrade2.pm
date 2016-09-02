@@ -243,8 +243,6 @@ sub process_perl_script {
   $dbh->begin_work;
 
   # setup dbup_ export vars & run script
-  my $old_dbh       = SL::DB->client->dbh;
-  SL::DB->client->dbh($dbh);
   my %dbup_myconfig = map { ($_ => $::form->{$_}) } qw(dbname dbuser dbpasswd dbhost dbport dbconnect);
   my $result        = eval {
     SL::DBUpgrade2::Base::execute_script(
@@ -256,8 +254,6 @@ sub process_perl_script {
   };
 
   my $error = $EVAL_ERROR;
-
-  SL::DB->client->dbh($old_dbh);
 
   $dbh->rollback if 1 != ($result // -1);
 
