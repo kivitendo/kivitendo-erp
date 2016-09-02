@@ -395,7 +395,7 @@ sub save_objects {
   my $data = $params{data} || $self->controller->data;
 
   foreach my $entry (@{ $data }) {
-    my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
+    my ($trans_id) = selectrow_query($::form,$entry->{object}->db->dbh, qq|SELECT nextval('id')|);
     $entry->{object}->trans_id($trans_id);
   }
 
@@ -424,7 +424,7 @@ SQL
                 $object->chargenumber);
   push @values, $object->bestbefore if $bestbefore_val_cnt;
 
-  my ($stocked_qty) = selectrow_query($::form, $::form->get_standard_dbh, $query, @values);
+  my ($stocked_qty) = selectrow_query($::form, $object->db->dbh, $query, @values);
 
   return $stocked_qty;
 }
