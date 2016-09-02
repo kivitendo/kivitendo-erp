@@ -150,7 +150,7 @@ sub check_objects {
 
   $self->makemodel_columns({});
 
-  my $i;
+  my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
@@ -261,13 +261,13 @@ sub check_existing {
   my $raw = $entry->{raw_data};
 
   if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
-    $entry->{part} = SL::DB::Manager::Part->get_all( query => [ partnumber => $object->partnumber ], limit => 1,
-      with_objects => [ 'translations', 'custom_variables' ]
-    ) -> [0];
+    $entry->{part} = SL::DB::Manager::Part->get_first( query => [ partnumber => $object->partnumber ], limit => 1,
+      with_objects => [ 'translations', 'custom_variables' ], multi_many_ok => 1
+    );
     if ( !$entry->{part} ) {
-        $entry->{part} = SL::DB::Manager::Part->get_all( query => [ partnumber => $object->partnumber ], limit => 1,
-          with_objects => [ 'translations' ]
-        ) -> [0];
+        $entry->{part} = SL::DB::Manager::Part->get_first( query => [ partnumber => $object->partnumber ], limit => 1,
+          with_objects => [ 'translations' ], multi_many_ok => 1
+        );
     }
   }
 
@@ -276,7 +276,7 @@ sub check_existing {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database with different type'));
       return;
     }
-    if ( $entry->{part}->unit != $object->unit || $entry->{part}->inventory_accno_id != $object->inventory_accno_id ) {
+    if ( $entry->{part}->unit ne $object->unit || $entry->{part}->inventory_accno_id != $object->inventory_accno_id ) {
       if ( $entry->{part}->onhand != 0 || $self->_part_is_used($entry->{part})) {
         push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry with different unit or inventory_accno_id'));
         return;
