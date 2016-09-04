@@ -57,9 +57,9 @@ my @tax_office_information = (
   fa_steuerberater_street fa_steuerberater_tel fa_voranmeld);
 
   my @fiamt_finanzamt = qw(
-    fa_land_nr          fa_bufa_nr            fa_name             fa_strasse            
+    fa_land_nr          fa_bufa_nr            fa_name             fa_strasse
     fa_plz              fa_ort                fa_telefon          fa_fax
-    fa_plz_grosskunden  fa_plz_postfach       fa_postfach         
+    fa_plz_grosskunden  fa_plz_postfach       fa_postfach
     fa_blz_1 fa_kontonummer_1 fa_bankbezeichnung_1
     fa_blz_2 fa_kontonummer_2 fa_bankbezeichnung_2 fa_oeffnungszeiten
     fa_email fa_internet);
@@ -1119,7 +1119,7 @@ sub get_oldconfig {
     # remove any trailing whitespace
     s/^\s*(.*?)\s*$/$1/;
     my ($key, $value) = split(/=/, $_, 2);
-    
+
     $main::lxdebug->message(LXDebug->DEBUG2(), "oldkey: ".$key." val=".$value." newkey=".
                           $oldkeys{$key}." oval=".$::form->{$oldkeys{$key}});
     if ( $oldkeys{$key} && $::form->{$oldkeys{$key}} eq '' ) {
