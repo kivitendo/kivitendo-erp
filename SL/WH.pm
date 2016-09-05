@@ -1168,7 +1168,7 @@ Creates an assembly if all defined items are available.
 
 Assembly item(s) will be stocked out and the assembly will be stocked in,
 taking into account the qty and units which can be defined for each
-assembly item seperately.
+assembly item separately.
 
 The calling params originate from C<transfer> but only parts_id with the
 attribute assembly are processed.
