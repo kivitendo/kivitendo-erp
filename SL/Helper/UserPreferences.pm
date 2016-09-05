@@ -5,6 +5,7 @@ use parent qw(Rose::Object);
 use version;
 
 use SL::DBUtils qw(selectall_hashref_query selectfirst_hashref_query do_query selectall_ids);
+use SL::DB;
 
 use Rose::Object::MakeMethods::Generic (
  'scalar --get_set_init' => [ qw(login namespace upgrade_callbacks current_version auto_store_back) ],
@@ -13,15 +14,18 @@ use Rose::Object::MakeMethods::Generic (
 sub store {
   my ($self, $key, $value) = @_;
 
-  my $tuple = $self->get_tuple($key);
+  SL::DB->client->with_transaction(sub {
+    my $tuple = $self->get_tuple($key);
 
-  if ($tuple && $tuple->{id}) {
-    $tuple->{value}  = $value;
-    $self->_update($tuple);
-  } else {
-    my $query = 'INSERT INTO user_preferences (login, namespace, version, key, value) VALUES (?, ?, ?, ?, ?)';
-    do_query($::form, $::form->get_standard_dbh, $query, $self->login, $self->namespace, $self->current_version, $key, $value);
-  }
+    if ($tuple && $tuple->{id}) {
+      $tuple->{value}  = $value;
+      $self->_update($tuple);
+    } else {
+      my $query = 'INSERT INTO user_preferences (login, namespace, version, key, value) VALUES (?, ?, ?, ?, ?)';
+      do_query($::form, $::form->get_standard_dbh, $query, $self->login, $self->namespace, $self->current_version, $key, $value);
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 }
 
 sub get {
@@ -35,16 +39,21 @@ sub get {
 sub get_tuple {
   my ($self, $key) = @_;
 
-  my $tuple = selectfirst_hashref_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace, $key);
-    SELECT * FROM user_preferences WHERE login = ? AND namespace = ? AND key = ?
+  my $tuple;
 
-  if ($tuple && $tuple->{version} < $self->current_version) {
-    $self->_upgrade($tuple);
-  }
+  SL::DB->client->with_transaction(sub {
+    $tuple = selectfirst_hashref_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace, $key);
+      SELECT * FROM user_preferences WHERE login = ? AND namespace = ? AND key = ?
 
-  if ($tuple && $tuple->{version} > $self->current_version) {
-    die "Future version $tuple->{version} for user preference @{ $self->namespace }/$key. Expected @{ $self->current_version } or less.";
-  }
+    if ($tuple && $tuple->{version} < $self->current_version) {
+      $self->_upgrade($tuple);
+    }
+
+    if ($tuple && $tuple->{version} > $self->current_version) {
+      die "Future version $tuple->{version} for user preference @{ $self->namespace }/$key. Expected @{ $self->current_version } or less.";
+    }
+    1;
+  }) or do { die SL::DB->client->error };
 
   return $tuple;
 }
@@ -52,18 +61,23 @@ sub get_tuple {
 sub get_all {
   my ($self) = @_;
 
-  my $data = selectall_hashref_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace);
-    SELECT * FROM user_preferences WHERE login = ? AND namespace = ?
+  my $data;
 
-  for my $tuple (@$data) {
-    if ($tuple->{version} < $self->current_version) {
-      $self->_upgrade($tuple);
-    }
+  SL::DB->client->with_transaction(sub {
+    $data = selectall_hashref_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace);
+      SELECT * FROM user_preferences WHERE login = ? AND namespace = ?
 
-    if ($tuple->{version} > $self->current_version) {
-      die "Future version $tuple->{version} for user preference @{ $self->namespace }/$tuple->{key}. Expected @{ $self->current_version } or less.";
+    for my $tuple (@$data) {
+      if ($tuple->{version} < $self->current_version) {
+        $self->_upgrade($tuple);
+      }
+
+      if ($tuple->{version} > $self->current_version) {
+        die "Future version $tuple->{version} for user preference @{ $self->namespace }/$tuple->{key}. Expected @{ $self->current_version } or less.";
+      }
     }
-  }
+    1;
+  }) or do { die SL::DB->client->error };
 
   return $data;
 }
@@ -82,17 +96,23 @@ sub delete {
 
   die 'delete without  key is not allowed, use delete_all instead' unless $key;
 
-  my @keys = do_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace, $key);
-    DELETE FROM user_preferences WHERE login = ? AND namespace = ? AND key = ?
-
+  SL::DB->client->with_transaction(sub {
+    my $query =  'DELETE FROM user_preferences WHERE login = ? AND namespace = ? AND key = ?';
+    do_query($::form, $::form->get_standard_dbh, $query, $self->login, $self->namespace, $key);
+    1;
+  }) or do { die SL::DB->client->error };
 }
 
 sub delete_all {
   my ($self, $key) = @_;
 
-  my @keys = do_query($::form, $::form->get_standard_dbh, <<"", $self->login, $self->namespace);
-    DELETE FROM user_preferences WHERE login = ? AND namespace = ?
+  my @keys;
 
+  SL::DB->client->with_transaction(sub {
+    my $query = 'DELETE FROM user_preferences WHERE login = ? AND namespace = ?';
+    do_query($::form, $::form->get_standard_dbh, $query, $self->login, $self->namespace);
+    1;
+  }) or do { die SL::DB->client->error };
 }
 
 ### internal stuff
