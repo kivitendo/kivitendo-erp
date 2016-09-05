@@ -223,7 +223,7 @@ sub check_buchungsgruppe {
   $object->buchungsgruppen_id(undef) if $object->buchungsgruppen_id && !$self->bg_by->{id}->{ $object->buchungsgruppen_id };
 
   # 3. Look up name if supplied.
-  if (!$object->buchungsgruppen_id) {
+  if (!$object->buchungsgruppen_id && $entry->{raw_data}->{buchungsgruppe}) {
     my $bg = $self->bg_by->{description}->{ $entry->{raw_data}->{buchungsgruppe} };
     $object->buchungsgruppen_id($bg->id) if $bg;
   }
