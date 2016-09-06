@@ -95,13 +95,6 @@ sub test_import {
     file       => $file,
   );
 
-  $csv_part_import->init_bg_by;
-  $csv_part_import->init_price_factors_by;
-  $csv_part_import->init_partsgroups_by;
-  $csv_part_import->init_units_by;
-  $csv_part_import->init_bins_by;
-  $csv_part_import->init_warehouses_by;
-  $csv_part_import->init_parts_by;
   $csv_part_import->test_run(0);
   $csv_part_import->csv(SL::Helper::Csv->new(file                    => $csv_part_import->file,
                                              profile                 => [{ profile => $csv_part_import->profile,
