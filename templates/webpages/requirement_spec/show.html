@@ -11,7 +11,7 @@
  <ul>
   <li id="tab-header-function-block"><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
   <li id="tab-header-basic-settings"><a href="controller.pl?action=RequirementSpec/ajax_show_basic_settings&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
-  <li id="tab-header-time-cost-estimate"><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
+  <li id="tab-header-time-cost-estimate"><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and price estimate") %]</a></li>
   <li id="tab-header-additional-parts"><a href="controller.pl?action=RequirementSpecPart/show&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Additional articles") %]</a></li>
   [%- UNLESS SELF.requirement_spec.is_template %]
    <li id="tab-header-versions"><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>

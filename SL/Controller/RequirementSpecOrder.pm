@@ -318,8 +318,8 @@ sub create_order_item {
     longdescription => $longdescription,
     qty             => $is_time_based ? $section->time_estimation * 1 : 1,
     unit            => $is_time_based ? $self->h_unit_name            : $part->unit,
-    sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate * ($is_time_based ? 1 : $section->time_estimation), 2),
-    lastcost        => $part->lastcost,
+    sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate * ($is_time_based ? 1 : $section->time_estimation * $section->sellprice_factor), 2),
+    lastcost        => $part->lastcost * $section->sellprice_factor,
     discount        => 0,
     project_id      => $self->requirement_spec->project_id,
   );

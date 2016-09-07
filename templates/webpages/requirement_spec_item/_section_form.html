@@ -33,15 +33,21 @@
   </p>
  [%- END %]
 
- <p>
-  [%- LxERP.t8("Description") %]:<br>
-  [% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=80, style=style, class='texteditor') %]
- </p>
+ <table border="0">
+  <tr valign="top">
+   <td>
+    [%- LxERP.t8("Description") %]:<br>
+    [% L.textarea_tag(id_base _ '.description_as_restricted_html', SELF.item.description_as_restricted_html, id=id_base _ '_description', rows=8, cols=80, style=style, class='texteditor') %]<br>
+    [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
+    <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
+   </td>
 
- <p>
-  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
-  <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
- </p>
+   <td>
+   [% LxERP.t8("Price Factor") %]:<br>
+   [% L.input_tag(id_base _ ".sellprice_factor_as_number", SELF.item.sellprice_factor_as_number, size="6") %]<br>
+   </td>
+  </tr>
+ </table>
 
 [%- IF SELF.predefined_texts.size %]
  <script type="text/javascript">
