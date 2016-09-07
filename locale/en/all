@@ -1171,6 +1171,7 @@ $self->{texts} = {
   'Error: Invalid vendor in column make_#1' => '',
   'Error: Invalid warehouse'    => '',
   'Error: Name missing'         => '',
+  'Error: Part is obsolete'     => '',
   'Error: Part not found'       => '',
   'Error: Quantity to transfer is zero.' => '',
   'Error: Transfer would result in a negative target quantity.' => '',

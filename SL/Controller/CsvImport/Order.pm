@@ -477,6 +477,11 @@ sub check_part {
     return 0;
   }
 
+  if ($self->parts_by->{id}->{ $object->parts_id }->obsolete) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Part is obsolete');
+    return 0;
+  }
+
   return 1;
 }
 
