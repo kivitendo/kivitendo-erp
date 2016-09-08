@@ -565,7 +565,7 @@ sub get_transdate {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     "SELECT COALESCE(" .
@@ -573,8 +573,6 @@ sub get_transdate {
     "    (SELECT MAX(id) FROM ap) LIMIT 1), " .
     "  current_date)";
   ($form->{transdate}) = $dbh->selectrow_array($query);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
