@@ -945,7 +945,7 @@ sub retrieve_invoice {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, $sth, $ref, $q_invdate);
 
@@ -977,7 +977,6 @@ sub retrieve_invoice {
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   if (!$form->{id}) {
-    $dbh->disconnect();
     $main::lxdebug->leave_sub();
 
     return;
@@ -1095,8 +1094,6 @@ sub retrieve_invoice {
 
   Common::webdav_folder($form);
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1108,7 +1105,7 @@ sub get_vendor {
   $params = $form unless defined $params && ref $params eq "HASH";
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $dateformat = $myconfig->{dateformat};
   $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
@@ -1208,8 +1205,6 @@ sub get_vendor {
     $params->{rowcount} = $i if ($i && !$params->{type});
   }
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1218,8 +1213,7 @@ sub retrieve_item {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $i = $form->{rowcount};
 
@@ -1424,8 +1418,6 @@ sub retrieve_item {
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1434,8 +1426,7 @@ sub vendor_details {
 
   my ($self, $myconfig, $form, @wanted_vars) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my @values;
 
@@ -1481,8 +1472,6 @@ sub vendor_details {
                                                   'translation_type' => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
                                                   'allow_fallback'   => 1);
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1491,8 +1480,7 @@ sub item_links {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT accno, description, link
@@ -1512,8 +1500,6 @@ sub item_links {
   }
 
   $sth->finish();
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
