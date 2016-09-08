@@ -35,6 +35,7 @@
 package RC;
 
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -43,8 +44,7 @@ sub paymentaccounts {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT accno, description | .
@@ -53,7 +53,6 @@ sub paymentaccounts {
     qq|ORDER BY accno|;
 
   $form->{PR} = selectall_hashref_query($form, $dbh, $query);
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -223,30 +222,30 @@ sub reconcile {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my ($query, $i);
+    my ($query, $i);
 
-  # clear flags
-  for $i (1 .. $form->{rowcount}) {
-    if ($form->{"cleared_$i"}) {
-      $query =
-        qq|UPDATE acc_trans SET cleared = '1' | .
-        qq|WHERE acc_trans_id = ?|;
-      do_query($form, $dbh, $query, $form->{"oid_$i"});
-
-      # clear fx_transaction
-      if ($form->{"fxoid_$i"}) {
+    # clear flags
+    for $i (1 .. $form->{rowcount}) {
+      if ($form->{"cleared_$i"}) {
         $query =
           qq|UPDATE acc_trans SET cleared = '1' | .
           qq|WHERE acc_trans_id = ?|;
-        do_query($form, $dbh, $query, $form->{"fxoid_$i"});
+        do_query($form, $dbh, $query, $form->{"oid_$i"});
+
+        # clear fx_transaction
+        if ($form->{"fxoid_$i"}) {
+          $query =
+            qq|UPDATE acc_trans SET cleared = '1' | .
+            qq|WHERE acc_trans_id = ?|;
+          do_query($form, $dbh, $query, $form->{"fxoid_$i"});
+        }
       }
     }
-  }
-
-  $dbh->disconnect;
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
