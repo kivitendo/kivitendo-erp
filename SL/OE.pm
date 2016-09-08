@@ -1257,7 +1257,7 @@ sub order_details {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
   my $query;
   my @values = ();
   my $sth;
@@ -1604,8 +1604,6 @@ sub order_details {
   $form->set_payment_options($myconfig, $form->{$form->{type} =~ /_quotation/ ? 'quodate' : 'orddate'}, $form->{type});
 
   $form->{username} = $myconfig->{name};
-
-  $dbh->disconnect;
 
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
