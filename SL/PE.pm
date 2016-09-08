@@ -37,6 +37,7 @@ package PE;
 use Data::Dumper;
 
 use SL::DBUtils;
+use SL::DB;
 
 use strict;
 
@@ -46,7 +47,7 @@ sub partsgroups {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($where, @values);
 
@@ -77,8 +78,6 @@ sub partsgroups {
 
   $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 
   return scalar(@{ $form->{item_list} });
@@ -90,7 +89,7 @@ sub save_partsgroup {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $form->{discount} /= 100;
 
@@ -105,8 +104,6 @@ sub save_partsgroup {
   }
   do_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -116,7 +113,7 @@ sub get_partsgroup {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query =
     qq|SELECT pg.*, | .
@@ -129,8 +126,6 @@ sub get_partsgroup {
 
   map({ $form->{$_} = $ref->{$_} } keys(%{$ref}));
   $sth->finish;
-
-  $dbh->disconnect;
 
   # also not orphaned if partsgroup is selected for a cvar filter
   if ($form->{orphaned}) {
@@ -147,14 +142,15 @@ sub delete_tuple {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
 
-  my $table = $form->{type} eq "pricegroup" ? "pricegroup" : "partsgroup";
+    my $table = $form->{type} eq "pricegroup" ? "pricegroup" : "partsgroup";
 
-  my $query = qq|DELETE FROM $table WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  $dbh->disconnect;
+    my $query = qq|DELETE FROM $table WHERE id = ?|;
+    do_query($form, $dbh, $query, $form->{id});
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -168,7 +164,7 @@ sub pricegroups {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($where, @values);
 
@@ -203,8 +199,6 @@ sub pricegroups {
 
   $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 
   return scalar(@{ $form->{item_list} });
@@ -218,23 +212,23 @@ sub save_pricegroup {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-  my $query;
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
+    my $query;
 
-  $form->{discount} /= 100;
+    $form->{discount} /= 100;
 
-  my @values = ($form->{pricegroup});
+    my @values = ($form->{pricegroup});
 
-  if ($form->{id}) {
-    $query = qq|UPDATE pricegroup SET pricegroup = ? WHERE id = ? |;
-    push(@values, $form->{id});
-  } else {
-    $query = qq|INSERT INTO pricegroup (pricegroup) VALUES (?)|;
-  }
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
+    if ($form->{id}) {
+      $query = qq|UPDATE pricegroup SET pricegroup = ? WHERE id = ? |;
+      push(@values, $form->{id});
+    } else {
+      $query = qq|INSERT INTO pricegroup (pricegroup) VALUES (?)|;
+    }
+    do_query($form, $dbh, $query, @values);
+    1;
+  }) or do { die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -248,7 +242,7 @@ sub get_pricegroup {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT id, pricegroup FROM pricegroup WHERE id = ?|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
@@ -271,8 +265,6 @@ sub get_pricegroup {
 
   ($form->{orphaned}) = selectrow_query($form, $dbh, $query, @values);
   $form->{orphaned} = !$form->{orphaned};
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
