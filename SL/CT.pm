@@ -40,6 +40,7 @@ package CT;
 use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
+use SL::DB;
 use Text::ParseWords;
 
 use strict;
@@ -341,7 +342,7 @@ sub get_contact {
 
   die 'Missing argument: cp_id' unless $::form->{cp_id};
 
-  my $dbh   = $form->dbconnect($myconfig);
+  my $dbh   = SL::DB->client->dbh;
   my $query =
     qq|SELECT * FROM contacts c | .
     qq|WHERE cp_id = ? ORDER BY cp_id limit 1|;
@@ -359,7 +360,6 @@ sub get_contact {
   ($form->{cp_used}) = selectfirst_array_query($form, $dbh, $query, ($form->{cp_id})x2);
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
