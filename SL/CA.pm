@@ -40,6 +40,7 @@ use strict;
 package CA;
 use Data::Dumper;
 use SL::DBUtils;
+use SL::DB;
 
 sub all_accounts {
   $main::lxdebug->enter_sub();
@@ -49,7 +50,7 @@ sub all_accounts {
   my (%amount, $acc_cash_where);
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   # bug 1071 Warum sollte bei Erreichen eines neuen Jahres die Kontenübersicht nur noch die
   # bereits bebuchten Konten anzeigen?
@@ -134,7 +135,6 @@ sub all_accounts {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -144,8 +144,7 @@ sub all_transactions {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   # get chart_id
   my $query = qq|SELECT id FROM chart WHERE accno = ?|;
@@ -424,7 +423,6 @@ sub all_transactions {
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
