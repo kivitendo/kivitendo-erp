@@ -55,7 +55,7 @@ sub retrieve_parts {
 
   my ($self, $myconfig, $form, $order_by, $order_dir) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (@filter_values, $filter);
 
@@ -94,7 +94,6 @@ sub retrieve_parts {
     push(@{$parts}, $ref);
   }
   $sth->finish();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -106,7 +105,7 @@ sub retrieve_customers_or_vendors {
 
   my ($self, $myconfig, $form, $order_by, $order_dir, $is_vendor, $allow_both) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
@@ -157,7 +156,6 @@ sub retrieve_customers_or_vendors {
     push(@{$customers}, $ref);
   }
   $sth->finish();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -169,7 +167,7 @@ sub retrieve_delivery_customer {
 
   my ($self, $myconfig, $form, $order_by, $order_dir) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
@@ -193,7 +191,6 @@ sub retrieve_delivery_customer {
     push(@{$delivery_customers}, $ref);
   }
   $sth->finish();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -205,7 +202,7 @@ sub retrieve_vendor {
 
   my ($self, $myconfig, $form, $order_by, $order_dir) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
@@ -229,7 +226,6 @@ sub retrieve_vendor {
     push(@{$vendors}, $ref);
   }
   $sth->finish();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -315,7 +311,7 @@ sub get_vc_details {
 
   $vc = $vc eq "customer" ? "customer" : "vendor";
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query;
 
@@ -335,7 +331,6 @@ sub get_vc_details {
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $vc_id);
 
   if (!$ref) {
-    $dbh->disconnect();
     $main::lxdebug->leave_sub();
     return 0;
   }
@@ -353,8 +348,6 @@ sub get_vc_details {
   # Only show default pricegroup for customer, not vendor, which is why this is outside the main query
   ($form->{pricegroup}) = selectrow_query($form, $dbh, qq|SELECT pricegroup FROM pricegroup WHERE id = ?|, $form->{pricegroup_id});
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 
   return 1;
@@ -367,7 +360,7 @@ sub get_shipto_by_id {
 
   $prefix ||= "";
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
   my $ref   = selectfirst_hashref_query($form, $dbh, $query, $shipto_id);
@@ -380,8 +373,6 @@ sub get_shipto_by_id {
     trans_id => $shipto_id,
   );
   $form->{"${prefix}shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 }
