@@ -27,6 +27,7 @@ package USTVA;
 
 use List::Util qw(first);
 
+use SL::DB;
 use SL::DBUtils;
 use SL::DB::Default;
 use SL::DB::Finanzamt;
@@ -128,23 +129,23 @@ sub report_variables {
     $where_dcp
   |;
 
-  my $dbh = $form->dbconnect($myconfig);
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute() || $form->dberror($query);
-
   my @positions;
 
-  while ( my $row_ref = $sth->fetchrow_arrayref() ) {
-    push @positions, @$row_ref;  # Copy the array contents
-  }
+  SL::DB->client->with_transaction(sub {
+    my $dbh = SL::DB->client->dbh;
+    my $sth = $dbh->prepare($query);
 
-  $sth->finish;
+    $sth->execute() || $form->dberror($query);
 
-  $dbh->disconnect;
+    while ( my $row_ref = $sth->fetchrow_arrayref() ) {
+      push @positions, @$row_ref;  # Copy the array contents
+    }
+
+    $sth->finish;
+    1;
+  }) or do { die SL::DB->client->error };
 
   return @positions;
-
 }
 
 
@@ -505,7 +506,7 @@ sub query_finanzamt {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig) or $self->error(DBI->errstr);
+  my $dbh = SL::DB->client->dbh;
 
   #Test, if table finanzamt exist
   my $table    = 'finanzamt';
@@ -516,11 +517,10 @@ sub query_finanzamt {
     #There is no table, read the table from sql/finanzamt.sql
     print qq|<p>Bitte warten, Tabelle $table wird einmalig in Datenbank:
     $myconfig->{dbname} als Benutzer: $myconfig->{dbuser} hinzugefügt...</p>|;
-    process_query($form, $dbh, $filename) || $self->error(DBI->errstr);
-
-    #execute second last call
-    my $dbh = $form->dbconnect($myconfig) or $self->error(DBI->errstr);
-    $dbh->disconnect();
+    SL::DB->client->with_transaction(sub {
+      process_query($form, $dbh, $filename) || $self->error(DBI->errstr);
+      1;
+    }) or do { die SL::DB->client->error };
   };
   $tst->finish();
 
@@ -601,8 +601,7 @@ sub ustva {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
+  my $dbh = SL::DB->client->dbh;
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
@@ -703,8 +702,6 @@ sub ustva {
 
   $form->{"Z65"} = $form->{"Z62"}     - $form->{"69"};
   $form->{"83"}  = $form->{"Z65"}     - $form->{"39"};
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
