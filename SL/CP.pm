@@ -67,8 +67,7 @@ sub paymentaccounts {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $ARAP = $form->{ARAP} eq "AR" ? "AR" : "AP";
 
@@ -98,8 +97,6 @@ sub paymentaccounts {
   $query = qq|SELECT closedto FROM defaults|;
   ($form->{closedto}) = selectrow_query($form, $dbh, $query);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -108,7 +105,7 @@ sub get_openvc {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $arap = ($form->{vc} eq 'customer') ? 'ar' : 'ap';
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
@@ -128,11 +125,6 @@ sub get_openvc {
     $form->{"all_$form->{vc}"} = selectall_hashref_query($form, $dbh, $query);
   }
 
-  # aufruf für all_deparments rausgenommen, da die abteilungen nur
-  # beim buchen der belege (rechnung, fibu) geändert werden und danach
-  # NICHT mehr überschrieben werden
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -142,7 +134,7 @@ sub get_openinvoices {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
@@ -186,8 +178,6 @@ sub get_openinvoices {
       AND (amount <> paid)
 SQL
   ($form->{openinvoices_other_currencies}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{"${vc}_id"}), "$form->{currency}");
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
