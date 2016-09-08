@@ -217,8 +217,7 @@ sub all_transactions {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
   my ($query, $sth, $source, $null, $space);
 
   my ($glwhere, $arwhere, $apwhere) = ("1 = 1", "1 = 1", "1 = 1");
@@ -617,8 +616,6 @@ sub all_transactions {
     ($form->{account_description}) = selectrow_query($form, $dbh, $query, $form->{accno});
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -628,8 +625,7 @@ sub transaction {
 
   my ($query, $sth, $ref, @values);
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   $query = qq|SELECT closedto, revtrans FROM defaults|;
   ($form->{closedto}, $form->{revtrans}) = selectrow_query($form, $dbh, $query);
@@ -700,8 +696,6 @@ sub transaction {
           LIMIT 1))
        ORDER BY c.accno|;
   $form->{chart} = selectall_hashref_query($form, $dbh, $query, conv_date($form->{transdate}));
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
