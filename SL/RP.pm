@@ -38,6 +38,7 @@ use SL::DBUtils;
 use Data::Dumper;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 use List::Util qw(sum);
+use SL::DB;
 
 # use warnings;
 use strict;
@@ -660,7 +661,7 @@ sub trial_balance {
 
   my ($self, $myconfig, $form, %options) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($query, $sth, $ref);
   my %balance = ();
@@ -1162,8 +1163,6 @@ sub trial_balance {
 
   }
 
-  $dbh->disconnect;
-
   # debits and credits for headings
   foreach my $accno (@headingaccounts) {
     foreach $ref (@{ $form->{TB} }) {
@@ -1200,7 +1199,7 @@ sub aging {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh     = $form->dbconnect($myconfig);
+  my $dbh     = SL::DB->client->dbh;
 
   my ($invoice, $arap, $buysell, $ct, $ct_id, $ml);
 
@@ -1332,9 +1331,6 @@ sub aging {
 
   $sth->finish;
 
-  # disconnect
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1343,8 +1339,7 @@ sub get_customer {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $ct = $form->{ct} eq "customer" ? "customer" : "vendor";
 
@@ -1354,7 +1349,6 @@ sub get_customer {
        WHERE ct.id = ?|;
   ($form->{ $form->{ct} }, $form->{email}, $form->{cc}, $form->{bcc}) =
     selectrow_query($form, $dbh, $query, $form->{"${ct}_id"});
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1364,8 +1358,7 @@ sub tax_report {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my ($null, $department_id) = split /--/, $form->{department};
 
@@ -1453,8 +1446,6 @@ sub tax_report {
          ORDER BY $sortorder|;
 
   $form->{TR} = selectall_hashref_query($form, $dbh, $query);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1614,8 +1605,7 @@ sub bwa {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = SL::DB->client->dbh;
 
   my $last_period = 0;
   my $category;
@@ -1815,7 +1805,6 @@ sub bwa {
     }
 
   }
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
