@@ -78,7 +78,7 @@ sub check_auth {
 sub make_booking {
   my ($self) = @_;
   $main::lxdebug->enter_sub();
-  my @ids = map { $::form->{"trans_id_$_"} } grep { $::form->{"multi_id_$_"} } (1..$::form->{rowcount});
+  my @ids = map { $::form->{"multi_id_$_"} } grep { $::form->{"multi_id_$_"} } (1..$::form->{rowcount});
   my $cnt = 0;
   $main::lxdebug->message(LXDebug->DEBUG2(),"generate for ".$::form->{cbob_chart}." # ".scalar(@ids)." charts");
   if (scalar(@ids) && $::form->{cbob_chart}) {
@@ -108,12 +108,13 @@ sub prepare_report {
   my $cgi = $::request->{cgi};
 
   my %column_defs = (
-    'ids'                     => { 'text' => '<input type="checkbox" id="multi_all" value="1">', 'align' => 'center' },
-    'chart'                   => { 'text' => $::locale->text('Account'), },
-    'description'             => { 'text' => $::locale->text('Description'), },
-    'saldo'                   => { 'text' => $::locale->text('Saldo'),  'align' => 'right'},
-    'sum_cb'                  => { 'text' => $::locale->text('Sum CB Transactions'), 'align' => 'right'},  ##close == Schluss
-    'sum_ob'                  => { 'text' => $::locale->text('Sum OB Transactions'), 'align' => 'right'},  ##open  == Eingang
+    'ids'                     => { raw_header_data => $self->presenter->checkbox_tag("", id => "check_all",
+                                                                                     checkall => "[data-checkall=1]"), 'align' => 'center' },
+    'chart'                   => { text => $::locale->text('Account'), },
+    'description'             => { text => $::locale->text('Description'), },
+    'saldo'                   => { text => $::locale->text('Saldo'),  'align' => 'right'},
+    'sum_cb'                  => { text => $::locale->text('Sum CB Transactions'), 'align' => 'right'},  ##close == Schluss
+    'sum_ob'                  => { text => $::locale->text('Sum OB Transactions'), 'align' => 'right'},  ##open  == Eingang
   );
   my @columns    = qw(ids chart description saldo sum_cb sum_ob);
   map { $column_defs{$_}->{visible} = 1 } @columns;
@@ -147,10 +148,9 @@ sub prepare_report {
       my $chart_id = $chart->id;
       my $row = { map { $_ => { 'data' => '' } } @columns };
       $row->{ids}  = {
-        'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $chart_id)
-                    . $cgi->checkbox('-name' => "multi_id_${idx}",' id' => "multi_id_id_".$chart_id, '-value' => 1, '-label' => ''),
-            'valign'   => 'center',
-            'align'    => 'center',
+        'raw_data' =>  $self->presenter->checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
+        'valign'   => 'center',
+        'align'    => 'center',
       };
       $row->{chart}->{data}        = $chart->accno;
       $row->{description}->{data}  = $chart->description;
@@ -273,9 +273,7 @@ sub init_cb_reference { $::form->{cb_reference} }
 sub init_cb_description { $::form->{cb_description} }
 
 sub init_charts9000 { 
-  # wie geht prüfen von länge auf 4 in rose ?
-  SL::DB::Manager::Chart->get_all(  query => [ \ "accno like '9%' and length(accno) = 4"] );
-  #SL::DB::Manager::Chart->get_all(  query => [ accno => { like => '9%'}] );
+  SL::DB::Manager::Chart->get_all(  query => [ accno => { like => '9%'}] );
 }
 
 sub init_charts { 

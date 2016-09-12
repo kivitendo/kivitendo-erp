@@ -2,7 +2,7 @@
 [%- USE LxERP %]
 <table  width="100%">
   <tr><td>
-    [%- L.hidden_tag("action","YearlyTransactions/dispatch") %]
+    [%- L.hidden_tag("action","YearEndTransactions/dispatch") %]
     [%- L.hidden_tag("cb_date",SELF.cb_date) %]
     [%- L.hidden_tag("cb_startdate",SELF.cb_startdate) %]
     [%- L.hidden_tag("cb_reference",SELF.cb_reference) %]
@@ -18,8 +18,3 @@
     </td>
   </tr>
 </table></form>
-<script type='text/javascript'>
-$(function(){
-  $('#multi_all').checkall("input[name^='multi_id']");
-});
-</script>  

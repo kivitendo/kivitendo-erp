@@ -249,8 +249,7 @@ sub test1 {
       is($balance ,   '38.00000' , $chart->accno.' has right balance') if $chart->accno eq '1776';
       is($balance , '-100.00000' , $chart->accno.' has right balance') if $chart->accno eq '3400';
       is($balance ,  '200.00000' , $chart->accno.' has right balance') if $chart->accno eq '8400';
-      $::form->{"trans_id_${idx}"} = $chart->id;
-      $::form->{"multi_id_${idx}"} = 1;
+      $::form->{"multi_id_${idx}"} = $chart->id;
       $idx++ ;
     }
   }
