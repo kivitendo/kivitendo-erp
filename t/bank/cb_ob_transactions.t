@@ -25,7 +25,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::BankTransaction;
 use SL::DB::AccTransaction;
-use SL::Controller::YearlyTransactions;
+use SL::Controller::YearEndTransactions;
 use Data::Dumper;
 
 my ($customer, $vendor, $currency_id, @parts, $unit, $employee, $tax, $tax7, $tax_9, $taxzone, $payment_terms, $bank_account);
@@ -222,7 +222,7 @@ sub test1 {
   $ap_transaction = test_ap_transaction(invnumber => 'purchaseinv1');
   my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv_2');
 
-  my $yt_controller = SL::Controller::YearlyTransactions->new;
+  my $yt_controller = SL::Controller::YearEndTransactions->new;
   my $report     = SL::ReportGenerator->new(\%::myconfig, $::form);
 
   $::form->{"ob_date"} = DateTime->today->truncate(to => 'year')->add(years => 1)->to_kivitendo;

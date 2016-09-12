@@ -1,4 +1,4 @@
-package SL::Controller::YearlyTransactions;
+package SL::Controller::YearEndTransactions;
 
 use strict;
 
@@ -30,7 +30,7 @@ sub action_filter {
   $self->cb_reference(t8('CB Transaction')) if !$self->cb_reference;
   $self->ob_description(t8('OB Transaction')) if !$self->ob_description;
   $self->cb_description(t8('CB Transaction')) if !$self->cb_description;
-  $self->render('gl/yearly_filter', 
+  $self->render('gl/yearend_filter',
                 title => t8('CB/OB Transactions'),
                 make_title_of_chart => sub { $_[0]->accno.' '.$_[0]->description }
                );
@@ -47,8 +47,8 @@ sub action_list {
 
   $report->set_options(
     output_format    => 'HTML',
-    raw_top_info_text    => $::form->parse_html_template('gl/yearly_top', { SELF => $self }),
-    raw_bottom_info_text => $::form->parse_html_template('gl/yearly_bottom', { SELF => $self }),
+    raw_top_info_text    => $::form->parse_html_template('gl/yearend_top', { SELF => $self }),
+    raw_bottom_info_text => $::form->parse_html_template('gl/yearend_bottom', { SELF => $self }),
     allow_pdf_export => 0,
     allow_csv_export => 0,
     title            => $::locale->text('CB/OB Transactions'),

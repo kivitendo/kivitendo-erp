@@ -13,4 +13,4 @@
   order: 470
   access: general_ledger
   params:
-    action: YearlyTransactions/filter
+    action: YearEndTransactions/filter
