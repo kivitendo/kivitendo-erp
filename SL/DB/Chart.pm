@@ -50,10 +50,12 @@ sub get_balance {
 
   my $query = qq|SELECT SUM(amount) AS sum FROM acc_trans WHERE chart_id = ? AND transdate >= ? and transdate <= ?|;
 
-  my $startdate = $self->get_balance_starting_date;
-  my $today     = DateTime->today_local;
+  my $fromdate = $params{fromdate} || $::locale->parse_date_to_object($self->get_balance_starting_date);
+  my $todate   = $params{todate}   || DateTime->today_local;
 
-  my ($balance)  = selectfirst_array_query($::form, $self->db->dbh, $query, $self->id, $startdate, $today);
+  die "get_balance: fromdate and todate arguments must be DateTime Objects" unless ref($fromdate) eq 'DateTime' and ref($todate) eq 'DateTime';
+
+  my ($balance)  = selectfirst_array_query($::form, $self->db->dbh, $query, $self->id, $fromdate, $todate);
 
   return $balance;
 };
@@ -68,7 +70,7 @@ sub formatted_balance_dc {
   return "" unless $self->has_transaction;
 
   # return abs of current balance with the abbreviation for debit or credit behind it
-  my $balance = $self->get_balance || 0;
+  my $balance = $self->get_balance(%params) || 0;
   my $dc_abbreviation = $balance > 0 ? t8("Credit (one letter abbreviation)") : t8("Debit (one letter abbreviation)");
   my $amount = $::form->format_amount(\%::myconfig, abs($balance), 2);
 
@@ -152,7 +154,7 @@ to the current date if undefined.
 Returns the tax rate of the active tax key as determined by
 C<get_active_taxkey>.
 
-=item C<get_balance>
+=item C<get_balance %PARAMS>
 
 Returns the current balance of the chart (sum of amount in acc_trans, positive
 or negative). The transactions are filtered by transdate, the maximum date is
@@ -161,10 +163,15 @@ the current day, the minimum date is determined by get_balance_starting_date.
 The balance should be same as that in the balance report for that chart, with
 the asofdate as the current day, and the accounting_method "accrual".
 
-=item C<formatted_balance_dc>
+If DateTime objects are passed via the params fromdate and todate, the balance
+is calculated only for that period.
+
+=item C<formatted_balance_dc %PARAMS>
 
 Returns a formatted version of C<get_balance>, taking the absolute value and
 adding the translated abbreviation for debit or credit after the number.
+
+Any params are passed on to C<get_balance>.
 
 =item C<number_of_transactions>
 
