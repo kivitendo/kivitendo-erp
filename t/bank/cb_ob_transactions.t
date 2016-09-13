@@ -45,6 +45,7 @@ sub clear_up {
   SL::DB::Manager::Vendor->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::AccTransaction->delete_all(all => 1);
+  SL::DB::Manager::GLTransaction->delete_all(all => 1);
   SL::DB::Manager::PaymentTerm->delete_all(all => 1);
   SL::DB::Manager::Currency->delete_all(where => [ name => 'CUR' ]);
 };
@@ -58,7 +59,7 @@ reset_state(); # initialise customers/vendors/bank/currency/...
 test1();
 
 # remove all created data at end of test
-clear_up();
+#clear_up();
 
 done_testing();
 

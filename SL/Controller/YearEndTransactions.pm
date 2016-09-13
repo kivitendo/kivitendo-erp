@@ -23,15 +23,14 @@ __PACKAGE__->run_before('check_auth');
 
 sub action_filter {
   my ($self) = @_;
-
   $self->ob_date(DateTime->today->truncate(to => 'year'))                  if !$self->ob_date;
   $self->cb_date(DateTime->today->truncate(to => 'year')->add(days => -1)) if !$self->cb_date;
-  $self->ob_reference(t8('OB Transaction')) if !$self->ob_reference;
-  $self->cb_reference(t8('CB Transaction')) if !$self->cb_reference;
+  $self->ob_reference(t8('OB Transaction'))   if !$self->ob_reference;
+  $self->cb_reference(t8('CB Transaction'))   if !$self->cb_reference;
   $self->ob_description(t8('OB Transaction')) if !$self->ob_description;
   $self->cb_description(t8('CB Transaction')) if !$self->cb_description;
   $self->render('gl/yearend_filter',
-                title => t8('CB/OB Transactions'),
+                title               => t8('CB/OB Transactions'),
                 make_title_of_chart => sub { $_[0]->accno.' '.$_[0]->description }
                );
 
@@ -46,13 +45,13 @@ sub action_list {
   $self->prepare_report($report);
 
   $report->set_options(
-    output_format    => 'HTML',
-    raw_top_info_text    => $::form->parse_html_template('gl/yearend_top', { SELF => $self }),
+    output_format        => 'HTML',
+    raw_top_info_text    => $::form->parse_html_template('gl/yearend_top',    { SELF => $self }),
     raw_bottom_info_text => $::form->parse_html_template('gl/yearend_bottom', { SELF => $self }),
-    allow_pdf_export => 0,
-    allow_csv_export => 0,
-    title            => $::locale->text('CB/OB Transactions'),
-    );
+    allow_pdf_export     => 0,
+    allow_csv_export     => 0,
+    title                => $::locale->text('CB/OB Transactions'),
+  );
   $report->generate_with_headers();
   $main::lxdebug->leave_sub();
 }
@@ -105,29 +104,30 @@ sub prepare_report {
   my ($self,$report) = @_;
   $main::lxdebug->enter_sub();
   my $idx = 1;
-  my $cgi = $::request->{cgi};
 
   my %column_defs = (
-    'ids'                     => { raw_header_data => $self->presenter->checkbox_tag("", id => "check_all",
-                                                                                     checkall => "[data-checkall=1]"), 'align' => 'center' },
-    'chart'                   => { text => $::locale->text('Account'), },
-    'description'             => { text => $::locale->text('Description'), },
-    'saldo'                   => { text => $::locale->text('Saldo'),  'align' => 'right'},
-    'sum_cb'                  => { text => $::locale->text('Sum CB Transactions'), 'align' => 'right'},  ##close == Schluss
-    'sum_ob'                  => { text => $::locale->text('Sum OB Transactions'), 'align' => 'right'},  ##open  == Eingang
+    'ids'         => { raw_header_data => $self->presenter->checkbox_tag("", id => "check_all",
+                                                                          checkall => "[data-checkall=1]"), 'align' => 'center' },
+    'chart'       => { text => $::locale->text('Account'), },
+    'description' => { text => $::locale->text('Description'), },
+    'saldo'       => { text => $::locale->text('Saldo'),  'align' => 'right'},
+    'sum_cb'      => { text => $::locale->text('Sum CB Transactions'), 'align' => 'right'},  ##close == Schluss
+    'sum_ob'      => { text => $::locale->text('Sum OB Transactions'), 'align' => 'right'},  ##open  == Eingang
   );
-  my @columns    = qw(ids chart description saldo sum_cb sum_ob);
+  my @columns      = qw(ids chart description saldo sum_cb sum_ob);
   map { $column_defs{$_}->{visible} = 1 } @columns;
-  my $ob_next_date = $::locale->parse_date_to_object($self->ob_date)->add(years => 1)->add(days => -1)->to_kivitendo;
 
-  $self->cb_startdate($self->get_balance_starting_date($self->cb_date));
+  my $ob_next_date = $self->ob_date->clone();
+  $ob_next_date->add(years => 1)->add(days => -1);
+
+  $self->cb_startdate($::locale->parse_date_to_object($self->get_balance_starting_date($self->cb_date)));
 
   my @custom_headers = ();
   # Zeile 1:
   push @custom_headers, [
       { 'text' => '   ', 'colspan' => 3 },
-      { 'text' => $::locale->text("Timerange")."<br />".$self->cb_startdate." - ".$self->cb_date, 'colspan' => 2, 'align' => 'center'},
-      { 'text' => $::locale->text("Timerange")."<br />".$self->ob_date." - ".$ob_next_date, 'align' => 'center'},
+      { 'text' => $::locale->text("Timerange")."<br />".$self->cb_startdate->to_kivitendo." - ".$self->cb_date->to_kivitendo, 'colspan' => 2, 'align' => 'center'},
+      { 'text' => $::locale->text("Timerange")."<br />".$self->ob_date->to_kivitendo." - ".$ob_next_date->to_kivitendo, 'align' => 'center'},
     ];
 
   # Zeile 2:
@@ -148,12 +148,12 @@ sub prepare_report {
       my $chart_id = $chart->id;
       my $row = { map { $_ => { 'data' => '' } } @columns };
       $row->{ids}  = {
-        'raw_data' =>  $self->presenter->checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
+        'raw_data' => $self->presenter->checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
         'valign'   => 'center',
         'align'    => 'center',
       };
-      $row->{chart}->{data}        = $chart->accno;
-      $row->{description}->{data}  = $chart->description;
+      $row->{chart}->{data}       = $chart->accno;
+      $row->{description}->{data} = $chart->description;
       if ( $balance > 0 ) {
         $row->{saldo}->{data} = $::form->format_amount(\%::myconfig, $balance, 2)." H";
       } elsif ( $balance < 0 )  {
@@ -162,15 +162,17 @@ sub prepare_report {
         $row->{saldo}->{data} = $::form->format_amount(\%::myconfig,0, 2)."  ";
       }
       my $sum_cb = 0;
-      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id => $chart->id, cb_transaction => 't',
+      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id  => $chart->id, cb_transaction => 't',
                                                                                transdate => { ge => $self->cb_startdate},
-                                                                               transdate => { le => $self->cb_date }]) }) {
+                                                                               transdate => { le => $self->cb_date }
+                                                                             ]) }) {
         $sum_cb += $acc->amount;
       }
       my $sum_ob = 0;
-      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id => $chart->id, ob_transaction => 't',
+      foreach my $acc ( @{ SL::DB::Manager::AccTransaction->get_all(where => [ chart_id  => $chart->id, ob_transaction => 't',
                                                                                transdate => { ge => $self->ob_date},
-                                                                               transdate => { le => $ob_next_date }]) }) {
+                                                                               transdate => { le => $ob_next_date }
+                                                                             ]) }) {
         $sum_ob += $acc->amount;
       }
       if ( $sum_cb > 0 ) {
@@ -200,21 +202,8 @@ sub get_balance {
   $main::lxdebug->enter_sub();
   my ($self,$chart) = @_;
 
-## eigene Abfrage da SL:DB:Chart->get_balance keine cb_transactions mitzählt
-## Alternative in Chart cb_transaction abfrage per neuem Parameter 'with_cb' disablen:
-#  my %balance_params = ( fromdate   => $self->startdate,
-#                         todate     => $self->cb_date,
-#                         accounting_method => 'accrual',
-#                         with_cb    => 1, ## in Chart cb_transaction abfrage disablen
-#                       );
-#  return $chart->get_balance(%balance_params);
-
-  $main::lxdebug->message(LXDebug->DEBUG2(),"get_balance from=".$self->cb_startdate." to=".$self->cb_date);
-  my $query = qq|SELECT SUM(amount) AS sum FROM acc_trans WHERE chart_id = ? | .
-              qq| AND transdate >= ? AND transdate <= ? |;
-  my @query_args = ( $chart->id, $self->cb_startdate, $self->cb_date);
-  my ($balance)  = selectfirst_array_query($::form, $chart->db->dbh, $query, @query_args);
-
+  #$main::lxdebug->message(LXDebug->DEBUG2(),"get_balance from=".$self->cb_startdate->to_kivitendo." to=".$self->cb_date->to_kivitendo);
+  my $balance = $chart->get_balance(fromdate => $self->cb_startdate, todate => $self->cb_date);
   $main::lxdebug->leave_sub();
   return 0 unless $balance != 0;
   return $balance;
@@ -225,20 +214,18 @@ sub gl_booking {
   $::form->get_employee();
   my $employee_id = $::form->{employee_id};
   $main::lxdebug->message(LXDebug->DEBUG2(),"employee_id=".$employee_id." ob=".$ob." cb=".$cb);
-  my $gl_entry = SL::DB::GLTransaction->new();
-  $gl_entry->assign_attributes(
-    employee_id => $employee_id,
-    transdate   => $transdate,
-    reference   => $reference,
-    description => $description,
+  my $gl_entry = SL::DB::GLTransaction->new(
+    employee_id    => $employee_id,
+    transdate      => $transdate,
+    reference      => $reference,
+    description    => $description,
     ob_transaction => $ob,
     cb_transaction => $cb,
   );
-  $gl_entry->save;
-  my $kto_trans1 = SL::DB::AccTransaction->new();
-  $kto_trans1->assign_attributes(
-    trans_id    => $gl_entry->id,
-    transdate   => $transdate,
+  #$gl_entry->save;
+  my $kto_trans1 = SL::DB::AccTransaction->new(
+    trans_id       => $gl_entry->id,
+    transdate      => $transdate,
     ob_transaction => $ob,
     cb_transaction => $cb,
     chart_id       => $gegenkonto->id,
@@ -247,11 +234,10 @@ sub gl_booking {
     taxkey         => 0,
     amount         => $amount,
   );
-  $kto_trans1->save;
-  my $kto_trans2 = SL::DB::AccTransaction->new();
-  $kto_trans2->assign_attributes(
-    trans_id    => $gl_entry->id,
-    transdate   => $transdate,
+  #$kto_trans1->save;
+  my $kto_trans2 = SL::DB::AccTransaction->new(
+    trans_id       => $gl_entry->id,
+    transdate      => $transdate,
     ob_transaction => $ob,
     cb_transaction => $cb,
     chart_id       => $konto->id,
@@ -260,23 +246,26 @@ sub gl_booking {
     taxkey         => 0,
     amount         => -$amount,
   );
-  $kto_trans2->save;
+  #$kto_trans2->save;
+  $gl_entry->add_transactions($kto_trans1);
+  $gl_entry->add_transactions($kto_trans2);
+  $gl_entry->save;
 }
 
-sub init_cbob_chart { $::form->{cbob_chart} }
-sub init_ob_date { $::form->{ob_date} }
-sub init_ob_reference { $::form->{ob_reference} }
-sub init_ob_description { $::form->{ob_description} }
-sub init_cb_startdate { $::form->{cb_startdate} }
-sub init_cb_date { $::form->{cb_date} }
-sub init_cb_reference { $::form->{cb_reference} }
-sub init_cb_description { $::form->{cb_description} }
+sub init_cbob_chart     { $::form->{cbob_chart}                                    }
+sub init_ob_date        { $::locale->parse_date_to_object($::form->{ob_date})      }
+sub init_ob_reference   { $::form->{ob_reference}                                  }
+sub init_ob_description { $::form->{ob_description}                                }
+sub init_cb_startdate   { $::locale->parse_date_to_object($::form->{cb_startdate}) }
+sub init_cb_date        { $::locale->parse_date_to_object($::form->{cb_date})      }
+sub init_cb_reference   { $::form->{cb_reference}                                  }
+sub init_cb_description { $::form->{cb_description}                                }
 
-sub init_charts9000 { 
+sub init_charts9000 {
   SL::DB::Manager::Chart->get_all(  query => [ accno => { like => '9%'}] );
 }
 
-sub init_charts { 
+sub init_charts {
   # wie geht 'not like' in rose ?
   SL::DB::Manager::Chart->get_all(  query => [ \ "accno not like '9%'"], sort_by => 'accno ASC' );
 }
