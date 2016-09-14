@@ -986,6 +986,13 @@ sub orders {
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                          if $form->{vendor};
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                         if $form->{cp_name};
   push @options, $locale->text('Department')              . " : $department"                              if $form->{department};
+  if ($form->{department_id}) {
+    unless ($form->{department}) {
+      require SL::DB::Department;
+      my $department = SL::DB::Manager::Department->find_by(id => $::form->{department_id});
+      push @options, $locale->text('Department') . " : " . $department->description if $department;
+    }
+  }
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
