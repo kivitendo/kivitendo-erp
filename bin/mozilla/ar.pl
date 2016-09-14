@@ -950,7 +950,8 @@ sub ar_transactions {
   @columns =
     qw(ids transdate id type invnumber ordnumber cusordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype direct_debit dunning_description);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone
+       payment_terms charts customertype direct_debit dunning_description department);
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
   my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
@@ -999,6 +1000,7 @@ sub ar_transactions {
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
     'customertype'            => { 'text' => $locale->text('Customer type'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
+    'department'              => { 'text' => $locale->text('Department'), },
     dunning_description       => { 'text' => $locale->text('Dunning level'), },
     %column_defs_cvars,
   );
@@ -1035,12 +1037,22 @@ sub ar_transactions {
   if ($form->{cp_name}) {
     push @options, $locale->text('Contact Person') . " : $form->{cp_name}";
   }
+
+  # $form->{department} seems to never be filled, and showing the department_id
+  # at the top of the report doesn't make much sense.
+  # So determine the department name from the id whenever we have a filter for
+  # department
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";
   }
   if ($form->{department_id}) {
-    push @options, $locale->text('Department Id') . " : $form->{department_id}";
+    # push @options, $locale->text('Department Id') . " : $form->{department_id}";
+    unless ($form->{department}) {
+      require SL::DB::Department;
+      my $department = SL::DB::Manager::Department->find_by(id => $::form->{department_id});
+      push @options, $locale->text('Department') . " : " . $department->description if $department;
+    }
   }
   if ($form->{invnumber}) {
     push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
