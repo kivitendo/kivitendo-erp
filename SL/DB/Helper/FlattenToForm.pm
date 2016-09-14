@@ -52,6 +52,11 @@ sub flatten_to_form {
   _copy($self->salesman,                $form, 'salesman_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'salesman_id');
   _copy($self->acceptance_confirmed_by, $form, 'acceptance_confirmed_by_', '', 0, map { $_->name } SL::DB::Employee->meta->columns)        if _has($self, 'acceptance_confirmed_by_id');
 
+  if (_has($self, 'employee_id')) {
+    my $user = User->new(login => $self->employee->login);
+    $form->{"employee_$_"} = $user->{$_} for qw(tel email fax);
+  }
+
   $form->{employee}   = $self->employee->name          if _has($self, 'employee_id');
   $form->{language}   = $self->language->template_code if _has($self, 'language_id');
   $form->{department} = $self->department->description if _has($self, 'department_id');
