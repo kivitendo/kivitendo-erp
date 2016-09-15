@@ -85,7 +85,6 @@ sub clone_and_reset_deep {
   $clone->settings(map { $_->clone_and_reset } $self->settings);
   $clone->is_default(0);
   $clone->name('');
-
   return $clone;
 }
 

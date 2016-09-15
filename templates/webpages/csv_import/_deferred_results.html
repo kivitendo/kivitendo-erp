@@ -16,6 +16,7 @@
       data: {
         action: 'CsvImport/result',
         'profile.type': '[% SELF.profile.type %]',
+        'csv_import_access' : '[% SELF.csv_import_access %]',
         job: '[% SELF.background_job.id %]'
       },
       success: function(data) { $('#results').html(data) },

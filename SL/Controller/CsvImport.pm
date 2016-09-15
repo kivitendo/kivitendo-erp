@@ -32,6 +32,7 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
+                                 csv_import_access
                                  import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones) ],
  'scalar --get_set_init' => [ qw(worker task_server num_imported mappings) ],
  'array'                 => [
@@ -98,7 +99,6 @@ sub action_result {
   my $data = $self->{background_job}->data_as_hash;
 
   my $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $data->{profile_id});
-
   $self->profile($profile);
 
   if ($data->{errors} and my $first_error =  $data->{errors}->[0]) {
@@ -267,7 +267,13 @@ sub action_add_mapping_from_upload {
 #
 
 sub check_auth {
-  $::auth->assert('config');
+  my ($self) = @_;
+  if ( $::form->{csv_import_access} ) {
+    $self->csv_import_access($::form->{csv_import_access});
+    return $::auth->assert($self->csv_import_access);
+  } else {
+    return $::auth->assert('config');
+  }
 }
 
 sub check_type {
@@ -414,7 +420,7 @@ sub load_default_profile {
 
   my $profile;
   if ($::form->{profile}->{id}) {
-    $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $::form->{profile}->{id}, login => $::myconfig{login});
+    $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $::form->{profile}->{id});
   }
   $profile ||= SL::DB::Manager::CsvImportProfile->find_by(type => $self->{type}, is_default => 1, login => $::myconfig{login});
   $profile ||= SL::DB::CsvImportProfile->new(type => $self->{type}, login => $::myconfig{login});

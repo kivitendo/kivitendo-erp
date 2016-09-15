@@ -10,7 +10,12 @@
   [% L.hidden_tag('form_sent', '1') %]
   [% L.hidden_tag('action', 'CsvImport/dispatch') %]
   [% L.hidden_tag('profile.type', SELF.profile.type) %]
+  [% L.hidden_tag('csv_import_access', SELF.csv_import_access) %]
 
+ [%- IF SELF.csv_import_access %]
+  [% L.hidden_tag('force_profile', 1) %]
+  [% L.hidden_tag('profile.id', SELF.profile.id) %]
+ [%- ELSE %]
   <h2>[%- LxERP.t8('Import profiles') %]</h2>
 
   <table>
@@ -323,6 +328,7 @@
 
   </div>
   <hr>
+[%- END %]
 [%- END %]
   [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
   [% L.submit_tag('action_import', LxERP.t8('Import'), style='display:none') %]
