@@ -45,5 +45,5 @@
 [%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
 
 <script type='text/javascript'>
-  $(function(){ $('#action_import').show() });
+  $(function(){ [%- IF SELF.reporterror %] kivi.clear_flash('info',0);kivi.display_flash('error','[% SELF.reporterror %]',0); [%- ELSE %][%- IF SELF.report.test_mode %] $('#action_import').show() [%- END %][%- END %] });
 </script>
