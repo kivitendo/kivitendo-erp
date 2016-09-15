@@ -677,18 +677,6 @@
   id: cash_bank_import
   name: Bank Import
   order: 500
-- parent: cash_bank_import
-  id: cash_bank_import_csv
-  name: CSV
-  order: 100
-  access: bank_transaction
-  params:
-    action: CsvImport/new
-    profile.type: bank_transactions
-- parent: cash_bank_import
-  id: cash_bank_import_mt940
-  name: MT940
-  order: 200
   access: bank_transaction
   params:
     action: BankImport/upload_mt940
@@ -1283,6 +1271,13 @@
   params:
     action: CsvImport/new
     profile.type: ar_transactions
+- parent: system_import_csv
+  id: cash_bank_import_csv
+  name: Bank transactions
+  order: 900
+  params:
+    action: CsvImport/new
+    profile.type: bank_transactions
 - parent: system
   id: system_templates
   name: Templates
