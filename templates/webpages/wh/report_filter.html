@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
+[%- USE P %]
 [%- USE HTML %][%- USE JavaScript %]
 <h1>[% 'Report about warehouse contents' | $T8 %]</h1>
 
@@ -96,6 +97,10 @@
        <tr>
         <th align="right" nowrap>[% 'Part Number' | $T8 %]:</th>
         <td><input name="partnumber" size=20></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>[% 'Parts Classification' | $T8 %]:</th>
+        <td>[% P.select_classification('classification_id') %]</td>
        </tr>
        <tr>
         <th align="right" nowrap>[% 'Part Description' | $T8 %]:</th>

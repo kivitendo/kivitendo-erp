@@ -1,4 +1,4 @@
-use Test::More tests => 33;
+use Test::More tests => 43;
 
 use strict;
 
@@ -71,7 +71,7 @@ sub reset_state {
     module   => 'IC',
     name     => 'mycvar',
     type     => 'text',
-    description => 'mein schattz',
+    description => 'mein Schatz',
     searchable  => 1,
     sortkey => 1,
     includeable => 0,
@@ -94,6 +94,7 @@ sub test_import {
     controller => $controller,
     file       => $file,
   );
+  #print "profile param type=".$csv_part_import->settings->{parts_type}."\n";
 
   $csv_part_import->test_run(0);
   $csv_part_import->csv(SL::Helper::Csv->new(file                    => $csv_part_import->file,
@@ -153,6 +154,7 @@ my $settings1 = {
                        article_number_policy     => 'update_prices',
                        shoparticle_if_missing    => '0',
                        part_type                 => 'part',
+                       parts_classification      => 3,
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'all',
                 };
@@ -162,7 +164,8 @@ my $settings2 = {
                        sellprice_adjustment_type => 'percent',
                        article_number_policy     => 'update_parts',
                        shoparticle_if_missing    => '0',
-                       part_type                 => 'part',
+                       part_type                 => 'mixed',
+                       parts_classification      => 4,
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'missing',
                        default_unit              => 'Stck',
@@ -204,29 +207,31 @@ is $entry->{object}->listprice,  '97.3', 'updated listprice';
 ##### insert parts with warehouse,bin name
 
 $file = \<<EOL;
-partnumber;description;warehouse;bin
-P1000;Teil 1000;Lager1;Ort1_von_Lager1
-P1001;Teil 1001;Lager1;Ort2_von_Lager1
-P1002;Teil 1002;Lager2;Ort1_von_Lager2
-P1003;Teil 1003;Lager2;Ort2_von_Lager2
+partnumber;description;warehouse;bin;part_type
+P1000;Teil 1000;Lager1;Ort1_von_Lager1;part
+P1001;Teil 1001;Lager1;Ort2_von_Lager1;service
+P1002;Teil 1002;Lager2;Ort1_von_Lager2;service
+P1003;Teil 1003;Lager2;Ort2_von_Lager2;part
 EOL
 $entries = test_import($file,$settings2);
 $entry = $entries->[0];
 is $entry->{object}->description, 'Teil 1000', 'Teil 1000 set';
 is $entry->{object}->warehouse_id, $wh1->id, 'Lager1';
 is $entry->{object}->bin_id, $bin1_1->id, 'Lagerort1';
+is $entry->{object}->part_type, 'part', 'Typ ist part';
 $entry = $entries->[2];
 is $entry->{object}->description, 'Teil 1002', 'Teil 1002 set';
 is $entry->{object}->warehouse_id, $wh2->id, 'Lager2';
 is $entry->{object}->bin_id, $bin2_1->id, 'Lagerort1';
+is $entry->{object}->part_type, 'service', 'Typ ist service';
 
 ##### update warehouse and bin
 $file = \<<EOL;
-partnumber;description;warehouse;bin
-P1000;Teil 1000;Lager2;Ort1_von_Lager2
-P1001;Teil 1001;Lager1;Ort1_von_Lager1
-P1002;Teil 1002;Lager2;Ort1_von_Lager1
-P1003;Teil 1003;Lager2;kein Lagerort
+partnumber;description;warehouse;bin;part_type
+P1000;Teil 1000;Lager2;Ort1_von_Lager2;part
+P1001;Teil 1001;Lager1;Ort1_von_Lager1;part
+P1002;Teil 1002;Lager2;Ort1_von_Lager1;part
+P1003;Teil 1003;Lager2;kein Lagerort;part
 EOL
 $entries = test_import($file,$settings2);
 $entry = $entries->[0];
@@ -269,16 +274,41 @@ is $l->longdescription, 'notes IT','IT notes set';
 ##### add customvar
 $file = \<<EOL;
 partnumber;cvar_mycvar
-P1000;das ist der ring
-P1001;nicht der nibelungen
+P1000;das ist der Ring
+P1001;nicht der Nibelungen
 P1002;sondern vom
 P1003;Herr der Ringe
 EOL
 $entries = test_import($file,$settings2);
 $entry = $entries->[0];
 is $entry->{object}->partnumber, 'P1000', 'P1000 set';
-is $entry->{raw_data}->{cvar_mycvar},'das ist der ring','CVAR set';
-is @{$entry->{object}->custom_variables}[0]->text_value,'das ist der ring','Cvar mit richtigem Weert';
+is $entry->{raw_data}->{cvar_mycvar},'das ist der Ring','CVAR set';
+is @{$entry->{object}->custom_variables}[0]->text_value,'das ist der Ring','Cvar mit richtigem Wert';
+
+# set locale to de so we can match abbreviations
+$::locale = $old_locale;
+##### import part classification
+$file = \<<EOL;
+partnumber;pclass;description
+W1000;WE;Teil 1000
+W1001;WV;Teil 1001
+D1002;DV;Dienstleistung 1002
+D1003;DH;Dienstleistung 1003
+EOL
+$entries = test_import($file,$settings2);
+$entry = $entries->[0];
+is $entry->{object}->classification_id, '1', 'W1000 von Klasse Einkauf';
+is $entry->{object}->type, 'part', 'W1000 vom Type part';
+$entry = $entries->[1];
+is $entry->{object}->classification_id, '2', 'W1001 von Klasse Verkauf';
+is $entry->{object}->type, 'part', 'W1001 vom Type part';
+$entry = $entries->[2];
+is $entry->{object}->classification_id, '2', 'D1002 von Klasse Verkauf';
+is $entry->{object}->type, 'service', 'D1002 vom Type service';
+$entry = $entries->[3];
+is $entry->{object}->classification_id, '3', 'D1003 von Klasse Handelsware';
+is $entry->{object}->type, 'service', 'D1003 vom Type service';
+
 
 clear_up(); # remove all data at end of tests
 

@@ -20,9 +20,10 @@
      [% IF SELF.orphaned %]
      <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      [% END %]
-     <th id="partnumber_header_id"  class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Part.reorder_items("partnumber")' >[%- 'Partnumber'  | $T8 %]</a></th>
+     <th id="partnumber_header_id"  class="listheading" nowrap width="5"><a href='#' onClick='javascript:kivi.Part.reorder_items("partnumber")' >[%- 'Partnumber'  | $T8 %]</a></th>
+     <th class="listheading" nowrap width="5">[% 'Type' | $T8 %]</th>
      <th id="partdescription_header_id"  class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Part.reorder_items("description")' >[%- 'Description' | $T8 %]</a></th>
-     <th id="qty_header_id"         class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Part.reorder_items("qty")'        >[%- 'Qty'         | $T8 %]</a></th>
+     <th id="qty_header_id"         class="listheading" nowrap width="15" ><a href='#' onClick='javascript:kivi.Part.reorder_items("qty")'        >[%- 'Qty'         | $T8 %]</a></th>
      <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
      <th class="listheading" nowrap width="5" >[%- 'BOM'          | $T8 %] </th>
      <th class="listheading" nowrap width="5" >[%- 'Line Total'   | $T8 %] </th>

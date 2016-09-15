@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 <h1>[% title %]</h1>
 
  <form method="post" action="ic.pl">
@@ -22,17 +23,36 @@
     <td>
      <table>
       <tr>
+       <th align="right" nowrap>[% 'PType' | $T8 %]</th>
+       <td  colspan="4" ><table><tr>
+        <td>
+          <input name="l_part" id="l_part" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_part">[% 'Part' | $T8 %]</label>
+        </td>
+        <td>
+          <input name="l_service" id="l_service" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_service">[% 'Service' | $T8 %]</label>
+        </td>
+        <td>
+          <input name="l_assembly" id="l_assembly" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_assembly">[% 'Assembly' | $T8 %]</label>
+        </td>
+       </tr></table></td>
+      </tr>
+      <tr>
        <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
        <td><input name="partnumber" size="20"></td>
        <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
        <td><input name="ean" size="20"></td>
       </tr>
-
+      <tr>
+       <th align="right" nowrap>[% 'Parts Classification' | $T8 %]:</th>
+       <td>[% P.select_classification('classification_id') %]</td>
+      </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
        <td colspan="3"><input name="description" size="40" class="initial_focus"></td>
       </tr>
-
       <tr>
        <th align="right" nowrap>[% 'Group' | $T8 %]</th>
        <td>

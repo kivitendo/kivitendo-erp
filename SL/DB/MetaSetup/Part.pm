@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   bin_id             => { type => 'integer' },
   bom                => { type => 'boolean', default => 'false' },
   buchungsgruppen_id => { type => 'integer' },
+  classification_id  => { type => 'integer', default => '0' },
   description        => { type => 'text' },
   drawing            => { type => 'text' },
   ean                => { type => 'text' },
@@ -61,6 +62,11 @@ __PACKAGE__->meta->foreign_keys(
   buchungsgruppen => {
     class       => 'SL::DB::Buchungsgruppe',
     key_columns => { buchungsgruppen_id => 'id' },
+  },
+
+  classification => {
+    class       => 'SL::DB::PartsClassification',
+    key_columns => { classification_id => 'id' },
   },
 
   partsgroup => {
