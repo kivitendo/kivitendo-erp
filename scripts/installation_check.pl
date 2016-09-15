@@ -90,6 +90,7 @@ if ($check{r}) {
 if ($check{o}) {
   print_header('Checking Optional Modules');
   check_module($_, optional => 1) for @SL::InstallationCheck::optional_modules;
+  check_aqbanking();
 }
 if ($check{d}) {
   print_header('Checking Developer Modules');
@@ -194,6 +195,26 @@ sub kpsewhich {
     aptitude install apt-file && apt-file update
 +------------------------------------------------------------------------------+
 EOL
+  }
+}
+
+sub check_aqbanking {
+  my $aqbin = $::lx_office_conf{applications}->{aqbanking};
+  if ( !$aqbin ) {
+    print_line('Looking for aqbanking executable', 'not configured','red');
+  }
+  else {
+    my $line = "Looking for aqbanking executable '".$aqbin."'";
+    my $shell_out = `$aqbin versions 2>&1 | grep AqBanking-CLI 2> /dev/null`;
+    my ($label,$version)  = split /:/,$shell_out;
+    if ( $label && $label eq ' AqBanking-CLI' ) {
+      chop $version;
+      print_line($line, $version, 'green');
+    } else {
+      print_line($line, 'not installed','red');
+      my %modinfo = ( name => 'aqbanking' );
+      push @missing_modules, \%modinfo;
+    }
   }
 }
 
