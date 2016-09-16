@@ -592,47 +592,36 @@ SQL
 sub _load_with_auto_restore_column {
   my ($self, $dbh, $session_id) = @_;
 
-  my $auto_restore_keys = join ', ', map { "'${_}'" } qw(login password rpw client_id), SESSION_KEY_ROOT_AUTH, SESSION_KEY_USER_AUTH;
+  my %auto_restore_keys = map { $_ => 1 } qw(login password rpw client_id), SESSION_KEY_ROOT_AUTH, SESSION_KEY_USER_AUTH;
 
   my $query = <<SQL;
     SELECT sess_key, sess_value, auto_restore
     FROM auth.session_content
     WHERE (session_id = ?)
-      AND (   auto_restore
-           OR sess_key IN (${auto_restore_keys}))
 SQL
   my $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
 
   while (my $ref = $sth->fetchrow_hashref) {
-    my $value = SL::Auth::SessionValue->new(auth         => $self,
-                                            key          => $ref->{sess_key},
-                                            value        => $ref->{sess_value},
-                                            auto_restore => $ref->{auto_restore},
-                                            raw          => 1);
-    $self->{SESSION}->{ $ref->{sess_key} } = $value;
+    if ($ref->{auto_restore} || $auto_restore_keys{$ref->{sess_key}}) {
+      my $value = SL::Auth::SessionValue->new(auth         => $self,
+                                              key          => $ref->{sess_key},
+                                              value        => $ref->{sess_value},
+                                              auto_restore => $ref->{auto_restore},
+                                              raw          => 1);
+      $self->{SESSION}->{ $ref->{sess_key} } = $value;
 
-    next if defined $::form->{$ref->{sess_key}};
+      next if defined $::form->{$ref->{sess_key}};
 
-    my $data                    = $value->get;
-    $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
+      my $data                    = $value->get;
+      $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
+    } else {
+      my $value = SL::Auth::SessionValue->new(auth => $self,
+                                              key  => $ref->{sess_key});
+      $self->{SESSION}->{ $ref->{sess_key} } = $value;
+    }
   }
 
   $sth->finish;
-
-  $query = <<SQL;
-    SELECT sess_key
-    FROM auth.session_content
-    WHERE (session_id = ?)
-      AND NOT COALESCE(auto_restore, FALSE)
-      AND (sess_key NOT IN (${auto_restore_keys}))
-SQL
-  $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
-
-  while (my $ref = $sth->fetchrow_hashref) {
-    my $value = SL::Auth::SessionValue->new(auth => $self,
-                                            key  => $ref->{sess_key});
-    $self->{SESSION}->{ $ref->{sess_key} } = $value;
-  }
 }
 
 sub destroy_session {
