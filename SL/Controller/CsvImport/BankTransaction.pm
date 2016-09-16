@@ -88,7 +88,6 @@ sub setup_displayable_columns {
 
   $self->SUPER::setup_displayable_columns;
 
-  # TODO: don't show fields cleared, invoice_amount and transaction_id in the help text, as these should not be imported
   $self->add_displayable_columns({ name => 'local_bank_code',       description => $::locale->text('Own bank code') },
                                  { name => 'local_account_number',  description => $::locale->text('Own bank account number or IBAN') },
                                  { name => 'local_bank_account_id', description => $::locale->text('ID of own bank account') },
@@ -101,6 +100,8 @@ sub setup_displayable_columns {
                                  { name => 'currency_id',           description => $::locale->text('Currency (database ID)')          },
                                  { name => 'remote_name',           description => $::locale->text('Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")') },
                                  { name => 'purpose',               description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+                                 { name => 'transactionCode',       description => $::locale->text('Transaction Code') },
+                                 { name => 'transactionText',       description => $::locale->text('Transaction Text') },
                                  );
 }
 
@@ -148,7 +149,6 @@ sub check_bank_account {
     $object->local_bank_account_id($bank_account->id);
     $entry->{info_data}->{local_bank_name} = $bank_account->name;
   }
-
   return $object->local_bank_account_id ? 1 : 0;
 }
 

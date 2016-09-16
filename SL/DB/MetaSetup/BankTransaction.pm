@@ -21,6 +21,8 @@ __PACKAGE__->meta->columns(
   remote_bank_code      => { type => 'text' },
   remote_name           => { type => 'text' },
   transaction_id        => { type => 'integer' },
+  transactioncode       => { type => 'text' },
+  transactiontext       => { type => 'text' },
   transdate             => { type => 'date', not_null => 1 },
   valutadate            => { type => 'date', not_null => 1 },
 );
