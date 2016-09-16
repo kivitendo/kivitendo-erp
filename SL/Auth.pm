@@ -592,7 +592,7 @@ SQL
 sub _load_with_auto_restore_column {
   my ($self, $dbh, $session_id) = @_;
 
-  my $auto_restore_keys = join ', ', map { "'${_}'" } qw(login password rpw);
+  my $auto_restore_keys = join ', ', map { "'${_}'" } qw(login password rpw client_id), SESSION_KEY_ROOT_AUTH, SESSION_KEY_USER_AUTH;
 
   my $query = <<SQL;
     SELECT sess_key, sess_value, auto_restore
