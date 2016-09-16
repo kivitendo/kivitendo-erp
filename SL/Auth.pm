@@ -918,7 +918,7 @@ sub _tables_present {
 
     my ($count) = selectrow_query($main::form, $dbh, $query, @tables);
 
-    return scalar @tables == $count;
+    scalar @tables == $count;
   }
 }
 
