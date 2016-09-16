@@ -15,6 +15,8 @@ sub new {
   $self->{auth} = $params{auth} || croak "Missing 'auth'";
   weaken $self->{auth};
 
+  $self->_fetch if $self->{auth}->dbconnect(1);
+
   return $self;
 }
 
