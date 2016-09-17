@@ -20,7 +20,7 @@
 
   $(document).ready(function(){
     [%- IF SELF.background_job.data_as_hash.report_id %]
-      get_report('#csv_import_report', 'controller.pl', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %], 'csv_import_access' : '[% SELF.csv_import_access %]' });
+      get_report('#csv_import_report', 'controller.pl', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %] });
     [%- END %]
   });
 

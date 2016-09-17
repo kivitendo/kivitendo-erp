@@ -32,7 +32,6 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
-                                 csv_import_access
                                  import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones) ],
  'scalar --get_set_init' => [ qw(worker task_server num_imported mappings) ],
  'array'                 => [
@@ -41,7 +40,7 @@ use Rose::Object::MakeMethods::Generic
  ],
 );
 
-__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth', except => [ qw(report) ]);
 __PACKAGE__->run_before('ensure_form_structure');
 __PACKAGE__->run_before('check_type', except => [ qw(report) ]);
 __PACKAGE__->run_before('load_all_profiles');
@@ -267,13 +266,8 @@ sub action_add_mapping_from_upload {
 #
 
 sub check_auth {
-  my ($self) = @_;
-  if ( $::form->{csv_import_access} ) {
-    $self->csv_import_access($::form->{csv_import_access});
-    return $::auth->assert($self->csv_import_access);
-  } else {
-    return $::auth->assert('config');
-  }
+  $_[0]->check_type;
+  $_[0]->worker->check_auth;
 }
 
 sub check_type {

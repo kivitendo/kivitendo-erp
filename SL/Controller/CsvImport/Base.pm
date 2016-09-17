@@ -339,6 +339,10 @@ sub check_objects {
 sub check_duplicates {
 }
 
+sub check_auth {
+  $::auth->assert('config');
+}
+
 sub check_std_duplicates {
   my $self = shift;
 

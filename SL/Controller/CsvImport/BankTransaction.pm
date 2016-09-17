@@ -183,4 +183,8 @@ sub join_remote_names {
   $object->remote_name($remote_name);
 }
 
+sub check_auth {
+  $::auth->assert('config') if ! $::auth->assert('bank_transaction',1);
+}
+
 1;
