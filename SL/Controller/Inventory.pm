@@ -2,6 +2,7 @@ package SL::Controller::Inventory;
 
 use strict;
 use warnings;
+use POSIX qw(strftime);
 
 use parent qw(SL::Controller::Base);
 
@@ -10,10 +11,12 @@ use SL::DB::Part;
 use SL::DB::Warehouse;
 use SL::DB::Unit;
 use SL::WH;
+use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::Presenter;
 use SL::DBUtils;
 use SL::Helper::Flash;
+use SL::Controller::Helper::ReportGenerator;
 
 use English qw(-no_match_vars);
 
@@ -30,7 +33,7 @@ __PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse
 __PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock) ]);
 __PACKAGE__->run_before('set_target_from_part',  only => [ qw(part_changed) ]);
 __PACKAGE__->run_before('mini_stock',            only => [ qw(stock_in mini_stock) ]);
-__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_in warehouse_changed part_changed) ]);
+__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_usage stock_in warehouse_changed part_changed) ]);
 __PACKAGE__->run_before('set_layout');
 
 sub action_stock_in {
@@ -42,6 +45,349 @@ sub action_stock_in {
   my $transfer_types = WH->retrieve_transfer_types('in');
   map { $_->{description} = $main::locale->text($_->{description}) } @{ $transfer_types };
   $self->render('inventory/warehouse_selection_stock', title => $::form->{title}, TRANSFER_TYPES => $transfer_types );
+}
+
+sub action_stock_usage {
+  my ($self) = @_;
+
+  $::form->{title}   = t8('UsageE');
+
+  $::form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
+                                       'bins'   => 'BINS', });
+  $::request->layout->use_javascript("${_}.js") for qw(kivi.PartsWarehouse);
+
+  $self->render('inventory/warehouse_usage',
+                title => $::form->{title},
+                year => DateTime->today->year,
+  #              PARTSCLASSIFICATIONS => SL::DB:Manager::PartsClassification->get_all_classifications_by_name() ,
+                WAREHOUSES => $::form->{WAREHOUSES},
+                WAREHOUSE_FILTER => 1,
+                warehouse_id => 0,
+                bin_id => 0
+      );
+
+}
+
+sub getnumcolumns {
+  my ($self) = @_;
+  return qw(stock incorrection found insum back outcorrection disposed 
+                     missing shipped used outsum consumed averconsumed);
+}
+
+sub action_usage {
+  my ($self) = @_;
+
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $form->{title}   = t8('UsageE');
+  $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
+
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+
+  my @columns = qw(partnumber partdescription);
+
+  push @columns , qw(ptype unit) if $form->{report_generator_output_format} eq 'HTML';
+
+  my @numcolumns = qw(stock incorrection found insum back outcorrection disposed 
+                     missing shipped used outsum consumed averconsumed);
+
+  push @columns , $self->getnumcolumns();
+
+  my @hidden_variables = qw(reporttype year duetyp fromdate todate 
+                            warehouse_id bin_id partnumber description bestbefore chargenumber partstypes_id);
+  my %column_defs = (
+    'partnumber'      => { 'text' => $locale->text('Part Number'), },
+ #   'partclass'       => { 'text' => $locale->text('Part Classification'), },
+    'partdescription' => { 'text' => $locale->text('Part_br_Description'), },
+    'unit'            => { 'text' => $locale->text('Unit'), },
+    'stock'           => { 'text' => $locale->text('stock_br'), },
+    'incorrection'    => { 'text' => $locale->text('correction_br'), },
+    'found'           => { 'text' => $locale->text('found_br'), },
+    'insum'           => { 'text' => $locale->text('sum'), },
+    'back'            => { 'text' => $locale->text('back_br'), },
+    'outcorrection'   => { 'text' => $locale->text('correction_br'), },
+    'disposed'        => { 'text' => $locale->text('disposed_br'), },
+    'missing'         => { 'text' => $locale->text('missing_br'), },
+    'shipped'         => { 'text' => $locale->text('shipped_br'), },
+    'used'            => { 'text' => $locale->text('used_br'), },
+    'outsum'          => { 'text' => $locale->text('sum'), },
+    'consumed'        => { 'text' => $locale->text('consumed'), },
+    'averconsumed'    => { 'text' => $locale->text('averconsumed_br'), },
+  );
+
+
+  map { $column_defs{$_}->{visible} = 1 } @columns;
+  #map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+  map { $column_defs{$_}->{align} = 'right' } @numcolumns;
+
+  my @custom_headers = ();
+  # Zeile 1:
+  push @custom_headers, [
+      { 'text' => $locale->text('Part'),   
+        'colspan' => ($form->{report_generator_output_format} eq 'HTML'?4:2), 'align' => 'center'},
+      { 'text' => $locale->text('Into bin'), 'colspan' => 4, 'align' => 'center'},
+      { 'text' => $locale->text('From bin'), 'colspan' => 7, 'align' => 'center'},
+      { 'text' => $locale->text('UsageWithout'),    'colspan' => 2, 'align' => 'center'},
+  ];
+
+  # Zeile 2:
+  my @line_2 = ();
+  map { push @line_2 , $column_defs{$_} } @columns;
+  push @custom_headers, [ @line_2 ];
+
+  $report->set_custom_headers(@custom_headers);
+  $report->set_columns( %column_defs );
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('usage', @hidden_variables );
+
+  $report->set_sort_indicator($form->{sort}, $form->{order});
+  $report->set_options('output_format'        => 'HTML',
+                       'controller_class'     => 'Inventory',
+                       'title'                => $form->{title},
+#                      'html_template'        => 'inventory/usage_report',
+                       'attachment_basename'  => strftime($locale->text('warehouse_usage_list') . '_%Y%m%d', localtime time));
+  $report->set_options_from_form;
+
+  my %searchparams ;
+# form vars
+#   reporttype = custom
+#   year = 2014
+#   duetyp = 7
+
+  my $start       = DateTime->now_local;
+  my $end         = DateTime->now_local;
+  my $actualepoch = $end->epoch();
+  my $days = 365;
+  my $mdays=30;
+  $searchparams{reporttype} = $form->{reporttype};
+  if ($form->{reporttype} eq "custom") {
+    my $smon = 1;
+    my $emon = 12;
+    my $sday = 1;
+    my $eday = 31;
+    #forgotten the year --> thisyear
+    if ($form->{year} !~ m/^\d\d\d\d$/) {
+      $locale->date(\%myconfig, $form->current_date(\%myconfig), 0) =~
+        /(\d\d\d\d)/;
+      $form->{year} = $1;
+    }
+    my $leapday = ($form->{year} % 4 == 0) ? 1:0;
+    #yearly report
+    if ($form->{duetyp} eq "13") {
+        $days += $leapday;
+    }
+
+    #Quater reports
+    if ($form->{duetyp} eq "A") {
+      $emon = 3;
+      $days = 90 + $leapday;
+    }
+    if ($form->{duetyp} eq "B") {
+      $smon = 4;
+      $emon = 6;
+      $eday = 30;
+      $days = 91;
+    }
+    if ($form->{duetyp} eq "C") {
+      $smon = 7;
+      $emon = 9;
+      $eday = 30;
+      $days = 92;
+    }
+    if ($form->{duetyp} eq "D") {
+      $smon = 10;
+      $days = 92;
+    }
+    #Monthly reports
+    if ($form->{duetyp} eq "1" || $form->{duetyp} eq "3" || $form->{duetyp} eq "5" ||
+        $form->{duetyp} eq "7" || $form->{duetyp} eq "8" || $form->{duetyp} eq "10" ||
+        $form->{duetyp} eq "12") {
+        $smon = $emon = $form->{duetyp}*1;
+        $mdays=$days = 31;
+    }
+    if ($form->{duetyp} eq "2" || $form->{duetyp} eq "4" || $form->{duetyp} eq "6" ||
+        $form->{duetyp} eq "9" || $form->{duetyp} eq "11" ) {
+        $smon = $emon = $form->{duetyp}*1;
+        $eday = 30;
+        if ($form->{duetyp} eq "2" ) {
+            #this works from 1901 to 2099, 1900 and 2100 fail.
+            $eday = ($form->{year} % 4 == 0) ? 29 : 28;
+        }
+        $mdays=$days = $eday;
+    }
+    $searchparams{year} = $form->{year};
+    $searchparams{duetyp} = $form->{duetyp};
+    $start->set_month($smon);
+    $start->set_day($sday);
+    $start->set_year($form->{year}*1);
+    $end->set_month($emon);
+    $end->set_day($eday);
+    $end->set_year($form->{year}*1);
+  }  else {
+    $searchparams{fromdate} = $form->{fromdate};
+    $searchparams{todate} = $form->{todate};
+#   reporttype = free
+#   fromdate = 01.01.2014
+#   todate = 31.05.2014
+    my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig,$form->{fromdate});
+    $start->set_year($yy);
+    $start->set_month($mm);
+    $start->set_day($dd);
+    ($yy, $mm, $dd) = $locale->parse_date(\%myconfig,$form->{todate});
+    $end->set_year($yy);
+    $end->set_month($mm);
+    $end->set_day($dd);
+    my $dur = $start->delta_md($end);
+    $days = $dur->delta_months()*30 + $dur->delta_days() ;
+  }
+  $start->set_second(0);
+  $start->set_minute(0);
+  $start->set_hour(0);
+  $end->set_second(59);
+  $end->set_minute(59);
+  $end->set_hour(23);
+  if ( $end->epoch() > $actualepoch ) { 
+      $end = DateTime->now_local;
+      my $dur = $start->delta_md($end);
+      $days = $dur->delta_months()*30 + $dur->delta_days() ;
+  }
+  if ( $start->epoch() > $end->epoch() ) { $start = $end;$days = 1;}
+  $days = $mdays if $days < $mdays;
+  #$main::lxdebug->message(LXDebug->DEBUG2(), "start=".$start->epoch());
+  #$main::lxdebug->message(LXDebug->DEBUG2(), "  end=".$end->epoch());
+  #$main::lxdebug->message(LXDebug->DEBUG2(), " days=".$days);
+  my @andfilter = (shippingdate => { ge => $start }, shippingdate => { le => $end } );
+  if ( $form->{warehouse_id} ) {
+      push @andfilter , ( warehouse_id => $form->{warehouse_id});
+      $searchparams{warehouse_id} = $form->{warehouse_id};
+      if ( $form->{bin_id} ) {
+          push @andfilter , ( bin_id => $form->{bin_id});
+          $searchparams{bin_id} = $form->{bin_id};
+      }
+  }
+  # alias class t2 entspricht parts
+  if ( $form->{partnumber} ) {
+      push @andfilter , ( 't2.partnumber' => { ilike => '%'. $form->{partnumber} .'%' });
+      $searchparams{partnumber} = $form->{partnumber};
+  }
+  if ( $form->{description} ) {
+      push @andfilter , ( 't2.description' => { ilike => '%'. $form->{description} .'%'  });
+      $searchparams{description} = $form->{description};
+  }
+  if ( $form->{bestbefore} ) {
+    push @andfilter , ( bestbefore => { eq => $form->{bestbefore} });
+      $searchparams{bestbefore} = $form->{bestbefore};
+  }
+  if ( $form->{chargenumber} ) {
+      push @andfilter , ( chargenumber => { ilike => '%'.$form->{chargenumber}.'%' });
+      $searchparams{chargenumber} = $form->{chargenumber};
+  }
+  if ( $form->{partstypes_id} ) {
+      push @andfilter , ( 't2.partstypes_id' => $form->{partstypes_id} );
+      $searchparams{partstypes_id} = $form->{partstypes_id};
+  }
+
+  my @filter = (and => [ @andfilter ] );
+
+  my $objs = SL::DB::Manager::Inventory->get_all(with_objects => ['parts'], where => [ @filter ] , sort_by => 'parts.partnumber ASC');
+  #my $objs = SL::DB::Inventory->_get_manager_class->get_all(...);
+
+  # manual paginating, yuck
+  my $page = $::form->{page} || 1;
+  my $pages = {};
+  $pages->{per_page}        = $::form->{per_page} || 20;
+  my $first_nr = ($page - 1) * $pages->{per_page};
+  my $last_nr  = $first_nr + $pages->{per_page};
+
+  my $last_partid = 0;
+  my $last_row = { };
+  my $row_ind = 0;
+  my $allrows = 0;
+  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+  #$main::lxdebug->message(LXDebug->DEBUG2(), "first_nr=".$first_nr." last_nr=".$last_nr);
+  foreach my $entry (@{ $objs } ) {
+      if ( $entry->parts_id != $last_partid ) {
+          if ( $last_partid > 0 ) {
+              if ( $allrows || ($row_ind >= $first_nr && $row_ind < $last_nr )) {
+                  $self->make_row_result($last_row,$days,$last_partid);
+                  $report->add_data($last_row);
+              }
+              $row_ind++ ;
+          } 
+          $last_partid = $entry->parts_id;
+          $last_row = { };
+          $last_row->{partnumber}->{data} = $entry->part->partnumber;
+          $last_row->{partdescription}->{data} = $entry->part->description;
+          $last_row->{unit}->{data} = $entry->part->unit;
+          $last_row->{stock}->{data} = 0;
+          $last_row->{incorrection}->{data} = 0;
+          $last_row->{found}->{data} = 0;
+          $last_row->{back}->{data} = 0;
+          $last_row->{outcorrection}->{data} = 0;
+          $last_row->{disposed}->{data} = 0;
+          $last_row->{missing}->{data} = 0;
+          $last_row->{shipped}->{data} = 0;
+          $last_row->{used}->{data} = 0;
+          $last_row->{insum}->{data} = 0;
+          $last_row->{outsum}->{data} = 0;
+          $last_row->{consumed}->{data} = 0;
+          $last_row->{averconsumed}->{data} = 0;
+      }
+      if ( !$allrows && $row_ind >= $last_nr ) {
+          next;
+      }
+      my $prefix='';
+      if ( $entry->trans_type->description eq 'correction' ) {
+          $prefix = $entry->trans_type->direction;
+      }
+      $last_row->{$prefix.$entry->trans_type->description}->{data} += 
+          ( $entry->trans_type->direction eq 'out' ? -$entry->qty : $entry->qty );
+  }
+  if ( $last_partid > 0 && ( $allrows || ($row_ind >= $first_nr && $row_ind < $last_nr ))) {
+      $self->make_row_result($last_row,$days,$last_partid);
+      $report->add_data($last_row);
+      $row_ind++ ;
+  } 
+  my $num_rows = @{ $report->{data} } ;
+  #$main::lxdebug->message(LXDebug->DEBUG2(), "count=".$row_ind." rows=".$num_rows);
+
+  if ( ! $allrows ) {
+      $pages->{max}  = SL::DB::Helper::Paginated::ceil($row_ind, $pages->{per_page}) || 1;
+      $pages->{page} = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
+      $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
+      $self->{pages} = $pages;
+      $searchparams{action} = "usage";
+      $self->{base_url} = $self->url_for(\%searchparams );
+      #$main::lxdebug->message(LXDebug->DEBUG2(), "page=".$pages->{page}." url=".$self->{base_url});
+
+      $report->set_options('raw_bottom_info_text' => $self->render('inventory/report_bottom', { output => 0 }) );
+  }
+  $report->generate_with_headers();
+
+  $main::lxdebug->leave_sub();
+
+}
+
+sub make_row_result {
+  my ($self,$row,$days,$partid) = @_;
+  my $form     = $main::form;
+  my $myconfig = \%main::myconfig;
+
+  $row->{insum}->{data}  = $row->{stock}->{data} + $row->{incorrection}->{data} + $row->{found}->{data};
+  $row->{outsum}->{data} = $row->{back}->{data} + $row->{outcorrection}->{data} + $row->{disposed}->{data} +
+       $row->{missing}->{data} + $row->{shipped}->{data} + $row->{used}->{data};
+  $row->{consumed}->{data} = $row->{outsum}->{data} - 
+       $row->{outcorrection}->{data} - $row->{incorrection}->{data};
+  $row->{averconsumed}->{data} = $row->{consumed}->{data}*30/$days ;
+  map { $row->{$_}->{data} = $form->format_amount($myconfig,$row->{$_}->{data},2); } $self->getnumcolumns();
+#  $row->{partclass}->{data} = '';
+  $row->{partnumber}->{link} = 'ic.pl?action=edit&id='.$partid;
+#  $row->{partdescription}->{link} = 'ic.pl?action=edit&id='.$partid;
 }
 
 sub action_stock {
@@ -153,6 +499,10 @@ sub init_warehouses {
   SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]]);
 }
 
+#sub init_bins {
+#  SL::DB::Manager::Bin->get_all();
+#}
+
 sub init_units {
   SL::DB::Manager::Unit->get_all;
 }
@@ -175,6 +525,14 @@ sub sanitize_target {
 
   $self->warehouse($self->warehouses->[0])       if !$self->warehouse || !$self->warehouse->id;
   $self->bin      ($self->warehouse->bins->[0])  if !$self->bin       || !$self->bin->id;
+#  foreach my $warehouse ( $self->warehouses ) {
+#      $warehouse->{BINS} = [];
+#      foreach my $bin ( $self->bins ) {
+#         if ( $bin->warehouse_id == $warehouse->id ) {
+#             push @{ $warehouse->{BINS} }, $bin;
+#         }
+#      }
+#  }
 }
 
 sub load_part_from_form {

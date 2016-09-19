@@ -1,7 +1,8 @@
 [%- USE T8 %]
 [%- USE HTML %][%- USE LxERP %]
 
- [%- SET default_margin = LxERP.format_amount(1.5) %]
+ [%- SET default_ymargin = LxERP.format_amount(1.5) %]
+ [%- SET default_xmargin = LxERP.format_amount(0.8) %]
 
  <h1>[% HTML.escape(title) %]</h1>
 
@@ -73,22 +74,22 @@
 
    <tr>
     <td align="right">[% 'Top' | $T8 %]</td>
-    <td><input name="report_generator_pdf_options_margin_top" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
+    <td><input name="report_generator_pdf_options_margin_top" size="4" value="[% HTML.escape(default_ymargin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right">[% 'Left' | $T8 %]</td>
-    <td><input name="report_generator_pdf_options_margin_left" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
+    <td><input name="report_generator_pdf_options_margin_left" size="4" value="[% HTML.escape(default_xmargin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right">[% 'Bottom' | $T8 %]</td>
-    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
+    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="[% HTML.escape(default_ymargin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right">[% 'Right' | $T8 %]</td>
-    <td><input name="report_generator_pdf_options_margin_right" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
+    <td><input name="report_generator_pdf_options_margin_right" size="4" value="[% HTML.escape(default_xmargin) %]"> cm</td>
    </tr>
 
    <tr>

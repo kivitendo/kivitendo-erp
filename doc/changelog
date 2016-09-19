@@ -6,6 +6,9 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - Weiterer Bericht in der Rubrik Lager: Lagerentnahme
+    Gibt eine Statistik über Lagerbewegungen, pro Monat/Quartal/Jahr.
+
   - Für UStVA Voranmeldung über Elster gibt es die Anbindung über Geierlein (Installation/Config siehe Commit)
   
   - CSV-Import von Artikel hat nun für existierende Artikel folgende Optionen:

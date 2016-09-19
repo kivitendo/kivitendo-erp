@@ -674,6 +674,8 @@ sub generate_journal {
   $form->{title}   = $locale->text("WHJournal");
   $form->{sort}  ||= 'date';
 
+  $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
+
   my %filter;
   my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber bestbefore trans_type comment qty employee oe_id projectnumber);
 
@@ -709,13 +711,16 @@ sub generate_journal {
     'chargenumber'    => { 'text' => $locale->text('Charge Number'), },
     'bestbefore'      => { 'text' => $locale->text('Best Before'), },
     'qty'             => { 'text' => $locale->text('Qty'), },
+    'unit'            => { 'text' => $locale->text('Part Unit'), },
+    'partunit'        => { 'text' => $locale->text('Unit'), },
     'employee'        => { 'text' => $locale->text('Employee'), },
     'projectnumber'   => { 'text' => $locale->text('Project Number'), },
     'oe_id'           => { 'text' => $locale->text('Document'), },
   );
 
   my $href = build_std_url('action=generate_journal', grep { $form->{$_} } @hidden_variables);
-  map { $column_defs{$_}->{link} = $href . "&sort=${_}&order=" . Q($_ eq $form->{sort} ? 1 - $form->{order} : $form->{order}) } @columns;
+  my $page = $::form->{page} || 1;
+  map { $column_defs{$_}->{link} = $href ."&page=".$page. "&sort=${_}&order=" . Q($_ eq $form->{sort} ? 1 - $form->{order} : $form->{order}) } @columns;
 
   my %column_alignment = map { $_ => 'right' } qw(qty);
 
@@ -747,6 +752,16 @@ sub generate_journal {
                     'purchase_invoice'        => { script => 'ir', title => $locale->text('Purchase Invoice') },
                   );
 
+   my $allrows = 0;
+   $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+ 
+   # manual paginating
+   my $pages = {};
+   $pages->{per_page}        = $::form->{per_page} || 15;
+   my $first_nr = ($page - 1) * $pages->{per_page};
+   my $last_nr  = $first_nr + $pages->{per_page};
+   my $idx       = 0;
+ 
   foreach my $entry (@contents) {
     $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
                                                       'part_unit'  => $entry->{partunit},
@@ -774,9 +789,20 @@ sub generate_journal {
       }
     }
 
-    $report->add_data($row);
+    if ( $allrows || ($idx >= $first_nr && $idx < $last_nr )) {
+       $report->add_data($row);
+    }
+    $idx++;
   }
 
+  if ( ! $allrows ) {
+      $pages->{max}  = SL::DB::Helper::Paginated::ceil($idx, $pages->{per_page}) || 1;
+      $pages->{page} = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
+      $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
+
+      $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
+                                                            { 'pages' => $pages , 'base_url' => $href}) );
+  }
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
@@ -822,13 +848,14 @@ sub generate_report {
 
   $form->{title}   = $locale->text("Report about warehouse contents");
   $form->{sort}  ||= 'partnumber';
+  $form->{sort}  ||= 'partunit';
   my $sort_col     = $form->{sort};
 
   my %filter;
   my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber bestbefore qty stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partstypes_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
 
   # show filter stuff also in report
   my @options;
@@ -862,10 +889,11 @@ sub generate_report {
 
   $form->{subtotal} = '' if (!first { $_ eq $sort_col } qw(partnumber partdescription));
 
+  $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit l_warehousedescription l_bindescription);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
 
   my %column_defs = (
@@ -876,11 +904,13 @@ sub generate_report {
     'chargenumber'         => { 'text' => $locale->text('Charge Number'), },
     'bestbefore'           => { 'text' => $locale->text('Best Before'), },
     'qty'                  => { 'text' => $locale->text('Qty'), },
+    'partunit'             => { 'text' => $locale->text('Unit'), },
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
   );
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
-  map { $column_defs{$_}->{link} = $href . "&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
+  my $page = $::form->{page} || 1;
+  map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
   my %column_alignment = map { $_ => 'right' } qw(qty stock_value);
 
@@ -910,13 +940,22 @@ sub generate_report {
 
   my $total_stock_value = 0;
 
+  my $allrows = 0;
+  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+
+  # manual paginating
+  my $pages = {};
+  $pages->{per_page}        = $::form->{per_page} || 20;
+  my $first_nr = ($page - 1) * $pages->{per_page};
+  my $last_nr  = $first_nr + $pages->{per_page};
+
   foreach my $entry (@contents) {
     map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
     $total_stock_value   += $entry->{stock_value} * 1;
-
-    $entry->{qty}         = $form->format_amount_units('amount'     => $entry->{qty},
-                                                       'part_unit'  => $entry->{partunit},
-                                                       'conv_units' => 'convertible');
+    $entry->{qty}         = $form->format_amount(\%myconfig, $entry->{qty});
+#    $entry->{qty}         = $form->format_amount_units('amount'     => $entry->{qty},
+#                                                       'part_unit'  => $entry->{partunit},
+#                                                       'conv_units' => 'convertible');
     $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
 
     my $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
@@ -926,9 +965,10 @@ sub generate_report {
             || ($entry->{$sort_col} ne $contents[$idx + 1]->{$sort_col}))) {
 
       my $row = { map { $_ => { 'data' => '', 'class' => 'listsubtotal', 'align' => $column_alignment{$_}, } } @columns };
-      $row->{qty}->{data}         = $form->format_amount_units('amount'     => $subtotals{qty} * 1,
-                                                               'part_unit'  => $entry->{partunit},
-                                                               'conv_units' => 'convertible');
+      $row->{qty}->{data}         = $form->format_amount(\%myconfig, $subtotals{qty});
+#      $row->{qty}->{data}         = $form->format_amount_units('amount'     => $subtotals{qty} * 1,
+#                                                               'part_unit'  => $entry->{partunit},
+#                                                               'conv_units' => 'convertible');
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
 
       %subtotals                  = map { $_ => 0 } @subtotals_columns;
@@ -936,8 +976,9 @@ sub generate_report {
       push @{ $row_set }, $row;
     }
 
-    $report->add_data($row_set);
-
+    if ( $allrows || ($idx >= $first_nr && $idx < $last_nr )) {
+	$report->add_data($row_set);
+    }
     $idx++;
   }
 
