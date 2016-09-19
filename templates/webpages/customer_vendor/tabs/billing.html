@@ -172,7 +172,7 @@
 
     <tr>
       <th align="right" nowrap>
-        [% IF homepage %]
+        [% IF SELF.cv.homepage %]
           <a href="[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open this Website' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>
         [% ELSE %]
           [% 'Homepage' | $T8 %]
