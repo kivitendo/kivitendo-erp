@@ -47,6 +47,7 @@ sub new {
       'escape_char'         => '"',
       'eol_style'           => 'Unix',
       'headers'             => 1,
+      'encoding'            => 'UTF-8',
     },
   };
   $self->{export}   = {
@@ -703,10 +704,10 @@ sub _print_content {
 }
 
 sub _handle_quoting_and_encoding {
-  my ($self, $text, $do_unquote) = @_;
+  my ($self, $text, $do_unquote, $encoding) = @_;
 
   $text = $main::locale->unquote_special_chars('HTML', $text) if $do_unquote;
-  $text = Encode::encode('UTF-8', $text);
+  $text = Encode::encode($encoding || 'UTF-8', $text);
 
   return $text;
 }
@@ -745,7 +746,7 @@ sub _generate_csv_content {
 
   if ($opts->{headers}) {
     if (!$self->{custom_headers}) {
-      $csv->print($stdout, [ map { $self->_handle_quoting_and_encoding($self->{columns}->{$_}->{text}, 1) } @visible_columns ]);
+      $csv->print($stdout, [ map { $self->_handle_quoting_and_encoding($self->{columns}->{$_}->{text}, 1, $opts->{encoding}) } @visible_columns ]);
 
     } else {
       foreach my $row (@{ $self->{custom_headers} }) {
@@ -753,7 +754,7 @@ sub _generate_csv_content {
 
         foreach my $col (@{ $row }) {
           my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
-          push @{ $fields }, ($self->_handle_quoting_and_encoding($col->{text}, 1)) x $num_output;
+          push @{ $fields }, ($self->_handle_quoting_and_encoding($col->{text}, 1, $opts->{encoding})) x $num_output;
         }
 
         $csv->print($stdout, $fields);
@@ -775,7 +776,7 @@ sub _generate_csv_content {
         my $num_output = ($row->{$col}{colspan} && ($row->{$col}->{colspan} > 1)) ? $row->{$col}->{colspan} : 1;
         $skip_next     = $num_output - 1;
 
-        push @data, join($eol, map { s/\r?\n/$eol/g; $self->_handle_quoting_and_encoding($_, 0) } @{ $row->{$col}->{data} });
+        push @data, join($eol, map { s/\r?\n/$eol/g; $self->_handle_quoting_and_encoding($_, 0, $opts->{encoding}) } @{ $row->{$col}->{data} });
         push @data, ('') x $skip_next if ($skip_next);
       }
 
@@ -1025,6 +1026,10 @@ End of line style. Default is Unix.
 =item headers
 
 Include headers? Default is yes.
+
+=item encoding
+
+Character encoding. Default is UTF-8.
 
 =back
 
