@@ -754,14 +754,14 @@ sub generate_journal {
 
    my $allrows = 0;
    $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
- 
+
    # manual paginating
    my $pages = {};
    $pages->{per_page}        = $::form->{per_page} || 15;
    my $first_nr = ($page - 1) * $pages->{per_page};
    my $last_nr  = $first_nr + $pages->{per_page};
    my $idx       = 0;
- 
+
   foreach my $entry (@contents) {
     $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
                                                       'part_unit'  => $entry->{partunit},
@@ -977,7 +977,7 @@ sub generate_report {
     }
 
     if ( $allrows || ($idx >= $first_nr && $idx < $last_nr )) {
-	$report->add_data($row_set);
+      $report->add_data($row_set);
     }
     $idx++;
   }
