@@ -33,6 +33,7 @@ use SL::DBUtils;
 use SL::DATEV::KNEFile;
 use SL::DB;
 use SL::HTML::Util ();
+use SL::Locale::String qw(t8);
 
 use Data::Dumper;
 use DateTime;
@@ -492,14 +493,11 @@ sub _get_transactions {
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
         require SL::DB::Manager::AccTransaction;
         if ( $trans->[0]->{trans_id} ) {
-          my $acc_trans_old_obj  = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $trans->[0]->{trans_id} ]);
-          $self->add_error("Unbalanced ledger! Old: " . $acc_trans_old_obj->transaction_name) if ref($acc_trans_old_obj);
+          my $acc_trans_obj  = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $trans->[0]->{trans_id} ]);
+          $self->add_error(t8("Export error in transaction #1: Unbalanced ledger before next transaction (#2)",
+                              $acc_trans_obj->transaction_name, $ref2->{trans_id})
+          );
         };
-        if ( $ref2->{trans_id} ) {
-          my $acc_trans_curr_obj = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $ref2->{trans_id} ]);
-          $self->add_error("Unbalanced ledger! New:" . $acc_trans_curr_obj->transaction_name) if ref($acc_trans_curr_obj);
-        };
-        $self->add_error("count: $count");
         return;
       }
 
@@ -670,8 +668,9 @@ sub _get_transactions {
     if (abs($absumsatz) >= (0.01 * (1 + scalar @taxed))) {
       require SL::DB::Manager::AccTransaction;
       my $acc_trans_obj  = SL::DB::Manager::AccTransaction->get_first(where => [ trans_id => $trans->[0]->{trans_id} ]);
-      $self->add_error("Datev-Export fehlgeschlagen! Bei Transaktion " . $acc_trans_obj->transaction_name . " ($absumsatz)");
-
+      $self->add_error(t8("Export error in transaction #1: Rounding error too large #2",
+                          $acc_trans_obj->transaction_name, $absumsatz)
+      );
     } elsif (abs($absumsatz) >= 0.01) {
       $self->add_net_gross_differences($absumsatz);
     }
