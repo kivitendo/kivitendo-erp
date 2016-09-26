@@ -30,7 +30,7 @@ my ($customer, $currency_id, $buchungsgruppe, $employee, $vendor, $taxzone, $buc
 my $VISUAL_TEST = 0;  # just a sleep to click around
 
 sub clear_up {
-  foreach (qw(DeliveryOrderItem DeliveryOrder InvoiceItem Invoice Part Customer Vendor Department PaymentTerm)) {
+  foreach (qw(DeliveryOrderItem DeliveryOrder InvoiceItem PurchaseInvoice Invoice Part Customer Vendor Department PaymentTerm)) {
     "SL::DB::Manager::${_}"->delete_all(all => 1);
   }
   SL::DB::Manager::Employee->delete_all(where => [ id => 31915 ]);
