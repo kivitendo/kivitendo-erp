@@ -48,8 +48,8 @@ sub action_export {
   } or do {
     my $errors = $@;
     flash('error', t8('The export failed because of malformed transactions. Please fix those before exporting.'));
+    flash('error', $_) for @$errors;
 
-    $::lxdebug->dump(0,  "GoBD errors:", \@$errors);
     $self->action_filter;
     return;
   };
