@@ -389,7 +389,7 @@ sub _get_transactions {
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
          t.rate AS taxrate,
-         'ar' as table
+         'ar' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ar.notes
        FROM acc_trans ac
@@ -411,7 +411,7 @@ sub _get_transactions {
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
          t.rate AS taxrate,
-         'ap' as table
+         'ap' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ap.notes
        FROM acc_trans ac
@@ -433,7 +433,7 @@ sub _get_transactions {
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
          t.rate AS taxrate,
-         'gl' as table
+         'gl' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          gl.notes
        FROM acc_trans ac
