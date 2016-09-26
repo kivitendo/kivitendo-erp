@@ -205,7 +205,7 @@ sub get_balance {
   #$main::lxdebug->message(LXDebug->DEBUG2(),"get_balance from=".$self->cb_startdate->to_kivitendo." to=".$self->cb_date->to_kivitendo);
   my $balance = $chart->get_balance(fromdate => $self->cb_startdate, todate => $self->cb_date);
   $main::lxdebug->leave_sub();
-  return 0 unless $balance != 0;
+  return 0 if !defined $balance || $balance == 0;
   return $balance;
 }
 
