@@ -41,13 +41,18 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     $('#cpa_start_process_button,.ui-dialog-titlebar button.ui-dialog-titlebar-close').prop('disabled', 'disabled');
     $('#cpa_start_process_abort_link').remove();
 
+    var filter = $('[name^=filter\\.]').serializeArray();
     var data = {
+      action:             'MassInvoiceCreatePrint/create_print_all_start',
       number_of_invoices: $('#cpa_number_of_invoices').val(),
       printer_id:         $('#cpa_printer_id').val(),
       copy_printer_id:    $('#cpa_copy_printer_id').val(),
       transdate:          $('#transdate').val()
     };
-    kivi.submit_ajax_form('controller.pl?action=MassInvoiceCreatePrint/create_print_all_start', '[name^=filter\\.]', data);
+
+    $(filter).each(function(index, obj){ data[obj.name] = obj.value; });
+
+    $.post('controller.pl', data, kivi.eval_json_result);
   };
 
   this.createPrintAllFinishProcess = function() {
