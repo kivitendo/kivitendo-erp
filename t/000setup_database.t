@@ -66,7 +66,6 @@ sub drop_and_create_database {
     SL::DBConnect->get_options,
   );
 
-  $::auth->reset;
   my $dbh_template = SL::DBConnect->connect(@dbi_options) || BAIL_OUT("No database connection to the template database: " . $DBI::errstr);
   my $auth_dbh     = $::auth->dbconnect(1);
 
@@ -75,8 +74,6 @@ sub drop_and_create_database {
     $auth_dbh->disconnect;
 
     dbh_do($dbh_template, "DROP DATABASE \"" . $db_cfg->{db} . "\"", message => "Database could not be dropped");
-
-    $::auth->reset;
   }
 
   dbg("Creating database");

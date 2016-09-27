@@ -37,9 +37,19 @@ sub new {
   my $self            = bless {}, $type;
 
   $self->_read_auth_config(%params);
-  $self->reset;
+  $self->init;
 
   return $self;
+}
+
+sub init {
+  my ($self, %params) = @_;
+
+  $self->{SESSION}            = { };
+  $self->{FULL_RIGHTS}        = { };
+  $self->{RIGHTS}             = { };
+  $self->{unique_counter}     = 0;
+  $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
 }
 
 sub reset {
@@ -50,6 +60,7 @@ sub reset {
   $self->{RIGHTS}             = { };
   $self->{unique_counter}     = 0;
   $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
+  $self->{column_information}->_fetch;
   $self->{authenticator}->reset;
 
   $self->client(undef);
