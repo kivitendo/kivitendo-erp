@@ -30,7 +30,13 @@ sub call {
 sub call_link {
   my ($class, %params) = @_;
 
-  return "controller.pl?action=CTI/call&number=" . uri_encode($class->sanitize_number(number => $params{number})) . ($params{internal} ? '&internal=1' : '');
+  my $config           = $::lx_office_conf{cti} || {};
+
+  if ($config->{dial_command}) {
+    return "controller.pl?action=CTI/call&number=" . uri_encode($class->sanitize_number(number => $params{number})) . ($params{internal} ? '&internal=1' : '');
+  } else {
+    return 'callto://' . uri_encode($class->sanitize_number(number => $params{number}));
+  }
 }
 
 sub sanitize_number {
