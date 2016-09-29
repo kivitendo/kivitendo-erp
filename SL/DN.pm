@@ -799,7 +799,8 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
-         (SELECT cu.name FROM currencies cu WHERE cu.id=ar.currency_id) AS curr,
+         (SELECT cu.name FROM currencies cu WHERE cu.id = ar.currency_id) AS curr,
+         (SELECT description from department WHERE id = ar.department_id) AS department,
          ar.amount - ar.paid AS open_amount,
          ar.amount - ar.paid + da.fee + da.interest AS linetotal
 
