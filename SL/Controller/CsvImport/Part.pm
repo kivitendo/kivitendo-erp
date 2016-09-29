@@ -118,7 +118,7 @@ sub init_parts_by {
 sub init_all_pricegroups {
   my ($self) = @_;
 
-  return SL::DB::Manager::Pricegroup->get_all(sort => 'id');
+  return SL::DB::Manager::Pricegroup->get_all_sorted;
 }
 
 sub init_settings {

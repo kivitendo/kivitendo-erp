@@ -38,6 +38,9 @@ kleinere neue Features und Detailverbesserungen:
   - Briefe sind jetzt auch für Lieferanten verfügbar. Die neuen Rechte dafür
     sind für Gruppen vergeben, die auch Einkaufsbelege bearbeiten dürfen.
 
+  - Neuer Controller für Preisgruppen, die nun sortiert und ungültig gesetzt
+    werden können.
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes

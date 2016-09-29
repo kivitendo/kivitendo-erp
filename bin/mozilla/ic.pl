@@ -478,7 +478,7 @@ sub generate_report {
     insertdate shop
   );
 
-  my $pricegroups = SL::DB::Manager::Pricegroup->get_all(sort => 'id');
+  my $pricegroups = SL::DB::Manager::Pricegroup->get_all_sorted;
   my @pricegroup_columns;
   my %column_defs_pricegroups;
   if ($form->{l_pricegroups}) {

@@ -27,7 +27,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #======================================================================
 #
-# partsgroup, pricegroup administration
+# partsgroup administration
 #
 #======================================================================
 
@@ -62,9 +62,6 @@ sub edit {
   if ($::form->{type} eq 'partsgroup') {
     PE->get_partsgroup(\%::myconfig, $::form);
   }
-  if ($::form->{type} eq 'pricegroup') {
-    PE->get_pricegroup(\%::myconfig, $::form);
-  }
   call_sub("form_$::form->{type}");
 
   $::lxdebug->leave_sub;
@@ -92,12 +89,6 @@ sub save {
     $::form->redirect($::locale->text('Group saved!'));
   }
 
-  # choice pricegroup and save
-  if ($::form->{type} eq 'pricegroup') {
-    $::form->isblank("pricegroup", $::locale->text('Pricegroup missing!'));
-    PE->save_pricegroup(\%::myconfig, $::form);
-    $::form->redirect($::locale->text('Pricegroup saved!'));
-  }
   # saving the history
   if(!exists $::form->{addition} && $::form->{id} ne "") {
     $::form->{snumbers} = qq|projectnumber_| . $::form->{projectnumber};
@@ -118,16 +109,6 @@ sub delete {
   if ($::form->{type} eq 'partsgroup') {
     $::form->redirect($::locale->text('Group deleted!'));
   }
-  if ($::form->{type} eq 'pricegroup') {
-    $::form->redirect($::locale->text('Pricegroup deleted!'));
-  }
-  # saving the history
-  if(!exists $::form->{addition}) {
-    $::form->{snumbers} = qq|projectnumber_| . $::form->{projectnumber};
-    $::form->{addition} = "DELETED";
-    $::form->save_history;
-  }
-  # /saving the history
   $::lxdebug->leave_sub;
 }
 
@@ -174,51 +155,6 @@ sub form_partsgroup {
 
   $::form->header;
   print $::form->parse_html_template('pe/partsgroup_form');
-
-  $::lxdebug->leave_sub;
-}
-
-sub pricegroup_report {
-  $::lxdebug->enter_sub;
-  $::auth->assert('config');
-
-  $::form->{$_} = $::form->unescape($::form->{$_}) for qw(pricegroup);
-  PE->pricegroups(\%::myconfig, $::form);
-
-  my $callback = build_std_url('action=pricegroup_report', qw(type status));
-
-  my $option = '';
-  $option .= $::locale->text('All')      if $::form->{status} eq 'all';
-  $option .= $::locale->text('Orphaned') if $::form->{status} eq 'orphaned';
-
-  if ($::form->{pricegroup}) {
-    $callback .= "&pricegroup=$::form->{pricegroup}";
-    $option   .= ", " . $::locale->text('Pricegroup') . " : $::form->{pricegroup}";
-  }
-
-  # escape callback
-  $::form->{callback} = $callback;
-
-  $::form->header;
-  print $::form->parse_html_template('pe/pricegroup_report', {
-    option   => $option,
-    callback => $callback,
-    editlink => build_std_url('action=edit', qw(type status callback)),
-  });
-
-  $::lxdebug->leave_sub;
-}
-
-sub form_pricegroup {
-  $::lxdebug->enter_sub;
-  $::auth->assert('config');
-
-  # $locale->text('Add Pricegroup')
-  # $locale->text('Edit Pricegroup')
-  $::form->{title} = $::locale->text("$::form->{title} Pricegroup");
-
-  $::form->header;
-  print $::form->parse_html_template('pe/pricegroup_form');
 
   $::lxdebug->leave_sub;
 }

@@ -1065,10 +1065,8 @@
   id: system_pricegroups
   name: Pricegroups
   order: 1000
-  module: pe.pl
   params:
-    action: search
-    type: pricegroup
+    action: Pricegroup/list
 - parent: system
   id: system_edit_units
   name: Edit units

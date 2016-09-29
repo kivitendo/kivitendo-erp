@@ -905,7 +905,7 @@ sub _pre_render {
 
   $self->{all_delivery_terms} = SL::DB::Manager::DeliveryTerm->get_all();
 
-  $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all();
+  $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all_sorted(query => [ or => [ id => $self->{cv}->pricegroup_id, obsolete => 0 ] ]);
 
   $query =
     'SELECT DISTINCT(cp_abteilung) AS department

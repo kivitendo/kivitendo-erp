@@ -271,7 +271,7 @@ sub init_businesses {
 }
 
 sub init_pricegroups {
-  SL::DB::Manager::Pricegroup->get_all;
+  SL::DB::Manager::Pricegroup->get_all_sorted;
 }
 
 sub init_partsgroups {

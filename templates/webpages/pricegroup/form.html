@@ -1,0 +1,50 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+
+[% SET style="width: 400px" %]
+[% SET size=15 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post">
+
+[%- INCLUDE 'common/flash.html' %]
+
+[%- L.hidden_tag("id", SELF.pricegroup.id) %]
+
+<table>
+  <tr>
+    <th align="right">[% 'Description' | $T8 %]</th>
+    <td>
+       [%- L.input_tag("pricegroup.pricegroup", SELF.pricegroup.pricegroup) %]
+   </td>
+  [% IF SELF.pricegroup.id %]
+  <tr>
+    <th align="right">[% 'Obsolete' | $T8 %]</th>
+    <td>[% L.checkbox_tag('pricegroup.obsolete', checked = SELF.pricegroup.obsolete, for_submit=1) %]</td>
+  </tr>
+  </tr>
+  [% END %]
+</table>
+
+ <p>
+  [% L.hidden_tag("action", "Pricegroup/dispatch") %]
+  [% L.submit_tag("action_" _  (SELF.pricegroup.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
+  [%- IF SELF.pricegroup.id AND SELF.pricegroup.orphaned -%]
+    [% L.submit_tag("action_delete", LxERP.t8('Delete')) %]
+  [%- END %]
+  <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+
+ <hr>
+
+<script type="text/javascript">
+<!--
+function check_prerequisites() {
+  if ($('#pricegroup_pricegroup').val() === "") {
+    alert(kivi.t8('The description is missing.'));
+    return false;
+  }
+  return true;
+}
+-->
+</script>

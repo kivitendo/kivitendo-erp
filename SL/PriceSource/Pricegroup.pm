@@ -20,10 +20,21 @@ sub available_prices {
 
   my $item = $self->record_item;
 
+  my $query = [ parts_id => $item->parts_id, price => { gt => 0 } ];
+
+  # add a pricegroup_filter for obsolete pricegroups, unless part of an
+  # existing pricegroup where that pricegroup was actually used.
+  if ( $self->record->id and $item->active_price_source =~ m/^pricegroup/ ) {
+    my ($pricegroup_id) = $item->active_price_source =~ m/^pricegroup\/(\d+)$/;
+    push(@{$query}, or => [ 'pricegroup.obsolete' => 0, 'pricegroup_id' => $pricegroup_id ]);
+  } else {
+    push(@{$query}, 'pricegroup.obsolete' => 0);
+  }
+
   my $prices = SL::DB::Manager::Price->get_all(
-    query        => [ parts_id => $item->parts_id, price => { gt => 0 } ],
+    query        => $query,
     with_objects => 'pricegroup',
-    sort_by     => 'pricegroup.id',
+    sort_by      => 'pricegroup.sortkey',
   );
 
   return () unless @$prices;
