@@ -212,14 +212,16 @@ sub href_for_node {
 
   return undef if !$node->{href} && !$node->{module} && !$node->{params};
 
-  my $href = $node->{href} || $node->{module} || 'controller.pl';
-  my @tokens;
+  return $node->{href_for_node} ||= do {
+    my $href = $node->{href} || $node->{module} || 'controller.pl';
+    my @tokens;
 
-  while (my ($key, $value) = each %{ $node->{params} }) {
-    push @tokens, uri_encode($key, 1) . "=" . uri_encode($value, 1);
+    while (my ($key, $value) = each %{ $node->{params} }) {
+      push @tokens, uri_encode($key, 1) . "=" . uri_encode($value, 1);
+    }
+
+    join '?', $href, grep $_, join '&', @tokens;
   }
-
-  return join '?', $href, grep $_, join '&', @tokens;
 }
 
 sub name_for_node {
