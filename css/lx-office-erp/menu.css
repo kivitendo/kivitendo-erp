@@ -152,15 +152,15 @@ div#menuv3 li li li li:hover ul
    each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
-#content.html-menu, #html-menu {
+div.html-menu, #html-menu {
   transition:         margin-left 0.2s, width 0.2s;
   -moz-transition:    margin-left 0.2s, width 0.2s;
   -webkit-transition: margin-left 0.2s, width 0.2s;
   -o-transition:      margin-left 0.2s, width 0.2s;
 }
-#content.html-menu { margin-left: 190px; }
-#content.html-menu.folded { margin-left: 40px }
-#html-menu.folded:hover + #content.html-menu.folded { margin-left: 190px }
+div.layout-split-right { margin-left: 190px; }
+div.layout-split-right.folded { margin-left: 40px }
+#html-menu.folded:hover + #content.layout-split-right.folded { margin-left: 190px }
 #html-menu { float:left; width: 183px; font-size: 85%; margin-top: 10px; overflow:hidden; }
 #html-menu.folded { width: 32px; }
 #html-menu.folded:hover { width: 183px; }

@@ -29,14 +29,6 @@ sub pre_content {
   "<div id='html-menu'></div>\n";
 }
 
-sub start_content {
-  "<div id='content' class='html-menu'>\n";
-}
-
-sub end_content {
-  "</div>\n";
-}
-
 sub section_menu {
   my ($menu) = @_;
   my @items;

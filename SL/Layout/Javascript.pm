@@ -3,6 +3,10 @@ package SL::Layout::Javascript;
 use strict;
 use parent qw(SL::Layout::Base);
 
+use SL::Layout::None;
+use SL::Layout::Top;
+use SL::Layout::Content;
+
 use List::Util qw(max);
 use URI;
 
@@ -10,6 +14,7 @@ sub init_sub_layouts {
   [
     SL::Layout::None->new,
     SL::Layout::Top->new,
+    SL::Layout::Content->new,
   ]
 }
 
@@ -44,14 +49,6 @@ sub pre_content {
     icon_path       => sub { my $simg = "image/icons/svg/$_[0].svg";  my $pimg="image/icons/16x16/$_[0].png"; -f $simg ? $simg : ( -f $pimg ? $pimg : ()) },
     max_width       => sub { 10 * max map { length $::locale->text($_->{name}) } @{ $_[0]{children} || [] } },
   );
-}
-
-sub start_content {
-  "<div id='content'>\n";
-}
-
-sub end_content {
-  "</div>\n";
 }
 
 sub stylesheets {
