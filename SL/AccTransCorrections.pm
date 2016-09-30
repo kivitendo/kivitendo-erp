@@ -779,7 +779,7 @@ sub fix_ap_ar_wrong_taxkeys {
   }
 
   if (scalar @corrections) {
-    SL::DB->with_transaction(sub {
+    SL::DB->client->with_transaction(sub {
       my $q_taxkey_only     = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
       my $h_taxkey_only     = prepare_query($form, $dbh, $q_taxkey_only);
 
