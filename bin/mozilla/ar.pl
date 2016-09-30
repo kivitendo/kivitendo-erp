@@ -81,7 +81,7 @@ use strict;
 sub add {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -108,7 +108,7 @@ sub add {
 sub edit {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
 
@@ -127,7 +127,7 @@ sub edit {
 sub display_form {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
 
@@ -146,7 +146,7 @@ sub _retrieve_invoice_object {
 sub create_links {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my %params   = @_;
   my $form     = $main::form;
@@ -216,7 +216,7 @@ sub create_links {
 sub form_header {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -476,7 +476,7 @@ sub form_header {
 sub form_footer {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -513,7 +513,7 @@ sub form_footer {
 sub mark_as_paid {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -526,7 +526,7 @@ sub mark_as_paid {
 sub update {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -616,7 +616,7 @@ sub update {
 sub post_payment {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -666,7 +666,7 @@ sub post_payment {
 
 sub _post {
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
 
@@ -677,7 +677,7 @@ sub _post {
 sub post {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -767,7 +767,7 @@ sub post {
 sub post_as_new {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -789,7 +789,7 @@ sub post_as_new {
 sub use_as_new {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -806,7 +806,7 @@ sub use_as_new {
 sub delete {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my $locale   = $main::locale;
@@ -845,7 +845,7 @@ sub delete {
 sub yes {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1187,7 +1187,7 @@ sub ar_transactions {
 sub storno {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

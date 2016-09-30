@@ -102,8 +102,8 @@ use strict;
 
 my $rp_access_map = {
   'projects'           => 'report',
-  'ar_aging'           => 'general_ledger',
-  'ap_aging'           => 'general_ledger',
+  'ar_aging'           => 'general_ledger | ar_transactions',
+  'ap_aging'           => 'general_ledger | ap_transactions',
   'receipts'           => 'cash',
   'payments'           => 'cash',
   'trial_balance'      => 'report',
@@ -928,7 +928,7 @@ sub list_accounts {
 sub generate_ar_aging {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('general_ledger | ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -951,7 +951,7 @@ sub generate_ar_aging {
 sub generate_ap_aging {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('general_ledger | ap_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

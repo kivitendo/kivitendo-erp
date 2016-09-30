@@ -6,6 +6,9 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - Verfeinerung der Rechte für Finanzbuchhaltung: Es können nun für Dialogbuchungen,
+    Debitoren- und Kreditorenbuchungen extra Rechte vergeben werden
+
   - Weiterer Bericht in der Rubrik Lager: Lagerentnahme
     Gibt eine Statistik über Lagerbewegungen, pro Monat/Quartal/Jahr.
 

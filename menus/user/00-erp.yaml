@@ -564,7 +564,7 @@
   name: Add Transaction
   icon: transaction_add
   order: 100
-  access: general_ledger
+  access: gl_transactions
   module: gl.pl
   params:
     action: add
@@ -573,7 +573,7 @@
   name: Add AR Transaction
   icon: ar_transaction_add
   order: 200
-  access: general_ledger
+  access: ar_transactions
   module: ar.pl
   params:
     action: add
@@ -582,7 +582,7 @@
   name: Add AP Transaction
   icon: ap_transaction_add
   order: 300
-  access: general_ledger
+  access: ap_transactions
   module: ap.pl
   params:
     action: add

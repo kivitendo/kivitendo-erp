@@ -48,7 +48,7 @@ use strict;
 
 sub search_invoice {
   $main::lxdebug->enter_sub();
-  $main::auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('ar_transactions | ap_transactions | invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -92,7 +92,7 @@ sub search_invoice {
 sub invoice_transactions {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('ar_transactions | ap_transactions | invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

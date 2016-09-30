@@ -936,7 +936,7 @@ sub all_rights_full {
   my ($self) = @_;
 
   @{ $self->{master_rights} ||= do {
-      $self->dbconnect->selectall_arrayref("SELECT name, description, category FROM auth.master_rights ORDER BY id");
+      $self->dbconnect->selectall_arrayref("SELECT name, description, category FROM auth.master_rights ORDER BY position");
     }
   }
 }

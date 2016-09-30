@@ -53,7 +53,7 @@ sub check_name {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger               | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+  $main::auth->assert('ar_transactions | ap_transactions | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | cash         |' .
                 'purchase_delivery_order_edit | sales_delivery_order_edit');
 
@@ -152,7 +152,7 @@ sub select_name {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit |' .
+  $main::auth->assert('ar_transactions| ap_transactions | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   my ($table) = @_;
@@ -260,7 +260,7 @@ sub name_selected {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit | ' .
+  $main::auth->assert('ar_transactions | ap_transactions | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit | ' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   # replace the variable with the one checked
@@ -302,7 +302,7 @@ sub _reset_salesman_id {
 sub select_project {
   $::lxdebug->enter_sub;
 
-  $::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  $::auth->assert('ar_transactions | ap_transactions | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                   'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   my ($is_global, $nextsub) = @_;
@@ -329,7 +329,7 @@ sub project_selected {
 
   my $form     = $main::form;
 
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  $main::auth->assert('ar_transactions  | ap_transactions    | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   # replace the variable with the one checked

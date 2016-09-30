@@ -164,7 +164,7 @@ sub init_draft {
 }
 
 sub check_auth {
-  $::auth->assert('vendor_invoice_edit | invoice_edit | general_ledger');
+  $::auth->assert('vendor_invoice_edit | invoice_edit | ap_transactions | ar_transactions');
 }
 
 1;

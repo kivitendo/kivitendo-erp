@@ -263,7 +263,8 @@ sub action_save_and_close {
 sub _transaction {
   my ($self, $script) = @_;
 
-  $::auth->assert('general_ledger         | invoice_edit         | vendor_invoice_edit | ' .
+  $::auth->assert('gl_transactions | ap_transactions | ar_transactions'.
+                    '| invoice_edit         | vendor_invoice_edit | ' .
                  ' request_quotation_edit | sales_quotation_edit | sales_order_edit    | purchase_order_edit');
 
   $self->_save();
@@ -287,7 +288,7 @@ sub _transaction {
 sub action_save_and_ar_transaction {
   my ($self) = @_;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ar_transactions');
 
   $self->_transaction('ar.pl');
 }
@@ -295,7 +296,7 @@ sub action_save_and_ar_transaction {
 sub action_save_and_ap_transaction {
   my ($self) = @_;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $self->_transaction('ap.pl');
 }

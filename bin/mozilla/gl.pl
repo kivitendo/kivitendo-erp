@@ -78,7 +78,7 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -118,7 +118,7 @@ sub add {
 sub prepare_transaction {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -189,7 +189,7 @@ sub prepare_transaction {
 sub edit {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -210,7 +210,7 @@ sub edit {
 
 sub search {
   $::lxdebug->enter_sub;
-  $::auth->assert('general_ledger');
+  $::auth->assert('gl_transactions');
 
   $::form->all_departments(\%::myconfig);
   $::form->get_lists(
@@ -249,7 +249,7 @@ sub create_subtotal_row {
 sub generate_report {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -513,7 +513,7 @@ sub generate_report {
 sub update {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -621,7 +621,7 @@ sub display_form {
   my ($init) = @_;
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -644,7 +644,7 @@ sub display_rows {
   my ($init) = @_;
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -848,7 +848,7 @@ sub _get_radieren {
 
 sub form_header {
   $::lxdebug->enter_sub;
-  $::auth->assert('general_ledger');
+  $::auth->assert('gl_transactions');
 
   my ($init) = @_;
 
@@ -896,7 +896,7 @@ sub form_header {
 
 sub form_footer {
   $::lxdebug->enter_sub;
-  $::auth->assert('general_ledger');
+  $::auth->assert('gl_transactions');
 
   my ($follow_ups, $follow_ups_due);
 
@@ -1147,7 +1147,7 @@ sub post_transaction {
 sub post {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my $locale   = $main::locale;
@@ -1172,7 +1172,7 @@ sub post {
 sub post_as_new {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
 
@@ -1185,7 +1185,7 @@ sub post_as_new {
 sub storno {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
