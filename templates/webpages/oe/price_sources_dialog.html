@@ -35,7 +35,7 @@
     <td><b>[% 'Selected' | $T8 %]</b></td>
 [% END %]
      <td>[% price.source_description | html %]</td>
-     <td>[% price.price_as_number %]</td>
+     <td class="numeric">[% price.price_as_number %]</td>
 [% IF price.source == best_price.source %]
      <td align='center'>&#x2022;</td>
 [% ELSE %]
