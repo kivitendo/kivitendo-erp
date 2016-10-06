@@ -3,6 +3,8 @@ package SL::Layout::ActionBar;
 use strict;
 use parent qw(SL::Layout::Base);
 
+use SL::Layout::ActionBar::Action;
+
 use constant HTML_CLASS => 'layout-actionbar';
 
 use Rose::Object::MakeMethods::Generic (
@@ -13,22 +15,30 @@ use Rose::Object::MakeMethods::Generic (
 ###### Layout overrides
 
 sub pre_content {
-  $::request->presenter->html_tag('div', '', class => HTML_CLASS);
+  my ($self) = @_;
+
+  my $content = join '', map { $_->render } @{ $self->actions };
+  $::request->presenter->html_tag('div', $content, class => HTML_CLASS);
 }
 
-sub inline_javascript {
-  # data for bar
+sub javascripts_inline {
+  join '', map { $_->script } @{ $_[0]->actions };
 }
 
 sub javascripts {
-
+  'kivi.ActionBar.js'
 }
 
 ###### interface
 
 sub add_actions {
   my ($self, @actions) = @_;
-  push @{ $self->actions }, @actions;
+  push @{ $self->actions }, map {
+       !ref $_ ? SL::Layout::ActionBar::Action->from_descriptor($_)
+     :  ref $_ && 'ARRAY' eq ref $_ ? SL::Layout::ActionBar::Action->simple($_)
+     :  ref $_ && $_->isa('SL::Layout::Action') ? $_
+     : do { die 'invalid action' };
+  } @actions;
 }
 
 sub init_actions {
@@ -93,7 +103,7 @@ Dispatches each each argument to C<add_action>
 
 This is accessable through
 
-  $::request->layout->actionbar
+  $::request->layout->get('actionbar')
 
 =head1 DOM MODEL
 

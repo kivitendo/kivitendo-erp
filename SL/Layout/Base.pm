@@ -7,7 +7,7 @@ use List::MoreUtils qw(uniq);
 use Time::HiRes qw();
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(menu auto_reload_resources_param) ],
+  'scalar --get_set_init' => [ qw(menu auto_reload_resources_param sub_layouts_by_name) ],
   'scalar'                => qw(focus),
   'array'                 => [
     'add_stylesheets_inline' => { interface => 'add', hash_key => 'stylesheets_inline' },
@@ -30,6 +30,15 @@ sub new {
 
 sub init_menu {
   SL::Menu->new('user');
+}
+
+sub init_sublayouts_by_name {
+  {}
+}
+
+sub get {
+  $_[0]->sub_layouts;
+  $_[0]->sub_layouts_by_name->{$_[1]}
 }
 
 sub init_auto_reload_resources_param {
@@ -68,6 +77,8 @@ sub javascripts_inline {
 }
 
 sub init_sub_layouts { [] }
+
+sub init_sub_layouts_by_name { +{} }
 
 
 #########################################

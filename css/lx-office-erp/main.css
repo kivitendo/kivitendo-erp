@@ -534,4 +534,44 @@ a.red {
 #bank_transactions_proposals span.invoice_number_highlight {
   background-color: #006400;
   color: #FFFFFF;
+
+}
+
+/* actionbar styling */
+div.layout-actionbar {
+  background-color: whitesmoke;
+}
+
+div.layout-actionbar-action {
+  transition: background-color 0s;
+  -moz-transition: background-color 0s;
+  -webkit-transition: background-color 0s;
+}
+
+div.layout-actionbar div.layout-actionbar-submit,
+div.layout-actionbar div.layout-actionbar-scriptbutton,
+div.layout-actionbar div.layout-actionbar-submit:focus,
+div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
+  display: inline-block;
+  box-sizing: border-box;
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  padding: 4px 4px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  background-color: whitesmoke;
+  cursor:default;
+}
+
+div.layout-actionbar div.layout-actionbar-submit:hover,
+div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
+  border: 1px;
+  background-color: lightgray;
+  border-color: gray;
+  border-style: solid;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
 }
