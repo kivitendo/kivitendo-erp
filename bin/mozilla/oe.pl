@@ -437,6 +437,31 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase kivi.File kivi.Part show_form_details show_history show_vc_details ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer));
 
+
+  # original snippets:
+  # 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps
+  # data-warn-save-active-periodic-invoice="1"  if warn_save_active_periodic_invoice
+  # tpca_reminder
+
+  $::request->layout->get('actionbar')->add_actions(
+    [ t8('Update'),         submit => [ '#form', { action_update => 1 } ] ],  # always
+    [ t8('Ship to'),        submit => [ '#form', { action_ship_to => 1 } ] ], # always
+    [ t8('Print'),          submit => [ '#form', { action_print => 1 } ] ],   # always, requires data-transaction-description
+    [ t8('E Mail'),         submit => [ '#form', { action_print => 1 } ] ],   # always, requires data-transaction-description
+    [ t8('Save'),           submit => [ '#form', { action_save => 1 } ] ],    # always, optional warn_save_active_periodic_invoice, requires data-transaction-description optional tpca_remainder
+    [ t8('Save and Close'), submit => [ '#form', { action_save_and_close => 1 } ] ], # always, optional warn_save_active_periodic_invoice, requires data-transaction-description optional tpca_remainder
+    [ t8('Follow Up'),      function => [ 'follow_up_window' ], ],  # if id
+    [ t8('History'),        function => [ 'set_history_window', $::form->{id} * 1, 'id' ], ], # if id
+    [ t8('Save as new'),    submit => [ '#form', { action_save_as_new => 1 } ] ], # if id, requires transaction-description
+    [ t8('Delete'),         submit => [ '#form', { action_delete => 1 } ] ], # if id && (!is_sales_ord || INSTANCE_CONF.get_sales_order_show_delete) && (!is_pur_ord || INSTANCE_CONF.get_purchase_order_show_delete)
+    [ t8('Sales Order'),    submit => [ '#form', { action_sales_order => 1 } ] ], # if id && is_sales_quo
+    [ t8('Purchase Order'), submit => [ '#form', { action_sales_order => 1 } ] ], # if id && is_req_quo
+    [ t8('Delivery Order'), submit => [ '#form', { action_delivery_order => 1 } ] ], # if id && (is_sales_ord || is_pur_ord)
+    [ t8('Invoice'),        submit => [ '#form', { action_invoice => 1 } ] ], # if id && allow_invoice
+    [ t8('Quotation'),      submit => [ '#form', { action_quotation => 1 } ] ], # if id
+    [ t8('Request for Quotation'), submit => [ '#form', { action_reqest_for_quotation => 1 } ] ], # if id
+  );
+
   $form->header;
   if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {
       $form->{shipto_id} = $form->{CFDD_shipto_id};
