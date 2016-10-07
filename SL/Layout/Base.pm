@@ -330,7 +330,12 @@ classes, which should be changed. The other points work pretty well.
 
 =head1 BUGS
 
-None yet, if you don't count the horrible stylesheet/javascript interface.
+* stylesheet/javascript interface is a horrible mess.
+
+* It's currently not possible to do compositor layouts without assupmtions
+about the position of the content. That's because the content will return
+control to the actual controller, so the layouts need to know where to split
+pre- and post-content.
 
 =head1 AUTHOR
 

@@ -543,6 +543,12 @@ div.layout-actionbar {
 }
 
 div.layout-actionbar-action {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* don't select text on double click */
   transition: background-color 0s;
   -moz-transition: background-color 0s;
   -webkit-transition: background-color 0s;
@@ -574,4 +580,11 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;
+}
+
+div.layout-actionbar div.layout-actionbar-action-disabled,
+div.layout-actionbar div.layout-actionbar-action-disabled:hover {
+  color: gray;
+  background-color: whitesmoke;
+  border-color: lightgray;
 }

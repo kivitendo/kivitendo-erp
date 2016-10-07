@@ -3,12 +3,23 @@ namespace('kivi', function(k){
 
    k.ActionBarAction = function(e) {
      var data = $(e).data('action');
+
+     if (data.disabled)
+       $(e).addClass('layout-actionbar-action-disabled');
      // dispatch as needed
      if (data.submit) {
        var form   = data.submit[0];
        var params = data.submit[1];
        $(e).click(function(event) {
-         var $hidden, key;
+         var $hidden, key, func;
+         if (data.disabled) return;
+         if (data.confirm && !confirm(data.confirm)) return;
+         if (data.checks) {
+           for (var check in data.check) {
+             func = kivi.get_function_by_name(check);
+             if (!func()) return;
+           }
+         }
          for (key in params) {
            $hidden = $('<input type=hidden>')
            $hidden.attr('name', key)
@@ -21,7 +32,16 @@ namespace('kivi', function(k){
        // TODO: what to do with templated calls
        console.log(data.function)
        $(e).click(function(event) {
-         var func = kivi.get_function_by_name(data.function[0]);
+         var func;
+         if (data.disabled) return;
+         if (data.confirm && !confirm(data.confirm)) return;
+         if (data.checks) {
+           for (var check in data.check) {
+             func = kivi.get_function_by_name(check);
+             if (!func()) return;
+           }
+         }
+         func = kivi.get_function_by_name(data.function[0]);
          func.apply(document, data.function.slice(1))
        });
      }

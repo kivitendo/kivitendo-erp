@@ -6,7 +6,7 @@ use parent qw(Rose::Object);
 use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(id) ],
+  'scalar --get_set_init' => [ qw(id params text) ],
 );
 
 # subclassing interface
@@ -16,14 +16,14 @@ sub render {
 }
 
 sub script {
-  die 'needs to be implemented';
+  sprintf q|$('#%s').data('action', %s);|, $_[0]->id, JSON->new->allow_blessed->convert_blessed->encode($_[0]->params);
 }
-
 
 # static constructors
 
 sub from_descriptor {
-  my ($class, $descriptor) = @_;a
+  my ($class, $descriptor) = @_;
+  require SL::Layout::ActionBar::Separator;
 
   {
      separator => SL::Layout::ActionBar::Separator->new,
@@ -38,12 +38,12 @@ sub simple {
 
   if ($params{submit}) {
     require SL::Layout::ActionBar::Submit;
-    return SL::Layout::ActionBar::Submit->new(text => $text, %params);
+    return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
   }
 
   if ($params{function}) {
     require SL::Layout::ActionBar::ScriptButton;
-    return SL::Layout::ActionBar::ScriptButton->new(text => $text, %params);
+    return SL::Layout::ActionBar::ScriptButton->new(text => $text, params => \%params);
   }
 
   if ($params{combobox}) {
@@ -66,3 +66,26 @@ sub init_id {
 1;
 
 __END__
+
+=head 1
+
+planned options for clickables:
+
+- checks => [ ... ] (done)
+
+a list of functions that need to return true before submitting
+
+- submit => [ form-selector, { params } ] (done)
+
+on click submit the form specified by form-selector with the additional params
+
+- function => function-name (done)
+
+on click call the specified function (is this a special case of checks?)
+
+- disabled => true/false (done)
+
+TODO:
+
+- runtime disable/enable
+
