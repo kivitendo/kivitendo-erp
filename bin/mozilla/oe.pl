@@ -442,24 +442,33 @@ sub form_header {
   # 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps
   # data-warn-save-active-periodic-invoice="1"  if warn_save_active_periodic_invoice
   # tpca_reminder
+  my $is_sales     = scalar ($form->{type} =~ /^sales_/);              # these vars are exported, so that the template
+  my $is_order     = scalar ($form->{type} =~ /_order$/);              # may determine what to show
+  my $is_sales_quo = scalar ($form->{type} =~ /sales_quotation$/);
+  my $is_req_quo   = scalar ($form->{type} =~ /request_quotation$/);
+  my $is_sales_ord = scalar ($form->{type} =~ /sales_order$/);
+  my $is_pur_ord   = scalar ($form->{type} =~ /purchase_order$/);
+  my $allow_invoice = $is_req_quo || $is_pur_ord || ($is_sales_quo && $::instance_conf->get_allow_sales_invoice_from_sales_quotation) || ($is_sales_ord && $::instance_conf->get_allow_sales_invoice_from_sales_order);
+
+  my $tpca_remainder = 0;
 
   $::request->layout->get('actionbar')->add_actions(
-    [ t8('Update'),         submit => [ '#form', { action_update => 1 } ] ],  # always
-    [ t8('Ship to'),        submit => [ '#form', { action_ship_to => 1 } ] ], # always
-    [ t8('Print'),          submit => [ '#form', { action_print => 1 } ] ],   # always, requires data-transaction-description
-    [ t8('E Mail'),         submit => [ '#form', { action_print => 1 } ] ],   # always, requires data-transaction-description
-    [ t8('Save'),           submit => [ '#form', { action_save => 1 } ] ],    # always, optional warn_save_active_periodic_invoice, requires data-transaction-description optional tpca_remainder
-    [ t8('Save and Close'), submit => [ '#form', { action_save_and_close => 1 } ] ], # always, optional warn_save_active_periodic_invoice, requires data-transaction-description optional tpca_remainder
-    [ t8('Follow Up'),      function => [ 'follow_up_window' ], ],  # if id
-    [ t8('History'),        function => [ 'set_history_window', $::form->{id} * 1, 'id' ], ], # if id
-    [ t8('Save as new'),    submit => [ '#form', { action_save_as_new => 1 } ] ], # if id, requires transaction-description
-    [ t8('Delete'),         submit => [ '#form', { action_delete => 1 } ] ], # if id && (!is_sales_ord || INSTANCE_CONF.get_sales_order_show_delete) && (!is_pur_ord || INSTANCE_CONF.get_purchase_order_show_delete)
-    [ t8('Sales Order'),    submit => [ '#form', { action_sales_order => 1 } ] ], # if id && is_sales_quo
-    [ t8('Purchase Order'), submit => [ '#form', { action_sales_order => 1 } ] ], # if id && is_req_quo
-    [ t8('Delivery Order'), submit => [ '#form', { action_delivery_order => 1 } ] ], # if id && (is_sales_ord || is_pur_ord)
-    [ t8('Invoice'),        submit => [ '#form', { action_invoice => 1 } ] ], # if id && allow_invoice
-    [ t8('Quotation'),      submit => [ '#form', { action_quotation => 1 } ] ], # if id
-    [ t8('Request for Quotation'), submit => [ '#form', { action_reqest_for_quotation => 1 } ] ], # if id
+    [ t8('Update'),                submit => [ '#form', { action_update         => 1 } ] ], # always
+    [ t8('Ship to'),               submit => [ '#form', { action_ship_to        => 1 } ] ], # always
+    [ t8('Print'),                 submit => [ '#form', { action_print          => 1 } ], checks => [ qw(require-data-dransation) ] ],
+    [ t8('E Mail'),                submit => [ '#form', { action_print          => 1 } ], checks => [ qw(require-data-dransation) ] ],
+    [ t8('Save'),                  submit => [ '#form', { action_save           => 1 } ], checks => [ qw(require-data-dransation) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
+    [ t8('Save and Close'),        submit => [ '#form', { action_save_and_close => 1 } ], checks => [ qw(require-data-dransation) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
+    [ t8('Follow Up'),           function => [ 'follow_up_window' ], disabled => !$::form->{id} ],
+    [ t8('History'),             function => [ 'set_history_window', $::form->{id} * 1, 'id' ], disabled => !$::form->{id} ],
+    [ t8('Save as new'),           submit => [ '#form', { action_save_as_new    => 1 } ], checks => [ qw(require-data-dransation) ], disabled => !$::form->{id} ],
+   ([ t8('Delete'),                submit => [ '#form', { action_delete         => 1 } ], disabled => !$::form->{id} ]) x!!( $::form->{id} && (!$is_sales_ord || $::instance_conf->get_sales_order_show_delete) && (!$is_pur_ord || $::instance_conf->get_purchase_order_show_delete ) ),
+   ([ t8('Sales Order'),           submit => [ '#form', { action_sales_order    => 1 } ], disabled => !$::form->{id} ]) x!!($is_sales_quo ),
+   ([ t8('Purchase Order'),        submit => [ '#form', { action_sales_order    => 1 } ], disabled => !$::form->{id} ]) x!!($is_req_quo ),
+   ([ t8('Delivery Order'),        submit => [ '#form', { action_delivery_order => 1 } ], disabled => !$::form->{id} ]) x!!(($is_sales_ord || $is_pur_ord ) ),
+   ([ t8('Invoice'),               submit => [ '#form', { action_invoice        => 1 } ], disabled => !$::form->{id} ]) x!!($allow_invoice ),
+    [ t8('Quotation'),             submit => [ '#form', { action_quotation      => 1 } ], disabled => !$::form->{id} ],
+    [ t8('Request for Quotation'), submit => [ '#form', { action_reqest_for_quotation => 1 } ], disabled => !$::form->{id} ],
   );
 
   $form->header;
@@ -482,12 +491,12 @@ sub form_header {
 
   %TMPL_VAR = (
      %TMPL_VAR,
-     is_sales        => scalar ($form->{type} =~ /^sales_/),              # these vars are exported, so that the template
-     is_order        => scalar ($form->{type} =~ /_order$/),              # may determine what to show
-     is_sales_quo    => scalar ($form->{type} =~ /sales_quotation$/),
-     is_req_quo      => scalar ($form->{type} =~ /request_quotation$/),
-     is_sales_ord    => scalar ($form->{type} =~ /sales_order$/),
-     is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
+     is_sales        => $is_sales,
+     is_order        => $is_order,
+     is_sales_quo    => $is_sales_quo,
+     is_req_quo      => $is_req_quo,
+     is_sales_ord    => $is_sales_ord,
+     is_pur_ord      => $is_pur_ord,
   );
 
   $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
