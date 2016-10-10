@@ -11,12 +11,14 @@ namespace('kivi', function(k){
        var form   = data.submit[0];
        var params = data.submit[1];
        $(e).click(function(event) {
-         var $hidden, key, func;
+         var $hidden, key, func, check;
          if (data.disabled) return;
          if (data.confirm && !confirm(data.confirm)) return;
          if (data.checks) {
-           for (var check in data.check) {
+           for (var i=0; i < data.checks.length; i++) {
+             check = data.checks[i];
              func = kivi.get_function_by_name(check);
+             if (!func) console.log('Cannot find check function: ' + check);
              if (!func()) return;
            }
          }
@@ -30,14 +32,15 @@ namespace('kivi', function(k){
        })
      } else if (data.function) {
        // TODO: what to do with templated calls
-       console.log(data.function)
        $(e).click(function(event) {
          var func;
          if (data.disabled) return;
          if (data.confirm && !confirm(data.confirm)) return;
          if (data.checks) {
-           for (var check in data.check) {
+           for (var i=0; i < data.checks.length; i++) {
+             check = data.checks[i];
              func = kivi.get_function_by_name(check);
+             if (!func) console.log('Cannot find check function: ' + check);
              if (!func()) return;
            }
          }
