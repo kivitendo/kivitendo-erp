@@ -453,15 +453,15 @@ sub form_header {
   my $tpca_remainder = 0;
 
   $::request->layout->get('actionbar')->add_actions(
-    [ t8('Update'),                submit => [ '#form', { action_update         => 1 } ] ], # always
-    [ t8('Ship to'),               submit => [ '#form', { action_ship_to        => 1 } ] ], # always
-    [ t8('Print'),                 submit => [ '#form', { action_print          => 1 } ], checks => [ qw(require-data-dransation) ] ],
-    [ t8('E Mail'),                submit => [ '#form', { action_print          => 1 } ], checks => [ qw(require-data-dransation) ] ],
-    [ t8('Save'),                  submit => [ '#form', { action_save           => 1 } ], checks => [ qw(require-data-dransation) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
-    [ t8('Save and Close'),        submit => [ '#form', { action_save_and_close => 1 } ], checks => [ qw(require-data-dransation) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
-    [ t8('Follow Up'),           function => [ 'follow_up_window' ], disabled => !$::form->{id} ],
+    [ t8('Update'),                submit => [ '#form', { action_update         => 1 } ] ],
+    [ t8('Ship to'),               submit => [ '#form', { action_ship_to        => 1 } ] ],
+    [ t8('Print'),                 submit => [ '#form', { action_print          => 1 } ], checks => [ qw(kivi.SalesPurchase.check_transaction_description) ] ],
+    [ t8('E Mail'),                submit => [ '#form', { action_print          => 1 } ], checks => [ qw(kivi.SalesPurchase.check_transaction_description) ] ],
+    [ t8('Save'),                  submit => [ '#form', { action_save           => 1 } ], checks => [ qw(kivi.SalesPurchase.check_transaction_description) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
+    [ t8('Save and Close'),        submit => [ '#form', { action_save_and_close => 1 } ], checks => [ qw(kivi.SalesPurchase.check_transaction_description) ], confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder) ], # always, optional warn_save_active_periodic_invoice,
+    [ t8('Follow-Up'),           function => [ 'follow_up_window' ], disabled => !$::form->{id} ],
     [ t8('History'),             function => [ 'set_history_window', $::form->{id} * 1, 'id' ], disabled => !$::form->{id} ],
-    [ t8('Save as new'),           submit => [ '#form', { action_save_as_new    => 1 } ], checks => [ qw(require-data-dransation) ], disabled => !$::form->{id} ],
+    [ t8('Save as new'),           submit => [ '#form', { action_save_as_new    => 1 } ], checks => [ qw(kivi.SalesPurchase.check_transaction_description) ], disabled => !$::form->{id} ],
    ([ t8('Delete'),                submit => [ '#form', { action_delete         => 1 } ], disabled => !$::form->{id} ]) x!!( $::form->{id} && (!$is_sales_ord || $::instance_conf->get_sales_order_show_delete) && (!$is_pur_ord || $::instance_conf->get_purchase_order_show_delete ) ),
    ([ t8('Sales Order'),           submit => [ '#form', { action_sales_order    => 1 } ], disabled => !$::form->{id} ]) x!!($is_sales_quo ),
    ([ t8('Purchase Order'),        submit => [ '#form', { action_sales_order    => 1 } ], disabled => !$::form->{id} ]) x!!($is_req_quo ),
