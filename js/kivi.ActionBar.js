@@ -13,7 +13,6 @@ namespace('kivi', function(k){
        $(e).click(function(event) {
          var $hidden, key, func, check;
          if (data.disabled) return;
-         if (data.confirm && !confirm(data.confirm)) return;
          if (data.checks) {
            for (var i=0; i < data.checks.length; i++) {
              check = data.checks[i];
@@ -22,6 +21,7 @@ namespace('kivi', function(k){
              if (!func()) return;
            }
          }
+         if (data.confirm && !confirm(data.confirm)) return;
          for (key in params) {
            $hidden = $('<input type=hidden>')
            $hidden.attr('name', key)
@@ -35,7 +35,6 @@ namespace('kivi', function(k){
        $(e).click(function(event) {
          var func;
          if (data.disabled) return;
-         if (data.confirm && !confirm(data.confirm)) return;
          if (data.checks) {
            for (var i=0; i < data.checks.length; i++) {
              check = data.checks[i];
@@ -44,6 +43,7 @@ namespace('kivi', function(k){
              if (!func()) return;
            }
          }
+         if (data.confirm && !confirm(data.confirm)) return;
          func = kivi.get_function_by_name(data.function[0]);
          func.apply(document, data.function.slice(1))
        });
