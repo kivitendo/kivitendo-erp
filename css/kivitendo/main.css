@@ -16,6 +16,60 @@ body {
     font-size: 9pt;
 }
 
+/* Input elements */
+input,
+textarea,
+select {
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  -khtml-border-radius: 0;
+  background-color: white;
+  border: 1px;
+  border-color: darkgray lightgray lightgray;
+  border-radius: 0;
+  border-style: solid;
+  outline: none;
+  padding: 1px;
+}
+
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  appearance : none;
+  background: white url('../../image/select-down.png') no-repeat scroll right center;
+  padding: 0 14px 0 0;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: #ffffa0;
+  border: 1px solid #fe5f14;
+}
+
+input[type="button"],
+input[type="submit"],
+button {
+  background-color: whitesmoke;
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  padding: 0px 4px;
+}
+
+input[type="button"]:focus,
+input[type="submit"]:focus,
+button:focus {
+  background-color: #ffffa0;
+  border-color: #fe5f14;
+}
+
+button:hover:enabled,
+input[type="button"]:hover:enabled,
+input[type="submit"]:hover:enabled {
+  color: #fe5f14;
+}
 
 /* The look of links */
 a {
@@ -78,23 +132,6 @@ tr.rule-before th, tr.rule-before td {
   border-top: 2px solid #EBEBEB;
 }
 
-/* I.E. & Chrome können das nicht! */
-/* input[type="radio"], input[type="checkbox"]{
-	width:1.15em;
-	height:1.15em;
-	border:1px solid;
-	color: #006400;
-} */
-input:focus, textarea:focus, select:focus {
-	background-color: #FFFFA0;
-	border: 2px solid #FE5F14;
-	/* border-bottom: medium solid #FE5F14; */
-}
-/* Fängt den "Schrink" beim focus - problem für i.e. und chrome */
-/* input[type="radio"]:focus, input[type="checkbox"]:focus{
-	width:1.2em;
-	height:1.2em;
-} */
 td {
 	color: #000000;
 	font-weight: normal;
@@ -425,9 +462,7 @@ div.chart_picker_chart {
 }
 div.part_picker_part:hover,
 div.chart_picker_chart:hover {
-  background-color: #CCCCCC;
   color: #FE5F14;
-  border-color: gray;
 }
 
 div.ppp_block {
@@ -454,11 +489,6 @@ span.part_picker input {
 span.part_picker {
   white-space: nowrap;
 }
-/* div.cpc_block { */
-/*   overflow:hidden; */
-/*   float:left; */
-/*   width: 350px; */
-/* } */
 div.ppp_block span.ppp_block_number,
 div.cpc_block span.cpc_block_number
 {
