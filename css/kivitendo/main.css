@@ -1,11 +1,13 @@
-/* Stylesheet for kivitendo * Name:kivitendo.css*/
-/* Colortable
+/* Stylesheet for kivitendo * Name:kivitendo.css
 
-Background:   #EBEBEB burlywood
-Links:      #006400 DarkGreen
-Link-hover    #FE5F14 Orange / #FFFFE0 lightyellow
-Titles, BG/VG:  #79B61B Mid-green FFFFFF White
-Tabcolor: #CAFFA3
+Color table
+-----------
+
+Background:    #EBEBEB burlywood
+Links:         #006400 DarkGreen
+Link-hover     #FE5F14 Orange / #FFFFE0 lightyellow
+Titles, BG/VG: #79B61B Mid-green FFFFFF White
+Tabcolor:      #CAFFA3
 */
 
 
@@ -75,8 +77,6 @@ input[type="submit"]:hover:enabled {
 a {
   padding: 0 0.2em;
   text-decoration: none;
-  /* border-bottom: thin solid; */
-  /* font-weight: bold; */
 }
 A:link, A:visited, A:active {
   color: #000000;
@@ -112,14 +112,6 @@ table {
   border-spacing: 0.3em;
 }
 
-/* table a {
-  color:#FE5F14 !important;
-  border-bottom:none;
-} */
-
-ul {
-}
-
 hr {
   background-color: #006400;
   border: none;
@@ -136,10 +128,6 @@ td {
   color: #000000;
   font-weight: normal;
 }
-/* td.hover:hover {
-  color: #006400;
-  background-color: #FFFFE0;
-} */
 th {
   color: #000000;
   font-weight: bold;
@@ -222,7 +210,7 @@ body.menu {
   border-style: solid;
   border-width: thin;
 }
-/*    Headings */
+/* Headings */
 .listtop, h1 {
   font-size:125%;
   background-color: #006400;
@@ -239,14 +227,6 @@ body.menu {
   behavior:url(border-radius.htc);
 }
 
-/* .listelement {
-  background-color: #f8ffb3;
-  color: #000000;
-}
-.listelement2 {
-  background-color: #8ee085;
-  color: #000000;
-} */
 .listheading, #content h2 {
   padding: 0.2em;
   background-color: #EBEBEB;
@@ -255,13 +235,6 @@ body.menu {
   text-align: left;
   border-style: none;
 }
-
-/* .listheadingcontent {
-  background-color: #EBEBEB;
-  color: #006400;
-  font-weight: bolder;
-  text-align: left;
-} */
 
 .accountlistheading {
   padding: 0.3em;
