@@ -111,7 +111,8 @@ div.login {
   background: #b8d1f3;
   color: #A0A0A0;
 }
-h1.login {
+.login h1 {
+  text-align: center;
   font-size: 150%;
 }
 table.login {
