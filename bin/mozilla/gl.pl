@@ -210,7 +210,7 @@ sub edit {
 
 sub search {
   $::lxdebug->enter_sub;
-  $::auth->assert('gl_transactions');
+  $::auth->assert('general_ledger | gl_transactions');
 
   $::form->all_departments(\%::myconfig);
   $::form->get_lists(
@@ -249,7 +249,7 @@ sub create_subtotal_row {
 sub generate_report {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('gl_transactions');
+  $main::auth->assert('general_ledger | gl_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

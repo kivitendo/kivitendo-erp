@@ -11,7 +11,7 @@ use SL::Locale::String qw(t8);
 use SL::DBUtils qw(like);
 use List::Util qw(sum);
 
-sub auth { 'general_ledger' }
+sub auth { 'general_ledger|gl_transactions|ap_transactions|ar_transactions' }
 
 sub name { 'gl_transaction' }
 

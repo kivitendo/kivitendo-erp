@@ -23,7 +23,7 @@ sub action_list_transactions {
 sub _mini_ledger {
   my ($self, $transactions) = @_;
 
-  $::auth->assert('general_ledger');
+  $::auth->assert('invoice_edit');
 
   my $debit_sum  = 0;
   my $credit_sum = 0;
@@ -39,7 +39,7 @@ sub _mini_ledger {
 sub _mini_trial_balance {
   my ($self, $transactions) = @_;
 
-  $::auth->assert('general_ledger');
+  $::auth->assert('invoice_edit');
 
   my $rec = {};
   foreach my $t ( @{ $transactions } ) {
@@ -57,7 +57,7 @@ sub _mini_trial_balance {
 }
 
 sub check_auth {
-  $::auth->assert('general_ledger');
+  $::auth->assert('invoice_edit');
 }
 
 1;

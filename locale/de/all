@@ -72,6 +72,7 @@ $self->{texts} = {
   'AP Transactions'             => 'Kreditorenbuchungen',
   'AP transactions changeable'  => 'Änderbarkeit von Kreditorenbuchungen',
   'AP transactions with sales taxkeys and/or AR transactions with input taxkeys' => 'Kreditorenbuchungen mit Umsatzsteuer-Steuerschlüsseln und/oder Debitorenbuchungen mit Vorsteuer-Steuerschlüsseln',
+  'AP/AR Aging & Journal'       => 'Offene Forderungen/Verbindunglichkeiten & Buchungsjournal',
   'AR'                          => 'Verkauf',
   'AR Aging'                    => 'Offene Forderungen',
   'AR Transaction'              => 'Debitorenbuchung',

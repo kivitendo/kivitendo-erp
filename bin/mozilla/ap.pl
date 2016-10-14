@@ -88,7 +88,7 @@ sub add {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $form->{title} = "Add";
 
@@ -108,7 +108,7 @@ sub edit {
 
   my $form     = $main::form;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $form->{title} = "Edit";
 
@@ -123,7 +123,7 @@ sub display_form {
 
   my $form     = $main::form;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   &form_header;
   &form_footer;
@@ -139,7 +139,7 @@ sub create_links {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $form->create_links("AP", \%myconfig, "vendor");
   my %saved;
@@ -216,7 +216,7 @@ sub form_header {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
 
@@ -450,7 +450,7 @@ sub form_header {
 
 sub form_footer {
   $::lxdebug->enter_sub;
-  $::auth->assert('general_ledger');
+  $::auth->assert('ap_transactions');
 
   my $num_due;
   my $num_follow_ups;
@@ -488,7 +488,7 @@ sub mark_as_paid {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   &mark_as_paid_common(\%myconfig,"ap");
 
@@ -501,7 +501,7 @@ sub update {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   my $display = shift;
 
@@ -589,7 +589,7 @@ sub post_payment {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
   $form->mtime_ischanged('ap');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
@@ -643,7 +643,7 @@ sub post {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
   $form->mtime_ischanged('ap');
 
   my ($inline) = @_;
@@ -745,7 +745,7 @@ sub post_as_new {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $form->{postasnew} = 1;
   # saving the history
@@ -770,7 +770,7 @@ sub use_as_new {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -787,7 +787,7 @@ sub delete {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   $form->{title} = $locale->text('Confirm!');
 
@@ -827,7 +827,7 @@ sub yes {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   if (AP->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
@@ -1070,7 +1070,7 @@ sub storno {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger');
+  $main::auth->assert('ap_transactions');
 
   if (IS->has_storno(\%myconfig, $form, 'ap')) {
     $form->{title} = $locale->text("Cancel Accounts Payables Transaction");

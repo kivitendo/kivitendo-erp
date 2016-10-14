@@ -625,7 +625,7 @@
   name: Journal
   icon: journal
   order: 300
-  access: general_ledger
+  access: general_ledger | gl_transactions
   module: gl.pl
   params:
     action: search

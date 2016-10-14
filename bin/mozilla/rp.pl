@@ -102,8 +102,8 @@ use strict;
 
 my $rp_access_map = {
   'projects'           => 'report',
-  'ar_aging'           => 'general_ledger | ar_transactions',
-  'ap_aging'           => 'general_ledger | ap_transactions',
+  'ar_aging'           => 'general_ledger',
+  'ap_aging'           => 'general_ledger',
   'receipts'           => 'cash',
   'payments'           => 'cash',
   'trial_balance'      => 'report',
