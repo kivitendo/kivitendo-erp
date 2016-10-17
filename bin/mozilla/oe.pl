@@ -456,8 +456,54 @@ sub form_header {
     $bar->add_actions([ t8('Update'),
       submit => [ '#form', { action_update         => 1 } ],
     ]);
-    $bar->add_actions([ t8('Ship to'),
-      submit => [ '#form', { action_ship_to        => 1 } ],
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Save'),
+      submit => [ '#form', { action_save           => 1 } ],
+      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+      # optional warn_save_active_periodic_invoice,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save as new'),
+      submit => [ '#form', { action_save_as_new    => 1 } ],
+      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      disabled => !$::form->{id},
+    ]);
+     $bar->actions->[-1]->add_actions([ t8('Save and Close'),
+      submit => [ '#form', { action_save_and_close => 1 } ],
+      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+      # always, optional warn_save_active_periodic_invoice,
+    ]);
+    $bar->add_actions([ t8('Delete'),
+      submit => [ '#form', { action_delete         => 1 } ],
+      disabled => !$::form->{id}
+               || ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
+               || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete),
+    ]);
+    $bar->add_actions([undef, actions => [] ]);
+    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
+      submit => [ '#form', { action_sales_order    => 1 } ],
+      disabled => !$::form->{id},
+    ]) if $is_sales_quo;
+    $bar->actions->[-1]->add_actions([ t8('Purchase Order'),
+      submit => [ '#form', { action_sales_order    => 1 } ],
+      disabled => !$::form->{id},
+    ]) if $is_req_quo;
+    $bar->actions->[-1]->add_actions([ t8('Delivery Order'),
+      submit => [ '#form', { action_delivery_order => 1 } ],
+      disabled => !$::form->{id},
+    ]) if $is_sales_ord || $is_pur_ord;
+    $bar->actions->[-1]->add_actions([ t8('Invoice'),
+      submit => [ '#form', { action_invoice        => 1 } ],
+      disabled => !$::form->{id},
+    ]) if $allow_invoice;
+    $bar->actions->[-1]->add_actions([ t8('Quotation'),
+      submit => [ '#form', { action_quotation      => 1 } ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Request for Quotation'),
+      submit => [ '#form', { action_reqest_for_quotation => 1 } ],
+      disabled => !$::form->{id}
     ]);
     $bar->add_actions([ t8('Print'),
       submit => [ '#form', { action_print          => 1 } ],
@@ -467,58 +513,16 @@ sub form_header {
       submit => [ '#form', { action_print          => 1 } ],
       checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
     ]);
-    $bar->add_actions([ t8('Save'),
-      submit => [ '#form', { action_save           => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-      # optional warn_save_active_periodic_invoice,
-    ]);
-    $bar->add_actions([ t8('Save and Close'),
-      submit => [ '#form', { action_save_and_close => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-      # always, optional warn_save_active_periodic_invoice,
-    ]);
-    $bar->add_actions([ t8('Follow-Up'),
-      function => [ 'follow_up_window' ],
-      disabled => !$::form->{id},
+    $bar->add_actions([ t8('Ship to'),
+      submit => [ '#form', { action_ship_to        => 1 } ],
     ]);
     $bar->add_actions([ t8('History'),
       function => [ 'set_history_window', $::form->{id} * 1, 'id' ],
       disabled => !$::form->{id},
     ]);
-    $bar->add_actions([ t8('Save as new'),
-      submit => [ '#form', { action_save_as_new    => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+    $bar->add_actions([ t8('Follow-Up'),
+      function => [ 'follow_up_window' ],
       disabled => !$::form->{id},
-    ]);
-    $bar->add_actions([ t8('Delete'),
-      submit => [ '#form', { action_delete         => 1 } ],
-      disabled => !$::form->{id},
-    ]) if $::form->{id} && (!$is_sales_ord || $::instance_conf->get_sales_order_show_delete) && (!$is_pur_ord || $::instance_conf->get_purchase_order_show_delete);
-    $bar->add_actions([ t8('Sales Order'),
-      submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$::form->{id},
-    ]) if $is_sales_quo;
-    $bar->add_actions([ t8('Purchase Order'),
-      submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$::form->{id},
-    ]) if $is_req_quo;
-    $bar->add_actions([ t8('Delivery Order'),
-      submit => [ '#form', { action_delivery_order => 1 } ],
-      disabled => !$::form->{id},
-    ]) if $is_sales_ord || $is_pur_ord;
-    $bar->add_actions([ t8('Invoice'),
-      submit => [ '#form', { action_invoice        => 1 } ],
-      disabled => !$::form->{id},
-    ]) if $allow_invoice;
-    $bar->add_actions([ t8('Quotation'),
-      submit => [ '#form', { action_quotation      => 1 } ],
-      disabled => !$::form->{id},
-    ]);
-    $bar->add_actions([ t8('Request for Quotation'),
-      submit => [ '#form', { action_reqest_for_quotation => 1 } ],
-      disabled => !$::form->{id}
     ]);
   }
 
