@@ -539,7 +539,7 @@ a.red {
 
 /* actionbar styling */
 div.layout-actionbar {
-  background-color: whitesmoke;
+/*  background-color: whitesmoke; */
 }
 
 div.layout-actionbar-action {
@@ -570,7 +570,7 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   -moz-border-radius: 2px;
   border-radius: 2px;
   background-color: whitesmoke;
-  cursor:default;
+  cursor: default;
 }
 
 div.layout-actionbar div.layout-actionbar-submit:hover,
@@ -596,29 +596,31 @@ div.layout-actionbar-combobox {
   display: inline-block;
 }
 
-div.layout-actionbar-combobox:hover {
-  position: relative;
-}
-
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head {
+  white-space: nowrap;
   display: block;
-  width: 100%;
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head div.layout-actionbar-action::after {
   content: "…";
 }
 
-div.layout-actionbar-combobox:hover div.layout-actionbar-combobox-head {
-}
-
 div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
-  width: 120px;
   position: absolute;
   display: none;
+  min-width: 120px;
 }
 
 div.layout-actionbar-combobox:hover div.layout-actionbar-combobox-list {
-  display: block;
+  display: inline-block;
   z-index: 10;
+}
+
+div.layout-actionbar-combobox-list div.layout-actionbar-action {
+  white-space: nowrap;
+  display: block;
+  position: relative;
+  width: 100%;
+  text-align: left;
+  padding: 4px;
 }
