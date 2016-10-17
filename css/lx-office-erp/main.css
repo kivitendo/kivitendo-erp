@@ -559,7 +559,9 @@ div.layout-actionbar div.layout-actionbar-scriptbutton,
 div.layout-actionbar div.layout-actionbar-submit:focus,
 div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   display: inline-block;
+  width: 120px;
   box-sizing: border-box;
+  text-align: center;
   border: 1px;
   border-color: darkgray;
   border-style: solid;
@@ -587,4 +589,36 @@ div.layout-actionbar div.layout-actionbar-action-disabled:hover {
   color: gray;
   background-color: whitesmoke;
   border-color: lightgray;
+}
+
+div.layout-actionbar-combobox {
+  position: relative;
+  display: inline-block;
+}
+
+div.layout-actionbar-combobox:hover {
+  position: relative;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head {
+  display: block;
+  width: 100%;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head div.layout-actionbar-action::after {
+  content: "…";
+}
+
+div.layout-actionbar-combobox:hover div.layout-actionbar-combobox-head {
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
+  width: 120px;
+  position: absolute;
+  display: none;
+}
+
+div.layout-actionbar-combobox:hover div.layout-actionbar-combobox-list {
+  display: block;
+  z-index: 10;
 }
