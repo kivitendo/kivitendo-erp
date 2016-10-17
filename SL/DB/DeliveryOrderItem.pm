@@ -38,4 +38,59 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(delivery_order_id)]);
 
 sub record { goto &delivery_order }
 
+sub displayable_delivery_order_info {
+  my ($self, $dec) = @_;
+
+  $dec //= 2;
+
+  return SL::Presenter->get->sales_delivery_order($self->delivery_order, display => 'inline')
+         . " " . $::form->format_amount(\%::myconfig, $self->qty, $dec) . " " . $self->unit
+         . " (" . $self->delivery_order->transdate->to_kivitendo . ")";
+};
+
+__END__
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::DB::DeliveryOrderItem Model for the 'delivery_order_items' table
+
+=head1 SYNOPSIS
+
+This is a standard Rose::DB::Object based model and can be used as one.
+
+=head1 METHODS
+
+=over 4
+
+=item C<displayable_delivery_order_info DEC>
+
+Returns a string with information about the delivery order item in relation to
+its delivery order, specifically
+
+* the (HTML-linked) delivery order number
+
+* the qty and unit of the part in the delivery order
+
+* the date of the delivery order
+
+Doesn't include any part information, it is assumed that is already shown elsewhere.
+
+The method takes an optional argument "dec" which determines how many decimals to
+round to, as used by format_amount.
+
+  SL::DB::Manager::DeliveryOrderItem->get_first->displayable_delivery_order_info(0);
+  # 201601234 5 Stck (12.12.2016)
+
+=back
+
+=head1 AUTHORS
+
+G. Richardson E<lt>grichardson@kivitendo-premium.deE<gt>
+
+=cut
+
 1;
