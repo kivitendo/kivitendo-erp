@@ -24,10 +24,12 @@ sub script {
 sub from_descriptor {
   my ($class, $descriptor) = @_;
   require SL::Layout::ActionBar::Separator;
+  require SL::Layout::ActionBar::ComboBox;
 
-  {
+  return {
      separator => SL::Layout::ActionBar::Separator->new,
-  } or die 'unknown descriptor';
+     combobox  => SL::Layout::ActionBar::ComboBox->new,
+  }->{$descriptor} or die 'unknown descriptor';
 }
 
 # TODO: this necessary?
@@ -46,8 +48,9 @@ sub simple {
     return SL::Layout::ActionBar::ScriptButton->new(text => $text, params => \%params);
   }
 
-  if ($params{combobox}) {
-
+  if ($params{actions}) {
+    require SL::Layout::ActionBar::ComboBox;
+    return SL::Layout::ActionBar::ComboBox->new(text => $text, %params);
   }
 }
 
