@@ -4,6 +4,7 @@ use strict;
 use parent qw(Rose::Object);
 
 use SL::Presenter;
+    require SL::Layout::ActionBar::Submit;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(id params text) ],
@@ -29,29 +30,15 @@ sub from_descriptor {
   return {
      separator => SL::Layout::ActionBar::Separator->new,
      combobox  => SL::Layout::ActionBar::ComboBox->new,
-  }->{$descriptor} or die 'unknown descriptor';
+  }->{$descriptor} || do { die 'unknown descriptor' };
 }
 
-# TODO: this necessary?
+# this is mostly so that outside consumer don't need to load subclasses themselves
 sub simple {
   my ($class, $data) = @_;
 
   my ($text, %params) = @$data;
-
-  if ($params{submit}) {
-    require SL::Layout::ActionBar::Submit;
-    return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
-  }
-
-  if ($params{function}) {
-    require SL::Layout::ActionBar::ScriptButton;
-    return SL::Layout::ActionBar::ScriptButton->new(text => $text, params => \%params);
-  }
-
-  if ($params{actions}) {
-    require SL::Layout::ActionBar::ComboBox;
-    return SL::Layout::ActionBar::ComboBox->new(text => $text, %params);
-  }
+  return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
 }
 
 # shortcut for presenter

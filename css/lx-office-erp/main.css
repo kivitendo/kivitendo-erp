@@ -562,6 +562,11 @@ div.layout-actionbar ~ div {
   padding-top: 25px;
 }
 
+div.layout-actionbar-separator {
+  display: inline-block;
+  width: 10px;
+}
+
 div.layout-actionbar div.layout-actionbar-submit,
 div.layout-actionbar div.layout-actionbar-scriptbutton,
 div.layout-actionbar div.layout-actionbar-submit:focus,

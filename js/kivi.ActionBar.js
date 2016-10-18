@@ -1,18 +1,22 @@
 namespace('kivi', function(k){
   'use strict';
 
+  var CLASSES = {
+    disabled: 'layout-actionbar-action-disabled'
+  }
+
    k.ActionBarAction = function(e) {
      var data = $(e).data('action');
+     if (undefined === data) return;
 
-     if (data.disabled)
-       $(e).addClass('layout-actionbar-action-disabled');
-     // dispatch as needed
-     if (data.submit) {
-       var form   = data.submit[0];
-       var params = data.submit[1];
+     if (data.disabled) {
+       $(e).addClass(CLASSES.disabled);
+     }
+
+     if (data.call || data.submit) {
        $(e).click(function(event) {
          var $hidden, key, func, check;
-         if (data.disabled) return;
+         if ($(e).hasClass(CLASSES.disabled)) return;
          if (data.checks) {
            for (var i=0; i < data.checks.length; i++) {
              check = data.checks[i];
@@ -22,30 +26,21 @@ namespace('kivi', function(k){
            }
          }
          if (data.confirm && !confirm(data.confirm)) return;
-         for (key in params) {
-           $hidden = $('<input type=hidden>')
-           $hidden.attr('name', key)
-           $hidden.attr('value', params[key])
-           $(form).append($hidden)
+         if (data.call) {
+           func = kivi.get_function_by_name(data.call[0]);
+           func.apply(document, data.call.slice(1))
          }
-         $(form).submit()
-       })
-     } else if (data.function) {
-       // TODO: what to do with templated calls
-       $(e).click(function(event) {
-         var func;
-         if (data.disabled) return;
-         if (data.checks) {
-           for (var i=0; i < data.checks.length; i++) {
-             check = data.checks[i];
-             func = kivi.get_function_by_name(check);
-             if (!func) console.log('Cannot find check function: ' + check);
-             if (!func()) return;
+         if (data.submit) {
+           var form   = data.submit[0];
+           var params = data.submit[1];
+           for (key in params) {
+             $hidden = $('<input type=hidden>')
+             $hidden.attr('name', key)
+             $hidden.attr('value', params[key])
+             $(form).append($hidden)
            }
+           $(form).submit();
          }
-         if (data.confirm && !confirm(data.confirm)) return;
-         func = kivi.get_function_by_name(data.function[0]);
-         func.apply(document, data.function.slice(1))
        });
      }
    }
