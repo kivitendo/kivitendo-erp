@@ -112,6 +112,18 @@ foreach my $sub_dir ("Pg-upgrade2", "Pg-upgrade2-auth") {
 if (-f "$locales_dir/all") {
   require "$locales_dir/all";
 }
+# load custom translation (more_texts)
+for my $file (glob("${locales_dir}/more/*")) {
+  if (open my $in, "<", "$file") {
+    local $/ = undef;
+    my $code = <$in>;
+    eval($code);
+    close($in);
+    $self->{more_texts_temp}{$_} = $self->{more_texts}{$_} for keys %{ $self->{more_texts} };
+  }
+}
+$self->{more_texts} = delete $self->{more_texts_temp};
+
 if (-f "$locales_dir/missing") {
   require "$locales_dir/missing" ;
   unlink "$locales_dir/missing";
@@ -164,7 +176,8 @@ close($js_file);
 
 
 # calc and generate missing
-my @new_missing = grep { !$self->{texts}{$_} } sort keys %alllocales;
+# don't add missing ones if we have a translation in more_texts
+my @new_missing = grep { !$self->{more_texts}{$_} && !$self->{texts}{$_} } sort keys %alllocales;
 
 if (@new_missing) {
   if ($opt_c) {
