@@ -18,6 +18,7 @@ sub pre_content {
   my ($self) = @_;
 
   my $content = join '', map { $_->render } @{ $self->actions };
+  return if !$content;
   $::request->presenter->html_tag('div', $content, class => HTML_CLASS);
 }
 
