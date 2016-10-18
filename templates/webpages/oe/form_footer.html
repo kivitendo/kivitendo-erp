@@ -133,64 +133,6 @@
 
 <p>[% print_options %]</p>
 
-[% label_edit %]<br>
-<input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
-<input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
-<input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-<input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-
-[% IF not tpca_reminder %]
-  <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %] data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-  <input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]"[% IF warn_save_active_periodic_invoice %] data-warn-save-active-periodic-invoice="1"[% END %] data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-[% ELSE %]
-  [% IF warn_save_active_periodic_invoice  %] [% warn_save_active_periodic_invoice=1 %] [% END %]
-    [% L.submit_tag('action_save', LxERP.t8('Save'), confirm=LxERP.t8('Missing transport cost: #1  Are you sure?', tpca_reminder), 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps, 'data-warn-save-active-periodic-invoice'=warn_save_active_periodic_invoice) %]
-    [% L.submit_tag('action_save_and_close', LxERP.t8('Save and close'), confirm=LxERP.t8('Missing transport cost: #1  Are you sure?', tpca_reminder), 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps, 'data-warn-save-active-periodic-invoice'=warn_save_active_periodic_invoice) %]
-[% END %]
-
-[%- IF id AND INSTANCE_CONF.get_doc_storage %]
-  <input type="button" class="submit"onclick="kivi.File.downloadOrderitemsFiles('[% type %]',[% id %]);" name="action_download_files" value="[% 'Download all Attachments' | $T8 %]">
-[%- END %]
-[%- IF id %]
-  <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %], 'id')" name="history" id="history" value="[% 'history' | $T8 %]">
-
-  <br>[% label_workflow %]<br>
-  <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-
-  [%- UNLESS (is_sales_ord && !INSTANCE_CONF.get_sales_order_show_delete) || (is_pur_ord && !INSTANCE_CONF.get_purchase_order_show_delete) %]
-    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
-  [%- END %]
-
-  [%- IF is_sales_quo %]
-    <input class="submit" type="submit" name="action_sales_order" value="[% 'Sales Order' | $T8 %]">
-  [%- END %]
-
-  [%- IF is_req_quo %]
-    <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
-  [%- END %]
-
-  [%- IF is_sales_ord || is_pur_ord %]
-    <input class="submit" type="submit" name="action_delivery_order" value="[% 'Delivery Order' | $T8 %]">
-  [%- END %]
-
-  [%- IF allow_invoice %]
-  <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
-  [%- END %]
-
-  [%- IF is_sales_ord || is_pur_ord %]
-    <br>[% heading %] [% 'to be used as template for' | $T8 %]<br>
-    [%- IF is_sales_ord %]
-      <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
-     <input class="submit" type="submit" name="action_quotation" value="[% 'Quotation' | $T8 %]">
-    [%- ELSE %]
-    [%- IF is_pur_ord %]
-      <input class="submit" type="submit" name="action_sales_order" value="[% 'Sales Order' | $T8 %]">
-     <input class="submit" type="submit" name="action_request_for_quotation" value="[% 'Request for Quotation' | $T8 %]">
-    [%- END %]
-    [%- END %]
-  [%- END %]
-[%- END %]
 <input type="hidden" name="action" value="dispatcher">
 <input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
 <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
@@ -202,6 +144,3 @@
 [% END %]
 
 </form>
-<script type='text/javascript'>
- $(kivi.SalesPurchase.init_on_submit_checks);
-</script>

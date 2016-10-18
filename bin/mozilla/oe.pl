@@ -643,8 +643,6 @@ sub form_footer {
      %TMPL_VAR,
      tpca_reminder   => $tpca_reminder,
      print_options   => print_options(inline => 1),
-     label_edit      => $locale->text("Edit the $form->{type}"),
-     label_workflow  => $locale->text("Workflow $form->{type}"),
      is_sales        => scalar ($form->{type} =~ /^sales_/),              # these vars are exported, so that the template
      is_order        => scalar ($form->{type} =~ /_order$/),              # may determine what to show
      is_sales_quo    => scalar ($form->{type} =~ /sales_quotation$/),
