@@ -609,13 +609,30 @@ div.layout-actionbar-combobox {
   display: inline-block;
 }
 
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head:after {
+  content: "";
+  width: 0;
+  height: 0;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  margin-top: -3px;
+  border-width: 3px 3px 0 3px;
+  border-style: solid;
+  border-color: black transparent;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head.active:after {
+  border-width: 3px 3px 0 3px;
+}
+
+
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head {
   white-space: nowrap;
   display: block;
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head div.layout-actionbar-action::after {
-  content: "…";
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
