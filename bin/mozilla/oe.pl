@@ -319,6 +319,7 @@ sub form_header {
 
     $TMPL_VAR{oe_obj} = $obj;
   }
+  my $warn_save_active_periodic_invoice = $TMPL_VAR{warn_save_active_periodic_invoice};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -439,9 +440,6 @@ sub form_header {
 
 
   # original snippets:
-  # 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps
-  # data-warn-save-active-periodic-invoice="1"  if warn_save_active_periodic_invoice
-  # tpca_reminder
   my $is_sales     = scalar ($form->{type} =~ /^sales_/);              # these vars are exported, so that the template
   my $is_order     = scalar ($form->{type} =~ /_order$/);              # may determine what to show
   my $is_sales_quo = scalar ($form->{type} =~ /sales_quotation$/);
@@ -449,6 +447,8 @@ sub form_header {
   my $is_sales_ord = scalar ($form->{type} =~ /sales_order$/);
   my $is_pur_ord   = scalar ($form->{type} =~ /purchase_order$/);
   my $allow_invoice = $is_req_quo || $is_pur_ord || ($is_sales_quo && $::instance_conf->get_allow_sales_invoice_from_sales_quotation) || ($is_sales_ord && $::instance_conf->get_allow_sales_invoice_from_sales_order);
+  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
+  my @warn_p_invoice = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice) x!!$warn_save_active_periodic_invoice;
 
   my $tpca_remainder = 0;
 
@@ -459,20 +459,18 @@ sub form_header {
     $bar->add_actions("combobox");
     $bar->actions->[-1]->add_actions([ t8('Save'),
       submit => [ '#form', { action_save           => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      checks => [ @req_trans_desc, @warn_p_invoice ],
       confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-      # optional warn_save_active_periodic_invoice,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Save as new'),
       submit => [ '#form', { action_save_as_new    => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      checks => [ @req_trans_desc ],
       disabled => !$::form->{id},
     ]);
      $bar->actions->[-1]->add_actions([ t8('Save and Close'),
       submit => [ '#form', { action_save_and_close => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      checks => [ @req_trans_desc, @warn_p_invoice ],
       confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-      # always, optional warn_save_active_periodic_invoice,
     ]);
     $bar->add_actions([ t8('Delete'),
       submit => [ '#form', { action_delete         => 1 } ],
@@ -480,7 +478,11 @@ sub form_header {
                || ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
                || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete),
     ]);
-    $bar->add_actions([undef, actions => [] ]);
+    $bar->add_actions('separator');
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Workflow'),
+      disabled => 1,
+    ]);
     $bar->actions->[-1]->add_actions([ t8('Sales Order'),
       submit => [ '#form', { action_sales_order    => 1 } ],
       disabled => !$::form->{id},
@@ -505,23 +507,31 @@ sub form_header {
       submit => [ '#form', { action_reqest_for_quotation => 1 } ],
       disabled => !$::form->{id}
     ]);
-    $bar->add_actions([ t8('Print'),
-      submit => [ '#form', { action_print          => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Export'),
+      disabled => 1,
     ]);
-    $bar->add_actions([ t8('E Mail'),
+    $bar->actions->[-1]->add_actions([ t8('Print'),
       submit => [ '#form', { action_print          => 1 } ],
-      checks => [ qw(kivi.SalesPurchase.check_transaction_description) ],
+      checks => [ @req_trans_desc ],
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('E Mail'),
+      submit => [ '#form', { action_print          => 1 } ],
+      checks => [ @req_trans_desc ],
     ]);
     $bar->add_actions([ t8('Ship to'),
       submit => [ '#form', { action_ship_to        => 1 } ],
     ]);
-    $bar->add_actions([ t8('History'),
-      function => [ 'set_history_window', $::form->{id} * 1, 'id' ],
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('more'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('History'),
+      call     => [ 'set_history_window', $::form->{id} * 1, 'id' ],
       disabled => !$::form->{id},
     ]);
-    $bar->add_actions([ t8('Follow-Up'),
-      function => [ 'follow_up_window' ],
+    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
+      call     => [ 'follow_up_window' ],
       disabled => !$::form->{id},
     ]);
   }
