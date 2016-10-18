@@ -15,10 +15,18 @@
   color: white;
   border: 0;
   overflow: hidden;
-  min-height: 20px;
+  height: 20px;
   width: 100%;
   border-spacing: 0;
+  position: fixed;
+  top: 0;
+  z-index: 20;
 }
+
+#frame-header + div {
+  padding-top: 20px;
+}
+
 
 #frame-header .frame-header-left {
   float: left;

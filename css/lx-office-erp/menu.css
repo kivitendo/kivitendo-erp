@@ -153,11 +153,13 @@ div#menuv3 li li li li:hover ul
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
 div.html-menu, #html-menu {
+  position: fixed;
   transition:         margin-left 0.2s, width 0.2s;
   -moz-transition:    margin-left 0.2s, width 0.2s;
   -webkit-transition: margin-left 0.2s, width 0.2s;
   -o-transition:      margin-left 0.2s, width 0.2s;
 }
+
 div.layout-split-right { margin-left: 190px; }
 div.layout-split-right.folded { margin-left: 40px }
 #html-menu.folded:hover + #content.layout-split-right.folded { margin-left: 190px }
