@@ -519,9 +519,6 @@ sub form_header {
       submit => [ '#form', { action_print          => 1 } ],
       checks => [ @req_trans_desc ],
     ]);
-    $bar->add_actions([ t8('Ship to'),
-      submit => [ '#form', { action_ship_to        => 1 } ],
-    ]);
     $bar->add_actions('combobox');
     $bar->actions->[-1]->add_actions([ t8('more'),
       disabled => 1,
