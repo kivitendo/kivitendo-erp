@@ -21,7 +21,7 @@ sub add_actions {
 sub render {
   my ($first, @rest) = @{ $_[0]->parsed_actions };
   $_[0]->p->html_tag('div',
-    $_[0]->p->html_tag('div', $first->render, class => 'layout-actionbar-combobox-head') .
+    $_[0]->p->html_tag('div', $first->render . $_[0]->p->html_tag('span'), class => 'layout-actionbar-combobox-head') .
     $_[0]->p->html_tag('div', join('', map { $_->render } @rest), class => 'layout-actionbar-combobox-list'),
     id    => $_[0]->id,
     class => 'layout-actionbar-combobox',

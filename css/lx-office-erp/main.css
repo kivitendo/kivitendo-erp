@@ -564,7 +564,7 @@ div.layout-actionbar ~ div {
 
 div.layout-actionbar-separator {
   display: inline-block;
-  width: 10px;
+  width: 20px;
 }
 
 div.layout-actionbar div.layout-actionbar-submit,
@@ -609,12 +609,40 @@ div.layout-actionbar-combobox {
   display: inline-block;
 }
 
-div.layout-actionbar-combobox div.layout-actionbar-combobox-head:after {
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head div {
+  width: 100px
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span {
+  display: inline-block;
+  border-width: 1px 1px 1px 1px;
+  border-style: solid;
+  border-color: darkgray;
+  padding: 4px;
+  width: 14px;
+  height: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  -webkit-border-top-right-radius: 2px;
+  -webkit-border-bottom-right-radius: 2px;
+  -moz-border-radius-topright: 2px;
+  -moz-border-radius-bottomright: 2px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  background-color: whitesmoke;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:hover {
+  background-color: lightgray;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:after {
   content: "";
   width: 0;
   height: 0;
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   margin-top: -3px;
   border-width: 3px 3px 0 3px;
@@ -622,17 +650,15 @@ div.layout-actionbar-combobox div.layout-actionbar-combobox-head:after {
   border-color: black transparent;
 }
 
-div.layout-actionbar-combobox div.layout-actionbar-combobox-head.active:after {
-  border-width: 3px 3px 0 3px;
+div.layout-actionbar-combobox.active div.layout-actionbar-combobox-head span:after {
+  border-width: 0 3px 3px 3px;
 }
 
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head {
+  padding-right: 20px;
   white-space: nowrap;
   display: block;
-}
-
-div.layout-actionbar-combobox div.layout-actionbar-combobox-head div.layout-actionbar-action::after {
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
@@ -641,7 +667,7 @@ div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
   min-width: 120px;
 }
 
-div.layout-actionbar-combobox:hover div.layout-actionbar-combobox-list {
+div.layout-actionbar-combobox.active div.layout-actionbar-combobox-list {
   display: inline-block;
   z-index: 10;
 }
