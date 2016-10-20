@@ -474,6 +474,7 @@ sub form_header {
     ]);
     $bar->add_actions([ t8('Delete'),
       submit => [ '#form', { action_delete         => 1 } ],
+      confirm => t8('Do you really want to delete this object?'),
       disabled => !$::form->{id}
                || ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
                || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete),
