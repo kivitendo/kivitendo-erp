@@ -16,10 +16,12 @@ namespace('kivi', function(k){
     this.list     = e.childNodes[0];
     this.init();
   }
+
   k.ActionBarCombobox.prototype = {
     init: function() {
       var obj = this;
       $(obj.toggle).on('click', function(event){
+        $('div.' + CLASSES.combobox + '[id!=' + obj.combobox.id + ']').removeClass(CLASSES.active);
         $(obj.combobox).toggleClass(CLASSES.active);
         event.stopPropagation();
       });
