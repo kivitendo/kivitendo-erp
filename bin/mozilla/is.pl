@@ -359,6 +359,98 @@ sub form_header {
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
+  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
+  my $show_delete = ($::instance_conf->get_is_changeable == 2 && $form->current_date(\%myconfig) eq $form->{gldate})
+                  || $::instance_conf->get_is_changeable == 1;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add_actions([ t8('Update'),
+      submit => [ '#form', { action_update         => 1 } ],
+      disabled => !$::form->{id} && $::form->{locked},
+    ]);
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Post'),
+      submit => [ '#form', { action_post           => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => (!$::form->{id} && $::form->{locked}) || !$show_delete || $::form->{storno},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Post Payment'),
+      submit => [ '#form', { action_post_payment    => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('mark as paid'),
+      submit => [ '#form', { action_mark_as_paid    => 1 } ],
+      confirm => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
+      disabled => !$::form->{id},
+    ]) if $::instance_conf->get_is_show_mark_as_paid;
+
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Storno'),
+      submit => [ '#form', { action_storno         => 1 } ],
+      confirm => t8('Do you really want to cancel this invoice?'),
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Delete'),
+      submit => [ '#form', { action_delete         => 1 } ],
+      confirm => t8('Do you really want to delete this object?'),
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->add_actions('separator');
+
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Workflow'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Use As New'),
+      submit => [ '#form', { action_use_as_new    => 1 } ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Credit Note'),
+      submit => [ '#form', { action_credit_note    => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id} || $form->{type} eq "credit_note",
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
+      submit => [ '#form', { action_sales_order   => 1 } ],
+      disabled => !$::form->{id},
+    ]);
+
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Export'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ ($::form->{id} ? t8('Print') : t8('Preview')),
+      submit => [ '#form', { action_print          => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id} && $::form->{locked},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('E Mail'),
+      submit => [ '#form', { action_print          => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('more'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('History'),
+      call     => [ 'set_history_window', $::form->{id} * 1, 'id' ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
+      call     => [ 'follow_up_window' ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Drafts'),
+      call     => [ 'kivi.Draft.popup', 'is', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
+      disabled => $::form->{id} || $::form->{locked},
+    ]);
+
+  }
+
   $form->header();
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);

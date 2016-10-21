@@ -8,7 +8,7 @@
 <script type="text/javascript" src="js/calculate_qty.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 
-<form method="post" name="invoice" action="[% script %]">
+<form method="post" id='form' name="invoice" action="[% script %]">
 
 [%- FOREACH key = HIDDENS %]
 <input type="hidden" name="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
@@ -74,6 +74,7 @@
           <td>
             [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
                L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
+            <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
           </td>
         </tr>
 [%- END %]
