@@ -8,7 +8,7 @@
 
 [% cv_cvars = SELF.cv.cvars_by_config %]
 
-<form method="post" action="controller.pl">
+<form id='form' method="post" action="controller.pl">
 
   [% L.hidden_tag('db', FORM.db) %]
   [% L.hidden_tag('callback', FORM.callback) %]
