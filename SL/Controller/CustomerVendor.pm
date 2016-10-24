@@ -101,6 +101,7 @@ sub action_add {
 
   $self->_pre_render();
   $self->{cv}->assign_attributes(hourly_rate => $::instance_conf->get_customer_hourly_rate) if $self->{cv}->is_customer;
+
   $self->render(
     'customer_vendor/form',
     title => ($self->is_vendor() ? $::locale->text('Add Vendor') : $::locale->text('Add Customer')),
@@ -941,6 +942,56 @@ sub _pre_render {
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
   $::request->{layout}->add_javascripts('kivi.File.js');
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Save'),
+      submit => [ '#form', { action_save           => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]);
+     $bar->actions->[-1]->add_actions([ t8('Save and Close'),
+      submit => [ '#form', { action_save_and_close => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]);
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Workflow'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save and AP Transaction'),
+      submit => [ '#form', { action_save_and_ap_transaction => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]) if $self->is_vendor;
+    $bar->actions->[-1]->add_actions([ t8('Save and AR Transaction'),
+      submit => [ '#form', { action_save_and_ar_transaction => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]) if !$self->is_vendor;
+    $bar->actions->[-1]->add_actions([ t8('Save and Invoice'),
+      submit => [ '#form', { action_save_and_invoice => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save and Order'),
+      submit => [ '#form', { action_save_and_order => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save and RFQ'),
+      submit => [ '#form', { action_save_and_rfq => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]) if $self->is_vendor;
+    $bar->actions->[-1]->add_actions([ t8('Save and Quotation'),
+      submit => [ '#form', { action_save_and_quotation => 1 } ],
+      checks => [ 'check_taxzone_and_ustid' ],
+    ]) if !$self->is_vendor;
+    $bar->add_actions([ t8('Delete'),
+      submit => [ '#form', { action_delete         => 1 } ],
+      confirm => t8('Do you really want to delete this object?'),
+      disabled => !$self->{cv}->id || !$self->is_orphaned,
+    ]);
+    $bar->add_actions('separator');
+    $bar->add_actions([ t8('History'),
+      call     => [ 'kivi.CustomerVendor.showHistoryWindow', $self->{cv}->id ],
+      disabled => !$self->{cv}->id,
+    ]);
+  }
 }
 
 sub _prepare_cvar_configs_for_ajaj {

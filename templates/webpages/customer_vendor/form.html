@@ -57,33 +57,6 @@
   <br>
 
   [% L.hidden_tag('action', 'CustomerVendor/dispatch') %]
-
-  [% L.submit_tag('action_save', LxERP.t8('Save'), onclick = "return check_taxzone_and_ustid()", accesskey = "s") %]
-  [% L.submit_tag('action_save_and_close', LxERP.t8('Save and Close'), onclick = "return check_taxzone_and_ustid()") %]
-
-  [%- IF ( SELF.is_vendor ) %]
-    [% L.submit_tag('action_save_and_ap_transaction', LxERP.t8('Save and AP Transaction'), onclick = "return check_taxzone_and_ustid()") %]
-  [%- ELSE %]
-    [% L.submit_tag('action_save_and_ar_transaction', LxERP.t8('Save and AR Transaction'), onclick = "return check_taxzone_and_ustid()") %]
-  [%- END %]
-
-  [% L.submit_tag('action_save_and_invoice', LxERP.t8('Save and Invoice'), onclick = "return check_taxzone_and_ustid()") %]
-  [% L.submit_tag('action_save_and_order', LxERP.t8('Save and Order'), onclick = "return check_taxzone_and_ustid()") %]
-
-  [%- IF ( SELF.is_vendor ) %]
-    [% L.submit_tag('action_save_and_rfq', LxERP.t8('Save and RFQ'), onclick = "return check_taxzone_and_ustid()") %]
-  [%- ELSE %]
-    [% L.submit_tag('action_save_and_quotation', LxERP.t8('Save and Quotation'), onclick = "return check_taxzone_and_ustid()") %]
-  [%- END %]
-
-  [%- IF ( SELF.cv.id && SELF.is_orphaned ) %]
-    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
-  [%- END %]
-
-  [%- IF ( SELF.cv.id ) %]
-    <input type="button" class="submit" onclick="kivi.CustomerVendor.showHistoryWindow([% SELF.cv.id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
-  [%- END %]
-
 </form>
 
 <script type="text/javascript">
