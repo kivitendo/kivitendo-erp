@@ -309,6 +309,90 @@ sub form_header {
 
   $::form->{HIDDENS} = [ map { +{ name => $_, value => $::form->{$_} } } (@custom_hidden) ];
 
+  my @transfer_qty   = qw(kivi.SalesPurchase.delivery_order_check_transfer_qty);
+  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add_actions([ t8('Update'),
+      submit => [ '#form', { action_update         => 1 } ],
+    ]);
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Save'),
+      submit => [ '#form', { action_save           => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => $::form->{delivered},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save as new'),
+      submit => [ '#form', { action_save_as_new    => 1 } ],
+      checks => [ @req_trans_desc ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('mark as paid'),
+      submit => [ '#form', { action_mark_closed    => 1 } ],
+      checks => [ @req_trans_desc ],
+      confirm => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
+      disabled => !$::form->{id} || $::form->{closed},
+    ]);
+    $bar->add_actions([ t8('Delete'),
+      submit => [ '#form', { action_delete         => 1 } ],
+      confirm => t8('Do you really want to delete this object?'),
+      disabled => !$::form->{id} || $::form->{delivered}
+               || ($::form->{vc} eq 'customer' && !$::instance_conf->get_sales_delivery_order_show_delete)
+               || ($::form->{vc} eq 'vendor'   && !$::instance_conf->get_purchase_delivery_order_show_delete),
+    ]);
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Transfer out'),
+      submit => [ '#form', { action_transfer_out    => 1 } ],
+      checks => [ @req_trans_desc, @transfer_qty ],
+      disabled => $::form->{delivered},
+    ]) if $::form->{vc} eq 'customer';
+    $bar->actions->[-1]->add_actions([ t8('Transfer out via default'),
+      submit => [ '#form', { action_transfer_out_default    => 1 } ],
+      checks => [ @req_trans_desc, @transfer_qty ],
+      disabled => $::form->{delivered},
+    ]) if $::form->{vc} eq 'customer' && $::instance_conf->get_transfer_default;
+    $bar->actions->[-1]->add_actions([ t8('Transfer in'),
+      submit => [ '#form', { action_transfer_in    => 1 } ],
+      checks => [ @req_trans_desc, @transfer_qty ],
+      disabled => $::form->{delivered},
+    ]) if $::form->{vc} eq 'vendor';
+    $bar->actions->[-1]->add_actions([ t8('Transfer in via default'),
+      submit => [ '#form', { action_transfer_in_default    => 1 } ],
+      checks => [ @req_trans_desc, @transfer_qty ],
+      disabled => $::form->{delivered},
+    ]) if $::form->{vc} eq 'vendor' && $::instance_conf->get_transfer_default;
+
+    $bar->add_actions("separator");
+    $bar->add_actions([ t8('Invoice'),
+      submit => [ '#form', { action_invoice         => 1 } ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Export'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Print'),
+      submit => [ '#form', { action_print          => 1 } ],
+      checks => [ @req_trans_desc ],
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('E Mail'),
+      submit => [ '#form', { action_print          => 1 } ],
+      checks => [ @req_trans_desc ],
+    ]);
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('more'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('History'),
+      call     => [ 'set_history_window', $::form->{id} * 1, 'id' ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
+      call     => [ 'follow_up_window' ],
+      disabled => !$::form->{id},
+    ]);
+  }
+
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
   # und Erweiterung für Bug 1760:

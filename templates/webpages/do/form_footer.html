@@ -66,50 +66,7 @@
 
   <p>[% PRINT_OPTIONS %]</p>
 
-  <p>
-   [% 'Edit the Delivery Order' | $T8 %]<br>
    <input type="hidden" name="action" value="dispatcher">
-   <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
-   [%- UNLESS delivered %]
-   [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
-   [%- END %]
-   [%- END %]
-   <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [%- UNLESS delivered %]
-   <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_transfer_out" value="[% 'Transfer out' | $T8 %]" data-check-transfer-qty="1" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [% IF transfer_default %]
-   <input class="submit" type="submit" name="action_transfer_out_default" value="[% 'Transfer out via default' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [%- END %]
-   [%- ELSE %]
-   <input class="submit" type="submit" name="action_transfer_in" value="[% 'Transfer in' | $T8 %]" data-check-transfer-qty="1" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [% IF transfer_default %]
-   <input class="submit" type="submit" name="action_transfer_in_default" value="[% 'Transfer in via default' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [%- END %]
-   [%- END %]
-   [%- END %]
-   [%- IF id %]
-     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-   [%- UNLESS closed %]
-   <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [%- END %]
-   <input type="button" class="submit" onclick="set_history_window([% id %], 'id');" name="history" id="history" value="[% 'history' | $T8 %]">
-   [%- END %]
-  </p>
-
-  [%- IF id %]
-  <p>
-   [% 'Workflow Delivery Order' | $T8 %]<br>
-   <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]" data-require-transaction-description="[% INSTANCE_CONF.get_require_transaction_description_ps %]">
-   [% UNLESS delivered || (vc == 'customer' && !INSTANCE_CONF.get_sales_delivery_order_show_delete) || (vc == 'vendor' && !INSTANCE_CONF.get_purchase_delivery_order_show_delete) %]
-    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
-   [% END %]
-   <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
-  </p>
-  [%- END %]
 
   <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">

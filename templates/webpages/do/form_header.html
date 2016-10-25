@@ -37,7 +37,7 @@
  <p><font color="#ff0000">[% ERRORS.join('<br>') %]</font></p>
  [%- END %]
 
- <form method="post" name="do" action="do.pl">
+ <form id="form" method="post" name="do" action="do.pl">
 
  <div id="do_tabs" class="tabwidget">
   <ul>
@@ -162,6 +162,7 @@
           [%- ELSE %]
             [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
                L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
+            [% L.submit_tag('action_ship_to', LxERP.t8('Ship to')) %]
           [%- END %]
          </td>
         </tr>
