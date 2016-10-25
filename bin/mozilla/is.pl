@@ -397,7 +397,7 @@ sub form_header {
       confirm => t8('Do you really want to delete this object?'),
       checks => [ @req_trans_desc ],
       disabled => !$::form->{id},
-    ]);
+    ]) if $show_delete;
     $bar->add_actions('separator');
 
     $bar->add_actions('combobox');
