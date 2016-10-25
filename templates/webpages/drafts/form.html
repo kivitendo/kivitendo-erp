@@ -12,7 +12,7 @@
 [%- END %]
 
 [% L.hidden_tag('', FORM.id, id='new_draft_id') %]
-[% 'Description' | $T8 %]: <input id='new_draft_description' value='[% FORM.description | html %]'>
+[% 'Description' | $T8 %]: [% L.input_tag('new_draft_description', FORM.description) %]
 [% L.button_tag('kivi.Draft.save("' _ HTML.escape(SELF.module) _ '", "' _ HTML.escape(SELF.submodule) _ '")', LxERP.t8('Save draft')) %]
 
 [%- IF drafts_list.size %]
