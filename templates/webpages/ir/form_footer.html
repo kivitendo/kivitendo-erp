@@ -117,39 +117,6 @@
 
 <p>[% print_options %]</p>
 
-  [% IF id %]
-
-    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-[% IF  show_storno %]
-    [% L.submit_tag("action", LxERP.t8("Storno"), confirm=LxERP.t8('Do you really want to cancel this invoice?')) %]
-[% END %]
-    <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Use As New' | $T8 %]">
-
-[% IF show_delete %]
-    <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
-[% END %]
-
-    <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-
- [% ELSE # no id %]
-      <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-   [% UNLESS locked %]
-      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
-   [%- END %]
-      [% L.button_tag('kivi.Draft.popup("ir", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
- [% END # id %]
-
-  [% IF id %]
-      [%#- button for saving history %]
-      <input type="button" class="submit" onclick="set_history_window([% id | html %], 'glid');" name="history" id="history" value="[% 'history' | $T8 %]">
-
-      [% IF INSTANCE_CONF.get_ir_show_mark_as_paid %]
-        [% L.submit_tag("action", LxERP.t8('mark as paid'), confirm=LxERP.t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?')) %]
-      [% END %]
-  [% END %]
-
 <input type="hidden" name="rowcount" value="[% rowcount %]">
 <input type="hidden" name="callback" value="[% callback %]">
 [% P.hidden_tag('draft_id', draft_id) %]

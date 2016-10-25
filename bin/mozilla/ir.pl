@@ -298,6 +298,58 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File  kivi.SalesPurchase kivi.Part ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_project client_js));
 
+  my $show_delete = $::instance_conf->get_ir_changeable == 2 ? $form->current_date(\%myconfig) eq $form->{gldate}
+                  : $::instance_conf->get_ir_changeable == 1;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add_actions([ t8('Update'),
+      submit => [ '#form', { action_update         => 1 } ],
+    ]);
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Post'),
+      submit => [ '#form', { action_post           => 1 } ],
+      disabled => (!$::form->{id} && $::form->{locked}) || ($::form->{id} && !$show_delete),
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Post Payment'),
+      submit => [ '#form', { action_post_payment    => 1 } ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('mark as paid'),
+      submit => [ '#form', { action_mark_as_paid    => 1 } ],
+      confirm => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
+      disabled => !$::form->{id},
+    ]) if $::instance_conf->get_ir_show_mark_as_paid;
+
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Storno'),
+      submit => [ '#form', { action_storno         => 1 } ],
+      confirm => t8('Do you really want to cancel this invoice?'),
+      disabled => !$::form->{id} || !$show_delete,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Delete'),
+      submit => [ '#form', { action_delete         => 1 } ],
+      confirm => t8('Do you really want to delete this object?'),
+      disabled => !$::form->{id} || !$show_delete,
+    ]);
+    $bar->add_actions('separator');
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('more'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('History'),
+      call     => [ 'set_history_window', $::form->{id} * 1, 'id', 'glid' ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
+      call     => [ 'follow_up_window' ],
+      disabled => !$::form->{id},
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Drafts'),
+      call     => [ 'kivi.Draft.popup', 'ir', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
+      disabled => $::form->{id},
+    ]);
+  }
+
   $form->header();
 
   print $form->parse_html_template("ir/form_header", \%TMPL_VAR);
