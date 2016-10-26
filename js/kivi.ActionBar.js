@@ -117,6 +117,10 @@ namespace('kivi', function(k){
       }
     }
 
+    if (data.tooltip) {
+      $(e).tooltipster({ content: data.tooltip, theme: 'tooltipster-light' });
+    }
+
     if (data.call || data.submit) {
       $(e).click(function(event) {
         var $hidden, key, func, check;
