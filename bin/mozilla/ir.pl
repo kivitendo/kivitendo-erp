@@ -304,6 +304,8 @@ sub form_header {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add_actions([ t8('Update'),
       submit => [ '#form', { action_update         => 1 } ],
+      id => 'update_button',
+      accesskey => '13',
     ]);
     $bar->add_actions("combobox");
     $bar->actions->[-1]->add_actions([ t8('Post'),
