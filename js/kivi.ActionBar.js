@@ -40,9 +40,30 @@ namespace('kivi', function(k){
       if (target === undefined) {
         target = 'document';
       }
+
+      var normalized = $.map(keystring.split('+'), function(val, i) {
+        switch (val) {
+          case 'ctrl':
+          case 'alt':  return val;
+          case 'enter': return 13;
+          default:
+            if (val.length == 1) {
+              return val.charChodeAt(0)
+            } else if (typeof val === 'number') {
+              return val
+            } else if (val % 1 === 0) {
+              return val % 1;
+            } else {
+              console.log('can not normalize access key token: ' + val);
+            }
+        }
+      }).join('+');
+
+      console.log(normalized)
+
       if (!(target in this.actions))
         this.actions[target] = {};
-      this.actions[target][keystring] = action;
+      this.actions[target][normalized] = action;
     },
 
     bind_targets: function(){
