@@ -26,7 +26,58 @@ namespace('kivi', function(k){
         event.stopPropagation();
       });
     }
-  }
+  };
+
+  k.ActionBarAccesskeys = {
+    known_keys: {
+     'enter': 13,
+     'esc': 27,
+    },
+    actions: {},
+    bound_targets: {},
+
+    add_accesskey: function (target, keystring, action) {
+      if (target === undefined) {
+        target = 'document';
+      }
+      if (!(target in this.actions))
+        this.actions[target] = {};
+      this.actions[target][keystring] = action;
+    },
+
+    bind_targets: function(){
+      for (var target in this.actions) {
+        if (target in this.bound_targets) continue;
+        $(target).on('keypress', null, { 'target': target }, this.handle_accesskey);
+        this.bound_targets[target] = 1;
+      }
+    },
+
+    handle_accesskey: function(e,t) {
+      var target = e.data.target;
+      var key = e.which;
+      var accesskey = '';
+      if (e.ctrlKey) accesskey += 'crtl+'
+      if (e.altKey)  accesskey += 'alt+'
+      accesskey += e.which;
+
+      // special case. HTML elements that make legitimate use of enter will also trigger the enter accesskey.
+      // so. if accesskey is '13' and the event source is one of these (currently only textarea) ignore it.
+      // higher level widgets will usually prevent their key events from bubbling if used.
+      if (accesskey == 13 && e.target.tagName == 'TEXTAREA') return true;
+
+      if ((target in k.ActionBarAccesskeys.actions) && (accesskey in k.ActionBarAccesskeys.actions[target])) {
+        e.stopPropagation();
+        k.ActionBarAccesskeys.actions[target][accesskey].click();
+
+        // and another special case.
+        // if the form contains submit buttons the default action will click them instead.
+        // prevent that
+        if (accesskey == 13) return false;
+      }
+      return true;
+    }
+  };
 
   k.ActionBarAction = function(e) {
     var data = $(e).data('action');
@@ -34,6 +85,15 @@ namespace('kivi', function(k){
 
     if (data.disabled) {
       $(e).addClass(CLASSES.disabled);
+    }
+
+    if (data.accesskey) {
+      if (data.submit) {
+        k.ActionBarAccesskeys.add_accesskey(data.submit[0], data.accesskey, $(e));
+      }
+      if (data.call) {
+        k.ActionBarAccesskeys.add_accesskey(undefined, data.accesskey, $(e));
+      }
     }
 
     if (data.call || data.submit) {
@@ -79,7 +139,8 @@ $(function(){
   $('div.layout-actionbar-combobox').each(function(_, e) {
     $(e).data('combobox', new kivi.ActionBarCombobox(e));
   });
-   $(document).click(function() {
+  $(document).click(function() {
     $('div.layout-actionbar-combobox').removeClass('active');
   });
+  kivi.ActionBarAccesskeys.bind_targets();
 });
