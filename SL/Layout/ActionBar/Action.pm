@@ -47,8 +47,13 @@ sub p {
   SL::Presenter->get
 }
 
+sub init_params {
+  +{}
+}
+
 # unique id to tie div and javascript together
 sub init_id {
+  $_[0]->params->{id} //
   $_[0]->p->name_to_id('action[]')
 }
 
