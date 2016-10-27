@@ -59,8 +59,6 @@ namespace('kivi', function(k){
         }
       }).join('+');
 
-      console.log(normalized)
-
       if (!(target in this.actions))
         this.actions[target] = {};
       this.actions[target][normalized] = action;
