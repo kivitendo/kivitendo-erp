@@ -41,7 +41,8 @@ namespace('kivi', function(k){
         target = 'document';
       }
 
-      var normalized = $.map(keystring.split('+'), function(val, i) {
+      var normalized = $.map(String.prototype.split.call(keystring, '+'), function(val, i) {
+        console.log(keystring)
         switch (val) {
           case 'ctrl':
           case 'alt':  return val;
@@ -49,10 +50,8 @@ namespace('kivi', function(k){
           default:
             if (val.length == 1) {
               return val.charChodeAt(0)
-            } else if (typeof val === 'number') {
-              return val
             } else if (val % 1 === 0) {
-              return val % 1;
+              return val;
             } else {
               console.log('can not normalize access key token: ' + val);
             }
