@@ -9,11 +9,6 @@ A:hover { color: black;
            background-color: lemonchiffon;
            text-decoration: none;
          }
-a, div {
-  transition: background-color 0.2s;
-  -moz-transition: background-color 0.2s;
-  -webkit-transition: background-color 0.2s;
-}
 
 input, textarea, select {
   border: 1px;
@@ -79,7 +74,6 @@ body {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 80%;
   background-color: white;
-  background-image: url("../../image/fade.png"); background-repeat:repeat-x;
   color: black;
   height: 100%;
 }
@@ -543,7 +537,9 @@ div.layout-actionbar {
   height: 25px;
   top: 20px;
   z-index: 20;
-/*  background-color: whitesmoke; */
+  background-color: #d0cfc9;
+  width: 100%;
+  padding: 2px;
 }
 
 div.layout-actionbar-action {
@@ -553,13 +549,14 @@ div.layout-actionbar-action {
   -moz-user-select: none;      /* Firefox */
   -ms-user-select: none;       /* Internet Explorer/Edge */
   user-select: none;           /* don't select text on double click */
-  transition: background-color 0s;
-  -moz-transition: background-color 0s;
-  -webkit-transition: background-color 0s;
 }
 
 div.layout-actionbar ~ div {
   padding-top: 25px;
+}
+
+div.layout-actionbar > div + div {
+  margin-left: 2px;
 }
 
 div.layout-actionbar-separator {

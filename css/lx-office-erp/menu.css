@@ -1,6 +1,5 @@
 
 body.menu {
-  background-image: url("../../image/fade.png");background-repeat:repeat-x;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 80%;
   color: black;
@@ -9,13 +8,13 @@ body.menu {
 table.menunew {
   border: 0;
   width: 100%;
-  background-image: url("../../image/bg_titel.gif");
+  background-color: #f0efde;
   border-spacing: 0;
 }
 
 table.menunew td {
   padding: 0;
-  color:white;
+  color:black;
   font-family: Verdana, Arial, sans-serif;
 }
 
@@ -24,16 +23,42 @@ body.menunew {
   margin:0px;
 }
 
+#main_menu_div {
+  background-color: #d0cfc9
+}
+
+#main_menu_div ~ div.layout-actionbar {
+  top: 45px;
+}
+
+#main_menu_div ~ #content {
+  padding-top: 25px;
+}
+#main_menu_div ~ div.layout-actionbar ~ #content {
+  padding-top: 54px;
+}
+
 #menuv3 {
-width:99.8%;
-float:left;
-background:url(../../image/bg_css_menu.png) repeat bottom;
-border:1px solid;
-border-color:#ccc #888 #555 #bbb;
+  width: 100%;
+  position: fixed;
+  background-color: #d0cfc9;
+  border-color:#ccc #888 #555 #bbb;
+  z-index: 30;
+}
+
+#menuv3 ~ div.layout-actionbar {
+  top: 40px;
+}
+#menuv3  ~ #content {
+  padding-top: 35px;
+}
+#menuv3 ~ div.layout-actionbar ~ #content {
+  padding-top: 64px;
 }
 
 #menuv3 a, #menuv3 h2, #menuv3 div.x {
-font:11px/16px arial,helvetica,sans-serif;
+font-size:13px;
+font-weight: normal;
 display:block;
 border:0;
 border-right:1px;
@@ -45,7 +70,7 @@ padding:1px 0 1px 3px;
 }
 
 #menuv3 h2 {
-color:#fff;
+color: black;
 padding:2px 10px;
 }
 
@@ -63,13 +88,14 @@ background:#eee url(../../image/right.gif) no-repeat right;
 }
 
 #menuv3 a:hover, #menuv3 div.x:hover {
-color:#a00;
-background-color:#ddd;
+/*color:#a00;
+background-color:#ddd;*/
+  background-color: #c6c39b;
 }
 
 #menuv3 a:active, #menuv3 div.x:active {
-color:#060;
-background-color:#ccc;
+color:#000;
+background-color:#c6c39b;
 }
 
 #menuv3 ul {
@@ -83,6 +109,7 @@ float:left;
 position:relative;
 float:none;
 border:0;
+border-width:0 0 1px 0;
 }
 
 /* IE6 spacing bug fix, <li>s without a bottom border get spaced to far
@@ -105,8 +132,7 @@ border-width:0 0 1px 0;
  * causing the menu to close. Opera 9 has the same bug btw. */
 #menuv3 ul ul {
 position:absolute;
-z-index:500;
-top:auto;
+z-index: 500;
 display:none;
 }
 
@@ -124,13 +150,12 @@ improves IE's performance speed to use the older
 file and this method */
 
 div#menuv3 h2:hover {
-background:#A3C5FF;
-color:#a00;
+background:#c6c39b;
+color:#000;
 }
 
 div#menuv3 li:hover {
 cursor:pointer;
-z-index:100;
 }
 
 div#menuv3 li:hover ul ul,

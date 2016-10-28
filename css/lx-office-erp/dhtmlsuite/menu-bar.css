@@ -16,24 +16,18 @@
 ************************************************************************************************************/
 
 .DHTMLSuite_menuBar_top{	/* The bar that is parent of the menu strip */
-	color:#FFF;
-	height:26px;
-	width:100%;
-	background-repeat:repeat-x;
-	font-family: sans-serif, Verdana, Arial, Helvetica;
-	z-index:100000;
-	padding-left:10px;
-/*	background-image:url('../../../image/dhtmlsuite/menu_strip_bg.jpg');*/
-	background-image:url('../../../image/bg_css_menu.png');
+  position: fixed;
+  height: 26px;
+  width: 100%;
+  z-index: 100;
+  padding-left: 10px;
+  background-color: #d0cfc9;
 }
 
 .DHTMLSuite_menuBar_sub{
-	position:absolute;
-	background-color:#FFF;
-	border:1px solid #000;
-	background-image:url('../../../image/dhtmlsuite/menu-bar-gradient.jpg');	/* Background image for sub menu items */
-	background-repeat:repeat-y;
-	background-position: left center;
-	display:inline;
+  position: fixed;
+  background-color: #FFF;
+  border: 1px solid #000;
+  display: inline;
 }
 

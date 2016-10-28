@@ -2,17 +2,17 @@
 #frame-header .frame-header-element a:visited,
 #frame-header .frame-header-element a:hover,
 #frame-header .frame-header-element a:active {
-  color: white;
+  color: black;
   background: none;
   text-decoration: underline;
 }
 
 #frame-header {
-  background: url('../../../image/bg_titel.gif') repeat-x;
+  background-color: #d0cfc9;
   text-align: center;
   margin: 0;
   padding: 0;
-  color: white;
+  color: black;
   border: 0;
   overflow: hidden;
   height: 20px;
@@ -20,7 +20,7 @@
   border-spacing: 0;
   position: fixed;
   top: 0;
-  z-index: 20;
+  z-index: 40;
 }
 
 #frame-header + div {
@@ -39,7 +39,7 @@
 #frame-header .frame-header-center,
 #frame-header .frame-header-right  {
   border-spacing: 0;
-  color: white;
+  color: black;
   padding: 0;
   font-family: verdana,arial,sans-serif;
   vertical-align: middle;
