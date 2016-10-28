@@ -52,6 +52,7 @@ Minimal usage, default values, without saving to database:
   my $customer = SL::Dev::CustomerVendor::create_customer();
 
 Complex usage, overwriting some defaults, and save to database:
+
   SL::Dev::CustomerVendor::create_customer(name        => 'Test customer',
                                            hourly_rate => 50,
                                            taxzone_id  => 2,
@@ -67,4 +68,3 @@ Nothing here yet.
 G. Richardson E<lt>grichardson@kivitendo-premium.deE<gt>
 
 =cut
-1;
