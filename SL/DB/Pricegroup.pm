@@ -5,7 +5,6 @@ use strict;
 use SL::DB::MetaSetup::Pricegroup;
 use SL::DB::Manager::Pricegroup;
 use SL::DB::Helper::ActsAsList;
-use SL::DB::Customer;
 
 __PACKAGE__->meta->initialize;
 
@@ -17,6 +16,7 @@ sub displayable_name {
 
 sub validate {
   my ($self) = @_;
+  require SL::DB::Customer;
 
   my @errors;
 
