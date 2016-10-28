@@ -1,7 +1,8 @@
 package SL::Dev::Part;
 
+use strict;
 use base qw(Exporter);
-@EXPORT = qw(create_part create_service);
+our @EXPORT = qw(create_part create_service);
 
 use SL::DB::Part;
 use SL::DB::Unit;

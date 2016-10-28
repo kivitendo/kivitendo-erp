@@ -1,7 +1,8 @@
 package SL::Dev::Inventory;
 
+use strict;
 use base qw(Exporter);
-@EXPORT = qw(create_warehouse_and_bins set_stock);
+our @EXPORT = qw(create_warehouse_and_bins set_stock);
 
 use SL::DB::Warehouse;
 use SL::DB::Bin;
