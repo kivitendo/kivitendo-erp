@@ -1302,6 +1302,10 @@ sub save_as_new {
     $form->save_history;
   }
   # /saving the history
+
+  # deleting addition to get the history saved for the new part, too.
+  delete $form->{addition};
+
   $form->{id} = 0;
   if ($form->{"original_partnumber"} &&
       ($form->{"partnumber"} eq $form->{"original_partnumber"})) {
