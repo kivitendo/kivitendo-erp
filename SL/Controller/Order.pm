@@ -594,30 +594,41 @@ sub action_get_item_longdescription {
   $_[0]->render(\ $longdescription, { type => 'text' });
 }
 
-# load the second row for an item (cvars only for now)
+# load the second row for one or more items (cvars only for now)
 #
-# This action gets the html code for the items second row by rendering a template for
-# the second row and calls a javascript function with this html code via client js.
-sub action_load_second_row {
+# This action gets the html code for all items second rows by rendering a template for
+# the second row and sets the html code via client js.
+sub action_load_second_rows {
   my ($self) = @_;
 
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{orderitem_ids} };
-  my $item = $self->order->items_sorted->[$idx];
+  foreach my $item_id (@{ $::form->{item_ids} }) {
+    my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
+    my $item = $self->order->items_sorted->[$idx];
 
-  # Parse values from form (they are formated while rendering (template)).
-  # Workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
-  # This parsing is not necessary at all, if we assure that the second row/cvars are only loaded once.
-  #foreach my $var (@{ $item->cvars_by_config }) {
-  #  $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
-  #}
-  #$item->parse_custom_variable_values;
+    $self->_js_load_second_row($item, $item_id, 0);
+  }
+
+  $self->js->render();
+}
+
+sub _js_load_second_row {
+  my ($self, $item, $item_id, $do_parse) = @_;
+
+  if ($do_parse) {
+    # Parse values from form (they are formated while rendering (template)).
+    # Workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+    # This parsing is not necessary at all, if we assure that the second row/cvars are only loaded once.
+    foreach my $var (@{ $item->cvars_by_config }) {
+      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+    }
+    $item->parse_custom_variable_values;
+  }
 
   my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item);
 
   $self->js
-    ->html('.row_entry:has(#item_' . $::form->{item_id} . ') [name = "second_row"]', $row_as_html)
-    ->data('.row_entry:has(#item_' . $::form->{item_id} . ') [name = "second_row"]', 'loaded', 1)
-    ->render();
+    ->html('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', $row_as_html)
+    ->data('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', 'loaded', 1);
 }
 
 sub _js_redisplay_linetotals {

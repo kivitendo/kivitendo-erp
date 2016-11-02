@@ -190,12 +190,58 @@ namespace('kivi.Order', function(ns) {
       return;
     }
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/load_second_row' });
-    data.push({ name: 'item_id', value: item_id_dom.val() });
+    data.push({ name: 'action', value: 'Order/load_second_rows' });
+    data.push({ name: 'item_ids[]', value: item_id_dom.val() });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.load_all_second_rows = function() {
+    var rows = $('.row_entry').filter(function(idx, elt) {
+      return $(elt).find('[name="second_row"]').data('loaded') != 1;
+    });
+
+    var item_ids = $.map(rows, function(elt) {
+      var item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
+      return { name: 'item_ids[]', value: item_id };
+    });
+
+    if (item_ids.length == 0) {
+      return;
+    }
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/load_second_rows' });
+    data = data.concat(item_ids);
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.hide_second_row = function(row) {
+    $(row).children().not(':first').hide();
+    $(row).data('expanded', false);
+    var elt = $(row).find('.expand');
+    elt.attr('src', "image/expand3.gif");
+    elt.attr('alt', kivi.t8('Show details'));
+    elt.attr('title', kivi.t8('Show details'));
+  };
+
+  ns.show_second_row = function(row) {
+    $(row).children().not(':first').show();
+    $(row).data('expanded', true);
+    var elt = $(row).find('.expand');
+    elt.attr('src', "image/collapse3.gif");
+    elt.attr('alt', kivi.t8('Hide details'));
+    elt.attr('title', kivi.t8('Hide details'));
+  };
+
+  ns.toggle_second_row = function(row) {
+    if ($(row).data('expanded') === true) {
+      ns.hide_second_row(row);
+    } else {
+      ns.show_second_row(row);
+    }
+  };
 
   ns.init_row_handlers = function() {
     kivi.run_once_for('.recalc', 'on_change_recalc', function(elt) {
@@ -218,14 +264,14 @@ namespace('kivi.Order', function(ns) {
           event.preventDefault();
           var row = $(event.target).parents(".row_entry").first();
           ns.load_second_row(row);
-          $(row).children().not(':first').show();
+          ns.show_second_row(row);
           return false;
         }
         if(event.keyCode == 38 && event.shiftKey === true) {
           // shift arrow up
           event.preventDefault();
           var row = $(event.target).parents(".row_entry").first();
-          $(row).children().not(':first').hide();
+          ns.hide_second_row(row);
           return false;
         }
       });
@@ -233,10 +279,21 @@ namespace('kivi.Order', function(ns) {
         event.preventDefault();
         var row = $(event.target).parents(".row_entry").first();
         ns.load_second_row(row);
-        $(row).children().not(':first').toggle();
+        ns.toggle_second_row(row);
         return false;
       });
     });
+
+    kivi.run_once_for('.expand', 'expand_second_row', function(elt) {
+      $(elt).click(function(event) {
+        event.preventDefault();
+        var row = $(event.target).parents(".row_entry").first();
+        ns.load_second_row(row);
+        ns.toggle_second_row(row);
+        return false;
+      })
+    });
+
   };
 
   ns.redisplay_linetotals = function(data) {
@@ -485,5 +542,28 @@ $(function(){
   $('#row_table_id').on('sortstop', function(event, ui) {
     $('#row_table_id thead a img').remove();
     kivi.Order.renumber_positions();
+  });
+
+  $('#expand_all').on('click', function(event) {
+    event.preventDefault();
+    if ($('#expand_all').data('expanded') === true) {
+      $('#expand_all').data('expanded', false);
+      $('#expand_all').attr('src', 'image/expand3.gif');
+      $('#expand_all').attr('alt', kivi.t8('Show all details'));
+      $('#expand_all').attr('title', kivi.t8('Show all details'));
+      $('.row_entry').each(function(idx, elt) {
+        kivi.Order.hide_second_row(elt);
+      });
+    } else {
+      $('#expand_all').data('expanded', true);
+      $('#expand_all').attr('src', "image/collapse3.gif");
+      $('#expand_all').attr('alt', kivi.t8('Hide all details'));
+      $('#expand_all').attr('title', kivi.t8('Hide all details'));
+      kivi.Order.load_all_second_rows();
+      $('.row_entry').each(function(idx, elt) {
+        kivi.Order.show_second_row(elt);
+      });
+    }
+    return false;
   });
 });
