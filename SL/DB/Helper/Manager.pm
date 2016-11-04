@@ -22,7 +22,10 @@ sub find_by_or_create {
   my $class = shift;
 
   my $found;
-  eval { $found = $class->find_by(@_); };
+  eval {
+    $found = $class->find_by(@_);
+    1;
+  } or die $@;
   return defined $found ? $found : $class->object_class->new;
 }
 
