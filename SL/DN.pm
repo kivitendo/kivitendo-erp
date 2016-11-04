@@ -292,6 +292,10 @@ sub save_dunning {
   $main::lxdebug->enter_sub();
 
   my $rc = SL::DB->client->with_transaction(\&_save_dunning, $self, $myconfig, $form, $rows);
+
+  if (!$rc) {
+    die SL::DB->client->error
+  }
   $::lxdebug->leave_sub;
 
   return $rc;
