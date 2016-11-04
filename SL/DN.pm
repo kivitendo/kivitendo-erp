@@ -475,11 +475,11 @@ sub set_template_options {
   # prepare meta information for template introspection
   $form->{template_meta} = {
     formname  => $form->{formname},
-    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id}),
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id} || undef),
     format    => $form->{format},
     media     => $form->{media},
     extension => $extension,
-    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id}),
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id} || undef),
     today     => DateTime->today,
   };
 
