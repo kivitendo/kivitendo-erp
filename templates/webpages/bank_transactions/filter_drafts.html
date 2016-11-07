@@ -13,7 +13,7 @@
    [% FOREACH draft = DRAFTS %]
     <tr class="listrow[% loop.count % 2 %]">
      <td>[% HTML.escape(draft.itime_as_date) %]</td>
-     <td><a href="controller.pl?action=Draft/load&id=[% HTML.url(draft.id) %]&form.amount_1=[% SELF.transaction.amount_as_number %]&form.datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&form.paid_1=[% SELF.transaction.amount_as_number %]&form.callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
+     <td><a href="controller.pl?action=Draft/load&id=[% HTML.url(draft.id) %]&form.amount_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&form.datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&form.paid_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&form.callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
      <td>[% HTML.escape(draft.employee.name) %]</td>
      <td>[% HTML.escape(draft.vendor) %]</td>
     </tr>
