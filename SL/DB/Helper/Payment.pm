@@ -94,7 +94,7 @@ sub pay_invoice {
   if ( $params{'payment_type'} eq 'difference_as_skonto' ) {
     croak "amount $params{amount} doesn't match open amount " . $self->open_amount . ", diff = " . ($params{amount}-$self->open_amount) if $params{amount} && abs($self->open_amount - $params{amount} ) > 0.0000001;
   } elsif ( $params{'payment_type'} eq 'with_skonto_pt' ) {
-    croak "amount $params{amount} doesn't match amount less skonto: " . $self->open_amount . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
+    croak "amount $params{amount} doesn't match amount less skonto: " . $self->amount_less_skonto . "\n" if $params{amount} && abs($self->amount_less_skonto - $params{amount} ) > 0.0000001;
     croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
   };
 
@@ -635,11 +635,12 @@ sub get_payment_select_options_for_bank_transaction {
   die unless $bt;
 
   my $open_amount = $self->open_amount;
-
+  #$main::lxdebug->message(LXDebug->DEBUG2(),"skonto_date=".$self->skonto_date." open amount=".$open_amount);
   my @options;
   if ( $open_amount &&                   # invoice amount not 0
        $self->skonto_date &&             # check whether skonto applies
-       abs(abs($self->amount_less_skonto) - abs($bt->amount)) < 0.01 &&
+       ( abs(abs($self->amount_less_skonto) - abs($bt->amount)) < 0.01 ||
+        ( $bt->transactioncode eq "191" && abs($self->amount_less_skonto) < abs($bt->amount) )) &&
        $self->check_skonto_configuration) {
          if ( $self->within_skonto_period($bt->transdate) ) {
            push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });

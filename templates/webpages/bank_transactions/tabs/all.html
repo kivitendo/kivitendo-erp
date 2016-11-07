@@ -1,6 +1,12 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
 [% SET debug=1 %]
+<form method="post" id="list_form">
+[% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
+[% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
+[% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
+[% L.hidden_tag('action', 'BankTransaction/dispatch') %]
+[% L.hidden_tag('ui_tab', ui_tab) %]
 
  <table id="bt_list">
   <thead>
@@ -45,6 +51,7 @@
         [% END %]
     </th>
     <th>[% 'Purpose' | $T8 %]</th>
+    <th>[% 'Type' | $T8 %]</th>
     <th>[% IF FORM.sort_by == 'remote_account_number'%]
           <a href="controller.pl?action=BankTransaction/list&filter.bank_account=[% bank_account.id %]&sort_by=remote_account_number&sort_dir=[% 1 - FORM.sort_dir %]" class="sort_link">
             [% 'Remote account number' | $T8 %][% IF FORM.sort_dir == 0 %]<img border="0" src="image/down.png">[% ELSE %]<img border="0" src="image/up.png">[% END %]</a>
@@ -86,7 +93,7 @@
       [% FOREACH prop = bt.proposals %]
         <div name='[% prop.id %]'>
          <a href=# onclick="add_invoices('[% bt.id %]', '[% prop.id %]', '[% HTML.escape(prop.invnumber) %]');"
-            title="<table><tr><th></th><th>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %] ([% 'AP' | $T8 %])[% END %]</th><th>[% 'Bank transaction' | $T8 %]</th></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount, 2) %] ([% 'open' | $T8 %]: [% LxERP.format_amount(prop.open_amount, 2) %])</td><td>[% LxERP.format_amount(bt.amount, 2) %]</td></tr>[% IF prop.skonto_date %]<tr><th>[% 'Payment terms' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount_less_skonto, 2) %] [% 'until' | $T8 %] [% HTML.escape(prop.skonto_date.to_kivitendo) %] ([% prop.percent_skonto * 100 %] %)</td><td></td></tr>[% END %]<tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.displayable_name) %][% HTML.escape(prop.vendor.displayable_name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>"
+            title="<table><tr><th></th><th>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %] ([% 'AP' | $T8 %])[% END %]</th><th>[% 'Bank transaction' | $T8 %]</th></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount, 2) %] ([% 'open' | $T8 %]: [% LxERP.format_amount(prop.open_amount, 2) %])</td><td>[% LxERP.format_amount(bt.absamount, 2) %]</td></tr>[% IF prop.skonto_date %]<tr><th>[% 'Payment terms' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount_less_skonto, 2) %] [% 'until' | $T8 %] [% HTML.escape(prop.skonto_date.to_kivitendo) %] ([% prop.percent_skonto * 100 %] %)</td><td></td></tr>[% END %]<tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.displayable_name) %][% HTML.escape(prop.vendor.displayable_name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>"
               class="[% IF bt.agreement >= 5 %]green[% ELSIF bt.agreement < 5 and bt.agreement >= 3 %]orange[% ELSE %]red[% END %] tooltipster-html">&larr;[% HTML.escape(prop.invnumber)%]</a></div>
       [% END %]
      </td>
@@ -95,6 +102,7 @@
      <td align=right>[% bt.invoice_amount_as_number %]</td>
      <td>[% HTML.escape(bt.remote_name) %]</td>
      <td>[% HTML.escape(bt.purpose) %]</td>
+     <td>[% HTML.escape(bt.transactiontext) %]</td>
      <td>[% HTML.escape(bt.remote_account_number) %]</td>
      <td>[% HTML.escape(bt.remote_bank_code) %]</td>
      <td align=right>[% bt.valutadate_as_date %]</td>
@@ -103,3 +111,6 @@
     [%- END %]
   </tbody>
  </table>
+[% L.submit_tag('action_save_invoices', LxERP.t8('Save invoices')) %]
+
+</form>

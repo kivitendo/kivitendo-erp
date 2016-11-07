@@ -1,5 +1,12 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
+<form method="post" id="list_form">
+[% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
+[% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
+[% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
+[% L.hidden_tag('action', 'BankTransaction/dispatch') %]
+[% L.hidden_tag('ui_tab', ui_tab) %]
+
 <table>
   <thead>
     <tr class="listheading">
@@ -9,6 +16,7 @@
       <th>[% 'ID' | $T8 %]</th>
       <th>[% 'Transdate' | $T8 %]</th>
       <th>[% 'Amount' | $T8 %]</th>
+      <th>[% 'Skonto' | $T8 %]</th>
       <th>[% 'Purpose/Reference' | $T8 %]</th>
       <th>[% 'Customer/Vendor/Remote name' | $T8 %]</th>
     </tr>
@@ -21,14 +29,15 @@
     [% FOREACH proposal = PROPOSALS %]
       <tbody class="listrow">
         <tr>
-          <td rowspan=2 style="valign:center;">
+          <td rowspan=[% proposal.rowspan %] style="valign:center;">
             [% L.checkbox_tag('proposal_ids[]', checked=0, value=proposal.id) %]
           </td>
 
-          <td>[% 'Bank transaction' | $T8 %]</td>
+          <td>[% HTML.escape(proposal.transactiontext) %]</td>
           <td>[% proposal.id %]</td>
           <td>[% proposal.transdate_as_date %]</td>
-          <td>[% proposal.amount_as_number %]</td>
+          <td align="right">[% proposal.amount_as_number %]</td>
+          <td></td>
           <td>[% HTML.escape(proposal.purpose) %]</td>
           <td>[% HTML.escape(proposal.remote_name) %]</td>
         </tr>
@@ -36,16 +45,23 @@
       [% FOREACH proposed_invoice = proposal.proposals %]
         <tr>
 
+          <td></td>
           <td>[% 'Invoice' | $T8 %]</td>
           <td>[% proposed_invoice.id %]</td>
-          <td>[% proposed_invoice.transdate_as_date %]</td>
-          <td>[% proposed_invoice.amount_as_number %]</td>
+          <td>[% proposed_invoice.transdate_as_date %]
+              [% L.hidden_tag("invoice_ids." _ proposal.id _ "[]", proposed_invoice.id) %]</td>
+          <td align="right">[% proposed_invoice.realamount %]</td>
+          <td>[% proposed_invoice.skonto_type | $T8 %]
+              [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", proposed_invoice.skonto_type) %]</td>
           <td>[% proposed_invoice.link %]</td>
           <td>[% HTML.escape(proposed_invoice.customer.name) %][% HTML.escape(proposed_invoice.vendor.name) %]</td>
         </tr>
-            [% L.hidden_tag("proposed_invoice_" _ proposal.id, proposed_invoice.id) %]
-      [% END %]
+        [% END %]
+        <tr><td style="height:10px"></td></tr>
       </tbody>
     [% END %]
   [% END %]
 </table>
+[% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals')) %]
+
+</form>

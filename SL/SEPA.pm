@@ -46,7 +46,9 @@ sub retrieve_open_invoices {
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' ${mandate} AS vc_bank_info_ok,
 
-         ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount
+         ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount,
+         COALESCE(open_transfers.amount, 0) AS transfer_amount,
+         pt.description as pt_description
 
        FROM ${arap}
        LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
@@ -64,6 +66,7 @@ sub retrieve_open_invoices {
 
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
+    #  $main::lxdebug->message(LXDebug->DEBUG2(),"sepa add query:".$query);
 
   my $results = selectall_hashref_query($form, $dbh, $query);
 

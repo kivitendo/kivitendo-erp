@@ -23,6 +23,7 @@ use SL::DB::AccTransaction;
 use SL::DB::Tax;
 use SL::DB::Draft;
 use SL::DB::BankAccount;
+use SL::DB::SepaExportItem;
 use SL::DBUtils qw(like);
 use SL::Presenter;
 
@@ -97,22 +98,99 @@ sub action_list {
       @where
     ],
   );
+  $main::lxdebug->message(LXDebug->DEBUG2(),"count bt=".scalar(@{$bank_transactions}." bank_account=".$bank_account->id." chart=".$bank_account->chart_id));
 
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { gt => \'paid' }], with_objects => 'customer');
-  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { gt => \'paid' }], with_objects => 'vendor');
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { gt => \'paid' }], with_objects => ['customer','payment_terms']);
+  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { gt => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
+  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $bank_account->chart_id ,
+                                                                             'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
+  $main::lxdebug->message(LXDebug->DEBUG2(),"count sepaexport=".scalar(@{$all_open_sepa_export_items}));
 
   my @all_open_invoices;
   # filter out invoices with less than 1 cent outstanding
   push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ar_invoices };
   push @all_open_invoices, grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
+  $main::lxdebug->message(LXDebug->DEBUG2(),"bank_account=".$::form->{filter}{bank_account}." invoices: ".scalar(@{ $all_open_ar_invoices }).
+                              " + ".scalar(@{ $all_open_ap_invoices })." transactions=".scalar(@{ $bank_transactions }));
+
+  my @all_sepa_invoices;
+  my @all_non_sepa_invoices;
+  my %sepa_exports;
+  # first collect sepa export items to open invoices
+  foreach my $open_invoice (@all_open_invoices){
+    #    my @items =  grep { $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id } @{$all_open_sepa_export_items};
+    $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount,2);
+    $open_invoice->{skonto_type} = 'without_skonto';
+    foreach ( @{$all_open_sepa_export_items}) {
+      if ( $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id ) {
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"exitem=".$_->id." for invoice ".$open_invoice->id);
+        $open_invoice->{sepa_export_item} = $_ ;
+        $open_invoice->{skonto_type} = $_->payment_type;
+        $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
+        $sepa_exports{$_->sepa_export_id}->{count}++ ;
+        $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
+        $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount;
+        push ( @{ $sepa_exports{$_->sepa_export_id}->{invoices}} , $open_invoice );
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"amount for export id ".$_->sepa_export_id." = ".
+        #                          $sepa_exports{$_->sepa_export_id}->{amount}." count = ".
+        #                          $sepa_exports{$_->sepa_export_id}->{count}." is_ar = ".
+        #                          $sepa_exports{$_->sepa_export_id}->{is_ar} );
+        push @all_sepa_invoices , $open_invoice;
+      }
+    }
+    push @all_non_sepa_invoices , $open_invoice if ! $open_invoice->{sepa_export_item};
+  }
 
   # try to match each bank_transaction with each of the possible open invoices
   # by awarding points
+  @all_open_invoices = @all_non_sepa_invoices;
+  my @proposals;
 
   foreach my $bt (@{ $bank_transactions }) {
-    next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
+    ## 5 Stellen hinter dem Komma auf 2 Stellen reduzieren
+    $bt->amount($bt->amount*1);
+    $bt->invoice_amount($bt->invoice_amount*1);
+    $main::lxdebug->message(LXDebug->DEBUG2(),"BT ".$bt->id." amount=".$bt->amount." invoice_amount=".$bt->invoice_amount." remote=". $bt->{remote_name});
+
+    $bt->{proposals} = [];
 
     $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
+
+    if ( $self->is_collective_transaction($bt) ) {
+      foreach ( keys  %sepa_exports) {
+        my $factor = ($sepa_exports{$_}->{is_ar}>0?1:-1);
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"Exp ID=".$_." factor=".$factor." compare sum amount ".($sepa_exports{$_}->{amount} *1) ." == ".($bt->amount * $factor));
+        if ( $bt->transactioncode eq '191' && ($sepa_exports{$_}->{amount} * 1) eq ($bt->amount * $factor) ) {
+          ## jupp
+          $bt->{proposals} = $sepa_exports{$_}->{invoices} ;
+          $sepa_exports{$_}->{proposed}=1;
+          #$main::lxdebug->message(LXDebug->DEBUG2(),"has ".scalar($bt->{proposals})." invoices");
+          push(@proposals, $bt);
+          next;
+        }
+      }
+    }
+    next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
+
+    foreach ( keys %sepa_exports) {
+      my $factor = ($sepa_exports{$_}->{is_ar}>0?1:-1);
+      #$main::lxdebug->message(LXDebug->DEBUG2(),"exp count=".$sepa_exports{$_}->{count}." factor=".$factor." proposed=".$sepa_exports{$_}->{proposed});
+      if ( $sepa_exports{$_}->{count} == 1 ) {
+        my $oinvoice = @{ $sepa_exports{$_}->{invoices}}[0];
+        my $eitem = $sepa_exports{$_}->{item};
+        $eitem->amount($eitem->amount*1);
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=". ($bt->amount * $factor));
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"compare with   '".$eitem->vc_iban."' amount=".$eitem->amount);
+        if ( $bt->{remote_account_number} eq $eitem->vc_iban && $eitem->amount eq ($bt->amount * $factor)) {
+          ## jupp
+          $bt->{proposals} = $sepa_exports{$_}->{invoices} ;
+          #$main::lxdebug->message(LXDebug->DEBUG2(),"found invoice");
+          $sepa_exports{$_}->{proposed}=1;
+          push(@proposals, $bt);
+          next;
+        }
+     }
+    }
 
     # try to match the current $bt to each of the open_invoices, saving the
     # results of get_agreement_with_invoice in $open_invoice->{agreement} and
@@ -125,9 +203,8 @@ sub action_list {
 
     foreach my $open_invoice (@all_open_invoices){
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
+      #  $main::lxdebug->message(LXDebug->DEBUG2(),"agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches});
     };
-
-    $bt->{proposals} = [];
 
     my $agreement = 15;
     my $min_agreement = 3; # suggestions must have at least this score
@@ -153,12 +230,14 @@ sub action_list {
   # * there must be only one exact match
   # * depending on whether sales or purchase the amount has to have the correct sign (so Gutschriften don't work?)
   my $proposal_threshold = 5;
-  my @proposals = grep {
+  my @otherproposals = grep {
        ($_->{agreement} >= $proposal_threshold)
     && (1 == scalar @{ $_->{proposals} })
     && (@{ $_->{proposals} }[0]->is_sales ? abs(@{ $_->{proposals} }[0]->amount - $_->amount) < 0.01
                                           : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01)
   } @{ $bank_transactions };
+
+  push ( @proposals, @otherproposals);
 
   # sort bank transaction proposals by quality (score) of proposal
   $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 1;
@@ -169,7 +248,9 @@ sub action_list {
                 title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
                 PROPOSALS         => \@proposals,
-                bank_account      => $bank_account );
+                bank_account      => $bank_account,
+                ui_tab            => scalar(@proposals) > 0?1:0,
+              );
 }
 
 sub action_assign_invoice {
@@ -373,10 +454,12 @@ sub action_ajax_accept_invoices {
   );
 }
 
-sub action_save_invoices {
+sub save_invoices {
   my ($self) = @_;
 
-  my $invoice_hash = delete $::form->{invoice_ids}; # each key (the bt line with a bt_id) contains an array of invoice_ids
+  return 0 if !$::form->{invoice_ids};
+
+  my %invoice_hash = %{ delete $::form->{invoice_ids} };  # each key (the bt line with a bt_id) contains an array of invoice_ids
 
   # e.g. three partial payments with bt_ids 54, 55 and 56 for invoice with id 74:
   # $invoice_hash = {
@@ -403,14 +486,56 @@ sub action_save_invoices {
 
   $self->problems([]);
 
-  while ( my ($bank_transaction_id, $invoice_ids) = each(%$invoice_hash) ) {
-    push @{ $self->problems }, $self->save_single_bank_transaction(
-      bank_transaction_id => $bank_transaction_id,
-      invoice_ids         => $invoice_ids,
-    );
+  my $count = 0;
+
+  if ( $::form->{proposal_ids} ) {
+    foreach (@{ $::form->{proposal_ids} }) {
+      my  $bank_transaction_id = $_;
+      my  $invoice_ids = $invoice_hash{$_};
+      push @{ $self->problems }, $self->save_single_bank_transaction(
+        bank_transaction_id => $bank_transaction_id,
+        invoice_ids         => $invoice_ids,
+      );
+      $count += scalar( @{$invoice_ids} );
+    }
+  } else {
+    while ( my ($bank_transaction_id, $invoice_ids) = each(%invoice_hash) ) {
+      push @{ $self->problems }, $self->save_single_bank_transaction(
+        bank_transaction_id => $bank_transaction_id,
+        invoice_ids         => $invoice_ids,
+      );
+      $count += scalar( @{$invoice_ids} );
+    }
   }
+  return $count;
+}
+
+sub action_save_invoices {
+  my ($self) = @_;
+  my $count = $self->save_invoices();
+
+  flash('ok', t8('#1 invoice(s) saved.', $count));
 
   $self->action_list();
+}
+
+sub action_save_proposals {
+  my ($self) = @_;
+  if ( $::form->{proposal_ids} ) {
+    my $propcount = scalar(@{ $::form->{proposal_ids} });
+    if ( $propcount > 0 ) {
+      my $count = $self->save_invoices();
+
+      flash('ok', t8('#1 proposal(s) with #2 invoice(s) saved.',  $propcount, $count));
+    }
+  }
+  $self->action_list();
+
+}
+
+sub is_collective_transaction {
+  my ($self, $bt) = @_;
+  return $bt->transactioncode eq "191";
 }
 
 sub save_single_bank_transaction {
@@ -509,18 +634,19 @@ sub save_single_bank_transaction {
 
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
+        my $open_amount = ($payment_type eq 'with_skonto_pt'?$invoice->amount_less_skonto:$invoice->open_amount);
         # first calculate new bank transaction amount ...
         if ($invoice->is_sales) {
-          $amount_of_transaction -= $sign * $invoice->open_amount;
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $invoice->open_amount);
+          $amount_of_transaction -= $sign * $open_amount;
+          $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $open_amount);
         } else {
-          $amount_of_transaction += $sign * $invoice->open_amount;
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $invoice->open_amount);
+          $amount_of_transaction += $sign * $open_amount;
+          $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $open_amount);
         }
         # ... and then pay the invoice
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
-                              amount       => $invoice->open_amount,
+                              amount       => $open_amount,
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
@@ -588,58 +714,6 @@ sub save_single_bank_transaction {
   });
 
   return grep { $_ } ($error, @warnings);
-}
-
-sub action_save_proposals {
-  my ($self) = @_;
-
-  foreach my $bt_id (@{ $::form->{proposal_ids} }) {
-    my $bt = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
-
-    my $arap = SL::DB::Manager::Invoice->find_by(id => $::form->{"proposed_invoice_$bt_id"});
-    $arap    = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{"proposed_invoice_$bt_id"}) if not defined $arap;
-
-    # check for existing record_link for that $bt and $arap
-    # do this before any changes to $bt are made
-    die t8("Bank transaction with id #1 has already been linked to #2.", $bt->id, $arap->displayable_name)
-      if _existing_record_link($bt, $arap);
-
-    #mark bt as booked
-    $bt->invoice_amount($bt->amount);
-    $bt->save;
-
-    #pay invoice
-    $arap->pay_invoice(chart_id  => $bt->local_bank_account->chart_id,
-                       trans_id  => $arap->id,
-                       amount    => $arap->amount,
-                       transdate => $bt->transdate->to_kivitendo);
-    $arap->save;
-
-    #create record link
-    my @props = (
-      from_table => 'bank_transactions',
-      from_id    => $bt_id,
-      to_table   => $arap->is_sales ? 'ar' : 'ap',
-      to_id      => $arap->id,
-    );
-
-    SL::DB::RecordLink->new(@props)->save;
-
-    # code duplicated in action_save_invoices!
-    # "close" a sepa_export_item if it exists
-    # currently only works, if there is only exactly one open sepa_export_item
-    if ( my $seis = $arap->find_sepa_export_items({ executed => 0 }) ) {
-      if ( scalar @$seis == 1 ) {
-        # moved the execution and the check for sepa_export into a method,
-        # this isn't part of a transaction, though
-        $seis->[0]->set_executed if $arap->id == $seis->[0]->arap_id;
-      }
-    }
-  }
-
-  flash('ok', t8('#1 proposal(s) saved.', scalar @{ $::form->{proposal_ids} }));
-
-  $self->action_list();
 }
 
 #

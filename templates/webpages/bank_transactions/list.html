@@ -14,26 +14,16 @@
 [% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate %][% END %]
 </p>
 
-<form method="post" id="list_form">
-[% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
-[% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
-[% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
-
-<div class="tabwidget">
+<div id="bt_tabs" class="tabwidget">
   <ul>
-    <li><a href="#all" onclick="show_invoice_button();">[% 'All transactions' | $T8 %]</a></li>
-    <li><a href="#automatic" onclick="show_proposal_button();">[% 'Proposals' | $T8 %]</a></li>
+    <li><a href="#all">[% 'All transactions' | $T8 %]</a></li>
+    <li><a href="#automatic">[% 'Proposals' | $T8 %]</a></li>
   </ul>
 
   <div id="all">[% PROCESS "bank_transactions/tabs/all.html" %]</div>
   <div id="automatic">[% PROCESS "bank_transactions/tabs/automatic.html" %]</div>
 </div>
 
-[% L.hidden_tag('action', 'BankTransaction/dispatch') %]
-[% L.submit_tag('action_save_invoices', LxERP.t8('Save invoices')) %]
-[% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals'), style='display: none') %]
-
-</form>
 
 <script type="text/javascript">
 <!--
@@ -48,16 +38,6 @@ $(function() {
     $(this).attr("href", _href + "&filter.fromdate=" + "[% FORM.filter.fromdate %]" + "&filter.todate=" + "[% FORM.filter.todate %]");
   });
 });
-
-function show_invoice_button () {
-  $("#action_save_proposals").hide();
-  $("#action_save_invoices").show();
-}
-
-function show_proposal_button () {
-  $("#action_save_invoices").hide();
-  $("#action_save_proposals").show();
-}
 
 function assign_invoice(bt_id) {
   kivi.popup_dialog({
@@ -103,5 +83,6 @@ function create_invoice(bt_id) {
   return true;
 }
 
+$.cookie('jquery_ui_tab_bt_tabs', [% ui_tab %] );
 //-->
 </script>

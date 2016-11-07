@@ -83,26 +83,29 @@ sub check_existing {
   };
 }
 
+sub _displayable_columns {
+ (
+   { name => 'local_bank_code',       description => $::locale->text('Own bank code') },
+   { name => 'local_account_number',  description => $::locale->text('Own bank account number or IBAN') },
+   { name => 'local_bank_account_id', description => $::locale->text('ID of own bank account') },
+   { name => 'remote_bank_code',      description => $::locale->text('Bank code of the goal/source') },
+   { name => 'remote_account_number', description => $::locale->text('Account number of the goal/source') },
+   { name => 'transdate',             description => $::locale->text('Date of transaction') },
+   { name => 'valutadate',            description => $::locale->text('Valuta date') },
+   { name => 'amount',                description => $::locale->text('Amount') },
+   { name => 'currency',              description => $::locale->text('Currency') },
+   { name => 'currency_id',           description => $::locale->text('Currency (database ID)')          },
+   { name => 'remote_name',           description => $::locale->text('Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")') },
+   { name => 'purpose',               description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') }
+ );
+}
+
 sub setup_displayable_columns {
   my ($self) = @_;
 
   $self->SUPER::setup_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'local_bank_code',       description => $::locale->text('Own bank code') },
-                                 { name => 'local_account_number',  description => $::locale->text('Own bank account number or IBAN') },
-                                 { name => 'local_bank_account_id', description => $::locale->text('ID of own bank account') },
-                                 { name => 'remote_bank_code',      description => $::locale->text('Bank code of the goal/source') },
-                                 { name => 'remote_account_number', description => $::locale->text('Account number of the goal/source') },
-                                 { name => 'transdate',             description => $::locale->text('Date of transaction') },
-                                 { name => 'valutadate',            description => $::locale->text('Valuta date') },
-                                 { name => 'amount',                description => $::locale->text('Amount') },
-                                 { name => 'currency',              description => $::locale->text('Currency') },
-                                 { name => 'currency_id',           description => $::locale->text('Currency (database ID)')          },
-                                 { name => 'remote_name',           description => $::locale->text('Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")') },
-                                 { name => 'purpose',               description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
-                                 { name => 'transactionCode',       description => $::locale->text('Transaction Code') },
-                                 { name => 'transactionText',       description => $::locale->text('Transaction Text') },
-                                 );
+  $self->add_displayable_columns($self->_displayable_columns);
 }
 
 sub check_bank_account {
