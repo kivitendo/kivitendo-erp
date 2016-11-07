@@ -10,7 +10,7 @@ use SL::JSON ();
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw() ],
-  'scalar --get_set_init' => [ qw(controller _actions _flash _flash_detail _error) ],
+  'scalar --get_set_init' => [ qw(controller _actions _flash _flash_detail _no_flash_clear _error) ],
 );
 
 my %supported_methods = (
@@ -190,11 +190,15 @@ sub init__error {
   return '';
 }
 
+sub init__no_flash_clear {
+  return '';
+}
+
 sub to_json {
   my ($self) = @_;
 
-  return SL::JSON::to_json({ error        => $self->_error   }) if $self->_error;
-  return SL::JSON::to_json({ eval_actions => $self->_actions });
+  return SL::JSON::to_json({ error          => $self->_error   }) if $self->_error;
+  return SL::JSON::to_json({ no_flash_clear => $self->_no_flash_clear, eval_actions => $self->_actions });
 }
 
 sub to_array {
@@ -254,6 +258,12 @@ sub flash_detail {
     $self->_flash_detail->{$type}->[-1] .= ' ' . $message;
   }
 
+  return $self;
+}
+
+sub no_flash_clear{
+  my ($self) = @_;
+  $self->_no_flash_clear('1');
   return $self;
 }
 
@@ -484,6 +494,17 @@ C<flash> on the same C<$self> will be merged by type.
 
 On the client side the flashes of all types will be cleared after each
 successful ClientJS call that did not end with C<$js-E<gt>error(...)>.
+This clearing can be switched of by the function C<no_flash_clear>
+
+=item C<flash_detail $type, $message>
+
+Display a detailed message C<$message> in the flash of type C<$type>. Multiple calls of
+C<flash_detail> on the same C<$self> will be merged by type.
+So the flash message can be hold short and the visibility of details can toggled by the user.
+
+=item C<no_flash_clear>
+
+No automatic clearing of flash after successful ClientJS call
 
 =item C<error $message>
 
