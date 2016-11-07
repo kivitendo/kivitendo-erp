@@ -7,6 +7,7 @@ use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
+use SL::DB::Employee;
 use SL::DB::PaymentTerm;
 use SL::TransNumber;
 
@@ -53,7 +54,7 @@ sub init_languages_by {
 sub init_salesmen_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ SL::DB::Manager::Employee->get_all } } ) } qw(id name) };
+  return { map { my $col = $_; ( $col => { map { ( lc($_->$col) => $_ ) } @{ SL::DB::Manager::Employee->get_all } } ) } qw(id name login) };
 }
 
 sub check_objects {
@@ -218,8 +219,9 @@ sub check_salesman {
   }
 
   # Map name to ID if given.
-  if (!$object->salesman_id && $entry->{raw_data}->{salesman}) {
-    my $salesman = $self->salesmen_by->{name}->{ $entry->{raw_data}->{salesman} };
+  if (!$object->salesman_id && ($entry->{raw_data}->{salesman} || $entry->{raw_data}->{salesman_login})) {
+    my $salesman = $self->salesmen_by->{name} ->{ lc($entry->{raw_data}->{salesman}) }
+                // $self->salesmen_by->{login}->{ lc($entry->{raw_data}->{salesman_login}) };
 
     if (!$salesman) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid salesman');
@@ -264,7 +266,7 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
   delete @{$profile}{qw(business datevexport language payment delivery_term taxincluded terms)};
-  delete @{$profile}{qw(salesman salesman_id)}    if $::instance_conf->get_vertreter;
+  delete @{$profile}{qw(salesman salesman_id salesman_login)} if $::instance_conf->get_vertreter;
 
   return $profile;
 }
@@ -323,10 +325,10 @@ sub setup_displayable_columns {
                                 );
 
   if (!$::instance_conf->get_vertreter) {
-    $self->add_displayable_columns({ name => 'salesman_id', description => $::locale->text('Salesman (database ID)') });
-    $self->add_displayable_columns({ name => 'salesman',    description => $::locale->text('Salesman') });
+    $self->add_displayable_columns({ name => 'salesman',       description => $::locale->text('Salesman') },
+                                   { name => 'salesman_id',    description => $::locale->text('Salesman (database ID)') },
+                                   { name => 'salesman_login', description => $::locale->text('Salesman (login)') });
   }
-
 }
 
 # TODO:
