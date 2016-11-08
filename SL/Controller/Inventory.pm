@@ -101,7 +101,6 @@ sub action_usage {
                             warehouse_id bin_id partnumber description bestbefore chargenumber partstypes_id);
   my %column_defs = (
     'partnumber'      => { 'text' => $locale->text('Part Number'), },
- #   'partclass'       => { 'text' => $locale->text('Part Classification'), },
     'partdescription' => { 'text' => $locale->text('Part_br_Description'), },
     'unit'            => { 'text' => $locale->text('Unit'), },
     'stock'           => { 'text' => $locale->text('stock_br'), },
@@ -385,7 +384,6 @@ sub make_row_result {
        $row->{outcorrection}->{data} - $row->{incorrection}->{data};
   $row->{averconsumed}->{data} = $row->{consumed}->{data}*30/$days ;
   map { $row->{$_}->{data} = $form->format_amount($myconfig,$row->{$_}->{data},2); } $self->getnumcolumns();
-#  $row->{partclass}->{data} = '';
   $row->{partnumber}->{link} = 'ic.pl?action=edit&id='.$partid;
 #  $row->{partdescription}->{link} = 'ic.pl?action=edit&id='.$partid;
 }
