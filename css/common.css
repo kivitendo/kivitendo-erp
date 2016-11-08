@@ -134,8 +134,13 @@ div.layout-actionbar-combobox {
   display: inline-block;
 }
 
+div.layout-actionbar div.layout-actionbar-action {
+  height: 25px;
+}
+
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head div {
-  width: 100px
+  width: 100px;
+  height: 25px;
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head span {
