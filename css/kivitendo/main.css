@@ -25,6 +25,9 @@ select {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   -khtml-border-radius: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
   background-color: white;
   border: 1px;
   border-color: darkgray lightgray lightgray;
@@ -35,9 +38,6 @@ select {
 }
 
 select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  -o-appearance: none;
   appearance : none;
   background: white url('../../image/select-down.png') no-repeat scroll right center;
   padding: 0 14px 0 0;
