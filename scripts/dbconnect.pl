@@ -1,12 +1,11 @@
 #!/usr/bin/perl
 
 BEGIN {
-  use SL::System::Process;
-  my $exe_dir = SL::System::Process::exe_dir;
+  use FindBin;
 
-  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
-  unshift @INC, $exe_dir;
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
 }
 
 use strict;

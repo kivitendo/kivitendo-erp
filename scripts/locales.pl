@@ -10,8 +10,11 @@ use utf8;
 use strict;
 
 BEGIN {
-  unshift(@INC, 'modules/override'); # Use our own versions of various modules (e.g. YAML).
-  push   (@INC, 'modules/fallback'); # Only use our own versions of modules if there's no system version.
+  use FindBin;
+
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
 }
 
 use Carp;
@@ -28,6 +31,7 @@ use Pod::Usage;
 use YAML ();
 use YAML::Loader (); # YAML tries to load Y:L at runtime, but can't find it after we chdir'ed
 use SL::DBUpgrade2;
+use SL::System::Process;
 
 $OUTPUT_AUTOFLUSH = 1;
 
@@ -546,7 +550,7 @@ sub scandbupgrades {
   # we only need to do this for auth atm, because only auth scripts can include new rights, which are translateable
   my $auth = 1;
 
-  my $dbu = SL::DBUpgrade2->new(auth => $auth, path => '../../sql/Pg-upgrade2-auth');
+  my $dbu = SL::DBUpgrade2->new(auth => $auth, path => SL::System::Process->exe_dir . '/sql/Pg-upgrade2-auth');
 
   for my $upgrade ($dbu->sort_dbupdate_controls) {
     for my $string (@{ $upgrade->{locales} || [] }) {

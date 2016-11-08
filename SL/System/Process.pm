@@ -5,21 +5,24 @@ use strict;
 use parent qw(Rose::Object);
 
 use English qw(-no_match_vars);
+use FindBin;
 use File::Spec;
 use File::Basename;
+use List::Util qw(first);
+
+my $cached_exe_dir;
 
 sub exe_dir {
-  my $dir        = dirname(File::Spec->rel2abs($PROGRAM_NAME));
-  my $system_dir = File::Spec->catdir($dir, 'SL', 'System');
-  return $dir if -d $system_dir && -f File::Spec->catfile($system_dir, 'TaskServer.pm');
+  return $cached_exe_dir if defined $cached_exe_dir;
 
-  my @dirs = reverse File::Spec->splitdir($dir);
-  shift @dirs;
-  $dir        = File::Spec->catdir(reverse @dirs);
-  $system_dir = File::Spec->catdir($dir, 'SL', 'System');
-  return File::Spec->curdir unless -d $system_dir && -f File::Spec->catfile($system_dir, 'TaskServer.pm');
+  my $bin_dir       = File::Spec->rel2abs($FindBin::Bin);
+  my @dirs          = File::Spec->splitdir($bin_dir);
 
-  return $dir;
+  $cached_exe_dir   = first { -f File::Spec->catdir(@dirs[0..$_], 'SL', 'System', 'TaskServer.pm') }
+                      reverse(0..scalar(@dirs) - 1);
+  $cached_exe_dir   = defined($cached_exe_dir) ? File::Spec->catdir(@dirs[0..$cached_exe_dir]) : File::Spec->curdir;
+
+  return $cached_exe_dir;
 }
 
 1;

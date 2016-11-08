@@ -1,18 +1,22 @@
 #!/usr/bin/perl -w
 
+our $master_templates;
+BEGIN {
+  use FindBin;
+
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
+
+  # this is a default dir. may be wrong in your installation, change it then
+  $master_templates = $FindBin::Bin . '/../templates/print/';
+}
+
 use strict;
 use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor;
 use Text::Wrap;
-our $master_templates;
-BEGIN {
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
-
-  # this is a default dir. may be wrong in your installation, change it then
-  $master_templates = './templates/print/';
-}
 
 unless (eval { require Config::Std; 1 }){
   print STDERR <<EOL ;

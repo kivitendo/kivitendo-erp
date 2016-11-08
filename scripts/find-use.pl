@@ -1,4 +1,13 @@
 #!/usr/bin/perl -l
+
+BEGIN {
+  use FindBin;
+
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
+}
+
 use strict;
 #use warnings; # corelist and find throw tons of warnings
 use File::Find;
@@ -54,6 +63,8 @@ my (%uselines, %modules, %supplied, %requires);
 GetOptions(
   'files-with-match|l' => \ my $l,
 );
+
+chmod($FindBin::Bin . '/..');
 
 find(sub {
   return unless /(\.p[lm]|console)$/;

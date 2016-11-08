@@ -3,8 +3,11 @@
 use strict;
 
 BEGIN {
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+  use FindBin;
+
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
 }
 
 use CGI qw( -no_xhtml);
@@ -29,6 +32,8 @@ use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::DB::Helper::ALL;
 use SL::DB::Helper::Mappings;
+
+chdir($FindBin::Bin . '/..');
 
 my %blacklist     = SL::DB::Helper::Mappings->get_blacklist;
 my %package_names = SL::DB::Helper::Mappings->get_package_names;

@@ -3,6 +3,7 @@ package SL::LxOfficeConf;
 use strict;
 
 use Encode;
+use SL::System::Process;
 
 my $environment_initialized;
 
@@ -32,11 +33,12 @@ sub read {
 
   # Backwards compatibility: read lx_office.conf.default if
   # kivitendo.conf.default does't exist.
-  my $default_config = -f "config/kivitendo.conf.default" ? 'kivitendo' : 'lx_office';
-  read_config("config/${default_config}.conf.default" => \%::lx_office_conf);
+  my $dir            = SL::System::Process->exe_dir;
+  my $default_config = -f "${dir}/config/kivitendo.conf.default" ? 'kivitendo' : 'lx_office';
+  read_config("${dir}/config/${default_config}.conf.default" => \%::lx_office_conf);
   _decode_recursively(\%::lx_office_conf);
 
-  $file_name ||= -f 'config/kivitendo.conf' ? 'config/kivitendo.conf' : 'config/lx_office.conf';
+  $file_name ||= -f "${dir}/config/kivitendo.conf" ? "${dir}/config/kivitendo.conf" : "${dir}/config/lx_office.conf";
 
   if (-f $file_name) {
     read_config($file_name => \ my %local_conf);

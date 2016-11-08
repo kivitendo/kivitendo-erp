@@ -8,9 +8,15 @@ use Test::Harness qw(runtests execute_tests);
 use Getopt::Long;
 
 BEGIN {
-   $ENV{HARNESS_OPTIONS} = 'c';
-  unshift @INC, 'modules/override';
-  push    @INC, 'modules/fallback';
+  use FindBin;
+
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
+
+  $ENV{HARNESS_OPTIONS} = 'c';
+
+  chdir($FindBin::Bin . '/..');
 }
 
 my @exclude_for_fast = (

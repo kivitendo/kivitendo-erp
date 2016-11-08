@@ -1,24 +1,15 @@
 #!/usr/bin/perl
 
-
-use List::MoreUtils qw(any);
-
 use strict;
 
 my $exe_dir;
 
 BEGIN {
   use FindBin;
-  use lib "$FindBin::Bin/..";
 
-  use SL::System::Process;
-  $exe_dir = SL::System::Process::exe_dir;
-
-  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
-  unshift @INC, $exe_dir;
-
-  chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
+  unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
+  push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
+  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
 }
 
 use CGI qw( -no_xhtml);
@@ -29,6 +20,7 @@ use DateTime;
 use Encode qw();
 use English qw(-no_match_vars);
 use File::Spec;
+use List::MoreUtils qw(any);
 use List::Util qw(first);
 use POSIX qw(setuid setgid);
 use SL::Auth;
@@ -43,6 +35,7 @@ use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
 use SL::Mailer;
+use SL::System::Process;
 use SL::System::TaskServer;
 use Template;
 
@@ -294,7 +287,8 @@ sub gd_run {
   }
 }
 
-chdir $exe_dir;
+$exe_dir = SL::System::Process->exe_dir;
+chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
 
 mkdir SL::System::TaskServer::PID_BASE() if !-d SL::System::TaskServer::PID_BASE();
 

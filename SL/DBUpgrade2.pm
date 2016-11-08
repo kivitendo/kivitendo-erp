@@ -7,6 +7,7 @@ use List::MoreUtils qw(any);
 use SL::Common;
 use SL::DBUpgrade2::Base;
 use SL::DBUtils;
+use SL::System::Process;
 
 use strict;
 
@@ -26,7 +27,7 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
-  $params{path}        ||= "sql/Pg-upgrade2" . $params{path_suffix};
+  $params{path}        ||= SL::System::Process->exe_dir . "/sql/Pg-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 

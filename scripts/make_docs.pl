@@ -4,6 +4,9 @@ use strict;
 
 use Pod::Html;
 use File::Find;
+use FindBin;
+
+chdir($FindBin::Bin . '/..');
 
 my $doc_path     = "doc/online";
 #my $pod2html_bin = `which pod2html` or die 'cannot find pod2html on your system';

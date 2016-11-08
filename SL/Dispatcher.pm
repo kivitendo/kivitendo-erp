@@ -7,15 +7,6 @@ use strict;
 #   parse_html_template('login_screen/user_login')
 #   parse_html_template('generic/error')
 
-BEGIN {
-  use SL::System::Process;
-  my $exe_dir = SL::System::Process::exe_dir;
-
-  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
-  unshift @INC, $exe_dir;
-}
-
 use Carp;
 use CGI qw( -no_xhtml);
 use Config::Std;
