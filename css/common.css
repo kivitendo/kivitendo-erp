@@ -76,3 +76,119 @@ input.grow_on_focus:focus { width: 150px }
 /* orderitems */
 .shipped     { color: green }
 .not_shipped { color: red   }
+
+/* actionbar styling */
+div.layout-actionbar {
+  position: fixed;
+  height: 28px;
+  top: 20px;
+  z-index: 20;
+  width: 100%;
+  padding: 2px;
+}
+
+div.layout-actionbar-action {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* don't select text on double click */
+}
+
+div.layout-actionbar ~ div:first {
+  padding-top: 25px;
+}
+
+div.layout-actionbar > div + div {
+  margin-left: 2px;
+}
+
+div.layout-actionbar-separator {
+  display: inline-block;
+  width: 20px;
+}
+
+div.layout-actionbar div.layout-actionbar-submit,
+div.layout-actionbar div.layout-actionbar-scriptbutton,
+div.layout-actionbar div.layout-actionbar-submit:focus,
+div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
+  display: inline-block;
+  width: 120px;
+  box-sizing: border-box;
+  text-align: center;
+  border: 1px;
+  border-style: solid;
+  padding: 4px 4px;
+  cursor: default;
+}
+
+div.layout-actionbar div.layout-actionbar-submit:hover,
+div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
+  border: 1px;
+  border-style: solid;
+}
+
+div.layout-actionbar-combobox {
+  position: relative;
+  display: inline-block;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head div {
+  width: 100px
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span {
+  display: inline-block;
+  border-width: 1px 1px 1px 1px;
+  border-style: solid;
+  padding: 4px;
+  width: 14px;
+  height: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:after {
+  content: "";
+  width: 0;
+  height: 0;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  margin-top: -3px;
+  border-width: 3px 3px 0 3px;
+  border-style: solid;
+}
+
+div.layout-actionbar-combobox.active div.layout-actionbar-combobox-head span:after {
+  border-width: 0 3px 3px 3px;
+}
+
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head {
+  padding-right: 20px;
+  white-space: nowrap;
+  display: block;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-list {
+  position: absolute;
+  display: none;
+  min-width: 120px;
+}
+
+div.layout-actionbar-combobox.active div.layout-actionbar-combobox-list {
+  display: inline-block;
+  z-index: 10;
+}
+
+div.layout-actionbar-combobox-list div.layout-actionbar-action {
+  white-space: nowrap;
+  display: block;
+  position: relative;
+  width: 100%;
+  text-align: left;
+  padding: 4px;
+}
