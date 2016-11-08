@@ -25,9 +25,6 @@ select {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   -khtml-border-radius: 0;
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  -o-appearance: none;
   background-color: white;
   border: 1px;
   border-color: darkgray lightgray lightgray;
@@ -35,6 +32,14 @@ select {
   border-style: solid;
   outline: none;
   padding: 1px;
+}
+
+input[type="text"], input[type="password"]
+textarea,
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
 }
 
 select {
