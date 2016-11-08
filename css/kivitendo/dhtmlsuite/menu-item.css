@@ -20,7 +20,7 @@
 
 .DHTMLSuite_menuItem_top_over{ /* Top level menu item - Mouse over state */
 	color:#FE5F14;
-	background-color:#D1D1D1;
+	background-color:whitesmoke;
 	cursor:pointer;
 }
 
@@ -30,7 +30,7 @@
 
 .DHTMLSuite_menuItem_top_click{	/* Top level menu item - Mouse click state */
 	color:#FE5F14;
-	background-color:#D1D1D1;
+	background-color:whitesmoke;
 	cursor:pointer;
 	z-index:20000;
 }
@@ -119,12 +119,12 @@
 
 .DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_active{	/* Mouse over effect */
 	color:#FE5F14;
-	background-color:#D1D1D1;
+	background-color:whitesmoke;
 }
 
 .DHTMLSuite_menuItem_sub_click{	/* Mouse click effect */
 	color:#FE5F14;
-	background-color:#D1D1D1;
+	background-color:whitesmoke;
 }
 
 .DHTMLSuite_menuItem_sub_click div, .DHTMLSuite_menuItem_sub_regular div,.DHTMLSuite_menuItem_sub_over div,.DHTMLSuite_menuItem_sub_active div,.DHTMLSuite_menuItem_sub_disabled div{	/* divs for the text,icon and arrow of a menu item */
@@ -152,7 +152,7 @@
 	margin-left:24px;	/* left margin because we don't want the separator to cover the gradient */
 	padding-right:3px;	/* space at the right of the separator */
 	color:#FE5F14;
-	background-color:#D1D1D1;
+	background-color:whitesmoke;
 }
 
 .DHTMLSuite_menuItem_textContent

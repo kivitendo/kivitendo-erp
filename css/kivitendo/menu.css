@@ -4,6 +4,21 @@ orangemenu color #FFFFFF
 whiteMenu Hover background color #FFFFE0
 DarkGreensubenu pointer
 */
+/* #main_menu_div { */
+/*   background-color: #d0cfc9 */
+/* } */
+
+#main_menu_div ~ div.layout-actionbar {
+  top: 45px;
+}
+
+#main_menu_div ~ #content {
+  padding-top: 25px;
+}
+#main_menu_div ~ div.layout-actionbar ~ #content {
+  padding-top: 54px;
+}
+
 body.menuv3 {
 	behavior: url("css/csshover.htc");
 	/*font-size: 14pt;*/
@@ -13,13 +28,25 @@ body.menuv3 {
 	color: #000000;
 }
 #menuv3 {
-	/*font-size: 85%;*/
-	width: 99.8%;
-	float: left;
-	/*border: 3px solid;*/
 	background-color: #FFFFFF;
 	color: #000000;
+  width: 100%;
+  position: fixed;
+  z-index: 30;
 }
+
+#menuv3 ~ div.layout-actionbar {
+  top: 40px;
+}
+
+#menuv3  ~ #content {
+  padding-top: 35px;
+}
+
+#menuv3 ~ div.layout-actionbar ~ #content {
+  padding-top: 64px;
+}
+
 #menuv3 a, #menuv3 h2, #menuv3 div.x {
 	font-size: 80%;
 	line-height: 120%;
@@ -80,6 +107,7 @@ body.menuv3 {
 	position: relative;
 	float: none;
 	border: 0;
+  border-width:0 0 1px 0;
 }
 li.sub {
 	position: relativ;
@@ -106,7 +134,6 @@ li.sub {
 #menuv3 ul ul {
 	position: absolute;
 	z-index: 500;
-	top: auto;
 	display: none;
 }
 #menuv3 ul ul ul {
@@ -126,7 +153,6 @@ div#menuv3 h2:hover {
 }
 div#menuv3 li:hover {
 	cursor: pointer;
-	z-index: 100;
 }
 div#menuv3 li:hover ul ul, div#menuv3 li li:hover ul ul, div#menuv3 li li li:hover ul ul, div#menuv3 li li li li:hover ul ul {
 	display: none;

@@ -89,7 +89,7 @@ A:link, A:visited, A:active {
 }
 a:hover {
   color: #FE5F14;
-  background-color: #D1D1D1;
+  background-color: whitesmoke;
 }
 a.selected:hover {
   color:#EBEBEB;
@@ -527,4 +527,48 @@ span.toggle_selected {
 #bank_transactions_proposals span.invoice_number_highlight {
   background-color: #006400;
   color: #FFFFFF;
+}
+
+/* actionbar styling */
+div.layout-actionbar {
+  background-color: white;
+}
+
+div.layout-actionbar div.layout-actionbar-submit,
+div.layout-actionbar div.layout-actionbar-scriptbutton,
+div.layout-actionbar div.layout-actionbar-submit:focus,
+div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
+  border-color: darkgray;
+  background-color: whitesmoke;
+}
+
+div.layout-actionbar div.layout-actionbar-submit:hover,
+div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
+  color: #FE5F14;
+  border-color: gray !important;
+}
+
+div.layout-actionbar div.layout-actionbar-action-disabled,
+div.layout-actionbar div.layout-actionbar-action-disabled:hover {
+  color: gray;
+  background-color: whitesmoke;
+  border-color: lightgray;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span {
+  border-color: darkgray;
+  background-color: whitesmoke;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:hover {
+  color: #FE5F14;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:after {
+  border-color: black transparent;
+}
+
+div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:hover:after {
+  color: #FE5F14;
+  border-color: #FE5F14 transparent;
 }

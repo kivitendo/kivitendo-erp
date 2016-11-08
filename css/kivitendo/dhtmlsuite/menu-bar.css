@@ -16,21 +16,17 @@
 ************************************************************************************************************/
 
 .DHTMLSuite_menuBar_top{	/* The bar that is parent of the menu strip */
-	height:26px;
-	width:100%;
-	background-repeat:repeat-x;
-	font-family: sans-serif, Verdana, Arial, Helvetica;
-	font-size:12px;
-	z-index:100000;
-	padding-left:10px;
+  position: fixed;
+  height: 26px;
+  width: 100%;
+  z-index: 100;
+  padding-left: 10px;
+  background-color: white;
 }
 
 .DHTMLSuite_menuBar_sub{
-	position:absolute;
-	background-color:#FFF;
-	border:1px solid #D1D1D1;
-	background-repeat:repeat-y;
-	background-position: left center;
-	display:inline;
+  position: fixed;
+  background-color: #FFF;
+  border: 1px solid #000;
+  display: inline;
 }
-

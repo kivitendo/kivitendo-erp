@@ -11,10 +11,18 @@
   padding: 0;
   border: 0;
   overflow: hidden;
-  min-height: 20px;
+  height: 20px;
   width: 100%;
   border-spacing: 0;
   font-size: 12px;
+  position: fixed;
+  top: 0;
+  z-index: 40;
+  background-color: white;
+}
+
+#frame-header + div {
+  padding-top: 20px;
 }
 
 #frame-header .frame-header-left {
