@@ -81,7 +81,7 @@ namespace('kivi.SalesPurchase', function(ns) {
   };
 
   this.check_transaction_description = function() {
-    if ($('#transaction_description').val() != '')
+    if ($('#transaction_description').val() !== '')
       return true;
 
     alert(kivi.t8('A transaction description is required.'));
