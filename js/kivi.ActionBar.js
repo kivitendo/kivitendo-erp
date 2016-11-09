@@ -42,7 +42,6 @@ namespace('kivi', function(k){
       }
 
       var normalized = $.map(String.prototype.split.call(keystring, '+'), function(val, i) {
-        console.log(keystring)
         switch (val) {
           case 'ctrl':
           case 'alt':  return val;
