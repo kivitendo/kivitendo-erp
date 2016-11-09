@@ -293,6 +293,120 @@ sub prepare_order {
   $main::lxdebug->leave_sub();
 }
 
+sub setup_oe_action_bar {
+  my %params = @_;
+  my $form   = $::form;
+
+  my $has_active_periodic_invoice;
+  if ($params{obj}) {
+    $has_active_periodic_invoice =
+         $params{obj}->is_type('sales_order')
+      && $params{obj}->periodic_invoices_config
+      && $params{obj}->periodic_invoices_config->active
+      && (   !$params{obj}->periodic_invoices_config->end_date
+          || ($params{obj}->periodic_invoices_config->end_date > DateTime->today_local))
+      && $params{obj}->periodic_invoices_config->get_previous_billed_period_start_date;
+  }
+
+  my $allow_invoice  = $params{is_req_quo}
+                    || $params{is_pur_ord}
+                    || ($params{is_sales_quo} && $::instance_conf->get_allow_sales_invoice_from_sales_quotation)
+                    || ($params{is_sales_ord} && $::instance_conf->get_allow_sales_invoice_from_sales_order);
+  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
+  my @warn_p_invoice = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice) x!!$has_active_periodic_invoice;
+
+  my $tpca_remainder = 0;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add_actions([ t8('Update'),
+      submit    => [ '#form', { action_update => 1 } ],
+      id        => 'update_button',
+      accesskey => 'enter',
+    ]);
+
+    $bar->add_actions("combobox");
+    $bar->actions->[-1]->add_actions([ t8('Save'),
+      submit  => [ '#form', { action_save => 1 } ],
+      checks  => [ @req_trans_desc, @warn_p_invoice ],
+      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Save as new'),
+      submit   => [ '#form', { action_save_as_new => 1 } ],
+      checks   => [ @req_trans_desc ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]);
+     $bar->actions->[-1]->add_actions([ t8('Save and Close'),
+      submit  => [ '#form', { action_save_and_close => 1 } ],
+      checks  => [ @req_trans_desc, @warn_p_invoice ],
+      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+    ]);
+    $bar->add_actions([ t8('Delete'),
+      submit   => [ '#form', { action_delete => 1 } ],
+      confirm  => t8('Do you really want to delete this object?'),
+      disabled => !$form->{id}                                                                      ? t8('This record has not been saved yet.')
+                : (   ($params{is_sales_ord} && !$::instance_conf->get_sales_order_show_delete)
+                   || ($params{is_pur_ord}   && !$::instance_conf->get_purchase_order_show_delete)) ? t8('Deleting this type of record has been disabled in the configuration.')
+                :                                                                                     undef,
+    ]);
+
+    $bar->add_actions('separator');
+
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Workflow'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
+      submit   => [ '#form', { action_sales_order => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]) if $params{is_sales_quo};
+    $bar->actions->[-1]->add_actions([ t8('Purchase Order'),
+      submit   => [ '#form', { action_sales_order => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]) if $params{is_req_quo};
+    $bar->actions->[-1]->add_actions([ t8('Delivery Order'),
+      submit   => [ '#form', { action_delivery_order => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]) if $params{is_sales_ord} || $params{is_pur_ord};
+    $bar->actions->[-1]->add_actions([ t8('Invoice'),
+      submit   => [ '#form', { action_invoice => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]) if $allow_invoice;
+    $bar->actions->[-1]->add_actions([ t8('Quotation'),
+      submit   => [ '#form', { action_quotation => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Request for Quotation'),
+      submit   => [ '#form', { action_reqest_for_quotation => 1 } ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]);
+
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('Export'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Print'),
+      submit => [ '#form', { action_print => 1 } ],
+      checks => [ @req_trans_desc ],
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('E Mail'),
+      submit => [ '#form', { action_print => 1 } ],
+      checks => [ @req_trans_desc ],
+    ]);
+    $bar->add_actions('combobox');
+    $bar->actions->[-1]->add_actions([ t8('more'),
+      disabled => 1,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('History'),
+      call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]);
+    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
+      call     => [ 'follow_up_window' ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+    ]);
+  }
+}
+
 sub form_header {
   $main::lxdebug->enter_sub();
   my @custom_hiddens;
@@ -308,18 +422,8 @@ sub form_header {
   # visible in form_footer too, so package local level and not my here.
   %TMPL_VAR = ();
   if ($form->{id}) {
-    my $obj = SL::DB::Order->new(id => $form->{id})->load;
-    $TMPL_VAR{warn_save_active_periodic_invoice} =
-         $obj->is_type('sales_order')
-      && $obj->periodic_invoices_config
-      && $obj->periodic_invoices_config->active
-      && (   !$obj->periodic_invoices_config->end_date
-          || ($obj->periodic_invoices_config->end_date > DateTime->today_local))
-      && $obj->periodic_invoices_config->get_previous_billed_period_start_date;
-
-    $TMPL_VAR{oe_obj} = $obj;
+    $TMPL_VAR{oe_obj} = SL::DB::Order->new(id => $form->{id})->load;
   }
-  my $warn_save_active_periodic_invoice = $TMPL_VAR{warn_save_active_periodic_invoice};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -440,102 +544,16 @@ sub form_header {
 
 
   # original snippets:
-  my $is_sales     = scalar ($form->{type} =~ /^sales_/);              # these vars are exported, so that the template
-  my $is_order     = scalar ($form->{type} =~ /_order$/);              # may determine what to show
-  my $is_sales_quo = scalar ($form->{type} =~ /sales_quotation$/);
-  my $is_req_quo   = scalar ($form->{type} =~ /request_quotation$/);
-  my $is_sales_ord = scalar ($form->{type} =~ /sales_order$/);
-  my $is_pur_ord   = scalar ($form->{type} =~ /purchase_order$/);
-  my $allow_invoice = $is_req_quo || $is_pur_ord || ($is_sales_quo && $::instance_conf->get_allow_sales_invoice_from_sales_quotation) || ($is_sales_ord && $::instance_conf->get_allow_sales_invoice_from_sales_order);
-  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
-  my @warn_p_invoice = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice) x!!$warn_save_active_periodic_invoice;
+  my %type_check_vars = (
+    is_sales     => scalar($form->{type} =~ /^sales_/),
+    is_order     => scalar($form->{type} =~ /_order$/),
+    is_sales_quo => scalar($form->{type} =~ /sales_quotation$/),
+    is_req_quo   => scalar($form->{type} =~ /request_quotation$/),
+    is_sales_ord => scalar($form->{type} =~ /sales_order$/),
+    is_pur_ord   => scalar($form->{type} =~ /purchase_order$/),
+  );
 
-  my $tpca_remainder = 0;
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add_actions([ t8('Update'),
-      submit => [ '#form', { action_update         => 1 } ],
-      id => 'update_button',
-      accesskey => 'enter',
-    ]);
-    $bar->add_actions("combobox");
-    $bar->actions->[-1]->add_actions([ t8('Save'),
-      submit => [ '#form', { action_save           => 1 } ],
-      checks => [ @req_trans_desc, @warn_p_invoice ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Save as new'),
-      submit => [ '#form', { action_save_as_new    => 1 } ],
-      checks => [ @req_trans_desc ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-     $bar->actions->[-1]->add_actions([ t8('Save and Close'),
-      submit => [ '#form', { action_save_and_close => 1 } ],
-      checks => [ @req_trans_desc, @warn_p_invoice ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
-    ]);
-    $bar->add_actions([ t8('Delete'),
-      submit => [ '#form', { action_delete         => 1 } ],
-      confirm => t8('Do you really want to delete this object?'),
-      disabled => !$form->{id}                                                              ? t8('This record has not been saved yet.')
-                : (   ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
-                   || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete)) ? t8('Deleting this type of record has been disabled in the configuration.')
-                :                                                                             undef,
-    ]);
-    $bar->add_actions('separator');
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Workflow'),
-      disabled => 1,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
-      submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $is_sales_quo;
-    $bar->actions->[-1]->add_actions([ t8('Purchase Order'),
-      submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $is_req_quo;
-    $bar->actions->[-1]->add_actions([ t8('Delivery Order'),
-      submit => [ '#form', { action_delivery_order => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $is_sales_ord || $is_pur_ord;
-    $bar->actions->[-1]->add_actions([ t8('Invoice'),
-      submit => [ '#form', { action_invoice        => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $allow_invoice;
-    $bar->actions->[-1]->add_actions([ t8('Quotation'),
-      submit => [ '#form', { action_quotation      => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Request for Quotation'),
-      submit => [ '#form', { action_reqest_for_quotation => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Export'),
-      disabled => 1,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Print'),
-      submit => [ '#form', { action_print          => 1 } ],
-      checks => [ @req_trans_desc ],
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('E Mail'),
-      submit => [ '#form', { action_print          => 1 } ],
-      checks => [ @req_trans_desc ],
-    ]);
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('more'),
-      disabled => 1,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('History'),
-      call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
-      call     => [ 'follow_up_window' ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-  }
+  setup_oe_action_bar(%type_check_vars);
 
   $form->header;
   if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {
@@ -557,12 +575,7 @@ sub form_header {
 
   %TMPL_VAR = (
      %TMPL_VAR,
-     is_sales        => $is_sales,
-     is_order        => $is_order,
-     is_sales_quo    => $is_sales_quo,
-     is_req_quo      => $is_req_quo,
-     is_sales_ord    => $is_sales_ord,
-     is_pur_ord      => $is_pur_ord,
+     %type_check_vars,
   );
 
   $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
