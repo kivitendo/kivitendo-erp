@@ -35,14 +35,15 @@ ns.eval_json_result = function(data) {
   if (data.error)
     return ns.display_flash('error', data.error);
 
-  $(['info', 'warning', 'error']).each(function(idx, category) {
-    $('#flash_' + category).hide();
-    $('#flash_detail_' + category).hide();
-    $('#flash_' + category + '_disp').hide();
-    $('#flash_' + category + '_content').empty();
-    $('#flash_' + category + '_detail').empty();
-  });
-
+  if (!data.no_flash_clear) {
+    $(['info', 'warning', 'error']).each(function(idx, category) {
+      $('#flash_' + category).hide();
+      $('#flash_detail_' + category).hide();
+      $('#flash_' + category + '_disp').hide();
+      $('#flash_' + category + '_content').empty();
+      $('#flash_' + category + '_detail').empty();
+    });
+  }
   if ((data.js || '') != '')
     eval(data.js);
 
@@ -150,7 +151,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
       else if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
       else if (action[0] == 'flash_detail')         kivi.display_flash_detail(action[1], action[2]);
-      else if (action[0] == 'clear_flash')          kivi.display_flash_detail(action[1], action[2]);
+      else if (action[0] == 'clear_flash')          kivi.clear_flash(action[1], action[2]);
       else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
       else if (action[0] == 'run')                  kivi.run(action[1], action.slice(2, action.length));
       else if (action[0] == 'run_once_for')         kivi.run_once_for(action[1], action[2], action[3]);

@@ -35,14 +35,15 @@ ns.eval_json_result = function(data) {
   if (data.error)
     return ns.display_flash('error', data.error);
 
-  $(['info', 'warning', 'error']).each(function(idx, category) {
-    $('#flash_' + category).hide();
-    $('#flash_detail_' + category).hide();
-    $('#flash_' + category + '_disp').hide();
-    $('#flash_' + category + '_content').empty();
-    $('#flash_' + category + '_detail').empty();
-  });
-
+  if (!data.no_flash_clear) {
+    $(['info', 'warning', 'error']).each(function(idx, category) {
+      $('#flash_' + category).hide();
+      $('#flash_detail_' + category).hide();
+      $('#flash_' + category + '_disp').hide();
+      $('#flash_' + category + '_content').empty();
+      $('#flash_' + category + '_detail').empty();
+    });
+  }
   if ((data.js || '') != '')
     eval(data.js);
 
