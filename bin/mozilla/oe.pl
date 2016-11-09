@@ -467,7 +467,7 @@ sub form_header {
     $bar->actions->[-1]->add_actions([ t8('Save as new'),
       submit => [ '#form', { action_save_as_new    => 1 } ],
       checks => [ @req_trans_desc ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
      $bar->actions->[-1]->add_actions([ t8('Save and Close'),
       submit => [ '#form', { action_save_and_close => 1 } ],
@@ -477,9 +477,10 @@ sub form_header {
     $bar->add_actions([ t8('Delete'),
       submit => [ '#form', { action_delete         => 1 } ],
       confirm => t8('Do you really want to delete this object?'),
-      disabled => !$::form->{id}
-               || ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
-               || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete),
+      disabled => !$form->{id}                                                              ? t8('This record has not been saved yet.')
+                : (   ($is_sales_ord && !$::instance_conf->get_sales_order_show_delete)
+                   || ($is_pur_ord   && !$::instance_conf->get_purchase_order_show_delete)) ? t8('Deleting this type of record has been disabled in the configuration.')
+                :                                                                             undef,
     ]);
     $bar->add_actions('separator');
     $bar->add_actions('combobox');
@@ -488,27 +489,27 @@ sub form_header {
     ]);
     $bar->actions->[-1]->add_actions([ t8('Sales Order'),
       submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]) if $is_sales_quo;
     $bar->actions->[-1]->add_actions([ t8('Purchase Order'),
       submit => [ '#form', { action_sales_order    => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]) if $is_req_quo;
     $bar->actions->[-1]->add_actions([ t8('Delivery Order'),
       submit => [ '#form', { action_delivery_order => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]) if $is_sales_ord || $is_pur_ord;
     $bar->actions->[-1]->add_actions([ t8('Invoice'),
       submit => [ '#form', { action_invoice        => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]) if $allow_invoice;
     $bar->actions->[-1]->add_actions([ t8('Quotation'),
       submit => [ '#form', { action_quotation      => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Request for Quotation'),
       submit => [ '#form', { action_reqest_for_quotation => 1 } ],
-      disabled => !$::form->{id}
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
     $bar->add_actions('combobox');
     $bar->actions->[-1]->add_actions([ t8('Export'),
@@ -527,12 +528,12 @@ sub form_header {
       disabled => 1,
     ]);
     $bar->actions->[-1]->add_actions([ t8('History'),
-      call     => [ 'set_history_window', $::form->{id} * 1, 'id' ],
-      disabled => !$::form->{id},
+      call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
       call     => [ 'follow_up_window' ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
   }
 
