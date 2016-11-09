@@ -10,21 +10,28 @@ namespace('kivi', function(k){
   };
 
   k.ActionBarCombobox = function(e) {
-    this.combobox = e;
-    this.head     = e.childNodes[0];
-    this.toggle   = this.head.childNodes[1];
-    this.list     = e.childNodes[0];
+    this.combobox  = e;
+    this.head      = e.childNodes[0];
+    this.topAction = this.head.childNodes[0];
+    this.toggle    = this.head.childNodes[1];
+    this.list      = e.childNodes[0];
     this.init();
   };
 
   k.ActionBarCombobox.prototype = {
     init: function() {
-      var obj = this;
-      $(obj.toggle).on('click', function(event){
+      var obj     = this;
+      var toggler = function(event){
         $('div.' + CLASSES.combobox + '[id!=' + obj.combobox.id + ']').removeClass(CLASSES.active);
         $(obj.combobox).toggleClass(CLASSES.active);
         event.stopPropagation();
-      });
+      };
+
+      $(obj.toggle).on('click', toggler);
+
+      var data = $(this.topAction).data('action') || {};
+      if (!data.call && !data.submit)
+        $(this.topAction).on('click', toggler);
     }
   };
 

@@ -309,9 +309,7 @@ sub setup_is_action_bar {
     $bar->add_actions('separator');
 
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Workflow'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('Workflow') ]);
     $bar->actions->[-1]->add_actions([ t8('Use As New'),
       submit   => [ '#form', { action_use_as_new    => 1 } ],
       disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
@@ -329,9 +327,7 @@ sub setup_is_action_bar {
     ]);
 
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Export'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('Export') ]);
     $bar->actions->[-1]->add_actions([ ($form->{id} ? t8('Print') : t8('Preview')),
       submit   => [ '#form', { action_print => 1 } ],
       checks   => [ @req_trans_desc ],
@@ -343,9 +339,7 @@ sub setup_is_action_bar {
       disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]);
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('more'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('more') ]);
     $bar->actions->[-1]->add_actions([ t8('History'),
       call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
       disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,

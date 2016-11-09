@@ -352,9 +352,7 @@ sub setup_oe_action_bar {
     $bar->add_actions('separator');
 
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Workflow'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('Workflow') ]);
     $bar->actions->[-1]->add_actions([ t8('Sales Order'),
       submit   => [ '#form', { action_sales_order => 1 } ],
       disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
@@ -381,9 +379,7 @@ sub setup_oe_action_bar {
     ]);
 
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Export'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('Export') ]);
     $bar->actions->[-1]->add_actions([ t8('Print'),
       submit => [ '#form', { action_print => 1 } ],
       checks => [ @req_trans_desc ],
@@ -393,9 +389,7 @@ sub setup_oe_action_bar {
       checks => [ @req_trans_desc ],
     ]);
     $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('more'),
-      disabled => 1,
-    ]);
+    $bar->actions->[-1]->add_actions([ t8('more') ]);
     $bar->actions->[-1]->add_actions([ t8('History'),
       call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
       disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
