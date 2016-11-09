@@ -78,7 +78,7 @@ on click submit the form specified by form-selector with the additional params
 
 on click call the specified function (is this a special case of checks?)
 
-- disabled => true/false (done)
+- disabled => true/false/tooltip explaning why disabled (done)
 
 TODO:
 

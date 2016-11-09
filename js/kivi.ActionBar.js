@@ -103,6 +103,8 @@ namespace('kivi', function(k){
 
     if (data.disabled) {
       $(e).addClass(CLASSES.disabled);
+      if (!data.tooltip && (data.disabled != '1'))
+        data.tooltip = data.disabled;
     }
 
     if (data.accesskey) {
