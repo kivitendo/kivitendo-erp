@@ -867,7 +867,7 @@ sub _close_quotations_rfqs {
     my ($quotation) = $sth->fetchrow_array();
 
     if ($quotation) {
-      return;
+      return 1;
     }
 
     my @close_ids;
