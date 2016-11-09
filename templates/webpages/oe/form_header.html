@@ -3,7 +3,10 @@
 [%- USE LxERP %]
 [%- USE L %][%- USE P -%]
 
-  <form method="post" id='form' name="oe" action="[% script %]">
+  <form method="post" id='form' name="oe" action="[% script %]"
+        data-transport-cost-reminder-article-id="[% HTML.escape(transport_cost_reminder_article.id) %]"
+        data-transport-cost-reminder-article-description="[% HTML.escape(transport_cost_reminder_article.displayable_name) %]"
+        >
 
     <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
     <script type="text/javascript" src="js/calculate_qty.js"></script>

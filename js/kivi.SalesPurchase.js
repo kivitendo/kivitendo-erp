@@ -88,6 +88,23 @@ namespace('kivi.SalesPurchase', function(ns) {
     return false;
   };
 
+  this.check_transport_cost_article_presence = function() {
+    var $form          = $('#form');
+    var wanted_part_id = $form.data('transport-cost-reminder-article-id');
+
+    if (!wanted_part_id)
+      return true;
+
+    var rowcount = $('#rowcount').val() * 1;
+    for (var row = 1; row <= rowcount; row++)
+      if (   (($('#id_'         + row).val() * 1)   === wanted_part_id)
+          && (($('#partnumber_' + row).val() || '') !== ''))
+        return true;
+
+    var description = $form.data('transport-cost-reminder-article-description');
+    return confirm(kivi.t8("The transport cost article '#1' is missing. Do you want to continue anyway?", [ description ]));
+  };
+
   this.on_submit_checks = function() {
     var $button = $(this);
     if (($button.data('check-transfer-qty') == 1) && !kivi.SalesPurchase.delivery_order_check_transfer_qty())

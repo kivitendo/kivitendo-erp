@@ -308,14 +308,13 @@ sub setup_oe_action_bar {
       && $params{obj}->periodic_invoices_config->get_previous_billed_period_start_date;
   }
 
-  my $allow_invoice  = $params{is_req_quo}
-                    || $params{is_pur_ord}
-                    || ($params{is_sales_quo} && $::instance_conf->get_allow_sales_invoice_from_sales_quotation)
-                    || ($params{is_sales_ord} && $::instance_conf->get_allow_sales_invoice_from_sales_order);
-  my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
-  my @warn_p_invoice = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice) x!!$has_active_periodic_invoice;
-
-  my $tpca_remainder = 0;
+  my $allow_invoice      = $params{is_req_quo}
+                        || $params{is_pur_ord}
+                        || ($params{is_sales_quo} && $::instance_conf->get_allow_sales_invoice_from_sales_quotation)
+                        || ($params{is_sales_ord} && $::instance_conf->get_allow_sales_invoice_from_sales_order);
+  my @req_trans_desc     = qw(kivi.SalesPurchase.check_transaction_description)         x!!$::instance_conf->get_require_transaction_description_ps;
+  my @req_trans_cost_art = qw(kivi.SalesPurchase.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
+  my @warn_p_invoice     = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice)  x!!$has_active_periodic_invoice;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add_actions([ t8('Update'),
@@ -327,18 +326,16 @@ sub setup_oe_action_bar {
     $bar->add_actions("combobox");
     $bar->actions->[-1]->add_actions([ t8('Save'),
       submit  => [ '#form', { action_save => 1 } ],
-      checks  => [ @req_trans_desc, @warn_p_invoice ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+      checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
     ]);
     $bar->actions->[-1]->add_actions([ t8('Save as new'),
       submit   => [ '#form', { action_save_as_new => 1 } ],
-      checks   => [ @req_trans_desc ],
+      checks   => [ @req_trans_desc, @req_trans_cost_art ],
       disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
     ]);
      $bar->actions->[-1]->add_actions([ t8('Save and Close'),
       submit  => [ '#form', { action_save_and_close => 1 } ],
-      checks  => [ @req_trans_desc, @warn_p_invoice ],
-      confirm => t8('Missing transport cost: #1  Are you sure?', $tpca_remainder),
+      checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
     ]);
     $bar->add_actions([ t8('Delete'),
       submit   => [ '#form', { action_delete => 1 } ],
@@ -574,6 +571,10 @@ sub form_header {
 
   $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
+  if ($type_check_vars{is_sales} && $::instance_conf->get_transport_cost_reminder_article_number_id) {
+    $TMPL_VAR{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
+  }
+
   print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
 
   $main::lxdebug->leave_sub();
@@ -645,11 +646,8 @@ sub form_footer {
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
-  my $tpca_reminder;
-  $tpca_reminder = check_transport_cost_reminder_article_number() if $::instance_conf->get_transport_cost_reminder_article_number_id;
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     tpca_reminder   => $tpca_reminder,
      print_options   => print_options(inline => 1),
      is_sales        => scalar ($form->{type} =~ /^sales_/),              # these vars are exported, so that the template
      is_order        => scalar ($form->{type} =~ /_order$/),              # may determine what to show
@@ -2198,24 +2196,6 @@ sub _oe_remove_delivered_or_billed_rows {
   _remove_billed_or_delivered_rows(quantities => \%handled_base_qtys);
 }
 
-# iterate all positions and match articlenumber
-sub check_transport_cost_reminder_article_number {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  check_oe_access();
-
-  my $transport_article_id = $::instance_conf->get_transport_cost_reminder_article_number_id;
-  for my $i (1 .. $form->{rowcount}) {
-    return if $form->{"id_${i}"} eq $transport_article_id;
-  }
-
-  # simply return the name of the part
-  return SL::DB::Part->new(id => $transport_article_id)->load()->partnumber;
-
-  $main::lxdebug->leave_sub();
-}
 sub dispatcher {
   foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order quotation
                          request_for_quotation sales_order save save_and_close save_as_new ship_to update)) {

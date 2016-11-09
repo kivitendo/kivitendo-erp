@@ -135,7 +135,7 @@
 
 <input type="hidden" name="action" value="dispatcher">
 <input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
-<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+[% L.hidden_tag("rowcount", rowcount) %]
 <input type="hidden" name="callback" value="[% callback | html %]">
 [% IF vc == 'customer' %]
   <input type="hidden" name="customer_discount" value="[% HTML.escape(customer_discount) %]">
