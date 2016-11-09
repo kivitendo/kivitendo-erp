@@ -80,9 +80,12 @@ namespace('kivi', function(k){
       accesskey += e.which;
 
       // special case. HTML elements that make legitimate use of enter will also trigger the enter accesskey.
-      // so. if accesskey is '13' and the event source is one of these (currently only textarea) ignore it.
+      // so. if accesskey is '13' and the event source is one of these (currently only textareas & combo boxes) ignore it.
       // higher level widgets will usually prevent their key events from bubbling if used.
-      if (accesskey == 13 && e.target.tagName == 'TEXTAREA') return true;
+      if (   (accesskey == 13)
+          && (   (e.target.tagName == 'TEXTAREA')
+              || (e.target.tagName == 'SELECT')))
+        return true;
 
       if ((target in k.ActionBarAccesskeys.actions) && (accesskey in k.ActionBarAccesskeys.actions[target])) {
         e.stopPropagation();
