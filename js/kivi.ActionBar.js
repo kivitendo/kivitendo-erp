@@ -7,7 +7,7 @@ namespace('kivi', function(k){
     disabled: 'layout-actionbar-action-disabled',
     action:   'layout-actionbar-action',
     combobox: 'layout-actionbar-combobox',
-  }
+  };
 
   k.ActionBarCombobox = function(e) {
     this.combobox = e;
@@ -15,7 +15,7 @@ namespace('kivi', function(k){
     this.toggle   = this.head.childNodes[1];
     this.list     = e.childNodes[0];
     this.init();
-  }
+  };
 
   k.ActionBarCombobox.prototype = {
     init: function() {
@@ -156,7 +156,7 @@ namespace('kivi', function(k){
         }
       });
     }
-  }
+  };
 });
 
 $(function(){
