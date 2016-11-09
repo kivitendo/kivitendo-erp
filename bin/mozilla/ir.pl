@@ -298,8 +298,8 @@ sub form_header {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File  kivi.SalesPurchase kivi.Part ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_project client_js));
 
-  my $show_delete = $::instance_conf->get_ir_changeable == 2 ? $form->current_date(\%myconfig) eq $form->{gldate}
-                  : $::instance_conf->get_ir_changeable == 1;
+  my $change_never            = $::instance_conf->get_ir_changeable == 0;
+  my $change_on_same_day_only = $::instance_conf->get_ir_changeable == 2 && ($form->current_date(\%myconfig) ne $form->{gldate});
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add_actions([ t8('Update'),
@@ -310,28 +310,36 @@ sub form_header {
     $bar->add_actions("combobox");
     $bar->actions->[-1]->add_actions([ t8('Post'),
       submit => [ '#form', { action_post           => 1 } ],
-      disabled => (!$::form->{id} && $::form->{locked}) || ($::form->{id} && !$show_delete),
+      disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
+                : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
+                : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                :                                             undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Post Payment'),
       submit => [ '#form', { action_post_payment    => 1 } ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('mark as paid'),
       submit => [ '#form', { action_mark_as_paid    => 1 } ],
       confirm => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]) if $::instance_conf->get_ir_show_mark_as_paid;
 
     $bar->add_actions("combobox");
     $bar->actions->[-1]->add_actions([ t8('Storno'),
       submit => [ '#form', { action_storno         => 1 } ],
       confirm => t8('Do you really want to cancel this invoice?'),
-      disabled => !$::form->{id} || !$show_delete,
+      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Delete'),
       submit => [ '#form', { action_delete         => 1 } ],
       confirm => t8('Do you really want to delete this object?'),
-      disabled => !$::form->{id} || !$show_delete,
+      disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
+                : $form->{locked}          ? t8('The billing period has already been locked.')
+                : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
+                : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                :                            undef,
     ]);
     $bar->add_actions('separator');
     $bar->add_actions('combobox');
@@ -340,15 +348,17 @@ sub form_header {
     ]);
     $bar->actions->[-1]->add_actions([ t8('History'),
       call     => [ 'set_history_window', $::form->{id} * 1, 'id', 'glid' ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
       call     => [ 'follow_up_window' ],
-      disabled => !$::form->{id},
+      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
     ]);
     $bar->actions->[-1]->add_actions([ t8('Drafts'),
       call     => [ 'kivi.Draft.popup', 'ir', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
-      disabled => $::form->{id},
+      disabled => $form->{id}     ? t8('This invoice has already been posted.')
+                : $form->{locked} ? t8('The billing period has already been locked.')
+                :                   undef,
     ]);
   }
 
