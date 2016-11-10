@@ -103,6 +103,7 @@ namespace("kivi").setupLocale({
 "The recipient, subject or body is missing.":"Der Empfäger, der Betreff oder der Text ist leer.",
 "The selected database is still configured for client \"#1\". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?":"Die auswählte Datenbank ist noch für Mandant \"#1\" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Wollen Sie die Datenbank trotzdem löschen?",
 "The transfer has been canceled by the user.":"Der Vorgang wurde durch den Benutzer abgebrochen.",
+"The transport cost article '#1' is missing. Do you want to continue anyway?":"Der Transportkostenartikel »#1« fehlt. Wollen Sie trotzdem fortfahren?",
 "The uploaded filename still exists.<br>If you not modify the name this is a new version of the file":"Der Dateiname existiert bereits.<br>Wenn Sie den Namen nicht ändern gibt dies eine neue Version der Datei",
 "There are duplicate parts at positions":"Es gibt doppelte Artikel bei den Positionen",
 "There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?":"Einige der Lagerbewegungen sind nicht vollständig und Lagerbewegungen können nachträglich nicht mehr verändert werden. Wollen Sie wirklich fortfahren?",
