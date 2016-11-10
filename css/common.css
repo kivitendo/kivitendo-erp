@@ -129,6 +129,12 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
   border-style: solid;
 }
 
+div.layout-actionbar .layout-actionbar-link {
+  margin-left: 6px;
+  margin-right: 6px;
+  cursor: default;
+}
+
 div.layout-actionbar-combobox {
   position: relative;
   display: inline-block;

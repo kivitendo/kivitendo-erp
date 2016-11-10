@@ -7,6 +7,7 @@ use Carp;
 use Scalar::Util qw(blessed);
 use SL::Layout::ActionBar::Action;
 use SL::Layout::ActionBar::ComboBox;
+use SL::Layout::ActionBar::Link;
 use SL::Layout::ActionBar::Separator;
 
 use constant HTML_CLASS => 'layout-actionbar';
@@ -18,6 +19,7 @@ use Rose::Object::MakeMethods::Generic (
 my %class_descriptors = (
   action    => { class => 'SL::Layout::ActionBar::Action',    num_params => 1, },
   combobox  => { class => 'SL::Layout::ActionBar::ComboBox',  num_params => 1, },
+  link      => { class => 'SL::Layout::ActionBar::Link',      num_params => 1, },
   separator => { class => 'SL::Layout::ActionBar::Separator', num_params => 0, },
 );
 
