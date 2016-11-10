@@ -536,8 +536,10 @@ div.layout-actionbar {
   background-color: #d0cfc9;
 }
 
+div.layout-actionbar div.layout-actionbar-link,
 div.layout-actionbar div.layout-actionbar-submit,
 div.layout-actionbar div.layout-actionbar-scriptbutton,
+div.layout-actionbar div.layout-actionbar-link:focus,
 div.layout-actionbar div.layout-actionbar-submit:focus,
 div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   border-color: darkgray;
@@ -547,6 +549,7 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   border-radius: 2px;
 }
 
+div.layout-actionbar div.layout-actionbar-link:hover,
 div.layout-actionbar div.layout-actionbar-submit:hover,
 div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
   background-color: lightgray;

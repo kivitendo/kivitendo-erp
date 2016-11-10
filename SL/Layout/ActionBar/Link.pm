@@ -14,10 +14,9 @@ sub render {
   my ($self) = @_;
 
   return $self->p->html_tag(
-    'a', $self->text,
-    %{ $self->params // {} },
+    'div', $self->text,
     id    => $self->id,
-    class => 'layout-actionbar-link',
+    class => 'layout-actionbar-action layout-actionbar-link',
   );
 }
 

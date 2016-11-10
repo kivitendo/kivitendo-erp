@@ -129,7 +129,7 @@ namespace('kivi', function(k){
       $(e).tooltipster({ content: data.tooltip, theme: 'tooltipster-light' });
     }
 
-    if (data.call || data.submit) {
+    if (data.call || data.submit || data.link) {
       $(e).click(function(event) {
         var $hidden, key, func, check;
         if ($(e).hasClass(CLASSES.disabled)) {
@@ -159,6 +159,9 @@ namespace('kivi', function(k){
             $(form).append($hidden)
           }
           $(form).submit();
+        }
+        if (data.link) {
+          window.location.href = data.link;
         }
       });
     }

@@ -109,8 +109,10 @@ div.layout-actionbar-separator {
   width: 20px;
 }
 
+div.layout-actionbar div.layout-actionbar-link,
 div.layout-actionbar div.layout-actionbar-submit,
 div.layout-actionbar div.layout-actionbar-scriptbutton,
+div.layout-actionbar div.layout-actionbar-link:focus,
 div.layout-actionbar div.layout-actionbar-submit:focus,
 div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   display: inline-block;
@@ -123,16 +125,11 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   cursor: default;
 }
 
+div.layout-actionbar div.layout-actionbar-link:hover,
 div.layout-actionbar div.layout-actionbar-submit:hover,
 div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
   border: 1px;
   border-style: solid;
-}
-
-div.layout-actionbar .layout-actionbar-link {
-  margin-left: 6px;
-  margin-right: 6px;
-  cursor: default;
 }
 
 div.layout-actionbar-combobox {
