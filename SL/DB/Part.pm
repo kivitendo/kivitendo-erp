@@ -68,6 +68,27 @@ sub _before_save_set_partnumber {
   return 1;
 }
 
+sub items {
+  my ($self) = @_;
+
+  if ( $self->part_type eq 'assembly' ) {
+    return $self->assemblies;
+  } elsif ( $self->part_type eq 'assortment' ) {
+    return $self->assortment_items;
+  } else {
+    return undef;
+  }
+}
+
+sub items_checksum {
+  my ($self) = @_;
+
+  # for detecting if the items of an (orphaned) assembly or assortment have
+  # changed when saving
+
+  return join(' ', sort map { $_->part->id } @{$self->items});
+};
+
 sub validate {
   my ($self) = @_;
 
@@ -80,7 +101,8 @@ sub validate {
     push @errors, $::locale->text('The partnumber already exists.') if SL::DB::Manager::Part->get_all_count(where => [ partnumber => $self->partnumber ]);
   };
 
-  if ($self->is_assortment && scalar @{$self->assortment_items} == 0) {
+  if ($self->is_assortment && $self->orphaned && scalar @{$self->assortment_items} == 0) {
+    # when assortment isn't orphaned form doesn't contain any items
     push @errors, $::locale->text('The assortment doesn\'t have any items.');
   }
 
@@ -147,9 +169,12 @@ sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
 
+  return 1 unless $self->id;
+
   my @relations = qw(
     SL::DB::InvoiceItem
     SL::DB::OrderItem
+    SL::DB::DeliveryOrderItem
     SL::DB::Inventory
     SL::DB::Assembly
     SL::DB::AssortmentItem
@@ -265,14 +290,13 @@ sub clone_and_reset_deep {
   my ($self) = @_;
 
   my $clone = $self->clone_and_reset; # resets id and partnumber (primary key and unique constraint)
-  $clone->makemodels(       map { $_->clone_and_reset } @{$self->makemodels});
-  $clone->translations(     map { $_->clone_and_reset } @{$self->translations});
+  $clone->makemodels(   map { $_->clone_and_reset } @{$self->makemodels}   ) if @{$self->makemodels};
+  $clone->translations( map { $_->clone_and_reset } @{$self->translations} ) if @{$self->translations};
 
   if ( $self->is_assortment ) {
+    # use clone rather than reset_and_clone because the unique constraint would also remove parts_id
     $clone->assortment_items( map { $_->clone } @{$self->assortment_items} );
-      foreach my $ai ( @{ $clone->assortment_items } ) {
-        $ai->assortment_id(undef);
-      };
+    $_->assortment_id(undef) foreach @{ $clone->assortment_items }
   };
 
   if ( $self->is_assembly ) {
@@ -292,25 +316,47 @@ sub clone_and_reset_deep {
   return $clone;
 }
 
-sub assembly_sellprice_sum {
-  my ($self) = @_;
+sub item_diffs {
+  my ($self, $comparison_part) = @_;
 
-  return unless $self->is_assembly;
-  sum map { $_->linetotal_sellprice } @{$self->assemblies};
+  die "item_diffs needs a part object" unless ref($comparison_part) eq 'SL::DB::Part';
+  die "part and comparison_part need to be of the same part_type" unless
+        ( $self->part_type eq 'assembly' or $self->part_type eq 'assortment' )
+    and ( $comparison_part->part_type eq 'assembly' or $comparison_part->part_type eq 'assortment' )
+    and $self->part_type eq $comparison_part->part_type;
+
+  # return [], [] if $self->items_checksum eq $comparison_part->items_checksum;
+  my @self_part_ids       = map { $_->parts_id } $self->items;
+  my @comparison_part_ids = map { $_->parts_id } $comparison_part->items;
+
+  my %orig       = map{ $_ => 1 } @self_part_ids;
+  my %comparison = map{ $_ => 1 } @comparison_part_ids;
+  my (@additions, @removals);
+  @additions = grep { !exists( $orig{$_}       ) } @comparison_part_ids if @comparison_part_ids;
+  @removals  = grep { !exists( $comparison{$_} ) } @self_part_ids       if @self_part_ids;
+
+  return \@additions, \@removals;
 };
 
-sub assembly_lastcost_sum {
+sub items_sellprice_sum {
+  my ($self, %params) = @_;
+
+  return unless $self->is_assortment or $self->is_assembly;
+  return unless $self->items;
+
+  if ($self->is_assembly) {
+    return sum map { $_->linetotal_sellprice          } @{$self->items};
+  } else {
+    return sum map { $_->linetotal_sellprice(%params) } grep { $_->charge } @{$self->items};
+  }
+}
+
+sub items_lastcost_sum {
   my ($self) = @_;
 
-  return unless $self->is_assembly;
-  sum map { $_->linetotal_lastcost } @{$self->assemblies};
-};
-
-sub assortment_sellprice_sum {
-  my ($self) = @_;
-
-  return unless $self->is_assortment;
-  sum map { $_->linetotal_sellprice } @{$self->assortment_items};
+  return unless $self->is_assortment or $self->is_assembly;
+  return unless $self->items;
+  sum map { $_->linetotal_lastcost } @{$self->items};
 };
 
 sub assortment_lastcost_sum {
