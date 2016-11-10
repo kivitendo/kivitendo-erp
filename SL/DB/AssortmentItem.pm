@@ -12,10 +12,21 @@ use Rose::DB::Object::Helpers qw(clone);
 __PACKAGE__->meta->initialize;
 
 sub linetotal_sellprice {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
-  return 0 unless $self->qty > 0 and $self->part->sellprice > 0;
-  return $self->qty * $self->part->sellprice / ( $self->part->price_factor_id ? $self->part->price_factor->factor : 1 );
+  my $sellprice = $self->part->sellprice;
+  if ($params{pricegroup}) {
+    my $pricegroup = SL::DB::Manager::Pricegroup->find_by( pricegroup => $params{pricegroup});
+    die "Can't find pricegroup with name " . $params{pricegroup} unless $pricegroup;
+    $params{pricegroup_id} = $pricegroup->id if $pricegroup;
+  }
+  if ($params{pricegroup_id}) {
+    my $price = SL::DB::Manager::Price->find_by(pricegroup_id => $params{pricegroup_id}, parts_id => $self->part->id);
+    $sellprice = $price->price if $price;
+  }
+
+  return 0 unless $self->qty > 0 and $sellprice > 0;
+  return $self->qty * $sellprice / ( $self->part->price_factor_id ? $self->part->price_factor->factor : 1 );
 }
 
 sub linetotal_lastcost {
