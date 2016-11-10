@@ -425,6 +425,10 @@ sub action_add_item {
                    description => $assortment_item->part->description,
                  };
       my $item = _new_item($self->order, $attr);
+
+      # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
+      $item->discount(1) unless $assortment_item->charge;
+
       $self->order->add_items( $item );
       $self->_recalc();
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
@@ -486,7 +490,22 @@ sub action_add_multi_items {
 
   my @items;
   foreach my $attr (@form_attr) {
-    push @items, _new_item($self->order, $attr);
+    my $item = _new_item($self->order, $attr);
+    push @items, $item;
+    if ( $item->part->is_assortment ) {
+      foreach my $assortment_item ( @{$item->part->assortment_items} ) {
+        my $attr = { parts_id => $assortment_item->parts_id,
+                     qty      => $assortment_item->qty * $item->qty, # TODO $form_attr->{unit}
+                     unit     => $assortment_item->unit,
+                     description => $assortment_item->part->description,
+                   };
+        my $item = _new_item($self->order, $attr);
+
+        # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
+        $item->discount(1) unless $assortment_item->charge;
+        push @items, $assortment_item;
+      }
+    }
   }
   $self->order->add_items(@items);
 
