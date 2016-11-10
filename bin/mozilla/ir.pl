@@ -246,7 +246,7 @@ sub setup_ir_action_bar {
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         (action => [
-          t8('mark as paid'),
+          t8('Mark as paid'),
           submit   => [ '#form', { action_mark_as_paid => 1 } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,

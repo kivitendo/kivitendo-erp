@@ -40,7 +40,7 @@
   [% END %]
 
   [% IF ( show_mark_as_paid_button ) %]
-    [% L.submit_tag("action", LxERP.t8('mark as paid'), confirm=LxERP.t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?')) %]
+    [% L.submit_tag("action", LxERP.t8('Mark as paid'), confirm=LxERP.t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?')) %]
   [% END %]
 
   [% L.button_tag("kivi.RecordTemplate.popup('ar_transaction')", LxERP.t8("Record templates")) %]
