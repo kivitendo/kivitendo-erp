@@ -115,16 +115,9 @@ Arrangement utility
 
 =over 4
 
-=item C<add_actions LIST>
+=item C<add LIST>
 
-Dispatches each each argument to C<add_action>
-
-=item C<add_action>
-
-
-=item C<add_separator>
-
-=item C<add_
+to be documented
 
 =head1 ACCESS FROM CODE
 
