@@ -259,101 +259,118 @@ sub setup_is_action_bar {
   my @req_trans_desc          = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
 
   for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add_actions([ t8('Update'),
-      submit    => [ '#form', { action_update => 1 } ],
-      disabled  => $form->{locked} ? t8('The billing period has already been locked.') : undef,
-      id        => 'update_button',
-      accesskey => 'enter',
-    ]);
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action_update => 1 } ],
+        disabled  => $form->{locked} ? t8('The billing period has already been locked.') : undef,
+        id        => 'update_button',
+        accesskey => 'enter',
+      ],
 
-    $bar->add_actions("combobox");
-    $bar->actions->[-1]->add_actions([ t8('Post'),
-      submit   => [ '#form', { action_post => 1 } ],
-      checks   => [ @req_trans_desc ],
-      disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
-                : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
-                : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
-                : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
-                :                                             undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Post Payment'),
-      submit   => [ '#form', { action_post_payment => 1 } ],
-      checks   => [ @req_trans_desc ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('mark as paid'),
-      submit   => [ '#form', { action_mark_as_paid => 1 } ],
-      confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]) if $::instance_conf->get_is_show_mark_as_paid;
+      combobox => [
+        action => [
+          t8('Post'),
+          submit   => [ '#form', { action_post => 1 } ],
+          checks   => [ @req_trans_desc ],
+          disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
+                    : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
+                    : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    :                                             undef,
+        ],
+        action => [
+          t8('Post Payment'),
+          submit   => [ '#form', { action_post_payment => 1 } ],
+          checks   => [ @req_trans_desc ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        (action => [ t8('mark as paid'),
+          submit   => [ '#form', { action_mark_as_paid => 1 } ],
+          confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ]) x !!$::instance_conf->get_is_show_mark_as_paid,
+      ], # end of combobox "Post"
 
+      combobox => [
+        action => [ t8('Storno'),
+          submit   => [ '#form', { action_storno => 1 } ],
+          confirm  => t8('Do you really want to cancel this invoice?'),
+          checks   => [ @req_trans_desc ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [ t8('Delete'),
+          submit   => [ '#form', { action_delete => 1 } ],
+          confirm  => t8('Do you really want to delete this object?'),
+          checks   => [ @req_trans_desc ],
+          disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
+                    : $form->{locked}          ? t8('The billing period has already been locked.')
+                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    :                            undef,
+        ],
+      ], # end of combobox "Storno"
 
-    $bar->add_actions("combobox");
-    $bar->actions->[-1]->add_actions([ t8('Storno'),
-      submit   => [ '#form', { action_storno => 1 } ],
-      confirm  => t8('Do you really want to cancel this invoice?'),
-      checks   => [ @req_trans_desc ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Delete'),
-      submit   => [ '#form', { action_delete => 1 } ],
-      confirm  => t8('Do you really want to delete this object?'),
-      checks   => [ @req_trans_desc ],
-      disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
-                : $form->{locked}          ? t8('The billing period has already been locked.')
-                : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
-                : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
-                :                            undef,
-    ]);
+      'separator',
 
-    $bar->add_actions('separator');
+      combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Use As New'),
+          submit   => [ '#form', { action_use_as_new => 1 } ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Credit Note'),
+          submit   => [ '#form', { action_credit_note => 1 } ],
+          checks   => [ @req_trans_desc ],
+          disabled => $form->{type} eq "credit_note" ? t8('Credit notes cannot be converted into other credit notes.')
+                    : !$form->{id}                   ? t8('This invoice has not been posted yet.')
+                    :                                  undef,
+        ],
+        action => [
+          t8('Sales Order'),
+          submit   => [ '#form', { action_sales_order   => 1 } ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+      ], # end of combobox "Workflow"
 
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Workflow') ]);
-    $bar->actions->[-1]->add_actions([ t8('Use As New'),
-      submit   => [ '#form', { action_use_as_new    => 1 } ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Credit Note'),
-      submit   => [ '#form', { action_credit_note    => 1 } ],
-      checks   => [ @req_trans_desc ],
-      disabled => $form->{type} eq "credit_note" ? t8('Credit notes cannot be converted into other credit notes.')
-                : !$form->{id}                   ? t8('This invoice has not been posted yet.')
-                :                                  undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
-      submit   => [ '#form', { action_sales_order   => 1 } ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
+      combobox => [
+        action => [ t8('Export') ],
+        action => [
+          ($form->{id} ? t8('Print') : t8('Preview')),
+          submit   => [ '#form', { action_print => 1 } ],
+          checks   => [ @req_trans_desc ],
+          disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
+        ],
+        action => [ t8('E Mail'),
+          submit   => [ '#form', { action_print => 1 } ],
+          checks   => [ @req_trans_desc ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+      ], # end of combobox "Export"
 
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Export') ]);
-    $bar->actions->[-1]->add_actions([ ($form->{id} ? t8('Print') : t8('Preview')),
-      submit   => [ '#form', { action_print => 1 } ],
-      checks   => [ @req_trans_desc ],
-      disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('E Mail'),
-      submit   => [ '#form', { action_print => 1 } ],
-      checks   => [ @req_trans_desc ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('more') ]);
-    $bar->actions->[-1]->add_actions([ t8('History'),
-      call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
-      call     => [ 'follow_up_window' ],
-      disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Drafts'),
-      call     => [ 'kivi.Draft.popup', 'is', 'invoice', $form->{draft_id}, $form->{draft_description} ],
-      disabled => $form->{id}     ? t8('This invoice has already been posted.')
-                : $form->{locked} ? t8('The billing period has already been locked.')
-                :                   undef,
-    ]);
+      combobox => [
+        action => [ t8('more') ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'follow_up_window' ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Drafts'),
+          call     => [ 'kivi.Draft.popup', 'is', 'invoice', $form->{draft_id}, $form->{draft_description} ],
+          disabled => $form->{id}     ? t8('This invoice has already been posted.')
+                    : $form->{locked} ? t8('The billing period has already been locked.')
+                    :                   undef,
+        ],
+      ], # end of combobox "more"
+    );
   }
 }
 

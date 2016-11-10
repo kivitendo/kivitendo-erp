@@ -317,84 +317,106 @@ sub setup_oe_action_bar {
   my @warn_p_invoice     = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice)  x!!$has_active_periodic_invoice;
 
   for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add_actions([ t8('Update'),
-      submit    => [ '#form', { action_update => 1 } ],
-      id        => 'update_button',
-      accesskey => 'enter',
-    ]);
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action_update => 1 } ],
+        id        => 'update_button',
+        accesskey => 'enter',
+      ],
 
-    $bar->add_actions("combobox");
-    $bar->actions->[-1]->add_actions([ t8('Save'),
-      submit  => [ '#form', { action_save => 1 } ],
-      checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Save as new'),
-      submit   => [ '#form', { action_save_as_new => 1 } ],
-      checks   => [ @req_trans_desc, @req_trans_cost_art ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-     $bar->actions->[-1]->add_actions([ t8('Save and Close'),
-      submit  => [ '#form', { action_save_and_close => 1 } ],
-      checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
-    ]);
-    $bar->add_actions([ t8('Delete'),
-      submit   => [ '#form', { action_delete => 1 } ],
-      confirm  => t8('Do you really want to delete this object?'),
-      disabled => !$form->{id}                                                                      ? t8('This record has not been saved yet.')
-                : (   ($params{is_sales_ord} && !$::instance_conf->get_sales_order_show_delete)
-                   || ($params{is_pur_ord}   && !$::instance_conf->get_purchase_order_show_delete)) ? t8('Deleting this type of record has been disabled in the configuration.')
-                :                                                                                     undef,
-    ]);
+      combobox => [
+        action => [
+          t8('Save'),
+          submit  => [ '#form', { action_save => 1 } ],
+          checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
+        ],
+        action => [
+          t8('Save as new'),
+          submit   => [ '#form', { action_save_as_new => 1 } ],
+          checks   => [ @req_trans_desc, @req_trans_cost_art ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ],
+        action => [
+          t8('Save and Close'),
+          submit  => [ '#form', { action_save_and_close => 1 } ],
+          checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
+        ],
+        action => [
+          t8('Delete'),
+          submit   => [ '#form', { action_delete => 1 } ],
+          confirm  => t8('Do you really want to delete this object?'),
+          disabled => !$form->{id}                                                                      ? t8('This record has not been saved yet.')
+                    : (   ($params{is_sales_ord} && !$::instance_conf->get_sales_order_show_delete)
+                       || ($params{is_pur_ord}   && !$::instance_conf->get_purchase_order_show_delete)) ? t8('Deleting this type of record has been disabled in the configuration.')
+                    :                                                                                     undef,
+        ],
+      ], # end of combobox "Save"
 
-    $bar->add_actions('separator');
+      'separator',
 
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Workflow') ]);
-    $bar->actions->[-1]->add_actions([ t8('Sales Order'),
-      submit   => [ '#form', { action_sales_order => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $params{is_sales_quo};
-    $bar->actions->[-1]->add_actions([ t8('Purchase Order'),
-      submit   => [ '#form', { action_sales_order => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $params{is_req_quo};
-    $bar->actions->[-1]->add_actions([ t8('Delivery Order'),
-      submit   => [ '#form', { action_delivery_order => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $params{is_sales_ord} || $params{is_pur_ord};
-    $bar->actions->[-1]->add_actions([ t8('Invoice'),
-      submit   => [ '#form', { action_invoice => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]) if $allow_invoice;
-    $bar->actions->[-1]->add_actions([ t8('Quotation'),
-      submit   => [ '#form', { action_quotation => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Request for Quotation'),
-      submit   => [ '#form', { action_reqest_for_quotation => 1 } ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
+      combobox => [
+        action => [ t8('Workflow') ],
+        (action => [
+          t8('Sales Order'),
+          submit   => [ '#form', { action_sales_order => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ]) x !!$params{is_sales_quo},
+        (action => [
+          t8('Purchase Order'),
+          submit   => [ '#form', { action_sales_order => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ]) x !!$params{is_req_quo},
+        (action => [
+          t8('Delivery Order'),
+          submit   => [ '#form', { action_delivery_order => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ]) x ($params{is_sales_ord} || $params{is_pur_ord}),
+        (action => [
+          t8('Invoice'),
+          submit   => [ '#form', { action_invoice => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ]) x !!$allow_invoice,
+        action => [
+          t8('Quotation'),
+          submit   => [ '#form', { action_quotation => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ],
+        action => [
+          t8('Request for Quotation'),
+          submit   => [ '#form', { action_reqest_for_quotation => 1 } ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ],
+      ], # end of combobox "Workflow"
 
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('Export') ]);
-    $bar->actions->[-1]->add_actions([ t8('Print'),
-      submit => [ '#form', { action_print => 1 } ],
-      checks => [ @req_trans_desc ],
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('E Mail'),
-      submit => [ '#form', { action_print => 1 } ],
-      checks => [ @req_trans_desc ],
-    ]);
-    $bar->add_actions('combobox');
-    $bar->actions->[-1]->add_actions([ t8('more') ]);
-    $bar->actions->[-1]->add_actions([ t8('History'),
-      call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
-    $bar->actions->[-1]->add_actions([ t8('Follow-Up'),
-      call     => [ 'follow_up_window' ],
-      disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-    ]);
+      combobox => [
+        action => [ t8('Export') ],
+        action => [
+          t8('Print'),
+          submit => [ '#form', { action_print => 1 } ],
+          checks => [ @req_trans_desc ],
+        ],
+        action => [
+          t8('E Mail'),
+          submit => [ '#form', { action_print => 1 } ],
+          checks => [ @req_trans_desc ],
+        ],
+      ], #end of combobox "Export"
+
+      combobox => [
+        action => [ t8('more') ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'follow_up_window' ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+        ],
+      ], # end of combobox "more"
+    );
   }
 }
 

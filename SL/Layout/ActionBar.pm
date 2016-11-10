@@ -3,7 +3,11 @@ package SL::Layout::ActionBar;
 use strict;
 use parent qw(SL::Layout::Base);
 
+use Carp;
+use Scalar::Util qw(blessed);
 use SL::Layout::ActionBar::Action;
+use SL::Layout::ActionBar::ComboBox;
+use SL::Layout::ActionBar::Separator;
 
 use constant HTML_CLASS => 'layout-actionbar';
 
@@ -11,6 +15,11 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(actions) ],
 );
 
+my %class_descriptors = (
+  action    => { class => 'SL::Layout::ActionBar::Action',    num_params => 1, },
+  combobox  => { class => 'SL::Layout::ActionBar::ComboBox',  num_params => 1, },
+  separator => { class => 'SL::Layout::ActionBar::Separator', num_params => 0, },
+);
 
 ###### Layout overrides
 
@@ -32,22 +41,37 @@ sub javascripts {
 
 ###### interface
 
-sub add_actions {
+sub add {
   my ($self, @actions) = @_;
-  push @{ $self->actions }, map {
-       !ref $_ ? SL::Layout::ActionBar::Action->from_descriptor($_)
-     :  ref $_ && 'ARRAY' eq ref $_ ? SL::Layout::ActionBar::Action->simple($_)
-     :  ref $_ && $_->isa('SL::Layout::Action') ? $_
-     : do { die 'invalid action' };
-  } @actions;
+
+  push @{ $self->actions }, $self->parse_actions(@actions);
+
+  return $self->actions->[-1];
+}
+
+sub parse_actions {
+  my ($self_or_class, @actions) = @_;
+
+  my @parsed;
+
+  while (my $type = shift(@actions)) {
+    if (blessed($type) && $type->isa('SL::Layout::ActionBar::Action')) {
+      push @parsed, $type;
+      continue;
+    }
+
+    my $descriptor = $class_descriptors{lc $type} || croak("Unknown action type '${type}'");
+    my @params     = splice(@actions, 0, $descriptor->{num_params});
+
+    push @parsed, $descriptor->{class}->from_params(@params);
+  }
+
+  return @parsed;
 }
 
 sub init_actions {
   []
 }
-
-
-
 
 1;
 

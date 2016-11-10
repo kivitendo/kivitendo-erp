@@ -9,17 +9,17 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(actions) ],
 );
 
-sub parsed_actions {
-  $_[0]{parsed_actions} ||=
-    [ map { SL::Layout::ActionBar::Action->simple($_) } @{ $_[0]->actions || [] } ];
-}
+sub from_params {
+  my ($class, $actions) = @_;
 
-sub add_actions {
-  push @{$_[0]{actions} //= $_[0]->init_actions}, @_[1..$#_]
+  my $combobox = $class->new;
+  push @{ $combobox->actions }, SL::Layout::ActionBar->parse_actions(@{ $actions });
+
+  return $combobox;
 }
 
 sub render {
-  my ($first, @rest) = @{ $_[0]->parsed_actions };
+  my ($first, @rest) = @{ $_[0]->actions };
   $_[0]->p->html_tag('div',
     $_[0]->p->html_tag('div', $first->render . $_[0]->p->html_tag('span'), class => 'layout-actionbar-combobox-head') .
     $_[0]->p->html_tag('div', join('', map { $_->render } @rest), class => 'layout-actionbar-combobox-list'),
@@ -29,7 +29,7 @@ sub render {
 }
 
 sub script {
-  map { $_->script } @{ $_[0]->parsed_actions }
+  map { $_->script } @{ $_[0]->actions }
 }
 
 sub init_actions { [] }

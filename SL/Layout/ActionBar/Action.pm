@@ -20,21 +20,8 @@ sub script {
   sprintf q|$('#%s').data('action', %s);|, $_[0]->id, JSON->new->allow_blessed->convert_blessed->encode($_[0]->params);
 }
 
-# static constructors
-
-sub from_descriptor {
-  my ($class, $descriptor) = @_;
-  require SL::Layout::ActionBar::Separator;
-  require SL::Layout::ActionBar::ComboBox;
-
-  return {
-     separator => SL::Layout::ActionBar::Separator->new,
-     combobox  => SL::Layout::ActionBar::ComboBox->new,
-  }->{$descriptor} || do { die 'unknown descriptor' };
-}
-
 # this is mostly so that outside consumer don't need to load subclasses themselves
-sub simple {
+sub from_params {
   my ($class, $data) = @_;
 
   my ($text, %params) = @$data;
@@ -83,4 +70,3 @@ on click call the specified function (is this a special case of checks?)
 TODO:
 
 - runtime disable/enable
-
