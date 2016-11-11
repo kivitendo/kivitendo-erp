@@ -407,14 +407,16 @@ sub handle_shoparticle {
 sub check_type {
   my ($self, $entry) = @_;
 
-  my $type = $self->settings->{part_type};
+  my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
+  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
 
-  if ($type eq 'mixed' && $entry->{raw_data}->{type}) {
-    $type = $entry->{raw_data}->{part_type} =~ m/^p/i ? 'part'
-          : $entry->{raw_data}->{part_type} =~ m/^s/i ? 'service'
-          : $entry->{raw_data}->{part_type} =~ m/^a/i ? 'assembly'
-          : $entry->{raw_data}->{part_type} =~ m/^assor/i ? 'assortment'
-          : undef;
+  my $part_type = $self->settings->{part_type};
+  if ($part_type eq 'mixed') {
+    $part_type = $entry->{raw_data}->{part_type} =~ m/^p/i ? 'part'
+               : $entry->{raw_data}->{part_type} =~ m/^s/i ? 'service'
+               : $entry->{raw_data}->{part_type} =~ m/^assem/i ? 'assembly'
+               : $entry->{raw_data}->{part_type} =~ m/^assor/i ? 'assortment'
+               : undef;
   }
 
   # when saving income_accno_id or expense_accno_id use ids from the selected
@@ -423,32 +425,23 @@ sub check_type {
   # not all be set.
   # Only use existing bg
 
-  my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
+  # $entry->{object}->income_accno_id( $bg->income_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
 
-  # if not set there is an error occurred in check_buchungsgruppe()
-  # but if the part exists the new values for accno are ignored
+  # if ($part_type eq 'part' || $part_type eq 'service') {
+  #   $entry->{object}->expense_accno_id( $bg->expense_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
+  # }
 
-  if ( $bg ) {
-    $entry->{object}->income_accno_id( $bg->income_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
-    $self->clone_methods->{income_accno_id} = 1;
+  # if ($part_type eq 'part') {
+  #   $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
+  # }
 
-    if ($type eq 'part' || $type eq 'service') {
-      $entry->{object}->expense_accno_id( $bg->expense_accno_id( SL::DB::Manager::TaxZone->get_default->id ) );
-      $self->clone_methods->{expense_accno_id} = 1;
-    }
+  if (none { $_ eq $part_type } qw(part service assembly assortment)) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid part type');
+    return 0;
   }
 
-  if ($type eq 'part') {
-    if ( $bg ) {
-      $entry->{object}->inventory_accno_id( $bg->inventory_accno_id );
-    }
-    else {
-      #use an existent bg
-      $entry->{object}->inventory_accno_id( SL::DB::Manager::Buchungsgruppe->get_first->id );
-    }
-  } elsif ($type eq 'assembly') {
-      $entry->{object}->assembly(1);
-  }
+  $entry->{object}->part_type($part_type);
+
   return 1;
 }
 
@@ -677,7 +670,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
+  delete @{$profile}{qw(bom expense_accno_id income_accno_id makemodel priceupdate stockable type)};
 
   $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 
@@ -702,8 +695,7 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'assembly',           description => $::locale->text('assembly')                                             },
-                                 { name => 'bin_id',             description => $::locale->text('Bin (database ID)')                                    },
+  $self->add_displayable_columns({ name => 'bin_id',             description => $::locale->text('Bin (database ID)')                                    },
                                  { name => 'bin',                description => $::locale->text('Bin (name)')                                           },
                                  { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                         },
                                  { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                },
@@ -714,7 +706,6 @@ sub setup_displayable_columns {
                                  { name => 'gv',                 description => $::locale->text('Business Volume')                                      },
                                  { name => 'has_sernumber',      description => $::locale->text('Has serial number')                                    },
                                  { name => 'image',              description => $::locale->text('Image')                                                },
-                                 { name => 'inventory_accno_id', description => $::locale->text('part')                                                 },
                                  { name => 'lastcost',           description => $::locale->text('Last Cost')                                            },
                                  { name => 'listprice',          description => $::locale->text('List Price')                                           },
                                  { name => 'make_X',             description => $::locale->text('Make (vendor\'s database ID, number or name; with X being a number)') . ' [1]' },
