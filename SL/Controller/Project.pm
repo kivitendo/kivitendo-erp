@@ -51,17 +51,21 @@ sub action_search {
                                   include_prefix => 'l_',
                                   include_value  => 'Y');
 
+  $self->setup_search_action_bar;
+
   $self->render('project/search', %params);
 }
 
 sub action_list {
   my ($self) = @_;
 
+  $self->setup_search_action_bar;
+
   $self->make_filter_summary;
 
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get, action_bar => 1);
 }
 
 sub action_new {
@@ -69,14 +73,14 @@ sub action_new {
 
   $self->project(SL::DB::Project->new);
   $self->display_form(title    => $::locale->text('Create a new project'),
-                      callback => $::form->{callback} || $self->url_for(action => 'new'));
+                      callback => $::form->{callback} || $self->url_for(action => 'list'));
 }
 
 sub action_edit {
   my ($self) = @_;
 
   $self->display_form(title    => $::locale->text('Edit project #1', $self->project->projectnumber),
-                      callback => $::form->{callback} || $self->url_for(action => 'edit', id => $self->project->id));
+                      callback => $::form->{callback} || $self->url_for(action => 'list'));
 }
 
 sub action_create {
@@ -232,6 +236,8 @@ sub display_form {
 
   CVar->render_inputs(variables => $params{CUSTOM_VARIABLES}) if @{ $params{CUSTOM_VARIABLES} };
 
+  $self->setup_edit_action_bar(callback => $params{callback});
+
   $self->render('project/form', %params);
 }
 
@@ -372,4 +378,60 @@ sub make_filter_summary {
 
   $self->{filter_summary} = join ', ', @filter_strings;
 }
+
+sub setup_edit_action_bar {
+  my ($self, %params) = @_;
+
+  my $is_new = !$self->project->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          submit    => [ '#form', { action => 'Project/' . ($is_new ? 'create' : 'update') } ],
+          accesskey => 'enter',
+        ],
+        action => [
+          t8('Save as new'),
+          submit   => [ '#form', { action => 'Project/create' }],
+          disabled => $is_new ? t8('The object has not been saved yet.') : undef,
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'Project/destroy' } ],
+        confirm  => $::locale->text('Do you really want to delete this object?'),
+        disabled => $is_new                 ? t8('This object has not been saved yet.')
+                  : $self->project->is_used ? t8('This object has already been used.')
+                  :                           undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $params{callback} || $self->url_for(action => 'list'),
+      ],
+    );
+  }
+}
+
+sub setup_search_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#search_form', { action => 'Project/list' } ],
+        accesskey => 'enter',
+      ],
+      link => [
+        t8('Add Project'),
+        link => $self->url_for(action => 'new'),
+      ],
+    );
+  }
+}
+
 1;

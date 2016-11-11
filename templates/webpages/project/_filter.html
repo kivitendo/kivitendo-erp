@@ -3,7 +3,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 
-<table>
+<table id="filter_table">
  <tr>
   <th align="right">[% 'Number' | $T8 %]</th>
   <td>[% L.input_tag('filter.projectnumber:substr::ilike', filter.projectnumber_substr__ilike, size=60) %]</td>

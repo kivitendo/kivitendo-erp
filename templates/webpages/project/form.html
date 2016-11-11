@@ -7,7 +7,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
   [% L.hidden_tag("callback", callback) %]
   [% L.hidden_tag("id", SELF.project.id) %]
 
@@ -39,14 +39,4 @@
    [%- END %]
 
   </div>
-
-  <p>
-   [% L.hidden_tag("action", "Project/dispatch") %]
-   [% L.submit_tag("action_" _  (SELF.project.id ? "update" : "create"), LxERP.t8('Save')) %]
-   [%- IF SELF.project.id %]
-    [% L.submit_tag("action_create", LxERP.t8('Save as new')) %]
-    [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?')) IF !SELF.project.is_used %]
-   [%- END %]
-   <a href="[% IF callback %][% callback %][% ELSE %][% SELF.url_for(action => 'search') %][% END %]">[%- LxERP.t8('Abort') %]</a>
-  </p>
  </form>
