@@ -12,6 +12,7 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     alert(kivi.t8('No delivery orders have been selected.'));
     return false;
   };
+
   this.checkInvoiceSelection = function() {
     if ($("[data-checkall=1]:checked").size() > 0)
       return true;
@@ -78,7 +79,41 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
   this.setup = function() {
     $('#create_button').click(kivi.MassInvoiceCreatePrint.submitMassCreationForm);
     $('#create_print_all_button').click(kivi.MassInvoiceCreatePrint.createPrintAllInitialize);
-    $('#action_print').click(kivi.MassInvoiceCreatePrint.checkInvoiceSelection);
+  };
+
+  ns.showMassPrintOptions = function() {
+    $('#printer_options_printer_id').val($('#printer_id').val());
+
+    kivi.popup_dialog({
+      id: 'print_options',
+      dialog: {
+        title: kivi.t8('Print options'),
+        width:  600,
+        height: 200
+      }
+    });
+
+    return true;
+  };
+
+  ns.showMassPrintOptionsOrDownloadDirectly = function() {
+    if (!kivi.MassInvoiceCreatePrint.checkInvoiceSelection())
+      return false;
+
+    if ($('#print_options_printer_id').length === 0)
+      return kivi.MassInvoiceCreatePrint.massPrint();
+    return kivi.MassInvoiceCreatePrint.showMassPrintOptions();
+  };
+
+  ns.massPrint = function() {
+    $('#print_options').dialog('close');
+
+    $('#printer_id').val($('#print_options_printer_id').val());
+    $('#action').val('MassInvoiceCreatePrint/print');
+
+    $('#report_form').submit();
+
+    return true;
   };
 });
 

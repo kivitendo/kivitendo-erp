@@ -909,6 +909,46 @@ sub yes {
   $main::lxdebug->leave_sub();
 }
 
+sub setup_ar_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Search'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_ar_transactions_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Print'),
+        call     => [ 'kivi.MassInvoiceCreatePrint.showMassPrintOptionsOrDownloadDirectly' ],
+        disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+      ],
+
+      combobox => [
+        action => [ $::locale->text('Create new') ],
+        action => [
+          $::locale->text('AR Transaction'),
+          submit => [ '#create_new_form', { action => 'ar_transaction' } ],
+        ],
+        action => [
+          $::locale->text('Sales Invoice'),
+          submit => [ '#create_new_form', { action => 'sales_invoice' } ],
+        ],
+      ], # end of combobox "Create new"
+    );
+  }
+}
+
 sub search {
   $main::lxdebug->enter_sub();
 
@@ -935,6 +975,8 @@ sub search {
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $::request->layout->add_javascripts("autocomplete_project.js");
+
+  setup_ar_search_action_bar();
 
   $form->header;
   print $form->parse_html_template('ar/search', { %myconfig });
@@ -1202,7 +1244,10 @@ sub ar_transactions {
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
-  $report->generate_with_headers();
+  $::request->layout->add_javascripts('kivi.MassInvoiceCreatePrint.js');
+  setup_ar_transactions_action_bar(num_rows => scalar(@{ $form->{AR} }));
+
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }

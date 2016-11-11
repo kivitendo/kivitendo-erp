@@ -3,7 +3,8 @@
 [%- SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
- <form method=post name="search" action=[% script %]>
+ <form method=post name="search" id="form" action=[% script %]>
+  [% L.hidden_tag("action", nextsub) %]
 
   <table width=100% border="0">
   <tr>
@@ -206,11 +207,5 @@
       </table>
      </td>
     </tr>
-    <tr>
-     <td><hr size=3 noshade></td>
-    </tr>
    </table>
-   <input type=hidden name=nextsub value=[% nextsub %]>
-   <br>
-   <input class=submit type=submit name=action id="continue" value="[% 'Continue' | $T8 %]">
   </form>

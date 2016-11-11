@@ -3071,6 +3071,7 @@ $self->{texts} = {
   'The recipient, subject or body is missing.' => 'Der Empfäger, der Betreff oder der Text ist leer.',
   'The record template \'#1\' has been loaded.' => 'Die Belegvorlage »#1« wurde geladen.',
   'The record template \'#1\' has been saved.' => 'Die Belegvorlage »#1« wurde gespeichert.',
+  'The report doesn\'t contain entries.' => 'Der Bericht enthält keine Einträge.',
   'The required information consists of the IBAN and the BIC.' => 'Die benötigten Informationen bestehen aus der IBAN und der BIC. Zusätzlich wird die SEPA-Kreditoren-Identifikation aus der Mandantenkonfiguration benötigt.',
   'The required information consists of the IBAN, the BIC, the mandator ID and the mandate\'s date of signature.' => 'Die benötigten Informationen bestehen aus IBAN, BIC, Mandanten-ID und dem Unterschriftsdatum des Mandates. Zusätzlich wird die SEPA-Kreditoren-Identifikation aus der Mandantenkonfiguration benötigt.',
   'The requirement spec has been deleted.' => 'Das Pflichtenheft wurde gelöscht.',
