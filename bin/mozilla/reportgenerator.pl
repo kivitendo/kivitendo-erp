@@ -34,6 +34,28 @@ sub report_generator_set_default_sort {
 }
 
 
+sub report_generator_setup_action_bar {
+  my ($type, %params) = @_;
+
+  $::request->layout->get('actionbar')->add(
+    combobox => [
+      action => [
+        $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
+        submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
+      ],
+      action => [
+        $::locale->text('PDF export with attachments'),
+        submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf", report_generator_addattachments => 1 } ],
+        only_if => $params{allow_attachments},
+      ],
+    ],
+    action => [
+      $::locale->text('Back'),
+      submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_back" } ],
+    ],
+  );
+}
+
 sub report_generator_export_as_pdf {
   $main::lxdebug->enter_sub();
 
@@ -64,15 +86,15 @@ sub report_generator_export_as_pdf {
   $form->{copies} = max $myconfig{copies} * 1, 1;
 
   my $allow_font_selection = 1;
-  my $allow_attachments    = 0;
   eval { require PDF::API2; };
   $allow_font_selection = 0 if ($@);
-  $allow_attachments    = 1 if $form->{report_generator_hidden_l_attachments};
 
   $form->{title} = $locale->text('PDF export -- options');
+
+  report_generator_setup_action_bar('pdf', allow_attachments => !!$form->{report_generator_hidden_l_attachments});
+
   $form->header();
   print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN'               => \@form_values,
-                                                                            'ALLOW_ATTACHMENTS'    => $allow_attachments,
                                                                             'ALLOW_FONT_SELECTION' => $allow_font_selection, });
 
   $main::lxdebug->leave_sub();
@@ -93,6 +115,9 @@ sub report_generator_export_as_csv {
   my @form_values = $form->flatten_variables(grep { ($_ ne 'login') && ($_ ne 'password') } keys %{ $form });
 
   $form->{title} = $locale->text('CSV export -- options');
+
+  report_generator_setup_action_bar('csv');
+
   $form->header();
   print $form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
 

@@ -3,7 +3,7 @@
 
  <h1>[% HTML.escape(title) %]</h1>
 
- <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form">
+ <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
 
   [%- FOREACH var = HIDDEN %]
   <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
@@ -69,24 +69,9 @@
   </table>
 
 [%- IF CONTROLLER_DISPATCH %]
-   <p>
-    <input type="hidden" name="action" value="[% CONTROLLER_DISPATCH | html %]/dispatch">
-    <input type="submit" name="action_report_generator_export_as_csv" value="[% 'Export as CSV' | $T8 %]">
-    <input type="submit" name="action_report_generator_back" value="[% 'Back' | $T8 %]">
     <input type="hidden" name="CONTROLLER_DISPATCH" value="[% CONTROLLER_DISPATCH | html %]">
-   </p>
 [%- ELSE %]
-  <p>
    <input type="hidden" name="action" value="report_generator_dispatcher">
-   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="[% 'Export as CSV' | $T8 %]">
-   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_back')" value="[% 'Back' | $T8 %]">
-  </p>
- <script type="text/javascript"><!--
-      function submit_report_generator_form(nextsub) {
-        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
-        document.report_generator_form.submit();
-      } // -->
- </script>
 [%- END %]
 
 

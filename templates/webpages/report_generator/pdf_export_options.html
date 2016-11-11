@@ -6,7 +6,7 @@
 
  <h1>[% HTML.escape(title) %]</h1>
 
- <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form">
+ <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
 
   [%- FOREACH var = HIDDEN %]
   <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
@@ -14,7 +14,6 @@
 
   <input type="hidden" name="report_generator_pdf_options_set" value="1">
   <input type="hidden" name="report_generator_dispatch_to" value="">
-  <input type="hidden" name="report_generator_addattachments" value="">
 
   <table>
    <tr>
@@ -126,30 +125,9 @@
   </table>
 
 [%- IF CONTROLLER_DISPATCH %]
-   <p>
-    <input type="hidden" name="action" value="[% CONTROLLER_DISPATCH | html %]/dispatch">
-    <input type="submit" name="action_report_generator_export_as_pdf" value="[% 'Export as PDF' | $T8 %]">
-    <input type="submit" name="action_report_generator_back" value="[% 'Back' | $T8 %]">
     <input type="hidden" name="CONTROLLER_DISPATCH" value="[% CONTROLLER_DISPATCH | html %]">
-   </p>
 [%- ELSE %]
-  <p>
    <input type="hidden" name="action" value="report_generator_dispatcher">
-   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf','')" value="[% 'Export as PDF' | $T8 %]">
-[%- IF ALLOW_ATTACHMENTS %]
-   <input type="submit" class="submit"
-      onclick="submit_report_generator_form('report_generator_export_as_pdf','yes')"
-      value="[% 'Export as PDF with attachments' | $T8 %]">
-[%- END %]
-   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_back')" value="[% 'Back' | $T8 %]">
-  </p>
- <script type="text/javascript"><!--
-      function submit_report_generator_form(nextsub,att) {
-        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
-        document.report_generator_form.report_generator_addattachments.value = att;
-        document.report_generator_form.submit();
-      } // -->
- </script>
 [%- END %]
 
  </form>

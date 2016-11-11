@@ -16,6 +16,24 @@ our @EXPORT = qw(
   report_generator_list_objects
 );
 
+sub _setup_action_bar {
+  my ($self, $type) = @_;
+
+  my $key   = $::form->{CONTROLLER_DISPATCH} ? 'action'                             : 'report_generator_form.report_generator_dispatch_to';
+  my $value = $::form->{CONTROLLER_DISPATCH} ? $::form->{CONTROLLER_DISPATCH} . "/" : '';
+
+  $::request->layout->get('actionbar')->add(
+    action => [
+      $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
+      submit => [ '#report_generator_form', { $key => "${value}report_generator_export_as_${type}" } ],
+    ],
+    action => [
+      $::locale->text('Back'),
+      submit => [ '#report_generator_form', { $key => "${value}report_generator_back" } ],
+    ],
+  );
+}
+
 sub action_report_generator_export_as_pdf {
   my ($self) = @_;
 
@@ -42,6 +60,9 @@ sub action_report_generator_export_as_pdf {
 
   $::form->{copies} = max $::myconfig{copies} * 1, 1;
   $::form->{title} = $::locale->text('PDF export -- options');
+
+  _setup_action_bar($self, 'pdf'); # Sub not exported, therefore don't call via object.
+
   $::form->header;
   print $::form->parse_html_template('report_generator/pdf_export_options', {
     'HIDDEN'               => \@form_values,
@@ -61,6 +82,9 @@ sub action_report_generator_export_as_csv {
   my @form_values = $::form->flatten_variables(grep { ($_ ne 'login') && ($_ ne 'password') } keys %{ $::form });
 
   $::form->{title} = $::locale->text('CSV export -- options');
+
+  _setup_action_bar($self, 'csv'); # Sub not exported, therefore don't call via object.
+
   $::form->header;
   print $::form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
 }
@@ -116,10 +140,13 @@ sub report_generator_list_objects {
     $params{report}->add_data(\%data);
   }
 
+  my %options            = %{ $params{options} || {} };
+  $options{action_bar} //= $params{action_bar};
+
   if ($params{layout}) {
-    return $params{report}->generate_with_headers(%{ $params{options} || {}});
+    return $params{report}->generate_with_headers(%options);
   } else {
-    my $html = $params{report}->generate_html_content(%{ $params{options} || {}});
+    my $html = $params{report}->generate_html_content(%options);
     $self->render(\$html , { layout => 0, process => 0 });
   }
 }
@@ -234,6 +261,15 @@ L<SL::ReportGenrator/add_data>.
 
 An optional hash reference that's passed verbatim to the function
 L<SL::ReportGenerator/generate_with_headers>.
+
+=item C<action_bar>
+
+If the buttons for exporting PDF and/or CSV variants are included in
+the action bar. Otherwise they're rendered at the bottom of the page.
+
+The value can be either a specific action bar instance or simply 1 in
+which case the default action bar is used:
+C<$::request-E<gt>layout-E<gt>get('actionbar')>.
 
 =back
 
