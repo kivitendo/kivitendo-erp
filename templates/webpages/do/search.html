@@ -17,7 +17,7 @@
   }
  </style>
 
- <form method="post" action="do.pl" name="Form">
+ <form method="post" action="do.pl" name="Form" id="form">
 
   <p>
    <table>
@@ -249,13 +249,7 @@
    </table>
   </p>
 
-  <hr size="3" noshade>
-
-  <p>
-   <input type="hidden" name="nextsub" value="orders">
+   <input type="hidden" name="action" value="orders">
    <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
    <input type="hidden" name="type" value="[% HTML.escape(type) %]">
-
-   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
-  </p>
  </form>

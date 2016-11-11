@@ -1297,7 +1297,6 @@ $self->{texts} = {
   'Export Stammdaten'           => 'Export Stammdaten',
   'Export as CSV'               => 'Als CSV exportieren',
   'Export as PDF'               => 'Als PDF exportieren',
-  'Export as PDF with attachments' => 'Als PDF mit Anhängen exportieren',
   'Export date'                 => 'Exportdatum',
   'Export date from'            => 'Exportdatum von',
   'Export date to'              => 'Exportdatum bis',

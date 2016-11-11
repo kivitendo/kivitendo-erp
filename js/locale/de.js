@@ -117,6 +117,7 @@ namespace("kivi").setupLocale({
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
 "Version actions":"Aktionen für Versionen",
 "Yes":"Ja",
+"You have not selected any delivery order.":"Sie haben keinen Lieferschein ausgewählt.",
 "filename has not uploadable characters ":"Bitte Dateinamen ändern. Er hat für den Upload nicht verwendbare Sonderzeichen ",
 "filesize too big: ":"Datei zu groß: ",
 "flat-rate position":"Pauschalposition",

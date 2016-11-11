@@ -350,6 +350,35 @@ sub setup_do_action_bar {
   }
 }
 
+sub setup_do_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_do_orders_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('New invoice'),
+        submit    => [ '#orders_form' ],
+        checks    => [ 'kivi.DeliveryOrder.multi_invoice_check_delivery_orders_selected' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 sub form_header {
   $main::lxdebug->enter_sub();
 
@@ -606,6 +635,8 @@ sub search {
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   $form->{title}             = $locale->text('Delivery Orders');
 
+  setup_do_search_action_bar();
+
   $form->header();
 
   print $form->parse_html_template('do/search');
@@ -807,7 +838,11 @@ sub orders {
     $idx++;
   }
 
-  $report->generate_with_headers();
+  $::request->layout->add_javascripts('kivi.DeliveryOrder.js');
+
+  setup_do_orders_action_bar();
+
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }
