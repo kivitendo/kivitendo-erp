@@ -420,6 +420,20 @@ sub setup_oe_action_bar {
   }
 }
 
+sub setup_oe_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 sub form_header {
   $main::lxdebug->enter_sub();
   my @custom_hiddens;
@@ -891,6 +905,8 @@ sub search {
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(autocomplete_project));
 
+  setup_oe_search_action_bar();
+
   $form->header();
 
   print $form->parse_html_template('oe/search', {
@@ -1219,7 +1235,7 @@ sub orders {
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
-  $report->generate_with_headers();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }

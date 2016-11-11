@@ -10,7 +10,7 @@
 [%- SET vcdefault = 'old' _ vc %]
 [%- SET style="width: 250px" %]
 
-<form method="post" action="oe.pl">
+<form method="post" action="oe.pl" id="form">
 
 <table width="100%">
  <tr>
@@ -316,9 +316,7 @@
  </tr>
 </table>
 
-<br>
-<input type="hidden" name="nextsub" value="orders">
 <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
 <input type="hidden" name="type" value="[% HTML.escape(type) %]">
-<input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
+<input type="hidden" name="action" value="orders">
 </form>
