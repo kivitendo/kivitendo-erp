@@ -95,6 +95,8 @@ sub action_list_invoices {
 
   $::form->{printer_id} ||= $self->default_printer_id;
 
+  $self->setup_list_invoices_action_bar(num_rows => scalar(@{ $self->invoice_models->get }));
+
   $self->render('mass_invoice_create_print_from_do/list_invoices',
                 title        => $::locale->text('Open invoice'),
                 noshow       => $show,
@@ -332,6 +334,30 @@ sub make_filter_summary {
 
   $self->{filter_summary} = join ', ', @filter_strings;
 }
+
+sub setup_list_invoices_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#search_form', { action => 'MassInvoiceCreatePrint/list_invoices' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Reset'),
+        call => [ 'kivi.Project.reset_search_form' ],
+      ],
+      action => [
+        $::locale->text('Print'),
+        call     => [ 'kivi.MassInvoiceCreatePrint.showMassPrintOptionsOrDownloadDirectly' ],
+        disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+      ],
+    );
+  }
+}
+
 1;
 
 __END__

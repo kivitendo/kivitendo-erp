@@ -1,6 +1,6 @@
 [%- USE L %][%- USE LxERP %][%- USE HTML %]
 <div>
- <form action="controller.pl" method="post">
+ <form action="controller.pl" method="post" id="search_form">
   <div class="filter_toggle" [% IF noshow == 0 %]style="display:none"[% END %]>
    <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8('Show Filter') %]</a>
       [% SELF.filter_summary %]
@@ -22,14 +22,10 @@
     </tr>
   </table>
 
-   [% L.hidden_tag('action', 'MassInvoiceCreatePrint/dispatch') %]
+   [% L.hidden_tag('action', 'MassInvoiceCreatePrint/' _ LIST_ACTION, id='filter_action') %]
    [% L.hidden_tag('sort_by', FORM.sort_by) %]
    [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
    [% L.hidden_tag('page', FORM.page) %]
-   [% L.submit_tag(LIST_ACTION, LxERP.t8('Continue'))%]
-
-   <a href="#" onClick="javascript:$('#filter_table input,#filter_table select').val('');">[% LxERP.t8('Reset') %]</a>
-
   </div>
 
  </form>

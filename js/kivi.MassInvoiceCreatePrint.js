@@ -115,6 +115,10 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
 
     return true;
   };
+
+  this.resetSearchForm = function() {
+    $("#filter_table input").val("");
+  };
 });
 
 $(kivi.MassInvoiceCreatePrint.setup);
