@@ -152,7 +152,7 @@ my $settings1 = {
                        sellprice_adjustment_type => 'percent',
                        article_number_policy     => 'update_prices',
                        shoparticle_if_missing    => '0',
-                       parts_type                => 'part',
+                       part_type                 => 'part',
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'all',
                 };
@@ -162,7 +162,7 @@ my $settings2 = {
                        sellprice_adjustment_type => 'percent',
                        article_number_policy     => 'update_parts',
                        shoparticle_if_missing    => '0',
-                       parts_type                => 'part',
+                       part_type                 => 'part',
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'missing',
                        default_unit              => 'Stck',

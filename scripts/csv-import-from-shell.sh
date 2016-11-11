@@ -66,7 +66,7 @@ function do_curl {
   #   "settings.apply_buchungsgruppe": Buchungsgruppe wo anwenden:
   #   "never", "all", "missing"
 
-  #   "settings.parts_type": Artikeltyp: "part", "service", "mixed"
+  #   "settings.part_type": Artikeltyp: "part", "service", "mixed"
 
   #   "settings.article_number_policy": Artikel mit existierender
   #   Artikelnummer: "update_prices", "insert_new"
@@ -127,7 +127,7 @@ function do_curl {
     -F 'settings.default_buchungsgruppe=395' \
     -F 'settings.duplicates=no_check' \
     -F 'settings.numberformat=1.000,00' \
-    -F 'settings.parts_type=part' \
+    -F 'settings.part_type=part' \
     -F 'settings.sellprice_adjustment=0' \
     -F 'settings.sellprice_adjustment_type=percent' \
     -F 'settings.sellprice_places=2' \

@@ -36,7 +36,7 @@
  <th align="right">[%- LxERP.t8('Type') %]:</th>
  <td colspan="10">
   [% opts = [ [ 'part', LxERP.t8('Parts') ], [ 'service', LxERP.t8('Services') ], [ 'mixed', LxERP.t8('Mixed (requires column "type")') ] ] %]
-  [% L.select_tag('settings.parts_type', opts, default = SELF.profile.get('parts_type'), style = 'width: 300px') %]
+  [% L.select_tag('settings.part_type', opts, default = SELF.profile.get('part_type'), style = 'width: 300px') %]
  </td>
 </tr>
 

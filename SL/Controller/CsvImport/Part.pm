@@ -39,7 +39,7 @@ sub set_profile_defaults {
                        sellprice_adjustment_type => 'percent',
                        article_number_policy     => 'update_prices',
                        shoparticle_if_missing    => '0',
-                       parts_type                => 'part',
+                       part_type                 => 'part',
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'all',
                       );
@@ -126,7 +126,7 @@ sub init_settings {
 
   return { map { ( $_ => $self->controller->profile->get($_) ) } qw(apply_buchungsgruppe default_buchungsgruppe article_number_policy
                                                                     sellprice_places sellprice_adjustment sellprice_adjustment_type
-                                                                    shoparticle_if_missing parts_type default_unit) };
+                                                                    shoparticle_if_missing part_type default_unit) };
 }
 
 sub init_all_cvar_configs {
@@ -173,7 +173,8 @@ sub check_objects {
   } continue {
     $i++;
   }
-  $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
+
+  $self->add_columns(qw(part_type)) if $self->settings->{part_type} eq 'mixed';
   $self->add_columns(qw(buchungsgruppen_id unit));
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup warehouse bin));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
@@ -406,13 +407,14 @@ sub handle_shoparticle {
 sub check_type {
   my ($self, $entry) = @_;
 
-  my $type = $self->settings->{parts_type};
+  my $type = $self->settings->{part_type};
 
   if ($type eq 'mixed' && $entry->{raw_data}->{type}) {
-    $type = $entry->{raw_data}->{type} =~ m/^p/i ? 'part'
-          : $entry->{raw_data}->{type} =~ m/^s/i ? 'service'
-          : $entry->{raw_data}->{type} =~ m/^a/i ? 'assembly'
-          :                                        undef;
+    $type = $entry->{raw_data}->{part_type} =~ m/^p/i ? 'part'
+          : $entry->{raw_data}->{part_type} =~ m/^s/i ? 'service'
+          : $entry->{raw_data}->{part_type} =~ m/^a/i ? 'assembly'
+          : $entry->{raw_data}->{part_type} =~ m/^assor/i ? 'assortment'
+          : undef;
   }
 
   # when saving income_accno_id or expense_accno_id use ids from the selected

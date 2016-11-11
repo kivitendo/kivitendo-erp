@@ -67,7 +67,7 @@ Content-Disposition: form-data; name="settings.shoparticle_if_missing"
 
 0
 -----------------------------23281168279961
-Content-Disposition: form-data; name="settings.parts_type"
+Content-Disposition: form-data; name="settings.part_type"
 
 part
 -----------------------------23281168279961
