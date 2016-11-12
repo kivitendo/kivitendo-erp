@@ -259,10 +259,11 @@ sub generate_report {
   my $cvar_configs = CVar->get_configs('module' => 'IC');
 
   my %titles = (
-    ''       => $locale->text('Articles'),
-    part     => $locale->text('Parts'),
-    service  => $locale->text('Services'),
-    assembly => $locale->text('Assemblies'),
+    ''         => $locale->text('Articles'),
+    part       => $locale->text('Parts'),
+    service    => $locale->text('Services'),
+    assembly   => $locale->text('Assemblies'),
+    assortment => $locale->text('Assortments'),
   );
 
   $form->{title} = $titles{$form->{searchitems}};
