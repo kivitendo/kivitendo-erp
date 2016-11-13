@@ -848,7 +848,11 @@ sub _new_item {
   $item->unit($part->unit) if !$item->unit;
 
   my $price_src;
-  if ($item->sellprice) {
+  if ( $part->is_assortment ) {
+    # add assortment items with price 0, as the components carry the price
+    $price_src = $price_source->price_from_source("");
+    $price_src->price(0);
+  } elsif ($item->sellprice) {
     $price_src = $price_source->price_from_source("");
     $price_src->price($item->sellprice);
   } else {
