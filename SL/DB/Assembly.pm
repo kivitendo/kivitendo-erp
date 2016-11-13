@@ -12,7 +12,7 @@ __PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->initialize;
 
-sub linetotal {
+sub linetotal_sellprice {
   my ($self) = @_;
 
   return 0 unless $self->qty > 0 and $self->part->sellprice > 0;

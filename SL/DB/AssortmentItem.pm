@@ -11,7 +11,7 @@ use Rose::DB::Object::Helpers qw(clone);
 
 __PACKAGE__->meta->initialize;
 
-sub linetotal {
+sub linetotal_sellprice {
   my ($self) = @_;
 
   return 0 unless $self->qty > 0 and $self->part->sellprice > 0;

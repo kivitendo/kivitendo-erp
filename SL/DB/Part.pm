@@ -296,28 +296,28 @@ sub assembly_sellprice_sum {
   my ($self) = @_;
 
   return unless $self->is_assembly;
-  sum map { $_->linetotal } @{$self->part->assemblies};
+  sum map { $_->linetotal_sellprice } @{$self->assemblies};
 };
 
 sub assembly_lastcost_sum {
   my ($self) = @_;
 
   return unless $self->is_assembly;
-  sum map { $_->linetotal } @{$self->part->assemblies};
+  sum map { $_->linetotal_lastcost } @{$self->assemblies};
 };
 
 sub assortment_sellprice_sum {
   my ($self) = @_;
 
   return unless $self->is_assortment;
-  sum map { $_->linetotal } @{$self->part->assortment_items};
+  sum map { $_->linetotal_sellprice } @{$self->assortment_items};
 };
 
 sub assortment_lastcost_sum {
   my ($self) = @_;
 
   return unless $self->is_assortment;
-  sum map { $_->linetotal } @{$self->part->assortment_items};
+  sum map { $_->linetotal_lastcost } @{$self->assortment_items};
 };
 
 1;
