@@ -66,7 +66,7 @@ sub redirect_to_part {
   SL::Controller::Base->new->url_for(
     controller => 'controller.pl',
     action     => 'Part/edit',
-    id         => $term,
+    'part.id'  => $term,
   );
 }
 

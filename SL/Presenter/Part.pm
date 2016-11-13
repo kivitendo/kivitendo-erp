@@ -17,7 +17,7 @@ sub part {
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Part/edit&id=' . $self->escape($part->id) . '">',
+    $params{no_link} ? '' : '<a href="controller.pl?action=Part/edit&part.id=' . $self->escape($part->id) . '">',
     $self->escape($part->partnumber),
     $params{no_link} ? '' : '</a>',
   );
