@@ -46,6 +46,13 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::AssortmentItem',
     column_map   => { id => 'assortment_id' },
   },
+  history_entries   => {
+    type            => 'one to many',
+    class           => 'SL::DB::History',
+    column_map      => { id => 'trans_id' },
+    query_args      => [ what_done => 'part' ],
+    manager_args    => { sort_by => 'itime' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
