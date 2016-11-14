@@ -156,7 +156,7 @@ sub check_objects {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_buchungsgruppe($entry);
-    $self->check_type($entry);
+    $self->check_part_type($entry);
     $self->check_unit($entry);
     $self->check_price_factor($entry);
     $self->check_payment($entry);
@@ -273,13 +273,13 @@ sub check_existing {
   }
 
   if ($entry->{part}) {
-    if ($entry->{part}->type ne $object->type ) {
+    if ($entry->{part}->part_type ne $object->part_type ) {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database with different type'));
       return;
     }
-    if ( $entry->{part}->unit ne $object->unit || $entry->{part}->inventory_accno_id != $object->inventory_accno_id ) {
+    if ( $entry->{part}->unit ne $object->unit ) {
       if ( $entry->{part}->onhand != 0 || $self->_part_is_used($entry->{part})) {
-        push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry with different unit or inventory_accno_id'));
+        push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry with different unit'));
         return;
       }
     }
@@ -404,11 +404,13 @@ sub handle_shoparticle {
   $entry->{object}->shop(1) if $self->settings->{shoparticle_if_missing} && !$self->controller->headers->{used}->{shop};
 }
 
-sub check_type {
+sub check_part_type {
   my ($self, $entry) = @_;
 
-  my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
-  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
+  # TODO: assemblies or assortments can't be imported
+
+  # my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
+  # $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
 
   my $part_type = $self->settings->{part_type};
   if ($part_type eq 'mixed') {
@@ -670,7 +672,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(bom expense_accno_id income_accno_id makemodel priceupdate stockable type)};
+  delete @{$profile}{qw(bom makemodel priceupdate stockable type)};
 
   $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 
