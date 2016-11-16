@@ -35,11 +35,14 @@ sub action_search {
 sub action_reconciliation {
   my ($self) = @_;
 
+  $self->_get_proposals;
+
   $self->_get_linked_transactions;
 
   $self->_get_balances;
 
   $self->render('reconciliation/form',
+                ui_tab => scalar(@{$self->{PROPOSALS}}) > 0?1:0,
                 title => t8('Reconciliation'));
 }
 

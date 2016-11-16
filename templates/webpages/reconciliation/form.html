@@ -24,7 +24,7 @@ html, body {
 </style>
 
 <div class="listtop">[% title %]</div>
-
+xx[% ui_tab %]yy
 [%- INCLUDE 'common/flash.html' %]
 
 <form id="reconciliation_form" method="post" action="controller.pl" style="height:100%">
@@ -80,14 +80,20 @@ html, body {
 
   [% L.submit_tag('submit_filter', LxERP.t8("Filter"), onclick='filter_table();return false;', style='display: none') %]
 
-  <div class="tabwidget" style="height:100%">
+  <div id="reconc_tabs" class="tabwidget" style="height:100%">
     <ul>
       <li><a href="#overview" onclick="load_overview();">[% 'Overview' | $T8 %]</a></li>
       <li><a href="#automatic" onclick="load_proposals();">[% 'Proposals' | $T8 %]</a></li>
     </ul>
 
-    <div id="overview" style="height:calc(100% - 60px);overflow: auto;">[% PROCESS "reconciliation/tabs/overview.html" %]</div>
-    <div id="automatic" style="height:calc(100% - 60px);overflow: auto;"></div>
+    <div id="overview" style="height:calc(100% - 60px);overflow: auto;">
+    [%- IF ui_tab == 0 %]
+    [% PROCESS "reconciliation/tabs/overview.html" %]
+    [%- END %]</div>
+    <div id="automatic" style="height:calc(100% - 60px);overflow: auto;">
+    [%- IF ui_tab == 1 %]
+    [% PROCESS "reconciliation/tabs/automatic.html" %]
+    [%- END %]    </div>
   </div>
 
 </form>
@@ -120,6 +126,8 @@ function load_overview () {
     }
   });
 }
+
+$.cookie('jquery_ui_tab_reconc_tabs', [% ui_tab %] );
 
 //-->
 </script>
