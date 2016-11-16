@@ -20,7 +20,7 @@
     <td align="right">[%- transaction.chart.accno -%]</td>
     <td>[%- transaction.chart.description -%]</td>
     <td align="right">[%- IF transaction.amount < 0 %] [%- LxERP.format_amount(transaction.amount * -1, 2) %] [% END %]</td>
-    <td align="right">[%- IF transaction.amount > 0 %] [%- transaction.amount_as_number -%] [%- END -%]</td>
+    <td align="right">[%- IF transaction.amount > 0 %] [%- LxERP.format_amount(transaction.amount     , 2) %] [%- END -%]</td>
    </tr>
    [%- END %]
     <td colspan="2"></td>
