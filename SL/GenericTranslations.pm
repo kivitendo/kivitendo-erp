@@ -94,7 +94,7 @@ sub save {
   my ($self, %params) = @_;
   $main::lxdebug->enter_sub();
 
-  my $rc = SL::DB->client->with_transaction(\&_save, %params);
+  my $rc = SL::DB->client->with_transaction(\&_save, $self, %params);
 
   $::lxdebug->leave_sub;
   return $rc;
