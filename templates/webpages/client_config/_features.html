@@ -218,6 +218,10 @@
       </div>
     </td>
   </tr>
-
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("SEPA") %]</td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Add Customer/Vendor Number as a reference add-on for SEPA export.') %]</td>
+   <td>[% L.yes_no_tag('defaults.sepa_reference_add_vc_vc_id', SELF.defaults.sepa_reference_add_vc_vc_id) %]</td>
+  </tr>
  </table>
 </div>

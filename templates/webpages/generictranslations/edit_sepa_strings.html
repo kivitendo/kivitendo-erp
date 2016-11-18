@@ -29,6 +29,23 @@
     <td><input name="translation__[% language.id %]" size="40" value="[% HTML.escape(language.translation) %]"></td>
    </tr>
    [%- END %]
+   <tr>
+    <th class="listheading">&nbsp;</th>
+    <th class="listheading">[% 'Remittance information optional Vendor/Customer No postfix' | $T8 %]</th>
+   </tr>
+
+   [%- FOREACH language = LANGUAGES %]
+   <tr>
+    <td>
+     [%- IF language.id == 'default' %]
+     [% 'Default (no language selected)' | $T8 %]
+     [%- ELSE %]
+     [%- HTML.escape(language.description) %]
+     [%- END %]
+    </td>
+    <td><input name="translation__[% language.id %]__vc" size="40" value="[% HTML.escape(language.translation_vc) %]"></td>
+   </tr>
+   [%- END %]
 
   </table>
 

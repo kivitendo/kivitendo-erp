@@ -24,6 +24,7 @@ sub retrieve_open_invoices {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
   my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
   my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $vc_vc_id = $params{vc} eq 'customer' ? 'c_vendor_id' : 'v_customer_id';
 
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
 
@@ -43,6 +44,7 @@ sub retrieve_open_invoices {
          (${arap}.amount - (${arap}.amount * pt.percent_skonto)) as amount_less_skonto,
          (${arap}.amount * pt.percent_skonto) as skonto_amount,
          vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${arap}.direct_debit,
+         vc.${vc_vc_id} as vc_vc_id,
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' ${mandate} AS vc_bank_info_ok,
 

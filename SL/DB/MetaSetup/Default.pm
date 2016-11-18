@@ -110,6 +110,7 @@ __PACKAGE__->meta->columns(
   sales_purchase_order_ship_missing_column  => { type => 'boolean', default => 'false' },
   sdonumber                                 => { type => 'text' },
   sepa_creditor_id                          => { type => 'text' },
+  sepa_reference_add_vc_vc_id               => { type => 'boolean', default => 'false' },
   servicenumber                             => { type => 'text' },
   show_bestbefore                           => { type => 'boolean', default => 'false' },
   show_longdescription_select_item          => { type => 'boolean', default => 'false' },

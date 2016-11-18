@@ -86,8 +86,12 @@
       <td align="right">[% invoice.transdate %]</td>
       <td align="right">[% invoice.duedate %]</td>
       <td>
+    [% IF INSTANCE_CONF.get_sepa_reference_add_vc_vc_id %]
+       [%- SET reference = invoice.reference_prefix _ invoice.invnumber _ invoice.reference_prefix_vc _ invoice.vc_vc_id %]
+    [% ELSE %]
        [%- SET reference = invoice.reference_prefix _ invoice.invnumber %]
-       <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="20">
+    [% END %]
+       <input name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="30">
       </td>
       <td align="right">
        <input id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.invoice_amount_suggestion, 2) %]" style="text-align: right" size="12">

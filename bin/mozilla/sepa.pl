@@ -24,6 +24,7 @@ sub bank_transfer_add {
   my $form          = $main::form;
   my $locale        = $main::locale;
   my $vc            = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $vc_no         = $form->{vc} eq 'customer' ? $::locale->text('VN') : $::locale->text('CN');
 
   $form->{title}    = $vc eq 'customer' ? $::locale->text('Prepare bank collection via SEPA XML') : $locale->text('Prepare bank transfer via SEPA XML');
 
@@ -56,6 +57,13 @@ sub bank_transfer_add {
     my $prefix                    = $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
     $prefix                      .= ' ' unless $prefix =~ m/ $/;
     $invoice->{reference_prefix}  = $prefix;
+
+    # add c_vendor_id or v_vendor_id as a prefix if a entry exists
+    next unless $invoice->{vc_vc_id};
+
+    my $prefix_vc_number             = $translations{ $invoice->{language_id} } || $translations{default} || $vc_no;
+    $prefix_vc_number               .= ' ' unless $prefix_vc_number =~ m/ $/;
+    $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
   }
 
   $form->header();

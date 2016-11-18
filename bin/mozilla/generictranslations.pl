@@ -84,10 +84,14 @@ sub edit_sepa_strings {
   my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
   my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
 
+  my $translation_list_vc = GenericTranslations->list(translation_type => 'sepa_remittance_vc_no_pfx');
+  my %translations_vc     =  map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list_vc };
+
   unshift @{ $form->{LANGUAGES} }, { 'id' => 'default', };
 
   foreach my $language (@{ $form->{LANGUAGES} }) {
-    $language->{translation} = $translations{$language->{id}};
+    $language->{translation}    = $translations{$language->{id}};
+    $language->{translation_vc} = $translations_vc{$language->{id}};
   }
 
   $form->{title} = $locale->text('Edit SEPA strings');
@@ -114,6 +118,10 @@ sub save_sepa_strings {
                               'translation_id'   => undef,
                               'language_id'      => $language->{id},
                               'translation'      => $form->{"translation__" . ($language->{id} || 'default')},);
+    GenericTranslations->save('translation_type' => 'sepa_remittance_vc_no_pfx',
+                              'translation_id'   => undef,
+                              'language_id'      => $language->{id},
+                              'translation'      => $form->{"translation__" . ($language->{id} || 'default') . "__vc" },);
   }
 
   $form->{message} = $locale->text('The SEPA strings have been saved.');

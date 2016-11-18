@@ -6,6 +6,8 @@
 
 kleinere neue Features und Detailverbesserungen:
 
+  - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen
+
   - Verfeinerung der Rechte für Finanzbuchhaltung: Es können nun für Dialogbuchungen,
     Debitoren- und Kreditorenbuchungen extra Rechte vergeben werden
 
@@ -13,7 +15,7 @@ kleinere neue Features und Detailverbesserungen:
     Gibt eine Statistik über Lagerbewegungen, pro Monat/Quartal/Jahr.
 
   - Für UStVA Voranmeldung über Elster gibt es die Anbindung über Geierlein (Installation/Config siehe Commit)
-  
+
   - CSV-Import von Artikel hat nun für existierende Artikel folgende Optionen:
      1. Eigenschaften von existierenden Einträgen aktualisieren
      2. Eigenschaften von existierenden Artikeln aktualisieren / Nicht vorhandene überspringen
@@ -25,7 +27,7 @@ kleinere neue Features und Detailverbesserungen:
     sowie Übersetzungen z.B. als 'description_EN' oder 'description_IT'.
     Auch cvars können als 'cvars_<name>' importiert werden.
     Ebenfalls sind zusätzliche Bemerkungen an den einzelnen Importzeilen eingebaut.
- 
+
   - In der Lager-Mandantenkonfig gibt es das Feature "Zum Fertigen Standardlager des Bestandteils verwenden".
     Statt das Ziellager des Erzeugnisses zu Verwenden, wird nun zur Prüfung der Fertigung das
     Standardlager der einzelnen Bestandteile verwendet.
