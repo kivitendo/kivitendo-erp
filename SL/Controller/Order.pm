@@ -1288,8 +1288,6 @@ java script functions
 
 =item * periodic invoices
 
-=item * more details on second row (marge, ...)
-
 =item * language / part translations
 
 =item * access rights
@@ -1317,16 +1315,7 @@ Customer discount is not displayed as a valid discount in price source popup
 
 =item *
 
-No indication that double click expands second row, no exand all button
-
-=item *
-
-Implementation of second row with a tbody for every item is not supported by
-our css.
-
-=item *
-
-As a consequence row striping does not currently work
+No indication that <shift>-up/down expands/collapses second row.
 
 =item *
 
