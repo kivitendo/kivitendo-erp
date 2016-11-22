@@ -468,13 +468,6 @@ $(function(){
 
   $('#row_table_id').on('sortstop', function(event, ui) {
     $('#row_table_id thead a img').remove();
-    if (part_type === 'assortment') {
-      $('#assortment thead a img').remove();
-      data = $('#assortment :input').serializeArray();
-    } else if ( part_type === 'assembly') {
-      $('#assembly thead a img').remove();
-      data = $('#assembly :input').serializeArray();
-    };
     kivi.Order.renumber_positions();
   });
 });
