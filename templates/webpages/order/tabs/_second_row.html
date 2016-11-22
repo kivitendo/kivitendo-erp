@@ -4,7 +4,7 @@
 [%- USE L %]
 
 <table>
-  <tr class="listrow1">
+  <tr>
     [%- SET n = 0 %]
     [%- FOREACH var = ITEM.cvars_by_config %]
     [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
@@ -19,7 +19,8 @@
       [% INCLUDE 'common/render_cvar_input.html' var_name='order.orderitems[].custom_variables[].unparsed_value' %]
     </td>
     [%- IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
-  </tr><tr class="listrow1">
+
+  </tr><tr>
     [%- END %]
     [%- END %]
   </tr>
