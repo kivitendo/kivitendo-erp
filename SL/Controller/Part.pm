@@ -23,7 +23,7 @@ use Rose::Object::MakeMethods::Generic (
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
-                                  all_languages all_units all_pricefactors) ],
+                                  all_languages all_units all_price_factors) ],
   'scalar'                => [ qw(warehouse bin) ],
 );
 
