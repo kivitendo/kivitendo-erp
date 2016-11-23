@@ -49,8 +49,8 @@ sub create_assembly {
 
   for my $i ( 2 .. $number_of_parts ) {
     my $part = $parts[0]->clone_and_reset;
-    $part->partnumber(  $part->partnumber  . " " . $i );
-    $part->description( $part->description . " " . $i );
+    $part->partnumber(  ($part->partnumber  // '') . " " . $i );
+    $part->description( ($part->description // '') . " " . $i );
     $part->save;
     push(@parts, $part);
   }
@@ -84,8 +84,8 @@ sub create_assortment {
 
   for my $i ( 2 .. $number_of_parts ) {
     my $part = $parts[0]->clone_and_reset;
-    $part->partnumber( $part->partnumber   . " " . $i );
-    $part->description( $part->description . " " . $i );
+    $part->partnumber(  ($part->partnumber  // '') . " " . $i );
+    $part->description( ($part->description // '') . " " . $i );
     $part->save;
     push(@parts, $part);
   }
