@@ -28,6 +28,9 @@ Upgrade auf v3.4.x Unstable
   neue Spalte part_type vom ENUM-Typ, der auf die Werte 'part', 'service',
   'assembly' und 'assortment' beschränkt ist.
 
+* Die Tabelle hat eine neue Spalte classification_id die zu der neuen
+  Artikel-Klassifizierung Tabelle "parts_classifications" weist. 
+
 * In der Tabelle parts wurde die Spalten inventory_accno_id, expense_accno_id
   und income_accno_id entfernt. Deren Funktionalität wurde schon lange durch
   Buchungsgruppen ersetzt und für die Erkennung des Artikeltyps gibt es nun die
