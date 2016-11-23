@@ -19,7 +19,7 @@ my $assortment = SL::Dev::Part::create_assortment( partnumber         => 'aso1',
 
 is( SL::DB::Manager::Part->get_all_count(), 11,  "total number of parts created is 11");
 
-my $assortment = SL::DB::Manager::Part->find_by( partnumber => 'aso1' ) or die "Can't find assortment with partnumber aso1";
+$assortment = SL::DB::Manager::Part->find_by( partnumber => 'aso1' ) or die "Can't find assortment with partnumber aso1";
 
 is($assortment->part_type,                  'assortment', 'assortment has correct part_type');
 is(scalar @{$assortment->assortment_items},  10,          'assortment has 10 parts');
