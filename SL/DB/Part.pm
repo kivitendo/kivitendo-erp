@@ -162,7 +162,7 @@ sub new_assortment {
 
 sub last_modification {
   my ($self) = @_;
-  return $self->mtime or $self->itime;
+  return $self->mtime // $self->itime;
 };
 
 sub orphaned {
