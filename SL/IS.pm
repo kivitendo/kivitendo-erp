@@ -2298,7 +2298,7 @@ sub retrieve_item {
   my $query =
     qq|SELECT
          p.id, p.partnumber, p.description, p.sellprice,
-         p.listprice, p.inventory_accno_id, p.lastcost,
+         p.listprice, p.part_type, p.lastcost,
          p.ean, p.notes,
 
          c1.accno AS inventory_accno,
