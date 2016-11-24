@@ -318,6 +318,7 @@ $self->{texts} = {
   'Assignment of articles to sections' => 'Zuweisung von Artikeln zu Abschnitten',
   'Assistant for general ledger corrections' => 'Assistent für die Korrektur von Hauptbucheinträgen',
   'Assortment'                  => 'Sortiment',
+  'Assortment (typeabbreviation)' => 'S',
   'Assortment items'            => 'Sortimentsartikel',
   'Assortments'                 => 'Sortimente',
   'Assume Tax Consultant Data in Tax Computation?' => 'Beraterdaten in UStVA übernehmen?',

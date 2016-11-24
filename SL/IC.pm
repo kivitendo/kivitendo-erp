@@ -897,11 +897,12 @@ sub all_parts {
   }
 
   # Oder Bedingungen fuer Ware Dienstleistung Erzeugnis:
-  if ($form->{l_part} || $form->{l_assembly} || $form->{l_service}) {
+  if ($form->{l_part} || $form->{l_assembly} || $form->{l_service} || $form->{l_assortment}) {
       my @or_tokens = ();
-      push @or_tokens, "p.part_type = 'service'"  if $form->{l_service};
-      push @or_tokens, "p.part_type = 'assembly'" if $form->{l_assembly};
-      push @or_tokens, "p.part_type = 'part'"     if $form->{l_part};
+      push @or_tokens, "p.part_type = 'service'"    if $form->{l_service};
+      push @or_tokens, "p.part_type = 'assembly'"   if $form->{l_assembly};
+      push @or_tokens, "p.part_type = 'part'"       if $form->{l_part};
+      push @or_tokens, "p.part_type = 'assortment'" if $form->{l_assortment};
       push @where_tokens, join ' OR ', map { "($_)" } @or_tokens;
   }
   else {
