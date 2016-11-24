@@ -1,0 +1,15 @@
+#
+# opendynamic feature
+#
+---
+#
+# Warenverbrauchsbericht
+#
+- parent: warehouse_reports
+  id: warehouse_reports_whusage
+  name: WHUsage
+  icon: warehouse_usage
+  order: 300
+  access: warehouse_contents | warehouse_management
+  params:
+    action: Inventory/stock_usage

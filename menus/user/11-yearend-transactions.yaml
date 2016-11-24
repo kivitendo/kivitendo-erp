@@ -1,0 +1,16 @@
+# This is the main menu config file for user space menu entries.
+#
+# opendynamic features
+#
+---
+#
+# SB/EB-Buchungen
+#
+- parent: general_ledger
+  id: general_ledger_cbob_transactions
+  name: CB/OB Transactions
+  icon: cbob
+  order: 470
+  access: general_ledger
+  params:
+    action: YearEndTransactions/filter

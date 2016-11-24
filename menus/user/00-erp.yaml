@@ -142,15 +142,35 @@
     action: CustomerVendor/search_contact
     db: customer
 - parent: master_data_reports
-  id: master_data_reports_articles
-  name: Articles
+  id: master_data_reports_parts
+  name: Parts
   icon: part_report
-  order: 500
-  access: part_service_assembly_edit
+  order: 400
+  access: part_service_assembly_details
   module: ic.pl
   params:
     action: search
-    searchitems: article
+    searchitems: part
+- parent: master_data_reports
+  id: master_data_reports_services
+  name: Services
+  icon: service_report
+  order: 500
+  access: part_service_assembly_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: service
+- parent: master_data_reports
+  id: master_data_reports_assemblies
+  name: Assemblies
+  icon: assembly_report
+  order: 600
+  access: part_service_assembly_details
+  module: ic.pl
+  params:
+    action: search
+    searchitems: assembly
 - parent: master_data_reports
   id: master_data_reports_assortments
   name: Assortments
@@ -554,14 +574,6 @@
   module: wh.pl
   params:
     action: journal
-- parent: warehouse_reports
-  id: warehouse_reports_whusage
-  name: WHUsage
-  icon: warehouse_usage
-  order: 300
-  access: warehouse_contents | warehouse_management
-  params:
-    action: Inventory/stock_usage
 - id: general_ledger
   name: General Ledger
   icon: gl
@@ -610,14 +622,6 @@
   access: general_ledger
   params:
     action: GoBD/filter
-- parent: general_ledger
-  id: general_ledger_cbob_transactions
-  name: CB/OB Transactions
-  icon: cbob
-  order: 470
-  access: general_ledger
-  params:
-    action: YearEndTransactions/filter
 - parent: general_ledger
   id: general_ledger_reports
   name: Reports
@@ -1097,13 +1101,6 @@
   module: am.pl
   params:
     action: edit_units
-- parent: system
-  id: system_parts_classification
-  name: Parts Classification
-  icon: partsclassific
-  order: 1150
-  params:
-    action: PartsClassification/list
 - parent: system
   id: system_price_factors
   name: Price Factors
