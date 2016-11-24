@@ -149,7 +149,6 @@ sub invoice_details {
   # so that they can be sorted in later
   my %prepared_template_arrays = IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
   my @prepared_arrays          = keys %prepared_template_arrays;
-  my @separate_totals          = qw(non_separate_subtotal);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   my $project_cvar_configs = CVar->get_configs(module => 'Projects');
@@ -332,17 +331,6 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{discount} },       ($discount != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
       push @{ $form->{TEMPLATE_ARRAYS}->{discount_nofmt} }, ($discount != 0) ? $discount * -1 : '';
       push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} },     $form->{"discount_$i"};
-
-      if ( $prepared_template_arrays{separate}[$i - 1]  ) {
-        my $pabbr = $prepared_template_arrays{separate}[$i - 1];
-        if ( ! $form->{"separate_${pabbr}_subtotal"} ) {
-            push @separate_totals , "separate_${pabbr}_subtotal";
-            $form->{"separate_${pabbr}_subtotal"} = 0;
-        }
-        $form->{"separate_${pabbr}_subtotal"} += $linetotal;
-      } else {
-        $form->{non_separate_subtotal} += $linetotal;
-      }
 
       $form->{total}            += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
@@ -551,7 +539,6 @@ sub invoice_details {
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $form->{username} = $myconfig->{name};
-  $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) for @separate_totals;
 
   $main::lxdebug->leave_sub();
 }

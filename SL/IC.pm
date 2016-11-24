@@ -1758,7 +1758,6 @@ sub prepare_parts_for_printing {
     my $type_abbr = $::request->presenter->type_abbreviation($prt->part_type);
     push @{ $template_arrays{part_type} }, $type_abbr;
     push @{ $template_arrays{type_and_classific}},  $type_abbr.$::request->presenter->classification_abbreviation($prt->classification_id);
-    push @{ $template_arrays{separate}  },  $::request->presenter->separate_abbreviation($prt->classification_id);
   }
 
   $main::lxdebug->leave_sub();
