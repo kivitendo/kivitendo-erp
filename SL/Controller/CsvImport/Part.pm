@@ -23,7 +23,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table makemodel_columns) ],
- 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by classification_by units_by partsgroups_by
+ 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by partsgroups_by
                                  warehouses_by bins_by
                                  translation_columns all_pricegroups) ],
 );
@@ -40,7 +40,6 @@ sub set_profile_defaults {
                        article_number_policy     => 'update_prices',
                        shoparticle_if_missing    => '0',
                        part_type                 => 'part',
-                       parts_classification      => 0,
                        default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                        apply_buchungsgruppe      => 'all',
                       );
@@ -57,13 +56,6 @@ sub init_bg_by {
 
   my $all_bg = SL::DB::Manager::Buchungsgruppe->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_bg } } ) } qw(id description) };
-}
-
-sub init_classification_by {
-  my ($self) = @_;
-  my $all_classifications = SL::DB::Manager::PartsClassification->get_all;
-  $_->abbreviation($::locale->text($_->abbreviation)) for @{ $all_classifications };
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_classifications } } ) } qw(id abbreviation) };
 }
 
 sub init_price_factors_by {
@@ -134,7 +126,7 @@ sub init_settings {
 
   return { map { ( $_ => $self->controller->profile->get($_) ) } qw(apply_buchungsgruppe default_buchungsgruppe article_number_policy
                                                                     sellprice_places sellprice_adjustment sellprice_adjustment_type
-                                                                    shoparticle_if_missing part_type classification_id default_unit) };
+                                                                    shoparticle_if_missing part_type default_unit) };
 }
 
 sub init_all_cvar_configs {
@@ -182,7 +174,7 @@ sub check_objects {
     $i++;
   }
 
-  $self->add_columns(qw(part_type classification_id)) if $self->settings->{part_type} eq 'mixed';
+  $self->add_columns(qw(part_type)) if $self->settings->{part_type} eq 'mixed';
   $self->add_columns(qw(buchungsgruppen_id unit));
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup warehouse bin));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
@@ -421,30 +413,12 @@ sub check_part_type {
   # $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1); # does this case ever occur?
 
   my $part_type = $self->settings->{part_type};
-  if ($part_type eq 'mixed' && $entry->{raw_data}->{part_type}) {
+  if ($part_type eq 'mixed') {
     $part_type = $entry->{raw_data}->{part_type} =~ m/^p/i ? 'part'
                : $entry->{raw_data}->{part_type} =~ m/^s/i ? 'service'
                : $entry->{raw_data}->{part_type} =~ m/^assem/i ? 'assembly'
                : $entry->{raw_data}->{part_type} =~ m/^assor/i ? 'assortment'
-               : $self->settings->{part_type};
-  }
-  my $classification_id = $self->settings->{classification_id};
-
-  if ( $entry->{raw_data}->{pclass} && length($entry->{raw_data}->{pclass}) >= 2 ) {
-      my $abbr1 = substr($entry->{raw_data}->{pclass},0,1);
-      my $abbr2 = substr($entry->{raw_data}->{pclass},1);
-
-      if ( $self->classification_by->{abbreviation}->{$abbr2} ) {
-         my $tmp_classification_id = $self->classification_by->{abbreviation}->{$abbr2}->id;
-         $classification_id = $tmp_classification_id if $tmp_classification_id;
-      }
-      if ($part_type eq 'mixed') {
-          $part_type = $abbr1 eq $::locale->text('Part (typeabbreviation)') ? 'part'
-                     : $abbr1 eq $::locale->text('Service (typeabbreviation)') ? 'service'
-                     : $abbr1 eq $::locale->text('Assembly (typeabbreviation)') ? 'assembly'
-                     : $abbr1 eq $::locale->text('Assortment (typeabbreviation)') ? 'assortment'
-                     :                                        undef;
-      }
+               : undef;
   }
 
   # when saving income_accno_id or expense_accno_id use ids from the selected
@@ -469,7 +443,6 @@ sub check_part_type {
   }
 
   $entry->{object}->part_type($part_type);
-  $entry->{object}->classification_id( $classification_id );
 
   return 1;
 }
@@ -726,8 +699,8 @@ sub setup_displayable_columns {
 
   $self->add_displayable_columns({ name => 'bin_id',             description => $::locale->text('Bin (database ID)')                                    },
                                  { name => 'bin',                description => $::locale->text('Bin (name)')                                           },
-                                 { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                          },
-                                 { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                 },
+                                 { name => 'buchungsgruppen_id', description => $::locale->text('Booking group (database ID)')                         },
+                                 { name => 'buchungsgruppe',     description => $::locale->text('Booking group (name)')                                },
                                  { name => 'description',        description => $::locale->text('Description')                                          },
                                  { name => 'drawing',            description => $::locale->text('Drawing')                                              },
                                  { name => 'ean',                description => $::locale->text('EAN')                                                  },
@@ -748,19 +721,18 @@ sub setup_displayable_columns {
                                  { name => 'partnumber',         description => $::locale->text('Part Number')                                          },
                                  { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')                             },
                                  { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')                                    },
-                                 { name => 'classification_by',  description => $::locale->text('Article classification')  . ' [3]'                     },
                                  { name => 'payment_id',         description => $::locale->text('Payment terms (database ID)')                          },
                                  { name => 'payment',            description => $::locale->text('Payment terms (name)')                                 },
                                  { name => 'price_factor_id',    description => $::locale->text('Price factor (database ID)')                           },
                                  { name => 'price_factor',       description => $::locale->text('Price factor (name)')                                  },
                                  { name => 'rop',                description => $::locale->text('ROP')                                                  },
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                                            },
-                                 { name => 'shop',               description => $::locale->text('Shop article')                                         },
-                                 { name => 'type',               description => $::locale->text('Article type')  . ' [3]'                               },
+                                 { name => 'shop',               description => $::locale->text('Shop article')                                          },
+                                 { name => 'type',               description => $::locale->text('Article type')  . ' [3]'                             },
                                  { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')                                  },
                                  { name => 'warehouse_id',       description => $::locale->text('Warehouse (database ID)')                              },
-                                 { name => 'warehouse',          description => $::locale->text('Warehouse (name)')                                     },
+                                 { name => 'warehouse',          description => $::locale->text('Warehouse (name)')                              },
                                  { name => 'weight',             description => $::locale->text('Weight')                                               },
                                 );
 

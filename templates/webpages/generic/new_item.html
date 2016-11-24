@@ -1,15 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
-<form method="post" action="ic.pl">
-[%- IF is_wrong_pclass == 1 %]
-<h4 class="error">[% 'searched part not for sale' | $T8 %]</h4>
-[%- ELSE %]
-[%- IF is_wrong_pclass == 2 %]
-<h4 class="error">[% 'searched part not for purchase' | $T8 %]</h4>
-[%- ELSE %]
-[% IF INSTANCE_CONF.get_create_part_if_notfound %]
 
-    <h4 class="error">[% 'Item does not exists in File' | $T8 %]
+    <h4 class="error">[% 'Item not on file!' | $T8 %]
 
     <p>[% 'What type of item is this?' | $T8 %]</h4>
 
@@ -27,14 +19,8 @@
 
       <input type="hidden" name="action" value="dispatcher">
       <input class="submit" type="submit" name="action_add" value="[% 'Continue' | $T8 %]">
-[%- ELSE %]
-    <h4 class="error">[% 'Item does not exists in File' | $T8 %]</h4>
-[%- END %]
-[%- END %]
-[%- END %]
       <input id='back_button' type='button' class="submit" value="[% 'Back' | $T8 %]">
-    </p>
-  </form>
+    </form>
 <script type='text/javascript'>
   $(function(){ $('#back_button').click(function(){ window.history.back(-1) }) })
 </script>

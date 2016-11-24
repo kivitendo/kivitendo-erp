@@ -4,39 +4,6 @@
 
 2016-xx-xx - Release 3.4.x Unstable
 
-große Features:
-
-- Artikel-Klassifizierung
-    
-    Die Klassifizierung von Artikeln
-    Sie dient einer weiteren Gliederung um zum Beispiel den Einkauf vom Verkauf zu trennen, etc.
-    
-    Gekennzeichnet durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E")
-    Flexibel änderbar und erweiterbar.
-    
-    - Neue Datenbanktablle und Rose-Objekte, sowie Controller zum Bearbeiten der Tabelle
-    
-    - Zwei-Zeichen Abkürzung:
-    
-    Der Typ des Artikel und die Klassifizierung werden durch zwei Buchstaben dargestellt.
-    Der erste Buchstabe  ist eine Lokalisierung des Typs des Artikel ('P','A','S') ,
-    deutch 'W', 'E', und 'D' für Ware Erzeugnis oder Dienstleistung, ggf. weitere Typen.
-    Der zweite Buchstabe ist eine Lokalisierung der Klassifizierungsabkürzung (abbreviation).
-    
-    Die Abkürzungen sind aus dem Part Presenter abholbar:
-    -  SL::Presenter::Part->type_abbreviation($assembly,inventory_accno_id) bzw
-        bei neuer Type Implementierung SL::Presenter::Part->type_abbreviation($type_id)
-    -  SL::Presenter::Part->classification_abbreviation($classification_id)
-    
-    Wenn im ERP-Dokument nach einer Artikelnummer oder Beschreibung gesucht wird,
-    diese in den Stammdaten vorhanden ist,
-    aber der Artikeltyp leer oder falsch ist, bzw im Typ for_purchase bzw for_sale nicht gesetzt ist,
-    wird die Fehlermeldung "Gesuchter Artikel ist nicht für den Einkauf bzw Verkauf" gemeldet
-    
-    Anpassung des CSV Import,
-    nun wird alternativ zur 'type'-Spalte die 'pclass'-Spalte mit zwei Buchstaben geparsed und entsprechend
-    classification_id,assembly sowie inventory_accno_id gesetzt (oder type_id falls neue Implementierung eingebaut).
-
 kleinere neue Features und Detailverbesserungen:
 
   - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen

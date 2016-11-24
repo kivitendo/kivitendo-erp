@@ -3,11 +3,15 @@
 
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
 
- <input type="hidden" name="item" id="item_id" value="part">
+ <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
  <input type="hidden" name="action" value="add">
 
- <input class="submit" type="submit" onclick="$('#item_id').val('part');return true;" value="[%- 'Add Part' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('service');return true;" value="[%- 'Add Service' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('assembly');return true;" value="[%- 'Add Assembly' | $T8 %]">
+ [% SWITCH searchitems %]
+   [% CASE 'part' %][% 'New part' | $T8 %]
+   [% CASE 'service' %][% 'New service' | $T8 %]
+   [% CASE 'assembly' %][% 'New assembly' | $T8 %]
+ [% END %]
+ <br>
+ <input class="submit" type="submit" value="[%- 'Add' | $T8 %]">
 
 </form>

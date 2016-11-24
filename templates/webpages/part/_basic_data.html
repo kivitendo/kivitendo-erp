@@ -24,10 +24,6 @@
               <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, readonly=readonly class="initial_focus") %]</td>
              </tr>
              <tr>
-              <th align="right">[% 'Part Classification' | $T8 %]</th>
-              <td>[% P.select_classification('part.classification_id', default => SELF.part.classification_id) %]</td>
-             </tr>
-             <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>
               <td>
                [%- IF description_area %]

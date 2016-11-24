@@ -3,10 +3,9 @@ package SL::Presenter::Part;
 use strict;
 
 use SL::DB::Part;
-use SL::DB::Manager::PartsClassification;
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation type_and_classification);
+our @EXPORT = qw(part_picker part);
 
 use Carp;
 
@@ -45,48 +44,6 @@ sub part_picker {
   $::request->presenter->need_reinit_widgets($id);
 
   $self->html_tag('span', $ret, class => 'part_picker');
-}
-
-#
-# Must be addapted to new type table
-#
-sub type_abbreviation {
-  my ($self, $part_type) = @_;
-  $main::lxdebug->message(LXDebug->DEBUG2(),"parttype=".$part_type);
-  return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
-  return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
-  return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
-  return $::locale->text('Service (typeabbreviation)');
-}
-
-#
-# Translations for Abbreviations:
-#
-# $::locale->text('None (typeabbreviation)')
-# $::locale->text('Purchase (typeabbreviation)')
-# $::locale->text('Sales (typeabbreviation)')
-# $::locale->text('Merchandise (typeabbreviation)')
-# $::locale->text('Production (typeabbreviation)')
-#
-# and for descriptions
-# $::locale->text('Purchase')
-# $::locale->text('Sales')
-# $::locale->text('Merchandise')
-# $::locale->text('Production')
-
-sub classification_abbreviation {
-  my ($self, $id) = @_;
-  $main::lxdebug->message(LXDebug->DEBUG2(),"classif=".$id);
-  return $::locale->text(SL::DB::Manager::PartsClassification->get_abbreviation($id));
-}
-
-sub select_classification {
-  my ($self, $name, %attributes) = @_;
-  $attributes{value_key} = 'id';
-  $attributes{title_key} = 'description';
-  my $collection = SL::DB::Manager::PartsClassification->get_all_sorted();
-  $_->description($::locale->text($_->description)) for @{ $collection };
-  return $self->select_tag( $name, $collection, %attributes );
 }
 
 1;

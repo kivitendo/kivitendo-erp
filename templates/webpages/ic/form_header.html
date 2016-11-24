@@ -58,10 +58,6 @@
               <td><input id='partnumber' name="partnumber" value="[% HTML.escape(partnumber) %]" size="40" class="initial_focus"></td>
              </tr>
              <tr>
-              <th align="right" nowrap>[% 'Parts Classification' | $T8 %]:</th>
-              <td>[% P.select_classification('classification_id', default=classification_id) %]</td>
-             </tr>
-             <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>
               <td>
                [%- IF description_area %]

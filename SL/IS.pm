@@ -2003,7 +2003,6 @@ sub _retrieve_invoice {
            i.project_id, i.serialnumber, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor, i.active_price_source, i.active_discount_source,
            p.partnumber, p.part_type, p.notes AS partnotes, p.formel, p.listprice,
-           p.classification_id,
            pr.projectnumber, pg.partsgroup, prg.pricegroup
 
          FROM invoice i
@@ -2301,7 +2300,6 @@ sub retrieve_item {
          p.id, p.partnumber, p.description, p.sellprice,
          p.listprice, p.part_type, p.lastcost,
          p.ean, p.notes,
-         p.classification_id,
 
          c1.accno AS inventory_accno,
          c1.new_chart_id AS inventory_new_chart,
@@ -2321,7 +2319,7 @@ sub retrieve_item {
          p.price_factor_id, p.weight,
 
          pfac.factor AS price_factor,
-         pt.used_for_sale AS used_for_sale,
+
          pg.partsgroup
 
        FROM parts p
@@ -2338,7 +2336,6 @@ sub retrieve_item {
            FROM taxzone_charts tc
            WHERE tc.buchungsgruppen_id = p.buchungsgruppen_id and tc.taxzone_id = ${taxzone_id}) = c3.id)
        LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
-       LEFT JOIN parts_classifications pt ON (pt.id = p.classification_id)
        LEFT JOIN price_factors pfac ON (pfac.id = p.price_factor_id)
        WHERE $where|;
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
@@ -2356,7 +2353,6 @@ sub retrieve_item {
                                    LIMIT 1| ] );
   map { push @{ $_ }, prepare_query($form, $dbh, $_->[0]) } @translation_queries;
 
-  my $has_wrong_pclass = 0;
   while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
 
     if ($mm_by_id{$ref->{id}}) {
@@ -2368,12 +2364,6 @@ sub retrieve_item {
       push @{ $ref->{matches} ||= [] }, $::locale->text('EAN') . ': ' . $ref->{ean};
     }
 
-    $ref->{type_and_classific} = $::request->presenter->type_abbreviation($ref->{part_type}).
-                                 $::request->presenter->classification_abbreviation($ref->{classification_id});
-    if (! $ref->{used_for_sale} ) {
-        $has_wrong_pclass = 1;
-        next;
-    }
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
     # es sich um eine Dienstleistung handelt. Bei Dienstleistungen muss das
     # Buchungskonto also aus dem Ergebnis rausgenommen werden.
@@ -2457,15 +2447,15 @@ sub retrieve_item {
   $sth->finish;
   $_->[1]->finish for @translation_queries;
 
-  $form->{is_wrong_pclass} = $has_wrong_pclass;
   foreach my $item (@{ $form->{item_list} }) {
     my $custom_variables = CVar->get_custom_variables(module   => 'IC',
                                                       trans_id => $item->{id},
                                                       dbh      => $dbh,
                                                      );
-    $form->{is_wrong_pclass} = 0; # one correct type
+
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
+
   $main::lxdebug->leave_sub();
 }
 

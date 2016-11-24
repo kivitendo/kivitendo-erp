@@ -677,10 +677,10 @@ sub generate_journal {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   my %filter;
-  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
+  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber bestbefore trans_type comment qty employee oe_id projectnumber);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -696,7 +696,6 @@ sub generate_journal {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit fromdate todate);
-  push @hidden_variables, qw(classification_id);
 
   my %column_defs = (
     'date'            => { 'text' => $locale->text('Date'), },
@@ -708,8 +707,6 @@ sub generate_journal {
     'bin_from'        => { 'text' => $locale->text('Bin From'), },
     'bin_to'          => { 'text' => $locale->text('Bin To'), },
     'partnumber'      => { 'text' => $locale->text('Part Number'), },
-    'type_and_classific'
-                      => { 'text' => $locale->text('Type'), },
     'partdescription' => { 'text' => $locale->text('Part Description'), },
     'chargenumber'    => { 'text' => $locale->text('Charge Number'), },
     'bestbefore'      => { 'text' => $locale->text('Best Before'), },
@@ -728,8 +725,6 @@ sub generate_journal {
   my %column_alignment = map { $_ => 'right' } qw(qty);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
-  $column_defs{type_and_classific}->{visible} = 1;
-  $column_defs{type_and_classific}->{link} ='';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -768,9 +763,6 @@ sub generate_journal {
    my $idx       = 0;
 
   foreach my $entry (@contents) {
-    # type impl $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{type}).
-    $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{assembly},$entry->{inventory_accno_id}).
-                                   $::request->presenter->classification_abbreviation($entry->{classification_id});
     $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
                                                       'part_unit'  => $entry->{partunit},
                                                       'conv_units' => 'convertible');
@@ -860,16 +852,13 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit stock_value);
+  my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber bestbefore qty stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partstypes_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
 
   # show filter stuff also in report
   my @options;
-  my $currentdate = $form->current_date(\%myconfig);
-  push @options, $locale->text('Printdate') . " : ".$locale->date(\%myconfig, $currentdate, 1);
-
   # dispatch all options
   my $dispatch_options = {
    warehouse_id   => sub { push @options, $locale->text('Warehouse') . " : " .
@@ -877,18 +866,15 @@ sub generate_report {
    bin_id         => sub { push @options, $locale->text('Bin') . " : " .
                                             SL::DB::Manager::Bin->find_by(id => $form->{bin_id})->description},
    partnumber     => sub { push @options, $locale->text('Partnumber')     . " : $form->{partnumber}"},
-   classification_id => sub { push @options, $locale->text('Parts Classification'). " : ".
-     SL::DB::Manager::PartsClassification->get_first(where => [ id => $form->{classification_id} ] )->description; },
    description    => sub { push @options, $locale->text('Description')    . " : $form->{description}"},
    chargenumber   => sub { push @options, $locale->text('Charge Number')  . " : $form->{chargenumber}"},
    bestbefore     => sub { push @options, $locale->text('Best Before')    . " : $form->{bestbefore}"},
+   date           => sub { push @options, $locale->text('Date')           . " : $form->{date}"},
    include_invalid_warehouses    => sub { push @options, $locale->text('Include invalid warehouses ')},
   };
   foreach (keys %filter) {
    $dispatch_options->{$_}->() if $dispatch_options->{$_};
   }
-  push @options, $locale->text('Stock Qty for Date') . " " . $locale->date(\%myconfig, $form->{date}?$form->{date}:$currentdate, 1);
-
   # / end show filter stuff also in report
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
@@ -909,13 +895,11 @@ sub generate_report {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
-  push @hidden_variables, qw(classification_id);
 
   my %column_defs = (
     'warehousedescription' => { 'text' => $locale->text('Warehouse'), },
     'bindescription'       => { 'text' => $locale->text('Bin'), },
     'partnumber'           => { 'text' => $locale->text('Part Number'), },
-    'type_and_classific'   => { 'text' => $locale->text('Type'), },
     'partdescription'      => { 'text' => $locale->text('Part Description'), },
     'chargenumber'         => { 'text' => $locale->text('Charge Number'), },
     'bestbefore'           => { 'text' => $locale->text('Best Before'), },
@@ -931,9 +915,6 @@ sub generate_report {
   my %column_alignment = map { $_ => 'right' } qw(qty stock_value);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
-
-  $column_defs{type_and_classific}->{visible} = 1;
-  $column_defs{type_and_classific}->{link} ='';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -969,10 +950,6 @@ sub generate_report {
   my $last_nr  = $first_nr + $pages->{per_page};
 
   foreach my $entry (@contents) {
-
-    # type impl $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{type}).
-    $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{assembly},$entry->{inventory_accno_id}).
-                                   $::request->presenter->classification_abbreviation($entry->{classification_id});
     map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
     $total_stock_value   += $entry->{stock_value} * 1;
     $entry->{qty}         = $form->format_amount(\%myconfig, $entry->{qty});

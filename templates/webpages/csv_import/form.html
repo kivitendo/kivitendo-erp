@@ -129,10 +129,9 @@
    </p>
    <p>
     [3]:
-    [% LxERP.t8("If the article type is set to 'mixed' then a column called 'part_type' or called 'pclass' must be present.") %]
+    [% LxERP.t8("If the article type is set to 'mixed' then a column called 'type' must be present.") %]
     [% LxERP.t8("Type can be either 'part', 'service' or 'assembly'.") %]
-    [%- LxERP.t8("If column 'pclass' is present the article type is then irrelevant or used as default ") %]
-    [% LxERP.t8("The 'pclass' column has the same abbreviation like a part export. The first letter is for the type Part,Assembly or Service, the second(and third) for Part Classification") %]
+    [% LxERP.t8("Assemblies can not be imported (yet). But the type column is used for sanity checks on price updates in order to prevent that articles with the wrong type will be updated.") %]
    </p>
 
 [%- ELSIF SELF.type == 'inventories' %]

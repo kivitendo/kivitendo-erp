@@ -12,7 +12,6 @@
       <th>&nbsp;</th>
     [%- END %]
     <th>[% LxERP.t8('Number') %]</th>
-    <th>[% LxERP.t8('Part Classification') %]</th>
     <th>[% LxERP.t8('Part Description') %]</th>
     [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
       [% SET COLS = COLS + 1 %]
@@ -36,7 +35,6 @@
       <td><input name="select_item_id" class="radio" type="radio" value="[% HTML.escape(item.id) %]"[% IF loop.first %] checked[% END %]></td>
     [%- END %]
     <td>[% HTML.escape(item.partnumber) %]</td>
-    <td>[% HTML.escape(item.type_and_classific) %]</td>
     <td>[% HTML.escape(item.description) %]</td>
     [%- IF INSTANCE_CONF.get_show_longdescription_select_item %]
       <td>[% P.restricted_html(item.longdescription) %]</td>

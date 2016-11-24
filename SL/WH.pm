@@ -368,11 +368,6 @@ sub get_warehouse_journal {
     push @filter_vars, like($filter{description});
   }
 
-  if ($filter{classification_id}) {
-    push @filter_ary, "p.classification_id = ?";
-    push @filter_vars, $filter{classification_id};
-  }
-
   if ($filter{chargenumber}) {
     push @filter_ary, "i1.chargenumber ILIKE ?";
     push @filter_vars, like($filter{chargenumber});
@@ -431,9 +426,6 @@ sub get_warehouse_journal {
      "qty"                  => "ABS(SUM(i1.qty))",
      "partnumber"           => "p.partnumber",
      "partdescription"      => "p.description",
-     "classification_id"    => "p.classification_id",
-     "assembly"             => "p.assembly",
-     "inventory_accno_id"   => "p.inventory_accno_id",
      "bindescription"       => "b.description",
      "chargenumber"         => "i1.chargenumber",
      "bestbefore"           => "i1.bestbefore",
@@ -465,9 +457,6 @@ sub get_warehouse_journal {
      "warehouse_from"       => "'$filter{na}'",
      };
 
-  $form->{l_classification_id}  = 'Y';
-  $form->{l_assembly}           = 'Y';
-  $form->{l_inventory_accno_id} = 'Y';
   $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
 
   # build the select clauses.
@@ -625,7 +614,6 @@ SQL
 #  - warehouse_id - will return matches with this warehouse_id only
 #  - partnumber   - will return only matches where the given string is a substring of the partnumber
 #  - partsid      - will return matches with this parts_id only
-#  - classification_id - will return matches with this parts with this classification only
 #  - description  - will return only matches where the given string is a substring of the description
 #  - chargenumber - will return only matches where the given string is a substring of the chargenumber
 #  - bestbefore   - will return only matches with this bestbefore date
@@ -675,11 +663,6 @@ sub get_warehouse_report {
   if ($filter{partnumber}) {
     push @filter_ary,  "p.partnumber ILIKE ?";
     push @filter_vars, like($filter{partnumber});
-  }
-
-  if ($filter{classification_id}) {
-    push @filter_ary, "p.classification_id = ?";
-    push @filter_vars, $filter{classification_id};
   }
 
   if ($filter{description}) {
@@ -754,9 +737,6 @@ sub get_warehouse_report {
      "warehouseid"          => "i.warehouse_id",
      "partnumber"           => "p.partnumber",
      "partdescription"      => "p.description",
-     "classification_id"    => "p.classification_id",
-     "assembly"             => "p.assembly",
-     "inventory_accno_id"   => "p.inventory_accno_id",
      "bindescription"       => "b.description",
      "binid"                => "b.id",
      "chargenumber"         => "i.chargenumber",
@@ -767,9 +747,6 @@ sub get_warehouse_report {
      "partunit"             => "p.unit",
      "stock_value"          => "p.lastcost / COALESCE(pfac.factor, 1)",
   );
-  $form->{l_classification_id}  = 'Y';
-  $form->{l_assembly}           = 'Y';
-  $form->{l_inventory_accno_id} = 'Y';
   my $select_clause = join ', ', map { +/^l_/; "$select_tokens{$'} AS $'" }
         ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );

@@ -100,12 +100,11 @@ sub search {
   $form->{lastsort}     = ""; # memory for which table was sort at last time
   $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
-  # for seach all possibibilities, is_service only used as UNLESS so == 0
-  my %is_xyz     = ("is_part" => 1, "is_service" => 0, "is_assembly" =>1 );
+  my %is_xyz     = map { +"is_$_" => ($form->{searchitems} eq $_) } qw(part service assembly);
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
-  $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
+  $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'IC');
   ($form->{CUSTOM_VARIABLES_FILTER_CODE},
@@ -234,7 +233,7 @@ sub top100 {
 #  searchitems=part revers=0 lastsort=''
 #
 # filter:
-# partnumber ean description partsgroup classification serialnumber make model drawing microfiche
+# partnumber ean description partsgroup serialnumber make model drawing microfiche
 # transdatefrom transdateto
 #
 # radio:
@@ -301,7 +300,6 @@ sub generate_report {
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
     'shop'               => { 'text' => $locale->text('Shop article'), },
-    'type_and_classific' => { 'text' => $locale->text('Type'), },
     'projectnumber'      => { 'text' => $locale->text('Project Number'), },
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
   );
@@ -426,9 +424,8 @@ sub generate_report {
     $form->{l_linetotallastcost}  = $form->{searchitems} eq 'assembly' && !$form->{bom} ? "" : 'Y' if  $form->{l_lastcost};
     $form->{l_linetotallistprice} = "Y" if $form->{l_listprice};
   }
-  $form->{"l_type_and_classific"} = "Y";
 
-   if ($form->{l_service} && !$form->{l_assembly} && !$form->{l_part}) {
+  if ($form->{searchitems} eq 'service') {
 
     # remove bin, weight and rop from list
     map { $form->{"l_$_"} = "" } qw(bin weight rop);
@@ -475,7 +472,7 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber type_and_classific description notes partsgroup bin onhand rop soldtotal unit listprice
+    partnumber description notes partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -508,7 +505,6 @@ sub generate_report {
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
-    qw(l_type_and_classific classification_id),
     @itemstatus_keys,
     @callback_keys,
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
@@ -535,14 +531,13 @@ sub generate_report {
     'part'     => $locale->text('part_list'),
     'service'  => $locale->text('service_list'),
     'assembly' => $locale->text('assembly_list'),
-    'article'  => $locale->text('article_list'),
   );
 
   $report->set_options('raw_top_info_text'     => $form->parse_html_template('ic/generate_report_top', { options => \@options }),
                        'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
-                       'attachment_basename'   => 'article_list' . strftime('_%Y%m%d', localtime time),
+                       'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
   );
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
@@ -652,8 +647,6 @@ sub generate_report {
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
     $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
-    $row->{type_and_classific}{data} = $::request->presenter->type_abbreviation($ref->{part_type}).
-                                       $::request->presenter->classification_abbreviation($ref->{classification_id});
 
     $report->add_data($row);
 
@@ -665,7 +658,7 @@ sub generate_report {
          (!$next_ref->{assemblyitem} && ($same_item ne $next_ref->{ $form->{sort} })))) {
       my $row = { map { $_ => { 'class' => 'listsubtotal', } } @columns };
 
-      if ( !$form->{l_assembly} || !$form->{bom}) {
+      if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
         $row->{soldtotal}->{data} = $form->format_amount(\%myconfig, $subtotals{soldtotal});
       }
 
@@ -703,7 +696,7 @@ sub parts_subtotal {
   my ($column_index, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice) = @_;
 
   map { $column_data{$_} = "<td>&nbsp;</td>" } @{ $column_index };
-  $$subtotalonhand = 0 if ($form->{l_assembly} && $form->{bom});
+  $$subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
 
   $column_data{onhand} =
       "<th class=listsubtotal align=right>"
@@ -945,11 +938,11 @@ sub assembly_row {
   my (@column_index);
   my ($nochange, $callback, $previousform, $linetotal, $line_purchase_price, $href);
 
-  @column_index = qw(runningnumber qty unit bom partnumber type_and_classific description partsgroup lastcost total);
+  @column_index = qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
 
   if ($form->{previousform}) {
     $nochange     = 1;
-    @column_index = qw(qty unit bom partnumber type_and_classific description partsgroup total);
+    @column_index = qw(qty unit bom partnumber description partsgroup total);
   } else {
 
     # change callback
@@ -972,16 +965,15 @@ sub assembly_row {
   }
 
   my %header = (
-   runningnumber      => { text =>  $locale->text('No.'),              nowrap => 1, width => '5%',  align => 'left',},
-   qty                => { text =>  $locale->text('Qty'),              nowrap => 1, width => '10%', align => 'left',},
-   unit               => { text =>  $locale->text('Unit'),             nowrap => 1, width => '5%',  align => 'left',},
-   partnumber         => { text =>  $locale->text('Part Number'),      nowrap => 1, width => '20%', align => 'left',},
-   type_and_classific => { text =>  $locale->text('Typ'),              nowrap => 1, width => '5%' , align => 'left',},
-   description        => { text =>  $locale->text('Part Description'), nowrap => 1, width => '50%', align => 'left',},
-   lastcost           => { text =>  $locale->text('Purchase Prices'),  nowrap => 1, width => '45%', align => 'right',},
-   total              => { text =>  $locale->text('Sale Prices'),      nowrap => 1,                 align => 'right',},
-   bom                => { text =>  $locale->text('BOM'),                                           align => 'center',},
-   partsgroup         => { text =>  $locale->text('Group'),                                         align => 'left',},
+   runningnumber => { text =>  $locale->text('No.'),              nowrap => 1, width => '5%',  align => 'left',},
+   qty           => { text =>  $locale->text('Qty'),              nowrap => 1, width => '10%', align => 'left',},
+   unit          => { text =>  $locale->text('Unit'),             nowrap => 1, width => '5%',  align => 'left',},
+   partnumber    => { text =>  $locale->text('Part Number'),      nowrap => 1, width => '20%', align => 'left',},
+   description   => { text =>  $locale->text('Part Description'), nowrap => 1, width => '50%', align => 'left',},
+   lastcost      => { text =>  $locale->text('Purchase Prices'),  nowrap => 1, width => '50%', align => 'right',},
+   total         => { text =>  $locale->text('Sale Prices'),      nowrap => 1,                 align => 'right',},
+   bom           => { text =>  $locale->text('BOM'),                                           align => 'center',},
+   partsgroup    => { text =>  $locale->text('Group'),                                         align => 'left',},
   );
 
   my @ROWS;
@@ -999,7 +991,7 @@ sub assembly_row {
     $linetotal           = $form->format_amount(\%myconfig, $linetotal, 2);
     $line_purchase_price = $form->format_amount(\%myconfig, $line_purchase_price, 2);
     $href                = build_std_url("action=edit", qq|id=$form->{"id_$i"}|, "rowcount=$numrows", "currow=$i", "previousform=$previousform");
-    map { $row{$_}{data} = "" } qw(qty unit partnumber typ_and_class description bom partsgroup runningnumber);
+    map { $row{$_}{data} = "" } qw(qty unit partnumber description bom partsgroup runningnumber);
 
     # last row
     if (($i >= 1) && ($i == $numrows)) {
@@ -1019,15 +1011,12 @@ sub assembly_row {
         $row{qty}{align}          = 'right';
       } else {
         $row{partnumber}{data}    = qq|$form->{"partnumber_$i"}|;
-        $row{partnumber}{link}    = $href;
+        $row{partnumber}{link}     = $href;
         $row{qty}{data}           = qq|<input name="qty_$i" size=5 value="$form->{"qty_$i"}">|;
         $row{runningnumber}{data} = qq|<input name="runningnumber_$i" size=3 value="$i">|;
         $row{bom}{data}   = sprintf qq|<input name="bom_$i" type=checkbox class=checkbox value=1 %s>|,
                                        $form->{"bom_$i"} ? 'checked' : '';
       }
-      # type impl $row{type_and_classific}{data} = $::request->presenter->type_abbreviation($form->{"type_$i"}).
-      $row{type_and_classific}{data} = $::request->presenter->type_abbreviation($form->{"assembly_$i"},$form->{"inventory_accno_id_$i"}).
-                                       $::request->presenter->classification_abbreviation($form->{"classification_id_$i"});
       push @row_hiddens,        qw(unit description partnumber partsgroup);
       $row{unit}{data}        = $form->{"unit_$i"};
       #Bei der Artikelbeschreibung und Warengruppe können Sonderzeichen verwendet
