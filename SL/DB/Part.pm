@@ -352,6 +352,38 @@ sub get_simple_stock {
   sub bin       { require SL::DB::Bin;       SL::DB::Manager::Bin      ->find_by_or_create(id => $_[0]->{bin_id}) }
 }
 
+sub get_simple_stock_sql {
+  my ($self, %params) = @_;
+
+  return [] unless $self->id;
+
+  my $query = <<SQL;
+     SELECT w.description                         AS warehouse_description,
+            b.description                         AS bin_description,
+            SUM(i.qty)                            AS qty,
+            SUM(i.qty * p.lastcost)               AS stock_value,
+            p.unit                                AS unit,
+            LEAD(w.description)           OVER pt AS wh_lead,            -- to detect warehouse changes for subtotals
+            SUM( SUM(i.qty) )             OVER pt AS run_qty,            -- running total of total qty
+            SUM( SUM(i.qty) )             OVER wh AS wh_run_qty,         -- running total of warehouse qty
+            SUM( SUM(i.qty * p.lastcost)) OVER pt AS run_stock_value,    -- running total of total stock_value
+            SUM( SUM(i.qty * p.lastcost)) OVER wh AS wh_run_stock_value  -- running total of warehouse stock_value
+       FROM inventory i
+  LEFT JOIN parts p     ON (p.id           = i.parts_id)
+  LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
+  LEFT JOIN bin b       ON (i.bin_id       = b.id)
+      WHERE parts_id = ?
+   GROUP BY w.description, b.description, p.unit, i.parts_id
+     HAVING SUM(qty) != 0
+     WINDOW pt AS (PARTITION BY i.parts_id    ORDER BY w.description, b.description, p.unit),
+            wh AS (PARTITION by w.description ORDER BY w.description, b.description, p.unit)
+   ORDER BY w.description, b.description
+SQL
+
+  my $stock_info = selectall_hashref_query($::form, $self->db->dbh, $query, $self->id);
+  return $stock_info;
+}
+
 sub clone_and_reset_deep {
   my ($self) = @_;
 
@@ -566,6 +598,22 @@ assemblies.
 Used to set the accounting information from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
+
+=item C<get_simple_stock_sql>
+
+Fetches the qty and the stock value for the current part for each bin and
+warehouse where the part is in stock (or rather different from 0, might be
+negative).
+
+Runs some additional window functions to add the running totals (total running
+total and total per warehouse) for qty and stock value to each line.
+
+Using the LEAD(w.description) the template can check if the warehouse
+description is about to change, i.e. the next line will contain numbers from a
+different warehouse, so that a subtotal line can be added.
+
+The last line will contain the qty total and the total stock value over all
+warehouses/bins and can be used to add a line for the grand totals.
 
 =item C<items_lastcost_sum>
 
