@@ -5,6 +5,7 @@ use strict;
 use SL::Dev::Part;
 use SL::Dev::CustomerVendor;
 use SL::Dev::Inventory;
+use SL::Dev::Record;
 
 1;
 
