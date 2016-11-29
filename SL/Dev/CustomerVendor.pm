@@ -11,19 +11,8 @@ use SL::DB::Customer;
 sub create_customer {
   my (%params) = @_;
 
-  my ($taxzone, $currency);
-
-  if ( my $taxzone_id = delete $params{taxzone_id} ) {
-    $taxzone = SL::DB::Manager::TaxZone->find_by( id => $taxzone_id ) || die "Can't find taxzone_id";
-  } else {
-    $taxzone = SL::DB::Manager::TaxZone->find_by( description => 'Inland') || die "No taxzone 'Inland'";
-  }
-
-  if ( my $currency_id = delete $params{currency_id} ) {
-    $currency = SL::DB::Manager::Currency->find_by( id => $currency_id ) || die "Can't find currency_id";
-  } else {
-    $currency = SL::DB::Manager::Currency->find_by( id => $::instance_conf->get_currency_id );
-  }
+  my $taxzone    = _check_taxzone(delete $params{taxzone_id});
+  my $currency   = _check_currency(delete $params{currency_id});
 
   my $customer = SL::DB::Customer->new( name        => delete $params{name} || 'Testkunde',
                                         currency_id => $currency->id,
@@ -31,6 +20,43 @@ sub create_customer {
                                       );
   $customer->assign_attributes( %params );
   return $customer;
+}
+
+sub create_vendor {
+  my (%params) = @_;
+
+  my $taxzone    = _check_taxzone(delete $params{taxzone_id});
+  my $currency   = _check_currency(delete $params{currency_id});
+
+  my $vendor = SL::DB::Vendor->new( name        => delete $params{name} || 'Testlieferant',
+                                    currency_id => $currency->id,
+                                    taxzone_id  => $taxzone->id,
+                                  );
+  $vendor->assign_attributes( %params );
+  return $vendor;
+}
+
+sub _check_taxzone {
+  my ($taxzone_id) = @_;
+  # check that taxzone_id exists or if no taxzone_id passed use 'Inland'
+  my $taxzone;
+  if ( $taxzone_id ) {
+    $taxzone = SL::DB::Manager::TaxZone->find_by( id => $taxzone_id ) || die "Can't find taxzone_id";
+  } else {
+    $taxzone = SL::DB::Manager::TaxZone->find_by( description => 'Inland') || die "No taxzone 'Inland'";
+  }
+  return $taxzone;
+}
+
+sub _check_currency {
+  my ($currency_id) = @_;
+  my $currency;
+  if ( $currency_id ) {
+    $currency = SL::DB::Manager::Currency->find_by( id => $currency_id ) || die "Can't find currency_id";
+  } else {
+    $currency = SL::DB::Manager::Currency->find_by( id => $::instance_conf->get_currency_id );
+  }
+  return $currency;
 }
 
 1;
@@ -58,6 +84,23 @@ Complex usage, overwriting some defaults, and save to database:
                                            taxzone_id  => 2,
                                           )->save;
 
+If neither taxzone_id or currency_id (both are NOT NULL) are passed as params
+then default values are used.
+
+=head2 C<create_vendor %PARAMS>
+
+Creates a new vendor.
+
+Minimal usage, default values, without saving to database:
+
+  my $vendor = SL::Dev::vendorVendor::create_vendor();
+
+Complex usage, overwriting some defaults, and save to database:
+
+  SL::Dev::CustomerVendor::create_vendor(name        => 'Test vendor',
+                                         taxzone_id  => 2,
+                                         notes       => "Order for 100$ for free delivery",
+                                        )->save;
 
 =head1 BUGS
 
