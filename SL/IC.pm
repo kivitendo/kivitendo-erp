@@ -91,42 +91,6 @@ sub retrieve_buchungsgruppen {
   $main::lxdebug->leave_sub();
 }
 
-sub retrieve_assemblies {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
-
-  my $where = qq|NOT p.obsolete|;
-  my @values;
-
-  if ($form->{partnumber}) {
-    $where .= qq| AND (p.partnumber ILIKE ?)|;
-    push(@values, like($form->{partnumber}));
-  }
-
-  if ($form->{description}) {
-    $where .= qq| AND (p.description ILIKE ?)|;
-    push(@values, like($form->{description}));
-  }
-
-  # retrieve assembly items
-  my $query =
-    qq|SELECT p.id, p.partnumber, p.description,
-              p.onhand, p.rop,
-         (SELECT sum(p2.inventory_accno_id)
-          FROM parts p2, assembly a
-          WHERE (p2.id = a.parts_id) AND (a.id = p.id)) AS inventory
-       FROM parts p
-       WHERE NOT p.obsolete AND p.part_type = 'assembly' $where|;
-
-  $form->{assembly_items} = selectall_hashref_query($form, $dbh, $query, @values);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub assembly_item {
   $main::lxdebug->enter_sub();
 
