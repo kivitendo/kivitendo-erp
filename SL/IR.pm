@@ -1277,7 +1277,7 @@ sub retrieve_item {
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
          p.unit, p.part_type, p.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
-         p.inventory_accno_id, p.price_factor_id,
+         p.price_factor_id,
          p.ean,
 
          pfac.factor AS price_factor,
