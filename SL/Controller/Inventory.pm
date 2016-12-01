@@ -70,7 +70,7 @@ sub action_stock_usage {
 
 sub getnumcolumns {
   my ($self) = @_;
-  return qw(stock incorrection found insum back outcorrection disposed 
+  return qw(stock incorrection found insum back outcorrection disposed
                      missing shipped used outsum consumed averconsumed);
 }
 
@@ -92,12 +92,12 @@ sub action_usage {
 
   push @columns , qw(ptype unit) if $form->{report_generator_output_format} eq 'HTML';
 
-  my @numcolumns = qw(stock incorrection found insum back outcorrection disposed 
+  my @numcolumns = qw(stock incorrection found insum back outcorrection disposed
                      missing shipped used outsum consumed averconsumed);
 
   push @columns , $self->getnumcolumns();
 
-  my @hidden_variables = qw(reporttype year duetyp fromdate todate 
+  my @hidden_variables = qw(reporttype year duetyp fromdate todate
                             warehouse_id bin_id partnumber description bestbefore chargenumber partstypes_id);
   my %column_defs = (
     'partnumber'      => { 'text' => $locale->text('Part Number'), },
@@ -126,7 +126,7 @@ sub action_usage {
   my @custom_headers = ();
   # Zeile 1:
   push @custom_headers, [
-      { 'text' => $locale->text('Part'),   
+      { 'text' => $locale->text('Part'),
         'colspan' => ($form->{report_generator_output_format} eq 'HTML'?4:2), 'align' => 'center'},
       { 'text' => $locale->text('Into bin'), 'colspan' => 4, 'align' => 'center'},
       { 'text' => $locale->text('From bin'), 'colspan' => 7, 'align' => 'center'},
@@ -250,7 +250,7 @@ sub action_usage {
   $end->set_second(59);
   $end->set_minute(59);
   $end->set_hour(23);
-  if ( $end->epoch() > $actualepoch ) { 
+  if ( $end->epoch() > $actualepoch ) {
       $end = DateTime->now_local;
       my $dur = $start->delta_md($end);
       $days = $dur->delta_months()*30 + $dur->delta_days() ;
@@ -317,7 +317,7 @@ sub action_usage {
                   $report->add_data($last_row);
               }
               $row_ind++ ;
-          } 
+          }
           $last_partid = $entry->parts_id;
           $last_row = { };
           $last_row->{partnumber}->{data} = $entry->part->partnumber;
@@ -344,14 +344,14 @@ sub action_usage {
       if ( $entry->trans_type->description eq 'correction' ) {
           $prefix = $entry->trans_type->direction;
       }
-      $last_row->{$prefix.$entry->trans_type->description}->{data} += 
+      $last_row->{$prefix.$entry->trans_type->description}->{data} +=
           ( $entry->trans_type->direction eq 'out' ? -$entry->qty : $entry->qty );
   }
   if ( $last_partid > 0 && ( $allrows || ($row_ind >= $first_nr && $row_ind < $last_nr ))) {
       $self->make_row_result($last_row,$days,$last_partid);
       $report->add_data($last_row);
       $row_ind++ ;
-  } 
+  }
   my $num_rows = @{ $report->{data} } ;
   #$main::lxdebug->message(LXDebug->DEBUG2(), "count=".$row_ind." rows=".$num_rows);
 
@@ -380,7 +380,7 @@ sub make_row_result {
   $row->{insum}->{data}  = $row->{stock}->{data} + $row->{incorrection}->{data} + $row->{found}->{data};
   $row->{outsum}->{data} = $row->{back}->{data} + $row->{outcorrection}->{data} + $row->{disposed}->{data} +
        $row->{missing}->{data} + $row->{shipped}->{data} + $row->{used}->{data};
-  $row->{consumed}->{data} = $row->{outsum}->{data} - 
+  $row->{consumed}->{data} = $row->{outsum}->{data} -
        $row->{outcorrection}->{data} - $row->{incorrection}->{data};
   $row->{averconsumed}->{data} = $row->{consumed}->{data}*30/$days ;
   map { $row->{$_}->{data} = $form->format_amount($myconfig,$row->{$_}->{data},2); } $self->getnumcolumns();
