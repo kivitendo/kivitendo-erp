@@ -670,51 +670,6 @@ sub generate_report {
   $lxdebug->leave_sub();
 }    #end generate_report
 
-sub parts_subtotal {
-  $lxdebug->enter_sub();
-
-  $auth->assert('part_service_assembly_edit');
-
-  my (%column_data);
-  my ($column_index, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice) = @_;
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @{ $column_index };
-  $$subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
-
-  $column_data{onhand} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $$subtotalonhand)
-    . "</th>";
-
-  $column_data{linetotalsellprice} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $$subtotalsellprice, 2)
-    . "</th>";
-  $column_data{linetotallistprice} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $$subtotallistprice, 2)
-    . "</th>";
-  $column_data{linetotallastcost} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $$subtotallastcost, 2)
-    . "</th>";
-
-  $$subtotalonhand    = 0;
-  $$subtotalsellprice = 0;
-  $$subtotallistprice = 0;
-  $$subtotallastcost  = 0;
-
-  print "<tr class=listsubtotal>";
-
-  map { print "\n$column_data{$_}" } @{ $column_index };
-
-  print qq|
-  </tr>
-|;
-
-  $lxdebug->leave_sub();
-}
-
 sub ajax_autocomplete {
   $main::lxdebug->enter_sub();
 
