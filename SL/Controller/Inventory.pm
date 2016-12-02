@@ -624,3 +624,59 @@ sub show_no_warehouses_error {
 }
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::Inventory - Report Controller for inventory
+
+=head1 DESCRIPTION
+
+This controller makes three reports about inventory in warehouses/stocks
+
+- warehouse content
+
+- warehouse journal
+
+- warehouse withdrawal
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<action_stock_usage>
+
+Create a search form for stock withdrawal.
+The search parameter for report are made like the reports in bin/mozilla/rp.pl
+
+=item C<action_usage>
+
+Make a report about stock withdrawal.
+
+The manual pagination is implemented like the pagination in SL::Controller::CsvImport.
+
+=back
+
+=head1 SPECIAL CASES
+
+Because of the PFD-Table Formatter some parameters for PDF must be different to the HTML parameters.
+So in german language there are some tries to use a HTML Break in the second heading line
+to produce two line heading inside table. The actual version has some abbreviations for the header texts.
+
+=head1 BUGS
+
+The PDF-Table library has some limits (doesn't display all if the line is to large) so
+the format is adapted to this
+
+
+=head1 AUTHOR
+
+only for C<action_stock_usage> and C<action_usage>:
+
+Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
+
+
+=cut
+
