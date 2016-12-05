@@ -118,6 +118,7 @@ Upgrade auf v3.2.0
   * GD
   * HTML::Restrict
   * Image::Info
+  * List::UtilsBy
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
