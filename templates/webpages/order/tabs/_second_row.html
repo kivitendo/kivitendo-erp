@@ -5,6 +5,24 @@
 
 <table>
   <tr>
+    <th>[%- 'Serial No.' | $T8 %]</th>
+    <td>[%- L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15) %]</td>
+    <th>[%- 'Reqdate' | $T8 %]</th>
+    <td>[% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]</td>
+    <th>[%- 'Subtotal' | $T8 %]</th>
+    <td>[% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]</td>
+    [%- IF ITEM.order.is_sales %]
+      <th>[%- 'LP' | $T8 %]</th>
+      <td>[%- LxERP.format_amount(ITEM.part.listprice, 2, 0) %]</td>
+    [%- END %]
+    <th>[%- 'On Hand' | $T8 %]</th>
+    <td>
+      <span[%- IF ITEM.part.onhand < ITEM.part.rop -%] class="plus0"[%- END -%]>
+        [%- LxERP.format_amount(ITEM.part.onhand_as_number, 2, 0) -%]&nbsp;[%- ITEM.part.unit -%]
+      </span>
+    </td>
+  </tr>
+  <tr>
     [%- SET n = 0 %]
     [%- FOREACH var = ITEM.cvars_by_config %]
     [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]

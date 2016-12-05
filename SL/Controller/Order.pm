@@ -594,7 +594,7 @@ sub action_get_item_longdescription {
   $_[0]->render(\ $longdescription, { type => 'text' });
 }
 
-# load the second row for one or more items (cvars only for now)
+# load the second row for one or more items
 #
 # This action gets the html code for all items second rows by rendering a template for
 # the second row and sets the html code via client js.
