@@ -221,6 +221,20 @@ $(function () {
       }
     }
 
+    // all of this screws with the native location.hash focus, so reimplement this as well
+    if (location.hash) {
+      var hash_name = location.hash.substr(1);
+      var $hash_by_id = $(location.hash + ':visible');
+      if ($hash_by_id.length > 0) {
+        $hash_by_id.get(0).focus();
+      } else {
+        var $by_name = $('[name=' + hash_name + ']:visible');
+        if ($by_name.length > 0) {
+          $by_name.get(0).focus();
+        }
+      }
+    }
+
     // legacy. sone forms install these
     if (typeof fokus == 'function') { fokus(); return; }
     if (focus_by_name('cursor_fokus')) return;
