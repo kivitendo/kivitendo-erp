@@ -5,7 +5,7 @@
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
 \newcommand{\lxmedia} {<%media%>}
 \newcommand{\lxcurrency} {<%currency%>}
-\newcommand{\lxtitlebar} {<%titlebar%>}
+\newcommand{\kivicompany} {<%employee_company%>}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
@@ -18,11 +18,25 @@
 \begin{document}
 
 \ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
 
-\begin{minipage}{8cm}
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
+
   <%name%>
 
+  <%if department_1%><%department_1%><%end if%>
+
+  <%if department_2%><%department_2%><%end if%>
+
+  <%cp_givenname%> <%cp_name%>
+
   <%street%>
+
+  ~
 
   <%zipcode%> <%city%>
 
@@ -65,7 +79,7 @@
 %
 \setlength\LTleft\parindent     % Tabelle beginnt am linken Textrand
 \setlength\LTright{0pt}         % Tabelle endet am rechten Textrand
-\begin{longtable}{@{}rrp{10.7cm}@{\extracolsep{\fill}}@{}}
+\begin{longtable}{@{}rrp{14cm}@{\extracolsep{\fill}}@{}}
 % Tabellenkopf
 \hline
 \textbf{\position} & \textbf{\menge} & \textbf{\bezeichnung} \\
@@ -130,4 +144,3 @@
   <%employee_name%>
 
 \end{document}
-

@@ -5,7 +5,7 @@
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
 \newcommand{\lxmedia} {<%media%>}
 \newcommand{\lxcurrency} {<%currency%>}
-\newcommand{\lxtitlebar} {<%titlebar%>}
+\newcommand{\kivicompany} {<%employee_company%>}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
@@ -20,7 +20,11 @@
 \ourfont
 
 \begin{minipage}[t]{8cm}
-  \vspace*{1.0cm}
+  \scriptsize
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
   \ifthenelse{\equal{<%shiptoname%>}{}}{ % KEINE ABWEICHENDE LIEFERADRESSE
 
     <%name%>
@@ -67,6 +71,10 @@
   <%if ordnumber%>\auftragsnummer:\hfill <%ordnumber%><%end if%>
 
   \ansprechpartner:\hfill <%employee_name%>
+
+  \textTelefon \hfill <%employee_tel%>
+
+  \textEmail \hfill <%employee_email%>
 
   <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
 \end{minipage}
@@ -139,4 +147,3 @@
 <%end delivery_term%>
 
 \end{document}
-

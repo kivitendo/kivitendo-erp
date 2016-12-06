@@ -5,7 +5,7 @@
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
 \newcommand{\lxmedia} {<%media%>}
 \newcommand{\lxcurrency} {<%currency%>}
-\newcommand{\lxtitlebar} {<%titlebar%>}
+\newcommand{\kivicompany} {<%employee_company%>}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
@@ -18,13 +18,25 @@
 \begin{document}
 
 \ourfont
+\begin{minipage}[t]{8cm}
+  \scriptsize
 
-\begin{minipage}{8cm}
-  \vspace*{1.0cm}
+  {\color{gray}\underline{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}}
+  \normalsize
+
+  \vspace*{0.3cm}
 
   <%name%>
 
+  <%if department_1%><%department_1%><%end if%>
+
+  <%if department_2%><%department_2%><%end if%>
+
+  <%cp_givenname%> <%cp_name%>
+
   <%street%>
+
+  ~
 
   <%zipcode%> <%city%>
 
@@ -44,9 +56,26 @@
 
   \ansprechpartner:\hfill <%employee_name%>
 
-  <%if globalprojectnumber%> \projektnummer:\hfill <%globalprojectnumber%> <%end globalprojectnumber%>
+  \textTelefon \hfill <%employee_tel%>
+
+  \textEmail \hfill <%employee_email%>
 \end{minipage}
 
+<%if shiptoname%>
+  \vspace{0.8cm}
+  \scriptsize \underline{\abweichendeLieferadresse:}\\
+  \normalsize    <%shiptoname%>
+
+                 <%if shiptocontact%> <%shiptocontact%><%end if%>
+
+                 <%shiptodepartment_1%>
+
+                  <%shiptodepartment_2%>
+
+                  <%shiptostreet%>
+
+                  <%shiptozipcode%> <%shiptocity%>
+<%end if%>
 \vspace*{1.5cm}
 
 \hfill
@@ -113,13 +142,11 @@
           <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
           <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
           <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-
           <%if make%>
             <%foreach make%>
               \ifthenelse{\equal{<%make%>}{<%name%>}}{&& \artikelnummer: <%model%>\\}{}
             <%end foreach%>
           <%end if%>
-
           \\[-0.8em]
 <%end number%>
 
@@ -142,4 +169,3 @@
   <%employee_name%>
 
 \end{document}
-

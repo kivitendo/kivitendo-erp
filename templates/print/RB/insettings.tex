@@ -10,8 +10,8 @@
 % Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
 % Mandanten eingeben.
 
-\IfSubStringInString{Firma1}{\lxtitlebar}{\newcommand{\identpath}{firma1}}{
-  \IfSubStringInString{Firma2}{\lxtitlebar}{\newcommand{\identpath}{firma2}}
+\IfSubStringInString{Firma1}{\kivicompany}{\newcommand{\identpath}{firma1}}{
+  \IfSubStringInString{Firma2}{\kivicompany}{\newcommand{\identpath}{firma2}}
     {\newcommand{\identpath}{firma}} % sonst
 } % Ende Firma1
 
@@ -20,7 +20,9 @@
 
 % Währungen/Konten
 \IfSubStringInString{USD}{\lxcurrency}{\input{\identpath/usd_account.tex}}{
-  \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
+  \IfSubStringInString{CHF}{\lxcurrency}{\input{\identpath/chf_account.tex}}{
+    \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
+  } % Ende CHF
 } % Ende USD
 
 % Briefkopf, Logo oder Briefpapier
@@ -48,11 +50,11 @@
         a4paper,      % DINA4
         %% left=19mm,    % Linker Rand
         width=182mm,  % Textbreite
-        top=46mm,     % Abstand Textanfang von oben
-        head=5mm,     % Höhe des Kopfes
-        headsep=12mm, % Abstand Kopf zu Textanfang
+        top=39mm,     % Abstand Textanfang von oben
+        head=44mm,     % Höhe des Kopfes
+        headsep=4mm, % Abstand Kopf zu Textanfang
         bottom=30mm,  % Abstand von unten
-        %% showframe,    % Rahmen zum Debuggen anzeigen
+        % showframe,    % Rahmen zum Debuggen anzeigen
 }
 
 
