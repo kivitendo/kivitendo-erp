@@ -7,6 +7,8 @@
   <tr>
     <th>[%- 'Serial No.' | $T8 %]</th>
     <td>[%- L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15) %]</td>
+    <th>[%- 'Project' | $T8 %]</th>
+    <td>[% L.project_picker("order.orderitems[].project_id", ITEM.project_id, size = 15) %]</td>
     <th>[%- 'Reqdate' | $T8 %]</th>
     <td>[% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]</td>
     <th>[%- 'Subtotal' | $T8 %]</th>
