@@ -28,7 +28,7 @@
 [%- FOREACH row = ROWS %]
      <tr valign="top" class="row [% IF row.error %]error_message[% ELSE %]listrow[% loop.count % 2 %][% END %]">
  [%- FOREACH row1 = row.ROW1 %]
-      <td[% IF row1.align %] align="[% row1.align %]"[% END %][% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>
+      <td[% IF row1.align %] align="[% row1.align %]"[% END %][% IF row1.nowrap %] nowrap[% END %][% IF row1.class %] class="[% row1.class %]"[% END %]>[% row1.value %]</td>
  [%- END %]
      </tr>
      <tr style='display:none'>
@@ -81,23 +81,5 @@
 [%- END %]
 
   </table>
-
-  <script type='text/javascript'>
-    $(function() {
-      setTimeout(function(){
-        [% SWITCH( MYCONFIG.focus_position ) %]
-          [% CASE 'last_partnumber' %]
-            $('#display_row tr.row:gt(-3):lt(-1) input[name*="partnumber"]').focus();
-          [% CASE 'last_description' %]
-            $('#display_row tr.row:gt(-3):lt(-1) input[name*="description"]').focus();
-          [% CASE 'new_partnumber' %]
-            $('#display_row tr:gt(1) input[name*="partnumber"]').focus();
-          [% CASE DEFAULT %]
-            $('#display_row tr:gt(1) input[name*="description"]').focus();
-        [% END %]
-      }, 1);
-    });
-  </script>
-
  </td>
 </tr>

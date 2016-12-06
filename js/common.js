@@ -192,22 +192,39 @@ function focus_by_name(name){
   return false;
 }
 
-$(document).ready(function () {
+$(function () {
   $('input').focus(function(){
     if (focussable(this)) window.focused_element = this;
   });
 
-  // Lowest priority: first focussable element in form.
-  set_cursor_to_first_element();
+  // setting focus inside a tabbed area fails if this is encountered before the tabbing is complete
+  // in that case the elements count as hidden and jquery aborts .focus()
+  setTimeout(function(){
+    // Lowest priority: first focussable element in form.
+    set_cursor_to_first_element();
 
-  // Medium priority: class set in template
-  var initial_focus = $(".initial_focus").filter(':visible')[0];
-  if (initial_focus)
-    $(initial_focus).focus();
+    // Medium priority: class set in template
+    var initial_focus = $(".initial_focus").filter(':visible')[0];
+    if (initial_focus)
+      $(initial_focus).focus();
 
-  // legacy. sone forms install these
-  if (typeof fokus == 'function') { fokus(); return; }
-  if (focus_by_name('cursor_fokus')) return;
+    // special: honour focus_position
+    // if no higher priority applies set focus to the appropriate element
+    if ($("#display_row")[0] && kivi.myconfig.focus_position) {
+      switch(kivi.myconfig.focus_position) {
+        case 'last_partnumber'  : $('#display_row tr.row:gt(-3):lt(-1) input[name*="partnumber"]').focus(); break;
+        case 'last_description' : $('#display_row tr.row:gt(-3):lt(-1) input[name*="description"]').focus(); break;
+        case 'last_qty'         : $('#display_row tr.row:gt(-3):lt(-1) input[name*="qty"]').focus(); break;
+        case 'new_partnumber'   : $('#display_row tr:gt(1) input[name*="partnumber"]').focus(); break;
+        case 'new_description'  : $('#display_row tr:gt(1) input[name*="description"]').focus(); break;
+        case 'new_qty'          : $('#display_row tr:gt(1) input[name*="qty"]').focus(); break;
+      }
+    }
+
+    // legacy. sone forms install these
+    if (typeof fokus == 'function') { fokus(); return; }
+    if (focus_by_name('cursor_fokus')) return;
+  }, 0);
 });
 
 $('form').submit(function(){
