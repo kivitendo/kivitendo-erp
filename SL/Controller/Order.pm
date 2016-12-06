@@ -863,9 +863,9 @@ sub _make_item {
   $item ||= SL::DB::OrderItem->new(custom_variables => []);
 
   $item->assign_attributes(%$attr);
-  $item->longdescription($item->part->notes) if $is_new && !defined $attr->{longdescription};
+  $item->longdescription($item->part->notes)   if $is_new && !defined $attr->{longdescription};
   $item->project_id($record->globalproject_id) if $is_new && !defined $attr->{project_id};
-  # item fields that currently can't be set in in row but are needed:
+  # item fields that currently can't be set in row but are needed:
   $item->lastcost($item->part->lastcost) if $is_new;
 
   return $item;
@@ -873,7 +873,7 @@ sub _make_item {
 
 # create a new item
 #
-# This is used to add one (or more) items
+# This is used to add one item
 sub _new_item {
   my ($record, $attr) = @_;
 
@@ -920,8 +920,7 @@ sub _new_item {
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-
-  $new_attr{longdescription}        = $part->notes if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $part->notes           if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
 
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
