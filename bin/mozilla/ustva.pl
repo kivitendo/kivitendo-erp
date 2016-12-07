@@ -104,7 +104,7 @@ sub report {
   my $geierlein_enabled = 0;
   my $geierlein_path = $::lx_office_conf{paths}{geierlein_path};
 
-  if ( $geierlein_path && length($geierlein_path) > 0 ) {$geierlein_enabled=1;} 
+  if ( $geierlein_path && length($geierlein_path) > 0 ) {$geierlein_enabled=1;}
 
 #  $::lxdebug->message(LXDebug->DEBUG2,"geierlein_enabled=".$geierlein_enabled." path=".$geierlein_path);
   # Hier Einlesen der user-config
@@ -944,7 +944,7 @@ sub config_step2 {
 
   my @_hidden_form_variables = qw(
     fa_dauerfrist fa_steuerberater_city fa_steuerberater_name
-    fa_steuerberater_street fa_steuerberater_tel 
+    fa_steuerberater_street fa_steuerberater_tel
     fa_voranmeld fa_dauerfrist
     accounting_method
     type
