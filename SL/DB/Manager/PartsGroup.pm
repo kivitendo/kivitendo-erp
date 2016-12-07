@@ -12,7 +12,7 @@ sub object_class { 'SL::DB::PartsGroup' }
 __PACKAGE__->make_manager_methods;
 
 sub _sort_spec {
-  return ( default => [ 'partsgroup', 1 ],
+  return ( default => [ 'sortkey', 1 ],
            columns => { SIMPLE => 'ALL' });
 }
 

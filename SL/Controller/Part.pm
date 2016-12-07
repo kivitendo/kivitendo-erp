@@ -872,7 +872,8 @@ sub init_all_languages {
 }
 
 sub init_all_partsgroups {
-  SL::DB::Manager::PartsGroup->get_all_sorted;
+  my ($self) = @_;
+  SL::DB::Manager::PartsGroup->get_all_sorted(query => [ or => [ id => $self->part->partsgroup_id, obsolete => 0 ] ]);
 }
 
 sub init_all_buchungsgruppen {

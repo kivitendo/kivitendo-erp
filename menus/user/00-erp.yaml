@@ -1081,13 +1081,11 @@
   params:
     action: BankAccount/list
 - parent: system
-  id: system_groups
-  name: Groups
+  id: system_partsgroups
+  name: Partsgroups
   order: 900
-  module: pe.pl
   params:
-    action: search
-    type: partsgroup
+    action: PartsGroup/list
 - parent: system
   id: system_pricegroups
   name: Pricegroups
