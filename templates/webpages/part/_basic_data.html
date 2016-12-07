@@ -39,7 +39,7 @@
              </tr>
              <tr>
               [%- IF SELF.all_partsgroups.size %]
-              <th align="right">[% 'Group' | $T8 %]</th>
+              <th align="right">[% 'Partsgroup' | $T8 %]</th>
               <td>[%- L.select_tag('part.partsgroup_id', SELF.all_partsgroups, default=SELF.part.partsgroup_id, title_key='partsgroup', value_key='id', with_empty=1 style='width: 200px') %]</td>
               [% END %]
              </tr>

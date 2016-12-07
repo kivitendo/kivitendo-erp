@@ -15,7 +15,7 @@
           <option value="description">[% 'Part' | $T8 %]</option>
           <option value="customername">[% 'Customer' | $T8 %]</option>
           <option value="country">[% 'Country' | $T8 %]</option>
-          <option value="partsgroup">[% 'Group' | $T8 %]</option>
+          <option value="partsgroup">[% 'Partsgroup' | $T8 %]</option>
           <option value="business">[% 'Customer type' | $T8 %]</option>
           <option value="salesman" selected="selected">[% 'Salesman' | $T8 %]</option>
           <option value="month">[% 'Month' | $T8 %]</option>
@@ -32,7 +32,7 @@
           <option value="description">[% 'Part' | $T8 %]</option>
           <option value="customername">[% 'Customer' | $T8 %]</option>
           <option value="country">[% 'Country' | $T8 %]</option>
-          <option value="partsgroup">[% 'Group' | $T8 %]</option>
+          <option value="partsgroup">[% 'Partsgroup' | $T8 %]</option>
           <option value="business">[% 'Customer type' | $T8 %]</option>
           <option value="salesman">[% 'Salesman' | $T8 %]</option>
           <option value="month" selected="selected">[% 'Month' | $T8 %]</option>
@@ -127,7 +127,7 @@
     </tr>
 
     <tr>
-      <th align="right">[% 'Group' | $T8 %]</th>
+      <th align="right">[% 'Partsgroup' | $T8 %]</th>
       <td>
         [%- INCLUDE 'generic/multibox.html'
           name          = 'partsgroup_id',
@@ -288,7 +288,7 @@
 
           <tr>
             <td align=left><input name="l_parts_unit" class=checkbox type=checkbox value=Y>[% 'Base unit' | $T8 %]</td>
-            <td align=left><input name="l_partsgroup" class=checkbox type=checkbox value=Y>[% 'Group' | $T8 %]</td>
+            <td align=left><input name="l_partsgroup" class=checkbox type=checkbox value=Y>[% 'Partsgroup' | $T8 %]</td>
             <td align=left><input name="l_salesman" class=checkbox type=checkbox value=Y>[% 'Salesperson' | $T8 %]</td>
             <td align=left><input name="l_employee" class=checkbox type=checkbox value=Y>[% 'Employee' | $T8 %]</td>
           </tr>

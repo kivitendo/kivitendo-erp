@@ -34,7 +34,7 @@
       </tr>
 
       <tr>
-       <th align="right" nowrap>[% 'Group' | $T8 %]</th>
+       <th align="right" nowrap>[% 'Partsgroup' | $T8 %]</th>
        <td>
          [%- INCLUDE generic/multibox.html
            name          = 'partsgroup',
@@ -198,7 +198,7 @@
           <td>[%- L.checkbox_tag('l_image', label=LxERP.t8('Image'), value='Y', checked=(INSTANCE_CONF.get_parts_listing_image ? 1 : 0)) %]</td>
           <td>[%- L.checkbox_tag('l_drawing', label=LxERP.t8('Drawing'), value='Y') %]</td>
           <td>[%- L.checkbox_tag('l_microfiche', label=LxERP.t8('Microfiche'), value='Y') %]</td>
-          <td>[%- L.checkbox_tag('l_partsgroup', label=LxERP.t8('Group'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_partsgroup', label=LxERP.t8('Partsgroup'), value='Y') %]</td>
           </td>
          </tr>
 

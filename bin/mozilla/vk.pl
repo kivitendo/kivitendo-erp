@@ -169,7 +169,7 @@ sub invoice_transactions {
   my %column_defs = (
     'description'             => { 'text' => $locale->text('Description'), },
     'partnumber'              => { 'text' => $locale->text('Part Number'), },
-    'partsgroup'              => { 'text' => $locale->text('Group'), },
+    'partsgroup'              => { 'text' => $locale->text('Partsgroup'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'business'                => { 'text' => $locale->text('Customer type'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
@@ -215,7 +215,7 @@ sub invoice_transactions {
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                                                         if $form->{invnumber};
   push @options, $locale->text('Invoice Date')            . " : $form->{invdate}"                                                           if $form->{invdate};
   push @options, $locale->text('Part Number')             . " : $form->{partnumber}"                                                        if $form->{partnumber};
-  push @options, $locale->text('Group')                   . " : " . SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load->partsgroup if $form->{partsgroup_id};
+  push @options, $locale->text('Partsgroup')              . " : " . SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load->partsgroup if $form->{partsgroup_id};
   push @options, $locale->text('Country')                 . " : $form->{country}"                                                           if $form->{country};
   push @options, $locale->text('Employee')                . ' : ' . SL::DB::Employee->new(id => $form->{employee_id})->load->name           if $form->{employee_id};
   push @options, $locale->text('Salesman')                . ' : ' . SL::DB::Employee->new(id => $form->{salesman_id})->load->name           if $form->{salesman_id};

@@ -1388,7 +1388,6 @@ $self->{texts} = {
   'GoBD Export'                 => '',
   'Greeting'                    => '',
   'Greetings'                   => '',
-  'Group'                       => '',
   'Group Invoices'              => '',
   'Group Items'                 => '',
   'Group assignment'            => '',

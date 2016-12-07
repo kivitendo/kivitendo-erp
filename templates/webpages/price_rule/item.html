@@ -26,7 +26,7 @@
   [% CASE 'business' %]
     [% 'Type of Business' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.businesses, title_key='description', default=item.value_int) %]
   [% CASE 'partsgroup' %]
-    [% 'Group' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.partsgroups, title_key='partsgroup', default=item.value_int) %]
+    [% 'Partsgroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.partsgroups, title_key='partsgroup', default=item.value_int) %]
   [% CASE 'qty' %]
     [% 'Quantity' | $T8 %] [% L.select_tag('price_rule.items[].op', num_compare_ops, default=item.op) %] [% L.input_tag('price_rule.items[].value_num_as_number', item.value_num_as_number) %]
   [% CASE 'reqdate' %]

@@ -108,7 +108,7 @@ sub full_description {
     $type eq 'customer'   ? t8('Customer')         . ' ' . $self->customer->displayable_name
   : $type eq 'vendor'     ? t8('Vendor')           . ' ' . $self->vendor->displayable_name
   : $type eq 'business'   ? t8('Type of Business') . ' ' . $self->business->displayable_name
-  : $type eq 'partsgroup' ? t8('Group')            . ' ' . $self->partsgroup->displayable_name
+  : $type eq 'partsgroup' ? t8('Partsgroup')       . ' ' . $self->partsgroup->displayable_name
   : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->pricegroup->displayable_name
   : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->displayable_name
   : $type eq 'qty' ? (
