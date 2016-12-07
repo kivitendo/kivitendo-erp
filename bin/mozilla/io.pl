@@ -104,7 +104,6 @@ if (-f "bin/mozilla/$::myconfig{login}_io.pl") {
 # $locale->text('Nov')
 # $locale->text('Dec')
 use SL::IS;
-use SL::PE;
 use SL::AM;
 use Data::Dumper;
 

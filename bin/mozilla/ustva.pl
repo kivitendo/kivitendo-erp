@@ -41,7 +41,6 @@ require "bin/mozilla/common.pl";
 use List::Util qw(first);
 
 use SL::DB::Default;
-use SL::PE;
 use SL::RP;
 use SL::USTVA;
 use SL::User;

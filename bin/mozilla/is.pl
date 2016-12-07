@@ -34,7 +34,6 @@
 
 use SL::FU;
 use SL::IS;
-use SL::PE;
 use SL::OE;
 use SL::MoreCommon qw(restore_form save_form);
 use Data::Dumper;

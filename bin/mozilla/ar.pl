@@ -39,7 +39,6 @@ use List::UtilsBy qw(sort_by);
 use SL::AR;
 use SL::FU;
 use SL::IS;
-use SL::PE;
 use SL::DB::Default;
 use SL::DB::Invoice;
 use SL::ReportGenerator;

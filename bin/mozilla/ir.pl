@@ -35,7 +35,6 @@
 use SL::FU;
 use SL::IR;
 use SL::IS;
-use SL::PE;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
 use List::Util qw(max sum);

@@ -41,7 +41,6 @@ use POSIX qw(strftime);
 use SL::DB::Default;
 use SL::DB::Project;
 use SL::DB::Customer;
-use SL::PE;
 use SL::RP;
 use SL::Iconv;
 use SL::ReportGenerator;

@@ -41,7 +41,6 @@ use List::Util qw(sum);
 use SL::FU;
 use SL::GL;
 use SL::IS;
-use SL::PE;
 use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 

@@ -40,7 +40,6 @@ use SL::AP;
 use SL::FU;
 use SL::IR;
 use SL::IS;
-use SL::PE;
 use SL::ReportGenerator;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
