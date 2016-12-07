@@ -51,7 +51,13 @@ sub price_from_source {
 
   my $price = SL::DB::Manager::Price->find_by(pricegroup_id => $spec, parts_id => $self->part->id);
 
-  # TODO: if someone deletes the prices entry, this fails. add a fallback
+  if (!$price) {
+    return SL::PriceSource::Price->new(
+      price_source => $self,
+      missing      => t8('Could not find an entry for this part in the pricegroup.'),
+    );
+  }
+
   return $self->make_price($price);
 }
 

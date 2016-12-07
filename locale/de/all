@@ -635,6 +635,7 @@ $self->{texts} = {
   'Copy template'               => 'Vorlage kopieren',
   'Correct taxkey'              => 'Richtiger Steuerschlüssel',
   'Costs'                       => 'Kosten',
+  'Could not find an entry for this part in the pricegroup.' => 'Konnte keine Eintrag für diesen Artikel in der Preisgruppe finden.',
   'Could not load class #1 (#2): "#3"' => 'Konnte Klasse #1 (#2) nicht laden: "#3"',
   'Could not load class #1, #2' => 'Konnte Klasse #1 nicht laden: "#2"',
   'Could not load employee'     => 'Konnte Benutzer nicht laden',

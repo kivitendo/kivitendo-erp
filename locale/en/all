@@ -633,6 +633,7 @@ $self->{texts} = {
   'Copy template'               => '',
   'Correct taxkey'              => '',
   'Costs'                       => '',
+  'Could not find an entry for this part in the pricegroup.' => '',
   'Could not load class #1 (#2): "#3"' => '',
   'Could not load class #1, #2' => '',
   'Could not load employee'     => '',
