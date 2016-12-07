@@ -610,6 +610,8 @@ sub action_load_second_rows {
     $self->_js_load_second_row($item, $item_id, 0);
   }
 
+  $self->js->run('kivi.Order.init_row_handlers') if $self->order->is_sales; # for lastcosts change-callback
+
   $self->js->render();
 }
 
@@ -884,8 +886,7 @@ sub _make_item {
   $item->assign_attributes(%$attr);
   $item->longdescription($item->part->notes)   if $is_new && !defined $attr->{longdescription};
   $item->project_id($record->globalproject_id) if $is_new && !defined $attr->{project_id};
-  # item fields that currently can't be set in row but are needed:
-  $item->lastcost($item->part->lastcost) if $is_new;
+  $item->lastcost($item->part->lastcost)       if $is_new && !defined $attr->{lastcost_as_number};
 
   return $item;
 }
@@ -941,6 +942,7 @@ sub _new_item {
   $new_attr{active_discount_source} = $discount_src;
   $new_attr{longdescription}        = $part->notes           if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
+  $new_attr{lastcost}               = $part->lastcost;
 
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is

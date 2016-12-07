@@ -25,6 +25,13 @@
       </td>
       <th>[%- 'LP' | $T8 %]</th>
       <td>[%- LxERP.format_amount(ITEM.part.listprice, 2, 0) %]</td>
+      <th>[%- 'EK' | $T8 %]</th>
+      <td>
+        [%- L.input_tag("order.orderitems[].lastcost_as_number",
+                        ITEM.lastcost_as_number,
+                        size = 5,
+                        class="recalc reformat_number numeric") %]
+      </td>
     [%- END %]
     <th>[%- 'On Hand' | $T8 %]</th>
     <td>
