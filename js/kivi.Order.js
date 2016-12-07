@@ -296,9 +296,18 @@ namespace('kivi.Order', function(ns) {
 
   };
 
-  ns.redisplay_linetotals = function(data) {
-    $('.row_entry [name="linetotal"]').each(function(idx, elt) {
-      $(elt).html(data[idx]);
+  ns.redisplay_line_values = function(is_sales, data) {
+    $('.row_entry').each(function(idx, elt) {
+      $(elt).find('[name="linetotal"]').html(data[idx][0]);
+      if (is_sales && $(elt).find('[name="second_row"]').data('loaded') == 1) {
+        var mt = data[idx][1];
+        var mp = data[idx][2];
+        var h  = '<span';
+        if (mt[0] === '-') h += ' class="plus0"';
+        h += '>' + mt + '&nbsp;&nbsp;' + mp + '%';
+        h += '</span>';
+        $(elt).find('[name="linemargin"]').html(h);
+      }
     });
   };
 

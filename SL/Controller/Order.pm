@@ -387,7 +387,7 @@ sub action_unit_changed {
 
   $self->js
     ->run('kivi.Order.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
-  $self->_js_redisplay_linetotals;
+  $self->_js_redisplay_line_values;
   $self->_js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
@@ -539,7 +539,7 @@ sub action_recalc_amounts_and_taxes {
 
   $self->_recalc();
 
-  $self->_js_redisplay_linetotals;
+  $self->_js_redisplay_line_values;
   $self->_js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
@@ -601,6 +601,8 @@ sub action_get_item_longdescription {
 sub action_load_second_rows {
   my ($self) = @_;
 
+  $self->_recalc() if $self->order->is_sales; # for margin calculation
+
   foreach my $item_id (@{ $::form->{item_ids} }) {
     my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
     my $item = $self->order->items_sorted->[$idx];
@@ -631,12 +633,29 @@ sub _js_load_second_row {
     ->data('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', 'loaded', 1);
 }
 
-sub _js_redisplay_linetotals {
+sub _js_redisplay_line_values {
   my ($self) = @_;
 
-  my @data = map {$::form->format_amount(\%::myconfig, $_->{linetotal}, 2, 0)} @{ $self->order->items_sorted };
+  my $is_sales = $self->order->is_sales;
+
+  # sales orders with margins
+  my @data;
+  if ($is_sales) {
+    @data = map {
+      [
+       $::form->format_amount(\%::myconfig, $_->{linetotal},     2, 0),
+       $::form->format_amount(\%::myconfig, $_->{marge_total},   2, 0),
+       $::form->format_amount(\%::myconfig, $_->{marge_percent}, 2, 0),
+      ]} @{ $self->order->items_sorted };
+  } else {
+    @data = map {
+      [
+       $::form->format_amount(\%::myconfig, $_->{linetotal},     2, 0),
+      ]} @{ $self->order->items_sorted };
+  }
+
   $self->js
-    ->run('kivi.Order.redisplay_linetotals', \@data);
+    ->run('kivi.Order.redisplay_line_values', $is_sales, \@data);
 }
 
 sub _js_redisplay_amounts_and_taxes {
