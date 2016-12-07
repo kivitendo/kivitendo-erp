@@ -4,42 +4,37 @@
 [%- USE L %]
 
 <table>
-  <tr>
-    <th>[%- 'Serial No.' | $T8 %]</th>
-    <td>[%- L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15) %]</td>
-    <th>[%- 'Project' | $T8 %]</th>
-    <td>[% L.project_picker("order.orderitems[].project_id", ITEM.project_id, size = 15) %]</td>
-    <th>[%- 'Reqdate' | $T8 %]</th>
-    <td>[% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]</td>
-    <th>[%- 'Subtotal' | $T8 %]</th>
-    <td>[% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]</td>
+  <tr><td colspan="100%">
+    <b>[%- 'Serial No.' | $T8 %]</b>&nbsp;
+    [%- L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15) %]&nbsp;
+    <b>[%- 'Project' | $T8 %]</b>&nbsp;
+    [% L.project_picker("order.orderitems[].project_id", ITEM.project_id, size = 15) %]&nbsp;
+    <b>[%- 'Reqdate' | $T8 %]</b>&nbsp;
+    [% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]&nbsp;
+    <b>[%- 'Subtotal' | $T8 %]</b>&nbsp;
+    [% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]&nbsp;
     [%- IF ITEM.order.is_sales %]
-      <th>[%- 'Ertrag' | $T8 %]</th>
-      <td>
-        <div name="linemargin">
+      <b>[%- 'Ertrag' | $T8 %]</b>&nbsp;
+        <span name="linemargin">
           <span[%- IF ITEM.marge_total < 0 -%] class="plus0"[%- END -%]>
             [%- LxERP.format_amount(ITEM.marge_total, 2, 0) %]&nbsp;&nbsp;
             [%- LxERP.format_amount(ITEM.marge_percent, 2, 0) %]%
           </span>
-       </div>
-      </td>
-      <th>[%- 'LP' | $T8 %]</th>
-      <td>[%- LxERP.format_amount(ITEM.part.listprice, 2, 0) %]</td>
-      <th>[%- 'EK' | $T8 %]</th>
-      <td>
+       </span>&nbsp;
+      <b>[%- 'LP' | $T8 %]</b>&nbsp;
+      [%- LxERP.format_amount(ITEM.part.listprice, 2, 0) %]&nbsp;
+      <b>[%- 'EK' | $T8 %]</b>&nbsp;
         [%- L.input_tag("order.orderitems[].lastcost_as_number",
                         ITEM.lastcost_as_number,
                         size = 5,
-                        class="recalc reformat_number numeric") %]
-      </td>
+                        class="recalc reformat_number numeric") %]&nbsp;
     [%- END %]
-    <th>[%- 'On Hand' | $T8 %]</th>
-    <td>
+    <b>[%- 'On Hand' | $T8 %]</b>&nbsp;
       <span[%- IF ITEM.part.onhand < ITEM.part.rop -%] class="plus0"[%- END -%]>
         [%- LxERP.format_amount(ITEM.part.onhand_as_number, 2, 0) -%]&nbsp;[%- ITEM.part.unit -%]
-      </span>
-    </td>
-  </tr>
+      </span>&nbsp;
+  </td></tr>
+
   <tr>
     [%- SET n = 0 %]
     [%- FOREACH var = ITEM.cvars_by_config %]
