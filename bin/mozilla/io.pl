@@ -1831,25 +1831,44 @@ sub _make_record_item {
 
   $class = 'SL::DB::' . $class;
 
+  my %translated_methods = (
+    'SL::DB::OrderItem' => {
+      id                      => 'parts_id',
+      orderitems_id           => 'id',
+    },
+    'SL::DB::DeliveryOrderItem' => {
+      id                      => 'parts_id',
+      delivery_order_items_id => 'id',
+    },
+    'SL::DB::InvoiceItem' => {
+      id                      => 'parts_id',
+      invoice_id => 'id',
+    },
+  );
+
   eval "require $class";
 
   my $obj = $::form->{"orderitems_id_$row"}
           ? $class->meta->convention_manager->auto_manager_class_name->find_by(id => $::form->{"orderitems_id_$row"})
           : $class->new;
 
-  for my $method (apply { s/_$row$// } grep { /_$row$/ } keys %$::form) {
+  for my $key (grep { /_$row$/ } keys %$::form) {
+    my $method = $key;
+    $method =~ s/_$row$//;
+    $method = $translated_methods{$class}{$method} // $method;
+    my $value = $::form->{$key};
     if ($obj->meta->column($method)) {
       if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
-        $obj->${\"$method\_as_date"}($::form->{"$method\_$row"});
+        $obj->${\"$method\_as_date"}($value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-        $obj->${\"$method\_as_number"}($::form->{"$method\_$row"});
+        $obj->${\"$method\_as_number"}($value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
-        $obj->$method(!!$::form->{$method});
+        $obj->$method(!!$value);
       } else {
-        $obj->$method($::form->{"$method\_$row"});
+        $obj->$method($value);
       }
     } else {
-      $obj->{__additional_form_attributes}{$method} = $::form->{"$method\_$row"};
+      $obj->{__additional_form_attributes}{$method} = $value;
     }
   }
 
