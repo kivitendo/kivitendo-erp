@@ -275,13 +275,6 @@ namespace('kivi.Order', function(ns) {
           return false;
         }
       });
-      $(elt).dblclick(function(event) {
-        event.preventDefault();
-        var row = $(event.target).parents(".row_entry").first();
-        ns.load_second_row(row);
-        ns.toggle_second_row(row);
-        return false;
-      });
     });
 
     kivi.run_once_for('.expand', 'expand_second_row', function(elt) {
