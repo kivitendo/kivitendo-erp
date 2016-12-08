@@ -12,7 +12,7 @@
   id: ap_add_purchase_order_experimental
   name: Add Purchase Order (experimental)
   icon: purchase_order_add
-  order: 350
+  order: 250
   access: purchase_order_edit
   params:
     action: Order/add
