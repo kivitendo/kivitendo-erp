@@ -8,7 +8,7 @@
   <tr>
     <th>[%- LxERP.t8("Description") %]/[%- LxERP.t8("Partnumber") %]:</th>
     <td>[%- L.input_tag('multi_items.filter.all:substr:multi::ilike', partfilter) %]</td>
-    <th>[%- LxERP.t8("Group") %]</th>
+    <th>[%- LxERP.t8("Partsgroup") %]</th>
     <td>[%- L.select_tag('multi_items.filter.partsgroup_id', all_partsgroups, title_key='partsgroup', value_key='id', with_empty=1) %]</td>
   <tr>
 </table>
