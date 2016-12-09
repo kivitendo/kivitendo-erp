@@ -518,3 +518,9 @@ a.red {
        border:none;
 }
 
+#expand_all, .expand {
+    cursor: pointer;
+    display: block;
+    max-width: 16px;
+    max-height: 16px;
+}

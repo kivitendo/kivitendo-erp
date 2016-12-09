@@ -7,10 +7,10 @@
   <tr>
     <td align="center">
       [%- IF MYCONFIG.show_form_details %]
-        [% L.img_tag(src="image/collapse3.gif",
+        [% L.img_tag(src="image/collapse.svg",
                      alt=LxERP.t8('Hide details'), title=LxERP.t8('Hide details'), class="expand") %]
       [%- ELSE %]
-        [% L.img_tag(src="image/expand3.gif",
+        [% L.img_tag(src="image/expand.svg",
                      alt=LxERP.t8('Show details'), title=LxERP.t8('Show details'), class="expand") %]
       [%- END %]
       [% L.hidden_tag("orderitem_ids[+]", ID) %]

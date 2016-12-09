@@ -510,3 +510,10 @@ span.toggle_selected {
 .customer_dunning_level {
   font-weight: bold;
 }
+
+#expand_all, .expand {
+    cursor: pointer;
+    display: block;
+    max-width: 16px;
+    max-height: 16px;
+}

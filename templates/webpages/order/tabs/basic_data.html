@@ -157,9 +157,9 @@
               <tr class="listheading">
                 <th class="listheading" style='text-align:center' nowrap width="1">
                   [%- IF MYCONFIG.show_form_details %]
-                    [%- L.img_tag(src="image/collapse3.gif", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', "data-expanded"="1") %]
+                    [%- L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', "data-expanded"="1") %]
                   [%- ELSE %]
-                    [%- L.img_tag(src="image/expand3.gif", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
+                    [%- L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
                   [%- END %]
                 </th>
                 <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
