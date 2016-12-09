@@ -219,7 +219,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.hide_second_row = function(row) {
     $(row).children().not(':first').hide();
-    $(row).data('expanded', false);
+    $(row).data('expanded', 0);
     var elt = $(row).find('.expand');
     elt.attr('src', "image/expand3.gif");
     elt.attr('alt', kivi.t8('Show details'));
@@ -228,7 +228,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.show_second_row = function(row) {
     $(row).children().not(':first').show();
-    $(row).data('expanded', true);
+    $(row).data('expanded', 1);
     var elt = $(row).find('.expand');
     elt.attr('src', "image/collapse3.gif");
     elt.attr('alt', kivi.t8('Hide details'));
@@ -236,7 +236,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.toggle_second_row = function(row) {
-    if ($(row).data('expanded') === true) {
+    if ($(row).data('expanded') == 1) {
       ns.hide_second_row(row);
     } else {
       ns.show_second_row(row);
@@ -548,8 +548,8 @@ $(function(){
 
   $('#expand_all').on('click', function(event) {
     event.preventDefault();
-    if ($('#expand_all').data('expanded') === true) {
-      $('#expand_all').data('expanded', false);
+    if ($('#expand_all').data('expanded') == 1) {
+      $('#expand_all').data('expanded', 0);
       $('#expand_all').attr('src', 'image/expand3.gif');
       $('#expand_all').attr('alt', kivi.t8('Show all details'));
       $('#expand_all').attr('title', kivi.t8('Show all details'));
@@ -557,7 +557,7 @@ $(function(){
         kivi.Order.hide_second_row(elt);
       });
     } else {
-      $('#expand_all').data('expanded', true);
+      $('#expand_all').data('expanded', 1);
       $('#expand_all').attr('src', "image/collapse3.gif");
       $('#expand_all').attr('alt', kivi.t8('Hide all details'));
       $('#expand_all').attr('title', kivi.t8('Hide all details'));
@@ -568,4 +568,5 @@ $(function(){
     }
     return false;
   });
+
 });

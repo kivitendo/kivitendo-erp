@@ -3,8 +3,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 
-<tbody class="row_entry listrow">
-
+<tbody class="row_entry listrow"[%- IF MYCONFIG.show_form_details -%] data-expanded="1"[%- END -%]>
   <tr>
     <td align="center">
       [%- IF MYCONFIG.show_form_details %]
