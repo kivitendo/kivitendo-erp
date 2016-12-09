@@ -610,7 +610,7 @@ The global C<SL::Form> object.
 =back
 
 A Perl script can actually implement queries that fail while
-continueing the process by handling the transaction itself, e.g. with
+continuing the process by handling the transaction itself, e.g. with
 the following function:
 
   sub do_query {
