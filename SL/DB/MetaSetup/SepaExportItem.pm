@@ -21,7 +21,7 @@ __PACKAGE__->meta->columns(
   our_depositor                => { type => 'text' },
   our_iban                     => { type => 'varchar', length => 100 },
   payment_type                 => { type => 'text', default => 'without_skonto' },
-  reference                    => { type => 'varchar', length => 35 },
+  reference                    => { type => 'varchar', length => 140 },
   requested_execution_date     => { type => 'date' },
   sepa_export_id               => { type => 'integer', not_null => 1 },
   skonto_amount                => { type => 'numeric', precision => 25, scale => 5 },
