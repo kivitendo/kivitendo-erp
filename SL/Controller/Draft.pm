@@ -91,7 +91,8 @@ sub action_load {
   if ($params && 'HASH' eq ref $params) {
     $::form->{$_} = $params->{$_} for keys %$params;
   }
-
+  $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
+  $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
   $::form->{script} = $self->draft->module . '.pl';
   ::update();
 }
