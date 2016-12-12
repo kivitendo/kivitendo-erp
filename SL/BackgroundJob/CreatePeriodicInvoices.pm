@@ -65,8 +65,8 @@ sub run {
     }
   }
 
-  $self->_print_invoice($_) for @invoices_to_print;
-  $self->_email_invoice($_) for @invoices_to_email;
+  foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
+  foreach my $inv ( @invoices_to_email ) { $self->_email_invoice($inv); }
 
   $self->_send_summary_email(
     [ map { $_->{invoice} } @new_invoices      ],
