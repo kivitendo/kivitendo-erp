@@ -510,6 +510,12 @@ sub generate_report {
   $main::lxdebug->leave_sub();
 }
 
+sub show_draft {
+  $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
+  $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
+  update();
+}
+
 sub update {
   $main::lxdebug->enter_sub();
 

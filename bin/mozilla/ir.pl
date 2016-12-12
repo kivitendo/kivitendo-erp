@@ -480,6 +480,10 @@ sub mark_as_paid {
   $main::lxdebug->leave_sub();
 }
 
+sub show_draft {
+  update();
+}
+
 sub update {
   $main::lxdebug->enter_sub();
 

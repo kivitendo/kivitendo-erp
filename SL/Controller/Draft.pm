@@ -81,8 +81,6 @@ sub action_load {
     package main;
     require $allowed_modules{ $self->draft->module };
   }
-
-
   my $params = delete $::form->{form};
   my $new_form = YAML::Load($self->draft->form);
   $::form->{$_} = $new_form->{$_} for keys %$new_form;
@@ -91,10 +89,8 @@ sub action_load {
   if ($params && 'HASH' eq ref $params) {
     $::form->{$_} = $params->{$_} for keys %$params;
   }
-  $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
-  $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
   $::form->{script} = $self->draft->module . '.pl';
-  ::update();
+  ::show_draft();
 }
 
 sub action_delete {
