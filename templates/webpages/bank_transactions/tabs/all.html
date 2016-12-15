@@ -98,8 +98,8 @@
       [% END %]
      </td>
      <td align=right>[% bt.transdate_as_date %]</td>
-     <td align=right>[% bt.amount_as_number %]</td>
-     <td align=right>[% bt.invoice_amount_as_number %]</td>
+     <td align=right>[% LxERP.format_amount(bt.amount, 2) %]</td>
+     <td align=right>[% LxERP.format_amount(bt.invoice_amount, 2) %]</td>
      <td>[% HTML.escape(bt.remote_name) %]</td>
      <td>[% HTML.escape(bt.purpose) %]</td>
      <td>[% HTML.escape(bt.transactiontext) %]</td>

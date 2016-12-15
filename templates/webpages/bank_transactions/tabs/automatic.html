@@ -36,7 +36,7 @@
           <td>[% HTML.escape(proposal.transactiontext) %]</td>
           <td>[% proposal.id %]</td>
           <td>[% proposal.transdate_as_date %]</td>
-          <td align="right">[% proposal.amount_as_number %]</td>
+          <td align="right">[% LxERP.format_amount(proposal.amount,2) %]</td>
           <td></td>
           <td>[% HTML.escape(proposal.purpose) %]</td>
           <td>[% HTML.escape(proposal.remote_name) %]</td>

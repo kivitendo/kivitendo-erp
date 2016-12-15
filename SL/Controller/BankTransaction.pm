@@ -124,8 +124,7 @@ sub action_list {
     foreach ( @{$all_open_sepa_export_items}) {
       if ( $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id ) {
         my $factor = ( $_->ar_id == $open_invoice->id>0?1:-1);
-        $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
-        $main::lxdebug->message(LXDebug->DEBUG2(),"exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
+        #$main::lxdebug->message(LXDebug->DEBUG2(),"exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
         $open_invoice->{sepa_export_item} = $_ ;
         $open_invoice->{skonto_type} = $_->payment_type;
         $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
@@ -161,7 +160,7 @@ sub action_list {
     if ( $self->is_collective_transaction($bt) ) {
       foreach ( keys  %sepa_exports) {
         #$main::lxdebug->message(LXDebug->DEBUG2(),"Exp ID=".$_." compare sum amount ".($sepa_exports{$_}->{amount} *1) ." == ".($bt->amount * 1));
-        if ( $bt->transactioncode eq '191' && ($sepa_exports{$_}->{amount} * 1) eq ($bt->amount * 1) ) {
+        if ( $bt->transactioncode eq '191' && abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
           ## jupp
           $bt->{proposals} = $sepa_exports{$_}->{invoices} ;
           $bt->{agreement}    = 20;
@@ -184,11 +183,12 @@ sub action_list {
           $_->amount($_->amount*1);
           #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=". ($bt->amount * $factor));
           #$main::lxdebug->message(LXDebug->DEBUG2(),"compare with   '".$_->vc_iban."'    amount=".$_->amount);
-          if ( $bt->{remote_account_number} eq $_->vc_iban && $_->amount eq ($bt->amount * $factor)) {
+          if ( $bt->{remote_account_number} eq $_->vc_iban && abs(( $_->amount *1 ) - ($bt->amount * $factor)) < 0.01 ) {
             push ($bt->{proposals},$open_invoice );
             $bt->{agreement}    = 20;
             $bt->{rule_matches} = 'sepa_export_item(20)';
             #$main::lxdebug->message(LXDebug->DEBUG2(),"found invoice");
+            push(@proposals, $bt);
             @all_sepa_invoices = grep { $_ != $open_invoice } @all_sepa_invoices;
             last;
           }
@@ -672,7 +672,6 @@ sub save_single_bank_transaction {
           };
         }
       }
-
       # Record a record link from the bank transaction to the invoice
       my @props = (
         from_table => 'bank_transactions',
