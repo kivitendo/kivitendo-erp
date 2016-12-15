@@ -56,6 +56,8 @@ sub flatten_to_form {
     my $user = User->new(login => $self->employee->login);
     $form->{"employee_$_"} = $user->{$_} for qw(tel email fax);
   }
+  # company is employee and login independent
+  $form->{"${_}_company"}  = $::instance_conf->get_company for qw (employee salesman);
 
   $form->{employee}   = $self->employee->name          if _has($self, 'employee_id');
   $form->{language}   = $self->language->template_code if _has($self, 'language_id');
