@@ -131,7 +131,7 @@ sub action_list {
         $sepa_exports{$_->sepa_export_id}->{count}++ ;
         $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
         $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount * $factor;
-        push ( @{ $sepa_exports{$_->sepa_export_id}->{invoices}} , $open_invoice );
+        push @{ $sepa_exports{$_->sepa_export_id}->{invoices} }, $open_invoice;
         #$main::lxdebug->message(LXDebug->DEBUG2(),"amount for export id ".$_->sepa_export_id." = ".
         #                          $sepa_exports{$_->sepa_export_id}->{amount}." count = ".
         #                          $sepa_exports{$_->sepa_export_id}->{count}." is_ar = ".
@@ -184,7 +184,7 @@ sub action_list {
           #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=". ($bt->amount * $factor));
           #$main::lxdebug->message(LXDebug->DEBUG2(),"compare with   '".$_->vc_iban."'    amount=".$_->amount);
           if ( $bt->{remote_account_number} eq $_->vc_iban && abs(( $_->amount *1 ) - ($bt->amount * $factor)) < 0.01 ) {
-            push ($bt->{proposals},$open_invoice );
+            push @{ $bt->{proposals} }, $open_invoice;
             $bt->{agreement}    = 20;
             $bt->{rule_matches} = 'sepa_export_item(20)';
             #$main::lxdebug->message(LXDebug->DEBUG2(),"found invoice");
