@@ -160,7 +160,7 @@ sub action_list {
     if ( $self->is_collective_transaction($bt) ) {
       foreach ( keys  %sepa_exports) {
         #$main::lxdebug->message(LXDebug->DEBUG2(),"Exp ID=".$_." compare sum amount ".($sepa_exports{$_}->{amount} *1) ." == ".($bt->amount * 1));
-        if ( $bt->transactioncode eq '191' && abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
+        if ( $bt->transaction_code eq '191' && abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
           ## jupp
           $bt->{proposals} = $sepa_exports{$_}->{invoices} ;
           $bt->{agreement}    = 20;
@@ -540,7 +540,7 @@ sub action_save_proposals {
 
 sub is_collective_transaction {
   my ($self, $bt) = @_;
-  return $bt->transactioncode eq "191";
+  return $bt->transaction_code eq "191";
 }
 
 sub save_single_bank_transaction {

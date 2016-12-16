@@ -33,7 +33,7 @@
             [% L.checkbox_tag('proposal_ids[]', checked=0, value=proposal.id) %]
           </td>
 
-          <td>[% HTML.escape(proposal.transactiontext) %]</td>
+          <td>[% HTML.escape(proposal.transaction_text) %]</td>
           <td>[% proposal.id %]</td>
           <td>[% proposal.transdate_as_date %]</td>
           <td align="right">[% LxERP.format_amount(proposal.amount,2) %]</td>
