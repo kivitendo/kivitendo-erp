@@ -48,11 +48,18 @@ sub setup {
 
 sub run {
   my $self        = shift;
+  my $db_obj      = shift;
+  # options
+  my $options = $db_obj->data_as_hash;
   $self->setup;
 
   return 1 unless $self->modules;
 
+
+  $main::lxdebug->message(0, 'optioni' . Dumper($self->modules));
   foreach my $module ($self->modules) {
+    next unless $module eq $options->{module};
+    $main::lxdebug->message(0, 'hieur' . $module);
     $self->run_module($module);
   }
 
@@ -95,11 +102,10 @@ sub run_module {
   } or $self->add_errors($::locale->text('Could not load class #1 (#2): "#3"', $module, $file, $@)) && return;
 
   eval {
-    my $worker = $module->new;
-    $worker->tester($self->tester);
-
-    $worker->run;
-    1;
+    $self->tester->subtest($module => sub {
+      $module->new->run;
+    });
+  1
   } or $self->add_errors($::locale->text('Could not load class #1, #2', $module, $@)) && return;
 
   $self->add_full_diag($output);
