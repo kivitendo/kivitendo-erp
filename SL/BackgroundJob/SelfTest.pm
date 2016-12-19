@@ -95,11 +95,10 @@ sub run_module {
   } or $self->add_errors($::locale->text('Could not load class #1 (#2): "#3"', $module, $file, $@)) && return;
 
   eval {
-    my $worker = $module->new;
-    $worker->tester($self->tester);
-
-    $worker->run;
-    1;
+    $self->tester->subtest($module => sub {
+      $module->new->run;
+    });
+  1
   } or $self->add_errors($::locale->text('Could not load class #1, #2', $module, $@)) && return;
 
   $self->add_full_diag($output);
