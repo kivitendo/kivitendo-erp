@@ -83,21 +83,34 @@ C<SL::DB::Manager::Unit-E<gt>cache_all> before you start the actual
 work. Later you can use C<SL::DB::Unit-E<gt>load_cached> to retrieve
 individual objects and be sure that they're already cached.
 
-=item C<find_by>
+=item C<find_by @where>
 
-TODO: Describe find_by
+Retrieves one item from the corresponding table matching the
+conditions given in C<@where>.
 
-=item C<find_by_or_create>
+This is shorthand for the following call:
 
-TODO: Describe find_by_or_create
+    SL::DB::Manager::SomeClass->get_all(where => [ … ], limit => 1)
 
-=item C<get_first>
+=item C<find_by_or_create @where>
 
-TODO: Describe get_first
+This calls L</find_by> with C<@where> and returns its result if one is
+found.
 
-=item C<make_manager_methods>
+If none is found, a new instance of the corresponding DB object class
+is created and returned. Such a new object is not inserted into the
+database automatically.
 
-TODO: Describe make_manager_methods
+=item C<get_first @args>
+
+Retrieves the first item from the database by calling C<get_all> with
+a limit of 1. The C<@args> are passed through to C<get_all> allowing
+for arbitrary filters and sort options to be applied.
+
+=item C<make_manager_methods [@method_list]>
+
+Calls Rose's C<make_manager_methods> with the C<@method_list> or
+C<all> if no methods are given.
 
 =back
 
