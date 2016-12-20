@@ -324,6 +324,14 @@ Loads objects from the database which haven't been cached before and
 caches them for the duration of the current request (see
 L<SL::Request/cache>).
 
+If you know in advance that you will likely need all objects of a
+particular type then you can pre-cache them by calling the manager's
+C<cache_all> function. For example, if you expect to need all unit
+objects, you can use C<SL::DB::Manager::Unit-E<gt>cache_all> before
+you start the actual work. Later you can use
+C<SL::DB::Unit-E<gt>load_cached> to retrieve individual objects and be
+sure that they're already cached.
+
 This method can be called both as an instance method and a class
 method. It loads objects for the corresponding class (e.g. both
 C<SL::DB::Part-E<gt>load_cached(…)> and
