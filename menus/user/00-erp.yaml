@@ -574,6 +574,14 @@
   module: wh.pl
   params:
     action: journal
+- parent: warehouse_reports
+  id: warehouse_reports_whusage
+  name: WHUsage
+  icon: warehouse_usage
+  order: 300
+  access: warehouse_contents | warehouse_management
+  params:
+    action: Inventory/stock_usage
 - id: general_ledger
   name: General Ledger
   icon: gl
@@ -622,6 +630,14 @@
   access: general_ledger
   params:
     action: GoBD/filter
+- parent: general_ledger
+  id: general_ledger_cbob_transactions
+  name: CB/OB Transactions
+  icon: cbob
+  order: 470
+  access: general_ledger
+  params:
+    action: YearEndTransactions/filter
 - parent: general_ledger
   id: general_ledger_reports
   name: Reports
