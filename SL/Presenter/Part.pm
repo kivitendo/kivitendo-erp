@@ -53,7 +53,6 @@ sub part_picker {
 #
 sub type_abbreviation {
   my ($self, $part_type) = @_;
-  $main::lxdebug->message(LXDebug->DEBUG2(),"parttype=".$part_type);
   return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
   return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
   return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
@@ -83,6 +82,16 @@ sub classification_abbreviation {
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation ? t8($obj->abbreviation) : '';
+}
+
+#
+# shortcut for article type
+#
+sub separate_abbreviation {
+  my ($self, $id) = @_;
+  SL::DB::Manager::PartClassification->cache_all();
+  my $obj = SL::DB::PartClassification->load_cached($id);
+  $obj && $obj->abbreviation && $obj->report_separate ? t8($obj->abbreviation) : '';
 }
 
 #
@@ -147,6 +156,14 @@ to the corresponding 'edit' action.
 =item C<classification_abbreviation $classification_id>
 
 Returns the shortcut of the classification
+
+=back
+
+=over 2
+
+=item C<separate_abbreviation $classification_id>
+
+Returns the shortcut of the classification if the classifiaction has the separate flag set.
 
 =back
 

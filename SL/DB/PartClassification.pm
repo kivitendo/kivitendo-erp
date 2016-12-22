@@ -42,6 +42,12 @@ the parts classification specifies other ortogonal attributes
 The primary attributes are the rule
 of the article as "used_for_sales" or "used_for_purchase".
 
+Another attribute is "report_separate". This attribute may be used for some additional costs like
+transport, packaging. These article are reported separate in the list of an invoice if
+the print template is using the variables <%separate_XXX_subtotal%>  and XXX is the shortcut of the parts classification.
+The variables <%non_separate_subtotal%> has the sum of all other parts of an invoice.
+(See also LaTeX Documentation).
+
 Additional other attributes may follow
 
 To see this attributes in a short way there are shortcuts of one (or two characters, if needed for compare )

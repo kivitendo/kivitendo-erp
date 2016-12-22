@@ -18,6 +18,7 @@
      <th>[%- LxERP.t8('TypeAbbreviation') %]</th>
      <th>[%- LxERP.t8('Used for Purchase') %]</th>
      <th>[%- LxERP.t8('Used for Sale') %]</th>
+     <th>[%- LxERP.t8('Report separately') %]</th>
     </tr>
     </thead>
 
@@ -33,6 +34,7 @@
      <td>[%- HTML.escape(LxERP.t8(part_classification.abbreviation)) %]</td>
      <td>[% IF part_classification.used_for_purchase %][% LxERP.t8('Yes') %][% ELSE %][%  LxERP.t8('No') %][% END %]</td>
      <td>[% IF part_classification.used_for_sale     %][% LxERP.t8('Yes') %][% ELSE %][%  LxERP.t8('No') %][% END %]</td>
+     <td>[% IF part_classification.report_separate   %][% LxERP.t8('Yes') %][% ELSE %][%  LxERP.t8('No') %][% END %]</td>
     </tr>
     [%- END %]
     </tbody>

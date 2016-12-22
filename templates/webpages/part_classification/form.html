@@ -22,6 +22,10 @@
     <td>[% LxERP.t8('Used for Sale') %]</td>
     <td>[% L.checkbox_tag("part_classification.used_for_sale", checked=(SELF.part_classification.used_for_sale ? 1:'')) %]</td>
    </tr>
+   <tr>
+    <td>[% LxERP.t8('Report separately') %]</td>
+    <td>[% L.checkbox_tag("part_classification.report_separate", checked=(SELF.part_classification.report_separate ? 1:'')) %]</td>
+   </tr>
   </table>
 
   <p>

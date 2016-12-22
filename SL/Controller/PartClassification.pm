@@ -116,6 +116,7 @@ sub create_or_update {
 
   $::form->{part_classification}->{used_for_purchase} = 0 if ! $::form->{part_classification}->{used_for_purchase};
   $::form->{part_classification}->{used_for_sale}     = 0 if ! $::form->{part_classification}->{used_for_sale};
+  $::form->{part_classification}->{report_separate}   = 0 if ! $::form->{part_classification}->{report_separate};
 
   my $params = delete($::form->{part_classification}) || { };
 
