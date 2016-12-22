@@ -4,6 +4,45 @@
 
 2017-xx-xx - Release 3.4.x Unstable
 
+große Features:
+
+- Artikel-Klassifizierung
+
+  Die Klassifizierung von Artikeln dient einer weiteren Gliederung um
+  zum Beispiel den Einkauf vom Verkauf zu trennen, etc.
+
+  Gekennzeichnet durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E")
+  Flexibel änderbar und erweiterbar.
+
+  Der Typ des Artikel und die Klassifizierung werden durch zwei
+  Buchstaben dargestellt.  Der erste Buchstabe ist eine Lokalisierung
+  des Typs des Artikel ('P','A','S') , deutch 'W', 'E', und 'D' für
+  Ware Erzeugnis oder Dienstleistung, ggf. weitere Typen.  Der zweite
+  Buchstabe ist eine Lokalisierung der Klassifizierungsabkürzung
+  (abbreviation).
+
+  Wenn im ERP-Dokument nach einer Artikelnummer oder Beschreibung
+  gesucht wird, diese in den Stammdaten vorhanden ist, aber der
+  Artikeltyp falsch ist, wird die Fehlermeldung "Gesuchter Artikel ist
+  nicht für den Einkauf bzw Verkauf" gemeldet.
+
+  Anpassung des CSV Import, nun wird alternativ zur 'part_type'-Spalte
+  die 'pclass'-Spalte mit zwei bis drei Buchstaben geparsed und entsprechend
+  classification_id und part_type gesetzt.
+
+- Option "Preis separat ausweisen" als neue Artikel-Klassifizierung
+
+  Die Option ist unter Artikelklassifikation editierbar.  In Aufträgen
+  und Rechnungen werden die Zwischensummen dem Drucksystem zur
+  Verfügung gestellt. Die verwendbaren Variablen sind:
+
+  -  <%separate_XX_subtotal%>  wobei XX die Abkürzung der Klassifikation ist.
+  -  <%non_separate_subtotal%> der Rest der Positionen.
+
+  Hintergrund:
+     Preise von Artikeln wie "Verpackung" oder "Transport" müssen
+     oftmals separat ausgewiesen werden, genau so wie der reine Warenwert.
+
 kleinere neue Features und Detailverbesserungen:
 
   - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen

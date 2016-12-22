@@ -6220,6 +6220,115 @@ Beschreibung: &lt;%description%&gt;
 	  Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne
 	  bitte an <literal>empfang@revamp-it.ch</literal> senden.</para>
     </sect1>
+    <sect1>
+      <title>Artikelklassifizierung</title>
+
+      <sect2>
+        <title>Übersicht</title>
+
+        <para>Die Klassifizierung von Artikeln dient einer weiteren Gliederung
+        um zum Beispiel den Einkauf vom Verkauf zu trennen, gekennzeichnet
+        durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E").
+        Für jede Klassifizierung besteht eine Beschreibung und eine Abkürzung
+        die normalerweise aus einem Zeichen besteht, kann aber auf mehrere
+        Zeichen erweitert werden, falls zur Unterscheidung notwendig, sinnvoll
+        sind jedoch nur maximal 2 Zeichen.</para>
+      </sect2>
+
+      <sect2>
+        <title>Basisklassifizierung</title>
+
+        <para>Als Basisklassifizierungen gibt es</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Einkauf</para>
+          </listitem>
+
+          <listitem>
+            <para>Verkauf</para>
+          </listitem>
+
+          <listitem>
+            <para>Handelsware</para>
+          </listitem>
+
+          <listitem>
+            <para>Produktion</para>
+          </listitem>
+
+          <listitem>
+            <para>- keine - (diese wird bei einer Aktualisierung für alle
+            existierenden Artikel genommen, gültig für Verkauf und
+            Einkauf)</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Es können weitere Klassifizierungen angelegt werden. So kann es
+        z.B. für separat auszuweisende Artikel folgened Klassen geben:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>Lieferung (Logistik, Transport) mit Kürzel L</para>
+          </listitem>
+
+          <listitem>
+            <para>Material (Verpackungsmaterial) mit Kürzel M</para>
+          </listitem>
+        </orderedlist>
+      </sect2>
+
+      <sect2>
+        <title>Attribute</title>
+
+        <para>Bisher haben die Klassifizierungen folgende Attribute, die auch
+        alle gleichzeitg gültig sein können</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>gültig für Verkauf - dieser Artikel kann im Verkauf genutzt
+            werden</para>
+          </listitem>
+
+          <listitem>
+            <para>gültig für Einkauf - dieser Artikel kann im Einkauf genutzt
+            werden</para>
+          </listitem>
+
+          <listitem>
+            <para>separat ausweisen - hierzu gibt es zur Dokumentengenerierung
+            (LaTeX) zusätzliche Variable</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Beim separat ausweisen stehen im LaTeX die Variable <emphasis
+        role="bold">&lt;%non_separate_subtotal%&gt; </emphasis>zur Verfügung,
+        die alle nicht separat auszuweisenden Artikelkosten saldiert, sowie
+        pro separat auszuweisenden Klassifizierungen die Variable<emphasis
+        role="bold"> &lt;%separate_X_subtotal%&gt;</emphasis> wobei X das
+        Kürzel der Klassifizierung ist.</para>
+
+        <para>Im obigen Beispiel wäre das für Lieferkosten <emphasis
+        role="bold">&lt;%separate_L_subtotal%&gt;</emphasis> und für
+        Verpackungsmaterial <emphasis
+        role="bold">&lt;%separate_M_subtotal%&gt; </emphasis>.</para>
+      </sect2>
+
+      <sect2>
+        <title>Zwei-Zeichen Abkürzung</title>
+
+        <para>Der Typ des Artikel und die Klassifizierung werden durch zwei
+        Buchstaben dargestellt. Der erste Buchstabe ist eine Lokalisierung des
+        Typs des Artikel ('P','A','S') , deutch 'W', 'E', und 'D' für Ware
+        Erzeugnis oder Dienstleistung, ggf. weitere Typen.</para>
+
+        <para>Der zweite (und ggf. auch ein dritter Buchstabe, falls nötig)
+        entspricht der lokalisierten Abkürzung der Klassifizierung.</para>
+
+        <para>Diese Abkürzung wird überall beim Auflisten von Artikeln zur
+        Erleichterung mit dargestellt.</para>
+      </sect2>
+    </sect1>
   </chapter>
 
   <chapter>
