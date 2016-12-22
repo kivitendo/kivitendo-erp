@@ -84,6 +84,11 @@
    <td>   [% L.input_tag('defaults.parts_image_css', SELF.defaults.parts_image_css, style=style) %]</td>
    <td>[% LxERP.t8('Style the picture with the following CSS code') %]</td>
   </tr>
+  <tr>
+    <td align="right">[% LxERP.t8('If item not found, allow creation of new item') %]</td>
+    <td>[% L.yes_no_tag('defaults.create_part_if_not_found', SELF.defaults.create_part_if_not_found) %]</td>
+    <td>[% LxERP.t8('If searching a part from a document and no part is found then offer to create a new part.') %]</td>
+  </tr>
  <tr>
    <td align="right">[% LxERP.t8('Normalize part description and part notes') %]</td>
    <td>   [% L.yes_no_tag('defaults.normalize_part_descriptions', SELF.defaults.normalize_part_descriptions) %]</td>
