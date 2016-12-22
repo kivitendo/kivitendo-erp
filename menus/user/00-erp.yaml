@@ -142,45 +142,15 @@
     action: CustomerVendor/search_contact
     db: customer
 - parent: master_data_reports
-  id: master_data_reports_parts
-  name: Parts
+  id: master_data_reports_articles
+  name: Articles
   icon: part_report
-  order: 400
-  access: part_service_assembly_details
-  module: ic.pl
-  params:
-    action: search
-    searchitems: part
-- parent: master_data_reports
-  id: master_data_reports_services
-  name: Services
-  icon: service_report
   order: 500
   access: part_service_assembly_details
   module: ic.pl
   params:
     action: search
-    searchitems: service
-- parent: master_data_reports
-  id: master_data_reports_assemblies
-  name: Assemblies
-  icon: assembly_report
-  order: 600
-  access: part_service_assembly_details
-  module: ic.pl
-  params:
-    action: search
-    searchitems: assembly
-- parent: master_data_reports
-  id: master_data_reports_assortments
-  name: Assortments
-  icon: assortment_report
-  order: 650
-  access: part_service_assortment_details
-  module: ic.pl
-  params:
-    action: search
-    searchitems: assortment
+    searchitems: article
 - parent: master_data_reports
   id: master_data_reports_projects
   name: Projects

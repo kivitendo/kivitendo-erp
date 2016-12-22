@@ -23,6 +23,27 @@
     <td>
      <table>
       <tr>
+       <th align="right" nowrap>[% 'Part Type' | $T8 %]</th>
+       <td  colspan="4" ><table><tr>
+        <td>
+          <input name="l_part" id="l_part" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_part">[% 'Part' | $T8 %]</label>
+        </td>
+        <td>
+          <input name="l_service" id="l_service" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_service">[% 'Service' | $T8 %]</label>
+        </td>
+        <td>
+          <input name="l_assembly" id="l_assembly" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_assembly">[% 'Assembly' | $T8 %]</label>
+        </td>
+        <td>
+          <input name="l_assortment" id="l_assortment" class="checkbox" type="checkbox" value="Y" checked>
+          <label for="l_assortment">[% 'Assortment' | $T8 %]</label>
+        </td>
+       </tr></table></td>
+      </tr>
+      <tr>
        <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
        <td><input name="partnumber" size="20"></td>
        <th align="right" nowrap>[% 'EAN' | $T8 %]</th>

@@ -84,12 +84,12 @@ sub search {
   $form->{lastsort}     = ""; # memory for which table was sort at last time
   $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
-  my %is_xyz     = map { +"is_$_" => ($form->{searchitems} eq $_) } qw(part service assembly assortment);
+  # for seach all possibibilities, is_service only used as UNLESS so == 0
+  my %is_xyz     = ("is_part" => 1, "is_service" => 0, "is_assembly" =>1 );
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
-  $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'IC');
   ($form->{CUSTOM_VARIABLES_FILTER_CODE},
@@ -412,7 +412,7 @@ sub generate_report {
   }
   $form->{"l_type_and_classific"} = "Y";
 
-  if ($form->{searchitems} eq 'service') {
+  if ($form->{l_service} && !$form->{l_assembly} && !$form->{l_part}) {
 
     # remove bin, weight and rop from list
     map { $form->{"l_$_"} = "" } qw(bin weight rop);
@@ -527,7 +527,7 @@ sub generate_report {
                                                   { PART_CLASSIFICATIONS => SL::DB::Manager::PartClassification->get_all_sorted }),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
-                       'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
+                       'attachment_basename'   => 'article_list' . strftime('_%Y%m%d', localtime time),
   );
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
@@ -650,7 +650,7 @@ sub generate_report {
          (!$next_ref->{assemblyitem} && ($same_item ne $next_ref->{ $form->{sort} })))) {
       my $row = { map { $_ => { 'class' => 'listsubtotal', } } @columns };
 
-      if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
+      if ( !$form->{l_assembly} || !$form->{bom}) {
         $row->{soldtotal}->{data} = $form->format_amount(\%myconfig, $subtotals{soldtotal});
       }
 
