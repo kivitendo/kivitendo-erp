@@ -84,9 +84,10 @@ sub search {
   $form->{lastsort}     = ""; # memory for which table was sort at last time
   $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
-  my %is_xyz     = map { +"is_$_" => ($form->{searchitems} eq $_) } qw(part service assembly);
+  my %is_xyz     = map { +"is_$_" => ($form->{searchitems} eq $_) } qw(part service assembly assortment);
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
+  $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
   $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
@@ -217,7 +218,7 @@ sub top100 {
 #  searchitems=part revers=0 lastsort=''
 #
 # filter:
-# partnumber ean description partsgroup serialnumber make model drawing microfiche
+# partnumber ean description partsgroup classification serialnumber make model drawing microfiche
 # transdatefrom transdateto
 #
 # radio:
@@ -284,6 +285,7 @@ sub generate_report {
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
     'shop'               => { 'text' => $locale->text('Shop article'), },
+    'type_and_classific' => { 'text' => $locale->text('Type'), },
     'projectnumber'      => { 'text' => $locale->text('Project Number'), },
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
   );
@@ -408,6 +410,7 @@ sub generate_report {
     $form->{l_linetotallastcost}  = $form->{searchitems} eq 'assembly' && !$form->{bom} ? "" : 'Y' if  $form->{l_lastcost};
     $form->{l_linetotallistprice} = "Y" if $form->{l_listprice};
   }
+  $form->{"l_type_and_classific"} = "Y";
 
   if ($form->{searchitems} eq 'service') {
 
@@ -456,7 +459,7 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber description notes partsgroup bin onhand rop soldtotal unit listprice
+    partnumber type_and_classific description notes partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -489,6 +492,7 @@ sub generate_report {
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
+    qw(l_type_and_classific classification_id),
     @itemstatus_keys,
     @callback_keys,
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
@@ -515,10 +519,12 @@ sub generate_report {
     'part'     => $locale->text('part_list'),
     'service'  => $locale->text('service_list'),
     'assembly' => $locale->text('assembly_list'),
+    'article'  => $locale->text('article_list'),
   );
 
   $report->set_options('raw_top_info_text'     => $form->parse_html_template('ic/generate_report_top', { options => \@options }),
-                       'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom'),
+                       'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom' ,
+                                                  { PART_CLASSIFICATIONS => SL::DB::Manager::PartClassification->get_all_sorted }),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
                        'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
@@ -631,6 +637,8 @@ sub generate_report {
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
     $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
+    $row->{type_and_classific}{data} = $::request->presenter->type_abbreviation($ref->{part_type}).
+                                       $::request->presenter->classification_abbreviation($ref->{classification_id});
 
     $report->add_data($row);
 

@@ -1,17 +1,61 @@
 [%- USE T8 %]
-[% USE HTML %]<form method="post" action="ic.pl">
+[% USE HTML %]
+<h4>[%- 'Abbreviation Legend' | $T8  %]</h4>
+<table valign="top">
+ <tr valign="top"><td>
+ <table valign="top">
+  <thead>
+    <tr class="listheading">
+     <th>[%- 'TypAbbreviation' | $T8  %]</th>
+     <th>[%- 'Description'     | $T8  %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="listrow0">
+     <td>[%- 'Part (typeabbreviation)'       | $T8 %]</td>
+     <td>[%- 'Part'                          | $T8 %]</td>
+    </tr>
+    <tr class="listrow1">
+     <td>[%- 'Assembly (typeabbreviation)'   | $T8 %]</td>
+     <td>[%- 'Assembly'                      | $T8 %]</td>
+    </tr>
+    <tr class="listrow0">
+     <td>[%- 'Service (typeabbreviation)'    | $T8 %]</td>
+     <td>[%- 'Service'                       | $T8 %]</td>
+    </tr>
+    <tr class="listrow1">
+     <td>[%- 'Assortment (typeabbreviation)' | $T8 %]</td>
+     <td>[%- 'Assortment'                    | $T8 %]</td>
+    </tr>
+ </tbody>
+ </table></td>
+ <td><table valign="top">
+  <thead>
+    <tr  valign="top" class="listheading">
+     <th>[%- 'PartClassAbbreviation' | $T8  %]</th>
+     <th>[%- 'Description'           | $T8  %]</th>
+    </tr>
+  </thead>
+  <tbody>
+  [%- FOREACH part_classification = PART_CLASSIFICATIONS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td>[%- part_classification.abbreviation | $T8 %]</td>
+     <td>[%- part_classification.description  | $T8 %]</td>
+    </tr>
+  [%- END %]
+  </tbody>
+ </table></td></tr>
+</table>
+
+<form method="post" action="ic.pl">
 
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
 
- <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
+ <input type="hidden" name="item" id="item_id" value="part">
  <input type="hidden" name="action" value="add">
 
- [% SWITCH searchitems %]
-   [% CASE 'part' %][% 'New part' | $T8 %]
-   [% CASE 'service' %][% 'New service' | $T8 %]
-   [% CASE 'assembly' %][% 'New assembly' | $T8 %]
- [% END %]
- <br>
- <input class="submit" type="submit" value="[%- 'Add' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('part');return true;" value="[%- 'Add Part' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('service');return true;" value="[%- 'Add Service' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('assembly');return true;" value="[%- 'Add Assembly' | $T8 %]">
 
 </form>

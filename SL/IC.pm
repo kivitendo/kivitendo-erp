@@ -92,6 +92,7 @@ sub retrieve_buchungsgruppen {
   $main::lxdebug->leave_sub();
 }
 
+
 sub assembly_item {
   $main::lxdebug->enter_sub();
 
@@ -129,6 +130,7 @@ sub assembly_item {
 
   my $query =
     qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
+       p.classification_id,
        p.weight, p.onhand, p.unit, pg.partsgroup, p.lastcost,
        p.price_factor_id, pfac.factor AS price_factor, p.notes as longdescription
        FROM parts p
@@ -210,7 +212,7 @@ sub all_parts {
 #  my @other_flags          = qw(onhand); # ToDO: implement these
 #  my @inactive_flags       = qw(l_subtotal short l_linetotal);
 
-  my @select_tokens = qw(id factor);
+  my @select_tokens = qw(id factor part_type classification_id);
   my @where_tokens  = qw(1=1);
   my @group_tokens  = ();
   my @bind_vars     = ();
@@ -287,7 +289,7 @@ sub all_parts {
     insertdate         => 'itime::DATE',
   );
 
-  if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
+  if ($form->{l_assembly} && $form->{l_lastcost}) {
     @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
   }
 
@@ -378,9 +380,14 @@ sub all_parts {
   }
 
   for ($form->{searchitems}) {
-    push @where_tokens, "p.part_type = 'part'"     if /part/;
-    push @where_tokens, "p.part_type = 'service'"  if /service/;
-    push @where_tokens, "p.part_type = 'assembly'" if /assembly/;
+    push @where_tokens, "p.part_type = 'part'"       if /part/;
+    push @where_tokens, "p.part_type = 'service'"    if /service/;
+    push @where_tokens, "p.part_type = 'assembly'"   if /assembly/;
+    push @where_tokens, "p.part_type = 'assortment'" if /assortment/;
+  }
+  if ( $form->{classification_id} > 0 ) {
+    push @where_tokens, "p.classification_id = ?";
+    push @bind_vars, $form->{classification_id};
   }
 
   for ($form->{itemstatus}) {
@@ -438,7 +445,7 @@ sub all_parts {
 
   push @select_tokens, @qsooqr_flags, 'quotation', 'cv', 'ioi.id', 'ioi.ioi'  if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
-  push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
+  push @select_tokens, $q_assembly_lastcost                                   if $form->{l_assembly} && $form->{l_lastcost};
   push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
   push @bsooqr_tokens, q|module = 'is' AND NOT ioi.assemblyitem|              if $form->{sold};
   push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'customer'| if $form->{ordered};
@@ -536,7 +543,7 @@ sub all_parts {
   # post processing for assembly parts lists (bom)
   # for each part get the assembly parts and add them into the partlist.
   my @assemblies;
-  if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
+  if ($form->{l_assembly} && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
            p.unit, p.notes, p.itime::DATE as insertdate,
@@ -583,8 +590,7 @@ SQL
       }
       $sth->finish;
     }
-  };
-
+  }
 
   $main::lxdebug->leave_sub();
 
@@ -815,7 +821,8 @@ sub get_parts {
   }
 
   my $query =
-    qq|SELECT id, partnumber, description, unit, sellprice
+    qq|SELECT id, partnumber, description, unit, sellprice,
+       classification_id
        FROM parts
        WHERE $where ORDER BY $order|;
 
@@ -828,6 +835,8 @@ sub get_parts {
     }
 
     $j++;
+    $form->{"type_and_classific_$j"} = $::request->presenter->type_abbreviation($ref->{part_type}).
+                                       $::request->presenter->classification_abbreviation($ref->{classification_id});
     $form->{"id_$j"}          = $ref->{id};
     $form->{"partnumber_$j"}  = $ref->{partnumber};
     $form->{"description_$j"} = $ref->{description};
@@ -1122,12 +1131,14 @@ sub prepare_parts_for_printing {
   for my $i (1..$rowcount) {
     my $id = $form->{"${prefix}${i}"};
     next unless $id;
-
-    push @{ $template_arrays{part_type} },  $parts_by_id{$id}->type;
+    my $prt = $parts_by_id{$id};
+    my $type_abbr = $::request->presenter->type_abbreviation($prt->part_type);
+    push @{ $template_arrays{part_type} }, $type_abbr;
+    push @{ $template_arrays{type_and_classific}},  $type_abbr.$::request->presenter->classification_abbreviation($prt->classification_id);
   }
 
-  return %template_arrays;
   $main::lxdebug->leave_sub();
+  return %template_arrays;
 }
 
 sub normalize_text_blocks {

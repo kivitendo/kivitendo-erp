@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 <h1>[% title %]</h1>
 
  <form method="post" action="ic.pl">
@@ -27,12 +28,14 @@
        <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
        <td><input name="ean" size="20"></td>
       </tr>
-
+      <tr>
+       <th align="right" nowrap>[% 'Part Classification' | $T8 %]:</th>
+       <td>[% P.select_classification('classification_id') %]</td>
+      </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
        <td colspan="3"><input name="description" size="40" class="initial_focus"></td>
       </tr>
-
       <tr>
        <th align="right" nowrap>[% 'Partsgroup' | $T8 %]</th>
        <td>

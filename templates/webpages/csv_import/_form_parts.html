@@ -1,5 +1,6 @@
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 <tr>
  <th align="right">[%- LxERP.t8('Parts with existing part numbers') %]:</th>
  <td colspan="10">
@@ -35,8 +36,14 @@
 <tr>
  <th align="right">[%- LxERP.t8('Type') %]:</th>
  <td colspan="10">
-  [% opts = [ [ 'part', LxERP.t8('Parts') ], [ 'service', LxERP.t8('Services') ], [ 'mixed', LxERP.t8('Mixed (requires column "type")') ] ] %]
+  [% opts = [ [ 'part', LxERP.t8('Parts') ], [ 'service', LxERP.t8('Services') ], [ 'mixed', LxERP.t8('Mixed (requires column "type" or "pclass")') ] ] %]
   [% L.select_tag('settings.part_type', opts, default = SELF.profile.get('part_type'), style = 'width: 300px') %]
+ </td>
+</tr>
+<tr>
+ <th align="right">[%- LxERP.t8('Parts Classification') %]:</th>
+ <td colspan="10">
+  [% P.select_classification('settings.part_classification', default = SELF.profile.get('part_classification'), style = 'width: 300px') %]
  </td>
 </tr>
 

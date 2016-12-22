@@ -71,6 +71,7 @@ use SL::DB::Object;
 use SL::DB::Order;
 use SL::DB::OrderItem;
 use SL::DB::Part;
+use SL::DB::PartClassification;
 use SL::DB::PartsGroup;
 use SL::DB::PartsPriceHistory;
 use SL::DB::PaymentTerm;

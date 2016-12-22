@@ -3,9 +3,11 @@ package SL::Presenter::Part;
 use strict;
 
 use SL::DB::Part;
+use SL::DB::PartClassification;
+use SL::Locale::String qw(t8);
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker part);
+our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation separate_abbreviation);
 
 use Carp;
 
@@ -44,6 +46,55 @@ sub part_picker {
   $::request->presenter->need_reinit_widgets($id);
 
   $self->html_tag('span', $ret, class => 'part_picker');
+}
+
+#
+# shortcut for article type
+#
+sub type_abbreviation {
+  my ($self, $part_type) = @_;
+  $main::lxdebug->message(LXDebug->DEBUG2(),"parttype=".$part_type);
+  return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
+  return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
+  return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
+  return $::locale->text('Service (typeabbreviation)');
+}
+
+#
+# Translations for Abbreviations:
+#
+# $::locale->text('None (typeabbreviation)')
+# $::locale->text('Purchase (typeabbreviation)')
+# $::locale->text('Sales (typeabbreviation)')
+# $::locale->text('Merchandise (typeabbreviation)')
+# $::locale->text('Production (typeabbreviation)')
+#
+# and for descriptions
+# $::locale->text('Purchase')
+# $::locale->text('Sales')
+# $::locale->text('Merchandise')
+# $::locale->text('Production')
+
+#
+# shortcut for article type
+#
+sub classification_abbreviation {
+  my ($self, $id) = @_;
+  SL::DB::Manager::PartClassification->cache_all();
+  my $obj = SL::DB::PartClassification->load_cached($id);
+  $obj && $obj->abbreviation ? t8($obj->abbreviation) : '';
+}
+
+#
+# generate selection tag
+#
+sub select_classification {
+  my ($self, $name, %attributes) = @_;
+  $attributes{value_key} = 'id';
+  $attributes{title_key} = 'description';
+  my $collection = SL::DB::Manager::PartClassification->get_all_sorted();
+  $_->description($::locale->text($_->description)) for @{ $collection };
+  return $self->select_tag( $name, $collection, %attributes );
 }
 
 1;
@@ -86,6 +137,32 @@ C<%params> can include:
 Either C<inline> (the default) or C<table-cell>. At the moment both
 representations are identical and produce the part's name linked
 to the corresponding 'edit' action.
+
+=back
+
+=back
+
+=over 2
+
+=item C<classification_abbreviation $classification_id>
+
+Returns the shortcut of the classification
+
+=back
+
+=over 2
+
+=item C<select_classification $name,%params>
+
+Returns a HTML Select Tag with all available Classifications
+
+C<%params> can include:
+
+=over 4
+
+=item * default
+
+The Id of the selected item .
 
 =back
 
@@ -213,5 +290,7 @@ None atm :)
 =head1 AUTHOR
 
 Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut

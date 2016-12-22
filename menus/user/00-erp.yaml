@@ -1103,15 +1103,22 @@
   params:
     action: PartsGroup/list
 - parent: system
+  id: system_part_classification
+  name: Parts Classification
+  icon: partsclassific
+  order: 1100
+  params:
+    action: PartClassification/list
+- parent: system
   id: system_pricegroups
   name: Pricegroups
-  order: 1000
+  order: 1120
   params:
     action: Pricegroup/list
 - parent: system
   id: system_edit_units
   name: Edit units
-  order: 1100
+  order: 1140
   module: am.pl
   params:
     action: edit_units

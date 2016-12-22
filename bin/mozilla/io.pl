@@ -159,7 +159,7 @@ sub display_row {
 
   # column_index
   my @header_sort = qw(
-    runningnumber partnumber description ship ship_missing qty price_factor
+    runningnumber partnumber type_and_classific description ship ship_missing qty price_factor
     unit weight price_source sellprice discount linetotal
     bin stock_in_out
   );
@@ -169,6 +169,8 @@ sub display_row {
   my %column_def = (
     runningnumber => { width => 5,     value => $locale->text('No.'),                  display => 1, },
     partnumber    => { width => 8,     value => $locale->text('Number'),               display => 1, },
+    type_and_classific
+                  => { width => 2,     value => $locale->text('Type'),                 display => 1, },
     description   => { width => 30,    value => $locale->text('Part Description'),     display => 1, },
     ship          => { width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
     ship_missing  => { width => 5,     value => $locale->text('Not delivered'),        display => $show_ship_missing, },
@@ -295,12 +297,14 @@ sub display_row {
     my $rows            = $form->numtextrows($form->{"description_$i"}, 30, 6);
 
     # quick delete single row
-    $column_data{runningnumber} .= q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
+    $column_data{runningnumber}  = q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
                                    q|<img height="10px" width="10px" src="image/cross.png" alt="| . $locale->text('Remove') . q|"></a> |;
     $column_data{runningnumber} .= $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
 
 
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
+    $column_data{type_and_classific} = $::request->presenter->type_abbreviation($form->{"part_type_$i"}).
+                                       $::request->presenter->classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
                                 : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))
@@ -665,7 +669,6 @@ sub item_selected {
     map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{"taxaccounts_$i"} if !$form->{taxincluded};
 
     $form->{creditremaining} -= $amount;
-
     $form->{"runningnumber_$i"} = $i;
 
     # format amounts
@@ -1759,9 +1762,11 @@ sub _update_part_information {
   foreach my $i (1..$form->{rowcount}) {
     next unless ($form->{"id_${i}"});
 
-    my $info                 = $form->{PART_INFORMATION}->{$form->{"id_${i}"}} || { };
-    $form->{"partunit_${i}"} = $info->{unit};
-    $form->{"weight_$i"}     = $info->{weight};
+    my $info                        = $form->{PART_INFORMATION}->{$form->{"id_${i}"}} || { };
+    $form->{"partunit_${i}"}        = $info->{unit};
+    $form->{"weight_$i"}            = $info->{weight};
+    $form->{"part_type_$i"}         = $info->{part_type};
+    $form->{"classification_id_$i"} = $info->{classification_id};
   }
 
   $main::lxdebug->leave_sub();

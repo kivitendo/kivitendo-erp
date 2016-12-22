@@ -59,7 +59,6 @@ sub action_stock_usage {
   $self->render('inventory/warehouse_usage',
                 title => $::form->{title},
                 year => DateTime->today->year,
-  #              PARTSCLASSIFICATIONS => SL::DB:Manager::PartsClassification->get_all_classifications_by_name() ,
                 WAREHOUSES => $::form->{WAREHOUSES},
                 WAREHOUSE_FILTER => 1,
                 warehouse_id => 0,
