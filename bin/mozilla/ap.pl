@@ -43,6 +43,8 @@ use SL::IS;
 use SL::ReportGenerator;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
+use SL::Webdav;
+use SL::Locale::String qw(t8);
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -125,6 +127,19 @@ sub display_form {
 
   $main::auth->assert('ap_transactions');
 
+  # get all files stored in the webdav folder
+  if ($form->{invnumber} && $::instance_conf->get_webdav) {
+    my $webdav = SL::Webdav->new(
+      type     => 'accounts_payable',
+      number   => $form->{invnumber},
+    );
+    my $webdav_path = $webdav->webdav_path;
+    my @all_objects = $webdav->get_all_objects;
+    @{ $form->{WEBDAV} } = map { { name => $_->filename,
+                                   type => t8('File'),
+                                   link => File::Spec->catdir($webdav_path, $_->filename),
+                               } } @all_objects;
+  }
   &form_header;
   &form_footer;
 
@@ -728,6 +743,12 @@ sub post {
   $form->{id} = 0 if $form->{postasnew};
 
   if (AP->post_transaction(\%myconfig, \%$form)) {
+    # create webdav folder
+    if ($::instance_conf->get_webdav) {
+      SL::Webdav->new(type     => 'accounts_payable',
+                      number   => $form->{invnumber},
+                     )->webdav_path;
+    }
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
       $form->{snumbers}  = qq|invnumber_| . $form->{invnumber};

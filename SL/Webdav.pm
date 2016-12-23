@@ -31,6 +31,7 @@ my %type_to_path = (
   assembly                => 'erzeugnisse',
   letter                  => 'briefe',
   general_ledger          => 'dialogbuchungen',
+  accounts_payable        => 'kreditorenbuchungen',
 );
 
 sub get_all_files {

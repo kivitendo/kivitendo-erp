@@ -79,9 +79,12 @@
   <p>[% saved_message | html %]</p>
 [% END %]
 
-<div class="tabwidget">
+<div id="ap_tabs" class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[%- IF INSTANCE_CONF.get_webdav %]
+  <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+[%- END %]
 [%- IF id %]
   [%- IF AUTH.assert('record_links', 1) %]
   <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=PurchaseInvoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
@@ -393,7 +396,13 @@
   </tr>
 </table>
 </div>
+[% PROCESS 'webdav/_list.html' %]
+<div id="ui-tabs-1">
+ [% LxERP.t8('Loading...') %]
 </div>
+</div>
+
+<hr size="3" noshade>
 
 <script type='text/javascript'>
  $('#ap_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val('[% LxERP.format_amount(paid_missing, 2) %]') });

@@ -10,6 +10,8 @@ kleinere neue Features und Detailverbesserungen:
 
   - Dialogbuchen um WebDAV-Funktion erweitert
 
+  - Kreditorenbuchung um WebDAV-Funktion erweitert
+
   - Verfeinerung der Rechte für Finanzbuchhaltung: Es können nun für Dialogbuchungen,
     Debitoren- und Kreditorenbuchungen extra Rechte vergeben werden
 
