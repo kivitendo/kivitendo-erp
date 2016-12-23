@@ -28,7 +28,6 @@
 <form method="post" action="[% script | html %]">
 
 <input type="hidden" name="selectvendor" value="[% selectvendor | html %]">
-<input type="hidden" name="selectdepartment" value="[% selectdepartment | html %]">
 <input type="hidden" name="selectcurrency" value="[% selectcurrency | html %]">
 
 <input type="hidden" name="oldvendor" value="[% oldvendor | html %]">
@@ -149,12 +148,10 @@
 
               </tr>
 
-              [% IF ( selectdepartment ) %]
+              [% IF ALL_DEPARTMENTS %]
                 <tr>
                   <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-                  <td colspan="3">
-                    <select name="department">[% selectdepartment %]</select>
-                  </td>
+                  <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
                 </tr>
               [% END %]
 

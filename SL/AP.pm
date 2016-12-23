@@ -66,8 +66,6 @@ sub _post_transaction {
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
   $form->{taxincluded} = 0 unless $form->{taxincluded};
 
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
-
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;
   } else {
@@ -463,13 +461,9 @@ sub ap_transactions {
     $where .= " AND (cp.cp_name ILIKE ? OR cp.cp_givenname ILIKE ?)";
     push(@values, (like($form->{"cp_name"}))x2);
   }
-  if ($form->{department}) {
-    # ähnlich wie commit 0bbfb33b6aa8e38bb6c81d1684ab7d08e5b5c5af abteilung
-    # wird so nicht mehr als zeichenkette zusammengebaut
-    # hätte zu ee9f9f9aa4c3b9d5d20ab10a45c12bcaa6aa78d0 auffallen können ;-) jan
-    #my ($null, $department_id) = split /--/, $form->{department};
+  if ($form->{department_id}) {
     $where .= " AND a.department_id = ?";
-    push(@values, $form->{department});
+    push(@values, $form->{department_id});
   }
   if ($form->{invnumber}) {
     $where .= " AND a.invnumber ILIKE ?";

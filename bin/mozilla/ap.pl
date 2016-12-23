@@ -100,6 +100,7 @@ sub add {
   $form->{initial_transdate} = $form->{transdate};
   create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
+
   &display_form;
 
   $main::lxdebug->leave_sub();
@@ -187,11 +188,7 @@ sub create_links {
       (@{ $form->{all_vendor} });
   }
 
-  # departments
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-    $form->{selectdepartment} = "<option>\n" . join('', map { my $quoted = H("$_->{description}--$_->{id}"); "<option value=\"${quoted}\">${quoted}\n"} @{ $form->{all_departments} || [] });
-  }
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
@@ -242,7 +239,7 @@ sub form_header {
   # type=submit $locale->text('Edit Accounts Payables Transaction')
 
   # set option selected
-  foreach my $item (qw(vendor currency department)) {
+  foreach my $item (qw(vendor currency)) {
     my $to_replace         =  H($form->{$item});
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/>\Q${to_replace}\E/ selected>${to_replace}/;
@@ -296,6 +293,8 @@ sub form_header {
     { $_->{link_split} = [ split(/:/, $_->{link}) ]; }
     @{ $form->{ALL_CHARTS} }
   );
+
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   my %project_labels = ();
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
@@ -675,7 +674,7 @@ sub post {
   $form->isblank("vendor",    $locale->text('Vendor missing!'));
   $form->isblank("invnumber", $locale->text('Invoice Number missing!'));
 
-  if ($myconfig{mandatory_departments} && !$form->{department}) {
+  if ($myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
     update();
     exit;
@@ -887,9 +886,9 @@ sub search {
   $form->{title}    = $locale->text('AP Transactions');
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"  => "ALL_DEPARTMENTS",
                    "vendors"      => "ALL_VC");
 
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
@@ -945,7 +944,7 @@ sub ap_transactions {
        vendornumber country ustid taxzone payment_terms charts direct_debit);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto department
+  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto
                                            parts_partnumber parts_description);
 
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
@@ -997,7 +996,7 @@ sub ap_transactions {
   my @options;
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                        if ($form->{cp_name});
-  push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0] if ($form->{department});
+  push @options, $locale->text('Department')              . " : $form->{department}"                     if ($form->{department});
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
