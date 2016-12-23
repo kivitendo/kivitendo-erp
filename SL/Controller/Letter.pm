@@ -616,7 +616,7 @@ sub init_webdav_objects {
   return [ map {
     +{ name => $_->filename,
        type => t8('File'),
-       link => File::Spec->catdir($webdav_path, $_->filename),
+       link => File::Spec->catfile($_->full_filedescriptor),
      }
   } @all_objects ];
 }
