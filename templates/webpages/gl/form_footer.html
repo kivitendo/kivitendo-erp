@@ -14,7 +14,11 @@
   </td>
   </tr>
 </table>
+</div>
+[% PROCESS 'webdav/_list.html' %]
+</div>
 
+<hr size="3" noshade>
 <input name=callback type=hidden value="[% callback %]">
 
 [%- IF id && follow_ups.size %]

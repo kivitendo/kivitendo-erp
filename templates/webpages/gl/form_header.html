@@ -49,6 +49,15 @@ function updateTaxes(row)
 <input type="hidden" name="follow_up_trans_info_1" value="[% id | html %]">
 <input type="hidden" name="follow_up_rowcount" value="1">
 
+<div id="ir_tabs" class="tabwidget">
+ <ul>
+  <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[%- IF INSTANCE_CONF.get_webdav %]
+  <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
+[%- END %]
+ </ul>
+ <div id="ui-tabs-basic-data">
+
 <table width=100%>
 [%- IF saved_message %]
   <tr>

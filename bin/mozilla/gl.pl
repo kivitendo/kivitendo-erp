@@ -43,6 +43,8 @@ use SL::GL;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query selectall_hashref_query);
+use SL::Webdav;
+use SL::Locale::String qw(t8);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -200,6 +202,18 @@ sub edit {
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
+  if ($form->{reference} && $::instance_conf->get_webdav) {
+    my $webdav = SL::Webdav->new(
+      type     => 'general_ledger',
+      number   => $form->{reference},
+    );
+    my $webdav_path = $webdav->webdav_path;
+    my @all_objects = $webdav->get_all_objects;
+    @{ $form->{WEBDAV} } = map { { name => $_->filename,
+                                   type => t8('File'),
+                                   link => File::Spec->catdir($webdav_path, $_->filename),
+                               } } @all_objects;
+  }
   form_header();
   display_rows();
   form_footer();
@@ -1168,6 +1182,11 @@ sub post {
   $form->{storno} = 0;
 
   post_transaction();
+  if ($::instance_conf->get_webdav) {
+    SL::Webdav->new(type     => 'general_ledger',
+                    number   => $form->{reference},
+                   )->webdav_path;
+  }
 
   $form->{callback} = build_std_url("action=add", "show_details");
   $form->redirect($form->{callback});

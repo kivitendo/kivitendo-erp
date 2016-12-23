@@ -30,6 +30,7 @@ my %type_to_path = (
   service                 => 'dienstleistungen',
   assembly                => 'erzeugnisse',
   letter                  => 'briefe',
+  general_ledger          => 'dialogbuchungen',
 );
 
 sub get_all_files {
