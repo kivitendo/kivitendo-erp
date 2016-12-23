@@ -99,11 +99,10 @@ function updateTaxes(row)
         </tr>
 [%- END %]
 
-[%- IF selectdepartment %]
+[%- IF ALL_DEPARTMENTS %]
         <tr>
           <th align=right nowrap>[% 'Department' | $T8 %]</th>
-          <td colspan=3><select name=department>[% selectdepartment %]</select></td>
-          <input type=hidden name=selectdepartment value="[% selectdepartment | html %]">
+          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
         </tr>
 [%- END %]
 

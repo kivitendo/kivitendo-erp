@@ -18,10 +18,10 @@
           <th align=right>[% 'Source' | $T8 %]</th>
           <td><input name=source size=20></td>
         </tr>
-        [%- IF all_departments %]
+        [%- IF ALL_DEPARTMENTS %]
         <tr>
           <th align=right nowrap>[% 'Department' | $T8 %]</th>
-          <td colspan=3>[% L.select_tag('department', all_departments, value_title_sub = \department_label, with_empty = 1) %]</td>
+          <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1) %]</td>
         </tr>
         [%- END %]
         <tr>

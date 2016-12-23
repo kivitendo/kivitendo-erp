@@ -113,8 +113,6 @@ sub _post_transaction {
     do_query($form, $dbh, $query, @values);
   }
 
-  my ($null, $department_id) = split(/--/, $form->{department});
-
   $form->{ob_transaction} *= 1;
   $form->{cb_transaction} *= 1;
 
@@ -126,7 +124,7 @@ sub _post_transaction {
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
-             conv_date($form->{transdate}), conv_i($department_id), $form->{taxincluded} ? 't' : 'f',
+             conv_date($form->{transdate}), conv_i($form->{department_id}), $form->{taxincluded} ? 't' : 'f',
              $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
@@ -233,14 +231,13 @@ sub all_transactions {
     push(@apvalues, like($form->{reference}));
   }
 
-  if ($form->{department}) {
-    my ($null, $department) = split /--/, $form->{department};
+  if ($form->{department_id}) {
     $glwhere .= qq| AND g.department_id = ?|;
     $arwhere .= qq| AND a.department_id = ?|;
     $apwhere .= qq| AND a.department_id = ?|;
-    push(@glvalues, $department);
-    push(@arvalues, $department);
-    push(@apvalues, $department);
+    push(@glvalues, $form->{department_id});
+    push(@arvalues, $form->{department_id});
+    push(@apvalues, $form->{department_id});
   }
 
   if ($form->{source}) {
@@ -639,7 +636,8 @@ sub transaction {
   if ($form->{id}) {
     $query =
       qq|SELECT g.reference, g.description, g.notes, g.transdate, g.storno, g.storno_id,
-           d.description AS department, e.name AS employee, g.taxincluded, g.gldate,
+           g.department_id, d.description AS department,
+           e.name AS employee, g.taxincluded, g.gldate,
          g.ob_transaction, g.cb_transaction
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)

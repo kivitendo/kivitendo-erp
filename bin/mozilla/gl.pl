@@ -99,16 +99,7 @@ sub add {
   $form->{credit} = 0;
   $form->{tax}    = 0;
 
-  # departments
-  $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
@@ -129,16 +120,7 @@ sub prepare_transaction {
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
-  # departments
-  $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   my $i        = 1;
   my $tax      = 0;
@@ -226,15 +208,14 @@ sub search {
   $::lxdebug->enter_sub;
   $::auth->assert('general_ledger | gl_transactions');
 
-  $::form->all_departments(\%::myconfig);
   $::form->get_lists(
     projects  => { key => "ALL_PROJECTS", all => 1 },
   );
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $::form->header;
   print $::form->parse_html_template('gl/search', {
-    department_label => sub { ("$_[0]{description}--$_[0]{id}")x2 },
     employee_label => sub { "$_[0]{id}--$_[0]{name}" },
   });
 
@@ -316,7 +297,7 @@ sub generate_report {
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
-  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto employee_id datesort category l_subtotal);
+  my @hidden_variables = qw(accno source reference description notes project_id datefrom dateto employee_id datesort category l_subtotal);
   push @hidden_variables, map { "l_${_}" } @columns;
 
   my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
@@ -334,11 +315,10 @@ sub generate_report {
   push @date_options, $locale->text('Bis'),  $locale->date(\%myconfig, $form->{dateto},   1)          if ($form->{dateto});
   push @options,      join(' ', @date_options)                                                        if (scalar @date_options);
 
-  if ($form->{department}) {
-    my ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
+  if ($form->{department_id}) {
+    my $department = SL::DB::Manager::Department->find_by( id => $form->{department_id} );
+    push @options, $locale->text('Department') . " : " . $department->description;
   }
-
 
   my $callback = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
@@ -877,8 +857,11 @@ sub form_header {
   $::form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
                                     "all"       => 0,
                                     "old_id"    => \@old_project_ids },
+
                    "charts"    => { "key"       => "ALL_CHARTS",
                                     "transdate" => $::form->{transdate} });
+
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   GL->get_chart_balances('charts' => $::form->{ALL_CHARTS});
 
@@ -889,10 +872,6 @@ sub form_header {
 
   map { $::form->{$_} =~ s/\"/&quot;/g }
     qw(chart taxchart);
-
-  $::form->{selectdepartment} =~ s/ selected//;
-  $::form->{selectdepartment} =~
-    s/option>\Q$::form->{department}\E/option selected>$::form->{department}/;
 
   if ($init) {
     $::request->{layout}->focus("#reference");
@@ -1172,7 +1151,7 @@ sub post {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  if ($::myconfig{mandatory_departments} && !$form->{department}) {
+  if ($::myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
     update();
     exit;
