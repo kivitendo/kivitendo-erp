@@ -2,11 +2,13 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2016-xx-xx - Release 3.4.x Unstable
+2017-xx-xx - Release 3.4.x Unstable
 
 kleinere neue Features und Detailverbesserungen:
 
   - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen
+
+  - Dialogbuchen um WebDAV-Funktion erweitert
 
   - Verfeinerung der Rechte für Finanzbuchhaltung: Es können nun für Dialogbuchungen,
     Debitoren- und Kreditorenbuchungen extra Rechte vergeben werden
