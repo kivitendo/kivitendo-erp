@@ -125,9 +125,6 @@ sub _post_transaction {
     }
   }
 
-  # update department
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
-
   # amount for AR account
   $form->{receivables} = $form->round_amount($form->{amount}, 2) * -1;
 
@@ -533,14 +530,8 @@ sub ar_transactions {
     push(@values, $business_id);
   }
   if ($form->{department_id}) {
-    my $department_id = $form->{department_id};
     $where .= " AND a.department_id = ?";
-    push(@values, $department_id);
-  }
-  if ($form->{department}) {
-    my $department = like($form->{department});
-    $where .= " AND d.description ILIKE ?";
-    push(@values, $department);
+    push(@values, $form->{department_id});
   }
   foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description)) {
     if ($form->{$column}) {

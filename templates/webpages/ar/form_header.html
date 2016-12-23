@@ -104,15 +104,12 @@
                    <td>[%- IF forex %][% L.hidden_tag('exchangerate', LxERP.format_amount(exchangerate, 5)) %][% LxERP.format_amount(exchangerate, 5) %][%- ELSE %][% L.input_tag('exchangerate', LxERP.format_amount(exchangerate, 5), size=10) %][%- END %]</td>
                 [% END %]
               </tr>
-              [% department_html %]
-              [%- IF selectdepartment %]
-              <tr>
-                <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-                <td colspan=3><select name=department>[% selectdepartment %]</select>
-                <input type=hidden name=selectdepartment value="[% selectdepartment | html %]">
-                </td>
-              </tr>
-              [%- END %]
+              [% IF ALL_DEPARTMENTS %]
+                <tr>
+                  <th align="right" nowrap>[% 'Department' | $T8 %]</th>
+                  <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1) %]</td>
+                </tr>
+              [% END %]
               <tr>
                 <td align=right>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
                 <th align="left" nowrap><label for="taxincluded">[% 'Tax Included' | $T8 %]</label></th>

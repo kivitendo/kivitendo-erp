@@ -181,16 +181,7 @@ sub create_links {
       (@{ $form->{all_customer} });
   }
 
-  # departments
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
@@ -226,7 +217,7 @@ sub form_header {
   $form->{invoice_obj} = _retrieve_invoice_object();
 
   my ($title, $readonly, $exchangerate, $rows);
-  my ($notes, $department, $customer, $employee, $amount, $project);
+  my ($notes, $customer, $employee, $amount, $project);
   my ($ARselected);
 
 
@@ -265,7 +256,7 @@ sub form_header {
   $readonly = ($form->{radier}) ? "" : $readonly;
 
   # set option selected
-  foreach my $item (qw(customer currency department employee)) {
+  foreach my $item (qw(customer currency employee)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
@@ -287,6 +278,8 @@ sub form_header {
                                     "transdate" => $form->{transdate} },
                    "taxcharts" => { "key"       => "ALL_TAXCHARTS",
                                     "module"    => "AR" },);
+
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $_->{link_split} = { map { $_ => 1 } split/:/, $_->{link} } for @{ $form->{ALL_CHARTS} };
 
@@ -700,7 +693,7 @@ sub post {
   $form->isblank("duedate",   $locale->text('Due Date missing!'));
   $form->isblank("customer",  $locale->text('Customer missing!'));
 
-  if ($myconfig{mandatory_departments} && !$form->{department}) {
+  if ($myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
     update();
     exit;
@@ -890,10 +883,10 @@ sub search {
 
   # Auch in Rechnungsübersicht nach Kundentyp filtern - jan
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"    => "ALL_DEPARTMENTS",
                    "customers"      => "ALL_VC",
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
@@ -1044,21 +1037,9 @@ sub ar_transactions {
     push @options, $locale->text('Contact Person') . " : $form->{cp_name}";
   }
 
-  # $form->{department} seems to never be filled, and showing the department_id
-  # at the top of the report doesn't make much sense.
-  # So determine the department name from the id whenever we have a filter for
-  # department
-  if ($form->{department}) {
-    my ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
-  }
   if ($form->{department_id}) {
-    # push @options, $locale->text('Department Id') . " : $form->{department_id}";
-    unless ($form->{department}) {
-      require SL::DB::Department;
-      my $department = SL::DB::Manager::Department->find_by(id => $::form->{department_id});
-      push @options, $locale->text('Department') . " : " . $department->description if $department;
-    }
+    my $department = SL::DB::Manager::Department->find_by( id => $form->{department_id} );
+    push @options, $locale->text('Department') . " : " . $department->description;
   }
   if ($form->{invnumber}) {
     push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
