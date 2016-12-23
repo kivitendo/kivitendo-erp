@@ -61,14 +61,7 @@
     [%- IF ALL_DEPARTMENTS.size %]
     <tr>
      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-     <td colspan="3">
-      <select name="department" class="fixed_width">
-       <option></option>
-       [%- FOREACH row = ALL_DEPARTMENTS %]
-       <option[% IF department == row.id %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
-       [%- END %]
-      </select>
-     </td>
+     <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, class="fixed_width") %]</td>
     </tr>
     [%- END %]
 

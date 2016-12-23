@@ -265,9 +265,9 @@ sub form_header {
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
   $form->get_lists($vc              => "ALL_VC",
                    "price_factors"  => "ALL_PRICE_FACTORS",
-                   "departments"    => "ALL_DEPARTMENTS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
@@ -302,7 +302,6 @@ sub form_header {
     ]
   ]);
 
-  map { $_->{value} = "$_->{description}--$_->{id}" } @{ $form->{ALL_DEPARTMENTS} };
   map { $_->{value} = "$_->{name}--$_->{id}"        } @{ $form->{ALL_VC} };
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
@@ -502,11 +501,10 @@ sub search {
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
-                   "departments"    => "ALL_DEPARTMENTS",
                    "$form->{vc}s"   => "ALL_VC",
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{title}             = $locale->text('Delivery Orders');
 
@@ -527,7 +525,6 @@ sub orders {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  $form->{department_id} = (split /--/, $form->{department})[-1];
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
@@ -612,9 +609,8 @@ sub orders {
   if ($form->{cp_name}) {
     push @options, $locale->text('Contact Person') . " : $form->{cp_name}";
   }
-  if ($form->{department}) {
-    my ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
+  if ($form->{department_id}) {
+    push @options, $locale->text('Department') . " : " . SL::DB::Department->new(id => $form->{department_id})->load->description;
   }
   if ($form->{donumber}) {
     push @options, $locale->text('Delivery Order Number') . " : $form->{donumber}";
