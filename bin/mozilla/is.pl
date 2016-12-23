@@ -302,8 +302,9 @@ sub form_header {
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "customers"     => "ALL_CUSTOMERS",
-                   "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
+
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});

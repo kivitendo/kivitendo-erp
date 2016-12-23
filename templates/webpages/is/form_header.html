@@ -146,11 +146,11 @@
   [%- END %]
           </td>
         </tr>
-[%- IF all_departments %]
+[%- IF ALL_DEPARTMENTS %]
         <tr>
           <th align="right" nowrap>[% 'Department' | $T8 %]</th>
           <td colspan="3">
-            [% L.select_tag('department_id', all_departments, default = department_id, title_sub = \department_labels, with_empty = 1, style = 'width:250px') %]
+            [% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style = 'width:250px') %]
           </td>
         </tr>
 [%- END %]
