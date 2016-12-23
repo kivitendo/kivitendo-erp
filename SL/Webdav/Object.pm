@@ -148,6 +148,10 @@ Ref to the actual data in raw encoding.
 
 URL relative to the web base dir for download.
 
+=item C<full_filedescriptor>
+
+Fully qualified path to file.
+
 =back
 
 =head1 SEE ALSO
