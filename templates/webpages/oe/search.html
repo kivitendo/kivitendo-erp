@@ -39,18 +39,7 @@
 [%- IF ALL_DEPARTMENTS.size %]
     <tr>
      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-     <td colspan="3">
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = 'department_id',
-                 style         = 'width: 250px',
-                 DATA          = ALL_DEPARTMENTS,
-                 id_key        = 'id',
-                 label_key     = 'description',
-                 limit         = MYCONFIG.vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-            -%]
-     </td>
+     <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style="width: 250px") %]</td>
     </tr>
 [%- END %]
     <tr>

@@ -112,11 +112,11 @@
                       [% L.select_tag('taxzone_id', ( id ? ALL_TAXZONES : ALL_ACTIVE_TAXZONES), default=taxzone_id, title_key='description', style='width: 250px') %]
                     </td>
                   </tr>
-[%- IF ALL_DEPARTMENTS %]
+[%- IF ALL_DEPARTMENTS.size %]
                   <tr>
                     <th align="right" nowrap>[% 'Department' | $T8 %]</th>
                     <td colspan="3">
-                      [% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_sub=\department_labels, with_empty=1, style='width:250px') %]
+                      [% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key = 'description', with_empty=1, style='width:250px') %]
                     </td>
                   </tr>
 [%- END %]

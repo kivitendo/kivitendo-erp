@@ -354,10 +354,11 @@ sub form_header {
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
-                   "departments"   => "ALL_DEPARTMENTS",
                    $vc             => { key   => "ALL_" . uc($vc),
                                         limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
+
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
@@ -396,7 +397,6 @@ sub form_header {
     ]
   ]);
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
-  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # vendor/customer
   $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
@@ -775,11 +775,11 @@ sub search {
   # setup vendor / customer data
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"  => "ALL_DEPARTMENTS",
                    "$form->{vc}s" => "ALL_VC",
                    "taxzones"     => "ALL_TAXZONES",
                    "business_types" => "ALL_BUSINESS_TYPES",);
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -980,19 +980,11 @@ sub orders {
                                        'data'           => $form->{OE});
 
   my @options;
-  my ($department) = split m/--/, $form->{department};
 
   push @options, $locale->text('Customer')                . " : $form->{customer}"                        if $form->{customer};
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                          if $form->{vendor};
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                         if $form->{cp_name};
-  push @options, $locale->text('Department')              . " : $department"                              if $form->{department};
-  if ($form->{department_id}) {
-    unless ($form->{department}) {
-      require SL::DB::Department;
-      my $department = SL::DB::Manager::Department->find_by(id => $::form->{department_id});
-      push @options, $locale->text('Department') . " : " . $department->description if $department;
-    }
-  }
+  push @options, $locale->text('Department')              . " : $form->{department}"                      if $form->{department};
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Customer Order Number')   . " : $form->{cusordnumber}"                    if $form->{cusordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
@@ -1029,6 +1021,10 @@ sub orders {
   }
   if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
     push @options, $locale->text('Steuersatz') . " : " . SL::DB::TaxZone->new(id => $form->{taxzone_id})->load->description;
+  }
+
+  if ($form->{department_id}) {
+    push @options, $locale->text('Department') . " : " . SL::DB::Department->new(id => $form->{department_id})->load->description;
   }
 
   if (($form->{order_probability_value} || '') ne '') {

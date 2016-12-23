@@ -138,11 +138,9 @@ sub transactions {
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
 
-  my ($null, $split_department_id) = split /--/, $form->{department};
-  my $department_id = $form->{department_id} || $split_department_id;
-  if ($department_id) {
+  if ($form->{department_id}) {
     $query .= qq| AND o.department_id = ?|;
-    push(@values, $department_id);
+    push(@values, $form->{department_id});
   }
 
   if ($form->{"project_id"}) {
@@ -722,8 +720,6 @@ SQL
 
   my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 
-  ($null, $form->{department_id}) = split(/--/, $form->{department}) if $form->{department};
-
   # save OE record
   $query =
     qq|UPDATE oe SET
@@ -1282,21 +1278,14 @@ sub order_details {
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
-  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
-                   'departments'   => 'ALL_DEPARTMENTS');
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   my %price_factors;
 
   foreach my $pfac (@{ $form->{ALL_PRICE_FACTORS} }) {
     $price_factors{$pfac->{id}}  = $pfac;
     $pfac->{factor}             *= 1;
     $pfac->{formatted_factor}    = $form->format_amount($myconfig, $pfac->{factor});
-  }
-
-  # lookup department
-  foreach my $dept (@{ $form->{ALL_DEPARTMENTS} }) {
-    next unless $dept->{id} eq $form->{department_id};
-    $form->{department} = $dept->{description};
-    last;
   }
 
   # sort items by partsgroup
