@@ -44,6 +44,14 @@
     </td>
    </tr>
 
+   [% IF SELF.payment_term.id %]
+   <tr>
+     <td>[% 'Obsolete' | $T8 %]</td>
+     <td>[% L.checkbox_tag('payment_term.obsolete', checked = SELF.payment_term.obsolete, for_submit=1) %]</td>
+   </tr>
+   </tr>
+   [% END %]
+
    <tr class="listheading">
     <th></th>
     <th>[% LxERP.t8("Texts for quotations & orders") %]</th>

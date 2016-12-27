@@ -27,15 +27,7 @@
               </tr>
               <tr>
                 <th align="right">[% 'Payment Terms' | $T8 %]</th>
-                <td>
-                      [%- INCLUDE 'generic/multibox.html'
-                           name       = 'payment_id',
-                           style      = 'width: 250px',
-                           DATA       = ALL_PAYMENTS,
-                           id_key     = 'id',
-                           label_key  = 'description',
-                           show_empty = 1 -%]
-                </td>
+                <td>[% L.select_tag('payment_id', ALL_PAYMENTS, default = payment_id, title_key = 'description', with_empty = 1, style="width: 250px") %]</td>
               </tr>
               <tr>
                 <th align="right">[% 'Delivery Terms' | $T8 %]</th>

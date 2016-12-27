@@ -901,7 +901,8 @@ sub _pre_render {
     $self->{all_salesmen} = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $self->{cv}->salesman_id,  deleted => 0 ] ]);
   }
 
-  $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all();
+  $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id       => $self->{cv}->payment_id,
+                                                                                               obsolete => 0 ] ]);
 
   $self->{all_delivery_terms} = SL::DB::Manager::DeliveryTerm->get_all();
 

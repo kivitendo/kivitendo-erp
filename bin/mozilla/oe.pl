@@ -50,6 +50,7 @@ use Data::Dumper;
 
 use SL::DB::Customer;
 use SL::DB::TaxZone;
+use SL::DB::PaymentTerm;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -352,11 +353,11 @@ sub form_header {
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
-                   "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
                    $vc             => { key   => "ALL_" . uc($vc),
                                         limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
+  $form->{ALL_PAYMENTS} = SL::DB::Manager::PaymentTerm->get_all( where => [ or => [ obsolete => 0, id => $form->{payment_id} || undef ] ]);
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 

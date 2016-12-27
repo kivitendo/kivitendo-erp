@@ -2531,9 +2531,9 @@ sub all_vc {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-              ORDER BY sortkey|;
-
-  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query);
+              WHERE ( obsolete IS FALSE OR id = ? )
+              ORDER BY sortkey |;
+  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query, $self->{payment_id} || undef);
 
   $main::lxdebug->leave_sub();
 }
@@ -2575,6 +2575,9 @@ sub mtime_ischanged {
   }
 }
 
+# language_payment duplicates some of the functionality of all_vc (language,
+# printer, payment_terms), and at least in the case of sales invoices both
+# all_vc and language_payment are called when adding new invoices
 sub language_payment {
   $main::lxdebug->enter_sub();
 
@@ -2598,9 +2601,9 @@ sub language_payment {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-              ORDER BY sortkey|;
-
-  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query);
+              WHERE ( obsolete IS FALSE OR id = ? )
+              ORDER BY sortkey |;
+  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query, $self->{payment_id} || undef);
 
   # get buchungsgruppen
   $query = qq|SELECT id, description

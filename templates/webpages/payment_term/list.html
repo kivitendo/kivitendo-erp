@@ -21,6 +21,7 @@
      <th align="right">[%- 'Netto Terms' | $T8 %]</th>
      <th align="right">[%- 'Skonto Terms' | $T8 %]</th>
      <th align="right">[%- 'Skonto' | $T8 %]</th>
+     <th align="right">[%- 'Obsolete' | $T8 %]</th>
     </tr>
     </thead>
 
@@ -39,6 +40,7 @@
      <td align="right">[%- HTML.escape(payment_term.terms_netto_as_number) %]</td>
      <td align="right">[%- HTML.escape(payment_term.terms_skonto_as_number) %]</td>
      <td align="right">[%- HTML.escape(payment_term.percent_skonto_as_percent) %] %</td>
+     <td align="right">[%- HTML.escape(payment_term.obsolete) %]</td>
     </tr>
     [%- END %]
     </tbody>

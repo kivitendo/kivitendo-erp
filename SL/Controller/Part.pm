@@ -895,7 +895,8 @@ sub init_all_units {
 }
 
 sub init_all_payment_terms {
-  SL::DB::Manager::PaymentTerm->get_all_sorted;
+  my ($self) = @_;
+  SL::DB::Manager::PaymentTerm->get_all_sorted(query => [ or => [ id => $self->part->payment_id, obsolete => 0 ] ]);
 }
 
 sub init_all_price_factors {
