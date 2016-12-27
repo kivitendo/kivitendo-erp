@@ -37,6 +37,12 @@
 [%- IF INSTANCE_CONF.get_webdav %]
   <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]
+[%- IF id %]
+[%- IF INSTANCE_CONF.get_doc_storage %]
+  <li><a href="controller.pl?action=File/list&file_type=document&object_type=gl_transaction&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+  <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=gl_transaction&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+[%- END %]
+[%- END %]
  </ul>
  <div id="ui-tabs-basic-data">
 

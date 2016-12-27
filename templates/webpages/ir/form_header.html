@@ -32,6 +32,10 @@
   <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]
 [%- IF id %]
+  [%- IF INSTANCE_CONF.get_doc_storage %]
+  <li><a href="controller.pl?action=File/list&file_type=document&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
+  <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=purchase_invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+  [%- END %]
   [%- IF AUTH.assert('record_links', 1) %]
   <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=PurchaseInvoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
   [%- END %]

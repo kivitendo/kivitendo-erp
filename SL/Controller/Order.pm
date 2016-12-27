@@ -9,6 +9,7 @@ use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
 use SL::Webdav;
+use SL::File;
 
 use SL::DB::Order;
 use SL::DB::Default;
@@ -209,7 +210,15 @@ sub action_print {
       $self->js->flash('error', t8('Storing PDF to webdav folder failed: #1', $@));
     }
   }
-
+  if ($self->order->ordnumber && $::instance_conf->get_doc_storage) {
+    SL::File->store( object_id     => $self->order->id,
+                     object_type   => $self->type,
+                     mime_type     => 'application/pdf',
+                     source        => 'created',
+                     file_type     => 'document',
+                     file_name     => $pdf_filename,
+                     file_contents => $pdf);
+  }
   $self->js->render;
 }
 
@@ -1087,7 +1096,7 @@ sub _pre_render {
                                                 } } @all_objects;
   }
 
-  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase kivi.Order ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery);
 }
 
 sub _create_pdf {

@@ -617,7 +617,7 @@ sub add {
 
 sub _set_javascript {
   my ($self) = @_;
-  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.PriceRule ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->layout->use_javascript("${_}.js")  for qw(kivi.Part kivi.File kivi.PriceRule ckeditor/ckeditor ckeditor/adapters/jquery);
   $::request->layout->add_javascripts_inline("\$(function(){kivi.PriceRule.load_price_rules_for_part(@{[ $self->part->id ]})});") if $self->part->id;
 }
 

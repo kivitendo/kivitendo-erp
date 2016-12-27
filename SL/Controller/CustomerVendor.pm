@@ -940,6 +940,7 @@ sub _pre_render {
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
+  $::request->{layout}->add_javascripts('kivi.File.js');
 }
 
 sub _prepare_cvar_configs_for_ajaj {

@@ -354,7 +354,7 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
 
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
