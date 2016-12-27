@@ -53,5 +53,8 @@
 [%- IF SELF.order.id && ( (SELF.cv == 'customer' && INSTANCE_CONF.get_sales_order_show_delete) || (SELF.cv == 'vendor' && INSTANCE_CONF.get_purchase_order_show_delete) ) %]
   [% L.button_tag('kivi.Order.delete_order()', LxERP.t8('Delete'), confirm=LxERP.t8("Are you sure?")) %]
 [%- END %]
+[%- IF SELF.order.id && INSTANCE_CONF.get_doc_storage %]
+  [% L.button_tag('kivi.File.downloadOrderitemsFiles(\'' _ SELF.order.type _'\',' _ SELF.order.id _')',LxERP.t8('Download all Attachments')) %]
+[%- END %]
 
 </form>

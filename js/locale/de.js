@@ -57,6 +57,7 @@ namespace("kivi").setupLocale({
 "If you switch to a different tab without saving you will lose the data you've entered in the current tab.":"Wenn Sie auf einen anderen Tab wechseln, ohne vorher zu speichern, so gehen die im aktuellen Tab eingegebenen Daten verloren.",
 "Map":"Karte",
 "No":"Nein",
+"No articles have been added yet.":"Es wurden noch keine Artikel hinzugefügt.",
 "No delievery orders selected, please set one checkbox!":"Kein Lieferschein selektiert, bitte eine Box anklicken!",
 "No delivery orders have been selected.":"Es wurden keine Lieferscheine ausgewählt.",
 "No entries have been selected.":"Es wurden keine Einträge ausgewählt.",

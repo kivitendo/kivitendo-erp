@@ -148,6 +148,9 @@
     [% L.submit_tag('action_save_and_close', LxERP.t8('Save and close'), confirm=LxERP.t8('Missing transport cost: #1  Are you sure?', tpca_reminder), 'data-require-transaction-description'=INSTANCE_CONF.get_require_transaction_description_ps, 'data-warn-save-active-periodic-invoice'=warn_save_active_periodic_invoice) %]
 [% END %]
 
+[%- IF id AND INSTANCE_CONF.get_doc_storage %]
+  <input type="button" class="submit"onclick="kivi.File.downloadOrderitemsFiles('[% type %]',[% id %]);" name="action_download_files" value="[% 'Download all Attachments' | $T8 %]">
+[%- END %]
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %], 'id')" name="history" id="history" value="[% 'history' | $T8 %]">

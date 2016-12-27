@@ -235,6 +235,18 @@ namespace('kivi.File', function(ns) {
     return true;
   }
 
+  ns.downloadOrderitemsFiles = function(type,id) {
+	  var data = {
+      action:       'DownloadZip/download_orderitems_files',
+      object_type:  type,
+      object_id:    id,
+      element_type: 'part',
+      zipname:      'Order_Files_'+id,
+    };
+    $.download("controller.pl", data);
+    return false;
+  }
+
 
   ns.init = function() {
   }
