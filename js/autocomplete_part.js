@@ -28,10 +28,11 @@ namespace('kivi', function(k){
       UNDEFINED: CLASSES.UNDEFINED
     }
     var real_id = $real.attr('id');
-    var $dummy     = $('#' + real_id + '_name');
-    var $part_type = $('#' + real_id + '_part_type');
-    var $unit      = $('#' + real_id + '_unit');
-    var $convertible_unit = $('#' + real_id + '_convertible_unit');
+    var $dummy             = $('#' + real_id + '_name');
+    var $part_type         = $('#' + real_id + '_part_type');
+    var $classification_id = $('#' + real_id + '_classification_id');
+    var $unit              = $('#' + real_id + '_unit');
+    var $convertible_unit  = $('#' + real_id + '_convertible_unit');
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
@@ -65,6 +66,9 @@ namespace('kivi', function(k){
 
       if ($part_type && $part_type.val())
         data['filter.part_type'] = $part_type.val().split(',');
+
+      if ($classification_id && $classification_id.val())
+        data['filter.classification_id'] = $classification_id.val().split(',');
 
       if ($unit && $unit.val())
         data['filter.unit'] = $unit.val().split(',');
@@ -242,11 +246,12 @@ namespace('kivi', function(k){
     popup_button.click(open_dialog);
 
     var pp = {
-      real:           function() { return $real },
-      dummy:          function() { return $dummy },
-      part_type:      function() { return $part_type },
-      unit:           function() { return $unit },
-      convertible_unit: function() { return $convertible_unit },
+      real:              function() { return $real },
+      dummy:             function() { return $dummy },
+      part_type:         function() { return $part_type },
+      classification_id: function() { return $classification_id },
+      unit:              function() { return $unit },
+      convertible_unit:  function() { return $convertible_unit },
       update_results: update_results,
       result_timer:   result_timer,
       set_item:       set_item,
@@ -258,6 +263,7 @@ namespace('kivi', function(k){
             set_item({
               id:   $(this).children('input.part_picker_id').val(),
               name: $(this).children('input.part_picker_description').val(),
+              classification_id: $(this).children('input.part_picker_classification_id').val(),
               unit: $(this).children('input.part_picker_unit').val(),
               partnumber:  $(this).children('input.part_picker_partnumber').val(),
               description: $(this).children('input.part_picker_description').val(),

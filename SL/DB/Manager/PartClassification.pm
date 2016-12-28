@@ -9,6 +9,17 @@ sub object_class { 'SL::DB::PartClassification' }
 
 __PACKAGE__->make_manager_methods;
 
+sub classification_filter {
+  my ($class, $classification, $prefix) = @_;
+
+  return () unless $classification;
+
+  $prefix //= '';
+
+  my @classifications = grep { $_ } listify($classification);
+  return ( $prefix . 'classification_id' => \@classifications );
+}
+
 1;
 
 

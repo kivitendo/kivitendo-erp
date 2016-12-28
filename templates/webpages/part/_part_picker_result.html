@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE P %]
 [%- USE LxERP %]
 
 [%# L.dump(SELF.parts) %]
@@ -15,6 +16,7 @@
   <span class='ppp_block_description'>[% part.description | html %]</span>
   <div style='clear:both;'></div>
   <span class='ppp_block_sellprice'>[% 'Sellprice' | $T8 %]: [% part.sellprice_as_number | html %]</span>
+  <span class='ppp_block_description'>[% P.typeclass_abbreviation(part) %]</span>
 </div>
 [%- END %]
 

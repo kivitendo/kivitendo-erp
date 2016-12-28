@@ -491,6 +491,7 @@ sub action_ajax_autocomplete {
       query => [
         obsolete => 0,
         SL::DB::Manager::Part->type_filter($::form->{filter}{part_type}),
+        SL::DB::Manager::PartClassification->classification_filter($::form->{filter}{classification_id}),
         or => [
           description => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           partnumber  => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
@@ -792,7 +793,7 @@ sub init_models {
       partnumber  => t8('Partnumber'),
       description  => t8('Description'),
     },
-    with_objects => [ qw(unit_obj) ],
+    with_objects => [ qw(unit_obj classification) ],
   );
 }
 
@@ -915,7 +916,7 @@ sub init_multi_items_models {
   SL::Controller::Helper::GetModels->new(
     controller     => $_[0],
     model          => 'Part',
-    with_objects   => [ qw(unit_obj partsgroup) ],
+    with_objects   => [ qw(unit_obj partsgroup classification) ],
     disable_plugin => 'paginated',
     source         => $::form->{multi_items},
     sorted         => {
