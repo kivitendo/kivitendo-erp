@@ -7,7 +7,7 @@ use SL::DB::PartClassification;
 use SL::Locale::String qw(t8);
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation separate_abbreviation);
+our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation separate_abbreviation typeclass_abbreviation);
 
 use Carp;
 
@@ -82,6 +82,12 @@ sub classification_abbreviation {
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation ? t8($obj->abbreviation) : '';
+}
+
+sub typeclass_abbreviation {
+  my ($self, $part) = @_;
+  return '' if !$part || !$part->isa('SL::DB::Part');
+  return $self->type_abbreviation($part->part_type).$self->classification_abbreviation($part->classification_id);
 }
 
 #

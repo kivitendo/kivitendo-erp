@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 
 <tbody class="row_entry listrow"[%- IF MYCONFIG.show_form_details -%] data-expanded="1"[%- END -%]>
   <tr>
@@ -32,6 +33,9 @@
     </td>
     <td>
       <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
+    </td>
+    <td>
+      <div name="partclassification">[% P.typeclass_abbreviation(ITEM.part) %]</div>
     </td>
     <td>
       [% L.input_tag("order.orderitems[].description",
