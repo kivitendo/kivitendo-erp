@@ -354,7 +354,7 @@
           Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</para>
 
-          <programlisting>apt-get install apache2 libarchive-zip-perl libclone-perl \
+          <programlisting>apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
   libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
   liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
@@ -364,7 +364,7 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git
+  libcrypt-pbkdf2-perl git libcgi-pm-perl
 </programlisting>
 
           <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
