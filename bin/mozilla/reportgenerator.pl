@@ -64,12 +64,15 @@ sub report_generator_export_as_pdf {
   $form->{copies} = max $myconfig{copies} * 1, 1;
 
   my $allow_font_selection = 1;
+  my $allow_attachments    = 0;
   eval { require PDF::API2; };
   $allow_font_selection = 0 if ($@);
+  $allow_attachments    = 1 if $form->{report_generator_hidden_l_attachments};
 
   $form->{title} = $locale->text('PDF export -- options');
   $form->header();
   print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN'               => \@form_values,
+                                                                            'ALLOW_ATTACHMENTS'    => $allow_attachments,
                                                                             'ALLOW_FONT_SELECTION' => $allow_font_selection, });
 
   $main::lxdebug->leave_sub();

@@ -14,6 +14,7 @@
 
   <input type="hidden" name="report_generator_pdf_options_set" value="1">
   <input type="hidden" name="report_generator_dispatch_to" value="">
+  <input type="hidden" name="report_generator_addattachments" value="">
 
   <table>
    <tr>
@@ -134,12 +135,18 @@
 [%- ELSE %]
   <p>
    <input type="hidden" name="action" value="report_generator_dispatcher">
-   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')" value="[% 'Export as PDF' | $T8 %]">
+   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf','')" value="[% 'Export as PDF' | $T8 %]">
+[%- IF ALLOW_ATTACHMENTS %]
+   <input type="submit" class="submit"
+      onclick="submit_report_generator_form('report_generator_export_as_pdf','yes')"
+      value="[% 'Export as PDF with attachments' | $T8 %]">
+[%- END %]
    <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_back')" value="[% 'Back' | $T8 %]">
   </p>
  <script type="text/javascript"><!--
-      function submit_report_generator_form(nextsub) {
+      function submit_report_generator_form(nextsub,att) {
         document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.report_generator_addattachments.value = att;
         document.report_generator_form.submit();
       } // -->
  </script>

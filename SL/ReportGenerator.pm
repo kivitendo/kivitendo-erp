@@ -7,6 +7,8 @@ use Text::CSV_XS;
 #use PDF::Table;
 
 use strict;
+use SL::Helper::GlAttachments qw(append_gl_pdf_attachments);
+use SL::Helper::CreatePDF     qw(merge_pdfs);
 
 # Cause locales.pl to parse these files:
 # parse_html_template('report_generator/html_report')
@@ -655,6 +657,11 @@ sub generate_pdf_content {
   }
 
   my $content = $pdf->stringify();
+
+  $main::lxdebug->message(LXDebug->DEBUG2(),"addattachments ?? =".$form->{report_generator_addattachments}." GL=".$form->{GL});
+  if ( $form->{report_generator_addattachments} eq 'yes' && $form->{GL}) {
+    $content = $self->append_gl_pdf_attachments($form,$content);
+  }
 
   my $printer_command;
   if ($pdfopts->{print} && $pdfopts->{printer_id}) {

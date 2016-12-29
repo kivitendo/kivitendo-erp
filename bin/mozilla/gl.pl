@@ -48,6 +48,7 @@ use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
+use SL::Helper::GlAttachments qw(count_gl_attachments);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -411,7 +412,7 @@ sub generate_report {
 
   my @columns = qw(
     gldate         transdate        id             reference      description
-    notes          source           debit          debit_accno
+    notes          source   doccnt  debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
     credit_tax     credit_tax_accno projectnumbers balance employee
   );
@@ -451,6 +452,7 @@ sub generate_report {
   $form->{l_datesort} = 'Y';
   $form->{l_debit_tax_accno}  = 'Y';
   $form->{l_balance}          = $form->{accno} ? 'Y' : '';
+  $form->{l_doccnt}           = $form->{l_source} ? 'Y' : '';
 
   my %column_defs = (
     'id'               => { 'text' => $locale->text('ID'), },
@@ -458,6 +460,7 @@ sub generate_report {
     'gldate'           => { 'text' => $locale->text('Booking Date'), },
     'reference'        => { 'text' => $locale->text('Reference'), },
     'source'           => { 'text' => $locale->text('Source'), },
+    'doccnt'           => { 'text' => $locale->text('Document Count'), },
     'description'      => { 'text' => $locale->text('Description'), },
     'notes'            => { 'text' => $locale->text('Notes'), },
     'debit'            => { 'text' => $locale->text('Debit'), },
@@ -493,7 +496,8 @@ sub generate_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('generate_report', @hidden_variables, qw(sort sortdir));
+  $form->{l_attachments} = 'Y';
+  $report->set_export_options('generate_report', @hidden_variables, qw(sort sortdir l_attachments));
 
   $report->set_sort_indicator($form->{sort} eq 'accno' ? 'debit_accno' : $form->{sort}, $form->{sortdir});
 
@@ -541,6 +545,10 @@ sub generate_report {
 
     my $row = { };
     map { $row->{$_} = { 'data' => '', 'align' => $column_alignment{$_} } } @columns;
+
+    if ( $form->{l_doccnt} ) {
+      $row->{doccnt}->{data} = SL::Helper::GlAttachments->count_gl_pdf_attachments($ref->{id},$ref->{type});
+    }
 
     my $sh = "";
     if ($form->{balance} < 0) {
