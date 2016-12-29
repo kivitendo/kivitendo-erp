@@ -3,23 +3,24 @@ package SL::LxOfficeConf;
 use strict;
 
 use Encode;
-use SL::System::Process;
 
 my $environment_initialized;
 
 sub safe_require {
-  my ($class, $may_fail);
+  my ($class, $may_fail) = @_;
 
-  my $failed = !eval { require Config::Std; };
-
-  if ($failed) {
+  eval {
+    require Config::Std;
+    require SL::System::Process;
+    1;
+  } or do {
     if ($may_fail) {
       warn $@;
       return 0;
     } else {
       die $@;
     }
-  }
+  };
 
   Config::Std->import;
 
