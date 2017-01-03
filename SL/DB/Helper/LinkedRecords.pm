@@ -89,6 +89,7 @@ sub _linked_records_implementation {
       $manager_class->get_all(
         query         => [ id => $link->$sub_wanted_id, @get_objects_query ],
         (with_objects => $params{with_objects}) x !!$params{with_objects},
+        inject_results => 1,
       )
     };
   };
