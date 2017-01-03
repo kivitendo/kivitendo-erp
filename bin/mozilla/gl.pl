@@ -338,6 +338,8 @@ sub search {
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
+  setup_gl_search_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('gl/search', {
     employee_label => sub { "$_[0]{id}--$_[0]{name}" },
@@ -630,7 +632,9 @@ sub generate_report {
 
   $report->set_options('raw_bottom_info_text' => $raw_bottom_info_text);
 
-  $report->generate_with_headers();
+  setup_gl_transactions_action_bar(num_rows => scalar(@{$form->{GL}}));
+
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }
@@ -949,6 +953,120 @@ sub _get_radieren {
   return ($::instance_conf->get_gl_changeable == 2) ? ($::form->current_date(\%::myconfig) eq $::form->{gldate}) : ($::instance_conf->get_gl_changeable == 1);
 }
 
+sub setup_gl_action_bar {
+  my %params = @_;
+  my $form   = $::form;
+  my $change_never            = $::instance_conf->get_gl_changeable == 0;
+  my $change_on_same_day_only = $::instance_conf->get_gl_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => 'update' } ],
+        id        => 'update_button',
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Post'),
+        submit   => [ '#form', { action => 'post' } ],
+        disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
+                  : $form->{storno}                           ? t8('A canceled general ledger transaction cannot be posted.')
+                  : ($form->{id} && $change_never)            ? t8('Changing general ledger transaction has been disabled in the configuration.')
+                  : ($form->{id} && $change_on_same_day_only) ? t8('General ledger transactions can only be changed on the day they are posted.')
+                  :                                             undef,
+        ],
+      combobox => [
+        action => [ t8('Storno'),
+          submit   => [ '#form', { action => 'storno' } ],
+          confirm  => t8('Do you really want to cancel this general ledger transaction?'),
+          disabled => !$form->{id} ? t8('This general ledger transaction has not been posted yet.') : undef,
+        ],
+        action => [ t8('Delete'),
+          submit   => [ '#form', { action => 'delete' } ],
+          confirm  => t8('Do you really want to delete this object?'),
+          disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
+                    : $form->{locked}          ? t8('The billing period has already been locked.')
+                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    :                            undef,
+        ],
+      ], # end of combobox "Storno"
+
+      combobox => [
+        action => [ t8('more') ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'follow_up_window' ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Record templates'),
+          call => [ 'kivi.RecordTemplate.popup', 'gl_transaction' ],
+        ],
+        action => [
+          t8('Drafts'),
+          call     => [ 'kivi.Draft.popup', 'gl', 'unknown', $form->{draft_id}, $form->{draft_description} ],
+          disabled => $form->{id}     ? t8('This invoice has already been posted.')
+                    : $form->{locked} ? t8('The billing period has already been locked.')
+                    :                   undef,
+        ],
+      ], # end of combobox "more"
+    );
+  }
+}
+
+sub setup_gl_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#form', { action => 'continue', nextsub => 'generate_report' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_gl_transactions_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [ $::locale->text('Create new') ],
+        action => [
+          $::locale->text('GL Transaction'),
+          submit => [ '#create_new_form', { action => 'gl_transaction' } ],
+        ],
+        action => [
+          $::locale->text('AR Transaction'),
+          submit => [ '#create_new_form', { action => 'ar_transaction' } ],
+        ],
+        action => [
+          $::locale->text('AP Transaction'),
+          submit => [ '#create_new_form', { action => 'ap_transaction' } ],
+        ],
+        action => [
+          $::locale->text('Sales Invoice'),
+          submit => [ '#create_new_form', { action => 'sales_invoice'  } ],
+        ],
+        action => [
+          $::locale->text('Vendor Invoice'),
+          submit => [ '#create_new_form', { action => 'vendor_invoice' } ],
+        ],
+      ], # end of combobox "Create new"
+    );
+  }
+}
+
 sub form_header {
   $::lxdebug->enter_sub;
   $::auth->assert('gl_transactions');
@@ -986,6 +1104,8 @@ sub form_header {
   $::form->{previous_id}     ||= "--";
   $::form->{previous_gldate} ||= "--";
 
+  setup_gl_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('gl/form_header', {
     hide_title => $title,
@@ -1017,42 +1137,6 @@ sub form_footer {
 }
 
 sub delete {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->header;
-
-  print qq|
-<form method=post action=gl.pl>
-|;
-
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description);
-
-  delete $form->{header};
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
-  }
-
-  print qq|
-<h2 class=confirm>| . $locale->text('Confirm!') . qq|</h2>
-
-<h4>|
-    . $locale->text('Are you sure you want to delete Transaction')
-    . qq| $form->{reference}</h4>
-
-<input name=action class=submit type=submit value="|
-    . $locale->text('Yes') . qq|">
-</form>
-|;
-  $main::lxdebug->leave_sub();
-
-}
-
-sub yes {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;

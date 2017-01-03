@@ -4,7 +4,7 @@
 [%- USE L %]
 <h1>[% 'Journal' | $T8 %]</h1>
 
-<form method=post action=gl.pl>
+<form method=post id="form" action=gl.pl>
 
 <input type=hidden name=sort value=datesort>
 
@@ -109,13 +109,5 @@
       </table>
     </td>
   </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
 </table>
-
-<input type=hidden name=nextsub value=generate_report>
-
-<br>
-<input class=submit type=submit name=action value="[% 'Continue' | $T8 %]">
 </form>

@@ -1,11 +1,4 @@
-[% USE T8 %][% USE HTML %]<form method="post" action="dispatcher.pl?M=gl">
-
+[% USE HTML %]
+<form method="post" id="create_new_form" action="gl.pl">
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
-
- <input class="submit" type="submit" name="A_gl_transaction" value="[%- 'GL Transaction' | $T8 %]">
- <input class="submit" type="submit" name="A_ar_transaction" value="[%- 'AR Transaction' | $T8 %]">
- <input class="submit" type="submit" name="A_ap_transaction" value="[%- 'AP Transaction' | $T8 %]">
- <input class="submit" type="submit" name="A_sales_invoice" value="[%- 'Sales Invoice' | $T8 %]">
- <input class="submit" type="submit" name="A_vendor_invoice" value="[%- 'Vendor Invoice' | $T8 %]">
-
 </form>

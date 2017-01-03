@@ -24,33 +24,7 @@
 [%- IF id && follow_ups.size %]
   <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size , follow_ups_due) %]</p>
 [%- END %]
-
-<br>
-
-[%- IF id %]
-  [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
-
-  [% IF !locked && radieren %]
-    [% L.submit_tag('action', LxERP.t8('Post'), accesskey='b') %]
-    [% L.submit_tag('action', LxERP.t8('Delete')) %]
-  [%- END %]
-
-  [%- IF !storno %]
-    [% L.submit_tag('action', LxERP.t8('Storno')) %]
-  [%- END %]
-
-  [% L.submit_tag('action', LxERP.t8('Follow-Up'), onclick='follow_up_window()') %]
-[%- ELSE %]
-
-      [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
-      [% L.submit_tag('action', LxERP.t8('Post')) %]
-      [% L.button_tag('kivi.Draft.popup("gl", "unknown", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
-      [% L.hidden_tag('draft_id', draft_id) %]
-      [% L.hidden_tag('draft_description', draft_description) %]
-[%- END %]
-
-   [% L.button_tag("kivi.RecordTemplate.popup('gl_transaction')", LxERP.t8("Record templates")) %]
-  </form>
+</form>
 
 <script type="text/javascript">
  <!--
