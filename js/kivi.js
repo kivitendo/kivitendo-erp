@@ -312,6 +312,7 @@ namespace("kivi", function(ns) {
 
     params            = params        || { };
     var id            = params.id     || 'jqueryui_popup_dialog';
+    var custom_close  = params.dialog ? params.dialog.close : undefined;
     var dialog_params = $.extend(
       { // kivitendo default parameters:
           width:  800
@@ -321,7 +322,15 @@ namespace("kivi", function(ns) {
         // User supplied options:
       params.dialog || { },
       { // Options that must not be changed:
-        close: function(event, ui) { if (params.url || params.html) dialog.remove(); else dialog.dialog('close'); }
+        close: function(event, ui) {
+          if (custom_close)
+            custom_close();
+
+          if (params.url || params.html)
+            dialog.remove();
+          else
+            dialog.dialog('close');
+        }
       });
 
     if (!params.url && !params.html) {
