@@ -457,20 +457,23 @@ sub action_reorder_items {
 sub action_warehouse_changed {
   my ($self) = @_;
 
-  $self->warehouse(SL::DB::Manager::Warehouse->find_by_or_create(id => $::form->{warehouse_id}));
-  die unless ref($self->warehouse) eq 'SL::DB::Warehouse';
+  if ($::form->{warehouse_id} ) {
+    $self->warehouse(SL::DB::Manager::Warehouse->find_by_or_create(id => $::form->{warehouse_id}));
+    die unless ref($self->warehouse) eq 'SL::DB::Warehouse';
 
-  if ( $self->warehouse->id and @{$self->warehouse->bins} ) {
-    $self->bin($self->warehouse->bins->[0]);
-    $self->js
-      ->html('#bin', $self->build_bin_select)
-      ->focus('#part_bin_id');
-  } else {
-    # no warehouse was selected, empty the bin field and reset the id
-    $self->js
-        ->val('#part_bin_id', undef)
-        ->html('#bin', '');
-  };
+    if ( $self->warehouse->id and @{$self->warehouse->bins} ) {
+      $self->bin($self->warehouse->bins->[0]);
+      $self->js
+        ->html('#bin', $self->build_bin_select)
+        ->focus('#part_bin_id');
+      return $self->js->render;
+    }
+  }
+
+  # no warehouse was selected, empty the bin field and reset the id
+  $self->js
+       ->val('#part_bin_id', undef)
+       ->html('#bin', '');
 
   return $self->js->render;
 }
