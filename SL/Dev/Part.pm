@@ -40,7 +40,8 @@ sub create_assembly {
   my (%params) = @_;
 
   my @parts;
-  my $part1 = SL::Dev::Part::create_part(partnumber   => 'ap1',
+  my $partnumber = delete $params{part1number} || 'ap1';
+  my $part1 = SL::Dev::Part::create_part(partnumber   => $partnumber,
                                          description  => 'Testpart',
                                         )->save;
   push(@parts, $part1);
@@ -49,14 +50,15 @@ sub create_assembly {
 
   for my $i ( 2 .. $number_of_parts ) {
     my $part = $parts[0]->clone_and_reset;
-    $part->partnumber(  ($part->partnumber  // '') . " " . $i );
+    $part->partnumber(  $partnumber . " " . $i );
     $part->description( ($part->description // '') . " " . $i );
     $part->save;
     push(@parts, $part);
   }
 
+  my $assnumber = delete $params{assnumber} || 'as1';
   my $assembly = SL::DB::Part->new_assembly(
-    partnumber         => 'as1',
+    partnumber         => $assnumber,
     description        => 'Test Assembly',
     sellprice          => '10',
     lastcost           => '5',

@@ -73,7 +73,8 @@ function add_multi_items() {
   // var data = data.concat($('#multi_items_form').serializeArray());
   var data = $('#multi_items_form').serializeArray();
   data.push({ name: 'action', value: '[%- FORM.callback %]' });
-  data.push({ name: 'part_type', value: '[%- part_type %]' });
+  data.push({ name: 'part_type', value: '[%- FORM.part.part_type %]' });
+  data.push({ name: 'part.id'  , value: '[%- FORM.part.id %]' });
   $.post("controller.pl", data, kivi.eval_json_result);
 }
 

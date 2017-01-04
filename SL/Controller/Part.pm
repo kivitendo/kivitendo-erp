@@ -13,6 +13,7 @@ use SL::Helper::Flash;
 use Data::Dumper;
 use DateTime;
 use SL::DB::History;
+use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
 use SL::CVar;
 use Carp;
 
@@ -250,7 +251,7 @@ sub action_update_item_totals {
     ->html('#items_sum_diff',            $::form->format_amount(\%::myconfig, $sum_diff,      2, 0))
     ->html('#items_sellprice_sum_basic', $::form->format_amount(\%::myconfig, $sellprice_sum, 2, 0))
     ->html('#items_lastcost_sum_basic',  $::form->format_amount(\%::myconfig, $lastcost_sum,  2, 0))
-    ->render();
+    ->no_flash_clear->render();
 }
 
 sub action_add_multi_assortment_items {
@@ -270,7 +271,14 @@ sub action_add_multi_assembly_items {
   my ($self) = @_;
 
   my $item_objects = $self->parse_add_items_to_objects(part_type => 'assembly');
-  my $html         = $self->render_assembly_items_to_html($item_objects);
+  my @checked_objects;
+  foreach my $item (@{$item_objects}) {
+    my $errstr = validate_assembly($item->part,$self->part);
+    $self->js->flash('error',$errstr) if     $errstr;
+    push (@checked_objects,$item)     unless $errstr;
+  }
+
+  my $html = $self->render_assembly_items_to_html(\@checked_objects);
 
   $self->js->run('kivi.Part.close_multi_items_dialog')
            ->append('#assembly_rows', $html)
@@ -313,6 +321,7 @@ sub action_add_assortment_item {
     ->html('#items_lastcost_sum_basic',  $::form->format_amount(\%::myconfig, $items_lastcost_sum,  2, 0))
     ->render;
 }
+
 sub action_add_assembly_item {
   my ($self) = @_;
 
@@ -321,6 +330,7 @@ sub action_add_assembly_item {
   carp('Too many objects passed to add_assembly_item') if @{$::form->{add_items}} > 1;
 
   my $add_item_id = $::form->{add_items}->[0]->{parts_id};
+
   my $duplicate_warning = 0; # duplicates are allowed, just warn
   if ( $add_item_id && grep { $add_item_id == $_->parts_id } @{ $self->assembly_items } ) {
     $duplicate_warning++;
@@ -328,6 +338,14 @@ sub action_add_assembly_item {
 
   my $number_of_items = scalar @{$self->assembly_items};
   my $item_objects    = $self->parse_add_items_to_objects(part_type => 'assembly');
+  if ($add_item_id ) {
+    foreach my $item (@{$item_objects}) {
+      my $errstr = validate_assembly($item->part,$self->part);
+      return $self->js->flash('error',$errstr)->render if $errstr;
+    }
+  }
+
+
   my $html            = $self->render_assembly_items_to_html($item_objects, $number_of_items);
 
   $self->js->flash('info', t8("This part has already been added.")) if $duplicate_warning;

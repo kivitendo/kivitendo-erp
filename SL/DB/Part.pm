@@ -176,7 +176,6 @@ sub orphaned {
     SL::DB::OrderItem
     SL::DB::DeliveryOrderItem
     SL::DB::Inventory
-    SL::DB::Assembly
     SL::DB::AssortmentItem
   );
 

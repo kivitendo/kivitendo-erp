@@ -204,7 +204,7 @@ namespace('kivi.Part', function(ns) {
     $("#assembly_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
-  ns.show_multi_items_dialog = function(part_type) {
+  ns.show_multi_items_dialog = function(part_type,part_id) {
 
     $('#row_table_id thead a img').remove();
 
@@ -213,6 +213,7 @@ namespace('kivi.Part', function(ns) {
       data: { callback:         'Part/add_multi_' + part_type + '_items',
               callback_data_id: 'ic',
               'part.part_type': part_type,
+              'part.id'       : part_id,
             },
       id: 'jq_multi_items_dialog',
       dialog: {

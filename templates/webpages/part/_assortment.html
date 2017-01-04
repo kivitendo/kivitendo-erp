@@ -42,7 +42,7 @@
  <td align="right">[% 'Part' | $T8 %]:</td>
  <td>[% L.part_picker('add_items[+].parts_id'   , ''  , style='width: 300px' , class="add_assortment_item_input") %][% L.hidden_tag('add_items[].qty_as_number', 1) %]</td>
  <td>[%- L.button_tag("kivi.Part.add_assortment_item()", LxERP.t8("Add")) %]</td>
- <td>[% L.button_tag('kivi.Part.show_multi_items_dialog("assortment")', LxERP.t8('Add multiple items')) %]</td>
+ <td>[% L.button_tag('kivi.Part.show_multi_items_dialog("assortment",' _ SELF.part.id _ ')', LxERP.t8('Add multiple items')) %]</td>
  <td></td>
  [% ELSE %]
  <td></td>
