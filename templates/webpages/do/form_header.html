@@ -2,6 +2,26 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %][%- USE P -%]
+
+[%# Determine which shipping address to show if the delivery order has been shipped already. %]
+[%- IF delivered;
+      SET shipto_label = [];
+      IF shipto_id;
+        FOREACH row = ALL_SHIPTO ;
+          IF row.shipto_id == shipto_id ;
+            SET shipto_label = [ row.shiptoname, row.shiptodepartment_1, row.shiptostreet, row.shiptocity ] ;
+          END ;
+        END ;
+      ELSE ;
+        SET shipto_label = [ shiptoname, shiptodepartment_1, shiptostreet, shiptocity ] ;
+      END ;
+
+      SET shipto_label = shipto_label.grep('.') ;
+      IF !shipto_label.size ;
+        shipto_label = [ LxERP.t8('no shipping address') ] ;
+      END ;
+    END ; %]
+
 <h1>[% title %]</h1>
 
  <script type="text/javascript" src="js/show_form_details.js"></script>
@@ -84,6 +104,8 @@
   <input type="hidden" name="proforma" value="[% HTML.escape(proforma) %]">
   <input type="hidden" name="queued" value="[% HTML.escape(queued) %]">
   <input type="hidden" name="saved_donumber" value="[% HTML.escape(saved_donumber) %]">
+ [%- IF delivered %]
+  <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
   <input type="hidden" name="shiptocity" value="[% HTML.escape(shiptocity) %]">
   <input type="hidden" name="shiptocontact" value="[% HTML.escape(shiptocontact) %]">
   <input type="hidden" name="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
@@ -98,6 +120,7 @@
   <input type="hidden" name="shiptostreet" value="[% HTML.escape(shiptostreet) %]">
   <input type="hidden" name="shiptozipcode" value="[% HTML.escape(shiptozipcode) %]">
   <input type="hidden" name="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
+ [%- END %]
   <input type="hidden" name="show_details" value="[% HTML.escape(show_details) %]">
   <input type="hidden" name="subject" value="[% HTML.escape(subject) %]">
   <input type="hidden" name="taxincluded" value="[% HTML.escape(taxincluded) %]">
@@ -144,29 +167,20 @@
         </tr>
         [%- END %]
 
-        [%- IF ALL_SHIPTO.size %]
         <tr>
          <th align="right">[% 'Shipping Address' | $T8 %]</th>
          <td>
           [%- IF delivered %]
-          <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
-          [%- FOREACH row = ALL_SHIPTO %]
-          [%- IF shipto_id == row.shipto_id %]
-          [%- HTML.escape(row.shiptoname) -%]
-          [%- IF row.shiptodepartment_1 %]; [% HTML.escape(row.shiptodepartment_1) -%][% END -%]
-          [%- IF row.shiptostreet %]; [% HTML.escape(row.shiptostreet) -%][% END -%]
-          [%- IF row.shiptocity %]; [% HTML.escape(row.shiptocity) -%][% END -%]
-          [%- END %]
-          [%- END %]
-
+           [% HTML.escape(shipto_label.join('; ')) %]
           [%- ELSE %]
+           [%- IF ALL_SHIPTO.size %]
             [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
                L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
-            [% L.submit_tag('action_ship_to', LxERP.t8('Ship to')) %]
+           [%- END %]
+           [% L.button_tag("kivi.SalesPurchase.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
           [%- END %]
          </td>
         </tr>
-        [%- END %]
 
         [%- IF business %]
         <tr>

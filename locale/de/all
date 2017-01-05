@@ -3741,6 +3741,7 @@ $self->{texts} = {
   'no bestbefore'               => 'keine Mindesthaltbarkeit',
   'no chargenumber'             => 'keine Chargennummer',
   'no execution for this client' => 'keine Ausführung für diesen Mandanten',
+  'no shipping address'         => 'keine Lieferadresse',
   'no skonto_chart configured for taxkey #1 : #2 : #3' => 'Kein Skontokonto für Steuerschlüssel #1 : #2 : #3',
   'no tax_id in acc_trans'      => 'Keine tax_id in acc_trans',
   'not configured'              => 'nicht konfiguriert',
