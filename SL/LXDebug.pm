@@ -11,7 +11,8 @@ use constant REQUEST_TIMER      =>  1 << 6;
 use constant REQUEST            =>  1 << 7;
 use constant WARN               =>  1 << 8;
 use constant TRACE2             =>  1 << 9;
-use constant ALL                => (1 << 10) - 1;
+use constant SHOW_CALLER        =>  1 << 10;
+use constant ALL                => (1 << 11) - 1;
 use constant DEVEL              => INFO | DEBUG1 | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER;
 
 use constant FILE_TARGET   => 0;
@@ -144,7 +145,10 @@ sub message {
   no warnings;
   my ($self, $level, $message) = @_;
 
-  $self->_write(level2string($level), $message) if (($self->{"level"} | $global_level) & $level || !$level);
+  my $show_caller = ($level | $global_level) & SHOW_CALLER();
+  $level         &= ~SHOW_CALLER();
+
+  $self->_write(level2string($level), $message, show_caller => $show_caller) if (($self->{"level"} | $global_level) & $level || !$level);
 }
 sub warn {
   no warnings;
@@ -260,7 +264,17 @@ sub is_tracing_enabled {
 
 sub _write {
   no warnings;
-  my ($self, $prefix, $message) = @_;
+  my ($self, $prefix, $message, %options) = @_;
+
+  my @prefixes = ($prefix);
+
+  if ($options{show_caller}) {
+    my ($package, $filename, $line, $subroutine) = caller(1);
+    push @prefixes, "${filename}:${line}";
+  }
+
+  $prefix = join ' ', grep { $_ } @prefixes;
+
   my @now  = gettimeofday();
   my $date = strftime("%Y-%m-%d %H:%M:%S." . sprintf('%03d', int($now[1] / 1000)) . " $$ [" . getpid() . "] ${prefix}: ", localtime($now[0]));
   local *FILE;

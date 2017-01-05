@@ -294,6 +294,8 @@ dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
 #   REQUEST            - Log each request. Careful! Passwords get filtered, but
 #                        there may be confidential information being logged here
 #   WARN               - warnings
+#   SHOW_CALLER        - include the file name & line number from where a call
+#                        to "message" or "dump" was called
 #   ALL                - all possible debug messages
 #
 #   DEVEL              - sames as "INFO QUERY TRACE BACKTRACE_ON_ERROR REQUEST_TIMER"
