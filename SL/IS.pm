@@ -1969,8 +1969,7 @@ sub _retrieve_invoice {
     # get shipto
     $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|;
     $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
-    delete($ref->{id});
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    $form->{$_} = $ref->{$_} for grep { m{^shipto(?!_id$)} } keys %$ref;
 
     # get printed, emailed
     $query = qq|SELECT printed, emailed, spoolfile, formname FROM status WHERE trans_id = ?|;

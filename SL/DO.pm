@@ -746,15 +746,14 @@ sub retrieve {
     $sth   = prepare_execute_query($form, $dbh, $query, $form->{id});
 
     $ref   = $sth->fetchrow_hashref("NAME_lc");
-    delete $ref->{id};
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    $form->{$_} = $ref->{$_} for grep { m{^shipto(?!_id$)} } keys %$ref;
     $sth->finish();
 
-    if ($form->{shipto_id}) {
+    if ($ref->{shipto_id}) {
       my $cvars = CVar->get_custom_variables(
         dbh      => $dbh,
         module   => 'ShipTo',
-        trans_id => $form->{shipto_id},
+        trans_id => $ref->{shipto_id},
       );
       $form->{"shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
     }
