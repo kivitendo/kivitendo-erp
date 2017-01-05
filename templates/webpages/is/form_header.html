@@ -68,16 +68,16 @@
           </td>
         </tr>
 [%- END %]
-[%- IF ALL_SHIPTO.size %]
         <tr>
           <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
+           [%- IF ALL_SHIPTO.size %]
             [% shiptos = [ [ "", LxERP.t8("No/individual shipping address") ] ] ;
                L.select_tag('shipto_id', shiptos.import(ALL_SHIPTO), default=shipto_id, value_key='shipto_id', title_key='displayable_id', style='width: 250px') %]
-            <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
+           [%- END %]
+           [% L.button_tag("kivi.SalesPurchase.edit_custom_shipto()", LxERP.t8("Custom shipto")) %]
           </td>
         </tr>
-[%- END %]
         <tr>
           <td align="right">[% 'Credit Limit' | $T8 %]</td>
           <td>

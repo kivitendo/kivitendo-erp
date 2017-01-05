@@ -461,15 +461,12 @@ sub form_header {
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
-  push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
-
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
     id type media format queued printed emailed title vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount dunning_description
-    shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
-    shiptoemail shiptodepartment_1 shiptodepartment_2  shiptocp_gender message email subject cc bcc taxaccounts cursor_fokus
+    message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids convert_from_ar_ids useasnew
     invoice_id
     show_details
@@ -611,6 +608,7 @@ sub form_footer {
                              ? ($form->current_date(\%myconfig) eq $form->{gldate})
                              : ($::instance_conf->get_is_changeable == 1),
     today               => DateTime->today,
+    vc_obj              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
   });
 ##print $form->parse_html_template('is/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser

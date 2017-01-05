@@ -155,7 +155,13 @@
 [% P.hidden_tag('draft_description', draft_description) %]
 <input type="hidden" name="customer_discount" value="[% customer_discount %]">
 <input type="hidden" name="gldate" value="[% gldate %]">
+
+<div id="shipto_inputs" class="hidden">
+ [%- PROCESS 'common/_ship_to_dialog.html' %]
+</div>
 </form>
 <script type='text/javascript'>
  $(kivi.SalesPurchase.init_on_submit_checks);
 </script>
+
+<div id="shipto_dialog" class="hidden"></div>
