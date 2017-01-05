@@ -134,4 +134,78 @@ namespace('kivi.SalesPurchase', function(ns) {
       $.post('is.pl', data, kivi.eval_json_result);
     });
   };
+
+  // Functions dialog with entering shipping addresses.
+  this.shipto_addresses = [];
+
+  this.copy_shipto_address = function () {
+    var shipto = this.shipto_addresses[ $('#shipto_to_copy').val() ];
+    for (var key in shipto)
+      $('#' + key).val(shipto[key]);
+  };
+
+  this.clear_shipto_fields = function() {
+    var shipto = this.shipto_addresses[0];
+    for (var key in shipto)
+      $('#' + key).val('');
+    $('#shiptocp_gender').val('m');
+  };
+
+  this.clear_shipto_id_before_submit = function() {
+    var shipto = this.shipto_addresses[0];
+    for (var key in shipto)
+      if ((key != 'shiptocp_gender') && ($('#' + key).val() !== '')) {
+        $('#shipto_id').val('');
+        break;
+      }
+  };
+
+  this.setup_shipto_dialog = function() {
+    var $dlg = $('#shipto_dialog');
+
+    $('#shipto_dialog [name^="shipto"]').each(function(idx, elt) {
+      $dlg.data("original-" + $(elt).prop("name"), $(elt).val());
+    });
+
+    $dlg.data('confirmed', false);
+
+    $('#shiptoname').focus();
+  };
+
+  this.submit_custom_shipto = function() {
+    $('#shipto_id').val('');
+    $('#shipto_dialog').data('confirmed', true);
+    $('#shipto_dialog').dialog('close');
+  };
+
+  this.reset_shipto_fields = function() {
+    var $dlg = $('#shipto_dialog');
+
+    $('#shipto_dialog [name^="shipto"]').each(function(idx, elt) {
+      $(elt).val($dlg.data("original-" + $(elt).prop("name")));
+    });
+  };
+
+  this.finish_shipto_dialog = function() {
+    if (!$('#shipto_dialog').data('confirmed'))
+      kivi.SalesPurchase.reset_shipto_fields();
+
+    $('#shipto_dialog').children().remove().appendTo('#shipto_inputs');
+
+    return true;
+  };
+
+  this.edit_custom_shipto = function() {
+    $('#shipto_inputs').children().remove().appendTo('#shipto_dialog');
+
+    kivi.popup_dialog({
+      id:    'shipto_dialog',
+      dialog: {
+        height: 600,
+        title:  kivi.t8('Edit custom shipto'),
+        open:   kivi.SalesPurchase.setup_shipto_dialog,
+        close:  kivi.SalesPurchase.finish_shipto_dialog,
+      }
+    });
+  };
 });

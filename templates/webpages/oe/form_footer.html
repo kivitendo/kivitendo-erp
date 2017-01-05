@@ -143,4 +143,9 @@
   <input type="hidden" name="vendor_discount" value="[% HTML.escape(vendor_discount) %]">
 [% END %]
 
+<div id="shipto_inputs" class="hidden">
+ [%- PROCESS 'common/_ship_to_dialog.html' %]
+</div>
 </form>
+
+<div id="shipto_dialog" class="hidden"></div>

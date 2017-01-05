@@ -51,6 +51,7 @@ use Data::Dumper;
 use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
+use SL::DB::Vendor;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -451,6 +452,8 @@ sub form_header {
   if ($form->{id}) {
     $TMPL_VAR{oe_obj} = SL::DB::Order->new(id => $form->{id})->load;
   }
+  $TMPL_VAR{vc_obj} = SL::DB::Customer->new(id => $form->{customer_id})->load if $form->{customer_id};
+  $TMPL_VAR{vc_obj} = SL::DB::Vendor->new(id => $form->{vendor_id})->load     if $form->{vendor_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -592,9 +595,8 @@ sub form_header {
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
      qw(id action type vc formname media format proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
-        max_dunning_level dunning_amount shiptoname shiptostreet shiptozipcode
-        CFDD_shipto CFDD_shipto_id shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
-        shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
+        max_dunning_level dunning_amount
+        CFDD_shipto CFDD_shipto_id
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
         show_details useasnew),
         @custom_hiddens,

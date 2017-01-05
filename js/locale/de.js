@@ -48,6 +48,7 @@ namespace("kivi").setupLocale({
 "Download picture":"Bild herunterladen",
 "Edit":"Bearbeiten",
 "Edit article/section assignments":"Zuweisung Artikel/Abschnitte bearbeiten",
+"Edit custom shipto":"Individuelle Lieferadresse bearbeiten",
 "Edit picture":"Bild bearbeiten",
 "Edit project link":"Projektverknüpfung bearbeiten",
 "Edit text block":"Textblock bearbeiten",
