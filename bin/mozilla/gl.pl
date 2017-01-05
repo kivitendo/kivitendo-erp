@@ -666,8 +666,8 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ($item->{charttype} eq 'H'){ #falls ÃŒberschrift
-      next;                         #ÃŒberspringen (Bug 1150)
+    if ($item->{charttype} eq 'H'){ # skip headings
+      next;
     }
     my $key = $item->{accno} . "--" . $item->{tax_id};
     $taxchart_init = $item->{tax_id} unless (@chart_values);
