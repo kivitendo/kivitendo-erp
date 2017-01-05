@@ -7,6 +7,8 @@ our @ISA    = qw(Exporter);
 our @EXPORT = qw(linked_records link_to_record);
 
 use Carp;
+use List::MoreUtils qw(any);
+use List::UtilsBy qw(uniq_by);
 use Sort::Naturally;
 use SL::DBUtils;
 
@@ -50,12 +52,30 @@ sub _linked_records_implementation {
     my %from_to    = ( from => delete($params{from}) || $both,
                        to   => delete($params{to})   || $both);
 
-    my @records    = (@{ _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
-                      @{ _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
+    if ($params{batch} && $params{by_id}) {
+      my %results;
+      my @links = (
+        _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}),
+        _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ),
+      );
 
-    my %record_map = map { ( ref($_) . $_->id => $_ ) } @records;
+      for my $by_id (@links) {
+        for (keys %$by_id) {
+          $results{$_} = defined $results{$_}
+                       ? [ uniq_by { $_->id } @{ $results{$_} }, @{ $by_id->{$_} } ]
+                       : $by_id->{$_};
+        }
+      }
 
-    return [ values %record_map ];
+      return \%results;
+    } else {
+      my @records    = (@{ _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
+                        @{ _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
+
+      my %record_map = map { ( ref($_) . $_->id => $_ ) } @records;
+
+      return [ values %record_map ];
+    }
   }
 
   if ($params{via}) {
@@ -68,6 +88,7 @@ sub _linked_records_implementation {
 
   my $sub_wanted_table = "${wanted}_table";
   my $sub_wanted_id    = "${wanted}_id";
+  my $sub_myself_id    = "${myself}_id";
 
   my ($wanted_classes, $wanted_tables);
   if ($params{$wanted}) {
@@ -77,34 +98,78 @@ sub _linked_records_implementation {
 
   my @get_objects_query = ref($params{query}) eq 'ARRAY' ? @{ $params{query} } : ();
   my $get_objects       = sub {
-    my ($link)        = @_;
-    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($link->$sub_wanted_table);
-    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($link->$sub_wanted_table);
-    eval "require " . $object_class . "; 1;";
-    return map {
-      $_->{_record_link_direction} = $wanted;
-      $_->{_record_link}           = $link;
-      $_
-    } @{
-      $manager_class->get_all(
-        query         => [ id => $link->$sub_wanted_id, @get_objects_query ],
+    my ($links)        = @_;
+    return [] unless @$links;
+
+    my %classes;
+    push @{ $classes{ $_->$sub_wanted_table } //= [] }, $_->$sub_wanted_id for @$links;
+
+    my @objs;
+    for (keys %classes) {
+      my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($_);
+      my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($_);
+      eval "require " . $object_class . "; 1;";
+
+      push @objs, @{ $manager_class->get_all(
+        query         => [ id => $classes{$_}, @get_objects_query ],
         (with_objects => $params{with_objects}) x !!$params{with_objects},
         inject_results => 1,
-      )
-    };
+      ) };
+    }
+
+    my %objs_by_id = map { $_->id => $_ } @objs;
+
+    for (@$links) {
+      if ('ARRAY' eq ref $objs_by_id{$_->$sub_wanted_id}->{_record_link}) {
+        push @{ $objs_by_id{$_->$sub_wanted_id}->{_record_link_direction} }, $wanted;
+        push @{ $objs_by_id{$_->$sub_wanted_id}->{_record_link          } }, $_;
+      } elsif ($objs_by_id{$_->$sub_wanted_id}->{_record_link}) {
+        $objs_by_id{$_->$sub_wanted_id}->{_record_link_direction} = [
+          $objs_by_id{$_->$sub_wanted_id}->{_record_link_direction},
+          $wanted,
+        ];
+        $objs_by_id{$_->$sub_wanted_id}->{_record_link}           = [
+          $objs_by_id{$_->$sub_wanted_id}->{_record_link},
+          $_,
+        ];
+      } else {
+        $objs_by_id{$_->$sub_wanted_id}->{_record_link_direction} = $wanted;
+        $objs_by_id{$_->$sub_wanted_id}->{_record_link}           = $_;
+      }
+    }
+
+    return \@objs;
   };
 
   # If no 'via' is given then use a simple(r) method for querying the wanted objects.
   if (!$params{via} && !$params{recursive}) {
     my @query = ( "${myself}_table" => $my_table,
-                  "${myself}_id"    => $self->id );
+                  "${myself}_id"    => $params{batch} ? $params{batch} : $self->id );
     push @query, ( "${wanted}_table" => $wanted_tables ) if $wanted_tables;
 
-    return [ map { $get_objects->($_) } @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) } ];
+    my $links = SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]);
+    my $objs  = $get_objects->($links);
+
+    if ($params{batch} && $params{by_id}) {
+      return {
+        map {
+          my $id = $_;
+          $_ => [
+            grep {
+              $_->{_record_link}->$sub_myself_id == $id
+            } @$objs
+          ]
+        } @{ $params{batch} }
+      }
+    } else {
+      return $objs;
+    }
   }
 
   # More complex handling for the 'via' case.
   if ($params{via}) {
+    die 'batch mode is not supported with via' if $params{batch};
+
     my @sources = ( $self );
     my @targets = map { SL::DB::Helper::Mappings::get_table_for_package($_) } @{ ref($params{via}) ? $params{via} : [ $params{via} ] };
     push @targets, @{ $wanted_tables } if $wanted_tables;
@@ -118,9 +183,10 @@ sub _linked_records_implementation {
                       "${myself}_id"    => $src->id,
                       "${wanted}_table" => \@targets );
         push @new_sources,
-             map  { $get_objects->($_) }
-             grep { !$seen{$_->$sub_wanted_table . $_->$sub_wanted_id} }
-             @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) };
+             @{ $get_objects->([
+               grep { !$seen{$_->$sub_wanted_table . $_->$sub_wanted_id} }
+               @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) }
+             ]) };
       }
 
       @sources = @new_sources;
@@ -134,6 +200,15 @@ sub _linked_records_implementation {
 
   # And lastly recursive mode
   if ($params{recursive}) {
+    my ($id_token, @ids);
+    if ($params{batch}) {
+      $id_token = sprintf 'IN (%s)', join ', ', ('?') x @{ $params{batch} };
+      @ids      = @{ $params{batch} };
+    } else {
+      $id_token = '= ?';
+      @ids      = ($self->id);
+    }
+
     # don't use rose retrieval here. too slow.
     # instead use recursive sql to get all the linked record_links entrys, and retrieve the objects from there
     my $query = <<"";
@@ -141,7 +216,7 @@ sub _linked_records_implementation {
         SELECT id, from_table, from_id, to_table, to_id,
           1, ARRAY[id], false
         FROM record_links
-        WHERE ${myself}_id = ? and ${myself}_table = ?
+        WHERE ${myself}_id $id_token and ${myself}_table = ?
       UNION ALL
         SELECT rl.id, rl.from_table, rl.from_id, rl.to_table, rl.to_id,
           rlr.depth + 1, path || rl.id, rl.id = ANY(path)
@@ -153,25 +228,48 @@ sub _linked_records_implementation {
       WHERE NOT cycle
       ORDER BY ${wanted}_table, ${wanted}_id, depth ASC;
 
-    my $links     = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, $self->id, $self->meta->table);
+    my $links     = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, @ids, $self->meta->table);
 
-    return [] unless @$links;
+    if (!@$links) {
+      return $params{by_id} ? {} : [];
+    }
 
     my $link_objs = SL::DB::Manager::RecordLink->get_all(query => [ id => [ map { $_->{id} } @$links ] ]);
-    my @objects = map { $get_objects->($_) } @$link_objs;
+    my $objects = $get_objects->($link_objs);
+
+    my %links_by_id = map { $_->{id} => $_ } @$links;
 
     if ($params{save_path}) {
-       my %links_by_id = map { $_->{id} => $_ } @$links;
-       for (@objects) {
-         my $link = $links_by_id{$_->{_record_link}->id};
-         my $intermediate_links = SL::DB::Manager::RecordLink->get_all(query => [ id => $link->{path} ]);
-         $_->{_record_link_path}     = $link->{path};
-         $_->{_record_link_obj_path} = [ map { $get_objects->($_) } @$intermediate_links ];
-         $_->{_record_link_depth}    = $link->{depth};
+       for (@$objects) {
+         for my $record_link ('ARRAY' eq ref $_->{_record_link} ? @{ $_->{_record_link} } : $_->{_record_link}) {
+           my $link = $links_by_id{$record_link->id};
+           my $intermediate_links = SL::DB::Manager::RecordLink->get_all(query => [ id => $link->{path} ]);
+           $_->{_record_link_path}     = $link->{path};
+           $_->{_record_link_obj_path} = $get_objects->($intermediate_links);
+           $_->{_record_link_depth}    = $link->{depth};
+         }
        }
     }
 
-    return \@objects;
+    if ($params{batch} && $params{by_id}) {
+      my %link_obj_by_id = map { $_->id => $_ } @$link_objs;
+      return +{
+        map {
+         my $id = $_;
+         $id => [
+           grep {
+             any {
+               $link_obj_by_id{
+                 $links_by_id{$_->id}->{path}->[0]
+                }->$sub_myself_id == $id
+             } 'ARRAY' eq $_->{_record_link} ? @{ $_->{_record_link} } : $_->{_record_link}
+           } @$objects
+         ]
+        } @{ $params{batch} }
+      };
+    } else {
+      return $objects;
+    }
   }
 }
 
@@ -469,6 +567,29 @@ Recursion depth when this object was found. Equal to the number of ids in
 C<_record_link_path>
 
 =back
+
+Since record_links is comparatively expensive to call, you will want to cache
+the results for multiple objects if you know in advance you'll need them.
+
+You can pass the optional argument C<batch> with an array ref of ids which will
+be used instead of the id of the invocant. You still need to call it as a
+method on a valid object, because table information is inferred from there.
+
+C<batch> mode will currenty not work with C<via>.
+
+The optional flag C<by_id> will return the objects sorted into a hash instead
+of a plain array. Calling C<<recursive => 1, batch => [1,2], by_id => 1>> on
+ order 1:
+
+  order 1 --> delivery order 1 --> invoice 1
+  order 2 --> delivery order 2 --> invoice 2
+
+will give you:
+
+  { 1 => [ delivery order 1, invoice 1 ],
+    2 => [ delivery order 2, invoice 1 ], }
+
+you may then cache these as you see fit.
 
 
 The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>

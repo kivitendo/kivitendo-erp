@@ -1,4 +1,4 @@
-use Test::More tests => 49;
+use Test::More tests => 66;
 
 use strict;
 
@@ -9,6 +9,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
+use Test::Deep qw(cmp_bag);
 use List::Util qw(max);
 
 use SL::DB::Buchungsgruppe;
@@ -318,6 +319,48 @@ is @$links, 3, 'recursive from i finds 3 (not i)';
 $links = $o1->linked_records(direction => 'both', recursive => 1, save_path => 1);
 is @$links, 4, 'recursive dir=both does not give duplicates';
 
-clear_up();
+
+# test batch mode
+#
+#
+#
+
+reset_state();
+
+$o1 = new_order();
+$o2 = new_order();
+my $i1 = new_invoice();
+my $i2 = new_invoice();
+
+$o1->link_to_record($i1);
+$o2->link_to_record($i2);
+
+$links = $o1->linked_records(direction => 'to', to => 'Invoice', batch => [ $o1->id, $o2->id ]);
+is_deeply [ map { $_->id } @$links ], [ $i1->id , $i2->id ], "batch works";
+
+$links = $o1->linked_records(direction => 'to', recursive => 1, batch => [ $o1->id, $o2->id ]);
+cmp_bag [ map { $_->id } @$links ], [ $i1->id , $i2->id ], "batch works recursive";
+
+$links = $o1->linked_records(direction => 'to', to => 'Invoice', batch => [ $o1->id, $o2->id ], by_id => 1);
+# $::lxdebug->dump(0,  "links", $links);
+is @{ $links->{$o1->id} }, 1, "batch by_id 1";
+is @{ $links->{$o2->id} }, 1, "batch by_id 2";
+is keys %$links, 2, "batch by_id 3";
+is $links->{$o1->id}[0]->id, $i1->id, "batch by_id 4";
+is $links->{$o2->id}[0]->id, $i2->id, "batch by_id 5";
+
+$links = $o1->linked_records(direction => 'to', recursive => 1, batch => [ $o1->id, $o2->id ], by_id => 1);
+is @{ $links->{$o1->id} }, 1, "batch recursive by_id 1";
+is @{ $links->{$o2->id} }, 1, "batch recursive by_id 2";
+is keys %$links, 2, "batch recursive by_id 3";
+is $links->{$o1->id}[0]->id, $i1->id, "batch recursive by_id 4";
+is $links->{$o2->id}[0]->id, $i2->id, "batch recursive by_id 5";
+
+$links = $o1->linked_records(direction => 'both', recursive => 1, batch => [ $o1->id, $o2->id ], by_id => 1);
+is @{ $links->{$o1->id} }, 1, "batch recursive by_id direction both 1";
+is @{ $links->{$o2->id} }, 1, "batch recursive by_id direction both 2";
+is keys %$links, 2, "batch recursive by_id direction both 3";
+is $links->{$o1->id}[0]->id, $i1->id, "batch recursive by_id direction both 4";
+is $links->{$o2->id}[0]->id, $i2->id, "batch recursive by_id direction both 5";
 
 1;
