@@ -1702,45 +1702,6 @@ sub post_as_new {
   $main::lxdebug->leave_sub();
 }
 
-sub ship_to {
-  $main::lxdebug->enter_sub();
-
-  _check_io_auth();
-
-  $::form->{print_and_post} = 0 if $::form->{second_run};
-
-  map { $::form->{$_} = $::form->parse_amount(\%::myconfig, $::form->{$_}) } qw(exchangerate creditlimit creditremaining);
-
-  # get details for customer/vendor
-  call_sub($::form->{vc} . "_details", qw(name department_1 department_2 street zipcode city country gln contact email phone fax), $::form->{vc} . "number");
-  $::form->{rowcount}--;
-
-  my $cvars         = SL::DB::Shipto->new->cvars_by_config;
-  my @shipto_vars   = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln
-                         shiptocontact shiptocp_gender shiptophone shiptofax shiptoemail
-                         shiptodepartment_1 shiptodepartment_2);
-  my $previous_form = $::auth->save_form_in_session(skip_keys => [ @shipto_vars, qw(header shipto_id), map { "shiptocvar_" . $_->config->name } @{ $cvars } ]);
-  $::form->{title}  = $::locale->text('Ship to');
-  $::form->header;
-
-  my $vc_obj = ($::form->{vc} eq 'customer' ? "SL::DB::Customer" : "SL::DB::Vendor")->new(id => $::form->{$::form->{vc} . "_id"})->load;
-
-  $_->value($::form->{"shiptocvar_" . $_->config->name}) for @{ $cvars };
-
-  print $::form->parse_html_template('io/ship_to', { previousform => $previous_form,
-                                                     nextsub      => $::form->{display_form} || 'display_form',
-                                                     vc_obj       => $vc_obj,
-                                                     cvars        => $cvars,
-                                                   });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub ship_to_entered {
-  $::auth->restore_form_from_session(delete $::form->{previousform});
-  call_sub($::form->{nextsub});
-}
-
 sub relink_accounts {
   $main::lxdebug->enter_sub();
 

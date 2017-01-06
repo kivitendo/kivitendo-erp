@@ -2615,7 +2615,6 @@ $self->{texts} = {
   'Set to paid missing'         => 'Fehlbetrag setzen',
   'Settings'                    => 'Einstellungen',
   'Setup Menu'                  => 'Menü-Variante',
-  'Ship to'                     => 'Lieferadresse',
   'Ship to (database ID)'       => 'Lieferadresse (Datenbank-ID)',
   'Ship via'                    => 'Transportmittel',
   'Shipping Address'            => 'Lieferadresse',
