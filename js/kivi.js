@@ -1,4 +1,6 @@
 namespace("kivi", function(ns) {
+  "use strict";
+
   ns._locale = {};
   ns._date_format   = {
     sep: '.',
@@ -51,7 +53,7 @@ namespace("kivi", function(ns) {
   };
 
   ns.parse_amount = function(amount) {
-    if ((amount == undefined) || (amount == ''))
+    if ((amount === undefined) || (amount === ''))
       return 0;
 
     if (ns._number_format.decimalSep == ',')
@@ -59,6 +61,7 @@ namespace("kivi", function(ns) {
 
     amount = amount.replace(/[\',]/g, "")
 
+    /* jshint -W061 */
     return eval(amount);
   };
 
@@ -77,7 +80,7 @@ namespace("kivi", function(ns) {
   ns.format_amount = function(amount, places) {
     amount = amount || 0;
 
-    if ((places != undefined) && (places >= 0))
+    if ((places !== undefined) && (places >= 0))
       amount = ns.round_amount(amount, Math.abs(places));
 
     var parts = ("" + Math.abs(amount)).split(/\./);
@@ -85,7 +88,7 @@ namespace("kivi", function(ns) {
     var dec   = parts.length > 1 ? parts[1] : "";
     var sign  = amount  < 0      ? "-"      : "";
 
-    if (places != undefined) {
+    if (places !== undefined) {
       while (dec.length < Math.abs(places))
         dec += "0";
 
@@ -93,7 +96,7 @@ namespace("kivi", function(ns) {
         dec = d.substr(0, places);
     }
 
-    if ((ns._number_format.thousandSep != "") && (intg.length > 3)) {
+    if ((ns._number_format.thousandSep !== "") && (intg.length > 3)) {
       var len   = ((intg.length + 2) % 3) + 1,
           start = len,
           res   = intg.substr(0, len);
@@ -105,7 +108,7 @@ namespace("kivi", function(ns) {
       intg = res;
     }
 
-    var sep = (places != 0) && (dec != "") ? ns._number_format.decimalSep : "";
+    var sep = (places !== 0) && (dec !== "") ? ns._number_format.decimalSep : "";
 
     return sign + intg + sep + dec;
   };
@@ -391,7 +394,7 @@ namespace("kivi", function(ns) {
       return;
     }
 
-    $(selector).filter(function() { return $(this).data(attr_name) != true; }).each(function(idx, elt) {
+    $(selector).filter(function() { return $(this).data(attr_name) !== true; }).each(function(idx, elt) {
       var $elt = $(elt);
       $elt.data(attr_name, true);
       fn($elt);
