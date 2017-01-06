@@ -6,26 +6,6 @@
 
 <script type="text/javascript">
   <!--
-function updateTaxes(row)
-{
-  var accno  = document.getElementById('accno_' + row);
-  var taxkey = accno.options[accno.selectedIndex].value;
-  var reg = /^(.*?)--(\d*)$/;
-  var found = reg.exec(taxkey);
-  var account = found[1];
-  var default_tax_id = found[2];
-
-  $.ajax({
-    url: 'gl.pl?action=get_tax_dropdown',
-    data: { accno: account,
-            selected_tax_id: default_tax_id},
-    dataType: 'html',
-    success: function (new_html) {
-                                $("#taxchart_" + row).html(new_html);
-                              },
-  });
-};
-
   function copy_debit_to_credit() {
     var txt = document.getElementsByName('debit_1')[0].value;
     document.getElementsByName('credit_2')[0].value = txt;
@@ -162,5 +142,3 @@ function updateTaxes(row)
 [%- END %]
 
         </tr>
-
-[%- PROCESS 'gl/form_header_chart_balances_js.html' %]

@@ -140,7 +140,7 @@ sub prepare_transaction {
       $form->{"project_id_$j"} = $ref->{project_id};
 
     } else {
-      $form->{"accno_$i"} = "$ref->{accno}--$ref->{tax_id}";
+      $form->{"accno_id_$i"} = $ref->{chart_id};
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
       if ($ref->{amount} < 0) {
         $form->{totaldebit} -= $ref->{amount};
@@ -650,6 +650,8 @@ sub display_rows {
   my %myconfig = %main::myconfig;
   my $cgi      = $::request->{cgi};
 
+  my %balances = GL->get_chart_balances(map { $_->{id} } @{ $form->{ALL_CHARTS} });
+
   $form->{debit_1}     = 0 if !$form->{"debit_1"};
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
@@ -661,20 +663,9 @@ sub display_rows {
     $project_labels{$item->{"id"}} = $item->{"projectnumber"};
   }
 
-  my %chart_labels = ();
-  my @chart_values = ();
-  my %charts = ();
-  my $taxchart_init;
-  foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ($item->{charttype} eq 'H'){ # skip headings
-      next;
-    }
-    my $key = $item->{accno} . "--" . $item->{tax_id};
-    $taxchart_init = $item->{tax_id} unless (@chart_values);
-    push(@chart_values, $key);
-    $chart_labels{$key} = $item->{accno} . "--" . $item->{description};
-    $charts{$item->{accno}} = $item;
-  }
+  my %charts_by_id  = map { ($_->{id} => $_) } @{ $::form->{ALL_CHARTS} };
+  my $default_chart = $::form->{ALL_CHARTS}[0];
+  my $transdate     = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
 
   my ($source, $memo, $source_hidden, $memo_hidden);
   for my $i (1 .. $form->{rowcount}) {
@@ -690,49 +681,31 @@ sub display_rows {
       <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
     }
 
-    my $selected_accno_full;
-    my ($accno_row) = split(/--/, $form->{"accno_$i"});
-    my $item = $charts{$accno_row};
-    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
-
-    my $selected_taxchart = $form->{"taxchart_$i"};
-    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
-    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_accno_$i"});
-
     my %taxchart_labels = ();
     my @taxchart_values = ();
-    my %taxcharts = ();
-    my $filter_accno;
-    $filter_accno = $::form->{ALL_CHARTS}[0]->{accno};
-    $filter_accno = $selected_accno if (!$init and $i < $form->{rowcount});
-    foreach my $item ( GL->get_tax_dropdown($filter_accno) ) {
-      my $key = $item->{id} . "--" . $item->{rate};
-      $taxchart_init = $key if ($taxchart_init == $item->{id});
+
+    my $accno_id          = $::form->{"accno_id_$i"};
+    my $chart             = $charts_by_id{$accno_id} // $default_chart;
+    $accno_id             = $chart->{id};
+    my $chart_has_changed = $::form->{"previous_accno_id_$i"} && ($accno_id != $::form->{"previous_accno_id_$i"});
+    my ($first_taxchart, $default_taxchart, $taxchart_to_use);
+
+    foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $transdate) ) {
+      my $key             = $item->id . "--" . $item->rate;
+      $first_taxchart   //= $item;
+      $default_taxchart   = $item if $item->{is_default};
+      $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
+
       push(@taxchart_values, $key);
-      $taxchart_labels{$key} = $item->{taxdescription} . " " . $item->{rate} * 100 . ' %';
-      $taxcharts{$item->{id}} = $item;
+      $taxchart_labels{$key} = $item->taxdescription . " " . $item->rate * 100 . ' %';
     }
 
-    if ($previous_accno &&
-        ($previous_accno eq $selected_accno) &&
-        ($previous_tax_id ne $selected_tax_id)) {
-      my $item = $taxcharts{$selected_tax_id};
-      $selected_taxchart = "$item->{id}--$item->{rate}";
-    }
-
-    $selected_accno      = '' if ($init);
-    $selected_taxchart ||= $taxchart_init;
+    $taxchart_to_use      = $default_taxchart // $first_taxchart if $chart_has_changed || !$taxchart_to_use;
+    my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     my $accno = qq|<td>| .
-      NTI($cgi->popup_menu('-name' => "accno_$i",
-                           '-id' => "accno_$i",
-                           '-onChange' => "updateTaxes($i);",
-                           '-style' => 'width:200px',
-                           '-values' => \@chart_values,
-                           '-labels' => \%chart_labels,
-                           '-default' => $selected_accno_full))
-      . $cgi->hidden('-name' => "previous_accno_$i",
-                     '-default' => $selected_accno_full)
+      $::request->presenter->chart_picker("accno_id_$i", $accno_id, style => "width: 300px") .
+      $::request->presenter->hidden_tag("previous_accno_id_$i", $accno_id)
       . qq|</td>|;
     my $tax_ddbox = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
@@ -808,10 +781,11 @@ sub display_rows {
     <input type="hidden" name="project_id_$i" value="$form->{"project_id_$i"}">|;
 
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
+    my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
     print qq|<tr valign=top>
     $accno
-    <td id="chart_balance_$i" align="right">&nbsp;</td>
+    <td id="chart_balance_$i" align="right">${balance}</td>
     $fx_transaction
     <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
@@ -852,6 +826,8 @@ sub form_header {
 
   my ($init) = @_;
 
+  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.GL.js");
+
   my @old_project_ids = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
 
   $::form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
@@ -862,8 +838,6 @@ sub form_header {
                                     "transdate" => $::form->{transdate} });
 
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-
-  GL->get_chart_balances('charts' => $::form->{ALL_CHARTS});
 
   my $title      = $::form->{title};
   $::form->{title} = $::locale->text("$title General Ledger Transaction");
@@ -877,7 +851,7 @@ sub form_header {
     $::request->{layout}->focus("#reference");
     $::form->{taxincluded} = "1";
   } else {
-    $::request->{layout}->focus("#accno_$::form->{rowcount}");
+    $::request->{layout}->focus("#accno_id_$::form->{rowcount}_name");
   }
 
   $::form->{previous_id}     ||= "--";
@@ -1222,22 +1196,18 @@ sub continue {
 }
 
 sub get_tax_dropdown {
-  $main::lxdebug->enter_sub();
+  my $transdate    = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my @tax_accounts = GL->get_active_taxes_for_chart($::form->{accno_id}, $transdate);
+  my $html         = $::form->parse_html_template("gl/update_tax_accounts", { TAX_ACCOUNTS => \@tax_accounts });
 
-  my $form = $main::form;
-  my @tax_accounts = GL->get_tax_dropdown($form->{accno});
+  print $::form->ajax_response_header, $html;
+}
 
-  foreach my $item (@tax_accounts) {
-    $item->{taxdescription} = $::locale->{iconv_utf8}->convert($item->{taxdescription});
-    $item->{taxdescription} .= ' ' . $form->round_amount($item->{rate} * 100);
-  }
+sub get_chart_balance {
+  my %balances = GL->get_chart_balances($::form->{accno_id});
+  my $balance  = $::form->format_amount(\%::myconfig, $balances{ $::form->{accno_id} }, 2, 'DRCR');
 
-  $form->{TAX_ACCOUNTS} = [ @tax_accounts ];
-
-  print $form->ajax_response_header, $form->parse_html_template("gl/update_tax_accounts");
-
-  $main::lxdebug->leave_sub();
-
+  print $::form->ajax_response_header, $balance;
 }
 
 1;
