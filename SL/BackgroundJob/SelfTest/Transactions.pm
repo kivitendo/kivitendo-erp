@@ -205,13 +205,15 @@ sub check_summe_stornobuchungen {
   my ($self) = @_;
 
   my $query = qq|
-    select sum(amount) from ar a JOIN customer c ON (a.customer_id = c.id)
-    WHERE a.id in (SELECT id from ap where storno is true AND a.transdate >= ? and a.transdate <= ?)|;
+    SELECT sum(amount) from ar a WHERE a.id IN
+      (SELECT id from ap where storno is true
+       AND a.transdate >= ? and a.transdate <= ?)|;
   my ($summe_stornobuchungen_ar) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
   $query = qq|
-    select sum(amount) from ap a JOIN vendor c ON (a.vendor_id = c.id)
-    WHERE a.id in (SELECT id from ap where storno is true AND a.transdate >= ? and a.transdate <= ?)|;
+    SELECT sum(amount) from ap a WHERE a.id IN
+      (SELECT id from ap where storno is true
+       AND a.transdate >= ? and a.transdate <= ?)|;
   my ($summe_stornobuchungen_ap) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
   $self->tester->ok($summe_stornobuchungen_ap == 0, 'Summe aller Einkaufsrechnungen (stornos + stornierte) soll 0 sein');
