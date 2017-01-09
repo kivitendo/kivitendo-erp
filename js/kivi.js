@@ -307,6 +307,7 @@ namespace("kivi", function(ns) {
   // - id: dialog DIV ID (optional; defaults to 'jqueryui_popup_dialog')
   // - url, data, type: passed as the first three arguments to the $.ajax() call if an AJAX call is made, otherwise ignored.
   // - dialog: an optional object of options passed to the $.dialog() call
+  // - load: an optional function that is called after the content has been loaded successfully (only if an AJAX call is made)
   ns.popup_dialog = function(params) {
     var dialog;
 
@@ -360,6 +361,8 @@ namespace("kivi", function(ns) {
         success: function(new_html) {
           dialog.html(new_html);
           dialog.removeClass('loading');
+          if (params.load)
+            params.load();
         }
       });
     }
