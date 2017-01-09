@@ -129,11 +129,7 @@
 </div>
 </div>
 
-<hr size="3" noshade>
-
-<p>[% print_options %]</p>
-
-<input type="hidden" name="action" value="dispatcher">
+<input type="hidden" name="action" id="action" value="dispatcher">
 <input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
 [% L.hidden_tag("rowcount", rowcount) %]
 <input type="hidden" name="callback" value="[% callback | html %]">
@@ -145,6 +141,12 @@
 
 <div id="shipto_inputs" class="hidden">
  [%- PROCESS 'common/_ship_to_dialog.html' %]
+</div>
+
+<div id="email_inputs" class="hidden"></div>
+
+<div id="print_options" class="hidden">
+ [% print_options %]
 </div>
 </form>
 

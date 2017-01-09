@@ -90,6 +90,7 @@ namespace("kivi").setupLocale({
 "Save and keep open":"Speichern und geöffnet lassen",
 "Section/Function block actions":"Abschnitts-/Funktionsblockaktionen",
 "Select template to paste":"Einzufügende Vorlage auswählen",
+"Send email":"E-Mail verschicken",
 "Set all source and memo fields":"Alle Beleg-/Memo-Felder setzen",
 "Show all details":"Alle Details anzeigen",
 "Show details":"Details anzeigen",

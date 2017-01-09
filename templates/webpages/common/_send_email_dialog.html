@@ -1,0 +1,44 @@
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
+
+<table>
+ <tbody>
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("To") %]</th>
+   <td>[% L.input_tag("email_form.to", email_form.to, size="80") %]</td>
+  </tr>
+
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("Cc") %]</th>
+   <td>[% L.input_tag("email_form.cc", email_form.cc, size="80") %]</td>
+  </tr>
+
+ [%- IF show_bcc %]
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("Bcc") %]</th>
+   <td>[% L.input_tag("email_form.bcc", email_form.bcc, size="80") %]</td>
+  </tr>
+ [%- END %]
+
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("Subject") %]</th>
+   <td>[% L.input_tag("email_form.subject", email_form.subject, size="80") %]</td>
+  </tr>
+
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("Attachment name") %]</th>
+   <td>[% L.input_tag("email_form.attachment_filename", email_form.attachment_filename, size="80") %]</td>
+  </tr>
+
+  <tr valign="top">
+   <th align="right" nowrap>[% LxERP.t8("Message") %]</th>
+   <td>[% L.textarea_tag("email_form.message", email_form.message, rows="15" cols="80" wrap="soft") %]</td>
+  </tr>
+ </tbody>
+</table>
+
+<div id="email_form_print_options"></div>
+
+<p>
+ [% L.button_tag("kivi.SalesPurchase.send_email()", LxERP.t8("Send email")) %]
+ [% L.button_tag("\$('#send_email_dialog').dialog('close');", LxERP.t8("Abort")) %]
+</p>

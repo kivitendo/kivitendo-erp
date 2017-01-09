@@ -53,6 +53,7 @@ use SL::IO;
 use SL::File;
 use SL::PriceSource;
 
+use SL::DB::Contact;
 use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Language;
@@ -60,6 +61,7 @@ use SL::DB::Printer;
 use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
+use SL::Helper::PrintOptions;
 
 require "bin/mozilla/common.pl";
 
@@ -2025,4 +2027,57 @@ sub _make_record {
   $obj->is_sales(!!$obj->customer_id) if $class eq 'SL::DB::DeliveryOrder';
 
   return $obj;
+}
+
+sub setup_sales_purchase_print_options {
+  my $print_form = Form->new('');
+  $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
+  $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
+
+  $print_form->{$_} = $::form->{$_} for qw(type media language_id printer_id);
+
+  return SL::Helper::PrintOptions->get_print_options(
+    form    => $print_form,
+    options => {
+      show_headers => 1,
+    },
+  );
+}
+
+sub show_sales_purchase_email_dialog {
+  my $contact    = $::form->{cp_id} ? SL::DB::Contact->load_cached($::form->{cp_id}) : undef;
+  my $email_form = {
+    to                  => $contact ? $contact->cp_email : '',
+    subject             => $::form->generate_email_subject,
+    attachment_filename => $::form->generate_attachment_filename,
+  };
+
+  my $html = $::form->parse_html_template("common/_send_email_dialog", {
+    email_form => $email_form,
+    show_bcc   => $::auth->assert('email_bcc', 'may fail'),
+  });
+
+  print $::form->ajax_response_header, $html;
+}
+
+sub send_sales_purchase_email {
+  my $type        = $::form->{type};
+  my $id          = $::form->{id};
+  my $script      = $type =~ m{sales_order|purchase_order|quotation} ? 'oe.pl'
+                  : $type =~ m{delivery_}                            ? 'do.pl'
+                  :                                                    'is.pl';
+
+  my $email_form  = delete $::form->{email_form};
+  my %field_names = (to => 'email');
+
+  $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
+
+  $::form->{media} = 'email';
+
+  print_form("return");
+  Common->save_email_status(\%::myconfig, $::form);
+
+  flash_later('info', $::locale->text('The email has been sent.'));
+
+  print $::form->redirect_header($script . '?action=edit&id=' . $::form->escape($id) . '&type=' . $::form->escape($type));
 }

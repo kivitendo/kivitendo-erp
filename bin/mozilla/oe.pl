@@ -399,7 +399,7 @@ sub setup_oe_action_bar {
         ],
         action => [
           t8('E Mail'),
-          submit => [ '#form', { action_print => 1 } ],
+          call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks => [ @req_trans_desc ],
         ],
       ], #end of combobox "Export"
@@ -593,11 +593,11 @@ sub form_header {
   push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
 
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
-     qw(id action type vc formname media format proforma queued printed emailed
+     qw(id type vc proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
         max_dunning_level dunning_amount
         CFDD_shipto CFDD_shipto_id
-        message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus
+        taxpart taxservice taxaccounts cursor_fokus
         show_details useasnew),
         @custom_hiddens,
         map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
@@ -684,9 +684,11 @@ sub form_footer {
 
   $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
+  my $print_options_html = setup_sales_purchase_print_options();
+
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     print_options   => print_options(inline => 1),
+     print_options   => $print_options_html,
      is_sales        => scalar ($form->{type} =~ /^sales_/),              # these vars are exported, so that the template
      is_order        => scalar ($form->{type} =~ /_order$/),              # may determine what to show
      is_sales_quo    => scalar ($form->{type} =~ /sales_quotation$/),

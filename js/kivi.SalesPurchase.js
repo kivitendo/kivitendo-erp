@@ -208,4 +208,83 @@ namespace('kivi.SalesPurchase', function(ns) {
       }
     });
   };
+
+  this.show_print_options_elements = function(elements, show) {
+    $(elements).each(function(idx, elt) {
+      var $elements = $('#print_options_header_' + elt + ',#print_options_input_' + elt);
+      if (show)
+        $elements.show();
+      else
+        $elements.hide();
+    });
+  };
+
+  this.show_all_print_options_elements = function() {
+    kivi.SalesPurchase.show_print_options_elements([ 'formname', 'language_id', 'format', 'sendmode', 'media', 'printer_id', 'copies', 'groupitems', 'remove_draft' ], true);
+  };
+
+  // Sending records via email.
+  this.send_email = function() {
+    var unset = $('#email_form_to,#email_form_subject,#email_form_message').filter(function(idx, elt) {
+      return $(elt).val() === '';
+    });
+
+    if (unset.length > 0) {
+      alert(kivi.t8("The recipient, subject or body is missing."));
+      $(unset[0]).focus();
+
+      return false;
+    }
+
+    $('#send_email_dialog').children().remove().appendTo('#email_inputs');
+    $('#send_email_dialog').dialog('close');
+
+    $('#action').val('send_sales_purchase_email');
+    $('#form').submit();
+
+    return true;
+  };
+
+  this.setup_send_email_dialog = function() {
+    kivi.SalesPurchase.show_all_print_options_elements();
+    kivi.SalesPurchase.show_print_options_elements([ 'sendmode', 'media', 'copies', 'remove_draft' ], false);
+
+    $('#print_options').children().remove().appendTo('#email_form_print_options');
+
+    var to_focus = $('#email_form_to').val() === '' ? 'to' : 'subject';
+    $('#email_form_' + to_focus).focus();
+  };
+
+  this.finish_send_email_dialog = function() {
+    $('#email_form_print_options').children().remove().appendTo('#print_options');
+    return true;
+  };
+
+  this.show_email_dialog = function() {
+    kivi.popup_dialog({
+      id:     'send_email_dialog',
+      url:    'io.pl',
+      load:   kivi.SalesPurchase.setup_send_email_dialog,
+      data:   {
+        action:      'show_sales_purchase_email_dialog',
+        type:        $('#type').val(),
+        formname:    $('#formname').val(),
+        format:      $('#format').val(),
+        media:       'email',
+        ordnumber:   $('#ordnumber').val(),
+        donumber:    $('#donumber').val(),
+        invnumber:   $('#invnumber').val(),
+        quonumber:   $('#quonumber').val(),
+        cp_id:       $('#cp_id').val(),
+        language_id: $('#language_id').val(),
+      },
+      dialog: {
+        height:      600,
+        title:       kivi.t8('Send email'),
+        beforeClose: kivi.SalesPurchase.finish_send_email_dialog
+      }
+    });
+
+    return true;
+  };
 });

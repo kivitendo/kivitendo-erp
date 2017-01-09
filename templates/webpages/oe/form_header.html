@@ -16,7 +16,7 @@
     [%- END %]
 
 [%- FOREACH row = HIDDENS %]
-   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >
+   <input type="hidden" name="[% HTML.escape(row.name) %]" id="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >
 [%- END %]
 
     <input type="hidden" name="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
@@ -190,17 +190,17 @@
 [%- IF is_order %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-                    <td><input name="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"></td>
+                    <td><input name="ordnumber" id="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"></td>
                   </tr>
 [%- END %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% IF is_req_quo %][% 'RFQ Number' | $T8 %][% ELSE %][% 'Quotation Number' | $T8 %][% END %]</th>
-                    <td><input name="quonumber" size="11" value="[% HTML.escape(quonumber) %]"></td>
+                    <td><input name="quonumber" id="quonumber" size="11" value="[% HTML.escape(quonumber) %]"></td>
                   </tr>
 [%- IF is_order %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
-                    <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"></td>
+                    <td><input name="cusordnumber" id="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"></td>
                   </tr>
 [%- END %]
                   <tr>

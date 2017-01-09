@@ -2586,6 +2586,7 @@ $self->{texts} = {
   'Semicolon'                   => 'Semikolon',
   'Send a BCC to logged in user?' => 'BCC an eingeloggten Benutzer?',
   'Send a blind copy of all outgoing emails to current user\'s email address?' => 'Eine blinde Kopie aller ausgehenden E-Mails wird an den angemeldeten Nutzer geschickt',
+  'Send email'                  => 'E-Mail verschicken',
   'Send invoice via email'      => 'Rechnung via E-Mail verschicken',
   'Send letter via e-mail'      => 'Brief via E-Mail verschicken',
   'Sender'                      => 'AbsenderIn',
