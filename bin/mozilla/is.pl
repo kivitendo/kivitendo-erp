@@ -776,7 +776,7 @@ sub update {
       # ask if it is a part or service item
 
       if (   $form->{"partsgroup_$i"}
-          && ($form->{"partsnumber_$i"} eq "")
+          && ($form->{"partnumber_$i" } eq "")
           && ($form->{"description_$i"} eq "")) {
         $form->{rowcount}--;
         $form->{"discount_$i"} = "";
@@ -784,6 +784,10 @@ sub update {
 
       } else {
         $form->{"id_$i"}   = 0;
+        if ( $form->{is_wrong_ptype} > 0 ) {
+          $form->{"partnumber_$i"}  = "";
+          $form->{"description_$i"} = "";
+        }
         new_item();
       }
     }

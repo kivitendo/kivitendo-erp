@@ -2435,9 +2435,18 @@ sub retrieve_item {
         last;
       }
     }
+    ## customer_id ggf beim ersten mal noch nicht gesetzt nur customer <name>--<id>
+    ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer}) if  ! $form->{customer_id};
+    if ( $form->{customer_id} ) {
+        my $cprice = SL::DB::Manager::PartCustomerPrice->get_first(
+            query => [ parts_id => $ref->{id} , customer_id => $form->{customer_id} ] );
+        if ( $cprice ) {
+            $::lxdebug->message(LXDebug->DEBUG2(), "cprice id=".$cprice->{id}." price=".$cprice->{price});
+            $ref->{sellprice} = $cprice->{price};
+        }
+    }
 
     $ref->{onhand} *= 1;
-
     push @{ $form->{item_list} }, $ref;
   }
   $sth->finish;

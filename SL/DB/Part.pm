@@ -37,6 +37,11 @@ __PACKAGE__->meta->add_relationships(
     manager_args => { sort_by => 'sortorder' },
     column_map   => { id => 'parts_id' },
   },
+  customerprices => {
+    type         => 'one to many',
+    class        => 'SL::DB::PartCustomerPrice',
+    column_map   => { id => 'parts_id' },
+  },
   translations   => {
     type         => 'one to many',
     class        => 'SL::DB::Translation',

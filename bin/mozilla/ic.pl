@@ -281,6 +281,8 @@ sub generate_report {
     description   => $locale->text('Part Description') . ": '$form->{description}'",
     make          => $locale->text('Make')             . ": '$form->{make}'",
     model         => $locale->text('Model')            . ": '$form->{model}'",
+    customername  => $locale->text('Customer')         . ": '$form->{customername}'",
+    customernumber=> $locale->text('Customer Part Number').": '$form->{customernumber}'",
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('Qty in Selected Records'),

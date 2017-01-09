@@ -49,6 +49,7 @@ use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::TaxZone;
+use SL::DB::MakeModel;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use List::Util qw(min);
@@ -1377,8 +1378,19 @@ sub retrieve_item {
     $stw->finish();
     chop $ref->{taxaccounts};
 
-    $ref->{onhand} *= 1;
+    ## vendor_id ggf beim ersten mal noch nicht gesetzt nur vendor <name>--<id>
+    ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor}) if  ! $form->{vendor_id};
 
+    if ( $form->{vendor_id} ) {
+      my $mm = SL::DB::Manager::MakeModel->get_first(
+        query => [ parts_id => $ref->{id} , make => $form->{vendor_id} ] );
+      if ( $mm ) {
+        $::lxdebug->message(LXDebug->DEBUG2(), "mm id=".$mm->{id}." price=".$mm->{lastcost});
+        $ref->{lastcost} = $mm->{lastcost};
+      }
+    }
+
+    $ref->{onhand} *= 1;
     push @{ $form->{item_list} }, $ref;
 
   }

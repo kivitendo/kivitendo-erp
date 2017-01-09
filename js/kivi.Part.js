@@ -253,6 +253,35 @@ namespace('kivi.Part', function(ns) {
     $("#makemodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
+
+  // customerprice
+  ns.customerprice_renumber_positions = function() {
+    $('.customerprice_row [name="position"]').each(function(idx, elt) {
+      $(elt).html(idx+1);
+    });
+  };
+
+  ns.delete_customerprice_row = function(clicked) {
+    var row = $(clicked).closest('tr');
+    $(row).remove();
+
+    ns.customerprice_renumber_positions();
+  };
+
+  ns.add_customerprice_row = function() {
+    if ($('#add_customerpriceid').val() === '') return;
+
+    var data = $('#customerprice_table :input').serializeArray();
+    data.push({ name: 'action', value: 'Part/add_customerprice_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.focus_last_customerprice_input = function () {
+    $("#customerprice_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
+  };
+
+
   ns.reload_bin_selection = function() {
     $.post("controller.pl", { action: 'Part/warehouse_changed', warehouse_id: function(){ return $('#part_warehouse_id').val() } },   kivi.eval_json_result);
   }
@@ -730,6 +759,14 @@ namespace('kivi.Part', function(ns) {
       if(event.keyCode == 13) {
         event.preventDefault();
         ns.add_makemodel_row();
+        return false;
+      }
+    });
+
+    $('.add_customerprice_input').keydown(function(event) {
+      if(event.keyCode == 13) {
+        event.preventDefault();
+        ns.add_customerprice_row();
         return false;
       }
     });

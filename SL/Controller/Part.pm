@@ -24,6 +24,7 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
                                   makemodels shops_not_assigned
+                                  customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
@@ -455,6 +456,39 @@ sub action_add_makemodel_row {
     ->render;
 }
 
+sub action_add_customerprice_row {
+  my ($self) = @_;
+
+  my $customer_id = $::form->{add_customerprice};
+
+  my $customer = SL::DB::Manager::Customer->find_by(id => $customer_id)
+    or return $self->js->error(t8("No customer selected or found!"))->render;
+
+  if (grep { $customer_id == $_->customer_id } @{ $self->customerprices }) {
+    $self->js->flash('info', t8("This customer has already been added."));
+  }
+
+  my $position = scalar @{ $self->customerprices } + 1;
+
+  my $cu = SL::DB::PartCustomerPrice->new(
+                      customer_id         => $customer->id,
+                      customer_partnumber => '',
+                      price               => 0,
+                      sortorder           => $position,
+  ) or die "Can't create Customerprice object";
+
+  my $row_as_html = $self->p->render(
+                                     'part/_customerprice_row',
+                                      customerprice => $cu,
+                                      listrow       => $position % 2 ? 0
+                                                                     : 1,
+  );
+
+  $self->js->append('#customerprice_rows', $row_as_html)    # append in tbody
+           ->val('.add_customerprice_input', '')
+           ->run('kivi.Part.focus_last_customerprice_input')->render;
+}
+
 sub action_reorder_items {
   my ($self) = @_;
 
@@ -713,6 +747,7 @@ sub parse_form {
   $self->part->prices([]);
   $self->parse_form_prices;
 
+  $self->parse_form_customerprices;
   $self->parse_form_makemodels;
 }
 
@@ -782,6 +817,45 @@ sub parse_form_makemodels {
   };
 }
 
+sub parse_form_customerprices {
+  my ($self) = @_;
+
+  my $customerprices_map;
+  if ( $self->part->customerprices ) { # check for new parts or parts without customerprices
+    $customerprices_map = { map { $_->id => Rose::DB::Object::Helpers::clone($_) } @{$self->part->customerprices} };
+  };
+
+  $self->part->customerprices([]);
+
+  my $position = 0;
+  my $customerprices = delete($::form->{customerprices}) || [];
+  foreach my $customerprice ( @{$customerprices} ) {
+    next unless $customerprice->{customer_id};
+    $position++;
+    my $customer = SL::DB::Manager::Customer->find_by(id => $customerprice->{customer_id}) || die "Can't find customer from id";
+
+    my $cu = SL::DB::PartCustomerPrice->new( # parts_id   => $self->part->id, # will be assigned by row add_customerprices
+                                     id                   => $customerprice->{id},
+                                     customer_id          => $customerprice->{customer_id},
+                                     customer_partnumber  => $customerprice->{customer_partnumber} || '',
+                                     price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
+                                     sortorder            => $position,
+                                   );
+    if ($customerprices_map->{$cu->id} && !$customerprices_map->{$cu->id}->lastupdate && $customerprices_map->{$cu->id}->price == 0 && $cu->price == 0) {
+      # lastupdate isn't set, original price is 0 and new lastcost is 0
+      # don't change lastupdate
+    } elsif ( !$customerprices_map->{$cu->id} && $cu->price == 0 ) {
+      # new customerprice, no lastcost entered, leave lastupdate empty
+    } elsif ($customerprices_map->{$cu->id} && $customerprices_map->{$cu->id}->price == $cu->price) {
+      # price hasn't changed, use original lastupdate
+      $cu->lastupdate($customerprices_map->{$cu->id}->lastupdate);
+    } else {
+      $cu->lastupdate(DateTime->now);
+    };
+    $self->part->add_customerprices($cu);
+  };
+}
+
 sub build_bin_select {
   $_[0]->p->select_tag('part.bin_id', [ $_[0]->warehouse->bins ],
     title_key => 'description',
@@ -806,7 +880,7 @@ sub init_part {
   # used by edit, save, delete and add
 
   if ( $::form->{part}{id} ) {
-    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels prices translations partsgroup shop_parts shop_parts.shop) ]);
+    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
   } else {
     die "part_type missing" unless $::form->{part}{part_type};
     return SL::DB::Part->new(part_type => $::form->{part}{part_type});
@@ -883,6 +957,29 @@ sub init_makemodels {
     push(@makemodel_array, $mm);
   };
   return \@makemodel_array;
+}
+
+sub init_customerprices {
+  my ($self) = @_;
+
+  my $position = 0;
+  my @customerprice_array = ();
+  my $customerprices = delete($::form->{customerprices}) || [];
+
+  foreach my $customerprice ( @{$customerprices} ) {
+    next unless $customerprice->{customer_id};
+    $position++;
+    my $cu = SL::DB::PartCustomerPrice->new( # parts_id   => $self->part->id, # will be assigned by row add_customerprices
+                                    id                  => $customerprice->{id},
+                                    customer_partnumber => $customerprice->{customer_partnumber},
+                                    customer_id         => $customerprice->{customer_id} || '',
+                                    price               => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number} || 0),
+                                    sortorder           => $position,
+                                  ) or die "Can't create cu";
+    # $cu->id($customerprice->{id}) if $customerprice->{id};
+    push(@customerprice_array, $cu);
+  };
+  return \@customerprice_array;
 }
 
 sub init_assembly_items {

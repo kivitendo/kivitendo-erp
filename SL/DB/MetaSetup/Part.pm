@@ -37,14 +37,14 @@ __PACKAGE__->meta->columns(
   payment_id         => { type => 'integer' },
   price_factor_id    => { type => 'integer' },
   priceupdate        => { type => 'date', default => 'now' },
-  rop                => { type => 'float', scale => 4 },
+  rop                => { type => 'float', precision => 4, scale => 4 },
   sellprice          => { type => 'numeric', precision => 15, scale => 5 },
   shop               => { type => 'boolean', default => 'false' },
   stockable          => { type => 'boolean', default => 'false' },
   unit               => { type => 'varchar', length => 20, not_null => 1 },
   ve                 => { type => 'integer' },
   warehouse_id       => { type => 'integer' },
-  weight             => { type => 'float', scale => 4 },
+  weight             => { type => 'float', precision => 4, scale => 4 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
