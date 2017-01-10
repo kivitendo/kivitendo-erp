@@ -672,7 +672,7 @@ sub save_objects {
   my ($self, %params) = @_;
 
   # set order number and collect to save
-  my $objects_to_save;
+  my $objects_to_save = [];
   foreach my $entry (@{ $self->controller->data }) {
     next if $entry->{raw_data}->{datatype} ne $self->_order_column;
     next if @{ $entry->{errors} };
