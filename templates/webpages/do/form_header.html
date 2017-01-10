@@ -201,8 +201,9 @@
         <td colspan="3">
           [% IF ( delivered ) %]
             [% L.hidden_tag('department_id', department_id) %]
+          [% ELSE %]
+            [% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style = 'width: 250px', disabled = delivered )%]
           [% END %]
-          [% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style = 'width: 250px', disabled = delivered )%]
        </td>
        </tr>
        [%- END %]
