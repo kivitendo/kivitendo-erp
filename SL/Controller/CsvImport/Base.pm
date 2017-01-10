@@ -465,8 +465,6 @@ sub save_objects {
 
   $self->controller->track_progress(phase => 'saving data', progress => 0); # scale from 45..95%;
 
-  my $dbh = $data->[0]{object}->db->dbh;
-
   my $last_index = $#$data;
   my $chunk_size = 100;      # one transaction and progress update every 100 objects
 
