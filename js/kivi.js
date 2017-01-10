@@ -415,6 +415,22 @@ namespace("kivi", function(ns) {
     console.error('kivi.run("' + function_name + '"): No function by that name found');
     return undefined;
   };
+
+  ns.detect_duplicate_ids_in_dom = function() {
+    var ids   = {},
+        found = false;
+
+    $('[id]').each(function() {
+      if (this.id && ids[this.id]) {
+        found = true;
+        console.warn('Duplicate ID #' + this.id);
+      }
+      ids[this.id] = 1;
+    });
+
+    if (!found)
+      console.log('No duplicate IDs found :)');
+  };
 });
 
 kivi = namespace('kivi');
