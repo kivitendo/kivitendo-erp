@@ -285,21 +285,6 @@ sub check_objects {
 
   $self->add_items_to_order();
   $self->handle_prices_and_taxes();
-
-
-  # If order has errors set error for orderitems as well
-  my $order_entry;
-  foreach my $entry (@{ $self->controller->data }) {
-    # Search first order
-    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
-      $order_entry = $entry;
-    } elsif ( defined $order_entry
-              && $entry->{raw_data}->{datatype} eq $self->_item_column
-              && scalar @{ $order_entry->{errors} } > 0 ) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid order for this order item');
-    }
-  }
-
 }
 
 sub handle_order {
