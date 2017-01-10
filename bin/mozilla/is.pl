@@ -344,7 +344,7 @@ sub setup_is_action_bar {
           disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
         ],
         action => [ t8('E Mail'),
-          submit   => [ '#form', { action_print => 1 } ],
+          call     => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
@@ -463,10 +463,10 @@ sub form_header {
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
-    id type media format queued printed emailed title vc discount
+    id type queued printed emailed vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount dunning_description
-    message email subject cc bcc taxaccounts cursor_fokus
+    taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids convert_from_ar_ids useasnew
     invoice_id
     show_details
@@ -602,7 +602,7 @@ sub form_footer {
     is_type_credit_note => ($form->{type} eq "credit_note"),
     totalpaid           => $totalpaid,
     paid_missing        => $form->{invtotal} - $totalpaid,
-    print_options       => print_options(inline => 1),
+    print_options       => setup_sales_purchase_print_options(),
     show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
     show_delete         => ($::instance_conf->get_is_changeable == 2)
                              ? ($form->current_date(\%myconfig) eq $form->{gldate})

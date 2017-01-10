@@ -11,13 +11,13 @@
 <form method="post" id='form' name="invoice" action="[% script %]">
 
 [%- FOREACH key = HIDDENS %]
-<input type="hidden" name="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
+<input type="hidden" name="[% HTML.escape(key) %]" id="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
 [%- END %]
-<input type="hidden" name="follow_up_trans_id_1" value="[% id %]">
-<input type="hidden" name="follow_up_trans_type_1" value="sales_invoice">
-<input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
-<input type="hidden" name="follow_up_rowcount" value="1">
-<input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
+<input type="hidden" name="follow_up_trans_id_1" id="follow_up_trans_id_1" value="[% id %]">
+<input type="hidden" name="follow_up_trans_type_1" id="follow_up_trans_type_1" value="sales_invoice">
+<input type="hidden" name="follow_up_trans_info_1" id="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+<input type="hidden" name="follow_up_rowcount" id="follow_up_rowcount" value="1">
+<input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
 
 <h1>[% title %]</h1>
 
@@ -57,7 +57,7 @@
            [% P.customer_vendor_picker("customer_id", customer_id, type="customer", style="width: 250px", class="initial_focus") %]
            [% L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)')) %]
            [% L.hidden_tag("previous_customer_id", customer_id) %]
-          <input type="hidden" name="customer_pricegroup_id" value="[% HTML.escape(customer_pricegroup_id) %]">
+           [% L.hidden_tag("customer_pricegroup_id", customer_pricegroup_id) %]
           </td>
         </tr>
 [%- IF ALL_CONTACTS.size %]
@@ -204,11 +204,11 @@
 [%- IF is_type_credit_note %]
         <tr>
           <th align="right" nowrap>[% 'Credit Note Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+          <td colspan="3"><input size='11' name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]"></td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber_for_credit_note" value="[% HTML.escape(invnumber_for_credit_note) %]"></td>
+          <td colspan="3"><input size='11' name="invnumber_for_credit_note" id="invnumber_for_credit_note" value="[% HTML.escape(invnumber_for_credit_note) %]"></td>
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
@@ -217,7 +217,7 @@
 [%- ELSE %]
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+          <td colspan="3"><input size='11' name="invnumber" id="invnumber" value="[% HTML.escape(invnumber) %]"></td>
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>
@@ -232,7 +232,7 @@
         </tr>
         <tr>
         <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="donumber" value="[% HTML.escape(donumber) %]"></td>
+          <td colspan="3"><input size='11' name="donumber" id="donumber" value="[% HTML.escape(donumber) %]"></td>
         </tr>
 [%- END %]
         <tr>
@@ -241,7 +241,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
+          <td colspan="3"><input size='11' name="ordnumber" id="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Order Date' | $T8 %]</th>
@@ -249,7 +249,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Quotation Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="quonumber" value="[% HTML.escape(quonumber) %]"></td>
+          <td colspan="3"><input size='11' name="quonumber" id="quonumber" value="[% HTML.escape(quonumber) %]"></td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Quotation Date' | $T8 %]</th>
@@ -257,7 +257,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="cusordnumber" value="[% HTML.escape(cusordnumber) %]"></td>
+          <td colspan="3"><input size='11' name="cusordnumber" id="cusordnumber" value="[% HTML.escape(cusordnumber) %]"></td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
