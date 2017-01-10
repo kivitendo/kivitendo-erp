@@ -656,16 +656,16 @@ sub handle_prices_and_taxes() {
 sub save_objects {
   my ($self, %params) = @_;
 
-  # set order number and collect to save
-  my $objects_to_save = [];
+  # Collect orders without errors to save.
+  my $entries_to_save = [];
   foreach my $entry (@{ $self->controller->data }) {
     next if $entry->{raw_data}->{datatype} ne $self->_order_column;
     next if @{ $entry->{errors} };
 
-    push @{ $objects_to_save }, $entry;
+    push @{ $entries_to_save }, $entry;
   }
 
-  $self->SUPER::save_objects(data => $objects_to_save);
+  $self->SUPER::save_objects(data => $entries_to_save);
 }
 
 sub _order_column {
