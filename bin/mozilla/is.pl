@@ -1188,35 +1188,9 @@ sub delete {
   $::form->error($::locale->text('Cannot delete invoice!'));
 }
 
-sub post_and_e_mail {
-  e_mail();
-};
-
-sub e_mail {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  $main::auth->assert('invoice_edit');
-
-  if (!$form->{id}) {
-    $form->{no_redirect_after_post} = 1;
-
-    my $saved_form = save_form();
-
-    post();
-
-    restore_form($saved_form, 0, qw(id invnumber));
-  }
-
-  edit_e_mail();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub dispatcher {
   for my $action (qw(
-    print update ship_to e_mail storno post_payment use_as_new credit_note
+    print update ship_to storno post_payment use_as_new credit_note
     delete post order preview post_and_e_mail print_and_post
     mark_as_paid
   )) {

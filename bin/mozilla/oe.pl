@@ -2003,27 +2003,6 @@ sub oe_delivery_order_from_order {
   delivery_order();
 }
 
-sub e_mail {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  check_oe_access();
-
-  $form->mtime_ischanged('oe','mail');
-  $form->{print_and_save} = 1;
-
-  my $saved_form = save_form();
-
-  save();
-
-  restore_form($saved_form, 0, qw(id ordnumber quonumber));
-
-  edit_e_mail();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub yes {
   call_sub($main::form->{yes_nextsub});
 }
@@ -2239,7 +2218,7 @@ sub _oe_remove_delivered_or_billed_rows {
 }
 
 sub dispatcher {
-  foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order quotation
+  foreach my $action (qw(delete delivery_order invoice print purchase_order quotation
                          request_for_quotation sales_order save save_and_close save_as_new ship_to update)) {
     if ($::form->{"action_${action}"}) {
       call_sub($action);

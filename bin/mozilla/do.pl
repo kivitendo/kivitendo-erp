@@ -1177,26 +1177,6 @@ sub save_as_new {
   $main::lxdebug->leave_sub();
 }
 
-sub e_mail {
-  $main::lxdebug->enter_sub();
-
-  check_do_access();
-
-  $::form->mtime_ischanged('delivery_orders','mail');
-
-  $::form->{print_and_save} = 1;
-
-  my $saved_form = save_form();
-
-  save();
-
-  restore_form($saved_form, 0, qw(id ordnumber quonumber));
-
-  edit_e_mail();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub calculate_stock_in_out {
   $main::lxdebug->enter_sub();
 
@@ -1736,7 +1716,7 @@ sub dispatcher {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  foreach my $action (qw(update print e_mail save transfer_out transfer_out_default sort
+  foreach my $action (qw(update print save transfer_out transfer_out_default sort
                          transfer_in transfer_in_default mark_closed save_as_new invoice delete)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
