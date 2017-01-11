@@ -1,10 +1,5 @@
 [%- USE T8 %]
 [% USE HTML %]
- [%- IF SHOW_CONTINUE_BUTTON %]
- [% 'New sales order' | $T8 %]<br>
- <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
- [%- END %]
- <input type="hidden" name="nextsub" value="edit">
  <input type="hidden" name="type" value="[% HTML.escape(type) %]">
  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">

@@ -435,6 +435,23 @@ sub setup_oe_search_action_bar {
   }
 }
 
+sub setup_oe_orders_action_bar {
+  my %params = @_;
+
+  return unless $::form->{type} eq 'sales_order';
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('New sales order'),
+        submit    => [ '#form', { action => 'edit' } ],
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 sub form_header {
   $main::lxdebug->enter_sub();
   my @custom_hiddens;
@@ -1158,7 +1175,7 @@ sub orders {
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
+                       'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom'),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
@@ -1239,6 +1256,7 @@ sub orders {
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
+  setup_oe_orders_action_bar();
   $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
