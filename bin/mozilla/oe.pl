@@ -321,7 +321,7 @@ sub setup_oe_action_bar {
     $bar->add(
       action => [
         t8('Update'),
-        submit    => [ '#form', { action_update => 1 } ],
+        submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
         accesskey => 'enter',
       ],
@@ -329,23 +329,23 @@ sub setup_oe_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          submit  => [ '#form', { action_save => 1 } ],
+          submit  => [ '#form', { action => "save" } ],
           checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
         ],
         action => [
           t8('Save as new'),
-          submit   => [ '#form', { action_save_as_new => 1 } ],
+          submit   => [ '#form', { action => "save_as_new" } ],
           checks   => [ @req_trans_desc, @req_trans_cost_art ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Close'),
-          submit  => [ '#form', { action_save_and_close => 1 } ],
+          submit  => [ '#form', { action => "save_and_close" } ],
           checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
         ],
         action => [
           t8('Delete'),
-          submit   => [ '#form', { action_delete => 1 } ],
+          submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
           disabled => !$form->{id}                                                                      ? t8('This record has not been saved yet.')
                     : (   ($params{is_sales_ord} && !$::instance_conf->get_sales_order_show_delete)
@@ -360,32 +360,32 @@ sub setup_oe_action_bar {
         action => [ t8('Workflow') ],
         (action => [
           t8('Sales Order'),
-          submit   => [ '#form', { action_sales_order => 1 } ],
+          submit   => [ '#form', { action => "sales_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ]) x !!$params{is_sales_quo},
         (action => [
           t8('Purchase Order'),
-          submit   => [ '#form', { action_sales_order => 1 } ],
+          submit   => [ '#form', { action => "sales_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ]) x !!$params{is_req_quo},
         (action => [
           t8('Delivery Order'),
-          submit   => [ '#form', { action_delivery_order => 1 } ],
+          submit   => [ '#form', { action => "delivery_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ]) x ($params{is_sales_ord} || $params{is_pur_ord}),
         (action => [
           t8('Invoice'),
-          submit   => [ '#form', { action_invoice => 1 } ],
+          submit   => [ '#form', { action => "invoice" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ]) x !!$allow_invoice,
         action => [
           t8('Quotation'),
-          submit   => [ '#form', { action_quotation => 1 } ],
+          submit   => [ '#form', { action => "quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
         action => [
           t8('Request for Quotation'),
-          submit   => [ '#form', { action_reqest_for_quotation => 1 } ],
+          submit   => [ '#form', { action => "reqest_for_quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -394,7 +394,7 @@ sub setup_oe_action_bar {
         action => [ t8('Export') ],
         action => [
           t8('Print'),
-          submit => [ '#form', { action_print => 1 } ],
+          call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
           checks => [ @req_trans_desc ],
         ],
         action => [

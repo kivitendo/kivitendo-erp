@@ -954,12 +954,12 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          submit => [ '#form', { action_save => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ],
         action => [
           t8('Save and Close'),
-          submit => [ '#form', { action_save_and_close => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_close" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ],
       ], # end of combobox "Save"
@@ -968,39 +968,39 @@ sub _setup_form_action_bar {
         action => [ t8('Workflow') ],
         (action => [
           t8('Save and AP Transaction'),
-          submit => [ '#form', { action_save_and_ap_transaction => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_ap_transaction" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ]) x !!$self->is_vendor,
         (action => [
           t8('Save and AR Transaction'),
-          submit => [ '#form', { action_save_and_ar_transaction => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_ar_transaction" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ]) x !$self->is_vendor,
         action => [
           t8('Save and Invoice'),
-          submit => [ '#form', { action_save_and_invoice => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_invoice" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ],
         action => [
           t8('Save and Order'),
-          submit => [ '#form', { action_save_and_order => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_order" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ],
         (action => [
           t8('Save and RFQ'),
-          submit => [ '#form', { action_save_and_rfq => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_rfq" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ]) x !!$self->is_vendor,
         (action => [
           t8('Save and Quotation'),
-          submit => [ '#form', { action_save_and_quotation => 1 } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_quotation" } ],
           checks => [ 'check_taxzone_and_ustid' ],
         ]) x !$self->is_vendor,
       ], # end of combobox "Workflow"
 
       action => [
         t8('Delete'),
-        submit   => [ '#form', { action_delete => 1 } ],
+        submit   => [ '#form', { action => "CustomerVendor/delete" } ],
         confirm  => t8('Do you really want to delete this object?'),
         disabled => !$self->{cv}->id    ? t8('This object has not been saved yet.')
                   : !$self->is_orphaned ? t8('This object has already been used.')

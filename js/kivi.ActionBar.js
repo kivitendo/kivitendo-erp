@@ -153,6 +153,7 @@ namespace('kivi', function(k){
           var form   = data.submit[0];
           var params = data.submit[1];
           for (key in params) {
+            $('[name=' + key + ']').remove();
             $hidden = $('<input type=hidden>');
             $hidden.attr('name', key);
             $hidden.attr('value', params[key]);

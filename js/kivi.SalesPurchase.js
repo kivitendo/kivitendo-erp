@@ -239,8 +239,7 @@ namespace('kivi.SalesPurchase', function(ns) {
     $('#send_email_dialog').children().remove().appendTo('#email_inputs');
     $('#send_email_dialog').dialog('close');
 
-    $('#action').val('send_sales_purchase_email');
-    $('#form').submit();
+    kivi.submit_form_with_action('#form', 'send_sales_purchase_email');
 
     return true;
   };

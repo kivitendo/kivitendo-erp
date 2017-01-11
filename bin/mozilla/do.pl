@@ -244,26 +244,26 @@ sub setup_do_action_bar {
     $bar->add(
       action =>
         [ t8('Update'),
-          submit    => [ '#form', { action_update => 1 } ],
+          submit    => [ '#form', { action => "update" } ],
           accesskey => 'enter',
         ],
 
       combobox => [
         action => [
           t8('Save'),
-          submit   => [ '#form', { action_save => 1 } ],
+          submit   => [ '#form', { action => "save" } ],
           checks   => [ @req_trans_desc ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ],
         action => [
           t8('Save as new'),
-          submit   => [ '#form', { action_save_as_new => 1 } ],
+          submit   => [ '#form', { action => "save_as_new" } ],
           checks   => [ @req_trans_desc ],
           disabled => !$::form->{id},
         ],
         action => [
           t8('Mark as closed'),
-          submit   => [ '#form', { action_mark_closed => 1 } ],
+          submit   => [ '#form', { action => "mark_closed" } ],
           checks   => [ @req_trans_desc ],
           confirm  => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
           disabled => !$::form->{id}    ? t8('This record has not been saved yet.')
@@ -274,7 +274,7 @@ sub setup_do_action_bar {
 
       action => [
         t8('Delete'),
-        submit   => [ '#form', { action_delete => 1 } ],
+        submit   => [ '#form', { action => "delete" } ],
         confirm  => t8('Do you really want to delete this object?'),
         disabled => !$::form->{id}                                                                              ? t8('This record has not been saved yet.')
                   : $::form->{delivered}                                                                        ? t8('This record has already been delivered.')
@@ -286,25 +286,25 @@ sub setup_do_action_bar {
       combobox => [
         (action => [
           t8('Transfer out'),
-          submit   => [ '#form', { action_transfer_out => 1 } ],
+          submit   => [ '#form', { action => "transfer_out" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ]) x ($::form->{vc} eq 'customer'),
         (action => [
           t8('Transfer out via default'),
-          submit   => [ '#form', { action_transfer_out_default => 1 } ],
+          submit   => [ '#form', { action => "transfer_out_default" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ]) x ($::form->{vc} eq 'customer' && $::instance_conf->get_transfer_default),
         (action => [
           t8('Transfer in'),
-          submit   => [ '#form', { action_transfer_in    => 1 } ],
+          submit   => [ '#form', { action => "transfer_in"> 1 } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ]) x ($::form->{vc} eq 'vendor'),
         (action => [
           t8('Transfer in via default'),
-          submit   => [ '#form', { action_transfer_in_default => 1 } ],
+          submit   => [ '#form', { action => "transfer_in_default" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ]) x ($::form->{vc} eq 'vendor' && $::instance_conf->get_transfer_default),
@@ -315,7 +315,7 @@ sub setup_do_action_bar {
 
       action => [
         t8('Invoice'),
-        submit => [ '#form', { action_invoice => 1 } ],
+        submit => [ '#form', { action => "invoice" } ],
         disabled => !$::form->{id} ? t8('This record has not been saved yet.') : undef,
       ],
 
@@ -323,7 +323,7 @@ sub setup_do_action_bar {
         action => [ t8('Export') ],
         action => [
           t8('Print'),
-          submit => [ '#form', { action_print => 1 } ],
+          submit => [ '#form', { action => "print" } ],
           checks => [ @req_trans_desc ],
         ],
         action => [

@@ -262,7 +262,7 @@ sub setup_is_action_bar {
     $bar->add(
       action => [
         t8('Update'),
-        submit    => [ '#form', { action_update => 1 } ],
+        submit    => [ '#form', { action => "update" } ],
         disabled  => $form->{locked} ? t8('The billing period has already been locked.') : undef,
         id        => 'update_button',
         accesskey => 'enter',
@@ -271,7 +271,7 @@ sub setup_is_action_bar {
       combobox => [
         action => [
           t8('Post'),
-          submit   => [ '#form', { action_post => 1 } ],
+          submit   => [ '#form', { action => "post" } ],
           checks   => [ @req_trans_desc ],
           disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
@@ -281,12 +281,12 @@ sub setup_is_action_bar {
         ],
         action => [
           t8('Post Payment'),
-          submit   => [ '#form', { action_post_payment => 1 } ],
+          submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         (action => [ t8('Mark as paid'),
-          submit   => [ '#form', { action_mark_as_paid => 1 } ],
+          submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ]) x !!$::instance_conf->get_is_show_mark_as_paid,
@@ -294,13 +294,13 @@ sub setup_is_action_bar {
 
       combobox => [
         action => [ t8('Storno'),
-          submit   => [ '#form', { action_storno => 1 } ],
+          submit   => [ '#form', { action => "storno" } ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Delete'),
-          submit   => [ '#form', { action_delete => 1 } ],
+          submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
@@ -317,12 +317,12 @@ sub setup_is_action_bar {
         action => [ t8('Workflow') ],
         action => [
           t8('Use As New'),
-          submit   => [ '#form', { action_use_as_new => 1 } ],
+          submit   => [ '#form', { action => "use_as_new" } ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [
           t8('Credit Note'),
-          submit   => [ '#form', { action_credit_note => 1 } ],
+          submit   => [ '#form', { action => "credit_note" } ],
           checks   => [ @req_trans_desc ],
           disabled => $form->{type} eq "credit_note" ? t8('Credit notes cannot be converted into other credit notes.')
                     : !$form->{id}                   ? t8('This invoice has not been posted yet.')
@@ -330,7 +330,7 @@ sub setup_is_action_bar {
         ],
         action => [
           t8('Sales Order'),
-          submit   => [ '#form', { action_sales_order   => 1 } ],
+          submit   => [ '#form', { action => "sales_order" } ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -339,7 +339,7 @@ sub setup_is_action_bar {
         action => [ t8('Export') ],
         action => [
           ($form->{id} ? t8('Print') : t8('Preview')),
-          submit   => [ '#form', { action_print => 1 } ],
+          submit   => [ '#form', { action => "print" } ],
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
         ],

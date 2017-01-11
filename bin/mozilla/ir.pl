@@ -225,7 +225,7 @@ sub setup_ir_action_bar {
     $bar->add(
       action => [
         t8('Update'),
-        submit    => [ '#form', { action_update => 1 } ],
+        submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
         accesskey => 'enter',
       ],
@@ -233,7 +233,7 @@ sub setup_ir_action_bar {
       combobox => [
         action => [
           t8('Post'),
-          submit   => [ '#form', { action_post => 1 } ],
+          submit   => [ '#form', { action => "post" } ],
           disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -242,12 +242,12 @@ sub setup_ir_action_bar {
         ],
         action => [
           t8('Post Payment'),
-          submit   => [ '#form', { action_post_payment => 1 } ],
+          submit   => [ '#form', { action => "post_payment" } ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         (action => [
           t8('Mark as paid'),
-          submit   => [ '#form', { action_mark_as_paid => 1 } ],
+          submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ]) x !!$::instance_conf->get_ir_show_mark_as_paid,
@@ -255,12 +255,12 @@ sub setup_ir_action_bar {
 
       combobox => [
         action => [ t8('Storno'),
-          submit   => [ '#form', { action_storno => 1 } ],
+          submit   => [ '#form', { action => "storno" } ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Delete'),
-          submit   => [ '#form', { action_delete => 1 } ],
+          submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
           disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
                     : $form->{locked}          ? t8('The billing period has already been locked.')
@@ -364,7 +364,7 @@ sub form_header {
 
   # hiddens
   $TMPL_VAR{HIDDENS} = [qw(
-    id action type media format queued printed emailed title vc discount
+    id type queued printed emailed title vc discount
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact shiptophone shiptofax
