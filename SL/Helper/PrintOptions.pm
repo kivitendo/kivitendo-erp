@@ -4,6 +4,7 @@ use strict;
 
 use List::MoreUtils qw(any);
 
+sub opthash { +{ value => shift, selected => shift, oname => shift } }
 
 # generate the printing options displayed at the bottom of oe and is forms.
 # this function will attempt to guess what type of form is displayed, and will generate according options
@@ -25,7 +26,6 @@ sub get_print_options {
   my $prefix = $options->{dialog_name_prefix} || '';
 
   # names 3 parameters and returns a hashref, for use in templates
-  sub opthash { +{ value => shift, selected => shift, oname => shift } }
   my (@FORMNAME, @LANGUAGE_ID, @FORMAT, @SENDMODE, @MEDIA, @PRINTER_ID, @SELECTS) = ();
 
   # note: "||"-selection is only correct for values where "0" is _not_ a correct entry
