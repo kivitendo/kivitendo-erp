@@ -149,12 +149,12 @@ sub action_list {
 
   foreach my $bt (@{ $bank_transactions }) {
     ## 5 Stellen hinter dem Komma auf 2 Stellen reduzieren
-    @{$bt->{rule_matches}} = ();
     $bt->amount($bt->amount*1);
     $bt->invoice_amount($bt->invoice_amount*1);
     $main::lxdebug->message(LXDebug->DEBUG2(),"BT ".$bt->id." amount=".$bt->amount." invoice_amount=".$bt->invoice_amount." remote=". $bt->{remote_name});
 
-    $bt->{proposals} = ();
+    $bt->{proposals}    = [];
+    $bt->{rule_matches} = [];
 
     $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
 
