@@ -2663,13 +2663,6 @@ sub create_links {
     }
 
     # now get the account numbers
-#    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-#                FROM chart c, taxkeys tk
-#                WHERE (c.link LIKE ?) AND (c.id = tk.chart_id) AND tk.id =
-#                  (SELECT id FROM taxkeys WHERE (taxkeys.chart_id = c.id) AND (startdate <= $transdate) ORDER BY startdate DESC LIMIT 1)
-#                ORDER BY c.accno|;
-
-#  same query as above, but without expensive subquery for each row. about 80% faster
     $query = qq|
       SELECT c.accno, c.description, c.link, c.taxkey_id, tk2.tax_id
         FROM chart c
