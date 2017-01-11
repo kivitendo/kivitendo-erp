@@ -82,18 +82,4 @@
    [%- END %]
 
 </div>
-
-  <p>
-  [% IF show_edit_buttons %]
-    [% L.button_tag('kivi.Part.save()', LxERP.t8('Save')) %]
-    [% IF SELF.part.id %]
-    [% L.button_tag('kivi.Part.use_as_new()', LxERP.t8('Use as new')) %]
-      [% IF SELF.part.orphaned %]
-        [% L.button_tag('kivi.Part.delete()', LxERP.t8('Delete')) %]
-      [% END %]
-    [% L.button_tag('kivi.Part.open_history_popup()', LxERP.t8('History')) %]
-    [% END %]
-  [% END %]
-  </p>
-
 </form>

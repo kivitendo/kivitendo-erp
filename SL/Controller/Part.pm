@@ -194,6 +194,7 @@ sub render_form {
   my ($self, %params) = @_;
 
   $self->_set_javascript;
+  $self->_setup_form_action_bar;
 
   my (%assortment_vars, %assembly_vars);
   %assortment_vars = %{ $self->prepare_assortment_render_vars } if $self->part->is_assortment;
@@ -216,7 +217,6 @@ sub render_form {
   $self->render(
     'part/form',
     title             => $title_hash{$self->part->part_type},
-    show_edit_buttons => $::auth->assert('part_service_assembly_edit'),
     %assortment_vars,
     %assembly_vars,
     translations_map  => { map { ($_->language_id   => $_) } @{$self->part->translations} },
@@ -596,6 +596,7 @@ sub add {
   check_has_valid_part_type($self->part->part_type);
 
   $self->_set_javascript;
+  $self->_setup_form_action_bar;
 
   my %title_hash = ( part       => t8('Add Part'),
                      assembly   => t8('Add Assembly'),
@@ -605,8 +606,7 @@ sub add {
 
   $self->render(
     'part/form',
-    title             => $title_hash{$self->part->part_type},
-    show_edit_buttons => $::auth->assert('part_service_assembly_edit'),
+    title => $title_hash{$self->part->part_type},
   );
 }
 
@@ -1125,6 +1125,51 @@ sub parse_add_items_to_objects {
   };
 
   return \@item_objects;
+}
+
+sub _setup_form_action_bar {
+  my ($self) = @_;
+
+  my $may_edit = $::auth->assert('part_service_assembly_edit', 'may fail');
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          call     => [ 'kivi.Part.save' ],
+          disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+        ],
+        action => [
+          t8('Use as new'),
+          call     => [ 'kivi.Part.use_as_new' ],
+          disabled => !$self->part->id ? t8('The object has not been saved yet.')
+                    : !$may_edit       ? t8('You do not have the permissions to access this function.')
+                    :                    undef,
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        call     => [ 'kivi.Part.delete' ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => !$self->part->id       ? t8('This object has not been saved yet.')
+                  : !$may_edit             ? t8('You do not have the permissions to access this function.')
+                  : !$self->part->orphaned ? t8('This object has already been used.')
+                  :                          undef,
+      ],
+
+      'separator',
+
+      action => [
+        t8('History'),
+        call     => [ 'kivi.Part.open_history_popup' ],
+        disabled => !$self->part->id ? t8('This object has not been saved yet.')
+                  : !$may_edit       ? t8('You do not have the permissions to access this function.')
+                  :                    undef,
+      ],
+    );
+  }
 }
 
 1;
