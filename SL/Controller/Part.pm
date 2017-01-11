@@ -669,8 +669,8 @@ sub parse_form {
   my $params = delete($::form->{part}) || { };
 
   delete $params->{id};
-  # never overwrite existing partnumber, should be a read-only field anyway
-  delete $params->{partnumber} if $self->part->partnumber;
+  # never overwrite existing partnumber for parts in use, should be a read-only field in that case anyway
+  delete $params->{partnumber} if $self->part->partnumber and not $self->orphaned;
   $self->part->assign_attributes(%{ $params});
   $self->part->bin_id(undef) unless $self->part->warehouse_id;
 

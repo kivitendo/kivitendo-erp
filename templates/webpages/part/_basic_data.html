@@ -20,7 +20,7 @@
              <tr>
               <th align="right">[% 'Part Number' | $T8 %]</th>
               [% SET readonly = 1 %]
-              [% UNLESS SELF.part.id %][% readonly = 0 %][% END %]
+              [%- IF !SELF.part.id or SELF.part.orphaned %][% readonly = 0 %][% END %]
               <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, readonly=readonly class="initial_focus") %]</td>
              </tr>
              <tr>
