@@ -68,11 +68,7 @@
 [%- END %]
 
  <p>
-[% IF submit_as == 'post' %]
-  [% L.hidden_tag("action", "RequirementSpec/dispatch", id=id_prefix _ '_action') %]
-  [% L.submit_tag("action_" _ (SELF.requirement_spec.id ? "update" : "create"), LxERP.t8('Save'), id=id_prefix _ '_action_update') %]
-  <a href="[% SELF.url_for(action="list", is_template=SELF.requirement_spec.is_template) %]">[% LxERP.t8('Abort') %]</a>
-[% ELSE %]
+[% IF submit_as != 'post' %]
   [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/update",  "#" _ id_prefix, LxERP.t8("Save"), id=id_prefix _ '_submit') %]
   <script type="text/javascript"><!--
   $(function() {

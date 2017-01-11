@@ -66,6 +66,8 @@ sub action_new {
     $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate is_template)
   }
 
+  $self->_setup_form_action_bar;
+
   $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec template') : t8('Create a new requirement spec'));
 }
 
@@ -680,6 +682,25 @@ sub init_html_template {
   my $base_name = $self->requirement_spec->type->template_file_name || 'requirement_spec';
   my $template  = SL::Helper::CreatePDF->find_template(name => $base_name, extension => 'html');
   return !!$template;
+}
+
+sub _setup_form_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#basic_settings_form', { action => 'RequirementSpec/' . ($self->requirement_spec->id ? 'update' : 'create') } ],
+        accesskey => 'enter',
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list', is_template => $self->requirement_spec->is_template),
+      ],
+    );
+  }
 }
 
 1;
