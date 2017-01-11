@@ -286,4 +286,35 @@ namespace('kivi.SalesPurchase', function(ns) {
 
     return true;
   };
+
+  // Printing records.
+  this.setup_print_dialog = function() {
+    kivi.SalesPurchase.show_all_print_options_elements();
+
+    $('#print_options').children().remove().appendTo('#print_dialog_print_options');
+
+    $('#print_dialog_print_button').focus();
+  };
+
+  this.finish_print_dialog = function() {
+    $('#print_dialog_print_options').children().remove().appendTo('#print_options');
+  };
+
+  this.print_record = function() {
+    $('#print_dialog').dialog('close');
+
+    kivi.submit_form_with_action('#form', 'print');
+  };
+
+  this.show_print_dialog = function() {
+    kivi.popup_dialog({
+      id:    'print_dialog',
+      dialog: {
+        height: 600,
+        title:  kivi.t8('Print record'),
+        open:   kivi.SalesPurchase.setup_print_dialog,
+        close:  kivi.SalesPurchase.finish_print_dialog,
+      }
+    });
+  };
 });
