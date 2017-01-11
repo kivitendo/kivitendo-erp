@@ -323,7 +323,7 @@ sub setup_do_action_bar {
         action => [ t8('Export') ],
         action => [
           t8('Print'),
-          submit => [ '#form', { action => "print" } ],
+          call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
           checks => [ @req_trans_desc ],
         ],
         action => [
