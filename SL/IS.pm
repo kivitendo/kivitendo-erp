@@ -2203,46 +2203,6 @@ sub get_customer {
   }
   $sth->finish;
 
-  # setup last accounts used for this customer
-  if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {
-    $query =
-      qq|SELECT c.id, c.accno, c.description, c.link, c.category
-         FROM chart c
-         JOIN acc_trans ac ON (ac.chart_id = c.id)
-         JOIN ar a ON (a.id = ac.trans_id)
-         WHERE a.customer_id = ?
-           AND NOT (c.link LIKE '%_tax%' OR c.link LIKE '%_paid%')
-           AND a.id IN (SELECT max(a2.id) FROM ar a2 WHERE a2.customer_id = ?)|;
-    $sth = prepare_execute_query($form, $dbh, $query, $cid, $cid);
-
-    my $i = 0;
-    while ($ref = $sth->fetchrow_hashref('NAME_lc')) {
-      if ($ref->{category} eq 'I') {
-        $i++;
-        $form->{"AR_amount_$i"} = "$ref->{accno}--$ref->{description}";
-
-        if ($form->{initial_transdate}) {
-          my $tax_query =
-            qq|SELECT tk.tax_id, t.rate
-               FROM taxkeys tk
-               LEFT JOIN tax t ON tk.tax_id = t.id
-               WHERE (tk.chart_id = ?) AND (startdate <= date(?))
-               ORDER BY tk.startdate DESC
-               LIMIT 1|;
-          my ($tax_id, $rate) =
-            selectrow_query($form, $dbh, $tax_query, $ref->{id},
-                            $form->{initial_transdate});
-          $form->{"taxchart_$i"} = "${tax_id}--${rate}";
-        }
-      }
-      if ($ref->{category} eq 'A') {
-        $form->{ARselected} = $form->{AR_1} = $ref->{accno};
-      }
-    }
-    $sth->finish;
-    $form->{rowcount} = $i if ($i && !$form->{type});
-  }
-
   $main::lxdebug->leave_sub();
 }
 

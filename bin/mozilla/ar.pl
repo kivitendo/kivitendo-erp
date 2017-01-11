@@ -38,6 +38,7 @@ use List::UtilsBy qw(sort_by);
 
 use SL::AR;
 use SL::FU;
+use SL::GL;
 use SL::IS;
 use SL::DB::Default;
 use SL::DB::Invoice;
@@ -101,6 +102,12 @@ sub add {
   $form->{initial_transdate} = $form->{transdate};
   create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
+
+  if ($form->{customer_id}) {
+    my $last_used_ar_chart = SL::DB::Customer->load_cached($form->{customer_id})->last_used_ar_chart;
+    $form->{"AR_amount_chart_id_1"} = $last_used_ar_chart->id if $last_used_ar_chart;
+  }
+
   &display_form;
   $main::lxdebug->leave_sub();
 }
@@ -167,6 +174,7 @@ sub create_links {
   $form->{$_}          = $saved{$_} for keys %saved;
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
+  $form->{AR_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AR} ? $form->{acc_trans}->{AR}->[0]->{chart_id} : $form->{AR_links}->{AR}->[0]->{chart_id};
 
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
@@ -218,36 +226,14 @@ sub form_header {
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($notes, $customer, $employee, $amount, $project);
-  my ($ARselected);
 
+  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer' : 'row_' . $form->{rowcount};
 
   $title = $form->{title};
   # $locale->text('Add Accounts Receivables Transaction')
   # $locale->text('Edit Accounts Receivables Transaction')
   $form->{title} = $locale->text("$title Accounts Receivables Transaction");
 
-  $form->{javascript} = qq|<script type="text/javascript">
-  <!--
-  function setTaxkey(accno, row) {
-    var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9]*)/;
-    var found = reg.exec(taxkey);
-    var index = found[1];
-    index = parseInt(index);
-    var tax = 'taxchart_' + row;
-    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
-      var reg2 = new RegExp("^"+ index, "");
-      if (reg2.exec(document.getElementById(tax).options[i].value)) {
-        document.getElementById(tax).options[i].selected = true;
-        break;
-      }
-    }
-  };
-  //-->
-  </script>|;
-  # show history button js
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
-  #/show history button js
   $readonly = ($form->{id}) ? "readonly" : "";
 
   $form->{radier} = ($::instance_conf->get_ar_changeable == 2)
@@ -285,53 +271,27 @@ sub form_header {
 
   my %project_labels = map { $_->{id} => $_->{projectnumber} } @{ $form->{"ALL_PROJECTS"} };
 
-  my (@AR_amount_values);
-  my (@AR_values);
-  my (@AR_paid_values);
-  my %chart_labels;
-  my %charts;
-  my $taxchart_init;
+  my (@AR_paid_values, %AR_paid_labels);
+  my $default_ar_amount_chart_id;
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ($item->{link_split}{AR_amount}) {
-      $taxchart_init = $item->{tax_id} if ($taxchart_init eq "");
-      my $key = "$item->{accno}--$item->{tax_id}";
-      push(@AR_amount_values, $key);
-    } elsif ($item->{link_split}{AR}) {
-      push(@AR_values, $item->{accno});
+      $default_ar_amount_chart_id //= $item->{id};
+
     } elsif ($item->{link_split}{AR_paid}) {
       push(@AR_paid_values, $item->{accno});
+      $AR_paid_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
     }
-
-    # weirdness for AR_amount
-    $chart_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
-    $chart_labels{"$item->{accno}--$item->{tax_id}"} = "$item->{accno}--$item->{description}";
-
-    $charts{$item->{accno}} = $item;
-  }
-
-  my %taxchart_labels = ();
-  my @taxchart_values = ();
-  my %taxcharts = ();
-  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    my $key = "$item->{id}--$item->{rate}";
-    $taxchart_init = $key if ($taxchart_init eq $item->{id});
-    push(@taxchart_values, $key);
-    $taxchart_labels{$key} = "$item->{taxdescription} " . ($item->{rate} * 100) . ' %';
-    $taxcharts{$item->{id}} = $item;
   }
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--.*?//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $form->{javascript} .=
-    qq|<script type="text/javascript" src="js/show_vc_details.js"></script>| .
-    qq|<script type="text/javascript" src="js/follow_up.js"></script>| .
-    qq|<script type="text/javascript" src="js/kivi.Draft.js"></script>|;
+  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
 
-#  $amount  = $locale->text('Amount');
-#  $project = $locale->text('Project');
+  my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $first_taxchart;
 
   my @transactions;
   for my $i (1 .. $form->{rowcount}) {
@@ -341,40 +301,26 @@ sub form_header {
       project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
     };
 
-    my $selected_accno_full;
-    my ($accno_row) = split(/--/, $form->{"AR_amount_$i"});
-    my $item = $charts{$accno_row};
-    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
+    my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
+    my $amount_chart_id   = $form->{"AR_amount_chart_id_$i"} // $default_ar_amount_chart_id;
+    my $chart_has_changed = $::form->{"previous_AR_amount_chart_id_$i"} && ($amount_chart_id != $::form->{"previous_AR_amount_chart_id_$i"});
 
-    my $selected_taxchart = $form->{"taxchart_$i"};
-    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
-    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_AR_amount_$i"});
+    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate) ) {
+      my $key             = $item->id . "--" . $item->rate;
+      $first_taxchart   //= $item;
+      $default_taxchart   = $item if $item->{is_default};
+      $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
 
-    if ($previous_accno &&
-        ($previous_accno eq $selected_accno) &&
-        ($previous_tax_id ne $selected_tax_id)) {
-      my $item = $taxcharts{$selected_tax_id};
-      $selected_taxchart = "$item->{id}--$item->{rate}";
+      push(@taxchart_values, $key);
+      $taxchart_labels{$key} = $item->taxdescription . " " . $item->rate * 100 . ' %';
     }
 
-    if (!$form->{"taxchart_$i"}) {
-      if ($form->{"AR_amount_$i"} =~ m/.--./) {
-        $selected_taxchart = join '--', map { ($_->{id}, $_->{rate}) } first { $_->{id} == $item->{tax_id} } @{ $form->{ALL_TAXCHARTS} };
-      } else {
-        $selected_taxchart = $taxchart_init;
-      }
-    }
+    $taxchart_to_use      = $default_taxchart // $first_taxchart if $chart_has_changed || !$taxchart_to_use;
+    my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     $transaction->{selectAR_amount} =
-      NTI($cgi->popup_menu('-name' => "AR_amount_$i",
-                           '-id' => "AR_amount_$i",
-                           '-style' => 'width:400px',
-                           '-onChange' => "setTaxkey(this, $i)",
-                           '-values' => \@AR_amount_values,
-                           '-labels' => \%chart_labels,
-                           '-default' => $selected_accno_full))
-      . $cgi->hidden('-name' => "previous_AR_amount_$i",
-                     '-default' => $selected_accno_full);
+        $::request->presenter->chart_picker("AR_amount_chart_id_$i", $amount_chart_id, style => "width: 400px", type => "AR_amount", class => ($form->{initial_focus} eq "row_$i" ? "initial_focus" : ""))
+      . $::request->presenter->hidden_tag("previous_AR_amount_chart_id_$i", $amount_chart_id);
 
     $transaction->{taxchart} =
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
@@ -388,13 +334,6 @@ sub form_header {
   }
 
   $form->{invtotal_unformatted} = $form->{invtotal};
-
-  $ARselected =
-    NTI($cgi->popup_menu('-name' => "ARselected", '-id' => "ARselected",
-                         '-style' => 'width:400px',
-                         '-values' => \@AR_values, '-labels' => \%chart_labels,
-                         '-default' => $form->{ARselected}));
-
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
 
@@ -423,7 +362,7 @@ sub form_header {
       NTI($cgi->popup_menu('-name' => "AR_paid_$i",
                            '-id' => "AR_paid_$i",
                            '-values' => \@AR_paid_values,
-                           '-labels' => \%chart_labels,
+                           '-labels' => \%AR_paid_labels,
                            '-default' => $payment->{AR_paid} || $form->{accno_arap}));
 
 
@@ -457,7 +396,7 @@ sub form_header {
     transactions         => \@transactions,
     project_labels       => \%project_labels,
     rows                 => $rows,
-    ARselected           => $ARselected,
+    AR_chart_id          => $form->{AR_chart_id},
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
     today                => DateTime->today,
@@ -570,16 +509,7 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id notes);
-
   &check_name("customer");
-
-  $form->{AR} = $saved_variables{AR};
-  if ($saved_variables{AR_amount_1} =~ m/.--./) {
-    map { $form->{$_} = $saved_variables{$_} } qw(AR_amount_1 taxchart_1);
-  } else {
-    delete $form->{taxchart_1};
-  }
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;

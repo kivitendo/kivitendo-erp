@@ -75,10 +75,7 @@ sub _post_transaction {
         $form->parse_amount($myconfig, $form->{exchangerate}) );
 
   # get the charts selected
-  map { ($form->{AR_amounts}{"amount_$_"}) = split /--/, $form->{"AR_amount_$_"} } 1 .. $form->{rowcount};
-
-  $form->{AR_amounts}{receivables} = $form->{ARselected};
-  $form->{AR}{receivables}         = $form->{ARselected};
+  $form->{AR_amounts}{"amount_$_"} = $form->{"AR_amount_chart_id_$_"} for (1 .. $form->{rowcount});
 
   $form->{tax}       = 0; # is this still needed?
 
@@ -157,7 +154,7 @@ sub _post_transaction {
 
         # insert detail records in acc_trans
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)
-                     VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.accno = ?))|;
+                     VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
         @values = (conv_i($form->{id}), $form->{AR_amounts}{"amount_$i"}, conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
                    conv_i($form->{"taxkey_$i"}), conv_i($form->{"tax_id_$i"}), $form->{AR_amounts}{"amount_$i"});
         do_query($form, $dbh, $query, @values);
@@ -175,17 +172,15 @@ sub _post_transaction {
 
     # add recievables
     $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link)
-                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                 VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?),
                  (SELECT tax_id
                   FROM taxkeys
-                  WHERE chart_id= (SELECT id
-                                   FROM chart
-                                   WHERE accno = ?)
+                  WHERE chart_id = ?
                   AND startdate <= ?
                   ORDER BY startdate DESC LIMIT 1),
-                 (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-    @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables}, conv_i($form->{receivables}), conv_date($form->{transdate}),
-                $form->{AR_amounts}{receivables}, $form->{AR_amounts}{receivables}, conv_date($form->{transdate}), $form->{AR_amounts}{receivables});
+                 (SELECT c.link FROM chart c WHERE c.id = ?))|;
+    @values = (conv_i($form->{id}), $form->{AR_chart_id}, conv_i($form->{receivables}), conv_date($form->{transdate}),
+                $form->{AR_chart_id}, $form->{AR_chart_id}, conv_date($form->{transdate}), $form->{AR_chart_id});
     do_query($form, $dbh, $query, @values);
 
   } else {
@@ -225,17 +220,14 @@ sub _post_transaction {
       if ($amount != 0) {
         # add receivable
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)
-                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                     VALUES (?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?),
                      (SELECT tax_id
                       FROM taxkeys
-                      WHERE chart_id= (SELECT id
-                                       FROM chart
-                                       WHERE accno = ?)
+                      WHERE chart_id = ?
                       AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
-                     (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{receivables}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{receivables}, $form->{AR}{receivables}, conv_date($form->{"datepaid_$i"}),
-        $form->{AR}{receivables});
+                     (SELECT c.link FROM chart c WHERE c.id = ?))|;
+        @values = (conv_i($form->{id}), $form->{AR_chart_id}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR_chart_id}, $form->{AR_chart_id}, conv_date($form->{"datepaid_$i"}), $form->{AR_chart_id});
 
         do_query($form, $dbh, $query, @values);
       }
@@ -421,9 +413,9 @@ sub _post_payment {
   $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
-  # Get the AR accno (which is normally done by Form::create_links()).
+  # Get the AR chart ID (which is normally done by Form::create_links()).
   $query =
-    qq|SELECT c.accno
+    qq|SELECT c.id
        FROM acc_trans at
        LEFT JOIN chart c ON (at.chart_id = c.id)
        WHERE (trans_id = ?)
@@ -431,7 +423,7 @@ sub _post_payment {
        ORDER BY at.acc_trans_id
        LIMIT 1|;
 
-  ($form->{ARselected}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
+  ($form->{AR_chart_id}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
 
   # Post the new payments.
   $self->post_transaction($myconfig, $form, $dbh, 1);
@@ -739,15 +731,8 @@ sub setup_form {
             $form->{"projectnumber_$k"}    = $form->{acc_trans}{$key}->[$i-1]->{projectnumber};
             $form->{taxrate}               = $form->{acc_trans}{$key}->[$i - 1]->{rate};
             $form->{"project_id_$k"}       = $form->{acc_trans}{$key}->[$i-1]->{project_id};
-          }
 
-          $form->{"${key}_$i"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-
-          if ($akey eq "AR") {
-            $form->{ARselected} = $form->{acc_trans}{$key}->[$i-1]->{accno};
-
-          } elsif ($akey eq "amount") {
-            $form->{"${key}_$k"}   = $form->{acc_trans}{$key}->[$i-1]->{accno} . "--" . $form->{acc_trans}{$key}->[$i-1]->{id};
+            $form->{"${key}_chart_id_$k"} = $form->{acc_trans}{$key}->[$i-1]->{chart_id};
             $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id}    . "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }
         }
