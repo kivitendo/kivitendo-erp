@@ -47,15 +47,15 @@
  </table></td></tr>
 </table>
 
-<form method="post" action="ic.pl">
+<form method="post" action="controller.pl">
 
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
 
- <input type="hidden" name="item" id="item_id" value="part">
- <input type="hidden" name="action" value="add">
+ <input type="hidden" name="action" id="item_id" value="Part/add_part">
 
- <input class="submit" type="submit" onclick="$('#item_id').val('part');return true;" value="[%- 'Add Part' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('service');return true;" value="[%- 'Add Service' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('assembly');return true;" value="[%- 'Add Assembly' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_part');return true;"       value="[%- 'Add Part' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_service');return true;"    value="[%- 'Add Service' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_assembly');return true;"   value="[%- 'Add Assembly' | $T8 %]">
+ <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_assortment');return true;" value="[%- 'Add Assortment' | $T8 %]">
 
 </form>
