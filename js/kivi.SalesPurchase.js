@@ -303,10 +303,12 @@ namespace('kivi.SalesPurchase', function(ns) {
   this.print_record = function() {
     $('#print_dialog').dialog('close');
 
-    kivi.submit_form_with_action('#form', 'print');
+    kivi.submit_form_with_action('#form', $('#form').data('print-action'));
   };
 
-  this.show_print_dialog = function() {
+  this.show_print_dialog = function(print_action) {
+    $('#form').data('print-action', print_action || 'print');
+
     kivi.popup_dialog({
       id:    'print_dialog',
       dialog: {

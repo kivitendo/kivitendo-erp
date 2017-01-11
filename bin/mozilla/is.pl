@@ -339,7 +339,7 @@ sub setup_is_action_bar {
         action => [ t8('Export') ],
         action => [
           ($form->{id} ? t8('Print') : t8('Preview')),
-          submit   => [ '#form', { action => "print" } ],
+          call     => [ 'kivi.SalesPurchase.show_print_dialog', $form->{id} ? 'print' : 'preview' ],
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
         ],
