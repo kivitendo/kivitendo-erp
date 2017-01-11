@@ -269,8 +269,18 @@ sub _write {
   my @prefixes = ($prefix);
 
   if ($options{show_caller}) {
-    my ($package, $filename, $line, $subroutine) = caller(1);
-    push @prefixes, "${filename}:${line}";
+    my $level = 1;
+    while (1) {
+      my ($package, $filename, $line, $subroutine) = caller($level);
+
+      if (($filename // '') =~ m{LXDebug\.pm$}) {
+        $level++;
+        next;
+      }
+
+      push @prefixes, "${filename}:${line}";
+      last;
+    }
   }
 
   $prefix = join ' ', grep { $_ } @prefixes;
