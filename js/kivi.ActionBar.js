@@ -55,7 +55,7 @@ namespace('kivi', function(k){
           case 'enter': return 13;
           default:
             if (val.length == 1) {
-              return val.charChodeAt(0)
+              return val.charChodeAt(0);
             } else if (val % 1 === 0) {
               return val;
             } else {
@@ -147,16 +147,16 @@ namespace('kivi', function(k){
         if (data.confirm && !confirm(data.confirm)) return;
         if (data.call) {
           func = kivi.get_function_by_name(data.call[0]);
-          func.apply(document, data.call.slice(1))
+          func.apply(document, data.call.slice(1));
         }
         if (data.submit) {
           var form   = data.submit[0];
           var params = data.submit[1];
           for (key in params) {
-            $hidden = $('<input type=hidden>')
-            $hidden.attr('name', key)
-            $hidden.attr('value', params[key])
-            $(form).append($hidden)
+            $hidden = $('<input type=hidden>');
+            $hidden.attr('name', key);
+            $hidden.attr('value', params[key]);
+            $(form).append($hidden);
           }
           $(form).submit();
         }
