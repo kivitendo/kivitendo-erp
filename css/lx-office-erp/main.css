@@ -391,10 +391,8 @@ label {
   margin-right: 6px;
 }
 
+.chart_picker,
 .part_picker {
-}
-.chart_picker {
-  padding-right: 16px;
 }
 .customer-vendor-picker-undefined,
 .chartpicker-undefined,
@@ -422,11 +420,13 @@ div.chart_picker_chart:hover {
   border-color: gray;
 }
 
+div.cpc_block,
 div.ppp_block {
   overflow:hidden;
   float:left;
   width: 350px;
 }
+span.cpc_popup_button,
 span.ppp_popup_button {
   display: inline-block;
   position: relative;
@@ -437,12 +437,15 @@ span.ppp_popup_button {
   cursor: pointer;
 }
 
+td span.cpc_popup_button,
+th span.cpc_popup_button,
 td span.ppp_popup_button,
 th span.ppp_popup_button {
   height: 9px;
   width: 9px;
   margin-left: -13px;
 }
+span.chart_picker input,
 span.part_picker input {
   padding-right: 20px;
   background: white url("../../image/search.svg") no-repeat center right;
@@ -452,11 +455,14 @@ span.part_picker input {
   -webkit-box-sizing: padding-box;
 }
 
+td span.chart_picker input,
+th span.chart_picker input,
 td span.part_picker input,
 th span.part_picker input {
   padding-right: 15px;
 }
 
+span.chart_picker,
 span.part_picker {
  /* white-space: nowrap;*/
 }

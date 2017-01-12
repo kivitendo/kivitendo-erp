@@ -407,16 +407,15 @@ label {
   margin-right: 6px;
 }
 
+.chart_picker,
 .part_picker {
   display: inline-block;
 }
+.chart_picker:before,
 .part_picker:before {
   display: inline-block;
   vertical-align: middle;
   height: 100%;
-}
-.chart_picker {
-  padding-right: 16px;
 }
 .customer-vendor-picker-undefined,
 .chartpicker-undefined,
@@ -444,11 +443,13 @@ div.chart_picker_chart:hover {
   color: #FE5F14;
 }
 
+div.cpc_block,
 div.ppp_block {
   overflow:hidden;
   float:left;
   width: 350px;
 }
+span.cpc_popup_button,
 span.ppp_popup_button {
   display: inline-block;
   vertical-align: middle;
@@ -459,12 +460,14 @@ span.ppp_popup_button {
   background: url("../../image/search.svg") no-repeat center right;
   background-size: contain;
 }
+span.chart_picker input,
 span.part_picker input {
   padding-right: 20px;
   box-sizing: padding-box;
   -moz-box-sizing: padding-box;
   -webkit-box-sizing: padding-box;
 }
+span.chart_picker,
 span.part_picker {
   white-space: nowrap;
 }
