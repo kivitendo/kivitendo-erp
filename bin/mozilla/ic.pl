@@ -94,6 +94,7 @@ sub search {
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
 
+  setup_ic_search_action_bar();
   $form->header;
 
   $form->get_lists('partsgroup'    => 'ALL_PARTSGROUPS');
@@ -586,9 +587,58 @@ sub generate_report {
     $report->add_data($row);
   }
 
-  $report->generate_with_headers();
+  setup_ic_generate_report_action_bar();
+  $report->generate_with_headers(action_bar => 1);
 
   $lxdebug->leave_sub();
 }    #end generate_report
 
-sub continue { call_sub($form->{"nextsub"}); }
+sub setup_ic_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'generate_report' } ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('TOP100'),
+        submit => [ '#form', { action => 'top100' } ],
+      ],
+    );
+  }
+}
+
+sub setup_ic_generate_report_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Add'),
+        ],
+        action => [
+          t8('Add Part'),
+          submit    => [ '#new_form', { action => 'Part/add_part' } ],
+          accesskey => 'enter',
+        ],
+        action => [
+          t8('Add Service'),
+          submit    => [ '#new_form', { action => 'Part/add_service' } ],
+        ],
+        action => [
+          t8('Add Assembly'),
+          submit    => [ '#new_form', { action => 'Part/add_assembly' } ],
+        ],
+        action => [
+          t8('Add Assortment'),
+          submit    => [ '#new_form', { action => 'Part/add_assortment' } ],
+        ],
+      ], # end of combobox "Add part"
+    );
+  }
+}

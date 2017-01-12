@@ -47,15 +47,6 @@
  </table></td></tr>
 </table>
 
-<form method="post" action="controller.pl">
-
+<form method="post" action="controller.pl" id="new_form">
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
-
- <input type="hidden" name="action" id="item_id" value="Part/add_part">
-
- <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_part');return true;"       value="[%- 'Add Part' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_service');return true;"    value="[%- 'Add Service' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_assembly');return true;"   value="[%- 'Add Assembly' | $T8 %]">
- <input class="submit" type="submit" onclick="$('#item_id').val('Part/add_assortment');return true;" value="[%- 'Add Assortment' | $T8 %]">
-
 </form>

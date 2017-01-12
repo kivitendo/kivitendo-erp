@@ -6,7 +6,7 @@
 [% SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
- <form method="post" action="ic.pl">
+ <form method="post" action="ic.pl" id="form">
 
   <input type="hidden" name="searchitems" value="[% HTML.escape(searchitems) %]">
   <input type="hidden" name="title" value="[% HTML.escape(title) %]">
@@ -14,7 +14,6 @@
   <input type="hidden" name="revers" value="[% HTML.escape(revers) %]">
   <input type="hidden" name="lastsort" value="[% HTML.escape(lastsort) %]">
 
-  <input type="hidden" name="nextsub" value="generate_report">
   <input type="hidden" name="sort" value="description">
 
   <input type="hidden" name="ndxs_counter" value="[% HTML.escape(ndxs_counter) %]">
@@ -233,9 +232,4 @@
    </tr>
    <tr><td colspan="4"><hr size="3" noshade></td></tr>
   </table>
-
-  <p>
-   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
-   <input class="submit" type="submit" name="action" value="[% 'TOP100' | $T8 %]">
-  </p>
  </form>
