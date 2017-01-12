@@ -96,7 +96,6 @@ namespace('kivi', function(k){
       state = STATES.PICKED;
       last_real = $real.val();
       last_dummy = $dummy.val();
-      last_unverified_dummy = $dummy.val();
       $real.trigger('change');
 
       if (o.fat_set_item && item.id) {
@@ -120,7 +119,6 @@ namespace('kivi', function(k){
       } else if (state == STATES.UNDEFINED && $dummy.val() === '')
         set_item({})
       else {
-        last_unverified_dummy = $dummy.val();
         set_item({ id: last_real, name: last_dummy })
       }
       annotate_state();
@@ -132,7 +130,6 @@ namespace('kivi', function(k){
       else if (state == STATES.UNDEFINED && $dummy.val() === '')
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
       else {
-        last_unverified_dummy = $dummy.val();
         $dummy.addClass(STATES.UNDEFINED).removeClass(STATES.PICKED);
       }
     }
