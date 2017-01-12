@@ -56,6 +56,7 @@ use SL::DB::Business;
 use SL::DB::Default;
 use SL::DB::DeliveryTerm;
 use SL::ReportGenerator;
+use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(uri_encode);
 
 require "bin/mozilla/common.pl";
@@ -88,6 +89,8 @@ sub search {
 
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
 
+  setup_ct_search_action_bar();
+
   $form->header();
   print $form->parse_html_template('ct/search');
 
@@ -106,6 +109,8 @@ sub search_contact {
                                                                            'include_value'  => 'Y');
 
   $::form->{title} = $::locale->text('Search contacts');
+
+  setup_ct_search_contact_action_bar();
   $::form->header;
   print $::form->parse_html_template('ct/search_contact');
 
@@ -295,7 +300,8 @@ sub list_names {
     $report->add_data($row);
   }
 
-  $report->generate_with_headers();
+  setup_ct_list_names_action_bar();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }
@@ -426,9 +432,51 @@ sub list_contacts {
     $report->add_data($row);
   }
 
-  $report->generate_with_headers;
+  $report->generate_with_headers(action_bar => 1);
 
   $::lxdebug->leave_sub;
+}
+
+sub setup_ct_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'list_names' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_ct_list_names_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::form->{db} eq 'customer' ? t8('New customer') : t8('New vendor'),
+        submit    => [ '#new_form', { action => 'CustomerVendor/add' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_ct_search_contact_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'list_contacts' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 sub continue { call_sub($main::form->{nextsub}); }

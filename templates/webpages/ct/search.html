@@ -3,7 +3,7 @@
 [%- USE HTML %]
 <h1>[% title %]</h1>
 
- <form method="post" action="ct.pl" name="Form">
+ <form method="post" action="ct.pl" name="Form" id="form">
 
   <input type="hidden" name="db" value="[% HTML.escape(db) %]">
 
@@ -215,8 +215,4 @@
     </td>
    </tr>
   </table>
-
-  <input type="hidden" name="nextsub" value="list_names">
-
-  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>

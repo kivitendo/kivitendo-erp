@@ -4,7 +4,7 @@
 [%- USE LxERP %]
 <h1>[% 'Contacts' | $T8 %]</h1>
 
- <form method="post" action="ct.pl" name="Form">
+ <form method="post" action="ct.pl" name="Form" id="form">
 
   <table>
    <tr>
@@ -132,8 +132,4 @@
     </td>
    </tr>
   </table>
-
-  <input type="hidden" name="nextsub" value="list_contacts">
-
-  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
