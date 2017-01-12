@@ -45,6 +45,11 @@ S [% i %]: [% L.chart_picker('credit_' _ i) %] - &nbsp;&nbsp;  H [% i %]: [% L.c
 [% END %]
 </p>
 
+<p>
+Pre-filled chart object: [% L.chart_picker('pre_filled_chart_object', pre_filled_chart, style=style) %]<br>
+Pre-filled chart ID: [% L.chart_picker('pre_filled_chart_id', pre_filled_chart.id, style=style) %]<br>
+</p>
+
 </div>
 
 <script type='text/javascript'>
@@ -57,4 +62,3 @@ S [% i %]: [% L.chart_picker('credit_' _ i) %] - &nbsp;&nbsp;  H [% i %]: [% L.c
   });
 
 </script>
-
