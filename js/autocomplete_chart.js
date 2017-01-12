@@ -14,6 +14,9 @@ namespace('kivi', function(k){
       RIGHT:  39,
       PAGE_UP: 33,
       PAGE_DOWN: 34,
+      SHIFT:     16,
+      CTRL:      17,
+      ALT:       18,
     };
     var CLASSES = {
       PICKED:       'chartpicker-picked',
@@ -197,6 +200,10 @@ namespace('kivi', function(k){
       select: function(event, ui) {
         set_item(ui.item);
       },
+      search: function(event, ui) {
+        if ((event.which == KEY.SHIFT) || (event.which == KEY.CTRL) || (event.which == KEY.ALT))
+          event.preventDefault();
+      }
     });
     /*  In case users are impatient and want to skip ahead:
      *  Capture <enter> key events and check if it's a unique hit.
@@ -230,7 +237,7 @@ namespace('kivi', function(k){
           });
           return false;
         }
-      } else {
+      } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
         state = STATES.UNDEFINED;
       }
     });
