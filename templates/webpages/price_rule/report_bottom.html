@@ -2,8 +2,3 @@
 [% USE T8 %]
 [% USE HTML %]
 [%- L.paginate_controls(models=SELF.models) %]
-
-[%- UNLESS FORM.inline %]
-<a href="[% SELF.url_for(action='new', 'price_rule.type'='customer', callback=SELF.models.get_callback) | html %]">[% 'New Sales Price Rule' | $T8 %]</a>
-<a href="[% SELF.url_for(action='new', 'price_rule.type'='vendor', callback=SELF.models.get_callback) | html %]">[% 'New Purchase Price Rule' | $T8 %]</a>
-[%- END %]

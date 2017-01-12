@@ -6,7 +6,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
   [% L.hidden_tag("price_rule.id",   SELF.price_rule.id) %]
   [% L.hidden_tag("price_rule.type", SELF.price_rule.type) %]
 
@@ -42,15 +42,4 @@
 <h3>[% 'Then' | $T8 %]:</h3>
 <div>[% 'Set (set to)' | $T8 %] [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=SELF.price_rule.price_type) %] [% 'to (set to)' | $T8 %] [% L.input_tag('price_rule.price_or_discount_as_number', SELF.price_rule.price_or_discount_as_number) %] <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
 </div>
-
-  <p>
-   [% L.hidden_tag("action", "PriceRule/dispatch") %]
-   [% L.hidden_tag("callback", FORM.callback) %]
-   [% L.submit_tag("action_" _  (SELF.price_rule.id ? "update" : "create"), LxERP.t8('Save')) %]
-   [%- IF SELF.price_rule.id %]
-    [% L.submit_tag("action_create", LxERP.t8('Save as new')) %]
-    [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?')) IF !SELF.price_rule.in_use %]
-   [%- END %]
-   <a href="[% SELF.url_for(action='list', 'filter.type'=SELF.price_rule.type) %]">[%- LxERP.t8('Abort') %]</a>
-  </p>
  </form>

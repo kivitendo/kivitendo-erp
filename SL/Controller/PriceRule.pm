@@ -34,9 +34,11 @@ sub action_list {
 
   my $price_rules = $self->models->get;
 
+  $self->setup_search_action_bar;
+
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $price_rules, $::form->{inline} ? (layout => 0, header => 0) : ());
+  $self->report_generator_list_objects(report => $self->{report}, objects => $price_rules, $::form->{inline} ? (layout => 0, header => 0) : (action_bar => 1));
 }
 
 sub action_new {
@@ -109,6 +111,7 @@ sub display_form {
   my ($self, %params) = @_;
   my $is_new  = !$self->price_rule->id;
   my $title   = $self->form_title(($is_new ? 'create' : 'edit'), $self->price_rule->type);
+  $self->setup_form_action_bar;
   $self->render('price_rule/form',
     title => $title,
     %params
@@ -298,6 +301,77 @@ sub init_models {
       items    => t8('Rule Details'),
     },
   );
+}
+
+sub setup_search_action_bar {
+  my ($self, %params) = @_;
+
+  return if $::form->{inline};
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#search_form', { action => 'PriceRule/list' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Reset'),
+        call => [ 'kivi.PriceRule.reset_search_form' ],
+      ],
+
+      combobox => [
+        action => [
+          t8('Add'),
+        ],
+        link => [
+          t8('New Sales Price Rule'),
+          link => $self->url_for(action => 'new', 'price_rule.type' => 'customer', callback => $self->models->get_callback),
+        ],
+        link => [
+          t8('New Purchase Price Rule'),
+          link => $self->url_for(action => 'new', 'price_rule.type' => 'vendor', callback => $self->models->get_callback),
+        ],
+      ], # end of combobox "Add"
+    );
+  }
+}
+
+sub setup_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->price_rule->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          $is_new ? t8('Create') : t8('Save'),
+          submit    => [ '#form', { action => 'PriceRule/' . ($is_new ? 'create' : 'update') } ],
+          accesskey => 'enter',
+        ],
+        action => [
+          t8('Use as new'),
+          submit   => [ '#form', { action => 'PriceRule/create' } ],
+          disabled => $is_new ? t8('The object has not been saved yet.') : undef,
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'PriceRule/destroy' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new                   ? t8('The object has not been saved yet.')
+                  : $self->price_rule->in_use ? t8('This object has already been used.')
+                  :                             undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list', 'filter.type' => $self->price_rule->type),
+      ],
+    );
+  }
 }
 
 1;
