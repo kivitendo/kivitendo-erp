@@ -53,8 +53,9 @@ my %sort_columns = (
 sub action_list {
   my ($self) = @_;
 
+  $self->_setup_search_action_bar;
   $self->prepare_report;
-  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get, action_bar => 1);
 }
 
 sub action_new {
@@ -698,6 +699,24 @@ sub _setup_form_action_bar {
       link => [
         t8('Abort'),
         link => $self->url_for(action => 'list', is_template => $self->requirement_spec->is_template),
+      ],
+    );
+  }
+}
+
+sub _setup_search_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#search_form', { action => 'RequirementSpec/list' } ],
+        accesskey => 'enter',
+      ],
+      link => [
+        t8('Add'),
+        link => $self->url_for(action => 'new', is_template => $::form->{is_template}),
       ],
     );
   }

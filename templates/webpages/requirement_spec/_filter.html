@@ -7,7 +7,7 @@
 <div class="filter_toggle" style="display:none">
  <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Hide Filter") %]</a>
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="search_form">
   [%- L.hidden_tag("is_template", is_template) %]
 
   <p>
@@ -80,9 +80,5 @@
 [%- END %]
    </table>
   </p>
-
-  [% L.hidden_tag("action", "RequirementSpec/list") %]
-
-  <p>[% L.submit_tag("dummy", LxERP.t8("Continue")) %]</p>
  </form>
 </div>
