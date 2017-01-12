@@ -1,29 +1,7 @@
 [%- USE L %]
 [%- USE HTML %]
 [%- USE T8 %]
-[%- USE LxERP %]
-
-<script type="text/javascript">
-<!--
-  function setTaxkey(accno, row) {
-    var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9]*)/;
-    var found = reg.exec(taxkey);
-    var index = found[1];
-    index = parseInt(index);
-    var tax = 'taxchart_' + row;
-    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
-      var reg2 = new RegExp("^"+ index, "");
-      if (reg2.exec(document.getElementById(tax).options[i].value)) {
-        document.getElementById(tax).options[i].selected = true;
-        break;
-      }
-    }
-  };
-//-->
-</script>
-
-<script type="text/javascript" src="js/show_history.js"></script>
+[%- USE LxERP %][%- USE P -%]
 
 <form method="post" action="[% script | html %]">
 
@@ -104,9 +82,9 @@
                 <th align="right" nowrap>[% 'Vendor' | $T8 %]</th>
                 <td colspan="3">
                   [% IF ( selectvendor ) %]
-                    <select name="vendor" onchange="document.getElementById('update_button').click();">[% selectvendor %]</select>
+                    <select name="vendor" onchange="document.getElementById('update_button').click();"[% IF initial_focus == 'vendor' %] class="initial_focus"[% END %]>[% selectvendor %]</select>
                   [% ELSE %]
-                    <input name=vendor value="[% vendor | html %]" size="35">
+                    <input name=vendor value="[% vendor | html %]" size="35"[% IF initial_focus == 'vendor' %] class="initial_focus"[% END %]>
                   [% END %]
                   <input type="button" value="D" onclick="show_vc_details('vendor')">
                 </td>
@@ -211,10 +189,9 @@
         [% FOREACH i IN [1..rowcount] %]
           <tr>
             <td>
-              [% selected_accno_full = "selected_accno_full_"_ i %]
-              [% L.select_tag('AP_amount_'_ i, ALL_CHARTS_AP_amount, value_title_sub = \AP_amount_value_title_sub, onchange = 'setTaxkey(this, '_ i _')', default = $selected_accno_full) %]
-
-              <input type="hidden" name="previous_AP_amount_[% i %]" value="[% $selected_accno_full %]">
+              [% SET selected_chart_id = "AP_amount_chart_id_"_ i %]
+              [% P.chart_picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
+              [% L.hidden_tag("previous_AP_amount_chart_id_" _ i, $selected_chart_id) %]
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
             <td>
@@ -241,7 +218,7 @@
         </tr>
         <tr>
           <td>
-            [% L.select_tag('APselected', ALL_CHARTS_AP, value_title_sub = \APselected_value_title_sub, default = APselected) %]
+            [% P.chart_picker('AP_chart_id', AP_chart_id, style="width: 400px", type="AP") %]
           </td>
           <th align="left">[% invtotal | html %]</th>
           <td colspan="4"></td>

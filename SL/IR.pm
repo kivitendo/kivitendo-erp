@@ -1172,43 +1172,6 @@ sub get_vendor {
   }
   $sth->finish();
 
-  if (!$params->{id} && $params->{type} !~ /_(order|quotation)/) {
-    # setup last accounts used
-    $query =
-      qq|SELECT c.id, c.accno, c.description, c.link, c.category
-         FROM chart c
-         JOIN acc_trans ac ON (ac.chart_id = c.id)
-         JOIN ap a         ON (a.id = ac.trans_id)
-         WHERE (a.vendor_id = ?)
-           AND (NOT ((c.link LIKE '%_tax%') OR (c.link LIKE '%_paid%')))
-           AND (a.id IN (SELECT max(a2.id) FROM ap a2 WHERE a2.vendor_id = ?))|;
-    my $refs = selectall_hashref_query($form, $dbh, $query, $vid, $vid);
-
-    my $i = 0;
-    for $ref (@$refs) {
-      if ($ref->{category} eq 'E') {
-        $i++;
-        my ($tax_id, $rate);
-        if ($params->{initial_transdate}) {
-          my $tax_query = qq|SELECT tk.tax_id, t.rate FROM taxkeys tk
-                             LEFT JOIN tax t ON (tk.tax_id = t.id)
-                             WHERE (tk.chart_id = ?) AND (startdate <= ?)
-                             ORDER BY tk.startdate DESC
-                             LIMIT 1|;
-          ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id}, $params->{initial_transdate});
-          $params->{"taxchart_$i"} = "${tax_id}--${rate}";
-        }
-
-        $params->{"AP_amount_$i"} = "$ref->{accno}--$tax_id";
-      }
-
-      if ($ref->{category} eq 'L') {
-        $params->{APselected} = $params->{AP_1} = $ref->{accno};
-      }
-    }
-    $params->{rowcount} = $i if ($i && !$params->{type});
-  }
-
   $main::lxdebug->leave_sub();
 }
 
