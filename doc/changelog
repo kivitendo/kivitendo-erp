@@ -6,6 +6,30 @@
 
 große Features:
 
+- Dateiverwaltung (Mini-DMS)
+
+  parallel zum alten WebDAV gibt es nun eine Datei-Management Lösung, die
+  über eine Speichermedium unabhängige Zwischenschicht die Dateien in der
+  Datenbank verwaltet. Darunter können verschiedene Backends existieren.
+  Aktuell ist dies eine Filesystem-Struktur.
+
+  Modular können weitere Backends eingebunden werden. In Arbeit ist
+  ein Backend, daß auf die alte WebDAV-Struktur zugreift.
+
+  Es gibt unterschiedliche Typen von Dateien, jedem Typ läßt sich in der
+  Mandantenkonfigurierung auf ein bestimmtes Backend zuordnen.
+
+  Aktuell gibt es die Dateitypen
+  - "documents", das sind entweder generierte,eingescannte oder hochgeladene PDF-Dateien
+  - "attachments", zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden
+  - "images", hochgeladene Bilder zu Artikeln
+
+  Daneben gibt es Dateiquellen
+  - "created" , vom System erzeugte Dokumente
+  - "uploaded", hochgeladene Dokumente
+  - "scanner1,scanner2" , von einem oder mehreren Scannern erzeugte Dateien
+  - "email",  vom Mailsystem empfangene Dateien
+
 - Artikel-Klassifizierung
 
   Die Klassifizierung von Artikeln dient einer weiteren Gliederung um
@@ -48,6 +72,8 @@ kleinere neue Features und Detailverbesserungen:
   - Wiederkehrende Rechnungen können mit der Periode 'einmalig' konfiguriert werden
 
   - Druckvorlagen Mahnungen: Bearbeiter und Verkäufer-Metadaten auch im Ausdruck zu Verfügung stellen
+
+  - PDF-Erzeugen mit Leerseiten für zweiseitiges Drucken (Installation siehe auch UPGRADE Datei)
 
   - SEPA Überweisungen zusätzlich Kunden- oder Lieferantennummer im Verwendungszweck vorbelegen
 

@@ -418,6 +418,25 @@ cpan HTML::Restrict</programlisting>
           <programlisting>cpan Rose::Db::Object</programlisting>
         </sect3>
       </sect2>
+      <sect2>
+        <title>Andere Pakete installieren</title>
+
+        <para>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+        'aqbanking-tools' benötigt.</para>
+
+        <para>Ubuntu: <programlisting>apt install aqbanking-tools</programlisting></para>
+
+        <para>OpenSuSE: <programlisting>zypper install aqbanking-tools</programlisting></para>
+
+        <para>Seit Version v3.4.1 wird generell zum Feststellen der
+        Seitenanzahl von PDF_Dokumenten 'pdfinfo' benötigt was im Paket
+        'poppler-utils' enthalten ist.</para>
+
+        <para>Ubuntu: <programlisting>apt install poppler-utils</programlisting></para>
+
+        <para>OpenSuSE: <programlisting>zypper install poppler-tools</programlisting></para>
+      </sect2>
+
     </sect1>
 
     <sect1 id="Manuelle-Installation-des-Programmpaketes"
@@ -6225,7 +6244,8 @@ Beschreibung: &lt;%description%&gt;
 	  Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne
 	  bitte an <literal>empfang@revamp-it.ch</literal> senden.</para>
     </sect1>
-    <sect1>
+
+    <sect1 id="features.part_classification">
       <title>Artikelklassifizierung</title>
 
       <sect2>
@@ -6332,6 +6352,217 @@ Beschreibung: &lt;%description%&gt;
 
         <para>Diese Abkürzung wird überall beim Auflisten von Artikeln zur
         Erleichterung mit dargestellt.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="features.file_managment">
+      <title>Dateiverwaltung (Mini-DMS)</title>
+
+      <sect2>
+        <title>Übersicht</title>
+        <para>Parallel zum alten WebDAV gibt es eine Datei-Management-Sytem, daß Dateien
+        verschiedenen Typs verwaltet. Dies können</para>
+        <orderedlist>
+          <listitem>
+            <para>aus ERP-Daten per LaTeX Template erzeugte PDF-Dokumente,</para>
+          </listitem>
+          <listitem>
+            <para>zu bestimmten ERP-Daten gehörende Anhangdateien unterschiedlichen Formats,</para>
+          </listitem>
+          <listitem>
+            <para>per Scanner eingelesene PDF-Dateien,</para>
+          </listitem>
+          <listitem>
+            <para>per Email empfangene Dateianhänge unterschiedlichen Formats,</para>
+          </listitem>
+          <listitem>
+            <para>sowie speziel an Artikel hochgeladene Bilder sein.</para>
+          </listitem>
+        </orderedlist>
+        <screenshot>
+          <screeninfo>Übersicht</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata contentwidth="600" fileref="images/DMS-Overview.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+      </sect2>
+
+      <sect2>
+        <title>Struktur</title>
+
+      <para>Über eine vom Speichermedium unabhängige Zwischenschicht werden die Dateien und ihre Versionen in der Datenbank verwaltet. Darunter können verschiedene Implementierungen (Backends) gleichzeitig existieren:
+      </para>
+        <itemizedlist>
+          <listitem>
+            <para>Dateisystem,</para>
+          </listitem>
+          <listitem>
+            <para>WebDAV,</para>
+          </listitem>
+          <listitem>
+            <para>Schnittstelle zu externem Dokumenten-Management-System,</para>
+          </listitem>
+          <listitem>
+            <para>andere Datenbank,</para>
+          </listitem>
+          <listitem>
+            <para>etc ...</para>
+          </listitem>
+        </itemizedlist>
+        <para>Es gibt unterschiedliche Typen von Dateien, jedem Typ läßt sich in der
+              Mandantenkonfigurierung ein bestimmtes Backend zuordnen.
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>"document", das sind entweder generierte,eingescannte oder hochgeladene PDF-Dateien,
+                  die zu bestimmten ERP-Daten (ERP-Objekte, wi z.B. Rechnung, Lieferschein) gehören.</para>
+          </listitem>
+          <listitem>
+            <para>"attachment", zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden,
+            z.B. technische Zeichnungen,Aufmaße. Diese können auch an Artikeln,
+            Lieferanten und Kunden hinterlegt sein</para>
+          </listitem>
+          <listitem>
+            <para>"image", Bilder an Artikeln. Diese können auch verkleinert in einer Vorschau (Thumbnail)
+            angezeigt werden.</para>
+          </listitem>
+        </itemizedlist>
+        <para>Zusätzlich werden in der Datenbank zu den Dateien neben der Zuordnung zu ERP-Objekten, des Dateityps
+        des Dateinamens und des Backends in dem die Datei gespeichert ist auch die Quelle der Datei notiert:
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para> "created" , vom System erzeugte Dokumente"</para>
+          </listitem>
+          <listitem>
+            <para> "uploaded", hochgeladene Dokumente</para>
+          </listitem>
+          <listitem>
+            <para> "email", vom Mailsystem empfangene Dateien</para>
+          </listitem>
+          <listitem>
+            <para> "scanner[1]", von einem oder mehreren Scannern erzeugte Dateien. Existieren mehrere Scanner,
+            so sind diese durch unterschiedliche Quellennamen zu definieren</para>
+          </listitem>
+        </itemizedlist>
+        <para>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es für "attachment" und "image" nur
+        die Quelle "uploaded". Für "document" gibt es auf jeden Fall die Quelle "created".
+        Die Quellen "scanner" und "email" müssen derzeit in der Datenbank konfiguriert werden (siehe <xref linkend="file_management.dbconfig"/>.</para>
+      </sect2>
+
+      <sect2>
+        <title>Anwendung</title>
+        <para>Die Daten werden bei den ERP-Objekten als extra Reiter dargestellt.
+        Eine Verkaufsrechnung z.B. hat die
+        Reiter "Dokumente" und "Dateianhänge.</para>
+        <screenshot>
+          <screeninfo>Reiter "Dateianhänge"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata scale="50" fileref="images/DMS-Anhaenge.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Bei den Dateianhängen wird immer nur die aktuelle Version einer Datei angezeigt.
+        Wird eine Datei mit gleichem Namen hochgeladen, so wird eine neue Version der Datei erstellt.
+        Vorher wird der Anwender durch einen Dialog ob er eine neue Version anlegen will oder
+        ob er die Datei umbenennen will, falls es eine neue Datei sein soll.</para>
+        <screenshot>
+          <screeninfo>Reiter "Dateianhänge"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata width="100" contentwidth="40" fileref="images/DMS-Anhaenge-hochladen.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Es können mehrere Dateien gleichzeitig hochgeladen werden,
+        solange in Summe die maximale Größe nicht überschritten wird.
+        (siehe <xref linkend="file_management.clientconfig"/></para>
+        <screenshot>
+          <screeninfo>Reiter "Dokumente"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata  width="500" fileref="images/DMS-Dokumente.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt es nur "erzeugte Dokumente".
+        Es werden alle Versionen der generierten Datei angezeigt. Für Verkaufsrechnungen kommen keine
+        anderen Quellen zur Geltung. Werden entsprechend
+        <xref linkend="file_management.dbconfig"/> zusätzliche Quellen konfiguriert, so sind diese z.B. bei
+        Einkaufsrechnungen sichtbar:</para>
+        <screenshot>
+          <screeninfo>Reiter "Dokumente"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata  contentwidth="600" fileref="images/DMS-Dokumente-Scanner.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Statt des Löschens wird hier die Datei zurück zur Quelle verschoben. Somit kann die Datei anschließend
+        an ein anderes ERP-Objekt angehängt werden.</para>
+        <para>Derzeit sind "Titel" und "Beschreibung" noch nicht genutzt. Sie sind bisher nur bei Bildern relevant.</para>
+      </sect2>
+
+      <sect2>
+        <title>Konfigurierung</title>
+        <sect3 id="file_management.clientconfig" xreflabel="Mandantenkonfigurierung">
+          <title>Mandantenkonfigurierung</title>
+          <sect4>
+            <title>Reiter "Features"</title>
+            <para>Unter dem Reiter <emphasis role="bold">Features</emphasis> im Abschnit Dateimanagement ist
+            neben dem "alten" WebDAV das Dateimangement general zu- und abschaltbar, sowie die Zuordnung der
+          Dateitypen zu Backends. Die Löschbarkeit von Dateien sowie die maximale Uploadgröße sind Backend-unabhängig</para>
+        <screenshot>
+          <screeninfo>Mandantenkonfig Reiter "Features"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata  width="500" fileref="images/DMS-ClientConfig.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Die einzelnen Backends sind einzeln einschaltbar. Spezifische Backend-Konfigurierungen sind hier
+        noch ergänzbar. Für das Backend Dateisystem ist das Wurzelverzeichnis für den Mandanten einzugeben.</para>
+        </sect4>
+          <sect4>
+            <title>Reiter "Allgemeine Dokumentenanhänge"</title>
+            <para>Unter dem Reiter <emphasis role="bold">Allgemeine Dokumentenanhänge</emphasis>
+            kann für alle ERP-Dokumente ( Angebote, Aufträge, Lieferscheine, Rechnungen im Verkauf und Einkauf )
+            allgemeingültige Anhänge hochgeladen werden.</para>
+        <screenshot>
+          <screeninfo>Mandantenkonfig Reiter "Allgemeine Dokumentenanhänge"</screeninfo>
+          <mediaobject>
+            <imageobject>
+              <imagedata  width="500" fileref="images/DMS-Allgemeine-Dokumentenanhaenge.png"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+        <para>Diese Anhänge werden beim Generieren von PDF-Dateien an die ERP-Dokumente angehängt,
+        z.B. AGBs oder aktuelle Angebote. Es werden in dem Fall die Daten kopiert, sodaß an den ERP-Dokumenten immer
+        die Anhänge zum Generierungszeitpunkt eingebettet sind.
+        </para>
+        </sect4>
+        </sect3>
+        <sect3 id="file_management.dbconfig" xreflabel="Datenbank-Konfigurierung">
+          <title>Datenbank-Konfigurierung</title>
+          <para>Die zusätzlichen Quellen für email oder ein oder mehrere Scanner sind derzeit vom Administrator
+          direkt in der Datenbanktablle "user_preferences" einzurichten. Die "value" ist im JSON-Format
+          mit den jeweiligen Werten des Verzeichnisses und der Beschreibung der Quelle.</para>
+          <programlisting>
+ id |  login    |  namespace   | version |   key    |          value                         
+----+-----------+--------------+---------+----------+---------------------------
+  1 | #default# | file_sources | 0.00000 | scanner1 |
+                             {"dir":"/var/tmp/scanner1","desc":"Scanner Einkauf"}
+  2 | #default# | file_sources | 0.00000 | scanner2 |
+                             {"dir":"/var/tmp/scanner2","desc":"Scanner Verkauf"}
+  3 | #default# | file_sources | 0.00000 | emails   |
+                             {"dir":"/var/tmp/emails","desc":"Empfangene Mails" }
+          </programlisting>
+          <para>Es ist daran gedacht, statt dem default Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen,
+          dies wird nach Bedarf implementiert.</para>
+        </sect3>
       </sect2>
     </sect1>
   </chapter>
@@ -7782,7 +8013,7 @@ Support::TestSetup::login();</programlisting>
           sein. Dieser wird für die Datenbankverbindung benötigt.</para>
 
           <para>Wir keine vollständig initialisierte Umgebung benötigt, so
-          kann die letzte Zeile <code>Support::TestSetup::login();</code>
+          kann die letzte Zeile <programlisting>Support::TestSetup::login();</programlisting>
           weggelassen werden, was die Ausführungszeit des Scripts leicht
           verringert.</para>
         </sect3>

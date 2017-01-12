@@ -7,6 +7,11 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v3.4.x Unstable
 ===========================
 
+* Die PDF-Generierung ist erweitert. Beim Massendruck können auch Leerseiten
+  eingebaut werden, z.B. falls zweiseitg ausgedruckt wird. Statt die Anzahl
+  Seiten per Ghostscript zu ermitteln wird dazu "pdfinfo" genutzt.
+  Das muß installiert sein. Der Script "installation_check.pl" prüft dies.
+  
 * In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
   multipliziert, um Lücken für neue Rechte zu schaffen.
 
