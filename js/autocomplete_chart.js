@@ -1,4 +1,6 @@
 namespace('kivi', function(k){
+  "use strict";
+
   k.ChartPicker = function($real, options) {
     // short circuit in case someone double inits us
     if ($real.data("chart_picker"))
@@ -115,7 +117,7 @@ namespace('kivi', function(k){
       if (state == STATES.PICKED) {
         annotate_state();
         return true
-      } else if (state == STATES.UNDEFINED && $dummy.val() == '')
+      } else if (state == STATES.UNDEFINED && $dummy.val() === '')
         set_item({})
       else {
         last_unverified_dummy = $dummy.val();
@@ -127,7 +129,7 @@ namespace('kivi', function(k){
     function annotate_state () {
       if (state == STATES.PICKED)
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
-      else if (state == STATES.UNDEFINED && $dummy.val() == '')
+      else if (state == STATES.UNDEFINED && $dummy.val() === '')
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
       else {
         last_unverified_dummy = $dummy.val();
@@ -143,7 +145,7 @@ namespace('kivi', function(k){
         }, ajax_data(function(){ var val = $('#chart_picker_filter').val(); return val === undefined ? '' : val })),
         success: function(data){ $('#chart_picker_result').html(data) }
       });
-    };
+    }
 
     function result_timer (event) {
       if (!$('hide_chart_details').prop('checked')) {
@@ -162,7 +164,7 @@ namespace('kivi', function(k){
 
     function close_popup() {
       $('#chart_selection').dialog('close');
-    };
+    }
 
     function handle_changed_text(callbacks) {
       $.ajax({
@@ -183,7 +185,7 @@ namespace('kivi', function(k){
           annotate_state();
         }
       });
-    };
+    }
 
     $dummy.autocomplete({
       source: function(req, rsp) {
@@ -214,7 +216,7 @@ namespace('kivi', function(k){
     $dummy.keydown(function(event){
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
         // if string is empty assume they want to delete
-        if ($dummy.val() == '') {
+        if ($dummy.val() === '') {
           set_item({});
           return true;
         } else if (state == STATES.PICKED) {
