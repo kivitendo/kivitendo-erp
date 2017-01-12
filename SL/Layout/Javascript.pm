@@ -41,7 +41,7 @@ sub pre_content {
   $_[0]->presenter->render("menu/menunew",
     force_ul_width  => 1,
     menu            => $_[0]->menu,
-    icon_path       => sub { my $img = "image/icons/16x16/$_[0].png"; -f $img ? $img : () },
+    icon_path       => sub { my $simg = "image/icons/svg/$_[0].svg";  my $pimg="image/icons/16x16/$_[0].png"; -f $simg ? $simg : ( -f $pimg ? $pimg : ()) },
     max_width       => sub { 10 * max map { length $::locale->text($_->{name}) } @{ $_[0]{children} || [] } },
   );
 }
