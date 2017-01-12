@@ -529,13 +529,17 @@
           Vorlagenname für diese Mahnstufe mit dem Zusatz
           <code class="constant">_invoice</code> gebildet. Weiterhin werden die Kürzel
           für die ausgewählte Sprache und den ausgewählten Drucker
-          angehängt.</p></div><div class="sect3" title="3.3.9.2. Allgemeine Variablen in Mahnungen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-allgemein"></a>3.3.9.2. Allgemeine Variablen in Mahnungen</h4></div></div></div><p>Die Variablen des Verkäufers stehen wie gewohnt als
-          <code class="varname">employee_...</code> zur Verfügung. Die Adressdaten des
-          Kunden stehen als Variablen <code class="varname">name</code>,
+          angehängt.</p></div><div class="sect3" title="3.3.9.2. Allgemeine Variablen in Mahnungen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-allgemein"></a>3.3.9.2. Allgemeine Variablen in Mahnungen</h4></div></div></div><p>Die Variablen des Bearbeiters, bzw. Verkäufers stehen wie gewohnt als
+          <code class="varname">employee_...</code> bzw. <code class="varname">salesman_...</code> zur Verfügung.
+          Werden mehrere Rechnungen in einer Mahnung zusammengefasst, so werden
+          die Metadaten (Bearbeiter, Abteilung, etc) der ersten angemahnten Rechnung
+          im Ausdruck genommen.</p><p>Die Adressdaten des Kunden stehen als Variablen <code class="varname">name</code>,
           <code class="varname">street</code>, <code class="varname">zipcode</code>,
           <code class="varname">city</code>, <code class="varname">country</code>,
           <code class="varname">department_1</code>, <code class="varname">department_2</code>,
-          und <code class="varname">email</code> zur Verfügung.</p><p>Weitere Variablen beinhalten:</p><div class="variablelist"><dl><dt><span class="term">
+          und <code class="varname">email</code> zur Verfügung. Der Ansprechpartner <code class="varname">cp_...</code>
+          steht auch zu Verfügung, wird allerdings auch nur von der ersten angemahnten Rechnung (s.o.)
+          genommen.</p><p>Weitere Variablen beinhalten:</p><div class="variablelist"><dl><dt><span class="term">
                         <code class="varname">dunning_date</code>
                      </span></dt><dd><p>Datum der Mahnung</p></dd><dt><span class="term">
                         <code class="varname">dunning_duedate</code>
@@ -605,7 +609,7 @@
                         <code class="varname">invdate</code>
                      </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
                         <code class="varname">invnumber</code>
-                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5505"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.3.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.3.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.3.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e5513"></a>3.3.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
           Rechnung. Allerdings heißen die Variablen, die mit
           <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
           fangen sie mit <code class="varname">quo</code> für "quotation" an:

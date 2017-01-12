@@ -5274,13 +5274,18 @@ systemctl enable kivitendo-task-server.service</programlisting>
         <sect3 id="dokumentenvorlagen-und-variablen.dunning-allgemein">
           <title>Allgemeine Variablen in Mahnungen</title>
 
-          <para>Die Variablen des Verkäufers stehen wie gewohnt als
-          <varname>employee_...</varname> zur Verfügung. Die Adressdaten des
-          Kunden stehen als Variablen <varname>name</varname>,
+          <para>Die Variablen des Bearbeiters, bzw. Verkäufers stehen wie gewohnt als
+          <varname>employee_...</varname> bzw. <varname>salesman_...</varname> zur Verfügung.
+          Werden mehrere Rechnungen in einer Mahnung zusammengefasst, so werden
+          die Metadaten (Bearbeiter, Abteilung, etc) der ersten angemahnten Rechnung
+          im Ausdruck genommen.</para>
+          <para>Die Adressdaten des Kunden stehen als Variablen <varname>name</varname>,
           <varname>street</varname>, <varname>zipcode</varname>,
           <varname>city</varname>, <varname>country</varname>,
           <varname>department_1</varname>, <varname>department_2</varname>,
-          und <varname>email</varname> zur Verfügung.</para>
+          und <varname>email</varname> zur Verfügung. Der Ansprechpartner <varname>cp_...</varname>
+          steht auch zu Verfügung, wird allerdings auch nur von der ersten angemahnten Rechnung (s.o.)
+          genommen.</para>
 
           <para>Weitere Variablen beinhalten:</para>
 

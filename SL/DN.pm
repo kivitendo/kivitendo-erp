@@ -804,6 +804,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
+         ar.employee_id,     ar.salesman_id,
          (SELECT cu.name FROM currencies cu WHERE cu.id = ar.currency_id) AS curr,
          (SELECT description from department WHERE id = ar.department_id) AS department,
          ar.amount - ar.paid AS open_amount,
@@ -834,7 +835,7 @@ sub print_dunning {
          c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
-         c,ustid,             e.name as salesman_name,
+         c,ustid,
          co.*
        FROM dunning d
        LEFT JOIN ar          ON (d.trans_id = ar.id)
@@ -903,6 +904,9 @@ sub print_dunning {
   push @{ $form->{DUNNING_PDFS} }, $filename;
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
                                            'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
+
+  $form->get_employee_data('prefix' => 'employee', 'id' => $form->{employee_id});
+  $form->get_employee_data('prefix' => 'salesman', 'id' => $form->{salesman_id});
 
   $form->parse_template($myconfig);
 
