@@ -1,4 +1,5 @@
 namespace('kivi.PriceRule', function(ns) {
+  "use strict";
 
   ns.add_new_row = function (type) {
     var data = {
@@ -6,14 +7,14 @@ namespace('kivi.PriceRule', function(ns) {
       type: type
     };
     $.post('controller.pl', data, kivi.eval_json_result);
-  }
+  };
 
   ns.open_price_type_help_popup = function() {
     kivi.popup_dialog({
       url:    'controller.pl?action=PriceRule/price_type_help',
       dialog: { title: kivi.t8('Price Types') },
     });
-  }
+  };
 
   ns.on_change_filter_type = function() {
     var val = $('#price_rule_filter_type').val();
@@ -27,11 +28,11 @@ namespace('kivi.PriceRule', function(ns) {
       $('#price_rule_filter_vendor_tr').hide();
       $('#price_rule_filter_customer_tr').show();
     }
-    if (val == '') {
+    if (val === '') {
       $('#price_rule_filter_customer_tr').show();
       $('#price_rule_filter_vendor_tr').show();
     }
-  }
+  };
 
   ns.inline_report = function(target, source, data){
     $.ajax({
@@ -54,7 +55,7 @@ namespace('kivi.PriceRule', function(ns) {
       ns.inline_report('#price_rules_customer_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'customer', inline: 1 });
       ns.inline_report('#price_rules_vendor_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'vendor', inline: 1 });
     }, 200);
-  }
+  };
 
   $(function() {
     $('#price_rule_item_add').click(function() {
