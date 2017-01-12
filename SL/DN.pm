@@ -835,7 +835,7 @@ sub print_dunning {
          c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
-         c,ustid,
+         c.ustid,
          co.*
        FROM dunning d
        LEFT JOIN ar          ON (d.trans_id = ar.id)
