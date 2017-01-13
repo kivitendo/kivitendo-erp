@@ -7,6 +7,9 @@
  [%- ELSE %]
   [%- LxERP.t8('Import result') %]
  [%- END %]
+ [%- IF SELF.num_errors -%]
+   <font color="red">([%- SELF.num_errors -%]&nbsp;[%- LxERP.t8('Errors') -%])</font>
+ [%- END -%]
 </h2>
 
 [%- IF SELF.report.test_mode %]

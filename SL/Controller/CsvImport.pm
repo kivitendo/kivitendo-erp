@@ -205,6 +205,7 @@ sub action_report {
 
   my $rows               = SL::DB::Manager::CsvImportReportRow   ->get_all(query => \@query);
   my $status             = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query);
+  $self->{num_errors}    = SL::DB::Manager::CsvImportReportStatus->get_all_count(query => [csv_import_report_id => $report_id, type => 'errors']);
 
   $self->{report_rows}   = $self->{report}->folded_rows(rows => $rows);
   $self->{report_status} = $self->{report}->folded_status(status => $status);

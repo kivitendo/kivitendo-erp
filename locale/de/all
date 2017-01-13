@@ -1355,6 +1355,7 @@ $self->{texts} = {
   'Error: this feature requires that articles with a time-based unit (e.g. \'h\' or \'min\') exist.' => 'Fehler: dieses Feature setzt voraus, dass Artikel mit einer Zeit-basierenden Einheit (z.B. "Std") existieren.',
   'Error: unknown local bank account' => 'Fehler: unbekannte Kontnummer',
   'Error: unknown local bank account id' => 'Fehler: unbekannte Bankkonto-ID',
+  'Errors'                      => 'Fehler',
   'Errors during conversion:'   => 'Umwandlungsfehler:',
   'Errors during printing:'     => 'Druckfehler:',
   'Errors in GL transaction:'   => 'Fehler in Dialogbuchung:',
