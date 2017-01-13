@@ -110,9 +110,9 @@ namespace('kivi', function(k){
     var data = $(e).data('action');
     if (undefined === data) return;
 
-    if (data.disabled) {
+    if (data.disabled && (data.disabled != '0')) {
       $(e).addClass(CLASSES.disabled);
-      if (!data.tooltip && (data.disabled != '1'))
+      if (data.disabled != '1')
         data.tooltip = data.disabled;
     }
 
