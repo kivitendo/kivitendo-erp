@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Layout::ActionBar::Action);
 
 use JSON;
+use List::MoreUtils qw(none);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(actions) ],
@@ -21,6 +22,7 @@ sub from_params {
 sub render {
   my ($first, @rest) = @{ $_[0]->actions };
 
+  return                if none { $_->callable } @{ $_[0]->actions };
   return $first->render if !@rest;
 
   $_[0]->p->html_tag('div',

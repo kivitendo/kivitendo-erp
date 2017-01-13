@@ -10,4 +10,9 @@ sub render {
   );
 }
 
+sub callable {
+  my ($self) = @_;
+  return $self->params->{submit} || $self->params->{call} || $self->params->{link};
+}
+
 1;

@@ -20,4 +20,6 @@ sub render {
   );
 }
 
+sub callable { 1 }
+
 1;

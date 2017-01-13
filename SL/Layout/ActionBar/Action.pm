@@ -4,7 +4,7 @@ use strict;
 use parent qw(Rose::Object);
 
 use SL::Presenter;
-    require SL::Layout::ActionBar::Submit;
+require SL::Layout::ActionBar::Submit;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(id params text) ],
@@ -29,6 +29,8 @@ sub from_params {
   return if exists($params{not_if})  &&  $params{not_if};
   return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
 }
+
+sub callable { 0 }
 
 # shortcut for presenter
 
