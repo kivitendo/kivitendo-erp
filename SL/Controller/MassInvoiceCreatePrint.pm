@@ -39,7 +39,7 @@ sub action_list_sales_delivery_orders {
 
   # if a filter is choosen, the filter info should be visible
   $self->make_filter_summary;
-  $self->sales_delivery_order_models->get;
+  $self->setup_list_sales_delivery_orders_action_bar(show_creation_buttons => $show, num_rows => scalar(@{ $self->sales_delivery_order_models->get }));
   $self->render('mass_invoice_create_print_from_do/list_sales_delivery_orders',
                 noshow  => $show,
                 title   => $::locale->text('Open sales delivery orders'));
@@ -347,12 +347,52 @@ sub setup_list_invoices_action_bar {
       ],
       action => [
         t8('Reset'),
-        call => [ 'kivi.Project.reset_search_form' ],
+        call => [ 'kivi.call_jquery', '#search_form', 'resetForm' ],
       ],
       action => [
         $::locale->text('Print'),
         call     => [ 'kivi.MassInvoiceCreatePrint.showMassPrintOptionsOrDownloadDirectly' ],
         disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+      ],
+    );
+  }
+}
+
+sub setup_list_sales_delivery_orders_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#search_form', { action => 'MassInvoiceCreatePrint/list_sales_delivery_orders' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Reset'),
+        call => [ 'kivi.call_jquery', '#search_form', 'resetForm' ],
+      ],
+
+      combobox => [
+        action => [
+          t8('Invoices'),
+          tooltip => t8("Create and print invoices")
+        ],
+        action => [
+          t8('for selected entries'),
+          call     => [ 'kivi.MassInvoiceCreatePrint.submitMassCreationForm' ],
+          tooltip  => t8("Create and print invoices for all selected delivery orders"),
+          disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+          only_if  => $params{show_creation_buttons},
+        ],
+
+        action => [
+          t8('for all entries'),
+          call     => [ 'kivi.MassInvoiceCreatePrint.createPrintAllInitialize' ],
+          tooltip  => t8("Create and print invoices for all delivery orders matching the filter"),
+          disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+          only_if  => $params{show_creation_buttons},
+        ],
       ],
     );
   }
@@ -483,7 +523,7 @@ supported: Customer and date from/to of the Delivery Order (database field trans
 
 =head1 TODO
 
-Should be more generalized. Right now just one conversion (delivery order to invoice) is supported.
+pShould be more generalized. Right now just one conversion (delivery order to invoice) is supported.
 Using BackgroundJobs to mass create / transfer stuff is the way to do it. The original idea
 was taken from one client project (mosu) with some extra (maybe not standard compliant) customized
 stuff (using cvars for extra filters and a very compressed Controller for linking (ODSalesOrder.pm)).

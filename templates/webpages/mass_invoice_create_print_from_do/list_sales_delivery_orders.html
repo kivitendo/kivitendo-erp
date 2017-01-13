@@ -45,13 +45,6 @@
 
     [% L.paginate_controls %]
 
-    <hr size="3" noshade>
-
-    <p>
-     [% L.hidden_tag("action", "MassInvoiceCreatePrint/create_invoices") %]
-     [% L.button_tag("", LxERP.t8("Create invoices"), name="create_button") %]
-     [% L.button_tag("", LxERP.t8("For all delivery orders create and print invoices"), name="create_print_all_button") %]
-    </p>
     <div id="create_print_all_dialog" style="display: none;">
      [%- INCLUDE 'mass_invoice_create_print_from_do/_create_print_all_step_1.html' %]
     </div>

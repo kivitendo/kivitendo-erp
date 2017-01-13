@@ -377,7 +377,7 @@ sub setup_do_orders_action_bar {
       action => [
         t8('New invoice'),
         submit    => [ '#orders_form' ],
-        checks    => [ 'kivi.DeliveryOrder.multi_invoice_check_delivery_orders_selected' ],
+        checks    => [ [ 'kivi.check_if_entries_selected', '#orders_form tbody input[type=checkbox]' ] ],
         accesskey => 'enter',
       ],
     );
@@ -842,8 +842,6 @@ sub orders {
 
     $idx++;
   }
-
-  $::request->layout->add_javascripts('kivi.DeliveryOrder.js');
 
   setup_do_orders_action_bar();
 

@@ -25,7 +25,7 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
       return false;
 
     $('body').addClass('loading');
-    $('form').submit();
+    kivi.submit_form_with_action('form', 'MassInvoiceCreatePrint/create_invoices');
     return false;
   };
 
@@ -76,11 +76,6 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     $('.ui-dialog-titlebar button.ui-dialog-titlebar-close').prop('disabled', '')
   };
 
-  this.setup = function() {
-    $('#create_button').click(kivi.MassInvoiceCreatePrint.submitMassCreationForm);
-    $('#create_print_all_button').click(kivi.MassInvoiceCreatePrint.createPrintAllInitialize);
-  };
-
   ns.showMassPrintOptions = function() {
     $('#printer_options_printer_id').val($('#printer_id').val());
 
@@ -120,5 +115,3 @@ namespace('kivi.MassInvoiceCreatePrint', function(ns) {
     $("#filter_table input").val("");
   };
 });
-
-$(kivi.MassInvoiceCreatePrint.setup);
