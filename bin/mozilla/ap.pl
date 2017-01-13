@@ -38,6 +38,7 @@ use List::UtilsBy qw(sort_by);
 
 use SL::AP;
 use SL::FU;
+use SL::GL;
 use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
@@ -100,6 +101,11 @@ sub add {
   $form->{initial_transdate} = $form->{transdate};
   create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
+
+  if ($form->{vendor_id}) {
+    my $last_used_ap_chart = SL::DB::Vendor->load_cached($form->{vendor_id})->last_used_ap_chart;
+    $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
+  }
 
   &display_form;
 
@@ -171,6 +177,7 @@ sub create_links {
   $form->{$_}        = $saved{$_} for keys %saved;
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
   $form->{rowcount}  = 1;
+  $form->{AP_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AP} ? $form->{acc_trans}->{AP}->[0]->{chart_id} : $form->{AP_links}->{AP}->[0]->{chart_id};
 
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
@@ -231,6 +238,8 @@ sub form_header {
   $main::auth->assert('ap_transactions');
 
   $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
+
+  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'vendor' : 'row_' . $form->{rowcount};
 
   $form->{title_} = $form->{title};
   $form->{title} = $form->{title} eq 'Add' ? $locale->text('Add Accounts Payables Transaction') : $locale->text('Edit Accounts Payables Transaction');
@@ -302,20 +311,13 @@ sub form_header {
   }
 
   my %charts;
-  my $taxchart_init;
+  my $default_ap_amount_chart_id;
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     if ( grep({ $_ eq 'AP_amount' } @{ $item->{link_split} }) ) {
-      if ( $taxchart_init eq '' ) {
-        $taxchart_init = $item->{tax_id};
-      }
+      $default_ap_amount_chart_id //= $item->{id};
 
-      push(@{ $form->{ALL_CHARTS_AP_amount} }, $item);
-    }
-    elsif ( grep({ $_ eq 'AP' } @{ $item->{link_split} }) ) {
-      push(@{ $form->{ALL_CHARTS_AP} }, $item);
-    }
-    elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
+    } elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
       push(@{ $form->{ALL_CHARTS_AP_paid} }, $item);
     }
 
@@ -324,12 +326,6 @@ sub form_header {
 
   my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    my $key = $item->{id} .'--'. $item->{rate};
-
-    if ( $taxchart_init eq $item->{id} ) {
-      $taxchart_init = $key;
-    }
-
     $taxcharts{$item->{id}} = $item;
   }
 
@@ -337,10 +333,9 @@ sub form_header {
   $follow_up_vc            =~ s/--.*?//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/kivi.Draft.js"></script>|;
+  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
+  my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
+  my $first_taxchart;
 
   $form->header();
 
@@ -350,36 +345,22 @@ sub form_header {
     $form->{"amount_$i"} = $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
 
-    my $selected_accno_full;
-    my ($accno_row) = split(/--/, $form->{"AP_amount_$i"});
-    my $item = $charts{$accno_row};
-    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
+    my ($default_taxchart, $taxchart_to_use);
+    my $amount_chart_id   = $form->{"AP_amount_chart_id_$i"} || $default_ap_amount_chart_id;
+    my $chart_has_changed = $::form->{"previous_AP_amount_chart_id_$i"} && ($amount_chart_id != $::form->{"previous_AP_amount_chart_id_$i"});
 
-    my $selected_taxchart = $form->{"taxchart_$i"};
-    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
-    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_AP_amount_$i"});
-
-    if ($previous_accno &&
-        ($previous_accno eq $selected_accno) &&
-        ($previous_tax_id ne $selected_tax_id)) {
-      my $item = $taxcharts{$selected_tax_id};
-      $selected_taxchart = "$item->{id}--$item->{rate}";
+    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate) ) {
+      my $key             = $item->id . "--" . $item->rate;
+      $first_taxchart   //= $item;
+      $default_taxchart   = $item if $item->{is_default};
+      $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
     }
 
-    $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
-
-    $form->{'selected_accno_full_'. $i} = $selected_accno_full;
-
-    $form->{'selected_taxchart_'. $i} = $selected_taxchart;
+    $taxchart_to_use                 = $default_taxchart // $first_taxchart if $chart_has_changed || !$taxchart_to_use;
+    my $selected_taxchart            = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
+    $form->{"selected_taxchart_$i"}  = $selected_taxchart;
+    $form->{"AP_amount_chart_id_$i"} = $amount_chart_id;
   }
-
-  $form->{AP_amount_value_title_sub} = sub {
-    my $item = shift;
-    return [
-      $item->{accno} .'--'. $item->{tax_id},
-      $item->{accno} .'--'. $item->{description},
-    ];
-  };
 
   $form->{taxchart_value_title_sub} = sub {
     my $item = shift;
@@ -390,14 +371,6 @@ sub form_header {
   };
 
   $form->{AP_paid_value_title_sub} = sub {
-    my $item = shift;
-    return [
-      $item->{accno},
-      $item->{accno} .'--'. $item->{description}
-    ];
-  };
-
-  $form->{APselected_value_title_sub} = sub {
     my $item = shift;
     return [
       $item->{accno},
@@ -559,16 +532,8 @@ sub update {
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1 notes);
 
   my $vendor_changed = &check_name("vendor");
-
-  $form->{AP} = $saved_variables{AP};
-  if ($saved_variables{AP_amount_1} =~ m/.--./) {
-    map { $form->{$_} = $saved_variables{$_} } qw(AP_amount_1 taxchart_1);
-  } else {
-    delete $form->{taxchart_1};
-  }
 
   $form->{rowcount} = $count + 1;
 
@@ -731,12 +696,6 @@ sub post {
     &update;
     $::dispatcher->end_request;
   }
-  my ($debitaccno,    $debittaxkey)    = split /--/, $form->{AP_amountselected};
-  my ($taxkey,        $NULL)           = split /--/, $form->{taxchartselected};
-  my ($payablesaccno, $payablestaxkey) = split /--/, $form->{APselected};
-#  $form->{AP_amount_1}  = $debitaccno;
-  $form->{AP_payables}  = $payablesaccno;
-  $form->{taxkey}       = $taxkey;
   $form->{storno}       = 0;
 
   $form->{id} = 0 if $form->{postasnew};

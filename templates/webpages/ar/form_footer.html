@@ -44,3 +44,17 @@
   [% END %]
 
 </form>
+
+<script type="text/javascript">
+ <!--
+$(document).ready(function() {
+  [%- SET row=0 %]
+  [%- WHILE row < rowcount %]
+   [%- SET row=row + 1 %]
+   $('#AR_amount_chart_id_[% row %]').on('set_item:ChartPicker', function(e, item) {
+     kivi.GL.update_taxes(this);
+   });
+  [%- END %]
+});
+-->
+</script>

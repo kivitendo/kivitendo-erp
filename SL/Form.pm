@@ -2663,15 +2663,8 @@ sub create_links {
     }
 
     # now get the account numbers
-#    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-#                FROM chart c, taxkeys tk
-#                WHERE (c.link LIKE ?) AND (c.id = tk.chart_id) AND tk.id =
-#                  (SELECT id FROM taxkeys WHERE (taxkeys.chart_id = c.id) AND (startdate <= $transdate) ORDER BY startdate DESC LIMIT 1)
-#                ORDER BY c.accno|;
-
-#  same query as above, but without expensive subquery for each row. about 80% faster
     $query = qq|
-      SELECT c.accno, c.description, c.link, c.taxkey_id, tk2.tax_id
+      SELECT c.accno, c.description, c.link, c.taxkey_id, c.id AS chart_id, tk2.tax_id
         FROM chart c
         -- find newest entries in taxkeys
         INNER JOIN (
@@ -2701,6 +2694,7 @@ sub create_links {
 
           push @{ $self->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
+              chart_id    => $ref->{chart_id},
               description => $ref->{description},
               taxkey      => $ref->{taxkey_id},
               tax_id      => $ref->{tax_id} };
@@ -2754,7 +2748,7 @@ sub create_links {
     }
 
     # now get the account numbers
-    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
+    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, c.id AS chart_id, tk.tax_id
                 FROM chart c
                 LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
                 WHERE c.link LIKE ?
@@ -2776,6 +2770,7 @@ sub create_links {
 
           push @{ $self->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
+              chart_id    => $ref->{chart_id},
               description => $ref->{description},
               taxkey      => $ref->{taxkey_id},
               tax_id      => $ref->{tax_id} };
@@ -2790,7 +2785,7 @@ sub create_links {
     $query =
       qq|SELECT
            c.accno, c.description,
-           a.acc_trans_id, a.source, a.amount, a.memo, a.transdate, a.gldate, a.cleared, a.project_id, a.taxkey,
+           a.acc_trans_id, a.source, a.amount, a.memo, a.transdate, a.gldate, a.cleared, a.project_id, a.taxkey, a.chart_id,
            p.projectnumber,
            t.rate, t.id
          FROM acc_trans a

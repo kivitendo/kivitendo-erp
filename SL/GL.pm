@@ -39,9 +39,12 @@
 
 package GL;
 
+use List::Util qw(first);
+
 use Data::Dumper;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
+use SL::DB::Chart;
 use SL::Util qw(trim);
 use SL::DB;
 
@@ -131,8 +134,6 @@ sub _post_transaction {
 
   # insert acc_trans transactions
   for $i (1 .. $form->{rowcount}) {
-    # extract accno
-    my ($accno) = split(/--/, $form->{"accno_$i"});
     ($form->{"tax_id_$i"}) = split(/--/, $form->{"taxchart_$i"});
     if ($form->{"tax_id_$i"} ne "") {
       $query = qq|SELECT taxkey, rate FROM tax WHERE id = ?|;
@@ -161,10 +162,9 @@ sub _post_transaction {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                   source, memo, project_id, taxkey, ob_transaction, cb_transaction, tax_id, chart_link)
-           VALUES (?, (SELECT id FROM chart WHERE accno = ?),
-                   ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE accno = ?))|;
-      @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{transdate}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}), $accno);
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE id = ?))|;
+      @values = (conv_i($form->{id}), $form->{"accno_id_$i"}, $amount, conv_date($form->{transdate}),
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}), $form->{"accno_id_$i"});
       do_query($form, $dbh, $query, @values);
     }
 
@@ -650,7 +650,7 @@ sub transaction {
     $query =
       qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo, a.source,
            a.transdate, a.cleared, a.project_id, p.projectnumber,
-           a.taxkey, t.rate AS taxrate, t.id,
+           a.taxkey, t.rate AS taxrate, t.id, a.chart_id,
            (SELECT c1.accno
             FROM chart c1, tax t1
             WHERE (t1.id = t.id) AND (c1.id = t.chart_id)) AS taxaccno,
@@ -754,60 +754,35 @@ sub _storno {
 }
 
 sub get_chart_balances {
-  $main::lxdebug->enter_sub();
+  my ($self, @chart_ids) = @_;
 
-  my $self     = shift;
-  my %params   = @_;
+  return () unless @chart_ids;
 
-  Common::check_params(\%params, qw(charts));
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
-  my @ids      = map { $_->{id} } @{ $params{charts} };
-
-  if (!@ids) {
-    $main::lxdebug->leave_sub();
-    return;
-  }
-
+  my $placeholders = join ', ', ('?') x scalar(@chart_ids);
   my $query = qq|SELECT chart_id, SUM(amount) AS sum
                  FROM acc_trans
-                 WHERE chart_id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)
+                 WHERE chart_id IN (${placeholders})
                  GROUP BY chart_id|;
 
-  my %balances = selectall_as_map($form, $dbh, $query, 'chart_id', 'sum', @ids);
+  my %balances = selectall_as_map($::form, $::form->get_standard_dbh(\%::myconfig), $query, 'chart_id', 'sum', @chart_ids);
 
-  foreach my $chart (@{ $params{charts} }) {
-    $chart->{balance} = $balances{ $chart->{id} } || 0;
-  }
-
-  $main::lxdebug->leave_sub();
+  return %balances;
 }
 
-sub get_tax_dropdown {
-  my ($self, $accno) = @_;
+sub get_active_taxes_for_chart {
+  my ($self, $chart_id, $transdate) = @_;
 
-  my $myconfig = \%main::myconfig;
-  my $form = $main::form;
+  my $chart         = SL::DB::Chart->new(id => $chart_id)->load;
+  my $active_taxkey = $chart->get_active_taxkey($transdate);
+  my $taxes         = SL::DB::Manager::Tax->get_all(
+    where   => [ chart_categories => { like => '%' . $chart->category . '%' }],
+    sort_by => 'taxkey, rate',
+  );
 
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $default_tax            = first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+  $default_tax->{is_default} = 1 if $default_tax;
 
-  my $query = qq|SELECT category FROM chart WHERE accno = ?|;
-  my ($category) = selectrow_query($form, $dbh, $query, $accno);
-
-  $query = qq|SELECT * FROM tax WHERE chart_categories like '%$category%' order by taxkey, rate|;
-
-  my $sth = prepare_execute_query($form, $dbh, $query);
-
-  my @tax_accounts = ();
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push(@tax_accounts, $ref);
-  }
-
-  return @tax_accounts;
+  return @{ $taxes };
 }
 
 1;

@@ -4,6 +4,7 @@ use strict;
 
 use Rose::DB::Object::Helpers qw(as_tree);
 
+use SL::DBUtils ();
 use SL::DB::MetaSetup::Customer;
 use SL::DB::Manager::Customer;
 use SL::DB::Helper::IBANValidation;
@@ -62,6 +63,28 @@ sub displayable_name {
   my $self = shift;
 
   return join ' ', grep $_, $self->customernumber, $self->name;
+}
+
+sub last_used_ar_chart {
+  my ($self) = @_;
+
+  my $query = <<EOSQL;
+    SELECT c.id
+    FROM chart c
+    JOIN acc_trans ac ON (ac.chart_id = c.id)
+    JOIN ar a ON (a.id = ac.trans_id)
+    WHERE (a.customer_id = ?)
+      AND (c.category = 'I')
+      AND (c.link !~ '_(paid|tax)')
+      AND (a.id IN (SELECT max(a2.id) FROM ar a2 WHERE a2.customer_id = ?))
+    ORDER BY ac.acc_trans_id ASC
+    LIMIT 1
+EOSQL
+
+  my ($chart_id) = SL::DBUtils::selectfirst_array_query($::form, $self->db->dbh, $query, ($self->id) x 2);
+
+  return if !$chart_id;
+  return SL::DB::Chart->load_cached($chart_id);
 }
 
 sub is_customer { 1 };

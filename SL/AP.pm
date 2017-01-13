@@ -73,13 +73,8 @@ sub _post_transaction {
     $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
   }
 
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{AP_amounts}{"amount_$i"} =
-      (split(/--/, $form->{"AP_amount_$i"}))[0];
-  }
-
-  ($form->{AP_amounts}{payables}) = split(/--/, $form->{APselected});
-  ($form->{AP_payables})          = split(/--/, $form->{APselected});
+  # get the charts selected
+  $form->{AP_amounts}{"amount_$_"} = $form->{"AP_amount_chart_id_$_"} for (1 .. $form->{rowcount});
 
   # calculate the totals while calculating and reformatting the $amount_$i and $tax_$i
   ($form->{netamount},$form->{total_tax},$form->{invtotal}) = $form->calculate_arap('buy',$form->{taxincluded}, $form->{exchangerate});
@@ -167,13 +162,11 @@ sub _post_transaction {
         $query =
           qq|INSERT INTO acc_trans | .
           qq|  (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)| .
-          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-          qq|  ?, ?, ?, ?, ?,| .
-          qq| (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-        @values = ($form->{id}, $form->{AP_amounts}{"amount_$i"},
+          qq|VALUES (?, ?,   ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
+        @values = ($form->{id}, $form->{"AP_amount_chart_id_$i"},
                    $form->{"amount_$i"}, conv_date($form->{transdate}),
                    $project_id, $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
-                   $form->{AP_amounts}{"amount_$i"});
+                   $form->{"AP_amount_chart_id_$i"});
         do_query($form, $dbh, $query, @values);
 
         if ($form->{"tax_$i"} != 0) {
@@ -197,19 +190,17 @@ sub _post_transaction {
     # add payables
     $query =
       qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) | .
-      qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, | .
-      qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| .
+      qq|VALUES (?, ?, ?, ?, | .
+      qq|        (SELECT taxkey_id FROM chart WHERE id = ?),| .
       qq|        (SELECT tax_id| .
       qq|         FROM taxkeys| .
-      qq|         WHERE chart_id= (SELECT id | .
-      qq|                          FROM chart| .
-      qq|                          WHERE accno = ?)| .
+      qq|         WHERE chart_id = ?| .
       qq|         AND startdate <= ?| .
       qq|         ORDER BY startdate DESC LIMIT 1),| .
-      qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-    @values = ($form->{id}, $form->{AP_amounts}{payables}, $form->{payables},
-               conv_date($form->{transdate}), $form->{AP_amounts}{payables}, $form->{AP_amounts}{payables}, conv_date($form->{transdate}),
-               $form->{AP_amounts}{payables});
+      qq|        (SELECT c.link FROM chart c WHERE c.id = ?))|;
+    @values = ($form->{id}, $form->{AP_chart_id}, $form->{payables},
+               conv_date($form->{transdate}), $form->{AP_chart_id}, $form->{AP_chart_id}, conv_date($form->{transdate}),
+               $form->{AP_chart_id});
     do_query($form, $dbh, $query, @values);
   }
 
@@ -254,20 +245,18 @@ sub _post_transaction {
       if ($form->{payables}) {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link) | .
-          qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, | .
-          qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| .
+          qq|VALUES (?, ?, ?, ?, ?, | .
+          qq|        (SELECT taxkey_id FROM chart WHERE id = ?),| .
           qq|        (SELECT tax_id| .
           qq|         FROM taxkeys| .
-          qq|         WHERE chart_id= (SELECT id | .
-          qq|                          FROM chart| .
-          qq|                          WHERE accno = ?)| .
+          qq|         WHERE chart_id = ?| .
           qq|         AND startdate <= ?| .
           qq|         ORDER BY startdate DESC LIMIT 1),| .
-          qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-        @values = ($form->{id}, $form->{AP_payables}, $amount,
+          qq|        (SELECT c.link FROM chart c WHERE c.id = ?))|;
+        @values = ($form->{id}, $form->{AP_chart_id}, $amount,
                    conv_date($form->{"datepaid_$i"}), $project_id,
-                   $form->{AP_payables}, $form->{AP_payables}, conv_date($form->{"datepaid_$i"}),
-                   $form->{AP_payables});
+                   $form->{AP_chart_id}, $form->{AP_chart_id}, conv_date($form->{"datepaid_$i"}),
+                   $form->{AP_chart_id});
         do_query($form, $dbh, $query, @values);
       }
       $form->{payables} = $amount;
@@ -759,26 +748,7 @@ sub setup_form {
             $form->{"projectnumber_$k"}    = "$form->{acc_trans}{$key}->[$i-1]->{projectnumber}";
             $form->{"oldprojectnumber_$k"} = $form->{"projectnumber_$k"};
             $form->{"project_id_$k"}       = "$form->{acc_trans}{$key}->[$i-1]->{project_id}";
-          }
-
-          $form->{"${key}_$k"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-
-          my $q_description    = quotemeta($form->{acc_trans}{$key}->[$i-1]->{description});
-          $form->{"select${key}"} =~
-            m/<option value=\"
-                ($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)
-              \">
-              $form->{acc_trans}{$key}->[$i-1]->{accno}
-              --
-              ${q_description}
-              <\/option>\n/x;
-          $form->{"${key}_$k"} = $1;
-
-          if ($akey eq "AP") {
-            $form->{APselected} = $form->{acc_trans}{$key}->[$i-1]->{accno};
-
-          } elsif ($akey eq 'amount') {
-            $form->{"${key}_$k"}   = $form->{acc_trans}{$key}->[$i-1]->{accno} . "--" . $form->{acc_trans}{$key}->[$i-1]->{id};
+            $form->{"${key}_chart_id_$k"}  = $form->{acc_trans}{$key}->[$i-1]->{chart_id};
             $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id}    . "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }
         }
