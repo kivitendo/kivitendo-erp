@@ -2,44 +2,37 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_sales_invoice create_invoice_item);
+our @EXPORT = qw(create_invoice_item create_sales_invoice create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order);
 
-use SL::Dev::Part;
-use SL::Dev::CustomerVendor;
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Employee;
+use SL::Dev::Part;
+use SL::Dev::CustomerVendor;
 use DateTime;
+
+my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
+                                 sales_order          => 'SL::DB::OrderItem',
+                                 purchase_order       => 'SL::DB::OrderItem',
+                                 sales_delivery_order => 'SL::DB::DeliveryOrderItem',
+                               );
 
 sub create_sales_invoice {
   my (%params) = @_;
 
-  my ($part1, $part2);
-  my $invoiceitems;
-  if ( $params{invoiceitems} ) {
-    $invoiceitems = $params{invoiceitems};
-    die "params invoiceitems must be an arrayref of InvoiceItem objects" if scalar @{$invoiceitems} == 0 or grep { ref($_) ne 'SL::DB::InvoiceItem' } @{$params{invoiceitems}};
-  } else {
-    $part1 = SL::Dev::Part::create_part(description  => 'Testpart 1',
-                                        sellprice    => 12,
-                                       )->save;
-    $part2 = SL::Dev::Part::create_part(description  => 'Testpart 2',
-                                        sellprice    => 10,
-                                       )->save;
-    my $invoice_item1 = create_invoice_item(part => $part1, qty => 5);
-    my $invoice_item2 = create_invoice_item(part => $part2, qty => 8);
-    $invoiceitems = [ $invoice_item1, $invoice_item2 ];
-  }
+  my $record_type = 'sales_invoice';
+  my $invoiceitems = delete $params{invoiceitems} // _create_two_items($record_type);
+  _check_items($invoiceitems, $record_type);
 
-  my $customer = $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
-  die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
+  my $customer = delete $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  die "illegal customer" unless defined $customer && ref($customer) eq 'SL::DB::Customer';
 
   my $invoice = SL::DB::Invoice->new(
     invoice      => 1,
     type         => 'sales_invoice',
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone->id,
-    invnumber    => $params{invnumber}   // undef,
+    invnumber    => delete $params{invnumber}   // undef,
     currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => $params{taxincluded} // 0,
     employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
@@ -47,32 +40,172 @@ sub create_sales_invoice {
     transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
     payment_id   => $params{payment_id}  // undef,
     gldate       => DateTime->today_local->to_kivitendo,
-    notes        => $params{notes}       // '',
     invoiceitems => $invoiceitems,
+    %params,
   );
 
   $invoice->post;
   return $invoice;
 }
 
+sub create_sales_delivery_order {
+  my (%params) = @_;
+
+  my $record_type = 'sales_delivery_order';
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $customer = $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
+
+  my $delivery_order = SL::DB::DeliveryOrder->new(
+    'is_sales'   => 'true',
+    'closed'     => undef,
+    customer_id  => $customer->id,
+    taxzone_id   => $customer->taxzone_id,
+    donumber     => $params{donumber}    // undef,
+    currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => $params{taxincluded} // 0,
+    employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
+    orderitems   => $orderitems,
+    %params
+  );
+  $delivery_order->save;
+  return $delivery_order;
+}
+
+sub create_sales_order {
+  my (%params) = @_;
+
+  my $record_type = 'sales_order';
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $customer = $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
+
+  my $order = SL::DB::Order->new(
+    customer_id  => delete $params{customer_id} // $customer->id,
+    taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    # employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    # salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
+    orderitems   => $orderitems,
+    %params
+  );
+
+  if ( $save ) {
+    $order->calculate_prices_and_taxes;
+    $order->save;
+  }
+  return $order;
+}
+
+sub create_purchase_order {
+  my (%params) = @_;
+
+  my $record_type = 'purchase_order';
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $save = delete $params{save} // 0;
+
+  my $vendor = $params{vendor} // SL::Dev::CustomerVendor::create_vendor(name => 'Testvendor')->save;
+  die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
+
+  my $order = SL::DB::Order->new(
+    vendor_id    => delete $params{vendor_id}   // $vendor->id,
+    taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
+    currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => delete $params{taxincluded} // 0,
+    transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
+    'closed'     => undef,
+    orderitems   => $orderitems,
+    %params
+  );
+
+  if ( $save ) {
+    $order->calculate_prices_and_taxes; # not tested for purchase orders
+    $order->save;
+  }
+  return $order;
+};
+
+sub _check_items {
+  my ($items, $record_type) = @_;
+
+  if  ( scalar @{$items} == 0 or grep { ref($_) ne $record_type_to_item_type{"$record_type"} } @{$items} ) {
+    die "Error: items must be an arrayref of " . $record_type_to_item_type{"$record_type"} . "objects.";
+  }
+}
+
 sub create_invoice_item {
   my (%params) = @_;
 
-# is not automatically saved so it can get added as part of a the invoice transaction
+  return _create_item(record_type => 'sales_invoice', %params);
+}
 
-  my $part = delete($params{part});
-  die "no part passed to _create_invoice_item" unless $part && ref($part) eq 'SL::DB::Part';
+sub create_order_item {
+  my (%params) = @_;
 
-  my $invoice_item = SL::DB::InvoiceItem->new(
+  return _create_item(record_type => 'sales_order', %params);
+}
+
+sub create_delivery_order_item {
+  my (%params) = @_;
+
+  return _create_item(record_type => 'sales_delivery_order', %params);
+}
+
+sub _create_item {
+  my (%params) = @_;
+
+  my $record_type = delete($params{record_type});
+  my $part        = delete($params{part});
+
+  die "illegal record type: $record_type, must be one of: " . join(' ', keys %record_type_to_item_type) unless $record_type_to_item_type{ $record_type };
+  die "part missing as param" unless $part && ref($part) eq 'SL::DB::Part';
+
+  my ($sellprice, $lastcost);
+
+  if ( $record_type =~ /^sales/ ) {
+    $sellprice = delete $params{sellprice} // $part->sellprice;
+    $lastcost  = delete $params{lastcost}  // $part->lastcost;
+  } else {
+    $sellprice = delete $params{sellprice} // $part->lastcost;
+    $lastcost  = delete $params{lastcost}  // 0; # $part->lastcost;
+  }
+
+  my $item = "$record_type_to_item_type{$record_type}"->new(
     parts_id    => $part->id,
-    lastcost    => $part->lastcost,
-    sellprice   => $part->sellprice,
+    sellprice   => $sellprice,
+    lastcost    => $lastcost,
     description => $part->description,
     unit        => $part->unit,
-    %params, # override any of the part defaults via %params
+    qty         => $params{qty} || 5,
+    %params,
   );
+  return $item;
+}
 
-  return $invoice_item;
+sub _create_two_items {
+  my ($record_type) = @_;
+
+  my $part1 = SL::Dev::Part::create_part(description => 'Testpart 1',
+                                         sellprice   => 12,
+                                        )->save;
+  my $part2 = SL::Dev::Part::create_part(description => 'Testpart 2',
+                                         sellprice   => 10,
+                                        )->save;
+  my $item1 = _create_item(record_type => $record_type, part => $part1, qty => 5);
+  my $item2 = _create_item(record_type => $record_type, part => $part2, qty => 8);
+  return [ $item1, $item2 ];
 }
 
 1;
@@ -104,21 +237,55 @@ Example with params:
     taxincluded => 1,
   );
 
-=head2 C<create_invoice_item %PARAMS>
+=head2 C<create_sales_order %PARAMS>
 
-Creates an invoice item from a part object that can be added to an invoice.
+Examples:
+
+Create a sales order and save it directly via rose, without running
+calculate_prices_and_taxes:
+
+ my $order = SL::Dev::Record::create_sales_order()->save;
+
+Let create_sales_order run calculate_prices_and_taxes and save:
+
+ my $order = SL::Dev::Record::create_sales_order(save => 1);
+
+
+Example including creation of part and of sales order.
+  my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
+  my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+  my $order = SL::Dev::Record::create_sales_order(
+    save         => 1,
+    taxincluded  => 0,
+    orderitems => [ SL::Dev::Record::create_order_item(part => $part1, qty =>  3, sellprice => 70),
+                    SL::Dev::Record::create_order_item(part => $part2, qty => 10, sellprice => 50),
+                  ]
+  );
+
+=head2 C<create_purchase_order %PARAMS>
+
+See comments for C<create_sales_order>.
+
+Example:
+ my $purchase_order = SL::Dev::Record::create_purchase_order(save => 1);
+
+
+=head2 C<create_item %PARAMS>
+
+Creates an item from a part object that can be added to a record.
+
+Required params: record_type (sales_invoice, sales_order, sales_delivery_order)
+                 part        (an SL::DB::Part object)
 
 Example including creation of part and of invoice:
-  my $part    = SL::Dev::Part::create_part(partnumber => 'T4254')->save;
-  my $item    = SL::Dev::Record::create_invoice_item(part => $part, qty => 2.5);
+  my $part    = SL::Dev::Part::create_part(  partnumber  => 'T4254')->save;
+  my $item    = SL::Dev::Record::create_item(record_type => 'sales_invoice', part => $part, qty => 2.5);
   my $invoice = SL::Dev::Record::create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
   );
 
 =head1 TODO
-
-* create other types of records (order, purchase records, ar transactions, ...)
 
 =head1 BUGS
 
