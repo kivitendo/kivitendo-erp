@@ -41,20 +41,4 @@
       [%- LxERP.t8("Loading...") %]
     </div>
   </div>
-
-  <br>
-
-  [% L.hidden_tag('action', 'Order/dispatch') %]
-
-  [% L.button_tag('kivi.Order.save(' _ INSTANCE_CONF.get_order_warn_duplicate_parts _ ')', LxERP.t8('Save')) %]
-  [% L.button_tag('kivi.Order.show_print_options()', LxERP.t8('Print')) %]
-  [% L.button_tag('kivi.Order.email()', LxERP.t8('E-mail')) %]
-  [% L.button_tag('kivi.Order.save_and_delivery_order(' _ INSTANCE_CONF.get_order_warn_duplicate_parts _ ')', LxERP.t8('Save and Delivery Order')) %]
-[%- IF SELF.order.id && ( (SELF.cv == 'customer' && INSTANCE_CONF.get_sales_order_show_delete) || (SELF.cv == 'vendor' && INSTANCE_CONF.get_purchase_order_show_delete) ) %]
-  [% L.button_tag('kivi.Order.delete_order()', LxERP.t8('Delete'), confirm=LxERP.t8("Are you sure?")) %]
-[%- END %]
-[%- IF SELF.order.id && INSTANCE_CONF.get_doc_storage %]
-  [% L.button_tag('kivi.File.downloadOrderitemsFiles(\'' _ SELF.order.type _'\',' _ SELF.order.id _')',LxERP.t8('Download all Attachments')) %]
-[%- END %]
-
 </form>

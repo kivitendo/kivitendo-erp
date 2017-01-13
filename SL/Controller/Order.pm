@@ -1097,6 +1097,54 @@ sub _pre_render {
   }
 
   $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery);
+  $self->_setup_edit_action_bar;
+}
+
+sub _setup_edit_action_bar {
+  my ($self, %params) = @_;
+
+  my $deletion_allowed = (($self->cv eq 'customer') && $::instance_conf->get_sales_order_show_delete)
+                      || (($self->cv eq 'vendor')   && $::instance_conf->get_purchase_order_show_delete);
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          call      => [ 'kivi.Order.save', $::instance_conf->get_order_warn_duplicate_parts ],
+          accesskey => 'enter',
+        ],
+        action => [
+          t8('Save and Delivery Order'),
+          call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
+          accesskey => 'enter',
+        ],
+
+      ], # end of combobox "Save"
+
+      combobox => [
+        action => [
+          t8('Export'),
+        ],
+        action => [
+          t8('Print'),
+          call => [ 'kivi.Order.show_print_options' ],
+        ],
+        action => [
+          t8('E-mail'),
+          call => [ 'kivi.Order.email' ],
+        ],
+      ], # end of combobox "Export"
+
+      action => [
+        t8('Delete'),
+        call     => [ 'kivi.Order.delete_order' ],
+        confirm  => $::locale->text('Do you really want to delete this object?'),
+        disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+        only_if  => $deletion_allowed,
+      ],
+    );
+  }
 }
 
 sub _create_pdf {
