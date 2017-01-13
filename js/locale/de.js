@@ -98,6 +98,7 @@ namespace("kivi").setupLocale({
 "Subject":"Betreff",
 "Text block actions":"Textblockaktionen",
 "Text block picture actions":"Aktionen für Textblockbilder",
+"The action can only be executed once.":"Die Aktion kann nur einmal ausgeführt werden.",
 "The description is missing.":"Die Beschreibung fehlt.",
 "The field '#{title}' must be set.":"Das Feld »#{title}« muss gesetzt sein.",
 "The name is missing.":"Der Name fehlt.",

@@ -168,6 +168,10 @@ namespace('kivi', function(k){
         if (data.link) {
           window.location.href = data.link;
         }
+        if ((data.only_once !== undefined) && (data.only_once !== 0)) {
+          $(e).addClass(CLASSES.disabled);
+          $(e).tooltipster({ content: kivi.t8("The action can only be executed once."), theme: 'tooltipster-light' });
+        }
       });
     }
   };
