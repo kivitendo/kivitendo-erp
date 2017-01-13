@@ -288,6 +288,23 @@ namespace("kivi", function(ns) {
     return true;
   };
 
+  // This function submits an existing form given by "form_selector"
+  // and sets the "action" input to "action_to_call" before submitting
+  // it. Any existing input named "action" will be removed prior to
+  // submitting.
+  ns.submit_form_with_action = function(form_selector, action_to_call) {
+    $('[name=action]').remove();
+
+    var $form   = $(form_selector);
+    var $hidden = $('<input type=hidden>');
+
+    $hidden.attr('name',  'action');
+    $hidden.attr('value', action_to_call);
+    $form.append($hidden);
+
+    $form.submit();
+  };
+
   // Return a function object by its name (a string). Works both with
   // global functions (e.g. "check_right_date_format") and those in
   // namespaces (e.g. "kivi.t8").
