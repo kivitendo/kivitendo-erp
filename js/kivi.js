@@ -305,6 +305,14 @@ namespace("kivi", function(ns) {
     $form.submit();
   };
 
+  // This function exists solely so that it can be found with
+  // kivi.get_functions_by_name() and called later on. Using something
+  // like "var func = history["back"]" works, but calling it later
+  // with "func.apply()" doesn't.
+  ns.history_back = function() {
+    history.back();
+  };
+
   // Return a function object by its name (a string). Works both with
   // global functions (e.g. "check_right_date_format") and those in
   // namespaces (e.g. "kivi.t8").
