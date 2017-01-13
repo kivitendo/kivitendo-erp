@@ -153,6 +153,7 @@ sub show_invoices {
                                           'no_html'         => 1,
                                           'no_opendocument' => 1,);
 
+  $::request->layout->add_javascripts("kivi.Dunning.js");
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
 

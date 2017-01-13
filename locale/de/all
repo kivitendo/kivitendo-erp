@@ -1998,6 +1998,7 @@ $self->{texts} = {
   'Out of balance transaction!' => 'Buchung ist nicht ausgeglichen!',
   'Out of balance!'             => 'Summen stimmen nicht überein!',
   'Output Number Format'        => 'Zahlenformat (Ausgabe)',
+  'Overdue invoices'            => 'Überfällige Rechnungen',
   'Overdue sales quotations and requests for quotations' => 'Überfällige Angebote und Preisanfragen',
   'Override'                    => 'Override',
   'Override invoice language'   => 'Diese Sprache verwenden',

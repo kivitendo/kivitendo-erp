@@ -8,9 +8,16 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
- <p>[% 'The columns &quot;Dunning Duedate&quot;, &quot;Total Fees&quot; and &quot;Interest&quot; show data for the previous dunning created for this invoice.' | $T8 %]</p>
+ <form name="Form" method="post" action="dn.pl" id="form">
 
- <form name="Form" method="post" action="dn.pl">
+  <h2>[% LxERP.t8("Print options") %]</h2>
+
+  [% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]
+  [% PRINT_OPTIONS %]
+
+  <h2>[% LxERP.t8("Overdue invoices") %]</h2>
+
+  <p>[% 'The columns &quot;Dunning Duedate&quot;, &quot;Total Fees&quot; and &quot;Interest&quot; show data for the previous dunning created for this invoice.' | $T8 %]</p>
 
   <table width="100%" id="dunning_invoice_list">
    <th class="listheading" colspan="2">[% 'Current / Next Level' | $T8 %]</th>
@@ -80,14 +87,6 @@
    [% END %]
   </table>
 
-  <hr size=3 noshade>
-
-  <input type="checkbox" id='force_lang' name="force_lang" size="6" value="1">
-  [% 'Override invoice language' | $T8 %]
-  [% PRINT_OPTIONS %]
-
-  <br>
-
   <input name="rowcount" type="hidden" value="[% HTML.escape(rowcount) %]">
   <input name="groupinvoices" type="hidden" value="[% HTML.escape(groupinvoices) %]">
 
@@ -100,9 +99,3 @@
          [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='[% 'The dunning process started' | $T8 %]'; document.Form.submit()"[% END %]>
 
  </form>
- <script type='text/javascript'>
-   $(function() {
-     $("select[name='language_id']").prop('disabled', $('#force_lang').prop('checked'));
-     $('#force_lang').checkall('select[name="language_id"]', 'disabled');
-   });
- </script>
