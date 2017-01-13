@@ -78,8 +78,6 @@
 </div>
 
   <p>
-  [% L.hidden_tag('action', 'Part/dispatch') %]
-
   [% IF show_edit_buttons %]
     [% L.button_tag('kivi.Part.save()', LxERP.t8('Save')) %]
     [% IF SELF.part.id %]
