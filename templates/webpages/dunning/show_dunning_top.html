@@ -1,5 +1,9 @@
-[% USE HTML %] <script type="text/javascript" src="js/common.js"></script>
- <script type="text/javascript" src="js/dunning.js"></script>
-
+[% USE HTML %][%- USE LxERP -%][%- USE L -%]
  <form method="post" action="dn.pl">
 
+  <h2>[% LxERP.t8("Print options") %]</h2>
+
+  [% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]
+  [% PRINT_OPTIONS %]
+
+  <h2>[% LxERP.t8("Dunnings") %]</h2>

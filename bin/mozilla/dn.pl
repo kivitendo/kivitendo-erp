@@ -454,6 +454,7 @@ sub show_dunning {
 
   $report->set_options_from_form();
 
+  $::request->layout->add_javascripts("kivi.Dunning.js");
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();

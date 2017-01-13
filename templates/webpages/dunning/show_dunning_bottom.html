@@ -5,12 +5,6 @@
 <input type="hidden" name="rowcount" value="[% rowcount %]">
 
   <p>
-    <input type="checkbox" id='force_lang' name="force_lang" size="6" value="1">
-    [% 'Override invoice language' | $T8 %]
-    [% PRINT_OPTIONS %]
-  </p>
-
-  <p>
    [% 'Dunnings' | $T8 %]<br>
    [% L.hidden_tag('action', 'dispatcher') %]
    <input type="submit" class="submit" name='action_print_multiple' value="[%- 'Print' | $T8 %]">
@@ -18,9 +12,3 @@
   </p>
 
  </form>
- <script type='text/javascript'>
-   $(function() {
-     $("select[name='language_id']").prop('disabled', !$('#force_lang').prop('checked'));
-     $('#force_lang').checkall('select[name="language_id"]', 'disabled', 'inverted');
-   });
- </script>
