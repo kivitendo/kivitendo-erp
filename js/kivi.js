@@ -313,6 +313,23 @@ namespace("kivi", function(ns) {
     history.back();
   };
 
+  // Call arbitrary jQuery functions on arbitrary objects with
+  // arbitrary arguments. The use case is to allow eval_json_result
+  // using code to call simple jQuery stuff without having it to wrap
+  // them in their own small functions.
+  // Example usage with ActionBar:
+  //   call => [ 'kivi.call_jquery', '#form', 'resetForm' ],
+  ns.call_jquery = function(this_arg, function_name) {
+    var func = jQuery.fn[function_name];
+    if (!func)
+      return;
+
+    var args = Array.from(arguments);
+    args.splice(0, 2);
+
+    return func.apply($(this_arg), args);
+  };
+
   // Return a function object by its name (a string). Works both with
   // global functions (e.g. "check_right_date_format") and those in
   // namespaces (e.g. "kivi.t8").
