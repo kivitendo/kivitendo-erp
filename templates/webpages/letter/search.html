@@ -2,7 +2,7 @@
 [% USE T8 %]
 [% USE L %]
 [% USE LxERP %]
-<form action="controller.pl" method="post" name="Form">
+<form action="controller.pl" method="post" name="Form" id="form">
 
 <div class='filter_toggle'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
@@ -55,10 +55,6 @@
  [% L.hidden_tag('sort_by', FORM.sort_by) %]
  [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
  [% L.hidden_tag('page', FORM.page) %]
- [% L.hidden_tag('action', 'Letter/dispatch') %]
- [% L.submit_tag('action_list', LxERP.t8('Continue')) %]
-
-<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").prop("selectedIndex", 0);'>[% 'Reset' | $T8 %]</a>
 </div>
 
 </form>

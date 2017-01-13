@@ -224,17 +224,23 @@ namespace('kivi.SalesPurchase', function(ns) {
   };
 
   // Sending records via email.
-  this.send_email = function() {
+  this.check_required_email_fields = function() {
     var unset = $('#email_form_to,#email_form_subject,#email_form_message').filter(function(idx, elt) {
       return $(elt).val() === '';
     });
 
-    if (unset.length > 0) {
-      alert(kivi.t8("The recipient, subject or body is missing."));
-      $(unset[0]).focus();
+    if (unset.length === 0)
+      return true;
 
+    alert(kivi.t8("The recipient, subject or body is missing."));
+    $(unset[0]).focus();
+
+    return false;
+  };
+
+  this.send_email = function() {
+    if (!kivi.SalesPurchase.check_required_email_fields())
       return false;
-    }
 
     $('#send_email_dialog').children().remove().appendTo('#email_inputs');
     $('#send_email_dialog').dialog('close');

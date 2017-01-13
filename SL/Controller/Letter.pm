@@ -171,11 +171,12 @@ sub action_delete_letter_drafts {
 sub action_list {
   my ($self, %params) = @_;
 
+  $self->setup_list_action_bar;
   $self->make_filter_summary;
   $self->prepare_report;
 
   my $letters = $self->models->get;
-  $self->report_generator_list_objects(report => $self->{report}, objects => $letters);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $letters, action_bar => 1);
 
 }
 
@@ -323,12 +324,13 @@ sub action_edit_email {
     email      => $letter->contact ? $letter->contact->cp_email : '',
     subject    => $::form->generate_email_subject,
     a_filename => $::form->generate_attachment_filename,
-    action     => 'Letter/send_email',
     HIDDEN     => \@hiddens,
     SHOW_BCC   => $::auth->assert('email_bcc', 'may fail'),
   );
 
-  $self->render('generic/edit_email', %vars);
+  $::request->layout->use_javascript("kivi.SalesPurchase.js");
+  $self->setup_edit_email_action_bar;
+  $self->render('letter/edit_email', %vars);
 }
 
 sub action_send_email {
@@ -348,7 +350,7 @@ sub action_send_email {
 sub _display {
   my ($self, %params) = @_;
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery kivi.Letter);
 
   my $letter = $self->letter;
 
@@ -364,6 +366,7 @@ sub _display {
   $::form->{languages}   ||= SL::DB::Manager::Language->get_all_sorted;
   $::form->{printers}      = SL::DB::Manager::Printer->get_all_sorted;
 
+  $self->setup_display_action_bar;
   $self->render('letter/edit',
     %params,
     TCF           => [ map { key => $_, value => t8(ucfirst $_) }, TEXT_CREATED_FOR_VALUES() ],
@@ -416,7 +419,6 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'Letter',
     output_format         => 'HTML',
-    top_info_text         => t8('Letters'),
     title                 => t8('Letters'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -485,6 +487,7 @@ sub load_letter_draft {
 
   return unless @$letter_drafts;
 
+  $self->setup_load_letter_draft_action_bar;
   $self->render('letter/load_drafts',
     title         => t8('Letter Draft'),
     LETTER_DRAFTS => $letter_drafts,
@@ -632,6 +635,106 @@ sub check_auth_edit {
 
 sub check_auth_report {
   $::auth->assert('sales_letter_report');
+}
+
+sub setup_load_letter_draft_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Skip'),
+        link      => $self->url_for(action => 'skip_draft', is_sales => $self->is_sales),
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Delete'),
+        submit  => [ '#form', { action => 'delete_drafts' } ],
+        checks  => [ [ 'kivi.check_if_entries_selected', '[name="ids[+]"]' ] ],
+        confirm => t8('Do you really want to delete this draft?'),
+      ],
+    );
+  }
+}
+
+sub setup_display_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => 'Letter/update' } ],
+        accesskey => 'enter',
+      ],
+
+      combobox => [
+        action => [
+          t8('Save'),
+          submit => [ '#form', { action => 'Letter/save' } ],
+        ],
+        action => [
+          t8('Save Draft'),
+          submit => [ '#form', { action => 'Letter/save_letter_draft' } ],
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'Letter/delete' } ],
+        confirm  => t8('Are you sure you want to delete this letter?'),
+        disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
+      ],
+
+      combobox => [
+        action => [ t8('Export') ],
+        action => [
+          t8('Print'),
+          submit   => [ '#form', { action => 'Letter/print_letter' } ],
+          disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
+        ],
+        action => [
+          t8('E-mail'),
+          submit   => [ '#form', { action => 'Letter/edit_email' } ],
+          disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
+        ],
+      ],
+    );
+  }
+}
+
+sub setup_edit_email_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'Letter/send_email' } ],
+        checks    => [ 'kivi.SalesPurchase.check_required_email_fields' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#form', { action => 'Letter/list' } ],
+        checks    => [ 'kivi.SalesPurchase.check_required_email_fields' ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Reset'),
+        call => [ 'kivi.call_jquery', '#form', 'resetForm' ],
+      ],
+    );
+  }
 }
 
 1;
