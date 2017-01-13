@@ -245,12 +245,13 @@ sub setup_ir_action_bar {
           submit   => [ '#form', { action => "post_payment" } ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
-        (action => [
+        action => [
           t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-        ]) x !!$::instance_conf->get_ir_show_mark_as_paid,
+          only_if  => $::instance_conf->get_ir_show_mark_as_paid,
+        ],
       ], # end of combobox "Post"
 
       combobox => [

@@ -239,6 +239,7 @@ sub prepare_order {
 sub setup_do_action_bar {
   my @transfer_qty   = qw(kivi.SalesPurchase.delivery_order_check_transfer_qty);
   my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
+  my $is_customer    = $::form->{vc} eq 'customer';
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -284,30 +285,34 @@ sub setup_do_action_bar {
       ],
 
       combobox => [
-        (action => [
+        action => [
           t8('Transfer out'),
           submit   => [ '#form', { action => "transfer_out" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
-        ]) x ($::form->{vc} eq 'customer'),
-        (action => [
+          only_if  => $is_customer,
+        ],
+        action => [
           t8('Transfer out via default'),
           submit   => [ '#form', { action => "transfer_out_default" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
-        ]) x ($::form->{vc} eq 'customer' && $::instance_conf->get_transfer_default),
-        (action => [
+          only_if  => $is_customer && $::instance_conf->get_transfer_default,
+        ],
+        action => [
           t8('Transfer in'),
           submit   => [ '#form', { action => "transfer_in"> 1 } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
-        ]) x ($::form->{vc} eq 'vendor'),
-        (action => [
+          only_if  => !$is_customer,
+        ],
+        action => [
           t8('Transfer in via default'),
           submit   => [ '#form', { action => "transfer_in_default" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
-        ]) x ($::form->{vc} eq 'vendor' && $::instance_conf->get_transfer_default),
+          only_if  => !$is_customer && $::instance_conf->get_transfer_default,
+        ],
       ], # end of combobox "Transfer out"
 
 

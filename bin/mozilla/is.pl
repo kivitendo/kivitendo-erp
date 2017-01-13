@@ -285,11 +285,12 @@ sub setup_is_action_bar {
           checks   => [ @req_trans_desc ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
-        (action => [ t8('Mark as paid'),
+        action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-        ]) x !!$::instance_conf->get_is_show_mark_as_paid,
+          only_if  => $::instance_conf->get_is_show_mark_as_paid,
+        ],
       ], # end of combobox "Post"
 
       combobox => [

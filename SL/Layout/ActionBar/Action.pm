@@ -25,6 +25,8 @@ sub from_params {
   my ($class, $data) = @_;
 
   my ($text, %params) = @$data;
+  return if exists($params{only_if}) && !$params{only_if};
+  return if exists($params{not_if})  &&  $params{not_if};
   return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
 }
 
