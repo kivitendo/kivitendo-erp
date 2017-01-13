@@ -2,7 +2,7 @@
 [% USE HTML %]<script type="text/javascript" src="js/common.js"></script>
 <h1>[% title %]</h1>
 
- <form method="post" name="search" action="dn.pl">
+ <form method="post" name="search" action="dn.pl" id="form">
 
   <table>
    <tr>
@@ -60,10 +60,4 @@
     <td><input type="checkbox" value="1" id="l_include_direct_debit" name="l_include_direct_debit"></td>
    </tr>
   </table>
-
-  <input type="hidden" name="nextsub" value="show_invoices">
-
-  <br>
-  <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
-
  </form>

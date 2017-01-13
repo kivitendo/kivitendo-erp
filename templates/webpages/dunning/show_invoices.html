@@ -88,11 +88,4 @@
   <input name="groupinvoices" type="hidden" value="[% HTML.escape(groupinvoices) %]">
 
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
-  <input name="nextsub" type="hidden" value="save_dunning">
-
-  <input type="hidden" name="action" value="[% 'Continue' | $T8 %]">
-
-  <input type="submit" name="dummy" value="[% 'Continue' | $T8 %]"
-         [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='[% 'The dunning process started' | $T8 %]'; document.Form.submit()"[% END %]>
-
  </form>

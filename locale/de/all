@@ -2969,7 +2969,6 @@ $self->{texts} = {
   'The document has been changed by another user. No mail was sent. Please reopen it in another window and copy the changes to the new window' => 'Die Daten wurden bereits von einem anderen Benutzer verändert. Deshalb ist das Dokument ungültig und es wurde keine E-Mail verschickt. Bitte öffnen Sie das Dokument erneut in einem extra Fenster und übertragen Sie die Daten',
   'The document has been changed by another user. Please reopen it in another window and copy the changes to the new window' => 'Die Daten wurden bereits von einem anderen Benutzer verändert. Deshalb ist das Dokument ungültig. Bitte öffnen Sie das Dokument erneut in einem extra Fenster und übertragen Sie die Daten',
   'The documents have been sent to the printer \'#1\'.' => 'Die Dokumente sind zum Drucker \'#1\' geschickt',
-  'The dunning process started' => 'Der Mahnprozess ist gestartet.',
   'The dunnings have been printed.' => 'Die Mahnung(en) wurden gedruckt.',
   'The email has been sent.'    => 'Die E-Mail wurde verschickt.',
   'The employee is missing.'    => 'Der Bearbeiter fehlt.',

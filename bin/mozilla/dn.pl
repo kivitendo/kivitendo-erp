@@ -105,6 +105,8 @@ sub add {
   $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{all_departments} && scalar @{ $form->{all_departments} || [] };
 
   $form->{title}    = $locale->text('Start Dunning Process');
+
+  setup_dn_add_action_bar();
   $form->header();
 
   print $form->parse_html_template("dunning/add");
@@ -150,7 +152,7 @@ sub show_invoices {
                                           'no_html'         => 1,
                                           'no_opendocument' => 1,);
 
-  $::request->layout->add_javascripts("kivi.Dunning.js");
+  setup_dn_show_invoices_action_bar();
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
 
@@ -307,6 +309,7 @@ sub search {
 
   $form->{title}    = $locale->text('Dunnings');
 
+  setup_dn_search_action_bar();
   $form->header();
 
   print $form->parse_html_template("dunning/search");
@@ -449,8 +452,8 @@ sub show_dunning {
 
   $report->set_options_from_form();
 
-  $::request->layout->add_javascripts("kivi.Dunning.js");
-  $report->generate_with_headers();
+  setup_dn_show_dunning_action_bar();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 
@@ -559,4 +562,71 @@ sub dispatcher {
 
   $::form->error($::locale->text('No action defined.'));
 }
+
+sub setup_dn_add_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => "show_invoices" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_dn_show_invoices_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => "save_dunning" } ],
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name^=active_]' ] ],
+        accesskey => 'enter',
+        only_once => 1,
+      ],
+    );
+  }
+}
+
+sub setup_dn_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => "show_dunning" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_dn_show_dunning_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Print'),
+        submit    => [ '#form', { action => "print_multiple" } ],
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name^=selected_]' ] ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit  => [ '#form', { action => "delete" } ],
+        checks  => [ [ 'kivi.check_if_entries_selected', '[name^=selected_]' ] ],
+        confirm => $::locale->text('This resets the dunning process for the selected invoices. Posted dunning invoices will not be changed!'),
+      ],
+    );
+  }
+}
+
 # end of main

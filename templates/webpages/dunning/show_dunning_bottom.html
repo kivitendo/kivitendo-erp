@@ -1,14 +1,2 @@
-[%- USE T8 %]
-[%- USE HTML %]
-[%- USE LxERP %]
-[%- USE L %]
 <input type="hidden" name="rowcount" value="[% rowcount %]">
-
-  <p>
-   [% 'Dunnings' | $T8 %]<br>
-   [% L.hidden_tag('action', 'dispatcher') %]
-   <input type="submit" class="submit" name='action_print_multiple' value="[%- 'Print' | $T8 %]">
-   [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('This resets the dunning process for the selected invoices. Posted dunning invoices will not be changed!')) %]
-  </p>
-
  </form>
