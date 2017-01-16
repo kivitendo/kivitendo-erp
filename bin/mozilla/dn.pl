@@ -569,7 +569,7 @@ sub setup_dn_add_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Search'),
         submit    => [ '#form', { action => "show_invoices" } ],
         accesskey => 'enter',
       ],
@@ -583,7 +583,7 @@ sub setup_dn_show_invoices_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Create'),
         submit    => [ '#form', { action => "save_dunning" } ],
         checks    => [ [ 'kivi.check_if_entries_selected', '[name^=active_]' ] ],
         accesskey => 'enter',
@@ -599,7 +599,7 @@ sub setup_dn_search_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Search'),
         submit    => [ '#form', { action => "show_dunning" } ],
         accesskey => 'enter',
       ],
