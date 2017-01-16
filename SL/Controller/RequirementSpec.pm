@@ -710,7 +710,7 @@ sub _setup_search_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Search'),
+        t8('Update'),
         submit    => [ '#search_form', { action => 'RequirementSpec/list' } ],
         accesskey => 'enter',
       ],
