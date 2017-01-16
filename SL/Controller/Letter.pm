@@ -301,48 +301,11 @@ sub action_delete_drafts {
   $self->action_add(skip_drafts => 1);
 }
 
-sub action_edit_email {
-  my ($self) = @_;
-
-  my $letter = $self->_update;
-  $self->export_letter_to_form($letter);
-
-  $::form->{formname}     = "letter";
-  $::form->{type}         = "letter";
-  $::form->{letternumber} = $self->letter->letternumber;
-
-  my @hiddens = map {
-    my $value = $letter->$_;
-    $value    = $value->to_kivitendo if ref($_) =~ m{Date};
-
-    { name => "letter.$_", value => $value }
-  } ($letter->meta->columns);
-
-  my %vars = (
-    script     => 'controller.pl',
-    title      => t8('Send letter via e-mail'),
-    email      => $letter->contact ? $letter->contact->cp_email : '',
-    subject    => $::form->generate_email_subject,
-    a_filename => $::form->generate_attachment_filename,
-    HIDDEN     => \@hiddens,
-    SHOW_BCC   => $::auth->assert('email_bcc', 'may fail'),
-  );
-
-  $::request->layout->use_javascript("kivi.SalesPurchase.js");
-  $self->setup_edit_email_action_bar;
-  $self->render('letter/edit_email', %vars);
-}
-
 sub action_send_email {
   my ($self) = @_;
 
   $::form->{media} = 'email';
-  $self->action_print_letter(
-    email => {
-      to => $::form->{email},
-      map { ($_ => $::form->{$_}) } qw(cc bcc subject attachment_filename message)
-    }
-  );
+  $self->action_print_letter(email => $::form->{email_form});
 }
 
 ### internal methods
@@ -377,7 +340,9 @@ sub _display {
       options => { no_postscript   => 1,
                    no_opendocument => 1,
                    no_html         => 1,
-                   no_queue        => 1 }),
+                   no_queue        => 1,
+                   show_headers    => 1,
+                 }),
 
   );
 }
@@ -695,24 +660,9 @@ sub setup_display_action_bar {
         ],
         action => [
           t8('E-mail'),
-          submit   => [ '#form', { action => 'Letter/edit_email' } ],
+          call     => [ 'kivi.SalesPurchase.show_email_dialog', 'Letter/send_email' ],
           disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
         ],
-      ],
-    );
-  }
-}
-
-sub setup_edit_email_action_bar {
-  my ($self, %params) = @_;
-
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-      action => [
-        t8('Continue'),
-        submit    => [ '#form', { action => 'Letter/send_email' } ],
-        checks    => [ 'kivi.SalesPurchase.check_required_email_fields' ],
-        accesskey => 'enter',
       ],
     );
   }

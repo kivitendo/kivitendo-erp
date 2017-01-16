@@ -245,7 +245,7 @@ namespace('kivi.SalesPurchase', function(ns) {
     $('#send_email_dialog').children().remove().appendTo('#email_inputs');
     $('#send_email_dialog').dialog('close');
 
-    kivi.submit_form_with_action('#form', 'send_sales_purchase_email');
+    kivi.submit_form_with_action('#form', $('#form').data('send-email-action'));
 
     return true;
   };
@@ -265,7 +265,9 @@ namespace('kivi.SalesPurchase', function(ns) {
     return true;
   };
 
-  this.show_email_dialog = function() {
+  this.show_email_dialog = function(send_action) {
+    $('#form').data('send-email-action', send_action || 'send_sales_purchase_email');
+
     kivi.popup_dialog({
       id:     'send_email_dialog',
       url:    'io.pl',

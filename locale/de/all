@@ -2581,7 +2581,6 @@ $self->{texts} = {
   'Send a blind copy of all outgoing emails to current user\'s email address?' => 'Eine blinde Kopie aller ausgehenden E-Mails wird an den angemeldeten Nutzer geschickt',
   'Send email'                  => 'E-Mail verschicken',
   'Send invoice via email'      => 'Rechnung via E-Mail verschicken',
-  'Send letter via e-mail'      => 'Brief via E-Mail verschicken',
   'Sender'                      => 'AbsenderIn',
   'Sending E-mail: '            => 'E-Mail versenden: ',
   'Sent emails can be optionally stored in the database with or without their attachments.' => 'Gesendete E-Mails können optional mit oder ohne ihre Anhänge in der Datenbank gespeichert werden.',
