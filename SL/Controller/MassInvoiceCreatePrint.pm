@@ -371,17 +371,15 @@ sub setup_list_sales_delivery_orders_action_bar {
           tooltip => t8("Create and print invoices")
         ],
         action => [
-          t8('for selected entries'),
+          t8("Create and print invoices for all selected delivery orders"),
           call     => [ 'kivi.MassInvoiceCreatePrint.submitMassCreationForm' ],
-          tooltip  => t8("Create and print invoices for all selected delivery orders"),
           disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
           only_if  => $params{show_creation_buttons},
         ],
 
         action => [
-          t8('for all entries'),
+          t8("Create and print invoices for all delivery orders matching the filter"),
           call     => [ 'kivi.MassInvoiceCreatePrint.createPrintAllInitialize' ],
-          tooltip  => t8("Create and print invoices for all delivery orders matching the filter"),
           disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
           only_if  => $params{show_creation_buttons},
         ],
