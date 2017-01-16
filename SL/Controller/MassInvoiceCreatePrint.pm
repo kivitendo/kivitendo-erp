@@ -341,13 +341,9 @@ sub setup_list_invoices_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Search'),
+        t8('Update'),
         submit    => [ '#search_form', { action => 'MassInvoiceCreatePrint/list_invoices' } ],
         accesskey => 'enter',
-      ],
-      action => [
-        t8('Reset'),
-        call => [ 'kivi.call_jquery', '#search_form', 'resetForm' ],
       ],
       action => [
         $::locale->text('Print'),
@@ -364,13 +360,9 @@ sub setup_list_sales_delivery_orders_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Search'),
+        $params{show_creation_buttons} ? t8('Update') : t8('Search'),
         submit    => [ '#search_form', { action => 'MassInvoiceCreatePrint/list_sales_delivery_orders' } ],
         accesskey => 'enter',
-      ],
-      action => [
-        t8('Reset'),
-        call => [ 'kivi.call_jquery', '#search_form', 'resetForm' ],
       ],
 
       combobox => [
