@@ -50,6 +50,7 @@ use SL::CT;
 use SL::Locale::String qw(t8);
 use SL::IC;
 use SL::IO;
+use SL::File;
 use SL::PriceSource;
 
 use SL::DB::Customer;
@@ -58,7 +59,7 @@ use SL::DB::Language;
 use SL::DB::Printer;
 use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
-use SL::Helper::Flash qw(flash);
+use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
 
@@ -1066,12 +1067,38 @@ sub edit_e_mail {
   @dont_hide_key{@dont_hide_key_list} = (1) x @dont_hide_key_list;
   @hidden_keys = sort grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
 
+  my (@files, @vc_files, @part_files, $has_document);
+
+  if ($::instance_conf->get_doc_storage) {
+    @files = SL::File->get_all_versions(object_id => $form->{id}, object_type => $form->{type}, file_type => 'document');
+    $has_document = 1 if scalar(@files) > 0;
+    @files = SL::File->get_all(object_id => $form->{id}, object_type => $form->{type}, file_type => 'attachment');
+    @vc_files = SL::File->get_all(object_id => $form->{"$form->{vc}_id"}, object_type => $form->{vc})
+      if $form->{vc} && $form->{"$form->{vc}_id"};
+
+    my %part_id_map = map { $_->{id} => $_ } grep { $_->{id} } map {
+      {
+        'id'       => $form->{"id_$_"},
+        'partname' => $form->{"partnumber_$_"}
+      }
+    } (1 .. $form->{rowcount});
+
+    foreach my $partid (keys %part_id_map) {
+      my @pfiles = SL::File->get_all(object_id => $partid, object_type => 'part');
+      push @part_files, map { $_->{partname} = $part_id_map{$partid}->{partname}; $_ } @pfiles;
+    }
+  }
+
   print $form->parse_html_template('generic/edit_email',
                                    { title         => $title,
                                      a_filename    => $attachment_filename,
                                      subject       => $subject,
+                                     has_document  => $has_document,
                                      print_options => print_options('inline' => 1),
                                      action        => 'send_email',
+                                     FILES         => \@files,
+                                     VC_FILES      => \@vc_files,
+                                     PART_FILES    => \@part_files,
                                      HIDDEN        => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
                                      SHOW_BCC      => $::auth->assert('email_bcc', 'may fail') });
 
@@ -1088,10 +1115,28 @@ sub send_email {
 
   my $callback = $form->{script} . "?action=edit";
   map({ $callback .= "\&${_}=" . E($form->{$_}); } qw(type id));
+  if ( $form->{action_oldfile} || $form->{action_nofile} ) {
+    if (!$form->{email} || $form->{email} =~ /^\s*$/) {
+      flash('error', $::locale->text('E-mail address missing!'));
+    }
+    else {
+      $form->send_email(\%myconfig,'pdf');
+    }
+  }
+  else {
+    print_form("return");
+    $form->{addition} = "SCREENED";
+    $form->save_history;
+    $form->{addition} = "MAILED";
+  }
 
-  print_form("return");
+  flash_later('info' , $::locale->text('E-Mail is sent to #1', $form->{email})) if !$form->{emailerr};
+  flash_later('error', $::locale->text($form->{emailerr})) if $form->{emailerr};
+
+  delete $form->{emailerr};
 
   Common->save_email_status(\%myconfig, $form);
+  ##TODO andere SAVE HISTORY
 
   $form->{callback} = $callback;
   $form->redirect();

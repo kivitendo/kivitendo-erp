@@ -1102,100 +1102,179 @@ sub parse_template {
 
   if ( !$self->{preview} && $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage) {
     $self->{attachment_filename} ||= $self->generate_attachment_filename;
-    $self->store_pdf($self);
+    $self->{print_file_id} = $self->store_pdf($self);
   }
   if ($self->{media} eq 'email') {
-
-    my $mail = Mailer->new;
-
-    map { $mail->{$_} = $self->{$_} }
-      qw(cc bcc subject message version format);
-    $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
-    $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
-    $mail->{fileid} = time() . '.' . $$ . '.';
-    my $full_signature     =  $self->create_email_signature();
-    $full_signature        =~ s/\r//g;
-
-    # if we send html or plain text inline
-    if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-      $mail->{contenttype}    =  "text/html";
-      $mail->{message}        =~ s/\r//g;
-      $mail->{message}        =~ s/\n/<br>\n/g;
-      $full_signature         =~ s/\n/<br>\n/g;
-      $mail->{message}       .=  $full_signature;
-
-      open(IN, "<:encoding(UTF-8)", $self->{tmpfile})
-        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-      $mail->{message} .= $_ while <IN>;
-      close(IN);
-
-    } else {
-
-      if (!$self->{"do_not_attach"}) {
-        my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
-        $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
-        $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
-                                   "name"     => $attachment_name }];
-      }
-
-      $mail->{message} .= $full_signature;
+    if ( getcwd() eq $self->{"tmpdir"} ) {
+      # in the case of generating pdf we are in the tmpdir, but WHY ???
+      $self->{tmpfile} = $userspath."/".$self->{tmpfile};
+      chdir("$self->{cwd}");
     }
-
-    my $err = $mail->send();
-    $self->error($self->cleanup . "$err") if ($err);
-
-  } else {
-
+    $self->send_email(\%::myconfig,$ext_for_format);
+  }
+  else {
     $self->{OUT}      = $out;
     $self->{OUT_MODE} = $out_mode;
-
-    my $numbytes = (-s $self->{tmpfile});
-    open(IN, "<", $self->{tmpfile})
-      or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-    binmode IN;
-
-    $self->{copies} = 1 unless $self->{media} eq 'printer';
-
-    chdir("$self->{cwd}");
-    #print(STDERR "Kopien $self->{copies}\n");
-    #print(STDERR "OUT $self->{OUT}\n");
-    for my $i (1 .. $self->{copies}) {
-      if ($self->{OUT}) {
-        $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
-
-        open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
-        print OUT $_ while <IN>;
-        close OUT;
-        seek  IN, 0, 0;
-
-      } else {
-        my %headers = ('-type'       => $template->get_mime_type,
-                       '-connection' => 'close',
-                       '-charset'    => 'UTF-8');
-
-        $self->{attachment_filename} ||= $self->generate_attachment_filename;
-
-        if ($self->{attachment_filename}) {
-          %headers = (
-            %headers,
-            '-attachment'     => $self->{attachment_filename},
-            '-content-length' => $numbytes,
-            '-charset'        => '',
-          );
-        }
-
-        print $::request->cgi->header(%headers);
-
-        $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
-      }
-    }
-
-    close(IN);
+    $self->output_file($template->get_mime_type,$command_formatter);
   }
+  delete $self->{print_file_id};
 
   $self->cleanup;
 
   chdir("$self->{cwd}");
+  $main::lxdebug->leave_sub();
+}
+
+sub get_bcc_defaults {
+  my ($self, $myconfig, $mybcc) = @_;
+#  if (SL::DB::Default->get->bcc_to_login) {
+#    $mybcc .= ", " if $mybcc;
+#    $mybcc .= $myconfig->{email};
+#  }
+  my $otherbcc = SL::DB::Default->get->global_bcc;
+  if ($otherbcc) {
+    $mybcc .= ", " if $mybcc;
+    $mybcc .= $otherbcc;
+  }
+  return $mybcc;
+}
+
+sub send_email {
+  $main::lxdebug->enter_sub();
+  my ($self, $myconfig, $ext_for_format) = @_;
+  my $mail = Mailer->new;
+
+  map { $mail->{$_} = $self->{$_} }
+    qw(cc subject message version format);
+
+  $mail->{bcc}    = $self->get_bcc_defaults($myconfig, $self->{bcc});
+  $mail->{to}     = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
+  $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
+  $mail->{fileid} = time() . '.' . $$ . '.';
+  my $full_signature     =  $self->create_email_signature();
+  $full_signature        =~ s/\r//g;
+
+  $mail->{attachments} =  [];
+  my @attfiles;
+  # if we send html or plain text inline
+  if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
+    $mail->{contenttype}    =  "text/html";
+    $mail->{message}        =~ s/\r//g;
+    $mail->{message}        =~ s/\n/<br>\n/g;
+    $full_signature         =~ s/\n/<br>\n/g;
+    $mail->{message}       .=  $full_signature;
+
+    open(IN, "<", $self->{tmpfile})
+      or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+    $mail->{message} .= $_ while <IN>;
+    close(IN);
+
+  } else {
+    $main::lxdebug->message(LXDebug->DEBUG2(),"action_oldfile=" . $self->{action_oldfile}." action_nofile=".$self->{action_nofile});
+    if (!$self->{"do_not_attach"} && !$self->{action_nofile}) {
+      my $attachment_name  =  $self->{attachment_filename}  || $self->{tmpfile};
+      $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+      if ( $self->{action_oldfile} ) {
+        $main::lxdebug->message(LXDebug->DEBUG2(),"object_id =>". $self->{id}." object_type =>". $self->{formname});
+        my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},
+                                            object_type => $self->{formname},
+                                            file_type   => 'document');
+        $main::lxdebug->message(LXDebug->DEBUG2(), "old file obj=".$attfile);
+        push @attfiles, $attfile if $attfile;
+      } else {
+        push @{ $mail->{attachments} }, { path => $self->{tmpfile},
+                                          id   => $self->{print_file_id},
+                                          type => "application/pdf",
+                                          name => $attachment_name };
+      }
+    }
+  }
+  if (!$self->{"do_not_attach"}) {
+    for my $i (1 .. $self->{attfile_count}) {
+      if (  $self->{"attsel_$i"} ) {
+        my $attfile = SL::File->get(id => $self->{"attfile_$i"});
+        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
+        push @attfiles, $attfile if $attfile;
+      }
+    }
+    for my $i (1 .. $self->{attfile_cv_count}) {
+      if (  $self->{"attsel_cv_$i"} ) {
+        my $attfile = SL::File->get(id => $self->{"attfile_cv_$i"});
+        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
+        push @attfiles, $attfile if $attfile;
+      }
+    }
+    for my $i (1 .. $self->{attfile_part_count}) {
+      if (  $self->{"attsel_part_$i"} ) {
+        my $attfile = SL::File->get(id => $self->{"attfile_part_$i"});
+        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
+        push @attfiles, $attfile if $attfile;
+      }
+    }
+    foreach my $attfile ( @attfiles ) {
+      push @{ $mail->{attachments} }, { path => SL::File->get_file_path(dbfile => $attfile),
+                                        id   => $attfile->id,
+                                        type => $attfile->file_mime_type,
+                                        name => $attfile->file_name };
+    }
+  }
+  $mail->{message}  =~ s/\r//g;
+  $mail->{message} .= $full_signature;
+  $self->{emailerr} = $mail->send();
+  # $self->error($self->cleanup . "$err") if $self->{emailerr};
+  $self->{email_journal_id} = $mail->{journalentry};
+
+  #write back for message info and mail journal
+  $self->{cc}  = $mail->{cc};
+  $self->{bcc} = $mail->{bcc};
+  $self->{email} = $mail->{to};
+
+  $main::lxdebug->leave_sub();
+}
+
+sub output_file {
+  $main::lxdebug->enter_sub();
+
+  my ($self,$mimeType,$command_formatter) = @_;
+  my $numbytes = (-s $self->{tmpfile});
+  open(IN, "<", $self->{tmpfile})
+    or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+  binmode IN;
+
+  $self->{copies} = 1 unless $self->{media} eq 'printer';
+
+  chdir("$self->{cwd}");
+  for my $i (1 .. $self->{copies}) {
+    if ($self->{OUT}) {
+      $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+
+      open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+      print OUT $_ while <IN>;
+      close OUT;
+      seek  IN, 0, 0;
+
+    } else {
+      my %headers = ('-type'       => $mimeType,
+                     '-connection' => 'close',
+                     '-charset'    => 'UTF-8');
+
+      $self->{attachment_filename} ||= $self->generate_attachment_filename;
+
+      if ($self->{attachment_filename}) {
+        %headers = (
+          %headers,
+          '-attachment'     => $self->{attachment_filename},
+          '-content-length' => $numbytes,
+          '-charset'        => '',
+        );
+      }
+
+      print $::request->cgi->header(%headers);
+
+      $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
+    }
+  }
+  close(IN);
   $main::lxdebug->leave_sub();
 }
 

@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('email_journal_attachments');
 __PACKAGE__->meta->columns(
   content          => { type => 'bytea', not_null => 1 },
   email_journal_id => { type => 'integer', not_null => 1 },
+  file_id          => { type => 'integer', default => '0', not_null => 1 },
   id               => { type => 'serial', not_null => 1 },
   itime            => { type => 'timestamp', default => 'now()', not_null => 1 },
   mime_type        => { type => 'text', not_null => 1 },

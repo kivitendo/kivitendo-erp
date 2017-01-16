@@ -24,7 +24,9 @@
 package Mailer;
 
 use Email::Address;
-use Email::MIME::Creator;
+use MIME::Entity;
+use MIME::Parser;
+use File::MimeInfo::Magic;
 use File::Slurp;
 use List::UtilsBy qw(bundle_by);
 
@@ -32,12 +34,13 @@ use SL::Common;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;
-use SL::MIME;
 use SL::Template;
 
 use strict;
+use Encode;
 
 my $num_sent = 0;
+my $parser;
 
 my %mail_delivery_modules = (
   sendmail => 'SL::Mailer::Sendmail',
@@ -47,6 +50,8 @@ my %mail_delivery_modules = (
 sub new {
   my ($type, %params) = @_;
   my $self = { %params };
+  $parser = new MIME::Parser;
+  $parser->output_under("users");
 
   bless $self, $type;
 }
@@ -117,7 +122,7 @@ sub _create_address_headers {
         $addr_obj->phrase($phrase);
       }
 
-      push @header_addresses, $addr_obj->format;
+      push @header_addresses, encode('MIME-Header',$addr_obj->format);
     }
 
     push @{ $self->{headers} }, ( ucfirst($item) => join(', ', @header_addresses) ) if @header_addresses;
@@ -128,64 +133,80 @@ sub _create_attachment_part {
   my ($self, $attachment) = @_;
 
   my %attributes = (
-    disposition  => 'attachment',
-    encoding     => 'base64',
+    Disposition  => 'attachment',
+    Encoding     => 'base64',
   );
 
+  my $file_id = 0;
   my $attachment_content;
+  my $email_journal = $::instance_conf->get_email_journal;
 
+  $main::lxdebug->message(LXDebug->DEBUG2(), "mail5 att=".$attachment." email_journal=". $email_journal." id=".$attachment->{id});
   if (ref($attachment) eq "HASH") {
-    $attributes{filename} = $attachment->{name};
-    $attachment_content   = $attachment->{content} // eval { read_file($attachment->{filename}) };
+    $attributes{Path}     = $attachment->{path} || $attachment->{filename};
+    $attributes{Filename} = $attachment->{name};
+    $file_id              = $attachment->{id}   || '0';
+    $attributes{Type}     = $attachment->{type} || 'application/pdf';
+    $attachment_content   = eval { read_file($attachment->{path}) } if $email_journal > 1;
 
   } else {
     # strip path
-    $attributes{filename} =  $attachment;
-    $attributes{filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
-    $attributes{filename} =~ s:.*/::g;
-    $attachment_content   =  eval { read_file($attachment) };
+    $attributes{Path}     =  $attachment;
+    $attributes{Filename} =  $attachment;
+    $attributes{Filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
+    $attributes{Filename} =~ s:.*/::g;
+
+    my $application     = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? 'text' : 'application';
+    $attributes{Type}   = File::MimeInfo::Magic::magic($attachment);
+    $attributes{Type} ||= "${application}/$self->{format}" if $self->{format};
+    $attributes{Type} ||= 'application/octet-stream';
+    $attachment_content = eval { read_file($attachment) } if $email_journal > 1;
   }
 
-  return undef if !defined $attachment_content;
+  return undef if $email_journal > 1 && !defined $attachment_content;
+  $attachment_content ||= ' ';
+  $main::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=".$attributes{Type}." path=".
+                            $attributes{Path}." filename=".$attributes{Filename});
 
-  my $application             = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? 'text' : 'application';
-  $attributes{content_type}   = SL::MIME->mime_type_from_ext($attributes{filename});
-  $attributes{content_type} ||= "${application}/$self->{format}" if $self->{format};
-  $attributes{content_type} ||= 'application/octet-stream';
-  $attributes{charset}        = $self->{charset} if lc $application eq 'text' && $self->{charset};
+# $attributes{Charset}  = $self->{charset} if lc $application eq 'text' && $self->{charset};
+  $attributes{Charset}  = $self->{charset} if $self->{charset};
 
-  return Email::MIME->create(
-    attributes => \%attributes,
-    body       => $attachment_content,
+  my $ent;
+  if ( $attributes{Type} eq 'message/rfc822' ) {
+    my $fh = IO::File->new($attributes{Path}, "r");
+    if (! defined $fh) {
+      return undef;
+    }
+    $ent = $parser->parse($fh);
+    undef $fh;
+    my $head = $ent->head;
+    $head->replace('Content-disposition','attachment; filename='.$attributes{Filename});
+  } else {
+    $ent = MIME::Entity->build(%attributes);
+  }
+  push @{ $self->{mail_attachments}} , SL::DB::EmailJournalAttachment->new(
+    name      => $attributes{Filename},
+    mime_type => $attributes{Type},
+    content   => ( $email_journal > 1 ? $attachment_content : ' '),
+    file_id   => $file_id,
   );
+  return $ent;
 }
 
 sub _create_message {
   my ($self) = @_;
 
-  my @parts;
-
+  push @{ $self->{headers} }, ('Type'    =>"multipart/mixed" );
+  my  $top = MIME::Entity->build(@{$self->{headers}});
   if ($self->{message}) {
-    push @parts, Email::MIME->create(
-      attributes => {
-        content_type => $self->{contenttype},
-        charset      => $self->{charset},
-        encoding     => 'quoted-printable',
-      },
-      body_str => $self->{message},
-    );
-
-    push @{ $self->{headers} }, (
-      'Content-Type' => qq|$self->{contenttype}; charset="$self->{charset}"|,
-    );
+    $top->attach(Data => encode($self->{charset},$self->{message}),
+                 Charset => $self->{charset},
+                 Type => $self->{contenttype},
+                 Encoding    => 'quoted-printable');
   }
 
-  push @parts, grep { $_ } map { $self->_create_attachment_part($_) } @{ $self->{attachments} || [] };
-
-  return Email::MIME->create(
-    header_str => $self->{headers},
-    parts      => \@parts,
-  );
+  map { $top->add_part($self->_create_attachment_part($_)) } @{ $self->{attachments} || [] };
+  return $top;
 }
 
 sub send {
@@ -202,10 +223,12 @@ sub send {
   $self->{charset}       =  'UTF-8';
   $self->{contenttype} ||=  "text/plain";
   $self->{headers}       =  [
-    Subject              => $self->{subject},
+    Subject              => encode('MIME-Header',$self->{subject}),
     'Message-ID'         => '<' . $self->_create_message_id . '>',
     'X-Mailer'           => "kivitendo $self->{version}",
   ];
+  $self->{mail_attachments} = [];
+  $self->{content_by_name}  = $::instance_conf->get_email_journal == 1 && $::instance_conf->get_doc_files;
 
   my $error;
   my $ok = eval {
@@ -215,10 +238,10 @@ sub send {
 
     my $email = $self->_create_message;
 
-    # $::lxdebug->message(0, "message: " . $email->as_string);
+    #$::lxdebug->message(0, "message: " . $email->as_string);
     # return "boom";
 
-    $self->{driver}->start_mail(from => $self->{from}, to => [ $self->_all_recipients ]);
+    $self->{driver}->start_mail(from => encode('MIME-Header',$self->{from}), to => [ $self->_all_recipients ]);
     $self->{driver}->print($email->as_string);
     $self->{driver}->send;
 
@@ -227,14 +250,14 @@ sub send {
 
   $error = $@ if !$ok;
 
-  $self->_store_in_journal;
+  $self->{journalentry} = $self->_store_in_journal;
+  $parser->filer->purge;
 
   return $ok ? '' : "send email: $error";
 }
 
 sub _all_recipients {
   my ($self) = @_;
-
   $self->{addresses} ||= {};
   return map { @{ $self->{addresses}->{$_} || [] } } qw(to cc bcc);
 }
@@ -251,22 +274,9 @@ sub _store_in_journal {
   $extended_status //= $self->{driver}->extended_status if $self->{driver};
   $extended_status //= 'unknown error';
 
-  my @attachments;
-
-  @attachments = grep { $_ } map {
-    my $part = $self->_create_attachment_part($_);
-    if ($part) {
-      SL::DB::EmailJournalAttachment->new(
-        name      => $part->filename,
-        mime_type => $part->content_type,
-        content   => $part->body,
-      )
-    }
-  } @{ $self->{attachments} || [] } if $journal_enable > 1;
-
   my $headers = join "\r\n", (bundle_by { join(': ', @_) } 2, @{ $self->{headers} || [] });
 
-  SL::DB::EmailJournal->new(
+  my $jentry = SL::DB::EmailJournal->new(
     sender          => SL::DB::Manager::Employee->current,
     from            => $self->{from}    // '',
     recipients      => join(', ', $self->_all_recipients),
@@ -274,10 +284,11 @@ sub _store_in_journal {
     headers         => $headers,
     body            => $self->{message} // '',
     sent_on         => DateTime->now_local,
-    attachments     => \@attachments,
+    attachments     => \@{ $self->{mail_attachments} },
     status          => $status,
     extended_status => $extended_status,
   )->save;
+  return $jentry->id;
 }
 
 1;

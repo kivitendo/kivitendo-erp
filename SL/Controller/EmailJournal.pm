@@ -60,8 +60,12 @@ sub action_download_attachment {
   if (!$self->can_view_all && ($attachment->email_journal->sender_id != SL::DB::Manager::Employee->current->id)) {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
-
-  $self->send_file(\$attachment->content, name => $attachment->name, type => $attachment->mime_type);
+  my $ref = \$attachment->content;
+  if ( $attachment->file_id > 0 ) {
+    my $file = SL::File->get(id => $attachment->file_id );
+    $ref = SL::File->get_content(dbfile => $file) if $file;
+  }
+  $self->send_file($ref, name => $attachment->name, type => $attachment->mime_type);
 }
 
 #

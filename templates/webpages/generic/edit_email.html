@@ -6,7 +6,7 @@
 
 <table width="100%">
   <tr>
-    <td>
+    <td style="width: 500px">
       <table>
         <tr>
           <th align="right" nowrap>[% 'To' | $T8 %]</th>
@@ -33,6 +33,92 @@
         </tr>
       </table>
     </td>
+[%- IF INSTANCE_CONF.get_doc_storage %]
+    <td align="left" rowspan="2">
+      <table>
+[%- USE ATT_it = Iterator(FILES) %]
+[% FOREACH file = ATT_it %]
+[% END %]
+[%- IF ATT_it.size > 0 %]  
+        <tr class="listheading">
+          <th colspan="3" align="left" nowrap>[% LxERP.t8('other Document Attachments') %]</th>
+          <input type="hidden" name="attfile_count" id="m_attfile_count" value="[% ATT_it.size %]">
+        </tr>
+         <tr class="">
+           <th align="left" nowrap></th>
+           <th align="left" nowrap>[% LxERP.t8('Filename') %]</th>
+           <th align="left" nowrap></th>
+        </tr>
+        <tr><td colspan="3"><hr size="1" style="height:1px;background-color:#000;" noshade></td></tr>
+       [% FOREACH file = ATT_it %]
+         <tr class="listrow">
+          <td></td><td>[% file.file_name %]
+            <input type="hidden" name="attfile_[% ATT_it.count %]" value="[% file.id %]">
+            <td><input name="attsel_[% ATT_it.count %]" type="checkbox" class="checkbox" ></td>
+         </tr>
+        [% END %]
+[%- END %]
+[%- USE ATT_it = Iterator(VC_FILES) %]
+[% FOREACH file = ATT_it %]
+[% END %]
+[%- IF ATT_it.size > 0 %]  
+        <tr><td colspan="3"><hr size="1" noshade></td></tr>
+         <tr class="listheading">
+           <th colspan="3" align="left" nowrap>
+             <input type="hidden" name="attfile_cv_count" id="m_attfile_cv_count" value="[% ATT_it.size %]">
+             [% LxERP.t8('Customer Attachments') %]
+           </th>
+         </tr>
+        <tr class="">
+           <th align="left" nowrap></th>
+           <th align="left" nowrap>[% LxERP.t8('Filename') %]</th>
+           <th align="left" nowrap></th>
+        </tr>
+        <tr><td colspan="3"><hr size="1" style="height:1px;background-color:#000;" noshade></td></tr>
+        [% FOREACH file = ATT_it %]
+         <tr class="listrow">
+          <td></td><td>[% file.file_name %]
+            <input type="hidden" name="attfile_cv_[% ATT_it.count %]" value="[% file.id %]">
+            <td><input name="attsel_cv_[% ATT_it.count %]" type="checkbox" class="checkbox" ></td>
+         </tr>
+        [% END %]
+[%- END %]
+[%- USE ATT_it = Iterator(PART_FILES) %]
+[%- SET lastpartid = '' %]  
+[%- FOREACH file = ATT_it %]
+[%- END %]
+[%- IF ATT_it.size > 0 %]  
+        <tr><td colspan="3"><hr size="1" noshade></td></tr>
+         <tr class="listheading">
+          <th colspan="3" align="left" nowrap>
+            <input type="hidden" name="attfile_part_count" id="m_attfile_part_count" value="[% ATT_it.size %]">
+            [% LxERP.t8('Part Attachments') %]
+          </th>
+        </tr>
+        <tr class="">
+           <th align="left" nowrap>[% LxERP.t8('Part Number') %]</th>
+           <th align="left" nowrap>[% LxERP.t8('Filename') %]</th>
+           <th align="left" nowrap></th>
+        </tr>
+        [% FOREACH file = ATT_it %]
+          [%- IF lastpartid != file.trans_id %]
+             [%- SET lastpartid = file.trans_id %][%- SET partname = file.partname %]
+        <tr><td colspan="3"><hr size="1" style="height:1px;background-color:#000;" noshade></td></tr>
+          [%- ELSE %][%- SET partname = '' %][% END %]          
+        <tr class="listrow">
+          <td>[% partname %]</td>
+          <td>[% file.file_name %]
+            <input type="hidden" name="attfile_part_[% ATT_it.count %]" value="[% file.id %]">
+            <td><input name="attsel_part_[% ATT_it.count %]" type="checkbox" class="checkbox" ></td>
+         </tr>
+        [% END %]
+[%- END %]
+      </table>
+    </td>
+[%- ELSE %]
+    <td rowspan="2">
+    </td>
+[%- END %]
   </tr>
 
   <tr>
@@ -49,7 +135,7 @@
     </td>
   </tr>
   <tr>
-    <td>
+    <td colspan="2">
 
 [% print_options %]
 [% FOREACH row = HIDDEN %]<input type="hidden" name="[% row.name %]" value="[% HTML.escape(row.value) %]">
@@ -59,14 +145,18 @@
   </tr>
 
   <tr>
-    <td><hr size="3" noshade></td>
+    <td colspan="2"><hr size="3" noshade></td>
   </tr>
 </table>
 
 [% L.hidden_tag('action', action) %]
 
 <br>
-[% L.submit_tag('dummy_action', LxERP.t8('Continue'), onclick="return check_prerequisites();") %]
+[% L.submit_tag('action_newfile', LxERP.t8('Make new document'), onclick="return check_prerequisites();") %]
+[%- IF has_document %]  
+[% L.submit_tag('action_oldfile', LxERP.t8('use actual document'), onclick="return check_prerequisites();") %]
+[%- END %]
+[% L.submit_tag('action_nofile',  LxERP.t8('No document'), onclick="return check_prerequisites();") %]
 </form>
 
 <script type="text/javascript">
