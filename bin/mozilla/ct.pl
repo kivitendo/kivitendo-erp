@@ -443,7 +443,7 @@ sub setup_ct_search_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Search'),
         submit    => [ '#form', { action => 'list_names' } ],
         accesskey => 'enter',
       ],
@@ -457,7 +457,7 @@ sub setup_ct_list_names_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        $::form->{db} eq 'customer' ? t8('New customer') : t8('New vendor'),
+        t8('Add'),
         submit    => [ '#new_form', { action => 'CustomerVendor/add' } ],
         accesskey => 'enter',
       ],
@@ -471,7 +471,7 @@ sub setup_ct_search_contact_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Search'),
         submit    => [ '#form', { action => 'list_contacts' } ],
         accesskey => 'enter',
       ],
