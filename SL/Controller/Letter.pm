@@ -655,7 +655,7 @@ sub setup_display_action_bar {
         action => [ t8('Export') ],
         action => [
           t8('Print'),
-          submit   => [ '#form', { action => 'Letter/print_letter' } ],
+          call     => [ 'kivi.SalesPurchase.show_print_dialog', 'Letter/print_letter' ],
           disabled => !$self->letter->id ? t8('The object has not been saved yet.') : undef,
         ],
         action => [
