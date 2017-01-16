@@ -368,22 +368,23 @@ sub check_overpayments {
 
   # Vergleich ar.paid und das was laut acc_trans bezahlt wurde
   # "als bezahlt markieren" ohne sauberes Ausbuchen führt zu Differenzen bei offenen Forderungen
-  # geht nur auf wenn acc_trans Zahlungseingänge auch im Untersuchungszeitraum lagen
-  # Stornos werden rausgefiltert
+  # Berücksichtigt Zahlungseingänge im Untersuchungszeitraums und
+  # prüft weitere Zahlungen und Buchungen über trans_id (kein Zeitfilter)
+
   my $query = qq|
     SELECT
     invnumber,customernumber,name,ar.transdate,ar.datepaid,
     amount,
     amount-paid as "open via ar",
     paid as "paid via ar",
-    coalesce((SELECT sum(amount)*-1 FROM acc_trans LEFT JOIN chart ON (acc_trans.chart_id=chart.id)
-      WHERE link ilike '%paid%' AND acc_trans.trans_id=ar.id AND acc_trans.transdate <= ?),0) as "paid via acc_trans"
+    coalesce((SELECT sum(amount)*-1 FROM acc_trans
+      WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=ar.id),0) as "paid via acc_trans"
     FROM ar left join customer c on (c.id = ar.customer_id)
     WHERE
      ar.storno IS FALSE
-     AND transdate >= ? AND transdate <= ?|;
+     AND ar.id in (SELECT trans_id from acc_trans where transdate >= ? AND transdate <= ? AND chart_link ilike '%paid%')|;
 
-  my $invoices = selectall_hashref_query($::form, $self->dbh, $query, $self->todate, $self->fromdate, $self->todate);
+  my $invoices = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
   my $count_overpayments = scalar grep {
        $_->{"paid via ar"} != $_->{"paid via acc_trans"}
@@ -396,7 +397,7 @@ sub check_overpayments {
   if ($count_overpayments) {
     for my $invoice (@{ $invoices }) {
       if ($invoice->{"paid via ar"} != $invoice->{"paid via acc_trans"}) {
-        $self->tester->diag("paid via ar (@{[ $invoice->{'paid via ar'} * 1 ]}) !=   paid via acc_trans  (@{[ $invoice->{'paid via acc_trans'} * 1 ]}) (at least until transdate!)");
+        $self->tester->diag("Rechnung: $invoice->{invnumber}, Kunde $invoice->{name}  Nebenbuch-Bezahlwert: (@{[ $invoice->{'paid via ar'} * 1 ]}) !=   Hauptbuch-Bezahlwert:  (@{[ $invoice->{'paid via acc_trans'} * 1 ]}) (at least until transdate!)");
         if (defined $invoice->{datepaid}) {
           $self->tester->diag("datepaid = $invoice->{datepaid})");
         }
