@@ -2,7 +2,7 @@
 [% USE T8 %]
 [% USE L %]
 [% USE LxERP %]
-<form action="controller.pl" method="post" name="Form" id="form">
+<form action="controller.pl" method="post" name="Form" id="search_form">
 
 <div class='filter_toggle'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
@@ -55,6 +55,6 @@
  [% L.hidden_tag('sort_by', FORM.sort_by) %]
  [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
  [% L.hidden_tag('page', FORM.page) %]
+ [% L.button_tag("\$('#search_form').resetForm()", LxERP.t8("Reset")) %]
 </div>
-
 </form>

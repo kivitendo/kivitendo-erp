@@ -1,6 +1,6 @@
 [% USE HTML%]
 [%- USE T8 %]
-[%- USE L %]
+[%- USE L %][%- USE LxERP -%]
  [% L.paginate_controls(models=SELF.models) %]
  <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
  [%- FOREACH item = HIDDEN %]

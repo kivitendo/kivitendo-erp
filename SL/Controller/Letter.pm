@@ -724,14 +724,9 @@ sub setup_list_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Search'),
-        submit    => [ '#form', { action => 'Letter/list' } ],
-        checks    => [ 'kivi.SalesPurchase.check_required_email_fields' ],
+        t8('Update'),
+        submit    => [ '#search_form', { action => 'Letter/list' } ],
         accesskey => 'enter',
-      ],
-      action => [
-        t8('Reset'),
-        call => [ 'kivi.call_jquery', '#form', 'resetForm' ],
       ],
     );
   }
