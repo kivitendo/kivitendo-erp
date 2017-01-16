@@ -1972,7 +1972,6 @@ sub _make_record_item {
 }
 
 sub _make_record {
-  Form::disconnect_standard_dbh;
   my $class = {
     sales_order             => 'Order',
     purchase_order          => 'Order',
