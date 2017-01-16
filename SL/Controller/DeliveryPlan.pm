@@ -41,7 +41,8 @@ sub action_list {
 
   my $orderitems = $self->models->get;
   $self->calc_qtys($orderitems);
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
+  $self->setup_list_action_bar;
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, action_bar => 1);
 }
 
 # private functions
@@ -419,6 +420,20 @@ sub link_to {
   if ($object->isa('SL::DB::Customer')) {
     my $id     = $object->id;
     return "controller.pl?action=CustomerVendor/$action&id=$id&db=customer";
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#filter_form', { action => 'DeliveryPlan/list' } ],
+        accesskey => 'enter',
+      ],
+    );
   }
 }
 

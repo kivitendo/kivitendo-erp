@@ -94,14 +94,11 @@
   </tr>
  </table>
 
-[% L.hidden_tag('action', 'DeliveryPlan/dispatch') %]
 [% L.hidden_tag('sort_by', FORM.sort_by) %]
 [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
 [% L.hidden_tag('page', FORM.page) %]
 [% L.hidden_tag('vc', SELF.vc) %]
 [% L.hidden_tag('mode', SELF.mode) %]
-[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
-
 [% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset')) %]
 </div>
 
