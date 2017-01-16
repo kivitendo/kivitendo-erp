@@ -599,7 +599,7 @@ sub setup_ic_search_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Continue'),
+        t8('Search'),
         submit    => [ '#form', { action => 'generate_report' } ],
         accesskey => 'enter',
       ],
