@@ -34,22 +34,22 @@ is($assembly_item->assembly_part->partnumber, '19000', 'assembly part assembly p
 
 my $assembly2_part = SL::Dev::Part::create_assembly( partnumber => '20000', part1number => 'ap2', assnumber => 'as2' )->save;
 my $retval = validate_assembly($assembly_part,$assembly2_part);
-ok( $retval eq undef , 'assembly 19000 can be child of assembly 20000' );
+ok(!defined $retval, 'assembly 19000 can be child of assembly 20000' );
 $assembly2_part->add_assemblies(SL::DB::Assembly->new(parts_id => $assembly_part->id, qty => 3, bom => 1));
 $assembly2_part->save;
 
 my $assembly3_part = SL::Dev::Part::create_assembly( partnumber => '30000', part1number => 'ap3', assnumber => 'as3' )->save;
 $retval = validate_assembly($assembly3_part,$assembly_part);
-ok( $retval eq undef , 'assembly 30000 can be child of assembly 19000' );
+ok(!defined $retval, 'assembly 30000 can be child of assembly 19000' );
 
 $retval = validate_assembly($assembly3_part,$assembly2_part);
-ok( $retval eq undef , 'assembly 30000 can be child of assembly 20000' );
+ok(!defined $retval, 'assembly 30000 can be child of assembly 20000' );
 
 $assembly_part->add_assemblies(SL::DB::Assembly->new(parts_id => $assembly3_part->id, qty => 4, bom => 1));
 $assembly_part->save;
 
 $retval = validate_assembly($assembly3_part,$assembly2_part);
-ok( $retval eq undef , 'assembly 30000 can be child of assembly 20000' );
+ok(!defined $retval, 'assembly 30000 can be child of assembly 20000' );
 
 $assembly2_part->add_assemblies(SL::DB::Assembly->new(parts_id => $assembly3_part->id, qty => 5, bom => 1));
 $assembly2_part->save;
