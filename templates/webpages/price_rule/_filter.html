@@ -83,13 +83,13 @@
      [%- END %]
    </td>
   </tr>
-
  </table>
 
 [% L.hidden_tag('sort_by', FORM.sort_by) %]
 [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
 [% L.hidden_tag('page', FORM.page) %]
 
+ [% L.button_tag("\$('#search_form').resetForm()", LxERP.t8("Reset")) %]
 </div>
 
 </form>
