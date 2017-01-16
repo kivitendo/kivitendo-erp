@@ -233,7 +233,7 @@ sub check_ar_paid {
     where
           (select sum(amount) from acc_trans a left join chart c on (c.id = a.chart_id) where trans_id = ar.id and c.link like '%AR_paid%') is not null
             AND storno is false
-      AND transdate >= ? and transdate <= ?
+      AND ar.id in (SELECT id from ar where transdate >= ? and transdate <= ?)
     order by diff |;
 
   my $paid_diffs_ar = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
@@ -258,7 +258,7 @@ sub check_ap_paid {
      from ap
      where
            (select sum(amount) from acc_trans a left join chart c on (c.id = a.chart_id) where trans_id = ap.id and c.link like '%AP_paid%') is not null
-       AND transdate >= ? and transdate <= ?
+      AND ap.id in (SELECT id from ap where transdate >= ? and transdate <= ?)
      order by diff |;
 
   my $paid_diffs_ap = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
@@ -552,7 +552,7 @@ sub check_ar_paid_acc_trans {
           select sum(ac.amount) as paid_amount, ar.invnumber,ar.paid
           from acc_trans ac left join ar on (ac.trans_id = ar.id)
           WHERE ac.chart_link like '%AR_paid%'
-          AND ac.transdate >= ? AND ac.transdate <= ?
+          AND ac.trans_id in (SELECT trans_id from acc_trans ac where ac.transdate >= ? AND ac.transdate <= ?)
           group by invnumber, paid having sum(ac.amount) <> ar.paid*-1|;
 
   my $ar_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
@@ -576,7 +576,7 @@ sub check_ap_paid_acc_trans {
           select sum(ac.amount) as paid_amount, ap.invnumber,ap.paid
           from acc_trans ac left join ap on (ac.trans_id = ap.id)
           WHERE ac.chart_link like '%AP_paid%'
-          AND ac.transdate >= ? AND ac.transdate <= ?
+          AND ac.trans_id in (SELECT trans_id from acc_trans ac where ac.transdate >= ? AND ac.transdate <= ?)
           group by trans_id,invnumber,paid having sum(ac.amount) <> ap.paid|;
 
   my $ap_amount_not_ac_amount = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
