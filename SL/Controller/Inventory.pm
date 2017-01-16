@@ -44,6 +44,7 @@ sub action_stock_in {
   $::request->layout->focus('#part_id_name');
   my $transfer_types = WH->retrieve_transfer_types('in');
   map { $_->{description} = $main::locale->text($_->{description}) } @{ $transfer_types };
+  $self->setup_stock_in_action_bar;
   $self->render('inventory/warehouse_selection_stock', title => $::form->{title}, TRANSFER_TYPES => $transfer_types );
 }
 
@@ -56,6 +57,7 @@ sub action_stock_usage {
                                        'bins'   => 'BINS', });
   $::request->layout->use_javascript("${_}.js") for qw(kivi.PartsWarehouse);
 
+  $self->setup_stock_usage_action_bar;
   $self->render('inventory/warehouse_usage',
                 title => $::form->{title},
                 year => DateTime->today->year,
@@ -365,7 +367,7 @@ sub action_usage {
 
       $report->set_options('raw_bottom_info_text' => $self->render('inventory/report_bottom', { output => 0 }) );
   }
-  $report->generate_with_headers();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 
@@ -621,6 +623,35 @@ sub show_no_warehouses_error {
   $::form->show_generic_error($msg);
 }
 
+sub setup_stock_in_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Stock'),
+        submit    => [ '#form', { action => 'Inventory/stock' } ],
+        checks    => [ 'check_part_selection_before_stocking' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_stock_usage_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => 'Inventory/usage' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 1;
 __END__
 
@@ -673,8 +704,7 @@ the format is adapted to this
 
 only for C<action_stock_usage> and C<action_usage>:
 
-Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
+pMartin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 
 =cut
-

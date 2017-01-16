@@ -9,7 +9,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-<form name="Form" method="post" action="controller.pl">
+<form name="Form" method="post" action="controller.pl" id="form">
 
  <table border="0">
     <tr>
@@ -118,9 +118,4 @@
     </tr>
    </table>
   </p>
-
-  <p>
- <input type="hidden" name="action" value="Inventory/dispatch">
- <input type="submit" id="action_usage" class="submit" name="action_usage" value="[% 'Continue' | $T8 %]"> 
- </p>
  </form>

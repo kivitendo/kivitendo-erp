@@ -7,7 +7,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-<form name="Form" method="post" action="controller.pl">
+<form name="Form" method="post" action="controller.pl" id="form">
 
  <table>
   <tr>
@@ -66,9 +66,6 @@
    <td>[% L.input_tag('comment', FORM.comment, size=60) %]</td>
   </tr>
  </table>
-
- <input type="hidden" name="action" value="Inventory/dispatch">
- <input type="submit" id='action_stock' class="submit" name="action_stock" value="[% 'Stock' | $T8 %]" [% IF !SELF.part.id %]disabled[% END %]>
 </form>
 
 <div id='stock'>
@@ -86,14 +83,15 @@ function reload_warehouse_selection () {
 function reload_bin_selection () {
   $.post("controller.pl", { action: 'Inventory/warehouse_changed', warehouse_id: function(){ return $('#warehouse_id').val() } }, kivi.eval_json_result);
 }
+function check_part_selection_before_stocking() {
+  if ($('#part_id').val() !== '')
+    return true;
+
+  alert(kivi.t8('No article has been selected yet.'));
+  return false;
+}
 $(function(){
   $('#part_id').change(reload_warehouse_selection);
-  $('#part_id').change(function(){
-    if ($('#part_id').val() > 0)
-      $('#action_stock').removeAttr('disabled');
-    else
-      $('#action_stock').attr('disabled', 'disabled');
-  });
   $('#warehouse_id').change(reload_bin_selection);
 })
 </script>

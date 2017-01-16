@@ -1839,6 +1839,7 @@ $self->{texts} = {
   'No Journal'                  => 'Kein Journal',
   'No Vendor was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Händler gefunden',
   'No action defined.'          => 'Keine Aktion definiert.',
+  'No article has been selected yet.' => 'Es wurde noch kein Artikel ausgewählt.',
   'No articles have been added yet.' => 'Es wurden noch keine Artikel hinzugefügt.',
   'No background job has been created yet.' => 'Es wurden noch keine Hintergrund-Jobs angelegt.',
   'No bank account chosen!'     => 'Kein Bankkonto ausgewählt!',
