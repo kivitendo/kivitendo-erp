@@ -45,13 +45,10 @@
   </tr>
  </table>
 
-[% L.hidden_tag('action', 'FinancialControllingReport/dispatch') %]
 [% L.hidden_tag('sort_by', FORM.sort_by) %]
 [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
 [% L.hidden_tag('page', FORM.page) %]
-[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
 [% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset')) %]
-
 </div>
 
 </form>

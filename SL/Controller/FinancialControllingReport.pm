@@ -37,6 +37,7 @@ sub action_list {
 
   $self->calculate_data;
 
+  $self->setup_list_action_bar;
   $self->list_objects;
 }
 
@@ -205,7 +206,7 @@ sub list_objects {
     $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) for grep { !m/_p$/ } @{ $self->{number_columns} };
   };
 
-  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->orders, data_callback => $modify_data);
+  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->orders, data_callback => $modify_data, action_bar => 1);
 }
 
 sub make_filter_summary {
@@ -286,6 +287,20 @@ sub link_to {
   if ($object->isa('SL::DB::Project')) {
     my $id     = $object->id;
     return "controller.pl?action=Project/$action&id=$id";
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#filter_form', { action => 'FinancialControllingReport/list' } ],
+        accesskey => 'enter',
+      ],
+    );
   }
 }
 
