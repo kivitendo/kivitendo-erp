@@ -55,7 +55,8 @@ sub action_list {
 
   my $orderitems = $self->models->get;
   $self->calc_qtys_price($orderitems);
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
+  $self->setup_list_action_bar;
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, action_bar => 1);
 }
 
 sub prepare_report {
@@ -293,8 +294,19 @@ SQL
   }
 }
 
+sub setup_list_action_bar {
+  my ($self, %params) = @_;
 
-
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#filter_form', { action => 'DeliveryValueReport/list' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
 
 1;
 
