@@ -399,6 +399,7 @@ sub send_email {
 
   my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
   my $mail         = Mailer->new();
+  $mail->{bcc}     = $form->get_bcc_defaults($myconfig, $form->{bcc});
   $mail->{from}    = $myconfig->{email};
   $mail->{to}      = $ref->{recipient};
   $mail->{subject} = $template->parse_block($ref->{email_subject});
