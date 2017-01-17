@@ -262,6 +262,36 @@ sub get_chart {
   return $charts->{$taxzone}->{$type};
 }
 
+sub get_stock {
+  my ($self, %params) = @_;
+
+  return undef unless $self->id;
+
+  my $query = 'SELECT SUM(qty) FROM inventory WHERE parts_id = ?';
+  my @values = ($self->id);
+
+  if ( $params{bin_id} ) {
+    $query .= ' AND bin_id = ?';
+    push(@values, $params{bin_id});
+  }
+
+  if ( $params{warehouse_id} ) {
+    $query .= ' AND warehouse_id = ?';
+    push(@values, $params{warehouse_id});
+  }
+
+  if ( $params{shippingdate} ) {
+    die unless ref($params{shippingdate}) eq 'DateTime';
+    $query .= ' AND shippingdate <= ?';
+    push(@values, $params{shippingdate});
+  }
+
+  my ($stock) = selectrow_query($::form, $self->db->dbh, $query, @values);
+
+  return $stock || 0; # never return undef
+};
+
+
 # this is designed to ignore chargenumbers, expiration dates and just give a list of how much <-> where
 sub get_simple_stock {
   my ($self, %params) = @_;
@@ -518,6 +548,20 @@ Non-recursive lastcost sum of all the assembly item lastcosts.
 =item C<assortment_lastcost_sum>
 
 Non-recursive lastcost sum of all the assortment item lastcosts.
+
+=item C<get_stock %params>
+
+Fetches stock qty in the default unit for a part.
+
+bin_id and warehouse_id may be passed as params. If only a bin_id is passed,
+the stock qty for that bin is returned. If only a warehouse_id is passed, the
+stock qty for all bins in that warehouse is returned.  If a shippingdate is
+passed the stock qty for that date is returned.
+
+Examples:
+ my $qty = $part->get_stock(bin_id => 52);
+
+ $part->get_stock(shippingdate => DateTime->today->add(days => -5));
 
 =back
 
