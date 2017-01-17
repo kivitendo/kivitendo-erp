@@ -1533,6 +1533,7 @@ sub print_form {
 
     $form->{emailed} .= " $form->{formname}";
     $form->{emailed} =~ s/^ //;
+    $form->{addition} = "MAILED";
   }
   my $emailed = $form->{emailed};
 

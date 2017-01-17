@@ -105,7 +105,13 @@
       &nbsp;[% HTML.escape(row.id) %]&nbsp;
     </td>
     <td>
-      &nbsp;[% HTML.escape(row.snumbers) %]&nbsp;
+      &nbsp;
+      [% IF row.haslink %]
+      <a href="[% row.haslink %]" target="_blank">[% HTML.escape(row.snumbers) %]</a>
+      [% ELSE %]
+      [% HTML.escape(row.snumbers) %]
+      [% END %]
+      &nbsp;
     </td>
   </tr>
 [% END %]

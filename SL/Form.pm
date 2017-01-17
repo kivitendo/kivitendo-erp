@@ -1223,6 +1223,10 @@ sub send_email {
   $self->{emailerr} = $mail->send();
   # $self->error($self->cleanup . "$err") if $self->{emailerr};
   $self->{email_journal_id} = $mail->{journalentry};
+  $self->{snumbers}  = "emailjournal" . "_" . $self->{email_journal_id};
+  $self->{what_done} = $::form->{type};
+  $self->{addition}  = "MAILED";
+  $self->save_history;
 
   #write back for message info and mail journal
   $self->{cc}  = $mail->{cc};
@@ -3177,7 +3181,10 @@ sub get_history {
     while(my $hash_ref = $sth->fetchrow_hashref()) {
       $hash_ref->{addition} = $main::locale->text($hash_ref->{addition});
       $hash_ref->{what_done} = $main::locale->text($hash_ref->{what_done});
-      $hash_ref->{snumbers} =~ s/^.+_(.*)$/$1/g;
+      my ( $what, $number ) = split /_/, $hash_ref->{snumbers};
+      $hash_ref->{snumbers} = $number;
+      $hash_ref->{haslink}  = 'controller.pl?action=EmailJournal/show&id='.$number if $what eq 'emailjournal';
+      $hash_ref->{snumbers} = $main::locale->text("E-Mail").' '.$number if $what eq 'emailjournal';
       $tempArray[$i++] = $hash_ref;
     }
     $main::lxdebug->leave_sub() and return \@tempArray
