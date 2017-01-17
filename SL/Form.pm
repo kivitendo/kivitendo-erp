@@ -660,6 +660,16 @@ sub show_generic_error {
 
   $self->{title} = $params{title} if $params{title};
 
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Back'),
+        call      => [ 'kivi.history_back' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+
   $self->header();
   print $self->parse_html_template("generic/error", $add_params);
 
