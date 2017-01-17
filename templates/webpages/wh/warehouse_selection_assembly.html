@@ -1,10 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
-[%- USE HTML %][%- USE JavaScript %][%- USE LxERP %]
+[%- USE HTML %][%- USE JavaScript %][%- USE LxERP %][%- USE P -%]
 <h1>[% title %]</h1>
 
- <script type="text/javascript" src="js/common.js"></script>
- <script type="text/javascript" src="js/part_selection.js"></script>
  <script type="text/javascript">
   <!--
       warehouses = new Array();
@@ -85,19 +83,9 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>[% 'Assembly Number' | $T8 %]</th>
+     <th align="right" nowrap>[% 'Assembly' | $T8 %]</th>
      <td>
-      <input type="hidden" name="parts_id" id="parts_id" value="[% HTML.escape(parts_id) %]">
-      <input type="hidden" name="old_partnumber" id="old_partnumber" value="[% HTML.escape(partnumber) %]">
-      <input name="partnumber" size="30" value="[% HTML.escape(partnumber) %]">
-     </td>
-    </tr>
-
-    <tr>
-     <th align="right" nowrap>[% 'Assembly Description' | $T8 %]</th>
-     <td>
-      <input name="description" size="30" value="[% HTML.escape(description) %]">
-      <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'assemblies:click_button=update_button')" value="?">
+      [% P.part_picker("parts_id", parts_id, part_type="assembly") %]
      </td>
     </tr>
 

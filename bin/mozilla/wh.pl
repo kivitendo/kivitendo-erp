@@ -178,9 +178,8 @@ sub transfer_or_removal_prepare_contents {
                                            "bin_id"       => $form->{bin_id},
                                            "chargenumber" => $form->{chargenumber},
                                            "bestbefore"   => $form->{bestbefore},
-                                           "partnumber"   => $form->{partnumber},
-                                           "ean"          => $form->{ean},
-                                           "description"  => $form->{description});
+                                           "partsid"      => $form->{part_id},
+                                           "ean"          => $form->{ean});
 
   if (0 == scalar(@contents)) {
     $form->show_generic_error($locale->text("The selected warehouse is empty, or no stocked items where found that match the filter settings."));
@@ -313,8 +312,6 @@ sub transfer_parts {
 # --------------------------------------------------------------------
 
 sub transfer_assembly_update_part {
-  $main::lxdebug->enter_sub();
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -322,30 +319,18 @@ sub transfer_assembly_update_part {
   $form->{trans_type} = 'assembly';
   $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
 
-  if (!$form->{partnumber} && !$form->{description}) {
-    delete @{$form}{qw(parts_id partunit)};
+  if (!$form->{parts_id}) {
+    delete $form->{partunit};
     transfer_warehouse_selection();
+    return;
 
-  } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description}) {
-    $form->{assemblies} = 1;
-    $form->{no_assemblies} = 0;
-    my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
-    if (scalar @{ $parts } == 1) {
-      @{$form}{qw(parts_id partnumber description)} = @{$parts->[0]}{qw(id partnumber description)};
-      transfer_stock_get_partunit();
-      transfer_warehouse_selection();
-    } else {
-      select_part('transfer_stock_part_selected', @{ $parts });
-    }
-
-  } else {
-    transfer_stock_get_partunit();
-    transfer_warehouse_selection();
   }
 
-# hier die oben benannte idee
-#    my $maxcreate = Common->check_assembly_max_create(assembly_id => $form->{parts_id}, dbh => $my_dbh);
-  $main::lxdebug->leave_sub();
+  my $part = SL::DB::Part->new(id => $::form->{parts_id})->load;
+  @{$form}{qw(parts_id partnumber description)} = ($part->id, $part->partnumber, $part->description);
+
+  transfer_stock_get_partunit();
+  transfer_warehouse_selection();
 }
 
 sub transfer_stock_part_selected {

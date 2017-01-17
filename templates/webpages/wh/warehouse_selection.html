@@ -1,11 +1,9 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
-[%- USE JavaScript %]
+[%- USE JavaScript %][%- USE P -%]
 <h1>[% title %]</h1>
 
- <script type="text/javascript" src="js/common.js"></script>
- <script type="text/javascript" src="js/part_selection.js"></script>
  <script type="text/javascript">
    <!--
       warehouses = new Array();
@@ -98,18 +96,9 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
+     <th align="right" nowrap>[% 'Part' | $T8 %]</th>
      <td>
-      <input type="hidden" name="parts_id" id="parts_id">
-      <input name="partnumber" id="partnumber" size="30">
-     </td>
-    </tr>
-
-    <tr>
-     <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
-     <td>
-      <input name="description" size="30">
-      <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', '')" value="?">
+      [% P.part_picker("part_id", '', size="30", part_type="part,assembly") %]
      </td>
     </tr>
 
