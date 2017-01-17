@@ -1127,10 +1127,10 @@ sub parse_template {
 
 sub get_bcc_defaults {
   my ($self, $myconfig, $mybcc) = @_;
-#  if (SL::DB::Default->get->bcc_to_login) {
-#    $mybcc .= ", " if $mybcc;
-#    $mybcc .= $myconfig->{email};
-#  }
+  if (SL::DB::Default->get->bcc_to_login) {
+    $mybcc .= ", " if $mybcc;
+    $mybcc .= $myconfig->{email};
+  }
   my $otherbcc = SL::DB::Default->get->global_bcc;
   if ($otherbcc) {
     $mybcc .= ", " if $mybcc;

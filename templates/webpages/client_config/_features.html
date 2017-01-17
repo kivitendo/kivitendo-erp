@@ -214,6 +214,16 @@
   </tr>
 
   <tr>
+   <td align="right">[% LxERP.t8('Send a BCC to logged in user?') %]</td>
+   <td>
+     [% L.yes_no_tag('defaults.bcc_to_login', SELF.defaults.bcc_to_login) %]
+   </td>
+   <td>
+     [% LxERP.t8('Send a blind copy of all outgoing emails to current user\'s email address?') %]
+   </td>
+ </tr>
+
+  <tr>
    <td align="right">[% LxERP.t8('Email journal') %]</td>
    <td>
      [% L.select_tag('defaults.email_journal', [ [ 0, LxERP.t8('No Journal') ],[ 1, LxERP.t8('Without Attachments') ],[ 2, LxERP.t8('With Attachments') ]  ], default=SELF.defaults.email_journal) %]

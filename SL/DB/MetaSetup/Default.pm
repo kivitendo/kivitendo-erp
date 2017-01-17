@@ -26,6 +26,7 @@ __PACKAGE__->meta->columns(
   assemblynumber                            => { type => 'text' },
   assortmentnumber                          => { type => 'text' },
   balance_startdate_method                  => { type => 'text' },
+  bcc_to_login                              => { type => 'boolean' },
   bin_id                                    => { type => 'integer' },
   bin_id_ignore_onhand                      => { type => 'integer' },
   businessnumber                            => { type => 'text' },

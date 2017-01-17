@@ -2570,6 +2570,7 @@ $self->{texts} = {
   'Sellprice for price group \'#1\'' => 'Verkaufspreis für Preisgruppe \'#1\'',
   'Sellprice significant places' => 'Verkaufspreis: Nachkommastellen',
   'Semicolon'                   => 'Semikolon',
+  'Send a blind copy of all outgoing emails to current user\'s email address?' => 'Eine blinde Kopie aller ausgehenden E-Mails wird an den angemeldeten Nutzer geschickt',
   'Send invoice via email'      => 'Rechnung via E-Mail verschicken',
   'Send letter via e-mail'      => 'Brief via E-Mail verschicken',
   'Sender'                      => 'AbsenderIn',
