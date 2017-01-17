@@ -112,10 +112,6 @@ sub transfer_warehouse_selection {
     $form->{title}   = $locale->text('Removal from Warehouse');
     $content         = $form->parse_html_template('wh/warehouse_selection');
 
-  } elsif ($form->{trans_type} eq 'stock') {
-    $form->{title} = $locale->text('Stock');
-    $content       = $form->parse_html_template('wh/warehouse_selection_stock');
-
   } elsif (!$form->{trans_type} || ($form->{trans_type} eq 'transfer')) {
     $form->{nextsub} = "transfer_parts_selection";
     $form->{title}   = $locale->text('Transfer');
@@ -308,46 +304,6 @@ sub transfer_parts {
 # Transfer: stock
 # --------------------------------------------------------------------
 
-sub transfer_stock_update_part {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{trans_type} = 'stock';
-  $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
-
-  if (!$form->{partnumber} && !$form->{description} && !$form->{ean}) {
-    delete @{$form}{qw(parts_id partunit ean)};
-    transfer_warehouse_selection();
-
-  } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description} || $form->{ean}) {
-
-#    $form->{no_services}   = 1; # services may now be transfered. fix for Bug 1383.
-    $form->{no_assemblies} = 0; # assemblies duerfen eingelagert werden (z.B. bei retouren)
-
-    my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
-
-    if (!scalar @{ $parts }) {
-      new_item(action => "transfer_stock_update_part");
-    } elsif (scalar @{ $parts } == 1) {
-      @{$form}{qw(parts_id partnumber description ean warehouse_id bin_id)} = @{$parts->[0]}{qw(id partnumber description ean warehouse_id bin_id)};
-      transfer_stock_get_partunit();
-      transfer_warehouse_selection();
-
-    } else {
-      select_part('transfer_stock_part_selected', @{ $parts });
-    }
-
-  } else {
-    transfer_stock_get_partunit();
-    transfer_warehouse_selection();
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 # --------------------------------------------------------------------
 # Transfer: assemblies
 # Dies ist die Auswahlmaske für ein assembly.
@@ -480,47 +436,6 @@ sub create_assembly {
 
   $form->{saved_message} = $locale->text('The assembly has been created.');
   $form->{trans_type}    = 'assembly';
-
-  transfer_warehouse_selection();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub transfer_stock {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
-
-  if ($form->{qty} <= 0) {
-    $form->show_generic_error($locale->text('Invalid quantity.'));
-  }
-
-  if (!$form->{warehouse_id} || !$form->{bin_id}) {
-    $form->error($locale->text('The warehouse or the bin is missing.'));
-  }
-
-  my $transfer = {
-    'transfer_type'    => 'stock',
-    'dst_warehouse_id' => $form->{warehouse_id},
-    'dst_bin_id'       => $form->{bin_id},
-    'chargenumber'     => $form->{chargenumber},
-    'bestbefore'       => $form->{bestbefore},
-    'parts_id'         => $form->{parts_id},
-    'qty'              => $form->{qty},
-    'unit'             => $form->{unit},
-    'comment'          => $form->{comment},
-  };
-
-  WH->transfer($transfer);
-
-  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment ean)};
-
-  $form->{saved_message} = $locale->text('The parts have been stocked.');
-  $form->{trans_type}    = 'stock';
 
   transfer_warehouse_selection();
 

@@ -3009,7 +3009,6 @@ $self->{texts} = {
   'The parts for this delivery order have already been transferred in.' => 'Die Artikel dieses Lieferscheins wurden bereits eingelagert.',
   'The parts for this delivery order have already been transferred out.' => 'Die Artikel dieses Lieferscheins wurden bereits ausgelagert.',
   'The parts have been removed.' => 'Die Waren wurden aus dem Lager entnommen.',
-  'The parts have been stocked.' => 'Die Artikel wurden eingelagert.',
   'The parts have been transferred.' => 'Die Waren wurden umgelagert.',
   'The partsgroup has been created.' => 'Die Warengruppe wurde erstellt.',
   'The partsgroup has been deleted.' => 'Die Warengruppe wurde gelöscht.',
