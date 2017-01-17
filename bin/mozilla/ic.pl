@@ -153,7 +153,7 @@ sub confirm_price_update {
   $form->header();
 
   if (@errors) {
-    $form->show_generic_error(join('<br>', @errors), 'back_button' => 1);
+    $form->show_generic_error(join('<br>', @errors));
   }
 
   $form->{nextsub} = "update_prices";

@@ -329,7 +329,7 @@ sub bank_transfer_edit {
     @ids = map $_->{id}, grep { $_->{selected} } @{ $form->{exports} || [] };
 
     if (!@ids) {
-      $form->show_generic_error($locale->text('You have not selected any export.'), 'back_button' => 1);
+      $form->show_generic_error($locale->text('You have not selected any export.'));
     }
   }
 
@@ -353,7 +353,7 @@ sub bank_transfer_edit {
     $export->{items} = [ grep { !$_->{export_closed} && !$_->{executed} } @{ $export->{items} } ];
 
     if (!@{ $export->{items} }) {
-      $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'), 'back_button' => 1);
+      $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'));
     }
 
   } elsif (!$export) {
@@ -382,7 +382,7 @@ sub bank_transfer_post_payments {
   my @items  = grep { $_->{selected} } @{ $form->{items} || [] };
 
   if (!@items) {
-    $form->show_generic_error($locale->text('You have not selected any item.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have not selected any item.'));
   }
   my @export_ids    = uniq map { $_->{sepa_export_id} } @items;
   my %exports       = map { $_ => SL::SEPA->retrieve_export('id' => $_, 'details' => 1, vc => $vc) } @export_ids;
@@ -396,11 +396,11 @@ sub bank_transfer_post_payments {
   }
 
   if (!@items_to_post) {
-    $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'));
   }
 
   if (any { !$_->{execution_date} } @items_to_post) {
-    $form->show_generic_error($locale->text('You have to specify an execution date for each antry.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have to specify an execution date for each antry.'));
   }
 
   SL::SEPA->post_payment('items' => \@items_to_post, vc => $vc);
@@ -421,7 +421,7 @@ sub bank_transfer_payment_list_as_pdf {
   my @ids        = @{ $form->{items} || [] };
   my @export_ids = uniq map { $_->{export_id} } @ids;
 
-  $form->show_generic_error($locale->text('Multi mode not supported.'), 'back_button' => 1) if 1 != scalar @export_ids;
+  $form->show_generic_error($locale->text('Multi mode not supported.')) if 1 != scalar @export_ids;
 
   my $export = SL::SEPA->retrieve_export('id' => $export_ids[0], 'details' => 1, vc => $vc);
   my @items  = ();
@@ -431,7 +431,7 @@ sub bank_transfer_payment_list_as_pdf {
     push @items, $item if $item;
   }
 
-  $form->show_generic_error($locale->text('No transfers were executed in this export.'), 'back_button' => 1) if 1 > scalar @items;
+  $form->show_generic_error($locale->text('No transfers were executed in this export.')) if 1 > scalar @items;
 
   my $report         =  SL::ReportGenerator->new(\%main::myconfig, $form);
 
@@ -484,11 +484,11 @@ sub bank_transfer_download_sepa_xml {
   my $defaults = SL::DB::Default->get;
 
   if (!$defaults->company) {
-    $form->show_generic_error($locale->text('You have to enter a company name in the client configuration.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have to enter a company name in the client configuration.'));
   }
 
   if (($vc eq 'customer') && !$defaults->sepa_creditor_id) {
-    $form->show_generic_error($locale->text('You have to enter the SEPA creditor ID in the client configuration.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have to enter the SEPA creditor ID in the client configuration.'));
   }
 
   my @ids;
@@ -500,7 +500,7 @@ sub bank_transfer_download_sepa_xml {
   }
 
   if (!@ids) {
-    $form->show_generic_error($locale->text('You have not selected any export.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have not selected any export.'));
   }
 
   my @items = ();
@@ -511,7 +511,7 @@ sub bank_transfer_download_sepa_xml {
   }
 
   if (!@items) {
-    $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('All the selected exports have already been closed, or all of their items have already been executed.'));
   }
 
   my $message_id = strftime('MSG%Y%m%d%H%M%S', localtime) . sprintf('%06d', $$);
@@ -586,7 +586,7 @@ sub bank_transfer_mark_as_closed_step1 {
   my @export_ids = map { $_->{id} } grep { $_->{selected} } @{ $form->{exports} || [] };
 
   if (!@export_ids) {
-    $form->show_generic_error($locale->text('You have not selected any export.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have not selected any export.'));
   }
 
   my @open_export_ids = ();
@@ -596,7 +596,7 @@ sub bank_transfer_mark_as_closed_step1 {
   }
 
   if (!@open_export_ids) {
-    $form->show_generic_error($locale->text('All of the exports you have selected were already closed.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('All of the exports you have selected were already closed.'));
   }
 
   $form->{title} = $locale->text('Close SEPA exports');

@@ -6,31 +6,3 @@
  </div>
 
  <p style="text-align: left;"><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
-
- [%- IF SHOW_BACK_BUTTON %]
- <form>
-  <p>
-   <!--- TODO: show back button always hack
-         In which situation is it necessary to hide it?
-   <input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]">
-   -->
-  </p>
- </form>
-
- [%- ELSIF SHOW_BUTTON %]
-
- <form action="[% HTML.escape(script) %]" method="post">
-
-  [%- FOREACH var = VARIABLES %]
-  <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
-  [%- END %]
-
-  <input type="hidden" name="action" value="[% HTML.escape(action) %]">
-
-  <p>
-   <input type="submit" value="[% BUTTON_LABEL %]">
-  </p>
- </form>
-
- [%- END %]
-

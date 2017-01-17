@@ -914,7 +914,7 @@ sub invoice_multi {
   my @do_ids = map { $form->{"trans_id_$_"} } grep { $form->{"multi_id_$_"} } (1..$form->{rowcount});
 
   if (!scalar @do_ids) {
-    $form->show_generic_error($locale->text('You have not selected any delivery order.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('You have not selected any delivery order.'));
   }
 
   map { delete $form->{$_} } grep { m/^(?:trans|multi)_id_\d+/ } keys %{ $form };
@@ -1357,7 +1357,7 @@ sub transfer_in {
   my $locale   = $main::locale;
 
   if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
-    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'));
   }
 
   save(no_redirect => 1);
@@ -1427,7 +1427,7 @@ sub transfer_out {
   my $locale   = $main::locale;
 
   if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
-    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'));
   }
 
   save(no_redirect => 1);
@@ -1653,7 +1653,7 @@ sub transfer_in_out_default {
       my $base_unit_factor = $units->{ $part_info_map{$form->{"id_$i"}}->{unit} }->{factor} || 1;
       my $qty =   $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
-      $form->show_generic_error($locale->text("Cannot transfer negative entries." ), 'back_button' => 1) if ($qty < 0);
+      $form->show_generic_error($locale->text("Cannot transfer negative entries." )) if ($qty < 0);
       # if we do not want to transfer services and this part is a service, set qty to zero
       # ... and do not create a hash entry in %qty_parts below (will skip check for bins for the transfer == out case)
       # ... and push only a empty (undef) element to @all_requests (will skip check for bin_id and warehouse_id and will not alter the row)
@@ -1740,7 +1740,7 @@ sub transfer_in_out_default {
         }
       } else {
         #$main::lxdebug->message(0, 'Fehlertext: ' . $fehlertext);
-        $form->show_generic_error($locale->text("Cannot transfer. <br> Reason:<br>#1", $fehlertext ), 'back_button' => 1);
+        $form->show_generic_error($locale->text("Cannot transfer. <br> Reason:<br>#1", $fehlertext ));
       }
     }
   }

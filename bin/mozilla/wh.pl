@@ -436,12 +436,12 @@ sub create_assembly {
 
   $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
   if ($form->{qty} <= 0) {
-    $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('Invalid quantity.'));
   }
   # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben
   #else { if ($form->{qty} > $maxcreate) { #s.o.
-  #     $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
-  #     $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
+  #     $form->show_generic_error($locale->text('Can not create that quantity with current stock'));
+  #     $form->show_generic_error('Maximale Stückzahl' . $maxcreate);
   #   }
   #  }
 
@@ -473,7 +473,7 @@ sub create_assembly {
   # Ideen? jb 18.3.09
   if ($ret ne "1"){
     # Die locale-Funktion kann keine Double-Quotes escapen, deswegen hier erstmal so (ein wahrscheinlich immerwährender Hotfix) s.a. Frage davor jb 25.4.09
-    $form->show_generic_error($ret, 'back_button' => 1);
+    $form->show_generic_error($ret);
   }
 
   delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
@@ -496,7 +496,7 @@ sub transfer_stock {
   $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
 
   if ($form->{qty} <= 0) {
-    $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
+    $form->show_generic_error($locale->text('Invalid quantity.'));
   }
 
   if (!$form->{warehouse_id} || !$form->{bin_id}) {

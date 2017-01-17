@@ -681,20 +681,6 @@ sub show_generic_error {
     'label_error' => $error,
   };
 
-  if ($params{action}) {
-    my @vars;
-
-    map { delete($self->{$_}); } qw(action);
-    map { push @vars, { "name" => $_, "value" => $self->{$_} } if (!ref($self->{$_})); } keys %{ $self };
-
-    $add_params->{SHOW_BUTTON}  = 1;
-    $add_params->{BUTTON_LABEL} = $params{label} || $params{action};
-    $add_params->{VARIABLES}    = \@vars;
-
-  } elsif ($params{back_button}) {
-    $add_params->{SHOW_BACK_BUTTON} = 1;
-  }
-
   $self->{title} = $params{title} if $params{title};
 
   $self->header();

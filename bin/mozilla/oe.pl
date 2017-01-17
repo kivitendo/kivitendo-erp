@@ -770,7 +770,7 @@ sub search {
     $form->{ordlabel}  = $locale->text('Quotation Number');
 
   } else {
-    $form->show_generic_error($locale->text('oe.pl::search called with unknown type'), back_button => 1);
+    $form->show_generic_error($locale->text('oe.pl::search called with unknown type'));
   }
 
   # setup vendor / customer data
