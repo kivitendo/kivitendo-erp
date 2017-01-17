@@ -50,6 +50,7 @@ use SL::DB::Invoice;
 use SL::DB::RecordTemplate;
 use SL::DB::Tax;
 use SL::Helper::Flash qw(flash);
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -392,7 +393,7 @@ sub form_header {
   my $follow_up_vc         = $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.File.js", "kivi.RecordTemplate.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.File.js", "kivi.RecordTemplate.js", "kivi.AR.js");
 
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
@@ -502,6 +503,8 @@ sub form_header {
     ],
   );
 
+  setup_ar_form_header_action_bar();
+
   $form->header;
   print $::form->parse_html_template('ar/form_header', {
     paid_missing         => $::form->{invtotal} - $::form->{totalpaid},
@@ -539,20 +542,6 @@ sub form_footer {
     }
   }
 
-  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-
-  $form->{is_closed} = $transdate <= $closedto;
-
-  # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-  $form->{show_storno_button} =
-    $form->{id} &&
-    !IS->has_storno(\%myconfig, $form, 'ar') &&
-    !IS->is_storno(\%myconfig, $form, 'ar') &&
-    ($form->{totalpaid} == 0 || $form->{totalpaid} eq "");
-
-  $form->{show_mark_as_paid_button} = $form->{id} && $::instance_conf->get_ar_show_mark_as_paid();
-
   print $::form->parse_html_template('ar/form_footer');
 
   $main::lxdebug->leave_sub();
@@ -562,7 +551,6 @@ sub mark_as_paid {
   $::auth->assert('ar_transactions');
 
   SL::DB::Invoice->new(id => $::form->{id})->load->mark_as_paid;
-
   $::form->redirect($::locale->text("Marked as paid"));
 }
 
@@ -836,58 +824,26 @@ sub use_as_new {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  map { delete $form->{$_} } qw(printed emailed queued invnumber deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
-  $form->{invdate} = $form->current_date(\%myconfig);
+
+  my $today          = DateTime->today_local;
+  $form->{transdate} = $today->to_kivitendo;
+  $form->{duedate}   = $form->{transdate};
+
+  if ($form->{customer_id}) {
+    my $payment_terms = SL::DB::Customer->load_cached($form->{customer_id})->payment;
+    $form->{duedate}  = $payment_terms->calc_date(reference_date => $today)->to_kivitendo if $payment_terms;
+  }
+
   &update;
 
   $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('ar_transactions');
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->{title} = $locale->text('Confirm!');
-
-  $form->header;
-
-  delete $form->{header};
-
-  print qq|
-<form method=post action=$form->{script}>
-|;
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
-  }
-
-  print qq|
-<h2 class=confirm>$form->{title}</h2>
-
-<h4>|
-    . $locale->text('Are you sure you want to delete Transaction')
-    . qq| $form->{invnumber}</h4>
-
-<input name=action class=submit type=submit value="|
-    . $locale->text('Yes') . qq|">
-</form>
-|;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub yes {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('ar_transactions');
+  $::auth->assert('ar_transactions');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -905,8 +861,6 @@ sub yes {
     $form->redirect($locale->text('Transaction deleted!'));
   }
   $form->error($locale->text('Cannot delete transaction!'));
-
-  $main::lxdebug->leave_sub();
 }
 
 sub setup_ar_search_action_bar {
@@ -1281,6 +1235,111 @@ sub storno {
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $main::lxdebug->leave_sub();
+}
+
+sub setup_ar_form_header_action_bar {
+  my $transdate               = $::form->datetonum($::form->{transdate}, \%::myconfig);
+  my $closedto                = $::form->datetonum($::form->{closedto},  \%::myconfig);
+  my $is_closed               = $transdate <= $closedto;
+
+  my $change_never            = $::instance_conf->get_ar_changeable == 0;
+  my $change_on_same_day_only = $::instance_conf->get_ar_changeable == 2 && ($::form->current_date(\%::myconfig) ne $::form->{gldate});
+
+  my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ar', $::form->{id});
+  my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ar');
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => "update" } ],
+        id        => 'update_button',
+        accesskey => 'enter',
+      ],
+
+      combobox => [
+        action => [
+          t8('Post'),
+          submit   => [ '#form', { action => "post" } ],
+          checks   => [ 'kivi.AR.check_fields_before_posting' ],
+          disabled => $is_closed                                  ? t8('The billing period has already been locked.')
+                    : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
+                    : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    :                                               undef,
+        ],
+        action => [
+          t8('Post Payment'),
+          submit   => [ '#form', { action => "post_payment" } ],
+          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [ t8('Mark as paid'),
+          submit   => [ '#form', { action => "mark_as_paid" } ],
+          confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
+          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          only_if  => $::instance_conf->get_is_show_mark_as_paid,
+        ],
+      ], # end of combobox "Post"
+
+      combobox => [
+        action => [ t8('Storno'),
+          submit   => [ '#form', { action => "storno" } ],
+          checks   => [ 'kivi.AR.check_fields_before_posting' ],
+          confirm  => t8('Do you really want to cancel this invoice?'),
+          disabled => !$::form->{id}         ? t8('This invoice has not been posted yet.')
+                      : $has_storno          ? t8('This invoice has been canceled already.')
+                      : $is_storno           ? t8('Reversal invoices cannot be canceled.')
+                      : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
+                      :                        undef,
+        ],
+        action => [ t8('Delete'),
+          submit   => [ '#form', { action => "delete" } ],
+          confirm  => t8('Do you really want to delete this object?'),
+          disabled => !$::form->{id}           ? t8('This invoice has not been posted yet.')
+                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_closed               ? t8('The billing period has already been locked.')
+                    :                            undef,
+        ],
+      ], # end of combobox "Storno"
+
+      'separator',
+
+      combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Use As New'),
+          submit   => [ '#form', { action => "use_as_new" } ],
+          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+      ], # end of combobox "Workflow"
+
+      combobox => [
+        action => [ t8('more') ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $::form->{id} * 1, 'glid' ],
+          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'follow_up_window' ],
+          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Record templates'),
+          call => [ 'kivi.RecordTemplate.popup', 'ar_transaction' ],
+        ],
+        action => [
+          t8('Drafts'),
+          call     => [ 'kivi.Draft.popup', 'ar', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
+          disabled => $::form->{id} ? t8('This invoice has already been posted.')
+                    : $is_closed    ? t8('The billing period has already been locked.')
+                    :                 undef,
+        ],
+      ], # end of combobox "more"
+    );
+  }
 }
 
 1;
