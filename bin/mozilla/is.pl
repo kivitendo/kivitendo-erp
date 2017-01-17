@@ -355,7 +355,7 @@ sub setup_is_action_bar {
         action => [ t8('more') ],
         action => [
           t8('History'),
-          call     => [ 'set_history_window', $form->{id} * 1, 'id' ],
+          call     => [ 'set_history_window', $form->{id} * 1, 'glid' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [
