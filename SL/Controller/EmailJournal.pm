@@ -27,6 +27,8 @@ __PACKAGE__->run_before('add_stylesheet');
 sub action_list {
   my ($self) = @_;
 
+  $::auth->assert('email_journal');
+
   if ( $::instance_conf->get_email_journal == 0 ) {
     flash('info',  $::locale->text('Storing the emails in the journal is currently disabled in the client configuration.'));
   }
@@ -38,6 +40,8 @@ sub action_list {
 
 sub action_show {
   my ($self) = @_;
+
+  $::auth->assert('email_journal');
 
   my $back_to = $::form->{back_to} || $self->url_for(action => 'list');
 
@@ -54,6 +58,8 @@ sub action_show {
 
 sub action_download_attachment {
   my ($self) = @_;
+
+  $::auth->assert('email_journal');
 
   my $attachment = SL::DB::EmailJournalAttachment->new(id => $::form->{id})->load;
 
@@ -80,7 +86,7 @@ sub add_stylesheet {
 # helpers
 #
 
-sub init_can_view_all { $::auth->assert('admin', 1) }
+sub init_can_view_all { $::auth->assert('email_employee_readall', 1) }
 
 sub init_models {
   my ($self) = @_;

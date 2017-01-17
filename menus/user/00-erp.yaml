@@ -993,6 +993,7 @@
   name: Email journal
   order: 200
   module: controller.pl
+  icon: mail_journal
   params:
     action: EmailJournal/list
 - id: system
