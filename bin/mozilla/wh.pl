@@ -43,6 +43,7 @@ use SL::CT;
 use SL::IC;
 use SL::WH;
 use SL::OE;
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 use SL::DB::Part;
@@ -108,16 +109,17 @@ sub transfer_warehouse_selection {
   my $content;
 
   if ($form->{trans_type} eq 'removal') {
-    $form->{nextsub} = "removal_parts_selection";
+    setup_wh_transfer_warehouse_selection_action_bar("removal_parts_selection");
     $form->{title}   = $locale->text('Removal from Warehouse');
     $content         = $form->parse_html_template('wh/warehouse_selection');
 
   } elsif (!$form->{trans_type} || ($form->{trans_type} eq 'transfer')) {
-    $form->{nextsub} = "transfer_parts_selection";
+    setup_wh_transfer_warehouse_selection_action_bar("transfer_parts_selection");
     $form->{title}   = $locale->text('Transfer');
     $content         = $form->parse_html_template('wh/warehouse_selection');
 
   } elsif ($form->{trans_type} eq 'assembly') {
+    setup_wh_transfer_warehouse_selection_assembly_action_bar();
     $form->{title} = $locale->text('Produce Assembly');
     $content       = $form->parse_html_template('wh/warehouse_selection_assembly');
   }
@@ -138,6 +140,8 @@ sub transfer_parts_selection {
   my $locale   = $main::locale;
 
   transfer_or_removal_prepare_contents('direction' => 'transfer');
+
+  setup_wh_transfer_parts_action_bar();
 
   $form->{title} = $locale->text('Transfer');
   $form->header();
@@ -442,6 +446,8 @@ sub removal_parts_selection {
 
   transfer_or_removal_prepare_contents('direction' => 'out');
 
+  setup_wh_removal_parts_selection_action_bar();
+
   $form->{title} = $locale->text('Removal');
   $form->header();
   print $form->parse_html_template("wh/removal_parts_selection");
@@ -556,6 +562,8 @@ sub journal {
                                      'bins' => 'BINS', });
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
+
+  setup_wh_journal_action_bar();
 
   $form->header();
   print $form->parse_html_template("wh/journal_filter", { "UNITS" => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
@@ -732,7 +740,7 @@ sub generate_journal {
       $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
                                                             { 'pages' => $pages , 'base_url' => $href.'&sort='.$form->{sort}.'&order='.$form->{order}}) );
   }
-  $report->generate_with_headers();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }
@@ -757,10 +765,11 @@ sub report {
 
   $form->{title}   = $locale->text("Report about warehouse contents");
 
+  setup_wh_report_action_bar();
+
   $form->header();
   print $form->parse_html_template("wh/report_filter",
-                                   { "nextsub"    => "generate_report",
-                                     "WAREHOUSES" => $form->{WAREHOUSES},
+                                   { "WAREHOUSES" => $form->{WAREHOUSES},
                                      "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
 
   $main::lxdebug->leave_sub();
@@ -964,7 +973,7 @@ sub generate_report {
                                                                               {'pages' => $pages , 'base_url' => $href}) );
   }
 
-  $report->generate_with_headers();
+  $report->generate_with_headers(action_bar => 1);
 
   $main::lxdebug->leave_sub();
 }
@@ -1059,6 +1068,103 @@ sub continue {
 sub stock {
   my $form     = $main::form;
   call_sub($form->{stock_nextsub} || $form->{nextsub});
+}
+
+sub setup_wh_transfer_warehouse_selection_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => $action } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_wh_transfer_warehouse_selection_assembly_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => 'transfer_assembly_update_part' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Produce'),
+        submit   => [ '#form', { action => 'create_assembly' } ],
+        disabled => $::form->{parts_id} ? undef : $::locale->text('No assembly has been selected yet.'),
+      ],
+    );
+  }
+}
+
+sub setup_wh_transfer_parts_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Transfer'),
+        submit    => [ '#form', { action => 'transfer_parts' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
+}
+
+sub setup_wh_removal_parts_selection_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Transfer out'),
+        submit    => [ '#form', { action => 'remove_parts' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
+}
+
+sub setup_wh_report_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => 'generate_report' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_wh_journal_action_bar {
+  my ($action) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => 'generate_journal' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;

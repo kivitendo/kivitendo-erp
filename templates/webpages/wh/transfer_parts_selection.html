@@ -34,9 +34,8 @@
     -->
  </script>
 
- <form method="post" action="wh.pl">
+ <form method="post" action="wh.pl" id="form">
 
-  <input type="hidden" name="nextsub" value="transfer_parts">
   <input type="hidden" name="warehouse_id" value="[% HTML.escape(warehouse_id) %]">
 
   <p>[% 'Transfer from warehouse' | $T8 %]: [% warehouse_description %]</p>
@@ -120,11 +119,4 @@
 
    </table>
   </p>
-
-  <hr size="3" noshade>
-
-  <p>
-   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
-  </p>
  </form>
-

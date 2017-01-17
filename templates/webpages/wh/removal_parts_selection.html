@@ -2,9 +2,8 @@
 [%- USE HTML %][%- USE JavaScript %]
 <h1>[% title %]</h1>
 
- <form method="post" action="wh.pl">
+ <form method="post" action="wh.pl" id="form">
 
-  <input type="hidden" name="nextsub" value="remove_parts">
   <input type="hidden" name="warehouse_id" value="[% HTML.escape(warehouse_id) %]">
 
   <p>[% 'Removal from warehouse' | $T8 %]: [% warehouse_description %]</p>
@@ -78,9 +77,4 @@
 
    </table>
   </p>
-
-  <p>
-   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
-  </p>
  </form>
-

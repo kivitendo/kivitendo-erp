@@ -55,10 +55,7 @@
     -->
  </script>
 
- <form name="Form" method="post" action="wh.pl">
-
-  <input type="hidden" name="nextsub" value="transfer_assembly">
-  <input type="hidden" name="update_nextsub" value="transfer_assembly_update_part">
+ <form name="Form" method="post" action="wh.pl" id="form">
 
   [% IF saved_message %]
   <p>[% saved_message %]</p>
@@ -119,13 +116,6 @@
     </tr>
 
    </table>
-  </p>
-
-  <p>
-   <input type="submit" class="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-   [%- IF parts_id %]
-   <input type="submit" class="submit" name="action" value="[% 'Create Assembly' | $T8 %]">
-   [%- END %]
   </p>
  </form>
 
