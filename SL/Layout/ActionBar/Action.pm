@@ -4,7 +4,6 @@ use strict;
 use parent qw(Rose::Object);
 
 use SL::Presenter;
-require SL::Layout::ActionBar::Submit;
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(id params text) ],
@@ -23,6 +22,8 @@ sub script {
 # this is mostly so that outside consumer don't need to load subclasses themselves
 sub from_params {
   my ($class, $data) = @_;
+
+  require SL::Layout::ActionBar::Submit;
 
   my ($text, %params) = @$data;
   return if exists($params{only_if}) && !$params{only_if};
