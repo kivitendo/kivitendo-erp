@@ -32,6 +32,7 @@ sub action_list {
   if ( $::instance_conf->get_email_journal == 0 ) {
     flash('info',  $::locale->text('Storing the emails in the journal is currently disabled in the client configuration.'));
   }
+  $self->setup_list_action_bar;
   $self->render('email_journal/list',
                 title   => $::locale->text('Email journal'),
                 ENTRIES => $self->models->get,
@@ -51,6 +52,7 @@ sub action_show {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
+  $self->setup_show_action_bar;
   $self->render('email_journal/show',
                 title   => $::locale->text('View sent email'),
                 back_to => $back_to);
@@ -132,6 +134,33 @@ sub init_filter_summary {
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
 
   return join ', ', @filter_strings;
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Filter'),
+        submit    => [ '#filter_form', { action => 'EmailJournal/list' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_show_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
 }
 
 1;
