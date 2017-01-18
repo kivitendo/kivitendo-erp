@@ -29,6 +29,8 @@ sub action_filter {
   $self->cb_reference(t8('CB Transaction'))   if !$self->cb_reference;
   $self->ob_description(t8('OB Transaction')) if !$self->ob_description;
   $self->cb_description(t8('CB Transaction')) if !$self->cb_description;
+
+  $self->setup_filter_action_bar;
   $self->render('gl/yearend_filter',
                 title               => t8('CB/OB Transactions'),
                 make_title_of_chart => sub { $_[0]->accno.' '.$_[0]->description }
@@ -52,7 +54,9 @@ sub action_list {
     allow_csv_export     => 0,
     title                => $::locale->text('CB/OB Transactions'),
   );
-  $report->generate_with_headers();
+
+  $self->setup_list_action_bar;
+  $report->generate_with_headers(action_bar => 1);
   $main::lxdebug->leave_sub();
 }
 
@@ -268,6 +272,40 @@ sub init_charts9000 {
 sub init_charts {
   # wie geht 'not like' in rose ?
   SL::DB::Manager::Chart->get_all(  query => [ \ "accno not like '9%'"], sort_by => 'accno ASC' );
+}
+
+sub setup_filter_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#filter_form', { action => 'YearEndTransactions/list' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Post'),
+        submit    => [ '#form', { action => 'YearEndTransactions/generate' } ],
+        tooltip   => t8('generate cb/ob transactions for selected charts'),
+        confirm   => t8('Are you sure to generate cb/ob transactions?'),
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
 }
 
 1;

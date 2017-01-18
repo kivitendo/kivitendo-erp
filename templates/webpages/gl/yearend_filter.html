@@ -56,9 +56,4 @@
     <td colspan="3">[% L.select_tag('cbob_chart', SELF.charts9000, title_sub=\make_title_of_chart, default=SELF.cbob_chart, style="width: 400px") %]</td>
   </tr>
 </table>
-
-[% L.hidden_tag('action', 'YearEndTransactions/dispatch') %]
-<hr size=3 noshade><br>
-[% L.submit_tag('action_list', LxERP.t8('Continue')) %]
-
 </form>
