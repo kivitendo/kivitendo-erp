@@ -63,6 +63,7 @@ use SL::DB::Default;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
 use SL::DO;
+use SL::Helper::Flash qw();
 use SL::IC;
 use SL::IS;
 use SL::Layout::Dispatcher;
@@ -732,6 +733,7 @@ sub redirect {
     $self->info($msg);
 
   } else {
+    SL::Helper::Flash::flash_later('info', $msg);
     $self->_store_redirect_info_in_session;
     print $::form->redirect_header($self->{callback});
   }
