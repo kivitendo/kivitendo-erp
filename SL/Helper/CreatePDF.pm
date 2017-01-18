@@ -6,8 +6,9 @@ use Carp;
 use Cwd;
 use English qw(-no_match_vars);
 use File::Slurp ();
-use File::Spec ();
-use File::Temp ();
+use File::Spec  ();
+use File::Temp  ();
+use File::Copy qw(move);
 use List::MoreUtils qw(uniq);
 use List::Util qw(first);
 use String::ShellQuote ();
@@ -39,34 +40,35 @@ sub create_pdf {
 sub create_parsed_file {
   my ($class, %params) = @_;
 
-  my $userspath       = $::lx_office_conf{paths}->{userspath};
-  my $vars            = $params{variables} || {};
-  my $form            = Form->new('');
-  $form->{$_}         = $vars->{$_} for keys %{ $vars };
-  $form->{format}     = lc($params{format} || 'pdf');
-  $form->{cwd}        = getcwd();
-  $form->{templates}  = $::instance_conf->get_templates;
-  $form->{IN}         = $params{template};
-  $form->{tmpdir}     = $form->{cwd} . '/' . $userspath;
-  my $tmpdir          = $form->{tmpdir};
-  my ($suffix)        = $params{template} =~ m{\.(.+)};
+  my $userspath      = $::lx_office_conf{paths}->{userspath};
+  my $vars           = $params{variables} || {};
+  my $form           = Form->new('');
+  $form->{$_}        = $vars->{$_} for keys %{$vars};
+  $form->{format}    = lc($params{format} || 'pdf');
+  $form->{cwd}       = getcwd();
+  $form->{templates} = $::instance_conf->get_templates;
+  $form->{IN}        = $params{template};
+  $form->{tmpdir}    = $form->{cwd} . '/' . $userspath;
+  my $tmpdir         = $form->{tmpdir};
+  my ($suffix)       = $params{template} =~ m{\.(.+)};
 
   my ($temp_fh, $tmpfile) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
     DIR    => $form->{tmpdir},
-    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
+    UNLINK =>
+      ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
 
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
-  my $parser  = SL::Template::create(
-    type      => ($params{template_type} || 'LaTeX'),
-    source    => $form->{IN},
-    form      => $form,
-    myconfig  => \%::myconfig,
-    userspath => $tmpdir,
+  my $parser = SL::Template::create(
+    type => ($params{template_type} || 'LaTeX'),
+    source                 => $form->{IN},
+    form                   => $form,
+    myconfig               => \%::myconfig,
+    userspath              => $tmpdir,
     variable_content_types => $params{variable_content_types},
   );
 
@@ -102,10 +104,45 @@ sub create_parsed_file {
   return $content;
 }
 
+#
+# Alternativen zu pdfinfo wären (aber wesentlich langamer):
+#
+# gs  -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=/dev/null $filename | grep 'Processing pages'
+# my (undef,undef,undef,undef,$pages)  = split / +/,$shell_out;
+#
+# gs  -dBATCH -dNOPAUSE -q -dNODISPLAY -c "($filename) (r) file runpdfbegin pdfpagecount = quit"
+# $pages=$shell_out;
+#
+
+sub has_odd_pages {
+  my ($class, $filename) = @_;
+  return 0 unless -f $filename;
+  my $shell_out = `pdfinfo $filename | grep 'Pages:'`;
+  my ($label, $pages) = split / +/, $shell_out;
+  return $pages & 1;
+}
+
 sub merge_pdfs {
   my ($class, %params) = @_;
+  my $filecount = scalar(@{ $params{file_names} });
 
-  return scalar(File::Slurp::read_file($params{file_names}->[0])) if scalar(@{ $params{file_names} }) < 2;
+  if ($params{inp_content}) {
+    return $params{inp_content} if $filecount == 0 && !$params{out_path};
+  }
+  elsif ($params{out_path}) {
+    return 0 if $filecount == 0;
+    if ($filecount == 1) {
+      if (!rename($params{file_names}->[0], $params{out_path})) {
+        # special filesystem or cross filesystem etc
+        move($params{file_names}->[0], $params{out_path});
+      }
+      return 1;
+    }
+  }
+  else {
+    return '' if $filecount == 0;
+    return scalar(File::Slurp::read_file($params{file_names}->[0])) if $filecount == 1;
+  }
 
   my ($temp_fh, $temp_name) = File::Temp::tempfile(
     'kivitendo-printXXXXXX',
@@ -115,13 +152,61 @@ sub merge_pdfs {
   );
   close $temp_fh;
 
-  my $input_names = join ' ', String::ShellQuote::shell_quote(@{ $params{file_names} });
-  my $exe         = $::lx_office_conf{applications}->{ghostscript} || 'gs';
-  my $output      = `$exe -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${temp_name} ${input_names} 2>&1`;
+  my $input_names = '';
+  my $hasodd      = 0;
+  my $emptypage   = '';
+  if ($params{bothsided}) {
+    $emptypage = $::instance_conf->get_templates . '/emptyPage.pdf';
+    unless (-f $emptypage) {
+      $emptypage = '';
+      delete $params{bothsided};
+    }
+  }
+  if ($params{inp_content}) {
+    my ($temp_fh, $inp_name) = File::Temp::tempfile(
+      'kivitendo-contentXXXXXX',
+      SUFFIX => '.pdf',
+      DIR    => $::lx_office_conf{paths}->{userspath},
+      UNLINK => (
+        $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files}
+      )
+        ? 0
+        : 1,
+    );
+    binmode $temp_fh;
+    print $temp_fh $params{inp_content};
+    close $temp_fh;
+    $input_names = $inp_name . ' ';
+    $hasodd =
+      ($params{bothsided} && __PACKAGE__->has_odd_pages($inp_name)
+       ? 1
+       : 0
+     );
+  }
+  foreach (@{ $params{file_names} }) {
+    $input_names .= $emptypage . ' ' if $hasodd;
+    $input_names .= String::ShellQuote::shell_quote($_) . ' ';
+    $hasodd =
+      ($params{bothsided} && __PACKAGE__->has_odd_pages($_)
+       ? 1
+       : 0
+     );
+  }
+  my $exe = $::lx_office_conf{applications}->{ghostscript} || 'gs';
+  my $output =
+    `$exe -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=${temp_name} ${input_names} 2>&1`;
 
   die "Executing gs failed: $ERRNO" if !defined $output;
   die $output                       if $? != 0;
 
+  if ($params{out_path}) {
+    if (!rename($temp_name, $params{out_path})) {
+
+      # special filesystem or cross filesystem etc
+      move($temp_name, $params{out_path});
+    }
+    return 1;
+  }
   return scalar File::Slurp::read_file($temp_name);
 }
 
@@ -130,14 +215,15 @@ sub find_template {
 
   $params{name} or croak "Missing parameter 'name'";
 
-  my $path                 = $::instance_conf->get_templates;
-  my $extension            = $params{extension} || "tex";
+  my $path      = $::instance_conf->get_templates;
+  my $extension = $params{extension} || "tex";
   my ($printer, $language) = ('', '');
 
   if ($params{printer} || $params{printer_id}) {
     if ($params{printer} && !ref $params{printer}) {
       $printer = '_' . $params{printer};
-    } else {
+    }
+    else {
       $printer = $params{printer} || SL::DB::Printer->new(id => $params{printer_id})->load;
       $printer = $printer->template_code ? '_' . $printer->template_code : '';
     }
@@ -146,7 +232,8 @@ sub find_template {
   if ($params{language} || $params{language_id}) {
     if ($params{language} && !ref $params{language}) {
       $language = '_' . $params{language};
-    } else {
+    }
+    else {
       $language = $params{language} || SL::DB::Language->new(id => $params{language_id})->load;
       $language = $language->template_code ? '_' . $language->template_code : '';
     }
@@ -160,10 +247,11 @@ sub find_template {
   );
 
   if ($params{email}) {
-    unshift @template_files, (
+    unshift @template_files,
+      (
       $params{name} . "_email${language}${printer}",
       $params{name} . "_email${language}",
-    );
+      );
   }
 
   @template_files = map { "${_}.${extension}" } uniq grep { $_ } @template_files;
@@ -297,12 +385,20 @@ names containing C<_printer_template_code> are considered as well.
 Merges two or more PDFs into a single PDF by using the external
 application ghostscript.
 
+Normally the function returns the contents of the resulting PDF.
+if The parameter C<out_path> is set the resulting PDF is in this file
+and the return value is 1 if it successful or 0 if not.
+
 The recognized parameters are:
 
 =over 2
 
 =item * C<file_names> – mandatory array reference containing the file
 names to merge.
+
+=item * C<inp_content> – optional, contents of first file to merge with C<file_names>.
+
+=item * C<out_path> – optional, returns not the merged contents but wrote him into this file
 
 =back
 
