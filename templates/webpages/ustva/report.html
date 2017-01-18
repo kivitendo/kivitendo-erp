@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]
+[% USE HTML %][%- USE L -%]
 <h1>[% HTML.escape(title) %]</h1>
 
  <form method="post" id="form_do" action="[% HTML.escape(script) %]">
@@ -170,24 +170,9 @@
   <input type="hidden" name="co_city" value="[% HTML.escape(co_city) %]">
   <input type="hidden" name="account_method" value="[% HTML.escape(account_method) %]">
   <input type="hidden" name="fa_bufa_nr" value="[% HTML.escape(fa_bufa_nr) %]">
-  <table width="100%">
-  <tr>
-   <td align="left">
-     <input type=hidden name=nextsub value=generate_ustva>
-     <input type=hidden name=format  value=html>
-     <input type=submit class=submit name=action value="[% 'Show' | $T8 %]">
-   </td>
-[%- IF geierlein_enabled %]
-   <td align="left">
-     <input type=button class=submit onclick="return sendGeierlein();" value="[% 'To Geierlein' | $T8 %]">
-   </td>
-[%- END %]
-   <td align="right">
-   </td>
-  </tr>
-  </table>
+  [% L.hidden_tag("format", "html") %]
 </form>
-[%- IF geierlein_enabled && geierlein_path %]
+[%- IF LXCONFIG.paths.geierlein_path %]
 <script type='text/javascript'>
 function sendGeierlein () {
  kivi.submit_ajax_form('controller.pl?action=ODGeierlein/send', $('#form_do'));

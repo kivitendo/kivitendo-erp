@@ -44,6 +44,7 @@ use SL::DB::Default;
 use SL::RP;
 use SL::USTVA;
 use SL::User;
+use SL::Locale::String qw(t8);
 1;
 
 # this is for our long dates
@@ -94,6 +95,8 @@ sub report {
 
   my $department = '';
   my $hide = '';
+
+  setup_ustva_report_action_bar();
   $form->header;
 
   # Einlesen der Finanzamtdaten
@@ -101,12 +104,6 @@ sub report {
   $ustva->get_config();
   $ustva->get_finanzamt();
 
-  my $geierlein_enabled = 0;
-  my $geierlein_path = $::lx_office_conf{paths}{geierlein_path};
-
-  if ( $geierlein_path && length($geierlein_path) > 0 ) {$geierlein_enabled=1;}
-
-#  $::lxdebug->message(LXDebug->DEBUG2,"geierlein_enabled=".$geierlein_enabled." path=".$geierlein_path);
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
   my @a = qw(
@@ -238,15 +235,11 @@ sub report {
     checkbox_kz_29   => $checkbox_kz_29,
     checkbox_kz_26   => $checkbox_kz_26,
     tax_office_banks => \@tax_office_banks_ref,
-    geierlein_enabled => $geierlein_enabled,
-    geierlein_path   => $geierlein_path,
     select_options   => &show_options,
 
   };
 
   print($form->parse_html_template('ustva/report', $template_ref));
-
-
 
   $::lxdebug->leave_sub();
 }
@@ -1053,4 +1046,22 @@ sub back {
   $::lxdebug->enter_sub();
   call_sub($::form->{"lastsub"});
   $::lxdebug->leave_sub();
+}
+
+sub setup_ustva_report_action_bar {
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form_do', { action => 'generate_ustva' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Geierlein'),
+        call     => [ 'sendGeierlein' ],
+        disabled => !length($::lx_office_conf{paths}{geierlein_path} // '') ? t8('The Geierlein path has not been set in the configuration.') : undef,
+        tooltip  => t8('Transfer data to Geierlein ELSTER application'),
+      ],
+    );
+  }
 }
