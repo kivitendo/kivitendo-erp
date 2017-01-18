@@ -740,7 +740,7 @@ sub generate_journal {
       $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate',
                                                             { 'pages' => $pages , 'base_url' => $href.'&sort='.$form->{sort}.'&order='.$form->{order}}) );
   }
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 }
@@ -973,7 +973,7 @@ sub generate_report {
                                                                               {'pages' => $pages , 'base_url' => $href}) );
   }
 
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 }

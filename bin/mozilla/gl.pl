@@ -634,7 +634,7 @@ sub generate_report {
 
   setup_gl_transactions_action_bar(num_rows => scalar(@{$form->{GL}}));
 
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 }

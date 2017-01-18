@@ -453,7 +453,7 @@ sub show_dunning {
   $report->set_options_from_form();
 
   setup_dn_show_dunning_action_bar();
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 

@@ -367,7 +367,7 @@ sub action_usage {
 
       $report->set_options('raw_bottom_info_text' => $self->render('inventory/report_bottom', { output => 0 }) );
   }
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 

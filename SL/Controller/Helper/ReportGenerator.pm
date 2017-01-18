@@ -141,12 +141,12 @@ sub report_generator_list_objects {
   }
 
   my %options            = %{ $params{options} || {} };
-  $options{action_bar} //= $params{action_bar};
+  $options{action_bar} //= $params{action_bar} // 1;
 
   if ($params{layout}) {
     return $params{report}->generate_with_headers(%options);
   } else {
-    my $html = $params{report}->generate_html_content(%options);
+    my $html = $params{report}->generate_html_content(action_bar => 0, %options);
     $self->render(\$html , { layout => 0, process => 0 });
   }
 }

@@ -65,7 +65,7 @@ sub action_list {
 
   $self->prepare_report;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get, action_bar => 1);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
 sub action_new {

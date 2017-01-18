@@ -206,7 +206,7 @@ sub list_objects {
     $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) for grep { !m/_p$/ } @{ $self->{number_columns} };
   };
 
-  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->orders, data_callback => $modify_data, action_bar => 1);
+  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->orders, data_callback => $modify_data);
 }
 
 sub make_filter_summary {

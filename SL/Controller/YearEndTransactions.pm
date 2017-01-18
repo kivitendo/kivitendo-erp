@@ -56,7 +56,7 @@ sub action_list {
   );
 
   $self->setup_list_action_bar;
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
   $main::lxdebug->leave_sub();
 }
 

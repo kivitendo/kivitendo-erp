@@ -301,7 +301,7 @@ sub list_names {
   }
 
   setup_ct_list_names_action_bar();
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 }
@@ -432,7 +432,7 @@ sub list_contacts {
     $report->add_data($row);
   }
 
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $::lxdebug->leave_sub;
 }

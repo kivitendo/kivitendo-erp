@@ -56,7 +56,7 @@ sub action_list {
   my $orderitems = $self->models->get;
   $self->calc_qtys_price($orderitems);
   $self->setup_list_action_bar;
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, action_bar => 1);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
 sub prepare_report {

@@ -588,7 +588,7 @@ sub generate_report {
   }
 
   setup_ic_generate_report_action_bar();
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }    #end generate_report

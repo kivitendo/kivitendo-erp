@@ -1201,7 +1201,7 @@ sub ar_transactions {
   $::request->layout->add_javascripts('kivi.MassInvoiceCreatePrint.js');
   setup_ar_transactions_action_bar(num_rows => scalar(@{ $form->{AR} }));
 
-  $report->generate_with_headers(action_bar => 1);
+  $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
 }

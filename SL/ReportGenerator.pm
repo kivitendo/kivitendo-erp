@@ -447,6 +447,9 @@ sub setup_action_bar {
 
 sub generate_html_content {
   my ($self, %params) = @_;
+
+  $params{action_bar} //= 1;
+
   my $variables = $self->prepare_html_content(%params);
 
   $self->setup_action_bar($params{action_bar}, $variables) if $params{action_bar};
