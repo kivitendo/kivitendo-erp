@@ -1293,6 +1293,7 @@ sub get_formname_translation {
     dunning                 => $main::locale->text('Dunning'),
     letter                  => $main::locale->text('Letter'),
     ic_supply               => $main::locale->text('Intra-Community supply'),
+    statement               => $main::locale->text('Statement'),
   );
 
   $main::lxdebug->leave_sub();

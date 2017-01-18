@@ -43,6 +43,7 @@ use SL::DB::Project;
 use SL::DB::Customer;
 use SL::RP;
 use SL::Iconv;
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use Data::Dumper;
 use List::MoreUtils qw(any);
@@ -164,6 +165,7 @@ sub report {
   my $is_trial_balance       = $::form->{report} eq "trial_balance";
   my $is_aging               = $::form->{report} =~ /^a[rp]_aging$/;
   my $is_payments            = $::form->{report} =~ /(receipts|payments)$/;
+  my $format                 = 'html';
 
   my ($label, $nextsub, $vc);
   if ($is_aging) {
@@ -174,6 +176,8 @@ sub report {
     $nextsub = "generate_$::form->{report}";
 
     $vc = qq|<input name=$::form->{vc} size=35 class="initial_focus">|;
+
+    $format = 'pdf';
   }
 
   my ($selection, $paymentaccounts);
@@ -188,6 +192,8 @@ sub report {
       $selection       .= "<option>$ref->{accno}--$ref->{description}\n";
     }
   }
+
+  setup_rp_report_action_bar();
 
   $::form->header;
   print $::form->parse_html_template('rp/report', {
@@ -206,6 +212,7 @@ sub report {
     is_income_statement    => $is_income_statement,
     is_erfolgsrechnung     => $is_erfolgsrechnung,
     is_projects            => $is_projects,
+    format                 => $format,
   });
 
   $::lxdebug->leave_sub;
@@ -1001,7 +1008,7 @@ sub aging {
   my @columns = qw(statement ct invnumber transdate duedate amount open);
 
   my %column_defs = (
-    'statement' => { 'text' => '', 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, },
+    'statement' => { raw_header_data => $::request->presenter->checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
     'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'invnumber' => { 'text' => $locale->text('Invoice'), },
     'transdate' => { 'text' => $locale->text('Date'), },
@@ -1112,60 +1119,10 @@ sub aging {
                          'raw_bottom_info_text' => $raw_bottom_info_text);
   }
 
+  setup_rp_aging_action_bar(arap => $form->{arap});
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
-}
-
-sub select_all {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  RP->aging(\%myconfig, \%$form);
-
-  map { $_->{checked} = "checked" } @{ $form->{AG} };
-
-  &aging;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub e_mail {
-  $::lxdebug->enter_sub;
-  $::auth->assert('general_ledger');
-
-  # get name and email addresses
-  my $selected = 0;
-  for my $i (1 .. $::form->{rowcount}) {
-    next unless $::form->{"statement_$i"};
-    $::form->{"$::form->{ct}_id"} = $::form->{"$::form->{ct}_id_$i"};
-    RP->get_customer(\%::myconfig, $::form);
-    $selected = 1;
-    last;
-  }
-
-  $::form->error($::locale->text('Nothing selected!')) unless $selected;
-
-  $::form->{media} = "email";
-
-  # save all other variables
-  my @hidden_values;
-  for my $key (keys %$::form) {
-    next if any { $key eq $_ } qw(login password action email cc bcc subject message type sendmode format header);
-    next unless '' eq ref $::form->{$key};
-    push @hidden_values, $key;
-  }
-
-  $::form->header;
-  print $::form->parse_html_template('rp/e_mail', {
-    print_options => print_options(inline => 1),
-    hidden_values => \@hidden_values,
-  });
-
-  $::lxdebug->leave_sub;
 }
 
 sub send_email {
@@ -1183,6 +1140,11 @@ sub send_email {
   RP->aging(\%myconfig, \%$form);
 
   $form->{"statement_1"} = 1;
+
+  my $email_form  = delete $form->{email_form};
+  my %field_names = (to => 'email');
+
+  $form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
 
   $form->{media} = 'email';
   print_form();
@@ -1910,4 +1872,42 @@ sub hotfix_reformat_date {
   $main::lxdebug->leave_sub();
 
 }
+
+sub setup_rp_aging_action_bar {
+  my %params = @_;
+
+  return unless $params{arap} eq 'ar';
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Print'),
+          call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name^=statement_]' ] ],
+        ],
+        action => [
+          t8('E Mail'),
+          call   => [ 'kivi.SalesPurchase.show_email_dialog', 'send_email' ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name^=statement_]' ] ],
+        ],
+      ],
+    );
+  }
+}
+
+sub setup_rp_report_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'continue' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 1;

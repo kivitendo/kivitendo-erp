@@ -1,7 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %] <input type="hidden" name="rowcount" value="[% HTML.escape(row_idx) %]">
-
- [% PRINT_OPTIONS %]
+[% USE HTML %][%- USE L -%] <input type="hidden" name="rowcount" value="[% HTML.escape(row_idx) %]">
 
  <input type="hidden" name="todate" value="[% HTML.escape(todate) %]">
  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
@@ -10,11 +8,15 @@
  <input type="hidden" name="customer" value="[% HTML.escape(customer) %]">
  <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
  <input type="hidden" name="department" value="[% HTML.escape(department) %]">
+ [% L.hidden_tag("formname", "statement") %]
 
- [% 'Statement' | $T8 %]
- <br>
- <input class="submit" type="submit" name="action" value="[% 'Select all' | $T8 %]">
- <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
- <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+<div id="email_inputs" class="hidden"></div>
+<div id="print_options" class="hidden">
+ [% PRINT_OPTIONS %]
+</div>
+</form>
 
 </form>
+<div id="print_dialog" class="hidden">
+ [%- PROCESS 'common/_print_dialog.html' %]
+</div>

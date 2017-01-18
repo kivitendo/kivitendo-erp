@@ -118,7 +118,7 @@
 
 <h1>[% title %]</h1>
 
-<form method=post action='[% script %]'>
+<form method='post' action='[% script %]' id='form'>
 
 <input type=hidden name=title value="[% title %]">
 
@@ -264,7 +264,7 @@
     </td>
   </tr>
   <input type=hidden name=type value=statement>
-  <input type=hidden name=format value=html>
+  [% L.hidden_tag("format", format) %]
   <input type=hidden name=media value=screen>
 
   <input type=hidden name=nextsub value='[% nextsub %]'>
@@ -363,11 +363,6 @@
   </tr>
 [%- END %]
 </table>
-
-<hr size=3 noshade>
-<br>
-<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
-
 </form>
 
 <script type="text/javascript">
@@ -398,4 +393,3 @@ function set_from_to(duetyp, year) {
   return true;
 }
 </script>
-

@@ -5,12 +5,12 @@
 <table>
   <tr>
     <td>
-     <select name=type>
+     <select name="type" id="type">
       <option value=statement [% PD.statement %]>[% 'Statement' | $T8 %]</option>
      </select>
     </td>
     <td>
-     <select name=format>
+     <select name="format" id="format">
       <option value=html [% DF.html %]>[% 'HTML' | $T8 %]</option>
       <option value=pdf [% DF.pdf %]>[% 'PDF' | $T8 %]</option>
       <option value=postscript [% DF.postscript %]>[% 'Postscript' | $T8 %]</option>
