@@ -468,16 +468,11 @@ sub form_footer {
 }
 
 sub mark_as_paid {
-  $main::lxdebug->enter_sub();
+  $::auth->assert('vendor_invoice_edit');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  SL::DB::PurchaseInvoice->new(id => $::form->{id})->load->mark_as_paid;
 
-  $main::auth->assert('vendor_invoice_edit');
-
-  &mark_as_paid_common(\%myconfig,"ap");
-
-  $main::lxdebug->leave_sub();
+  $::form->redirect($::locale->text("Marked as paid"));
 }
 
 sub show_draft {

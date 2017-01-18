@@ -38,7 +38,7 @@
 [%- IF id %]
   <input type=button class=submit onclick="set_history_window([% id %], 'glid');" name="history" id="history" value="[% 'history' | $T8 %]">
   [% IF INSTANCE_CONF.get_ap_show_mark_as_paid %]
-    <input type="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+    [% L.submit_tag("action", LxERP.t8('mark as paid'), confirm=LxERP.t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?')) %]
   [% END %]
 [%- END %]
 

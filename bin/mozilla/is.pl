@@ -45,6 +45,7 @@ use English qw(-no_match_vars);
 
 use SL::DB::Default;
 use SL::DB::Customer;
+use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
 
 require "bin/mozilla/io.pl";
@@ -535,16 +536,11 @@ sub form_footer {
 }
 
 sub mark_as_paid {
-  $main::lxdebug->enter_sub();
+  $::auth->assert('invoice_edit');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  SL::DB::Invoice->new(id => $::form->{id})->load->mark_as_paid;
 
-  $main::auth->assert('invoice_edit');
-
-  &mark_as_paid_common(\%myconfig,"ar");
-
-  $main::lxdebug->leave_sub();
+  $::form->redirect($::locale->text("Marked as paid"));
 }
 
 sub show_draft {

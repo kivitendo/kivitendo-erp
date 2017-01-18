@@ -333,49 +333,6 @@ sub retrieve_partunits {
 
 # -------------------------------------------------------------------------
 
-sub mark_as_paid_common {
-  $main::lxdebug->enter_sub();
-
-  my ($myconfig, $db_name) = @_;
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  if($form->{mark_as_paid}) {
-    SL::DB->client->with_transaction(sub {
-      my $dbh ||= SL::DB->client->dbh;
-      my $query = qq|UPDATE $db_name SET paid = amount, datepaid = current_date WHERE id = ?|;
-      do_query($form, $dbh, $query, $form->{id});
-      1;
-    }) or do { $::form->error(SL::DB->client->error) };
-    $form->redirect($locale->text("Marked as paid"));
-
-  } else {
-    my $referer = $ENV{HTTP_REFERER};
-    my $script;
-    my $callback;
-    if ($referer =~ /action/) {
-      $referer =~ /^(.*)\?action\=[^\&]*(\&.*)$/;
-      $script = $1;
-      $callback = $2;
-    } elsif ($referer =~ /RESTORE_FORM_FROM_SESSION_ID/){
-      $referer =~ /^(.*)\?RESTORE_FORM_FROM_SESSION_ID\=(.*)$/;
-      $script = $1;
-      $callback = "";
-    } else {
-      $script = $referer;
-      $callback = "";
-    }
-    $referer = $script . "?action=mark_as_paid&mark_as_paid=1&id=$form->{id}" . $callback;
-    $form->header();
-    print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
-    print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
-    print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 sub cov_selection_internal {
   $main::lxdebug->enter_sub();
 
