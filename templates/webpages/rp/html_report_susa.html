@@ -84,9 +84,6 @@
      </tr>
     [% END %]
    [% END %]
-
-   <tr><td colspan="[% NUM_COLUMNS %]"><hr size="3" noshade></td></tr>
-
   </table>
  </p>
  [% ELSE %]
@@ -100,7 +97,7 @@
  [% END %]
 
  [% IF SHOW_EXPORT_BUTTONS %]
-  <form action="[% HTML.escape(script) %]" name="report_generator_form" method="post">
+  <form action="[% HTML.escape(script) %]" name="report_generator_form" id="report_generator_form" method="post">
    [% FOREACH var = EXPORT_VARIABLES %]<input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
    [% END %]
 
@@ -108,12 +105,5 @@
    <input type="hidden" name="report_generator_variable_list" value="[% HTML.escape(EXPORT_VARIABLE_LIST) %]">
    <input type="hidden" name="report_generator_dispatch_to" value="">
    <input type="hidden" name="action" value="report_generator_dispatcher">
-
-   <p>
-    Listenexport<br>
-    [% IF ALLOW_PDF_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>[% END %]
-    [% IF ALLOW_CSV_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')">Als CSV exportieren</button>[% END %]
-   </p>
   </form>
  [% END %]
-
