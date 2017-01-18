@@ -3,7 +3,7 @@
 <h1>[%- LxERP.t8("Add link: select records to link with") %]</h1>
 
 
-<form method="post" action="controller.pl">
+<form method="post" action="controller.pl" id="record_links_add_filter_form">
  [% L.hidden_tag('object_model',   SELF.object_model) %]
  [% L.hidden_tag('object_id',      SELF.object_id) %]
 
@@ -45,7 +45,7 @@
  <p>
   [% L.button_tag('filter_record_links()', LxERP.t8("Search")) %]
   [% L.button_tag('add_selected_record_links()', LxERP.t8("Add links"), id='add_selected_record_links_button', disabled=1) %]
-  <a href="#" onclick="record_links_reset_form();">[%- LxERP.t8("Reset") %]</a>
+  [% L.button_tag('$("#record_links_add_filter_form").resetForm()', LxERP.t8('Reset')) %]
   <a href="#" onclick="$('#record_links_add').dialog('close');">[% LxERP.t8("Cancel") %]</a>
  </p>
 
@@ -62,11 +62,6 @@ $(function() {
   $('#record_links_add_filter_link_type').change(record_links_change_form_to_match_type);
   record_links_change_form_to_match_type();
 });
-
-function record_links_reset_form() {
-  $('#record_links_add form input[type=text]').val('');
-  $('#record_links_add form select').prop('selectedIndex', 0);
-}
 
 function filter_record_links() {
   var url="controller.pl?action=RecordLinks/ajax_add_list&" + $("#record_links_add form").serialize();

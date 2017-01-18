@@ -2,7 +2,7 @@
 
 [% SET debug = 0 %]
 
-<form method="post" action="javascript:filter_invoices();">
+<form method="post" action="javascript:filter_invoices();" id="assign_invoice_window_form">
   <b>[%- LxERP.t8("Bank transaction") %]:</b>
   <table>
    <tr class="listheading">
@@ -56,7 +56,7 @@
   <p>
    [% L.submit_tag('', LxERP.t8("Search")) %]
    [% L.button_tag('add_selected_invoices()', LxERP.t8("Add invoices"), id='add_selected_record_links_button') %]
-   <a href="#" onclick="assign_invoice_reset_form();">[%- LxERP.t8("Reset") %]</a>
+   [% L.button_tag('$("#assign_invoice_window_form").resetForm()', LxERP.t8('Reset')) %]
    <a href="#" onclick="$('#assign_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </p>
 
@@ -95,14 +95,9 @@ function add_selected_invoices() {
   });
 }
 
-function assign_invoice_reset_form() {
-  $('#assign_invoice_window form input[type=text]').val('');
-}
-
 $(function() {
   $('#invnumber').focus();
 });
 
 //-->
 </script>
-

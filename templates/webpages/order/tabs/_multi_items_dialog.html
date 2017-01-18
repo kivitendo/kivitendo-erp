@@ -12,7 +12,7 @@
 </table>
 
 [% L.button_tag('update_result()', LxERP.t8('Filter')) %]
-<a href='#' onClick='javascript:$("#multi_items_filter_table input").val("");$("#multi_items_filter_table input[type=checkbox]").prop("checked", 0);$("#multi_items_filter_table select").prop("selectedIndex", 0);'>[% 'Reset' | $T8 %]</a>
+[% L.button_tag('$("#multi_items_form").resetForm()', LxERP.t8('Reset')) %]
 
 <hr>
 <div id='multi_items_result'></div>

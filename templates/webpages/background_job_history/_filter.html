@@ -1,5 +1,5 @@
 [%- USE L %][%- USE LxERP %][%- USE HTML %]
-<form action="controller.pl" method="post">
+<form action="controller.pl" method="post" id="filter_form">
  <div class="filter_toggle">
   <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8('Show Filter') %]</a>
   [% IF SELF.filter_summary %]([% LxERP.t8("Current filter") %]: [% SELF.filter_summary %])[% END %]
@@ -40,7 +40,7 @@
   [% L.hidden_tag('page', FORM.page) %]
   [% L.submit_tag('action_list', LxERP.t8('Continue'))%]
 
-  <a href="#" onClick="javascript:$('#filter_table input,#filter_table select').val('');">[% LxERP.t8('Reset') %]</a>
+  [% L.button_tag("\$('#filter_form').resetForm();", LxERP.t8('Reset')) %]
 
  </div>
 

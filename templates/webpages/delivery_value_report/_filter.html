@@ -2,7 +2,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 [%- USE HTML %]
-<form action='controller.pl' method='post'>
+<form action='controller.pl' method='post' id='filter_form'>
 <div class='filter_toggle'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
   [% SELF.filter_summary | html %]
@@ -94,10 +94,7 @@
 [% L.hidden_tag('page', FORM.page) %]
 [% L.hidden_tag('vc', SELF.vc) %]
 [% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
-
-
-<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);$("#filter_table select").prop("selectedIndex", 0);'>[% 'Reset' | $T8 %]</a>
-
+[% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset')) %]
 </div>
 
 </form>
