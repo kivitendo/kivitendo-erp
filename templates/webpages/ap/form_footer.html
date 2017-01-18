@@ -11,38 +11,6 @@
 <input name=gldate type=hidden value="[% gldate | html %]">
 [% P.hidden_tag('draft_id', draft_id) %]
 [% P.hidden_tag('draft_description', draft_description) %]
-
-<br>
-
-<input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-
-[%- IF id %]
-  [%- IF radier %]
-    <input class=submit type=submit name=action value="[% 'Post' | $T8 %]">
-    <input class=submit type=submit name=action value="[% 'Delete' | $T8 %]">
-  [%- END %]
-
-  [%- IF show_storno %]
-    <input class=submit type=submit name=action value="[% 'Storno' | $T8 %]">
-  [%- END %]
-
-  <input class=submit type=submit name=action value="[% 'Post Payment' | $T8 %]">
-  <input class=submit type=submit name=action value="[% 'Use As New' | $T8 %]">
-  <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
-
-[%- ELSIF show_post_draft %]
-    <input class=submit type=submit name=action value="[% 'Post' | $T8 %]">
-    [% L.button_tag('kivi.Draft.popup("ap", "invoice", "' _ draft_id _ '", "' _ draft_description _ '")', LxERP.t8('Drafts')) %]
-[%- END %]
-
-[%- IF id %]
-  <input type=button class=submit onclick="set_history_window([% id %], 'glid');" name="history" id="history" value="[% 'history' | $T8 %]">
-  [% IF INSTANCE_CONF.get_ap_show_mark_as_paid %]
-    [% L.submit_tag("action", LxERP.t8('Mark as paid'), confirm=LxERP.t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?')) %]
-  [% END %]
-[%- END %]
-
-  [% L.button_tag("kivi.RecordTemplate.popup('ap_transaction')", LxERP.t8("Record templates")) %]
 </form>
 
 <script type="text/javascript">

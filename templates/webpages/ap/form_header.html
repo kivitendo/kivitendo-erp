@@ -146,11 +146,11 @@
             <table>
               <tr>
                 <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-                <td><input name="invnumber" size="11" value="[% invnumber | html %]" [% readonly %]></td>
+                <td>[% L.input_tag("invnumber", invnumber, size="11", readonly=readonly) %]</td>
               </tr>
               <tr>
                 <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-                <td><input name="ordnumber" size="11" value="[% ordnumber | html %]" [% readonly %]></td>
+                <td>[% L.input_tag("ordnumber", ordnumber, size="11", readonly=readonly) %]</td>
               </tr>
               <tr>
                 <th align="right" nowrap>[% 'Invoice Date' | $T8 %]</th>
