@@ -2,7 +2,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
-<form action='controller.pl' method='post'>
+<form action='controller.pl' method='post' id='search_form'>
 <div class='filter_toggle'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
   [% SELF.filter_summary | html %]
