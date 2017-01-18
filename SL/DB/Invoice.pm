@@ -577,6 +577,12 @@ sub link {
   return $html;
 }
 
+sub mark_as_paid {
+  my ($self) = @_;
+
+  $self->update_attributes(paid => $self->amount);
+}
+
 1;
 
 __END__
@@ -759,6 +765,10 @@ Mandatory params are
 =item * amount
 
 =back
+
+=item C<mark_as_paid>
+
+Marks the invoice as paid by setting its C<paid> member to the value of C<amount>.
 
 =back
 

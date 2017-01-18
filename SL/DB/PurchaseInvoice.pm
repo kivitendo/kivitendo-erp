@@ -3,6 +3,7 @@ package SL::DB::PurchaseInvoice;
 use strict;
 
 use Carp;
+use Data::Dumper;
 
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
@@ -198,4 +199,37 @@ sub add_ap_amount_row {
   return $acc_trans;
 };
 
+sub mark_as_paid {
+  my ($self) = @_;
+
+  $self->update_attributes(paid => $self->amount);
+}
+
 1;
+
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+SL::DB::PurchaseInvoice: Rose model for purchase invoices (table "ap")
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<mark_as_paid>
+
+Marks the invoice as paid by setting its C<paid> member to the value of C<amount>.
+
+=back
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
