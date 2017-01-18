@@ -24,6 +24,7 @@ sub action_filter {
   $self->to(DateTime->today)                                     if !$self->to;
 
   $::request->layout->add_javascripts('kivi.GoBD.js');
+  $self->setup_filter_action_bar;
   $self->render('gobd/filter', current_year => DateTime->today->year, title => t8('GoBD Export'));
 }
 
@@ -101,5 +102,19 @@ sub available_years {
 
 sub init_from { DateTime->from_kivitendo($::form->{from}) }
 sub init_to { DateTime->from_kivitendo($::form->{to}) }
+
+sub setup_filter_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Export'),
+        submit    => [ '#filter_form', { action => 'GoBD/export' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
 
 1;
