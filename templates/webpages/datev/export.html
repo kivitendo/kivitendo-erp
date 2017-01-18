@@ -1,7 +1,7 @@
 [%- USE T8 %]
 <h1>[% 'DATEX - Export Assistent' | $T8 %]</h1>
 
-<form method=post action='[% script %]'>
+<form method='post' action='[% script %]' id='form'>
 
 <table width=100%>
   <tr>
@@ -54,10 +54,4 @@
     <td><hr size=3 noshade></td>
   </tr>
 </table>
-
-<input type=hidden name=nextsub value=export2>
-
-<br>
-<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
 </form>
-

@@ -8,8 +8,6 @@
 
   <br><b>[% 'KNE-Export erfolgreich!' | $T8 %]</b>
   <br>
-  <br>
-  <a href="datev.pl?action=download&download_token=[% datev.download_token | html %]">Download</a>
 
 [% IF datev.net_gross_differences.size %]
 [% INCLUDE 'datev/net_gross_difference.html'
@@ -17,4 +15,3 @@
   sum_net_gross_differences = datev.sum_net_gross_differences
 %]
 [% END %]
-

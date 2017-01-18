@@ -1015,6 +1015,7 @@ $self->{texts} = {
   'Done'                        => 'Fertig',
   'Done.'                       => 'Fertig.',
   'Double partnumbers'          => 'Doppelte Artikelnummern',
+  'Download'                    => 'Download',
   'Download PDF'                => 'PDF herunterladen',
   'Download PDF, do not print'  => 'Nicht drucken, sondern PDF herunterladen',
   'Download SEPA XML export file' => 'SEPA-XML-Exportdatei herunterladen',

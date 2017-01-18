@@ -31,6 +31,7 @@ use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
 use SL::Common;
 use SL::DATEV qw(:CONSTANTS);
+use SL::Locale::String qw(t8);
 
 use strict;
 
@@ -47,6 +48,8 @@ sub export {
   $::auth->assert('datev_export');
 
   my $stamm = SL::DATEV->new->get_datev_stamm;
+
+  setup_datev_export_action_bar();
 
   $::form->header;
   print $::form->parse_html_template('datev/export', $stamm);
@@ -70,6 +73,8 @@ sub export_bewegungsdaten {
   $::lxdebug->enter_sub;
   $::auth->assert('datev_export');
 
+  setup_datev_export2_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('datev/export_bewegungsdaten');
 
@@ -79,6 +84,8 @@ sub export_bewegungsdaten {
 sub export_stammdaten {
   $::lxdebug->enter_sub;
   $::auth->assert('datev_export');
+
+  setup_datev_export2_action_bar();
 
   $::form->header;
   print $::form->parse_html_template('datev/export_stammdaten');
@@ -115,8 +122,10 @@ sub export3 {
   $datev->export;
 
   if (!$datev->errors) {
+    setup_datev_export3_action_bar(download_token => $datev->download_token);
+
     $::form->header;
-    print $::form->parse_html_template('datev/export3', { datev => $datev });
+    print $::form->parse_html_template('datev/export3');
   } else {
     $::form->error("Export schlug fehl.\n" . join "\n", $datev->errors);
   }
@@ -198,4 +207,53 @@ sub _get_dates {
   $::lxdebug->leave_sub;
 
   return ($fromdate, $todate);
+}
+
+sub setup_datev_export_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'export2' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_datev_export2_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Export'),
+        submit    => [ '#form', { action => 'export3' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
+}
+
+sub setup_datev_export3_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Download'),
+        link => [ 'datev.pl?action=download&download_token=' . $::form->escape($params{download_token}) ],
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
 }
