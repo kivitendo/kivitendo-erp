@@ -44,18 +44,21 @@ sub setup {
   $self->aggreg(TAP::Parser::Aggregator->new);
 
   $self->modules(split /\s+/, $self->config->{modules});
+  $self->modules($self->{options}->{modules}) if $self->{options}->{modules};
 }
 
 sub run {
-  my $self        = shift;
-  my $db_obj      = shift;
+  my $self   = shift;
+  my $db_obj = shift;
+
+  # get custom options (module list || alternate email)
+  $self->{options} = $db_obj->data_as_hash;
   $self->setup;
 
   return 1 unless $self->modules;
 
   # set additional mail
-  my $options = $db_obj->data_as_hash;
-  $self->additional_email($options->{email}) if $options->{email} =~ m/(\S+)@(\S+)$/;
+  $self->additional_email($self->{options}->{email}) if $self->{options}->{email} =~ m/(\S+)@(\S+)$/;
 
   foreach my $module ($self->modules) {
     $self->run_module($module);
@@ -130,7 +133,7 @@ sub _send_email {
 
   my $user  = $self->_email_user;
   my $email = $user ? $user->get_config_value('email') : undef;
-
+  my $email ||= $self->{options}->{mail_to};
   return unless $email;
 
   $email .= $self->additional_email ? ',' . $self->additional_email : '';
