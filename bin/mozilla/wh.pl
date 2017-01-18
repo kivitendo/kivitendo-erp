@@ -593,22 +593,21 @@ sub generate_journal {
   }
   # /filter stuff
 
-  my $allrows = 0;
-  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
+  my $allrows        = !!($form->{report_generator_output_format} ne 'HTML') ;
 
   # manual paginating
-  my $pages = {};
-  my $page = $::form->{page} || 1;
-  $pages->{per_page}        = $::form->{per_page} || 15;
-  my $first_nr = ($page - 1) * $pages->{per_page};
-  my $last_nr  = $first_nr + $pages->{per_page};
+  my $pages          = {};
+  my $page           = $::form->{page} || 1;
+  $pages->{per_page} = $::form->{per_page} || 15;
+  my $first_nr       = ($page - 1) * $pages->{per_page};
+  my $last_nr        = $first_nr + $pages->{per_page};
 
   # no optimisation if qty op
   if ( !$allrows && $form->{maxrows} && !$filter{qty_op}) {
     $filter{limit}  = $pages->{per_page};
     $filter{offset} = ($page - 1) * $pages->{per_page};
-    $first_nr = 0;
-    $last_nr = $pages->{per_page};
+    $first_nr       = 0;
+    $last_nr        = $pages->{per_page};
   }
 
   my @contents  = WH->get_warehouse_journal(%filter);
@@ -696,9 +695,6 @@ sub generate_journal {
     $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{part_type}).
                                    $::request->presenter->classification_abbreviation($entry->{classification_id});
     $entry->{qty}        = $form->format_amount(\%myconfig, $entry->{qty});
-#    $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
-#                                                      'part_unit'  => $entry->{partunit},
-#                                                      'conv_units' => 'convertible');
     $entry->{trans_type} = $locale->text($entry->{trans_type});
 
     my $row = { };
@@ -828,20 +824,19 @@ sub generate_report {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   # manual paginating
-  my $allrows = 0;
-  $allrows = 1 if $form->{report_generator_output_format} ne 'HTML' ;
-  my $page = $::form->{page} || 1;
-  my $pages = {};
-  $pages->{per_page}        = $::form->{per_page} || 20;
-  my $first_nr = ($page - 1) * $pages->{per_page};
-  my $last_nr  = $first_nr + $pages->{per_page};
+  my $allrows        = !!($form->{report_generator_output_format} ne 'HTML') ;
+  my $page           = $::form->{page} || 1;
+  my $pages          = {};
+  $pages->{per_page} = $::form->{per_page} || 20;
+  my $first_nr       = ($page - 1) * $pages->{per_page};
+  my $last_nr        = $first_nr + $pages->{per_page};
 
   # no optimisation if qty op
   if ( !$allrows && $form->{maxrows} && !$filter{qty_op}) {
     $filter{limit}  = $pages->{per_page};
     $filter{offset} = ($page - 1) * $pages->{per_page};
-    $first_nr = 0;
-    $last_nr = $pages->{per_page};
+    $first_nr       = 0;
+    $last_nr        = $pages->{per_page};
   }
 
   my @contents  = WH->get_warehouse_report(%filter);

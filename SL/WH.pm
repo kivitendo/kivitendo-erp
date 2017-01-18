@@ -552,10 +552,18 @@ sub get_warehouse_journal {
     GROUP BY $group_clause
     ORDER BY r_${sort_spec}) AS lines WHERE r_qty>0|;
 
-  $query .= " LIMIT $filter{limit}"    if $filter{limit} ;
-  $query .= " OFFSET $filter{offset}"  if $filter{offset} ;
+  my @all_vars = (@filter_vars,@filter_vars,@filter_vars);
 
-  my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars, @filter_vars, @filter_vars);
+  if ($filter{limit}) {
+    $query .= " LIMIT ?";
+    push @all_vars,$filter{limit};
+  }
+  if ($filter{offset}) {
+    $query .= " OFFSET ?";
+    push @all_vars, $filter{offset};
+  }
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @all_vars);
 
   my ($h_oe_id, $q_oe_id);
   if ($form->{l_oe_id}) {
@@ -824,10 +832,15 @@ sub get_warehouse_report {
       GROUP BY $group_clause
       ORDER BY $sort_spec ) AS lines WHERE qty<>0|;
 
-  $query .= " LIMIT $filter{limit}"    if $filter{limit} ;
-  $query .= " OFFSET $filter{offset}"  if $filter{offset} ;
-
-  my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
+  if ($filter{limit}) {
+    $query .= " LIMIT ?";
+    push @filter_vars,$filter{limit};
+  }
+  if ($filter{offset}) {
+    $query .= " OFFSET ?";
+    push @filter_vars, $filter{offset};
+  }
+  my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars );
 
   my (%non_empty_bins, @all_fields, @contents);
 
