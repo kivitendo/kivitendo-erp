@@ -235,10 +235,6 @@ $(function () {
       }
     }
 
-    // scroll to the active element. jQuery.focus doesn't do this
-    // TODO: find out how to reliably frame the active element
-    window.scrollTo(0, document.activeElement.getBoundingClientRect().top);
-
     // legacy. some forms install these
     if (typeof fokus == 'function') { fokus(); return; }
     if (focus_by_name('cursor_fokus')) return;
