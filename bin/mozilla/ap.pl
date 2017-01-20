@@ -324,11 +324,6 @@ sub form_header {
     $charts{$item->{accno}} = $item;
   }
 
-  my %taxcharts = ();
-  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    $taxcharts{$item->{id}} = $item;
-  }
-
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--.*?//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
@@ -348,8 +343,9 @@ sub form_header {
     my ($default_taxchart, $taxchart_to_use);
     my $amount_chart_id   = $form->{"AP_amount_chart_id_$i"} || $default_ap_amount_chart_id;
     my $chart_has_changed = $::form->{"previous_AP_amount_chart_id_$i"} && ($amount_chart_id != $::form->{"previous_AP_amount_chart_id_$i"});
+    my @taxcharts         = GL->get_active_taxes_for_chart($amount_chart_id, $transdate);
 
-    foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate) ) {
+    foreach my $item (@taxcharts) {
       my $key             = $item->id . "--" . $item->rate;
       $first_taxchart   //= $item;
       $default_taxchart   = $item if $item->{is_default};
@@ -360,6 +356,7 @@ sub form_header {
     my $selected_taxchart            = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
     $form->{"selected_taxchart_$i"}  = $selected_taxchart;
     $form->{"AP_amount_chart_id_$i"} = $amount_chart_id;
+    $form->{"taxcharts_$i"}          = \@taxcharts;
   }
 
   $form->{taxchart_value_title_sub} = sub {

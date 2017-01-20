@@ -202,7 +202,8 @@
             </td>
             <td>
               [% temp = 'selected_taxchart_'_ i %]
-              [% L.select_tag('taxchart_'_ i, ALL_TAXCHARTS, value_title_sub = \taxchart_value_title_sub, default = $temp) %]
+              [% taxcharts = 'taxcharts_' _ i %]
+              [% L.select_tag('taxchart_'_ i, $taxcharts, value_title_sub = \taxchart_value_title_sub, default = $temp, style="width: 250px") %]
             </td>
             <td>
               [% temp = "project_id_"_ i %]
