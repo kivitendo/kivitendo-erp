@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
  <form method=post name="search" action=[% script %]>
@@ -10,21 +10,7 @@
     <table>
      <tr>
       <th align=right>[% 'Customer' | $T8 %]</th>
-      <td colspan=3>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = 'customer',
-                 default       = oldcustomer,
-                 style         = 'width: 250px',
-                 DATA          = ALL_VC,
-                 id_sub        = 'vc_keys',
-                 label_key     = 'name',
-                 select        = vc_select,
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-                 class         = 'initial_focus',
-                 -%]
-      </td>
+      <td colspan=3>[% L.input_tag("customer", customer, style="width: 250px", class="initial_focus") %]</td>
      </tr>
     <tr>
      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
@@ -68,34 +54,12 @@
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td colspan="3">
-            [%- INCLUDE 'generic/multibox.html'
-                 name          =  'project_id',
-                 style         = "width: 250px",
-                 DATA          =  ALL_PROJECTS,
-                 id_key        = 'id',
-                 label_key     = 'projectnumber',
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 0,
-            -%]
-      </td>
+      <td colspan="3">[% P.project_picker("project_id", project_id, style="width: 250px") %]</td>
      </tr>
-    [% IF SHOW_BUSINESS_TYPES %]
+    [% IF ALL_BUSINESS_TYPES.as_list.size > 0 %]
      <tr>
       <th align="right" nowrap>[% 'Customer type' | $T8 %]</th>
-      <td colspan="3">
-          [%- INCLUDE 'generic/multibox.html'
-                 name          =  'business_id',
-                 style         = "width: 250px",
-                 DATA          =  ALL_BUSINESS_TYPES,
-                 id_key        = 'id',
-                 label_key     = 'description',
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 0,
-            -%]
-      </td>
+      <td colspan="3">[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description", style="width: 250px") %]</td>
      </tr>
     [% END %]
      <tr>
@@ -255,10 +219,3 @@
    <br>
    <input class=submit type=submit name=action id="continue" value="[% 'Continue' | $T8 %]">
   </form>
- <script type="text/javascript">
- <!--
-   $(document).ready(function(){
-    $('customer').focus();
-   })
- //-->
- </script>

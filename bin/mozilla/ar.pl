@@ -40,6 +40,7 @@ use SL::AR;
 use SL::FU;
 use SL::GL;
 use SL::IS;
+use SL::DB::Business;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::Employee;
@@ -789,18 +790,11 @@ sub search {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
-
   $form->{title}    = $locale->text('AR Transactions');
 
-  # Auch in Rechnungsübersicht nach Kundentyp filtern - jan
-  $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "customers"      => "ALL_VC",
-                   "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-  $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
+  $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -810,6 +804,8 @@ sub search {
 
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
+
+  $::request->layout->add_javascripts("autocomplete_project.js");
 
   $form->header;
   print $form->parse_html_template('ar/search', { %myconfig });
@@ -848,8 +844,6 @@ sub ar_transactions {
   my $locale   = $main::locale;
 
   my ($callback, $href, @columns);
-
-  ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer});
 
   report_generator_set_default_sort('transdate', 1);
 

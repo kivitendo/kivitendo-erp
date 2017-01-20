@@ -499,14 +499,7 @@ sub ar_transactions {
     $where .= " AND NOT invoice = 'f' ";  # remove ar transactions from Sales -> Reports -> Invoices
   };
 
-  if ($form->{customernumber}) {
-    $where .= " AND c.customernumber = ?";
-    push(@values, trim($form->{customernumber}));
-  }
-  if ($form->{customer_id}) {
-    $where .= " AND a.customer_id = ?";
-    push(@values, $form->{customer_id});
-  } elsif ($form->{customer}) {
+  if ($form->{customer}) {
     $where .= " AND c.name ILIKE ?";
     push(@values, like($form->{customer}));
   }
