@@ -1,12 +1,14 @@
 [%- USE HTML %]
 [%- USE T8 %]
 [%- USE LxERP %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% HTML.escape(title) %]</h1>
 
 [%- SET vclabel = vc == 'customer' ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]
 [%- SET vcnumberlabel = vc == 'customer' ? LxERP.t8('Customer Number') : LxERP.t8('Vendor Number') %]
 [%- SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
+[%- SET vcdefault = 'old' _ vc %]
+[%- SET style="width: 250px" %]
 
 <form method="post" action="oe.pl">
 
@@ -16,21 +18,7 @@
    <table>
     <tr>
      <th align="right">[% HTML.escape(vclabel) %]</th>
-     <td colspan="3">
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = vc,
-                 default       = vc == 'customer' ? oldcustomer : oldvendor,
-                 style         = 'width: 250px',
-                 DATA          = ALL_VC,
-                 id_sub        = 'vc_keys',
-                 label_key     = 'name',
-                 select        = vc_select,
-                 limit         = MYCONFIG.vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-                 class         = 'initial_focus',
-                 -%]
-     </td>
+     <td colspan="3">[% L.input_tag(vc, $vcdefault, style=style, class="initial_focus") %]</td>
     </tr>
     <tr>
      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
@@ -76,19 +64,8 @@
      <td><input name="parts_description" style="width: 250px"></td>
     </tr>
     <tr>
-     <th align="right">[% 'Project Number' | $T8 %]</th>
-     <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          =  MYCONFIG.vclimit < ALL_PROJECTS.size ? 'projectnumber' : 'project_id',
-                 style         = "width: 250px",
-                 DATA          =  ALL_PROJECTS,
-                 id_key        = 'id',
-                 label_key     = 'projectnumber',
-                 limit         = MYCONFIG.vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-            -%]
-     </td>
+     <th align="right">[% 'Project' | $T8 %]</th>
+     <td>[% P.project_picker("project_id", '', style=style) %]</td>
 
      <th align="right">[% 'Part Number' | $T8 %]</th>
      <td><input name="parts_partnumber" style="width: 250px"></td>

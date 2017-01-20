@@ -793,6 +793,8 @@ sub search {
 
   $form->{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(autocomplete_project));
+
   $form->header();
 
   print $form->parse_html_template('oe/search', {
