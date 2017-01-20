@@ -69,9 +69,6 @@ sub search {
 
   assert_bp_access();
 
-  # setup customer/vendor selection
-  BP->get_vc(\%::myconfig, $::form);
-
   my %label = (
        invoice           => { title => $::locale->text('Sales Invoices'),  invnumber => 1, ordnumber => 1 },
        sales_order       => { title => $::locale->text('Sales Orders'),    ordnumber => 1, },
