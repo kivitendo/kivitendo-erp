@@ -118,6 +118,7 @@ sub lxinit {
   die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
 
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
+  $::myconfig{login} = $login; # so SL::DB::Manager::Employee->current works in test database
 
   $::instance_conf->init;
 
