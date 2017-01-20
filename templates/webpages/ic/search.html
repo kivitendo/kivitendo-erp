@@ -3,6 +3,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE P %]
+[% SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
  <form method="post" action="ic.pl">
@@ -45,48 +46,52 @@
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
-       <td><input name="partnumber" size="20"></td>
+       <td>[% L.input_tag("partnumber", "", style=style) %]</td>
        <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
-       <td><input name="ean" size="20"></td>
+       <td>[% L.input_tag("ean", "", style=style) %]</td>
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Classification' | $T8 %]:</th>
-       <td>[% P.select_classification('classification_id') %]</td>
+       <td>[% P.select_classification('classification_id', style=style) %]</td>
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
-       <td colspan="3"><input name="description" size="40" class="initial_focus"></td>
+       <td colspan="3">[% L.input_tag("description", "", style=style, class="initial_focus") %]</td>
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Partsgroup' | $T8 %]</th>
-       <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, with_empty=1, default=partsgroup, title_key="partsgroup", style="width: 250px") %]</td>
-       <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th> <td><input name="serialnumber" size="20"></td>
+       <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, with_empty=1, default=partsgroup, title_key="partsgroup", style=style) %]</td>
+       <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th>
+       <td>[% L.input_tag("serialnumber", "", style=style) %]</td>
       </tr>
 
       [%- UNLESS is_service %]
       <tr>
-       <th align="right" nowrap>[% 'Make' | $T8 %]</th> <td><input name="make" size="20"></td>
-       <th align="right" nowrap>[% 'Model' | $T8 %]</th> <td><input name="model" size="20"></td>
+       <th align="right" nowrap>[% 'Make' | $T8 %]</th>
+       <td>[% L.input_tag("make", "", style=style) %]</td>
+       <th align="right" nowrap>[% 'Model' | $T8 %]</th>
+       <td>[% L.input_tag("model", "", style=style) %]</td>
       </tr>
       [%- END %]
 
       <tr>
        <th align="right" nowrap>[% 'Drawing' | $T8 %]</th>
-       <td><input name="drawing" size="20"></td>
+       <td>[% L.input_tag("drawing", "", style=style) %]</td>
        <th align="right" nowrap>[% 'Microfiche' | $T8 %]</th>
-       <td><input name="microfiche" size="20"></td>
+       <td>[% L.input_tag("microfiche", "", style=style) %]</td>
       </tr>
 
       <tr>
        <th align="right" nowrap>[% 'Shop article' | $T8 %]</th>
-       <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='---') %]</td>
+       <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='---', style=style) %]</td>
       </tr>
 
       <tr>
        <th align="right">[% 'Insert Date' | $T8 %]</th>
        <td>
-        [% 'From' | $T8 %][% L.date_tag('insertdatefrom') %]
-        [% 'Bis' | $T8 %] [% L.date_tag('insertdateto') %]
+        [% L.date_tag('insertdatefrom') %]
+        [% 'Bis' | $T8 %]
+        [% L.date_tag('insertdateto') %]
        </td>
       </tr>
 

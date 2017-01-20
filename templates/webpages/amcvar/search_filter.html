@@ -16,7 +16,6 @@
      </select>
 
      [%- ELSIF var.type == 'date' %]
-     [% 'from (time)' | $T8 %]
      [% L.date_tag(filter_prefix _'cvar_'_ HTML.escape(var.name) _'_from') %]
 
      [% 'to (time)' | $T8 %]
