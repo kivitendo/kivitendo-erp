@@ -3781,6 +3781,7 @@ $self->{texts} = {
   'true'                        => 'wahr',
   'uncleared'                   => 'Nicht abgeglichen',
   'unconfigured'                => 'unkonfiguriert',
+  'unnamed record template'     => 'unbenannte Belegvorlage',
   'until'                       => 'bis',
   'use program settings'        => 'benutze Programmeinstellungen',
   'use user config'             => 'Verwende Benutzereinstellung',
