@@ -143,13 +143,6 @@ sub invoice_links {
   # create links
   $form->create_links("AR", \%myconfig, "customer");
 
-  if ($form->{all_customer}) {
-    unless ($form->{customer_id}) {
-      $form->{customer_id} = $form->{all_customer}->[0]->{id};
-      $form->{salesman_id} = $form->{all_customer}->[0]->{salesman_id};
-    }
-  }
-
   my $editing = $form->{id};
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id
@@ -158,11 +151,6 @@ sub invoice_links {
 
   IS->get_customer(\%myconfig, \%$form);
 
-  #quote all_customer Bug 133
-  foreach my $ref (@{ $form->{all_customer} }) {
-    $ref->{name} = $form->quote($ref->{name});
-  }
-
   $form->restore_vars(qw(id));
 
   IS->retrieve_invoice(\%myconfig, \%$form);
@@ -170,23 +158,6 @@ sub invoice_links {
                          cp_id shipto_id delivery_term_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
-
-
-  # build vendor/customer drop down compatibility... don't ask
-  if (@{ $form->{"all_customer"} }) {
-    $form->{"selectcustomer"} = 1;
-    $form->{customer}         = qq|$form->{customer}--$form->{"customer_id"}|;
-  }
-
-  $form->{"oldcustomer"}  = $form->{customer};
-
-  if ($form->{"oldcustomer"} !~ m/--\d+$/ && $form->{"customer_id"}) {
-    $form->{"oldcustomer"} .= qq|--$form->{"customer_id"}|
-  }
-
-
-#  $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
-#  $form->{selectcustomer} = 1;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
@@ -291,10 +262,9 @@ sub form_header {
   my %TMPL_VAR = ();
   my @custom_hiddens;
 
-  if ($form->{id}) {
-    require SL::DB::Invoice;
-    $TMPL_VAR{invoice_obj} = SL::DB::Invoice->new(id => $form->{id})->load;
-  }
+  $TMPL_VAR{customer_obj} = SL::DB::Customer->load_cached($form->{customer_id}) if $form->{customer_id};
+  $TMPL_VAR{invoice_obj}  = SL::DB::Invoice->load_cached($form->{id})           if $form->{id};
+
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
@@ -302,7 +272,6 @@ sub form_header {
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
-                   "customers"     => "ALL_CUSTOMERS",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
@@ -342,14 +311,6 @@ sub form_header {
   ]);
   $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
-  # customer
-  $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $TMPL_VAR{vclimit} = $myconfig{vclimit};
-  $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('customer', '', 0, 0)";
-  push @custom_hiddens, "customer_id";
-  push @custom_hiddens, "oldcustomer";
-  push @custom_hiddens, "selectcustomer";
-
   # currencies and exchangerate
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
   my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
@@ -364,10 +325,6 @@ sub form_header {
 
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
-
-  my $follow_up_vc         =  $form->{customer};
-  $follow_up_vc            =~ s/--\d*\s*$//;
-  $TMPL_VAR{customer_name} = $follow_up_vc;
 
 # set option selected
   foreach my $item (qw(AR)) {
@@ -448,7 +405,7 @@ sub form_footer {
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
   if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
-    my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
+    my $customer = SL::DB::Customer->load_cached($form->{customer_id});
     $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }
 
@@ -561,7 +518,11 @@ sub update {
   my $taxincluded         = $form->{taxincluded} ? "checked" : '';
   $form->{update} = 1;
 
-  &check_name("customer");
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
+
+    IS->get_customer(\%myconfig, $form);
+  }
 
   $form->{taxincluded} ||= $taxincluded;
 
@@ -750,7 +711,7 @@ sub post {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
-  $form->isblank("customer", $locale->text('Customer missing!'));
+  $form->isblank("customer_id", $locale->text('Customer missing!'));
   $form->error($locale->text('Cannot post invoice for a closed period!'))
         if ($form->date_closed($form->{"invdate"}, \%myconfig));
 
@@ -758,7 +719,7 @@ sub post {
   $form->{invnumber} =~ s/\s*$//g;
 
   # if oldcustomer ne customer redo form
-  if (&check_name('customer')) {
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     &update;
     $::dispatcher->end_request;
   }
