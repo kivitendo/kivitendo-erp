@@ -42,6 +42,7 @@ use SL::GL;
 use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
+use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
 use SL::Webdav;
@@ -185,9 +186,6 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->{selectcurrency} = "";
-  map { my $quoted = H($_); $form->{selectcurrency} .= "<option value=\"${quoted}\">${quoted}\n" } $form->get_all_currencies(\%myconfig);
-
   # vendors
   if (@{ $form->{all_vendor} || [] }) {
     $form->{vendor} = qq|$form->{vendor}--$form->{vendor_id}|;
@@ -248,7 +246,7 @@ sub form_header {
   # type=submit $locale->text('Edit Accounts Payables Transaction')
 
   # set option selected
-  foreach my $item (qw(vendor currency)) {
+  foreach my $item (qw(vendor)) {
     my $to_replace         =  H($form->{$item});
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/>\Q${to_replace}\E/ selected>${to_replace}/;
@@ -427,6 +425,7 @@ sub form_header {
 
   print $form->parse_html_template('ap/form_header', {
     today => DateTime->today,
+    currencies => SL::DB::Manager::Currency->get_all_sorted,
   });
 
   $main::lxdebug->leave_sub();

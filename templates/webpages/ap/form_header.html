@@ -6,7 +6,6 @@
 <form method="post" action="[% script | html %]">
 
 <input type="hidden" name="selectvendor" value="[% selectvendor | html %]">
-<input type="hidden" name="selectcurrency" value="[% selectcurrency | html %]">
 
 <input type="hidden" name="oldvendor" value="[% oldvendor | html %]">
 <input type="hidden" name="vendor_id" value="[% vendor_id | html %]">
@@ -113,7 +112,7 @@
 
               <tr>
                 <th align="right" nowrap>[% 'Currency' | $T8 %]</th>
-                <td><select name="currency">[% selectcurrency %]</select></td>
+                <td>[% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name") %]</td>
 
                 [% IF ( defaultcurrency && (currency != defaultcurrency) ) %]
                   <th align=right>[% 'Exchangerate' | $T8 %]</th>
