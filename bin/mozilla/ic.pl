@@ -84,9 +84,6 @@ sub search {
   $form->{lastsort}     = ""; # memory for which table was sort at last time
   $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
-  # for seach all possibibilities, is_service only used as UNLESS so == 0
-  my %is_xyz     = ("is_part" => 1, "is_service" => 0, "is_assembly" =>1 );
-
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
@@ -100,7 +97,7 @@ sub search {
   $form->header;
 
   $form->get_lists('partsgroup'    => 'ALL_PARTSGROUPS');
-  print $form->parse_html_template('ic/search', { %is_xyz, });
+  print $form->parse_html_template('ic/search');
 
   $lxdebug->leave_sub();
 }    #end search()
