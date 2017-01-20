@@ -1251,11 +1251,18 @@ sub show_am_history {
     $restriction  .= qq| AND employee_id = (SELECT id FROM employee WHERE name ILIKE | . $dbh->quote('%' . $form->{mitarbeiter} . '%') . qq|)|;
   }
 
-  my $query = qq|SELECT trans_id AS id FROM history_erp | .
-    (  $form->{'searchid'} ? qq| WHERE snumbers = '|  . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'|
-     :                       qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
+  my $snumbers_where = '';
+  my $snumbers_value;
+  if ($form->{'searchid'}) {
+    $snumbers_where = ' WHERE snumbers = ?';
+    $snumbers_value = $searchNo{$form->{'what2search'}} . '_' . $form->{'searchid'};
+  } else {
+    $snumbers_where = ' WHERE snumbers ~ ?';
+    $snumbers_value = '^' . $searchNo{$form->{'what2search'}};
+  }
+  my $query = qq|SELECT trans_id AS id FROM history_erp $snumbers_where|;
 
-  my @ids    = grep { $_ * 1 } selectall_array_query($form, $dbh, $query);
+  my @ids    = grep { $_ * 1 } selectall_array_query($form, $dbh, $query, $snumbers_value);
   my $daten .= shift @ids;
   if (scalar(@ids) > 0 ) {
     $daten  .= ' OR trans_id IN (' . join(',', @ids) . ')';
