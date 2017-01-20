@@ -97,6 +97,8 @@ sub load_record_template {
 
   die "invalid template type" unless $template->template_type eq 'ar_transaction';
 
+  $template->substitute_variables;
+
   # Clean the current $::form before rebuilding it from the template.
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
 
