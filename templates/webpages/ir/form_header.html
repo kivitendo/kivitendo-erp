@@ -107,13 +107,10 @@
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'taxzone_id'
-                 style      = 'width: 250px'
-                 DATA       = ALL_TAXZONES
-                 id_key     = 'id'
-                 readonly   = (id ? 1 : 0)
-                 label_key  = 'description' -%]
+            [% L.select_tag('taxzone_id', ( id ? ALL_TAXZONES : ALL_ACTIVE_TAXZONES) , default = taxzone_id, title_key = 'description', disabled = (id ? 1 : 0), style='width: 250px', onchange = "document.getElementById('update_button').click();") %]
+  [%- IF id %]
+          <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
+  [%- END %]
           </td>
   [%- IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>

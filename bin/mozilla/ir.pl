@@ -270,7 +270,7 @@ sub form_header {
   $form->get_lists("projects"      => { "key"    => "ALL_PROJECTS",
                                         "all"    => 0,
                                         "old_id" => \@old_project_ids },
-                   "taxzones"      => "ALL_TAXZONES",
+                   "taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "vendors"       => "ALL_VENDORS",
                    "departments"   => "all_departments",
