@@ -174,19 +174,11 @@ sub create_links {
   IS->get_customer(\%myconfig, \%$form);
 
   $form->{$_}          = $saved{$_} for keys %saved;
-  $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
   $form->{AR_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AR} ? $form->{acc_trans}->{AR}->[0]->{chart_id} : $form->{AR_links}->{AR}->[0]->{chart_id};
 
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-
-  # customers
-  if (@{ $form->{all_customer} || [] }) {
-    $form->{customer} = "$form->{customer}--$form->{customer_id}";
-    map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_customer} });
-  }
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
@@ -215,9 +207,9 @@ sub form_header {
   $form->{invoice_obj} = _retrieve_invoice_object();
 
   my ($title, $readonly, $exchangerate, $rows);
-  my ($notes, $customer, $amount, $project);
+  my ($notes, $amount, $project);
 
-  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer' : 'row_' . $form->{rowcount};
+  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer_id' : 'row_' . $form->{rowcount};
 
   $title = $form->{title};
   # $locale->text('Add Accounts Receivables Transaction')
@@ -230,12 +222,6 @@ sub form_header {
                       ? ($form->current_date(\%myconfig) eq $form->{gldate})
                       : ($::instance_conf->get_ar_changeable == 1);
   $readonly = ($form->{radier}) ? "" : $readonly;
-
-  # set option selected
-  foreach my $item (qw(customer)) {
-    $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
-  }
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
@@ -274,11 +260,10 @@ sub form_header {
     }
   }
 
-  my $follow_up_vc         =  $form->{customer};
-  $follow_up_vc            =~ s/--.*?//;
+  my $follow_up_vc         = $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
 
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
@@ -506,7 +491,9 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  &check_name("customer");
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
+    IS->get_customer(\%myconfig, $form);
+  }
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
@@ -618,7 +605,7 @@ sub post {
   # check if there is an invoice number, invoice and due date
   $form->isblank("transdate", $locale->text('Invoice Date missing!'));
   $form->isblank("duedate",   $locale->text('Due Date missing!'));
-  $form->isblank("customer",  $locale->text('Customer missing!'));
+  $form->isblank("customer_id", $locale->text('Customer missing!'));
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
@@ -664,8 +651,7 @@ sub post {
   }
 
   # if oldcustomer ne customer redo form
-  my ($customer) = split /--/, $form->{customer};
-  if ($form->{oldcustomer} ne "$customer--$form->{customer_id}") {
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     update();
     $::dispatcher->end_request;
   }
