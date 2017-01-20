@@ -1,4 +1,6 @@
 namespace('kivi', function(k){
+  "use strict";
+
   k.CustomerVendorPicker = function($real, options) {
     // short circuit in case someone double inits us
     if ($real.data("customer_vendor_picker"))
@@ -80,7 +82,7 @@ namespace('kivi', function(k){
       if (state == STATES.PICKED) {
         annotate_state();
         return true
-      } else if (state == STATES.UNDEFINED && $dummy.val() == '')
+      } else if (state == STATES.UNDEFINED && $dummy.val() === '')
         set_item({})
       else {
         last_unverified_dummy = $dummy.val();
@@ -92,7 +94,7 @@ namespace('kivi', function(k){
     function annotate_state () {
       if (state == STATES.PICKED)
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
-      else if (state == STATES.UNDEFINED && $dummy.val() == '')
+      else if (state == STATES.UNDEFINED && $dummy.val() === '')
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
       else {
         last_unverified_dummy = $dummy.val();
@@ -119,7 +121,7 @@ namespace('kivi', function(k){
           annotate_state();
         }
       });
-    };
+    }
 
     $dummy.autocomplete({
       source: function(req, rsp) {
@@ -149,7 +151,7 @@ namespace('kivi', function(k){
     $dummy.keydown(function(event){
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
         // if string is empty assume they want to delete
-        if ($dummy.val() == '') {
+        if ($dummy.val() === '') {
           set_item({});
           return true;
         } else if (state == STATES.PICKED) {
