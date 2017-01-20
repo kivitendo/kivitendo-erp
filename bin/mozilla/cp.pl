@@ -95,13 +95,6 @@ sub payment {
   map { $form->{selectaccount} .= "<option value=\"$_->{accno}--$_->{description}\">$_->{accno}--$_->{description}</option>\n";
         $form->{account}        = "$_->{accno}--$_->{description}" if ($_->{accno} eq $accno_arap) } @{ $form->{PR}{"$form->{ARAP}_paid"} };
 
-  # Braucht man das hier überhaupt? Erstmal auskommentieren .. jan 18.12.2010
-  #  map {
-  #    $form->{"select$form->{ARAP}"} .=
-  #      "<option>$_->{accno}--$_->{description}\n"
-  #  } @{ $form->{PR}{ $form->{ARAP} } };
-  # ENDE LOESCHMICH in 2012
-
   # currencies
   # oldcurrency ist zwar noch hier als fragment enthalten, wird aber bei
   # der aktualisierung der form auch nicht mitübernommen. das konzept
