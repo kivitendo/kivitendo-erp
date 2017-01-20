@@ -36,6 +36,7 @@ use SL::FU;
 use SL::IR;
 use SL::IS;
 use SL::DB::Default;
+use SL::DB::Department;
 use SL::DB::PurchaseInvoice;
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
@@ -138,17 +139,6 @@ sub invoice_links {
   if (@{ $form->{"all_vendor"} || [] }) {
     $form->{"selectvendor"} = 1;
     $form->{vendor}         = qq|$form->{vendor}--$form->{vendor_id}|;
-  }
-
-  # departments
-  if ($form->{all_departments}) {
-    $form->{selectdepartment} = "<option>\n";
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
   }
 
   # forex
@@ -267,15 +257,12 @@ sub form_header {
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("projects"      => { "key"    => "ALL_PROJECTS",
-                                        "all"    => 0,
-                                        "old_id" => \@old_project_ids },
-                   "taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
+  $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
                    "vendors"       => "ALL_VENDORS",
-                   "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
+  $TMPL_VAR{ALL_DEPARTMENTS}       = SL::DB::Manager::Department->get_all_sorted;
   $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
     or => [
@@ -286,7 +273,6 @@ sub form_header {
       ]
     ]
   ]);
-  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # customer
   $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
@@ -341,7 +327,7 @@ sub form_header {
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{due_due})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part autocomplete_project client_js));
 
   $form->header();
 

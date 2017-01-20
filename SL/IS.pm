@@ -1339,9 +1339,6 @@ SQL
   # need the current dbh to get the not yet committed mtime
   $form->new_lastmtime('ar', $provided_dbh);
 
-  $form->{name} = $form->{customer};
-  $form->{name} =~ s/--\Q$form->{customer_id}\E//;
-
   # add shipto
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "AR");

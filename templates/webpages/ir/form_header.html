@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
 [%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_name _ ')' %]
@@ -116,18 +116,10 @@
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
   [%- END %]
         </tr>
-[%- IF all_departments %]
+[%- IF ALL_DEPARTMENTS.as_list.size %]
         <tr>
           <th align="right" nowrap>[% 'Department' | $T8 %]</th>
-          <td colspan="3">
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'department_id',
-                 style      = 'width: 250px',
-                 DATA       = all_departments,
-                 id_key     = 'id',
-                 label_sub  = 'department_labels',
-                 show_empty = 1 -%]
-          </td>
+          <td colspan="3">[% P.select_tag("department_id", ALL_DEPARTMENTS, with_empty=1, default=department_id, title_key="description", style="width: 250px") %]</td>
         </tr>
 [%- END %]
 [%- IF currencies %]
@@ -200,15 +192,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
-          <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'globalproject_id',
-                 DATA       = ALL_PROJECTS,
-                 id_key     = 'id',
-                 label_key  = 'projectnumber',
-                 show_empty = 1,
-                 onChange   = "document.getElementById('update_button').click();" -%]
-          </td>
+          <td>[% P.project_picker('globalproject_id', globalproject_id) %]</td>
         </tr>
       </table>
     </td>
