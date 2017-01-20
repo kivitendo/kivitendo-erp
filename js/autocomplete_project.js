@@ -58,10 +58,9 @@ namespace('kivi', function(k){
         $real.val('');
         $dummy.val('');
       }
-      state                 = STATES.PICKED;
-      last_real             = $real.val();
-      last_dummy            = $dummy.val();
-      last_unverified_dummy = $dummy.val();
+      state      = STATES.PICKED;
+      last_real  = $real.val();
+      last_dummy = $dummy.val();
 
       $real.trigger('change');
       $real.trigger('set_item:ProjectPicker', item);
@@ -76,7 +75,6 @@ namespace('kivi', function(k){
       } else if (state == STATES.UNDEFINED && $dummy.val() === '')
         set_item({})
       else {
-        last_unverified_dummy = $dummy.val();
         set_item({ id: last_real, name: last_dummy })
       }
       annotate_state();
@@ -88,7 +86,6 @@ namespace('kivi', function(k){
       else if (state == STATES.UNDEFINED && $dummy.val() === '')
         $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
       else {
-        last_unverified_dummy = $dummy.val();
         $dummy.addClass(STATES.UNDEFINED).removeClass(STATES.PICKED);
       }
     }
