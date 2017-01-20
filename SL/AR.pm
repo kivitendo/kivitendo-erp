@@ -99,8 +99,6 @@ sub _post_transaction {
   }
   $form->{paid}   = $form->round_amount($form->{paid} * ($form->{exchangerate} || 1), 2);
 
-  ($null, $form->{employee_id}) = split /--/, $form->{employee};
-
   $form->get_employee($dbh) unless $form->{employee_id};
 
   # if we have an id delete old records else make one

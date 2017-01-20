@@ -40,7 +40,9 @@ use SL::AR;
 use SL::FU;
 use SL::GL;
 use SL::IS;
+use SL::DB::Currency;
 use SL::DB::Default;
+use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::ReportGenerator;
 
@@ -179,9 +181,6 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->{selectcurrency} = "";
-  map { $form->{selectcurrency} .= "<option>$_\n" } $form->get_all_currencies(\%myconfig);
-
   # customers
   if (@{ $form->{all_customer} || [] }) {
     $form->{customer} = "$form->{customer}--$form->{customer_id}";
@@ -190,15 +189,6 @@ sub create_links {
   }
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-
-  $form->{employee} = "$form->{employee}--$form->{employee_id}";
-
-  # sales staff
-  if (@{ $form->{all_employees} || [] }) {
-    $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_employees} || [] });
-  }
 
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
@@ -225,7 +215,7 @@ sub form_header {
   $form->{invoice_obj} = _retrieve_invoice_object();
 
   my ($title, $readonly, $exchangerate, $rows);
-  my ($notes, $customer, $employee, $amount, $project);
+  my ($notes, $customer, $amount, $project);
 
   $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer' : 'row_' . $form->{rowcount};
 
@@ -242,7 +232,7 @@ sub form_header {
   $readonly = ($form->{radier}) ? "" : $readonly;
 
   # set option selected
-  foreach my $item (qw(customer currency employee)) {
+  foreach my $item (qw(customer)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
@@ -388,6 +378,16 @@ sub form_header {
 
   $form->{totalpaid} = sum map { $_->{paid} } @payments;
 
+  my $employees = SL::DB::Manager::Employee->get_all_sorted(
+    where => [
+      or => [
+        (id     => $::form->{employee_id}) x !!$::form->{employee_id},
+        deleted => undef,
+        deleted => 0,
+      ],
+    ],
+  );
+
   $form->header;
   print $::form->parse_html_template('ar/form_header', {
     paid_missing         => $::form->{invtotal} - $::form->{totalpaid},
@@ -400,6 +400,8 @@ sub form_header {
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
     today                => DateTime->today,
+    currencies           => scalar(SL::DB::Manager::Currency->get_all_sorted),
+    employees            => $employees,
   });
 
   $main::lxdebug->leave_sub();

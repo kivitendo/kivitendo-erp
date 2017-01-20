@@ -92,8 +92,7 @@
 [%- END %]
               <tr>
                 <th align=right>[% 'Currency' | $T8 %]</th>
-                <td><select name=currency>[% selectcurrency %]</select></td>
-                [% L.hidden_tag('selectcurrency', selectcurrency) %]
+                <td>[% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name") %]</td>
                 [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
                 [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
                 [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
@@ -122,14 +121,10 @@
           </td>
           <td align=right>
             <table>
-[%- IF selectemployee %]
               <tr>
                 <th align=right nowrap>[% 'Salesperson' | $T8 %]</th>
-                <td  colspan=2><select name=employee>[% selectemployee %]</select>[% L.hidden_tag('selectemployee', selectemployee) %]</td>
+                <td  colspan=2>[% P.select_tag("employee_id", employees, default=employee_id, title_key='safe_name') %]</td>
               </tr>
-[%- ELSE %]
-                [% L.hidden_tag('employee', employee) %]
-[%- END %]
               <tr>
                 <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
                 <td><input name=invnumber size=11 value="[% invnumber | html %]"></td>
