@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE L %][%- USE P -%]
+[%- SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
  <form method=post name="search" action=[% script %]>
@@ -10,78 +11,72 @@
     <table>
      <tr>
       <th align=right>[% 'Customer' | $T8 %]</th>
-      <td colspan=3>[% L.input_tag("customer", customer, style="width: 250px", class="initial_focus") %]</td>
+      <td>[% L.input_tag("customer", customer, style=style, class="initial_focus") %]</td>
      </tr>
     <tr>
      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
-     <td colspan="3">[% L.input_tag("cp_name", '', size=20) %]</td>
+     <td>[% L.input_tag("cp_name", '', style=style) %]</td>
     </tr>
      <tr>
       <th align=right nowrap>[% 'Department' | $T8 %]</th>
-      <td colspan=3>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style="width: 200px") %]</td>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1, style=style) %]</td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
-      <td colspan=3><input name=invnumber id=invnumber size=20></td>
+      <td>[% L.input_tag("invnumber", "", style=style) %]</td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'Order Number' | $T8 %]</th>
-      <td colspan=3><input name=ordnumber id=ordnumber size=20></td>
+      <td>[% L.input_tag("ordnumber", "", style=style) %]</td>
      </tr>
      <tr>
       <th align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
-      <td colspan=3><input name="cusordnumber" id="cusordnumber" size="20"></td>
+      <td>[% L.input_tag("cusordnumber", "", style=style) %]</td>
      </tr>
      <tr>
       <th align="right">[% 'Employee' | $T8 %]</th>
-      <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style = 'width:250px') %]</td>
+      <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
      </tr>
     <tr>
      <th align="right">[% 'Salesman' | $T8 %]</th>
-     <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style = 'width:250px') %]</td>
+     <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1, style=style) %]</td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'Transaction description' | $T8 %]</th>
-      <td><input name=transaction_description id=transaction_description size=20></td>
+      <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
       <th align="right">[% 'Part Description' | $T8 %]</th>
-      <td><input name="parts_description" size="20"></td>
+      <td>[% L.input_tag("parts_description", "", style=style) %]</td>
      </tr>
      <tr>
       <th align=right nowrap>[% 'Notes' | $T8 %]</th>
-      <td><input name=notes id=notes size=20></td>
+      <td>[% L.input_tag("notes", "", style=style) %]</td>
       <th align="right">[% 'Part Number' | $T8 %]</th>
-      <td><input name="parts_partnumber" size="20"></td>
+      <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td colspan="3">[% P.project_picker("project_id", project_id, style="width: 250px") %]</td>
+      <td>[% P.project_picker("project_id", project_id, style=style) %]</td>
      </tr>
     [% IF ALL_BUSINESS_TYPES.as_list.size > 0 %]
      <tr>
       <th align="right" nowrap>[% 'Customer type' | $T8 %]</th>
-      <td colspan="3">[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description", style="width: 250px") %]</td>
+      <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, with_empty=1, title_key="description", style=style) %]</td>
      </tr>
     [% END %]
      <tr>
       <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
       <td>
-       [% 'From' | $T8 %]
        [% L.date_tag('transdatefrom') %]
-      </td>
-     <th align=right>[% 'Bis' | $T8 %]</th>
-     <td>
-      [% L.date_tag('transdateto') %]
+       [% 'Bis' | $T8 %]
+       [% L.date_tag('transdateto') %]
      </td>
     </tr>
      <tr>
       <th align=right nowrap>[% 'Due Date' | $T8 %]</th>
       <td>
-       [% 'From' | $T8 %]
        [% L.date_tag('duedatefrom') %]
-      </td>
-     <th align=right>[% 'Bis' | $T8 %]</th>
-     <td>
-      [% L.date_tag('duedateto') %]
+       [% 'Bis' | $T8 %]
+       [% L.date_tag('duedateto') %]
      </td>
     </tr>
 
