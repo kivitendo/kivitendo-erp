@@ -1257,8 +1257,9 @@ sub show_am_history {
 
   my @ids    = grep { $_ * 1 } selectall_array_query($form, $dbh, $query);
   my $daten .= shift @ids;
-  $daten    .= join '', map { " OR trans_id = $_" } @ids;
-
+  if (scalar(@ids) > 0 ) {
+    $daten  .= ' OR trans_id IN (' . join(',', @ids) . ')';
+  }
   my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)$/$1/;
 
