@@ -38,6 +38,7 @@ use SL::IS;
 use SL::DB::Default;
 use SL::DB::Department;
 use SL::DB::PurchaseInvoice;
+use SL::DB::Vendor;
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 
@@ -110,17 +111,6 @@ sub invoice_links {
   # create links
   $form->create_links("AP", \%myconfig, "vendor");
 
-  #quote all_vendor Bug 133
-  foreach my $ref (@{ $form->{all_vendor} }) {
-    $ref->{name} = $form->quote($ref->{name});
-  }
-
-  if ($form->{all_vendor}) {
-    unless ($form->{vendor_id}) {
-      $form->{vendor_id} = $form->{all_vendor}->[0]->{id};
-    }
-  }
-
   $form->backup_vars(qw(payment_id language_id taxzone_id
                         currency delivery_term_id intnotes cp_id));
 
@@ -132,14 +122,6 @@ sub invoice_links {
 
   my @curr = $form->get_all_currencies();
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
-
-  $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
-
-  # build vendor/customer drop down comatibility... don't ask
-  if (@{ $form->{"all_vendor"} || [] }) {
-    $form->{"selectvendor"} = 1;
-    $form->{vendor}         = qq|$form->{vendor}--$form->{vendor_id}|;
-  }
 
   # forex
   $form->{forex} = $form->{exchangerate};
@@ -248,7 +230,8 @@ sub form_header {
   my %TMPL_VAR = ();
   my @custom_hiddens;
 
-  $TMPL_VAR{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $form->{id})->load if $form->{id};
+  $TMPL_VAR{invoice_obj} = SL::DB::PurchaseInvoice->load_cached($form->{id}) if $form->{id};
+  $TMPL_VAR{vendor_obj}  = SL::DB::Vendor->load_cached($form->{vendor_id})   if $form->{vendor_id};
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
@@ -259,7 +242,6 @@ sub form_header {
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
-                   "vendors"       => "ALL_VENDORS",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   $TMPL_VAR{ALL_DEPARTMENTS}       = SL::DB::Manager::Department->get_all_sorted;
@@ -273,14 +255,6 @@ sub form_header {
       ]
     ]
   ]);
-
-  # customer
-  $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $TMPL_VAR{vclimit} = $myconfig{vclimit};
-  $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('vendor', '', 1, 0)";
-  push @custom_hiddens, "vendor_id";
-  push @custom_hiddens, "oldvendor";
-  push @custom_hiddens, "selectvendor";
 
   # currencies and exchangerate
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
@@ -297,10 +271,6 @@ sub form_header {
 
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
-
-  my $follow_up_vc         =  $form->{vendor};
-  $follow_up_vc            =~ s/--\d*\s*$//;
-  $TMPL_VAR{vendor_name} = $follow_up_vc;
 
 # set option selected
   foreach my $item (qw(AP)) {
@@ -473,7 +443,9 @@ sub update {
 
   $main::auth->assert('vendor_invoice_edit');
 
-  &check_name('vendor');
+  if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
+    IR->get_vendor(\%myconfig, $form);
+  }
 
   if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
     $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate});
@@ -735,14 +707,14 @@ sub post {
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->isblank("invdate",   $locale->text('Invoice Date missing!'));
-  $form->isblank("vendor",    $locale->text('Vendor missing!'));
+  $form->isblank("vendor_id", $locale->text('Vendor missing!'));
   $form->isblank("invnumber", $locale->text('Invnumber missing!'));
 
   $form->{invnumber} =~ s/^\s*//g;
   $form->{invnumber} =~ s/\s*$//g;
 
   # if the vendor changed get new values
-  if (&check_name('vendor')) {
+  if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
     &update;
     $::dispatcher->end_request;
   }

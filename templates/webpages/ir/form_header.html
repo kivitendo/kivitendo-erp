@@ -4,12 +4,10 @@
 [%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
-[%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_name _ ')' %]
+[%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_obj.name _ ')' %]
 <script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/vendor_selection.js"></script>
 <script type="text/javascript" src="js/calculate_qty.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
-<script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
 
 <form method="post" name="invoice" action="[% script %]">
 
@@ -49,23 +47,10 @@
         <tr>
           <th align="right">[% 'Vendor' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 id            = 'vendor',
-                 name          = 'vendor',
-                 style         = 'width: 250px',
-                 class         = 'initial_focus',
-                 DATA          = ALL_VENDORS,
-                 id_sub        = 'vc_keys',
-                 label_key     = 'name',
-                 select        = vc_select,
-                 limit         = vclimit,
-                 allow_textbox = 1,
-                 onChange      = "document.getElementById('update_button').click();" -%]
-            <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% vc | html %]')">
+           [% P.customer_vendor_picker("vendor_id", vendor_id, type="vendor", style="width: 250px", class="initial_focus") %]
+           [% P.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)')) %]
+           [% P.hidden_tag("previous_vendor_id", vendor_id) %]
           </td>
-          <input type="hidden" name="vendor_id" value="[% HTML.escape(vendor_id) %]">
-          <input type="hidden" name="oldvendor" value="[% HTML.escape(oldvendor) %]">
-          <input type="hidden" name="selectvendor" value="[% HTML.escape(selectvendor) %]">
         </tr>
 [%- IF ALL_CONTACTS.size %]
         <tr>
