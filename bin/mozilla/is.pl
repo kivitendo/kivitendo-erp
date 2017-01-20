@@ -45,6 +45,7 @@ use English qw(-no_match_vars);
 
 use SL::DB::Default;
 use SL::DB::Customer;
+use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
 
@@ -274,7 +275,7 @@ sub form_header {
                    "currencies"    => "ALL_CURRENCIES",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
@@ -309,7 +310,6 @@ sub form_header {
       ]
     ]
   ]);
-  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # currencies and exchangerate
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
