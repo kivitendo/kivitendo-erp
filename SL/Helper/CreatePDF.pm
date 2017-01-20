@@ -56,15 +56,14 @@ sub create_parsed_file {
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
     DIR    => $form->{tmpdir},
-    UNLINK =>
-      ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
+    UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
   );
 
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
-  my $parser = SL::Template::create(
-    type => ($params{template_type} || 'LaTeX'),
+  my $parser               = SL::Template::create(
+    type                   => ($params{template_type} || 'LaTeX'),
     source                 => $form->{IN},
     form                   => $form,
     myconfig               => \%::myconfig,
@@ -128,8 +127,7 @@ sub merge_pdfs {
 
   if ($params{inp_content}) {
     return $params{inp_content} if $filecount == 0 && !$params{out_path};
-  }
-  elsif ($params{out_path}) {
+  } elsif ($params{out_path}) {
     return 0 if $filecount == 0;
     if ($filecount == 1) {
       if (!rename($params{file_names}->[0], $params{out_path})) {
@@ -138,8 +136,7 @@ sub merge_pdfs {
       }
       return 1;
     }
-  }
-  else {
+  } else {
     return '' if $filecount == 0;
     return scalar(File::Slurp::read_file($params{file_names}->[0])) if $filecount == 1;
   }
@@ -148,7 +145,7 @@ sub merge_pdfs {
     'kivitendo-printXXXXXX',
     SUFFIX => '.pdf',
     DIR    => $::lx_office_conf{paths}->{userspath},
-    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
+    UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
   );
   close $temp_fh;
 
@@ -167,30 +164,18 @@ sub merge_pdfs {
       'kivitendo-contentXXXXXX',
       SUFFIX => '.pdf',
       DIR    => $::lx_office_conf{paths}->{userspath},
-      UNLINK => (
-        $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files}
-      )
-        ? 0
-        : 1,
+      UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
     );
     binmode $temp_fh;
     print $temp_fh $params{inp_content};
     close $temp_fh;
     $input_names = $inp_name . ' ';
-    $hasodd =
-      ($params{bothsided} && __PACKAGE__->has_odd_pages($inp_name)
-       ? 1
-       : 0
-     );
+    $hasodd = $params{bothsided} && __PACKAGE__->has_odd_pages($inp_name);
   }
   foreach (@{ $params{file_names} }) {
     $input_names .= $emptypage . ' ' if $hasodd;
     $input_names .= String::ShellQuote::shell_quote($_) . ' ';
-    $hasodd =
-      ($params{bothsided} && __PACKAGE__->has_odd_pages($_)
-       ? 1
-       : 0
-     );
+    $hasodd = $params{bothsided} && __PACKAGE__->has_odd_pages($_);
   }
   my $exe = $::lx_office_conf{applications}->{ghostscript} || 'gs';
   my $output =
@@ -215,15 +200,14 @@ sub find_template {
 
   $params{name} or croak "Missing parameter 'name'";
 
-  my $path      = $::instance_conf->get_templates;
-  my $extension = $params{extension} || "tex";
+  my $path                 = $::instance_conf->get_templates;
+  my $extension            = $params{extension} || "tex";
   my ($printer, $language) = ('', '');
 
   if ($params{printer} || $params{printer_id}) {
     if ($params{printer} && !ref $params{printer}) {
       $printer = '_' . $params{printer};
-    }
-    else {
+    } else {
       $printer = $params{printer} || SL::DB::Printer->new(id => $params{printer_id})->load;
       $printer = $printer->template_code ? '_' . $printer->template_code : '';
     }
@@ -232,8 +216,7 @@ sub find_template {
   if ($params{language} || $params{language_id}) {
     if ($params{language} && !ref $params{language}) {
       $language = '_' . $params{language};
-    }
-    else {
+    } else {
       $language = $params{language} || SL::DB::Language->new(id => $params{language_id})->load;
       $language = $language->template_code ? '_' . $language->template_code : '';
     }
@@ -247,11 +230,10 @@ sub find_template {
   );
 
   if ($params{email}) {
-    unshift @template_files,
-      (
+    unshift @template_files, (
       $params{name} . "_email${language}${printer}",
       $params{name} . "_email${language}",
-      );
+    );
   }
 
   @template_files = map { "${_}.${extension}" } uniq grep { $_ } @template_files;
