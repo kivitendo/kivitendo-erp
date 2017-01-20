@@ -148,10 +148,9 @@ sub invoice_transactions {
     $where .= " AND ar.transdate <= ?";
     push(@values, $form->{transdateto});
   }
-  if ($form->{department}) {
-    my ($null, $department_id) = split /--/, $form->{department};
+  if ($form->{department_id}) {
     $where .= " AND ar.department_id = ?";
-    push(@values, $department_id);
+    push @values, conv_i($form->{department_id});
   }
   if ($form->{employee_id}) {
     $where .= " AND ar.employee_id = ?";

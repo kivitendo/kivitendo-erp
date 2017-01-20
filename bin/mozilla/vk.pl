@@ -55,7 +55,7 @@ sub search_invoice {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my ($customer, $department);
+  my ($customer);
 
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
@@ -154,7 +154,7 @@ sub invoice_transactions {
   # pass hidden variables for pdf/csv export
   # first with l_ to determine which columns to show
   # then with the options for headings (such as transdatefrom, partnumber, ...)
-  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
+  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customer_id department_id partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
       "$form->{db}number",
       map({ "cvar_$_->{name}" } @searchable_custom_variables),
       map { "l_$_" } @columns
@@ -211,7 +211,7 @@ sub invoice_transactions {
   push @options, $locale->text('Customer')                . " : $form->{customer}"                                                          if $form->{customer};
   push @options, $locale->text('Customer Number')         . " : $form->{customernumber}"                                                    if $form->{customernumber};
   # TODO: only customer id is passed
-  push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0]                                    if $form->{department};
+  push @options, $locale->text('Department')              . " : " . SL::DB::Department->new(id => $form->{department_id})->load->description if $form->{department_id};
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                                                         if $form->{invnumber};
   push @options, $locale->text('Invoice Date')            . " : $form->{invdate}"                                                           if $form->{invdate};
   push @options, $locale->text('Part Number')             . " : $form->{partnumber}"                                                        if $form->{partnumber};
