@@ -59,19 +59,7 @@
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Partsgroup' | $T8 %]</th>
-       <td>
-         [%- INCLUDE generic/multibox.html
-           name          = 'partsgroup',
-           select_name   = 'partsgroup_id',
-           DATA          = ALL_PARTSGROUPS,
-           show_empty    = 1,
-           id_key        = 'id',
-           label_key     = 'partsgroup',
-           style         = 'width:250px',
-           limit         = MYCONFIG.vclimit,
-           allow_textbox = 1
-         -%]
-       </td>
+       <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, with_empty=1, default=partsgroup, title_key="partsgroup", style="width: 250px") %]</td>
        <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th> <td><input name="serialnumber" size="20"></td>
       </tr>
 
