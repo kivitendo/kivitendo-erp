@@ -2,13 +2,16 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_invoice_item create_sales_invoice create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order);
+our @EXPORT = qw(create_invoice_item create_sales_invoice create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_project);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Employee;
 use SL::Dev::Part;
 use SL::Dev::CustomerVendor;
+use SL::DB::Project;
+use SL::DB::ProjectStatus;
+use SL::DB::ProjectType;
 use DateTime;
 
 my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
@@ -208,6 +211,20 @@ sub _create_two_items {
   return [ $item1, $item2 ];
 }
 
+sub create_project {
+  my (%params) = @_;
+  my $project = SL::DB::Project->new(
+    projectnumber     => 1,
+    description       => "Test project",
+    active            => 1,
+    valid             => 1,
+    project_status_id => SL::DB::Manager::ProjectStatus->find_by(name => "running")->id,
+    project_type_id   => SL::DB::Manager::ProjectType->find_by(description => "Standard")->id,
+    %params,
+  )->save;
+  return $project;
+}
+
 1;
 
 __END__
@@ -284,6 +301,18 @@ Example including creation of part and of invoice:
     taxincluded  => 0,
     invoiceitems => [ $item ],
   );
+
+=head2 C<create_project %PARAMS>
+
+Creates a default project.
+
+Minimal example, creating a project with status "running" and type "Standard":
+  my $project = SL::Dev::Record::create_project();
+
+  $project = SL::Dev::Record::create_project(
+    projectnumber => 'p1',
+    description   => 'Test project',
+  )
 
 =head1 TODO
 
