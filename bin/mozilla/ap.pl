@@ -816,17 +816,15 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "vendor", "AP");
-
   $form->{title}    = $locale->text('AP Transactions');
 
-  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "vendors"      => "ALL_VC");
+  $form->get_lists(projects => { "key" => "ALL_PROJECTS", "all" => 1 });
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
+
+  $::request->layout->add_javascripts("autocomplete_project.js");
 
   $form->header;
   print $form->parse_html_template('ap/search', { %myconfig });
@@ -863,8 +861,6 @@ sub ap_transactions {
   my $locale   = $main::locale;
 
   $main::auth->assert('vendor_invoice_edit');
-
-  ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
 
   report_generator_set_default_sort('transdate', 1);
 

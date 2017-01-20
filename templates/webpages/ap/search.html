@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
  <form method=post name="search" action=[% script %]>
@@ -10,22 +10,7 @@
     <table>
      <tr>
       <th align=right>[% 'Vendor' | $T8 %]</th>
-      <td colspan=3>
-            [%- INCLUDE 'generic/multibox.html'
-                 id            = 'vendor',
-                 name          = 'vendor',
-                 default       = oldvendor,
-                 style         = 'width: 250px',
-                 class         = 'initial_focus',
-                 DATA          = ALL_VC,
-                 id_sub        = 'vc_keys',
-                 label_key     = 'name',
-                 select        = vc_select,
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-                 -%]
-      </td>
+      <td colspan=3>[% L.input_tag("vendor", vendor, style="width: 250px", class="initial_focus") %]</td>
      </tr>
     <tr>
      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
@@ -51,18 +36,7 @@
      </tr>
      <tr>
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          =  'project_id',
-                 style         = "width: 250px",
-                 DATA          =  ALL_PROJECTS,
-                 id_key        = 'id',
-                 label_key     = 'projectnumber',
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 0,
-            -%]
-      </td>
+      <td colspan="3">[% P.project_picker("project_id", project_id, style="width: 250px") %]</td>
       <th align="right">[% 'Part Number' | $T8 %]</th>
       <td><input name="parts_partnumber" size="20"></td>
      </tr>

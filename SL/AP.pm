@@ -439,10 +439,7 @@ sub ap_transactions {
 
   my @values;
 
-  if ($form->{vendor_id}) {
-    $where .= " AND a.vendor_id = ?";
-    push(@values, $form->{vendor_id});
-  } elsif ($form->{vendor}) {
+  if ($form->{vendor}) {
     $where .= " AND v.name ILIKE ?";
     push(@values, like($form->{vendor}));
   }
