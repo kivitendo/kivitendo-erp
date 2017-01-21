@@ -113,6 +113,7 @@ sub create {
     FROM periodic_invoices pi
     LEFT JOIN periodic_invoices_configs pcfg ON (pi.config_id = pcfg.id)
     WHERE pcfg.active
+      AND NOT pcfg.periodicity = 'o'
       AND (pi.period_start_date >= to_date($q_min_date, 'YYYY-MM-DD'))
 SQL
 
@@ -138,6 +139,7 @@ SQL
     LEFT JOIN buchungsgruppen bg             ON (p.buchungsgruppen_id                     = bg.id)
     LEFT JOIN employee e                     ON (COALESCE(oe.salesman_id, oe.employee_id) = e.id)
     WHERE pcfg.active
+      AND NOT pcfg.periodicity = 'o'
 SQL
 
   # 3. Iterieren über Saldierungsintervalle, vormerken
@@ -180,7 +182,7 @@ SQL
     WHERE (oe.customer_id IS NOT NULL)
       AND NOT COALESCE(oe.quotation, FALSE)
       AND NOT COALESCE(oe.closed,    FALSE)
-      AND (oe.id NOT IN (SELECT oe_id FROM periodic_invoices_configs))
+      AND (oe.id NOT IN (SELECT oe_id FROM periodic_invoices_configs WHERE periodicity <> 'o'))
 SQL
 
   # 5. Initialisierung der Datenstrukturen zum Speichern der
