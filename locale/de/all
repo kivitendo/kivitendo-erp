@@ -3699,6 +3699,7 @@ $self->{texts} = {
   'oe.pl::search called with unknown type' => 'oe.pl::search mit unbekanntem Typ aufgerufen',
   'old'                         => 'alt',
   'on the same day'             => 'am selben Tag',
+  'one time'                    => 'einmalig',
   'one-time execution'          => 'einmalige Ausführung',
   'only OB Transactions'        => 'nur EB-Buchungen',
   'open'                        => 'Offen',
