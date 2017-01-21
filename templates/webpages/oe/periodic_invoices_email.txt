@@ -9,3 +9,15 @@ Davon wurden die folgenden Rechnungen automatisch ausgedruckt:
 
 [% FOREACH inv = PRINTED_INVOICES %][% inv.invnumber %] [% END %]
 [%- END %]
+
+[% IF EMAILED_INVOICES.size -%]
+Davon wurden die folgenden Rechnungen automatisch per E-Mail versand:
+
+[% FOREACH inv = EMAILED_INVOICES %][% inv.invnumber %] [% END %]
+[%- END %]
+
+[% IF DISABLED_ORDERS.size -%]
+Bei folgenden Auftragsnummern, wurde die Konfiguration auf inaktiv (Periodenwahl 'einmalig') gesetzt.
+
+[% FOREACH disabled_order = DISABLED_ORDERS %][% disabled_order %] [% END %]
+[%- END %]

@@ -23,7 +23,7 @@
     <tr>
      <th align="right" valign="top">[%- LxERP.t8('Billing Periodicity') %]</th>
      <td valign="top">
-      [% L.select_tag("periodicity", [ [ "m", LxERP.t8("monthly") ], [ "q", LxERP.t8("every third month") ], [ "b", LxERP.t8("semiannually") ], [ "y", LxERP.t8("yearly") ] ], default=periodicity, style=style) %]
+      [% L.select_tag("periodicity", [ [ "o", LxERP.t8("one time") ], [ "m", LxERP.t8("monthly") ], [ "q", LxERP.t8("every third month") ], [ "b", LxERP.t8("semiannually") ], [ "y", LxERP.t8("yearly") ] ], default=periodicity, style=style) %]
      </td>
     </tr>
 

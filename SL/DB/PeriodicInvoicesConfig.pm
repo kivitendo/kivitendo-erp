@@ -11,7 +11,7 @@ __PACKAGE__->meta->initialize;
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 
-our %PERIOD_LENGTHS             = ( m => 1, q => 3, b => 6, y => 12 );
+our %PERIOD_LENGTHS             = ( o => 0, m => 1, q => 3, b => 6, y => 12 );
 our %ORDER_VALUE_PERIOD_LENGTHS = ( %PERIOD_LENGTHS, 2 => 24, 3 => 36, 4 => 48, 5 => 60 );
 our @PERIODICITIES              = keys %PERIOD_LENGTHS;
 our @ORDER_VALUE_PERIODICITIES  = keys %ORDER_VALUE_PERIOD_LENGTHS;
@@ -128,6 +128,20 @@ sub is_last_bill_date_in_order_value_cycle {
   return $date_itr == $next_billing_date;
 }
 
+sub disable_one_time_config {
+  my $self = shift;
+
+  _log_msg("check one time for " . $self->id . "\n");
+
+  # A periodicity of one time was set. Deactivate this config now.
+  if ($self->periodicity eq 'o') {
+    _log_msg("setting inactive\n");
+    $self->active(0);
+    $self->save;
+    return $self->order->ordnumber;
+  }
+  return undef;
+}
 1;
 __END__
 
@@ -235,6 +249,12 @@ date given by the C<date> parameter plus the billing period length
 equals one of those dates then the given date is indeed the date of
 the last invoice in that particular order value cycle.
 
+=item C<sub disable_one_time_config>
+
+Sets the state of the periodic_invoices_configs to inactive
+(active => false) if the periodicity is <Co> (one time).
+Returns undef if the periodicity is not 'one time' otherwise the
+order number of the deactivated periodic order.
 =back
 
 =head1 BUGS

@@ -36,7 +36,7 @@ sub run {
     _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
   }
 
-  my (@new_invoices, @invoices_to_print, @invoices_to_email);
+  my (@new_invoices, @invoices_to_print, @invoices_to_email, @disabled_orders);
 
   _log_msg("Number of configs: " . scalar(@{ $configs}));
 
@@ -63,6 +63,9 @@ sub run {
 
       # last;
     }
+    # disable one time configs (periodicity is only one time).
+    my $inactive_ordnumber = $config->disable_one_time_config;
+    push @disabled_orders, $inactive_ordnumber if $inactive_ordnumber;
   }
 
   foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
@@ -72,6 +75,7 @@ sub run {
     [ map { $_->{invoice} } @new_invoices      ],
     [ map { $_->{invoice} } @invoices_to_print ],
     [ map { $_->{invoice} } @invoices_to_email ],
+                             \@disabled_orders  ,
   );
 
   if (@{ $self->{job_errors} }) {
@@ -275,8 +279,8 @@ sub _calculate_dates {
 }
 
 sub _send_summary_email {
-  my ($self, $posted_invoices, $printed_invoices, $emailed_invoices) = @_;
-
+  my ($self, $posted_invoices, $printed_invoices, $emailed_invoices,
+      $disabled_orders) = @_;
   my %config = %::lx_office_conf;
 
   return if !$config{periodic_invoices} || !$config{periodic_invoices}->{send_email_to} || !scalar @{ $posted_invoices };
@@ -298,7 +302,8 @@ sub _send_summary_email {
   my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/oe/periodic_invoices_email.txt" );
   my %params         = ( POSTED_INVOICES  => $posted_invoices,
                          PRINTED_INVOICES => $printed_invoices,
-                         EMAILED_INVOICES => $emailed_invoices );
+                         EMAILED_INVOICES => $emailed_invoices,
+                         DISABLED_ORDERS  => $disabled_orders );
 
   my $output;
   $template->process($filename, \%params, \$output);
