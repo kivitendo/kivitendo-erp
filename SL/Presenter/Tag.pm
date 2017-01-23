@@ -7,7 +7,7 @@ use SL::HTML::Restrict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag stringify_attributes restricted_html);
+our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag stringify_attributes restricted_html);
 
 use Carp;
 
@@ -30,6 +30,11 @@ sub _id {
 }
 }
 
+sub _J {
+  my $string = shift;
+  $string    =~ s/(\"|\'|\\)/\\$1/g;
+  return $string;
+}
 
 sub stringify_attributes {
   my ($self, %params) = @_;
@@ -219,6 +224,39 @@ sub checkbox_tag {
   return $code;
 }
 
+sub button_tag {
+  my ($self, $onclick, $value, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
+  $attributes{type} ||= 'button';
+
+  $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
+
+  return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
+}
+
+sub submit_tag {
+  my ($self, $name, $value, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
+
+  if ( $attributes{confirm} ) {
+    $attributes{onclick} = 'return confirm("'. _J(delete($attributes{confirm})) .'");';
+  }
+
+  return $self->input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
+}
+
+sub ajax_submit_tag {
+  my ($self, $url, $form_selector, $text, %attributes) = @_;
+
+  $url           = _J($url);
+  $form_selector = _J($form_selector);
+  my $onclick    = qq|kivi.submit_ajax_form('${url}', '${form_selector}')|;
+
+  return $self->button_tag($onclick, $text, %attributes);
+}
+
 sub javascript {
   my ($self, $data) = @_;
   return $self->html_tag('script', $data, type => 'text/javascript');
@@ -328,6 +366,36 @@ Returns HTML stripped of unknown tags. See L<SL::HTML::Restrict>.
 Creates a HTML 'input type=text' tag named C<$name> with the value
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<submit_tag $name, $value, %attributes>
+
+Creates a HTML 'input type=submit class=submit' tag named C<$name> with the
+value C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
+If C<$attributes{confirm}> is set then a JavaScript popup dialog will
+be added via the C<onclick> handler asking the question given with
+C<$attributes{confirm}>. The request is only submitted if the user
+clicks the dialog's ok/yes button.
+
+=item C<ajax_submit_tag $url, $form_selector, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with a very specific onclick
+handler that submits the form given by the jQuery selector
+C<$form_selector> to the URL C<$url> (the actual JavaScript function
+called for that is C<kivi.submit_ajax_form()> in
+C<js/client_js.js>). The button's label will be C<$text>.
+
+=item C<button_tag $onclick, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with an onclick handler
+C<$onclick> and a value of C<$text>. The button does not have a name
+nor an ID by default.
+
+If C<$attributes{confirm}> is set then a JavaScript popup dialog will
+be prepended to the C<$onclick> handler asking the question given with
+C<$attributes{confirm}>. The request is only submitted if the user
+clicks the dialog's "ok/yes" button.
 
 =item C<man_days_tag $name, $object, %attributes>
 
