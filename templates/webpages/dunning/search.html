@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
 [% PROCESS 'common/flash.html' %]
@@ -13,17 +13,7 @@
      <table>
       <tr>
        <th align="right">[% 'Customer' | $T8 %]</th>
-       <td colspan="3">
-        [% IF SHOW_CUSTOMER_DDBOX %]
-         <select id='customer' name="customer_id" class="initial_focus">
-          <option value=""></option>
-          [% FOREACH row = ALL_CUSTOMERS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %]</option>
-          [% END %]
-         </select>
-         [% ELSE %]
-         <input id='customer' name="customer" size="35" class="initial_focus">
-        [% END %]
-       </td>
+       <td colspan="3">[% P.input_tag("customer", "", size="35", class="initial_focus") %]</td>
       </tr>
 
       [% IF SHOW_DUNNING_LEVELS %]
@@ -39,7 +29,7 @@
        </tr>
       [% END %]
 
-      [% IF SHOW_DEPARTMENT_DDBOX %]
+      [% IF ALL_DEPARTMENTS.as_list.size %]
        <tr>
         <th align="right" nowrap>[% 'Department' | $T8 %]</th>
         <td colspan="3">

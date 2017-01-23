@@ -306,8 +306,6 @@ sub search {
 
   DN->get_config(\%myconfig, \%$form);
 
-  $form->{SHOW_CUSTOMER_DDBOX}   = scalar @{ $form->{ALL_CUSTOMERS} } <= $myconfig{vclimit};
-  $form->{SHOW_DEPARTMENT_DDBOX} = scalar @{ $form->{ALL_CUSTOMERS} };
   $form->{SHOW_DUNNING_LEVELS}   = scalar @{ $form->{DUNNING} };
 
   $form->{title}    = $locale->text('Dunnings');
