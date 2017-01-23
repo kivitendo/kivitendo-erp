@@ -1007,7 +1007,6 @@ $self->{texts} = {
   'Draft suggestions'           => 'Entwurfsvorschläge',
   'Drafts'                      => 'Entwürfe',
   'Drawing'                     => 'Zeichnung',
-  'Dropdown Limit'              => 'Auswahllistenbegrenzung',
   'Due'                         => 'Fällig',
   'Due Date'                    => 'Fälligkeitsdatum',
   'Due Date missing!'           => 'Fälligkeitsdatum fehlt!',

@@ -162,7 +162,6 @@ sub create_client_user_and_employee {
     signature                => '',
     hide_cvar_search_options => '',
     numberformat             => '1.000,00',
-    vclimit                  => 0,
     favorites                => '',
     copies                   => '',
     menustyle                => 'v3',
