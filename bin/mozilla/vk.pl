@@ -36,6 +36,7 @@ use POSIX qw(strftime);
 use List::Util qw(sum first);
 
 use SL::AM;
+use SL::DB::Employee;
 use SL::VK;
 use SL::IS;
 use SL::ReportGenerator;
@@ -57,18 +58,17 @@ sub search_invoice {
 
   my ($customer);
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
+  $::request->layout->add_javascripts("autocomplete_project.js");
 
   $form->{title}    = $locale->text('Sales Report');
 
-  $form->get_lists("projects"        => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"     => "ALL_DEPARTMENTS",
+  $form->get_lists("departments"     => "ALL_DEPARTMENTS",
                    "business_types"  => "ALL_BUSINESS_TYPES",
                    "salesmen"        => "ALL_SALESMEN",
-                   'employees'       => 'ALL_EMPLOYEES',
-                   'partsgroup'      => 'ALL_PARTSGROUPS',
-                   "customers"       => "ALL_VC");
+                   'partsgroup'      => 'ALL_PARTSGROUPS');
+
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted;
+
   $form->{CUSTOM_VARIABLES_IC}                  = CVar->get_configs('module' => 'IC');
   ($form->{CUSTOM_VARIABLES_FILTER_CODE_IC},
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE_IC}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES_IC},
@@ -80,10 +80,6 @@ sub search_invoice {
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE_CT}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES_CT},
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
-  $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
-  $form->{salesman_labels} = $form->{employee_labels};
-
   $form->header;
   print $form->parse_html_template('vk/search_invoice', { %myconfig });
 

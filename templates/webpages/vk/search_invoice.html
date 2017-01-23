@@ -1,5 +1,5 @@
-[%- USE T8 %]
-[%- USE L %]
+[%- USE T8 %][%- USE L %][%- USE P -%]
+[%- SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
 <form method=post name="search_invoice" action=[% script %]>
@@ -63,26 +63,10 @@
 
     <tr>
       <th align=right>[% 'Customer' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-          name          = 'customer',
-          default       = oldcustomer,
-          style         = 'width: 250px',
-          DATA          = ALL_VC,
-          id_sub        = 'vc_keys',
-          label_key     = 'name',
-          select        = vc_select,
-          limit         = vclimit,
-          show_empty    = 1,
-          allow_textbox = 1,
-          class         = 'initial_focus',
-        -%]
-      </td>
+      <td>[% P.input_tag("customer", "", class="initial_focus", style=style) %]</td>
 
       <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
-      <td>
-        <input name="customernumber" size="20">
-      </td>
+      <td>[% P.input_tag("customernumber", "", style=style) %]</td>
     </tr>
 
     <tr>
@@ -92,111 +76,49 @@
                          ALL_DEPARTMENTS,
                          title_key  = 'description',
                          with_empty = 1,
-                         style      = 'width: 250px')
+                         style      = style)
       -%]
       </td>
 
       <th align="right">[% 'Project Number' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-          name          =  'project_id',
-          style         = "width: 250px",
-          DATA          =  ALL_PROJECTS,
-          id_key        = 'id',
-          label_key     = 'projectnumber',
-          limit         = vclimit,
-          show_empty    = 1,
-          allow_textbox = 0,
-        -%]
-      </td>
+      <td>[% P.project_picker("project_id", "", style=style) %]</td>
     </tr>
 
     <tr>
       <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
-      <td><input name="partnumber" size="20"></td>
+      <td>[% P.input_tag("partnumber", "", style=style) %]</td>
     </tr>
 
     <tr>
       <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
-      <td>
-        <input name="description" size="40">
-      </td>
+      <td>[% P.input_tag("description", "", style=style) %]</td>
     </tr>
 
     <tr>
       <th align="right">[% 'Partsgroup' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-          name          = 'partsgroup_id',
-          style         = 'width: 250px',
-          DATA          =  ALL_PARTSGROUPS,
-          id_key        = 'id',
-          label_key     = 'partsgroup',
-          show_empty    = 1,
-          allow_textbox = 0,
-        -%]
-      </td>
-
+      <td>[% P.select_tag("partsgroupd_id", ALL_PARTSGROUPS, title_key="partsgroup", with_empty=1, style=style) %]</td>
       <td align="right" nowrap>[% 'Country' | $T8 %]</td>
-      <td><input name="country" size="20"></td>
+      <td>[% P.input_tag("country", "", style=style) %]</td>
     </tr>
 
     <tr>
       <th align="right">[% 'Employee' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-          name          = 'employee_id',
-          style         = 'width: 250px',
-          DATA          =  ALL_EMPLOYEES,
-          id_key        = 'id',
-          label_sub     = 'employee_labels',
-          limit         = vclimit,
-          show_empty    = 1,
-          allow_textbox = 0,
-          default       = ' ',
-        -%]
-      </td>
+      <td>[% L.select_tag("employee_id", ALL_EMPLOYEES, title_key="safe_name", with_empty=1, style=style) %]</td>
 
       <th align="right">[% 'Salesman' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-          name          = 'salesman_id',
-          style         = 'width: 250px',
-          DATA          =  ALL_SALESMEN,
-          id_key        = 'id',
-          label_sub     = 'salesman_labels',
-          limit         = vclimit,
-          show_empty    = 1,
-          allow_textbox = 0,
-        -%]
-      </td>
+      <td>[% L.select_tag("salesman_id", ALL_EMPLOYEES, title_key="safe_name", with_empty=1, style=style) %]</td>
     </tr>
 
     <tr>
       <th align="right">[% 'Customer type' | $T8 %]</th>
-      <td>
-        [%- INCLUDE 'generic/multibox.html'
-           name          =  'business_id',
-           style         = "width: 250px",
-           DATA          =  ALL_BUSINESS_TYPES,
-           id_key        = 'id',
-           label_key     = 'description',
-           limit         = vclimit,
-           show_empty    = 1,
-           allow_textbox = 0,
-        -%]
-      </td>
+      <td>[% L.select_tag("business_id", ALL_BUSINESS_TYPES, title_key="description", with_empty=1, style=style) %]</td>
     </tr>
 
     <tr>
       <th align=right nowrap>[% 'Invoice Date' | $T8 %] [% 'From' | $T8 %]</th>
       <td>
         [% L.date_tag('transdatefrom') %]
-      </td>
-
-      <th align=right>[% 'Bis' | $T8 %]</th>
-
-      <td>
+        [% 'Bis' | $T8 %]
         [% L.date_tag('transdateto') %]
       </td>
     </tr>
