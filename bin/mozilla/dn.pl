@@ -36,6 +36,7 @@ use POSIX qw(strftime);
 
 use SL::IS;
 use SL::DN;
+use SL::DB::Department;
 use SL::DB::Dunning;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
@@ -98,12 +99,8 @@ sub add {
 
   $main::auth->assert('dunning_edit');
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
-
   DN->get_config(\%myconfig, \%$form);
 
-  $form->{SHOW_CUSTOMER_SELECTION}      = $form->{all_customer}    && scalar @{ $form->{all_customer} };
   $form->{SHOW_DUNNING_LEVEL_SELECTION} = $form->{DUNNING}         && scalar @{ $form->{DUNNING} };
   $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{all_departments} && scalar @{ $form->{all_departments} || [] };
 
