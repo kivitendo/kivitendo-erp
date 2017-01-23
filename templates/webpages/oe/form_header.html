@@ -1,14 +1,12 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 
   <form method="post" name="oe" action="[% script %]">
 
     <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
-    <script type="text/javascript" src="js/vendor_selection.js"></script>
     <script type="text/javascript" src="js/calculate_qty.js"></script>
-    <script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
     <script type="text/javascript" src="js/follow_up.js"></script>
     [%- IF is_sales_ord %]
      [% L.javascript_tag("js/edit_periodic_invoices_config") %]
@@ -54,18 +52,10 @@
                   <tr>
                     <th align="right">[% IF vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
                     <td>
-                      [%- INCLUDE 'generic/multibox.html'
-                           name          = vc,
-                           style         = 'width: 250px',
-                           class         = 'initial_focus',
-                           DATA          = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
-                           id_sub        = 'vc_keys',
-                           label_key     = 'name',
-                           select        = vc_select,
-                           limit         = vclimit,
-                           allow_textbox = 1,
-                           onChange      = "document.getElementById('update_button').click();" -%]
-                      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+                     [%- SET vc_id = vc _ "_id" %]
+                     [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, style="width: 250px", class="initial_focus") %]
+                     [% P.button_tag("show_vc_details('" _ HTML.escape(vc) _  "')", LxERP.t8("Details (one letter abbreviation)")) %]
+                     [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
                     </td>
                   </tr>
 [%- IF ALL_CONTACTS.size %]
