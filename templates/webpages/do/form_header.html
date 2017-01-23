@@ -1,15 +1,13 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
 <h1>[% title %]</h1>
 
  <script type="text/javascript" src="js/show_form_details.js"></script>
  <script type="text/javascript" src="js/show_history.js"></script>
  <script type="text/javascript" src="js/show_vc_details.js"></script>
- <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
- <script type="text/javascript" src="js/vendor_selection.js"></script>
  <script type="text/javascript" src="js/calculate_qty.js"></script>
  <script type="text/javascript" src="js/stock_in_out.js"></script>
  <script type="text/javascript" src="js/follow_up.js"></script>
@@ -22,18 +20,12 @@
  </style>
 
  [%- IF vc == 'customer' %]
- [%- SET vc = 'customer' %]
- [%- SET the_vc_id = customer_id %]
- [%- SET the_vc = customer %]
- [%- SET the_oldvc = oldcustomer %]
  [%- SET is_customer = '1' %]
  [%- ELSE %]
  [%- SET vc = 'vendor' %]
- [%- SET the_vc_id = vendor_id %]
- [%- SET the_vc = vendor %]
- [%- SET the_oldvc = oldvendor %]
  [%- SET is_customer = '0' %]
  [%- END %]
+ [%- SET vc_id = vc _ "_id" %]
  [%- IF delivered %]
  [%- SET DISABLED = ' disabled' %]
  [%- END %]
@@ -120,22 +112,16 @@
      <td>
       <table width="100%">
        <tr>
-        <input type="hidden" name="[% vc %]_id" value="[% HTML.escape(the_vc_id) %]">
-        <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
-        <input type="hidden" name="tradediscount" value="[% HTML.escape(tradediscount) %]">
         <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
         <td>
-         [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]
-         <input type="text" value="[% HTML.escape(oldvcname) %]" name="[% HTML.escape(vc) %]"[% RO %]>
-         [%- ELSE %]
-         <select name="[% vc %]" class="fixed_width" onchange="document.do.update_button.click();"[% RO %]>
-          [%- FOREACH row = ALL_VC %]
-          <option value="[% HTML.escape(row.value) %]" [% IF the_oldvc == row.value %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-          [%- END %]
-         </select>
-         <input type="hidden" name="select[% vc %]" value="1">
-         [%- END %]
-         <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% vc %]')">
+         [% IF RO %]
+          [% P.hidden_tag(vc_id, $vc_id) %]
+          [% HTML.escape(VC_OBJ.name) %]
+         [% ELSE %]
+          [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, class="fixed_width") %]
+         [% END %]
+         [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
+         [% P.button_tag("show_vc_details('" _ HTML.escape(vc) _ "')", LxERP.t8("Details (one letter abbreviation)")) %]
         </td>
 
         [%- IF ALL_CONTACTS.size %]

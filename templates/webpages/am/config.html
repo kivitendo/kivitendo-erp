@@ -113,11 +113,6 @@
      </tr>
 
      <tr>
-      <th align="right">[% 'Dropdown Limit' | $T8 %]</th>
-      <td><input name="vclimit" size="10" value="[% HTML.escape(MYCONFIG.vclimit) %]"></td>
-     </tr>
-
-     <tr>
       <th align="right">[% 'Language' | $T8 %]</th>
       <td>
         [% L.select_tag('countrycode', COUNTRYCODES, value_key = 'value', title_key = 'name') %]

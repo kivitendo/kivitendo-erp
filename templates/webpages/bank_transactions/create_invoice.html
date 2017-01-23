@@ -1,4 +1,4 @@
-[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %]
+[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %][%- USE P -%]
 
   <b>Transaction</b>
   <table>
@@ -32,22 +32,7 @@
   <table>
    <tr>
     <th align="right">[%- LxERP.t8("Vendor") %]</th>
-    <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = 'vendor',
-                 select_name   = 'vendor_id',
-                 default       = ALL_VENDORS.size < limit ? vendor_id : vendor_name,
-                 style         = 'width: 250px',
-                 DATA          = ALL_VENDORS,
-                 id_key        = 'id',
-                 label_key     = 'name',
-                 limit         = limit,
-                 show_empty    = 1,
-                 allow_textbox = 1,
-                 class         = 'initial_focus',
-                 onChange      = 'filter_drafts();',
-                 -%]
-    </td>
+    <td>[% P.input_tag("vendor", vendor_name, class="initial_focus", style="width: 250px") %]</td>
    </tr>
   </table>
 </form>
@@ -98,4 +83,3 @@ function filter_drafts() {
 }
 //-->
 </script>
-

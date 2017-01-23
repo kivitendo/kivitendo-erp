@@ -9,22 +9,7 @@
 <table>
   <tr>
     <th align=right>[% 'Customer' | $T8 %]</th>
-    <td colspan=3>
-  [%- IF vc == 'customer' ? all_customer.size : all_vendor.size %]
-      [%- INCLUDE 'generic/multibox.html'
-           name          = vc,
-           DATA          = vc == 'customer' ? all_customer : all_vendor,
-           id_sub        = 'vc_keys',
-           label_sub     = 'vc_keys',
-           select        = vc_select,
-           limit         = vclimit,
-           show_empty    = 1,
-           allow_textbox = 1,
-      -%]
-  [%- ELSE %]
-    [% L.input_tag(vc, '', size=35) %]
-  [%- END %]
-</td>
+    <td colspan=3>[% L.input_tag(vc, '', size=35) %]</td>
   </tr>
 [% IF show_accounts %]
   <tr>
@@ -81,5 +66,3 @@
 [% L.submit_tag('action', LxERP.t8('Continue')) %]
 
 </form>
-
-

@@ -437,4 +437,6 @@ sub db {
   goto &SL::DB::Helper::Mappings::db;
 }
 
+sub continue { call_sub($::form->{nextsub}); }
+
 1;

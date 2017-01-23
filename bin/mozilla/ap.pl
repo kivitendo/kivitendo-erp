@@ -42,12 +42,12 @@ use SL::GL;
 use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
+use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -175,7 +175,6 @@ sub create_links {
   IR->get_vendor(\%myconfig, \%$form);
 
   $form->{$_}        = $saved{$_} for keys %saved;
-  $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
   $form->{rowcount}  = 1;
   $form->{AP_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AP} ? $form->{acc_trans}->{AP}->[0]->{chart_id} : $form->{AP_links}->{AP}->[0]->{chart_id};
 
@@ -185,17 +184,7 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->{selectcurrency} = "";
-  map { my $quoted = H($_); $form->{selectcurrency} .= "<option value=\"${quoted}\">${quoted}\n" } $form->get_all_currencies(\%myconfig);
-
-  # vendors
-  if (@{ $form->{all_vendor} || [] }) {
-    $form->{vendor} = qq|$form->{vendor}--$form->{vendor_id}|;
-    map { my $quoted = H($_->{name} . "--" . $_->{id}); $form->{selectvendor} .= "<option value=\"${quoted}\">${quoted}\n" }
-      (@{ $form->{all_vendor} });
-  }
-
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
@@ -239,7 +228,7 @@ sub form_header {
 
   $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
 
-  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'vendor' : 'row_' . $form->{rowcount};
+  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'vendor_id' : 'row_' . $form->{rowcount};
 
   $form->{title_} = $form->{title};
   $form->{title} = $form->{title} eq 'Add' ? $locale->text('Add Accounts Payables Transaction') : $locale->text('Edit Accounts Payables Transaction');
@@ -247,12 +236,6 @@ sub form_header {
   # type=submit $locale->text('Add Accounts Payables Transaction')
   # type=submit $locale->text('Edit Accounts Payables Transaction')
 
-  # set option selected
-  foreach my $item (qw(vendor currency)) {
-    my $to_replace         =  H($form->{$item});
-    $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~ s/>\Q${to_replace}\E/ selected>${to_replace}/;
-  }
   my $readonly = $form->{id} ? "readonly" : "";
 
   $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
@@ -324,11 +307,10 @@ sub form_header {
     $charts{$item->{accno}} = $item;
   }
 
-  my $follow_up_vc         =  $form->{vendor};
-  $follow_up_vc            =~ s/--.*?//;
+  my $follow_up_vc         = $form->{vendor_id} ? SL::DB::Vendor->load_cached($form->{vendor_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
 
@@ -427,6 +409,7 @@ sub form_header {
 
   print $form->parse_html_template('ap/form_header', {
     today => DateTime->today,
+    currencies => SL::DB::Manager::Currency->get_all_sorted,
   });
 
   $main::lxdebug->leave_sub();
@@ -525,7 +508,9 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  my $vendor_changed = &check_name("vendor");
+  if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
+    IR->get_vendor(\%::myconfig, $form);
+  }
 
   $form->{rowcount} = $count + 1;
 
@@ -628,7 +613,7 @@ sub post {
   # check if there is a vendor, invoice, due date and invnumber
   $form->isblank("transdate", $locale->text("Invoice Date missing!"));
   $form->isblank("duedate",   $locale->text("Due Date missing!"));
-  $form->isblank("vendor",    $locale->text('Vendor missing!'));
+  $form->isblank("vendor_id", $locale->text('Vendor missing!'));
   $form->isblank("invnumber", $locale->text('Invoice Number missing!'));
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {
@@ -683,8 +668,7 @@ sub post {
   }
 
   # if old vendor ne vendor redo form
-  my ($vendor) = split /--/, $form->{vendor};
-  if ($form->{oldvendor} ne "$vendor--$form->{vendor_id}") {
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     &update;
     $::dispatcher->end_request;
   }
@@ -831,17 +815,15 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "vendor", "AP");
-
   $form->{title}    = $locale->text('AP Transactions');
 
-  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "vendors"      => "ALL_VC");
+  $form->get_lists(projects => { "key" => "ALL_PROJECTS", "all" => 1 });
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
+
+  $::request->layout->add_javascripts("autocomplete_project.js");
 
   $form->header;
   print $form->parse_html_template('ap/search', { %myconfig });
@@ -878,8 +860,6 @@ sub ap_transactions {
   my $locale   = $main::locale;
 
   $main::auth->assert('vendor_invoice_edit');
-
-  ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
 
   report_generator_set_default_sort('transdate', 1);
 

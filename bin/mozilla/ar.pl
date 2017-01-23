@@ -40,7 +40,10 @@ use SL::AR;
 use SL::FU;
 use SL::GL;
 use SL::IS;
+use SL::DB::Business;
+use SL::DB::Currency;
 use SL::DB::Default;
+use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::ReportGenerator;
 
@@ -172,33 +175,13 @@ sub create_links {
   IS->get_customer(\%myconfig, \%$form);
 
   $form->{$_}          = $saved{$_} for keys %saved;
-  $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
   $form->{AR_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AR} ? $form->{acc_trans}->{AR}->[0]->{chart_id} : $form->{AR_links}->{AR}->[0]->{chart_id};
 
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->{selectcurrency} = "";
-  map { $form->{selectcurrency} .= "<option>$_\n" } $form->get_all_currencies(\%myconfig);
-
-  # customers
-  if (@{ $form->{all_customer} || [] }) {
-    $form->{customer} = "$form->{customer}--$form->{customer_id}";
-    map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_customer} });
-  }
-
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-
-  $form->{employee} = "$form->{employee}--$form->{employee_id}";
-
-  # sales staff
-  if (@{ $form->{all_employees} || [] }) {
-    $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_employees} || [] });
-  }
 
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
@@ -225,9 +208,9 @@ sub form_header {
   $form->{invoice_obj} = _retrieve_invoice_object();
 
   my ($title, $readonly, $exchangerate, $rows);
-  my ($notes, $customer, $employee, $amount, $project);
+  my ($notes, $amount, $project);
 
-  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer' : 'row_' . $form->{rowcount};
+  $form->{initial_focus} = !($form->{amount_1} * 1) ? 'customer_id' : 'row_' . $form->{rowcount};
 
   $title = $form->{title};
   # $locale->text('Add Accounts Receivables Transaction')
@@ -240,12 +223,6 @@ sub form_header {
                       ? ($form->current_date(\%myconfig) eq $form->{gldate})
                       : ($::instance_conf->get_ar_changeable == 1);
   $readonly = ($form->{radier}) ? "" : $readonly;
-
-  # set option selected
-  foreach my $item (qw(customer currency employee)) {
-    $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
-  }
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
@@ -284,11 +261,10 @@ sub form_header {
     }
   }
 
-  my $follow_up_vc         =  $form->{customer};
-  $follow_up_vc            =~ s/--.*?//;
+  my $follow_up_vc         = $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
 
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
@@ -388,6 +364,16 @@ sub form_header {
 
   $form->{totalpaid} = sum map { $_->{paid} } @payments;
 
+  my $employees = SL::DB::Manager::Employee->get_all_sorted(
+    where => [
+      or => [
+        (id     => $::form->{employee_id}) x !!$::form->{employee_id},
+        deleted => undef,
+        deleted => 0,
+      ],
+    ],
+  );
+
   $form->header;
   print $::form->parse_html_template('ar/form_header', {
     paid_missing         => $::form->{invtotal} - $::form->{totalpaid},
@@ -400,6 +386,8 @@ sub form_header {
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
     today                => DateTime->today,
+    currencies           => scalar(SL::DB::Manager::Currency->get_all_sorted),
+    employees            => $employees,
   });
 
   $main::lxdebug->leave_sub();
@@ -504,7 +492,9 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  &check_name("customer");
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
+    IS->get_customer(\%myconfig, $form);
+  }
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
@@ -616,7 +606,7 @@ sub post {
   # check if there is an invoice number, invoice and due date
   $form->isblank("transdate", $locale->text('Invoice Date missing!'));
   $form->isblank("duedate",   $locale->text('Due Date missing!'));
-  $form->isblank("customer",  $locale->text('Customer missing!'));
+  $form->isblank("customer_id", $locale->text('Customer missing!'));
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
@@ -662,8 +652,7 @@ sub post {
   }
 
   # if oldcustomer ne customer redo form
-  my ($customer) = split /--/, $form->{customer};
-  if ($form->{oldcustomer} ne "$customer--$form->{customer_id}") {
+  if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     update();
     $::dispatcher->end_request;
   }
@@ -801,18 +790,11 @@ sub search {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
-
   $form->{title}    = $locale->text('AR Transactions');
 
-  # Auch in Rechnungsübersicht nach Kundentyp filtern - jan
-  $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "customers"      => "ALL_VC",
-                   "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-  $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
+  $form->{ALL_BUSINESS_TYPES} = SL::DB::Manager::Business->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -822,6 +804,8 @@ sub search {
 
   # constants and subs for template
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
+
+  $::request->layout->add_javascripts("autocomplete_project.js");
 
   $form->header;
   print $form->parse_html_template('ar/search', { %myconfig });
@@ -860,8 +844,6 @@ sub ar_transactions {
   my $locale   = $main::locale;
 
   my ($callback, $href, @columns);
-
-  ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer});
 
   report_generator_set_default_sort('transdate', 1);
 

@@ -6616,8 +6616,7 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
 
             <listitem>
-              <para>Enthält unter anderem Listenbegrenzung vclimit,
-              Datumsformat dateformat und Nummernformat numberformat</para>
+              <para>Enthält unter anderem Datumsformat dateformat und Nummernformat numberformat</para>
             </listitem>
 
             <listitem>

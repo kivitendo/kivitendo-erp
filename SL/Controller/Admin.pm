@@ -115,7 +115,6 @@ sub action_new_user {
   my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
   $self->user(SL::DB::AuthUser->new(
     config_values => {
-      vclimit      => 200,
       countrycode  => $defaults->language('de'),
       numberformat => $defaults->numberformat('1.000,00'),
       dateformat   => $defaults->dateformat('dd.mm.yy'),

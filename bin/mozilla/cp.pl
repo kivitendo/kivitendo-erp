@@ -41,7 +41,6 @@ use Data::Dumper;
 use strict;
 #use warnings;
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 our ($form, %myconfig, $lxdebug, $locale, $auth);
@@ -60,27 +59,6 @@ sub payment {
   $form->{ARAP} = ($form->{type} eq 'receipt') ? "AR" : "AP";
   $form->{arap} = lc $form->{ARAP};
 
-  # setup customer/vendor selection for open invoices
-  if ($form->{all_vc}) {
-    # Dieser Zweig funktioniert derzeit NIE. Ggf. ganz raus oder
-    # alle offenen Zahlungen wieder korrekt anzeigen. jb 12.10.2010
-    $form->all_vc(\%myconfig, $form->{vc}, $form->{ARAP});
-  } else {
-    CP->get_openvc(\%myconfig, \%$form);
-  }
-  # Auswahlliste für vc zusammenbauen
-  # Erweiterung für schliessende option und erweiterung um value
-  # für bugfix 1771 (doppelte Leerzeichen werden nicht 'gepostet')
-  $form->{"select$form->{vc}"} = "";
-
-  if ($form->{"all_$form->{vc}"}) {
-    $form->{"select$form->{vc}"} .= "<option value=\"\"></option>\n";
-    # s.o. jb 12.10.2010
-    $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
-    # hotfix for 2450. TODO remove legacy code and use L
-    map { $form->{"select$form->{vc}"} .= "<option value=\"" . H($_->{name}) . "--$_->{id}\">" . H($_->{name}) . "--$_->{id}</option>\n" }
-      @{ $form->{"all_$form->{vc}"} };
-  }
   CP->paymentaccounts(\%myconfig, \%$form);
 
   # Standard Konto für Umlaufvermögen
@@ -94,13 +72,6 @@ sub payment {
 
   map { $form->{selectaccount} .= "<option value=\"$_->{accno}--$_->{description}\">$_->{accno}--$_->{description}</option>\n";
         $form->{account}        = "$_->{accno}--$_->{description}" if ($_->{accno} eq $accno_arap) } @{ $form->{PR}{"$form->{ARAP}_paid"} };
-
-  # Braucht man das hier überhaupt? Erstmal auskommentieren .. jan 18.12.2010
-  #  map {
-  #    $form->{"select$form->{ARAP}"} .=
-  #      "<option>$_->{accno}--$_->{description}\n"
-  #  } @{ $form->{PR}{ $form->{ARAP} } };
-  # ENDE LOESCHMICH in 2012
 
   # currencies
   # oldcurrency ist zwar noch hier als fragment enthalten, wird aber bei
@@ -131,35 +102,26 @@ sub form_header {
 
   $auth->assert('cash');
 
-  my ($vc, $arap, $exchangerate);
+  $::request->layout->add_javascripts("autocomplete_customer.js");
 
-  if ($form->{ $form->{vc} } eq "") {
+  my ($arap, $exchangerate);
+
+  if (!$form->{ $form->{vc} . '_id' }) {
     map { $form->{"addr$_"} = "" } (1 .. 4);
   }
 
-  # sometimes it happens that values in customer arrive without the signs '--'
-  # but in order to select the right option field we need values with '--'
-  if ($form->{vc} eq "customer" && $form->{"all_$form->{vc}"}){
-    my ($customername) = split /--/, $form->{ $form->{vc} };
-    $form->{ $form->{vc} } = $customername . "--" . $form->{customer_id};
-  }
   # bugfix 1771
   # geändert von <option>asdf--2929
   # nach:
   #              <option value="asdf--2929">asdf--2929</option>
   # offen: $form->{ARAP} kann raus?
-  for my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
+  for my $item ("account", "currency", $form->{ARAP}) {
     $form->{$item} = H($form->{$item});
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option value="\Q$form->{$item}\E">\Q$form->{$item}\E/option selected value="$form->{$item}">$form->{$item}/;
   }
 
-  $vc =
-    ($form->{"select$form->{vc}"})
-    ? qq|<select name=$form->{vc}>$form->{"select$form->{vc}"}\n</select>|
-    : qq|<input name=$form->{vc} size=35 value="$form->{$form->{vc}}">|;
-
-  $form->{openinvoices} = $form->{all_vc} ? "" : 1;
+  $form->{openinvoices} = 1;
 
   # $locale->text('AR')
   # $locale->text('AP')
@@ -172,7 +134,6 @@ sub form_header {
     is_customer => $form->{vc}   eq 'customer',
     is_receipt  => $form->{type} eq 'receipt',
     arap        => $arap,
-    vccontent   => $vc,
   });
 
   $lxdebug->leave_sub;
@@ -211,67 +172,12 @@ sub update {
 
   $auth->assert('cash');
 
-  my ($new_name_selected) = @_;
-
-  my ($buysell, $newvc, $updated, $exchangerate, $amount);
+  my ($buysell, $updated, $exchangerate, $amount);
 
   if ($form->{vc} eq 'customer') {
     $buysell = "buy";
   } else {
     $buysell = "sell";
-  }
-
-  # if we switched to all_vc
-  # funktioniert derzeit nicht 12.10.2010 jb
-  if ($form->{all_vc} ne $form->{oldall_vc}) {
-
-    $form->{openinvoices} = ($form->{all_vc}) ? 0 : 1;
-
-    $form->{"select$form->{vc}"} = "";
-
-    if ($form->{all_vc}) {
-      $form->all_vc(\%myconfig, $form->{vc}, $form->{ARAP});
-
-      if ($form->{"all_$form->{vc}"}) {
-        map {
-          $form->{"select$form->{vc}"} .=
-            "<option>$_->{name}--$_->{id}\n"
-        } @{ $form->{"all_$form->{vc}"} };
-      }
-    } else {  # ab hier wieder ausgeführter code (s.o.):
-      CP->get_openvc(\%myconfig, \%$form);
-
-      if ($form->{"all_$form->{vc}"}) {
-        $newvc =
-          qq|$form->{"all_$form->{vc}"}[0]->{name}--$form->{"all_$form->{vc}"}[0]->{id}|;
-        map {
-          $form->{"select$form->{vc}"} .=
-            "<option>$_->{name}--$_->{id}\n"
-        } @{ $form->{"all_$form->{vc}"} };
-      }
-
-      # if the name is not the same
-      if ($form->{"select$form->{vc}"} !~ /$form->{$form->{vc}}/) {
-        $form->{ $form->{vc} } = $newvc;
-      }
-    }
-  }
-
-  # search by customernumber
-  # the customernumber has to be correct otherwise nothing is found
-  if ($form->{vc} eq 'customer' and $form->{customernumber} and $form->{ARAP} eq 'AR') {
-    $form->{open} ='Y'; # only open invoices
-    # ar_transactions automatically searches by $form->{customer_id} or else
-    # $form->{customer} if available, and these variables will always be set
-    # so we have to empty these values first
-    $form->{customer_id} = '';
-    $form->{customer} = '';
-    AR->ar_transactions(\%myconfig, \%$form);
-
-    # Here we just take the first returned value even if the custumernumber
-    # may not be unique
-    $form->{customer} = $form->{AR}[0]{name};
-    $form->{customer_id} = $form->{AR}[0]{customer_id};
   }
 
   # search by invoicenumber,
@@ -296,51 +202,32 @@ sub update {
       foreach my $i ( @{ $form->{AR} } ) {
         next unless $i->{invnumber} eq $form->{invnumber};
         # found exactly matching invnumber
-        $form->{$form->{vc}} = $i->{name};
         $form->{customer_id} = $i->{customer_id};
-        #$form->{"old${form->{vc}"} = $i->{customer_id};
         $found_exact_invnumber_match = 1;
       };
 
       unless ( $found_exact_invnumber_match ) {
         # use first returned entry, may not be the correct one if invnumber doesn't
         # match uniquely
-        $form->{$form->{vc}} = $form->{AR}[0]{name};
         $form->{customer_id} = $form->{AR}[0]{customer_id};
       };
     } else {
       # s.o. nur für zahlungsausgang
       AP->ap_transactions(\%myconfig, \%$form);
-      $form->{$form->{vc}} = $form->{AP}[0]{name};
+      $form->{vendor_id} = $form->{AP}[0]{vendor_id};
     }
   }
 
   # determine customer/vendor
-  if ( $form->{customer_id} and ($form->{invnumber} or $form->{customernumber}) ) {
-    # we already know the exact customer_id, so fill $form with customer data
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     IS->get_customer(\%myconfig, \%$form);
-    $updated = 1;
-  } else {
-    # check_name is called with "customer" or "vendor" and otherwise uses contents of $form
-    # check_name also runs get_customer/get_vendor
-    $updated = &check_name($form->{vc});
-  };
-
-  if ($new_name_selected || $updated) {
-    # get open invoices from ar/ap using $form->{vc} and a.${vc}_id, i.e. customer_id
-    CP->get_openinvoices(\%myconfig, \%$form);
-    ($newvc) = split /--/, $form->{ $form->{vc} };
-    $form->{"old$form->{vc}"} = qq|$newvc--$form->{"$form->{vc}_id"}|;
-    $updated = 1;
   }
 
-  if ($form->{currency} ne $form->{oldcurrency}) {
-    $form->{oldcurrency} = $form->{currency};
-    if (!$updated) {
-      CP->get_openinvoices(\%myconfig, \%$form);
-      $updated = 1;
-    }
-  }
+  $form->{oldcurrency} = $form->{currency};
+
+  # get open invoices from ar/ap using a.${vc}_id, i.e. customer_id
+  CP->get_openinvoices(\%myconfig, \%$form) if $form->{"${vc}_id"};
 
   if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
     $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate});
@@ -350,7 +237,7 @@ sub update {
 
   $amount = $form->{amount} = $form->parse_amount(\%myconfig, $form->{amount});
 
-  if ($updated) {
+  if ($form->{"${vc}_id"}) {
     $form->{rowcount} = 0;
 
     $form->{queued} = "";
@@ -415,7 +302,7 @@ sub update {
   $form->{amount}=$amount;
 
   &form_header;
-  &list_invoices;
+  list_invoices() if $form->{"${vc}_id"};
   &form_footer;
 
   $lxdebug->leave_sub();
@@ -456,7 +343,11 @@ sub check_form {
 
   my ($closedto, $datepaid, $amount);
 
-  &check_name($form->{vc});
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+  }
 
   if ($form->{currency} ne $form->{oldcurrency}) {
     &update;

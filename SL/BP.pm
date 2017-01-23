@@ -40,54 +40,6 @@ use SL::DB;
 
 use strict;
 
-sub get_vc {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my %arap = (invoice           => 'ar',
-              sales_order       => 'oe',
-              purchase_order    => 'oe',
-              sales_quotation   => 'oe',
-              request_quotation => 'oe',
-              check             => 'ap',
-              receipt           => 'ar');
-
-  my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
-  my $arap_type = defined($arap{$form->{type}}) ? $arap{$form->{type}} : 'ar';
-
-  my $query =
-    qq|SELECT count(*) | .
-    qq|FROM (SELECT DISTINCT ON (vc.id) vc.id FROM $vc vc, $arap_type a, status s | .
-    qq|  WHERE a.${vc}_id = vc.id  AND s.trans_id = a.id AND s.formname = ? | .
-    qq|    AND s.spoolfile IS NOT NULL) AS total|;
-
-  my ($count) = selectrow_query($form, $dbh, $query, $form->{type});
-
-  # build selection list
-  if ($count < $myconfig->{vclimit}) {
-    $query =
-      qq|SELECT DISTINCT ON (vc.id) vc.id, vc.name | .
-      qq|FROM $vc vc, $arap_type a, status s | .
-      qq|WHERE a.${vc}_id = vc.id AND s.trans_id = a.id AND s.formname = ? | .
-      qq|  AND s.spoolfile IS NOT NULL|;
-
-    my $sth = $dbh->prepare($query);
-    $sth->execute($form->{type}) || $form->dberror($query . " ($form->{type})");
-
-    $form->{"all_${vc}"} = [];
-    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-      push @{ $form->{"all_${vc}"} }, $ref;
-    }
-    $sth->finish;
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 sub payment_accounts {
   $main::lxdebug->enter_sub();
 
@@ -312,4 +264,3 @@ sub print_spool {
 }
 
 1;
-

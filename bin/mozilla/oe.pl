@@ -52,8 +52,8 @@ use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
 
+require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 use strict;
@@ -241,9 +241,6 @@ sub order_links {
 
   check_oe_access();
 
-  # get customer/vendor
-  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
-
   # retrieve order/quotation
   my $editing = $form->{id};
 
@@ -255,8 +252,6 @@ sub order_links {
   $form->error($locale->text('Collective Orders only work for orders from one customer!'))
     if          $form->{rowcount}  && $form->{type}     eq 'sales_order'
      && defined $form->{customer}  && $form->{customer} eq '';
-
-  $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id delivery_term_id currency));
 
@@ -270,18 +265,6 @@ sub order_links {
   $form->restore_vars(qw(salesman_id)) if $editing;
   $form->{forex}       = $form->{exchangerate};
   $form->{employee}    = "$form->{employee}--$form->{employee_id}";
-
-  # build vendor/customer drop down comatibility... don't ask
-  if (@{ $form->{"all_$form->{vc}"} || [] }) {
-    $form->{"select$form->{vc}"} = 1;
-    $form->{$form->{vc}}         = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-  }
-
-  $form->{"old$form->{vc}"}  = $form->{$form->{vc}};
-
-  if ($form->{"old$form->{vc}"} !~ m/--\d+$/ && $form->{"$form->{vc}_id"}) {
-    $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}|
-  }
 
   $main::lxdebug->leave_sub();
 }
@@ -354,8 +337,6 @@ sub form_header {
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
-                   $vc             => { key   => "ALL_" . uc($vc),
-                                        limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
   $form->{ALL_PAYMENTS} = SL::DB::Manager::PaymentTerm->get_all( where => [ or => [ obsolete => 0, id => $form->{payment_id} || undef ] ]);
 
@@ -399,23 +380,9 @@ sub form_header {
   ]);
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
 
-  # vendor/customer
-  $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $TMPL_VAR{vclimit} = $myconfig{vclimit};
-  $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('$form->{vc}', '', @{[ $form->{vc} eq 'vendor' ? 1 : 0 ]}, 0)";
-  push @custom_hiddens, "$form->{vc}_id";
-  push @custom_hiddens, "old$form->{vc}";
-  push @custom_hiddens, "select$form->{vc}";
-
   # currencies and exchangerate
-  my @values = map { $_ } @{ $form->{ALL_CURRENCIES} };
-  my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
-  $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                                                      '-values' => \@values, '-labels' => \%labels,
-                                                      '-onchange' => "document.getElementById('update_button').click();"
-                                     )) if scalar @values;
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
@@ -604,7 +571,13 @@ sub update {
 
   $form->{update} = 1;
 
-  &check_name($form->{vc});
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
+
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+  }
 
   if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
@@ -774,9 +747,7 @@ sub search {
   }
 
   # setup vendor / customer data
-  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "$form->{vc}s" => "ALL_VC",
                    "taxzones"     => "ALL_TAXZONES",
                    "business_types" => "ALL_BUSINESS_TYPES",);
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
@@ -792,6 +763,8 @@ sub search {
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $form->{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(autocomplete_project));
 
   $form->header();
 
@@ -1180,7 +1153,7 @@ sub save_and_close {
   $form->{$idx} =~ s/\s*$//g;
 
   my $msg = ucfirst $form->{vc};
-  $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
+  $form->isblank($form->{vc} . '_id', $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
   # $locale->text('Vendor missing!');
@@ -1190,17 +1163,14 @@ sub save_and_close {
 
   &validate_items;
 
-  my $payment_id;
-  if($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-  # if the name changed get new values
-  if (&check_name($form->{vc})) {
-    if($form->{payment_id} eq "") {
-      $form->{payment_id} = $payment_id;
-    }
-    &update;
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+
+    update();
     $::dispatcher->end_request;
   }
 
@@ -1287,7 +1257,7 @@ sub save {
   $form->{$idx} =~ s/\s*$//g;
 
   my $msg = ucfirst $form->{vc};
-  $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
+  $form->isblank($form->{vc} . '_id', $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
   # $locale->text('Vendor missing!');
@@ -1298,17 +1268,14 @@ sub save {
   remove_emptied_rows();
   &validate_items;
 
-  my $payment_id;
-  if($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-  # if the name changed get new values
-  if (&check_name($form->{vc})) {
-    if($form->{payment_id} eq "") {
-      $form->{payment_id} = $payment_id;
-    }
-    &update;
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+
+    update();
     $::dispatcher->end_request;
   }
 
@@ -1451,15 +1418,14 @@ sub invoice {
     $form->{quodate}      = $form->{transdate};
   }
 
-  my $payment_id;
-  if ($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
 
-  # if the name changed get new values
-  if (&check_name($form->{vc})) {
-    $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
-    &update;
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+
+    update();
     $::dispatcher->end_request;
   }
 
@@ -1524,8 +1490,6 @@ sub invoice {
   $locale = $main::locale;
 
   require "bin/mozilla/$form->{script}";
-
-  map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
   my $currency = $form->{currency};
   &invoice_links;

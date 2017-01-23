@@ -45,7 +45,6 @@ use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::WH;
 use Sort::Naturally ();
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -172,9 +171,6 @@ sub order_links {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  # get customer/vendor
-  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
-
   # retrieve order/quotation
   my $editing = $form->{id};
 
@@ -196,17 +192,6 @@ sub order_links {
   $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
-
-  if ($form->{"all_$form->{vc}"}) {
-    unless ($form->{"$form->{vc}_id"}) {
-      $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
-    }
-  }
-
-  ($form->{ $form->{vc} })  = split /--/, $form->{ $form->{vc} };
-  $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-
-  $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
   $main::lxdebug->leave_sub();
 }
@@ -259,12 +244,14 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
+  my $class       = "SL::DB::" . ($form->{vc} eq 'customer' ? 'Customer' : 'Vendor');
+  $form->{VC_OBJ} = $class->load_cached($form->{ $form->{vc} . '_id' });
+
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists($vc              => "ALL_VC",
-                   "price_factors"  => "ALL_PRICE_FACTORS",
+  $form->get_lists("price_factors"  => "ALL_PRICE_FACTORS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
@@ -302,13 +289,6 @@ sub form_header {
     ]
   ]);
 
-  map { $_->{value} = "$_->{name}--$_->{id}"        } @{ $form->{ALL_VC} };
-
-  $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
-
-  $form->{oldvcname}         =  $form->{"old$form->{vc}"};
-  $form->{oldvcname}         =~ s/--.*//;
-
   my $dispatch_to_popup = '';
   if ($form->{resubmit} && ($form->{format} eq "html")) {
     $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
@@ -320,10 +300,7 @@ sub form_header {
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
 
 
-  my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
-  $follow_up_vc                   =~ s/--\d*\s*$//;
-
-  $form->{follow_up_trans_info} = $form->{donumber} .'('. $follow_up_vc .')';
+  $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')';
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_part));
 
@@ -383,7 +360,14 @@ sub update_delivery_order {
   my $payment_id;
   $payment_id = $form->{payment_id} if $form->{payment_id};
 
-  check_name($form->{vc});
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
+
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+  }
+
   $form->{discount} =  $form->{"$form->{vc}_discount"} if defined $form->{"$form->{vc}_discount"};
   # Problem: Wenn man ohne Erneuern einen Kunden/Lieferanten
   # wechselt, wird der entsprechende Kunden/ Lieferantenrabatt
@@ -501,11 +485,9 @@ sub search {
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
-                   "$form->{vc}s"   => "ALL_VC",
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-  $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{title}             = $locale->text('Delivery Orders');
 
   $form->header();
@@ -727,7 +709,7 @@ sub save {
   $form->{donumber} =~ s/\s*$//g;
 
   my $msg = ucfirst $form->{vc};
-  $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
+  $form->isblank($form->{vc} . "_id", $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
   # $locale->text('Vendor missing!');
@@ -736,7 +718,13 @@ sub save {
   validate_items();
 
   # if the name changed get new values
-  if (check_name($form->{vc})) {
+  my $vc = $form->{vc};
+  if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
+    $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
+
+    IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
+    IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
+
     update();
     $::dispatcher->end_request;
   }
@@ -1830,7 +1818,6 @@ __END__
 =head1 NAME
 
 do.pl - Script for all calls to delivery order
-
 
 =head1 FUNCTIONS
 

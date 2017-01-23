@@ -42,16 +42,11 @@
               <tr>
                 <th align="right" nowrap>[% 'Customer' | $T8 %]</th>
                 <td colspan=3>
-[%- IF selectcustomer %]
-    <select id='customer' name="customer" onchange="document.getElementById('update_button').click();"[% IF initial_focus == 'customer'%] class="initial_focus"[% END %]>[% selectcustomer %]</select>
-[%- ELSE %]
-    <input id='customer' name=customer value="[% customer | html %]" size=35[% IF initial_focus == 'customer'%] class="initial_focus"[% END %]>
-[%- END %]
-                <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')"></td>
-                [% L.hidden_tag('selectcustomer', selectcustomer) %]
-                [% L.hidden_tag('oldcustomer', oldcustomer) %]
-                [% L.hidden_tag('customer_id', customer_id) %]
-                [% L.hidden_tag('terms', terms) %]
+                 [% P.customer_vendor_picker("customer_id", customer_id, type="customer", style="width: 300px", class=(initial_focus == 'customer_id' ? "initial_focus" : "")) %]
+                 [% L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)')) %]
+                 [% L.hidden_tag("previous_customer_id", customer_id) %]
+                 [% L.hidden_tag('terms', terms) %]
+               </td>
               </tr>
 [%- IF max_dunning_level || invoice_obj.dunning_config_id  %]
               <tr>
@@ -92,8 +87,7 @@
 [%- END %]
               <tr>
                 <th align=right>[% 'Currency' | $T8 %]</th>
-                <td><select name=currency>[% selectcurrency %]</select></td>
-                [% L.hidden_tag('selectcurrency', selectcurrency) %]
+                <td>[% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name") %]</td>
                 [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
                 [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
                 [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
@@ -122,14 +116,10 @@
           </td>
           <td align=right>
             <table>
-[%- IF selectemployee %]
               <tr>
                 <th align=right nowrap>[% 'Salesperson' | $T8 %]</th>
-                <td  colspan=2><select name=employee>[% selectemployee %]</select>[% L.hidden_tag('selectemployee', selectemployee) %]</td>
+                <td  colspan=2>[% P.select_tag("employee_id", employees, default=employee_id, title_key='safe_name') %]</td>
               </tr>
-[%- ELSE %]
-                [% L.hidden_tag('employee', employee) %]
-[%- END %]
               <tr>
                 <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
                 <td><input name=invnumber size=11 value="[% invnumber | html %]"></td>

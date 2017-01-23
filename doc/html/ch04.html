@@ -113,8 +113,7 @@
 }</pre></div><div class="sect3" title="4.1.3.2. %::myconfig"><div class="titlepage"><div><div><h4 class="title"><a name="d0e6540"></a>4.1.3.2. %::myconfig</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Das einzige Hash unter den globalen Variablen</p></li><li class="listitem"><p>Wird spätestens benötigt wenn auf die Datenbank
               zugegriffen wird</p></li><li class="listitem"><p>Wird bei jedem Request neu erstellt.</p></li><li class="listitem"><p>Enthält die Userdaten des aktuellen Logins</p></li><li class="listitem"><p>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
               extern serialisiert werden, weil da auch der Datenbankzugriff
-              für diesen user drinsteht.</p></li><li class="listitem"><p>Enthält unter anderem Listenbegrenzung vclimit,
-              Datumsformat dateformat und Nummernformat numberformat</p></li><li class="listitem"><p>Enthält Datenbankzugriffinformationen</p></li></ul></div><p>
+              für diesen user drinsteht.</p></li><li class="listitem"><p>Enthält unter anderem Datumsformat dateformat und Nummernformat numberformat</p></li><li class="listitem"><p>Enthält Datenbankzugriffinformationen</p></li></ul></div><p>
                   <code class="varname">%::myconfig</code> ist im Moment der Ersatz für
           ein Userobjekt. Die meisten Funktionen, die etwas anhand des
           aktuellen Users entscheiden müssen, befragen

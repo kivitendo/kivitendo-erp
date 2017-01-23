@@ -1,14 +1,12 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-[%- USE L %]
-[%- SET follow_up_trans_info = invnumber _ ' (' _ customer_name _ ')' %]
+[%- USE L %][%- USE P -%]
+[%- SET follow_up_trans_info = invnumber _ ' (' _ customer_obj.name _ ')' %]
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
-<script type="text/javascript" src="js/vendor_selection.js"></script>
 <script type="text/javascript" src="js/calculate_qty.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
-<script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
 
 <form method="post" name="invoice" action="[% script %]">
 
@@ -52,23 +50,10 @@
         <tr>
           <th align="right">[% 'Customer' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 id            = 'customer',
-                 name          = 'customer',
-                 style         = 'width: 250px',
-                 class         = 'initial_focus',
-                 DATA          = ALL_CUSTOMERS,
-                 id_sub        = 'vc_keys',
-                 label_key     = 'name',
-                 select        = vc_select,
-                 limit         = vclimit,
-                 allow_textbox = 1,
-                 onChange      = "document.getElementById('update_button').click();" -%]
-            <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+           [% P.customer_vendor_picker("customer_id", customer_id, type="customer", style="width: 250px", class="initial_focus") %]
+           [% L.button_tag("show_vc_details('customer')", LxERP.t8('Details (one letter abbreviation)')) %]
+           [% L.hidden_tag("previous_customer_id", customer_id) %]
           <input type="hidden" name="customer_pricegroup_id" value="[% HTML.escape(customer_pricegroup_id) %]">
-          <input type="hidden" name="customer_id" value="[% HTML.escape(customer_id) %]">
-          <input type="hidden" name="oldcustomer" value="[% HTML.escape(oldcustomer) %]">
-          <input type="hidden" name="selectcustomer" value="[% HTML.escape(selectcustomer) %]">
           </td>
         </tr>
 [%- IF ALL_CONTACTS.size %]
