@@ -81,7 +81,7 @@
      <th align="right">[% 'Transaction description' | $T8 %]</th>
      <td><input name="transaction_description" class="fixed_width"></td>
      <th align="right">[% 'Part Description' | $T8 %]</th>
-     <td><input name="parts_description" size="20"></td>
+     <td><input name="parts_description" size="20" class="fixed_width"></td>
     </tr>
 
     <tr>
@@ -95,7 +95,7 @@
       </select>
      </td>
      <th align="right">[% 'Part Number' | $T8 %]</th>
-     <td><input name="parts_partnumber" size="20"></td>
+     <td><input name="parts_partnumber" size="20", class="fixed_width"></td>
     </tr>
 
     <tr>
@@ -116,9 +116,7 @@
      <th align="right">[% 'Delivery Order Date' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
       [% L.date_tag('transdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+      [% 'Bis' | $T8 %]
       [% L.date_tag('transdateto') %]
      </td>
     </tr>
@@ -127,9 +125,7 @@
      <th align="right">[% 'Reqdate' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
       [% L.date_tag('reqdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+      [% 'Bis' | $T8 %]
       [% L.date_tag('reqdateto') %]
      </td>
     </tr>
@@ -138,9 +134,7 @@
      <th align="right">[% 'Insert Date' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('insertdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+       [% 'Bis' | $T8 %]
        [% L.date_tag('insertdateto') %]
      </td>
     </tr>
