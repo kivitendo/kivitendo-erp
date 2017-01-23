@@ -2512,7 +2512,6 @@ $self->{texts} = {
   'Select federal state...'     => 'Bundesland auswählen...',
   'Select file to upload'       => 'Datei zum Hochladen auswählen',
   'Select from one of the items below' => 'Wählen Sie einen der untenstehenden Einträge',
-  'Select from one of the projects below' => 'Wählen Sie eines der untenstehenden Projekte',
   'Select postscript or PDF!'   => 'Postscript oder PDF auswählen!',
   'Select tax office...'        => 'Finanzamt auswählen...',
   'Select template to paste'    => 'Einzufügende Vorlage auswählen',

@@ -48,7 +48,6 @@ use SL::DB::PurchaseInvoice;
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 

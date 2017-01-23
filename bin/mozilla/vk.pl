@@ -42,7 +42,6 @@ use SL::IS;
 use SL::ReportGenerator;
 use Data::Dumper;
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 

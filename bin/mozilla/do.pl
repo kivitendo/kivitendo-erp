@@ -45,7 +45,6 @@ use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::WH;
 use Sort::Naturally ();
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -1819,7 +1818,6 @@ __END__
 =head1 NAME
 
 do.pl - Script for all calls to delivery order
-
 
 =head1 FUNCTIONS
 

@@ -49,8 +49,8 @@ use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
 
+require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
-require "bin/mozilla/arap.pl";
 
 use strict;
 

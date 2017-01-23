@@ -43,7 +43,6 @@ use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 
 require "bin/mozilla/io.pl";
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 use strict;

@@ -47,7 +47,6 @@ use SL::ReportGenerator;
 use Data::Dumper;
 use List::MoreUtils qw(any);
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 

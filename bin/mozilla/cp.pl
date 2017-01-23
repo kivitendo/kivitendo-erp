@@ -41,7 +41,6 @@ use Data::Dumper;
 use strict;
 #use warnings;
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 our ($form, %myconfig, $lxdebug, $locale, $auth);
