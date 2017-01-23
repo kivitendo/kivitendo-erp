@@ -36,10 +36,13 @@ use utf8;
 use strict;
 
 use POSIX qw(strftime);
-use List::Util qw(sum);
+use List::Util qw(first sum);
 
+use SL::DB::RecordTemplate;
+use SL::DB::Tax;
 use SL::FU;
 use SL::GL;
+use SL::Helper::Flash qw(flash);
 use SL::IS;
 use SL::ReportGenerator;
 use SL::DBUtils qw(selectrow_query selectall_hashref_query);
@@ -76,6 +79,68 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Oct')
 # $locale->text('Nov')
 # $locale->text('Dec')
+
+sub load_record_template {
+  $::auth->assert('gl_transactions');
+
+  # Load existing template and verify that its one for this module.
+  my $template = SL::DB::RecordTemplate
+    ->new(id => $::form->{id})
+    ->load(
+      with_object => [ qw(customer payment currency record_items record_items.chart) ],
+    );
+
+  die "invalid template type" unless $template->template_type eq 'gl_transaction';
+
+  $template->substitute_variables;
+
+  # Clean the current $::form before rebuilding it from the template.
+  delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
+
+  my $dummy_form = {};
+  GL->transaction(\%::myconfig, $dummy_form);
+
+  # Fill $::form from the template.
+  my $today                   = DateTime->today_local;
+  $::form->{title}            = "Add";
+  $::form->{transdate}        = $today->to_kivitendo;
+  $::form->{duedate}          = $today->to_kivitendo;
+  $::form->{rowcount}         = @{ $template->items } + 1;
+  $::form->{paidaccounts}     = 1;
+  $::form->{$_}               = $template->$_     for qw(department_id taxincluded ob_transaction cb_transaction reference description);
+  $::form->{$_}               = $dummy_form->{$_} for qw(closedto revtrans previous_id previous_gldate);
+
+  my $row = 0;
+  foreach my $item (@{ $template->items }) {
+    $row++;
+
+    my $active_taxkey = $item->chart->get_active_taxkey;
+    my $taxes         = SL::DB::Manager::Tax->get_all(
+      where   => [ chart_categories => { like => '%' . $item->chart->category . '%' }],
+      sort_by => 'taxkey, rate',
+    );
+
+    my $tax   = first { $item->tax_id          == $_->id } @{ $taxes };
+    $tax    //= first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+    $tax    //= $taxes->[0];
+
+    if (!$tax) {
+      $row--;
+      next;
+    }
+
+    $::form->{"accno_id_${row}"}          = $item->chart_id;
+    $::form->{"previous_accno_id_${row}"} = $item->chart_id;
+    $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, $item->amount1, 2) if $item->amount1 * 1;
+    $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, $item->amount2, 2) if $item->amount2 * 1;
+    $::form->{"taxchart_${row}"}          = $item->tax_id . '--' . $tax->rate;
+    $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id);
+  }
+
+  flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
+
+  update();
+}
 
 sub add {
   $main::lxdebug->enter_sub();
