@@ -47,7 +47,6 @@ use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::ReportGenerator;
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
