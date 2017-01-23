@@ -501,11 +501,9 @@ sub search {
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
-                   "$form->{vc}s"   => "ALL_VC",
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
-  $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{title}             = $locale->text('Delivery Orders');
 
   $form->header();

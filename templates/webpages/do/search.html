@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[%- USE HTML %][%- USE LxERP %]
+[%- USE HTML %][%- USE LxERP %][%- USE P -%]
 <h1>[% title %]</h1>
 
  [%- IF vc == 'customer' %]
@@ -23,19 +23,7 @@
    <table>
     <tr>
      <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
-     <td colspan="3">
-      [%- UNLESS SHOW_VC_DROP_DOWN %]
-      <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width initial_focus">
-      [%- ELSE %]
-      <select name="[% vc %]" class="fixed_width initial_focus">
-       <option></option>
-       [%- FOREACH row = ALL_VC %]
-       <option>[% HTML.escape(row.name) %]--[% HTML.escape(row.id) %]</option>
-       [%- END %]
-      </select>
-      <input type="hidden" name="select[% vc %]" value="1">
-      [%- END %]
-     </td>
+     <td colspan="3">[% P.input_tag(vc, "", class="fixed_width initial_focus") %]</td>
     </tr>
 
     <tr>
