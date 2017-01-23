@@ -602,7 +602,7 @@ SQL
 
   $main::lxdebug->leave_sub();
 
-  return @{ $form->{parts} };
+  return $form->{parts};
 }
 
 sub _create_filter_for_priceupdate {

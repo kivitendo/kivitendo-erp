@@ -668,25 +668,6 @@ sub generate_report {
   $lxdebug->leave_sub();
 }    #end generate_report
 
-sub ajax_autocomplete {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $form->{column}          = 'description'     unless $form->{column} =~ /^partnumber|description$/;
-  $form->{$form->{column}} = $form->{q}           || '';
-  $form->{limit}           = ($form->{limit} * 1) || 10;
-  $form->{searchitems}   ||= '';
-
-  my @results = IC->all_parts(\%myconfig, $form);
-
-  print $form->ajax_response_header(),
-        $form->parse_html_template('ic/ajax_autocomplete');
-
-  $main::lxdebug->leave_sub();
-}
-
 sub back_to_record {
   _check_io_auth();
 
