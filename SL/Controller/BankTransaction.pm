@@ -305,7 +305,6 @@ sub action_create_invoice {
     vendor_id   => $use_vendor_filter ? $vendor_of_transaction->id   : undef,
     vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
     ALL_VENDORS => $all_vendors,
-    limit       => $myconfig{vclimit},
     callback    => $callback,
   );
 }
