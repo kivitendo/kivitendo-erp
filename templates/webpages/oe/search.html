@@ -18,11 +18,11 @@
    <table>
     <tr>
      <th align="right">[% HTML.escape(vclabel) %]</th>
-     <td colspan="3">[% L.input_tag(vc, $vcdefault, style=style, class="initial_focus") %]</td>
+     <td>[% L.input_tag(vc, $vcdefault, style=style, class="initial_focus") %]</td>
     </tr>
     <tr>
      <th align="right" nowrap>[% 'Contact Person' | $T8 %]</th>
-     <td colspan="3">[% L.input_tag("cp_name", '', style=style) %]</td>
+     <td>[% L.input_tag("cp_name", '', style=style) %]</td>
     </tr>
 [%- IF ALL_DEPARTMENTS.size %]
     <tr>
@@ -32,12 +32,12 @@
 [%- END %]
     <tr>
      <th align="right">[% HTML.escape(ordlabel) %]</th>
-     <td colspan="3"><input name="[% HTML.escape(ordnrname) %]" style=style></td>
+     <td>[% L.input_tag(ordnrname, "", style=style) %]</td>
     </tr>
 [% IF is_order %]
     <tr>
      <th align="right">[% LxERP.t8("Customer Order Number") %]</th>
-     <td colspan="3">[% L.input_tag("cusordnumber", '', style=style) %]</td>
+     <td>[% L.input_tag("cusordnumber", '', style=style) %]</td>
     </tr>
 [% END %]
     <tr>
@@ -54,26 +54,26 @@
     </tr>
     <tr>
      <th align="right">[% 'Shipping Point' | $T8 %]</th>
-     <td colspan="3">[% L.input_tag('shippingpoint', '', style=style) %]</td>
+     <td>[% L.input_tag('shippingpoint', '', style=style) %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>
-     <td><input name="transaction_description" style=style></td>
+     <td>[% L.input_tag("transaction_description", "", style=style) %]</td>
 
      <th align="right">[% 'Part Description' | $T8 %]</th>
-     <td><input name="parts_description" style=style></td>
+     <td>[% L.input_tag("parts_description", "", style=style) %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Project' | $T8 %]</th>
      <td>[% P.project_picker("project_id", '', style=style) %]</td>
 
      <th align="right">[% 'Part Number' | $T8 %]</th>
-     <td><input name="parts_partnumber" style=style></td>
+     <td>[% L.input_tag("parts_partnumber", "", style=style) %]</td>
     </tr>
     [%- UNLESS ALL_BUSINESS_TYPES.size == 0 %]
     <tr>
      <th align="right" nowrap>[% vctypelabel %]</th>
-     <td colspan="3">
+     <td>
       [% L.select_tag('business_id', ALL_BUSINESS_TYPES, title_key = 'description', with_empty = 1, style=style) %]
      </td>
     </tr>
@@ -82,9 +82,7 @@
      <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('transdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+       [% 'Bis' | $T8 %]
       [% L.date_tag('transdateto') %]
      </td>
     </tr>
@@ -92,9 +90,7 @@
      <th align="right">[% IF is_order %][% 'Delivery Date' | $T8 %][% ELSE %][% 'Valid until' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('reqdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+       [% 'Bis' | $T8 %]
        [% L.date_tag('reqdateto') %]
      </td>
     </tr>
@@ -104,9 +100,7 @@
      <th align="right">[% 'Insert Date' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
        [% L.date_tag('insertdatefrom') %]
-     </td>
-     <th align="right">[% 'Bis' | $T8 %]</th>
-     <td>
+       [% 'Bis' | $T8 %]
        [% L.date_tag('insertdateto') %]
      </td>
     </tr>
@@ -117,15 +111,13 @@
      <th align="right">[% 'Expected billing date' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
       [% L.date_tag('expected_billing_date_from', '' 'BL') %]
-     </td>
-     <th align="right">[% 'Expected billing date' | $T8 %] [% 'Bis' | $T8 %]</th>
-     <td>
+      [% 'Bis' | $T8 %]
       [% L.date_tag('expected_billing_date_to', '' 'BL') %]
      </td>
     </tr>
     <tr>
      <th align="right">[% 'Order probability' | $T8 %]</th>
-     <td colspan="3">
+     <td>
       [% L.select_tag('order_probability_op', [[ 'ge', '>=' ], [ 'le', '<=' ]]) %]
       [% L.select_tag('order_probability_value', ORDER_PROBABILITIES, title='title', with_empty=1) %]
      </td>
@@ -316,9 +308,6 @@
 
       [% CT_CUSTOM_VARIABLES_INCLUSION_CODE %]
 
-[%- IF type == 'sales_order' %]
-       <tr><td colspan="3"><hr></td></tr>
-[%- END %]
       </table>
      </td>
     </tr>
