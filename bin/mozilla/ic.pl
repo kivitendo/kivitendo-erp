@@ -668,23 +668,10 @@ sub generate_report {
   $lxdebug->leave_sub();
 }    #end generate_report
 
-sub back_to_record {
-  _check_io_auth();
-
-
-  delete @{$::form}{qw(action action_add action_back_to_record back_sub description item notes partnumber sellprice taxaccount2 unit vc)};
-
-  $::auth->restore_form_from_session($::form->{previousform}, clobber => 1);
-  $::form->{rowcount}--;
-  $::form->{action}   = 'display_form';
-  $::form->{callback} = $::form->{script} . '?' . join('&', map { $::form->escape($_) . '=' . $::form->escape($::form->{$_}) } sort keys %{ $::form });
-  $::form->redirect;
-}
-
 sub continue { call_sub($form->{"nextsub"}); }
 
 sub dispatcher {
-  my $action = first { $::form->{"action_${_}"} } qw(add back_to_record);
+  my $action = first { $::form->{"action_${_}"} } qw(add);
   $::form->error($::locale->text('No action defined.')) unless $action;
 
   $::form->{dispatched_action} = $action;
