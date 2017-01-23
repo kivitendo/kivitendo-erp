@@ -101,34 +101,6 @@ sub paymentaccounts {
   $main::lxdebug->leave_sub();
 }
 
-sub get_openvc {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  my $dbh = SL::DB->client->dbh;
-
-  my $arap = ($form->{vc} eq 'customer') ? 'ar' : 'ap';
-  my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
-  my $query =
-    qq|SELECT count(*) | .
-    qq|FROM $vc ct, $arap a | .
-    qq|WHERE (a.${vc}_id = ct.id) AND (a.amount != a.paid)|;
-  my ($count) = selectrow_query($form, $dbh, $query);
-
-  # build selection list
-  if ($count < $myconfig->{vclimit}) {
-    $query =
-      qq|SELECT DISTINCT ct.id, ct.name | .
-      qq|FROM $vc ct, $arap a | .
-      qq|WHERE (a.${vc}_id = ct.id) AND (a.amount != a.paid) | .
-      qq|ORDER BY ct.name|;
-    $form->{"all_$form->{vc}"} = selectall_hashref_query($form, $dbh, $query);
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 sub get_openinvoices {
   $main::lxdebug->enter_sub();
 
@@ -360,4 +332,3 @@ sub _process_payment {
 }
 
 1;
-

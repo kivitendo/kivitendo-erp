@@ -1,9 +1,11 @@
 [%- USE L %]
 [%- USE HTML %]
 [%- USE T8 %]
-[%- USE LxERP %]
+[%- USE LxERP %][%- USE P -%]
 <form method=post action=cp.pl>
 
+[% SET vc_id = vc _ '_id'
+       style = "width: 250px" %]
 [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
 [% L.hidden_tag('closedto', closedto) %]
 [% L.hidden_tag('vc', vc) %]
@@ -16,29 +18,17 @@
 
 <h1>[% is_receipt ? LxERP.t8('Receipt') : LxERP.t8('Payment') %]</h1>
 
-<table width=100%>
+<table>
   <tr valign=top>
     <td>
       <table>
         <tr>
           <th align=right>[% is_customer ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]</th>
-          <td>[% vccontent %]</td>
-         [% IF vc == 'customer' %]
-           [% L.hidden_tag('selectcustomer', selectcustomer) %]
-           [% L.hidden_tag('customer_id', customer_id) %]
-           [% L.hidden_tag('oldcustomer', oldcustomer) %]
-          [% ELSE %]
-           [% L.hidden_tag('selectvendor', selectvendor) %]
-           [% L.hidden_tag('vendor_id', vendor_id) %]
-           [% L.hidden_tag('oldvendor', oldvendor) %]
-          [% END %]
+          <td>
+           [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, class="initial_focus", style=style) %]
+           [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
+          </td>
         </tr>
-        [% IF vc == 'customer' %]
-        <tr>
-          <th align=right>[% 'Customer Number' | $T8 %]</th>
-          <td><input name="customernumber" size="35"></td>
-        </tr>
-        [% END %]
         <tr>
           <th align=right>[% 'Invoice Number' | $T8 %]</th>
           <td><input name="invnumber" size="35"></td>
