@@ -2562,8 +2562,6 @@ sub create_links {
     $arap = "ap";
   }
 
-  $self->all_vc($myconfig, $table, $module);
-
   # get last customers or vendors
   my ($query, $sth, $ref);
 
