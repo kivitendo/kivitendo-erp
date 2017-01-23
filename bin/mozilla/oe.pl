@@ -381,14 +381,8 @@ sub form_header {
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
 
   # currencies and exchangerate
-  my @values = map { $_ } @{ $form->{ALL_CURRENCIES} };
-  my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
-  $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                                                      '-values' => \@values, '-labels' => \%labels,
-                                                      '-onchange' => "document.getElementById('update_button').click();"
-                                     )) if scalar @values;
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
@@ -1496,8 +1490,6 @@ sub invoice {
   $locale = $main::locale;
 
   require "bin/mozilla/$form->{script}";
-
-  map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
   my $currency = $form->{currency};
   &invoice_links;

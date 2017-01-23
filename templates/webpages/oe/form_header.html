@@ -110,12 +110,10 @@
                     </td>
                   </tr>
 [%- END %]
-[%- IF currencies %]
                   <tr>
                     <th align="right">[% 'Currency' | $T8 %]</th>
-                    <td>[% currencies %]</td>
+                    <td>[% L.select_tag("currency", ALL_CURRENCIES, value_key="name", default=currency, onchange="document.getElementById('update_button').click();") %]</td>
                   </tr>
-[%- END %]
 [%- IF show_exchangerate %]
                   <tr>
                     <th align="right">[% 'Exchangerate' | $T8 %]</th>
