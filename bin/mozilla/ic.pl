@@ -669,11 +669,3 @@ sub generate_report {
 }    #end generate_report
 
 sub continue { call_sub($form->{"nextsub"}); }
-
-sub dispatcher {
-  my $action = first { $::form->{"action_${_}"} } qw(add);
-  $::form->error($::locale->text('No action defined.')) unless $action;
-
-  $::form->{dispatched_action} = $action;
-  call_sub($action);
-}
