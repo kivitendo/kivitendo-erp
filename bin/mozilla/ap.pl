@@ -33,18 +33,21 @@
 #======================================================================
 
 use POSIX qw(strftime);
-use List::Util qw(max sum);
+use List::Util qw(first max sum);
 use List::UtilsBy qw(sort_by);
 
 use SL::AP;
 use SL::FU;
 use SL::GL;
+use SL::Helper::Flash qw(flash);
 use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
+use SL::DB::RecordTemplate;
+use SL::DB::Tax;
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 
@@ -84,6 +87,73 @@ use strict;
 # $locale->text('Oct')
 # $locale->text('Nov')
 # $locale->text('Dec')
+
+sub load_record_template {
+  $::auth->assert('ap_transactions');
+
+  # Load existing template and verify that its one for this module.
+  my $template = SL::DB::RecordTemplate
+    ->new(id => $::form->{id})
+    ->load(
+      with_object => [ qw(customer payment currency record_items record_items.chart) ],
+    );
+
+  die "invalid template type" unless $template->template_type eq 'ap_transaction';
+
+  $template->substitute_variables;
+
+  # Clean the current $::form before rebuilding it from the template.
+  delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
+
+  # Fill $::form from the template.
+  my $today                   = DateTime->today_local;
+  $::form->{title}            = "Add";
+  $::form->{currency}         = $template->currency->name;
+  $::form->{direct_debit}     = $template->direct_debit;
+  $::form->{globalproject_id} = $template->project_id;
+  $::form->{AP_chart_id}      = $template->ar_ap_chart_id;
+  $::form->{transdate}        = $today->to_kivitendo;
+  $::form->{duedate}          = $today->to_kivitendo;
+  $::form->{rowcount}         = @{ $template->items } + 1;
+  $::form->{paidaccounts}     = 1;
+  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded notes);
+
+  if ($template->vendor) {
+    $::form->{vendor_id} = $template->vendor_id;
+    $::form->{vendor}    = $template->vendor->name;
+    $::form->{duedate}     = $template->vendor->payment->calc_date(reference_date => $today)->to_kivitendo if $template->vendor->payment;
+  }
+
+  my $row = 0;
+  foreach my $item (@{ $template->items }) {
+    $row++;
+
+    my $active_taxkey = $item->chart->get_active_taxkey;
+    my $taxes         = SL::DB::Manager::Tax->get_all(
+      where   => [ chart_categories => { like => '%' . $item->chart->category . '%' }],
+      sort_by => 'taxkey, rate',
+    );
+
+    my $tax   = first { $item->tax_id          == $_->id } @{ $taxes };
+    $tax    //= first { $active_taxkey->tax_id == $_->id } @{ $taxes };
+    $tax    //= $taxes->[0];
+
+    if (!$tax) {
+      $row--;
+      next;
+    }
+
+    $::form->{"AP_amount_chart_id_${row}"}          = $item->chart_id;
+    $::form->{"previous_AP_amount_chart_id_${row}"} = $item->chart_id;
+    $::form->{"amount_${row}"}                      = $::form->format_amount(\%::myconfig, $item->amount1, 2);
+    $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
+    $::form->{"project_id_${row}"}                  = $item->project_id;
+  }
+
+  flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
+
+  update();
+}
 
 sub add {
   $main::lxdebug->enter_sub();
