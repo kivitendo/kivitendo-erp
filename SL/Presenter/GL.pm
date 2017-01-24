@@ -18,7 +18,7 @@ sub gl_transaction {
 
   my $text = join '', (
     $params{no_link} ? '' : '<a href="gl.pl?action=edit&amp;id=' . $self->escape($gl_transaction->id) . '">',
-    $self->escape($gl_transaction->id),
+    $self->escape($gl_transaction->reference),
     $params{no_link} ? '' : '</a>',
   );
   return $self->escaped_text($text);
