@@ -142,6 +142,58 @@ sub load_record_template {
   update();
 }
 
+sub save_record_template {
+  $::auth->assert('gl_transactions');
+
+  my $template = $::form->{record_template_id} ? SL::DB::RecordTemplate->new(id => $::form->{record_template_id})->load : SL::DB::RecordTemplate->new;
+  my $js       = SL::ClientJS->new(controller => SL::Controller::Base->new);
+  my $new_name = $template->template_name_to_use($::form->{record_template_new_template_name});
+
+  $js->dialog->close('#record_template_dialog');
+
+  my @items = grep {
+    $_->{chart_id} && (($_->{tax_id} // '') ne '') && (($_->{amount1} != 0) || ($_->{amount2} != 0))
+  } map {
+    +{ chart_id   => $::form->{"accno_id_${_}"},
+       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
+       amount2    => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
+       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id => $::form->{"project_id_${_}"} || undef,
+       source     => $::form->{"source_${_}"},
+       memo       => $::form->{"memo_${_}"},
+     }
+  } (1..($::form->{rowcount} || 1));
+
+  $template->assign_attributes(
+    template_type  => 'gl_transaction',
+    template_name  => $new_name,
+
+    currency_id    => $::instance_conf->get_currency_id,
+    department_id  => $::form->{department_id}    || undef,
+    project_id     => $::form->{globalproject_id} || undef,
+    taxincluded    => $::form->{taxincluded}     ? 1 : 0,
+    ob_transaction => $::form->{ob_transaction}  ? 1 : 0,
+    cb_transaction => $::form->{cb_transaction}  ? 1 : 0,
+    reference      => $::form->{reference},
+    description    => $::form->{description},
+
+    items          => \@items,
+  );
+
+  eval {
+    $template->save;
+    1;
+  } or do {
+    return $js
+      ->flash('error', $::locale->text("Saving the record template '#1' failed.", $new_name))
+      ->render;
+  };
+
+  return $js
+    ->flash('info', $::locale->text("The record template '#1' has been saved.", $new_name))
+    ->render;
+}
+
 sub add {
   $main::lxdebug->enter_sub();
 
@@ -891,7 +943,7 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.GL.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.GL.js", "kivi.RecordTemplate.js");
 
   my @old_project_ids = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
 
