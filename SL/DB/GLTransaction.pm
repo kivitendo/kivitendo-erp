@@ -3,7 +3,7 @@ package SL::DB::GLTransaction;
 use strict;
 
 use SL::DB::MetaSetup::GLTransaction;
-
+use SL::Locale::String qw(t8);
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
@@ -28,6 +28,10 @@ sub abbreviation {
   my $abbreviation = $::locale->text('GL Transaction (abbreviation)');
   $abbreviation   .= "(" . $::locale->text('Storno (one letter abbreviation)') . ")" if $self->storno;
   return $abbreviation;
+}
+
+sub displayable_type {
+  return t8('GL Transaction');
 }
 
 sub oneline_summary {

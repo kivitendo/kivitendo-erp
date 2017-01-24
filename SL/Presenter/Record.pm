@@ -55,6 +55,8 @@ sub grouped_record_list {
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ap_transaction_list(         $self, $groups{ap_transactions},          %params) if $groups{ap_transactions};
 
+  $output .= _gl_transaction_list(         $self, $groups{gl_transactions},          %params) if $groups{gl_transactions};
+
   $output .= _bank_transactions(           $self, $groups{bank_transactions},        %params) if $groups{bank_transactions};
 
   $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
@@ -435,6 +437,22 @@ sub _ap_transaction_list {
   );
 }
 
+sub _gl_transaction_list {
+  my ($self, $list, %params) = @_;
+
+  return $self->record_list(
+    $list,
+    title   => $::locale->text('GL Transactions'),
+    type    => 'gl_transaction',
+    columns => [
+      [ $::locale->text('Date'),        'transdate'                                                    ],
+      [ $::locale->text('Reference'),   'reference'                                                    ],
+      [ $::locale->text('Description'), sub { $self->gl_transaction($_[0 ], display => 'table-cell') } ],
+    ],
+    %params,
+  );
+}
+
 sub _bank_transactions {
   my ($self, $list, %params) = @_;
 
@@ -592,6 +610,8 @@ The order in which the records are grouped is:
 =item * purchase invoices
 
 =item * AP transactions
+
+=item * GL transactions
 
 =item * SEPA collections
 
