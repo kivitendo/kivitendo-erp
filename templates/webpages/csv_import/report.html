@@ -18,12 +18,21 @@
 
 [%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
  <table>
+
+[%- SET max_col = 0 %]
 [%- FOREACH rownum = SELF.display_rows %]
+  [%- SET max_col = max_col > SELF.report_rows.${rownum}.size ? max_col : SELF.report_rows.${rownum}.size  %]
+  [%- LAST IF rownum >= SELF.report_numheaders %]
+[%- END %]
+
+[%- FOREACH rownum = SELF.display_rows %]
+ [%- SET to_pad = max_col - SELF.report_rows.${rownum}.size %]
  [%- IF rownum < SELF.report_numheaders %]
   <tr class="listheading">
   [%- FOREACH value = SELF.report_rows.${rownum} %]
    <th>[% value | html %]</th>
-  [%- END  %]
+  [%- END %]
+   [%- IF to_pad -%]<th style="text-align:center" colspan="[%- to_pad -%]">-</th>[%- END -%]
    <th>[%- LxERP.t8('Notes') %]</th>
   </tr>
  [%- ELSE %]
@@ -32,6 +41,7 @@
   [%- FOREACH value = SELF.report_rows.${rownum} %]
    <td>[%- value | html  %]</td>
   [%- END %]
+   [%- IF to_pad -%]<td align="center" colspan="[%- to_pad -%]">-</td>[%- END -%]
    <td>
     [%- FOREACH error = csv_import_report_errors %][%- error | html %][% UNLESS loop.last %]<br>[%- END %][%- END %]
     [%- FOREACH info  = SELF.report_status.${rownum}.information %][% IF rownum >= SELF.report_numheaders || csv_import_report_errors.size %]<br>[%- END %][%- info | html %][%- END %]
