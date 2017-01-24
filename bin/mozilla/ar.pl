@@ -37,6 +37,7 @@ use List::Util qw(sum first max);
 use List::UtilsBy qw(sort_by);
 
 use SL::AR;
+use SL::Controller::Base;
 use SL::FU;
 use SL::GL;
 use SL::IS;
@@ -150,6 +151,57 @@ sub load_record_template {
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
   update();
+}
+
+sub save_record_template {
+  $::auth->assert('ar_transactions');
+
+  my $template = $::form->{record_template_id} ? SL::DB::RecordTemplate->new(id => $::form->{record_template_id})->load : SL::DB::RecordTemplate->new;
+  my $js       = SL::ClientJS->new(controller => SL::Controller::Base->new);
+  my $new_name = $template->template_name_to_use($::form->{record_template_new_template_name});
+
+  $js->dialog->close('#record_template_dialog');
+
+  my @items = grep {
+    $_->{chart_id} && (($_->{tax_id} // '') ne '') && ($_->{amount1} != 0)
+  } map {
+    +{ chart_id   => $::form->{"AR_amount_chart_id_${_}"},
+       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
+       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id => $::form->{"project_id_${_}"} || undef,
+     }
+  } (1..($::form->{rowcount} || 1));
+
+  $template->assign_attributes(
+    template_type  => 'ar_transaction',
+    template_name  => $new_name,
+
+    currency_id    => SL::DB::Manager::Currency->find_by(name => $::form->{currency})->id,
+    ar_ap_chart_id => $::form->{AR_chart_id}      || undef,
+    customer_id    => $::form->{customer_id}      || undef,
+    department_id  => $::form->{department_id}    || undef,
+    project_id     => $::form->{globalproject_id} || undef,
+    employee_id    => $::form->{employee_id}      || undef,
+    taxincluded    => $::form->{taxincluded}  ? 1 : 0,
+    direct_debit   => $::form->{direct_debit} ? 1 : 0,
+    ordnumber      => $::form->{ordnumber},
+    notes          => $::form->{notes},
+
+    items          => \@items,
+  );
+
+  eval {
+    $template->save;
+    1;
+  } or do {
+    return $js
+      ->flash('error', $::locale->text("Saving the record template '#1' failed.", $new_name))
+      ->render;
+  };
+
+  return $js
+    ->flash('info', $::locale->text("The record template '#1' has been saved.", $new_name))
+    ->render;
 }
 
 sub add {
@@ -334,7 +386,7 @@ sub form_header {
   my $follow_up_vc         = $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id})->name : '';
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_customer.js", "show_vc_details.js", "show_history.js", "follow_up.js", "kivi.Draft.js", "kivi.GL.js", "kivi.RecordTemplate.js");
 
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
