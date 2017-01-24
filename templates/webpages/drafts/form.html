@@ -24,7 +24,6 @@
  <tr class="listheading">
   <th>[% 'Date' | $T8 %]</th>
   <th>[% 'Description' | $T8 %]</th>
-  <th>[% 'Employee' | $T8 %]</th>
  </tr>
 
 [% FOREACH row = drafts_list %]
@@ -37,10 +36,8 @@
    [% L.link(SELF.url_for(action='load',id=row.id), row.description) %]
   [%- END %]
   </td>
-  <td>[% row.employee_name | html %]</td>
   <td>[% L.html_tag('span', LxERP.t8('Delete'), class='cursor-pointer interact', onclick="kivi.Draft.delete('" _ row.id _ "')") %]</a></td>
  </tr>
 [% END %]
 </table>
 [%- END %]
-

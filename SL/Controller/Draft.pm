@@ -131,11 +131,12 @@ sub _build_form {
 sub draft_list {
   my ($self) = @_;
 
-  my $result = selectall_hashref_query($::form, $::form->get_standard_dbh, <<SQL, $self->module, $self->submodule);
-    SELECT d.*, date(d.itime) AS date, e.name AS employee_name
+  my $result = selectall_hashref_query($::form, $::form->get_standard_dbh, <<SQL, $self->module, $self->submodule, SL::DB::Manager::Employee->current->id);
+    SELECT d.*, date(d.itime) AS date
     FROM drafts d
-    LEFT JOIN employee e ON d.employee_id = e.id
-    WHERE (d.module = ?) AND (d.submodule = ?)
+    WHERE (d.module      = ?)
+      AND (d.submodule   = ?)
+      AND (d.employee_id = ?)
     ORDER BY d.itime
 SQL
 }
