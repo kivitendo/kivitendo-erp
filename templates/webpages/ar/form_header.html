@@ -3,7 +3,11 @@
 [%- USE T8 %]
 [%- USE LxERP %][%- USE P -%]
 
-<form method=post name="arledger" action="[% script %]">
+<h1>[% title | html %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<form method=post name="arledger" action="[% script %]" id="form">
 
 [% L.hidden_tag('id', id) %]
 [% L.hidden_tag('sort', sort) %]
@@ -15,8 +19,6 @@
 [% L.hidden_tag('follow_up_trans_info_1', follow_up_trans_info) %]
 [% L.hidden_tag('follow_up_rowcount', 1) %]
 <input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
-
-<h1>[% title | html %]</h1>
 
 [%- IF saved_message %]<p>[% saved_message | html  %]</p>[% END %]
 

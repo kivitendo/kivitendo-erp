@@ -4,6 +4,8 @@
 [%- USE L %]
 <h1>[% title | html %]</h1>
 
+[%- INCLUDE 'common/flash.html' %]
+
 <script type="text/javascript">
   <!--
   function copy_debit_to_credit() {
@@ -16,7 +18,7 @@
 <script type="text/javascript" src="js/follow_up.js"></script>
 <script type="text/javascript" src="js/kivi.Draft.js"></script>
 
-<form method=post name="gl" action=gl.pl>
+<form method="post" name="gl" action="gl.pl" id="form">
 
 [% FOREACH name IN [ 'id', 'closedto', 'locked', 'storno', 'storno_id', 'previous_id', 'previous_gldate' ] %]
 [% L.hidden_tag(name, $name) %]
