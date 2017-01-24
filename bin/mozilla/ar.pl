@@ -671,7 +671,7 @@ sub post {
   }
   # /saving the history
 
-  $form->redirect($locale->text('Transaction posted!')) unless $inline;
+  $form->redirect($locale->text("AR transaction posted.")) unless $inline;
 
   $main::lxdebug->leave_sub();
 }

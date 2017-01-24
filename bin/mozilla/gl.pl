@@ -1142,7 +1142,7 @@ sub post {
   }
 
   $form->{callback} = build_std_url("action=add", "show_details");
-  $form->redirect($form->{callback});
+  $form->redirect($::locale->text("General ledger transaction '#1' posted", $form->{reference}));
 
   $main::lxdebug->leave_sub();
 }

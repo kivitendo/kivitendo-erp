@@ -692,7 +692,7 @@ sub post {
     }
     # /saving the history
     # Dieser Text wird niemals ausgegeben: Probleme beim redirect?
-    $form->redirect($locale->text('Transaction posted!')) unless $inline;
+    $form->redirect($locale->text('AP transaction posted.')) unless $inline;
   } else {
     $form->error($locale->text('Cannot post transaction!'));
   }
