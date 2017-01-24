@@ -733,7 +733,7 @@ sub redirect {
     $self->info($msg);
 
   } else {
-    SL::Helper::Flash::flash_later('info', $msg);
+    SL::Helper::Flash::flash_later('info', $msg) if $msg;
     $self->_store_redirect_info_in_session;
     print $::form->redirect_header($self->{callback});
   }
