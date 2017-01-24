@@ -37,7 +37,7 @@
   </tr>
  [%- ELSE %]
   [% csv_import_report_errors = SELF.report_status.${rownum}.errors %]
-  <tr class="[% IF csv_import_report_errors && csv_import_report_errors.size %]redrow[% ELSE %]listrow[% END %][% 1 - loop.count % 2 %]">
+  <tr class="listrow[% IF csv_import_report_errors && csv_import_report_errors.size %]_error[% END %][% 1 - loop.count % 2 %]">
   [%- FOREACH value = SELF.report_rows.${rownum} %]
    <td>[%- value | html  %]</td>
   [%- END %]
