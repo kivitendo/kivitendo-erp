@@ -3,6 +3,7 @@ package SL::DB::RecordTemplate;
 use strict;
 
 use DateTime::Format::Strptime;
+use List::Util qw(first);
 
 use SL::DB::MetaSetup::RecordTemplate;
 use SL::DB::Manager::RecordTemplate;
@@ -110,6 +111,12 @@ sub substitute_variables {
       fields    => \@text_columns,
     );
   }
+}
+
+sub template_name_to_use {
+  my ($self, @names) = @_;
+
+  return first { ($_ // '') ne '' } (@names, $self->template_name, $::locale->text('unnamed record template'));
 }
 
 1;
