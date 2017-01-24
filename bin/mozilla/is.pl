@@ -841,9 +841,8 @@ sub post {
   if (!$form->{no_redirect_after_post}) {
     $form->{action} = 'edit';
     $form->{script} = 'is.pl';
-    $form->{saved_message} = $form->{label} . " $form->{invnumber} " . $locale->text('posted!');
     $form->{callback} = build_std_url(qw(action edit id callback saved_message));
-    $form->redirect;
+    $form->redirect($form->{label} . " $form->{invnumber} " . $locale->text('posted!'));
   }
 
   $main::lxdebug->leave_sub();
