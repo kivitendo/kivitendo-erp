@@ -80,7 +80,7 @@ my %supported_methods = (
   'dialog:close'         => 1,
 
   # ## jQuery Form plugin ##
-  'ajaxForm'             => 1, # pattern: $(<TARGET>).ajaxForm({ success: eval_json_result })
+  'ajaxForm'             => 1, # $(<TARGET>).ajaxForm({ success: eval_json_result })
 
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 

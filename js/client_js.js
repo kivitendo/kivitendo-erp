@@ -116,7 +116,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'dialog:close')         $(action[1]).dialog('close');
 
       // ## jQuery Form plugin ##
-      else if (action[0] == 'ajaxForm')             pattern: $(action[1]).ajaxForm({ success: eval_json_result });
+      else if (action[0] == 'ajaxForm')             $(action[1]).ajaxForm({ success: eval_json_result });
 
       // ## jstree plugin ##
 
