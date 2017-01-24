@@ -1,9 +1,0 @@
-[% USE LxERP %]
-
-<h3>[%- LxERP.t8('Import summary') %]</h3>
-
-[%- IF SELF.import_status == 'imported' %]
- <p>[%- LxERP.t8('#1 of #2 importable objects were imported.', SELF.num_imported, SELF.num_importable || 0) %]</p>
-[%- ELSE %]
- <p>[%- LxERP.t8('Found #1 objects of which #2 can be imported.', SELF.data.size || 0, SELF.num_importable || 0) %]</p>
-[%- END %]
