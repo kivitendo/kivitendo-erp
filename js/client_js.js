@@ -44,8 +44,10 @@ ns.eval_json_result = function(data) {
       $('#flash_' + category + '_detail').empty();
     });
   }
-  if ((data.js || '') != '')
+  if ((data.js || '') !== '')
+    // jshint -W061
     eval(data.js);
+    // jshint +W061
 
   if (data.eval_actions)
     $(data.eval_actions).each(function(idx, action) {
