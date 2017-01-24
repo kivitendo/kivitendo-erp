@@ -68,6 +68,7 @@ sub action_save {
     $self->js
       ->flash('info', t8("Draft saved."))
       ->dialog->close('#save_draft')
+      ->val('#draft_id', $draft->id)
       ->render;
   }
 }

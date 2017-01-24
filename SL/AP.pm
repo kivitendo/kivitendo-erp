@@ -40,6 +40,7 @@ use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
+use SL::DB::Draft;
 use SL::Util qw(trim);
 use SL::DB;
 use Data::Dumper;
@@ -360,6 +361,10 @@ sub _post_transaction {
   }
 
   IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
+
+  if ($form->{draft_id}) {
+    SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
+  }
 
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_ap_transaction) {

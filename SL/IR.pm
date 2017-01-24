@@ -41,6 +41,7 @@ use SL::Common;
 use SL::CVar;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
+use SL::DB::Draft;
 use SL::DO;
 use SL::GenericTranslations;
 use SL::HTML::Restrict;
@@ -808,6 +809,10 @@ SQL
     # clean up invoice items
     $query  = sprintf 'DELETE FROM invoice WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
     do_query($form, $dbh, $query, @orphaned_ids);
+  }
+
+  if ($form->{draft_id}) {
+    SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
   }
 
   # safety check datev export

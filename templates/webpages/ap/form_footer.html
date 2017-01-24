@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
-[%- USE LxERP %]
+[%- USE LxERP %][%- USE P -%]
 
 [%- IF (num_follow_ups && num_due) %]
   <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', num_follow_ups, num_due) %]</p>
@@ -9,8 +9,8 @@
 
 <input name=callback type=hidden value="[% callback | html %]">
 <input name=gldate type=hidden value="[% gldate | html %]">
-<input type=hidden name=draft_id value="[% draft_id %]">
-<input type=hidden name=draft_description value="[% draft_description | html %]">
+[% P.hidden_tag('draft_id', draft_id) %]
+[% P.hidden_tag('draft_description', draft_description) %]
 
 <br>
 

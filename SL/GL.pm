@@ -45,6 +45,7 @@ use Data::Dumper;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::DB::Chart;
+use SL::DB::Draft;
 use SL::Util qw(trim);
 use SL::DB;
 
@@ -188,6 +189,10 @@ sub _post_transaction {
 
   if ($form->{storno} && $form->{storno_id}) {
     do_query($form, $dbh, qq|UPDATE gl SET storno = 't' WHERE id = ?|, conv_i($form->{storno_id}));
+  }
+
+  if ($form->{draft_id}) {
+    SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
   }
 
   # safety check datev export

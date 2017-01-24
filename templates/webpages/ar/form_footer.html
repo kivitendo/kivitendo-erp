@@ -1,6 +1,6 @@
 [% USE LxERP %]
 [% USE T8 %]
-[% USE L %]
+[% USE L %][%- USE P -%]
 
   [% IF ( follow_up_length && follow_up_due_length ) %]
     [% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_up_length , follow_up_due_length) %]
@@ -8,8 +8,8 @@
 
   <input type="hidden" name="gldate" value="[% gldate | html %]">
   <input type="hidden" name="callback" value="[% callback | html %]">
-  <input type="hidden" name="draft_id" value="[% draft_id | html %]">
-  <input type="hidden" name="draft_description" value="[% draft_description | html %]">
+  [% P.hidden_tag('draft_id', draft_id) %]
+  [% P.hidden_tag('draft_description', draft_description) %]
 
   <br>
 

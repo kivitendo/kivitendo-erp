@@ -38,6 +38,7 @@ package AR;
 use Data::Dumper;
 use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
+use SL::DB::Draft;
 use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
@@ -304,6 +305,10 @@ sub _post_transaction {
   }
 
   IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
+
+  if ($form->{draft_id}) {
+    SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
+  }
 
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_ar_transaction) {
