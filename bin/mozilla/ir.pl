@@ -780,6 +780,7 @@ sub post {
       $form->save_history;
     }
     # /saving the history
+    $form->{callback} = 'ir.pl?action=add';
     $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'));
