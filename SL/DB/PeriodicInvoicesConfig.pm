@@ -255,6 +255,7 @@ Sets the state of the periodic_invoices_configs to inactive
 (active => false) if the periodicity is <Co> (one time).
 Returns undef if the periodicity is not 'one time' otherwise the
 order number of the deactivated periodic order.
+
 =back
 
 =head1 BUGS
