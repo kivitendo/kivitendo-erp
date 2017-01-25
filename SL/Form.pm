@@ -84,6 +84,8 @@ use URI;
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
 use SL::DB::Tax;
+use SL::Helper::File qw(:all);
+use SL::Helper::CreatePDF qw(merge_pdfs);
 
 use strict;
 
@@ -1076,9 +1078,18 @@ sub parse_template {
   # therefore copy to webdav, even if we do not have the webdav feature enabled (just archive)
   my $copy_to_webdav =  $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
 
+  if ( $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage ) {
+    $self->append_general_pdf_attachments(filepath =>  $self->{tmpdir}."/".$self->{tmpfile},
+                                          type     =>  $self->{type});
+  }
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
     Common::copy_file_to_webdav_folder($self)                                                                         if $copy_to_webdav;
+    if (!$self->{preview} && $::instance_conf->get_doc_storage)
+    {
+      $self->{attachment_filename} ||= $self->generate_attachment_filename;
+      $self->store_pdf($self);
+    }
     $self->cleanup;
     chdir("$self->{cwd}");
 
@@ -1089,6 +1100,10 @@ sub parse_template {
 
   Common::copy_file_to_webdav_folder($self) if $copy_to_webdav;
 
+  if ( !$self->{preview} && $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage) {
+    $self->{attachment_filename} ||= $self->generate_attachment_filename;
+    $self->store_pdf($self);
+  }
   if ($self->{media} eq 'email') {
 
     my $mail = Mailer->new;
@@ -2453,7 +2468,6 @@ sub get_name {
 }
 
 sub new_lastmtime {
-  $main::lxdebug->enter_sub();
 
   my ($self, $table, $provided_dbh) = @_;
 
@@ -2465,9 +2479,7 @@ sub new_lastmtime {
   my $ref         = selectfirst_hashref_query($self, $dbh, $query, $self->{id});
   $ref->{mtime} ||= $ref->{itime};
   $self->{lastmtime} = $ref->{mtime};
-  $main::lxdebug->message(LXDebug->DEBUG2(),"new lastmtime=".$self->{lastmtime});
 
-  $main::lxdebug->leave_sub();
 }
 
 sub mtime_ischanged {
@@ -3000,6 +3012,7 @@ sub save_status {
 
 #--- 4 locale ---#
 # $main::locale->text('SAVED')
+# $main::locale->text('SCREENED')
 # $main::locale->text('DELETED')
 # $main::locale->text('ADDED')
 # $main::locale->text('PAYMENT POSTED')
@@ -3012,6 +3025,8 @@ sub save_status {
 # $main::locale->text('MAILED')
 # $main::locale->text('SCREENED')
 # $main::locale->text('CANCELED')
+# $main::locale->text('IMPORT')
+# $main::locale->text('UNIMPORT')
 # $main::locale->text('invoice')
 # $main::locale->text('proforma')
 # $main::locale->text('sales_order')

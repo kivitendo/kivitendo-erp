@@ -1,0 +1,23 @@
+[%- USE L -%][%- USE LxERP -%][%- USE JavaScript -%]
+
+<form method="post" id="upload_form" enctype="multipart/form-data" action="controller.pl">
+ <table>
+  <tr>
+   <td>[%- LxERP.t8("Filename") %]:</td><td>
+   <input type="file" name="uploadfiles[]" multiple="true" id="upload_files" size="45" accept="[% SELF.accept_types %]" onchange="kivi.File.allow_upload_submit();"></td>
+  </tr>
+ </table>
+
+ <p>
+  <input value="[%- LxERP.t8("Upload file") %]" id="upload_selected_button"
+         onclick="kivi.File.upload_selected_files([% SELF.object_id %],'[% SELF.object_type %]','[% SELF.file_type %]',[% SELF.maxsize %],[% SELF.is_global %]);"
+         type="button" disabled >
+  <a href="#" onclick="kivi.File.reset_upload_form();">[%- LxERP.t8("Reset") %]</a>
+  <a href="#" onclick="$('#files_upload').dialog('close');">[% LxERP.t8("Cancel") %]</a>
+ </p>
+
+ <hr>
+
+ <div id="upload_result"><p>&nbsp;</p></div>
+
+</form>

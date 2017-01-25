@@ -22,10 +22,12 @@
     [%- IF SELF.part.is_assembly %]
     <li><a href="#assembly_tab">[% 'Assembly items' | $T8 %]</a></li>
     [%- END %]
-[%- IF INSTANCE_CONF.get_doc_storage %]
+    [%- IF SELF.part.id %]
+    [%- IF INSTANCE_CONF.get_doc_storage %]
     <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=part&object_id=[% SELF.part.id %]">[% 'Attachments' | $T8 %]</a></li>
     <li><a href="controller.pl?action=File/list&file_type=image&object_type=part&object_id=[% SELF.part.id %]">[% 'Images' | $T8 %]</a></li>
-[%- END %]
+    [%- END %]
+    [%- END %]
     [% IF SELF.all_languages.size %]
     <li><a href="#translations_tab">[% 'Translations' | $T8 %]</a></li>
     [% END %]
