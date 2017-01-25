@@ -255,6 +255,8 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
+    $entry->{info_data}->{datatype} = $entry->{raw_data}->{datatype};
+
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
       $self->handle_order($entry);
     } elsif ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
@@ -265,6 +267,11 @@ sub check_objects {
   } continue {
     $i++;
   }
+
+  $self->add_info_columns($self->_order_column,
+                          { header => $::locale->text('datatype'), method => 'datatype' });
+  $self->add_info_columns($self->_item_column,
+                          { header => $::locale->text('datatype'), method => 'datatype' });
 
   $self->add_info_columns($self->_order_column,
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
