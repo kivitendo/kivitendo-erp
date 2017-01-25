@@ -99,9 +99,8 @@
   icon: prices_update
   order: 800
   access: part_service_assembly_edit
-  module: ic.pl
   params:
-    action: search_update_prices
+    action: PartsPriceUpdate/search_update_prices
 - parent: master_data
   id: master_data_price_rules
   name: Price Rules
