@@ -1,8 +1,6 @@
 [%- USE LxERP -%][%- USE L -%]
 
-<form method="post" action="controller.pl">
- [% L.hidden_tag('action', 'LiquidityProjection/show') %]
-
+<form method="post" action="controller.pl" id="filter_form">
  <table border="0">
   <tr>
    <th align="right">[% LxERP.t8("Number of months") %]</th>
@@ -20,8 +18,4 @@
    </td>
   </tr>
  </table>
-
- <p>
-  [% L.submit_tag("dummy", LxERP.t8("Show")) %]
- </p>
 </form>

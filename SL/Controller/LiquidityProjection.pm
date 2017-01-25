@@ -32,6 +32,7 @@ sub action_show {
     buchungsgruppe    => 1,
   };
 
+  $self->setup_show_action_bar;
   $self->render('liquidity_projection/show', title => t8('Liquidity projection'));
 }
 
@@ -76,6 +77,20 @@ sub iso_to_display {
   my ($self, $date) = @_;
 
   $::locale->reformat_date({ dateformat => 'yyyy-mm-dd' }, $date, $::myconfig{dateformat});
+}
+
+sub setup_show_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#filter_form', { action => 'LiquidityProjection/show' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;
