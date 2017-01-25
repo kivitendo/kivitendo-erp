@@ -62,11 +62,7 @@
  </div>
 </div>
 
-<hr size="3" noshade>
-
-  <p>[% PRINT_OPTIONS %]</p>
-
-   <input type="hidden" name="action" value="dispatcher">
+   <input type="hidden" name="action" id="action" value="dispatcher">
 
   <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
@@ -76,6 +72,12 @@
    [%- PROCESS 'common/_ship_to_dialog.html' vc_obj=VC_OBJ %]
   </div>
  [%- END %]
+
+  <div id="email_inputs" class="hidden"></div>
+
+  <div id="print_options" class="hidden">
+   [% PRINT_OPTIONS %]
+  </div>
  </form>
 <script type='text/javascript'>
  $(kivi.SalesPurchase.init_on_submit_checks);

@@ -76,59 +76,50 @@
 
   <div id="ui-tabs-basic-data">
 
-  <input type="hidden" name="follow_up_trans_id_1" value="[% HTML.escape(id) %]">
-  <input type="hidden" name="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
-  <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
-  <input type="hidden" name="follow_up_rowcount" value="1">
+  <input type="hidden" name="follow_up_trans_id_1" id="follow_up_trans_id_1" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="follow_up_trans_type_1" id="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
+  <input type="hidden" name="follow_up_trans_info_1" id="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+  <input type="hidden" name="follow_up_rowcount" id="follow_up_rowcount" value="1">
 
 
-  <input type="hidden" name="action" value="[% HTML.escape(action) %]">
-  <input type="hidden" name="bcc" value="[% HTML.escape(bcc) %]">
-  <input type="hidden" name="business" value="[% HTML.escape(business) %]">
-  <input type="hidden" name="cc" value="[% HTML.escape(cc) %]">
-  <input type="hidden" name="closed" value="[% HTML.escape(closed) %]">
-  <input type="hidden" name="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
-  <input type="hidden" name="currency" value="[% HTML.escape(currency) %]">
-  <input type="hidden" name="customer_pricegroup_id" value="[% HTML.escape(customer_pricegroup_id) %]">
-  <input type="hidden" name="discount" value="[% HTML.escape(discount) %]">
-  <input type="hidden" name="dunning_amount" value="[% HTML.escape(dunning_amount) %]">
-  <input type="hidden" name="email" value="[% HTML.escape(email) %]">
-  <input type="hidden" name="emailed" value="[% HTML.escape(emailed) %]">
-  <input type="hidden" name="format" value="[% HTML.escape(format) %]">
-  <input type="hidden" name="formname" value="[% HTML.escape(formname) %]">
-  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
-  <input type="hidden" name="max_dunning_level" value="[% HTML.escape(max_dunning_level) %]">
-  <input type="hidden" name="media" value="[% HTML.escape(media) %]">
-  <input type="hidden" name="message" value="[% HTML.escape(message) %]">
-  <input type="hidden" name="printed" value="[% HTML.escape(printed) %]">
-  <input type="hidden" name="proforma" value="[% HTML.escape(proforma) %]">
-  <input type="hidden" name="queued" value="[% HTML.escape(queued) %]">
-  <input type="hidden" name="saved_donumber" value="[% HTML.escape(saved_donumber) %]">
+  <input type="hidden" name="business" id="business" value="[% HTML.escape(business) %]">
+  <input type="hidden" name="closed" id="closed" value="[% HTML.escape(closed) %]">
+  <input type="hidden" name="convert_from_oe_ids" id="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
+  <input type="hidden" name="currency" id="currency" value="[% HTML.escape(currency) %]">
+  <input type="hidden" name="customer_pricegroup_id" id="customer_pricegroup_id" value="[% HTML.escape(customer_pricegroup_id) %]">
+  <input type="hidden" name="discount" id="discount" value="[% HTML.escape(discount) %]">
+  <input type="hidden" name="dunning_amount" id="dunning_amount" value="[% HTML.escape(dunning_amount) %]">
+  <input type="hidden" name="emailed" id="emailed" value="[% HTML.escape(emailed) %]">
+  <input type="hidden" name="id" id="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="max_dunning_level" id="max_dunning_level" value="[% HTML.escape(max_dunning_level) %]">
+  <input type="hidden" name="printed" id="printed" value="[% HTML.escape(printed) %]">
+  <input type="hidden" name="proforma" id="proforma" value="[% HTML.escape(proforma) %]">
+  <input type="hidden" name="queued" id="queued" value="[% HTML.escape(queued) %]">
+  <input type="hidden" name="saved_donumber" id="saved_donumber" value="[% HTML.escape(saved_donumber) %]">
  [%- IF delivered %]
-  <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
-  <input type="hidden" name="shiptocity" value="[% HTML.escape(shiptocity) %]">
-  <input type="hidden" name="shiptocontact" value="[% HTML.escape(shiptocontact) %]">
-  <input type="hidden" name="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
-  <input type="hidden" name="shiptocountry" value="[% HTML.escape(shiptocountry) %]">
-  <input type="hidden" name="shiptogln" value="[% HTML.escape(shiptogln) %]">
-  <input type="hidden" name="shiptodepartment_1" value="[% HTML.escape(shiptodepartment_1) %]">
-  <input type="hidden" name="shiptodepartment_2" value="[% HTML.escape(shiptodepartment_2) %]">
-  <input type="hidden" name="shiptoemail" value="[% HTML.escape(shiptoemail) %]">
-  <input type="hidden" name="shiptofax" value="[% HTML.escape(shiptofax) %]">
-  <input type="hidden" name="shiptoname" value="[% HTML.escape(shiptoname) %]">
-  <input type="hidden" name="shiptophone" value="[% HTML.escape(shiptophone) %]">
-  <input type="hidden" name="shiptostreet" value="[% HTML.escape(shiptostreet) %]">
-  <input type="hidden" name="shiptozipcode" value="[% HTML.escape(shiptozipcode) %]">
-  <input type="hidden" name="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
+  <input type="hidden" name="shipto_id" id="shipto_id" value="[% HTML.escape(shipto_id) %]">
+  <input type="hidden" name="shiptocity" id="shiptocity" value="[% HTML.escape(shiptocity) %]">
+  <input type="hidden" name="shiptocontact" id="shiptocontact" value="[% HTML.escape(shiptocontact) %]">
+  <input type="hidden" name="shiptocp_gender" id="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
+  <input type="hidden" name="shiptocountry" id="shiptocountry" value="[% HTML.escape(shiptocountry) %]">
+  <input type="hidden" name="shiptogln" id="shiptogln" value="[% HTML.escape(shiptogln) %]">
+  <input type="hidden" name="shiptodepartment_1" id="shiptodepartment_1" value="[% HTML.escape(shiptodepartment_1) %]">
+  <input type="hidden" name="shiptodepartment_2" id="shiptodepartment_2" value="[% HTML.escape(shiptodepartment_2) %]">
+  <input type="hidden" name="shiptoemail" id="shiptoemail" value="[% HTML.escape(shiptoemail) %]">
+  <input type="hidden" name="shiptofax" id="shiptofax" value="[% HTML.escape(shiptofax) %]">
+  <input type="hidden" name="shiptoname" id="shiptoname" value="[% HTML.escape(shiptoname) %]">
+  <input type="hidden" name="shiptophone" id="shiptophone" value="[% HTML.escape(shiptophone) %]">
+  <input type="hidden" name="shiptostreet" id="shiptostreet" value="[% HTML.escape(shiptostreet) %]">
+  <input type="hidden" name="shiptozipcode" id="shiptozipcode" value="[% HTML.escape(shiptozipcode) %]">
+  <input type="hidden" name="shiptocp_gender" id="shiptocp_gender" value="[% HTML.escape(shiptocp_gender) %]">
  [%- END %]
-  <input type="hidden" name="show_details" value="[% HTML.escape(show_details) %]">
-  <input type="hidden" name="subject" value="[% HTML.escape(subject) %]">
-  <input type="hidden" name="taxincluded" value="[% HTML.escape(taxincluded) %]">
-  <input type="hidden" name="taxzone_id" value="[% HTML.escape(taxzone_id) %]">
-  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
-  <input type="hidden" name="type" value="[% HTML.escape(type) %]">
-  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
-  <input type="hidden" name="lastmtime" value="[% HTML.escape(lastmtime) %]">
+  <input type="hidden" name="show_details" id="show_details" value="[% HTML.escape(show_details) %]">
+  <input type="hidden" name="taxincluded" id="taxincluded" value="[% HTML.escape(taxincluded) %]">
+  <input type="hidden" name="taxzone_id" id="taxzone_id" value="[% HTML.escape(taxzone_id) %]">
+  <input type="hidden" name="title" id="title" value="[% HTML.escape(title) %]">
+  <input type="hidden" name="type" id="type" value="[% HTML.escape(type) %]">
+  <input type="hidden" name="vc" id="vc" value="[% HTML.escape(vc) %]">
+  <input type="hidden" name="lastmtime" id="lastmtime" value="[% HTML.escape(lastmtime) %]">
 [%- FOREACH row = HIDDENS %]
    [% L.hidden_tag(row.name, row.value) %]
 [%- END %]
@@ -297,17 +288,17 @@
 
        <tr>
         <th width="70%" align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
-        <td><input name="donumber" size="11" value="[% HTML.escape(donumber) %]"[% RO %]></td>
+        <td><input name="donumber" id="donumber" size="11" value="[% HTML.escape(donumber) %]"[% RO %]></td>
        </tr>
 
        <tr>
         <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-        <td><input name="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"[% RO %]></td>
+        <td><input name="ordnumber" id="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"[% RO %]></td>
        </tr>
 
        <tr>
         <th width="70%" align="right" nowrap>[% IF is_customer %][% 'Customer Order Number' | $T8 %][% ELSE %][% 'Vendor Order Number' | $T8 %][% END %]</th>
-        <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
+        <td><input name="cusordnumber" id="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
        </tr>
 
        <tr>

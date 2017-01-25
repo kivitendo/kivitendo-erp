@@ -328,7 +328,7 @@ sub setup_do_action_bar {
         ],
         action => [
           t8('E Mail'),
-          submit => [ '#form', { action_print => 1 } ],
+          call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks => [ @req_trans_desc ],
         ],
       ], # end of combobox "Export"
@@ -479,7 +479,7 @@ sub form_footer {
 
   my $form     = $main::form;
 
-  $form->{PRINT_OPTIONS} = print_options('inline' => 1);
+  $form->{PRINT_OPTIONS}      = setup_sales_purchase_print_options();
   $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('do/form_footer',
