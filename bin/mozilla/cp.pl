@@ -38,6 +38,7 @@ use SL::IR;
 use SL::AR;
 use SL::AP;
 use Data::Dumper;
+use SL::Locale::String qw(t8);
 use strict;
 #use warnings;
 
@@ -125,6 +126,8 @@ sub form_header {
 
   # $locale->text('AR')
   # $locale->text('AP')
+
+  setup_cp_form_action_bar(can_post => !!$form->{rowcount});
 
   $form->header;
 
@@ -395,4 +398,22 @@ sub check_form {
   }
 
   $lxdebug->leave_sub();
+}
+
+sub setup_cp_form_action_bar {
+  my (%params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => "update" } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Post'),
+        submit => [ '#form', { action => "post" } ],
+      ],
+    );
+  }
 }
