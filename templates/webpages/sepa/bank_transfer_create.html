@@ -17,7 +17,7 @@
 
  <p><div class="listtop">[% title %]</div></p>
 
- <form action="sepa.pl" method="post">
+ <form action="sepa.pl" method="post" id="form">
   <p>1.
    [%- IF is_vendor %]
     [% 'Please select the source bank account for the transfers:' | $T8 %]
@@ -135,31 +135,11 @@
    [% 'Sum open amount' | $T8 %]: [% LxERP.format_amount(total_trans, -2) %]
   </p>
 
-  <p>
-   [%- IF is_vendor %]
-    <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Create bank transfer' | $T8 %]">
-   [%- ELSE %]
-    <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Create bank collection' | $T8 %]">
-   [%- END %]
-  </p>
-
-  <input type="hidden" name="action" value="dispatcher">
   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
   <input type="hidden" name="confirmation" value="1">
  </form>
 
  <script type="text/javascript">
-
-    // function toggle(id) {
-    //   $('#skonto_' + id).change(function() {
-    //     if($('#skonto_' + id).prop("checked")) {
-    //         $('#' + id).val( $('#amount_less_skonto_' + id).val() );
-    //     } else {
-    //         $('#' + id).val( $('#invoice_open_amount_' + id).val() );
-    //     }
-    //   });
-    // };
-
 $( ".type_target" ).change(function() {
   type_id = $(this).attr('id');
   var id = type_id.match(/\d*$/);

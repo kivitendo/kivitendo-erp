@@ -2,20 +2,13 @@
 [% USE HTML %]
 
 [%- IF show_buttons %]
- <input type="hidden" name="action" value="dispatcher">
  <input type="hidden" name="mode" value="multi">
  <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
-
- <p>
-  <input type="submit" class="submit" name="action_bank_transfer_download_sepa_xml" value="[% 'SEPA XML download' | $T8 %]">
-  <input type="submit" class="submit" name="action_bank_transfer_edit" value="[% 'Post payments' | $T8 %]">
-  <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step1" value="[% 'Mark as closed' | $T8 %]">
- </p>
 
  <script type="text/javascript">
   <!--
     $(function() {
-      $("#select_all").checkall('INPUT[name="exports[].selected"]');
+      $("#select_all").checkall('INPUT[name="ids[]"]');
     });
     -->
  </script>

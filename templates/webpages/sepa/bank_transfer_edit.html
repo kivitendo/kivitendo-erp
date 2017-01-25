@@ -13,15 +13,11 @@
 [%- END %]
 <h1>[% title %]: [% HTML.escape(export.ids.join(', ')) %]</h1>
 
- <form action="sepa.pl" method="post">
-  <input type="hidden" name="action" value="dispatcher">
-
+ <form action="sepa.pl" method="post" id="form">
   <p>
    <table>
     <tr>
-     [%- IF show_post_payments_button %]
-      <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
-     [%- END %]
+     <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
      <th class="listheading">[% 'Invoice' | $T8 %]</th>
      <th class="listheading">[%- IF is_vendor %][% 'Vendor' | $T8 %][%- ELSE %][%- LxERP.t8('Customer') %][%- END %]</th>
      [%- IF is_vendor %]
@@ -42,7 +38,7 @@
      <th class="listheading" align="right">[% 'Execution date' | $T8 %]</th>
     </tr>
     <tr>
-     <th class="listheading" colspan="[% IF show_post_payments_button %]3[% ELSE %]2[% END %]">&nbsp;</th>
+     <th class="listheading" colspan="3">&nbsp;</th>
      <th class="listheading">[% 'IBAN' | $T8 %]</th>
      <th class="listheading">[% 'BIC' | $T8 %]</th>
      <th class="listheading">[% 'IBAN' | $T8 %]</th>
@@ -53,21 +49,19 @@
         [% L.date_tag('set_all_execution_date', '', onchange='set_all_execution_date_fields(this);') %]
       </th>
      [%- ELSE %]
-      <th class="listheading" colspan="4">&nbsp;</th>
+      <th class="listheading" colspan="[% IF vc == 'customer' %]7[% ELSE %]6[% END %]">&nbsp;</th>
      [%- END %]
     </tr>
 
     [%- FOREACH item = export.items %]
-     <tr class="listrow[% loop.count % 2 %]">
-      [%- IF show_post_payments_button %]
-       <input type="hidden" name="items[+].id" value="[% HTML.escape(item.id) %]">
-       <input type="hidden" name="items[].sepa_export_id" value="[% HTML.escape(item.sepa_export_id) %]">
-       <td align="center">
-        [%- UNLESS item.executed %]
-        <input type="checkbox" name="items[].selected" value="1">
-        [%- END %]
-       </td>
-      [%- END %]
+     <tr class="listrow">
+      <td align="center">
+       [%- IF (show_post_payments_button && !item.executed) || (!show_post_payments_button && item.executed) %]
+        [% L.hidden_tag("items[+].id", item.id) %]
+        [% L.hidden_tag("items[].sepa_export_id", item.sepa_export_id) %]
+        [% L.checkbox_tag("ids[]", value=item.id) %]
+       [%- END %]
+      </td>
       <td>
        <a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>
       </td>
@@ -98,13 +92,6 @@
    </table>
   </p>
 
-  <p><hr></p>
-
-  [%- IF show_post_payments_button %]
-  <p>
-   <input type="submit" class="submit" name="action_bank_transfer_post_payments" value="[% 'Post payments' | $T8 %]">
-  </p>
-
   <script type="text/javascript">
    <!--
     function set_all_execution_date_fields(input) {
@@ -115,31 +102,10 @@
     }
 
     $(function() {
-      $("#select_all").checkall('INPUT[name="items[].selected"]');
+      $("#select_all").checkall('INPUT[name="ids[]"]');
     });
      -->
   </script>
-
-  [%- ELSE %]
-   [%- SET has_executed = 0;
-       FOREACH item = export.items;
-         IF item.executed;
-           SET has_executed = 1;
-         END ;
-       END ;
-       IF has_executed %]
-  <p>
-   <input type="submit" class="submit" name="action_bank_transfer_payment_list_as_pdf" value="[% 'Payment list as PDF' | $T8 %]">
-  </p>
-
-   [%- FOREACH item = export.items %]
-    [%- IF item.executed %]
-     <input type="hidden" name="items[+].id" value="[% HTML.escape(item.id) %]">
-     <input type="hidden" name="items[].export_id" value="[% HTML.escape(item.export_id) %]">
-    [%- END %]
-   [%- END %]
-  [%- END %]
-  [% END %]
 
      <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  </form>

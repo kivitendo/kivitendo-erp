@@ -4,7 +4,7 @@
 [%- USE L %]
 <h1>[% title %]</h1>
 
- <form action="sepa.pl" method="post">
+ <form action="sepa.pl" method="post" id="form">
   <p>
    <table>
     <tr>
@@ -83,9 +83,5 @@
    </table>
   </p>
 
-  <p>
-   <input type="hidden" name="action" value="dispatcher">
    <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
-   <input type="submit" class="submit" name="action_bank_transfer_list" value="[% 'Continue' | $T8 %]">
-  </p>
  </form>

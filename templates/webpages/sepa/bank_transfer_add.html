@@ -13,7 +13,7 @@
 
  <p><div class="listtop">[% title %]</div></p>
 
- <form action="sepa.pl" method="post">
+ <form action="sepa.pl" method="post" id="form">
   <p>
    [%- IF is_vendor %]
     [% 'Please select the source bank account for the transfers:' | $T8 %]
@@ -55,7 +55,7 @@
      <tr class="listrow[% IF !invoice.vc_bank_info_ok && invoice.checked %]_error[% END %]">
       <td align="center">
        [%- IF invoice.vc_bank_info_ok %]
-        <input type="checkbox" name="bank_transfers[].selected" value="1"[% IF invoice.checked %] checked[% END %]>
+        [% L.checkbox_tag("ids[]", value=invoice.id, checked=checked) %]
        [%- END %]
       </td>
       <td>
@@ -131,18 +131,13 @@
    </p>
   [%- END %]
 
-  <p>
-   <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Step 2' | $T8 %]">
-  </p>
-
-  <input type="hidden" name="action" value="dispatcher">
   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
  </form>
 
  <script type="text/javascript">
   <!--
     $(function() {
-      $("#select_all").checkall('INPUT[name="bank_transfers[].selected"]');
+      $("#select_all").checkall('INPUT[name="ids[]"]');
     });
     -->
 

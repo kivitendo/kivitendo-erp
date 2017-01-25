@@ -4,13 +4,13 @@ use List::MoreUtils qw(any none uniq);
 use List::Util qw(sum first);
 use POSIX qw(strftime);
 
-use Data::Dumper;
 use SL::DB::BankAccount;
 use SL::DB::SepaExport;
 use SL::Chart;
 use SL::CT;
 use SL::Form;
 use SL::GenericTranslations;
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::SEPA;
 use SL::SEPA::XML;
@@ -66,6 +66,8 @@ sub bank_transfer_add {
     $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
   }
 
+  setup_sepa_add_transfer_action_bar();
+
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_add',
                                    { 'INVOICES'           => $invoices,
@@ -104,10 +106,11 @@ sub bank_transfer_create {
   # all the information from retrieve_open_invoices is then ADDED to what was passed via @{ $form->{bank_transfers} }
   # parse amount from the entry in the form, but take skonto_amount from PT again
   # the map inserts the values of invoice_map directly into the array of hashes
+  my %selected_ids   = map { ($_ => 1) } @{ $form->{ids} || [] };
   my %invoices_map   = map { $_->{id} => $_ } @{ $invoices };
   my @bank_transfers =
     map  +{ %{ $invoices_map{ $_->{$arap_id} } }, %{ $_ } },
-    grep  { $_->{selected} && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } }
+    grep  { ($_->{selected} || $selected_ids{$_->{$arap_id}}) && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } }
     map   { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
           @{ $form->{bank_transfers} || [] };
 
@@ -152,6 +155,8 @@ sub bank_transfer_create {
                                                    'id' => \@vc_ids);
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
+    setup_sepa_create_transfer_action_bar(is_vendor => $vc eq 'vendor');
+
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',
                                      { 'BANK_TRANSFERS'     => \@bank_transfers,
@@ -192,6 +197,8 @@ sub bank_transfer_search {
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   $form->{title}    = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
+
+  setup_sepa_search_transfer_action_bar();
 
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_search', { vc => $vc });
@@ -302,13 +309,13 @@ sub bank_transfer_list {
     $row->{$_}->{data} = $::form->format_amount(\%::myconfig, $row->{$_}->{data}, 2) for qw(sum_amounts);
 
     if (!$export->{closed}) {
-      $row->{selected}->{raw_data} =
-          $cgi->hidden(-name => "exports[+].id", -value => $export->{id})
-        . $cgi->checkbox(-name => "exports[].selected", -value => 1, -label => '');
+      $row->{selected}->{raw_data} = $cgi->checkbox(-name => "ids[]", -value => $export->{id}, -label => '');
     }
 
     $report->add_data($row);
   }
+
+  setup_sepa_list_transfers_action_bar(show_buttons => $open_available, is_vendor => $vc eq 'vendor');
 
   $report->generate_with_headers();
 
@@ -326,7 +333,7 @@ sub bank_transfer_edit {
   if (!$form->{mode} || ($form->{mode} eq 'single')) {
     push @ids, $form->{id};
   } else {
-    @ids = map $_->{id}, grep { $_->{selected} } @{ $form->{exports} || [] };
+    @ids = @{ $form->{ids} || [] };
 
     if (!@ids) {
       $form->show_generic_error($locale->text('You have not selected any export.'));
@@ -360,13 +367,21 @@ sub bank_transfer_edit {
     $form->error($locale->text('That export does not exist.'));
   }
 
+  my $show_post_payments_button = any { !$_->{export_closed} && !$_->{executed} } @{ $export->{items} };
+  my $has_executed              = any { $_->{executed}                          } @{ $export->{items} };
+
+  setup_sepa_edit_transfer_action_bar(
+    show_post_payments_button => $show_post_payments_button,
+    has_executed              => $has_executed,
+  );
+
   $form->{title}    = $locale->text('View SEPA export');
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_edit',
-                                   { 'ids'                       => \@ids,
-                                     'export'                    => $export,
-                                     'current_date'              => $form->current_date(\%main::myconfig),
-                                     'show_post_payments_button' => any { !$_->{export_closed} && !$_->{executed} } @{ $export->{items} },
+                                   { ids                       => \@ids,
+                                     export                    => $export,
+                                     current_date              => $form->current_date(\%main::myconfig),
+                                     show_post_payments_button => $show_post_payments_button,
                                    });
 
   $main::lxdebug->leave_sub();
@@ -379,7 +394,8 @@ sub bank_transfer_post_payments {
   my $locale = $main::locale;
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  my @items  = grep { $_->{selected} } @{ $form->{items} || [] };
+  my %selected = map { ($_ => 1) } @{ $form->{ids} || [] };
+  my @items    = grep { $selected{$_->{id}} } @{ $form->{items} || [] };
 
   if (!@items) {
     $form->show_generic_error($locale->text('You have not selected any item.'));
@@ -418,8 +434,8 @@ sub bank_transfer_payment_list_as_pdf {
   my $locale     = $main::locale;
   my $vc         = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  my @ids        = @{ $form->{items} || [] };
-  my @export_ids = uniq map { $_->{export_id} } @ids;
+  my @ids        = @{ $form->{ids} || [] };
+  my @export_ids = uniq map { $_->{sepa_export_id} } @{ $form->{items} || [] };
 
   $form->show_generic_error($locale->text('Multi mode not supported.')) if 1 != scalar @export_ids;
 
@@ -427,7 +443,7 @@ sub bank_transfer_payment_list_as_pdf {
   my @items  = ();
 
   foreach my $id (@ids) {
-    my $item = first { $_->{id} == $id->{id} } @{ $export->{items} };
+    my $item = first { $_->{id} == $id } @{ $export->{items} };
     push @items, $item if $item;
   }
 
@@ -493,7 +509,7 @@ sub bank_transfer_download_sepa_xml {
 
   my @ids;
   if ($form->{mode} && ($form->{mode} eq 'multi')) {
-     @ids = map $_->{id}, grep { $_->{selected} } @{ $form->{exports} || [] };
+     @ids = @{ $form->{ids} || [] };
 
   } else {
     @ids = ($form->{id});
@@ -576,43 +592,13 @@ sub bank_transfer_download_sepa_xml {
   $main::lxdebug->leave_sub();
 }
 
-sub bank_transfer_mark_as_closed_step1 {
-  $main::lxdebug->enter_sub();
-
-  my $form       = $main::form;
-  my $locale     = $main::locale;
-  my $vc         = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
-
-  my @export_ids = map { $_->{id} } grep { $_->{selected} } @{ $form->{exports} || [] };
-
-  if (!@export_ids) {
-    $form->show_generic_error($locale->text('You have not selected any export.'));
-  }
-
-  my @open_export_ids = ();
-  foreach my $id (@export_ids) {
-    my $export = SL::SEPA->retrieve_export('id' => $id, vc => $vc);
-    push @open_export_ids, $id if (!$export->{closed});
-  }
-
-  if (!@open_export_ids) {
-    $form->show_generic_error($locale->text('All of the exports you have selected were already closed.'));
-  }
-
-  $form->{title} = $locale->text('Close SEPA exports');
-  $form->header();
-  print $form->parse_html_template('sepa/bank_transfer_mark_as_closed_step1', { 'OPEN_EXPORT_IDS' => \@open_export_ids, vc => $vc });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub bank_transfer_mark_as_closed_step2 {
+sub bank_transfer_mark_as_closed {
   $main::lxdebug->enter_sub();
 
   my $form       = $main::form;
   my $locale     = $main::locale;
 
-  map { SL::SEPA->close_export('id' => $_); } @{ $form->{open_export_ids} || [] };
+  map { SL::SEPA->close_export('id' => $_); } @{ $form->{ids} || [] };
 
   $form->{title} = $locale->text('Close SEPA exports');
   $form->header();
@@ -635,6 +621,110 @@ sub dispatcher {
   }
 
   $form->error($main::locale->text('No action defined.'));
+}
+
+sub setup_sepa_add_transfer_action_bar {
+  my (%params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Step 2'),
+        submit    => [ '#form', { action => "bank_transfer_create" } ],
+        accesskey => 'enter',
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+      ],
+    );
+  }
+}
+
+sub setup_sepa_create_transfer_action_bar {
+  my (%params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Create'),
+        submit    => [ '#form', { action => "bank_transfer_create" } ],
+        accesskey => 'enter',
+        tooltip   => $params{is_vendor} ? t8('Create bank transfer') : t8('Create bank collection'),
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
+}
+
+sub setup_sepa_search_transfer_action_bar {
+  my (%params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Search'),
+        submit    => [ '#form', { action => 'bank_transfer_list' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_sepa_list_transfers_action_bar {
+  my (%params) = @_;
+
+  return unless $params{show_buttons};
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [ t8('Actions') ],
+        action => [
+          t8('SEPA XML download'),
+          submit => [ '#form', { action => 'bank_transfer_download_sepa_xml' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        ],
+        action => [
+          t8('Post payments'),
+          submit => [ '#form', { action => 'bank_transfer_edit' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        ],
+        action => [
+          t8('Mark as closed'),
+          submit => [ '#form', { action => 'bank_transfer_mark_as_closed' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+          confirm => [ $params{is_vendor} ? t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.')
+                                          : t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.') ],
+        ],
+      ], # end of combobox "Actions"
+    );
+  }
+}
+
+sub setup_sepa_edit_transfer_action_bar {
+  my (%params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Post'),
+        submit    => [ '#form', { action => 'bank_transfer_post_payments' } ],
+        accesskey => 'enter',
+        tooltip   => t8('Post payments for selected invoices'),
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        only_if   => $params{show_post_payments_button},
+      ],
+      action => [
+        t8('Payment list'),
+        submit    => [ '#form', { action => 'bank_transfer_payment_list_as_pdf' } ],
+        accesskey => 'enter',
+        tooltip   => t8('Download list of payments as PDF'),
+        checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        not_if    => $params{show_post_payments_button},
+      ],
+    );
+  }
 }
 
 1;
