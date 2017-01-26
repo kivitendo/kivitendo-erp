@@ -5,7 +5,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="search_form">
 
   <div class="listtop">[% 'Search bank transactions' | $T8 %]</div>
 
@@ -28,10 +28,4 @@
     </tr>
    </table>
   </p>
-
-  <hr size="3" noshade>
-
-  [% L.hidden_tag('action', 'BankTransaction/list') %]
-
-  <p>[% L.submit_tag('dummy', LxERP.t8('Continue')) %]</p>
  </form>

@@ -48,6 +48,7 @@ sub action_search {
 
   my $bank_accounts = SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
 
+  $self->setup_search_action_bar;
   $self->render('bank_transactions/search',
                  BANK_ACCOUNTS => $bank_accounts);
 }
@@ -58,6 +59,7 @@ sub action_list_all {
   $self->make_filter_summary;
   $self->prepare_report;
 
+  $self->setup_list_all_action_bar;
   $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
@@ -891,6 +893,34 @@ sub load_ap_record_template_url {
     'form_defaults.AP_paid_1'  => $self->transaction->local_bank_account->chart->accno,
     'form_defaults.callback'   => $self->callback,
   );
+}
+
+sub setup_search_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Filter'),
+        submit    => [ '#search_form', { action => 'BankTransaction/list' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_list_all_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Filter'),
+        submit    => [ '#filter_form', { action => 'BankTransaction/list_all' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;
