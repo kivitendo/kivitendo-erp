@@ -1,4 +1,4 @@
-namespace('kivi', function(k){
+namespace('kivi.ActionBar', function(k){
   'use strict';
 
   var CLASSES = {
@@ -9,7 +9,7 @@ namespace('kivi', function(k){
     combobox: 'layout-actionbar-combobox',
   };
 
-  k.ActionBarCombobox = function(e) {
+  k.Combobox = function(e) {
     this.combobox  = e;
     this.head      = e.childNodes[0];
     this.topAction = this.head.childNodes[0];
@@ -18,7 +18,7 @@ namespace('kivi', function(k){
     this.init();
   };
 
-  k.ActionBarCombobox.prototype = {
+  k.Combobox.prototype = {
     init: function() {
       var obj     = this;
       var toggler = function(event){
@@ -35,7 +35,7 @@ namespace('kivi', function(k){
     }
   };
 
-  k.ActionBarAccesskeys = {
+  k.Accesskeys = {
     known_keys: {
      'enter': 13,
      'esc': 27,
@@ -93,9 +93,9 @@ namespace('kivi', function(k){
               || (e.target.tagName == 'SELECT')))
         return true;
 
-      if ((target in k.ActionBarAccesskeys.actions) && (accesskey in k.ActionBarAccesskeys.actions[target])) {
+      if ((target in kivi.ActionBar.Accesskeys.actions) && (accesskey in kivi.ActionBar.Accesskeys.actions[target])) {
         e.stopPropagation();
-        k.ActionBarAccesskeys.actions[target][accesskey].click();
+        kivi.ActionBar.Accesskeys.actions[target][accesskey].click();
 
         // and another special case.
         // if the form contains submit buttons the default action will click them instead.
@@ -106,7 +106,7 @@ namespace('kivi', function(k){
     }
   };
 
-  k.ActionBarAction = function(e) {
+  k.setupAction = function(e) {
     var data = $(e).data('action');
     if (undefined === data) return;
 
@@ -118,10 +118,10 @@ namespace('kivi', function(k){
 
     if (data.accesskey) {
       if (data.submit) {
-        k.ActionBarAccesskeys.add_accesskey(data.submit[0], data.accesskey, $(e));
+        kivi.ActionBar.Accesskeys.add_accesskey(data.submit[0], data.accesskey, $(e));
       }
       if (data.call) {
-        k.ActionBarAccesskeys.add_accesskey(undefined, data.accesskey, $(e));
+        kivi.ActionBar.Accesskeys.add_accesskey(undefined, data.accesskey, $(e));
       }
     }
 
@@ -179,13 +179,13 @@ namespace('kivi', function(k){
 
 $(function(){
   $('div.layout-actionbar .layout-actionbar-action').each(function(_, e) {
-    kivi.ActionBarAction(e)
+    kivi.ActionBar.setupAction(e)
   });
   $('div.layout-actionbar-combobox').each(function(_, e) {
-    $(e).data('combobox', new kivi.ActionBarCombobox(e));
+    $(e).data('combobox', new kivi.ActionBar.Combobox(e));
   });
   $(document).click(function() {
     $('div.layout-actionbar-combobox').removeClass('active');
   });
-  kivi.ActionBarAccesskeys.bind_targets();
+  kivi.ActionBar.Accesskeys.bind_targets();
 });
