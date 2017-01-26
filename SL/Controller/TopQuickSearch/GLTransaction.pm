@@ -54,9 +54,10 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => DateTime->from_object(object => $_->transdate)->ymd(),
-           label     => $_->abbreviation. ": " . $_->description . " " . $_->reference . " " . $::form->format_amount(\%::myconfig, $_->{'amount'},2). " (" . $_->transdate->to_lxoffice . ")" ,
-           id        => 'gl.pl?action=edit&id=' . $_->id,
+           transdate => $_->transdate->to_kivitendo,
+           label     => $_->oneline_summary,
+           value     => '',
+           url       => 'gl.pl?action=edit&id=' . $_->id,
         }
       }
       @{$gls}
@@ -67,9 +68,10 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => DateTime->from_object(object => $_->transdate)->ymd(),
-           label     => $_->abbreviation . ": " . $_->invnumber . "   " . $_->customer->name . " " . $::form->format_amount(\%::myconfig, $_->amount,2)  . " (" . $_->transdate->to_lxoffice . ")" ,
-           id        => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
+           transdate => $_->transdate->to_kivitendo,
+           label     => $_->oneline_summary,
+           value     => "",
+           url       => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
         }
       }
       @{$ars}
@@ -80,8 +82,8 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => DateTime->from_object(object => $_->transdate)->ymd(),
-           label     => $_->abbreviation . ": " . $_->invnumber . " " . $_->vendor->name . " " . $::form->format_amount(\%::myconfig, $_->amount,2)  . " (" . $_->transdate->to_lxoffice . ")" ,
+           transdate => $_->transdate->to_kivitendo,
+           label     => $_->oneline_summary,
            value     => "",
            id        => ($_->invoice ? "ir" : "ap" ) . '.pl?action=edit&id=' . $_->id,
         }
