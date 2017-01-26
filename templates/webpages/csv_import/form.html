@@ -6,7 +6,7 @@
 
  [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl" enctype="multipart/form-data">
+ <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
   [% L.hidden_tag('form_sent', '1') %]
   [% L.hidden_tag('action', 'CsvImport/dispatch') %]
   [% L.hidden_tag('profile.type', SELF.profile.type) %]
@@ -329,10 +329,7 @@
   </div>
   <hr>
 [%- END %][%# UNLESS SELF.worker.is_multiplexed %]
-  [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
 [%- END %][%# IF SELF.profile.get('dont_edit_profile') %]
-  [% L.submit_tag('action_import', LxERP.t8('Import'), style='display:none') %]
-
  </form>
 
  <div id='results'>

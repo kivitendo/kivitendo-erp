@@ -333,6 +333,8 @@ sub render_inputs {
 
   $self->setup_help;
 
+  $self->setup_render_inputs_action_bar;
+
   $self->render('csv_import/form', title => $title);
 }
 
@@ -724,6 +726,27 @@ sub mappings_for_profile {
 
 sub init_mappings {
   [ grep { $_->{from} } @{ $::form->{mappings} || [] } ]
+}
+
+sub setup_render_inputs_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Preview'),
+        submit    => [ '#form', { action => 'CsvImport/test' } ],
+        accesskey => 'enter',
+        not_if    => ($self->profile && $self->profile->get('dont_edit_profile')),
+      ],
+      action => [
+        t8('Import'),
+        submit    => [ '#form', { action => 'CsvImport/import' } ],
+        disabled  => t8('The test import has not been executed yet.'),
+        id        => 'action_import',
+      ],
+    );
+  }
 }
 
 1;
