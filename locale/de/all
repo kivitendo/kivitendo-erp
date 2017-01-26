@@ -1837,6 +1837,7 @@ $self->{texts} = {
   'No dunnings have been selected for printing.' => 'Es wurden keine Mahnungen zum Drucken ausgew&auml;hlt.',
   'No end date given, setting to today' => 'Kein Enddatum gegeben, setze Enddatum auf heute',
   'No entries have been imported yet.' => 'Es wurden noch keine Einträge importiert.',
+  'No entries have been selected.' => 'Es wurden keine Einträge ausgewählt.',
   'No errors have occurred.'    => 'Es sind keine Fehler aufgetreten.',
   'No file has been uploaded yet.' => 'Es wurde noch keine Datei hochgeladen.',
   'No function blocks have been created yet.' => 'Es wurden noch keine Funktionsblöcke angelegt.',

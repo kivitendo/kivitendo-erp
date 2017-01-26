@@ -57,6 +57,7 @@ namespace("kivi").setupLocale({
 "Map":"Karte",
 "No":"Nein",
 "No delivery orders have been selected.":"Es wurden keine Lieferscheine ausgewählt.",
+"No entries have been selected.":"Es wurden keine Einträge ausgewählt.",
 "No invoices have been selected.":"Es wurden keine Rechnungen ausgewählt.",
 "Part picker":"Artikelauswahl",
 "Paste":"Einfügen",
