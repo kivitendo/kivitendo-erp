@@ -2,7 +2,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
-<form method=post action=bp.pl>
+<form method="post" action="bp.pl" id="form">
 
 <h1>[% 'Print' | $T8 %] [% label.$type.title %]</h1>[% L.hidden_tag('title', LxERP.t8('Print') _ ' ' _ label.$type.title) %]
 
@@ -55,14 +55,8 @@
   </tr>
 </table>
 
-<hr size=3 noshade>
-<br>
 
 [% L.hidden_tag('sort', 'transdate') %]
 [% L.hidden_tag('vc', vc) %]
 [% L.hidden_tag('type', type) %]
-[% L.hidden_tag('nextsub', 'list_spool') %]
-
-[% L.submit_tag('action', LxERP.t8('Continue')) %]
-
 </form>

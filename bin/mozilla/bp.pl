@@ -33,6 +33,7 @@
 #======================================================================
 
 use SL::BP;
+use SL::Locale::String qw(t8);
 use Data::Dumper;
 use List::Util qw(first);
 
@@ -82,6 +83,8 @@ sub search {
 
   my $bp_accounts = $::form->{type} =~ /check|receipt/
                  && BP->payment_accounts(\%::myconfig, $::form);
+
+  setup_bp_search_action_bar();
 
   $::form->header;
   print $::form->parse_html_template('bp/search', {
@@ -183,6 +186,8 @@ sub list_spool {
 
   $::form->get_lists(printers => "ALL_PRINTERS");
 
+  setup_bp_list_spool_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('bp/list_spool', {
      href         => build_std_url('bp.pl', @href_options),
@@ -195,4 +200,36 @@ sub list_spool {
   $::lxdebug->leave_sub;
 }
 
-sub continue { call_sub($::form->{"nextsub"}); }
+sub setup_bp_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => "list_spool" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_bp_list_spool_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Remove'),
+        submit  => [ '#form', { action => "remove" } ],
+        checks  => [ [ 'kivi.check_if_entries_selected', '.check_all' ] ],
+        confirm => t8('Are you sure you want to remove the marked entries from the queue?'),
+      ],
+      action => [
+        t8('Print'),
+        submit => [ '#form', { action => "print" } ],
+        checks => [ [ 'kivi.check_if_entries_selected', '.check_all' ] ],
+      ],
+    );
+  }
+}

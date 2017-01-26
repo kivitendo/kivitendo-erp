@@ -7,7 +7,11 @@
 
 <h1>[% title | html %]</h1>
 
-<form method=post action=bp.pl>
+<form method="post" action="bp.pl" id="form">
+
+<p>
+ [% LxERP.t8("Printer") %]: [% L.select_tag('printer', ALL_PRINTERS, title_key = 'printer_description') %]
+</p>
 
 <p>
 [% FOREACH option IN options %]
@@ -54,9 +58,6 @@
 
 </table>
 
-<hr size=3 noshade>
-<br>
-
 [% L.hidden_tag('callback', callback) %]
 [% L.hidden_tag('title', title) %]
 [% L.hidden_tag('vc', vc) %]
@@ -71,10 +72,4 @@
 [% L.hidden_tag('quonumber', quonumber) %]
 [% L.hidden_tag('customer', customer) %]
 [% L.hidden_tag('vendor', vendor) %]
-
-[% L.submit_tag('action', LxERP.t8('Remove'), confirm=LxERP.t8('Are you sure you want to remove the marked entries from the queue?')) %]
-[% L.submit_tag('action', LxERP.t8('Print')) %]
-
-[% L.select_tag('printer', ALL_PRINTERS, title_key = 'printer_description') %]
-
 </form>
