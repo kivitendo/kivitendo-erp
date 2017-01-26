@@ -33,6 +33,7 @@
 #======================================================================
 
 use SL::RC;
+use SL::Locale::String qw(t8);
 
 require "bin/mozilla/common.pl";
 
@@ -48,6 +49,8 @@ sub reconciliation {
 
   RC->paymentaccounts(\%::myconfig, $::form);
 
+  setup_rc_reconciliation_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('rc/step1', {
     selection_sub => sub { ("$_[0]{accno}--$_[0]{description}")x2 },
@@ -55,8 +58,6 @@ sub reconciliation {
 
   $::lxdebug->leave_sub;
 }
-
-sub continue { call_sub($::form->{"nextsub"}); }
 
 sub get_payments {
   $::lxdebug->enter_sub;
@@ -103,6 +104,8 @@ sub display_form {
   my $statementbalance = $::form->parse_amount(\%::myconfig, $::form->{statementbalance});
   my $difference       = $statementbalance - $clearedbalance - $cleared;
 
+  setup_rc_display_form_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('rc/step2', {
     is_asset         => $::form->{category} eq 'A',
@@ -146,7 +149,7 @@ sub update {
   $::lxdebug->leave_sub;
 }
 
-sub done {
+sub reconcile {
   $::lxdebug->enter_sub;
   $::auth->assert('cash');
 
@@ -160,3 +163,34 @@ sub done {
   $::lxdebug->leave_sub;
 }
 
+sub setup_rc_reconciliation_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => "get_payments" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_rc_display_form_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => "update" } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Reconcile'),
+        submit => [ '#form', { action => "reconcile" } ],
+      ],
+    );
+  }
+}

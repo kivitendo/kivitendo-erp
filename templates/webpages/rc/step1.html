@@ -4,7 +4,7 @@
 [%- USE LxERP %]
 <h1>[% 'Reconciliation' | $T8 %]</h1>
 
-<form method=post action="[% script %]">
+<form method="post" action="rc.pl" id="form">
 
 <table>
   <tr>
@@ -18,12 +18,4 @@
     <td>[% L.date_tag('todate') %]</td>
   </tr>
 </table>
-
-<hr size=3 noshade>
-<br>
-
-[% L.hidden_tag('nextsub', 'get_payments') %]
-[% L.submit_tag('action', LxERP.t8('Continue')) %]
-
 </form>
-

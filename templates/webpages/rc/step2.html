@@ -7,7 +7,7 @@
 
 <p>[% FOREACH row IN option %][% row %][% ', ' UNLESS loop.last %][% END %]</p>
 
-<form method=post action="[% script %]">
+<form method="post" action="rc.pl" id="form">
 
 <table width=100%>
   <tr class=listheading>
@@ -98,18 +98,11 @@
         </tr>
       </table>
 
-<hr size=3 noshade>
-<br>
-
 <input type=hidden name=rowcount value="[% rowcount %]">
 <input type=hidden name=accno value="[% accno %]">
 <input type=hidden name=account value="[% account %]">
 
 <input type=hidden name=fromdate value="[% fromdate %]">
 <input type=hidden name=todate value="[% todate %]">
-
-<br>
-<input type=submit class=submit name=action value="[% 'Update' | $T8 %]">
-<input type=submit class=submit name=action value="[% 'Done' | $T8 %]">
 
 </form>
