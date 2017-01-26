@@ -106,33 +106,71 @@ namespace('kivi.ActionBar', function(k){
     }
   };
 
-  k.setupAction = function(e) {
-    var data = $(e).data('action');
+  k.removeTooltip = function($e) {
+    if ($e.hasClass('tooltipstered'))
+      $e.tooltipster('destroy');
+    $e.prop('title', '');
+  };
+
+  k.setTooltip = function($e, tooltip) {
+    if ($e.hasClass('tooltipstered'))
+      $e.tooltipster('content', tooltip);
+    else
+      $e.tooltipster({ content: tooltip, theme: 'tooltipster-light' });
+  };
+
+  k.setDisabled = function($e, tooltip) {
+    var data = $e.data('action');
+
+    $e.addClass(CLASSES.disabled);
+
+    if (tooltip && (tooltip != '1'))
+      kivi.ActionBar.setTooltip($e, tooltip);
+    else
+      kivi.ActionBar.removeTooltip($e);
+  };
+
+  k.setEnabled = function($e) {
+    var data = $e.data('action');
+
+    $e.removeClass(CLASSES.disabled);
+
+    if (data.tooltip)
+      kivi.ActionBar.setTooltip($e, data.tooltip);
+    else
+      kivi.ActionBar.removeTooltip($e);
+  };
+
+  k.Action = function(e) {
+    var $e       = $(e);
+    var instance = $e.data('instance');
+    if (instance)
+      return instance;
+
+    var data = $e.data('action');
     if (undefined === data) return;
 
-    if (data.disabled && (data.disabled != '0')) {
-      $(e).addClass(CLASSES.disabled);
-      if (data.disabled != '1')
-        data.tooltip = data.disabled;
-    }
+    data.originalTooltip = data.tooltip;
+
+    if (data.disabled && (data.disabled != '0'))
+      kivi.ActionBar.setDisabled($e, data.disabled);
+
+    else if (data.tooltip)
+      kivi.ActionBar.setTooltip($e, data.tooltip);
 
     if (data.accesskey) {
       if (data.submit) {
-        kivi.ActionBar.Accesskeys.add_accesskey(data.submit[0], data.accesskey, $(e));
+        kivi.ActionBar.Accesskeys.add_accesskey(data.submit[0], data.accesskey, $e);
       }
       if (data.call) {
-        kivi.ActionBar.Accesskeys.add_accesskey(undefined, data.accesskey, $(e));
+        kivi.ActionBar.Accesskeys.add_accesskey(undefined, data.accesskey, $e);
       }
-    }
-
-    if (data.tooltip) {
-      $(e).tooltipster({ content: data.tooltip, theme: 'tooltipster-light' });
     }
 
     if (data.call || data.submit || data.link) {
-      $(e).click(function(event) {
+      $e.click(function(event) {
         var $hidden, key, func, check;
-        if ($(e).hasClass(CLASSES.disabled)) {
+        if ($e.hasClass(CLASSES.disabled)) {
           event.stopPropagation();
           return;
         }
@@ -169,17 +207,28 @@ namespace('kivi.ActionBar', function(k){
           window.location.href = data.link;
         }
         if ((data.only_once !== undefined) && (data.only_once !== 0)) {
-          $(e).addClass(CLASSES.disabled);
-          $(e).tooltipster({ content: kivi.t8("The action can only be executed once."), theme: 'tooltipster-light' });
+          $e.addClass(CLASSES.disabled);
+          $e.tooltipster({ content: kivi.t8("The action can only be executed once."), theme: 'tooltipster-light' });
         }
       });
     }
+
+    instance = {
+      removeTooltip: function()        { kivi.ActionBar.removeTooltip($e); },
+      setTooltip:    function(tooltip) { kivi.ActionBar.setTooltip($e, tooltip); },
+      disable:       function(tooltip) { kivi.ActionBar.setDisabled($e, tooltip); },
+      enable:        function()        { kivi.ActionBar.setEnabled($e, $e.data('action').tooltip); },
+    };
+
+    $e.data('instance', instance);
+
+    return instance;
   };
 });
 
 $(function(){
   $('div.layout-actionbar .layout-actionbar-action').each(function(_, e) {
-    kivi.ActionBar.setupAction(e)
+    kivi.ActionBar.Action(e);
   });
   $('div.layout-actionbar-combobox').each(function(_, e) {
     $(e).data('combobox', new kivi.ActionBar.Combobox(e));
