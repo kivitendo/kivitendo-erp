@@ -812,6 +812,7 @@ $self->{texts} = {
   'DUNS number'                 => 'DUNS-Nummer',
   'DUNS-Nr'                     => 'DUNS-Nr.',
   'Data'                        => 'Daten',
+  'Data type'                   => 'Datentyp',
   'DataSet #1'                  => 'Datensatz #1',
   'DataSet for GoBD version #1. Created with kivitendo #2 by #3 (#4)' => 'Datenüberlassung nach GoBD vom #1. Erstellt mit kivitendo #2. Ansprechpartner ist #3 (#4)',
   'Database Administration'     => 'Datenbankadministration',

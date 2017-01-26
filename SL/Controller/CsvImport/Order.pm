@@ -269,9 +269,9 @@ sub check_objects {
   }
 
   $self->add_info_columns($self->_order_column,
-                          { header => $::locale->text('datatype'), method => 'datatype' });
+                          { header => $::locale->text('Data type'), method => 'datatype' });
   $self->add_info_columns($self->_item_column,
-                          { header => $::locale->text('datatype'), method => 'datatype' });
+                          { header => $::locale->text('Data type'), method => 'datatype' });
 
   $self->add_info_columns($self->_order_column,
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
