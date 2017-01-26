@@ -10,12 +10,8 @@
  [% "Import a MT940 file:" | $T8 %]
  </p>
 
- <form method="post" action="controller.pl" enctype="multipart/form-data">
-  [% L.hidden_tag('action', 'BankImport/import_mt940') %]
-
+ <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     [% L.input_tag('file', '', type => 'file', accept => '*') %]
-    [% L.submit_tag('action_import_mt940', LxERP.t8('Import')) %]
-
  </form>
  [% ELSE %]
  <p>

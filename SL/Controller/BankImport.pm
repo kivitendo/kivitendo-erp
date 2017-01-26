@@ -16,8 +16,9 @@ sub action_upload_mt940 {
   if ( ! $profile ) {
     $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => 'default');
   }
-  $self->render('bankimport/form', title => $::locale->text('MT940 import'), profile => $profile ? 1 : 0);
 
+  $self->setup_upload_mt940_action_bar;
+  $self->render('bankimport/form', title => $::locale->text('MT940 import'), profile => $profile ? 1 : 0);
 }
 
 sub action_import_mt940 {
@@ -39,12 +40,24 @@ sub action_import_mt940 {
   die t8("The MT940 import needs an import profile called MT940") unless $profile;
 
   $self->redirect_to(controller => 'controller.pl', action => 'CsvImport/test', 'profile.type' => 'bank_transactions', 'profile.id' => $profile->id, force_profile => 1);
-
-};
+}
 
 sub check_auth {
   $::auth->assert('bank_transaction');
 }
 
-1;
+sub setup_upload_mt940_action_bar {
+  my ($self) = @_;
 
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Preview'),
+        submit    => [ '#form', { action => 'BankImport/import_mt940' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+1;
