@@ -14,7 +14,7 @@
  [%- IF SELF.profile.get('dont_edit_profile') %]
   [% L.hidden_tag('force_profile', 1) %]
   [% L.hidden_tag('profile.id', SELF.profile.id) %]
- [%- ELSE %]
+ [%- ELSE %][%# IF SELF.profile.get('dont_edit_profile') %]
   <h2>[%- LxERP.t8('Import profiles') %]</h2>
 
   <table>
@@ -23,7 +23,7 @@
      <th align="right">[%- LxERP.t8('Current profile') %]:</th>
      <td>[%- HTML.escape(SELF.profile.name) %]</td>
     </tr>
-   [%- END %]
+   [%- END %][%# IF SELF.profile.id %]
 
    [%- IF SELF.all_profiles.size %]
     <tr>
@@ -36,7 +36,7 @@
       [% L.submit_tag('action_destroy', LxERP.t8('Delete profile'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
      </td>
     </tr>
-   [%- END %]
+   [%- END %][%# IF SELF.all_profiles.size %]
 
    <tr>
     <th align="right" valign="top">[%- LxERP.t8('Save settings as') %]:</th>
@@ -65,7 +65,7 @@
        <tr class="listheading">
          [%- FOREACH p = SELF.worker.profile %]
            <th>[%- p.row_ident %]</th>
-         [%- END %]
+         [%- END %][%# FOREACH SELF.worker.profile %]
        </tr>
        <tr class="listrow[% loop.count % 2 %]">
          [%- FOREACH p = SELF.worker.profile %]
@@ -82,13 +82,13 @@
                <td>[%- HTML.escape(row.name) %]</td>
                <td>[%- HTML.escape(row.description) %]</td>
              </tr>
-             [%- END %]
+             [%- END %][%# FOREACH SELF.displayable_columns.$ri %]
            </table>
          </td>
-         [%- END %]
+         [%- END %][%# FOREACH SELF.worker.profile %]
        </tr>
      </table>
-   [%- ELSE %]
+   [%- ELSE %][%# IF SELF.worker.is_multiplexed %]
      <table>
        <tr class="listheading">
          <th>[%- LxERP.t8('Column name') %]</th>
@@ -100,9 +100,9 @@
          <td>[%- HTML.escape(row.name) %]</td>
          <td>[%- HTML.escape(row.description) %]</td>
        </tr>
-       [%- END %]
+       [%- END %][%# FOREACH SELF.displayable_columns %]
      </table>
-   [%- END %]
+   [%- END %][%# SELF.worker.is_multiplexed %]
 
 [%- IF SELF.type == 'contacts' %]
    <p>
@@ -150,7 +150,7 @@
     [%- LxERP.t8('Amount and net amount are calculated by kivitendo. "verify_amount" and "verify_netamount" can be used for sanity checks.') %]<br>
     [%- LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
    </p>
-[%- END %]
+[%- END %][%# IF SELF.type == … %]
 
    <p>
     [%- L.submit_tag('action_download_sample', LxERP.t8('Download sample file')) %]
@@ -190,7 +190,7 @@
       [% IF SELF.sep_char == entry.first %] [% SET custom_sep_char = '' %] [%- END %]
       [% L.radio_button_tag('sep_char', value => entry.first, label => entry.last, checked => SELF.sep_char == entry.first) %]
      </td>
-    [%- END %]
+    [%- END %][%# FOREACH SELF.all_sep_chars %]
 
     <td>
      [% L.radio_button_tag('sep_char', value => 'custom', checked => custom_sep_char != '') %]
@@ -206,7 +206,7 @@
       [% IF SELF.quote_char == entry.first %] [% SET custom_quote_char = '' %] [%- END %]
       [% L.radio_button_tag('quote_char', value => entry.first, label => entry.last, checked => SELF.quote_char == entry.first) %]
      </td>
-    [%- END %]
+    [%- END %][%# FOREACH SELF.all_quote_chars %]
 
     <td>
      [% L.radio_button_tag('quote_char', value => 'custom', checked => custom_quote_char != '') %]
@@ -222,7 +222,7 @@
       [% IF SELF.escape_char == entry.first %] [% SET custom_escape_char = '' %] [%- END %]
       [% L.radio_button_tag('escape_char', value => entry.first, label => entry.last, checked => SELF.escape_char == entry.first) %]
      </td>
-    [%- END %]
+    [%- END %][%# FOREACH SELF.all_escape_chars %]
 
     <td>
      [% L.radio_button_tag('escape_char', value => 'custom', checked => custom_escape_char != '') %]
@@ -239,7 +239,7 @@
          [% FOREACH key = duplicate_fields.keys %]
            <input type="checkbox" name="settings.duplicates_[% key | html %]" id="settings.duplicates_[% key | html %]" value="1"[% IF ( SELF.profile.get('duplicates_'_ key) || (duplicate_fields.$key.default && !FORM.form_sent ) ) %] checked="checked"[% END %]>
            <label for="settings.duplicates_[% key | html %]">[% duplicate_fields.$key.label | html %]</label>
-         [% END %]
+         [% END %][%# FOREACH duplicate_fields.keys %]
        </td>
      </tr>
 
@@ -253,7 +253,7 @@
          [% L.select_tag('settings.duplicates', opts, default = SELF.profile.get('duplicates'), style = 'width: 300px') %]
        </td>
      </tr>
-   [% END %]
+   [% END %][%# IF duplicate_fields.size %]
 
 [%- IF SELF.type == 'parts' %]
  [%- INCLUDE 'csv_import/_form_parts.html' %]
@@ -290,7 +290,7 @@
      <th align="right">[%- LxERP.t8('Existing file on server') %]:</th>
      <td colspan="10">[%- LxERP.t8('Uploaded on #1, size #2 kB', SELF.file.displayable_mtime, LxERP.format_amount(SELF.file.size / 1024, 2)) %]</td>
     </tr>
-   [%- END %]
+   [%- END %][%# IF SELF.file.exists %]
 
   </table>
 
@@ -319,7 +319,7 @@
    </tr>
 [%- FOREACH row = SELF.mappings %]
    [% PROCESS 'csv_import/_mapping_item.html', item=row IF row.from %]
-[%- END %]
+[%- END %][%# FOREACH SELF.mappings %]
    [% PROCESS 'csv_import/_mapping_item.html', item={} %]
   </table>
 
@@ -328,9 +328,9 @@
 
   </div>
   <hr>
-[%- END %]
+[%- END %][%# UNLESS SELF.worker.is_multiplexed %]
   [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
-[%- END %]
+[%- END %][%# IF SELF.profile.get('dont_edit_profile') %]
   [% L.submit_tag('action_import', LxERP.t8('Import'), style='display:none') %]
 
  </form>
@@ -338,7 +338,7 @@
  <div id='results'>
  [%- IF SELF.deferred %]
    [%- PROCESS 'csv_import/_deferred_results.html' %]
- [%- END %]
+ [%- END %][%# IF SELF.deferred %]
  </div>
 
 
