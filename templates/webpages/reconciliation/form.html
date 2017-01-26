@@ -26,7 +26,7 @@ html, body {
 <div class="listtop">[% title %]</div>
 [%- INCLUDE 'common/flash.html' %]
 
-<form id="reconciliation_form" method="post" action="controller.pl" style="height:100%">
+<form id="reconciliation_form" method="post" action="controller.pl" style="height:100%" id="filter_form">
   <table>
     <tr>
      <th align="right">[% 'Bank account' | $T8 %]</th>
@@ -76,8 +76,6 @@ html, body {
      <td class='bb_balance'>[% LxERP.format_amount(-1 * SELF.bb_balance, 2) %]</td>
     </tr>
   </table>
-
-  [% L.submit_tag('submit_filter', LxERP.t8("Filter"), onclick='filter_table();return false;', style='display: none') %]
 
   <div id="reconc_tabs" class="tabwidget" style="height:100%">
     <ul>
@@ -130,4 +128,3 @@ $.cookie('jquery_ui_tab_reconc_tabs', [% ui_tab %] );
 
 //-->
 </script>
-

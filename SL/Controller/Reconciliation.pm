@@ -29,6 +29,7 @@ __PACKAGE__->run_before('_bank_account');
 sub action_search {
   my ($self) = @_;
 
+  $self->setup_search_action_bar;
   $self->render('reconciliation/search');
 }
 
@@ -41,6 +42,7 @@ sub action_reconciliation {
 
   $self->_get_balances;
 
+  $self->setup_reconciliation_action_bar;
   $self->render('reconciliation/form',
                 ui_tab => scalar(@{$self->{PROPOSALS}}) > 0?1:0,
                 title => t8('Reconciliation'));
@@ -618,6 +620,34 @@ sub init_cleared {
 
 sub init_BANK_ACCOUNTS {
   SL::DB::Manager::BankAccount->get_all_sorted( query => [ obsolete => 0 ] );
+}
+
+sub setup_search_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#search_form', { action => 'Reconciliation/reconciliation' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_reconciliation_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Filter'),
+        call      => [ 'filter_table' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;

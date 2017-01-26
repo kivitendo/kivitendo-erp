@@ -706,7 +706,6 @@
   access: bank_transaction
   params:
     action: Reconciliation/search
-    next_sub: Reconciliation/reconciliation
 - parent: cash
   id: cash_reconciliation
   name: Reconciliation

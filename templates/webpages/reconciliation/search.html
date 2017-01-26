@@ -3,7 +3,7 @@
 [%- USE L %]
 [%- USE LxERP %]
 
-<form method="post" action="controller.pl">
+<form method="post" action="controller.pl" id="search_form">
 
 <div class="listtop">[% 'Choose bank account for reconciliation' | $T8 %]</div>
 
@@ -35,10 +35,4 @@
   </tr>
  </table>
 </p>
-
-<hr size="3" noshade>
-
-[% L.hidden_tag('action', FORM.next_sub) %]
-
-<p>[% L.submit_tag('dummy', LxERP.t8('Continue')) %]</p>
 </form>
