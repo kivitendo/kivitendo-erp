@@ -139,9 +139,13 @@ namespace('kivi', function(k){
         if (data.checks) {
           for (var i=0; i < data.checks.length; i++) {
             check = data.checks[i];
-            func = kivi.get_function_by_name(check);
-            if (!func) console.log('Cannot find check function: ' + check);
-            if (!func()) return;
+            if (check.constructor !== Array)
+              check = [ check ];
+            func = kivi.get_function_by_name(check[0]);
+            if (!func)
+              console.log('Cannot find check function: ' + check);
+            if (!func.apply(document, check.slice(1)))
+              return;
           }
         }
         if (data.confirm && !confirm(data.confirm)) return;
