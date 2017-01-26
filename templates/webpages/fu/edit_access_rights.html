@@ -9,7 +9,7 @@
 
  <p>[% 'Allow the following users access to my follow-ups:' | $T8 %]</p>
 
- <form action="fu.pl" method="post" name="Form">
+ <form action="fu.pl" method="post" name="Form" id="form">
   <p>
    <table>
     <tr>
@@ -36,10 +36,4 @@
   </p>
 
   <input type="hidden" name="rowcount" value="[% EMPLOYEES.size %]">
-  <input type="hidden" name="save_nextsub" value="save_access_rights">
-
-  <p>
-   <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-  </p>
-
  </form>

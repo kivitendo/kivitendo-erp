@@ -7,9 +7,7 @@
    $(function(){ document.Form.subject.focus(); });
  </script>
 
- <form action="fu.pl" method="post" name="Form">
-  <input type="hidden" name="nextsub" value="report">
-
+ <form action="fu.pl" method="post" name="Form" id="form">
   <p>
    <table>
     <tr>
@@ -100,9 +98,4 @@
 
    </table>
   </p>
-
-  <p>
-   <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
-  </p>
  </form>
-

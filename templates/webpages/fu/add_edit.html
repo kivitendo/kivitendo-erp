@@ -7,7 +7,7 @@
    $(function(){ document.Form.subject.focus(); });
  </script>
 
- <form action="fu.pl" method="post" name="Form">
+ <form action="fu.pl" method="post" name="Form" id="form">
 
   [%- IF SAVED_MESSAGE %]
   <p>[% SAVED_MESSAGE %]</p>
@@ -51,6 +51,7 @@
    </table>
   </p>
 
+ [%- IF POPUP_MODE %]
   <p>
    <input type="hidden" name="action" value="dispatcher">
    <input type="submit" class="submit" name="action_save" value="[% 'Save' | $T8 %]">
@@ -58,12 +59,9 @@
    <input type="submit" class="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
    <input type="submit" class="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
    [%- END %]
-   [%- IF POPUP_MODE %]
    <input type="submit" class="submit" onclick="window.close()" value="[% 'Cancel' | $T8 %]">
-   [%- END %]
   </p>
 
-  [%- IF POPUP_MODE %]
   [%- IF FOLLOW_UPS.size %]
   <hr height="3" noshade>
 
@@ -99,4 +97,3 @@
 
   <input type="hidden" name="trans_rowcount" value="[% LINKS.size %]">
  </form>
-

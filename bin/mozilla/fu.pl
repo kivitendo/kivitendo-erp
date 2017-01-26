@@ -1,6 +1,7 @@
 use POSIX qw(strftime);
 
 use SL::FU;
+use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
 require "bin/mozilla/reportgenerator.pl";
@@ -98,6 +99,8 @@ sub display_form {
   $params{not_id}     = $form->{id} if ($form->{id});
   $params{trans_id}   = $form->{LINKS}->[0]->{trans_id} if (@{ $form->{LINKS} });
   $form->{FOLLOW_UPS} = FU->follow_ups(%params);
+
+  setup_fu_display_form_action_bar() unless $::form->{POPUP_MODE};
 
   $form->header(no_layout => $::form->{POPUP_MODE});
   print $form->parse_html_template('fu/add_edit');
@@ -232,6 +235,7 @@ sub search {
 
   $form->{title}    = $locale->text('Follow-Ups');
 
+  setup_fu_search_action_bar();
   $form->header();
   print $form->parse_html_template('fu/search');
 
@@ -347,6 +351,7 @@ sub report {
     $report->add_data($row);
   }
 
+  setup_fu_report_action_bar();
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
@@ -408,6 +413,8 @@ sub edit_access_rights {
   map { $_->{access} = $access->{$_->{id}} } @{ $form->{EMPLOYEES} };
 
   $form->{title} = $locale->text('Edit Access Rights for Follow-Ups');
+
+  setup_fu_edit_access_rights_action_bar();
 
   $form->header();
   print $form->parse_html_template('fu/edit_access_rights');
@@ -473,6 +480,79 @@ sub dispatcher {
   call_sub($form->{default_action}) if ($form->{default_action});
 
   $form->error($locale->text('No action defined.'));
+}
+
+sub setup_fu_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form', { action => "report" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_fu_display_form_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save" } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Finish'),
+        submit   => [ '#form', { action => "finish" } ],
+        disabled => !$::form->{id} ? t8('The object has not been saved yet.') : undef,
+      ],
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "delete" } ],
+        disabled => !$::form->{id} ? t8('The object has not been saved yet.') : undef,
+        confirm  => t8('Do you really want to delete this object?'),
+      ],
+    );
+  }
+}
+
+sub setup_fu_report_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Finish'),
+        submit => [ '#form', { action => "finish" } ],
+        checks => [ [ 'kivi.check_if_entries_selected', '[name^=selected_]' ] ],
+      ],
+      action => [
+        t8('Delete'),
+        submit  => [ '#form', { action => "delete" } ],
+        checks  => [ [ 'kivi.check_if_entries_selected', '[name^=selected_]' ] ],
+        confirm => t8('Do you really want to delete the selected objects?'),
+      ],
+    );
+  }
+}
+
+sub setup_fu_edit_access_rights_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_access_rights" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;

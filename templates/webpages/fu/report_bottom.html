@@ -4,11 +4,4 @@
  [%- FOREACH item = HIDDEN %]
  <input type="hidden" name="[% HTML.escape(item.key) %]" value="[% HTML.escape(item.value) %]">
  [%- END %]
-
- <p>
-  [% 'Follow-Ups' | $T8 %]<br>
-  <input type="hidden" name="action" value="dispatcher">
-  <input type="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
-  <input type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
- </p>
 </form>
