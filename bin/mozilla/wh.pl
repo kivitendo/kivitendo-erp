@@ -866,7 +866,7 @@ sub generate_report {
     'qty'                  => { 'text' => $locale->text('Qty'), },
     'partunit'             => { 'text' => $locale->text('Unit'), },
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
-    'purchase_price'       => { 'text' => $locale->text('Purchase Price'), },
+    'purchase_price'       => { 'text' => $locale->text('Purchase price'), },
   );
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
