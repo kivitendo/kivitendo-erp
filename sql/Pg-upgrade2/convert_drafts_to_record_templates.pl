@@ -320,7 +320,7 @@ sub run {
   $self->migrate_ar_drafts;
   $self->migrate_ap_drafts;
   $self->migrate_gl_drafts;
-  # $self->clean_drafts;
+  $self->clean_drafts;
   $self->finish_statements;
 
   # die "boom!";
