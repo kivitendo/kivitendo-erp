@@ -3,9 +3,7 @@
 [%- USE HTML %][%- USE L %]
 <h1>[% title %]</h1>
 
- <form method="post" action="am.pl" name="Form">
-  <input type="hidden" name="type" value="preferences">
-
+ <form method="post" action="am.pl" name="Form" id="form">
   <div class="tabwidget">
    <ul>
     <li><a href="#page_personal_settings">[% 'Personal settings' | $T8 %]</a></li>
@@ -245,8 +243,6 @@
     </table>
    </div>
   </div>
-
-  <p><input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]"></p>
  </form>
 
  <script type="text/javascript">

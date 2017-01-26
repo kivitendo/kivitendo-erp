@@ -42,6 +42,7 @@ use SL::Form;
 use SL::User;
 use SL::USTVA;
 use SL::Iconv;
+use SL::Locale::String qw(t8);
 use SL::TODO;
 use SL::DB::Printer;
 use SL::DB::Tax;
@@ -713,6 +714,8 @@ sub config {
 
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
 
+  setup_am_config_action_bar();
+
   $form->header();
 
   $form->{full_signature} = $form->create_email_signature();
@@ -1376,4 +1379,18 @@ sub save_bin {
   $form->redirect($locale->text('Bins saved.'));
 
   $main::lxdebug->leave_sub();
+}
+
+sub setup_am_config_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_preferences" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
