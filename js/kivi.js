@@ -459,6 +459,21 @@ namespace("kivi", function(ns) {
     if (!found)
       console.log('No duplicate IDs found :)');
   };
+
+  // Verifies that at least one checkbox matching the
+  // "checkbox_selector" is actually checked. If not, an error message
+  // is shown, and false is returned. Otherwise (at least one of them
+  // is checked) nothing is shown and true returned.
+  //
+  // Can be used in checks when clicking buttons.
+  ns.check_if_entries_selected = function(checkbox_selector) {
+    if ($(checkbox_selector + ':checked').length > 0)
+      return true;
+
+    alert(kivi.t8('No entries have been selected.'));
+
+    return false;
+  };
 });
 
 kivi = namespace('kivi');
