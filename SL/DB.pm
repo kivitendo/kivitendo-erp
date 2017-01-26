@@ -126,14 +126,30 @@ sub with_transaction {
   my ($self, $code, @args) = @_;
 
   return $code->(@args) if $self->in_transaction;
-  if (wantarray) {
-    my @result;
-    return $self->do_transaction(sub { @result = $code->(@args) }) ? @result : ();
 
-  } else {
-    my $result;
-    return $self->do_transaction(sub { $result = $code->(@args) }) ? $result : undef;
-  }
+  my (@result, $result);
+  my $rv = 1;
+
+  local $@;
+
+  eval {
+    wantarray
+      ? $self->do_transaction(sub { @result = $code->(@args) })
+      : $self->do_transaction(sub { $result = $code->(@args) });
+  } or do {
+    my $error = $self->error;
+    if (ref $error) {
+      if ($error->isa('SL::X::DBError')) {
+        # gobble the exception
+      } else {
+        $error->rethrow;
+      }
+    } else {
+      die $self->error;
+    }
+  };
+
+  return wantarray ? @result : $result;
 }
 
 1;
@@ -173,50 +189,61 @@ starting one only if none is currently active. Example:
     # do stuff with $self
   });
 
-There are two big differences between C<with_transaction> and
-L<Rose::DB/do_transaction>: the handling of an already-running
-transaction and the handling of return values.
+This is a wrapper around L<Rose::DB/do_transaction> that does a few additional
+things, and should always be used in favour of the other:
 
-The first difference revolves around when a transaction is started and
-committed/rolled back. Rose's C<do_transaction> will always start one,
-then execute the code reference and commit afterwards (or roll back if
-an exception occurs).
+=over 4
 
-This prevents the caller from combining several pieces of code using
-C<do_transaction> reliably as results committed by an inner
-transaction will be permanent even if the outer transaction is rolled
-back.
+=item Composition of transactions
 
-Therefore our C<with_transaction> works differently: it will only
-start a transaction if no transaction is currently active on the
-database connection.
+When C<with_transaction> is called without a running transaction, a new one is
+created. If it is called within a running transaction, it performs no
+additional handling. This means that C<with_transaction> can be safely used
+within another C<with_transaction>, whereas L<Rose::DB/do_transaction> can not.
 
-The second big difference to L<Rose::DB/do_transaction> is the
-handling of returned values. Basically our C<with_transaction> will
-return the values that the code reference C<$code_ref> returns (or
-C<undef> if the transaction was rolled back). Rose's C<do_transaction>
-on the other hand will only return a value signaling the transaction's
-status.
+=item Return values
 
-In more detail:
+C<with_transaction> adopts the behaviour of C<eval> in that it returns the
+result of the inner block, and C<undef> if an error occured. This way you can
+use the same pattern you would normally use with C<eval> for
+C<with_transaction>:
 
-=over 2
+  SL::DB->client->with_transaction(sub {
+     # do stuff
+     # and return nominal true value
+     1;
+  }) or do {
+    # transaction error handling
+    my $error = SL::DB->client->error;
+  }
 
-=item * If a transaction is already active then C<with_transaction>
-will simply return the result of calling C<$code_ref> as-is preserving
-context.
+or you can use it to safely calulate things.
 
-=item * If no transaction is started then C<$code_ref> will be wrapped
-in one. C<with_transaction>'s return value depends on the result of
-that transaction. If the it succeeds then the return value of
-C<$code_ref> will be returned preserving context. Otherwise C<undef>
-will be returned in scalar context and an empty list in list context.
+=item Error handling
+
+The original L<Rose::DB/do_transaction> gobbles up all execptions and expects
+the caller to manually check return value and error, and then to process all
+exceptions as strings. This is very fragile and generally a step backwards from
+proper exception handling.
+
+C<with_transaction> only gobbles up exception that are used to signal an
+error in the transaction, and returns undef on those. All other exceptions
+bubble out of the transaction like normal, so that it is transparent to typoes,
+runtime exceptions and other generally wanted things.
+
+If you just use the snippet above, your code will catch everything related to
+the transaction aborting, but will not catch other errors that might have been
+thrown. The transaction will be rollbacked in both cases.
+
+If you want to play nice in case your transaction is embedded in another
+transaction, just rethrow the error:
+
+  $db->with_transaction(sub {
+    # code deep in the engine
+    1;
+  }) or die $db->error;
 
 =back
-
-So if you want to differentiate between "transaction failed" and
-"succeeded" then your C<$code_ref> should never return C<undef>
-itself.
 
 =back
 

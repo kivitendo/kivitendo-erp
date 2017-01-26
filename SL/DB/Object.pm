@@ -148,7 +148,7 @@ sub save {
     SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
 
     1;
-  }) || die $self->error;
+  }) || die $self->db->error;
 
   return $result;
 }
@@ -164,7 +164,7 @@ sub delete {
     SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
 
     1;
-  }) || die $self->error;
+  }) || die $self->db->error;
 
   return $result;
 }

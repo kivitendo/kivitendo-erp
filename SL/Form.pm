@@ -344,13 +344,12 @@ sub numtextrows {
 }
 
 sub dberror {
-  $main::lxdebug->enter_sub();
-
   my ($self, $msg) = @_;
 
-  $self->error("$msg\n" . $DBI::errstr);
-
-  $main::lxdebug->leave_sub();
+  die SL::X::DBError->new(
+    msg   => $msg,
+    error => $DBI::errstr,
+  );
 }
 
 sub isblank {

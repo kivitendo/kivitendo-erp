@@ -1,6 +1,7 @@
 package SL::DB::Helper::Metadata;
 
 use strict;
+use SL::X;
 
 use Rose::DB::Object::Metadata;
 use SL::DB::Helper::ConventionManager;
@@ -29,6 +30,20 @@ sub make_attr_helpers {
 sub make_attr_auto_helpers {
   my ($self) = @_;
   SL::DB::Helper::Attr::auto_make($self->class);
+}
+
+sub handle_error {
+  my($self, $object) = @_;
+
+  # these are used as Rose internal canaries, don't wrap them
+  die $object->error if UNIVERSAL::isa($object->error, 'Rose::DB::Object::Exception');
+
+  die SL::X::DBRoseError->new(
+    error      => $object->error,
+    class      => ref($object),
+    metaobject => $self,
+    object     => $object,
+  );
 }
 
 1;
