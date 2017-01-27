@@ -8,6 +8,7 @@ use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportReport;
 use SL::DB::Unit;
 use SL::DB::Helper::Paginated ();
+use SL::DBUtils qw(do_statement);
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::SessionFile;
@@ -544,7 +545,7 @@ sub save_report_single {
       push @raw_methods,  $self->raw_data_headers->{headers}->[$i];
     }
 
-    $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
+    do_statement($::form, $sth, $query, $report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
 
     # col offsets
     my $o1 =       @info_methods;
@@ -554,12 +555,12 @@ sub save_report_single {
       $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
       my $data_row = $self->{data}[$row];
 
-      $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
-      $sth->execute($report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
-      $sth->execute($report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
+      do_statement($::form, $sth, $query, $report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
+      do_statement($::form, $sth, $query, $report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
+      do_statement($::form, $sth, $query, $report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
 
-      $sth2->execute($report->id, $row + 1, 'information', $_) for @{ $data_row->{information} || [] };
-      $sth2->execute($report->id, $row + 1, 'errors', $_)      for @{ $data_row->{errors}      || [] };
+      do_statement($::form, $sth2, $query2, $report->id, $row + 1, 'information', $_) for @{ $data_row->{information} || [] };
+      do_statement($::form, $sth2, $query2, $report->id, $row + 1, 'errors', $_)      for @{ $data_row->{errors}      || [] };
     }
     1;
   }) or do { die SL::DB->client->error };
@@ -623,7 +624,7 @@ sub save_report_multi {
 
     for my $i (0 .. $#{ $self->worker->profile }) {
       my $row_ident = $self->worker->profile->[$i]->{row_ident};
-      $sth->execute($report->id, $_, $i, $headers->{$row_ident}->[$_]) for 0 .. $#{ $headers->{$row_ident} };
+      do_statement($::form, $sth, $query, $report->id, $_, $i, $headers->{$row_ident}->[$_]) for 0 .. $#{ $headers->{$row_ident} };
     }
 
     # col offsets
@@ -647,12 +648,12 @@ sub save_report_multi {
       my $o1 = $off1->{$row_ident};
       my $o2 = $off2->{$row_ident};
 
-      $sth->execute($report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
-      $sth->execute($report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
-      $sth->execute($report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };
+      do_statement($::form, $sth, $query, $report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
+      do_statement($::form, $sth, $query, $report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
+      do_statement($::form, $sth, $query, $report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };
 
-      $sth2->execute($report->id, $row + $n_header_rows, 'information', $_) for @{ $data_row->{information} || [] };
-      $sth2->execute($report->id, $row + $n_header_rows, 'errors', $_)      for @{ $data_row->{errors}      || [] };
+      do_statement($::form, $sth2, $query2, $report->id, $row + $n_header_rows, 'information', $_) for @{ $data_row->{information} || [] };
+      do_statement($::form, $sth2, $query2, $report->id, $row + $n_header_rows, 'errors', $_)      for @{ $data_row->{errors}      || [] };
     }
     1;
   }) or do { die SL::DB->client->error };

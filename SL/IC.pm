@@ -762,7 +762,7 @@ sub retrieve_accounts {
     p.id IN ($in)
 SQL
 
-  my $sth_tax = prepare_query($::form, $dbh, <<SQL);
+  my $query_tax = <<SQL;
     SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
@@ -772,6 +772,7 @@ SQL
        WHERE tk.chart_id = ? AND startdate <= ?
        ORDER BY startdate DESC LIMIT 1)
 SQL
+  my $sth_tax = prepare_query($::form, $dbh, $query_tax);
 
   while (my ($index => $part_id) = each %args) {
     my $ref = $accno_by_part{$part_id} or next;
@@ -787,7 +788,7 @@ SQL
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
 
-    $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate));
+    $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate)) || $::form->dberror($query_tax);
     $ref = $sth_tax->fetchrow_hashref or next;
 
     $form->{"taxaccounts_$index"} = $ref->{"accno"};

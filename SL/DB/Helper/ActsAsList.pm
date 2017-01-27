@@ -7,6 +7,7 @@ our @EXPORT = qw(move_position_up move_position_down add_to_list remove_from_lis
                  get_previous_in_list get_next_in_list get_full_list);
 
 use Carp;
+use SL::X;
 
 my %list_spec;
 
@@ -145,7 +146,7 @@ sub reorder_list {
     my $sth   = $self->db->dbh->prepare($query) || die $self->db->dbh->errstr;
 
     foreach my $new_position (1 .. scalar(@ids)) {
-      $sth->execute($new_position, $ids[$new_position - 1]) || die $sth->errstr;
+      $sth->execute($new_position, $ids[$new_position - 1]) || die SL::X::DBUtilsError->new(error => $sth->errstr);
     }
 
     $sth->finish;

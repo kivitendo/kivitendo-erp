@@ -168,7 +168,7 @@ sub _create_export {
       $transfer->{reference} = "${invnumber}-${num_payments}";
     }
 
-    $h_item_id->execute();
+    $h_item_id->execute() || $::form->dberror($q_item_id);
     my ($item_id)      = $h_item_id->fetchrow_array();
 
     my $end_to_end_id  = strftime "LXO%Y%m%d%H%M%S", localtime;

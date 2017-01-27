@@ -549,7 +549,7 @@ sub do_csv_export {
   my $query = "SELECT " . join(', ', @select_tokens) . " FROM $table $where_clause";
 
   my $sth = $::form->get_standard_dbh->prepare($query);
-  $sth->execute(@values) or die "error executing query $query: " . $sth->errstr;
+  $sth->execute(@values) or $::form->dberror($query);
 
   while (my $row = $sth->fetch) {
     for my $keep_col (@{ $known_tables{$table}{keep} || [] }) {
