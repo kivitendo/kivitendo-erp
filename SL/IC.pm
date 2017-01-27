@@ -916,7 +916,7 @@ sub prepare_parts_for_printing {
     next unless $id;
     my $prt = $parts_by_id{$id};
     my $type_abbr = $::request->presenter->type_abbreviation($prt->part_type);
-    push @{ $template_arrays{part_type} }, $type_abbr;
+    push @{ $template_arrays{part_abbreviation} }, $type_abbr;
     push @{ $template_arrays{type_and_classific}},  $type_abbr.$::request->presenter->classification_abbreviation($prt->classification_id);
     push @{ $template_arrays{separate}  },  $::request->presenter->separate_abbreviation($prt->classification_id);
   }
