@@ -555,6 +555,12 @@ sub abbreviation {
   return t8('Invoice (one letter abbreviation)');
 }
 
+sub oneline_summary {
+  my $self = shift;
+
+  return sprintf("%s: %s %s (%s)", $self->abbreviation, $self->invnumber, $self->customer->name, $self->transdate->to_kivitendo);
+}
+
 sub date {
   goto &transdate;
 }

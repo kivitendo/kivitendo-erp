@@ -88,6 +88,12 @@ sub abbreviation {
 
 };
 
+sub oneline_summary {
+  my $self = shift;
+
+  return sprintf("%s: %s %s (%s)", $self->abbreviation, $self->invnumber, $self->vendor->name, $self->transdate->to_kivitendo);
+}
+
 sub link {
   my ($self) = @_;
 

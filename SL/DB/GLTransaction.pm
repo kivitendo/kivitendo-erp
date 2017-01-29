@@ -30,6 +30,11 @@ sub abbreviation {
   return $abbreviation;
 }
 
+sub oneline_summary {
+  my ($self) = @_;
+  return sprintf("%s: %s %s (%s)", $self->abbreviation, $self->description, $self->reference, $_->transdate->to_kivitendo);
+}
+
 sub link {
   my ($self) = @_;
 
