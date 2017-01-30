@@ -28,8 +28,8 @@ use Rose::DB::Object::Helpers qw(as_tree);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(project linked_records) ],
- 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects) ],
+ scalar => [ qw(project) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects linked_records) ],
 );
 
 __PACKAGE__->run_before('check_auth',   except => [ qw(ajax_autocomplete) ]);
@@ -75,7 +75,6 @@ sub action_new {
 sub action_edit {
   my ($self) = @_;
 
-  $self->get_linked_records;
   $self->display_form(title    => $::locale->text('Edit project #1', $self->project->projectnumber),
                       callback => $::form->{callback} || $self->url_for(action => 'edit', id => $self->project->id));
 }
@@ -164,6 +163,47 @@ sub check_auth {
 sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
 sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
 
+sub init_linked_records {
+  my ($self) = @_;
+  return [
+    map  { @{ $_ } }
+    grep { $_      } (
+      SL::DB::Manager::Invoice->        get_all(where        => [ invoice => 1, or => [ globalproject_id => $self->project->id, 'invoiceitems.project_id' => $self->project->id ] ],
+                                                with_objects => [ 'invoiceitems', 'customer' ],
+                                                distinct     => [ 'customer' ],
+                                                sort_by       => 'transdate ASC'),
+      SL::DB::Manager::Invoice->        get_all(where        => [ invoice => 0, or => [ globalproject_id => $self->project->id, 'transactions.project_id' => $self->project->id ] ],
+                                                with_objects => [ 'transactions', 'customer' ],
+                                                distinct     => [ 'customer' ],
+                                                sort_by       => 'transdate ASC'),
+      SL::DB::Manager::PurchaseInvoice->get_all(where => [ invoice => 1,
+                                                           or => [ globalproject_id => $self->project->id, 'invoiceitems.project_id' => $self->project->id ]
+                                                         ],
+                                                with_objects => [ 'invoiceitems', 'vendor' ],
+                                                distinct     => [ 'customer' ],
+                                                sort_by => 'transdate ASC'),
+      SL::DB::Manager::PurchaseInvoice->get_all(where => [ invoice => 0,
+                                                           or => [ globalproject_id => $self->project->id, 'transactions.project_id' => $self->project->id ]
+                                                         ],
+                                                with_objects => [ 'transactions', 'vendor' ],
+                                                distinct     => [ 'customer' ],
+                                                sort_by => 'transdate ASC'),
+      SL::DB::Manager::GLTransaction->  get_all(where => [ 'transactions.project_id' => $self->project->id ],
+                                                with_objects => [ 'transactions' ],
+                                                distinct     => 1,
+                                                sort_by => 'transdate ASC'),
+      SL::DB::Manager::Order->          get_all(where => [ or => [ globalproject_id => $self->project->id, 'orderitems.project_id' => $self->project->id ] ],
+                                                with_objects => [ 'orderitems', 'customer', 'vendor' ],
+                                                distinct => [ 'customer', 'vendor' ],
+                                                sort_by => 'transdate ASC' ),
+      SL::DB::Manager::DeliveryOrder->  get_all(where => [ or => [ globalproject_id => $self->project->id, 'orderitems.project_id' => $self->project->id ] ],
+                                                with_objects => [ 'orderitems', 'customer', 'vendor' ],
+                                                distinct => [ 'customer', 'vendor' ],
+                                                sort_by => 'transdate ASC'),
+    )];
+}
+
+
 sub init_projects {
   if ($::form->{no_paginate}) {
     $_[0]->models->disable_plugin('paginated');
@@ -233,18 +273,6 @@ sub load_project {
   $self->project(SL::DB::Project->new(id => $::form->{id})->load);
 }
 
-sub get_linked_records {
-  my ($self) = @_;
-
-  $self->linked_records([
-    map  { @{ $_ } }
-    grep { $_      } (
-      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
-    )]);
-}
 
 sub prepare_report {
   my ($self)      = @_;
