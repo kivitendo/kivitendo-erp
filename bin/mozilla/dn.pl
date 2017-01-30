@@ -84,6 +84,8 @@ sub edit_config {
   $form->{title}      = $locale->text('Edit Dunning Process Config');
   $form->{callback} ||= build_std_url("action=edit_config");
 
+  setup_dn_edit_config_action_bar();
+
   $form->header();
   print $form->parse_html_template("dunning/edit_config");
 
@@ -624,6 +626,20 @@ sub setup_dn_show_dunning_action_bar {
         submit  => [ '#form', { action => "delete" } ],
         checks  => [ [ 'kivi.check_if_entries_selected', '[name^=selected_]' ] ],
         confirm => $::locale->text('This resets the dunning process for the selected invoices. Posted dunning invoices will not be changed!'),
+      ],
+    );
+  }
+}
+
+sub setup_dn_edit_config_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save" } ],
+        accesskey => 'enter',
       ],
     );
   }

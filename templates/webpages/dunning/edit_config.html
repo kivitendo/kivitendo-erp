@@ -5,7 +5,7 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
- <form method="post" action="dn.pl" name="Form">
+ <form method="post" action="dn.pl" name="Form" id="form">
   <table>
 
    <tr>
@@ -121,11 +121,5 @@
    </tr>
   </table>
 
-  <hr size="3" noshade>
-
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-
-  <input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
-
  </form>
-
