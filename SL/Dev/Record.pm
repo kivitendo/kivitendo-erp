@@ -44,8 +44,8 @@ sub create_sales_invoice {
     payment_id   => $params{payment_id}  // undef,
     gldate       => DateTime->today_local->to_kivitendo,
     invoiceitems => $invoiceitems,
-    %params,
   );
+  $invoice->assign_attributes(%params) if %params;
 
   $invoice->post;
   return $invoice;
@@ -73,8 +73,8 @@ sub create_sales_delivery_order {
     salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
     transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
     orderitems   => $orderitems,
-    %params
   );
+  $delivery_order->assign_attributes(%params) if %params;
   $delivery_order->save;
   return $delivery_order;
 }
@@ -100,8 +100,8 @@ sub create_sales_order {
     # salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
     transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
     orderitems   => $orderitems,
-    %params
   );
+  $order->assign_attributes(%params) if %params;
 
   if ( $save ) {
     $order->calculate_prices_and_taxes;
@@ -130,8 +130,8 @@ sub create_purchase_order {
     transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
     'closed'     => undef,
     orderitems   => $orderitems,
-    %params
   );
+  $order->assign_attributes(%params) if %params;
 
   if ( $save ) {
     $order->calculate_prices_and_taxes; # not tested for purchase orders
@@ -192,8 +192,8 @@ sub _create_item {
     description => $part->description,
     unit        => $part->unit,
     qty         => $params{qty} || 5,
-    %params,
   );
+  $item->assign_attributes(%params) if %params;
   return $item;
 }
 
@@ -220,8 +220,8 @@ sub create_project {
     valid             => 1,
     project_status_id => SL::DB::Manager::ProjectStatus->find_by(name => "running")->id,
     project_type_id   => SL::DB::Manager::ProjectType->find_by(description => "Standard")->id,
-    %params,
   )->save;
+  $project->assign_attributes(%params) if %params;
   return $project;
 }
 
