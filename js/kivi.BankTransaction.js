@@ -19,6 +19,7 @@ namespace('kivi.BankTransaction', function(ns) {
       url: 'controller.pl?action=BankTransaction/ajax_payment_suggestion&bt_id=' + bank_transaction_id  + '&prop_id=' + proposal_id,
       success: function(data) {
         $('#assigned_invoices_' + bank_transaction_id).append(data.html);
+        ns.update_invoice_amount(bank_transaction_id);
       }
     });
   };
@@ -26,6 +27,7 @@ namespace('kivi.BankTransaction', function(ns) {
   ns.delete_invoice = function(bank_transaction_id, proposal_id) {
     $( "#" + bank_transaction_id + "\\." + proposal_id ).remove();
     $('[data-proposal-id=' + proposal_id + ']').show();
+    ns.update_invoice_amount(bank_transaction_id);
   };
 
   ns.create_invoice = function(bank_transaction_id) {
@@ -59,12 +61,25 @@ namespace('kivi.BankTransaction', function(ns) {
       success: function(new_html) {
         $('#assigned_invoices_' + bank_transaction_id).append(new_html);
         $('#assign_invoice_window').dialog('close');
+        ns.update_invoice_amount(bank_transaction_id);
       }
     });
   }
 
+  ns.update_invoice_amount = function(bank_transaction_id) {
+    var $container = $('#invoice_amount_' + bank_transaction_id);
+    var amount     = $container.data('invoice-amount') * 1;
+
+    $('[id^="' + bank_transaction_id + '."]').each(function(idx, elt) {
+      amount += $(elt).data('invoice-amount');
+    });
+
+    $container.html(kivi.format_amount(amount, 2));
+  };
+
   ns.init_list = function(ui_tab) {
     $('#check_all').checkall('INPUT[name^="proposal_ids"]');
+
     $('.sort_link').each(function() {
       var _href = $(this).attr("href");
       $(this).attr("href", _href + "&filter.fromdate=" + $('#filter_fromdate').val() + "&filter.todate=" + $('#filter_todate').val());

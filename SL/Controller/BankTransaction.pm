@@ -337,8 +337,8 @@ sub action_ajax_payment_suggestion {
                                      value_key => 'payment_type',
                                      title_key => 'display' )
     if @select_options;
-  $html .= '<a href=# onclick="kivi.BankTransaction.delete_invoice(' . $::form->{bt_id} . ',' . $::form->{prop_id} . ');">x</a>';
-  $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id});
+  $html .= SL::Presenter->html_tag('a', 'x', href => '#', onclick => "kivi.BankTransaction.delete_invoice(" . $::form->{bt_id} . ',' . $::form->{prop_id} . ")");
+  $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id}, 'data-invoice-amount' => $invoice->open_amount * 1);
 
   $self->render(\ SL::JSON::to_json( { 'html' => $html } ), { layout => 0, type => 'json', process => 0 });
 };

@@ -1,8 +1,8 @@
 [% USE L %]
 [% USE T8 %]
-[% USE LxERP %]
+[% USE LxERP %][%- USE HTML -%]
 [% FOREACH invoice = INVOICES %]
-  <div id="[% bt_id %].[% invoice.id %]">
+  <div id="[% bt_id %].[% invoice.id %]" data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]">
     [% L.hidden_tag('invoice_ids.' _ bt_id _'[]', invoice.id) %]
     [% 'Invno.' | $T8 %]: [% invoice.invnumber %]
     [% 'Open amount' | $T8 %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
