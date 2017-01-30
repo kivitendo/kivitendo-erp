@@ -79,7 +79,7 @@ $(function() {
 
 [% PROCESS 'common/flash.html' %]
 
-<form action='controller.pl' method='POST'>
+<form action='controller.pl' method='POST' id='form'>
  <div class="tabwidget">
   <ul>
    <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
@@ -108,10 +108,4 @@ $(function() {
 [% PROCESS 'client_config/_warehouse.html' %]
 [% PROCESS 'client_config/_features.html' %]
 [% PROCESS 'client_config/_miscellaneous.html' %]
-
- <div>
-  [%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
-  [%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
- </div>
-
 </form>

@@ -214,10 +214,25 @@ sub edit_form {
 
   $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side kivi.File);
 
+  $self->setup_edit_form_action_bar;
   $self->render('client_config/form', title => t8('Client Configuration'),
                 make_chart_title     => sub { $_[0]->accno . '--' . $_[0]->description },
                 make_templates_value => sub { 'templates/' . $_[0] },
               );
+}
+
+sub setup_edit_form_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'ClientConfig/save' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;
