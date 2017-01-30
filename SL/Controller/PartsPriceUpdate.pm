@@ -21,6 +21,7 @@ __PACKAGE__->run_before('check_rights');
 sub action_search_update_prices {
   my ($self) = @_;
 
+  $self->setup_search_update_prices_action_bar;
   $self->render('ic/search_update_prices',
     title => t8('Update Prices'),
   );
@@ -64,6 +65,7 @@ sub action_confirm_price_update {
 
     my $key = $::auth->create_unique_sesion_value(SL::JSON::to_json($self->filter));
 
+    $self->setup_confirm_price_update_action_bar;
     $self->render('ic/confirm_price_update',
       num_matches => $num_matches,
       filter_key  => $key,
@@ -276,6 +278,39 @@ sub check_rights {
 
 sub init_filter {
   $::form->{filter} || {};
+}
+
+sub setup_search_update_prices_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'PartsPriceUpdate/confirm_price_update' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_confirm_price_update_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'PartsPriceUpdate/update_prices' } ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
 }
 
 1;

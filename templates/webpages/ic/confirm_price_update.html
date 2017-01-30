@@ -3,7 +3,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
 
   <h2 class="confirm">[% 'Confirm!' | $T8 %]</h2>
 
@@ -11,10 +11,5 @@
 
   <p>[% 'Are you sure you want to update the prices' | $T8 %]?</p>
 
-  <p>
-   [% L.hidden_tag('filter_key', filter_key) %]
-   [% L.hidden_tag('action', 'PartsPriceUpdate/dispatch') %]
-   <input name="action_update_prices" class="submit" type="submit" value="[% 'Continue' | $T8 %]">
-   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
-  </p>
+  [% L.hidden_tag('filter_key', filter_key) %]
  </form>

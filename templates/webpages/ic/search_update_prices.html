@@ -6,7 +6,7 @@
 
 [% PROCESS 'common/flash.html' %]
 
-<form method="post" action="controller.pl">
+<form method="post" action="controller.pl" id="form">
  <table>
   <tr>
    <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
@@ -102,10 +102,4 @@
 [%- END %]
 
  </table>
-
- <hr size="3" noshade>
-
- [% L.hidden_tag('action', 'PartsPriceUpdate/dispatch') %]
- <input class="submit" type="submit" name="action_confirm_price_update" value="[% 'Continue' | $T8 %]">
 </form>
-
