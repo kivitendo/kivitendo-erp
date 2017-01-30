@@ -37,7 +37,6 @@ namespace("kivi").setupLocale({
 "Do you really want to cancel?":"Wollen Sie wirklich abbrechen?",
 "Do you really want to delete this draft?":"Wollen Sie diesen Entwurf wirklich löschen?",
 "Do you really want to delete this record template?":"Wollen Sie diese Belegvorlage wirklich löschen?",
-"Do you really want to load this record template? All unsaved data will be lose.":"Wollen Sie diese Belegvorlage wirklich laden? Alle nicht gespeicherten Daten gehen dabei verloren.",
 "Do you really want to revert to this version?":"Wollen Sie wirklich auf diese Version zurücksetzen?",
 "Do you really want to save?":"Wollen Sie wirklich speichern?",
 "Do you want to set the account number \"#1\" to \"#2\" and the name \"#3\" to \"#4\"?":"Soll die Kontonummer \"#1\" zu \"#2\" und den Name \"#3\" zu \"#4\" geändert werden?",

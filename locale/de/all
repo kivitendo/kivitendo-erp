@@ -980,7 +980,6 @@ $self->{texts} = {
   'Do you really want to delete this object?' => 'Wollen Sie dieses Objekt wirklich löschen?',
   'Do you really want to delete this record template?' => 'Wollen Sie diese Belegvorlage wirklich löschen?',
   'Do you really want to delete this warehouse?' => 'Wollen Sie dieses Lager wirklich l&ouml;schen?',
-  'Do you really want to load this record template? All unsaved data will be lose.' => 'Wollen Sie diese Belegvorlage wirklich laden? Alle nicht gespeicherten Daten gehen dabei verloren.',
   'Do you really want to revert to this version?' => 'Wollen Sie wirklich auf diese Version zurücksetzen?',
   'Do you really want to save?' => 'Wollen Sie wirklich speichern?',
   'Do you want to <b>limit</b> your search?' => 'Wollen Sie Ihre Suche <b>spezialisieren</b>?',

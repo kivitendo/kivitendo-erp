@@ -36,9 +36,6 @@ namespace('kivi.RecordTemplate', function(ns) {
   };
 
   ns.load = function(id) {
-    if (!confirm(kivi.t8('Do you really want to load this record template? All unsaved data will be lose.')))
-      return false;
-
     var $type = $("#record_template_dialog_template_type");
     var url   = encodeURIComponent($type.data('controller'))
               + '?action=' + encodeURIComponent($type.data('load_action'))
