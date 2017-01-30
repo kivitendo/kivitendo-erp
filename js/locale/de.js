@@ -9,6 +9,7 @@ namespace("kivi").setupLocale({
 "Add sub function block":"Unterfunktionsblock hinzufügen",
 "Add text block":"Textblock erfassen",
 "Additional articles actions":"Aktionen zu zusätzlichen Artikeln",
+"Are you sure you want to update the selected record template with the current values? This cannot be undone.":"Sind Sie sicher, dass Sie die ausgewählte Belegvorlage mit den aktuellen Daten aktualisieren wollen? Das kann nicht rückgängig gemacht werden.",
 "Are you sure?":"Sind Sie sicher?",
 "Assign invoice":"Rechnung zuweisen",
 "Basic settings actions":"Aktionen zu Grundeinstellungen",

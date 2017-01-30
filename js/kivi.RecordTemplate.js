@@ -27,6 +27,9 @@ namespace('kivi.RecordTemplate', function(ns) {
       return false;
     }
 
+    if ((id !== undefined) && !confirm(kivi.t8('Are you sure you want to update the selected record template with the current values? This cannot be undone.')))
+      return false;
+
     var data = $form.serializeArray().filter(function(val) { return val.name !== 'action'; });
     data.push({ name: 'action',                            value: $type.data('save_action') });
     data.push({ name: 'record_template_id',                value: id });
