@@ -13,7 +13,7 @@ namespace('kivi.BankTransaction', function(ns) {
   };
 
   ns.add_invoices = function(bank_transaction_id, proposal_id) {
-    $('[name=' + proposal_id + ']').remove();
+    $('[data-proposal-id=' + proposal_id + ']').hide();
 
     $.ajax({
       url: 'controller.pl?action=BankTransaction/ajax_payment_suggestion&bt_id=' + bank_transaction_id  + '&prop_id=' + proposal_id,
@@ -25,6 +25,7 @@ namespace('kivi.BankTransaction', function(ns) {
 
   ns.delete_invoice = function(bank_transaction_id, proposal_id) {
     $( "#" + bank_transaction_id + "\\." + proposal_id ).remove();
+    $('[data-proposal-id=' + proposal_id + ']').show();
   };
 
   ns.create_invoice = function(bank_transaction_id) {
