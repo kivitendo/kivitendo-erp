@@ -2,7 +2,7 @@
 
 [% SET debug = 0 %]
 
-<form method="post" action="javascript:filter_invoices();" id="assign_invoice_window_form">
+<form method="post" action="javascript:kivi.BankTransaction.filter_invoices();" id="assign_invoice_window_form" data-bank-transaction-id="[% HTML.escape(SELF.transaction.id) %]">
   <b>[%- LxERP.t8("Bank transaction") %]:</b>
   <table>
    <tr class="listheading">
@@ -55,7 +55,7 @@
 
   <p>
    [% L.submit_tag('', LxERP.t8("Search")) %]
-   [% L.button_tag('add_selected_invoices()', LxERP.t8("Add invoices"), id='add_selected_record_links_button') %]
+   [% L.button_tag('kivi.BankTransaction.add_selected_invoices()', LxERP.t8("Add invoices"), id='add_selected_record_links_button') %]
    [% L.button_tag('$("#assign_invoice_window_form").resetForm()', LxERP.t8('Reset')) %]
    <a href="#" onclick="$('#assign_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </p>
@@ -68,33 +68,6 @@
 
 <script type="text/javascript">
 <!--
-
-function filter_invoices() {
-  var url="controller.pl?action=BankTransaction/ajax_add_list&" + $("#assign_invoice_window form").serialize();
-  $.ajax({
-    url: url,
-    success: function(new_data) {
-      $("#record_list_filtered_list").html(new_data['html']);
-    }
-  });
-}
-
-function add_selected_invoices() {
-  var url="controller.pl?action=BankTransaction/ajax_accept_invoices&" + 'bt_id=[% SELF.transaction.id %]&' + $("#assign_invoice_window form").serialize();
-  $.ajax({
-    url: url,
-    success: function(new_html) {
-      var invoices = document.getElementById('assigned_invoices_[% SELF.transaction.id %]');
-      if (invoices.innerHTML == '') {
-        invoices.innerHTML = new_html;
-      } else {
-        invoices.innerHTML += '<br />' + new_html;
-      }
-      $('#assign_invoice_window').dialog('close');
-    }
-  });
-}
-
 $(function() {
   $('#invnumber').focus();
 });

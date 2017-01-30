@@ -6,6 +6,6 @@
     [% L.hidden_tag('invoice_ids.' _ bt_id _'[]', invoice.id) %]
     [% 'Invno.' | $T8 %]: [% invoice.invnumber %]
     [% 'Open amount' | $T8 %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
-    <a href=# onclick="delete_invoice([% bt_id %], [% invoice.id %])">x</a>
+    <a href=# onclick="kivi.BankTransaction.delete_invoice([% bt_id %], [% invoice.id %])">x</a>
   </div>
 [% END %]

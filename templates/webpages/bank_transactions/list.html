@@ -12,6 +12,9 @@
 <p>
 [% IF FORM.filter.fromdate %] [% 'From' | $T8 %] [% FORM.filter.fromdate %] [% END %]
 [% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate %][% END %]
+[% L.hidden_tag("filter_bankaccount", FORM.filter.bankaccount) %]
+[% L.hidden_tag("filter_fromdate", FORM.filter.fromdate) %]
+[% L.hidden_tag("filter_todate", FORM.filter.todate) %]
 </p>
 
 <div id="bt_tabs" class="tabwidget">
@@ -27,62 +30,8 @@
 
 <script type="text/javascript">
 <!--
-
 $(function() {
-  $('#check_all').checkall('INPUT[name^="proposal_ids"]');
+  kivi.BankTransaction.init_list([% ui_tab %]);
 });
-
-$(function() {
-  $('.sort_link').each(function() {
-    var _href = $(this).attr("href");
-    $(this).attr("href", _href + "&filter.fromdate=" + "[% FORM.filter.fromdate %]" + "&filter.todate=" + "[% FORM.filter.todate %]");
-  });
-});
-
-function assign_invoice(bt_id) {
-  kivi.popup_dialog({
-    url:    'controller.pl?action=BankTransaction/assign_invoice',
-    data:   '&bt_id=' + bt_id,
-    type:   'POST',
-    id:     'assign_invoice_window',
-    dialog: { title: kivi.t8('Assign invoice') }
-  });
-  return true;
-}
-
-function add_invoices(bt_id, prop_id, prop_invnumber) {
-  // prop_id is a proposed invoice_id
-  // remove the added invoice from all the other suggestions
-  var number_of_elements = document.getElementsByName(prop_id).length;
-  for( var i = 0; i < number_of_elements; i++ ) {
-    var node = document.getElementsByName(prop_id)[0];
-    node.parentNode.removeChild(node);
-  }
-  var invoices = document.getElementById('assigned_invoices_' + bt_id);
-
-  $.ajax({
-    url: 'controller.pl?action=BankTransaction/ajax_payment_suggestion&bt_id=' + bt_id  + '&prop_id=' + prop_id,
-    success: function(data) {
-      invoices.innerHTML += data.html;
-    }
-  });
-}
-
-function delete_invoice(bt_id, prop_id) {
-  $( "#" + bt_id + "\\." + prop_id ).remove();
-}
-
-function create_invoice(bt_id) {
-  kivi.popup_dialog({
-    url:    'controller.pl?action=BankTransaction/create_invoice',
-    data:   '&bt_id=' + bt_id + "&filter.bank_account=[% FORM.filter.bank_account %]&filter.todate=[% FORM.filter.todate %]&filter.fromdate=[% FORM.filter.fromdate %]",
-    type:   'POST',
-    id:     'create_invoice_window',
-    dialog: { title: kivi.t8('Create invoice') }
-  });
-  return true;
-}
-
-$.cookie('jquery_ui_tab_bt_tabs', [% ui_tab %] );
 //-->
 </script>

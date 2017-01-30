@@ -252,7 +252,7 @@ sub action_list {
   $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 1;
   $bank_transactions = [ sort { $b->{agreement} <=> $a->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 0;
 
-
+  $::request->layout->add_javascripts("kivi.BankTransaction.js");
   $self->render('bank_transactions/list',
                 title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
@@ -337,7 +337,7 @@ sub action_ajax_payment_suggestion {
                                      value_key => 'payment_type',
                                      title_key => 'display' )
     if @select_options;
-  $html .= '<a href=# onclick="delete_invoice(' . $::form->{bt_id} . ',' . $::form->{prop_id} . ');">x</a>';
+  $html .= '<a href=# onclick="kivi.BankTransaction.delete_invoice(' . $::form->{bt_id} . ',' . $::form->{prop_id} . ');">x</a>';
   $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id});
 
   $self->render(\ SL::JSON::to_json( { 'html' => $html } ), { layout => 0, type => 'json', process => 0 });
