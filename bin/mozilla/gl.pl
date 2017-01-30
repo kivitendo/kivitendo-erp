@@ -105,7 +105,7 @@ sub load_record_template {
   $::form->{title}            = "Add";
   $::form->{transdate}        = $today->to_kivitendo;
   $::form->{duedate}          = $today->to_kivitendo;
-  $::form->{rowcount}         = @{ $template->items } + 1;
+  $::form->{rowcount}         = @{ $template->items };
   $::form->{paidaccounts}     = 1;
   $::form->{$_}               = $template->$_     for qw(department_id taxincluded ob_transaction cb_transaction reference description);
   $::form->{$_}               = $dummy_form->{$_} for qw(closedto revtrans previous_id previous_gldate);
@@ -139,7 +139,10 @@ sub load_record_template {
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
-  update();
+  update(
+    keep_rows_without_amount => 1,
+    dont_add_new_row         => 1,
+  );
 }
 
 sub save_record_template {
@@ -152,7 +155,7 @@ sub save_record_template {
   $js->dialog->close('#record_template_dialog');
 
   my @items = grep {
-    $_->{chart_id} && (($_->{tax_id} // '') ne '') && (($_->{amount1} != 0) || ($_->{amount2} != 0))
+    $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
     +{ chart_id   => $::form->{"accno_id_${_}"},
        amount1    => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
@@ -628,6 +631,8 @@ sub show_draft {
 }
 
 sub update {
+  my %params = @_;
+
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('gl_transactions');
@@ -653,69 +658,65 @@ sub update {
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
+    $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) for qw(debit credit tax);
 
-    unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
-      for (qw(debit credit tax)) {
-        $form->{"${_}_$i"} =
-          $form->parse_amount(\%myconfig, $form->{"${_}_$i"});
-      }
+    next if !$form->{"debit_$i"} && !$form->{"credit_$i"} && !$params{keep_rows_without_amount};
 
-      push @a, {};
-      $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
-      if ($debitcredit) {
-        $debitcount++;
-      } else {
-        $creditcount++;
-      }
-
-      if (($debitcount >= 2) && ($creditcount == 2)) {
-        $form->{"credit_$i"} = 0;
-        $form->{"tax_$i"}    = 0;
-        $creditcount--;
-        $form->{creditlock} = 1;
-      }
-      if (($creditcount >= 2) && ($debitcount == 2)) {
-        $form->{"debit_$i"} = 0;
-        $form->{"tax_$i"}   = 0;
-        $debitcount--;
-        $form->{debitlock} = 1;
-      }
-      if (($creditcount == 1) && ($debitcount == 2)) {
-        $form->{creditlock} = 1;
-      }
-      if (($creditcount == 2) && ($debitcount == 1)) {
-        $form->{debitlock} = 1;
-      }
-      if ($debitcredit && $credittax) {
-        $form->{"taxchart_$i"} = "$notax_id--0.00";
-      }
-      if (!$debitcredit && $debittax) {
-        $form->{"taxchart_$i"} = "$notax_id--0.00";
-      }
-      $amount =
-        ($form->{"debit_$i"} == 0)
-        ? $form->{"credit_$i"}
-        : $form->{"debit_$i"};
-      my $j = $#a;
-      if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-        $form->{"taxchart_$i"} = "$notax_id--0.00";
-        $form->{"tax_$i"}      = 0;
-      }
-      my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-      my $iswithouttax = grep { $_->{id} == $taxkey } @{ $zerotaxes };
-      if (!$iswithouttax) {
-        if ($debitcredit) {
-          $debittax = 1;
-        } else {
-          $credittax = 1;
-        }
-      };
-      my ($tmpnetamount,$tmpdiff);
-      ($tmpnetamount,$form->{"tax_$i"},$tmpdiff) = $form->calculate_tax($amount,$rate,$form->{taxincluded} *= 1,2);
-
-      for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
-      $count++;
+    push @a, {};
+    $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+    if ($debitcredit) {
+      $debitcount++;
+    } else {
+      $creditcount++;
     }
+
+    if (($debitcount >= 2) && ($creditcount == 2)) {
+      $form->{"credit_$i"} = 0;
+      $form->{"tax_$i"}    = 0;
+      $creditcount--;
+      $form->{creditlock} = 1;
+    }
+    if (($creditcount >= 2) && ($debitcount == 2)) {
+      $form->{"debit_$i"} = 0;
+      $form->{"tax_$i"}   = 0;
+      $debitcount--;
+      $form->{debitlock} = 1;
+    }
+    if (($creditcount == 1) && ($debitcount == 2)) {
+      $form->{creditlock} = 1;
+    }
+    if (($creditcount == 2) && ($debitcount == 1)) {
+      $form->{debitlock} = 1;
+    }
+    if ($debitcredit && $credittax) {
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
+    }
+    if (!$debitcredit && $debittax) {
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
+    }
+    $amount =
+      ($form->{"debit_$i"} == 0)
+      ? $form->{"credit_$i"}
+      : $form->{"debit_$i"};
+    my $j = $#a;
+    if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
+      $form->{"tax_$i"}      = 0;
+    }
+    my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+    my $iswithouttax = grep { $_->{id} == $taxkey } @{ $zerotaxes };
+    if (!$iswithouttax) {
+      if ($debitcredit) {
+        $debittax = 1;
+      } else {
+        $credittax = 1;
+      }
+    };
+    my ($tmpnetamount,$tmpdiff);
+    ($tmpnetamount,$form->{"tax_$i"},$tmpdiff) = $form->calculate_tax($amount,$rate,$form->{taxincluded} *= 1,2);
+
+    for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
+    $count++;
   }
 
   for my $i (1 .. $count) {
@@ -727,9 +728,9 @@ sub update {
     for (@flds) { delete $form->{"${_}_$i"} }
   }
 
-  $form->{rowcount} = $count + 1;
+  $form->{rowcount} = $count + ($params{dont_add_new_row} ? 0 : 1);
 
-  &display_form;
+  display_form();
   $main::lxdebug->leave_sub();
 
 }

@@ -123,8 +123,7 @@ sub migrate_ar_drafts {
 
       # $tax_id may be 0 as there's an entry in tax with id = 0.
       # $chart_id must not be 0 as there's no entry in chart with id = 0.
-      # No $amount means empty row.
-      next unless $amount && $chart_id && (($tax_id // '') ne '');
+      next unless $chart_id && (($tax_id // '') ne '');
 
       @values = (
         # record_template_id,
@@ -198,8 +197,7 @@ sub migrate_ap_drafts {
 
       # $tax_id may be 0 as there's an entry in tax with id = 0.
       # $chart_id must not be 0 as there's no entry in chart with id = 0.
-      # No $amount means empty row.
-      next unless $amount && $chart_id && (($tax_id // '') ne '');
+      next unless $chart_id && (($tax_id // '') ne '');
 
       @values = (
         # record_template_id,
@@ -271,8 +269,7 @@ sub migrate_gl_drafts {
 
       # $tax_id may be 0 as there's an entry in tax with id = 0.
       # $chart_id must not be 0 as there's no entry in chart with id = 0.
-      # No $debit and no $credit means empty row.
-      next unless ($debit || $credit) && $chart_id && (($tax_id // '') ne '');
+      next unless $chart_id && (($tax_id // '') ne '');
 
       @values = (
         # record_template_id,
@@ -322,8 +319,6 @@ sub run {
   $self->migrate_gl_drafts;
   $self->clean_drafts;
   $self->finish_statements;
-
-  # die "boom!";
 
   return 1;
 }

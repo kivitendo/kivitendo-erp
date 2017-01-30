@@ -112,7 +112,7 @@ sub load_record_template {
   $::form->{AR_chart_id}      = $template->ar_ap_chart_id;
   $::form->{transdate}        = $today->to_kivitendo;
   $::form->{duedate}          = $today->to_kivitendo;
-  $::form->{rowcount}         = @{ $template->items } + 1;
+  $::form->{rowcount}         = @{ $template->items };
   $::form->{paidaccounts}     = 1;
   $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded employee_id notes);
 
@@ -150,7 +150,10 @@ sub load_record_template {
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
-  update();
+  update(
+    keep_rows_without_amount => 1,
+    dont_add_new_row         => 1,
+  );
 }
 
 sub save_record_template {
@@ -163,7 +166,7 @@ sub save_record_template {
   $js->dialog->close('#record_template_dialog');
 
   my @items = grep {
-    $_->{chart_id} && (($_->{tax_id} // '') ne '') && ($_->{amount1} != 0)
+    $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
     +{ chart_id   => $::form->{"AR_amount_chart_id_${_}"},
        amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
@@ -567,6 +570,7 @@ sub show_draft {
 }
 
 sub update {
+  my %params = @_;
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('ar_transactions');
@@ -591,7 +595,7 @@ sub update {
 
   for my $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} = $form->parse_amount(\%myconfig, $form->{"amount_$i"});
-    if ($form->{"amount_$i"}) {
+    if ($form->{"amount_$i"} || $params{keep_rows_without_amount}) {
       push @a, {};
       my $j = $#a;
       my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
@@ -606,7 +610,7 @@ sub update {
   }
 
   $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
-  $form->{rowcount} = $count + 1;
+  $form->{rowcount} = $count + ($params{dont_add_new_row} ? 0 : 1);
   map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
@@ -641,7 +645,7 @@ sub update {
   $form->{oldinvtotal}  = $form->{invtotal};
   $form->{oldtotalpaid} = $form->{totalpaid};
 
-  &display_form;
+  display_form();
 
   $main::lxdebug->leave_sub();
 }
