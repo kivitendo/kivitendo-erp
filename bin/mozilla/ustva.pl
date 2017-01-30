@@ -774,6 +774,8 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
 
   # edit all taxauthority prefs
 
+  setup_ustva_config_step1_action_bar();
+
   $::form->header;
 
   my $ustva = USTVA->new();
@@ -800,8 +802,6 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
 
   my %_hidden_local_variables = (
     'saved'       => $::locale->text('Check Details'),
-    'nextsub'     => 'config_step2',
-    'warnung'     => '0',
   );
 
   foreach my $variable (keys %_hidden_local_variables) {
@@ -844,6 +844,8 @@ sub config_step2 {
   my %myconfig = %::myconfig;
 
   $::auth->assert('advance_turnover_tax_return');
+
+  setup_ustva_config_step2_action_bar();
 
   $form->header();
 
@@ -923,7 +925,6 @@ sub config_step2 {
   my %_hidden_local_variables = (
       'fa_land_nr'          => $fa_land_nr,
       'fa_bufa_nr'          => $fa_bufa_nr,
-      'warnung'             => 0,
       'taxnumber'           => $stnr,
       'lastsub'             => 'config_step1',
       'nextsub'             => 'save',
@@ -941,7 +942,7 @@ sub config_step2 {
     fa_voranmeld fa_dauerfrist
     accounting_method
     type
-    saved                   callback
+    saved
   );
 
   foreach my $variable (@_hidden_form_variables) {
@@ -952,7 +953,6 @@ sub config_step2 {
   my $template_ref = {
      input_steuernummer              => $input_steuernummer,
      readonly                        => '', #q|disabled="disabled"|,
-     callback                        => $form->{callback},
      COA_Germany                     => $form->{COA_Germany},
      hidden_variables                => $_hidden_variables_ref,
   };
@@ -1061,6 +1061,34 @@ sub setup_ustva_report_action_bar {
         call     => [ 'sendGeierlein' ],
         disabled => !length($::lx_office_conf{paths}{geierlein_path} // '') ? t8('The Geierlein path has not been set in the configuration.') : undef,
         tooltip  => t8('Transfer data to Geierlein ELSTER application'),
+      ],
+    );
+  }
+}
+
+sub setup_ustva_config_step1_action_bar {
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form', { action => 'config_step2' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_ustva_config_step2_action_bar {
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'save' } ],
+        accesskey => 'enter',
+      ],
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
       ],
     );
   }

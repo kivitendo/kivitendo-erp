@@ -2,7 +2,7 @@
 [% USE HTML %]
 <h1>[% 'Tax Office Preferences' | $T8 %]</h1>
 
-  <form name="elsterform" method="post" action="[% script %]">
+  <form name="elsterform" method="post" action="[% script %]" id="form">
     <table width="100%">
        <tr>
          <td colspan=2>
@@ -174,37 +174,6 @@
            <hr>
          </td>
        </tr>
-       <tr>
-         <td align="left">
-
-          [%- IF callback %]
-           <input type="button" name="Verweis" value="[% 'User Config' | $T8 %]"
-            onClick="self.location.href='[% callback %]">
-          [%- ELSE %]
-            <input type="submit" class="submit" name="action" value="[% 'back' | $T8 %]">
-          [%- END %]
-
-          [%- IF warnung %]
-
-            <input type="hidden" name="nextsub" value="config_step2">
-            <input type="submit" class="submit" name="action"
-              value="[% 'continue' | $T8 %]">
-
-            <input type="hidden" name="saved" value="[% 'Check
-              Details' | $T8 %]">
-
-          [%- ELSE %]
-
-            <input type="hidden" name="nextsub" value="save">
-            <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-
-          [%- END %]
-
-         </td>
-         <td align="right">
-           <H2 class="confirm">[%- saved %]</H2>
-         </td>
-      </tr>
   </table>
 
 [%- FOREACH var = hidden_variables %]

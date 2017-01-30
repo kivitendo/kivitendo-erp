@@ -2,7 +2,7 @@
 [% USE HTML %]
 <h1>[% 'Tax Office Preferences' | $T8 %]</h1>
 
-<form name="verzeichnis" method="post" action="[% HTML.escape(script) %]">
+<form name="verzeichnis" method="post" action="[% HTML.escape(script) %]" id="form">
 <table width="100%">
     <tr>
      <td>
@@ -86,14 +86,6 @@
            </table>
 
            </fieldset>
-
-           <br>
-           <br>
-           <hr>
-           <!--<input type=submit class=submit name=action value="
-           [% 'debug' | $T8 %]">-->
-           <input type=submit class=submit name=action
-             value="[% 'continue' | $T8 %]">
          </td>
        </tr>
      </table>
