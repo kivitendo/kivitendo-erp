@@ -100,8 +100,8 @@ sub action_list {
   );
   $main::lxdebug->message(LXDebug->DEBUG2(),"count bt=".scalar(@{$bank_transactions}." bank_account=".$bank_account->id." chart=".$bank_account->chart_id));
 
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { gt => \'paid' }], with_objects => ['customer','payment_terms']);
-  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { gt => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { ne => \'paid' }], with_objects => ['customer','payment_terms']);
+  my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { ne => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
   my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $bank_account->chart_id ,
                                                                              'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
   $main::lxdebug->message(LXDebug->DEBUG2(),"count sepaexport=".scalar(@{$all_open_sepa_export_items}));
@@ -111,7 +111,7 @@ sub action_list {
   push @all_open_invoices, map { $_->{is_ar}=1 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ar_invoices };
   push @all_open_invoices, map { $_->{is_ar}=0 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
   $main::lxdebug->message(LXDebug->DEBUG2(),"bank_account=".$::form->{filter}{bank_account}." invoices: ".scalar(@{ $all_open_ar_invoices }).
-                              " + ".scalar(@{ $all_open_ap_invoices })." transactions=".scalar(@{ $bank_transactions }));
+                              " + ".scalar(@{ $all_open_ap_invoices })." non fully paid=".scalar(@all_open_invoices)." transactions=".scalar(@{ $bank_transactions }));
 
   my @all_sepa_invoices;
   my @all_non_sepa_invoices;
@@ -182,9 +182,9 @@ sub action_list {
           #$main::lxdebug->message(LXDebug->DEBUG2(),"exitem2=".$_->id." for invoice ".$open_invoice->id);
           my $factor = ( $_->ar_id == $open_invoice->id?1:-1);
           $_->amount($_->amount*1);
-          #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=". ($bt->amount * $factor));
+          #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=".$bt->amount." factor=".$factor);
           #$main::lxdebug->message(LXDebug->DEBUG2(),"compare with   '".$_->vc_iban."'    amount=".$_->amount);
-          if ( $bt->{remote_account_number} eq $_->vc_iban && abs(( $_->amount *1 ) - ($bt->amount * $factor)) < 0.01 ) {
+          if ( $bt->{remote_account_number} eq $_->vc_iban && abs(abs($_->amount) - abs($bt->amount)) < 0.01 ) {
             my $iban;
             $iban = $open_invoice->customer->iban if $open_invoice->is_sales;
             $iban = $open_invoice->vendor->iban   if ! $open_invoice->is_sales;
@@ -212,7 +212,7 @@ sub action_list {
     foreach my $open_invoice (@all_non_sepa_invoices){
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
       $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,$open_invoice->amount*($open_invoice->{is_ar}?1:-1),2);
-      $main::lxdebug->message(LXDebug->DEBUG2(),"nons invoice_id=".$open_invoice->id." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches}) if $open_invoice->{agreement} > 2;
+      $main::lxdebug->message(LXDebug->DEBUG2(),"nons invoice_id=".$open_invoice->id." amount=".$open_invoice->amount." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches}) if $open_invoice->{agreement} > 2;
     };
 
     my $agreement = 15;
@@ -573,6 +573,7 @@ sub save_single_bank_transaction {
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
 
+
     foreach my $invoice_id (@{ $params{invoice_ids} }) {
       my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
       if (!$invoice) {
@@ -582,7 +583,6 @@ sub save_single_bank_transaction {
           message => $::locale->text("The ID #1 is not a valid database ID.", $invoice_id),
         };
       }
-
       push @{ $data{invoices} }, $invoice;
     }
 
@@ -640,6 +640,7 @@ sub save_single_bank_transaction {
         $payment_type = 'without_skonto';
       };
 
+
       # pay invoice or go to the next bank transaction if the amount is not sufficiently high
       if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
         my $open_amount = ($payment_type eq 'with_skonto_pt'?$invoice->amount_less_skonto:$invoice->open_amount);
@@ -658,6 +659,9 @@ sub save_single_bank_transaction {
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
+        if ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
+          $amount_of_transaction *= -1;
+        }
         my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
