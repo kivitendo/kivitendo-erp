@@ -1111,13 +1111,6 @@
   params:
     action: Business/list
 - parent: system
-  id: system_leads
-  name: Leads
-  order: 1500
-  module: am.pl
-  params:
-    action: list_lead
-- parent: system
   id: system_project_types
   name: Project Types
   order: 1600
