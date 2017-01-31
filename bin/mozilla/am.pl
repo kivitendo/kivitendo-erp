@@ -1110,10 +1110,10 @@ sub add_tax {
   $form->{expense}    = 1;
   $form->{costs}      = 1;
 
+  setup_am_edit_tax_action_bar();
   $form->header();
 
   my $parameters_ref = {
-#    ChartTypeIsAccount         => $ChartTypeIsAccount,
     LANGUAGES => SL::DB::Manager::Language->get_all_sorted,
   };
 
@@ -1147,6 +1147,7 @@ sub edit_tax {
 
   $form->{rate} = $form->format_amount(\%myconfig, $form->{rate}, 2);
 
+  setup_am_edit_tax_action_bar();
   $form->header();
 
   my $parameters_ref = {
@@ -1177,13 +1178,11 @@ sub list_tax {
 
   $form->{title} = $locale->text('Tax-O-Matic');
 
+  setup_am_list_tax_action_bar();
   $form->header();
 
-  my $parameters_ref = {
-  };
-
   # Ausgabe des Templates
-  print($form->parse_html_template('am/list_tax', $parameters_ref));
+  print($form->parse_html_template('am/list_tax'));
 
   $main::lxdebug->leave_sub();
 }
@@ -1423,6 +1422,42 @@ sub setup_am_edit_account_action_bar {
         disabled => !$::form->{id}                         ? t8('The object has not been saved yet.')
                   :  $::form->{id} && !$::form->{orphaned} ? t8('The object is in use and cannot be deleted.')
                   :                                          undef,
+        confirm  => t8('Do you really want to delete this object?'),
+      ],
+    );
+  }
+}
+
+sub setup_am_list_tax_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link => 'am.pl?action=add_tax',
+      ],
+    );
+  }
+}
+
+sub setup_am_edit_tax_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_tax" } ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "delete_tax" } ],
+        disabled => !$::form->{id}                                      ? t8('The object has not been saved yet.')
+                  : !$::form->{orphaned} || $::form->{tax_already_used} ? t8('The object is in use and cannot be deleted.')
+                  :                                                       undef,
         confirm  => t8('Do you really want to delete this object?'),
       ],
     );

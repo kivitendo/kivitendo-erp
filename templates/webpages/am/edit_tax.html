@@ -4,7 +4,7 @@
 [%- USE LxERP %]
 <h1>[% 'Tax-O-Matic' | $T8 %] [% title %]</h1>
 
- <form method="post" action="am.pl">
+ <form method="post" action="am.pl" id="form">
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="type" value="tax">
 
@@ -129,12 +129,4 @@
   [% END %]
 
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-
-  <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-
-  [% IF orphaned AND NOT tax_already_used %]
-  <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
-  [% END %]
-
 </form>
-
