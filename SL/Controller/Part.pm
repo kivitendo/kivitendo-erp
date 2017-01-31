@@ -964,7 +964,7 @@ sub form_check_assortment_items_exist {
   my ($self) = @_;
 
   return 1 unless $::form->{part}{part_type} eq 'assortment';
-  # skip check for existing parts that have been used
+  # skip item check for existing assortments that have been used
   return 1 if ($self->part->id and !$self->part->orphaned);
 
   # new or orphaned parts must have items in $::form->{assortment_items}
@@ -1000,6 +1000,9 @@ sub form_check_assembly_items_exist {
   my ($self) = @_;
 
   return 1 unless $::form->{part}->{part_type} eq 'assembly';
+
+  # skip item check for existing assembly that have been used
+  return 1 if ($self->part->id and !$self->part->orphaned);
 
   unless ( $::form->{assembly_items} and scalar @{$::form->{assembly_items}} ) {
     $self->js->run('kivi.Part.set_tab_active_by_name', 'assembly_tab')
