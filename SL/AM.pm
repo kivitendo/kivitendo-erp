@@ -391,15 +391,6 @@ sub _delete_account {
     return;
   }
 
-  # set inventory_accno_id, income_accno_id, expense_accno_id to defaults
-  foreach my $type (qw(inventory income expense)) {
-    $query =
-      qq|UPDATE parts | .
-      qq|SET ${type}_accno_id = (SELECT ${type}_accno_id FROM defaults) | .
-      qq|WHERE ${type}_accno_id = ?|;
-    do_query($form, $dbh, $query, $form->{id});
-  }
-
   $query = qq|DELETE FROM tax
               WHERE chart_id = ?|;
   do_query($form, $dbh, $query, $form->{id});
