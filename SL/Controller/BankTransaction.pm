@@ -123,7 +123,7 @@ sub action_list {
     $open_invoice->{skonto_type} = 'without_skonto';
     foreach ( @{$all_open_sepa_export_items}) {
       if ( $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id ) {
-        my $factor = ( $_->ar_id == $open_invoice->id>0?1:-1);
+        my $factor = ($_->ar_id == $open_invoice->id?1:-1);
         $main::lxdebug->message(LXDebug->DEBUG2(),"exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
         $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
         $open_invoice->{sepa_export_item} = $_ ;
