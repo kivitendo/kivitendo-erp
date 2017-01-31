@@ -474,6 +474,62 @@ namespace("kivi", function(ns) {
 
     return false;
   };
+
+  // Performs various validation steps on the descendants of
+  // 'selector'. Elements that should be validated must have an
+  // attribute named "data-validate" which is set to a space-separated
+  // list of tests to perform. Additionally, the attribute
+  // "data-title" must be set to a human-readable name of the field
+  // that can be shown as part of an error message.
+  //
+  // Supported validation tests are:
+  // - "required": the field must be set (its .val() must not be empty)
+  //
+  // The validation will abort and return "false" as soon as
+  // validation routine fails.
+  //
+  // The function returns "true" if all validations succeed for all
+  // elements.
+  ns.validate_form = function(selector) {
+    var validate_field = function(elt) {
+      var $elt  = $(elt);
+      var tests = $elt.data('validate').split(/ +/);
+      var info  = {
+        title: $elt.data('title'),
+        value: $elt.val(),
+      };
+
+      for (var test_idx in tests) {
+        var test = tests[test_idx];
+
+        if (test === "required") {
+          if ($elt.val() === '') {
+            alert(kivi.t8("The field '#{title}' must be set.", info));
+            return false;
+          }
+
+        } else {
+          var error = "kivi.validate_form: unknown test '" + test + "' for element ID '" + $elt.prop('id') + "'";
+          console.error(error);
+          alert(error);
+
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    selector = selector || '#form';
+    var ok   = true;
+    var to_check = $(selector + ' [data-validate]').toArray();
+
+    for (var to_check_idx in to_check)
+      if (!validate_field(to_check[to_check_idx]))
+        return false;
+
+    return true;
+  };
 });
 
 kivi = namespace('kivi');

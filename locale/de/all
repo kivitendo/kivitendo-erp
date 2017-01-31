@@ -2941,6 +2941,7 @@ $self->{texts} = {
   'The export failed because of malformed transactions. Please fix those before exporting.' => 'Es sind fehlerhafte Buchungen im Exportzeitraum vorhanden. Bitte korrigieren Sie diese vor dem Export.',
   'The factor is missing in row %d.' => 'Der Faktor fehlt in Zeile %d.',
   'The factor is missing.'      => 'Der Faktor fehlt.',
+  'The field \'#{title}\' must be set.' => 'Das Feld »#{title}« muss gesetzt sein.',
   'The file has been sent to the printer.' => 'Die Datei wurde an den Drucker geschickt.',
   'The file is available for download.' => 'Die Datei ist zum Herunterladen verfügbar.',
   'The file name is missing'    => 'Der Dateiname fehlt',
