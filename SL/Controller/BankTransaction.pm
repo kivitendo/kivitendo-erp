@@ -185,11 +185,16 @@ sub action_list {
           #$main::lxdebug->message(LXDebug->DEBUG2(),"remote account '".$bt->{remote_account_number}."' bt_amount=". ($bt->amount * $factor));
           #$main::lxdebug->message(LXDebug->DEBUG2(),"compare with   '".$_->vc_iban."'    amount=".$_->amount);
           if ( $bt->{remote_account_number} eq $_->vc_iban && abs(( $_->amount *1 ) - ($bt->amount * $factor)) < 0.01 ) {
-            ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
-            $open_invoice->{agreement} += 5;
-            $open_invoice->{rule_matches} .= 'sepa_export_item(5) ';
-            $main::lxdebug->message(LXDebug->DEBUG2(),"sepa invoice_id=".$open_invoice->id." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches});
-            $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
+            my $iban;
+            $iban = $open_invoice->customer->iban if $open_invoice->is_sales;
+            $iban = $open_invoice->vendor->iban   if ! $open_invoice->is_sales;
+            if($bt->{remote_account_number} eq $iban && abs(abs($open_invoice->amount) - abs($bt->amount)) < 0.01 ) {
+              ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
+              $open_invoice->{agreement} += 5;
+              $open_invoice->{rule_matches} .= 'sepa_export_item(5) ';
+              $main::lxdebug->message(LXDebug->DEBUG2(),"sepa invoice_id=".$open_invoice->id." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches});
+              $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
+            }
           }
         }
       }
@@ -207,7 +212,7 @@ sub action_list {
     foreach my $open_invoice (@all_non_sepa_invoices){
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
       $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,$open_invoice->amount*($open_invoice->{is_ar}?1:-1),2);
-      $main::lxdebug->message(LXDebug->DEBUG2(),"nons invoice_id=".$open_invoice->id." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches});
+      $main::lxdebug->message(LXDebug->DEBUG2(),"nons invoice_id=".$open_invoice->id." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches}) if $open_invoice->{agreement} > 2;
     };
 
     my $agreement = 15;
