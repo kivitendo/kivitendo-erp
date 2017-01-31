@@ -76,6 +76,10 @@ sub close_orders_if_billed {
   # said order. Again consider both direct conversions and indirect
   # conversions via delivery orders.
   foreach my $oe_id (@oe_ids) {
+
+    # Dont close orders with periodic invoice
+    next if SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $oe_id);
+
     # Direct conversions "order -> invoice":
     @links          = RecordLinks->get_links('dbh'        => $dbh,
                                              'from_table' => 'oe',
