@@ -31,11 +31,4 @@
  </table>
 </p>
 
-<hr height="3">
-
 [% L.sortable_element('#buchungsgruppen_list tbody', url=SELF.url_for(action='reorder'), with='bg_id') %]
-
-<p>
- <a href="[% SELF.url_for(action='new') %]">[%- 'Add' | $T8 %]</a>
-</p>
-
