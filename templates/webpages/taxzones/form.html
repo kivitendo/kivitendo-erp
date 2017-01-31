@@ -1,13 +1,13 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
 [% SET style="width: 400px" %]
 
-<form action="controller.pl" method="post">
+<form action="controller.pl" method="post" id="form">
 [%- L.hidden_tag("id", SELF.config.id) %]
 
 <table>
   <tr>
     <th align="right">[% 'Description' | $T8 %]</th>
-    <td>[%- L.input_tag("config.description", SELF.config.description) %]</td>
+    <td>[%- L.input_tag("config.description", SELF.config.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
   </tr>
 [%- FOREACH bg = BUCHUNGSGRUPPEN %]
   <tr>
@@ -34,28 +34,4 @@
 </table>
 
 [% LxERP.t8('Obsolete') %]: [% L.checkbox_tag('config.obsolete', checked = SELF.config.obsolete, for_submit=1) %]
-
- <p>
-  [% L.hidden_tag("action", "Taxzones/dispatch") %]
-  [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
-  [%- IF SELF.config.id AND SELF.config.orphaned %]
-    [% L.submit_tag("action_delete", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
-  [%- END %]
-  <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
- </p>
-
- <hr>
-
-<script type="text/javascript">
-<!--
-function check_prerequisites() {
-  if ($('#config_description').val() === "") {
-    alert(kivi.t8('The description is missing.'));
-    return false;
-  }
-
-  return true;
-}
--->
-</script>
 </form>

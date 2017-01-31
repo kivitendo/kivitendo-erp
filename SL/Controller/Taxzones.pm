@@ -27,6 +27,7 @@ sub action_list {
 
   my $taxzones = SL::DB::Manager::TaxZone->get_all_sorted();
 
+  $self->setup_list_action_bar;
   $self->render('taxzones/list',
                 title    => t8('List of tax zones'),
                 TAXZONES => $taxzones);
@@ -42,6 +43,7 @@ sub action_new {
 sub show_form {
   my ($self, %params) = @_;
 
+  $self->setup_show_form_action_bar;
   $self->render('taxzones/form', %params,
                 BUCHUNGSGRUPPEN => SL::DB::Manager::Buchungsgruppe->get_all_sorted);
 }
@@ -178,5 +180,53 @@ sub create_or_update {
 #
 
 sub init_defaults { SL::DB::Default->get };
+
+#
+# helpers
+#
+
+sub setup_show_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->config->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'Taxzones/' . ($is_new ? 'create' : 'update') } ],
+        checks    => [ 'kivi.validate_form' ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'Taxzones/delete' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new                  ? t8('This object has not been saved yet.')
+                  : !$self->config->orphaned ? t8('The object is in use and cannot be deleted.')
+                  :                            undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list'),
+      ],
+    );
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link => $self->url_for(action => 'new'),
+      ],
+    );
+  }
+}
 
 1;
