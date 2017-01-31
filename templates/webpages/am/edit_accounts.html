@@ -16,7 +16,7 @@ $(function() {
 });
 </script>
 
-<form method="post" name="EditAccount" action="am.pl">
+<form method="post" name="EditAccount" action="am.pl" id="form">
 
 <input type="hidden" name="id"                 value="[% HTML.escape(id) %]">
 <input type="hidden" name="type"               value="account">
@@ -308,3 +308,5 @@ $(function() {
   }
   </script>
 [% END %]
+[% L.hidden_tag('callback', callback) %]
+</form>

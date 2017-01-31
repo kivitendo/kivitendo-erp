@@ -109,7 +109,6 @@ sub edit_account {
   }
 
   &account_header;
-  &form_footer;
 
   $main::lxdebug->leave_sub();
 }
@@ -371,6 +370,8 @@ sub account_header {
 
   my $ChartTypeIsAccount = ($form->{charttype} eq "A") ? "1":"";
   my $AccountIsPosted = ($form->{orphaned} ) ? "":"1";
+
+  setup_am_edit_account_action_bar();
 
   $form->header();
 
@@ -1390,6 +1391,39 @@ sub setup_am_config_action_bar {
         t8('Save'),
         submit    => [ '#form', { action => "save_preferences" } ],
         accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_am_edit_account_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          submit    => [ '#form', { action => "save_account" } ],
+          disabled  => $::form->{id} && !$::form->{orphaned} ? t8('The object is in use and cannot be changed.')
+                     :                                         undef,
+          accesskey => 'enter',
+        ],
+
+        action => [
+          t8('Save as new'),
+          submit   => [ '#form', { action => "save_as_new_account" } ],
+          disabled => !$::form->{id} ? t8('The object has not been saved yet.') : undef,
+        ],
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "delete_account" } ],
+        disabled => !$::form->{id}                         ? t8('The object has not been saved yet.')
+                  :  $::form->{id} && !$::form->{orphaned} ? t8('The object is in use and cannot be deleted.')
+                  :                                          undef,
+        confirm  => t8('Do you really want to delete this object?'),
       ],
     );
   }
