@@ -214,6 +214,8 @@ sub prepare_invoice {
   if ($form->{type} eq "credit_note") {
     $form->{type}     = "credit_note";
     $form->{formname} = "credit_note";
+  } elsif ($form->{formname} eq "proforma" ) {
+    $form->{type}     = "invoice";
   } else {
     $form->{type}     = "invoice";
     $form->{formname} = "invoice";
