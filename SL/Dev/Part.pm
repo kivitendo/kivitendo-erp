@@ -40,7 +40,7 @@ sub create_assembly {
   my (%params) = @_;
 
   my @parts;
-  my $partnumber = delete $params{part1number} || 'ap1';
+  my $partnumber = delete $params{partnumber} || 'ap1';
   my $part1 = SL::Dev::Part::create_part(partnumber   => $partnumber,
                                          description  => 'Testpart',
                                         )->save;
