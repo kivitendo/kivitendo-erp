@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction create_bank_transaction exchangerate forex);
+our @EXPORT_OK = qw(skonto_date skonto_charts amount_less_skonto within_skonto_period percent_skonto reference_account reference_amount open_amount open_percent remaining_skonto_days skonto_amount check_skonto_configuration valid_skonto_amount get_payment_suggestions validate_payment_type open_sepa_transfer_amount get_payment_select_options_for_bank_transaction exchangerate forex);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -723,41 +723,6 @@ sub validate_payment_type {
   return 1;
 }
 
-sub create_bank_transaction {
-  my ($self, %params) = @_;
-
-  require SL::DB::Chart;
-  require SL::DB::BankAccount;
-
-  my $bank_chart;
-  if ( $params{chart_id} ) {
-    $bank_chart = SL::DB::Manager::Chart->find_by(chart_id => $params{chart_id}) or die "Can't find bank chart";
-  } elsif ( $::instance_conf->get_ar_paid_accno_id ) {
-    $bank_chart   = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ar_paid_accno_id);
-  } else {
-    $bank_chart = SL::DB::Manager::Chart->find_by(description => 'Bank') or die "Can't find bank chart";
-  };
-  my $bank_account = SL::DB::Manager::BankAccount->find_by(chart_id => $bank_chart->id) or die "Can't find bank account for chart";
-
-  my $multiplier = $self->is_sales ? 1 : -1;
-  my $amount = ($params{amount} || $self->amount) * $multiplier;
-
-  my $transdate = $params{transdate} || DateTime->today;
-
-  my $bt = SL::DB::BankTransaction->new(
-    local_bank_account_id => $bank_account->id,
-    remote_bank_code      => $self->customervendor->bank_code,
-    remote_account_number => $self->customervendor->account_number,
-    transdate             => $transdate,
-    valutadate            => $transdate,
-    amount                => $::form->round_amount($amount, 2),
-    currency              => $self->currency->id,
-    remote_name           => $self->customervendor->depositor,
-    purpose               => $params{purpose} || $self->invnumber
-  )->save;
-};
-
-
 sub forex {
   my ($self) = @_;
   $self->currency_id == $::instance_conf->get_currency_id ? return 0 : return 1;
@@ -1109,39 +1074,6 @@ We are working with an existing payment, so difference_as_skonto never makes sen
 If skonto is possible (skonto_date exists), add two possibilities:
 without_skonto and with_skonto_pt if payment date is within skonto_date,
 preselect with_skonto_pt, otherwise preselect without skonto.
-
-=item C<create_bank_transaction %params>
-
-Method used for testing purposes, allows you to quickly create bank
-transactions from invoices to have something to test payments against.
-
- my $ap = SL::DB::Manager::Invoice->find_by(id => 41);
- $ap->create_bank_transaction(amount => $ap->amount/2, transdate => DateTime->today->add(days => 5));
-
-To create a payment for 3 invoices that were all paid together, all with skonto:
- my $ar1 = SL::DB::Manager::Invoice->find_by(invnumber=>'20');
- my $ar2 = SL::DB::Manager::Invoice->find_by(invnumber=>'21');
- my $ar3 = SL::DB::Manager::Invoice->find_by(invnumber=>'22');
- $ar1->create_bank_transaction(amount  => ($ar1->amount_less_skonto + $ar2->amount_less_skonto + $ar2->amount_less_skonto),
-                               purpose => 'Rechnungen 20, 21, 22',
-                              );
-
-Amount is always relative to the absolute amount of the invoice, use positive
-values for sales and purchases.
-
-The following params can be passed to override the defaults:
-
-=over 2
-
-=item * amount
-
-=item * purpose
-
-=item * chart_id (the chart the amount is to be paid to)
-
-=item * transdate
-
-=back
 
 =item C<exchangerate>
 

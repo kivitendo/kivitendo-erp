@@ -6,6 +6,7 @@ use SL::Dev::Part;
 use SL::Dev::CustomerVendor;
 use SL::Dev::Inventory;
 use SL::Dev::Record;
+use SL::Dev::Payment;
 
 1;
 
