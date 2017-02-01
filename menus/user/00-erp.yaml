@@ -1115,7 +1115,8 @@
   name: Types of Business
   order: 1400
   params:
-    action: Business/list
+    action: SimpleSystemSetting/list
+    type: business
 - parent: system
   id: system_project_types
   name: Project Types

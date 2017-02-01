@@ -40,6 +40,21 @@ my %supported_types = (
     ],
   },
 
+  business => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_business_form")
+    class  => 'Business',
+    titles => {
+      list => t8('Businesses'),
+      add  => t8('Add business'),
+      edit => t8('Edit business'),
+    },
+    list_attributes => [
+      { method => 'description',         title => t8('Description'), },
+      {                                  title => t8('Discount'), formatter => sub { $_[0]->discount_as_percent . ' %' }, align => 'right' },
+      { method => 'customernumberinit',  title => t8('Customernumberinit'), },
+    ],
+  },
+
   department => {
     class  => 'Department',
     titles => {
