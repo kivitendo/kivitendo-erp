@@ -122,6 +122,25 @@ my %supported_types = (
       { method => 'obsolete',   title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
     ],
   },
+
+  project_status => {
+    class  => 'ProjectStatus',
+    titles => {
+      list => t8('Project statuses'),
+      add  => t8('Add project status'),
+      edit => t8('Edit project status'),
+    },
+  },
+
+  project_type => {
+    class  => 'ProjectType',
+    titles => {
+      list => t8('Project types'),
+      add  => t8('Add project type'),
+      edit => t8('Edit project type'),
+    },
+  },
+
 );
 
 my @default_list_attributes = (

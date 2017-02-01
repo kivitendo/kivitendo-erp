@@ -1122,13 +1122,15 @@
   name: Project Types
   order: 1600
   params:
-    action: ProjectType/list
+    action: SimpleSystemSetting/list
+    type: project_type
 - parent: system
   id: system_project_status
   name: Project Status
   order: 1700
   params:
-    action: ProjectStatus/list
+    action: SimpleSystemSetting/list
+    type: project_status
 - parent: system
   id: system_requirement_specs
   name: Requirement specs
