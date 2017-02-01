@@ -31,10 +31,6 @@ sub file_type {
   $_[0]->loaded_db_file->file_type;
 }
 
-sub file_name {
-  $_[0]->loaded_db_file->file_name;
-}
-
 sub object_type {
   $_[0]->loaded_db_file->object_type;
 }

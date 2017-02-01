@@ -26,12 +26,12 @@ namespace('kivi.File', function(ns) {
                                , modal:  true } });
     return true;
   }
-  
+
   ns.renameclose = function() {
     $("#rename_dialog").dialog('close');
     return false;
   }
-  
+
   ns.renameaction = function() {
 	  $("#rename_dialog").dialog('close');
     var data = {
@@ -45,7 +45,7 @@ namespace('kivi.File', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
     return true;
   }
-  
+
   ns.askForRename = function(file_id,file_name,sessionfile,next_ids,is_global) {
     $('#newfilename_id').val(file_name);
     $('#rename_id_id').val(file_id);
@@ -103,7 +103,7 @@ namespace('kivi.File', function(ns) {
               }
               catch(err2) { fname ='';}
               $("#upload_result").html(kivi.t8("filename has not uploadable characters ")+fname);
-              return;	  
+              return;
           }
       }
       if ( filesize > maxsize ) {
@@ -149,7 +149,7 @@ namespace('kivi.File', function(ns) {
   ns.delete = function(id,type,file_type,checkbox_class,is_global) {
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
-    if ((checkboxes.size() === 0) || 
+    if ((checkboxes.size() === 0) ||
         !confirm(kivi.t8('Do you really want to delete the selected documents?')))
       return false;
     var data = {
@@ -167,7 +167,7 @@ namespace('kivi.File', function(ns) {
   ns.unimport = function(id,type,file_type,checkbox_class) {
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
-    if ((checkboxes.size() === 0) || 
+    if ((checkboxes.size() === 0) ||
         !confirm(kivi.t8('Do you really want to unimport the selected documents?')))
       return false;
     var data = {
@@ -246,7 +246,6 @@ namespace('kivi.File', function(ns) {
     $.download("controller.pl", data);
     return false;
   }
-
 
   ns.init = function() {
   }
