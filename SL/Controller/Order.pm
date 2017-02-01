@@ -1309,11 +1309,14 @@ java script functions
 
 =item * display weights
 
-=item * force project if enabled in client config
-
 =item * history
 
 =item * mtime check
+
+=item * optional client/user behaviour
+
+(transactions has to be set - department has to be set -
+ force project if enabled in client config - transport cost reminder)
 
 =back
 
