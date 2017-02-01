@@ -42,7 +42,7 @@ sub create_sales_invoice {
     salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
     transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
     payment_id   => $params{payment_id}  // undef,
-    gldate       => DateTime->today_local->to_kivitendo,
+    gldate       => DateTime->today,
     invoiceitems => $invoiceitems,
   );
   $invoice->assign_attributes(%params) if %params;
@@ -71,7 +71,7 @@ sub create_sales_delivery_order {
     taxincluded  => $params{taxincluded} // 0,
     employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
     salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
-    transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
+    transdate    => $params{transdate}   // DateTime->today,
     orderitems   => $orderitems,
   );
   $delivery_order->assign_attributes(%params) if %params;
@@ -96,9 +96,9 @@ sub create_sales_order {
     taxzone_id   => delete $params{taxzone_id}  // $customer->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => delete $params{taxincluded} // 0,
-    # employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
-    # salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
-    transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
+    employee_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    salesman_id  => delete $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => delete $params{transdate}   // DateTime->today,
     orderitems   => $orderitems,
   );
   $order->assign_attributes(%params) if %params;
@@ -127,7 +127,7 @@ sub create_purchase_order {
     taxzone_id   => delete $params{taxzone_id}  // $vendor->taxzone->id,
     currency_id  => delete $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => delete $params{taxincluded} // 0,
-    transdate    => delete $params{transdate}   // DateTime->today_local->to_kivitendo,
+    transdate    => delete $params{transdate}   // DateTime->today,
     'closed'     => undef,
     orderitems   => $orderitems,
   );
@@ -250,7 +250,7 @@ Example with params:
 
   my $invoice2 = SL::Dev::Record::create_sales_invoice(
     invnumber   => 777,
-    transdate   => DateTime->today_local->subtract(days => 7),
+    transdate   => DateTime->today->subtract(days => 7),
     taxincluded => 1,
   );
 
