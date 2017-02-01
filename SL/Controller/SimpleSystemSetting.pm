@@ -71,6 +71,20 @@ my %supported_types = (
     ],
   },
 
+  price_factor => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_price_factor_form")
+    class  => 'PriceFactor',
+    titles => {
+      list => t8('Price Factors'),
+      add  => t8('Add Price Factor'),
+      edit => t8('Edit Price Factor'),
+    },
+    list_attributes => [
+      { method => 'description',      title => t8('Description') },
+      { method => 'factor_as_number', title => t8('Factor'), align => 'right' },
+    ],
+  },
+
   pricegroup => {
     # Make locales.pl happy: $self->render("simple_system_setting/_pricegroup_form")
     class  => 'Pricegroup',

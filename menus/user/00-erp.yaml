@@ -1100,9 +1100,9 @@
   id: system_price_factors
   name: Price Factors
   order: 1200
-  module: am.pl
   params:
-    action: list_price_factors
+    action: SimpleSystemSetting/list
+    type: price_factor
 - parent: system
   id: system_departments
   name: Departments

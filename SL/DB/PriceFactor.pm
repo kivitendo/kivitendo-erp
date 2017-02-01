@@ -8,6 +8,26 @@ use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->initialize;
 
+sub orphaned {
+  my ($self) = @_;
+
+  die 'not an accessor' if @_ > 1;
+
+  require SL::DB::DeliveryOrderItem;
+  require SL::DB::InvoiceItem;
+  require SL::DB::OrderItem;
+  require SL::DB::Part;
+
+  return 1 if !$self->id;
+
+  return 0 if SL::DB::Manager::DeliveryOrderItem->get_first(query => [ price_factor_id => $self->id ]);
+  return 0 if SL::DB::Manager::InvoiceItem      ->get_first(query => [ price_factor_id => $self->id ]);
+  return 0 if SL::DB::Manager::OrderItem        ->get_first(query => [ price_factor_id => $self->id ]);
+  return 0 if SL::DB::Manager::Part             ->get_first(query => [ price_factor_id => $self->id ]);
+
+  return 1;
+}
+
 1;
 
 __END__
