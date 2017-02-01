@@ -1065,7 +1065,8 @@
   name: Bank accounts
   order: 800
   params:
-    action: BankAccount/list
+    action: SimpleSystemSetting/list
+    type: bank_account
 - parent: system
   id: system_partsgroups
   name: Partsgroups

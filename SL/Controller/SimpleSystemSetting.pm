@@ -21,6 +21,25 @@ __PACKAGE__->run_before('setup_javascript', only => [ qw(add create edit update 
 # Make locales.pl happy: $self->render("simple_system_setting/_default_form")
 
 my %supported_types = (
+  bank_account => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_bank_account_form")
+    class  => 'BankAccount',
+    titles => {
+      list => t8('Bank accounts'),
+      add  => t8('Add bank account'),
+      edit => t8('Edit bank account'),
+    },
+    list_attributes => [
+      { method => 'name',                                      title => t8('Name'), },
+      { method => 'iban',                                      title => t8('IBAN'), },
+      { method => 'bank',                                      title => t8('Bank'), },
+      { method => 'bank_code',                                 title => t8('Bank code'), },
+      { method => 'bic',                                       title => t8('BIC'), },
+      { method => 'reconciliation_starting_date_as_date',      title => t8('Date'),    align => 'right' },
+      { method => 'reconciliation_starting_balance_as_number', title => t8('Balance'), align => 'right' },
+    ],
+  },
+
   pricegroup => {
     # Make locales.pl happy: $self->render("simple_system_setting/_pricegroup_form")
     class  => 'Pricegroup',
