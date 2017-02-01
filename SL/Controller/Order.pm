@@ -1295,6 +1295,8 @@ java script functions
 
 =item * price sources: little symbols showing better price / better discount
 
+=item * select units in input row?
+
 =item * custom shipto address
 
 =item * periodic invoices
@@ -1347,6 +1349,45 @@ should be implemented.
 
 C<show_multi_items_dialog> does not use the currently inserted string for
 filtering.
+
+=back
+
+=head1 To discuss / Nice to have
+
+=over 4
+
+=item *
+
+How to expand/collapse second row. Now it can be done clicking the icon or
+<shift>-up/down.
+
+=item *
+
+Possibility to change longdescription in input row?
+
+=item *
+
+Possibility to select PriceSources in input row?
+
+=item *
+
+This controller uses a (changed) copy of the template for the PriceSource
+dialog. Maybe there could be used one code source.
+
+=item *
+
+Rounding-differences between this controller (PriceTaxCalculator) and the old
+form. This is not only a problem here, but also in all parts using the PTC.
+There exists a ticket and a patch. This patch should be testet.
+
+=item *
+
+An indicator, if the actual inputs are saved (like in an
+editor or on text processing application).
+
+=item *
+
+A warning when leaving the page without saveing unchanged inputs.
 
 =back
 
