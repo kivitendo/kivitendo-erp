@@ -1154,7 +1154,8 @@
   name: Requirement Spec Statuses
   order: 300
   params:
-    action: RequirementSpecStatus/list
+    action: SimpleSystemSetting/list
+    type: requirement_spec_status
 - parent: system_requirement_specs
   id: system_requirement_specs_complexities
   name: Complexities
