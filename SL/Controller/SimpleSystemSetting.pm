@@ -40,6 +40,15 @@ my %supported_types = (
     ],
   },
 
+  department => {
+    class  => 'Department',
+    titles => {
+      list => t8('Departments'),
+      add  => t8('Add department'),
+      edit => t8('Edit department'),
+    },
+  },
+
   part_classification => {
     # Make locales.pl happy: $self->render("simple_system_setting/_part_classification_form")
     class  => 'PartClassification',

@@ -1108,7 +1108,8 @@
   name: Departments
   order: 1300
   params:
-    action: Department/list
+    action: SimpleSystemSetting/list
+    type: department
 - parent: system
   id: system_types_of_business
   name: Types of Business
