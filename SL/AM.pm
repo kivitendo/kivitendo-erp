@@ -410,61 +410,6 @@ sub _delete_account {
   return 1;
 }
 
-sub language {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form, $return_list) = @_;
-
-  my $dbh = SL::DB->client->dbh;
-
-  my $query =
-    "SELECT id, description, template_code, article_code, " .
-    "  output_numberformat, output_dateformat, output_longdates " .
-    "FROM language ORDER BY description";
-
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my $ary = [];
-
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push(@{ $ary }, $ref);
-  }
-
-  $sth->finish;
-
-  $main::lxdebug->leave_sub();
-
-  if ($return_list) {
-    return @{$ary};
-  } else {
-    $form->{ALL} = $ary;
-  }
-}
-
-sub get_language {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  my $dbh = SL::DB->client->dbh;
-
-  my $query =
-    "SELECT description, template_code, article_code, " .
-    "  output_numberformat, output_dateformat, output_longdates " .
-    "FROM language WHERE id = ?";
-  my $sth = $dbh->prepare($query);
-  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
-
-  my $ref = $sth->fetchrow_hashref("NAME_lc");
-
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  $sth->finish;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub get_language_details {
   $main::lxdebug->enter_sub();
 
@@ -481,64 +426,6 @@ sub get_language_details {
   $main::lxdebug->leave_sub();
 
   return @res;
-}
-
-sub save_language {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  SL::DB->client->with_transaction(sub {
-    my $dbh = SL::DB->client->dbh;
-    my (@values, $query);
-
-    map({ push(@values, $form->{$_}); }
-        qw(description template_code article_code
-           output_numberformat output_dateformat output_longdates));
-
-    # id is the old record
-    if ($form->{id}) {
-      $query =
-        "UPDATE language SET " .
-        "  description = ?, template_code = ?, article_code = ?, " .
-        "  output_numberformat = ?, output_dateformat = ?, " .
-        "  output_longdates = ? " .
-        "WHERE id = ?";
-      push(@values, $form->{id});
-    } else {
-      $query =
-        "INSERT INTO language (" .
-        "  description, template_code, article_code, " .
-        "  output_numberformat, output_dateformat, output_longdates" .
-        ") VALUES (?, ?, ?, ?, ?, ?)";
-    }
-    do_query($form, $dbh, $query, @values);
-    1;
-  }) or do { die SL::DB->client->error };
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_language {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-  my $query;
-
-  SL::DB->client->with_transaction(sub {
-    my $dbh = SL::DB->client->dbh;
-
-    foreach my $table (qw(generic_translations units_language)) {
-      $query = qq|DELETE FROM $table WHERE language_id = ?|;
-      do_query($form, $dbh, $query, $form->{"id"});
-    }
-
-    $query = "DELETE FROM language WHERE id = ?";
-    do_query($form, $dbh, $query, $form->{"id"});
-    1;
-  }) or do { die SL::DB->client->error };
-
-  $main::lxdebug->leave_sub();
 }
 
 sub prepare_template_filename {

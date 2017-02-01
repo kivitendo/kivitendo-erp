@@ -1183,18 +1183,11 @@
   order: 1900
 - parent: system_languages_and_translations
   id: system_languages_and_translations_add_language
-  name: Add Language
+  name: Languages
   order: 100
-  module: am.pl
   params:
-    action: add_language
-- parent: system_languages_and_translations
-  id: system_languages_and_translations_list_languages
-  name: List Languages
-  order: 200
-  module: am.pl
-  params:
-    action: list_language
+    action: SimpleSystemSetting/list
+    type: language
 - parent: system_languages_and_translations
   id: system_languages_and_translations_greetings
   name: Greetings

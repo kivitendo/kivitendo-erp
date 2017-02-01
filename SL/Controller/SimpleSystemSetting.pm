@@ -64,6 +64,24 @@ my %supported_types = (
     },
   },
 
+  language => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_language_form")
+    class  => 'Language',
+    titles => {
+      list => t8('Languages'),
+      add  => t8('Add language'),
+      edit => t8('Edit language'),
+    },
+    list_attributes => [
+      { method => 'description',   title => t8('Description'), },
+      { method => 'template_code', title => t8('Template Code'), },
+      { method => 'article_code',  title => t8('Article Code'), },
+      {                            title => t8('Number Format'), formatter => sub { $_[0]->output_numberformat || t8('use program settings') } },
+      {                            title => t8('Date Format'),   formatter => sub { $_[0]->output_dateformat   || t8('use program settings') } },
+      {                            title => t8('Long Dates'),    formatter => sub { $_[0]->output_longdates ? t8('yes') : t8('no') } },
+    ],
+  },
+
   part_classification => {
     # Make locales.pl happy: $self->render("simple_system_setting/_part_classification_form")
     class  => 'PartClassification',
@@ -382,6 +400,13 @@ sub setup_requirement_spec_status {
 
   no warnings 'once';
   $self->{valid_names} = \@SL::DB::RequirementSpecStatus::valid_names;
+}
+
+sub setup_language {
+  my ($self) = @_;
+
+  $self->{numberformats} = [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ];
+  $self->{dateformats}   = [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ];
 }
 
 1;
