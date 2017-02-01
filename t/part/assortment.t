@@ -12,9 +12,9 @@ Support::TestSetup::login();
 
 clear_up();
 
-my $assortment = SL::Dev::Part::create_assortment( partnumber         => 'aso1',
-                                                   description        => "Assortment 1",
-                                                   number_of_parts    => 10,
+my $assortment = SL::Dev::Part::create_assortment( assnumber       => 'aso1',
+                                                   description     => "Assortment 1",
+                                                   number_of_parts => 10,
                                                  )->save;
 
 is( SL::DB::Manager::Part->get_all_count(), 11,  "total number of parts created is 11");

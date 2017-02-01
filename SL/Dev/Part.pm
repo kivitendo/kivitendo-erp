@@ -39,36 +39,34 @@ sub create_service {
 sub create_assembly {
   my (%params) = @_;
 
-  my @parts;
-  my $partnumber = delete $params{partnumber} || 'ap1';
-  my $part1 = SL::Dev::Part::create_part(partnumber   => $partnumber,
-                                         description  => 'Testpart',
-                                        )->save;
-  push(@parts, $part1);
+  my $assnumber       = delete $params{assnumber};
+  my $base_partnumber = delete $params{partnumber} || 'ap';
 
-  my $number_of_parts = delete $params{number_of_parts} || 3;
+  my $assembly_items = [];
 
-  for my $i ( 2 .. $number_of_parts ) {
-    my $part = $parts[0]->clone_and_reset;
-    $part->partnumber(  $partnumber . " " . $i );
-    $part->description( ($part->description // '') . " " . $i );
-    $part->save;
-    push(@parts, $part);
+  if ( $params{assembly_items} ) {
+    $assembly_items = delete $params{assembly_items};
+  } else {
+    for my $i ( 1 .. delete $params{number_of_parts} || 3) {
+      my $part = SL::Dev::Part::create_part(partnumber  => "$base_partnumber $i",
+                                            description => "Testpart $i",
+                                           )->save;
+      push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part->id,
+                                                      qty      => 1,
+                                                      position => $i,
+                                                     ));
+    }
   }
 
-  my $assnumber = delete $params{assnumber} || 'as1';
   my $assembly = SL::DB::Part->new_assembly(
     partnumber         => $assnumber,
     description        => 'Test Assembly',
     sellprice          => '10',
     lastcost           => '5',
+    assemblies         => $assembly_items,
     buchungsgruppen_id => _default_buchungsgruppe()->id,
     unit               => _default_unit()->name
   );
-
-  foreach my $part ( @parts ) {
-    $assembly->add_assemblies( SL::DB::Assembly->new(parts_id => $part->id, qty => 1, bom => 1) );
-  }
   $assembly->assign_attributes( %params );
   return $assembly;
 }
@@ -76,40 +74,28 @@ sub create_assembly {
 sub create_assortment {
   my (%params) = @_;
 
+  my $assnumber       = delete $params{assnumber};
+  my $base_partnumber = delete $params{partnumber} || 'ap';
+
   my $assortment_items = [];
+
   if ( $params{assortment_items} ) {
-    $assortment_items = $params{assortment_items};
+    $assortment_items = delete $params{assortment_items};
   } else {
-    # no assortment items were passed, create a part, clone it several times
-    # and add to assortment as assortment_items
-    my @parts;
-    my $part1 = SL::Dev::Part::create_part(partnumber   => 'sp1',
-                                           description  => 'Testpart assortment',
-                                          )->save;
-    push(@parts, $part1);
-
-    my $number_of_parts = delete $params{number_of_parts} || 3;
-
-    for my $i ( 2 .. $number_of_parts ) {
-      my $part = $parts[0]->clone_and_reset;
-      $part->partnumber(  ($part->partnumber  // '') . " " . $i );
-      $part->description( ($part->description // '') . " " . $i );
-      $part->save;
-      push(@parts, $part);
-    }
-    my $position = 0;
-    foreach my $part ( @parts ) {
+    for my $i ( 1 .. delete $params{number_of_parts} || 3) {
+      my $part = SL::Dev::Part::create_part(partnumber  => "$base_partnumber $i",
+                                            description => "Testpart $i",
+                                           )->save;
       push( @{$assortment_items}, SL::DB::AssortmentItem->new(parts_id => $part->id,
                                                               qty      => 1,
-                                                              position => $position++,
-                                                              charge   => 1,
+                                                              position => $i,
                                                               unit     => $part->unit,
                                                              ));
     }
   }
 
   my $assortment = SL::DB::Part->new_assortment(
-    partnumber         => 'as1',
+    partnumber         => $assnumber,
     description        => 'Test Assortment',
     sellprice          => '10',
     lastcost           => '5',
@@ -171,13 +157,29 @@ Minimal usage, default values, without saving to database:
 
 Create a new assembly (part_type = assembly).
 
+Params: assnumber:  the partnumber of the assembly
+        partnumber: the partnumber of the first assembly part to be created
+
 By default 3 parts (p1, p2, p3) are created and saved as an assembly (as1).
 
   my $assembly = SL::Dev::Part::create_assembly->save;
 
-Create a new assembly with 10 parts:
+Create a new assembly with 10 parts, the assembly gets partnumber 'Ass1' and the
+parts get partnumbers 'Testpart 1' to 'Testpart 10':
 
-  my $assembly = SL::Dev::Part::create_assembly(number_of_parts => 10)->save;
+  my $assembly = SL::Dev::Part::create_assembly(number_of_parts => 10,
+                                                partnumber      => 'Testpart',
+                                                assnumber       => 'Ass1'
+                                               )->save;
+
+Create an assembly with specific parts:
+  my $assembly_item_1 = SL::DB::Assembly->new( parts_id => $part1->id, qty => 3, position => 1);
+  my $assembly_item_2 = SL::DB::Assembly->new( parts_id => $part2->id, qty => 3, position => 2);
+  my $assembly_part   = SL::Dev::Part::create_assembly( assnumber      => 'Assembly 1',
+                                                        description    => 'Assembly test',
+                                                        sellprice      => $part1->sellprice + $part2->sellprice,
+                                                        assembly_items => [ $assembly_item_1, $assembly_item_2 ],
+                                                      )->save;
 
 =head2 C<create_assortment %PARAMS>
 
@@ -199,10 +201,10 @@ from newly created parts:
   my $part2             = SL::Dev::Part::create_part( sellprice => '6.66')->save;
   my $assortment_item_1 = SL::DB::AssortmentItem->new( parts_id => $part1->id, qty => 3, unit => $part1->unit, position => 1);
   my $assortment_item_2 = SL::DB::AssortmentItem->new( parts_id => $part2->id, qty => 3, unit => $part2->unit, position => 2);
-  my $assortment_part   = SL::Dev::Part::create_assortment( partnumber  => 'Assortment 1',
-                                                            description => 'assortment test',
-                                                            sellprice   => '0',
-                                                            part_type   => 'assortment',
+  my $assortment_part   = SL::Dev::Part::create_assortment( assnumber        => 'Assortment 1',
+                                                            description      => 'assortment test',
+                                                            sellprice        => (3*$part1->sellprice + 3*$part2->sellprice),
+                                                            lastcost         => (3*$part1->lastcost  + 3*$part2->lastcost),
                                                             assortment_items => [ $assortment_item_1, $assortment_item_2 ],
                                                           )->save;
 
