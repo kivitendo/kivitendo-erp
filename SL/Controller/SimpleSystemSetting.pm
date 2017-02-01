@@ -40,6 +40,23 @@ my %supported_types = (
     ],
   },
 
+  part_classification => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_part_classification_form")
+    class  => 'PartClassification',
+    titles => {
+      list => t8('Part classifications'),
+      add  => t8('Add part classification'),
+      edit => t8('Edit part classification'),
+    },
+    list_attributes => [
+      { title => t8('Description'),       formatter => sub { t8($_[0]->description) } },
+      { title => t8('Type abbreviation'), formatter => sub { t8($_[0]->abbreviation) } },
+      { title => t8('Used for Purchase'), formatter => sub { $_[0]->used_for_purchase ? t8('yes') : t8('no') } },
+      { title => t8('Used for Sale'),     formatter => sub { $_[0]->used_for_sale     ? t8('yes') : t8('no') } },
+      { title => t8('Report separately'), formatter => sub { $_[0]->report_separate   ? t8('yes') : t8('no') } },
+    ],
+  },
+
   parts_group => {
     # Make locales.pl happy: $self->render("simple_system_setting/_parts_group_form")
     class  => 'PartsGroup',

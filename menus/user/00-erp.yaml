@@ -1080,7 +1080,8 @@
   icon: partsclassific
   order: 1100
   params:
-    action: PartClassification/list
+    action: SimpleSystemSetting/list
+    type: part_classification
 - parent: system
   id: system_pricegroups
   name: Pricegroups
