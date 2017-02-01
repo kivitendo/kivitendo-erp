@@ -1084,7 +1084,8 @@
   name: Pricegroups
   order: 1120
   params:
-    action: Pricegroup/list
+    action: SimpleSystemSetting/list
+    type: pricegroup
 - parent: system
   id: system_edit_units
   name: Edit units
