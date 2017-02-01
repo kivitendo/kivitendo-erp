@@ -16,6 +16,7 @@ use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Invoice;
 use SL::DB::Unit;
+use SL::DB::Part;
 use SL::DB::TaxZone;
 use SL::DB::BankAccount;
 use SL::DB::PaymentTerm;
@@ -37,6 +38,7 @@ sub clear_up {
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::PurchaseInvoice->delete_all(all => 1);
+  SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
@@ -56,6 +58,7 @@ test_overpayment();
 test_skonto_exact();
 test_two_invoices();
 test_partial_payment();
+test_credit_note();
 
 # remove all created data at end of test
 clear_up();
@@ -382,5 +385,42 @@ sub test_partial_payment {
   is($bt->invoice_amount   , '100.00000' , "$testname: bt invoice amount was assigned partially paid amount");
 
 };
+
+sub test_credit_note {
+
+  my $testname = 'test_credit_note';
+
+  my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
+  my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+  my $credit_note = SL::Dev::Record::create_credit_note(
+    invnumber    => 'cn 1',
+    customer     => $customer,
+    taxincluded  => 0,
+    invoiceitems => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
+                      SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => 50),
+                    ]
+  );
+  my $bt            = SL::Dev::Payment::create_bank_transaction(record        => $credit_note,
+                                                                amount        => $credit_note->amount,
+                                                                bank_chart_id => $bank->id,
+                                                                transdate     => DateTime->today->add(days => 10),
+                                                               );
+  my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($credit_note);
+  is($agreement, 13, "points for credit note ok");
+  is($rule_matches, 'remote_account_number(3) exact_amount(4) wrong_sign(-1) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus14(2) ', "rules_matches for credit note ok");
+
+  $::form->{invoice_ids} = {
+          $bt->id => [ $credit_note->id ]
+  };
+
+  my $bt_controller = SL::Controller::BankTransaction->new;
+  $bt_controller->action_save_invoices;
+
+  $credit_note->load;
+  $bt->load;
+  is($credit_note->amount   , '-844.90000', "$testname: amount ok");
+  is($credit_note->netamount, '-710.00000', "$testname: netamount ok");
+  is($credit_note->paid     , '-844.90000', "$testname: paid ok");
+}
 
 1;
