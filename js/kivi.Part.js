@@ -1,4 +1,5 @@
 namespace('kivi.Part', function(ns) {
+  'use strict';
 
   ns.open_history_popup = function() {
     var id = $("#part_id").val();
@@ -52,7 +53,7 @@ namespace('kivi.Part', function(ns) {
     } else if ( part_type === 'assembly') {
       $('#assembly thead a img').remove();
       data = $('#assembly :input').serializeArray();
-    };
+    }
 
     var src;
     if (dir == "1") {
@@ -122,7 +123,7 @@ namespace('kivi.Part', function(ns) {
       rows = $('.assortment_item_row [name="position"]');
     } else if ( part_type === 'assembly') {
       rows = $('.assembly_item_row [name="position"]');
-    };
+    }
     $(rows).each(function(idx, elt) {
       $(elt).html(idx+1);
       var row = $(elt).closest('tr');
@@ -130,13 +131,13 @@ namespace('kivi.Part', function(ns) {
         if ( row.hasClass('listrow1') ) {
           row.removeClass('listrow1');
           row.addClass('listrow0');
-        };
+        }
       } else {
         if ( row.hasClass('listrow0') ) {
           row.removeClass('listrow0');
           row.addClass('listrow1');
-        };
-      };
+        }
+      }
     });
   };
 
@@ -149,7 +150,7 @@ namespace('kivi.Part', function(ns) {
       ns.assortment_recalc();
     } else if ( part_type === 'assembly') {
       ns.assembly_recalc();
-    };
+    }
   };
 
   ns.add_assortment_item = function() {
@@ -183,7 +184,7 @@ namespace('kivi.Part', function(ns) {
       old_rows = $('.assortment_item_row').detach();
     } else if ( part_type === 'assembly') {
       old_rows = $('.assembly_item_row').detach();
-    };
+    }
     var new_rows = [];
     $(data).each(function(idx, elt) {
       new_rows.push(old_rows[elt.old_pos - 1]);
@@ -192,7 +193,7 @@ namespace('kivi.Part', function(ns) {
       $(new_rows).appendTo($('#assortment_items'));
     } else if ( part_type === 'assembly') {
       $(new_rows).appendTo($('#assembly_items'));
-    };
+    }
     ns.renumber_positions();
   };
 
@@ -275,10 +276,10 @@ namespace('kivi.Part', function(ns) {
     $('.add_assortment_item_input').keydown(function(event) {
       if(event.keyCode == 13) {
         event.preventDefault();
-        if ($("input[name='add_items[+].parts_id']").val() != '' ) {
+        if ($("input[name='add_items[+].parts_id']").val() !== '' ) {
           kivi.Part.show_multi_items_dialog("assortment");
          // ns.add_assortment_item();
-        };
+        }
         return false;
       }
     });
@@ -286,7 +287,7 @@ namespace('kivi.Part', function(ns) {
     $('.add_assembly_item_input').keydown(function(event) {
       if(event.keyCode == 13) {
         event.preventDefault();
-        if ($("input[name='add_items[+].parts_id']").val() != '' ) {
+        if ($("input[name='add_items[+].parts_id']").val() !== '' ) {
           kivi.Part.show_multi_items_dialog("assortment");
           // ns.add_assembly_item();
         }
