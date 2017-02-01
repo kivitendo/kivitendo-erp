@@ -12,12 +12,9 @@ use List::Util qw(sum);
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
-use SL::DB::Exchangerate;
 use SL::DB::Customer;
 use SL::DB::Vendor;
-use SL::DB::Employee;
 use SL::DB::Invoice;
-use SL::DB::Part;
 use SL::DB::Unit;
 use SL::DB::TaxZone;
 use SL::DB::BankAccount;
@@ -25,9 +22,10 @@ use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::BankTransaction;
 use SL::Controller::BankTransaction;
+use SL::Dev::ALL;
 use Data::Dumper;
 
-my ($customer, $vendor, $currency_id, @parts, $unit, $employee, $tax, $tax7, $tax_9, $taxzone, $payment_terms, $bank_account);
+my ($customer, $vendor, $currency_id, $unit, $tax, $tax7, $tax_9, $payment_terms, $bank_account);
 my ($transdate1, $transdate2, $currency);
 my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart);
 my ($ar_transaction, $ap_transaction);
@@ -39,7 +37,6 @@ sub clear_up {
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::PurchaseInvoice->delete_all(all => 1);
-  SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
@@ -70,17 +67,15 @@ done_testing();
 sub reset_state {
   my %params = @_;
 
-  $params{$_} ||= {} for qw(unit customer part tax vendor);
+  $params{$_} ||= {} for qw(unit customer tax vendor);
 
   clear_up();
 
   $transdate1 = DateTime->today;
   $transdate2 = DateTime->today->add(days => 5);
 
-  $employee        = SL::DB::Manager::Employee->current                                          || croak "No employee";
   $tax             = SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, %{ $params{tax} }) || croak "No tax";
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                    || croak "No tax for 7\%";
-  $taxzone         = SL::DB::Manager::TaxZone->find_by( description => 'Inland')                 || croak "No taxzone";
   $tax_9           = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, %{ $params{tax} }) || croak "No tax";
 
   $currency_id     = $::instance_conf->get_currency_id;
@@ -95,40 +90,29 @@ sub reset_state {
     name            => SL::DB::Manager::Chart->find_by(description => 'Bank')->description,
   )->save;
 
-  $customer     = SL::DB::Customer->new(
+  $customer = SL::Dev::CustomerVendor::create_customer(
     name                      => 'Test Customer',
-    currency_id               => $currency_id,
-    taxzone_id                => $taxzone->id,
     iban                      => 'DE12500105170648489890',
     bic                       => 'TESTBIC',
     account_number            => '648489890',
     mandate_date_of_signature => $transdate1,
     mandator_id               => 'foobar',
     bank                      => 'Geizkasse',
+    bank_code                 => 'G1235',
     depositor                 => 'Test Customer',
-    %{ $params{customer} }
   )->save;
 
-  $payment_terms     =  SL::DB::PaymentTerm->new(
-    description      => 'payment',
-    description_long => 'payment',
-    terms_netto      => '30',
-    terms_skonto     => '5',
-    percent_skonto   => '0.05',
-    auto_calculation => 1,
-  )->save;
+  $payment_terms = SL::Dev::Payment::create_payment_terms;
 
-  $vendor       = SL::DB::Vendor->new(
-    name        => 'Test Vendor',
-    currency_id => $currency_id,
-    taxzone_id  => $taxzone->id,
-    payment_id  => $payment_terms->id,
-    iban                      => 'DE12500105170648489890',
-    bic                       => 'TESTBIC',
-    account_number            => '648489890',
-    bank                      => 'Geizkasse',
-    depositor                 => 'Test Vendor',
-    %{ $params{vendor} }
+  $vendor = SL::Dev::CustomerVendor::create_vendor(
+    name           => 'Test Vendor',
+    payment_id     => $payment_terms->id,
+    iban           => 'DE12500105170648489890',
+    bic            => 'TESTBIC',
+    account_number => '648489890',
+    bank           => 'Geizkasse',
+    bank_code      => 'G1235',
+    depositor      => 'Test Vendor',
   )->save;
 
   $ar_chart        = SL::DB::Manager::Chart->find_by( accno => '1400' ); # Forderungen
@@ -222,7 +206,7 @@ sub test1 {
 
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv1');
 
-  my $bt = $ar_transaction->create_bank_transaction or die "Couldn't create bank_transaction";
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction->id ]
@@ -247,7 +231,9 @@ sub test_skonto_exact {
                                         payment_id => $payment_terms->id,
                                        );
 
-  my $bt = $ar_transaction->create_bank_transaction(amount => $ar_transaction->amount_less_skonto) or die "Couldn't create bank_transaction";
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
+                                                     amount => $ar_transaction->amount_less_skonto
+                                                    ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction->id ]
@@ -274,9 +260,10 @@ sub test_two_invoices {
   my $ar_transaction_1 = test_ar_transaction(invnumber => 'salesinv_1');
   my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv_2');
 
-  my $bt = $ar_transaction_1->create_bank_transaction(amount => ($ar_transaction_1->amount + $ar_transaction_2->amount),
-                                                      purpose => "Rechnungen " . $ar_transaction_1->invnumber . " und " . $ar_transaction_2->invnumber,
-                                                     ) or die "Couldn't create bank_transaction";
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction_1,
+                                                     amount => ($ar_transaction_1->amount + $ar_transaction_2->amount),
+                                                     purpose => "Rechnungen " . $ar_transaction_1->invnumber . " und " . $ar_transaction_2->invnumber,
+                                                    ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction_1->id, $ar_transaction_2->id ]
@@ -304,7 +291,9 @@ sub test_overpayment {
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv overpaid');
 
   # amount 135 > 119
-  my $bt = $ar_transaction->create_bank_transaction(amount => 135) or die "Couldn't create bank_transaction";
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
+                                                     amount => 135
+                                                    ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction->id ]
@@ -332,10 +321,13 @@ sub test_overpayment_with_partialpayment {
 
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv overpaid partial');
 
-  my $bt_1 = $ar_transaction->create_bank_transaction(amount    =>  10) or die "Couldn't create bank_transaction";
-  my $bt_2 = $ar_transaction->create_bank_transaction(amount    => 119,
-                                                      transdate => DateTime->today->add(days => 5),
-                                                     ) or die "Couldn't create bank_transaction";
+  my $bt_1 = SL::Dev::Payment::create_bank_transaction(record    => $ar_transaction,
+                                                       amount    =>  10
+                                                      ) or die "Couldn't create bank_transaction";
+  my $bt_2 = SL::Dev::Payment::create_bank_transaction(record    => $ar_transaction,
+                                                       amount    => 119,
+                                                       transdate => DateTime->today->add(days => 5),
+                                                      ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt_1->id => [ $ar_transaction->id ]
@@ -366,7 +358,9 @@ sub test_partial_payment {
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv partial payment');
 
   # amount 100 < 119
-  my $bt = $ar_transaction->create_bank_transaction(amount => 100) or die "Couldn't create bank_transaction";
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
+                                                     amount => 100
+                                                    ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction->id ]
