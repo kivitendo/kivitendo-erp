@@ -231,8 +231,9 @@ sub test_skonto_exact {
                                         payment_id => $payment_terms->id,
                                        );
 
-  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
-                                                     amount => $ar_transaction->amount_less_skonto
+  my $bt = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction,
+                                                     bank_chart_id => $bank->id,
+                                                     amount        => $ar_transaction->amount_less_skonto
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
@@ -260,9 +261,10 @@ sub test_two_invoices {
   my $ar_transaction_1 = test_ar_transaction(invnumber => 'salesinv_1');
   my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv_2');
 
-  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction_1,
-                                                     amount => ($ar_transaction_1->amount + $ar_transaction_2->amount),
-                                                     purpose => "Rechnungen " . $ar_transaction_1->invnumber . " und " . $ar_transaction_2->invnumber,
+  my $bt = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction_1,
+                                                     amount        => ($ar_transaction_1->amount + $ar_transaction_2->amount),
+                                                     purpose       => "Rechnungen " . $ar_transaction_1->invnumber . " und " . $ar_transaction_2->invnumber,
+                                                     bank_chart_id => $bank->id,
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
@@ -291,8 +293,9 @@ sub test_overpayment {
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv overpaid');
 
   # amount 135 > 119
-  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
-                                                     amount => 135
+  my $bt = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction,
+                                                     bank_chart_id => $bank->id,
+                                                     amount        => 135
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
@@ -321,12 +324,14 @@ sub test_overpayment_with_partialpayment {
 
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv overpaid partial');
 
-  my $bt_1 = SL::Dev::Payment::create_bank_transaction(record    => $ar_transaction,
-                                                       amount    =>  10
+  my $bt_1 = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction,
+                                                       bank_chart_id => $bank->id,
+                                                       amount        =>  10
                                                       ) or die "Couldn't create bank_transaction";
-  my $bt_2 = SL::Dev::Payment::create_bank_transaction(record    => $ar_transaction,
-                                                       amount    => 119,
-                                                       transdate => DateTime->today->add(days => 5),
+  my $bt_2 = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction,
+                                                       amount        => 119,
+                                                       transdate     => DateTime->today->add(days => 5),
+                                                       bank_chart_id => $bank->id,
                                                       ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
@@ -358,8 +363,9 @@ sub test_partial_payment {
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv partial payment');
 
   # amount 100 < 119
-  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction,
-                                                     amount => 100
+  my $bt = SL::Dev::Payment::create_bank_transaction(record        => $ar_transaction,
+                                                     bank_chart_id => $bank->id,
+                                                     amount        => 100
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {

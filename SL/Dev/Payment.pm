@@ -49,8 +49,8 @@ sub create_bank_transaction {
  my $amount = (delete $params{amount} || $record->amount) * $multiplier;
 
  my $bank_chart;
- if ( $params{chart_id} ) {
-   $bank_chart = SL::DB::Manager::Chart->find_by(chart_id => $params{chart_id}) or die "Can't find bank chart";
+ if ( $params{bank_chart_id} ) {
+   $bank_chart = SL::DB::Manager::Chart->find_by(id => delete $params{bank_chart_id}) or die "Can't find bank chart";
  } elsif ( $::instance_conf->get_ar_paid_accno_id ) {
    $bank_chart   = SL::DB::Manager::Chart->find_by(id => $::instance_conf->get_ar_paid_accno_id);
  } else {
@@ -99,14 +99,20 @@ Example:
 
 =head2 C<create_bank_transaction %PARAMS>
 
-Required params: record  (an SL::DB::Invoice or SL::DB::PurchaseInvoice object)
-
-
-$params{amount} should always be relative to the absolute amount of the invoice, i.e. use positive
-values for sales and purchases.
-
 Create a bank transaction that matches an existing invoice record, e.g. to be able to
 test the point system.
+
+Required params: record  (an SL::DB::Invoice or SL::DB::PurchaseInvoice object)
+
+Optional params: bank_chart_id : the chart id of a configured bank account
+                 amount        : the amount of the bank transaction
+
+If no bank_chart_id is given, it tries to find a chart via defaults
+(ar_paid_accno_id) or by searching for the chart named "Bank". The chart must
+be connected to an existing BankAccount.
+
+Param amount should always be relative to the absolute amount of the invoice, i.e. use positive
+values for sales and purchases.
 
 Example:
   my $payment_terms = SL::Dev::Record::create_payment_terms;
