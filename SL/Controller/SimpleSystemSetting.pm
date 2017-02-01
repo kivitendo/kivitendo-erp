@@ -40,6 +40,20 @@ my %supported_types = (
     ],
   },
 
+  parts_group => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_parts_group_form")
+    class  => 'PartsGroup',
+    titles => {
+      list => t8('Partsgroups'),
+      add  => t8('Add partsgroup'),
+      edit => t8('Edit partsgroup'),
+    },
+    list_attributes => [
+      { method => 'partsgroup', title => t8('Description') },
+      { method => 'obsolete',   title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
+    ],
+  },
+
   pricegroup => {
     # Make locales.pl happy: $self->render("simple_system_setting/_pricegroup_form")
     class  => 'Pricegroup',
