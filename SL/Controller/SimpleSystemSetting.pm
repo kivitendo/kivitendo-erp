@@ -141,6 +141,23 @@ my %supported_types = (
     },
   },
 
+  requirement_spec_predefined_text => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_requirement_spec_predefined_text_form")
+    class  => 'RequirementSpecPredefinedText',
+    titles => {
+      list => t8('Pre-defined Texts'),
+      add  => t8('Add pre-defined text'),
+      edit => t8('Edit pre-defined text'),
+    },
+    list_attributes => [
+      { method => 'description', title => t8('Description') },
+      { method => 'title',       title => t8('Title') },
+      {                          title => t8('Content'),                 formatter => sub { my $t = $_[0]->text_as_stripped_html; length($t) > 50 ? substr($t, 0, 50) . '…' : $t } },
+      {                          title => t8('Useable for text blocks'), formatter => sub { $_[0]->useable_for_text_blocks ? t8('yes') : t8('no') } },
+      {                          title => t8('Useable for sections'),    formatter => sub { $_[0]->useable_for_sections    ? t8('yes') : t8('no') } },
+    ],
+  },
+
 );
 
 my @default_list_attributes = (

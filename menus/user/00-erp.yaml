@@ -1140,7 +1140,8 @@
   name: Pre-defined Texts
   order: 100
   params:
-    action: RequirementSpecPredefinedText/list
+    action: SimpleSystemSetting/list
+    type: requirement_spec_predefined_text
 - parent: system_requirement_specs
   id: system_requirement_specs_requirement_spec_types
   name: Requirement Spec Types
