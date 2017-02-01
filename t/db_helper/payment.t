@@ -1433,7 +1433,7 @@ sub test_credit_note_two_items_19_7_tax_tax_not_included() {
   my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
   my $total = total_amount($invoice);
 
-  my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
+  my $title = 'credit_note, two items, 19/7%, tax not included';
 
   is($invoice->netamount,        -40.84,   "${title}: netamount");
   is($invoice->amount,           -45.10,   "${title}: amount");
