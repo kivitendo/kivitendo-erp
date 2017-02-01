@@ -1410,6 +1410,39 @@ sub test_ap_currency_tax_not_included_and_payment_2_credit_note {
   is(total_amount($invoice), 0,   "$title: even balance");
 };
 
+sub test_credit_note_two_items_19_7_tax_tax_not_included() {
+  reset_state() if $ALWAYS_RESET;
+
+  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 5);
+  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 3);
+  my $invoice = SL::Dev::Record::create_credit_note(
+    invnumber    => 'cn1',
+    taxincluded  => 0,
+    invoiceitems => [ $item1, $item2 ],
+  );
+
+  # default values
+  my %params = ( chart_id => $bank_account->chart_id,
+                 transdate => DateTime->today_local->to_kivitendo,
+               );
+
+  $params{amount}       = $invoice->amount,
+
+  $invoice->pay_invoice( %params );
+
+  my ($number_of_payments, $paid_amount) = number_of_payments($invoice);
+  my $total = total_amount($invoice);
+
+  my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
+
+  is($invoice->netamount,        -40.84,   "${title}: netamount");
+  is($invoice->amount,           -45.10,   "${title}: amount");
+  is($paid_amount,                45.10,   "${title}: paid amount according to acc_trans is positive (Haben)");
+  is($invoice->paid,             -45.10,   "${title}: paid");
+  is($number_of_payments,             1,   "${title}: 1 AR_paid bookings");
+  is($total,                          0,   "${title}: even balance");
+}
+
 Support::TestSetup::login();
 
 # test cases: without_skonto
@@ -1421,6 +1454,7 @@ test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
 test_default_purchase_invoice_two_charts_19_7_without_skonto();
 test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
 test_default_invoice_one_item_19_without_skonto_overpaid();
+test_credit_note_two_items_19_7_tax_tax_not_included();
 
 # test cases: difference_as_skonto
 test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
