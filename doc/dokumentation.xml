@@ -205,6 +205,14 @@
           </listitem>
 
           <listitem>
+            <para><literal>MIME::Entity</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>MIME::Parser</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>FCGI</literal> (nicht Versionen 0.68 bis 0.71
             inklusive; siehe <xref
             linkend="Apache-Konfiguration.FCGI.WebserverUndPlugin"/>)</para>
