@@ -143,7 +143,10 @@ To create a payment for 3 invoices that were all paid together, all with skonto:
                                             amount  => ($ar1->amount_less_skonto + $ar2->amount_less_skonto + $ar2->amount_less_skonto),
                                             purpose => 'Rechnungen 20, 21, 22',
                                            );
+
 =head1 TODO
+
+Nothing here yet.
 
 =head1 BUGS
 
