@@ -155,6 +155,15 @@ my %supported_types = (
     ],
   },
 
+  requirement_spec_complexity => {
+    class  => 'RequirementSpecComplexity',
+    titles => {
+      list => t8('Complexities'),
+      add  => t8('Add complexity'),
+      edit => t8('Edit complexity'),
+    },
+  },
+
   requirement_spec_predefined_text => {
     # Make locales.pl happy: $self->render("simple_system_setting/_requirement_spec_predefined_text_form")
     class  => 'RequirementSpecPredefinedText',
@@ -170,6 +179,15 @@ my %supported_types = (
       {                          title => t8('Useable for text blocks'), formatter => sub { $_[0]->useable_for_text_blocks ? t8('yes') : t8('no') } },
       {                          title => t8('Useable for sections'),    formatter => sub { $_[0]->useable_for_sections    ? t8('yes') : t8('no') } },
     ],
+  },
+
+  requirement_spec_risk => {
+    class  => 'RequirementSpecRisk',
+    titles => {
+      list => t8('Risk levels'),
+      add  => t8('Add risk level'),
+      edit => t8('Edit risk level'),
+    },
   },
 
   requirement_spec_status => {
