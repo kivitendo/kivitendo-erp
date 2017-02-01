@@ -141,6 +141,20 @@ my %supported_types = (
     },
   },
 
+  requirement_spec_acceptance_status => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_requirement_spec_acceptance_status_form")
+    class  => 'RequirementSpecAcceptanceStatus',
+    titles => {
+      list => t8('Acceptance Statuses'),
+      add  => t8('Add acceptance status'),
+      edit => t8('Edit acceptance status'),
+    },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
+      { method => 'description', title => t8('Description') },
+    ],
+  },
+
   requirement_spec_predefined_text => {
     # Make locales.pl happy: $self->render("simple_system_setting/_requirement_spec_predefined_text_form")
     class  => 'RequirementSpecPredefinedText',
@@ -337,6 +351,13 @@ sub render_form {
 #
 # type-specific helper functions
 #
+
+sub setup_requirement_spec_acceptance_status {
+  my ($self) = @_;
+
+  no warnings 'once';
+  $self->{valid_names} = \@SL::DB::RequirementSpecAcceptanceStatus::valid_names;
+}
 
 sub setup_requirement_spec_status {
   my ($self) = @_;

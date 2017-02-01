@@ -1173,7 +1173,8 @@
   name: Acceptance Statuses
   order: 600
   params:
-    action: RequirementSpecAcceptanceStatus/list
+    action: SimpleSystemSetting/list
+    type: requirement_spec_acceptance_status
 - parent: system
   id: system_languages_and_translations
   name: Languages and translations
