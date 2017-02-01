@@ -223,6 +223,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>File::MimeInfo::Magic</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>GD</literal></para>
           </listitem>
 

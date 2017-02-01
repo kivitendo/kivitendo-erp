@@ -11,7 +11,8 @@ Upgrade auf v3.4.x Unstable
   auch andere Emails(.eml) versendet werden.
 
 * Die Tabelle "files" ist hinzugekommen. Diese wird von der Dateiverwaltung
-  verwendet.
+  verwendet. Zum Erkennen der Dateiinhalte wird das Paket File::MimeInfo::Magic
+  benötigt.
 
 * Die PDF-Generierung ist erweitert. Beim Massendruck können auch Leerseiten
   eingebaut werden, z.B. falls zweiseitg ausgedruckt wird. Statt die Anzahl
