@@ -2,7 +2,7 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_invoice_item create_sales_invoice create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_project);
+our @EXPORT = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_project);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
@@ -15,6 +15,7 @@ use SL::DB::ProjectType;
 use DateTime;
 
 my %record_type_to_item_type = ( sales_invoice        => 'SL::DB::InvoiceItem',
+                                 credit_note          => 'SL::DB::InvoiceItem',
                                  sales_order          => 'SL::DB::OrderItem',
                                  purchase_order       => 'SL::DB::OrderItem',
                                  sales_delivery_order => 'SL::DB::DeliveryOrderItem',
@@ -33,6 +34,40 @@ sub create_sales_invoice {
   my $invoice = SL::DB::Invoice->new(
     invoice      => 1,
     type         => 'sales_invoice',
+    customer_id  => $customer->id,
+    taxzone_id   => $customer->taxzone->id,
+    invnumber    => delete $params{invnumber}   // undef,
+    currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => $params{taxincluded} // 0,
+    employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => $params{transdate}   // DateTime->today_local->to_kivitendo,
+    payment_id   => $params{payment_id}  // undef,
+    gldate       => DateTime->today,
+    invoiceitems => $invoiceitems,
+  );
+  $invoice->assign_attributes(%params) if %params;
+
+  $invoice->post;
+  return $invoice;
+}
+
+sub create_credit_note {
+  my (%params) = @_;
+
+  my $record_type = 'credit_note';
+  my $invoiceitems = delete $params{invoiceitems} // _create_two_items($record_type);
+  _check_items($invoiceitems, $record_type);
+
+  my $customer = delete $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  die "illegal customer" unless defined $customer && ref($customer) eq 'SL::DB::Customer';
+
+  # adjust qty for credit note items
+  $_->qty( $_->qty * -1) foreach @{$invoiceitems};
+
+  my $invoice = SL::DB::Invoice->new(
+    invoice      => 1,
+    type         => 'credit_note',
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone->id,
     invnumber    => delete $params{invnumber}   // undef,
@@ -252,6 +287,21 @@ Example with params:
     invnumber   => 777,
     transdate   => DateTime->today->subtract(days => 7),
     taxincluded => 1,
+  );
+
+=head2 C<create_credit_note %PARAMS>
+
+Create a credit note (sales). Use positive quantities when adding items.
+
+Example including creation of parts and of credit_note
+  my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
+  my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+  my $credit_note = SL::Dev::Record::create_credit_note(
+    invnumber    => '34',
+    taxincluded  => 0,
+    invoiceitems => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
+                      SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => 50),
+                    ]
   );
 
 =head2 C<create_sales_order %PARAMS>
