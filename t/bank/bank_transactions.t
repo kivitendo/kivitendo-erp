@@ -270,6 +270,9 @@ sub test_two_invoices {
                                                      bank_chart_id => $bank->id,
                                                     ) or die "Couldn't create bank_transaction";
 
+  my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($ar_transaction_1);
+  is($agreement, 16, "points for ar_transaction_1 in test_two_invoices ok");
+
   $::form->{invoice_ids} = {
           $bt->id => [ $ar_transaction_1->id, $ar_transaction_2->id ]
         };
