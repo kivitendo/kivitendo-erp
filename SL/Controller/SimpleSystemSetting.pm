@@ -158,6 +158,21 @@ my %supported_types = (
     ],
   },
 
+  requirement_spec_type => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_requirement_spec_type_form")
+    class  => 'RequirementSpecType',
+    titles => {
+      list => t8('Requirement Spec Types'),
+      add  => t8('Add requirement spec type'),
+      edit => t8('Edit requirement spec type'),
+    },
+    list_attributes => [
+      { method => 'description',                  title => t8('Description') },
+      { method => 'section_number_format',        title => t8('Section number format') },
+      { method => 'function_block_number_format', title => t8('Function block number format') },
+    ],
+  },
+
 );
 
 my @default_list_attributes = (
