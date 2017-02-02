@@ -67,9 +67,16 @@
   <p>
    <table>
     <tr>
+     <th align="right" nowrap>[% 'Assembly' | $T8 %]</th>
+     <td>
+      [% P.part_picker("parts_id", parts_id, part_type="assembly", class="partpicker_fat_set_item initial_focus") %]
+     </td>
+    </tr>
+
+    <tr>
      <th align="right" nowrap>[% 'Destination warehouse' | $T8 %]</th>
      <td>
-      <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+      <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
        [%- FOREACH warehouse = WAREHOUSES %]
        <option value="[% HTML.escape(warehouse.id) %]"[% IF warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
        [%- END %]
@@ -80,13 +87,6 @@
     <tr>
      <th align="right" nowrap>[% 'Destination bin' | $T8 %]:</th>
      <td><select id="bin_id" name="bin_id"></select></td>
-    </tr>
-
-    <tr>
-     <th align="right" nowrap>[% 'Assembly' | $T8 %]</th>
-     <td>
-      [% P.part_picker("parts_id", parts_id, part_type="assembly") %]
-     </td>
     </tr>
 
     <tr>
@@ -129,3 +129,14 @@
   </p>
  </form>
 
+<script type='text/javascript'>
+$(function(){
+  $('#parts_id').on('set_item:PartPicker', function(event, item) {
+    if (!item.warehouse_id)
+      return;
+
+    $('#warehouse_id').val(item.warehouse_id);
+    warehouse_selected(item.warehouse_id, item.bin_id);
+  });
+})
+</script>
