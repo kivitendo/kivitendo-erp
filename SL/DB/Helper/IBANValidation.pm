@@ -82,12 +82,12 @@ SL::DB::Helper::IBANValidation - Mixin for validating IBAN attributes
     return @errors;
   }
 
-This mixin provides a function C<validate_ibans> that returns an list
+This mixin provides a function C<validate_ibans> that returns a list
 of error messages, one for each attribute that fails the IBAN
 validation. If all attributes are valid or empty then an empty list
 is returned.
 
-The names of attributes to check can be given as a import list to the
+The names of attributes to check can be given as an import list to the
 mixin package. If no attributes are given the single attribute C<iban>
 is used.
 
