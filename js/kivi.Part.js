@@ -274,6 +274,7 @@ namespace('kivi.Part', function(ns) {
       TAB:    9,
       LEFT:   37,
       RIGHT:  39,
+      DOWN:   40,
       PAGE_UP: 33,
       PAGE_DOWN: 34,
       SHIFT:     16,
@@ -284,7 +285,7 @@ namespace('kivi.Part', function(ns) {
       PICKED:       'partpicker-picked',
       UNDEFINED:    'partpicker-undefined',
       FAT_SET_ITEM: 'partpicker_fat_set_item',
-    }
+    };
     var o = $.extend({
       limit: 20,
       delay: 50,
@@ -305,6 +306,7 @@ namespace('kivi.Part', function(ns) {
     var $classification_id = $('#' + real_id + '_classification_id');
     var $unit              = $('#' + real_id + '_unit');
     var $convertible_unit  = $('#' + real_id + '_convertible_unit');
+    var autocomplete_open  = false;
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
@@ -463,6 +465,12 @@ namespace('kivi.Part', function(ns) {
       search: function(event, ui) {
         if ((event.which == KEY.SHIFT) || (event.which == KEY.CTRL) || (event.which == KEY.ALT))
           event.preventDefault();
+      },
+      open: function() {
+        autocomplete_open = true;
+      },
+      close: function() {
+        autocomplete_open = false;
       }
     });
     /*  In case users are impatient and want to skip ahead:
@@ -497,6 +505,11 @@ namespace('kivi.Part', function(ns) {
           });
           return false;
         }
+      } else if (event.which == KEY.DOWN && !autocomplete_open) {
+        var old_options = $dummy.autocomplete('option');
+        $dummy.autocomplete('option', 'minLength', 0);
+        $dummy.autocomplete('search', $dummy.val());
+        $dummy.autocomplete('option', 'minLength', old_options.minLength);
       } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
         state = STATES.UNDEFINED;
       }
