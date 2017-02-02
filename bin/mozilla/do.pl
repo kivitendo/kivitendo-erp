@@ -658,10 +658,7 @@ sub orders {
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom',
-                        {
-                           print_options   => print_options(inline => 1,hide_language_id => 1),
-                        }),
+                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom', { print_options => print_options(inline => 1,hide_language_id => 1) }),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
