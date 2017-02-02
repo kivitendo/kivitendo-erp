@@ -6,7 +6,7 @@ use Algorithm::CheckDigits ();
 use Carp;
 use SL::Locale::String qw(t8);
 
-my $_validater;
+my $_validator;
 my %_countries = (
   AT => { len => 20, name => t8('Austria') },
   BE => { len => 16, name => t8('Belgium') },
@@ -29,9 +29,9 @@ sub _validate {
 
   return () unless length($iban);
 
-  $_validater //= Algorithm::CheckDigits::CheckDigits('iban');
+  $_validator //= Algorithm::CheckDigits::CheckDigits('iban');
 
-  return ($::locale->text("The value '#1' is not a valid IBAN.", $iban)) if !$_validater->is_valid($iban);
+  return ($::locale->text("The value '#1' is not a valid IBAN.", $iban)) if !$_validator->is_valid($iban);
 
   my $country = $_countries{substr($iban, 0, 2)};
 
