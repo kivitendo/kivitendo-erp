@@ -98,7 +98,7 @@ namespace('kivi', function(k){
       if (o.fat_set_item && item.id) {
         $.ajax({
           url: 'controller.pl?action=Part/show.json',
-          data: { id: item.id },
+          data: { 'part.id': item.id },
           success: function(rsp) {
             $real.trigger('set_item:PartPicker', rsp);
           },
