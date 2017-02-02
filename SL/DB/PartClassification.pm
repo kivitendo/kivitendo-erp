@@ -7,6 +7,7 @@ use SL::DB::MetaSetup::PartClassification;
 use SL::DB::Manager::PartClassification;
 
 __PACKAGE__->meta->initialize;
+__PACKAGE__->before_delete('can_be_deleted');
 
 # check if the description and abbreviation is present
 #
@@ -20,7 +21,12 @@ sub validate {
   return @errors;
 }
 
+sub can_be_deleted {
+  my ($self) = @_;
 
+  # The first five part classifications must not be deleted.
+  return defined($self->id) && ($self->id >= 5);
+}
 
 1;
 
