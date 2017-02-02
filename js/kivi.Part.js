@@ -289,6 +289,11 @@ namespace('kivi.Part', function(ns) {
       limit: 20,
       delay: 50,
       fat_set_item: $real.hasClass(CLASSES.FAT_SET_ITEM),
+      action: {
+        on_enter_match_none:  function(){},
+        on_enter_match_one:   function(){$('#update_button').click();},
+        on_enter_match_many:  function(){open_dialog();}
+      }
     }, options);
     var STATES = {
       PICKED:    CLASSES.PICKED,
@@ -487,8 +492,8 @@ namespace('kivi.Part', function(ns) {
         }
         if (event.which == KEY.ENTER) {
           handle_changed_text({
-            match_one:  function(){$('#update_button').click();},
-            match_many: function(){open_dialog();}
+            match_one:  o.action.on_enter_match_one,
+            match_many: o.action.on_enter_match_many
           });
           return false;
         }
