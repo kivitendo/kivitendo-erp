@@ -643,13 +643,6 @@ sub orders {
     push @options, $locale->text('Not delivered');
   }
 
-  # all_vc ruft get_employee auf, dort wird emloyee überschrieben, deshalb retten:
-  my $save_employee_id = $form->{'employee_id'};
-  my $save_employee    = $form->{'employee'};
-  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
-  $form->{'employee_id'} = $save_employee_id;
-  $form->{'employee'}    = $save_employee;
-
   my $pr = SL::DB::Manager::Printer->find_by(
       printer_description => $::locale->text("sales_delivery_order_printer"));
   if ($pr ) {
