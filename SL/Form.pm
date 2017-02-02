@@ -1212,9 +1212,9 @@ sub send_email {
       }
     }
     foreach my $attfile ( @attfiles ) {
-      push @{ $mail->{attachments} }, { path => $attfile->get_file,
+      push @{ $mail->{attachments} }, { path => SL::File->get_file_path(dbfile => $attfile),
                                         id   => $attfile->id,
-                                        type => $attfile->mime_type,
+                                        type => $attfile->file_mime_type,
                                         name => $attfile->file_name };
     }
   }

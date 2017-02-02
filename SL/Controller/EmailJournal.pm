@@ -69,7 +69,7 @@ sub action_download_attachment {
   my $ref = \$attachment->content;
   if ( $attachment->file_id > 0 ) {
     my $file = SL::File->get(id => $attachment->file_id );
-    $ref = $file->get_content if $file;
+    $ref = SL::File->get_content(dbfile => $file) if $file;
   }
   $self->send_file($ref, name => $attachment->name, type => $attachment->mime_type);
 }

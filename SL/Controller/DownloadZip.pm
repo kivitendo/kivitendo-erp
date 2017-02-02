@@ -64,7 +64,9 @@ sub action_download_orderitems_files {
       # }
       if ( scalar (@wanted_files) > 0 ) {
         $zip->addDirectory($item->part->partnumber);
-        $zip->addFile($_->get_file ), Encode::encode($name_encoding,$item->part->partnumber.'/'.$_->file_name)) for @wanted_files;
+        $zip->addFile(SL::File->get_file_path(dbfile => $_ ),
+                      Encode::encode($name_encoding,$item->part->partnumber.'/'.$_->{file_name})
+                      ) for @wanted_files;
       }
     }
   }
@@ -116,7 +118,7 @@ THis method must be inserted into the customer branch:
     };
     if ( rowcount == 0 ) {
         kivi.display_flash('error', kivi.t8('No articles have been added yet.'));
-        return false;
+        return false; 
     }
     for (var i = 1; i <= rowcount; i++) {
         data['parts_id_'+i] =  $('#id_' + i).val();
