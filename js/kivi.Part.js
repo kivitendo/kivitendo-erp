@@ -571,6 +571,12 @@ namespace('kivi.Part', function(ns) {
     return pp;
   };
 
+  ns.reinit_widgets = function() {
+    kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
+      kivi.Part.Picker($(elt));
+    });
+  }
+
   $(function(){
 
     // assortment
@@ -613,8 +619,6 @@ namespace('kivi.Part', function(ns) {
 
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
-    $('input.part_autocomplete').each(function(i,real){
-      kivi.Part.Picker($(real));
-    });
+    ns.reinit_widgets();
   });
 });

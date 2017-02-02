@@ -243,10 +243,7 @@ namespace("kivi", function(ns) {
       $(elt).datepicker();
     });
 
-    if (ns.Part)
-      ns.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
-        kivi.Part.Picker($(elt));
-      });
+    if (ns.Part) ns.Part.reinit_widgets();
 
     if (ns.ProjectPicker)
       ns.run_once_for('input.project_autocomplete', 'project_picker', function(elt) {
