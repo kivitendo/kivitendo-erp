@@ -163,7 +163,6 @@ sub action_report {
   }
 
   my $num_rows               = $self->{report}->numrows;
-  my $num_cols               = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
 
   # manual paginating, yuck
   my $page                   = $::form->{page} || 1;
