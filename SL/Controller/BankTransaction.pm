@@ -100,7 +100,15 @@ sub action_list {
   );
   $main::lxdebug->message(LXDebug->DEBUG2(),"count bt=".scalar(@{$bank_transactions}." bank_account=".$bank_account->id." chart=".$bank_account->chart_id));
 
-  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [amount => { ne => \'paid' }], with_objects => ['customer','payment_terms']);
+  # credit notes have a negative amount, treat differently
+  my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [ or => [ amount => { gt => \'paid' },
+                                                                                          and => [ type    => 'credit_note',
+                                                                                                   amount  => { lt => \'paid' }
+                                                                                                 ],
+                                                                                        ],
+                                                                                ],
+                                                                       with_objects => ['customer','payment_terms']);
+
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { ne => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
   my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $bank_account->chart_id ,
                                                                              'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
@@ -658,10 +666,14 @@ sub save_single_bank_transaction {
                               amount       => $open_amount,
                               payment_type => $payment_type,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
+      } elsif ( $invoice->is_sales && $invoice->type eq 'credit_note' ) {
+        # no check for overpayment/multiple payments
+        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
+                              trans_id     => $invoice->id,
+                              amount       => $invoice->open_amount,
+                              payment_type => $payment_type,
+                              transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
-        if ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
-          $amount_of_transaction *= -1;
-        }
         my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
