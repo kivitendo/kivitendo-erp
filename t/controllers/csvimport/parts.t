@@ -1,4 +1,4 @@
-use Test::More tests => 43;
+use Test::More tests => 47;
 
 use strict;
 
@@ -21,9 +21,12 @@ use SL::DB::Currency;
 use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::Warehouse;
+use SL::DB::Pricegroup;
+use SL::DB::Price;
 use SL::DB::Bin;
 
 my ($translation, $bin1_1, $bin1_2, $bin2_1, $bin2_2, $wh1, $wh2, $bugru, $cvarconfig );
+my ($pg1_id, $pg2_id, $pg3_id);
 
 Support::TestSetup::login();
 
@@ -77,6 +80,13 @@ sub reset_state {
     includeable => 0,
     included_by_default => 0,
   )->save;
+
+  foreach ( { id => 1, pricegroup => 'A', sortkey => 1 },
+            { id => 2, pricegroup => 'B', sortkey => 2 },
+            { id => 3, pricegroup => 'C', sortkey => 3 },
+            { id => 4, pricegroup => 'D', sortkey => 4 } ) {
+    SL::DB::Pricegroup->new(%{$_})->save;
+  }
 }
 
 $bugru = SL::DB::Manager::Buchungsgruppe->find_by(description => { like => 'Standard%19%' });
@@ -178,10 +188,10 @@ my $settings2 = {
 #   die Dumper($entry->{errors});
 
 
-##### create part
+##### create part with prices and 3 pricegroup prices
 $file = \<<EOL;
-partnumber;sellprice;lastcost;listprice;unit
-P1000;100.10;90.20;95.30;kg
+partnumber;sellprice;lastcost;listprice;unit;pricegroup_1;pricegroup_2;pricegroup_3
+P1000;100.10;90.20;95.30;kg;111.11;122.22;133.33
 EOL
 $entries = test_import($file,$settings1);
 $entry = $entries->[0];
@@ -192,17 +202,24 @@ is $entry->{object}->partnumber,'P1000', 'partnumber';
 is $entry->{object}->sellprice, '100.1', 'sellprice';
 is $entry->{object}->lastcost,   '90.2', 'lastcost';
 is $entry->{object}->listprice,  '95.3', 'listprice';
+is $entry->{object}->find_prices( { pricegroup_id => 2 } )->[0]->price,  '122.22000', 'pricegroup_2 price';
 
-##### update prices of part
+##### update prices of part, and price of pricegroup_2, keeping pricegroup_1 and pricegroup_3
 $file = \<<EOL;
-partnumber;sellprice;lastcost;listprice;unit
-P1000;110.10;95.20;97.30;kg
+partnumber;sellprice;lastcost;listprice;unit;pricegroup_2;pricegroup_4
+P1000;110.10;95.20;97.30;kg;123.45;144.44
 EOL
 $entries = test_import($file,$settings1);
 $entry = $entries->[0];
 is $entry->{object}->sellprice, '110.1', 'updated sellprice';
 is $entry->{object}->lastcost,   '95.2', 'updated lastcost';
 is $entry->{object}->listprice,  '97.3', 'updated listprice';
+# $entry->{object}->prices currently only contains prices pricegroup_2 and pricegroup_4, reload object from db
+# printf("%s %s: %s\n", $_->pricegroup_id, $_->pricegroup->pricegroup, $_->price) foreach @{$entry->{object}->prices};
+$entry->{object}->load;
+is $entry->{object}->find_prices( { pricegroup_id => 1 } )->[0]->price,  '111.11000', 'pricegroup_1 price didn\'t change';
+is $entry->{object}->find_prices( { pricegroup_id => 2 } )->[0]->price,  '123.45000', 'pricegroup_2 price was updated';
+is $entry->{object}->find_prices( { pricegroup_id => 4 } )->[0]->price,  '144.44000', 'pricegroup_4 price was added';
 
 ##### insert parts with warehouse,bin name
 
@@ -317,6 +334,8 @@ clear_up(); # remove all data at end of tests
 
 sub clear_up {
   SL::DB::Manager::Part       ->delete_all(all => 1);
+  SL::DB::Manager::Pricegroup ->delete_all(all => 1);
+  SL::DB::Manager::Price      ->delete_all(all => 1);
   SL::DB::Manager::Translation->delete_all(all => 1);
   SL::DB::Manager::Language   ->delete_all(all => 1);
   SL::DB::Manager::Bin        ->delete_all(all => 1);
