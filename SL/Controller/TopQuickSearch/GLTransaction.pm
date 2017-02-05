@@ -57,7 +57,7 @@ sub query_autocomplete {
            transdate => $_->transdate->to_kivitendo,
            label     => $_->oneline_summary,
            value     => '',
-           url       => 'gl.pl?action=edit&id=' . $_->id,
+           id        => 'gl.pl?action=edit&id=' . $_->id,
         }
       }
       @{$gls}
@@ -71,7 +71,7 @@ sub query_autocomplete {
            transdate => $_->transdate->to_kivitendo,
            label     => $_->oneline_summary,
            value     => "",
-           url       => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
+           id        => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
         }
       }
       @{$ars}
