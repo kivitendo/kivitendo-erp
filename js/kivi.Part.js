@@ -263,25 +263,26 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", { action: 'Part/warehouse_changed', warehouse_id: function(){ return $('#part_warehouse_id').val() } },   kivi.eval_json_result);
   }
 
+  var KEY = {
+    TAB:       9,
+    ENTER:     13,
+    SHIFT:     16,
+    CTRL:      17,
+    ALT:       18,
+    ESCAPE:    27,
+    PAGE_UP:   33,
+    PAGE_DOWN: 34,
+    LEFT:      37,
+    UP:        38,
+    RIGHT:     39,
+    DOWN:      40,
+  };
+
   ns.Picker = function($real, options) {
     // short circuit in case someone double inits us
     if ($real.data("part_picker"))
       return $real.data("part_picker");
 
-    var KEY = {
-      TAB:       9,
-      ENTER:     13,
-      SHIFT:     16,
-      CTRL:      17,
-      ALT:       18,
-      ESCAPE:    27,
-      PAGE_UP:   33,
-      PAGE_DOWN: 34,
-      LEFT:      37,
-      UP:        38,
-      RIGHT:     39,
-      DOWN:      40,
-    };
     var CLASSES = {
       PICKED:       'partpicker-picked',
       UNDEFINED:    'partpicker-undefined',
