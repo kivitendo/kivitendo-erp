@@ -558,7 +558,8 @@ sub abbreviation {
 sub oneline_summary {
   my $self = shift;
 
-  return sprintf("%s: %s %s (%s)", $self->abbreviation, $self->invnumber, $self->customer->name, $self->transdate->to_kivitendo);
+  return sprintf("%s: %s %s %s (%s)", $self->abbreviation, $self->invnumber, $self->customer->name,
+                                      $::form->format_amount(\%::myconfig, $self->amount,2), $self->transdate->to_kivitendo);
 }
 
 sub date {

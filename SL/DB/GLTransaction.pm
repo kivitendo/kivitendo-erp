@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::GLTransaction;
 use SL::Locale::String qw(t8);
+use List::Util qw(sum);
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
@@ -36,7 +37,9 @@ sub displayable_type {
 
 sub oneline_summary {
   my ($self) = @_;
-  return sprintf("%s: %s %s (%s)", $self->abbreviation, $self->description, $self->reference, $_->transdate->to_kivitendo);
+  my $amount =  sum map { $_->amount if $_->amount > 0 } @{$self->transactions};
+  $amount = $::form->format_amount(\%::myconfig, $amount, 2);
+  return sprintf("%s: %s %s %s (%s)", $self->abbreviation, $self->description, $self->reference, $amount, $self->transdate->to_kivitendo);
 }
 
 sub link {
