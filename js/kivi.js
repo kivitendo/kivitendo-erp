@@ -61,6 +61,10 @@ namespace("kivi", function(ns) {
 
     amount = amount.replace(/[\',]/g, "")
 
+    // Make sure no code wich is not a math expression ends up in eval().
+    if (!amount.match(/^[0-9 ()\-+*/.]*$/))
+      return 0;
+
     /* jshint -W061 */
     return eval(amount);
   };

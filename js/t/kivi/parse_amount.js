@@ -109,3 +109,9 @@ QUnit.test("kivi.parse_amount function numbers with leading 0 should still be pa
   assert.equal(kivi.parse_amount('0123456789'),   123456789, '0123456789');
   assert.equal(kivi.parse_amount('000123456789'), 123456789, '000123456789');
 });
+
+QUnit.test("kivi.parse_amount function German number style with thousand separator & contains invalid characters", function( assert ) {
+  kivi.setup_formats({ numbers: '1.000,00' });
+
+  assert.equal(kivi.parse_amount('iuh !@#$% 10,00'), 0, 'iuh !@#$% 10,00');
+});
