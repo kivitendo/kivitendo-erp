@@ -292,9 +292,9 @@ namespace('kivi.Part', function(ns) {
       delay: 50,
       fat_set_item: $real.hasClass(CLASSES.FAT_SET_ITEM),
       action: {
-        on_enter_match_none:  function(){},
-        on_enter_match_one:   function(){$('#update_button').click();},
-        on_enter_match_many:  function(){open_dialog();}
+        on_enter_match_none: function(){ },
+        on_enter_match_one:  function(){ $('#update_button').click(); },
+        on_enter_match_many: function(){ open_dialog(); }
       }
     }, options);
     var STATES = {
@@ -360,8 +360,8 @@ namespace('kivi.Part', function(ns) {
         $real.val('');
         $dummy.val('');
       }
-      state = STATES.PICKED;
-      last_real = $real.val();
+      state      = STATES.PICKED;
+      last_real  = $real.val();
       last_dummy = $dummy.val();
       $real.trigger('change');
 
@@ -444,7 +444,7 @@ namespace('kivi.Part', function(ns) {
             if (callbacks && callbacks.match_many) callbacks.match_many(data);
           } else {
             state = STATES.UNDEFINED;
-            if (callbacks &&callbacks.match_none) callbacks.match_none();
+            if (callbacks && callbacks.match_none) callbacks.match_none();
           }
           annotate_state();
         }
