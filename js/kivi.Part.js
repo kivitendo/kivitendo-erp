@@ -597,7 +597,11 @@ namespace('kivi.Part', function(ns) {
         }
       }
       window.clearTimeout(this.timer);
-      this.timer = window.setTimeout(function() { self.update_results() }, 100);
+      if (event.which == KEY.ENTER) {
+        self.update_results();
+      } else {
+        this.timer = window.setTimeout(function() { self.update_results() }, 100);
+      }
     },
     close_popup: function() {
       $('#part_selection').dialog('close');
