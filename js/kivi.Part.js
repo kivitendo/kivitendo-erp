@@ -269,17 +269,18 @@ namespace('kivi.Part', function(ns) {
       return $real.data("part_picker");
 
     var KEY = {
-      ESCAPE: 27,
-      ENTER:  13,
-      TAB:    9,
-      LEFT:   37,
-      RIGHT:  39,
-      DOWN:   40,
-      PAGE_UP: 33,
-      PAGE_DOWN: 34,
+      TAB:       9,
+      ENTER:     13,
       SHIFT:     16,
       CTRL:      17,
       ALT:       18,
+      ESCAPE:    27,
+      PAGE_UP:   33,
+      PAGE_DOWN: 34,
+      LEFT:      37,
+      UP:        38,
+      RIGHT:     39,
+      DOWN:      40,
     };
     var CLASSES = {
       PICKED:       'partpicker-picked',
