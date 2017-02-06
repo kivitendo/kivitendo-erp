@@ -45,11 +45,6 @@ sub query_autocomplete {
   my $ars = SL::DB::Manager::Invoice->get_all(        query => [ @arfilter ], limit => $limit, sort_by => 'transdate DESC', with_objects => [ 'customer' ]);
   my $aps = SL::DB::Manager::PurchaseInvoice->get_all(query => [ @apfilter ], limit => $limit, sort_by => 'transdate DESC', with_objects => [ 'vendor' ]);
 
-  # use the sum of all credit amounts as the "amount" of the gl transaction
-  foreach my $gl ( @$gls ) {
-    $gl->{'amount'} = sum map { $_->amount if $_->amount > 0 } @{$gl->transactions};
-  };
-
   my $gldata = [
     map(
       {
