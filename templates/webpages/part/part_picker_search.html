@@ -15,14 +15,3 @@
 <div style='clear:both'></div>
 <div id='part_picker_result'></div>
 </div>
-
-<script type='text/javascript'>
-  var pp = kivi.Part.Picker($('#[% FORM.real_id %]'));
-  $(function(){
-    $('#part_picker_filter').focus();
-    pp.update_results();
-  });
-  $('#part_picker_filter').keypress(pp.result_timer);
-  $('#no_paginate').change(pp.update_results);
-
-</script>

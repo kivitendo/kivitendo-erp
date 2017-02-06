@@ -314,23 +314,6 @@ namespace('kivi.Part', function(ns) {
     var last_dummy = $dummy.val();
     var timer;
 
-    function open_dialog () {
-      kivi.popup_dialog({
-        url: 'controller.pl?action=Part/part_picker_search',
-        data: $.extend({
-          real_id: real_id,
-        }, ajax_data($dummy.val())),
-        id: 'part_selection',
-        dialog: {
-          title: kivi.t8('Part picker'),
-          width: 800,
-          height: 800,
-        }
-      });
-      window.clearTimeout(timer);
-      return true;
-    }
-
     function ajax_data(term) {
       var data = {
         'filter.all:substr:multi::ilike': term,
@@ -402,35 +385,6 @@ namespace('kivi.Part', function(ns) {
       }
     }
 
-    function update_results () {
-      $.ajax({
-        url: 'controller.pl?action=Part/part_picker_result',
-        data: $.extend({
-            'real_id': $real.val(),
-        }, ajax_data(function(){ var val = $('#part_picker_filter').val(); return val === undefined ? '' : val })),
-        success: function(data){ $('#part_picker_result').html(data) }
-      });
-    }
-
-    function result_timer (event) {
-      if (!$('no_paginate').prop('checked')) {
-        if (event.keyCode == KEY.PAGE_UP) {
-          $('#part_picker_result a.paginate-prev').click();
-          return;
-        }
-        if (event.keyCode == KEY.PAGE_DOWN) {
-          $('#part_picker_result a.paginate-next').click();
-          return;
-        }
-      }
-      window.clearTimeout(timer);
-      timer = window.setTimeout(update_results, 100);
-    }
-
-    function close_popup() {
-      $('#part_selection').dialog('close');
-    }
-
     function handle_changed_text(callbacks) {
       $.ajax({
         url: 'controller.pl?action=Part/ajax_autocomplete',
@@ -449,6 +403,17 @@ namespace('kivi.Part', function(ns) {
           }
           annotate_state();
         }
+      });
+    }
+
+    function open_dialog() {
+      // TODO: take the actual object here
+      var dialog = new ns.PickerPopup({
+        ajax_data: ajax_data,
+        real_id: real_id,
+        dummy: $dummy,
+        real: $real,
+        set_item: set_item
       });
     }
 
@@ -540,38 +505,108 @@ namespace('kivi.Part', function(ns) {
       classification_id: function() { return $classification_id },
       unit:              function() { return $unit },
       convertible_unit:  function() { return $convertible_unit },
-      update_results: update_results,
-      result_timer:   result_timer,
       set_item:       set_item,
       reset:          make_defined_state,
       is_defined_state: function() { return state == STATES.PICKED },
-      init_results:    function () {
-        $('div.part_picker_part').each(function(){
-          $(this).click(function(){
-            set_item({
-              id:   $(this).children('input.part_picker_id').val(),
-              name: $(this).children('input.part_picker_description').val(),
-              classification_id: $(this).children('input.part_picker_classification_id').val(),
-              unit: $(this).children('input.part_picker_unit').val(),
-              partnumber:  $(this).children('input.part_picker_partnumber').val(),
-              description: $(this).children('input.part_picker_description').val(),
-            });
-            close_popup();
-            $dummy.focus();
-            return true;
-          });
-        });
-        $('#part_selection').keydown(function(e){
-           if (e.which == KEY.ESCAPE) {
-             close_popup();
-             $dummy.focus();
-           }
-        });
-      }
     }
     $real.data('part_picker', pp);
     return pp;
   };
+
+  ns.PickerPopup = function(pp) {
+    this.timer = undefined;
+    this.pp    = pp;
+
+    this.open_dialog = function() {
+      var self = this;
+      kivi.popup_dialog({
+        url: 'controller.pl?action=Part/part_picker_search',
+        data: $.extend({
+          real_id: self.pp.real_id,
+        }, self.pp.ajax_data(this.pp.dummy.val())),
+        id: 'part_selection',
+        dialog: {
+          title: kivi.t8('Part picker'),
+          width: 800,
+          height: 800,
+        },
+        load: function() { self.init_search(); }
+      });
+      window.clearTimeout(this.timer);
+      return true;
+    };
+
+    this.init_search = function() {
+      var self = this;
+      $('#part_picker_filter').keypress(function(e) { self.result_timer(e) }).focus();
+      $('#no_paginate').change(function() { self.update_results() });
+      this.update_results();
+    }
+
+    this.update_results = function() {
+      var self = this;
+      $.ajax({
+        url: 'controller.pl?action=Part/part_picker_result',
+        data: $.extend({
+         'real_id': self.pp.real.val(),
+        }, self.pp.ajax_data(function(){
+          var val = $('#part_picker_filter').val();
+          return val === undefined ? '' : val
+        })),
+        success: function(data){
+          $('#part_picker_result').html(data);
+          self.init_results();
+        }
+      });
+    };
+
+    this.init_results = function() {
+      var self = this;
+      $('div.part_picker_part').each(function(){
+        $(this).click(function(){
+          self.pp.set_item({
+            id:   $(this).children('input.part_picker_id').val(),
+            name: $(this).children('input.part_picker_description').val(),
+            classification_id: $(this).children('input.part_picker_classification_id').val(),
+            unit: $(this).children('input.part_picker_unit').val(),
+            partnumber:  $(this).children('input.part_picker_partnumber').val(),
+            description: $(this).children('input.part_picker_description').val(),
+          });
+          self.close_popup();
+          self.pp.dummy.focus();
+          return true;
+        });
+      });
+      $('#part_selection').keydown(function(e){
+         if (e.which == KEY.ESCAPE) {
+           self.close_popup();
+           self.pp.dummy.focus();
+         }
+      });
+    }
+
+    this.result_timer = function(event) {
+      var self = this;
+      if (!$('no_paginate').prop('checked')) {
+        if (event.keyCode == KEY.PAGE_UP) {
+          $('#part_picker_result a.paginate-prev').click();
+          return;
+        }
+        if (event.keyCode == KEY.PAGE_DOWN) {
+          $('#part_picker_result a.paginate-next').click();
+          return;
+        }
+      }
+      window.clearTimeout(this.timer);
+      this.timer = window.setTimeout(function() { self.update_results() }, 100);
+    };
+
+    this.close_popup = function() {
+      $('#part_selection').dialog('close');
+    };
+
+    this.open_dialog();
+  }
 
   ns.reinit_widgets = function() {
     kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
