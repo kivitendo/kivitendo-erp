@@ -279,237 +279,217 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.Picker = function($real, options) {
-    // short circuit in case someone double inits us
-    if ($real.data("part_picker"))
-      return $real.data("part_picker");
-
-    var CLASSES = {
-      PICKED:       'partpicker-picked',
-      UNDEFINED:    'partpicker-undefined',
-      FAT_SET_ITEM: 'partpicker_fat_set_item',
-    };
-    var o = $.extend({
+    var self = this;
+    this.o = $.extend({
       limit: 20,
       delay: 50,
-      fat_set_item: $real.hasClass(CLASSES.FAT_SET_ITEM),
+      fat_set_item: $real.hasClass(this.CLASSES.FAT_SET_ITEM),
       action: {
         on_enter_match_none: function(){ },
         on_enter_match_one:  function(){ $('#update_button').click(); },
-        on_enter_match_many: function(){ open_dialog(); }
+        on_enter_match_many: function(){ self.open_dialog(); }
       }
     }, options);
-    var STATES = {
-      PICKED:    CLASSES.PICKED,
-      UNDEFINED: CLASSES.UNDEFINED
-    }
-    var real_id = $real.attr('id');
-    var $dummy             = $('#' + real_id + '_name');
-    var $part_type         = $('#' + real_id + '_part_type');
-    var $classification_id = $('#' + real_id + '_classification_id');
-    var $unit              = $('#' + real_id + '_unit');
-    var $convertible_unit  = $('#' + real_id + '_convertible_unit');
-    var autocomplete_open  = false;
-    var state   = STATES.PICKED;
-    var last_real = $real.val();
-    var last_dummy = $dummy.val();
-    var timer;
+    this.$real              = $real;
+    this.real_id            = $real.attr('id');
+    this.last_real          = $real.val();
+    this.$dummy             = $('#' + this.real_id + '_name');
+    this.$part_type         = $('#' + this.real_id + '_part_type');
+    this.$classification_id = $('#' + this.real_id + '_classification_id');
+    this.$unit              = $('#' + this.real_id + '_unit');
+    this.$convertible_unit  = $('#' + this.real_id + '_convertible_unit');
+    this.autocomplete_open  = false;
+    this.state              = this.STATES.PICKED;
+    this.last_dummy         = this.$dummy.val();
+    this.timer              = undefined;
 
-    function ajax_data(term) {
+    this.init();
+  };
+
+  ns.Picker.prototype = {
+    CLASSES: {
+      PICKED:       'partpicker-picked',
+      UNDEFINED:    'partpicker-undefined',
+      FAT_SET_ITEM: 'partpicker_fat_set_item',
+    },
+    ajax_data: function(term) {
       var data = {
         'filter.all:substr:multi::ilike': term,
         'filter.obsolete': 0,
-        'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
-        current:  $real.val(),
+        'filter.unit_obj.convertible_to': this.$convertible_unit && this.$convertible_unit.val() ? this.$convertible_unit.val() : '',
+        current:  this.$real.val(),
       };
 
-      if ($part_type && $part_type.val())
-        data['filter.part_type'] = $part_type.val().split(',');
+      if (this.$part_type && this.$part_type.val())
+        data['filter.part_type'] = this.$part_type.val().split(',');
 
-      if ($classification_id && $classification_id.val())
-        data['filter.classification_id'] = $classification_id.val().split(',');
+      if (this.$classification_id && this.$classification_id.val())
+        data['filter.classification_id'] = this.$classification_id.val().split(',');
 
-      if ($unit && $unit.val())
-        data['filter.unit'] = $unit.val().split(',');
+      if (this.$unit && this.$unit.val())
+        data['filter.unit'] = this.$unit.val().split(',');
 
       return data;
-    }
-
-    function set_item (item) {
+    },
+    set_item: function(item) {
+      var self = this;
       if (item.id) {
-        $real.val(item.id);
+        this.$real.val(item.id);
         // autocomplete ui has name, use the value for ajax items, which contains displayable_name
-        $dummy.val(item.name ? item.name : item.value);
+        this.$dummy.val(item.name ? item.name : item.value);
       } else {
-        $real.val('');
-        $dummy.val('');
+        this.$real.val('');
+        this.$dummy.val('');
       }
-      state      = STATES.PICKED;
-      last_real  = $real.val();
-      last_dummy = $dummy.val();
-      $real.trigger('change');
+      this.state      = this.STATES.PICKED;
+      this.last_real  = this.$real.val();
+      this.last_dummy = this.$dummy.val();
+      this.$real.trigger('change');
 
-      if (o.fat_set_item && item.id) {
+      if (this.o.fat_set_item && item.id) {
         $.ajax({
           url: 'controller.pl?action=Part/show.json',
           data: { 'part.id': item.id },
           success: function(rsp) {
-            $real.trigger('set_item:PartPicker', rsp);
+            self.$real.trigger('set_item:PartPicker', rsp);
           },
         });
       } else {
-        $real.trigger('set_item:PartPicker', item);
+        this.$real.trigger('set_item:PartPicker', item);
       }
-      annotate_state();
-    }
-
-    function make_defined_state () {
-      if (state == STATES.PICKED) {
-        annotate_state();
+      this.annotate_state();
+    },
+    make_defined_state: function() {
+      if (this.state == this.STATES.PICKED) {
+        this.annotate_state();
         return true
-      } else if (state == STATES.UNDEFINED && $dummy.val() === '')
-        set_item({})
+      } else if (this.state == this.STATES.UNDEFINED && this.$dummy.val() === '')
+        this.set_item({})
       else {
-        set_item({ id: last_real, name: last_dummy })
+        this.set_item({ id: this.last_real, name: this.last_dummy })
       }
-      annotate_state();
-    }
-
-    function annotate_state () {
-      if (state == STATES.PICKED)
-        $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
-      else if (state == STATES.UNDEFINED && $dummy.val() === '')
-        $dummy.removeClass(STATES.UNDEFINED).addClass(STATES.PICKED);
+      this.annotate_state();
+    },
+    annotate_state: function() {
+      if (this.state == this.STATES.PICKED)
+        this.$dummy.removeClass(this.STATES.UNDEFINED).addClass(this.STATES.PICKED);
+      else if (this.state == this.STATES.UNDEFINED && this.$dummy.val() === '')
+        this.$dummy.removeClass(this.STATES.UNDEFINED).addClass(this.STATES.PICKED);
       else {
-        $dummy.addClass(STATES.UNDEFINED).removeClass(STATES.PICKED);
+        this.$dummy.addClass(this.STATES.UNDEFINED).removeClass(this.STATES.PICKED);
       }
-    }
-
-    function handle_changed_text(callbacks) {
+    },
+    handle_changed_text: function(callbacks) {
+      var self = this;
       $.ajax({
         url: 'controller.pl?action=Part/ajax_autocomplete',
         dataType: "json",
-        data: $.extend( ajax_data($dummy.val()), { prefer_exact: 1 } ),
+        data: $.extend( self.ajax_data(self.$dummy.val()), { prefer_exact: 1 } ),
         success: function (data) {
           if (data.length == 1) {
-            set_item(data[0]);
+            self.set_item(data[0]);
             if (callbacks && callbacks.match_one) callbacks.match_one(data[0]);
           } else if (data.length > 1) {
-            state = STATES.UNDEFINED;
+            self.state = self.STATES.UNDEFINED;
             if (callbacks && callbacks.match_many) callbacks.match_many(data);
           } else {
-            state = STATES.UNDEFINED;
+            self.state = self.STATES.UNDEFINED;
             if (callbacks && callbacks.match_none) callbacks.match_none();
           }
-          annotate_state();
+          self.annotate_state();
         }
       });
-    }
-
-    function open_dialog() {
+    },
+    open_dialog: function() {
       // TODO: take the actual object here
-      var dialog = new ns.PickerPopup({
-        ajax_data: ajax_data,
-        real_id: real_id,
-        dummy: $dummy,
-        real: $real,
-        set_item: set_item
+      var dialog = new ns.PickerPopup(this);
+    },
+    init: function() {
+      var self = this;
+      this.$dummy.autocomplete({
+        source: function(req, rsp) {
+          $.ajax($.extend(self.o, {
+            url:      'controller.pl?action=Part/ajax_autocomplete',
+            dataType: "json",
+            data:     self.ajax_data(req.term),
+            success:  function (data){ rsp(data) }
+          }));
+        },
+        select: function(event, ui) {
+          self.set_item(ui.item);
+        },
+        search: function(event, ui) {
+          if ((event.which == KEY.SHIFT) || (event.which == KEY.CTRL) || (event.which == KEY.ALT))
+            event.preventDefault();
+        },
+        open: function() {
+          self.autocomplete_open = true;
+        },
+        close: function() {
+          self.autocomplete_open = false;
+        }
       });
+      /*  In case users are impatient and want to skip ahead:
+       *  Capture <enter> key events and check if it's a unique hit.
+       *  If it is, go ahead and assume it was selected. If it wasn't don't do
+       *  anything so that autocompletion kicks in.  For <tab> don't prevent
+       *  propagation. It would be nice to catch it, but javascript is too stupid
+       *  to fire a tab event later on, so we'd have to reimplement the "find
+       *  next active element in tabindex order and focus it".
+       */
+      /* note:
+       *  event.which does not contain tab events in keypressed in firefox but will report 0
+       *  chrome does not fire keypressed at all on tab or escape
+       */
+      this.$dummy.keydown(function(event){
+        if (event.which == KEY.ENTER || event.which == KEY.TAB) {
+          // if string is empty assume they want to delete
+          if (self.$dummy.val() === '') {
+            self.set_item({});
+            return true;
+          } else if (self.state == self.STATES.PICKED) {
+            return true;
+          }
+          if (event.which == KEY.TAB) {
+            event.preventDefault();
+            self.handle_changed_text();
+          }
+          if (event.which == KEY.ENTER) {
+            self.handle_changed_text({
+              match_one:  self.o.action.on_enter_match_one,
+              match_many: self.o.action.on_enter_match_many
+            });
+            return false;
+          }
+        } else if (event.which == KEY.DOWN && !self.autocomplete_open) {
+          var old_options = self.$dummy.autocomplete('option');
+          self.$dummy.autocomplete('option', 'minLength', 0);
+          self.$dummy.autocomplete('search', self.$dummy.val());
+          self.$dummy.autocomplete('option', 'minLength', old_options.minLength);
+        } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
+          self.state = self.STATES.UNDEFINED;
+        }
+      });
+
+      this.$dummy.on('paste', function(){
+        setTimeout(function() {
+          self.handle_changed_text();
+        }, 1);
+      });
+
+      this.$dummy.blur(function(){
+        window.clearTimeout(self.timer);
+        self.timer = window.setTimeout(function() { self.annotate_state() }, 100);
+      });
+
+      var popup_button = $('<span>').addClass('ppp_popup_button');
+      this.$dummy.after(popup_button);
+      popup_button.click(function() { self.open_dialog() });
     }
-
-    $dummy.autocomplete({
-      source: function(req, rsp) {
-        $.ajax($.extend(o, {
-          url:      'controller.pl?action=Part/ajax_autocomplete',
-          dataType: "json",
-          data:     ajax_data(req.term),
-          success:  function (data){ rsp(data) }
-        }));
-      },
-      select: function(event, ui) {
-        set_item(ui.item);
-      },
-      search: function(event, ui) {
-        if ((event.which == KEY.SHIFT) || (event.which == KEY.CTRL) || (event.which == KEY.ALT))
-          event.preventDefault();
-      },
-      open: function() {
-        autocomplete_open = true;
-      },
-      close: function() {
-        autocomplete_open = false;
-      }
-    });
-    /*  In case users are impatient and want to skip ahead:
-     *  Capture <enter> key events and check if it's a unique hit.
-     *  If it is, go ahead and assume it was selected. If it wasn't don't do
-     *  anything so that autocompletion kicks in.  For <tab> don't prevent
-     *  propagation. It would be nice to catch it, but javascript is too stupid
-     *  to fire a tab event later on, so we'd have to reimplement the "find
-     *  next active element in tabindex order and focus it".
-     */
-    /* note:
-     *  event.which does not contain tab events in keypressed in firefox but will report 0
-     *  chrome does not fire keypressed at all on tab or escape
-     */
-    $dummy.keydown(function(event){
-      if (event.which == KEY.ENTER || event.which == KEY.TAB) {
-        // if string is empty assume they want to delete
-        if ($dummy.val() === '') {
-          set_item({});
-          return true;
-        } else if (state == STATES.PICKED) {
-          return true;
-        }
-        if (event.which == KEY.TAB) {
-          event.preventDefault();
-          handle_changed_text();
-        }
-        if (event.which == KEY.ENTER) {
-          handle_changed_text({
-            match_one:  o.action.on_enter_match_one,
-            match_many: o.action.on_enter_match_many
-          });
-          return false;
-        }
-      } else if (event.which == KEY.DOWN && !autocomplete_open) {
-        var old_options = $dummy.autocomplete('option');
-        $dummy.autocomplete('option', 'minLength', 0);
-        $dummy.autocomplete('search', $dummy.val());
-        $dummy.autocomplete('option', 'minLength', old_options.minLength);
-      } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
-        state = STATES.UNDEFINED;
-      }
-    });
-
-    $dummy.on('paste', function(){
-      setTimeout(function() {
-        handle_changed_text();
-      }, 1);
-    });
-
-    $dummy.blur(function(){
-      window.clearTimeout(timer);
-      timer = window.setTimeout(annotate_state, 100);
-    });
-
-    // now add a picker div after the original input
-    var popup_button = $('<span>').addClass('ppp_popup_button');
-    $dummy.after(popup_button);
-    popup_button.click(open_dialog);
-
-    var pp = {
-      real:              function() { return $real },
-      dummy:             function() { return $dummy },
-      part_type:         function() { return $part_type },
-      classification_id: function() { return $classification_id },
-      unit:              function() { return $unit },
-      convertible_unit:  function() { return $convertible_unit },
-      set_item:       set_item,
-      reset:          make_defined_state,
-      is_defined_state: function() { return state == STATES.PICKED },
-    }
-    $real.data('part_picker', pp);
-    return pp;
+  };
+  ns.Picker.prototype.STATES = {
+    PICKED:    ns.Picker.prototype.CLASSES.PICKED,
+    UNDEFINED: ns.Picker.prototype.CLASSES.UNDEFINED
   };
 
   ns.PickerPopup = function(pp) {
@@ -525,7 +505,7 @@ namespace('kivi.Part', function(ns) {
         url: 'controller.pl?action=Part/part_picker_search',
         data: $.extend({
           real_id: self.pp.real_id,
-        }, self.pp.ajax_data(this.pp.dummy.val())),
+        }, self.pp.ajax_data(this.pp.$dummy.val())),
         id: 'part_selection',
         dialog: {
           title: kivi.t8('Part picker'),
@@ -548,7 +528,7 @@ namespace('kivi.Part', function(ns) {
       $.ajax({
         url: 'controller.pl?action=Part/part_picker_result',
         data: $.extend({
-         'real_id':    self.pp.real.val(),
+         'real_id':    self.pp.$real.val(),
           no_paginate: $('#no_paginate').prop('checked') ? 1 : 0,
         }, self.pp.ajax_data(function(){
           var val = $('#part_picker_filter').val();
@@ -573,14 +553,14 @@ namespace('kivi.Part', function(ns) {
             description: $(this).children('input.part_picker_description').val(),
           });
           self.close_popup();
-          self.pp.dummy.focus();
+          self.pp.$dummy.focus();
           return true;
         });
       });
       $('#part_selection').keydown(function(e){
          if (e.which == KEY.ESCAPE) {
            self.close_popup();
-           self.pp.dummy.focus();
+           self.pp.$dummy.focus();
          }
       });
     },
@@ -610,7 +590,8 @@ namespace('kivi.Part', function(ns) {
 
   ns.reinit_widgets = function() {
     kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
-      kivi.Part.Picker($(elt));
+      if (!$(elt).data('part_picker'))
+        $(elt).data('part_picker', new kivi.Part.Picker($(elt)));
     });
   }
 
