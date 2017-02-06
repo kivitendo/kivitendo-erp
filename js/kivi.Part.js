@@ -319,7 +319,6 @@ namespace('kivi.Part', function(ns) {
         'filter.all:substr:multi::ilike': term,
         'filter.obsolete': 0,
         'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
-        no_paginate:  $('#no_paginate').prop('checked') ? 1 : 0,
         current:  $real.val(),
       };
 
@@ -549,7 +548,8 @@ namespace('kivi.Part', function(ns) {
       $.ajax({
         url: 'controller.pl?action=Part/part_picker_result',
         data: $.extend({
-         'real_id': self.pp.real.val(),
+         'real_id':    self.pp.real.val(),
+          no_paginate: $('#no_paginate').prop('checked') ? 1 : 0,
         }, self.pp.ajax_data(function(){
           var val = $('#part_picker_filter').val();
           return val === undefined ? '' : val
