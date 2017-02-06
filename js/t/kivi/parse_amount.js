@@ -115,3 +115,9 @@ QUnit.test("kivi.parse_amount function German number style with thousand separat
 
   assert.equal(kivi.parse_amount('iuh !@#$% 10,00'), 0, 'iuh !@#$% 10,00');
 });
+
+QUnit.test("kivi.parse_amount function German number style with thousand separator & invalid math expression", function( assert ) {
+  kivi.setup_formats({ numbers: '1.000,00' });
+
+  assert.equal(kivi.parse_amount('54--42'), 0, '54--42');
+});

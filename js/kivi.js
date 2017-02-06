@@ -66,7 +66,11 @@ namespace("kivi", function(ns) {
       return 0;
 
     /* jshint -W061 */
-    return eval(amount);
+    try {
+      return eval(amount);
+    } catch (err) {
+      return 0;
+    }
   };
 
   ns.round_amount = function(amount, places) {
