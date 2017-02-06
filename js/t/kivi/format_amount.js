@@ -38,6 +38,16 @@ QUnit.test("kivi.format_amount function English number style without thousand se
   assert.equal(kivi.format_amount(-1000000000.1234, 2), '-1000000000.12', 'format -1000000000.1234');
 });
 
+QUnit.test("kivi.format_amount function Swiss number style with thousand separator", function( assert ) {
+  kivi.setup_formats({ numbers: '1\'000.00' });
+
+  assert.equal(kivi.format_amount('1e1', 2), '10.00', 'format 1e1');
+  assert.equal(kivi.format_amount(1000, 2), '1\'000.00', 'format 1000');
+  assert.equal(kivi.format_amount(1000.1234, 2), '1\'000.12', 'format 1000.1234');
+  assert.equal(kivi.format_amount(1000000000.1234, 2), '1\'000\'000\'000.12', 'format 1000000000.1234');
+  assert.equal(kivi.format_amount(-1000000000.1234, 2), '-1\'000\'000\'000.12', 'format -1000000000.1234');
+});
+
 QUnit.test("kivi.format_amount function negative places", function( assert ) {
   kivi.setup_formats({ numbers: '1000.00' });
 
