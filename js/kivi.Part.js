@@ -578,6 +578,10 @@ namespace('kivi.Part', function(ns) {
     });
   }
 
+  ns.init = function() {
+    ns.reinit_widgets();
+  }
+
   $(function(){
 
     // assortment
@@ -620,6 +624,6 @@ namespace('kivi.Part', function(ns) {
 
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
-    ns.reinit_widgets();
+    ns.init();
   });
 });
