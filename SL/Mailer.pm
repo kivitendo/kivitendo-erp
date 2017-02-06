@@ -245,7 +245,9 @@ sub send {
     #$::lxdebug->message(0, "message: " . $email->as_string);
     # return "boom";
 
-    $self->{driver}->start_mail(from => encode('MIME-Header',$self->{from}), to => [ $self->_all_recipients ]);
+    my $from_obj = (Email::Address->parse($self->{from}))[0];
+
+    $self->{driver}->start_mail(from => $from_obj->address, to => [ $self->_all_recipients ]);
     $self->{driver}->print($email->as_string);
     $self->{driver}->send;
 
