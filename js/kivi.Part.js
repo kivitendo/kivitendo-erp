@@ -516,8 +516,11 @@ namespace('kivi.Part', function(ns) {
   ns.PickerPopup = function(pp) {
     this.timer = undefined;
     this.pp    = pp;
+    this.open_dialog();
+  };
 
-    this.open_dialog = function() {
+  ns.PickerPopup.prototype = {
+    open_dialog: function() {
       var self = this;
       kivi.popup_dialog({
         url: 'controller.pl?action=Part/part_picker_search',
@@ -534,16 +537,14 @@ namespace('kivi.Part', function(ns) {
       });
       window.clearTimeout(this.timer);
       return true;
-    };
-
-    this.init_search = function() {
+    },
+    init_search: function() {
       var self = this;
       $('#part_picker_filter').keypress(function(e) { self.result_timer(e) }).focus();
       $('#no_paginate').change(function() { self.update_results() });
       this.update_results();
-    }
-
-    this.update_results = function() {
+    },
+    update_results: function() {
       var self = this;
       $.ajax({
         url: 'controller.pl?action=Part/part_picker_result',
@@ -558,9 +559,8 @@ namespace('kivi.Part', function(ns) {
           self.init_results();
         }
       });
-    };
-
-    this.init_results = function() {
+    },
+    init_results: function() {
       var self = this;
       $('div.part_picker_part').each(function(){
         $(this).click(function(){
@@ -583,9 +583,8 @@ namespace('kivi.Part', function(ns) {
            self.pp.dummy.focus();
          }
       });
-    }
-
-    this.result_timer = function(event) {
+    },
+    result_timer: function(event) {
       var self = this;
       if (!$('no_paginate').prop('checked')) {
         if (event.keyCode == KEY.PAGE_UP) {
@@ -599,14 +598,11 @@ namespace('kivi.Part', function(ns) {
       }
       window.clearTimeout(this.timer);
       this.timer = window.setTimeout(function() { self.update_results() }, 100);
-    };
-
-    this.close_popup = function() {
+    },
+    close_popup: function() {
       $('#part_selection').dialog('close');
-    };
-
-    this.open_dialog();
-  }
+    }
+  };
 
   ns.reinit_widgets = function() {
     kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
