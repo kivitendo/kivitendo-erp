@@ -163,7 +163,21 @@ sub action_report {
     $::form->error(t8('No report with id #1', $report_id));
   }
 
-  my $num_rows               = $self->{report}->numrows;
+  my $show_first_20 = ($self->{report}->profile->get('full_preview', 2) == 0);
+  my $show_info_err = ($self->{report}->profile->get('full_preview', 2) == 1);
+
+  my $num_rows = 0;
+  if ($show_first_20) {
+    $num_rows  = min($self->{report}->numrows, 20);
+  } elsif ($show_info_err) {
+    # count each status row only once
+    $num_rows  = SL::DB::Manager::CsvImportReportStatus->get_all_count(query    => [csv_import_report_id => $report_id],
+                                                                       select   => ['row'],
+                                                                       distinct => 1,);
+  } else {
+    # show all
+    $num_rows  = $self->{report}->numrows;
+  }
 
   # manual paginating, yuck
   my $page                   = $::form->{page} || 1;
@@ -180,31 +194,34 @@ sub action_report {
   my $last_row_header        = $self->{report_numheaders} - 1;
   my $first_row_data         = $pages->{per_page} * ($pages->{page}-1) + $self->{report_numheaders};
   my $last_row_data          = min($pages->{per_page} * $pages->{page}, $num_rows) + $self->{report_numheaders} - 1;
-  $self->{display_rows}      = [
-    $first_row_header
-      ..
-    $last_row_header,
-    $first_row_data
-      ..
-    $last_row_data
-  ];
+
+
+  $self->{display_rows} = [];
+  if ($show_info_err) {
+    my $limit    = $last_row_data  - $first_row_data + 1;
+    my $offset   = $first_row_data - $self->{report_numheaders};
+    my @err_rows = map { $_->row } @{SL::DB::Manager::CsvImportReportStatus->get_all(query    => [csv_import_report_id => $report_id],
+                                                                                     distinct => 1,
+                                                                                     select   => ['row'],
+                                                                                     limit    => $limit,
+                                                                                     offset   => $offset,
+                                                                                     sort_by  => 'row')};
+    $self->{display_rows} = [ $first_row_header .. $last_row_header,
+                              @err_rows ];
+
+  } else {
+
+    $self->{display_rows} = [ $first_row_header .. $last_row_header,
+                              $first_row_data   .. $last_row_data ];
+  }
 
   my @query = (
+    row                  => $self->{display_rows},
     csv_import_report_id => $report_id,
-    or => [
-      and => [
-        row => { ge => $first_row_header },
-        row => { le => $last_row_header },
-      ],
-      and => [
-        row => { ge => $first_row_data },
-        row => { le => $last_row_data },
-      ]
-    ]
   );
 
-  my $rows               = SL::DB::Manager::CsvImportReportRow   ->get_all(query => \@query);
-  my $status             = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query);
+  my $rows               = SL::DB::Manager::CsvImportReportRow   ->get_all(query => \@query, sort_by => 'row');
+  my $status             = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query, sort_by => 'row');
   $self->{num_errors}    = SL::DB::Manager::CsvImportReportStatus->get_all_count(query => [csv_import_report_id => $report_id, type => 'errors']);
 
   $self->{report_rows}   = $self->{report}->folded_rows(rows => $rows);
