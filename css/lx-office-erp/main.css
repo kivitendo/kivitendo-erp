@@ -527,3 +527,10 @@ a.red {
     max-width: 16px;
     max-height: 16px;
 }
+
+/* Bank transactions */
+#bank_transactions_proposals .invoice_number_highlight a,
+#bank_transactions_proposals span.invoice_number_highlight {
+  background-color: #006400;
+  color: #FFFFFF;
+}
