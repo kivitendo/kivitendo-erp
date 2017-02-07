@@ -400,9 +400,50 @@ namespace('kivi.Part', function(ns) {
         }
       });
     },
+    /*  In case users are impatient and want to skip ahead:
+     *  Capture <enter> key events and check if it's a unique hit.
+     *  If it is, go ahead and assume it was selected. If it wasn't don't do
+     *  anything so that autocompletion kicks in.  For <tab> don't prevent
+     *  propagation. It would be nice to catch it, but javascript is too stupid
+     *  to fire a tab event later on, so we'd have to reimplement the "find
+     *  next active element in tabindex order and focus it".
+     */
+    /* note:
+     *  event.which does not contain tab events in keypressed in firefox but will report 0
+     *  chrome does not fire keypressed at all on tab or escape
+     */
+    handle_keydown: function(event) {
+      var self = this;
+      if (event.which == KEY.ENTER || event.which == KEY.TAB) {
+        // if string is empty assume they want to delete
+        if (self.$dummy.val() === '') {
+          self.set_item({});
+          return true;
+        } else if (self.state == self.STATES.PICKED) {
+          return true;
+        }
+        if (event.which == KEY.TAB) {
+          event.preventDefault();
+          self.handle_changed_text();
+        }
+        if (event.which == KEY.ENTER) {
+          self.handle_changed_text({
+            match_one:  self.o.action.on_enter_match_one,
+            match_many: self.o.action.on_enter_match_many
+          });
+          return false;
+        }
+      } else if (event.which == KEY.DOWN && !self.autocomplete_open) {
+        var old_options = self.$dummy.autocomplete('option');
+        self.$dummy.autocomplete('option', 'minLength', 0);
+        self.$dummy.autocomplete('search', self.$dummy.val());
+        self.$dummy.autocomplete('option', 'minLength', old_options.minLength);
+      } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
+        self.state = self.STATES.UNDEFINED;
+      }
+    },
     open_dialog: function() {
-      // TODO: take the actual object here
-      var dialog = new ns.PickerPopup(this);
+      new ns.PickerPopup(this);
     },
     init: function() {
       var self = this;
@@ -429,54 +470,12 @@ namespace('kivi.Part', function(ns) {
           self.autocomplete_open = false;
         }
       });
-      /*  In case users are impatient and want to skip ahead:
-       *  Capture <enter> key events and check if it's a unique hit.
-       *  If it is, go ahead and assume it was selected. If it wasn't don't do
-       *  anything so that autocompletion kicks in.  For <tab> don't prevent
-       *  propagation. It would be nice to catch it, but javascript is too stupid
-       *  to fire a tab event later on, so we'd have to reimplement the "find
-       *  next active element in tabindex order and focus it".
-       */
-      /* note:
-       *  event.which does not contain tab events in keypressed in firefox but will report 0
-       *  chrome does not fire keypressed at all on tab or escape
-       */
-      this.$dummy.keydown(function(event){
-        if (event.which == KEY.ENTER || event.which == KEY.TAB) {
-          // if string is empty assume they want to delete
-          if (self.$dummy.val() === '') {
-            self.set_item({});
-            return true;
-          } else if (self.state == self.STATES.PICKED) {
-            return true;
-          }
-          if (event.which == KEY.TAB) {
-            event.preventDefault();
-            self.handle_changed_text();
-          }
-          if (event.which == KEY.ENTER) {
-            self.handle_changed_text({
-              match_one:  self.o.action.on_enter_match_one,
-              match_many: self.o.action.on_enter_match_many
-            });
-            return false;
-          }
-        } else if (event.which == KEY.DOWN && !self.autocomplete_open) {
-          var old_options = self.$dummy.autocomplete('option');
-          self.$dummy.autocomplete('option', 'minLength', 0);
-          self.$dummy.autocomplete('search', self.$dummy.val());
-          self.$dummy.autocomplete('option', 'minLength', old_options.minLength);
-        } else if ((event.which != KEY.SHIFT) && (event.which != KEY.CTRL) && (event.which != KEY.ALT)) {
-          self.state = self.STATES.UNDEFINED;
-        }
-      });
-
+      this.$dummy.keydown(function(event){ self.handle_keydown(event) });
       this.$dummy.on('paste', function(){
         setTimeout(function() {
           self.handle_changed_text();
         }, 1);
       });
-
       this.$dummy.blur(function(){
         window.clearTimeout(self.timer);
         self.timer = window.setTimeout(function() { self.annotate_state() }, 100);
