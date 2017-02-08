@@ -283,21 +283,16 @@ namespace('kivi.Part', function(ns) {
     this.o = $.extend({
       limit: 20,
       delay: 50,
-      fat_set_item: $real.hasClass(this.CLASSES.FAT_SET_ITEM),
       action: {
         on_enter_match_none: function(){ },
         on_enter_match_one:  function(){ $('#update_button').click(); },
         on_enter_match_many: function(){ self.open_dialog(); }
       }
-    }, options);
+    }, $real.data('part-picker-data'), options);
     this.$real              = $real;
     this.real_id            = $real.attr('id');
     this.last_real          = $real.val();
-    this.$dummy             = $('#' + this.real_id + '_name');
-    this.$part_type         = $('#' + this.real_id + '_part_type');
-    this.$classification_id = $('#' + this.real_id + '_classification_id');
-    this.$unit              = $('#' + this.real_id + '_unit');
-    this.$convertible_unit  = $('#' + this.real_id + '_convertible_unit');
+    this.$dummy             = $($real.siblings()[0]);
     this.autocomplete_open  = false;
     this.state              = this.STATES.PICKED;
     this.last_dummy         = this.$dummy.val();
@@ -310,24 +305,25 @@ namespace('kivi.Part', function(ns) {
     CLASSES: {
       PICKED:       'partpicker-picked',
       UNDEFINED:    'partpicker-undefined',
-      FAT_SET_ITEM: 'partpicker_fat_set_item',
     },
     ajax_data: function(term) {
       var data = {
         'filter.all:substr:multi::ilike': term,
         'filter.obsolete': 0,
-        'filter.unit_obj.convertible_to': this.$convertible_unit && this.$convertible_unit.val() ? this.$convertible_unit.val() : '',
         current:  this.$real.val(),
       };
 
-      if (this.$part_type && this.$part_type.val())
-        data['filter.part_type'] = this.$part_type.val().split(',');
+      if (this.o.part_type)
+        data['filter.part_type'] = this.o.part_type.split(',');
 
-      if (this.$classification_id && this.$classification_id.val())
-        data['filter.classification_id'] = this.$classification_id.val().split(',');
+      if (this.o.classification_id)
+        data['filter.classification_id'] = this.o.classification_id.split(',');
 
-      if (this.$unit && this.$unit.val())
-        data['filter.unit'] = this.$unit.val().split(',');
+      if (this.o.unit)
+        data['filter.unit'] = this.o.unit.split(',');
+
+      if (this.o.convertible_unit)
+        data['filter.unit_obj.convertible_to'] = this.o.convertible_unit;
 
       return data;
     },

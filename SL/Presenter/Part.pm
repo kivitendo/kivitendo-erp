@@ -30,16 +30,15 @@ sub part_picker {
   my ($self, $name, $value, %params) = @_;
 
   $value = SL::DB::Manager::Part->find_by(id => $value) if $value && !ref $value;
-  my $id = delete($params{id}) || $self->name_to_id($name);
-  my $fat_set_item = delete $params{fat_set_item};
+  my $id = $params{id} || $self->name_to_id($name);
 
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'part_autocomplete';
-  push @classes, 'partpicker_fat_set_item' if $fat_set_item;
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(part_type classification_id unit convertible_unit)) .
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
+      'data-part-picker-data' => JSON::to_json(\%params),
+    ) .
     $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('kivi.Part.js');
