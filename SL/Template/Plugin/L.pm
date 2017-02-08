@@ -76,6 +76,7 @@ sub project_picker           { return _call_presenter('project_picker',         
 sub button_tag               { return _call_presenter('button_tag',               @_); }
 sub submit_tag               { return _call_presenter('submit_tag',               @_); }
 sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',          @_); }
+sub link                     { return _call_presenter('link',                     @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -136,14 +137,6 @@ sub ul_tag {
 sub li_tag {
   my ($self, $content, @slurp) = @_;
   return $self->html_tag('li', $content, @slurp);
-}
-
-sub link {
-  my ($self, $href, $content, %params) = _hashify(3, @_);
-
-  $href ||= '#';
-
-  return $self->html_tag('a', $content, %params, href => $href);
 }
 
 sub yes_no_tag {
@@ -479,7 +472,13 @@ The following functions are just forwarded to L<SL::Presenter::Tag>:
 
 =item * C<input_tag $name, $value, %attributes>
 
+=item * C<hidden_tag $name, $value, %attributes>
+
+=item * C<checkbox_tag $name, %attributes>
+
 =item * C<select_tag $name, \@collection, %attributes>
+
+=item * C<link $href, $content, %attributes>
 
 =back
 
@@ -494,31 +493,11 @@ calling L<select_tag>. C<$value> determines
 which entry is selected. The C<%attributes> are passed through to
 L<select_tag>.
 
-=item C<hidden_tag $name, $value, %attributes>
-
-Creates a HTML 'input type=hidden' tag named C<$name> with the value
-C<$value> and with arbitrary HTML attributes from C<%attributes>. The
-tag's C<id> defaults to C<name_to_id($name)>.
-
 =item C<textarea_tag $name, $value, %attributes>
 
 Creates a HTML 'textarea' tag named C<$name> with the content
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
-
-=item C<checkbox_tag $name, %attributes>
-
-Creates a HTML 'input type=checkbox' tag named C<$name> with arbitrary
-HTML attributes from C<%attributes>. The tag's C<id> defaults to
-C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
-
-If C<%attributes> contains a key C<label> then a HTML 'label' tag is
-created with said C<label>. No attribute named C<label> is created in
-that case.
-
-If C<%attributes> contains a key C<checkall> then the value is taken as a
-JQuery selector and clicking this checkbox will also toggle all checkboxes
-matching the selector.
 
 =item C<date_tag $name, $value, %attributes>
 

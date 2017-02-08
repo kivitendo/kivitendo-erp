@@ -7,7 +7,7 @@ use SL::HTML::Restrict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag stringify_attributes restricted_html);
+our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag stringify_attributes restricted_html link);
 
 use Carp;
 
@@ -282,6 +282,14 @@ sub restricted_html {
   return $html_restricter->process($value);
 }
 
+sub link {
+  my ($self, $href, $content, %params) = @_;
+
+  $href ||= '#';
+
+  return $self->html_tag('a', $content, %params, href => $href);
+}
+
 1;
 __END__
 
@@ -416,6 +424,26 @@ makes it possible to write statements like e.g.
 
 The attribute C<size> can be used to set the text input's size. It
 defaults to 5.
+
+=item C<hidden_tag $name, $value, %attributes>
+
+Creates a HTML 'input type=hidden' tag named C<$name> with the value
+C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<checkbox_tag $name, %attributes>
+
+Creates a HTML 'input type=checkbox' tag named C<$name> with arbitrary
+HTML attributes from C<%attributes>. The tag's C<id> defaults to
+C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
+
+If C<%attributes> contains a key C<label> then a HTML 'label' tag is
+created with said C<label>. No attribute named C<label> is created in
+that case.
+
+If C<%attributes> contains a key C<checkall> then the value is taken as a
+JQuery selector and clicking this checkbox will also toggle all checkboxes
+matching the selector.
 
 =item C<select_tag $name, \@collection, %attributes>
 
