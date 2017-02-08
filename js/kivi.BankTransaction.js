@@ -87,4 +87,36 @@ namespace('kivi.BankTransaction', function(ns) {
 
     $.cookie('jquery_ui_tab_bt_tabs', ui_tab);
   };
+
+  ns.show_set_all_sources_memos_dialog = function(sources_selector, memos_selector) {
+    var dlg_id = 'set_all_sources_memos_dialog';
+    var $dlg   = $('#' + dlg_id);
+
+    $dlg.data('sources-selector', sources_selector);
+    $dlg.data('memos-selector',   memos_selector);
+
+    $('#set_all_sources').val('');
+    $('#set_all_memos').val('');
+
+    kivi.popup_dialog({
+      id: dlg_id,
+      dialog: {
+        title: kivi.t8('Set all source and memo fields')
+      }
+    });
+  };
+
+  ns.set_all_sources_memos = function(sources_selector, memos_selector) {
+    var $dlg = $('#set_all_sources_memos_dialog');
+
+    ['sources', 'memos'].forEach(function(type) {
+      var value = $('#set_all_' + type).val();
+      if (value !== '')
+        $($dlg.data(type + '-selector')).each(function(idx, input) {
+          $(input).val(value);
+        });
+    });
+
+    $dlg.dialog('close');
+  };
 });

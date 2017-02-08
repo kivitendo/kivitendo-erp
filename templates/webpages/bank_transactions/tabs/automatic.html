@@ -1,6 +1,6 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
 
-<form method="post" id="list_form">
+<form method="post" id="list_automatic_form">
 [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
 [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
 [% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
@@ -19,6 +19,8 @@
       <th>[% 'Skonto' | $T8 %]</th>
       <th>[% 'Purpose/Reference' | $T8 %]</th>
       <th>[% 'Customer/Vendor/Remote name' | $T8 %]</th>
+      <th>[% LxERP.t8("Source") %]</th>
+      <th>[% LxERP.t8("Memo") %]</th>
     </tr>
   </thead>
   [% IF !PROPOSALS.size %]
@@ -54,6 +56,8 @@
               END %]
           </td>
           <td>[% HTML.escape(proposal.remote_name) %]</td>
+          <td></td>
+          <td></td>
         </tr>
 
       [% FOREACH proposed_invoice = proposal.proposals %]
@@ -69,13 +73,19 @@
               [% L.hidden_tag("invoice_skontos." _ proposal.id _ "[]", proposed_invoice.skonto_type) %]</td>
           <td[% IF proposed_invoice.invnumber == invnumber_found %] class="invoice_number_highlight"[% END %]>[% proposed_invoice.link %]</td>
           <td>[% HTML.escape(proposed_invoice.customer.name) %][% HTML.escape(proposed_invoice.vendor.name) %]</td>
+          <td>[% L.input_tag("sources." _ proposal.id _ "[]", "", size=20) %]</td>
+          <td>[% L.input_tag("memos." _ proposal.id _ "[]", "", size=20) %]</td>
         </tr>
         [% END %]
-        <tr><td style="height:10px" colspan="8"></td></tr>
+        <tr><td style="height:10px" colspan="10"></td></tr>
       </tbody>
     [% END %]
   [% END %]
 </table>
-[% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals')) %]
+
+<p>
+ [% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals')) %]
+ [% L.button_tag('kivi.BankTransaction.show_set_all_sources_memos_dialog("#list_automatic_form [name^=\\"sources.\\"]", "#list_automatic_form [name^=\\"memos.\\"]")', LxERP.t8('Set all source and memo fields')) %]
+</p>
 
 </form>

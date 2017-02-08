@@ -511,6 +511,8 @@ sub save_invoices {
       push @{ $self->problems }, $self->save_single_bank_transaction(
         bank_transaction_id => $bank_transaction_id,
         invoice_ids         => $invoice_ids,
+        sources             => ($::form->{sources} // {})->{$_},
+        memos               => ($::form->{memos}   // {})->{$_},
       );
       $count += scalar( @{$invoice_ids} );
     }
@@ -537,6 +539,7 @@ sub action_save_invoices {
 
 sub action_save_proposals {
   my ($self) = @_;
+
   if ( $::form->{proposal_ids} ) {
     my $propcount = scalar(@{ $::form->{proposal_ids} });
     if ( $propcount > 0 ) {
@@ -620,6 +623,8 @@ sub save_single_bank_transaction {
     my $n_invoices   = 0;
 
     foreach my $invoice (@{ $data{invoices} }) {
+      my $source = ($data{sources} // [])->[$n_invoices];
+      my $memo   = ($data{memos}   // [])->[$n_invoices];
 
       $n_invoices++ ;
 
@@ -665,6 +670,8 @@ sub save_single_bank_transaction {
                               trans_id     => $invoice->id,
                               amount       => $open_amount,
                               payment_type => $payment_type,
+                              source       => $source,
+                              memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } elsif ( $invoice->is_sales && $invoice->type eq 'credit_note' ) {
         # no check for overpayment/multiple payments
@@ -672,6 +679,8 @@ sub save_single_bank_transaction {
                               trans_id     => $invoice->id,
                               amount       => $invoice->open_amount,
                               payment_type => $payment_type,
+                              source       => $source,
+                              memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
         my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
@@ -679,6 +688,8 @@ sub save_single_bank_transaction {
                               trans_id     => $invoice->id,
                               amount       => $amount_of_transaction,
                               payment_type => $payment_type,
+                              source       => $source,
+                              memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
         $bank_transaction->invoice_amount($bank_transaction->amount);
         $amount_of_transaction = 0;

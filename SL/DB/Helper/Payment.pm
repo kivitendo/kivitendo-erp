@@ -112,8 +112,8 @@ sub pay_invoice {
   my $reference_account = $self->reference_account;
   croak "can't find reference account (link = AR/AP) for invoice" unless ref $reference_account;
 
-  my $memo   = $params{'memo'}   || '';
-  my $source = $params{'source'} || '';
+  my $memo   = $params{memo}   // '';
+  my $source = $params{source} // '';
 
   my $rounded_params_amount = _round( $params{amount} ); # / $exchangerate);
   my $fx_gain_loss_amount = 0; # for fx_gain and fx_loss

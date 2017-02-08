@@ -27,6 +27,24 @@
   <div id="automatic">[% PROCESS "bank_transactions/tabs/automatic.html" %]</div>
 </div>
 
+<div id="set_all_sources_memos_dialog" class="hidden">
+ <table>
+  <tr>
+   <th>[% LxERP.t8("Source") %]:</th>
+   <td>[% L.input_tag("set_all_sources", "") %]</td>
+  </tr>
+
+  <tr>
+   <th>[% LxERP.t8("Memo") %]:</th>
+   <td>[% L.input_tag("set_all_memos", "") %]</td>
+  </tr>
+ </table>
+
+ <p>
+  [% L.button_tag("kivi.BankTransaction.set_all_sources_memos()", LxERP.t8("Set fields")) %]
+  <a href="#" onclick="$('#set_all_sources_memos_dialog').dialog('close');">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+</div>
 
 <script type="text/javascript">
 <!--
