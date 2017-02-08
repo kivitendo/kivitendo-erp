@@ -1,11 +1,32 @@
-[% USE L %]
-[% USE T8 %]
-[% USE LxERP %][%- USE HTML -%]
+[%- USE HTML -%][%- USE LxERP -%][%- USE P -%]
+[% SET debug=1 %]
 [% FOREACH invoice = INVOICES %]
-  <div id="[% bt_id %].[% invoice.id %]" data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]">
-    [% L.hidden_tag('invoice_ids.' _ bt_id _'[]', invoice.id) %]
-    [% 'Invno.' | $T8 %]: [% invoice.invnumber %]
-    [% 'Open amount' | $T8 %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
-    <a href=# onclick="kivi.BankTransaction.delete_invoice([% bt_id %], [% invoice.id %])">x</a>
-  </div>
+ <tr id="extra_row_[% HTML.escape(bt_id) %]_[% HTML.escape(invoice.id) %]">
+  <td></td>
+  <td></td>
+  <td id="assigned_invoices_[% bt.id %]_[% invoice.id %]">
+   <span id="[% bt_id %].[% invoice.id %]" data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]">
+    [% P.hidden_tag("invoice_ids." _ bt_id _"[]", invoice.id) %]
+    [% LxERP.t8("Invno.") %]: [% HTML.escape(invoice.invnumber) %]
+    [% LxERP.t8("Open amount") %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
+    [% P.link("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ invoice.id _ ")") %]
+   </span>
+  </td>
+  <td>[% P.input_tag("sources_" _ bt_id _ "_" _ invoice.id, "") %]</td>
+  <td>[% P.input_tag("memos_" _ bt_id _ "_" _ invoice.id, "") %]</td>
+  [% IF debug %]
+  <td></td>
+  [% END %]
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+ </tr>
 [% END %]

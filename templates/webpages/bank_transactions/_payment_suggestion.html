@@ -1,0 +1,10 @@
+[%- USE P -%][%- USE HTML -%][%- USE LxERP -%]
+<span id="[% HTML.escape(bt_id) %].[% HTML.escape(prop_id) %]" data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]">
+ [% P.hidden_tag("invoice_ids." _ bt_id _ "[]", prop_id) %]
+ [% LxERP.t8("Invno.") %]: [% HTML.escape(invoice.invnumber) %]
+ [% LxERP.t8("Open amount") %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
+ [% IF SELECT_OPTIONS.size %]
+  [% P.select_tag("invoice_skontos." _ bt_id _ "[]", SELECT_OPTIONS, value_key="payment_type", title_key="display") %]
+ [% END %]
+ [% P.link("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ prop_id _ ")") %]
+</span>

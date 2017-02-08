@@ -337,18 +337,15 @@ sub action_ajax_payment_suggestion {
   my @select_options = $invoice->get_payment_select_options_for_bank_transaction($::form->{bt_id});
 
   my $html;
-  $html .= SL::Presenter->input_tag('invoice_ids.' . $::form->{bt_id} . '[]', $::form->{prop_id} , type => 'hidden');
-  $html .= SL::Presenter->escape(t8('Invno.')      . ': ' . $invoice->invnumber . ' ');
-  $html .= SL::Presenter->escape(t8('Open amount') . ': ' . $::form->format_amount(\%::myconfig, $invoice->open_amount, 2) . ' ');
-  $html .= SL::Presenter->select_tag('invoice_skontos.' . $::form->{bt_id} . '[]',
-                                     \@select_options,
-                                     value_key => 'payment_type',
-                                     title_key => 'display' )
-    if @select_options;
-  $html .= SL::Presenter->html_tag('a', 'x', href => '#', onclick => "kivi.BankTransaction.delete_invoice(" . $::form->{bt_id} . ',' . $::form->{prop_id} . ")");
-  $html = SL::Presenter->html_tag('div', $html, id => $::form->{bt_id} . '.' . $::form->{prop_id}, 'data-invoice-amount' => $invoice->open_amount * 1);
+  $html = $self->render(
+    'bank_transactions/_payment_suggestion', { output => 0 },
+    bt_id          => $::form->{bt_id},
+    prop_id        => $::form->{prop_id},
+    invoice        => $invoice,
+    SELECT_OPTIONS => \@select_options,
+  );
 
-  $self->render(\ SL::JSON::to_json( { 'html' => $html } ), { layout => 0, type => 'json', process => 0 });
+  $self->render(\ SL::JSON::to_json( { 'html' => "$html" } ), { layout => 0, type => 'json', process => 0 });
 };
 
 sub action_filter_drafts {
@@ -521,6 +518,8 @@ sub save_invoices {
       push @{ $self->problems }, $self->save_single_bank_transaction(
         bank_transaction_id => $bank_transaction_id,
         invoice_ids         => $invoice_ids,
+        sources             => [  map { $::form->{"sources_${bank_transaction_id}_${_}"} } @{ $invoice_ids } ],
+        memos               => [  map { $::form->{"memos_${bank_transaction_id}_${_}"}   } @{ $invoice_ids } ],
       );
       $count += scalar( @{$invoice_ids} );
     }

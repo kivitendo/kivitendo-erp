@@ -1,4 +1,12 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][%- USE P -%]
+
+[% BLOCK proposal_div %]
+        <div data-proposal-id="[% prop.id %]">
+         <a href=# onclick="kivi.BankTransaction.add_invoices('[% bt.id %]', '[% prop.id %]');"
+            title="<table><tr><th></th><th>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %] ([% 'AP' | $T8 %])[% END %]</th><th>[% 'Bank transaction' | $T8 %]</th></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% prop.realamount %] ([% 'open' | $T8 %]: [% LxERP.format_amount(prop.open_amount, 2) %])</td><td>[% LxERP.format_amount(bt.amount, 2) %]</td></tr>[% IF prop.skonto_date %]<tr><th>[% 'Payment terms' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount_less_skonto, 2) %] [% 'until' | $T8 %] [% HTML.escape(prop.skonto_date.to_kivitendo) %] ([% prop.percent_skonto * 100 %] %)</td><td></td></tr>[% END %]<tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.displayable_name) %][% HTML.escape(prop.vendor.displayable_name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>"
+              class="[% IF bt.agreement >= 5 %]green[% ELSIF bt.agreement < 5 and bt.agreement >= 3 %]orange[% ELSE %]red[% END %] tooltipster-html">&larr;[% HTML.escape(prop.invnumber)%]</a>
+        </div>
+[% END %]
 
 [% SET debug=1 %]
 <form method="post" id="list_all_form">
@@ -13,7 +21,9 @@
    <tr class="listheading">
     <th></th>
     <th></th>
-    <th>[% 'Assigned invoices' | $T8 %] [% 'with amount' | $T8 %]</th>
+    <th>[% LxERP.t8("Assigned invoices with amount") %]</th>
+    <th style="width: 100px">[% LxERP.t8("Source") %]</th>
+    <th style="width: 100px">[% LxERP.t8("Memo") %]</th>
     [% IF debug %]
     <th>[% 'Score' | $T8 %]</th>
     [% END %]
@@ -80,37 +90,66 @@
    </tr>
   </thead>
 
-  <tbody>
-   [%- FOREACH bt = BANK_TRANSACTIONS %]
-    <tr class="listrow" id="bt_id_[% bt.id %]">
-     <td><a href=# onclick="kivi.BankTransaction.assign_invoice('[% bt.id %]'); return false;">[% 'Assign invoice' | $T8 %]</a></td>
-     <td><a href=# onclick="kivi.BankTransaction.create_invoice('[% bt.id %]'); return false;">[% 'Create invoice' | $T8 %]</a></td>
-     <td id="assigned_invoices_[% bt.id %]" nowrap></td>
-     [% IF debug %]
-     <td class="tooltipster-html" title="[% FOREACH match = bt.rule_matches %] [% match %]<br> [% END %]">[% bt.agreement %]</td>
-     [% END %]
-     <td>
-      [% FOREACH prop = bt.proposals %]
-        <div data-proposal-id="[% prop.id %]">
-         <a href=# onclick="kivi.BankTransaction.add_invoices('[% bt.id %]', '[% prop.id %]');"
-            title="<table><tr><th></th><th>[% 'Suggested invoice' | $T8 %][% IF !prop.is_sales %] ([% 'AP' | $T8 %])[% END %]</th><th>[% 'Bank transaction' | $T8 %]</th></tr><tr><th>[% 'Amount' | $T8 %]</th><td>[% prop.realamount %] ([% 'open' | $T8 %]: [% LxERP.format_amount(prop.open_amount, 2) %])</td><td>[% LxERP.format_amount(bt.amount, 2) %]</td></tr>[% IF prop.skonto_date %]<tr><th>[% 'Payment terms' | $T8 %]</th><td>[% LxERP.format_amount(prop.amount_less_skonto, 2) %] [% 'until' | $T8 %] [% HTML.escape(prop.skonto_date.to_kivitendo) %] ([% prop.percent_skonto * 100 %] %)</td><td></td></tr>[% END %]<tr><th>[% 'Customer/Vendor' | $T8 %]</th><td>[% HTML.escape(prop.customer.displayable_name) %][% HTML.escape(prop.vendor.displayable_name) %]</td><td>[% HTML.escape(bt.remote_name) %]</td></tr><tr><th>[% 'Invoice Date' | $T8 %]</th><td>[% HTML.escape(prop.transdate_as_date) %]</td><td>[% HTML.escape(bt.transdate_as_date) %] ([% HTML.escape(bt.transdate.utc_rd_days - prop.transdate.utc_rd_days) %])</td></tr><tr><th>[% 'Invoice Number' | $T8 %]</th><td>[% HTML.escape(prop.invnumber) %]</td><td>[% HTML.escape(bt.purpose) %]</td></tr></table>"
-              class="[% IF bt.agreement >= 5 %]green[% ELSIF bt.agreement < 5 and bt.agreement >= 3 %]orange[% ELSE %]red[% END %] tooltipster-html">&larr;[% HTML.escape(prop.invnumber)%]</a></div>
-      [% END %]
-     </td>
-     <td align=right>[% bt.transdate_as_date %]</td>
-     <td align=right>[% LxERP.format_amount(bt.amount, 2) %]</td>
-     <td align=right id="invoice_amount_[% HTML.escape(bt.id) %]" data-invoice-amount="[% HTML.escape(bt.invoice_amount) %]">[% HTML.escape(LxERP.format_amount(bt.invoice_amount, 2)) %]</td>
-     <td>[% HTML.escape(bt.remote_name) %]</td>
-     <td>[% HTML.escape(bt.purpose) %]</td>
-     <td>[% HTML.escape(bt.transaction_text) %]</td>
-     <td>[% HTML.escape(bt.remote_account_number) %]</td>
-     <td>[% HTML.escape(bt.remote_bank_code) %]</td>
-     <td align=right>[% bt.valutadate_as_date %]</td>
-     <td align=center>[% HTML.escape(bt.currency.name) %]</td>
-    </tr>
-    [%- END %]
-  </tbody>
+  [%- FOREACH bt = BANK_TRANSACTIONS %]
+   <tbody class="listrow" id="bt_rows_[% HTML.escape(bt.id) %]">
+    [% FOREACH prop = bt.proposals %]
+     [% IF loop.first %]
+      <tr id="bt_id_[% bt.id %]">
+       <td><a href=# onclick="kivi.BankTransaction.assign_invoice('[% bt.id %]'); return false;">[% 'Assign invoice' | $T8 %]</a></td>
+       <td><a href=# onclick="kivi.BankTransaction.create_invoice('[% bt.id %]'); return false;">[% 'Create invoice' | $T8 %]</a></td>
+       <td id="assigned_invoices_[% bt.id %]_[% prop.id %]"></td>
+       <td>[% P.input_tag("sources_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
+       <td>[% P.input_tag("memos_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
+       [% IF debug %]
+       <td class="tooltipster-html" title="[% FOREACH match = bt.rule_matches %] [% match %]<br> [% END %]">[% bt.agreement %]</td>
+       [% END %]
+       <td>
+        [% PROCESS proposal_div %]
+       </td>
+       <td align="right">[% bt.transdate_as_date %]</td>
+       <td align="right">[% LxERP.format_amount(bt.amount, 2) %]</td>
+       <td align="right" id="invoice_amount_[% HTML.escape(bt.id) %]" data-invoice-amount="[% HTML.escape(bt.invoice_amount) %]">[% HTML.escape(LxERP.format_amount(bt.invoice_amount, 2)) %]</td>
+       <td>[% HTML.escape(bt.remote_name) %]</td>
+       <td>[% HTML.escape(bt.purpose) %]</td>
+       <td>[% HTML.escape(bt.transaction_text) %]</td>
+       <td>[% HTML.escape(bt.remote_account_number) %]</td>
+       <td>[% HTML.escape(bt.remote_bank_code) %]</td>
+       <td align="right">[% bt.valutadate_as_date %]</td>
+       <td align="center">[% HTML.escape(bt.currency.name) %]</td>
+      </tr>
+     [% ELSE # loop.first %]
+      <tr>
+       <td></td>
+       <td></td>
+       <td id="assigned_invoices_[% bt.id %]_[% prop.id %]"></td>
+       <td>[% P.input_tag("sources_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
+       <td>[% P.input_tag("memos_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
+       [% IF debug %]
+       <td></td>
+       [% END %]
+       <td>
+        [% PROCESS proposal_div %]
+       </td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+       <td></td>
+      </tr>
+     [% END # loop.first %]
+    [% END # FOREACH proposal %]
+   </tbody>
+  [%- END %]
  </table>
-[% L.submit_tag('action_save_invoices', LxERP.t8('Save invoices')) %]
+
+ <p>
+  [% L.submit_tag('action_save_invoices', LxERP.t8('Save invoices')) %]
+  [% L.button_tag('kivi.BankTransaction.show_set_all_sources_memos_dialog("#list_all_form [name^=\\"sources_\\"]:visible", "#list_all_form [name^=\\"memos_\\"]:visible")', LxERP.t8('Set all source and memo fields')) %]
+ </p>
 
 </form>

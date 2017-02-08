@@ -13,20 +13,31 @@ namespace('kivi.BankTransaction', function(ns) {
   };
 
   ns.add_invoices = function(bank_transaction_id, proposal_id) {
-    $('[data-proposal-id=' + proposal_id + ']').hide();
 
     $.ajax({
       url: 'controller.pl?action=BankTransaction/ajax_payment_suggestion&bt_id=' + bank_transaction_id  + '&prop_id=' + proposal_id,
       success: function(data) {
-        $('#assigned_invoices_' + bank_transaction_id).append(data.html);
+        $('#assigned_invoices_' + bank_transaction_id + "_" + proposal_id).html(data.html);
+        $('#sources_' + bank_transaction_id + "_" + proposal_id + ',' +
+          '#memos_'   + bank_transaction_id + "_" + proposal_id).show();
+        $('[data-proposal-id=' + proposal_id + ']').hide();
+
         ns.update_invoice_amount(bank_transaction_id);
       }
     });
   };
 
   ns.delete_invoice = function(bank_transaction_id, proposal_id) {
-    $( "#" + bank_transaction_id + "\\." + proposal_id ).remove();
+    var $inputs = $('#sources_' + bank_transaction_id + "_" + proposal_id + ',' +
+                    '#memos_'   + bank_transaction_id + "_" + proposal_id);
+
     $('[data-proposal-id=' + proposal_id + ']').show();
+    $('#assigned_invoices_' + bank_transaction_id + "_" + proposal_id).html('');
+    $('#extra_row_' + bank_transaction_id + '_' + proposal_id).remove();
+
+    $inputs.hide();
+    $inputs.val('');
+
     ns.update_invoice_amount(bank_transaction_id);
   };
 
@@ -59,7 +70,7 @@ namespace('kivi.BankTransaction', function(ns) {
     $.ajax({
       url: url,
       success: function(new_html) {
-        $('#assigned_invoices_' + bank_transaction_id).append(new_html);
+        $('#bt_rows_' + bank_transaction_id).append(new_html);
         $('#assign_invoice_window').dialog('close');
         ns.update_invoice_amount(bank_transaction_id);
       }
