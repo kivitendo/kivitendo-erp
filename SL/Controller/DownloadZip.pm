@@ -110,7 +110,7 @@ THis method must be inserted into the customer branch:
 
   ns.downloadOrderitemsAtt = function(type,id) {
     var rowcount  = $('input[name=rowcount]').val() - 1;
-	  var data = {
+    var data = {
         action:     'FileManagement/download_zip',
         type:       type,
         object_id:  id,
