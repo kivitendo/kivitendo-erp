@@ -59,8 +59,19 @@ sub reset {
   $self->{FULL_RIGHTS}        = { };
   $self->{RIGHTS}             = { };
   $self->{unique_counter}     = 0;
-  $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
-  $self->{column_information}->_fetch;
+
+  if ($self->is_db_connected) {
+    # reset is called during request shutdown already. In case of a
+    # completely new auth DB this would fail and generate an error
+    # message even if the user is currently trying to create said auth
+    # DB. Therefore only fetch the column information if a connection
+    # has been established.
+    $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
+    $self->{column_information}->_fetch;
+  } else {
+    delete $self->{column_information};
+  }
+
   $self->{authenticator}->reset;
 
   $self->client(undef);
@@ -247,6 +258,7 @@ sub dbconnect {
   $self->{dbh} = SL::DBConnect->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => 1, AutoCommit => 1 });
 
   if (!$may_fail && !$self->{dbh}) {
+    delete $self->{dbh};
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
   }
 
@@ -260,6 +272,11 @@ sub dbdisconnect {
     $self->{dbh}->disconnect();
     delete $self->{dbh};
   }
+}
+
+sub is_db_connected {
+  my ($self) = @_;
+  return !!$self->{dbh};
 }
 
 sub check_tables {
