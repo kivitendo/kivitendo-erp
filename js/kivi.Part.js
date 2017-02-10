@@ -412,6 +412,9 @@ namespace('kivi.Part', function(ns) {
           self.set_item({});
           return true;
         } else if (self.state == self.STATES.PICKED) {
+          if (self.o.action.on_enter_match_one) {
+            self.run_action(self.o.action.on_enter_match_one);
+          }
           return true;
         }
         if (event.which == KEY.TAB) {
