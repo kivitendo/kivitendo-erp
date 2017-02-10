@@ -162,6 +162,7 @@ namespace('kivi.Part', function(ns) {
     data.push({ name: 'action', value: 'Part/add_assortment_item' },
               { name: 'part.id', value: $('#part_id').val()       },
               { name: 'part.part_type', value: 'assortment'       });
+    $('#assortment_picker').data('part_picker').clear();
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -173,6 +174,7 @@ namespace('kivi.Part', function(ns) {
     data.push({ name: 'action', value: 'Part/add_assembly_item' },
               { name: 'part.id', value: $("#part_id").val()     },
               { name: 'part.part_type', value: 'assortment'     });
+    $('#assembly_picker').data('part_picker').clear();
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
