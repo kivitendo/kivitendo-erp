@@ -126,7 +126,7 @@ sub delete {
   my $rc = SL::DB->client->with_transaction(\&_delete, $self, %params);
   if (!$rc) {
     my $err = SL::DB->client->error;
-    die (ref $err?$$err:$err);
+    die $err?(ref $err?$$err:$err):"unknown err";
   }
   return $rc;
 }

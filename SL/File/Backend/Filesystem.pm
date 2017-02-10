@@ -54,8 +54,6 @@ sub rename {
 sub save {
   my ($self, %params) = @_;
   die 'dbfile not exists' unless $params{dbfile};
-  $main::lxdebug->message(LXDebug->DEBUG2(), "in backend " . $self . "  file " . $params{dbfile});
-  $main::lxdebug->message(LXDebug->DEBUG2(), "file id=" . $params{dbfile}->id . " path=" . $params{file_path});
   my $dbfile = $params{dbfile};
   die 'no file contents' unless $params{file_path} || $params{file_contents};
   $dbfile->backend_data(0) unless $dbfile->backend_data;
@@ -63,7 +61,6 @@ sub save {
   $dbfile->save->load;
 
   my $tofile = $self->_filesystem_path($dbfile);
-  $main::lxdebug->message(LXDebug->DEBUG2(), "topath=" . $tofile . " from=" . $params{file_path});
   if ($params{file_path} && -f $params{file_path}) {
     File::Copy::copy($params{file_path}, $tofile);
   }
@@ -85,7 +82,7 @@ sub get_mtime {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   $main::lxdebug->message(LXDebug->DEBUG2(), "version=" .$params{version});
-  die "unknown version" if $params{version} && 
+  die "unknown version" if $params{version} &&
                           ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
   die "no file found in backend" if !-f $path;
@@ -181,5 +178,3 @@ L<SL::File::Backend>
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut
-
-
