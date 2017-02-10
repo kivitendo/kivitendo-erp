@@ -841,12 +841,12 @@ sub kne_buchungsexport {
     $filename++;
     my $ed_filename = $self->export_path . $filename;
     push(@filenames, $filename);
-    my $header = $self->make_kne_data_header($form);
 
-    my $kne_file = SL::DATEV::KNEFile->new();
-    $kne_file->add_block($header);
-
+    # transform $self->{DATEV} into an array of hashrefs containing all the
+    # necessary information for the actual DATEV export, storing it in @kne_lines.
+    my @kne_lines = ();
     while (scalar(@{ $self->{DATEV} }) > 0) {
+      my %kne_data = ();
       my $transaction = shift @{ $self->{DATEV} };
       my $trans_lines = scalar(@{$transaction});
       $counter++;
@@ -864,14 +864,6 @@ sub kne_buchungsexport {
       my $charttax       = 0;
       my $ustid          ="";
       my ($haben, $soll);
-      my $iconv          = $::locale->{iconv_utf8};
-      my %umlaute = ($iconv->convert('ä') => 'ae',
-                     $iconv->convert('ö') => 'oe',
-                     $iconv->convert('ü') => 'ue',
-                     $iconv->convert('Ä') => 'Ae',
-                     $iconv->convert('Ö') => 'Oe',
-                     $iconv->convert('Ü') => 'Ue',
-                     $iconv->convert('ß') => 'sz');
       for (my $i = 0; $i < $trans_lines; $i++) {
         if ($trans_lines == 2) {
           if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
@@ -897,44 +889,30 @@ sub kne_buchungsexport {
           $soll = $i;
         }
       }
-      # Umwandlung von Umlauten und Sonderzeichen in erlaubte Zeichen bei Textfeldern
-      foreach my $umlaut (keys(%umlaute)) {
-        $transaction->[$haben]->{'invnumber'} =~ s/${umlaut}/${umlaute{$umlaut}}/g;
-        $transaction->[$haben]->{'name'}      =~ s/${umlaut}/${umlaute{$umlaut}}/g;
-      }
-
-      $transaction->[$haben]->{'invnumber'} =~ s/[^0-9A-Za-z\$\%\&\*\+\-\/]//g;
-      $transaction->[$haben]->{'name'}      =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
-
-      $transaction->[$haben]->{'invnumber'} =  substr($transaction->[$haben]->{'invnumber'}, 0, 12);
-      $transaction->[$haben]->{'name'}      =  substr($transaction->[$haben]->{'name'}, 0, 30);
-      $transaction->[$haben]->{'invnumber'} =~ s/\ *$//;
-      $transaction->[$haben]->{'name'}      =~ s/\ *$//;
 
       if ($trans_lines >= 2) {
 
-        $gegenkonto = "a" . trim_leading_zeroes($transaction->[$haben]->{'accno'});
-        $konto      = "e" . trim_leading_zeroes($transaction->[$soll]->{'accno'});
+        $kne_data{'gegenkonto'} = $transaction->[$haben]->{'accno'};
+        $kne_data{'konto'}      = $transaction->[$soll]->{'accno'};
         if ($transaction->[$haben]->{'invnumber'} ne "") {
-          $belegfeld1 = "\xBD" . $transaction->[$haben]->{'invnumber'} . "\x1C";
+          $kne_data{belegfeld1} = $transaction->[$haben]->{'invnumber'};
         }
-        $datum = "d";
-        $datum .= &datetofour($transaction->[$haben]->{'transdate'}, 0);
-        $waehrung = "\xB3" . "EUR" . "\x1C";
+        $kne_data{datum} = $transaction->[$haben]->{'transdate'};
+        $kne_data{waehrung} = 'EUR';
+
         if ($transaction->[$haben]->{'name'} ne "") {
-          $buchungstext = "\x1E" . $transaction->[$haben]->{'name'} . "\x1C";
+          $kne_data{buchungstext} = $transaction->[$haben]->{'name'};
         }
         if (($transaction->[$haben]->{'ustid'} // '') ne "") {
-          $ustid = "\xBA" . $transaction->[$haben]->{'ustid'} . "\x1C";
+          $kne_data{ustid} = $transaction->[$haben]->{'ustid'};
         }
         if (($transaction->[$haben]->{'duedate'} // '') ne "") {
-          $belegfeld2 = "\xBE" . &datetofour($transaction->[$haben]->{'duedate'}, 1) . "\x1C";
+          $kne_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
         }
       }
 
-      $umsatz       = $kne_file->format_amount(abs($umsatz), 0);
-      $umsatzsumme += $umsatz;
-      $kne_file->add_block("+" . $umsatz);
+      $kne_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???
+      $umsatzsumme += $kne_data{umsatz}; #umsatz; # add the abs amount
 
       # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
       # Im Prinzip hat jeder acc_trans Eintrag einen Steuerschlüssel, außer, bei gewissen Fällen
@@ -946,22 +924,76 @@ sub kne_buchungsexport {
       # DATEV-Steuerschlüssel) oder der Steuerschlüssel des Kontos weicht WIRKLICH von dem Eintrag in der
       # acc_trans ab. Gibt es für diesen Fall eine plausiblen Grund?
       #
+
+      # only set buchungsschluessel if the following conditions are met:
       if (   ( $datevautomatik || $taxkey)
           && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
-#         $kne_file->add_block("\x6C" . (!$datevautomatik ? $taxkey : "4"));
-        $kne_file->add_block("\x6C${taxkey}");
+        # $kne_data{buchungsschluessel} = !$datevautomatik ? $taxkey : "4";
+        $kne_data{buchungsschluessel} = $taxkey;
       }
 
-      $kne_file->add_block($gegenkonto);
-      $kne_file->add_block($belegfeld1);
-      $kne_file->add_block($belegfeld2);
-      $kne_file->add_block($datum);
-      $kne_file->add_block($konto);
-      $kne_file->add_block($buchungstext);
-      $kne_file->add_block($ustid);
-      $kne_file->add_block($waehrung . "\x79");
+      push(@kne_lines, \%kne_data);
     }
 
+    # the data in @kne_lines is now ready to be transformed to a kne file, or even to csv
+
+    my $iconv   = $::locale->{iconv_utf8};
+    my %umlaute = ($iconv->convert('ä') => 'ae',
+                   $iconv->convert('ö') => 'oe',
+                   $iconv->convert('ü') => 'ue',
+                   $iconv->convert('Ä') => 'Ae',
+                   $iconv->convert('Ö') => 'Oe',
+                   $iconv->convert('Ü') => 'Ue',
+                   $iconv->convert('ß') => 'sz');
+
+    my $header = $self->make_kne_data_header($form);
+
+    my $kne_file = SL::DATEV::KNEFile->new();
+    $kne_file->add_block($header);
+    # add the data from @kne_lines to the kne_file, formatting as needed
+    foreach my $kne (@kne_lines) {
+
+      $kne_file->add_block("+" . $kne_file->format_amount(abs($kne->{umsatz}), 0));
+
+      # only add buchungsschluessel if it was previously defined
+      $kne_file->add_block("\x6C" . $kne->{buchungsschluessel}) if defined $kne->{buchungsschluessel};
+
+      # ($kne->{gegenkonto}) = $kne->{gegenkonto} =~ /^(\d+)/;
+      $kne_file->add_block("a" . trim_leading_zeroes($kne->{gegenkonto}));
+
+      if ( $kne->{belegfeld1} ) {
+        my $invnumber = $kne->{belegfeld1};
+        foreach my $umlaut (keys(%umlaute)) {
+          $invnumber =~ s/${umlaut}/${umlaute{$umlaut}}/g;
+        }
+        $invnumber =~ s/[^0-9A-Za-z\$\%\&\*\+\-\/]//g;
+        $invnumber =  substr($invnumber, 0, 12);
+        $invnumber =~ s/\ *$//;
+        $kne_file->add_block("\xBD" . $invnumber . "\x1C");
+      }
+
+      $kne_file->add_block("\xBE" . &datetofour($kne->{belegfeld2},1) . "\x1C");
+
+      $kne_file->add_block("d" . &datetofour($kne->{datum},0));
+
+      # ($kne->{konto}) = $kne->{konto} =~ /^(\d+)/;
+      $kne_file->add_block("e" . trim_leading_zeroes($kne->{konto}));
+
+      my $name = $kne->{buchungstext};
+      foreach my $umlaut (keys(%umlaute)) {
+        $name =~ s/${umlaut}/${umlaute{$umlaut}}/g;
+      }
+      $name =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
+      $name =  substr($name, 0, 30);
+      $name =~ s/\ *$//;
+      $kne_file->add_block("\x1E" . $name . "\x1C");
+
+      $kne_file->add_block("\xBA" . $kne->{'ustid'}    . "\x1C") if $kne->{'ustid'};
+
+      $kne_file->add_block("\xB3" . $kne->{'waehrung'} . "\x1C" . "\x79");
+    };
+
+    $umsatzsumme          = $kne_file->format_amount(abs($umsatzsumme), 0);
     my $mandantenendsumme = "x" . $kne_file->format_amount($umsatzsumme / 100.0, 14) . "\x79\x7a";
 
     $kne_file->add_block($mandantenendsumme);
