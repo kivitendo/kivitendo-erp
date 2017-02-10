@@ -1,8 +1,11 @@
 #!/usr/bin/perl
 
 use strict;
+use threads;
 use lib 't';
 use Support::Files;
+use Sys::CPU;
+use Thread::Pool::Simple;
 
 my ($testcount);
 
@@ -38,9 +41,10 @@ my @common_errors = ([ '^\s*my\s+%[a-z0-9_]+\s*=\s*shift' ],
                      [ '\$slef'                           ],
                     );
 
-foreach my $file (@testitems) {
+sub test_file {
+  my ($file) = @_;
   $file =~ s/\s.*$//;           # nuke everything after the first space (#comment)
-  next if (!$file);             # skip null entries
+  return if (!$file);           # skip null entries
 
   if (open (FILE, $file)) {     # open the file for reading
     $_->[1] = [] foreach @common_errors;
@@ -67,5 +71,15 @@ foreach my $file (@testitems) {
   }
 }
 
-exit 0;
+my $pool = Thread::Pool::Simple->new(
+  min    => 2,
+  max    => Sys::CPU::cpu_count() + 1,
+  do     => [ \&test_file ],
+  passid => 0,
+);
 
+$pool->add($_) for @testitems;
+
+$pool->join;
+
+exit 0;
