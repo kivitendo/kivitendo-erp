@@ -48,6 +48,12 @@ sub login {
 
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
+  # Always use English locale for messages from the database during
+  # tests.
+  my $query = qq|SET lc_messages = 'en_US.UTF-8'|;
+  SL::DB->auth->dbh->do($query)   || die 'Cannot set database locale to en_US.UTF-8 for auth database';
+  SL::DB->client->dbh->do($query) || die 'Cannot set database locale to en_US.UTF-8 for main database';
+
   return 1;
 }
 
