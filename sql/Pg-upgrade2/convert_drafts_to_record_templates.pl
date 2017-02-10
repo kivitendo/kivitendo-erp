@@ -16,7 +16,7 @@ sub prepare_statements {
   my ($self) = @_;
 
   $self->{q_draft} = qq|
-    SELECT description, form
+    SELECT description, form, employee_id
     FROM drafts
     WHERE module = ?
 |;
@@ -77,9 +77,9 @@ sub migrate_ar_drafts {
   $self->{h_draft}->execute('ar') || die $self->{h_draft}->errstr;
 
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
-    my $draft         = YAML::Load($draft_record->{form});
-    my $currency_id   = $self->{currency_ids_by_name}->{$draft->{currency}};
-    my ($employee_id) = $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
+    my $draft       = YAML::Load($draft_record->{form});
+    my $currency_id = $self->{currency_ids_by_name}->{$draft->{currency}};
+    my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
     next unless $currency_id;
 
@@ -154,6 +154,7 @@ sub migrate_ap_drafts {
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
     my $draft       = YAML::Load($draft_record->{form});
     my $currency_id = $self->{currency_ids_by_name}->{$draft->{currency}};
+    my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
     next unless $currency_id;
 
@@ -168,7 +169,7 @@ sub migrate_ap_drafts {
       $currency_id,
       $draft->{department_id}    || undef,
       $draft->{globalproject_id} || undef,
-      undef,
+      $employee_id,
 
       # taxincluded,   direct_debit, ob_transaction, cb_transaction,
       $draft->{taxincluded}   ? 1 : 0,
@@ -226,7 +227,8 @@ sub migrate_gl_drafts {
   $self->{h_draft}->execute('gl') || die $self->{h_draft}->errstr;
 
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
-    my $draft = YAML::Load($draft_record->{form});
+    my $draft       = YAML::Load($draft_record->{form});
+    my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
     my @values = (
       # template_name, template_type, customer_id, vendor_id,
@@ -239,7 +241,7 @@ sub migrate_gl_drafts {
       $self->{default_currency_id},
       $draft->{department_id} || undef,
       undef,
-      undef,
+      $employee_id,
 
       # taxincluded,   direct_debit, ob_transaction, cb_transaction,
       $draft->{taxincluded}    ? 1 : 0,
