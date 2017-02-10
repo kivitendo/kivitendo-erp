@@ -20,16 +20,19 @@
 # Contributor(s): Zach Lipton <zach@zachlipton.com>
 #                 Joel Peshkin <bugreport@peshkin.net>
 
-
 package Support::Files;
 
+use strict;
+
 use File::Find;
+
+our @testitems;
 
 # exclude_deps is a hash of arrays listing the files to be excluded
 # if a module is not available
 #
-@additional_files = ();
-%exclude_deps = (
+our @additional_files = ();
+our %exclude_deps = (
     'XML::Twig' => ['importxml.pl'],
     'Net::LDAP' => ['Bugzilla/Auth/Verify/LDAP.pm'],
     'Email::Reply' => ['email_in.pl'],
@@ -37,7 +40,7 @@ use File::Find;
 );
 
 
-@files = glob('*');
+our @files = glob('*');
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.pm$/;}, 'SL');
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.pl$/;}, qw(bin/mozilla sql/Pg-upgrade2));
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.html$/;}, qw(templates/webpages));
@@ -50,8 +53,8 @@ sub have_pkg {
     return !($@);
 }
 
-@exclude_files    = ();
-foreach $dep (keys(%exclude_deps)) {
+our @exclude_files    = ();
+foreach my $dep (keys(%exclude_deps)) {
     if (!have_pkg($dep)) {
         push @exclude_files, @{$exclude_deps{$dep}};
     }
@@ -74,7 +77,7 @@ sub isTestingFile {
     return undef;
 }
 
-foreach $currentfile (@files) {
+foreach my $currentfile (@files) {
     if (isTestingFile($currentfile)) {
         push(@testitems,$currentfile);
     }
