@@ -103,6 +103,7 @@ sub load_record_template {
   $template->substitute_variables;
 
   # Clean the current $::form before rebuilding it from the template.
+  my $form_defaults = delete $::form->{form_defaults};
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
 
   # Fill $::form from the template.
@@ -149,6 +150,8 @@ sub load_record_template {
     $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
     $::form->{"project_id_${row}"}                  = $item->project_id;
   }
+
+  $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
 
