@@ -48,22 +48,27 @@ sub login {
 
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
+  Support::TestSetup::create_form_template_provider();
+
   return 1;
 }
 
-sub templates_cache_writable {
-  my $dir = $::lx_office_conf{paths}->{userspath} . '/templates-cache';
-  return 1 if -w $dir;
+sub create_form_template_provider {
+  $::form->template(Template->new(template_config())) || die;
+}
 
-  # Try actually creating a file. Due to ACLs this might be possible
-  # even if the basic Unix permissions and Perl's -w test say
-  # otherwise.
-  my $file = "${dir}/.writetest";
-  my $out  = IO::File->new($file, "w") || return 0;
-  $out->close;
-  unlink $file;
-
-  return 1;
+sub template_config {
+  return {
+    INTERPOLATE  => 0,
+    EVAL_PERL    => 0,
+    ABSOLUTE     => 1,
+    CACHE_SIZE   => 0,
+    PLUGIN_BASE  => 'SL::Template::Plugin',
+    INCLUDE_PATH => '.:templates/webpages/',
+    COMPILE_DIR  => 'users/templates-cache-for-tests',
+    COMPILE_EXT  => '.tcc',
+    ENCODING     => 'utf8',
+  };
 }
 
 1;

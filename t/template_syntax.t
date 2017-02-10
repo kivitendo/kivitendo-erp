@@ -3,6 +3,7 @@ use strict;
 use lib 't';
 
 use Support::Templates;
+use Support::TestSetup;
 
 use File::Spec;
 use File::Slurp;
@@ -12,15 +13,7 @@ use Test::More tests => ( scalar(@referenced_files));
 
 my $template_path = 'templates/webpages/';
 
-my $provider = Template::Provider->new({
-  INTERPOLATE  => 0,
-  EVAL_PERL    => 0,
-  ABSOLUTE     => 1,
-  CACHE_SIZE   => 0,
-  PLUGIN_BASE  => 'SL::Template::Plugin',
-  INCLUDE_PATH => '.:' . $template_path,
-  COMPILE_DIR  => 'users/templates-cache-for-tests',
-});
+my $provider = Template::Provider->new(Support::TestSetup::template_config());
 
 foreach my $ref (@Support::Templates::referenced_files) {
   my $file              = "${template_path}${ref}.html";

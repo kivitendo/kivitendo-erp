@@ -1,6 +1,6 @@
 use strict;
 use Test::Exception;
-use Test::More;
+use Test::More tests => 11;
 
 use lib 't';
 use Support::TestSetup;
@@ -8,12 +8,6 @@ use Support::TestSetup;
 use SL::Presenter;
 
 Support::TestSetup::login();
-
-if (!Support::TestSetup::templates_cache_writable()) {
-  plan skip_all => 'Cache dir not writable for this test';
-} else {
-  plan tests => 11;
-}
 
 my $pr = SL::Presenter->get;
 

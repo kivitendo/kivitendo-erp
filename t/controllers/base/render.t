@@ -1,6 +1,6 @@
 use strict;
 use Test::Exception;
-use Test::More;
+use Test::More tests => 19;
 use Test::Output;
 
 use lib 't';
@@ -13,12 +13,6 @@ use SL::Layout::Javascript;
 no warnings 'uninitialized';
 
 Support::TestSetup::login();
-
-if (!Support::TestSetup::templates_cache_writable()) {
-  plan skip_all => 'Cache dir not writable for this test';
-} else {
-  plan tests => 19;
-}
 
 sub reset_test_env {
   $ENV{HTTP_USER_AGENT} = 'Perl Tests';
