@@ -19,6 +19,7 @@ my $provider = Template::Provider->new({
   CACHE_SIZE   => 0,
   PLUGIN_BASE  => 'SL::Template::Plugin',
   INCLUDE_PATH => '.:' . $template_path,
+  COMPILE_DIR  => 'users/templates-cache-for-tests',
 });
 
 foreach my $ref (@Support::Templates::referenced_files) {
