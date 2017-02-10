@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 14;
 
 use lib 't';
 
@@ -54,31 +54,49 @@ ok( $$content5 eq 'inhalt3 new version'                 ,"file has right actual 
 $content5 = $file6[1]->get_content;
 ok( $$content5 eq 'inhalt3 created'                     ,"file has right old content");
 
-print "\n\nController:\n";
+#print "\n\nController Test:\n";
 # now test controller
 #$::form->{object_id}  = 1;
 #$::form->{object_type}= 'sales_order';
 #$::form->{file_type}  = 'document';
+
+my $output;
+open(my $outputFH, '>', \$output) or die; # This shouldn't fail
+my $oldFH = select $outputFH;
+
 $::form->{id}  = $file1->id;
-print "id=".$::form->{id}."\n";
 use SL::Controller::File;
 SL::Controller::File->action_download();
+
+select $oldFH;
+close $outputFH;
+my @lines = split "\n" , $output;
+ok($lines[4] eq 'inhalt1 uploaded'                 ,"controller download has correct content");
+
+#some controller checks
 $::form->{object_id}   = 12345678;
 $::form->{object_type} = undef;
+my $result='xx1';
 eval {
   SL::Controller::File->check_object_params();
+  $result='yy1';
   1;
 } or do {
-    print $@;
+  $result=$@;
 };
-$::form->{object_type} ='xx';
-$::form->{file_type} ='yy';
+ok($result eq "No object type at SL/Controller/File.pm line 327.\n","correct error 'No object type'");
+
+$::form->{object_type} ='sales_order';
+$::form->{file_type} ='';
+$result='xx2';
 eval {
   SL::Controller::File->check_object_params();
+  $result='yy2';
   1;
 } or do {
-    print $@;
+  $result=$@;
 };
+ok($result eq "No file type at SL/Controller/File.pm line 328.\n","correct error 'No file type'");
 
 clear_up();
 done_testing;
