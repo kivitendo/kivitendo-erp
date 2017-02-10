@@ -123,11 +123,11 @@ sub delete_all {
 sub delete {
   my ($self, %params) = @_;
   die "no id or dbfile" unless $params{id} || $params{dbfile};
-  my $rc = SL::DB->client->with_transaction(\&_delete, $self, %params);
-  if (!$rc) {
-    my $err = SL::DB->client->error;
-    die $err?(ref $err?$$err:$err):"unknown err";
-  }
+  my $rc = 0;
+  eval {
+    $rc = SL::DB->client->with_transaction(\&_delete, $self, %params);
+    1;
+  } or do { die $@ };
   return $rc;
 }
 
@@ -149,7 +149,7 @@ sub _delete {
 
     if ($hist) {
       if (!$main::auth->assert('import_ar | import_ap', 1)) {
-        die \'no permission to unimport';
+        die 'no permission to unimport';
       }
       my $file = $backend->get_filepath(dbfile => $params{dbfile});
       $main::lxdebug->message(LXDebug->DEBUG2(), "del file=" . $file . " to=" . $hist->snumbers);
@@ -179,11 +179,11 @@ sub _delete {
 sub save {
   my ($self, %params) = @_;
 
-  my $obj = SL::DB->client->with_transaction(\&_save, $self, %params);
-  if (!$obj) {
-    my $err = SL::DB->client->error;
-    die (ref $err?$$err:$err);
-  }
+  my $obj;
+  eval {
+    $obj = SL::DB->client->with_transaction(\&_save, $self, %params);
+    1;
+  } or do { die $@ };
   return $obj;
 }
 
@@ -194,11 +194,11 @@ sub _save {
 
   if ($params{id}) {
     $file = SL::DB::File->new(id => $params{id})->load;
-    die \'dbfile not exists'     unless $file;
+    die 'dbfile not exists'     unless $file;
   } elsif (!$file) {
   $main::lxdebug->message(LXDebug->DEBUG2(), "obj_id=" .$params{object_id});
-    die \'no object type set'    unless $params{object_type};
-    die \'no object id set'      unless defined($params{object_id});
+    die 'no object type set'    unless $params{object_type};
+    die 'no object id set'      unless defined($params{object_id});
 
     $exists = $self->get_all_count(%params);
     die 'filename still exist' if $exists && $params{fail_if_exists};
@@ -322,10 +322,10 @@ sub _get_backend {
   eval {
     eval "require $class";
     $obj = $class->new;
-    die \'backend not enabled' unless $obj->enabled;
+    die 'backend not enabled' unless $obj->enabled;
     1;
   } or do {
-    die \'backend class not found';
+    die 'backend class not found';
   };
   return $obj;
 }
