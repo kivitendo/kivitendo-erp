@@ -61,7 +61,7 @@ SL::DB->client->with_transaction(sub {
   ok 0, 'part saved';
   1;
 }) or do {
-  like(SL::DB->client->error, qr/duplicate key value violates unique constraint/, 'error is in db->error');
+  like(SL::DB->client->error, qr/unique.constraint/i, 'error is in db->error');
 };
 
 # test stacked transactions
@@ -127,7 +127,7 @@ SL::DB->client->with_transaction(sub {
   1;
 }) or do {
   ok 1, 'sql error in nested transaction rolls back';
-  like(SL::DB->client->error, qr/duplicate key value violates unique constraint/, 'error from nested transaction is in db->error');
+  like(SL::DB->client->error, qr/unique.constraint/i, 'error from nested transaction is in db->error');
 };
 
 $part->load;
@@ -242,4 +242,3 @@ eval {
 
 $part->load;
 is $part->sellprice, "3.00000", 'saved part is not affected';
-
