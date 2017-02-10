@@ -384,13 +384,13 @@ namespace('kivi.Part', function(ns) {
         success: function (data) {
           if (data.length == 1) {
             self.set_item(data[0]);
-            if (callbacks && callbacks.match_one) callbacks.match_one(data[0]);
+            if (callbacks && callbacks.match_one) self.run_action(callbacks.match_one, [ data[0] ]);
           } else if (data.length > 1) {
             self.state = self.STATES.UNDEFINED;
-            if (callbacks && callbacks.match_many) callbacks.match_many(data);
+            if (callbacks && callbacks.match_many) self.run_action(callbacks.match_many, [ data ]);
           } else {
             self.state = self.STATES.UNDEFINED;
-            if (callbacks && callbacks.match_none) callbacks.match_none();
+            if (callbacks && callbacks.match_none) self.run_action(callbacks.match_none);
           }
           self.annotate_state();
         }
@@ -480,6 +480,12 @@ namespace('kivi.Part', function(ns) {
       var popup_button = $('<span>').addClass('ppp_popup_button');
       this.$dummy.after(popup_button);
       popup_button.click(function() { self.open_dialog() });
+    },
+    run_action: function(code, args) {
+      if (typeof code === 'function')
+        code.apply(this, args)
+      else
+        kivi.run(code, args);
     }
   };
   ns.Picker.prototype.STATES = {
