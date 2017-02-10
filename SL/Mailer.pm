@@ -50,7 +50,7 @@ my %mail_delivery_modules = (
 sub new {
   my ($type, %params) = @_;
   my $self = { %params };
-  $parser = new MIME::Parser;
+  $parser = MIME::Parser->new;
   $parser->output_under("users");
 
   bless $self, $type;
