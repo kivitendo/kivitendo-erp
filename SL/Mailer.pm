@@ -36,7 +36,6 @@ use SL::DB::Employee;
 use SL::Template;
 
 use strict;
-use Encode;
 
 my $num_sent = 0;
 
@@ -118,7 +117,7 @@ sub _create_address_headers {
         $addr_obj->phrase($phrase);
       }
 
-      push @header_addresses, encode('MIME-Header',$addr_obj->format);
+      push @header_addresses, $addr_obj->format;
     }
 
     push @{ $self->{headers} }, ( ucfirst($item) => join(', ', @header_addresses) ) if @header_addresses;
@@ -233,7 +232,7 @@ sub send {
   $self->{charset}       =  'UTF-8';
   $self->{contenttype} ||=  "text/plain";
   $self->{headers}       =  [
-    Subject              => encode('MIME-Header',$self->{subject}),
+    Subject              => $self->{subject},
     'Message-ID'         => '<' . $self->_create_message_id . '>',
     'X-Mailer'           => "kivitendo $self->{version}",
   ];
