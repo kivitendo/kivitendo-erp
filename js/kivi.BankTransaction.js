@@ -44,7 +44,7 @@ namespace('kivi.BankTransaction', function(ns) {
   ns.create_invoice = function(bank_transaction_id) {
     kivi.popup_dialog({
       url:    'controller.pl?action=BankTransaction/create_invoice',
-      data:   '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bankaccount').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
+      data:   '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bank_account').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
       type:   'POST',
       id:     'create_invoice_window',
       dialog: { title: kivi.t8('Create invoice') }
@@ -129,5 +129,15 @@ namespace('kivi.BankTransaction', function(ns) {
     });
 
     $dlg.dialog('close');
+  };
+
+  ns.filter_templates = function() {
+    var url="controller.pl?action=BankTransaction/filter_templates&" + $("#create_invoice_window form").serialize();
+    $.ajax({
+      url: url,
+      success: function(new_data) {
+        $("#templates").html(new_data.error || new_data.html);
+      }
+    });
   };
 });

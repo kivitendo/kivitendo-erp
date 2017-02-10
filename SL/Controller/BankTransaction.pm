@@ -21,8 +21,8 @@ use SL::JSON;
 use SL::DB::Chart;
 use SL::DB::AccTransaction;
 use SL::DB::Tax;
-use SL::DB::Draft;
 use SL::DB::BankAccount;
+use SL::DB::RecordTemplate;
 use SL::DB::SepaExportItem;
 use SL::DBUtils qw(like);
 use SL::Presenter;
@@ -32,6 +32,7 @@ use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
 (
+  scalar                  => [ qw(callback transaction) ],
   'scalar --get_set_init' => [ qw(models problems) ],
 );
 
@@ -284,41 +285,33 @@ sub action_create_invoice {
   my ($self) = @_;
   my %myconfig = %main::myconfig;
 
-  $self->{transaction} = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
-  my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
+  $self->transaction(SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id}));
 
-  my $use_vendor_filter = $self->{transaction}->{remote_account_number} && $vendor_of_transaction;
+  my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->transaction->{remote_account_number});
+  my $use_vendor_filter     = $self->transaction->{remote_account_number} && $vendor_of_transaction;
 
-  my $drafts = SL::DB::Manager::Draft->get_all(where => [ module => 'ap'] , with_objects => 'employee');
+  my $templates             = SL::DB::Manager::RecordTemplate->get_all(
+    where        => [ template_type => 'ap_transaction' ],
+    with_objects => [ qw(employee vendor) ],
+  );
 
-  my @filtered_drafts;
+  #Filter templates
+  $templates = [ grep { $_->vendor_id == $vendor_of_transaction->id } @{ $templates } ] if $use_vendor_filter;
 
-  foreach my $draft ( @{ $drafts } ) {
-    my $draft_as_object = YAML::Load($draft->form);
-    my $vendor = SL::DB::Manager::Vendor->find_by(id => $draft_as_object->{vendor_id});
-    $draft->{vendor} = $vendor->name;
-    $draft->{vendor_id} = $vendor->id;
-    push @filtered_drafts, $draft;
-  }
-
-  #Filter drafts
-  @filtered_drafts = grep { $_->{vendor_id} == $vendor_of_transaction->id } @filtered_drafts if $use_vendor_filter;
-
-  my $all_vendors = SL::DB::Manager::Vendor->get_all();
-  my $callback    = $self->url_for(action                => 'list',
-                                   'filter.bank_account' => $::form->{filter}->{bank_account},
-                                   'filter.todate'       => $::form->{filter}->{todate},
-                                   'filter.fromdate'     => $::form->{filter}->{fromdate});
+  $self->callback($self->url_for(
+    action                => 'list',
+    'filter.bank_account' => $::form->{filter}->{bank_account},
+    'filter.todate'       => $::form->{filter}->{todate},
+    'filter.fromdate'     => $::form->{filter}->{fromdate},
+  ));
 
   $self->render(
     'bank_transactions/create_invoice',
     { layout => 0 },
     title       => t8('Create invoice'),
-    DRAFTS      => \@filtered_drafts,
+    TEMPLATES   => $templates,
     vendor_id   => $use_vendor_filter ? $vendor_of_transaction->id   : undef,
     vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
-    ALL_VENDORS => $all_vendors,
-    callback    => $callback,
   );
 }
 
@@ -348,43 +341,37 @@ sub action_ajax_payment_suggestion {
   $self->render(\ SL::JSON::to_json( { 'html' => "$html" } ), { layout => 0, type => 'json', process => 0 });
 };
 
-sub action_filter_drafts {
+sub action_filter_templates {
   my ($self) = @_;
 
   $self->{transaction}      = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
 
-  my $drafts                = SL::DB::Manager::Draft->get_all(with_objects => 'employee');
+  my @filter;
+  push @filter, ('vendor.id'   => $::form->{vendor_id})                       if $::form->{vendor_id};
+  push @filter, ('vendor.name' => { ilike => '%' . $::form->{vendor} . '%' }) if $::form->{vendor};
 
-  my @filtered_drafts;
-
-  foreach my $draft ( @{ $drafts } ) {
-    my $draft_as_object = YAML::Load($draft->form);
-    next unless $draft_as_object->{vendor_id};  # we cannot filter for vendor name, if this is a gl draft
-
-    my $vendor          = SL::DB::Manager::Vendor->find_by(id => $draft_as_object->{vendor_id});
-    $draft->{vendor}    = $vendor->name;
-    $draft->{vendor_id} = $vendor->id;
-
-    push @filtered_drafts, $draft;
-  }
-
-  my $vendor_name = $::form->{vendor};
-  my $vendor_id   = $::form->{vendor_id};
-
-  #Filter drafts
-  @filtered_drafts = grep { $_->{vendor_id} == $vendor_id      } @filtered_drafts if $vendor_id;
-  @filtered_drafts = grep { $_->{vendor}    =~ /$vendor_name/i } @filtered_drafts if $vendor_name;
-
-  my $output  = $self->render(
-    'bank_transactions/filter_drafts',
-    { output => 0 },
-    DRAFTS => \@filtered_drafts,
+  my $templates = SL::DB::Manager::RecordTemplate->get_all(
+    where        => [ template_type => 'ap_transaction', (or => \@filter) x !!@filter ],
+    with_objects => [ qw(employee vendor) ],
   );
 
-  my %result = ( count => 0, html => $output );
+  $::form->{filter} //= {};
 
-  $self->render(\to_json(\%result), { type => 'json', process => 0 });
+  $self->callback($self->url_for(
+    action                => 'list',
+    'filter.bank_account' => $::form->{filter}->{bank_account},
+    'filter.todate'       => $::form->{filter}->{todate},
+    'filter.fromdate'     => $::form->{filter}->{fromdate},
+  ));
+
+  my $output  = $self->render(
+    'bank_transactions/_template_list',
+    { output => 0 },
+    TEMPLATES => $templates,
+  );
+
+  $self->render(\to_json({ html => $output }), { type => 'json', process => 0 });
 }
 
 sub action_ajax_add_list {
@@ -880,6 +867,24 @@ sub init_models {
       local_bank_name       => t8('Bank account'),
     },
     with_objects => [ 'local_bank_account', 'currency' ],
+  );
+}
+
+sub load_ap_record_template_url {
+  my ($self, $template) = @_;
+
+  return $self->url_for(
+    controller                 => 'ap.pl',
+    action                     => 'load_record_template',
+    id                         => $template->id,
+    'form_defaults.amount_1'   => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
+    'form_defaults.transdate'  => $self->transaction->transdate_as_date,
+    'form_defaults.duedate'    => $self->transaction->transdate_as_date,
+    'form_defaults.datepaid_1' => $self->transaction->transdate_as_date,
+    'form_defaults.paid_1'     => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
+    'form_defaults.currency'   => $self->transaction->currency->name,
+    'form_defaults.AP_paid_1'  => $self->transaction->local_bank_account->chart->accno,
+    'form_defaults.callback'   => $self->callback,
   );
 }
 

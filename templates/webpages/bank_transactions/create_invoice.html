@@ -1,4 +1,4 @@
-[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %][%- USE P -%]
+[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%]
 
   <b>Transaction</b>
   <table>
@@ -25,61 +25,27 @@
 
 
 <br>
-[% 'Vendor filter for AP transaction drafts' | $T8 %]:
+[% LxERP.t8('Vendor filter for AP transaction templates') %]:
 
-<form method="post" action="javascript:filter_drafts();">
-[% L.hidden_tag('bt_id', SELF.transaction.id) %]
-  <table>
-   <tr>
-    <th align="right">[%- LxERP.t8("Vendor") %]</th>
-    <td>[% P.input_tag("vendor", vendor_name, class="initial_focus", style="width: 250px") %]</td>
-   </tr>
-  </table>
+<form method="post" action="javascript:kivi.BankTransaction.filter_templates()">
+ [% L.hidden_tag("bt_id",               SELF.transaction.id) %]
+ [% L.hidden_tag("filter.bank_account", FORM.filter.bank_account) %]
+ [% L.hidden_tag("filter.fromdate",     FORM.filter.fromdate) %]
+ [% L.hidden_tag("filter.todate",      FORM.filter.todate) %]
+ <table>
+  <tr>
+   <th align="right">[%- LxERP.t8("Vendor") %]</th>
+   <td>[% P.input_tag("vendor", vendor_name, class="initial_focus", style="width: 250px") %]</td>
+  </tr>
+ </table>
 </form>
 
   <p>
+   [% P.button_tag("kivi.BankTransaction.filter_templates()", LxERP.t8("Filter vendors")) %]
    <a href="#" onclick="$('#create_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </p>
 
   <hr>
-<div id="drafts">
-[% IF DRAFTS.size %]
-[% 'Draft suggestions' | $T8 %]:
-
-
-  <table>
-   <tr>
-    <th class="listheading">[% 'Description' | $T8 %]</th>
-    <th class="listheading">[% 'Vendor' | $T8 %]</th>
-    <th class="listheading">[% 'Employee' | $T8 %]</th>
-    <th class="listheading">[% 'Draft from:' | $T8 %]</th>
-   </tr>
-
-   [% FOREACH draft = DRAFTS %]
-    <tr class="listrow[% loop.count % 2 %]">
-     <td><a href="controller.pl?action=Draft/load&id=[% HTML.url(draft.id) %]&form.amount_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&form.transdate=[% HTML.url(SELF.transaction.transdate_as_date) %]&form.duedate=[% HTML.url(SELF.transaction.transdate_as_date) %]&form.datepaid_1=[% HTML.url(SELF.transaction.transdate_as_date) %]&form.paid_1=[% LxERP.format_amount(-1 * SELF.transaction.amount, 2) %]&form.currency=[% HTML.url(SELF.transaction.currency.name) %]&form.AP_paid_1=[% HTML.url(SELF.transaction.local_bank_account.chart.accno) %]&form.callback=[% HTML.url(callback) %]">[% HTML.escape(draft.description) %]</a></td>
-     <td>[% HTML.escape(draft.vendor) %]</td>
-     <td>[% HTML.escape(draft.employee.name) %]</td>
-     <td>[% HTML.escape(draft.itime_as_date) %]</td>
-    </tr>
-   [% END %]
-  </table>
-[% ELSE %]
-  <p class="message_hint">[% 'No draft was found.' | $T8 %]</p>
-[% END %]
+<div id="templates">
+ [% PROCESS "bank_transactions/_template_list.html" %]
 </div>
-
-<script type="text/javascript">
-<!--
-
-function filter_drafts() {
-  var url="controller.pl?action=BankTransaction/filter_drafts&" + $("#create_invoice_window form").serialize();
-  $.ajax({
-    url: url,
-    success: function(new_data) {
-      $("#drafts").html(new_data['html']);
-    }
-  });
-}
-//-->
-</script>

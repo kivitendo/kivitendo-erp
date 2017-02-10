@@ -12,9 +12,9 @@
 <p>
 [% IF FORM.filter.fromdate %] [% 'From' | $T8 %] [% FORM.filter.fromdate %] [% END %]
 [% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate %][% END %]
-[% L.hidden_tag("filter_bankaccount", FORM.filter.bankaccount) %]
-[% L.hidden_tag("filter_fromdate", FORM.filter.fromdate) %]
-[% L.hidden_tag("filter_todate", FORM.filter.todate) %]
+[% L.hidden_tag("filter.bank_account", FORM.filter.bank_account) %]
+[% L.hidden_tag("filter.fromdate",     FORM.filter.fromdate) %]
+[% L.hidden_tag("filter.todate",       FORM.filter.todate) %]
 </p>
 
 <div id="bt_tabs" class="tabwidget">
