@@ -258,7 +258,6 @@ namespace('kivi.Part', function(ns) {
     $("#makemodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
-
   ns.reload_bin_selection = function() {
     $.post("controller.pl", { action: 'Part/warehouse_changed', warehouse_id: function(){ return $('#part_warehouse_id').val() } },   kivi.eval_json_result);
   }
@@ -504,9 +503,7 @@ namespace('kivi.Part', function(ns) {
       var self = this;
       kivi.popup_dialog({
         url: 'controller.pl?action=Part/part_picker_search',
-        data: $.extend({
-          real_id: self.pp.real_id,
-        }, self.pp.ajax_data(this.pp.$dummy.val())),
+        data: self.pp.ajax_data(this.pp.$dummy.val()),
         id: 'part_selection',
         dialog: {
           title: kivi.t8('Part picker'),
@@ -529,7 +526,6 @@ namespace('kivi.Part', function(ns) {
       $.ajax({
         url: 'controller.pl?action=Part/part_picker_result',
         data: $.extend({
-         'real_id':    self.pp.$real.val(),
           no_paginate: $('#no_paginate').prop('checked') ? 1 : 0,
         }, self.pp.ajax_data(function(){
           var val = $('#part_picker_filter').val();
