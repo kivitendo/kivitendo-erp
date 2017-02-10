@@ -22,7 +22,7 @@
       <td>
         [% L.hidden_tag("add_items[+].parts_id", item.id) %]
         [% L.input_tag("add_items[].qty_as_number", '', size = 5,
-                       class = 'multi_items_qty numeric', onclick = 'set_qty_to_one(this)') %]
+                       class = 'multi_items_qty numeric') %]
       </td>
       <td>[% HTML.escape(item.unit) %]</td>
       <td>[% P.part(item) %]</td>
@@ -31,16 +31,3 @@
     </tr>
   [%- END %]
 </table>
-
-<script type='text/javascript'>
-  function set_qty_to_one(clicked) {
-    if ($(clicked).val() == '') {
-      $(clicked).val('[%- LxERP.format_amount(1.00, -2) %]');
-    }
-    $(clicked).select();
-  }
-
-  $('#multi_items_all_qty').change(function(event){
-    $('.multi_items_qty').val($(event.target).val());
-  });
-</script>

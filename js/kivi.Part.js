@@ -177,6 +177,25 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.set_multi_assembly_items = function(data) {
+    data.push({ name: 'part.id',        value: $('#part_id').val() });
+    data.push({ name: 'part.part_type', value: $('#part_part_type').val() });
+    $.post("controller.pl?action=Part/add_multi_assembly_items", data, kivi.eval_json_result);
+  }
+
+  ns.set_multi_assortment_items = function(data) {
+    data.push({ name: 'part.id', value: $('#part_id').val() });
+    data.push({ name: 'part.part_type', value: $('#part_part_type').val() });
+    $.post("controller.pl?action=Part/add_multi_assortment_items", data, kivi.eval_json_result);
+  }
+
+  ns.close_picker_dialogs = function() {
+    $('.part_autocomplete').each(function(_, e) {
+      var picker = $(e).data('part_picker');
+      if (picker) picker.close_dialog();
+    });
+  }
+
   ns.redisplay_items = function(data) {
     var old_rows;
     var part_type = $("#part_part_type").val();
@@ -204,32 +223,6 @@ namespace('kivi.Part', function(ns) {
   ns.focus_last_assembly_input = function () {
     $("#assembly_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
-
-  ns.show_multi_items_dialog = function(part_type,part_id) {
-
-    $('#row_table_id thead a img').remove();
-
-    kivi.popup_dialog({
-      url: 'controller.pl?action=Part/show_multi_items_dialog',
-      data: { callback:         'Part/add_multi_' + part_type + '_items',
-              callback_data_id: 'ic',
-              'part.part_type': part_type,
-              'part.id'       : part_id,
-            },
-      id: 'jq_multi_items_dialog',
-      dialog: {
-        title: kivi.t8('Add multiple items'),
-        width:  800,
-        height: 800
-      }
-    });
-    return true;
-  };
-
-  ns.close_multi_items_dialog = function() {
-    $('#jq_multi_items_dialog').dialog('close');
-  };
-
 
   // makemodel
   ns.makemodel_renumber_positions = function() {
@@ -296,6 +289,7 @@ namespace('kivi.Part', function(ns) {
     this.state              = this.STATES.PICKED;
     this.last_dummy         = this.$dummy.val();
     this.timer              = undefined;
+    this.dialog             = undefined;
 
     this.init();
   };
@@ -353,6 +347,9 @@ namespace('kivi.Part', function(ns) {
         this.$real.trigger('set_item:PartPicker', item);
       }
       this.annotate_state();
+    },
+    set_multi_items: function(data) {
+      this.run_action(this.o.action.set_multi_items, [ data ]);
     },
     make_defined_state: function() {
       if (this.state == this.STATES.PICKED) {
@@ -438,7 +435,15 @@ namespace('kivi.Part', function(ns) {
       }
     },
     open_dialog: function() {
-      new ns.PickerPopup(this);
+      if (this.o.multiple) {
+        this.dialog = new ns.PickerMultiPopup(this);
+      } else {
+        this.dialog = new ns.PickerPopup(this);
+      }
+    },
+    close_dialog: function() {
+      this.dialog.close_dialog();
+      this.dialog = undefined;
     },
     init: function() {
       var self = this;
@@ -549,14 +554,14 @@ namespace('kivi.Part', function(ns) {
             partnumber:  $(this).children('input.part_picker_partnumber').val(),
             description: $(this).children('input.part_picker_description').val(),
           });
-          self.close_popup();
+          self.close_dialog();
           self.pp.$dummy.focus();
           return true;
         });
       });
       $('#part_selection').keydown(function(e){
          if (e.which == KEY.ESCAPE) {
-           self.close_popup();
+           self.close_dialog();
            self.pp.$dummy.focus();
          }
       });
@@ -580,8 +585,117 @@ namespace('kivi.Part', function(ns) {
         this.timer = window.setTimeout(function() { self.update_results() }, 100);
       }
     },
-    close_popup: function() {
+    close_dialog: function() {
       $('#part_selection').dialog('close');
+    }
+  };
+
+  ns.PickerMultiPopup = function(pp) {
+    this.pp       = pp;
+    this.callback = 'Part/add_multi_' + this.pp.o.part_type + '_items';
+    this.open_dialog();
+  };
+
+  ns.PickerMultiPopup.prototype = {
+    open_dialog: function() {
+      var self = this;
+      $('#row_table_id thead a img').remove();
+
+      kivi.popup_dialog({
+        url: 'controller.pl?action=Part/show_multi_items_dialog',
+        data: $.extend({
+          real_id: self.pp.real_id,
+        }, self.pp.ajax_data(this.pp.$dummy.val())),
+        id: 'jq_multi_items_dialog',
+        dialog: {
+          title: kivi.t8('Add multiple items'),
+          width:  800,
+          height: 800
+        },
+        load: function() {
+          self.init_search();
+        }
+      });
+      return true;
+    },
+    init_search: function() {
+      var self = this;
+      $('#multi_items_filter_table input, #multi_items_filter_table select').keydown(function(event) {
+        if(event.which == KEY.ENTER) {
+          event.preventDefault();
+          self.update_results();
+          return false;
+        }
+      });
+
+      $('#multi_items_filter_all_substr_multi_ilike').focus();
+      $('#multi_items_filter_button').click(function(){ self.update_results() });
+      $('#multi_items_filter_reset').click(function(){ $("#multi_items_form").resetForm() });
+      $('#continue_button').click(function(){ self.add_multi_items() });
+    },
+    update_results: function() {
+      var self = this;
+      var data = $('#multi_items_form').serializeArray();
+      data.push({ name: 'type', value: self.pp.type });
+      $.ajax({
+        url: 'controller.pl?action=Part/multi_items_update_result',
+        data: data,
+        method: 'post',
+        success: function(data){
+          $('#multi_items_result').html(data);
+          self.init_results();
+          self.enable_continue();
+        }
+      });
+    },
+    set_qty_to_one: function(clicked) {
+      if ($(clicked).val() === '') {
+        $(clicked).val(kivi.format_amount(1.00, -2));
+      }
+      $(clicked).select();
+    },
+    init_results: function() {
+      var self = this;
+      $('#multi_items_all_qty').change(function(event){
+        $('.multi_items_qty').val($(event.target).val());
+      });
+      $('.multi_items_qty').click(function(){ self.set_qty_to_one(this) });
+    },
+    result_timer: function(event) {
+    },
+    close_dialog: function() {
+      $('#jq_multi_items_dialog').dialog('close');
+    },
+    disable_continue: function() {
+      $('#multi_items_result input').off("keydown");
+      $('#continue_button').prop('disabled', true);
+    },
+    enable_continue: function() {
+      var self = this;
+      $('#multi_items_result input').keydown(function(event) {
+        if(event.keyCode == KEY.ENTER) {
+          event.preventDefault();
+          self.add_multi_items();
+          return false;
+        }
+      });
+      $('#continue_button').prop('disabled', false);
+    },
+    add_multi_items: function() {
+      // rows at all
+      var n_rows = $('.multi_items_qty').length;
+      if ( n_rows === 0) { return; }
+
+      // filled rows
+      n_rows = $('.multi_items_qty').filter(function() {
+        return $(this).val().length > 0;
+      }).length;
+      if (n_rows === 0) { return; }
+
+      this.disable_continue();
+
+      var data = $('#multi_items_form').serializeArray();
+      this.pp.set_multi_items(data);
     }
   };
 
@@ -597,35 +711,8 @@ namespace('kivi.Part', function(ns) {
   }
 
   $(function(){
-
-    // assortment
-    // TODO: allow units for assortment items
-    $('#add_assortment_item_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
-
     $('#ic').on('focusout', '.reformat_number', function(event) {
        ns.reformat_number(event);
-    })
-
-    $('.add_assortment_item_input').keydown(function(event) {
-      if(event.keyCode == 13) {
-        event.preventDefault();
-        if ($("input[name='add_items[+].parts_id']").val() !== '' ) {
-          kivi.Part.show_multi_items_dialog("assortment");
-         // ns.add_assortment_item();
-        }
-        return false;
-      }
-    });
-
-    $('.add_assembly_item_input').keydown(function(event) {
-      if(event.keyCode == 13) {
-        event.preventDefault();
-        if ($("input[name='add_items[+].parts_id']").val() !== '' ) {
-          kivi.Part.show_multi_items_dialog("assortment");
-          // ns.add_assembly_item();
-        }
-        return false;
-      }
     });
 
     $('.add_makemodel_input').keydown(function(event) {
