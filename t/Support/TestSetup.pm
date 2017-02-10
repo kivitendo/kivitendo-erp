@@ -29,7 +29,7 @@ sub login {
   $::lxdebug       = LXDebug->new(target => LXDebug::STDERR_TARGET);
   $::lxdebug->disable_sub_tracing;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
-  $::form          = Form->new;
+  $::form          = Support::TestSetup->create_new_form;
   $::auth          = SL::Auth->new(unit_tests_database => 1);
   die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
 
@@ -48,13 +48,14 @@ sub login {
 
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
-  Support::TestSetup::create_form_template_provider();
 
   return 1;
 }
 
-sub create_form_template_provider {
-  $::form->template(Template->new(template_config())) || die;
+sub create_new_form {
+  my $form = Form->new('');
+  $form->template(Template->new(template_config())) || die;
+  return $form;
 }
 
 sub template_config {

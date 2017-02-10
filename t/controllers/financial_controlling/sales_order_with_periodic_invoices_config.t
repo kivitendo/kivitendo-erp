@@ -101,7 +101,7 @@ sub create_sales_order {
 
   ok($order->save(cascade => 1));
 
-  $::form = Form->new('');
+  $::form = Support::TestSetup->create_new_form;
   $ctrl   = SL::Controller::FinancialControllingReport->new;
 
   $ctrl->orders($ctrl->models->get);

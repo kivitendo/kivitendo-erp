@@ -105,7 +105,7 @@ sub create_sales_order {
 
   ok($order->save(cascade => 1));
 
-  $::form         = Form->new('');
+  $::form         = Support::TestSetup->create_new_form;
   $::form->{year} = 2014;
   $ctrl           = SL::Controller::FinancialOverview->new;
 

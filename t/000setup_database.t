@@ -14,6 +14,7 @@ use SL::InstanceConfiguration;
 use SL::LXDebug;
 use SL::Layout::None;
 use SL::LxOfficeConf;
+use Support::TestSetup;
 
 our ($db_cfg, $dbh);
 
@@ -51,7 +52,7 @@ sub setup {
   $::lxdebug       = LXDebug->new(target => LXDebug::STDERR_TARGET);
   $::lxdebug->disable_sub_tracing;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
-  $::form          = Form->new;
+  $::form          = Support::TestSetup->create_new_form;
   $::auth          = SL::Auth->new(unit_tests_database => 1);
   $::locale        = Locale->new('de');
   $::instance_conf = SL::InstanceConfiguration->new;
