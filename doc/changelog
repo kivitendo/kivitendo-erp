@@ -151,6 +151,9 @@ Administrative Änderungen
     beschleunigt. Dafür wird die benötigte Minimalversion von Postgres auf 9.1
     angehoben.
 
+  - Entwickler benötigen neu die zwei Perl-Module "Sys::CPU" und
+    "Thread::Pool::Simple".
+
 Bugfixes:
 
   - Pflichtenheftmodul: Es wurde eine Fehlermeldung angezeigt, wenn im

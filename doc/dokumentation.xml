@@ -6555,7 +6555,7 @@ Beschreibung: &lt;%description%&gt;
           direkt in der Datenbanktablle "user_preferences" einzurichten. Die "value" ist im JSON-Format
           mit den jeweiligen Werten des Verzeichnisses und der Beschreibung der Quelle.</para>
           <programlisting>
- id |  login    |  namespace   | version |   key    |          value                         
+ id |  login    |  namespace   | version |   key    |          value
 ----+-----------+--------------+---------+----------+---------------------------
   1 | #default# | file_sources | 0.00000 | scanner1 |
                              {"dir":"/var/tmp/scanner1","desc":"Scanner Einkauf"}
@@ -7837,6 +7837,16 @@ $self-&gt;{more_texts} = {
             <literal>liburi-find-perl</literal>; Fedora:
             <literal>perl-URI-Find</literal>; openSUSE:
             <literal>perl-URI-Find</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Sys::CPU</literal> (Debian-Panetname: <literal>libsys-cpu-perl</literal>; Fedora und openSUSE: nicht
+            vorhanden)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Thread::Pool::Simple</literal> (Debian-Panetname: <literal>libthread-pool-simple-perl</literal>; Fedora und
+            openSUSE: nicht vorhanden)</para>
           </listitem>
         </itemizedlist>
 
