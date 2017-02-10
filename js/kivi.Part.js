@@ -493,6 +493,9 @@ namespace('kivi.Part', function(ns) {
         code.apply(this, args)
       else
         kivi.run(code, args);
+    },
+    clear: function() {
+      this.set_item({});
     }
   };
   ns.Picker.prototype.STATES = {
