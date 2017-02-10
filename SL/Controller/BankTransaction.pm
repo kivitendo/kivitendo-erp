@@ -659,7 +659,7 @@ sub save_single_bank_transaction {
                               source       => $source,
                               memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
-      } elsif ( $invoice->is_sales && $invoice->type eq 'credit_note' ) {
+      } elsif ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
         # no check for overpayment/multiple payments
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
