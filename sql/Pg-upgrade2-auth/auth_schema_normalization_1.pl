@@ -1,7 +1,7 @@
 # @tag: auth_schema_normalization_1
 # @description: Auth-Datenbankschema Normalisierungen Teil 1
 # @depends:
-package SL::DBUpgrade2::auth_schema_normalization_1;
+package SL::DBUpgrade2::Auth::auth_schema_normalization_1;
 
 use strict;
 use utf8;

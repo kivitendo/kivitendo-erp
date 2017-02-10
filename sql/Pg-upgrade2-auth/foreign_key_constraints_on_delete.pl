@@ -2,7 +2,7 @@
 # @description: Ändert "FOREIGN KEY" constraints auf "ON DELETE CASCADE"
 # @depends: clients
 # @ignore: 0
-package SL::DBUpgrade2::foreign_key_constraints_on_delete;
+package SL::DBUpgrade2::Auth::foreign_key_constraints_on_delete;
 
 use Data::Dumper;
 

@@ -1,7 +1,7 @@
 # @tag: bank_transaction_rights
 # @description: Setzt das neue Recht die Bankerweiterung zu nutzen (für Gruppen die auch Recht Kontenabgleich haben)
 # @depends: release_3_2_0
-package SL::DBUpgrade2::bank_transaction_rights;
+package SL::DBUpgrade2::Auth::bank_transaction_rights;
 
 use strict;
 use utf8;

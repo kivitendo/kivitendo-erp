@@ -4,7 +4,7 @@
 # @locales: E-Mail-Journal
 # @locales: Read all employee e-mails
 
-package SL::DBUpgrade2::mail_journal_rights;
+package SL::DBUpgrade2::Auth::mail_journal_rights;
 
 use strict;
 use utf8;

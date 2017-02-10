@@ -3,7 +3,7 @@
 # @depends: release_3_2_0 sales_letter_rights
 # @locales: Edit purchase letters
 # @locales: Show purchase letters report
-package SL::DBUpgrade2::purchase_letter_rights;
+package SL::DBUpgrade2::Auth::purchase_letter_rights;
 
 use strict;
 use utf8;

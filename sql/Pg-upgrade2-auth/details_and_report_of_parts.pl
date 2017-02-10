@@ -1,7 +1,7 @@
 # @tag: details_and_report_of_parts
 # @description: Setzt das Recht zur Anzeige von Details und Berichten von Waren, Dienstleistungen und Erzeugnissen
 # @depends: release_3_2_0 add_master_rights
-package SL::DBUpgrade2::details_and_report_of_parts;
+package SL::DBUpgrade2::Auth::details_and_report_of_parts;
 
 use strict;
 use utf8;

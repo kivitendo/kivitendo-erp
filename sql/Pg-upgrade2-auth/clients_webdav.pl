@@ -2,7 +2,7 @@
 # @description: WebDAV-Migration für Mandanten
 # @depends: clients
 # @ignore: 0
-package SL::DBUpgrade2::clients_webdav;
+package SL::DBUpgrade2::Auth::clients_webdav;
 
 use strict;
 use utf8;

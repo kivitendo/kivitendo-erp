@@ -7,7 +7,7 @@
 # @locales: AP Transactions
 
 
-package SL::DBUpgrade2::split_transaction_rights;
+package SL::DBUpgrade2::Auth::split_transaction_rights;
 
 use strict;
 use utf8;
@@ -37,4 +37,3 @@ sub run {
 } # end run
 
 1;
-

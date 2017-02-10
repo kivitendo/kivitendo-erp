@@ -1,7 +1,7 @@
 # @tag: record_links_rights
 # @description: Setzt das Recht um den Tab verknüpfte Belege zu sehen, per Default erlaubt (wie vorher auch)
 # @depends: release_3_4_0 master_rights_position_gaps
-package SL::DBUpgrade2::record_links_rights;
+package SL::DBUpgrade2::Auth::record_links_rights;
 
 use strict;
 use utf8;

@@ -30,9 +30,10 @@ sub execute_script {
     die $EVAL_ERROR;
   }
 
+  my $auth    =  $file_name =~ m{/Pg-upgrade2-auth/} ? 'Auth::' : '';
   my $package =  delete $params{tag};
   $package    =~ s/[^a-zA-Z0-9_]+/_/g;
-  $package    =  "SL::DBUpgrade2::${package}";
+  $package    =  "SL::DBUpgrade2::${auth}${package}";
 
   $package->new(%params)->run;
 }

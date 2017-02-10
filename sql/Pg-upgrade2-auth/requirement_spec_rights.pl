@@ -1,7 +1,7 @@
 # @tag: requirement_spec_rights
 # @description: Neues Gruppenrecht für Pflichtenhefte
 # @depends: release_3_2_0 add_master_rights
-package SL::DBUpgrade2::requirement_spec_rights;
+package SL::DBUpgrade2::Auth::requirement_spec_rights;
 
 use strict;
 use utf8;
