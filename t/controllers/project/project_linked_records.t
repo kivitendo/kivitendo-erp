@@ -164,7 +164,7 @@ $ap_transaction2->add_ap_amount_row(
     tax_id     => $tax_9->id,
     project_id => $project->id,
 );
-my $ap_chart = SL::DB::Manager::Chart->find_by( accno => '1600' ); # Verbindlichkeiten
+$ap_chart = SL::DB::Manager::Chart->find_by( accno => '1600' ); # Verbindlichkeiten
 $ap_transaction2->create_ap_row(chart => $ap_chart);
 $ap_transaction2->save;
 
