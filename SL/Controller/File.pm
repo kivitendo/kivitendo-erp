@@ -604,7 +604,7 @@ SL::Controller::File - Controller for managing files
 
 =head1 DESCRIPTION
 
-This is a controller for handling files in a storage independant way.
+This is a controller for handling files in a storage independent way.
 The storage may be a Filesystem,a WebDAV, a Database or DMS.
 These backends must be configered in ClientConfig.
 This Controller use as intermediate layer for storage C<SL::File>.
@@ -619,7 +619,7 @@ More description of the intermediate layer see L<SL::File>.
 =head2 C<action_list>
 
 This loads a list of files on a webpage. This can be done with a normal submit or via an ajax/json call.
-Dependant of file_type different sources are available.
+Dependent of file_type different sources are available.
 
 For documents there are the 'created' source and the imports from scanners or email.
 For attachments and images only the 'uploaded' source available.
@@ -744,7 +744,7 @@ The ids of the files to delete. Only this files are deleted not all versions of 
 
 =head2 C<action_ajax_unimport>
 
-Some files can be unimported, dependant of the source of the file. This means they are moved
+Some files can be unimported, dependent of the source of the file. This means they are moved
 back to the directory of the source
 
 Available C<FORM PARAMS>:
@@ -767,4 +767,3 @@ One file can be renamed. There can be some checks if the same filename still exi
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut
-

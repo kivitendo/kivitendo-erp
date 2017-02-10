@@ -104,7 +104,7 @@ all version of the file are deleted.
 
 =item C<rename PARAMS>
 
-The Filename of the file is changed. If the backend is not dependant from the filename
+The Filename of the file is changed. If the backend is not dependent from the filename
 nothing must happens. The rename must work on all versions of the file.
 
 Available C<PARAMS>:
@@ -199,5 +199,3 @@ L<SL::File>, L<SL::File::Object>
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut
-
-

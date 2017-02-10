@@ -356,7 +356,7 @@ SL::File - The intermediate Layer for handling files
 =head1 SYNOPSIS
 
   # In a controller or helper ( see SL::Controller::File or SL::Helper::File )
-  # you can create, remove, delete etc. a file in a backend independant way
+  # you can create, remove, delete etc. a file in a backend independent way
 
   my $file  = SL::File->save(
                      object_id     => $self->object_id,
@@ -384,7 +384,7 @@ SL::File - The intermediate Layer for handling files
 
 =head1 OVERVIEW
 
-The Filemanagemt can handle files in a storage independant way. Internal the File
+The Filemanagemt can handle files in a storage independent way. Internal the File
 use the configured storage backend for the type of file.
 These backends must be configured in L<SL::Controller::ClientConfig> or an extra database table.
 
@@ -704,4 +704,3 @@ The synchronization is done file_type by file_type.
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 =cut
-

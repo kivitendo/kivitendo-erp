@@ -20,7 +20,7 @@ sub action_download_orderitems_files {
   # in kivitendo.conf some regex may be defined:
   # For no values just let it commented out
   # PA = Produktionsauftrag, L = Lieferschein, ML = Materialliste
-  # If you want several options, please seperate the letter with '|'. Example: '^(PA|L).*'
+  # If you want several options, please separate the letter with '|'. Example: '^(PA|L).*'
   #set_sales_documenttype_for_delivered_quantity = '^(LS).*'
   #set_purchase_documenttype_for_delivered_quantity = '^(EL).*'
   #
