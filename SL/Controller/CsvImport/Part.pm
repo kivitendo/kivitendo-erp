@@ -622,7 +622,7 @@ sub handle_pricegroups {
   foreach my $pricegroup (@{ $self->all_pricegroups }) {
     $idx++;
     my $sellprice = $entry->{raw_data}->{"pricegroup_${idx}"};
-    next if $sellprice eq '';
+    next if ($sellprice // '') eq '';
 
     push @prices, SL::DB::Price->new(pricegroup_id => $pricegroup->id,
                                      price         => $::form->parse_amount(\%::myconfig, $sellprice));
