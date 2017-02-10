@@ -500,22 +500,19 @@ sub action_ajax_autocomplete {
 
   # if someone types something, and hits enter, assume he entered the full name.
   # if something matches, treat that as sole match
-  # unfortunately get_models can't do more than one per package atm, so we d it
-  # the oldfashioned way.
+  # since we need a second get models instance with different filters for that,
+  # we only modify the original filter temporarily in place
   if ($::form->{prefer_exact}) {
+    local $::form->{filter}{'all::ilike'} = delete local $::form->{filter}{'all:substr:multi::ilike'};
+
+    my $exact_models = SL::Controller::Helper::GetModels->new(
+      controller   => $self,
+      sorted       => 0,
+      paginated    => { per_page => 2 },
+      with_objects => [ qw(unit_obj classification) ],
+    );
     my $exact_matches;
-    if (1 == scalar @{ $exact_matches = SL::DB::Manager::Part->get_all(
-      query => [
-        obsolete => 0,
-        SL::DB::Manager::Part->type_filter($::form->{filter}{part_type}),
-        SL::DB::Manager::PartClassification->classification_filter($::form->{filter}{classification_id}),
-        or => [
-          description => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
-          partnumber  => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
-        ]
-      ],
-      limit => 2,
-    ) }) {
+    if (1 == scalar @{ $exact_matches = $exact_models->get }) {
       $self->parts($exact_matches);
     }
   }
