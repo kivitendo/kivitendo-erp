@@ -2,6 +2,8 @@ use strict;
 use Test::More tests => 11;
 
 use lib 't';
+
+use File::Temp;
 use Support::TestSetup;
 use Test::Exception;
 use SL::File;
@@ -9,11 +11,16 @@ use SL::Dev::File;
 
 Support::TestSetup::login();
 
+my $temp_dir    = File::Temp::tempdir("kivi-t-file-filesystem.XXXXXX", TMPDIR => 1, CLEANUP => 1);
+my $storage_dir = "$temp_dir/storage";
+
+mkdir($storage_dir) || die $!;
+
 my $db = SL::DB::Object->new->db;
 $db->dbh->do("UPDATE defaults SET doc_files = 't'");
-$db->dbh->do("UPDATE defaults SET doc_files_rootpath = '/var/tmp/kivifs'");
+$db->dbh->do("UPDATE defaults SET doc_files_rootpath = ?", undef, $storage_dir);
 
-my $scannerfile = '/var/tmp/f2';
+my $scannerfile = "${temp_dir}/f2";
 
 clear_up();
 reset_state();
@@ -77,9 +84,12 @@ clear_up();
 done_testing;
 
 sub clear_up {
-  SL::Dev::File->delete_all();
-  unlink($scannerfile);
-};
+  # Cleaning up may fail.
+  eval {
+    SL::Dev::File->delete_all();
+    unlink($scannerfile);
+  };
+}
 
 sub reset_state {
   my %params = @_;
