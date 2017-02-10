@@ -1,7 +1,10 @@
 use strict;
+use threads;
 use lib 't';
 use Support::Files;
+use Sys::CPU;
 use Test::More;
+use Thread::Pool::Simple;
 
 if (eval { require PPI; 1 }) {
   plan tests => scalar(@Support::Files::testitems);
@@ -11,7 +14,9 @@ if (eval { require PPI; 1 }) {
 
 my @testitems = @Support::Files::testitems;
 
-foreach my $file (@testitems) {
+sub test_file {
+  my ($file) = @_;
+
   my $clean = 1;
   my $source;
   {
@@ -56,3 +61,14 @@ foreach my $file (@testitems) {
 
   ok $clean, $file;
 }
+
+my $pool = Thread::Pool::Simple->new(
+  min    => 2,
+  max    => Sys::CPU::cpu_count() + 1,
+  do     => [ \&test_file ],
+  passid => 0,
+);
+
+$pool->add($_) for @testitems;
+
+$pool->join;
