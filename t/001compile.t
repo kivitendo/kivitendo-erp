@@ -25,10 +25,13 @@
 ###Compilation###
 
 use strict;
+use threads;
 
 use lib 't';
 
 use Support::Files;
+use Sys::CPU;
+use Thread::Pool::Simple;
 
 use Test::More tests => scalar(@Support::Files::testitems);
 
@@ -61,34 +64,54 @@ my $perlapp = "\"$^X\"";
 
 # Test the scripts by compiling them
 
-foreach my $file (@testitems) {
-    $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
-    next if !$file;    # skip null entries
+my @to_compile;
 
-    open (FILE,$file);
-    my $bang = <FILE>;
-    close (FILE);
-    my $T = "";
-    $T = "T" if $bang =~ m/#!\S*perl\s+-.*T/;
+sub test_compile_file {
+  my ($file, $T) = @{ $_[0] };
 
-    if (-l $file) {
-        ok(1, "$file is a symlink");
+
+  my $command = "$perlapp -w -c$T -Imodules/fallback -Imodules/override -It -MSupport::CanonialGlobals $file 2>&1";
+  my $loginfo=`$command`;
+
+  if ($loginfo =~ /syntax ok$/im) {
+    if ($loginfo ne "$file syntax OK\n") {
+      ok(0,$file." --WARNING");
+      print $fh $loginfo;
     } else {
-        my $command = "$perlapp -w -c$T -Imodules/fallback -Imodules/override -It -MSupport::CanonialGlobals $file 2>&1";
-        my $loginfo=`$command`;
-
-        if ($loginfo =~ /syntax ok$/im) {
-            if ($loginfo ne "$file syntax OK\n") {
-                ok(0,$file." --WARNING");
-                print $fh $loginfo;
-            } else {
-                ok(1,$file);
-            }
-        } else {
-            ok(0,$file." --ERROR");
-            print $fh $loginfo;
-        }
+      ok(1,$file);
     }
+  } else {
+    ok(0,$file." --ERROR");
+    print $fh $loginfo;
+  }
 }
+
+foreach my $file (@testitems) {
+  $file =~ s/\s.*$//;           # nuke everything after the first space (#comment)
+  next if !$file;               # skip null entries
+
+  open (FILE,$file);
+  my $bang = <FILE>;
+  close (FILE);
+  my $T = "";
+  $T = "T" if $bang =~ m/#!\S*perl\s+-.*T/;
+
+  if (-l $file) {
+    ok(1, "$file is a symlink");
+  } else {
+    push @to_compile, [ $file, $T ];
+  }
+}
+
+my $pool = Thread::Pool::Simple->new(
+  min    => 2,
+  max    => Sys::CPU::cpu_count() + 1,
+  do     => [ \&test_compile_file ],
+  passid => 0,
+);
+
+$pool->add($_) for @to_compile;
+
+$pool->join;
 
 exit 0;
