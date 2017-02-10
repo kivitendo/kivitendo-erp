@@ -24,8 +24,7 @@
 package Mailer;
 
 use Email::Address;
-use MIME::Entity;
-use MIME::Parser;
+use Email::MIME::Creator;
 use File::MimeInfo::Magic;
 use File::Slurp;
 use List::UtilsBy qw(bundle_by);
@@ -40,7 +39,6 @@ use strict;
 use Encode;
 
 my $num_sent = 0;
-my $parser;
 
 my %mail_delivery_modules = (
   sendmail => 'SL::Mailer::Sendmail',
@@ -50,8 +48,6 @@ my %mail_delivery_modules = (
 sub new {
   my ($type, %params) = @_;
   my $self = { %params };
-  $parser = MIME::Parser->new;
-  $parser->output_under("users");
 
   bless $self, $type;
 }
@@ -133,8 +129,8 @@ sub _create_attachment_part {
   my ($self, $attachment) = @_;
 
   my %attributes = (
-    Disposition  => 'attachment',
-    Encoding     => 'base64',
+    disposition  => 'attachment',
+    encoding     => 'base64',
   );
 
   my $attachment_content;
@@ -144,47 +140,48 @@ sub _create_attachment_part {
   $::lxdebug->message(LXDebug->DEBUG2(), "mail5 att=" . $attachment . " email_journal=" . $email_journal . " id=" . $attachment->{id});
 
   if (ref($attachment) eq "HASH") {
-    $attributes{Path}     = $attachment->{path} || $attachment->{filename};
-    $attributes{Filename} = $attachment->{name};
-    $file_id              = $attachment->{id}   || '0';
-    $attributes{Type}     = $attachment->{type} || 'application/pdf';
-    $attachment_content   = eval { read_file($attachment->{path}) } if $email_journal > 1;
+    $attributes{Path}         = $attachment->{path} || $attachment->{filename};
+    $attributes{filename}     = $attachment->{name};
+    $file_id                  = $attachment->{id}   || '0';
+    $attributes{content_type} = $attachment->{type} || 'application/pdf';
+    $attachment_content       = $attachment->{content};
+    $attachment_content       = eval { read_file($attachment->{path}) } if !$attachment_content;
 
   } else {
     # strip path
     $attributes{Path}     =  $attachment;
-    $attributes{Filename} =  $attachment;
-    $attributes{Filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
-    $attributes{Filename} =~ s:.*/::g;
+    $attributes{filename} =  $attachment;
+    $attributes{filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
+    $attributes{filename} =~ s:.*/::g;
 
-    my $application     = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? 'text' : 'application';
-    $attributes{Type}   = File::MimeInfo::Magic::magic($attachment);
-    $attributes{Type} ||= "${application}/$self->{format}" if $self->{format};
-    $attributes{Type} ||= 'application/octet-stream';
-    $attachment_content = eval { read_file($attachment) } if $email_journal > 1;
+    my $application             = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? 'text' : 'application';
+    $attributes{content_type}   = File::MimeInfo::Magic::magic($attachment);
+    $attributes{content_type} ||= "${application}/$self->{format}" if $self->{format};
+    $attributes{content_type} ||= 'application/octet-stream';
+    $attachment_content         = eval { read_file($attachment) };
   }
 
   return undef if $email_journal > 1 && !defined $attachment_content;
 
   $attachment_content ||= ' ';
-  $attributes{Charset}  = $self->{charset} if $self->{charset};
+  $attributes{charset}  = $self->{charset} if $self->{charset};
 
   $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{Type} . " path=" . $attributes{Path} . " filename=" . $attributes{Filename});
 
   my $ent;
-  if ( $attributes{Type} eq 'message/rfc822' ) {
-    my $fh = IO::File->new($attributes{Path}, "r") or return undef;
-    $ent   = $parser->parse($fh);
-
-    $ent->head->replace('Content-disposition','attachment; filename='.$attributes{Filename});
-
+  if ( $attributes{content_type} eq 'message/rfc822' ) {
+    $ent = Email::MIME->new($attachment_content);
+    $ent->header_str_set('Content-disposition' => 'attachment; filename='.$attributes{filename});
   } else {
-    $ent = MIME::Entity->build(%attributes);
+    $ent = Email::MIME->create(
+      attributes => \%attributes,
+      body       => $attachment_content,
+    );
   }
 
   push @{ $self->{mail_attachments}} , SL::DB::EmailJournalAttachment->new(
-    name      => $attributes{Filename},
-    mime_type => $attributes{Type},
+    name      => $attributes{filename},
+    mime_type => $attributes{content_type},
     content   => ( $email_journal > 1 ? $attachment_content : ' '),
     file_id   => $file_id,
   );
@@ -195,22 +192,31 @@ sub _create_attachment_part {
 sub _create_message {
   my ($self) = @_;
 
+  my @parts;
+
   push @{ $self->{headers} }, (Type => "multipart/mixed");
 
-  my $top = MIME::Entity->build(@{$self->{headers}});
-
   if ($self->{message}) {
-    $top->attach(
-      Data     => encode($self->{charset},$self->{message}),
-      Charset  => $self->{charset},
-      Type     => $self->{contenttype},
-      Encoding => 'quoted-printable',
+    push @parts, Email::MIME->create(
+      attributes => {
+        content_type => $self->{contenttype},
+        charset      => $self->{charset},
+        encoding     => 'quoted-printable',
+      },
+      body_str => $self->{message},
+    );
+
+    push @{ $self->{headers} }, (
+      'Content-Type' => qq|$self->{contenttype}; charset="$self->{charset}"|,
     );
   }
 
-  $top->add_part($self->_create_attachment_part($_)) for @{ $self->{attachments} || [] };
+  push @parts, grep { $_ } map { $self->_create_attachment_part($_) } @{ $self->{attachments} || [] };
 
-  return $top;
+  return Email::MIME->create(
+      header_str => $self->{headers},
+      parts      => \@parts,
+  );
 }
 
 sub send {
@@ -257,7 +263,6 @@ sub send {
   $error = $@ if !$ok;
 
   $self->{journalentry} = $self->_store_in_journal;
-  $parser->filer->purge;
 
   return $ok ? '' : "send email: $error";
 }

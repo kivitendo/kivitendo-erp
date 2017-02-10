@@ -1102,7 +1102,7 @@ sub parse_template {
 
   if ( !$self->{preview} && $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage) {
     $self->{attachment_filename} ||= $self->generate_attachment_filename;
-    $self->{print_file_id} = $self->store_pdf($self);
+    $self->{print_file_id} = $self->store_pdf($self)->id;
   }
   if ($self->{media} eq 'email') {
     if ( getcwd() eq $self->{"tmpdir"} ) {
@@ -1212,10 +1212,11 @@ sub send_email {
       }
     }
     foreach my $attfile ( @attfiles ) {
-      push @{ $mail->{attachments} }, { path => $attfile->get_file,
-                                        id   => $attfile->id,
-                                        type => $attfile->mime_type,
-                                        name => $attfile->file_name };
+      push @{ $mail->{attachments} }, { path    => $attfile->get_file,
+                                        id      => $attfile->id,
+                                        type    => $attfile->mime_type,
+                                        name    => $attfile->file_name,
+                                        content => $attfile->get_content };
     }
   }
   $mail->{message}  =~ s/\r//g;
