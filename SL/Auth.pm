@@ -55,10 +55,10 @@ sub init {
 sub reset {
   my ($self, %params) = @_;
 
-  $self->{SESSION}            = { };
-  $self->{FULL_RIGHTS}        = { };
-  $self->{RIGHTS}             = { };
-  $self->{unique_counter}     = 0;
+  $self->{SESSION}        = { };
+  $self->{FULL_RIGHTS}    = { };
+  $self->{RIGHTS}         = { };
+  $self->{unique_counter} = 0;
 
   if ($self->is_db_connected) {
     # reset is called during request shutdown already. In case of a
