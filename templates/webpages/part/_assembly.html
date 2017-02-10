@@ -41,17 +41,18 @@
  <td></td>
  <td></td>
  <td align="right">[% 'Part' | $T8 %]:</td>
- <td>[% L.part_picker('add_items[+].parts_id'   , ''  , style='width: 300px' , class="add_assembly_item_input") %][% L.hidden_tag('add_items[].qty_as_number', 1) %]</td>
+ <td>[% L.part_picker('add_items[+].parts_id', '', style='width: 300px', multiple=1, id='assembly_picker', action={set_multi_items='kivi.Part.set_multi_assembly_items', on_enter_match_one='kivi.Part.add_assembly_item'}) %]</td>
  <td>[%- L.button_tag("kivi.Part.add_assembly_item()", LxERP.t8("Add")) %]</td>
- <td>[% L.button_tag('kivi.Part.show_multi_items_dialog("assembly",' _ SELF.part.id _ ')', LxERP.t8('Add multiple items')) %]</td>
+ <td>[% L.button_tag('$("#assembly_picker").data("part_picker").open_dialog()', LxERP.t8('Add multiple items')) %]</td>
+ <td>[% L.hidden_tag('add_items[].qty_as_number', 1) %]</td>
  [% ELSE %]
  <td></td>
  <td></td>
  <td></td>
  <td></td>
  <td></td>
- [% END %]
  <td></td>
+ [% END %]
  <td align="right">[% 'Totals' | $T8 %]:</td>
  <td></td>
  <td id="items_sellprice_sum" class="numeric">[%- LxERP.format_amount(items_sellprice_sum, 2, 0) %]</td>

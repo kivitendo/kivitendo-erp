@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::Part;
+use SL::DB::PartsGroup;
 use SL::Controller::Helper::GetModels;
 use SL::Locale::String qw(t8);
 use SL::JSON;
@@ -260,7 +261,7 @@ sub action_add_multi_assortment_items {
   my $item_objects = $self->parse_add_items_to_objects(part_type => 'assortment');
   my $html         = $self->render_assortment_items_to_html($item_objects);
 
-  $self->js->run('kivi.Part.close_multi_items_dialog')
+  $self->js->run('kivi.Part.close_picker_dialogs')
            ->append('#assortment_rows', $html)
            ->run('kivi.Part.renumber_positions')
            ->run('kivi.Part.assortment_recalc')
@@ -280,7 +281,7 @@ sub action_add_multi_assembly_items {
 
   my $html = $self->render_assembly_items_to_html(\@checked_objects);
 
-  $self->js->run('kivi.Part.close_multi_items_dialog')
+  $self->js->run('kivi.Part.close_picker_dialogs')
            ->append('#assembly_rows', $html)
            ->run('kivi.Part.renumber_positions')
            ->run('kivi.Part.assembly_recalc')
@@ -370,11 +371,9 @@ sub action_add_assembly_item {
 }
 
 sub action_show_multi_items_dialog {
-  require SL::DB::PartsGroup;
   $_[0]->render('part/_multi_items_dialog', { layout => 0 },
-                part_type => 'assortment',
-                partfilter => '', # can I get at the current input of the partpicker here?
-                all_partsgroups => SL::DB::Manager::PartsGroup->get_all);
+    all_partsgroups => SL::DB::Manager::PartsGroup->get_all
+  );
 }
 
 sub action_multi_items_update_result {
@@ -542,11 +541,11 @@ sub action_test_page {
 }
 
 sub action_part_picker_search {
-  $_[0]->render('part/part_picker_search', { layout => 0 }, parts => $_[0]->parts);
+  $_[0]->render('part/part_picker_search', { layout => 0 });
 }
 
 sub action_part_picker_result {
-  $_[0]->render('part/_part_picker_result', { layout => 0 });
+  $_[0]->render('part/_part_picker_result', { layout => 0 }, parts => $_[0]->parts);
 }
 
 sub action_show {
