@@ -7,6 +7,7 @@ use Data::Dumper;
 use English qw(-no_match_vars);
 use Rose::DB;
 use Rose::DBx::Cache::Anywhere;
+use Scalar::Util qw(blessed);
 
 use base qw(Rose::DB);
 
@@ -138,7 +139,7 @@ sub with_transaction {
       : $self->do_transaction(sub { $result = $code->(@args) });
   } or do {
     my $error = $self->error;
-    if (ref $error) {
+    if (blessed $error) {
       if ($error->isa('SL::X::DBError')) {
         # gobble the exception
       } else {
