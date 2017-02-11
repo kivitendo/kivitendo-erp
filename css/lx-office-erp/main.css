@@ -509,8 +509,9 @@ span.toggle_selected {
   font-weight: bold;
 }
 a.green {
-       background-color:#40FF00;
-       border:none;
+      background-color: DarkGreen;
+      color: white !important;
+      border:none;
 }
 a.orange {
        background-color:#FF8000;

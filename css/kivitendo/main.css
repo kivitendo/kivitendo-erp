@@ -99,7 +99,8 @@ a.nomobile {
   border:none;
 }
 a.green {
-  background-color:#40FF00;
+  background-color: DarkGreen;
+  color: white !important;
   border:none;
 }
 a.orange {
