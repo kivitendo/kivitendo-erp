@@ -84,7 +84,9 @@ eval {
 } or do {
   $result=$@;
 };
-ok($result eq "No object type at SL/Controller/File.pm line 327.\n","correct error 'No object type'");
+$result = substr($result,0,14);
+print $result."\n";
+ok($result eq "No object type","correct error 'No object type'");
 
 $::form->{object_type} ='sales_order';
 $::form->{file_type} ='';
@@ -96,7 +98,9 @@ eval {
 } or do {
   $result=$@;
 };
-ok($result eq "No file type at SL/Controller/File.pm line 328.\n","correct error 'No file type'");
+$result = substr($result,0,12);
+print $result."\n";
+ok($result eq "No file type","correct error 'No file type'");
 
 clear_up();
 done_testing;
