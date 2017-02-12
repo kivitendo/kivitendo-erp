@@ -374,6 +374,12 @@ sub generate_datev_data {
   my $form     =  $main::form;
 
   my $trans_id_filter = '';
+  my ($ar_department_id_filter, $ap_department_id_filter, $gl_department_id_filter);
+  if ( $form->{department_id} ) {
+    $ar_department_id_filter = " AND ar.department_id = ? ";
+    $ap_department_id_filter = " AND ap.department_id = ? ";
+    $gl_department_id_filter = " AND gl.department_id = ? ";
+  }
 
   if ( $self->{trans_id} ) {
     # ignore dates when trans_id is passed so that the entire transaction is
@@ -400,6 +406,7 @@ sub generate_datev_data {
          t.rate AS taxrate, t.taxdescription,
          'ar' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
+         ar.department_id,
          ar.notes
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
@@ -410,6 +417,7 @@ sub generate_datev_data {
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $ar_department_id_filter
          $filter
 
        UNION ALL
@@ -422,6 +430,7 @@ sub generate_datev_data {
          t.rate AS taxrate, t.taxdescription,
          'ap' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
+         ap.department_id,
          ap.notes
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
@@ -432,6 +441,7 @@ sub generate_datev_data {
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $ap_department_id_filter
          $filter
 
        UNION ALL
@@ -444,6 +454,7 @@ sub generate_datev_data {
          t.rate AS taxrate, t.taxdescription,
          'gl' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
+         gl.department_id,
          gl.notes
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
@@ -453,11 +464,17 @@ sub generate_datev_data {
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $gl_department_id_filter
          $filter
 
        ORDER BY trans_id, acc_trans_id|;
 
-  my $sth = prepare_execute_query($form, $self->dbh, $query);
+  my @query_args;
+  if ( $form->{department_id} ) {
+    push(@query_args, ($form->{department_id}) x 3);
+  }
+
+  my $sth = prepare_execute_query($form, $self->dbh, $query, @query_args);
   $self->{DATEV} = [];
 
   my $counter = 0;

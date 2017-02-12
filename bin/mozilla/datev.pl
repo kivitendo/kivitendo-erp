@@ -32,6 +32,7 @@ use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 use SL::Common;
 use SL::DATEV qw(:CONSTANTS);
 use SL::Locale::String qw(t8);
+use SL::DB::Department;
 
 use strict;
 
@@ -76,6 +77,7 @@ sub export_bewegungsdaten {
   setup_datev_export2_action_bar();
 
   $::form->header;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   print $::form->parse_html_template('datev/export_bewegungsdaten');
 
   $::lxdebug->leave_sub;

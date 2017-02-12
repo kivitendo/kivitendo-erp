@@ -54,6 +54,22 @@
       </table>
     </td>
   </tr>
+  [% IF ALL_DEPARTMENTS.as_list.size %]
+  <tr>
+    <th align=left>[% 'Department' | $T8 %]</th>
+  </tr>
+  <tr>
+    <td>
+       <table>
+        <tr>
+          <td align=left>[% 'Department' | $T8 %]</td>
+          <td align=left></td>
+          <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1) %]</td>
+        </tr>
+       </table>
+    </td>
+  </tr>
+  [% END %]
   <tr>
     <td><hr size=3 noshade></td>
   </tr>
