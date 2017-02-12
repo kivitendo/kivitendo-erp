@@ -417,7 +417,7 @@ sub do_datev_csv_export {
 
   my $datev = SL::DATEV->new(from => $self->from, to => $self->to);
 
-  $datev->_get_transactions(from_to => $datev->fromto);
+  $datev->generate_datev_data(from_to => $datev->fromto);
 
   if ($datev->errors) {
     die [ $datev->errors ];
