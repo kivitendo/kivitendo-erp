@@ -511,6 +511,9 @@ sub save_invoices {
       $count += scalar( @{$invoice_ids} );
     }
   }
+  foreach (@{ $self->problems }) {
+    $count-- if $_->{result} eq 'error';
+  }
   return $count;
 }
 
