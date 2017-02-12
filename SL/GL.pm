@@ -197,17 +197,14 @@ sub _post_transaction {
 
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_gl_transaction) {
-    my $transdate = $::form->{transdate} ? DateTime->from_lxoffice($::form->{transdate}) : undef;
-    $transdate  ||= DateTime->today;
 
+    # create datev object
     my $datev = SL::DATEV->new(
-      exporttype => DATEV_ET_BUCHUNGEN,
-      format     => DATEV_FORMAT_KNE,
       dbh        => $dbh,
       trans_id   => $form->{id},
     );
 
-    $datev->export;
+    $datev->generate_datev_data;
 
     if ($datev->errors) {
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;

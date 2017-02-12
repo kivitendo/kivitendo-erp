@@ -294,14 +294,11 @@ sub pay_invoice {
     if ( $datev_check ) {
 
       my $datev = SL::DATEV->new(
-        exporttype => DATEV_ET_BUCHUNGEN,
-        format     => DATEV_FORMAT_KNE,
         dbh        => $db->dbh,
         trans_id   => $self->{id},
       );
 
-      $datev->clean_temporary_directories;
-      $datev->export;
+      $datev->generate_datev_data;
 
       if ($datev->errors) {
         # this exception should be caught by with_transaction, which handles the rollback

@@ -195,13 +195,12 @@ sub _save_and_pay_and_check {
 
   if ($datev_check) {
     my $datev = SL::DATEV->new(
-      exporttype => DATEV_ET_BUCHUNGEN,
-      format     => DATEV_FORMAT_KNE,
       dbh        => $invoice->db->dbh,
       trans_id   => $invoice->id,
     );
 
-    $datev->export;
+    $datev->generate_datev_data;
+
     if ($datev->errors) {
       $invoice->db->dbh->rollback;
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;

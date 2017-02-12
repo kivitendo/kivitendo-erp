@@ -817,19 +817,13 @@ SQL
 
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_purchase_invoice) {
-    # if we need department for kostenstelle in DATEV check
-    $form->{department} = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
-    my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
-    $transdate  ||= DateTime->today;
 
     my $datev = SL::DATEV->new(
-      exporttype => DATEV_ET_BUCHUNGEN,
-      format     => DATEV_FORMAT_KNE,
       dbh        => $dbh,
       trans_id   => $form->{id},
     );
 
-    $datev->export;
+    $datev->generate_datev_data;
 
     if ($datev->errors) {
       die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
