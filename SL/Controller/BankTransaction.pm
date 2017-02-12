@@ -730,7 +730,8 @@ sub save_single_bank_transaction {
       };
     };
 
-    die if $error;
+    # Rollback Fehler nicht weiterreichen
+    # die if $error;
   });
 
   return grep { $_ } ($error, @warnings);
