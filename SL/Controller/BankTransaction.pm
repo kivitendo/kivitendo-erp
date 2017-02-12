@@ -599,7 +599,7 @@ sub save_single_bank_transaction {
 
     if (   $payment_sent
         && any {    ( $_->is_sales && ($_->amount > 0))
-                 || (!$_->is_sales && ($_->amount < 0))
+                 || (!$_->is_sales && ($_->amount < 0) && ($_->invoice_type eq 'purchase_invoice'))
                } @{ $data{invoices} }) {
       return {
         %data,
@@ -662,7 +662,8 @@ sub save_single_bank_transaction {
                               source       => $source,
                               memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
-      } elsif ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
+      } elsif (( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) ||
+               (!$invoice->is_sales && $invoice->invoice_type eq 'ap_transaction' )) {
         # no check for overpayment/multiple payments
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
