@@ -56,10 +56,11 @@ use Time::HiRes qw(gettimeofday);
 
     DATEV_FORMAT_KNE   => $i++,
     DATEV_FORMAT_OBE   => $i++,
+    DATEV_FORMAT_CSV   => $i++,
   };
 }
 
-my @export_constants = qw(DATEV_ET_BUCHUNGEN DATEV_ET_STAMM DATEV_ET_CSV DATEV_FORMAT_KNE DATEV_FORMAT_OBE);
+my @export_constants = qw(DATEV_ET_BUCHUNGEN DATEV_ET_STAMM DATEV_ET_CSV DATEV_FORMAT_KNE DATEV_FORMAT_OBE DATEV_FORMAT_CSV);
 our @EXPORT_OK = (@export_constants);
 our %EXPORT_TAGS = (CONSTANTS => [ @export_constants ]);
 
@@ -311,7 +312,9 @@ sub export {
 
   die 'no format set!' unless $self->has_format;
 
-  if ($self->format == DATEV_FORMAT_KNE) {
+   if ($self->format == DATEV_FORMAT_CSV) {
+    $result = $self->csv_export;
+  } elsif ($self->format == DATEV_FORMAT_KNE) {
     $result = $self->kne_export;
   } elsif ($self->format == DATEV_FORMAT_OBE) {
     $result = $self->obe_export;
@@ -339,6 +342,10 @@ sub kne_export {
   }
 
   return $result;
+}
+
+sub csv_export {
+  die 'not yet implemented';
 }
 
 sub obe_export {
