@@ -364,7 +364,7 @@ sub _sign {
   $_[0] <=> 0;
 }
 
-sub _get_transactions {
+sub generate_datev_data {
   $main::lxdebug->enter_sub();
 
   my ($self, %params)   = @_;
@@ -821,6 +821,114 @@ sub make_ev_header {
   return $ev_header;
 }
 
+sub generate_datev_lines {
+  my ($self) = @_;
+
+  my @datev_lines = ();
+
+  foreach my $transaction ( @{ $self->{DATEV} } ) {
+
+    # each $transaction entry contains data from several acc_trans entries
+    # belonging to the same trans_id
+
+    my %datev_data = (); # data for one transaction
+    my $trans_lines = scalar(@{$transaction});
+
+    my $umsatz         = 0;
+    my $gegenkonto     = "";
+    my $konto          = "";
+    my $belegfeld1     = "";
+    my $datum          = "";
+    my $waehrung       = "";
+    my $buchungstext   = "";
+    my $belegfeld2     = "";
+    my $datevautomatik = 0;
+    my $taxkey         = 0;
+    my $charttax       = 0;
+    my $ustid          ="";
+    my ($haben, $soll);
+    for (my $i = 0; $i < $trans_lines; $i++) {
+      if ($trans_lines == 2) {
+        if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
+          $umsatz = $transaction->[$i]->{'amount'};
+        }
+      } else {
+        if (abs($transaction->[$i]->{'umsatz'}) > abs($umsatz)) {
+          $umsatz = $transaction->[$i]->{'umsatz'};
+        }
+      }
+      if ($transaction->[$i]->{'datevautomatik'}) {
+        $datevautomatik = 1;
+      }
+      if ($transaction->[$i]->{'taxkey'}) {
+        $taxkey = $transaction->[$i]->{'taxkey'};
+      }
+      if ($transaction->[$i]->{'charttax'}) {
+        $charttax = $transaction->[$i]->{'charttax'};
+      }
+      if ($transaction->[$i]->{'amount'} > 0) {
+        $haben = $i;
+      } else {
+        $soll = $i;
+      }
+    }
+
+    if ($trans_lines >= 2) {
+
+      $datev_data{'gegenkonto'} = $transaction->[$haben]->{'accno'};
+      $datev_data{'konto'}      = $transaction->[$soll]->{'accno'};
+      if ($transaction->[$haben]->{'invnumber'} ne "") {
+        $datev_data{belegfeld1} = $transaction->[$haben]->{'invnumber'};
+      }
+      $datev_data{datum} = $transaction->[$haben]->{'transdate'};
+      $datev_data{waehrung} = 'EUR';
+
+      if ($transaction->[$haben]->{'name'} ne "") {
+        $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
+      }
+      if (($transaction->[$haben]->{'ustid'} // '') ne "") {
+        $datev_data{ustid} = $transaction->[$haben]->{'ustid'};
+      }
+      if (($transaction->[$haben]->{'duedate'} // '') ne "") {
+        $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
+      }
+    }
+
+    $datev_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???
+
+    # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
+    # Im Prinzip hat jeder acc_trans Eintrag einen Steuerschlüssel, außer, bei gewissen Fällen
+    # wie: Kreditorenbuchung mit negativen Vorzeichen, SEPA-Export oder Rechnungen die per
+    # Skript angelegt werden.
+    # Also falls ein Steuerschlüssel da ist und NICHT datevautomatik diesen Block hinzufügen.
+    # Oder aber datevautomatik ist WAHR, aber der Steuerschlüssel in der acc_trans weicht
+    # von dem in der Chart ab: Also wahrscheinlich Programmfehler (NULL übergeben, statt
+    # DATEV-Steuerschlüssel) oder der Steuerschlüssel des Kontos weicht WIRKLICH von dem Eintrag in der
+    # acc_trans ab. Gibt es für diesen Fall eine plausiblen Grund?
+    #
+
+    # only set buchungsschluessel if the following conditions are met:
+    if (   ( $datevautomatik || $taxkey)
+        && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
+      # $datev_data{buchungsschluessel} = !$datevautomatik ? $taxkey : "4";
+      $datev_data{buchungsschluessel} = $taxkey;
+    }
+
+    push(@datev_lines, \%datev_data);
+  }
+
+  # example of modifying export data:
+  # foreach my $datev_line ( @datev_lines ) {
+  #   if ( $datev_line{"konto"} eq '1234' ) {
+  #     $datev_line{"konto"} = '9999';
+  #   }
+  # }
+  #
+
+  return \@datev_lines;
+}
+
+
 sub kne_buchungsexport {
   $main::lxdebug->enter_sub();
 
@@ -830,192 +938,92 @@ sub kne_buchungsexport {
 
   my @filenames;
 
-  my $filename    = "ED00000";
+  my $filename    = "ED00001";
   my $evfile      = "EV01";
   my @ed_versionset;
-  my $fileno = 0;
+  my $fileno      = 1;
+  my $ed_filename = $self->export_path . $filename;
 
   my $fromto = $self->fromto;
 
-  $self->_get_transactions(from_to => $fromto);
-
+  $self->generate_datev_data(from_to => $self->fromto); # fetches data from db, transforms data and fills $self->{DATEV}
   return if $self->errors;
 
-  my $counter = 0;
+  my @datev_lines = @{ $self->generate_datev_lines };
 
-  while (scalar(@{ $self->{DATEV} || [] })) {
-    my $umsatzsumme = 0;
-    $filename++;
-    my $ed_filename = $self->export_path . $filename;
-    push(@filenames, $filename);
 
-    # transform $self->{DATEV} into an array of hashrefs containing all the
-    # necessary information for the actual DATEV export, storing it in @kne_lines.
-    my @kne_lines = ();
-    while (scalar(@{ $self->{DATEV} }) > 0) {
-      my %kne_data = ();
-      my $transaction = shift @{ $self->{DATEV} };
-      my $trans_lines = scalar(@{$transaction});
-      $counter++;
+  my $umsatzsumme = sum map { $_->{umsatz} } @datev_lines;
 
-      my $umsatz         = 0;
-      my $gegenkonto     = "";
-      my $konto          = "";
-      my $belegfeld1     = "";
-      my $datum          = "";
-      my $waehrung       = "";
-      my $buchungstext   = "";
-      my $belegfeld2     = "";
-      my $datevautomatik = 0;
-      my $taxkey         = 0;
-      my $charttax       = 0;
-      my $ustid          ="";
-      my ($haben, $soll);
-      for (my $i = 0; $i < $trans_lines; $i++) {
-        if ($trans_lines == 2) {
-          if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
-            $umsatz = $transaction->[$i]->{'amount'};
-          }
-        } else {
-          if (abs($transaction->[$i]->{'umsatz'}) > abs($umsatz)) {
-            $umsatz = $transaction->[$i]->{'umsatz'};
-          }
-        }
-        if ($transaction->[$i]->{'datevautomatik'}) {
-          $datevautomatik = 1;
-        }
-        if ($transaction->[$i]->{'taxkey'}) {
-          $taxkey = $transaction->[$i]->{'taxkey'};
-        }
-        if ($transaction->[$i]->{'charttax'}) {
-          $charttax = $transaction->[$i]->{'charttax'};
-        }
-        if ($transaction->[$i]->{'amount'} > 0) {
-          $haben = $i;
-        } else {
-          $soll = $i;
-        }
+  # prepare kne file, everything gets stored in ED00001
+  my $header = $self->make_kne_data_header($form);
+  my $kne_file = SL::DATEV::KNEFile->new();
+  $kne_file->add_block($header);
+
+  my $iconv   = $::locale->{iconv_utf8};
+  my %umlaute = ($iconv->convert('ä') => 'ae',
+                 $iconv->convert('ö') => 'oe',
+                 $iconv->convert('ü') => 'ue',
+                 $iconv->convert('Ä') => 'Ae',
+                 $iconv->convert('Ö') => 'Oe',
+                 $iconv->convert('Ü') => 'Ue',
+                 $iconv->convert('ß') => 'sz');
+
+  # add the data from @datev_lines to the kne_file, formatting as needed
+  foreach my $kne ( @datev_lines ) {
+    $kne_file->add_block("+" . $kne_file->format_amount(abs($kne->{umsatz}), 0));
+
+    # only add buchungsschluessel if it was previously defined
+    $kne_file->add_block("\x6C" . $kne->{buchungsschluessel}) if defined $kne->{buchungsschluessel};
+
+    # ($kne->{gegenkonto}) = $kne->{gegenkonto} =~ /^(\d+)/;
+    $kne_file->add_block("a" . trim_leading_zeroes($kne->{gegenkonto}));
+
+    if ( $kne->{belegfeld1} ) {
+      my $invnumber = $kne->{belegfeld1};
+      foreach my $umlaut (keys(%umlaute)) {
+        $invnumber =~ s/${umlaut}/${umlaute{$umlaut}}/g;
       }
-
-      if ($trans_lines >= 2) {
-
-        $kne_data{'gegenkonto'} = $transaction->[$haben]->{'accno'};
-        $kne_data{'konto'}      = $transaction->[$soll]->{'accno'};
-        if ($transaction->[$haben]->{'invnumber'} ne "") {
-          $kne_data{belegfeld1} = $transaction->[$haben]->{'invnumber'};
-        }
-        $kne_data{datum} = $transaction->[$haben]->{'transdate'};
-        $kne_data{waehrung} = 'EUR';
-
-        if ($transaction->[$haben]->{'name'} ne "") {
-          $kne_data{buchungstext} = $transaction->[$haben]->{'name'};
-        }
-        if (($transaction->[$haben]->{'ustid'} // '') ne "") {
-          $kne_data{ustid} = $transaction->[$haben]->{'ustid'};
-        }
-        if (($transaction->[$haben]->{'duedate'} // '') ne "") {
-          $kne_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
-        }
-      }
-
-      $kne_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???
-      $umsatzsumme += $kne_data{umsatz}; #umsatz; # add the abs amount
-
-      # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
-      # Im Prinzip hat jeder acc_trans Eintrag einen Steuerschlüssel, außer, bei gewissen Fällen
-      # wie: Kreditorenbuchung mit negativen Vorzeichen, SEPA-Export oder Rechnungen die per
-      # Skript angelegt werden.
-      # Also falls ein Steuerschlüssel da ist und NICHT datevautomatik diesen Block hinzufügen.
-      # Oder aber datevautomatik ist WAHR, aber der Steuerschlüssel in der acc_trans weicht
-      # von dem in der Chart ab: Also wahrscheinlich Programmfehler (NULL übergeben, statt
-      # DATEV-Steuerschlüssel) oder der Steuerschlüssel des Kontos weicht WIRKLICH von dem Eintrag in der
-      # acc_trans ab. Gibt es für diesen Fall eine plausiblen Grund?
-      #
-
-      # only set buchungsschluessel if the following conditions are met:
-      if (   ( $datevautomatik || $taxkey)
-          && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
-        # $kne_data{buchungsschluessel} = !$datevautomatik ? $taxkey : "4";
-        $kne_data{buchungsschluessel} = $taxkey;
-      }
-
-      push(@kne_lines, \%kne_data);
+      $invnumber =~ s/[^0-9A-Za-z\$\%\&\*\+\-\/]//g;
+      $invnumber =  substr($invnumber, 0, 12);
+      $invnumber =~ s/\ *$//;
+      $kne_file->add_block("\xBD" . $invnumber . "\x1C");
     }
 
-    # the data in @kne_lines is now ready to be transformed to a kne file, or even to csv
+    $kne_file->add_block("\xBE" . &datetofour($kne->{belegfeld2},1) . "\x1C");
 
-    my $iconv   = $::locale->{iconv_utf8};
-    my %umlaute = ($iconv->convert('ä') => 'ae',
-                   $iconv->convert('ö') => 'oe',
-                   $iconv->convert('ü') => 'ue',
-                   $iconv->convert('Ä') => 'Ae',
-                   $iconv->convert('Ö') => 'Oe',
-                   $iconv->convert('Ü') => 'Ue',
-                   $iconv->convert('ß') => 'sz');
+    $kne_file->add_block("d" . &datetofour($kne->{datum},0));
 
-    my $header = $self->make_kne_data_header($form);
+    # ($kne->{konto}) = $kne->{konto} =~ /^(\d+)/;
+    $kne_file->add_block("e" . trim_leading_zeroes($kne->{konto}));
 
-    my $kne_file = SL::DATEV::KNEFile->new();
-    $kne_file->add_block($header);
-    # add the data from @kne_lines to the kne_file, formatting as needed
-    foreach my $kne (@kne_lines) {
+    my $name = $kne->{buchungstext};
+    foreach my $umlaut (keys(%umlaute)) {
+      $name =~ s/${umlaut}/${umlaute{$umlaut}}/g;
+    }
+    $name =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
+    $name =  substr($name, 0, 30);
+    $name =~ s/\ *$//;
+    $kne_file->add_block("\x1E" . $name . "\x1C");
 
-      $kne_file->add_block("+" . $kne_file->format_amount(abs($kne->{umsatz}), 0));
+    $kne_file->add_block("\xBA" . $kne->{'ustid'}    . "\x1C") if $kne->{'ustid'};
 
-      # only add buchungsschluessel if it was previously defined
-      $kne_file->add_block("\x6C" . $kne->{buchungsschluessel}) if defined $kne->{buchungsschluessel};
+    $kne_file->add_block("\xB3" . $kne->{'waehrung'} . "\x1C" . "\x79");
+  };
 
-      # ($kne->{gegenkonto}) = $kne->{gegenkonto} =~ /^(\d+)/;
-      $kne_file->add_block("a" . trim_leading_zeroes($kne->{gegenkonto}));
+  $umsatzsumme          = $kne_file->format_amount(abs($umsatzsumme), 0);
+  my $mandantenendsumme = "x" . $kne_file->format_amount($umsatzsumme / 100.0, 14) . "\x79\x7a";
 
-      if ( $kne->{belegfeld1} ) {
-        my $invnumber = $kne->{belegfeld1};
-        foreach my $umlaut (keys(%umlaute)) {
-          $invnumber =~ s/${umlaut}/${umlaute{$umlaut}}/g;
-        }
-        $invnumber =~ s/[^0-9A-Za-z\$\%\&\*\+\-\/]//g;
-        $invnumber =  substr($invnumber, 0, 12);
-        $invnumber =~ s/\ *$//;
-        $kne_file->add_block("\xBD" . $invnumber . "\x1C");
-      }
+  $kne_file->add_block($mandantenendsumme);
+  $kne_file->flush();
 
-      $kne_file->add_block("\xBE" . &datetofour($kne->{belegfeld2},1) . "\x1C");
+  open(ED, ">", $ed_filename) or die "can't open outputfile: $!\n";
+  print(ED $kne_file->get_data());
+  close(ED);
 
-      $kne_file->add_block("d" . &datetofour($kne->{datum},0));
-
-      # ($kne->{konto}) = $kne->{konto} =~ /^(\d+)/;
-      $kne_file->add_block("e" . trim_leading_zeroes($kne->{konto}));
-
-      my $name = $kne->{buchungstext};
-      foreach my $umlaut (keys(%umlaute)) {
-        $name =~ s/${umlaut}/${umlaute{$umlaut}}/g;
-      }
-      $name =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
-      $name =  substr($name, 0, 30);
-      $name =~ s/\ *$//;
-      $kne_file->add_block("\x1E" . $name . "\x1C");
-
-      $kne_file->add_block("\xBA" . $kne->{'ustid'}    . "\x1C") if $kne->{'ustid'};
-
-      $kne_file->add_block("\xB3" . $kne->{'waehrung'} . "\x1C" . "\x79");
-    };
-
-    $umsatzsumme          = $kne_file->format_amount(abs($umsatzsumme), 0);
-    my $mandantenendsumme = "x" . $kne_file->format_amount($umsatzsumme / 100.0, 14) . "\x79\x7a";
-
-    $kne_file->add_block($mandantenendsumme);
-    $kne_file->flush();
-
-    open(ED, ">", $ed_filename) or die "can't open outputfile: $!\n";
-    print(ED $kne_file->get_data());
-    close(ED);
-
-    $ed_versionset[$fileno] = $self->make_ed_versionset($header, $filename, $kne_file->get_block_count());
-    $fileno++;
-  }
+  $ed_versionset[$fileno] = $self->make_ed_versionset($header, $filename, $kne_file->get_block_count());
 
   #Make EV Verwaltungsdatei
-  my $ev_header = $self->make_ev_header($form, $fileno);
+  my $ev_header   = $self->make_ev_header($form, $fileno);
   my $ev_filename = $self->export_path . $evfile;
   push(@filenames, $evfile);
   open(EV, ">", $ev_filename) or die "can't open outputfile: EV01\n";
@@ -1330,6 +1338,16 @@ SL::DATEV - kivitendo DATEV Export module
   my $path     = $datev->export_path;
   my @files    = glob("$path/*");
 
+  # Only test the datev data of a specific trans_id, without generating an
+  # export file, but filling $datev->errors if errors exist
+
+  my $datev = SL::DATEV->new(
+    trans_id   => $invoice->trans_id,
+  );
+  $datev->generate_datev_data;
+  # if ($datev->errors) { ...
+
+
 =head1 DESCRIPTION
 
 This module implements the DATEV export standard. For usage see above.
@@ -1341,6 +1359,30 @@ This module implements the DATEV export standard. For usage see above.
 =item new PARAMS
 
 Generic constructor. See section attributes for information about what to pass.
+
+=item generate_datev_data
+
+Fetches all transactions from the database (via a trans_id or a date range),
+and does an initial transformation (e.g. filters out tax, determines
+the brutto amount, checks split transactions ...) and stores this data in
+$self->{DATEV}.
+
+If any errors are found these are collected in $self->errors.
+
+This function is needed for all the exports, but can be also called
+independently in order to check transactions for DATEV compatibility.
+
+=item generate_datev_lines
+
+Parse the data in $self->{DATEV} and transform it into a format that can be
+used by DATEV, e.g. determines Konto and Gegenkonto, the taxkey, ...
+
+The transformed data is returned as an arrayref, which is ready to be converted
+to a DATEV data format, e.g. KNE, OBE, CSV, ...
+
+At this stage the "DATEV rule" has already been applied to the taxkeys, i.e.
+entries with datevautomatik have an empty taxkey, as the taxkey is already
+determined by the chart.
 
 =item get_datev_stamm
 
