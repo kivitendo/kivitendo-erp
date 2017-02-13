@@ -308,10 +308,10 @@ sub edit {
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
-  if ($form->{reference} && $::instance_conf->get_webdav) {
+  if ($form->{id} && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
       type     => 'general_ledger',
-      number   => $form->{reference},
+      number   => $form->{id},
     );
     my $webdav_path = $webdav->webdav_path;
     my @all_objects = $webdav->get_all_objects;
@@ -1266,7 +1266,7 @@ sub post {
   post_transaction();
   if ($::instance_conf->get_webdav) {
     SL::Webdav->new(type     => 'general_ledger',
-                    number   => $form->{reference},
+                    number   => $form->{id},
                    )->webdav_path;
   }
 
