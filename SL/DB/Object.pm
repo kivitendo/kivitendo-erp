@@ -12,6 +12,7 @@ use SL::DB;
 use SL::DB::Helper::Attr;
 use SL::DB::Helper::Metadata;
 use SL::DB::Helper::Manager;
+use SL::DB::Helper::Presenter;
 use SL::DB::Object::Hooks;
 
 use base qw(Rose::DB::Object);
@@ -238,6 +239,19 @@ sub clone_and_reset {
   return $clone;
 }
 
+sub presenter {
+  my ($class_or_self) = @_;
+
+  if (ref $class_or_self) {
+    my $class = ref $class_or_self;
+    $class =~ s{^SL::DB::}{SL::Presenter::};
+    return SL::DB::Helper::Presenter->new($class, $class_or_self);
+  } else {
+    $class_or_self =~ s{^SL::DB::}{SL::Presenter::};
+    return $class_or_self;
+  }
+}
+
 1;
 
 __END__
@@ -360,6 +374,14 @@ fields have been reset.
 The difference between Rose's and this function is that this function
 will also skip setting the following fields if such columns exist for
 C<$self>: C<itime>, C<mtime>.
+
+=item C<presenter>
+
+Returns a proxy wrapper that will dispatch all method calls to the presenter
+with the same name as the class of the involking object.
+
+For the full documentation about its capabilites see
+L<SL::DB::Helper::Presenter>
 
 =back
 
