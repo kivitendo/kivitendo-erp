@@ -388,7 +388,7 @@ namespace('kivi.Part', function(ns) {
             if (callbacks && callbacks.match_many) self.run_action(callbacks.match_many, [ data ]);
           } else {
             self.state = self.STATES.UNDEFINED;
-            if (callbacks && callbacks.match_none) self.run_action(callbacks.match_none);
+            if (callbacks && callbacks.match_none) self.run_action(callbacks.match_none, [ self, self.$dummy.val() ]);
           }
           self.annotate_state();
         }
@@ -425,6 +425,7 @@ namespace('kivi.Part', function(ns) {
         }
         if (event.which == KEY.ENTER) {
           self.handle_changed_text({
+            match_none: self.o.action.commit_none,
             match_one:  self.o.action.commit_one,
             match_many: self.o.action.commit_many
           });
