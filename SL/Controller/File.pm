@@ -309,8 +309,8 @@ sub action_download {
 sub check_object_params {
   my ($self) = @_;
 
-  my $id = $::form->{object_id} +0;
-  my $draftid = $::form->{draft_id} +0;
+  my $id = ($::form->{object_id} // 0) * 1;
+  my $draftid = ($::form->{draft_id} // 0) * 1;
   my $gldoc = 0;
   my $type = undef;
 
