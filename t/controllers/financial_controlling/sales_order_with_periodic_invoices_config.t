@@ -37,6 +37,10 @@ Support::TestSetup::login();
 
 our ($ar_chart, $buchungsgruppe, $ctrl, $currency_id, $customer, $employee, $order, $part, $tax_zone, $unit, @invoices);
 
+sub cleanup {
+  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+}
+
 sub init_common_state {
   $ar_chart       = SL::DB::Manager::Chart->find_by(accno => '1400')                        || croak "No AR chart";
   $buchungsgruppe = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%') || croak "No accounting group";
@@ -49,10 +53,9 @@ sub init_common_state {
 sub create_sales_order {
   my %params = @_;
 
-  $params{$_} ||= {} for qw(customer part tax order orderitem);
+  cleanup();
 
-  # Clean up: remove invoices, orders, parts and customers
-  "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(InvoiceItem Invoice OrderItem Order Customer Part);
+  $params{$_} ||= {} for qw(customer part tax order orderitem);
 
   $customer     = SL::DB::Customer->new(
     name        => 'Test Customer',
@@ -545,5 +548,6 @@ run_tests(
     end_date                => DateTime->from_kivitendo('30.04.2014'),
   });
 
+cleanup();
 
 done_testing();
