@@ -220,10 +220,47 @@ accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.
 
 C<part_picker> will register it's javascript for inclusion in the next header
-rendering. If you write a standard controller that only call C<render> once, it
-will just work.  In case the header is generated in a different render call
+rendering. If you write a standard controller that only calls C<render> once, it
+will just work. In case the header is generated in a different render call
 (multiple blocks, ajax, old C<bin/mozilla> style controllers) you need to
 include C<kivi.Part.js> yourself.
+
+On pressing <enter> the picker will try to commit the current selection,
+resulting in one of the following events, whose corresponding callbacks can be
+set in C<params.actions>:
+
+=over 4
+
+=item * C<commit_one>
+
+If exactly one element matches the input, the internal id will set to this id,
+the internal state will be set to C<PICKED> and the C<change> even on the
+picker will be fired. Additionally, if C<params> contain C<fat_set_item>
+a special event C<set_item:PartPicker> will be fired which is guaranteed to
+contain a complete JSON representation of the part.
+
+After that the action C<commit_one> will be executed, which defaults to
+clicking a button with id C<update_button> for backward compatibility reasons.
+
+=item * C<commit_many>
+
+If more than one element matches the input, the internal state will be set to
+undefined.
+
+After that the action C<commit_one> will be executed, which defaults to
+opening a popup dialog for graphical interaction. If C<params> contain
+C<multiple> an alternative popup will be opened, allowing multiple items to be
+selected. Note however that this requires an additional callback
+C<set_multi_items> to work.
+
+=item * C<commit_none>
+
+If no element matches the input, the internal state will be set to undefined.
+
+If an action for C<commit_none> exists, it will be called with the picker
+object and current term. The caller can then implement creation of new parts.
+
+=back
 
 =back
 
@@ -267,6 +304,14 @@ Should not require a feedback/check loop in the common case
 =item *
 
 Should not be constrained to exact matches
+
+=item *
+
+Must be atomic
+
+=item *
+
+Action should be overridable
 
 =back
 
