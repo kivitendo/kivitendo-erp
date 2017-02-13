@@ -363,4 +363,6 @@ is keys %$links, 2, "batch recursive by_id direction both 3";
 is $links->{$o1->id}[0]->id, $i1->id, "batch recursive by_id direction both 4";
 is $links->{$o2->id}[0]->id, $i2->id, "batch recursive by_id direction both 5";
 
+clear_up();
+
 1;
