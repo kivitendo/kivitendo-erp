@@ -274,7 +274,7 @@ namespace('kivi.Part', function(ns) {
 
   ns.Picker = function($real, options) {
     var self = this;
-    this.o = $.extend({
+    this.o = $.extend(true, {
       limit: 20,
       delay: 50,
       action: {
