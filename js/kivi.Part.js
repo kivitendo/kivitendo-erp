@@ -278,9 +278,9 @@ namespace('kivi.Part', function(ns) {
       limit: 20,
       delay: 50,
       action: {
-        on_enter_match_none: function(){ },
-        on_enter_match_one:  function(){ $('#update_button').click(); },
-        on_enter_match_many: function(){ self.open_dialog(); }
+        commit_none: function(){ },
+        commit_one:  function(){ $('#update_button').click(); },
+        commit_many: function(){ self.open_dialog(); }
       }
     }, $real.data('part-picker-data'), options);
     this.$real              = $real;
@@ -414,8 +414,8 @@ namespace('kivi.Part', function(ns) {
           self.set_item({});
           return true;
         } else if (self.state == self.STATES.PICKED) {
-          if (self.o.action.on_enter_match_one) {
-            self.run_action(self.o.action.on_enter_match_one);
+          if (self.o.action.commit_one) {
+            self.run_action(self.o.action.commit_one);
           }
           return true;
         }
@@ -425,8 +425,8 @@ namespace('kivi.Part', function(ns) {
         }
         if (event.which == KEY.ENTER) {
           self.handle_changed_text({
-            match_one:  self.o.action.on_enter_match_one,
-            match_many: self.o.action.on_enter_match_many
+            match_one:  self.o.action.commit_one,
+            match_many: self.o.action.commit_many
           });
           return false;
         }
