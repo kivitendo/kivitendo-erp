@@ -159,7 +159,7 @@ C<chart_picker> will register its javascript for inclusion in the next header
 rendering. If you write a standard controller that only calls C<render> once, it
 will just work.  In case the header is generated in a different render call
 (multiple blocks, ajax, old C<bin/mozilla> style controllers) you need to
-include C<js/autocomplete_part.js> yourself.
+include C<js/autocomplete_chart.js> yourself.
 
 =back
 

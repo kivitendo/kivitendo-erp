@@ -243,9 +243,9 @@ namespace("kivi", function(ns) {
       $(elt).datepicker();
     });
 
-    if (ns.PartPicker)
+    if (ns.Part)
       ns.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
-        kivi.PartPicker($(elt));
+        kivi.Part.Picker($(elt));
       });
 
     if (ns.ProjectPicker)

@@ -48,7 +48,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         kivi.CustomerVendorPicker($ctrl).set_item({ id: cvar.id, name: cvar.value });
 
       else if (cvar.type == 'part')
-        kivi.PartPicker($ctrl).set_item({ id: cvar.id, name: cvar.value });
+        kivi.Part.Picker($ctrl).set_item({ id: cvar.id, name: cvar.value });
 
       else
         $ctrl.val(cvar.value);

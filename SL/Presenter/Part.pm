@@ -42,7 +42,7 @@ sub part_picker {
     join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(part_type classification_id unit convertible_unit)) .
     $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
-  $::request->layout->add_javascripts('autocomplete_part.js');
+  $::request->layout->add_javascripts('kivi.Part.js');
   $::request->presenter->need_reinit_widgets($id);
 
   $self->html_tag('span', $ret, class => 'part_picker');
@@ -224,7 +224,7 @@ C<part_picker> will register it's javascript for inclusion in the next header
 rendering. If you write a standard controller that only call C<render> once, it
 will just work.  In case the header is generated in a different render call
 (multiple blocks, ajax, old C<bin/mozilla> style controllers) you need to
-include C<js/autocomplete_part.js> yourself.
+include C<kivi.Part.js> yourself.
 
 =back
 
