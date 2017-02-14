@@ -163,8 +163,8 @@ sub action_report {
     $::form->error(t8('No report with id #1', $report_id));
   }
 
-  my $show_first_20 = ($self->{report}->profile->get('full_preview', 2) == 0);
-  my $show_info_err = ($self->{report}->profile->get('full_preview', 2) == 1);
+  my $show_info_err = ($self->{report}->profile->get('full_preview', 0) == 1);
+  my $show_first_20 = ($self->{report}->profile->get('full_preview', 0) == 2);
 
   my $num_rows = 0;
   if ($show_first_20) {

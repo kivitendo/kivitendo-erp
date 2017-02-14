@@ -275,9 +275,9 @@
    <tr>
     <th align="right">[%- LxERP.t8('Preview Mode') %]:</th>
     <td colspan="10">
-      [% L.radio_button_tag('settings.full_preview', value=2, checked=SELF.profile.get('full_preview')==2, label=LxERP.t8('Full Preview')) %]
+      [% L.radio_button_tag('settings.full_preview', value=0, checked=!SELF.profile.get('full_preview'),   label=LxERP.t8('Full Preview')) %]
       [% L.radio_button_tag('settings.full_preview', value=1, checked=SELF.profile.get('full_preview')==1, label=LxERP.t8('Only Warnings and Errors')) %]
-      [% L.radio_button_tag('settings.full_preview', value=0, checked=!SELF.profile.get('full_preview'),   label=LxERP.t8('First 20 Lines')) %]
+      [% L.radio_button_tag('settings.full_preview', value=2, checked=SELF.profile.get('full_preview')==2, label=LxERP.t8('First 20 Lines')) %]
     </td>
    </tr>
 
