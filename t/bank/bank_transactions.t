@@ -183,17 +183,17 @@ sub test_ap_transaction {
   my $netamount = 100;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::PurchaseInvoice->new(
-      invoice      => 0,
-      invnumber    => $params{invnumber} || 'test_ap_transaction',
-      amount       => $amount,
-      netamount    => $netamount,
-      transdate    => $transdate1,
-      taxincluded  => 0,
-      vendor_id    => $vendor->id,
-      taxzone_id   => $vendor->taxzone_id,
-      currency_id  => $currency_id,
-      transactions => [],
-      notes        => 'test_ap_transaction',
+    invoice      => 0,
+    invnumber    => $params{invnumber} || 'test_ap_transaction',
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_ap_transaction',
   );
   $invoice->add_ap_amount_row(
     amount     => $invoice->netamount,
@@ -226,8 +226,8 @@ sub test1 {
   my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $ar_transaction->id ]
-        };
+    $bt->id => [ $ar_transaction->id ]
+  };
 
   save_btcontroller_to_string();
 
@@ -253,11 +253,11 @@ sub test_skonto_exact {
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $ar_transaction->id ]
-        };
+    $bt->id => [ $ar_transaction->id ]
+  };
   $::form->{invoice_skontos} = {
-          $bt->id => [ 'with_skonto_pt' ]
-        };
+    $bt->id => [ 'with_skonto_pt' ]
+  };
 
   save_btcontroller_to_string();
 
@@ -286,8 +286,8 @@ sub test_two_invoices {
   is($agreement, 16, "points for ar_transaction_1 in test_two_invoices ok");
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $ar_transaction_1->id, $ar_transaction_2->id ]
-        };
+    $bt->id => [ $ar_transaction_1->id, $ar_transaction_2->id ]
+  };
 
   save_btcontroller_to_string();
 
@@ -316,8 +316,8 @@ sub test_overpayment {
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $ar_transaction->id ]
-        };
+    $bt->id => [ $ar_transaction->id ]
+  };
 
   save_btcontroller_to_string();
 
@@ -351,13 +351,13 @@ sub test_overpayment_with_partialpayment {
                                                       ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
-          $bt_1->id => [ $ar_transaction->id ]
-        };
+    $bt_1->id => [ $ar_transaction->id ]
+  };
   save_btcontroller_to_string();
 
   $::form->{invoice_ids} = {
-          $bt_2->id => [ $ar_transaction->id ]
-        };
+    $bt_2->id => [ $ar_transaction->id ]
+  };
   save_btcontroller_to_string();
 
   $ar_transaction->load;
@@ -383,8 +383,8 @@ sub test_partial_payment {
                                                     ) or die "Couldn't create bank_transaction";
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $ar_transaction->id ]
-        };
+    $bt->id => [ $ar_transaction->id ]
+  };
 
   save_btcontroller_to_string();
 
@@ -420,7 +420,7 @@ sub test_credit_note {
   is($rule_matches, 'remote_account_number(3) exact_amount(4) wrong_sign(-1) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus14(2) ', "rules_matches for credit note ok");
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $credit_note->id ]
+    $bt->id => [ $credit_note->id ]
   };
 
   save_btcontroller_to_string();
@@ -433,22 +433,21 @@ sub test_credit_note {
 }
 
 sub test_neg_ap_transaction {
-  my (%params) = @_;
   my $testname = 'test_neg_ap_transaction';
   my $netamount = -20;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::PurchaseInvoice->new(
-      invoice      => 0,
-      invnumber    => $params{invnumber} || 'test_neg_ap_transaction',
-      amount       => $amount,
-      netamount    => $netamount,
-      transdate    => $transdate1,
-      taxincluded  => 0,
-      vendor_id    => $vendor->id,
-      taxzone_id   => $vendor->taxzone_id,
-      currency_id  => $currency_id,
-      transactions => [],
-      notes        => 'test_neg_ap_transaction',
+    invoice      => 0,
+    invnumber    => $params{invnumber} || 'test_neg_ap_transaction',
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_neg_ap_transaction',
   );
   $invoice->add_ap_amount_row(
     amount     => $invoice->netamount,
@@ -459,8 +458,8 @@ sub test_neg_ap_transaction {
   $invoice->create_ap_row(chart => $ap_chart);
   $invoice->save;
 
-  is($invoice->netamount   , -20          , "$testname: netamount ok");
-  is($invoice->amount      , -23.8        , "$testname: amount ok");
+  is($invoice->netamount, -20  , "$testname: netamount ok");
+  is($invoice->amount   , -23.8, "$testname: amount ok");
 
   my $bt            = SL::Dev::Payment::create_bank_transaction(record        => $invoice,
                                                                 amount        => $invoice->amount,
@@ -471,7 +470,7 @@ sub test_neg_ap_transaction {
   is($agreement, 15, "points for negative ap transaction ok");
 
   $::form->{invoice_ids} = {
-          $bt->id => [ $invoice->id ]
+    $bt->id => [ $invoice->id ]
   };
 
   save_btcontroller_to_string();
@@ -484,6 +483,5 @@ sub test_neg_ap_transaction {
 
   return $invoice;
 };
-
 
 1;
