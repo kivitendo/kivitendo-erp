@@ -93,7 +93,7 @@ Creates a new vendor.
 
 Minimal usage, default values, without saving to database:
 
-  my $vendor = SL::Dev::vendorVendor::create_vendor();
+  my $vendor = SL::Dev::CustomerVendor::create_vendor();
 
 Complex usage, overwriting some defaults, and save to database:
 
