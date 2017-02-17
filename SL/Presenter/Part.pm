@@ -124,7 +124,7 @@ SL::Presenter::Part - Part related presenter stuff
 =head1 SYNOPSIS
 
   # Create an html link for editing/opening a part/service/assembly
-  my $object = my $object = SL::DB::Manager::Part->get_first;
+  my $object = SL::DB::Manager::Part->get_first;
   my $html   = SL::Presenter->get->part($object, display => 'inline');
 
 see also L<SL::Presenter>
@@ -168,7 +168,7 @@ Returns the shortcut of the classification
 
 =item C<separate_abbreviation $classification_id>
 
-Returns the shortcut of the classification if the classifiaction has the separate flag set.
+Returns the shortcut of the classification if the classification has the separate flag set.
 
 =back
 
@@ -176,7 +176,7 @@ Returns the shortcut of the classification if the classifiaction has the separat
 
 =item C<select_classification $name,%params>
 
-Returns a HTML Select Tag with all available Classifications
+Returns an HTML select tag with all available classifications.
 
 C<%params> can include:
 
@@ -184,7 +184,7 @@ C<%params> can include:
 
 =item * default
 
-The Id of the selected item .
+The id of the selected item.
 
 =back
 
@@ -233,10 +233,10 @@ set in C<params.actions>:
 
 =item * C<commit_one>
 
-If exactly one element matches the input, the internal id will set to this id,
-the internal state will be set to C<PICKED> and the C<change> even on the
-picker will be fired. Additionally, if C<params> contain C<fat_set_item>
-a special event C<set_item:PartPicker> will be fired which is guaranteed to
+If exactly one element matches the input, the internal id will be set to this
+id, the internal state will be set to C<PICKED> and the C<change> event on the
+picker will be fired. Additionally, if C<params> contains C<fat_set_item> a
+special event C<set_item:PartPicker> will be fired which is guaranteed to
 contain a complete JSON representation of the part.
 
 After that the action C<commit_one> will be executed, which defaults to
@@ -248,7 +248,7 @@ If more than one element matches the input, the internal state will be set to
 undefined.
 
 After that the action C<commit_one> will be executed, which defaults to
-opening a popup dialog for graphical interaction. If C<params> contain
+opening a popup dialog for graphical interaction. If C<params> contains
 C<multiple> an alternative popup will be opened, allowing multiple items to be
 selected. Note however that this requires an additional callback
 C<set_multi_items> to work.
