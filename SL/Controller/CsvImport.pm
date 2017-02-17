@@ -462,7 +462,6 @@ sub profile_from_form {
     $::form->{settings}->{max_amount_diff} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{max_amount_diff});
   }
 
-  delete $::form->{profile}->{id};
   $self->profile($existing_profile || SL::DB::CsvImportProfile->new(login => $::myconfig{login}));
   $self->profile->assign_attributes(%{ $::form->{profile} });
   $self->profile->settings(map({ { key => $_, value => $::form->{settings}->{$_} } } keys %{ $::form->{settings} }),
