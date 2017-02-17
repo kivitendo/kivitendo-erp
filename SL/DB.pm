@@ -132,9 +132,9 @@ sub with_transaction {
   my $rv = 1;
 
   local $@;
-
+  my $return_array = wantarray;
   eval {
-    wantarray
+    $return_array
       ? $self->do_transaction(sub { @result = $code->(@args) })
       : $self->do_transaction(sub { $result = $code->(@args) });
   } or do {
@@ -150,7 +150,7 @@ sub with_transaction {
     }
   };
 
-  return wantarray ? @result : $result;
+  return $return_array ? @result : $result;
 }
 
 1;
