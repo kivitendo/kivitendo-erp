@@ -32,25 +32,25 @@ SL::DB::Helper::Presenter - proxy class to allow models to access presenters
 
 =head1 SYNOPSIS
 
-  # assuming SL::Presemter::Part exists
+  # assuming SL::Presenter::Part exists
   # and contains a sub link_to($class, $object) {}
   SL::DB::Part->new(%args)->presenter->link_to
 
 =head1 DESCRIPTION
 
-When coding controller one often encounters objects that are not crucial to the
-current task, but must be presented in some form to the user. Instead of
+When coding controllers one often encounters objects that are not crucial to
+the current task, but must be presented in some form to the user. Instead of
 recreating that all the time the C<SL::Presenter> namepace was introduced to
 hold such code.
 
 Unfortunately the Presenter code is designed to be stateless and thus acts _on_
 objects, but can't be instanced or wrapped. The early band-aid to that was to
 export all sub-presenter calls into the main presenter namespace. Fixing it
-would have meant to access presenter functions like this:
+would have meant accessing presenter functions like this:
 
   SL::Presenter::Object->method($object, %additional_args)
 
-which is  extremely inconvenient.
+which is extremely inconvenient.
 
 This glue code allows C<SL::DB::Object> instances to access routines in their
 presenter without additional boilerplate. C<SL::DB::Object> contains a
@@ -59,8 +59,8 @@ class. All calls on this will then be forwarded to the appropriate presenter.
 
 =head1 INTERNAL STRUCTURE
 
-The proxy objects created are lightweight blessed arrayrefs instead of the usual blessed
-hashrefs. They only store two elements:
+The created proxy objects are lightweight blessed arrayrefs instead of the
+usual blessed hashrefs. They only store two elements:
 
 =over 4
 
