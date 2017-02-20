@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::Locale::String qw(t8);
 use SL::DB::CsvImportProfile;
 use SL::Helper::MT940;
+use SL::SessionFile::Random;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -28,10 +29,12 @@ sub action_import_mt940 {
 
   my $converted_data = SL::Helper::MT940::convert_mt940_data($::form->{file});
 
-  # store the converted data in a session file with a name expected by the profile type "bank_transactions"
-  my $file = SL::SessionFile->new("csv-import-bank_transactions.csv", mode => '>');
+  # store the converted data in a session file and create a temporary profile with it's name
+  my $file = SL::SessionFile::Random->new(mode => '>');
   $file->fh->print($converted_data);
   $file->fh->close;
+  $self->profile->set('file_name', $file->file_name);
+  $self->profile($self->profile->clone_and_reset_deep)->save;
 
   die t8("The MT940 import needs an import profile called MT940") unless $self->profile;
 
