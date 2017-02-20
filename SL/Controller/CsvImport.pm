@@ -359,9 +359,12 @@ sub test_and_import_deferred {
     return $self->action_new;
   }
 
+  # save tempory profile
+  $self->profile($self->profile->clone_and_reset_deep)->save;
+
   $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
     file        => $self->csv_file_name,
-    profile     => $self->profile,
+    profile_id  => $self->profile->id,
     type        => $self->profile->type,
     test        => $params{test},
     employee_id => SL::DB::Manager::Employee->current->id,

@@ -14,13 +14,8 @@ sub create_job {
   my $package       = ref($self_or_class) || $self_or_class;
   $package          =~ s/SL::BackgroundJob:://;
 
-  my $profile = delete $params{profile} || SL::DB::CsvImportProfile->new;
-  my $new_profile = $profile->clone_and_reset_deep;
-  $new_profile->save;
-
   my %data = (
     %params,
-    profile_id => $new_profile->id,
     session_id => $::auth->get_session_id,
   );
 
