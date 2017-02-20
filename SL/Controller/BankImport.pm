@@ -7,18 +7,18 @@ use SL::Locale::String qw(t8);
 use SL::DB::CsvImportProfile;
 use SL::Helper::MT940;
 
+use Rose::Object::MakeMethods::Generic
+(
+ 'scalar --get_set_init' => [ qw(profile) ],
+);
+
 __PACKAGE__->run_before('check_auth');
 
 sub action_upload_mt940 {
   my ($self, %params) = @_;
 
-  my $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => $::myconfig{login});
-  if ( ! $profile ) {
-    $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => 'default');
-  }
-
   $self->setup_upload_mt940_action_bar;
-  $self->render('bankimport/form', title => $::locale->text('MT940 import'), profile => $profile ? 1 : 0);
+  $self->render('bankimport/form', title => $::locale->text('MT940 import'), profile => $self->profile ? 1 : 0);
 }
 
 sub action_import_mt940 {
@@ -33,17 +33,21 @@ sub action_import_mt940 {
   $file->fh->print($converted_data);
   $file->fh->close;
 
-  my $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => $::myconfig{login});
-  if ( ! $profile ) {
-    $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => 'default');
-  }
-  die t8("The MT940 import needs an import profile called MT940") unless $profile;
+  die t8("The MT940 import needs an import profile called MT940") unless $self->profile;
 
-  $self->redirect_to(controller => 'controller.pl', action => 'CsvImport/test', 'profile.type' => 'bank_transactions', 'profile.id' => $profile->id, force_profile => 1);
+  $self->redirect_to(controller => 'controller.pl', action => 'CsvImport/test', 'profile.type' => 'bank_transactions', 'profile.id' => $self->profile->id, force_profile => 1);
 }
 
 sub check_auth {
   $::auth->assert('bank_transaction');
+}
+
+sub init_profile {
+  my $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => $::myconfig{login});
+  if ( ! $profile ) {
+    $profile = SL::DB::Manager::CsvImportProfile->find_by(name => 'MT940', login => 'default');
+  }
+  return $profile;
 }
 
 sub setup_upload_mt940_action_bar {
