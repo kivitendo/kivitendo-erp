@@ -12,6 +12,7 @@ use SL::DBUtils qw(do_statement);
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::SessionFile;
+use SL::SessionFile::Random;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
 use SL::Controller::CsvImport::Part;
@@ -228,10 +229,24 @@ sub action_add_empty_mapping_line {
 sub action_add_mapping_from_upload {
   my ($self) = @_;
 
-  $self->profile_from_form;
+  if ($::form->{tmp_profile_id}) {
+    $self->profile_from_form(SL::DB::CsvImportProfile->new(id => $::form->{tmp_profile_id})->load);
+  } else {
+    $self->profile_from_form;
+  }
   $self->setup_help;
 
-  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
+  my $file_name;
+  if ($self->profile->get('file_name')) {
+    $file_name = $self->profile->get('file_name');
+  } else {
+    $self->js
+      ->flash('error', t8('No file has been uploaded yet.'))
+      ->render;
+    return;
+  }
+
+  my $file = SL::SessionFile->new($file_name, mode => '<', encoding => $self->profile->get('charset'));
   if (!$file->fh) {
     $self->js
       ->flash('error', t8('No file has been uploaded yet.'))
@@ -309,7 +324,9 @@ sub render_inputs {
     $self->$sub(($char_map{$type}->{$char} || [])->[0] || $char);
   }
 
-  $self->file(SL::SessionFile->new($self->csv_file_name));
+  if ($self->profile->get('file_name')) {
+    $self->file(SL::SessionFile->new($self->profile->get('file_name')));
+  }
 
   my $title = $self->type eq 'customers_vendors' ? $::locale->text('CSV import: customers and vendors')
             : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
@@ -341,19 +358,30 @@ sub render_inputs {
 sub test_and_import_deferred {
   my ($self, %params) = @_;
 
-  if ( $::form->{force_profile} && $::form->{profile}->{id} ) {
+  if ( $::form->{force_profile} && ($::form->{tmp_profile_id} || $::form->{profile}->{id}) ) {
+    $::form->{profile}->{id} = $::form->{tmp_profile_id} if $::form->{tmp_profile_id};
     $self->load_default_profile;
-  }  else {
+  } elsif ($::form->{tmp_profile_id}) {
+    $self->profile_from_form(SL::DB::CsvImportProfile->new(id => $::form->{tmp_profile_id})->load);
+  } else {
     $self->profile_from_form;
   };
 
+  my $file_name;
   if ($::form->{file}) {
-    my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
+    my $file = SL::SessionFile::Random->new(mode => '>');
     $file->fh->print($::form->{file});
     $file->fh->close;
+    $file_name = $file->file_name;
+    $self->profile->set('file_name', $file_name);
+  } elsif ($self->profile->get('file_name')) {
+    $file_name = $self->profile->get('file_name');
+  } else {
+    flash('error', $::locale->text('No file has been uploaded yet.'));
+    return $self->action_new;
   }
 
-  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
+  my $file = SL::SessionFile->new($file_name, mode => '<', encoding => $self->profile->get('charset'));
   if (!$file->fh) {
     flash('error', $::locale->text('No file has been uploaded yet.'));
     return $self->action_new;
@@ -363,7 +391,6 @@ sub test_and_import_deferred {
   $self->profile($self->profile->clone_and_reset_deep)->save;
 
   $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
-    file        => $self->csv_file_name,
     profile_id  => $self->profile->id,
     type        => $self->profile->type,
     test        => $params{test},
@@ -391,7 +418,7 @@ sub test_and_import {
   my ($self, %params) = @_;
 
   my $file = SL::SessionFile->new(
-    $self->csv_file_name,
+    $self->profile->get('file_name'),
     mode       => '<',
     encoding   => $self->profile->get('charset'),
     session_id => $params{session_id}
@@ -467,11 +494,13 @@ sub profile_from_form {
 
   $self->profile($existing_profile || SL::DB::CsvImportProfile->new(login => $::myconfig{login}));
   $self->profile->assign_attributes(%{ $::form->{profile} });
+
+  # save settings for file_name, as this is not in form, but maybe in existing_profile
+  push @settings, { key => 'file_name', value => $self->profile->get('file_name') } if $self->profile->get('file_name');
+
   $self->profile->settings(map({ { key => $_, value => $::form->{settings}->{$_} } } keys %{ $::form->{settings} }),
                            @settings);
-
   $self->profile->set('json_mappings', JSON::to_json($self->mappings));
-
   $self->profile->set_defaults;
 }
 
@@ -656,11 +685,6 @@ sub save_report_multi {
   }) or do { die SL::DB->client->error };
 
   return $report->id;
-}
-
-sub csv_file_name {
-  my ($self) = @_;
-  return "csv-import-" . $self->type . ".csv";
 }
 
 sub init_worker {

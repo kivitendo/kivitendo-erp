@@ -10,6 +10,7 @@
   [% L.hidden_tag('form_sent', '1') %]
   [% L.hidden_tag('action', 'CsvImport/dispatch') %]
   [% L.hidden_tag('profile.type', SELF.profile.type) %]
+  [% L.hidden_tag('tmp_profile_id', SELF.profile.id) %]
 
  [%- IF SELF.profile.get('dont_edit_profile') %]
   [% L.hidden_tag('force_profile', 1) %]
