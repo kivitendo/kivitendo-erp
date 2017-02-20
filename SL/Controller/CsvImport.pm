@@ -502,12 +502,9 @@ sub save_report_single {
 
   $self->track_progress(phase => 'building report', progress => 0);
 
-  my $clone_profile = $self->profile->clone_and_reset_deep;
-  $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
-
   my $report = SL::DB::CsvImportReport->new(
     session_id => $params{session_id},
-    profile    => $clone_profile,
+    profile_id => $self->profile->id,
     type       => $self->type,
     file       => '',
     numrows    => scalar @{ $self->data },
@@ -573,12 +570,9 @@ sub save_report_multi {
 
   $self->track_progress(phase => 'building report', progress => 0);
 
-  my $clone_profile = $self->profile->clone_and_reset_deep;
-  $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
-
   my $report = SL::DB::CsvImportReport->new(
     session_id => $params{session_id},
-    profile    => $clone_profile,
+    profile_id => $self->profile->id,
     type       => $self->type,
     file       => '',
     numrows    => scalar @{ $self->data },
