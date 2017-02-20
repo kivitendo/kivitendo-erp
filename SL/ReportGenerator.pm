@@ -501,7 +501,9 @@ sub generate_pdf_content {
 
         foreach (0 .. $num_columns - 1) {
           push @{ $cell_props_row }, { 'background_color' => '#666666',
-                                       'font_color'       => '#ffffff',
+               #  BUG PDF:Table  -> 0.9.12:
+               # font_color is used in next row, so dont set font_color
+               #                       'font_color'       => '#ffffff',
                                        'colspan'          => $_ == 0 ? -1 : undef, };
         }
       }
