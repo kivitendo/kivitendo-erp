@@ -161,6 +161,11 @@ Bugfixes:
     während Abschnitte oder Funktionsblöcke via Drag & Drop verschoben
     wurden.
 
+  - Das Fälligkeitsdatum wurde beim Buchen von Einkaufs- und
+    Verkaufsrechnung, bei denen eine Zahlungsbedingung ohne
+    automatische Berechnung ausgewählt war, immer auf das
+    Rechnungsdatum gesetzt, anstelle den eingetragenen Wert zu nutzen.
+
 2016-07-05 - Release 3.4.1
 
 kleinere neue Features und Detailverbesserungen:
