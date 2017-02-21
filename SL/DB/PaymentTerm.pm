@@ -57,8 +57,15 @@ SL::DB::PaymentTerm - Rose model for the payment_terms table
 =head1 SYNOPSIS
 
   my $terms             = SL::DB::PaymentTerm->new(id => $::form->{payment_id})->load;
-  my $due_date_net      = $erms->calc_date(terms => 'net');      # uses terms_netto
-  my $due_date_discount = $erms->calc_date(terms => 'discount'); # uses terms_skonto
+  my $due_date_net      = $terms->calc_date(terms => 'net');      # uses terms_netto
+  my $due_date_discount = $terms->calc_date(terms => 'discount'); # uses terms_skonto
+
+  # Calculate due date taking the existing invoice date and the due
+  # date entered by the user into account:
+  my $due_date = $terms->calc_date(
+    reference_date => $::form->{invdate},
+    due_date       => $::form->{duedate},
+  );
 
 =head1 FUNCTIONS
 
