@@ -793,7 +793,7 @@ sub post {
   relink_accounts();
 
   my $terms        = get_payment_terms_for_invoice();
-  $form->{duedate} = $terms->calc_date(reference_date => $form->{invdate}, due_date => $form->{due_due})->to_kivitendo if $terms;
+  $form->{duedate} = $terms->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $terms;
 
   # If transfer_out is requested, get rose db handle and do post and
   # transfer out in one transaction. Otherwise just post the invoice.
