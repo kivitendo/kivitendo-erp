@@ -433,6 +433,7 @@ sub test_credit_note {
 }
 
 sub test_neg_ap_transaction {
+  my (%params) = @_;
   my $testname = 'test_neg_ap_transaction';
   my $netamount = -20;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
