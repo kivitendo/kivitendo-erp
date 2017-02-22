@@ -955,7 +955,7 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.GL.js", "kivi.RecordTemplate.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js");
 
   my @old_project_ids = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
 

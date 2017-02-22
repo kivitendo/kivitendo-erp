@@ -38,11 +38,39 @@ function enable_template_controls() {
   $('#new_templates,#new_master_templates').prop('disabled', existing);
 }
 
+function verifyMBSize(elem) {
+  var fsize = parseInt($('#doc_max_filesize_MB').val());
+  $('#defaults_doc_max_filesize').val(fsize*1000000.0);
+  $('#doc_max_filesize_MB').val(fsize);
+}
+
+function verifyRootPath(elem) {
+  if ( elem.value == "" ) {
+    elem.value="./documents";
+  }
+}
+
+function checkavailable_filebackend(elem) {
+  var selval = elem.value;
+  if ( selval == 'Webdav' && $("#defaults_doc_webdav").val() == 0 ) {
+     elem.value = 'Filesystem';
+  } else if ( selval == 'ExtDMS' ) {
+     elem.value = 'Filesystem';
+  } if ( selval == 'DB' && $("#defaults_doc_database").val() == 0 ) {
+     elem.value = 'Filesystem';
+  }
+  if ( elem.value == 'Filesystem' && $("#defaults_doc_files").val() == 0 ) {
+     elem.value = 'None';
+  }
+  return false;
+}
+
 $(function() {
   warehouse_selected([% SELF.defaults.warehouse_id || -1 %], [% SELF.defaults.bin_id || -1 %], 'bin_id');
   warehouse_selected([% SELF.defaults.warehouse_id_ignore_onhand || -1 %], [% SELF.defaults.bin_id_ignore_onhand || -1 %], 'bin_id_ignore_onhand');
 
   enable_template_controls();
+  $('#doc_max_filesize_MB').val(parseInt($('#defaults_doc_max_filesize').val())/1000000.0);
   $('#use_templates_existing,#use_templates_new').change(enable_template_controls);
 })
     -->

@@ -85,7 +85,7 @@ eval {
   $result=$@;
 };
 $result = substr($result,0,14);
-print $result."\n";
+#print $result."\n";
 ok($result eq "No object type","correct error 'No object type'");
 
 $::form->{object_type} ='sales_order';
@@ -99,7 +99,7 @@ eval {
   $result=$@;
 };
 $result = substr($result,0,12);
-print $result."\n";
+#print $result."\n";
 ok($result eq "No file type","correct error 'No file type'");
 
 clear_up();

@@ -319,13 +319,14 @@ sub _get_backend {
   my ($self, $backend_name) = @_;
   my $class = 'SL::File::Backend::' . $backend_name;
   my $obj   = undef;
+  die $::locale->text('no backend enabled') if $backend_name eq 'None';
   eval {
     eval "require $class";
     $obj = $class->new;
-    die 'backend not enabled' unless $obj->enabled;
+    die $::locale->text('backend "#1" not enabled',$backend_name) unless $obj->enabled;
     1;
   } or do {
-    die 'backend class not found';
+    die $::locale->text('backend "#1" not found',$backend_name);
   };
   return $obj;
 }

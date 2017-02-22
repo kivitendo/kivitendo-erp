@@ -37,22 +37,25 @@
   <tr>
     <td align="right">[% LxERP.t8('Storage Type for generated/imported PDF Documents') %]</td>
     <td>[% L.select_tag('defaults.doc_storage_for_documents',
-         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
-                               default = SELF.defaults.doc_storage_for_documents) %]</td> 
+         [ [ 'None', LxERP.t8('None') ],[ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_documents,
+                               onchange="return checkavailable_filebackend(this);") %]</td>
     <td>[% LxERP.t8('Use this storage backend for all generated PDF-Files') %]</td>
   </tr>
   <tr>
     <td align="right">[% LxERP.t8('Storage Type for Attachments') %]</td>
     <td>[% L.select_tag('defaults.doc_storage_for_attachments',
-         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
-                               default = SELF.defaults.doc_storage_for_attachments) %]</td> 
+         [ [ 'None', LxERP.t8('None') ], [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_attachments,
+                               onchange="return checkavailable_filebackend(this);") %]</td>
     <td>[% LxERP.t8('Use this storage backend for all uploaded attachments') %]</td>
   </tr>
   <tr>
     <td align="right">[% LxERP.t8('Storage Type for images') %]</td>
     <td>[% L.select_tag('defaults.doc_storage_for_images',
-         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
-                               default = SELF.defaults.doc_storage_for_images) %]</td> 
+         [ [ 'None', LxERP.t8('None') ], [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_images,
+                               onchange="return checkavailable_filebackend(this);") %]</td>
     <td>[% LxERP.t8('Use this storage backend for uploaded images') %]</td>
   </tr>
   <tr>
@@ -62,8 +65,9 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('max filesize') %]</td>
-   <td>[% L.input_tag('defaults.doc_max_filesize',SELF.defaults.doc_max_filesize, size=>10) %]</td>
-   <td>[% LxERP.t8('The maximum of uploadable filesize') %]</td>
+   <td>[% L.input_tag('doc_max_filesize_MB','', size=10, onchange="verifyMBSize(this);") %]
+       [% L.hidden_tag('defaults.doc_max_filesize',SELF.defaults.doc_max_filesize) %] MB</td>
+   <td>[% LxERP.t8('The maximum of uploadable filesize in Megabyte') %]</td>
   </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Storage Backends") %]</td></tr>
   <tr>
@@ -73,7 +77,7 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('Root path for file storage') %]</td>
-   <td>[% L.input_tag('defaults.doc_files_rootpath',SELF.defaults.doc_files_rootpath, style=style) %]</td>
+   <td>[% L.input_tag('defaults.doc_files_rootpath',SELF.defaults.doc_files_rootpath, style=style, onchange="verifyRootPath(this);") %]</td>
    <td>[% LxERP.t8('This is the root directory for the File storage backend, must be writable for webserver') %]</td>
   </tr>
   <tr>
@@ -83,7 +87,7 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('Database') %]</td>
-   <td>[% L.yes_no_tag('defaults.doc_database', SELF.defaults.doc_database) %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_database', SELF.defaults.doc_database, disabled=1) %]</td>
    <td>[% LxERP.t8('Use Database Storage backend (not implemented yet!)') %]</td>
   </tr>
 
