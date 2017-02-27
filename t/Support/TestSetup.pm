@@ -34,7 +34,7 @@ sub login {
   die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
 
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = SL::Request->new( cgi => CGI->new({}), layout => SL::Layout::None->new );
+  $::request       = Support::TestSetup->create_new_request;
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
@@ -52,10 +52,20 @@ sub login {
   return 1;
 }
 
-sub create_new_form {
-  my $form = Form->new('');
-  $form->template(Template->new(template_config())) || die;
-  return $form;
+sub create_new_form { Form->new('') }
+
+sub create_new_request {
+  my $self = shift;
+
+  my $request = SL::Request->new(
+    cgi    => CGI->new({}),
+    layout => SL::Layout::None->new,
+    @_,
+  );
+
+  $request->presenter->{template} = Template->new(template_config()) || die;
+
+  return $request;
 }
 
 sub template_config {

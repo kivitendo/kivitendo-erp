@@ -17,8 +17,7 @@ Support::TestSetup::login();
 sub reset_test_env {
   $ENV{HTTP_USER_AGENT} = 'Perl Tests';
 
-  $::request       = SL::Request->new(
-    cgi => CGI->new({}),
+  $::request = Support::TestSetup->create_new_request(
     layout => SL::Layout::Javascript->new,
   );
 
