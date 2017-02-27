@@ -119,6 +119,8 @@ Arrangement utility
 
 to be documented
 
+=back
+
 =head1 ACCESS FROM CODE
 
 This is accessable through
