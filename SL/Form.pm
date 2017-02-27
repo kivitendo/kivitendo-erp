@@ -621,7 +621,7 @@ sub parse_html_template {
   $additional_params ||= { };
 
   my $real_file = $self->_prepare_html_template($file, $additional_params);
-  my $template  = $self->template || $self->init_template;
+  my $template  = $self->template;
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
@@ -633,32 +633,7 @@ sub parse_html_template {
   return $output;
 }
 
-sub init_template {
-  my $self = shift;
-
-  return $self->template if $self->template;
-
-  # Force scripts/locales.pl to pick up the exception handling template.
-  # parse_html_template('generic/exception')
-  return $self->template(Template->new({
-     'INTERPOLATE'  => 0,
-     'EVAL_PERL'    => 0,
-     'ABSOLUTE'     => 1,
-     'CACHE_SIZE'   => 0,
-     'PLUGIN_BASE'  => 'SL::Template::Plugin',
-     'INCLUDE_PATH' => '.:templates/webpages',
-     'COMPILE_EXT'  => '.tcc',
-     'COMPILE_DIR'  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
-     'ERROR'        => 'templates/webpages/generic/exception.html',
-     'ENCODING'     => 'utf8',
-  })) || die;
-}
-
-sub template {
-  my $self = shift;
-  $self->{template_object} = shift if @_;
-  return $self->{template_object};
-}
+sub template { $::request->presenter->get_template }
 
 sub show_generic_error {
   $main::lxdebug->enter_sub();
