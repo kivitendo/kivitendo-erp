@@ -250,6 +250,7 @@ my @default_list_attributes = (
 sub action_list {
   my ($self) = @_;
 
+  $self->setup_list_action_bar;
   $self->render('simple_system_setting/list', title => $self->config->{titles}->{list});
 }
 
@@ -377,6 +378,7 @@ sub render_form {
 
   my $sub_form_template = SL::System::Process->exe_dir . '/templates/webpages/simple_system_setting/_' . $self->type . '_form.html';
 
+  $self->setup_render_form_action_bar;
   $self->render(
     'simple_system_setting/form',
     %params,
@@ -407,6 +409,57 @@ sub setup_language {
 
   $self->{numberformats} = [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ];
   $self->{dateformats}   = [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ];
+}
+
+#
+# action bar
+#
+
+sub setup_list_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link => $self->url_for(action => 'new', type => $self->type),
+      ],
+    );
+  }
+}
+
+sub setup_render_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new         = !$self->object->id;
+  my $can_be_deleted = !$is_new
+                    && (!$self->object->can("orphaned")       || $self->object->orphaned)
+                    && (!$self->object->can("can_be_deleted") || $self->object->can_be_deleted);
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'SimpleSystemSetting/' . ($is_new ? 'create' : 'update') } ],
+        checks    => [ 'kivi.validate_form' ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'SimpleSystemSetting/delete' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new          ? t8('This object has not been saved yet.')
+                  : !$can_be_deleted ? t8('The object is in use and cannot be deleted.')
+                  :                    undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->list_url,
+      ],
+    );
+  }
 }
 
 1;

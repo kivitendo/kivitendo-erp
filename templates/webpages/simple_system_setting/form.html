@@ -14,13 +14,4 @@
 
  [%- SET sub_file = "simple_system_setting/_" _ sub_form_template _ "_form.html";
      INCLUDE $sub_file %]
-
- <p>
-  [% L.hidden_tag("action", "SimpleSystemSetting/dispatch") %]
-  [% L.submit_tag("action_" _  (SELF.object.id ? "update" : "create"), LxERP.t8("Save"), onclick="return kivi.validate_form('#form');") %]
-  [%- IF SELF.object.id && (!SELF.object.can("orphaned") || SELF.object.orphaned) && (!SELF.object.can("can_be_deleted") || SELF.object.can_be_deleted) -%]
-    [% L.submit_tag("action_delete", LxERP.t8("Delete"), confirm=LxERP.t8("Do you really want to delete this object?")) %]
-  [%- END %]
-  <a href="[% SELF.list_url %]">[%- LxERP.t8("Cancel") %]</a>
- </p>
 </form>

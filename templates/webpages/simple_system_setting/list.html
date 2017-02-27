@@ -40,12 +40,6 @@
  </tbody>
 </table>
 
-<hr height="3">
-
-<p>
- <a href="[% SELF.url_for(action="new", type=SELF.type) %]">[%- "Add" | $T8 %]</a>
-</p>
-
 [% IF SELF.supports_reordering %]
 [% L.sortable_element("#object_list tbody", url=SELF.url_for(action="reorder", type=SELF.type), with="object_id") %]
 [% END %]
