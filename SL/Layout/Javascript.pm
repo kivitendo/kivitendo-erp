@@ -55,7 +55,7 @@ sub pre_content {
     icon_path       => sub { my $simg = "image/icons/svg/$_[0].svg";  my $pimg="image/icons/16x16/$_[0].png"; -f $simg ? $simg : ( -f $pimg ? $pimg : ()) },
     max_width       => sub { 10 * max map { length $::locale->text($_->{name}) } @{ $_[0]{children} || [] } },
   ) .
-  $_[0]->sub_layouts_by_name->{actionbar}->pre_content;
+  ($_[0]->sub_layouts_by_name->{actionbar}->pre_content // '');
 }
 
 sub stylesheets {
