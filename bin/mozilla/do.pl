@@ -376,9 +376,14 @@ sub setup_do_orders_action_bar {
     $bar->add(
       action => [
         t8('New invoice'),
-        submit    => [ '#orders_form' ],
-        checks    => [ [ 'kivi.check_if_entries_selected', '#orders_form tbody input[type=checkbox]' ] ],
+        submit    => [ '#form', { action => 'invoice_multi' } ],
+        checks    => [ [ 'kivi.check_if_entries_selected', '#form tbody input[type=checkbox]' ] ],
         accesskey => 'enter',
+      ],
+      action => [
+        t8('Print'),
+        call   => [ 'kivi.SalesPurchase.show_print_dialog', 'js:kivi.MassDeliveryOrderPrint.submitMultiOrders' ],
+        checks => [ [ 'kivi.check_if_entries_selected', '#form tbody input[type=checkbox]' ] ],
       ],
     );
   }
@@ -659,7 +664,7 @@ sub orders {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
@@ -801,9 +806,17 @@ sub orders {
       $form->{printer_id} = $pr->id;
   }
 
+  my $print_options = SL::Helper::PrintOptions->get_print_options(
+    options => {
+      hide_language_id => 1,
+      show_bothsided   => 1,
+      show_headers     => 1,
+    },
+  );
+
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom', { print_options => print_options(inline => 1,hide_language_id => 1) }),
+                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom', { print_options => $print_options }),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),

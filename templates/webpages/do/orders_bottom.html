@@ -1,17 +1,15 @@
-[% USE HTML %][%- USE T8 -%]
- <input type="hidden" name="action" value="invoice_multi">
- <input type="hidden" name="type" value="[% HTML.escape(type) %]">
- <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
- <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
- <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+[% USE HTML %][%- USE T8 -%][%- USE LxERP -%][%- USE P -%]
+ [% P.hidden_tag("type", type) %]
+ [% P.hidden_tag("vc", vc) %]
+ [% P.hidden_tag("rowcount", rowcount) %]
+ [% P.hidden_tag("callback", callback) %]
+
+ <div id="print_options" class="hidden">
+  [% print_options %]
+ </div>
 </form>
-<form method="post" id="print_multi_id">
-[% print_options %]
+
+<div id="print_dialog" class="hidden">
+ [%- PROCESS 'common/_print_dialog.html' %]
+</div>
 <div id="mass_print_dialog" style="display: none"></div>
-<table  width="100%">
-  <tr><td width="300px" align="right">[% 'Print selected delivery orders both sided' | $T8 %]</td>
-      <td><input type="checkbox" name="bothsided" value="1">
-<input type="hidden" name="type" value="[% HTML.escape(type) %]">
-<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
-<input class="submit" type="button" name="action" id="print_multi_button" value="[% 'Print selected' | $T8 %]">
-</td><td></td></tr></table></form>

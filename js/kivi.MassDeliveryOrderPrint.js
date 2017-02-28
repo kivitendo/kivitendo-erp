@@ -1,5 +1,6 @@
 namespace('kivi.MassDeliveryOrderPrint', function(ns) {
-    
+  "use strict";
+
   ns.massConversionFinishProcess = function() {
     $('#mass_print_dialog').dialog('close');
   };
@@ -30,24 +31,6 @@ namespace('kivi.MassDeliveryOrderPrint', function(ns) {
   };
 
   ns.submitMultiOrders = function () {
-      $("#old_table_id").remove();
-      var checkboxes = $('input[type=checkbox]').filter(function () { return  $(this).prop('checked'); });
-      if (checkboxes.size() == 0) {
-          alert(kivi.t8("No delievery orders selected, please set one checkbox!"));
-          return false;
-      }
-      
-      var tmpform = $("#report_table_id").clone();
-      tmpform.hide();
-      tmpform.attr('id',"old_table_id");
-      tmpform.appendTo("#print_multi_id");
-      return kivi.submit_ajax_form('controller.pl?action=MassDeliveryOrderPrint/mass_mdo_print',$('#print_multi_id'));
-  };
-
-  ns.setup = function() {
-    $('#multi_all').checkall("input[name^='multi_id']");
-    $('#print_multi_button').click(kivi.MassDeliveryOrderPrint.submitMultiOrders);
+    return kivi.submit_ajax_form('controller.pl?action=MassDeliveryOrderPrint/mass_mdo_print', $('#form'));
   };
 });
-
-$(kivi.MassDeliveryOrderPrint.setup);

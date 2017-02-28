@@ -69,7 +69,6 @@ namespace("kivi").setupLocale({
 "More than one file selected, please set only one checkbox!":"Mehr als ein Element selektiert, bitte nur eine Box anklicken",
 "No":"Nein",
 "No article has been selected yet.":"Es wurde noch kein Artikel ausgewählt.",
-"No delievery orders selected, please set one checkbox!":"Kein Lieferschein selektiert, bitte eine Box anklicken!",
 "No delivery orders have been selected.":"Es wurden keine Lieferscheine ausgewählt.",
 "No entries have been selected.":"Es wurden keine Einträge ausgewählt.",
 "No file selected, please set one checkbox!":"Kein Element selektiert,bitte eine Box anklicken",

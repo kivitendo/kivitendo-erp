@@ -311,7 +311,11 @@ namespace('kivi.SalesPurchase', function(ns) {
   this.print_record = function() {
     $('#print_dialog').dialog('close');
 
-    kivi.submit_form_with_action('#form', $('#form').data('print-action'));
+    var action = $('#form').data('print-action');
+    if (action.match("^js:"))
+      return kivi.run(action.substring(3));
+
+    kivi.submit_form_with_action('#form', action);
   };
 
   this.show_print_dialog = function(print_action) {
