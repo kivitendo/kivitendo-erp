@@ -567,7 +567,7 @@ div.layout-actionbar div.layout-actionbar-action-disabled:hover {
 }
 
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head span {
-  border-color: darkgray;
+  border-color: black;
   background-color: whitesmoke;
   -webkit-border-top-right-radius: 2px;
   -webkit-border-bottom-right-radius: 2px;
