@@ -29,6 +29,7 @@ sub action_list {
 
   $self->make_filter_summary;
 
+  $self->setup_list_action_bar;
   $self->render('background_job_history/list',
                 title   => $::locale->text('Background job history'),
                 ENTRIES => $self->models->get,
@@ -41,6 +42,7 @@ sub action_show {
   my $back_to = $::form->{back_to} || $self->url_for(action => 'list');
 
   $self->history(SL::DB::BackgroundJobHistory->new(id => $::form->{id})->load);
+  $self->setup_show_action_bar;
   $self->render('background_job_history/show',
                 title   => $::locale->text('View background job execution result'),
                 back_to => $back_to);
@@ -109,6 +111,36 @@ sub init_models {
       error        => t8('Error'),
     },
   );
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Server control'),
+        link => $self->url_for(controller => 'TaskServer', action => 'show'),
+      ],
+      link => [
+        t8('List of jobs'),
+        link => $self->url_for(controller => 'BackgroundJob', action => 'list'),
+      ],
+    );
+  }
+}
+
+sub setup_show_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Back'),
+        link => $self->url_for(action => 'list'),
+      ],
+    );
+  }
 }
 
 1;

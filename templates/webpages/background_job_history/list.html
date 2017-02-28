@@ -50,11 +50,3 @@
 [%- END %]
 
 [% L.paginate_controls %]
-
-<hr size="3" noshade>
-
-<p>
- <a href="[% SELF.url_for(controller => 'BackgroundJob', action => 'list') %]">[%- LxERP.t8('View background jobs') %]</a>
- |
- <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
-</p>
