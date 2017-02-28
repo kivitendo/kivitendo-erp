@@ -18,10 +18,14 @@ sub opthash { +{ value => shift, selected => shift, oname => shift } }
 sub get_print_options {
   my ($class, %params) = @_;
 
+  no warnings 'once';
+
   my $form     = $params{form}     || $::form;
   my $myconfig = $params{myconfig} || \%::myconfig;
   my $locale   = $params{locale}   || $::locale;
   my $options  = $params{options};
+
+  use warnings 'once';
 
   my $prefix = $options->{dialog_name_prefix} || '';
 
