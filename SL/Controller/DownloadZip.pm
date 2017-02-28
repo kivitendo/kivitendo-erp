@@ -62,7 +62,7 @@ sub action_download_orderitems_files {
       if ( scalar (@wanted_files) > 0 ) {
         $zip->addDirectory($item->part->partnumber);
         $zip->addFile($_->get_file,
-                      Encode::encode($name_encoding,$item->part->partnumber.'/'.$_->{file_name})
+                      Encode::encode($name_encoding,$item->part->partnumber.'/'.$_->db_file->file_name)
                       ) for @wanted_files;
       }
     }
