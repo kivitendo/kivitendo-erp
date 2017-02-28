@@ -3,17 +3,23 @@
 <table>
  <tbody>
   <tr>
-   <th align="right" nowrap>[% LxERP.t8("To") %]</th>
-   <td>[% L.input_tag("email_form.to", email_form.to, size="80") %]</td>
+   <th align="right" nowrap>
+    [% LxERP.t8("Recipients") %]
+   </th>
+   <td>
+    [% L.input_tag("email_form.to", email_form.to, size="80") %]
+    [% L.link("#", "[+]", onclick="\$('[data-toggle-recipients=1]').toggle()", "data-toggle-recipients"="1") %]
+    [% L.link("#", "[-]", onclick="\$('[data-toggle-recipients=1]').toggle()", "data-toggle-recipients"="1", class="hidden") %]
+   </td>
   </tr>
 
-  <tr>
+  <tr class="hidden" data-toggle-recipients="1">
    <th align="right" nowrap>[% LxERP.t8("Cc") %]</th>
    <td>[% L.input_tag("email_form.cc", email_form.cc, size="80") %]</td>
   </tr>
 
  [%- IF show_bcc %]
-  <tr>
+  <tr class="hidden" data-toggle-recipients="1">
    <th align="right" nowrap>[% LxERP.t8("Bcc") %]</th>
    <td>[% L.input_tag("email_form.bcc", email_form.bcc, size="80") %]</td>
   </tr>
@@ -24,14 +30,14 @@
    <td>[% L.input_tag("email_form.subject", email_form.subject, size="80") %]</td>
   </tr>
 
-  <tr>
-   <th align="right" nowrap>[% LxERP.t8("Attachment name") %]</th>
-   <td>[% L.input_tag("email_form.attachment_filename", email_form.attachment_filename, size="80") %]</td>
-  </tr>
-
   <tr valign="top">
    <th align="right" nowrap>[% LxERP.t8("Message") %]</th>
    <td>[% L.textarea_tag("email_form.message", email_form.message, rows="15" cols="80" wrap="soft") %]</td>
+  </tr>
+
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8("Attachment name") %]</th>
+   <td>[% L.input_tag("email_form.attachment_filename", email_form.attachment_filename, size="80") %]</td>
   </tr>
  </tbody>
 </table>
