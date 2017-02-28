@@ -137,7 +137,9 @@ sub get_print_options {
     display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
+    display_bothsided    => $options->{show_bothsided},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
+    bothsided_checked    => $form->{bothsided}  ? "checked" : '',
     remove_draft_checked => $form->{remove_draft} ? "checked" : ''
   );
 

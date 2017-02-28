@@ -461,6 +461,7 @@ $self->{texts} = {
   'Books closed up to'          => 'Bücher abgeschlossen bis zum',
   'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' => 'Ja/Nein-Variablen: Wenn der Standardwert nicht leer ist, so wird die Checkbox standardm&auml;&szlig;ig angehakt.',
   'Both'                        => 'Beide',
+  'Both-sided'                  => 'Beidseitig',
   'Bottom'                      => 'Unten',
   'Bought'                      => 'Gekauft',
   'Break down by'               => 'Aufschlüsseln nach',
