@@ -119,7 +119,7 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
   width: 120px;
   box-sizing: border-box;
   text-align: center;
-  border: 1px;
+  border-width: 1px;
   border-style: solid;
   padding: 4px 4px;
   cursor: default;
@@ -128,7 +128,7 @@ div.layout-actionbar div.layout-actionbar-scriptbutton:focus {
 div.layout-actionbar div.layout-actionbar-link:hover,
 div.layout-actionbar div.layout-actionbar-submit:hover,
 div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
-  border: 1px;
+  border-width: 1px;
   border-style: solid;
 }
 
