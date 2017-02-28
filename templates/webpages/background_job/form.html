@@ -4,7 +4,10 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
+  [% L.hidden_tag("id", SELF.background_job.id) %]
+  [% L.hidden_tag("back_to", SELF.back_to) %]
+
   <table>
    <tr>
     <th align="right">[%- LxERP.t8('Active') %]</th>
@@ -38,21 +41,4 @@
    </tr>
 
   </table>
-
-  <p>
-   [% L.hidden_tag("id", SELF.background_job.id) %]
-   [% L.hidden_tag("back_to", SELF.back_to) %]
-   [% L.hidden_tag("action", "BackgroundJob/dispatch") %]
-   [% L.submit_tag("action_" _  (SELF.background_job.id ? "update" : "create"), LxERP.t8('Save')) %]
-   [%- IF SELF.background_job.id %]
-    [% L.submit_tag("action_execute", LxERP.t8("Execute now")) %]
-    [% L.submit_tag("action_destroy", LxERP.t8("Delete"), "confirm", LxERP.t8("Are you sure you want to delete this background job?")) %]
-   [%- ELSE %]
-    [% L.submit_tag("action_save_and_execute", LxERP.t8("Save and execute")) %]
-   [%- END %]
-   <a href="[% SELF.url_for(action => 'list') %]">[%- LxERP.t8('Abort') %]</a>
-   [%- IF SELF.background_job.id %]
-    <a href="[% SELF.url_for(controller='BackgroundJobHistory', action='list', 'filter.package_name:substr::ilike'=SELF.background_job.package_name) %]">[%- LxERP.t8('Show history') %]</a>
-   [%- END %]
-  </p>
  </form>

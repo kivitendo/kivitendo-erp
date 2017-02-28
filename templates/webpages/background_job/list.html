@@ -4,7 +4,6 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
   [% IF !BACKGROUND_JOBS.size %]
    <p>
     [%- LxERP.t8('No background job has been created yet.') %]
@@ -64,14 +63,3 @@
   [%- END %]
 
   [% L.paginate_controls %]
-
-  <hr size="3" noshade>
-
-  <p>
-   <a href="[% SELF.url_for(action => 'new', back_to => SELF.get_callback) %]">[%- LxERP.t8('Create new background job') %]</a>
-   |
-   <a href="[% SELF.url_for(controller => 'BackgroundJobHistory', action => 'list') %]">[%- LxERP.t8('View background job history') %]</a>
-   |
-   <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
-  </p>
- </form>

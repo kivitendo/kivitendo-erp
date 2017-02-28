@@ -28,6 +28,7 @@ __PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy 
 sub action_list {
   my ($self) = @_;
 
+  $self->setup_list_action_bar;
   $self->render('background_job/list',
                 title           => $::locale->text('Background jobs'),
                 BACKGROUND_JOBS => $self->models->get,
@@ -38,6 +39,7 @@ sub action_new {
   my ($self) = @_;
 
   $self->background_job(SL::DB::BackgroundJob->new(cron_spec => '* * * * *',  package_name => 'Test'));
+  $self->setup_form_action_bar;
   $self->render('background_job/form',
                 title       => $::locale->text('Create a new background job'),
                 JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
@@ -46,6 +48,7 @@ sub action_new {
 sub action_edit {
   my ($self) = @_;
 
+  $self->setup_form_action_bar;
   $self->render('background_job/form',
                 title       => $::locale->text('Edit background job'),
                 JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
@@ -181,6 +184,68 @@ sub init_models {
       package_name => [ SL::BackgroundJob::Base->get_known_job_classes ],
     ],
   );
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link      => $self->url_for(action => 'new'),
+        accesskey => 'enter',
+      ],
+      link => [
+        t8('Server control'),
+        link => $self->url_for(controller => 'TaskServer', action => 'show'),
+      ],
+      link => [
+        t8('Job history'),
+        link => $self->url_for(controller => 'BackgroundJobHistory', action => 'list'),
+      ],
+    );
+  }
+}
+
+sub setup_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->background_job->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          submit    => [ '#form', { action => 'BackgroundJob/' . ($is_new ? 'create' : 'update') } ],
+          accesskey => 'enter',
+        ],
+        action => [
+          t8('Save and execute'),
+          submit => [ '#form', { action => 'BackgroundJob/save_and_execute' } ],
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'BackgroundJob/delete' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new ? t8('This object has not been saved yet.') : undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list'),
+      ],
+
+      link => [
+        t8('Job history'),
+        link     => $self->url_for(controller => 'BackgroundJobHistory', action => 'list', 'filter.package_name:substr::ilike' => $self->background_job->package_name),
+        disabled => $is_new ? t8('This object has not been saved yet.') : undef,
+      ],
+    );
+  }
 }
 
 1;
