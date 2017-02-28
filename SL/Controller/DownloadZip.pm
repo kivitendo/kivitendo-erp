@@ -43,8 +43,9 @@ sub action_download_orderitems_files {
   #my $name_encoding = 'cp850';
   my $name_encoding = 'UTF-8';
 
-  # today only sales_order implementation !
-  if ( $object_id && $object_type eq 'sales_order' && $element_type eq 'part' ) {
+  if (   $object_id
+      && ($object_type =~ m{^(?:sales_order|purchase_order|sales_quotation|request_quotation)$})
+      && ($element_type eq 'part')) {
     my $orderitems = SL::DB::Manager::OrderItem->get_all(query => ['order.id' => $object_id ],
                                                          with_objects => [ 'order', 'part' ],
                                                          sort_by => 'part.partnumber ASC');
