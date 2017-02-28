@@ -12,9 +12,9 @@ __PACKAGE__->meta->columns(
   abbreviation      => { type => 'text' },
   description       => { type => 'text' },
   id                => { type => 'serial', not_null => 1 },
-  report_separate   => { type => 'boolean', default => 'false' },
-  used_for_purchase => { type => 'boolean', default => 'true' },
-  used_for_sale     => { type => 'boolean', default => 'true' },
+  report_separate   => { type => 'boolean', default => 'false', not_null => 1 },
+  used_for_purchase => { type => 'boolean', default => 'true', not_null => 1 },
+  used_for_sale     => { type => 'boolean', default => 'true', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
