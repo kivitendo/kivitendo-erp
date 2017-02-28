@@ -53,19 +53,10 @@ sub action_download_orderitems_files {
       my @files = SL::File->get_all(object_id   => $item->parts_id,
                                     object_type => $element_type,
                                   );
-      my @wanted_files;
-      ## also for filtering if needed:
-      # if ( $doctype ) {
-      #   @wanted_files = grep { $_->{file_name} =~ /$doctype/ } @files;
-      # } else {
-      @wanted_files = @files;
-      # }
-      if ( scalar (@wanted_files) > 0 ) {
-        $zip->addDirectory($item->part->partnumber);
-        $zip->addFile($_->get_file,
-                      Encode::encode($name_encoding,$item->part->partnumber.'/'.$_->db_file->file_name)
-                      ) for @wanted_files;
-      }
+      next unless @files;
+
+      $zip->addDirectory($item->part->partnumber);
+      $zip->addFile($_->get_file, Encode::encode($name_encoding, $item->part->partnumber . '/' . $_->db_file->file_name)) for @files;
     }
   }
   unless ( $zip->writeToFileNamed($sfile->file_name) == Archive::Zip::AZ_OK ) {
