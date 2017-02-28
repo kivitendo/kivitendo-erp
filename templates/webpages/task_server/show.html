@@ -1,4 +1,4 @@
-[% USE HTML %][% USE L %][% USE LxERP %]
+[% USE HTML %][% USE L %][% USE LxERP %][%- USE P -%]
 <h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
@@ -20,14 +20,6 @@
   </tbody>
  </table>
 
- <p>
-[% IF SELF.task_server.is_running %]
-  <a href="[% SELF.url_for(action => 'stop') %]">[%- LxERP.t8('Stop task server') %]</a>
-[%- ELSE %]
-  <a href="[% SELF.url_for(action => 'start') %]">[%- LxERP.t8('Start task server') %]</a>
-[%- END %]
-  |
-  <a href="[% SELF.url_for(controller => 'BackgroundJob', action => 'list') %]">[%- LxERP.t8('View background jobs') %]</a>
-  |
-  <a href="[% SELF.url_for(controller => 'BackgroundJobHistory', action => 'list') %]">[%- LxERP.t8('View background job history') %]</a>
- </p>
+<form id="form" method="post" action="controller.pl">
+ [% P.hidden_tag("action", "TaskServer/" _ (SELF.task_server.is_running ? "stop" : "start")) %]
+</form>

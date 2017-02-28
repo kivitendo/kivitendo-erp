@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
@@ -25,6 +26,7 @@ sub action_show {
 
   flash('warning', $::locale->text('The task server does not appear to be running.')) if !$self->task_server->is_running;
 
+  $self->setup_show_action_bar;
   $self->render('task_server/show',
                 title               => $::locale->text('Task server status'),
                 last_command_output => $::auth->get_session_value('TaskServer::last_command_output'));
@@ -82,6 +84,28 @@ sub check_auth {
 
 sub init_task_server {
   return SL::System::TaskServer->new;
+}
+
+sub setup_show_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $self->task_server->is_running ? t8('Stop server') : t8('Start server'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+      link => [
+        t8('List of jobs'),
+        link => $self->url_for(controller => 'BackgroundJob', action => 'list'),
+      ],
+      link => [
+        t8('Job history'),
+        link => $self->url_for(controller => 'BackgroundJobHistory', action => 'list'),
+      ],
+    );
+  }
 }
 
 1;
