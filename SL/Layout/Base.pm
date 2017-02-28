@@ -38,7 +38,7 @@ sub init_sublayouts_by_name {
 
 sub get {
   $_[0]->sub_layouts;
-  $_[0]->sub_layouts_by_name->{$_[1]}
+  return grep { $_ } ($_[0]->sub_layouts_by_name->{$_[1]});
 }
 
 sub init_auto_reload_resources_param {
