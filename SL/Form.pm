@@ -1201,7 +1201,7 @@ sub send_email {
                                         id      => $attfile->id,
                                         type    => $attfile->mime_type,
                                         name    => $attfile->file_name,
-                                        content => $attfile->get_content };
+                                        content => $attfile->get_content ? ${ $attfile->get_content } : undef };
     }
   }
   $mail->{message}  =~ s/\r//g;
