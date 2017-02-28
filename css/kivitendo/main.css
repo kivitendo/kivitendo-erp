@@ -548,7 +548,6 @@ div.layout-actionbar div.layout-actionbar-link:hover,
 div.layout-actionbar div.layout-actionbar-submit:hover,
 div.layout-actionbar div.layout-actionbar-scriptbutton:hover {
   color: #FE5F14;
-  border-color: gray !important;
 }
 
 div.layout-actionbar div.layout-actionbar-action-disabled,
