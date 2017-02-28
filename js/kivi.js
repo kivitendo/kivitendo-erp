@@ -443,7 +443,7 @@ namespace("kivi", function(ns) {
   ns.run = function(function_name, args) {
     var fn = ns.get_function_by_name(function_name);
     if (fn)
-      return fn.apply({}, args);
+      return fn.apply({}, args || []);
 
     console.error('kivi.run("' + function_name + '"): No function by that name found');
     return undefined;
