@@ -48,10 +48,7 @@ sub action_download_orderitems_files {
     my $orderitems = SL::DB::Manager::OrderItem->get_all(query => ['order.id' => $object_id ],
                                                          with_objects => [ 'order', 'part' ],
                                                          sort_by => 'part.partnumber ASC');
-    my $part_id = 0;
     foreach my $item ( @{$orderitems} ) {
-      next if $part_id == $item->parts_id;
-
       my @files = SL::File->get_all(object_id   => $item->parts_id,
                                     object_type => $element_type,
                                   );
