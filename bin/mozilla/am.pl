@@ -808,7 +808,7 @@ sub edit_units {
   AM->units_in_use(\%myconfig, $form, $units);
   map({ $units->{$_}->{"BASE_UNIT_DDBOX"} = AM->unit_select_data($units, $units->{$_}->{"base_unit"}, 1); } keys(%{$units}));
 
-  my @languages = AM->language(\%myconfig, $form, 1);
+  my @languages = @{ SL::DB::Manager::Language->get_all_sorted };
 
   my @unit_list = sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } values(%{$units}));
 
@@ -818,11 +818,11 @@ sub edit_units {
     $_->{"UNITLANGUAGES"} = [];
     foreach my $lang (@languages) {
       push(@{ $_->{"UNITLANGUAGES"} },
-           { "idx" => $i,
-             "unit" => $_->{"name"},
-             "language_id" => $lang->{"id"},
-             "localized" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized"},
-             "localized_plural" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized_plural"},
+           { "idx"              => $i,
+             "unit"             => $_->{"name"},
+             "language_id"      => $lang->id,
+             "localized"        => $_->{"LANGUAGES"}->{$lang->template_code}->{"localized"},
+             "localized_plural" => $_->{"LANGUAGES"}->{$lang->template_code}->{"localized_plural"},
            });
     }
     $i++;
@@ -867,11 +867,11 @@ sub add_unit {
   }
 
   my @languages;
-  foreach my $lang (AM->language(\%myconfig, $form, 1)) {
+  foreach my $lang (@{ SL::DB::Manager::Language->get_all_sorted }) {
     next unless ($form->{"new_localized_$lang->{id}"} || $form->{"new_localized_plural_$lang->{id}"});
-    push(@languages, { "id" => $lang->{"id"},
-                       "localized" => $form->{"new_localized_$lang->{id}"},
-                       "localized_plural" => $form->{"new_localized_plural_$lang->{id}"},
+    push(@languages, { "id"               => $lang->id,
+                       "localized"        => $form->{"new_localized_" . $lang->id},
+                       "localized_plural" => $form->{"new_localized_plural_" . $lang->id},
          });
   }
 
@@ -897,9 +897,9 @@ sub set_unit_languages {
 
   foreach my $lang (@{$languages}) {
     push(@{ $unit->{"LANGUAGES"} },
-         { "id" => $lang->{"id"},
-           "localized" => $form->{"localized_${idx}_$lang->{id}"},
-           "localized_plural" => $form->{"localized_plural_${idx}_$lang->{id}"},
+         { "id"               => $lang->id,
+           "localized"        => $form->{"localized_${idx}_" . $lang->id},
+           "localized_plural" => $form->{"localized_plural_${idx}_" . $lang->id},
          });
   }
 
@@ -918,7 +918,7 @@ sub save_unit {
   my $old_units = AM->retrieve_units(\%myconfig, $form, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
 
-  my @languages = AM->language(\%myconfig, $form, 1);
+  my @languages = @{ SL::DB::Manager::Language->get_all_sorted };
 
   my $new_units = {};
   my @delete_units = ();
