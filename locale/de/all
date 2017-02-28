@@ -1020,6 +1020,7 @@ $self->{texts} = {
   'Download PDF'                => 'PDF herunterladen',
   'Download PDF, do not print'  => 'Nicht drucken, sondern PDF herunterladen',
   'Download SEPA XML export file' => 'SEPA-XML-Exportdatei herunterladen',
+  'Download attachments of all parts' => 'Anhänge aller Artikel herunterladen',
   'Download list of payments as PDF' => 'Zahlungsliste als PDF herunterladen',
   'Download picture'            => 'Bild herunterladen',
   'Download sample file'        => 'Beispieldatei herunterladen',

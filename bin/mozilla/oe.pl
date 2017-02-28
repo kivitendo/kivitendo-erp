@@ -406,6 +406,12 @@ sub setup_oe_action_bar {
           call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
           checks => [ @req_trans_desc ],
         ],
+        action => [
+          t8('Download attachments of all parts'),
+          call     => [ 'kivi.File.downloadOrderitemsFiles', $::form->{type}, $::form->{id} ],
+          disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          only_if  => $::instance_conf->get_doc_storage,
+        ],
       ], #end of combobox "Export"
 
       combobox => [

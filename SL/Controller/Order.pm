@@ -1134,6 +1134,12 @@ sub _setup_edit_action_bar {
           t8('E-mail'),
           call => [ 'kivi.Order.email' ],
         ],
+        action => [
+          t8('Download attachments of all parts'),
+          call     => [ 'kivi.File.downloadOrderitemsFiles', $::form->{type}, $::form->{id} ],
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+          only_if  => $::instance_conf->get_doc_storage,
+        ],
       ], # end of combobox "Export"
 
       action => [
