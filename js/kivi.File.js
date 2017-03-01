@@ -27,7 +27,6 @@ namespace('kivi.File', function(ns) {
                                , height: 200
                                , modal:  true
                                , close: function() {
-                                 console.log("Closing, moving to original parent " + parent_id);
                                  $dlg.remove().appendTo('#' + parent_id);
                                }
                               } });
@@ -216,12 +215,12 @@ namespace('kivi.File', function(ns) {
                       });
     return true;
   }
-    
+
   ns.importclose = function() {
     $("#import_dialog").dialog('close');
     return false;
   }
-  
+
   ns.importaction = function(id,type,file_type,fromwhere,frompath,checkbox_class) {
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
