@@ -357,13 +357,13 @@ namespace("kivi", function(ns) {
       params.dialog || { },
       { // Options that must not be changed:
         close: function(event, ui) {
+          dialog.dialog('close');
+
           if (custom_close)
             custom_close();
 
           if (params.url || params.html)
             dialog.remove();
-          else
-            dialog.dialog('close');
         }
       });
 
