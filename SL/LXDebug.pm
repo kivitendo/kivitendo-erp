@@ -20,7 +20,7 @@ use constant STDERR_TARGET => 1;
 
 use Data::Dumper;
 use POSIX qw(strftime getpid);
-use Scalar::Util qw(blessed refaddr reftype weaken);
+use Scalar::Util qw(blessed refaddr weaken);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
 use SL::Request ();
@@ -176,7 +176,7 @@ sub dump {
     if (blessed($src) && $src->can('as_debug_info')) {
       $dumped{$addr} = $src->as_debug_info;
 
-    } elsif (reftype($src) eq 'ARRAY') {
+    } elsif (ref($src) eq 'ARRAY') {
       $dumped{$addr} = [];
 
       foreach my $entry (@{ $src }) {
@@ -187,7 +187,7 @@ sub dump {
 
       }
 
-    } elsif (reftype($src) eq 'HASH') {
+    } elsif (ref($src) =~ m{^(?:HASH|Form)$}) {
       $dumped{$addr} = {};
 
       foreach my $key (keys %{ $src }) {
