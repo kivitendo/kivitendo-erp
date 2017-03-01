@@ -252,6 +252,19 @@ sub presenter {
   }
 }
 
+sub as_debug_info {
+  my ($self) = @_;
+
+  return {
+    map {
+      my $column_name = $_->name;
+      my $value       = $self->$column_name;
+      $value          = !defined($value) ? undef : "${value}";
+      ($_ => $value)
+    } $self->meta->columns
+  };
+}
+
 1;
 
 __END__
@@ -382,6 +395,12 @@ with the same name as the class of the involking object.
 
 For the full documentation about its capabilites see
 L<SL::DB::Helper::Presenter>
+
+=item C<as_debug_info>
+
+Returns a hash containing solely the essentials for dumping it with
+L<LXDebug/dump>. The returned hash consists of the column names with
+associated column values in stringified form.
 
 =back
 

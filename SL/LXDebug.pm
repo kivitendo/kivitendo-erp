@@ -20,6 +20,7 @@ use constant STDERR_TARGET => 1;
 
 use Data::Dumper;
 use POSIX qw(strftime getpid);
+use Scalar::Util qw(blessed reftype);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
 use SL::Request ();
@@ -156,30 +157,26 @@ sub warn {
   $self->message(WARN, $message);
 }
 
+sub _clone_for_dump {
+  my ($src) = @_;
+
+  return undef unless defined($src);
+  return $src->as_debug_info                                            if blessed($src) && $src->can('as_debug_info');
+  return [ map { _clone_for_dump($_) } @{ $src } ]                      if reftype($src) eq 'ARRAY';
+  return { map { ($_ => _clone_for_dump($src->{$_})) } keys %{ $src } } if reftype($src) eq 'HASH';
+  return "$src";
+}
+
 sub dump {
   my ($self, $level, $name, $variable, %options) = @_;
 
-  my $password;
-  if ($variable && ('Form' eq ref $variable) && defined $variable->{password}) {
-    $password             = $variable->{password};
-    $variable->{password} = 'X' x 8;
-  }
-
+  $variable  = _clone_for_dump($variable);
   my $dumper = Data::Dumper->new([$variable]);
   $dumper->Sortkeys(1);
   $dumper->Indent(2);
   $dumper->$_($options{$_}) for keys %options;
   my $output = $dumper->Dump();
   $self->message($level, "dumping ${name}:\n" . $output);
-
-  $variable->{password} = $password if (defined $password);
-
-  # Data::Dumper does not reset the iterator belonging to this hash
-  # if 'Sortkeys' is true. Therefore clear the iterator manually.
-  # See "perldoc -f each".
-  if ($variable && (('HASH' eq ref $variable) || ('Form' eq ref $variable))) {
-    keys %{ $variable };
-  }
 
   return $output;
 }
@@ -216,17 +213,6 @@ sub dump_sql_result {
     $self->message($level, $prefix . sprintf($format, map { $row->{$_} } @sorted_names));
   }
   $self->message($level, $prefix . sprintf('(%d row%s)', scalar @{ $results }, scalar @{ $results } > 1 ? 's' : ''));
-}
-
-sub dump_object {
-  my ($self, $level, $text, $object) = @_;
-
-  my $copy;
-  if ($object) {
-    $copy->{$_} = $object->$_ for $object->meta->columns;
-  }
-
-  $self->dump($level, $text, $copy);
 }
 
 sub show_diff {
