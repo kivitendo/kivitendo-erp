@@ -173,20 +173,24 @@ sub action_ajax_rename {
 
   } else {
     # normal rename
+    my $res;
+
     eval {
-      my $res = $file->rename($::form->{to});
+      $res = $file->rename($::form->{to});
       $main::lxdebug->message(LXDebug->DEBUG2(), "rename result=".$res);
-      if ($res > SL::File::RENAME_OK) {
-        $self->js->flash('error',
-                         $res == SL::File::RENAME_EXISTS      ? $::locale->text('File still exists !')
-                       : $res == SL::File::RENAME_SAME        ? $::locale->text('Same Filename !')
-                       :                                        $::locale->text('File not exists !'))->render;
-        return 1;
-      }
       1;
     } or do {
       $self->js->flash(       'error', t8('internal error (see details)'))
                ->flash_detail('error', $@)->render;
+      return;
+    };
+
+    if ($res != SL::File::RENAME_OK) {
+      $self->js->flash('error',
+                         $res == SL::File::RENAME_EXISTS ? $::locale->text('File still exists !')
+                       : $res == SL::File::RENAME_SAME   ? $::locale->text('Same Filename !')
+                       :                                   $::locale->text('File not exists !'))
+        ->render;
       return;
     }
   }
