@@ -1,6 +1,8 @@
 namespace('kivi.File', function(ns) {
 
   ns.rename = function(id,type,file_type,checkbox_class,is_global) {
+    var $dlg       = $('#rename_dialog');
+    var parent_id  = $dlg.parent("div.ui-tabs-panel").attr('id');
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
     if (checkboxes.size() === 0) {
@@ -23,7 +25,12 @@ namespace('kivi.File', function(ns) {
                       dialog: { title: kivi.t8("Rename attachment")
                                , width:  400
                                , height: 200
-                               , modal:  true } });
+                               , modal:  true
+                               , close: function() {
+                                 console.log("Closing, moving to original parent " + parent_id);
+                                 $dlg.remove().appendTo('#' + parent_id);
+                               }
+                              } });
     return true;
   }
 
