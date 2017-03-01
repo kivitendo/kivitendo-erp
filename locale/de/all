@@ -3482,7 +3482,6 @@ $self->{texts} = {
   'Versions'                    => 'Versionen',
   'View SEPA export'            => 'SEPA-Export-Details ansehen',
   'View background job execution result' => 'Verlauf der Hintergrund-Job-Ausführungen anzeigen',
-  'View background jobs'        => 'Hintergrund-Jobs anzeigen',
   'View sent email'             => 'Verschickte E-Mail anzeigen',
   'View warehouse content'      => 'Lagerbestand ansehen',
   'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
