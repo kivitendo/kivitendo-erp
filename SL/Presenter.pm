@@ -113,6 +113,8 @@ sub render {
 sub get_template {
   my ($self) = @_;
 
+  # Make locales.pl parse generic/exception.html, too:
+  # $::form->parse_html_template("generic/exception")
   $self->{template} ||=
     Template->new({ INTERPOLATE  => 0,
                     EVAL_PERL    => 0,

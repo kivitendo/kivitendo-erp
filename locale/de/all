@@ -278,6 +278,7 @@ $self->{texts} = {
   'Amounts differ too much'     => 'Beträge weichen zu sehr voneinander ab.',
   'An error occured. Letter could not be deleted.' => 'Es ist ein Fehler aufgetreten. Der Brief konnte nicht gelöscht werden.',
   'An error occurred while transferring the file.' => 'Bei Übertragung der Datei trat ein Fehler auf',
+  'An exception occurred during execution.' => 'Während der Ausführung trat eine Ausnahme auf.',
   'An invalid character was used (invalid characters: #1).' => 'Ein ungültiges Zeichen wurde benutzt (ungültige Zeichen: #1).',
   'An invalid character was used (valid characters: #1).' => 'Ein ungültiges Zeichen wurde benutzt (gültige Zeichen: #1).',
   'An upper-case character is required.' => 'Ein Großbuchstabe ist vorgeschrieben.',
