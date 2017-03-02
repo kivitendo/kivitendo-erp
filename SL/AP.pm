@@ -649,7 +649,7 @@ sub _post_payment {
 
   # Get the AP accno.
   $query =
-    qq|SELECT c.accno
+    qq|SELECT c.id
        FROM acc_trans at
        LEFT JOIN chart c ON (at.chart_id = c.id)
        WHERE (trans_id = ?)
@@ -657,7 +657,7 @@ sub _post_payment {
        ORDER BY at.acc_trans_id
        LIMIT 1|;
 
-  ($form->{APselected}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
+  ($form->{AP_chart_id}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
 
   # Post the new payments.
   $self->post_transaction($myconfig, $form, $dbh, 1);
