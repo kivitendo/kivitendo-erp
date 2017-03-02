@@ -218,7 +218,7 @@ sub display_row {
 
   # special alignings
   my %align  = map { $_ => 'right' } qw(qty ship right discount linetotal stock_in_out weight ship_missing);
-  my %nowrap = map { $_ => 1 }       qw(description unit);
+  my %nowrap = map { $_ => 1 }       qw(description unit  price_source);
 
   $form->{marge_total}           = 0;
   $form->{sellprice_total}       = 0;
@@ -336,24 +336,18 @@ sub display_row {
       $column_data{ship_missing} = $form->format_amount(\%myconfig, $ship_missing_qty) . ' ' . $form->{"unit_$i"} . '; ' . $form->format_amount(\%myconfig, $ship_missing_amount, $decimalplaces);
     }
 
-    my $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
-    my $discount_value  = $form->format_amount(\%myconfig, $form->{"discount_$i"});
-    my $edit_prices     = $main::auth->assert('edit_prices', 1) && !$::form->{"active_price_source_$i"};
-    my $edit_discounts  = $main::auth->assert('edit_prices', 1) && !$::form->{"active_discount_source_$i"};
-    $column_data{sellprice}   = (!$edit_prices)
-                                ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
-                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
-    $column_data{discount}    = (!$edit_discounts)
-                                  ? $cgi->hidden(   -name => "discount_$i", -id => "discount_$i", -value => $discount_value) . $discount_value . ' %'
-                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -value => $discount_value);
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
 
+    my $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+    my $discount_value  = $form->format_amount(\%myconfig, $form->{"discount_$i"});
+
+    my $price;
     if ($form->{"id_${i}"} && !$is_delivery_order) {
       my $price_source  = SL::PriceSource->new(record_item => $record_item, record => $record);
-      my $price         = $price_source->price_from_source($::form->{"active_price_source_$i"});
+         $price         = $price_source->price_from_source($::form->{"active_price_source_$i"});
       my $discount      = $price_source->discount_from_source($::form->{"active_discount_source_$i"});
       my $best_price    = $price_source->best_price;
       my $best_discount = $price_source->best_discount;
@@ -377,6 +371,15 @@ sub display_row {
         }
       }
     }
+
+    my $edit_prices     = $main::auth->assert('edit_prices', 1) && (!$::form->{"active_price_source_$i"} || !$price || $price->editable);
+    my $edit_discounts  = $main::auth->assert('edit_prices', 1) && !$::form->{"active_discount_source_$i"};
+    $column_data{sellprice}   = (!$edit_prices)
+                                ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
+                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
+    $column_data{discount}    = (!$edit_discounts)
+                                  ? $cgi->hidden(   -name => "discount_$i", -id => "discount_$i", -value => $discount_value) . $discount_value . ' %'
+                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -value => $discount_value);
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);

@@ -5,7 +5,7 @@ use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(price description spec price_source invalid missing) ],
-  'scalar --get_set_init' => [ qw(priority) ],
+  'scalar --get_set_init' => [ qw(priority editable) ],
 );
 
 require SL::DB::Helper::Attr;
@@ -41,6 +41,10 @@ sub to_str {
 
 sub init_priority {
   3
+}
+
+sub init_editable {
+  0
 }
 
 1;
@@ -118,6 +122,18 @@ A ref to the creating algorithm.
 
 OPTIONAL. Prices may supply a numerical priority. Higher will trump lower, even when
 supplying higher prices. Defaults to 3 (as in middle of 1-5).
+
+=item C<editable>
+
+OPTIONAL. Prices may flag themselves as editable. An editable price will still
+be subject to checks for higher or lower prices, but will be rendered in a
+fashion that allows the user to overwrite it.
+
+This is potentially very distracting if the price is usually a default price
+and will be changed in a lot of instances so use with caution.
+
+On the other hand it can provide the capability that users unfamiliar with the
+system will intuitively expect so it can be a good way to introduce the system.
 
 =item C<missing>
 
