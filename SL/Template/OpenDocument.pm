@@ -382,7 +382,7 @@ sub parse {
   if ($self->{use_template_toolkit}) {
     my $additional_params = $::form;
 
-    $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
+    $::form->template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
   } else {
     $self->{tag_stack} = [];
     $new_contents = $self->parse_block($contents);

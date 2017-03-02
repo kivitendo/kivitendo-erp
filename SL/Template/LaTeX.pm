@@ -450,7 +450,7 @@ sub parse {
 
     my $globals = global_vars();
 
-    $::form->init_template->process(\$contents, { %$form, %$globals }, \$new_contents) || die $::form->template->error;
+    $::form->template->process(\$contents, { %$form, %$globals }, \$new_contents) || die $::form->template->error;
   } else {
     $new_contents = $self->parse_block($contents);
   }
