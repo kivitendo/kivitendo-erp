@@ -1154,56 +1154,43 @@ sub send_email {
     $mail->{message} .= $_ while <IN>;
     close(IN);
 
-  } else {
-    $main::lxdebug->message(LXDebug->DEBUG2(),"action_oldfile=" . $self->{action_oldfile}." action_nofile=".$self->{action_nofile});
-    if (!$self->{"do_not_attach"} && !$self->{action_nofile}) {
-      my $attachment_name  =  $self->{attachment_filename}  || $self->{tmpfile};
-      $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
-      if ( $self->{action_oldfile} ) {
-        $main::lxdebug->message(LXDebug->DEBUG2(),"object_id =>". $self->{id}." object_type =>". $self->{formname});
-        my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},
-                                            object_type => $self->{formname},
-                                            file_type   => 'document');
-        $main::lxdebug->message(LXDebug->DEBUG2(), "old file obj=".$attfile);
-        push @attfiles, $attfile if $attfile;
-      } else {
-        push @{ $mail->{attachments} }, { path => $self->{tmpfile},
-                                          id   => $self->{print_file_id},
-                                          type => "application/pdf",
-                                          name => $attachment_name };
+  } elsif (($self->{attachment_policy} // '') ne 'no_file') {
+    my $attachment_name  =  $self->{attachment_filename}  || $self->{tmpfile};
+    $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+
+    if (($self->{attachment_policy} // '') eq 'old_file') {
+      my ( $attfile ) = SL::File->get_all(object_id   => $self->{id},
+                                          object_type => $self->{formname},
+                                          file_type   => 'document');
+
+      if ($attfile) {
+        $attfile->{override_file_name} = $attachment_name if $attachment_name;
+        push @attfiles, $attfile;
       }
+
+    } else {
+      push @{ $mail->{attachments} }, { path => $self->{tmpfile},
+                                        id   => $self->{print_file_id},
+                                        type => "application/pdf",
+                                        name => $attachment_name };
     }
   }
-  if (!$self->{"do_not_attach"}) {
-    for my $i (1 .. $self->{attfile_count}) {
-      if (  $self->{"attsel_$i"} ) {
-        my $attfile = SL::File->get(id => $self->{"attfile_$i"});
-        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
-        push @attfiles, $attfile if $attfile;
-      }
-    }
-    for my $i (1 .. $self->{attfile_cv_count}) {
-      if (  $self->{"attsel_cv_$i"} ) {
-        my $attfile = SL::File->get(id => $self->{"attfile_cv_$i"});
-        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
-        push @attfiles, $attfile if $attfile;
-      }
-    }
-    for my $i (1 .. $self->{attfile_part_count}) {
-      if (  $self->{"attsel_part_$i"} ) {
-        my $attfile = SL::File->get(id => $self->{"attfile_part_$i"});
-        $main::lxdebug->message(LXDebug->DEBUG2(), "att file=".$self->{"attfile_$i"}." obj=".$attfile);
-        push @attfiles, $attfile if $attfile;
-      }
-    }
-    foreach my $attfile ( @attfiles ) {
-      push @{ $mail->{attachments} }, { path    => $attfile->get_file,
-                                        id      => $attfile->id,
-                                        type    => $attfile->mime_type,
-                                        name    => $attfile->file_name,
-                                        content => $attfile->get_content ? ${ $attfile->get_content } : undef };
-    }
+
+  push @attfiles,
+    grep { $_ }
+    map  { SL::File->get(id => $_) }
+    @{ $self->{attach_file_ids} // [] };
+
+  foreach my $attfile ( @attfiles ) {
+    push @{ $mail->{attachments} }, {
+      path    => $attfile->get_file,
+      id      => $attfile->id,
+      type    => $attfile->mime_type,
+      name    => $attfile->{override_file_name} // $attfile->file_name,
+      content => $attfile->get_content ? ${ $attfile->get_content } : undef,
+    };
   }
+
   $mail->{message}  =~ s/\r//g;
   $mail->{message} .= $full_signature;
   $self->{emailerr} = $mail->send();

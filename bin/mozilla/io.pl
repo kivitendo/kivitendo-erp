@@ -41,6 +41,7 @@ use Carp;
 use CGI;
 use List::MoreUtils qw(any uniq apply);
 use List::Util qw(min max first);
+use List::UtilsBy qw(sort_by uniq_by);
 
 use SL::ClientJS;
 use SL::CVar;
@@ -1924,6 +1925,37 @@ sub setup_sales_purchase_print_options {
   );
 }
 
+sub _get_files_for_email_dialog {
+  my %files = map { ($_ => []) } qw(versions files vc_files part_files);
+
+  return %files if !$::instance_conf->get_doc_storage;
+
+  $files{versions} = [ SL::File->get_all_versions(object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'document') ];
+  $files{files}    = [ SL::File->get_all(         object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'attachment') ];
+  $files{vc_files} = [ SL::File->get_all(         object_id => $::form->{vc_id}, object_type => $::form->{vc},   file_type => 'attachment') ]
+    if $::form->{vc} && $::form->{"vc_id"};
+
+  my @parts =
+    uniq_by { $_->{id} }
+    grep    { $_->{id} }
+    map     {
+      +{ id         => $::form->{"id_$_"},
+         partnumber => $::form->{"partnumber_$_"},
+       }
+    } (1 .. $::form->{rowcount});
+
+  foreach my $part (@parts) {
+    my @pfiles = SL::File->get_all(object_id => $part->{id}, object_type => 'part');
+    push @{ $files{part_files} }, map { +{ %{ $_ }, partnumber => $part->{partnumber} } } @pfiles;
+  }
+
+  foreach my $key (keys %files) {
+    $files{$key} = [ sort_by { lc $_->{db_file}->{file_name} } @{ $files{$key} } ];
+  }
+
+  return %files;
+}
+
 sub show_sales_purchase_email_dialog {
   my $contact    = $::form->{cp_id} ? SL::DB::Contact->load_cached($::form->{cp_id}) : undef;
   my $email_form = {
@@ -1932,9 +1964,12 @@ sub show_sales_purchase_email_dialog {
     attachment_filename => $::form->generate_attachment_filename,
   };
 
-  my $html = $::form->parse_html_template("common/_send_email_dialog", {
-    email_form => $email_form,
-    show_bcc   => $::auth->assert('email_bcc', 'may fail'),
+  my %files = _get_files_for_email_dialog();
+  my $html  = $::form->parse_html_template("common/_send_email_dialog", {
+    email_form  => $email_form,
+    show_bcc    => $::auth->assert('email_bcc', 'may fail'),
+    FILES       => \%files,
+    is_customer => $::form->{vc} eq 'customer',
   });
 
   print $::form->ajax_response_header, $html;
@@ -1954,8 +1989,13 @@ sub send_sales_purchase_email {
 
   $::form->{media} = 'email';
 
-  print_form("return");
-  Common->save_email_status(\%::myconfig, $::form);
+  if (($::form->{attachment_policy} // '') =~ m{^(?:old_file|no_file)$}) {
+    $::form->send_email(\%::myconfig, 'pdf');
+
+  } else {
+    print_form("return");
+    Common->save_email_status(\%::myconfig, $::form);
+  }
 
   flash_later('info', $::locale->text('The email has been sent.'));
 

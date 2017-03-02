@@ -268,23 +268,36 @@ namespace('kivi.SalesPurchase', function(ns) {
   this.show_email_dialog = function(send_action) {
     $('#form').data('send-email-action', send_action || 'send_sales_purchase_email');
 
+    var vc   = $('#vc').val();
+    var data = {
+      action:      'show_sales_purchase_email_dialog',
+      cp_id:       $('#cp_id').val(),
+      donumber:    $('#donumber').val(),
+      format:      $('#format').val(),
+      formname:    $('#formname').val(),
+      id:          $('#id').val(),
+      invnumber:   $('#invnumber').val(),
+      language_id: $('#language_id').val(),
+      media:       'email',
+      ordnumber:   $('#ordnumber').val(),
+      rowcount:    $('#rowcount').val(),
+      quonumber:   $('#quonumber').val(),
+      type:        $('#type').val(),
+      vc:          vc,
+      vc_id:       $('#' + vc + '_id').val(),
+    };
+
+    $('[name^=id_],[name^=partnumber_]').each(function(idx, elt) {
+      var val = $(elt).val() || '';
+      if (val !== '')
+        data[ $(elt).attr('name') ] = val;
+    });
+
     kivi.popup_dialog({
       id:     'send_email_dialog',
       url:    'io.pl',
       load:   kivi.SalesPurchase.setup_send_email_dialog,
-      data:   {
-        action:      'show_sales_purchase_email_dialog',
-        type:        $('#type').val(),
-        formname:    $('#formname').val(),
-        format:      $('#format').val(),
-        media:       'email',
-        ordnumber:   $('#ordnumber').val(),
-        donumber:    $('#donumber').val(),
-        invnumber:   $('#invnumber').val(),
-        quonumber:   $('#quonumber').val(),
-        cp_id:       $('#cp_id').val(),
-        language_id: $('#language_id').val(),
-      },
+      data:   data,
       dialog: {
         height:      600,
         title:       kivi.t8('Send email'),
@@ -293,6 +306,12 @@ namespace('kivi.SalesPurchase', function(ns) {
     });
 
     return true;
+  };
+
+  this.activate_send_email_actions_regarding_printout = function() {
+    var selected = $('#email_form_attachment_policy').val();
+    $('#email_form_attachment_filename').parents('tr')[selected !== 'no_file' ? 'show' : 'hide']();
+    $('#email_form_print_options')[selected === 'normal' ? 'show' : 'hide']();
   };
 
   // Printing records.
