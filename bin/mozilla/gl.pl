@@ -313,7 +313,6 @@ sub edit {
       type     => 'general_ledger',
       number   => $form->{id},
     );
-    my $webdav_path = $webdav->webdav_path;
     my @all_objects = $webdav->get_all_objects;
     @{ $form->{WEBDAV} } = map { { name => $_->filename,
                                    type => t8('File'),

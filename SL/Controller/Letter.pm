@@ -578,7 +578,6 @@ sub init_webdav_objects {
     number   => $self->letter->letternumber,
   );
 
-  my $webdav_path = $webdav->webdav_path;
   my @all_objects = $webdav->get_all_objects;
 
   return [ map {

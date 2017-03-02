@@ -266,7 +266,6 @@ sub display_form {
       type     => 'accounts_payable',
       number   => $form->{invnumber},
     );
-    my $webdav_path = $webdav->webdav_path;
     my @all_objects = $webdav->get_all_objects;
     @{ $form->{WEBDAV} } = map { { name => $_->filename,
                                    type => t8('File'),

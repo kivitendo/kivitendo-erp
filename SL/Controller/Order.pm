@@ -1088,7 +1088,6 @@ sub _pre_render {
       type     => $self->type,
       number   => $self->order->ordnumber,
     );
-    my $webdav_path = $webdav->webdav_path;
     my @all_objects = $webdav->get_all_objects;
     @{ $self->{template_args}->{WEBDAV} } = map { { name => $_->filename,
                                                     type => t8('File'),
