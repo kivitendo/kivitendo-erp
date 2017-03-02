@@ -160,7 +160,7 @@ sub _create_attachment_part {
   return undef if $email_journal > 1 && !defined $attachment_content;
 
   $attachment_content ||= ' ';
-  $attributes{charset}  = $self->{charset} if $self->{charset};
+  $attributes{charset}  = $self->{charset} if $self->{charset} && ($attributes{content_type} =~ m{^text/});
 
   $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{Type} . " filename=" . $attributes{Filename});
 
