@@ -187,7 +187,7 @@ sub dump {
 
       }
 
-    } elsif (ref($src) =~ m{^(?:HASH|Form)$}) {
+    } elsif (ref($src) =~ m{^(?:HASH|Form|SL::.+)$}) {
       $dumped{$addr} = {};
 
       foreach my $key (keys %{ $src }) {
