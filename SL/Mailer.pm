@@ -139,7 +139,6 @@ sub _create_attachment_part {
   $::lxdebug->message(LXDebug->DEBUG2(), "mail5 att=" . $attachment . " email_journal=" . $email_journal . " id=" . $attachment->{id});
 
   if (ref($attachment) eq "HASH") {
-    $attributes{Path}         = $attachment->{path} || $attachment->{filename};
     $attributes{filename}     = $attachment->{name};
     $file_id                  = $attachment->{id}   || '0';
     $attributes{content_type} = $attachment->{type} || 'application/pdf';
@@ -147,8 +146,6 @@ sub _create_attachment_part {
     $attachment_content       = eval { read_file($attachment->{path}) } if !$attachment_content;
 
   } else {
-    # strip path
-    $attributes{Path}     =  $attachment;
     $attributes{filename} =  $attachment;
     $attributes{filename} =~ s:.*\Q$self->{fileid}\E:: if $self->{fileid};
     $attributes{filename} =~ s:.*/::g;
@@ -165,7 +162,7 @@ sub _create_attachment_part {
   $attachment_content ||= ' ';
   $attributes{charset}  = $self->{charset} if $self->{charset};
 
-  $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{Type} . " path=" . $attributes{Path} . " filename=" . $attributes{Filename});
+  $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{Type} . " filename=" . $attributes{Filename});
 
   my $ent;
   if ( $attributes{content_type} eq 'message/rfc822' ) {
