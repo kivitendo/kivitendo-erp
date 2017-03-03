@@ -1464,6 +1464,25 @@ Returns a list of errors that occured. If no errors occured, the export was a su
 Exports data. You have to have set L<exporttype> and L<format> or an error will
 occur. OBE exports are currently not implemented.
 
+=item csv_export_for_tax_accountant
+
+Generates up to four downloadable csv files containing data about sales and
+purchase invoices, and their respective payments:
+
+Example:
+  my $startdate = DateTime->new(year => 2012, month =>  1, day =>  1);
+  my $enddate   = DateTime->new(year => 2012, month => 12, day => 31);
+  SL::DATEV->new(from => $startdate, to => $enddate)->csv_export_for_tax_accountant;
+  # {
+  #   'download_token' => '1488551625-815654-22430',
+  #   'filenames' => [
+  #                    'Zahlungen Kreditorenbuchungen 2012-01-01 - 2012-12-31.csv',
+  #                    'Kreditorenbuchungen 2012-01-01 - 2012-12-31.csv',
+  #                    'Zahlungen Debitorenbuchungen 2012-01-01 - 2012-12-31.csv',
+  #                    'Debitorenbuchungen 2012-01-01 - 2012-12-31.csv'
+  #                  ]
+  # };
+
 =back
 
 =head1 ATTRIBUTES
