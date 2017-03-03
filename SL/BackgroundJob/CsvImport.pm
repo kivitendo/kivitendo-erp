@@ -7,7 +7,6 @@ use parent qw(SL::BackgroundJob::Base);
 use YAML ();
 use SL::JSON;
 use SL::DB::CsvImportProfile;
-use SL::SessionFile::Random;
 
 sub create_job {
   my ($self_or_class, %params) = @_;
