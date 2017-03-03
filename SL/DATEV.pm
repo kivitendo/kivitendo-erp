@@ -1172,7 +1172,7 @@ sub _format_accno {
 sub csv_export_for_tax_accountant {
   my ($self) = @_;
 
-  $self->_get_transactions(from_to => $self->fromto);
+  $self->generate_datev_data(from_to => $self->fromto);
 
   foreach my $transaction (@{ $self->{DATEV} }) {
     foreach my $entry (@{ $transaction }) {
