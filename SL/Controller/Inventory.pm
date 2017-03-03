@@ -704,7 +704,7 @@ the format is adapted to this
 
 only for C<action_stock_usage> and C<action_usage>:
 
-pMartin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
+Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 
 =cut
