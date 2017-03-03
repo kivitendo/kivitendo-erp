@@ -312,7 +312,7 @@ sub export {
 
   die 'no format set!' unless $self->has_format;
 
-   if ($self->format == DATEV_FORMAT_CSV) {
+  if ($self->format == DATEV_FORMAT_CSV) {
     $result = $self->csv_export;
   } elsif ($self->format == DATEV_FORMAT_KNE) {
     $result = $self->kne_export;
