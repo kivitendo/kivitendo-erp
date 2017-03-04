@@ -181,7 +181,7 @@ function sendGeierlein () {
 
 function openGeierlein(myimport) {
 localStorage["geierlein.import"] = myimport;
-var geierpath = '[% geierlein_path %]';
+var geierpath = '[% LXCONFIG.paths.geierlein_path %]';
 window.open(geierpath + '/#importLocalStorage','_blank','');
 return false;
 }
