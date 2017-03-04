@@ -174,16 +174,17 @@
 </form>
 [%- IF LXCONFIG.paths.geierlein_path %]
 <script type='text/javascript'>
-function sendGeierlein () {
- kivi.submit_ajax_form('controller.pl?action=ODGeierlein/send', $('#form_do'));
- return false;
-}
 
-function openGeierlein(myimport) {
-localStorage["geierlein.import"] = myimport;
-var geierpath = '[% LXCONFIG.paths.geierlein_path %]';
-window.open(geierpath + '/#importLocalStorage','_blank','');
-return false;
-}
+  function sendGeierlein () {
+    kivi.submit_ajax_form('controller.pl?action=ODGeierlein/send', $('#form_do'));
+    return false;
+  }
+
+  function openGeierlein(myimport) {
+    localStorage["geierlein.import"] = myimport;
+    var geierpath = '[% LXCONFIG.paths.geierlein_path %]';
+    window.open(geierpath + '/#importLocalStorage','_blank','');
+    return false;
+  }
 </script>
 [%- END %]
