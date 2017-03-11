@@ -67,6 +67,16 @@ große Features:
      Preise von Artikeln wie "Verpackung" oder "Transport" müssen
      oftmals separat ausgewiesen werden, genau so wie der reine Warenwert.
 
+- GoBD Export
+  Man kann nun einen IDEA-kompatiblen Export für Steuerprüfer exportieren.
+
+- ActionBar
+  Die Workflow-Knöpfe wurden nun in eine ActionBar-Zeile am oberen Fensterrand
+  migriert, die immer sichtbar ist, auch wenn man nach unten scrollt.
+
+- Jahresabschlußbuchungen (EB/SB)
+  Mit Saldovortrag auf die 9000er-Konten
+
 kleinere neue Features und Detailverbesserungen:
 
   - Wiederkehrende Rechnungen können mit der Periode 'einmalig' konfiguriert werden
@@ -145,6 +155,16 @@ kleinere neue Features und Detailverbesserungen:
     CHF als weitere Standardwährung hinzugefügt. Stempel und Unterschrift für
     Angebot hinzugefügt.
 
+  - Projekt: unter "verknüpfte Belege" auch Belege anzeigen, wo
+    Einzelpositionen mit dem Projekt verknüpft sind, nicht nur der Beleg
+    (globalproject_id)
+
+  - Belegvorlagen umgestellt (Drafts)
+
+  - Abteilungsfilter in mehr Berichten eingefügt
+
+  - Finanzübersicht: Neue Spalte »Kosten« analog zu BWA-Kosten
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes
@@ -165,6 +185,8 @@ Bugfixes:
     Verkaufsrechnung, bei denen eine Zahlungsbedingung ohne
     automatische Berechnung ausgewählt war, immer auf das
     Rechnungsdatum gesetzt, anstelle den eingetragenen Wert zu nutzen.
+
+  - Debitoren- und Kreditorenbuchungen in Fremdwährung öffnen
 
 2016-07-05 - Release 3.4.1
 
