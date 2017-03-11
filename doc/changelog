@@ -14,13 +14,13 @@ große Features:
   Aktuell ist dies eine Filesystem-Struktur.
 
   Modular können weitere Backends eingebunden werden. In Arbeit ist
-  ein Backend, daß auf die alte WebDAV-Struktur zugreift.
+  ein Backend, das auf die alte WebDAV-Struktur zugreift.
 
   Es gibt unterschiedliche Typen von Dateien, jedem Typ läßt sich in der
   Mandantenkonfigurierung auf ein bestimmtes Backend zuordnen.
 
   Aktuell gibt es die Dateitypen
-  - "documents", das sind entweder generierte,eingescannte oder hochgeladene PDF-Dateien
+  - "documents", das sind entweder generierte, eingescannte oder hochgeladene PDF-Dateien
   - "attachments", zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden
   - "images", hochgeladene Bilder zu Artikeln
 
@@ -41,7 +41,7 @@ große Features:
   Der Typ des Artikel und die Klassifizierung werden durch zwei
   Buchstaben dargestellt.  Der erste Buchstabe ist eine Lokalisierung
   des Typs des Artikel ('P','A','S') , deutch 'W', 'E', und 'D' für
-  Ware Erzeugnis oder Dienstleistung, ggf. weitere Typen.  Der zweite
+  Ware, Erzeugnis oder Dienstleistung, ggf. weitere Typen.  Der zweite
   Buchstabe ist eine Lokalisierung der Klassifizierungsabkürzung
   (abbreviation).
 
@@ -50,7 +50,7 @@ große Features:
   Artikeltyp falsch ist, wird die Fehlermeldung "Gesuchter Artikel ist
   nicht für den Einkauf bzw Verkauf" gemeldet.
 
-  Anpassung des CSV Import, nun wird alternativ zur 'part_type'-Spalte
+  Anpassung des CSV Imports, nun wird alternativ zur 'part_type'-Spalte
   die 'pclass'-Spalte mit zwei bis drei Buchstaben geparsed und entsprechend
   classification_id und part_type gesetzt.
 
@@ -117,7 +117,7 @@ kleinere neue Features und Detailverbesserungen:
     werden können.
 
   - Neuer Berichte "Auftragsartikelsuche", um schnell Autragspositionen aus
-    Verkaufsauträge finden zu können:
+    Verkaufsauträgen finden zu können:
     Verkauf -> Berichte -> Auftragsartikelsuche
 
   - Neuer Artikeltyp "Sortiment"
@@ -774,7 +774,7 @@ Größere neue Features:
 - Partpicker für Lagereingang mit Kurzhistorie
 
 - Finanzcontrolling
-  Dieser Bericht ermöglich eine Nachkalkulation von Aufträgen, der u.a. auch die Nebenkosten
+  Dieser Bericht ermöglicht eine Nachkalkulation von Aufträgen, der u.a. auch die Nebenkosten
   berücksichtigt und dynamisch mit einem Klick
 
 - CSV-Import von Aufträgen
