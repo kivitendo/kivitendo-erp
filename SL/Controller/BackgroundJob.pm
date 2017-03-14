@@ -229,7 +229,7 @@ sub setup_form_action_bar {
 
       action => [
         t8('Delete'),
-        submit   => [ '#form', { action => 'BackgroundJob/delete' } ],
+        submit   => [ '#form', { action => 'BackgroundJob/destroy' } ],
         confirm  => t8('Do you really want to delete this object?'),
         disabled => $is_new ? t8('This object has not been saved yet.') : undef,
       ],
