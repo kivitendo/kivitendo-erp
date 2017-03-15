@@ -329,6 +329,15 @@ Example including creation of part and of sales order.
                   ]
   );
 
+Example: create 100 orders with the same part for 100 new customers:
+
+  my $part1 = SL::Dev::Part::create_part(partnumber => 'T6256')->save;
+  SL::Dev::Record::create_sales_order(
+    save         => 1,
+    taxincluded  => 0,
+    orderitems => [ SL::Dev::Record::create_order_item(part => $part1, qty => 1, sellprice => 9) ]
+  ) for 1 .. 100;
+
 =head2 C<create_purchase_order %PARAMS>
 
 See comments for C<create_sales_order>.
