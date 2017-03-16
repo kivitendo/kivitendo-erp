@@ -37,23 +37,25 @@ sub report_generator_set_default_sort {
 sub report_generator_setup_action_bar {
   my ($type, %params) = @_;
 
-  $::request->layout->get('actionbar')->add(
-    combobox => [
-      action => [
-        $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
-        submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
+          submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
+        ],
+        action => [
+          $::locale->text('PDF export with attachments'),
+          submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf", report_generator_addattachments => 1 } ],
+          only_if => $params{allow_attachments},
+        ],
       ],
       action => [
-        $::locale->text('PDF export with attachments'),
-        submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf", report_generator_addattachments => 1 } ],
-        only_if => $params{allow_attachments},
+        $::locale->text('Back'),
+        submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_back" } ],
       ],
-    ],
-    action => [
-      $::locale->text('Back'),
-      submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_back" } ],
-    ],
-  );
+    );
+  }
 }
 
 sub report_generator_export_as_pdf {
