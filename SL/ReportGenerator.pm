@@ -415,8 +415,8 @@ sub prepare_html_content {
   return $variables;
 }
 
-sub setup_action_bar {
-  my ($self, $action_bar, $variables) = @_;
+sub create_action_bar_actions {
+  my ($self, $variables) = @_;
 
   my @actions;
   foreach my $type (qw(pdf csv)) {
@@ -441,8 +441,21 @@ sub setup_action_bar {
     );
   }
 
-  $action_bar = ($::request->layout->get('actionbar'))[0] unless blessed($action_bar);
-  $action_bar->add(@actions) if @actions;
+  return @actions;
+}
+
+sub setup_action_bar {
+  my ($self, $variables, %params) = @_;
+
+  my @actions = $self->create_action_bar_actions($variables);
+
+  if ($params{action_bar_setup_hook}) {
+    $params{action_bar_setup_hook}->(@actions);
+
+  } elsif (@actions) {
+    my $action_bar = blessed($params{action_bar}) ? $params{action_bar} : ($::request->layout->get('actionbar'))[0];
+    $action_bar->add(@actions);
+  }
 }
 
 sub generate_html_content {
@@ -452,7 +465,7 @@ sub generate_html_content {
 
   my $variables = $self->prepare_html_content(%params);
 
-  $self->setup_action_bar($params{action_bar}, $variables) if $params{action_bar};
+  $self->setup_action_bar($variables, %params) if $params{action_bar};
 
   my $stuff  = $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
   return $stuff;
