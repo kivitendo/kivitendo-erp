@@ -584,3 +584,6 @@ div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:hover {
 div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:after {
   border-color: black transparent;
 }
+div.layout-actionbar .layout-actionbar-default-action {
+  font-weight: bold;
+}

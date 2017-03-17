@@ -7,6 +7,7 @@ namespace('kivi.ActionBar', function(k){
     disabled: 'layout-actionbar-action-disabled',
     action:   'layout-actionbar-action',
     combobox: 'layout-actionbar-combobox',
+    default:  'layout-actionbar-default-action',
   };
 
   k.Combobox = function(e) {
@@ -164,6 +165,9 @@ namespace('kivi.ActionBar', function(k){
       }
       if (data.call) {
         kivi.ActionBar.Accesskeys.add_accesskey(undefined, data.accesskey, $e);
+      }
+      if (data.accesskey == 'enter') {
+        $e.addClass(CLASSES.default);
       }
     }
 
