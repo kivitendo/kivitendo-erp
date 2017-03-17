@@ -1137,8 +1137,9 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call     => [ 'kivi.Part.save' ],
-          disabled => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+          call      => [ 'kivi.Part.save' ],
+          disabled  => !$may_edit ? t8('You do not have the permissions to access this function.') : undef,
+          accesskey => 'enter',
         ],
         action => [
           t8('Use as new'),
