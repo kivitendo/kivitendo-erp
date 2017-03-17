@@ -59,7 +59,7 @@ sub parse_actions {
   while (my $type = shift(@actions)) {
     if (blessed($type) && $type->isa('SL::Layout::ActionBar::Action')) {
       push @parsed, $type;
-      continue;
+      next;
     }
 
     my $descriptor = $class_descriptors{lc $type} || croak("Unknown action type '${type}'");
