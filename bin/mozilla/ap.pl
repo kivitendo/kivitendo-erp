@@ -435,6 +435,11 @@ sub form_header {
   my $transdate = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $first_taxchart;
 
+  # $form->{totalpaid} is used by the action bar setup to determine
+  # whether or not canceling is allowed. Therefore it must be
+  # calculated prior to the action bar setup.
+  $form->{totalpaid} = sum map { $form->{"paid_${_}"} } (1..$form->{paidaccounts});
+
   setup_ap_display_form_action_bar();
 
   $form->header();
@@ -483,8 +488,6 @@ sub form_header {
   $form->{invtotal_unformatted} = $form->{invtotal};
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
-  $form->{totalpaid} = 0;
-
   _sort_payments();
 
   if ( $form->{'paid_'. $form->{paidaccounts}} ) {
@@ -495,8 +498,6 @@ sub form_header {
   $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
   for my $i (1 .. $form->{paidaccounts}) {
-    $form->{totalpaid} += $form->{"paid_$i"};
-
     # format amounts
     if ($form->{"paid_$i"}) {
       $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
