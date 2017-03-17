@@ -954,8 +954,9 @@ sub _setup_form_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          submit => [ '#form', { action => "CustomerVendor/save" } ],
-          checks => [ 'check_taxzone_and_ustid' ],
+          submit    => [ '#form', { action => "CustomerVendor/save" } ],
+          checks    => [ 'check_taxzone_and_ustid' ],
+          accesskey => 'enter',
         ],
         action => [
           t8('Save and Close'),
