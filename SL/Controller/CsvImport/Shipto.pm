@@ -120,8 +120,10 @@ sub setup_displayable_columns {
                                  { name => 'trans_id',           description => $::locale->text('Customer/Vendor (database ID)') },
                                  { name => 'customer',           description => $::locale->text('Customer (name)')               },
                                  { name => 'customernumber',     description => $::locale->text('Customer Number')               },
+                                 { name => 'customer_gln',       description => $::locale->text('Customer GLN')                  },
                                  { name => 'vendor',             description => $::locale->text('Vendor (name)')                 },
                                  { name => 'vendornumber',       description => $::locale->text('Vendor Number')                 },
+                                 { name => 'vendor_gln',         description => $::locale->text('Vendor GLN')                    },
                                 );
 }
 

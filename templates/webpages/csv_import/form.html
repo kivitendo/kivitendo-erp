@@ -108,12 +108,12 @@
 [%- IF SELF.type == 'contacts' %]
    <p>
     [%- LxERP.t8("You can update existing contacts by providing the 'cp_id' column with their database IDs. Otherwise: ") %]
-    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, vendor, vendornumber (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'cp_cv_id') %]
+    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'cp_cv_id') %]
    </p>
 
 [%- ELSIF SELF.type == 'addresses' %]
    <p>
-    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, vendor, vendornumber (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'trans_id') %]
+    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'trans_id') %]
    </p>
 
 [%- ELSIF SELF.type == 'parts' %]

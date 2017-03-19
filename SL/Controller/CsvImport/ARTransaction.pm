@@ -108,6 +108,7 @@ sub setup_displayable_columns {
                                  { name => 'taxincluded',             description => $::locale->text('Tax Included')                          },
                                  { name => 'customer',                description => $::locale->text('Customer (name)')                       },
                                  { name => 'customernumber',          description => $::locale->text('Customer Number')                       },
+                                 { name => 'customer_gln',            description => $::locale->text('Customer GLN')                          },
                                  { name => 'customer_id',             description => $::locale->text('Customer (database ID)')                },
                                  { name => 'language_id',             description => $::locale->text('Language (database ID)')                },
                                  { name => 'language',                description => $::locale->text('Language (name)')                       },
@@ -251,11 +252,11 @@ sub handle_invoice {
   $object->transactions( [] ); # initialise transactions for ar object so methods work on unsaved transactions
 
   my $vc_obj;
-  if (any { $entry->{raw_data}->{$_} } qw(customer customernumber customer_id)) {
+  if (any { $entry->{raw_data}->{$_} } qw(customer customernumber customer_gln customer_id)) {
     $self->check_vc($entry, 'customer_id');
     # check_vc only sets customer_id, but we need vc_obj later for customer defaults
     $vc_obj = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
-  } elsif (any { $entry->{raw_data}->{$_} } qw(vendor vendornumber vendor_id)) {
+  } elsif (any { $entry->{raw_data}->{$_} } qw(vendor vendornumber vendor_gln vendor_id)) {
     $self->check_vc($entry, 'vendor_id');
     $vc_obj = SL::DB::Vendor->new(id => $object->vendor_id)->load if $object->vendor_id;
   } else {

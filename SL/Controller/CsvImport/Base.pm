@@ -188,10 +188,13 @@ sub init_vc_by {
                     vendors   => { map { ( $_->vendornumber   => $_ ) } @{ $self->all_vc->{vendors}   } } );
   my %by_name   = ( customers => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{customers} } },
                     vendors   => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{vendors}   } } );
+  my %by_gln    = ( customers => { map { ( $_->gln            => $_ ) } @{ $self->all_vc->{customers} } },
+                    vendors   => { map { ( $_->gln            => $_ ) } @{ $self->all_vc->{vendors}   } } );
 
   return { id     => \%by_id,
            number => \%by_number,
-           name   => \%by_name,   };
+           name   => \%by_name,
+           gln    => \%by_gln };
 }
 
 sub check_vc {
@@ -208,8 +211,14 @@ sub check_vc {
   }
 
   if (!$entry->{object}->$id_column) {
-    my $vc = $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} }
-          || $self->vc_by->{name}->{vendors}->{   $entry->{raw_data}->{vendor}   };
+    my $vc = ($entry->{raw_data}->{customer} && $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} })
+          || ($entry->{raw_data}->{vendor}   && $self->vc_by->{name}->{vendors}->{   $entry->{raw_data}->{vendor}   });
+    $entry->{object}->$id_column($vc->id) if $vc;
+  }
+
+  if (!$entry->{object}->$id_column) {
+    my $vc = ($entry->{raw_data}->{customer_gln} && $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} })
+          || ($entry->{raw_data}->{vendor_gln}   && $self->vc_by->{gln}->{vendors}->{   $entry->{raw_data}->{vendor_gln} } );
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
