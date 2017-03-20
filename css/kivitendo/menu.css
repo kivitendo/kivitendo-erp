@@ -8,6 +8,10 @@ DarkGreensubenu pointer
 /*   background-color: #d0cfc9 */
 /* } */
 
+div.layout-actionbar ~ #content {
+  padding-top: 32px;
+}
+
 #main_menu_div ~ div.layout-actionbar {
   top: 45px;
 }

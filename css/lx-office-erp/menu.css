@@ -23,6 +23,10 @@ body.menunew {
   margin:0px;
 }
 
+div.layout-actionbar ~ #content {
+  padding-top: 32px;
+}
+
 #main_menu_div {
   background-color: #d0cfc9
 }
