@@ -177,8 +177,15 @@ div#menuv3 li li li li:hover ul
    each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
-div.html-menu, #html-menu {
+#html-menu-container {
   position: fixed;
+  bottom: 0%;
+  top: 0%;
+}
+
+#html-menu {
+  overflow-y: scroll;
+  height: 100%;
   transition:         margin-left 0.2s, width 0.2s;
   -moz-transition:    margin-left 0.2s, width 0.2s;
   -webkit-transition: margin-left 0.2s, width 0.2s;

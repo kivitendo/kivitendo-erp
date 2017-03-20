@@ -26,7 +26,7 @@ sub javascripts {
 }
 
 sub pre_content {
-  "<div id='html-menu'></div>\n";
+  "<div id='html-menu-container'><div id='html-menu'></div></div>\n";
 }
 
 sub section_menu {
