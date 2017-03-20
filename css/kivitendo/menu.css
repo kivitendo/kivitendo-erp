@@ -179,15 +179,11 @@ li.sub {
    each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
-#html-menu-container {
-  position: fixed;
-  bottom: 0%;
-  top: 0%;
-}
-
 #html-menu {
+  position: fixed;
   overflow-y: scroll;
-  height: 100%;
+  overflow-x: hidden;
+  height: 95%;
   transition:         margin-left 0.2s, width 0.2s;
   -moz-transition:    margin-left 0.2s, width 0.2s;
   -webkit-transition: margin-left 0.2s, width 0.2s;
@@ -196,7 +192,7 @@ li.sub {
 div.layout-split-right { margin-left: 190px; }
 div.layout-split-right.folded { margin-left: 40px }
 #html-menu.folded:hover + div.layout-split-right.folded { margin-left: 190px }
-#html-menu { float:left; width: 183px; font-size: 8pt; margin-top: 10px; overflow:hidden; }
+#html-menu { float:left; width: 183px; font-size: 8pt; margin-top: 10px; }
 #html-menu.folded { width: 32px; }
 #html-menu.folded:hover { width: 183px; }
 #html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both; position:relative; }
