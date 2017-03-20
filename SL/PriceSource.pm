@@ -149,8 +149,12 @@ and it is up to the user to change a price.
 
 =item 2.
 
-If a price is set from a source, it is read only. A price edited manually is by
-definition not a sourced price.
+If a price is set from a source then the system will try to prevent the user
+from messing it up. By default this means the price will be read-only.
+Implementations can choose to make prices editable, but even then deviations
+from the calculatied price will be marked.
+
+A that is not set from a source will not have any of this.
 
 =item 3.
 
@@ -282,12 +286,6 @@ benefits from sales, or general ALLOW, DENY order calculation.
 
 Composing price sources is disallowed for clarity, but all price sources need
 to be aware of units and price_factors. This is madness.
-
-=item *
-
-A common complaint is that prices from certain vendors are always negotiated
-and should use a default value but must be editable (like free prices) by
-default. This should be orthogonal for all prices.
 
 =item *
 
