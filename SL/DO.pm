@@ -1302,7 +1302,7 @@ sub get_shipped_qty {
     my @dolinks  = RecordLinks->get_links('dbh'       => $dbh,
                                        'from_table' => 'oe',
                                        'to_table'   => 'delivery_orders',
-                                       'from_id'    => @oe_ids);
+                                       'from_id'    => \@oe_ids);
 
     my @do_ids = map { $_->{to_id} }  @dolinks ;
     if (scalar (@do_ids) == 0) {
