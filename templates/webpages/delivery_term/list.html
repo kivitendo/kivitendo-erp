@@ -3,7 +3,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
   [% IF !DELIVERY_TERMS.size %]
    <p>
     [%- 'No delivery term has been created yet.' | $T8 %]
@@ -34,11 +34,6 @@
     </tbody>
    </table>
   [%- END %]
-
-  <p>
-   <a href="[% SELF.url_for(action => 'new') %]">[%- 'Create new delivery term' | $T8 %]</a>
-  </p>
  </form>
 
  [% L.sortable_element('#delivery_term_list tbody', url => 'controller.pl?action=DeliveryTerm/reorder', with => 'delivery_term_id') %]
-
