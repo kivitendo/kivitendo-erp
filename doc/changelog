@@ -11,6 +11,12 @@ kleinere neue Features und Detailverbesserungen:
   - Stammdaten -> Berichte -> Artikel: Standardlager und Lagerplatz optional anzeigen
   - Vorbelegte Texte inkl. Ansprechpartner für den E-Mail-Versand bei allen Workflows hinzugefügt.
 
+  - DATEV-Export: Buchungen für einen bestimmten Zeitraum ab einem
+    Buchungsdatum filtern. Z.B. wenn man einen DATEV-Export für Januar schon
+    exportiert hat, und im Juni noch ein Buchung für Januar nachbucht, kann man
+    mit "Erfassungsdatum Von: 01.06.2017" nur diese eine Buchung aus Januar
+    exportieren.
+
 2017-07-17 - Release 3.5.0
 
 große Features:

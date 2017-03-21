@@ -383,6 +383,13 @@ sub generate_datev_data {
     $gl_department_id_filter = " AND gl.department_id = ? ";
   }
 
+  my ($gl_itime_filter, $ar_itime_filter, $ap_itime_filter);
+  if ( $form->{gldatefrom} ) {
+    $gl_itime_filter = " AND gl.itime >= ? ";
+    $ar_itime_filter = " AND ar.itime >= ? ";
+    $ap_itime_filter = " AND ap.itime >= ? ";
+  }
+
   if ( $self->{trans_id} ) {
     # ignore dates when trans_id is passed so that the entire transaction is
     # checked, not just either the initial bookings or the subsequent payments
@@ -419,6 +426,7 @@ sub generate_datev_data {
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $ar_itime_filter
          $ar_department_id_filter
          $filter
 
@@ -443,6 +451,7 @@ sub generate_datev_data {
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $ap_itime_filter
          $ap_department_id_filter
          $filter
 
@@ -466,14 +475,25 @@ sub generate_datev_data {
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
+         $gl_itime_filter
          $gl_department_id_filter
          $filter
 
        ORDER BY trans_id, acc_trans_id|;
 
   my @query_args;
-  if ( $form->{department_id} ) {
-    push(@query_args, ($form->{department_id}) x 3);
+  if ( $form->{gldatefrom} or $form->{department_id} ) {
+
+    for ( 1 .. 3 ) {
+      if ( $form->{gldatefrom} ) {
+        my $glfromdate = $::locale->parse_date_to_object($form->{gldatefrom});
+        die "illegal data" unless ref($glfromdate) eq 'DateTime';
+        push(@query_args, $glfromdate);
+      }
+      if ( $form->{department_id} ) {
+        push(@query_args, $form->{department_id});
+      }
+    }
   }
 
   my $sth = prepare_execute_query($form, $self->dbh, $query, @query_args);
