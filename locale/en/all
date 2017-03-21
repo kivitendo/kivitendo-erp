@@ -1183,6 +1183,7 @@ $self->{texts} = {
   'Error: A quantity or a target quantity must be given.' => '',
   'Error: Bin #1 is not from warehouse #2' => '',
   'Error: Bin not found'        => '',
+  'Error: Customer/vendor is ambiguous' => '',
   'Error: Customer/vendor missing' => '',
   'Error: Customer/vendor not found' => '',
   'Error: Found local bank account number but local bank code doesn\'t match' => '',

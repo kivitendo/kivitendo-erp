@@ -23,7 +23,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_bank_accounts all_vc vc_by clone_methods) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_bank_accounts all_vc vc_by vc_counts_by clone_methods) ],
 );
 
 sub run {
@@ -197,6 +197,21 @@ sub init_vc_by {
            gln    => \%by_gln };
 }
 
+sub init_vc_counts_by {
+  my ($self) = @_;
+
+  my $vc_counts_by;
+
+  $vc_counts_by->{number}->{customers}->{$_->number}++ for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{number}->{vendors}->  {$_->number}++ for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{name}->  {customers}->{$_->name}++   for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{name}->  {vendors}->  {$_->name}++   for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{gln}->   {customers}->{$_->gln}++    for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{gln}->   {vendors}->  {$_->gln}++    for @{ $self->all_vc->{vendors} };
+
+  return $vc_counts_by;
+}
+
 sub check_vc {
   my ($self, $entry, $id_column) = @_;
 
@@ -204,28 +219,60 @@ sub check_vc {
     $entry->{object}->$id_column(undef) if !$self->vc_by->{id}->{ $entry->{object}->$id_column };
   }
 
+  my $is_ambiguous;
   if (!$entry->{object}->$id_column) {
-    my $vc = ($entry->{raw_data}->{customernumber} && $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} })
-          || ($entry->{raw_data}->{vendornumber}   && $self->vc_by->{number}->{vendors}->{   $entry->{raw_data}->{vendornumber}   });
+    my $vc = $entry->{raw_data}->{customernumber} && $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} };
+    if ($vc && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+    $vc ||= $entry->{raw_data}->{vendornumber} && $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} };
+    if ($vc && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
   if (!$entry->{object}->$id_column) {
-    my $vc = ($entry->{raw_data}->{customer} && $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} })
-          || ($entry->{raw_data}->{vendor}   && $self->vc_by->{name}->{vendors}->{   $entry->{raw_data}->{vendor}   });
+    my $vc = $entry->{raw_data}->{customer} && $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} };
+    if ($vc && $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}->{customer} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+    $vc ||= $entry->{raw_data}->{vendor} && $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} };
+    if ($vc && $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
   if (!$entry->{object}->$id_column) {
-    my $vc = ($entry->{raw_data}->{customer_gln} && $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} })
-          || ($entry->{raw_data}->{vendor_gln}   && $self->vc_by->{gln}->{vendors}->{   $entry->{raw_data}->{vendor_gln} } );
+    my $vc = $entry->{raw_data}->{customer_gln} && $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} };
+    if ($vc && $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+    $vc ||= $entry->{raw_data}->{vendor_gln} && $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} };
+    if ($vc && $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1) {
+      $vc = undef;
+      $is_ambiguous = 1;
+    }
+
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
   if ($entry->{object}->$id_column) {
     $entry->{info_data}->{vc_name} = $self->vc_by->{id}->{ $entry->{object}->$id_column }->name;
   } else {
-    push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor not found');
+    if ($is_ambiguous) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor is ambiguous');
+    } else {
+      push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor not found');
+    }
   }
 }
 

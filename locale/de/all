@@ -1197,6 +1197,7 @@ $self->{texts} = {
   'Error: A quantity or a target quantity must be given.' => 'Fehler: Menge oder Zielmenge muss angegeben werden.',
   'Error: Bin #1 is not from warehouse #2' => 'Lager \'#2\' hat keinen Lagerplatz \'#1\'',
   'Error: Bin not found'        => 'Fehler: Lagerplatz nicht gefunden',
+  'Error: Customer/vendor is ambiguous' => 'Kunde/Lieferant ist mehrdeutig',
   'Error: Customer/vendor missing' => 'Fehler: Kunde/Lieferant fehlt',
   'Error: Customer/vendor not found' => 'Fehler: Kunde/Lieferant nicht gefunden',
   'Error: Found local bank account number but local bank code doesn\'t match' => 'Fehler: Kontonummer wurde gefunden aber gespeicherte Bankleitzahl stimmt nicht überein',
