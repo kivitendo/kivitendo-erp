@@ -1,6 +1,6 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
 
-<form action="controller.pl" method="post">
+<form action="controller.pl" method="post" id="form">
  [%- L.hidden_tag("id", SELF.config.id) %]
 
  <p>
@@ -98,16 +98,6 @@
     </td>
    </tr>
   </table>
- </p>
-
- <p>
-  [% L.hidden_tag("action", "CustomVariableConfig/dispatch") %]
-  [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
-  [%- IF SELF.config.id %]
-   [% L.submit_tag("action_create", LxERP.t8('Save as new'), onclick="return check_prerequisites();") %]
-   [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
-  [%- END %]
-  <a href="[% SELF.url_for(action='list', module=SELF.module) %]">[%- LxERP.t8("Cancel") %]</a>
  </p>
 
  <hr>

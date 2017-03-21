@@ -46,6 +46,7 @@ sub action_list {
 
   my $configs = SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => $self->module ]);
 
+  $self->setup_list_action_bar;
   $::form->header;
   $self->render('custom_variable_config/list',
                 title   => t8('List of custom variables'),
@@ -70,6 +71,7 @@ sub show_form {
   $params{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all();
 
   $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
+  $self->setup_form_action_bar;
   $self->render('custom_variable_config/form', %params);
 }
 
@@ -223,6 +225,59 @@ sub _set_cvar_validity {
   my $all_parts  = SL::DB::Manager::Part->get_all(where => [ or => [ obsolete => 0, obsolete => undef ] ]);
   foreach my $part (@{ $all_parts }) {
     SL::DB::CustomVariableValidity->new(config_id => $self->config->id, trans_id => $part->id)->save;
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Add'),
+        link => $self->url_for(action => 'new', module => $self->module),
+      ],
+    );
+  }
+}
+
+sub setup_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->config->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          submit    => [ '#form', { action => 'CustomVariableConfig/' . ($is_new ? 'create' : 'update') } ],
+          checks    => [ 'check_prerequisites' ],
+          accesskey => 'enter',
+        ],
+
+        action => [
+          t8('Save as new'),
+          submit => [ '#form', { action => 'CustomVariableConfig/create'} ],
+          checks => [ 'check_prerequisites' ],
+          not_if => $is_new,
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'CustomVariableConfig/destroy' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new ? t8('This object has not been saved yet.') : undef,
+      ],
+
+      'separator',
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list', module => $self->module),
+      ],
+    );
   }
 }
 

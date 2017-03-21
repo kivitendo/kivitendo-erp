@@ -55,12 +55,6 @@
  </table>
 </p>
 
-<hr height="3">
-
-<p>
- <a href="[% SELF.url_for(action='new', module=SELF.module) %]">[%- 'Add' | $T8 %]</a>
-</p>
-
 [% L.sortable_element('#cvarcfg_list tbody', url=SELF.url_for(action='reorder'), with='cvarcfg_id', params='"&module=" + encodeURIComponent($("#module").val())') %]
 
 <script type="text/javascript">
