@@ -1,7 +1,7 @@
-[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %][%- USE P -%]
 <h1>[% FORM.title %]</h1>
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" id="form">
 
 [%- INCLUDE 'common/flash.html' %]
 
@@ -14,7 +14,7 @@
    <tr>
     <td>[%- 'Description' | $T8 %]</td>
     <td>
-     <input name="payment_term.description" value="[%- HTML.escape(SELF.payment_term.description) %]">
+     [% P.input_tag("payment_term.description", SELF.payment_term.description, "data-validate"="required", "data-title"=LxERP.t8("Description")) %]
     </td>
    </tr>
 
@@ -61,11 +61,11 @@
    <tr>
     <td>[%- 'Long Description' | $T8 %]</td>
     <td>
-     <input name="payment_term.description_long" value="[%- HTML.escape(SELF.payment_term.description_long) %]" size="60">
+     [% P.input_tag("payment_term.description_long", SELF.payment_term.description_long, size="60", "data-validate"="required", "data-title"=LxERP.t8("Long Description for quotations & orders")) %]
     </td>
 
     <td>
-     <input name="payment_term.description_long_invoice" value="[%- HTML.escape(SELF.payment_term.description_long_invoice) %]" size="60">
+     [% P.input_tag("payment_term.description_long_invoice", SELF.payment_term.description_long_invoice, size="60", "data-validate"="required", "data-title"=LxERP.t8("Long Description for invoices")) %]
     </td>
    </tr>
 
@@ -83,16 +83,7 @@
    [%- END %]
   </table>
 
-  <p>
-   <input type="hidden" name="id" value="[% SELF.payment_term.id %]">
-   <input type="hidden" name="action" value="PaymentTerm/dispatch">
-   <input type="submit" class="submit" name="action_[% IF SELF.payment_term.id %]update[% ELSE %]create[% END %]" value="[% 'Save' | $T8 %]">
-   [%- IF SELF.payment_term.id %]
-    <input type="submit" class="submit" name="action_destroy" value="[% 'Delete' | $T8 %]"
-           onclick="if (confirm('[% 'Are you sure you want to delete this payment term?' | $T8 %]')) return true; else return false;">
-   [%- END %]
-   <a href="[% SELF.url_for(action => 'list') %]">[%- 'Abort' | $T8 %]</a>
-  </p>
+  [% P.hidden_tag("id", SELF.payment_term.id) %]
 
   <hr size="3" noshade>
 

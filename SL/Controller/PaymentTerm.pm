@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 use SL::DB::PaymentTerm;
 use SL::DB::Language;
 use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -25,6 +26,7 @@ __PACKAGE__->run_before('setup',             only => [ qw(new      edit) ]);
 sub action_list {
   my ($self) = @_;
 
+  $self->setup_list_action_bar;
   $self->render('payment_term/list',
                 title         => $::locale->text('Payment terms'),
                 PAYMENT_TERMS => SL::DB::Manager::PaymentTerm->get_all_sorted);
@@ -34,12 +36,14 @@ sub action_new {
   my ($self) = @_;
 
   $self->{payment_term} = SL::DB::PaymentTerm->new(auto_calculation => 1);
+  $self->setup_form_action_bar;
   $self->render('payment_term/form', title => $::locale->text('Create a new payment term'));
 }
 
 sub action_edit {
   my ($self) = @_;
 
+  $self->setup_form_action_bar;
   $self->render('payment_term/form', title => $::locale->text('Edit payment term'));
 }
 
@@ -125,6 +129,50 @@ sub load_payment_term {
 sub load_languages {
   my ($self) = @_;
   $self->{languages} = SL::DB::Manager::Language->get_all_sorted;
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link => $self->url_for(action => 'new'),
+      ],
+    );
+  }
+}
+
+sub setup_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->payment_term->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'PaymentTerm/' . ($is_new ? 'create' : 'update') } ],
+        checks    => [ 'kivi.validate_form' ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'PaymentTerm/destroy' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new ? t8('This object has not been saved yet.') : undef,
+      ],
+
+      'separator',
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list'),
+      ],
+    );
+  }
 }
 
 1;
