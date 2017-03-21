@@ -39,6 +39,7 @@ use SL::Auth::PasswordPolicy;
 use SL::AM;
 use SL::CA;
 use SL::Form;
+use SL::Helper::Flash;
 use SL::User;
 use SL::USTVA;
 use SL::Iconv;
@@ -795,6 +796,29 @@ sub doclose {
   $main::lxdebug->leave_sub();
 }
 
+sub add_unit {
+  $::auth->assert('config');
+
+  # my $units = AM->retrieve_units(\%::myconfig, $::form, "resolved_");
+  # # AM->units_in_use(\%::myconfig, $::form, $units);
+
+  # $units->{$_}->{BASE_UNIT_DDBOX} = AM->unit_select_data($units, $units->{$_}->{base_unit}, 1) for keys %{$units};
+
+  my @languages = @{ SL::DB::Manager::Language->get_all_sorted };
+
+  my $units = AM->retrieve_units(\%::myconfig, $::form);
+  my $ddbox = AM->unit_select_data($units, undef, 1);
+
+  setup_am_add_unit_action_bar();
+
+  $::form->{title} = $::locale->text("Add unit");
+  $::form->header();
+  print($::form->parse_html_template("am/add_unit", {
+    NEW_BASE_UNIT_DDBOX => $ddbox,
+    LANGUAGES           => \@languages,
+  }));
+}
+
 sub edit_units {
   $main::lxdebug->enter_sub();
 
@@ -831,7 +855,9 @@ sub edit_units {
   $units = AM->retrieve_units(\%myconfig, $form);
   my $ddbox = AM->unit_select_data($units, undef, 1);
 
-  $form->{"title"} = $locale->text("Add and edit units");
+  setup_am_edit_units_action_bar();
+
+  $form->{"title"} = $locale->text("Edit units");
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS"               => \@unit_list,
@@ -842,7 +868,7 @@ sub edit_units {
   $main::lxdebug->leave_sub();
 }
 
-sub add_unit {
+sub create_unit {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -877,9 +903,9 @@ sub add_unit {
 
   AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, \@languages);
 
-  $form->{"saved_message"} = $locale->text("The unit has been saved.");
+  flash_later('info', $locale->text("The unit has been added."));
 
-  edit_units();
+  print $form->redirect_header('am.pl?action=edit_units');
 
   $main::lxdebug->leave_sub();
 }
@@ -983,9 +1009,9 @@ sub save_unit {
 
   AM->save_units(\%myconfig, $form, $new_units, \@delete_units);
 
-  $form->{"saved_message"} = $locale->text("The units have been saved.");
+  flash_later('info', $locale->text("The units have been saved."));
 
-  edit_units();
+  print $form->redirect_header('am.pl?action=edit_units');
 
   $main::lxdebug->leave_sub();
 }
@@ -1459,6 +1485,48 @@ sub setup_am_edit_tax_action_bar {
                   : !$::form->{orphaned} || $::form->{tax_already_used} ? t8('The object is in use and cannot be deleted.')
                   :                                                       undef,
         confirm  => t8('Do you really want to delete this object?'),
+      ],
+    );
+  }
+}
+
+sub setup_am_add_unit_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "create_unit" } ],
+        accesskey => 'enter',
+      ],
+
+      'separator',
+
+      link => [
+        t8('Back'),
+        link => 'am.pl?action=edit_units',
+      ],
+    );
+  }
+}
+
+sub setup_am_edit_units_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_unit" } ],
+        accesskey => 'enter',
+      ],
+
+      'separator',
+
+      link => [
+        t8('Add'),
+        link => 'am.pl?action=add_unit',
       ],
     );
   }

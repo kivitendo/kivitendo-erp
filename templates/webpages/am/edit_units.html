@@ -2,72 +2,27 @@
 [% USE HTML %]
 <h1>[% title %]</h1>
 
- [% IF saved_message %]
-  <p>[% saved_message %]</p>
+[% PROCESS "common/flash.html" %]
 
-  <hr>
- [% END %]
+[% PROCESS "am/_units_header_info.html" %]
 
- <form method="post" action="[% HTML.escape(script) %]">
+<hr>
+
+<p>
+ [% 'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' | $T8 %]
+</p>
+
+<p>
+ [% 'Units marked for deletion will be deleted upon saving.' | $T8 %]
+</p>
+
+<p>
+ [% 'You can declare different translations for singular and plural for each unit (e.g. &quot;day&quot; and &quot;days).' | $T8 %]
+</p>
+
+<form method="post" action="[% HTML.escape(script) %]" id="form">
 
  <input type="hidden" name="type" value="unit">
-
- <p>
-  [% LxERP.t8('All units have either no or exactly one base unit of which they are multiples.') %]
-  [% LxERP.t8('If you select a base unit then you also have to enter a factor.') %]
-  [% LxERP.t8('You have to define a unit as a multiple of a smaller unit.') %]
-  [% LxERP.t8('Therefore the definition of "kg" with the base unit "g" and a factor of 1000 is valid while defining "g" with a base unit of "kg" and a factor of "0.001" is not.') %]
- </p>
-
- <hr>
-
- <h2>[% 'Add unit' | $T8 %]</h2>
-
- <table>
-  <tr>
-   <th align="right">[% 'Unit' | $T8 %]</th>
-   <td><input name="new_name" size="20" maxlength="20"></td>
-  </tr>
-  <tr>
-   <th align="right">[% 'Base unit' | $T8 %]</th>
-   <td>
-    <select name="new_base_unit">
-     [% FOREACH row = NEW_BASE_UNIT_DDBOX %]<option [% row.selected %]>[% row.name %]</option>[% END %]
-    </select>
-   </td>
-  </tr>
-  <tr>
-   <th align="right">[% 'Factor' | $T8 %]</th>
-   <td><input name="new_factor"></td>
-  </tr>
-
-  [% FOREACH language = LANGUAGES %]
-   <tr>
-    <th align="right">[% language.description %]</th>
-    <td><input name="new_localized_[% language.id %]" size="20" maxlength="20"></td>
-    <th align="right">[% 'Plural' | $T8 %]</th>
-    <td><input name="new_localized_plural_[% language.id %]" size="20" maxlength="20"></td>
-   </tr>
-  [% END %]
- </table>
-
- <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
-
- <hr>
-
- <h2>[% 'Edit units' | $T8 %]</h2>
-
- <p>
-  [% 'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' | $T8 %]
- </p>
-
- <p>
-  [% 'Units marked for deletion will be deleted upon saving.' | $T8 %]
- </p>
-
- <p>
-  [% 'You can declare different translations for singular and plural for each unit (e.g. &quot;day&quot; and &quot;days).' | $T8 %]
- </p>
 
  <table id="unit_list">
   <thead>
@@ -127,9 +82,6 @@
 
  <input type="hidden" name="rowcount" value="[% UNITS.size %]">
 
- <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-
  </form>
 
  [% L.sortable_element('#unit_list tbody', url => 'controller.pl?action=Unit/reorder', with => 'unit_id') %]
-
