@@ -97,6 +97,8 @@ sub edit_sepa_strings {
     $language->{translation_vc} = $translations_vc{$language->{id}};
   }
 
+  setup_generictranslations_edit_sepa_strings_action_bar();
+
   $form->{title} = $locale->text('Edit SEPA strings');
   $form->header();
   print $form->parse_html_template('generictranslations/edit_sepa_strings');
@@ -142,6 +144,20 @@ sub setup_generictranslations_edit_greetings_action_bar {
       action => [
         t8('Save'),
         submit    => [ '#form', { action => "save_greetings" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_generictranslations_edit_sepa_strings_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_sepa_strings" } ],
         accesskey => 'enter',
       ],
     );
