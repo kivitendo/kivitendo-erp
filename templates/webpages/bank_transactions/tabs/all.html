@@ -92,7 +92,8 @@
 
   [%- FOREACH bt = BANK_TRANSACTIONS %]
    <tbody class="listrow" id="bt_rows_[% HTML.escape(bt.id) %]">
-    [% FOREACH prop = bt.proposals %]
+    [% SET proposals = bt.proposals.as_list.size > 0 ? bt.proposals.as_list : [{}] ;
+       FOREACH prop = proposals %]
      [% IF loop.first %]
       <tr id="bt_id_[% bt.id %]">
        <td><a href=# onclick="kivi.BankTransaction.assign_invoice('[% bt.id %]'); return false;">[% 'Assign invoice' | $T8 %]</a></td>
@@ -104,7 +105,9 @@
        <td class="tooltipster-html" title="[% FOREACH match = bt.rule_matches %] [% match %]<br> [% END %]">[% bt.agreement %]</td>
        [% END %]
        <td>
-        [% PROCESS proposal_div %]
+        [% IF prop.id ;
+             PROCESS proposal_div ;
+           END %]
        </td>
        <td align="right">[% bt.transdate_as_date %]</td>
        <td align="right">[% LxERP.format_amount(bt.amount, 2) %]</td>
