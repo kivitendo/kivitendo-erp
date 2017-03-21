@@ -1,6 +1,7 @@
 use SL::Auth;
 use SL::Form;
 use SL::GenericTranslations;
+use SL::Locale::String qw(t8);
 
 use strict;
 
@@ -33,6 +34,8 @@ sub edit_greetings {
       $language->{$type} = $translation->{translation};
     }
   }
+
+  setup_generictranslations_edit_greetings_action_bar();
 
   $form->{title} = $locale->text('Edit greetings');
   $form->header();
@@ -129,6 +132,20 @@ sub save_sepa_strings {
   edit_sepa_strings();
 
   $main::lxdebug->leave_sub();
+}
+
+sub setup_generictranslations_edit_greetings_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_greetings" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
 }
 
 1;
