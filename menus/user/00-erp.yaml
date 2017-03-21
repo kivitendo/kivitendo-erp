@@ -459,7 +459,6 @@
   module: ap.pl
   params:
     action: search
-    nextsub: ap_transactions
 - parent: ap_reports
   id: ap_reports_delivery_plan
   name: Delivery Plan

@@ -3,7 +3,7 @@
 [% SET style="width: 250px" %]
 <h1>[% title %]</h1>
 
- <form method=post name="search" action=[% script %]>
+ <form method="post" name="search" action="ap.pl" id="form">
 
   <table width=100%>
   <tr>
@@ -137,11 +137,5 @@
       </table>
      </td>
     </tr>
-    <tr>
-     <td><hr size=3 noshade></td>
-    </tr>
    </table>
-   <input type=hidden name=nextsub value=[% nextsub %]>
-   <br>
-   <input class=submit type=submit name=action value="[% 'Continue' | $T8 %]">
   </form>

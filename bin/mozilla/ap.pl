@@ -915,6 +915,8 @@ sub search {
 
   $::request->layout->add_javascripts("autocomplete_project.js");
 
+  setup_ap_search_action_bar();
+
   $form->header;
   print $form->parse_html_template('ap/search', { %myconfig });
 
@@ -1030,7 +1032,6 @@ sub ap_transactions {
   push @options, $locale->text('Closed')                                                                 if ($form->{closed});
 
   $report->set_options('top_info_text'        => join("\n", @options),
-                       'raw_bottom_info_text' => $form->parse_html_template('ap/ap_transactions_bottom'),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $locale->text('vendor_invoice_list') . strftime('_%Y%m%d', localtime time),
@@ -1105,6 +1106,7 @@ sub ap_transactions {
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
+  setup_ap_transactions_action_bar();
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
@@ -1141,6 +1143,40 @@ sub storno {
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $main::lxdebug->leave_sub();
+}
+
+sub setup_ap_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Search'),
+        submit    => [ '#form', { action => "ap_transactions" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_ap_transactions_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [ t8('Add') ],
+        link => [
+          t8('Purchase Invoice'),
+          link => [ 'ir.pl?action=add' ],
+        ],
+        link => [
+          t8('AP Transaction'),
+          link => [ 'ap.pl?action=add' ],
+        ],
+      ], # end of combobox "Add"
+    );
+  }
 }
 
 sub setup_ap_display_form_action_bar {
