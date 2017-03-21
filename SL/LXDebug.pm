@@ -157,51 +157,49 @@ sub warn {
   $self->message(WARN, $message);
 }
 
+sub clone_for_dump {
+  my ($src, $dumped) = @_;
+
+  return undef if !defined($src);
+
+  $dumped ||= {};
+  my $addr  = refaddr($src);
+
+  return $dumped->{$addr} if $dumped->{$addr // ''};
+
+
+  if (blessed($src) && $src->can('as_debug_info')) {
+    $dumped->{$addr} = $src->as_debug_info;
+
+  } elsif (ref($src) eq 'ARRAY') {
+    $dumped->{$addr} = [];
+
+    foreach my $entry (@{ $src }) {
+      my $exists = !!$dumped->{refaddr($entry) // ''};
+      push @{ $dumped->{$addr} }, clone_for_dump($entry, $dumped);
+
+      weaken($dumped->{$addr}->[-1]) if $exists;
+
+    }
+
+  } elsif (ref($src) =~ m{^(?:HASH|Form|SL::.+)$}) {
+    $dumped->{$addr} = {};
+
+    foreach my $key (keys %{ $src }) {
+      my $exists             = !!$dumped->{refaddr($src->{$key}) // ''};
+      $dumped->{$addr}->{$key} = clone_for_dump($src->{$key}, $dumped);
+
+      weaken($dumped->{$addr}->{$key}) if $exists;
+    }
+  }
+
+  return $dumped->{$addr} // "$src";
+}
+
 sub dump {
   my ($self, $level, $name, $variable, %options) = @_;
 
-  my %dumped;
-
-  my $clone_for_dump;
-  $clone_for_dump = sub {
-    my ($src) = @_;
-
-    return undef if !defined($src);
-
-    my $addr = refaddr($src);
-
-    return $dumped{$addr} if $dumped{$addr // ''};
-
-
-    if (blessed($src) && $src->can('as_debug_info')) {
-      $dumped{$addr} = $src->as_debug_info;
-
-    } elsif (ref($src) eq 'ARRAY') {
-      $dumped{$addr} = [];
-
-      foreach my $entry (@{ $src }) {
-        my $exists = !!$dumped{refaddr($entry) // ''};
-        push @{ $dumped{$addr} }, $clone_for_dump->($entry);
-
-        weaken($dumped{$addr}->[-1]) if $exists;
-
-      }
-
-    } elsif (ref($src) =~ m{^(?:HASH|Form|SL::.+)$}) {
-      $dumped{$addr} = {};
-
-      foreach my $key (keys %{ $src }) {
-        my $exists             = !!$dumped{refaddr($src->{$key}) // ''};
-        $dumped{$addr}->{$key} = $clone_for_dump->($src->{$key});
-
-        weaken($dumped{$addr}->{$key}) if $exists;
-      }
-    }
-
-    return $dumped{$addr} // "$src";
-  };
-
-  $variable  = $clone_for_dump->($variable);
+  $variable  = clone_for_dump($variable);
   my $dumper = Data::Dumper->new([$variable]);
   $dumper->Sortkeys(1);
   $dumper->Indent(2);
