@@ -913,7 +913,7 @@ sub search {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  $form->{title}    = $locale->text('AR Transactions');
+  $form->{title} = $locale->text('Invoices, Credit Notes & AR Transactions');
 
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
@@ -974,7 +974,7 @@ sub ar_transactions {
 
   AR->ar_transactions(\%myconfig, \%$form);
 
-  $form->{title} = $locale->text('AR Transactions');
+  $form->{title} = $locale->text('Invoices, Credit Notes & AR Transactions');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 

@@ -905,7 +905,7 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{title}    = $locale->text('AP Transactions');
+  $form->{title} = $locale->text('Vendor Invoices & AP Transactions');
 
   $form->get_lists(projects => { "key" => "ALL_PROJECTS", "all" => 1 });
 
@@ -957,7 +957,7 @@ sub ap_transactions {
 
   AP->ap_transactions(\%myconfig, \%$form);
 
-  $form->{title} = $locale->text('AP Transactions');
+  $form->{title} = $locale->text('Vendor Invoices & AP Transactions');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
