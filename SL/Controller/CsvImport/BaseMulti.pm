@@ -2,7 +2,7 @@ package SL::Controller::CsvImport::BaseMulti;
 
 use strict;
 
-use List::MoreUtils qw(pairwise);
+use List::MoreUtils qw(pairwise firstidx);
 
 use SL::Helper::Csv;
 
@@ -167,13 +167,21 @@ sub handle_cvars {
                          bool      => 'bool_value' );
 
   $params{sub_module} ||= '';
+
+  # autovivify all cvars (cvars_by_config will do that for us)
   my @cvars;
+  @cvars = @{ $entry->{object}->cvars_by_config } if $entry->{object}->can('cvars_by_config');
+
   foreach my $config (@{ $self->cvar_configs_by->{row_ident}->{$entry->{raw_data}->{datatype}} }) {
     next unless exists $entry->{raw_data}->{ "cvar_" . $config->name };
     my $value  = $entry->{raw_data}->{ "cvar_" . $config->name };
     my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
 
-    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => $params{sub_module});
+    my $cvar = SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => $params{sub_module});
+
+    # replace autovivified cvar by new one
+    my $idx = firstidx { $_->config_id == $config->id } @cvars;
+    $cvars[$idx] = $cvar if -1 != $idx;
   }
 
   $entry->{object}->custom_variables(\@cvars) if @cvars;
@@ -291,4 +299,3 @@ sub fix_field_lengths {
 sub is_multiplexed { 1 }
 
 1;
-
