@@ -391,6 +391,7 @@ sub handle_item {
 
   $self->handle_unit($entry);
   $self->handle_sellprice($entry);
+  $self->handle_discount($entry);
 
   # copy from part if not given
   $object->description($part_obj->description) unless $object->description;
@@ -398,7 +399,6 @@ sub handle_item {
   $object->lastcost($part_obj->lastcost)       unless defined $object->lastcost;
 
   # set to 0 if not given
-  $object->discount(0) unless $object->discount;
   $object->ship(0)     unless $object->ship;
 
   $self->check_project($entry, global => 0);
@@ -446,6 +446,15 @@ sub handle_sellprice {
     }
     $object->sellprice($sellprice);
   }
+}
+
+sub handle_discount {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  $object->discount($object->discount/100.0)     if $object->discount;
+  $object->discount(0)                       unless $object->discount;
 }
 
 sub check_part {
