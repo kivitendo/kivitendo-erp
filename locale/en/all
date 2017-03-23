@@ -1214,6 +1214,7 @@ $self->{texts} = {
   'Error: Invalid warehouse id' => '',
   'Error: Invalid warehouse name #1' => '',
   'Error: Name missing'         => '',
+  'Error: Part is ambiguous'    => '',
   'Error: Part is obsolete'     => '',
   'Error: Part not found'       => '',
   'Error: Quantity to transfer is zero.' => '',

@@ -26,7 +26,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by units_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by part_counts_by contacts_by ct_shiptos_by price_factors_by pricegroups_by units_by) ],
 );
 
 
@@ -194,11 +194,27 @@ sub init_languages_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_languages } } ) } qw(id description article_code) };
 }
 
+sub init_all_parts {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Part->get_all;
+}
+
 sub init_parts_by {
   my ($self) = @_;
 
-  my $all_parts = SL::DB::Manager::Part->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_parts } } ) } qw(id partnumber ean description) };
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_parts } } ) } qw(id partnumber ean description) };
+}
+
+sub init_part_counts_by {
+  my ($self) = @_;
+
+  my $part_counts_by;
+
+  $part_counts_by->{ean}->        {$_->ean}++         for @{ $self->all_parts };
+  $part_counts_by->{description}->{$_->description}++ for @{ $self->all_parts };
+
+  return $part_counts_by;
 }
 
 sub init_contacts_by {
@@ -436,6 +452,7 @@ sub check_part {
   my ($self, $entry) = @_;
 
   my $object = $entry->{object};
+  my $is_ambiguous;
 
   # Check whether or not part ID is valid.
   if ($object->parts_id && !$self->parts_by->{id}->{ $object->parts_id }) {
@@ -462,7 +479,11 @@ sub check_part {
       return 0;
     }
 
-    $object->parts_id($part->id);
+    if ($self->part_counts_by->{description}->{ $entry->{raw_data}->{description} } > 1) {
+      $is_ambiguous = 1;
+    } else {
+      $object->parts_id($part->id);
+    }
   }
 
   # Map ean to ID if given.
@@ -473,13 +494,21 @@ sub check_part {
       return 0;
     }
 
-    $object->parts_id($part->id);
+    if ($self->part_counts_by->{ean}->{ $entry->{raw_data}->{ean} } > 1) {
+      $is_ambiguous = 1;
+    } else {
+      $object->parts_id($part->id);
+    }
   }
 
   if ($object->parts_id) {
     $entry->{info_data}->{partnumber} = $self->parts_by->{id}->{ $object->parts_id }->partnumber;
   } else {
-    push @{ $entry->{errors} }, $::locale->text('Error: Part not found');
+    if ($is_ambiguous) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Part is ambiguous');
+    } else {
+      push @{ $entry->{errors} }, $::locale->text('Error: Part not found');
+    }
     return 0;
   }
 

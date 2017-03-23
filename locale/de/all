@@ -1227,6 +1227,7 @@ $self->{texts} = {
   'Error: Invalid warehouse id' => 'Ungültige Lager-ID',
   'Error: Invalid warehouse name #1' => 'Ungültiger Lagername \'#1\'',
   'Error: Name missing'         => 'Fehler: Name fehlt',
+  'Error: Part is ambiguous'    => 'Artikel ist mehrdeutig',
   'Error: Part is obsolete'     => 'Fehler: Artikel ist ungültig',
   'Error: Part not found'       => 'Fehler: Artikel nicht gefunden',
   'Error: Quantity to transfer is zero.' => 'Fehler: Zu bewegende Menge ist Null.',
