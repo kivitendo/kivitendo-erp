@@ -1,4 +1,4 @@
-use Test::More tests => 89;
+use Test::More tests => 88;
 
 use strict;
 
