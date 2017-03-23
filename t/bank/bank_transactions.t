@@ -1,4 +1,4 @@
-use Test::More tests => 75;
+use Test::More tests => 82;
 
 use strict;
 
@@ -73,7 +73,7 @@ test_two_invoices();
 test_partial_payment();
 test_credit_note();
 test_neg_ap_transaction();
-
+test_ap_payment_transaction();
 # remove all created data at end of test
 clear_up();
 
@@ -487,4 +487,56 @@ sub test_neg_ap_transaction {
   return $invoice;
 };
 
+sub test_ap_payment_transaction {
+  my (%params) = @_;
+  my $testname = 'test_ap_two_transaction';
+  my $netamount = 115;
+  my $amount    = $::form->round_amount($netamount * 1.19,2);
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+    invoice      => 0,
+    invnumber    => $params{invnumber} || 'test_ap_two_transaction',
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_ap_transaction',
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->netamount, 115  , "$testname: netamount ok");
+  is($invoice->amount   , 136.85, "$testname: amount ok");
+
+  my $bt            = SL::Dev::Payment::create_bank_transaction(record        => $invoice,
+                                                                amount        => $invoice->amount,
+                                                                bank_chart_id => $bank->id,
+                                                                transdate     => DateTime->today->add(days => 10),
+                                                               );
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $invoice->load;
+  $bt->load;
+
+  is($invoice->amount   , '136.85000', "$testname: amount ok");
+  is($invoice->netamount, '115.00000', "$testname: netamount ok");
+  is($bt->amount, '-136.85000', "$testname: bt amount ok");
+  is($invoice->paid     , '136.85000', "$testname: paid ok");
+  is($bt->invoice_amount, '-136.85000', "$testname: bt invoice amount for ap was assigned");
+
+  return $invoice;
+};
 1;
