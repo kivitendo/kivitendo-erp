@@ -667,6 +667,14 @@ sub save_single_bank_transaction {
       } elsif (( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) ||
                (!$invoice->is_sales && $invoice->invoice_type eq 'ap_transaction' )) {
         # no check for overpayment/multiple payments
+
+        # 1. $invoice->open_amount is arap.amount - ararp.paid (always positive!)
+        # 2. $bank_transaction->amount is negative for outgoing transactions and positive for
+        #    incoming transactions.
+        # 1. and 2. => we have to turn the sign for invoice_amount in bank_transactions
+        # for verifying expected data, check t/bank/bank_transactions.t
+        $bank_transaction->invoice_amount($invoice->open_amount * -1);
+
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
                               amount       => $invoice->open_amount,
