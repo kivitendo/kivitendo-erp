@@ -1,4 +1,4 @@
-use Test::More tests => 82;
+use Test::More tests => 89;
 
 use strict;
 
@@ -73,6 +73,7 @@ test_two_invoices();
 test_partial_payment();
 test_credit_note();
 test_neg_ap_transaction();
+test_ap_transaction();
 test_ap_payment_transaction();
 # remove all created data at end of test
 clear_up();
