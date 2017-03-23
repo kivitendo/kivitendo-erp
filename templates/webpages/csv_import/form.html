@@ -68,7 +68,7 @@
            <th>[%- p.row_ident %]</th>
          [%- END %][%# FOREACH SELF.worker.profile %]
        </tr>
-       <tr class="listrow[% loop.count % 2 %]">
+       <tr style="vertical-align:top">
          [%- FOREACH p = SELF.worker.profile %]
            [% SET ri = p.row_ident %]
          <td>
