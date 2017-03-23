@@ -158,6 +158,8 @@ sub init_cvar_columns_by {
 sub handle_cvars {
   my ($self, $entry, %params) = @_;
 
+  return if @{ $entry->{errors} };
+
   my %type_to_column = ( text      => 'text_value',
                          textfield => 'text_value',
                          select    => 'text_value',
