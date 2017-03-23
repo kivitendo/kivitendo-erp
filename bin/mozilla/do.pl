@@ -246,6 +246,7 @@ sub setup_do_action_bar {
       action =>
         [ t8('Update'),
           submit    => [ '#form', { action => "update" } ],
+          id        => 'update_button',
           accesskey => 'enter',
         ],
 

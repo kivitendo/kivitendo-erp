@@ -136,7 +136,7 @@
           [% P.hidden_tag(vc_id, $vc_id) %]
           [% HTML.escape(VC_OBJ.name) %]
          [% ELSE %]
-          [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, class="fixed_width") %]
+          [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, class="fixed_width", onchange="\$('#update_button').click()") %]
          [% END %]
          [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
          [% P.button_tag("show_vc_details('" _ HTML.escape(vc) _ "')", LxERP.t8("Details (one letter abbreviation)")) %]
