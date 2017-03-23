@@ -162,6 +162,7 @@ sub setup_displayable_columns {
                                  { name => 'cusordnumber',    description => $::locale->text('Customer Order Number')      },
                                  { name => 'description',     description => $::locale->text('Description')                },
                                  { name => 'discount',        description => $::locale->text('Discount')                   },
+                                 { name => 'ean',             description => $::locale->text('EAN')                        },
                                  { name => 'lastcost',        description => $::locale->text('Lastcost')                   },
                                  { name => 'longdescription', description => $::locale->text('Long Description')           },
                                  { name => 'marge_percent',   description => $::locale->text('Margepercent')               },
@@ -456,6 +457,17 @@ sub check_part {
   # Map description to ID if given.
   if (!$object->parts_id && $entry->{raw_data}->{description}) {
     my $part = $self->parts_by->{description}->{ $entry->{raw_data}->{description} };
+    if (!$part) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
+      return 0;
+    }
+
+    $object->parts_id($part->id);
+  }
+
+  # Map ean to ID if given.
+  if (!$object->parts_id && $entry->{raw_data}->{ean}) {
+    my $part = $self->parts_by->{ean}->{ $entry->{raw_data}->{ean} };
     if (!$part) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid part');
       return 0;
