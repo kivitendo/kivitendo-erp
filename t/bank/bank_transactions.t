@@ -1,4 +1,4 @@
-use Test::More tests => 74;
+use Test::More tests => 75;
 
 use strict;
 
@@ -477,10 +477,12 @@ sub test_neg_ap_transaction {
   save_btcontroller_to_string();
 
   $invoice->load;
+  $bt->load;
 
   is($invoice->amount   , '-23.80000', "$testname: amount ok");
   is($invoice->netamount, '-20.00000', "$testname: netamount ok");
   is($invoice->paid     , '-23.80000', "$testname: paid ok");
+  is($bt->invoice_amount, '23.80000', "$testname: bt invoice amount for ap was assigned");
 
   return $invoice;
 };
