@@ -1028,6 +1028,8 @@ sub show_history_search {
 
   $main::auth->assert('config');
 
+  setup_am_show_history_search_action_bar();
+
   $form->{title} = $locale->text("History Search");
   $form->header();
 
@@ -1102,6 +1104,8 @@ sub show_am_history {
   }
   my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)$/$1/;
+
+  setup_am_show_am_history_action_bar();
 
   $form->{title} = $locale->text("History Search");
   $form->header();
@@ -1628,6 +1632,33 @@ sub setup_am_audit_control_action_bar {
         t8('Save'),
         submit    => [ '#form', { action => 'doclose' } ],
         accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_am_show_history_search_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Show'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_am_show_am_history_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
       ],
     );
   }

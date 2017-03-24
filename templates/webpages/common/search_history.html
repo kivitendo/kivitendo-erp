@@ -3,7 +3,7 @@
 [% USE HTML %]
 <h1>[% 'history search engine' | $T8 %]</h1>
 
-<form method="post" action="am.pl">
+<form method="post" action="am.pl" id="form">
 
 <input type="hidden" name="action" value="show_am_history">
 
@@ -67,11 +67,6 @@
     </td>
   </tr>
 </table>
-
-<hr>
-<input type="submit" class="submit" value="[% 'submit' | $T8 %]">
-<input type="reset" class="submit" value="[% 'reset' | $T8 %]" id='reset_button'>
-
 </form>
 
 <script type="text/javascript">
