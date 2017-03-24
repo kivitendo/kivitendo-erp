@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::DB::Employee;
 use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_all');
@@ -23,9 +24,10 @@ sub action_edit {
   my ($self, %params) = @_;
 
   if ($self->{employee}) {
+    $self->setup_edit_action_bar;
     $self->render('employee/edit', title => $::locale->text('Edit Employee #1', $self->{employee}->safe_name));
   } else {
-    flash('error', $::locale->text('Could not load employee'));
+    flash_later('error', $::locale->text('Could not load employee'));
     $self->redirect_to(action => 'list');
   }
 }
@@ -35,7 +37,7 @@ sub action_save {
 
   $self->{employee}->save;
 
-  flash('info', $::locale->text('Employee #1 saved!'));
+  flash('info', $::locale->text('Employee #1 saved!', $self->{employee}->safe_name));
 
   $self->redirect_to(action => 'edit', 'employee.id' => $self->{employee}->id);
 }
@@ -63,6 +65,26 @@ sub assign_from_form {
   return 1;
 }
 
+sub setup_edit_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'Employee/save' } ],
+        accesskey => 'enter',
+      ],
+
+      'separator',
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list'),
+      ],
+    );
+  }
+}
 
 ######################## behaviour ##########################
 
