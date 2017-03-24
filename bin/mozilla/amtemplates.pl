@@ -37,6 +37,7 @@ use File::Find;
 use SL::DB::Default;
 use SL::AM;
 use SL::Form;
+use SL::Locale::String qw(t8);
 
 use Data::Dumper;
 
@@ -278,17 +279,50 @@ sub display_template_form {
     $options{"CAN_EDIT"} = $form->{"edit"};
 
     if (!$form->{edit}) {
-      $options{"content"}                 = "\n\n" if (!$options{"content"});
-      $options{"SHOW_SECOND_EDIT_BUTTON"} = $options{"lines"} > 25;
+      $options{"content"} = "\n\n" if (!$options{"content"});
     }
   }
 
   $options{"HIDDEN"} = [ map(+{ "name" => $_, "value" => $form->{$_} }, @hidden) ];
 
+  setup_amtemplates_display_form_action_bar(
+    mode              => $form->{edit} ? 'edit' : 'show',
+    template_selected => $options{SHOW_CONTENT},
+  );
+
   $form->header;
   print($form->parse_html_template("am/edit_templates", \%options));
 
   $main::lxdebug->leave_sub();
+}
+
+sub setup_amtemplates_display_form_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Edit'),
+        submit    => [ '#form', { action => 'edit_template' } ],
+        accesskey => 'enter',
+        only_if   => $params{mode} eq 'show',
+        disabled  => !$params{template_selected} ? t8('No template has been selected yet.') : undef,
+      ],
+
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'save_template' } ],
+        accesskey => 'enter',
+        only_if   => $params{mode} eq 'edit',
+      ],
+
+      action => [
+        t8('Abort'),
+        call    => [ 'kivi.history_back' ],
+        only_if => $params{mode} eq 'edit',
+      ],
+    );
+  }
 }
 
 1;
