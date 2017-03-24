@@ -1,5 +1,6 @@
 use SL::AccTransCorrections;
 use SL::Form;
+use SL::Locale::String qw(t8);
 use SL::User;
 use Data::Dumper;
 use YAML;
@@ -13,6 +14,8 @@ sub analyze_filter {
 
   my $form     = $main::form;
   my $locale   = $main::locale;
+
+  setup_analyze_filter_action_bar();
 
   $form->{title}    = $locale->text('General ledger corrections');
   $form->header();
@@ -46,6 +49,8 @@ sub analyze {
     $main::lxdebug->leave_sub();
     return;
   }
+
+  setup_analyze_action_bar();
 
   $form->header();
   print $form->parse_html_template('acctranscorrections/analyze_overview',
@@ -249,6 +254,33 @@ sub dispatcher {
   }
 
   $form->error($locale->text('No action defined.'));
+}
+
+sub setup_analyze_filter_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Analyze'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_analyze_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Back'),
+        call => [ 'kivi.history_back' ],
+      ],
+    );
+  }
 }
 
 1;

@@ -9,7 +9,7 @@
   [% 'This module can help you identify and correct such entries by analyzing the general ledger and presenting you likely solutions but also allowing you to fix problems yourself.' | $T8 %]
  </p>
 
- <form name="filter" method="post" action="acctranscorrections.pl">
+ <form name="filter" method="post" action="acctranscorrections.pl" id="form">
 
   <p>[% 'Time period for the analysis:' | $T8 %]</p>
 
@@ -31,10 +31,6 @@
      </td>
     </tr>
    </table>
-  </p>
-
-  <p>
-   <input type="submit" value="[% 'Start analysis' | $T8 %]">
   </p>
 
   <input type="hidden" name="action" value="analyze">
