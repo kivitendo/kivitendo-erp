@@ -34,6 +34,8 @@
 
 use utf8;
 
+use List::MoreUtils qw(any);
+
 use SL::Auth;
 use SL::Auth::PasswordPolicy;
 use SL::AM;
@@ -1290,6 +1292,8 @@ sub add_warehouse {
   $form->{title}      = $locale->text('Add Warehouse');
   $form->{callback} ||= build_std_url('action=add_warehouse');
 
+  setup_am_edit_warehouse_action_bar();
+
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
 
@@ -1312,10 +1316,26 @@ sub edit_warehouse {
   $form->{title}      = $locale->text('Edit Warehouse');
   $form->{callback} ||= build_std_url('action=list_warehouses');
 
+  setup_am_edit_warehouse_action_bar(id => $::form->{id}, in_use => any { $_->{in_use} } @{ $::form->{BINS} });
+
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
 
   $main::lxdebug->leave_sub();
+}
+
+sub edit_bins {
+  $::auth->assert('config');
+
+  AM->get_warehouse(\%::myconfig, $::form);
+
+  $::form->{title}      = $::locale->text('Edit Bins for Warehouse \'#1\'', $::form->{description});
+  $::form->{callback} ||= build_std_url('action=list_warehouses');
+
+  setup_am_edit_bins_action_bar(id => $::form->{id});
+
+  $::form->header;
+  print $::form->parse_html_template('am/edit_bins');
 }
 
 sub list_warehouses {
@@ -1332,6 +1352,8 @@ sub list_warehouses {
   $form->{callback} = build_std_url('action=list_warehouses');
   $form->{title}    = $locale->text('Warehouses');
   $form->{url_base} = build_std_url('callback');
+
+  setup_am_list_warehouses_action_bar();
 
   $form->header();
   print $form->parse_html_template('am/list_warehouses');
@@ -1369,14 +1391,6 @@ sub delete_warehouse {
   my $locale   = $main::locale;
 
   $main::auth->assert('config');
-
-  if (!$form->{confirmed}) {
-    $form->{title} = $locale->text('Confirmation');
-
-    $form->header();
-    print $form->parse_html_template('am/confirm_delete_warehouse');
-    $::dispatcher->end_request;
-  }
 
   if (AM->delete_warehouse(\%myconfig, $form)) {
     $form->{callback} .= '&saved_message=' . E($locale->text('Warehouse deleted.')) if ($form->{callback});
@@ -1527,6 +1541,77 @@ sub setup_am_edit_units_action_bar {
       link => [
         t8('Add'),
         link => 'am.pl?action=add_unit',
+      ],
+    );
+  }
+}
+
+sub setup_am_list_warehouses_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add'),
+        link      => 'am.pl?action=add&type=warehouse&callback=' . E($::form->{callback}),
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_am_edit_warehouse_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'save_warehouse' } ],
+        accesskey => 'enter',
+      ],
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'delete_warehouse' } ],
+        disabled => !$params{id}    ? t8('The object has not been saved yet.')
+                  : $params{in_use} ? t8('The object is in use and cannot be deleted.')
+                  :                   undef,
+        confirm  => t8('Do you really want to delete this object?'),
+      ],
+
+      'separator',
+
+      link => [
+        t8('Bins'),
+        link    => 'am.pl?action=edit_bins&id=' . E($params{id}),
+        only_if => $params{id},
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $::form->{callback} || 'am.pl?action=list_warehouses',
+      ],
+    );
+  }
+}
+
+sub setup_am_edit_bins_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'save_bin' } ],
+        accesskey => 'enter',
+      ],
+
+      'separator',
+
+      link => [
+        t8('Abort'),
+        link => 'am.pl?action=edit_warehouse&id=' . E($params{id}),
       ],
     );
   }

@@ -24,10 +24,4 @@
   </table>
  </p>
 
- <hr height="3">
-
- <p>
-  <a href="am.pl?action=add&type=warehouse&callback=[% HTML.url(callback) %]">[%- 'Add' | $T8 %]</a>
- </p>
-
  [% L.sortable_element('#warehouse_list tbody', url => 'controller.pl?action=Warehouse/reorder', with => 'warehouse_id') %]
