@@ -611,6 +611,10 @@ sub update {
 
   if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     IS->get_customer(\%myconfig, $form);
+    if (($form->{rowcount} == 1) && ($form->{amount_1} == 0)) {
+      my $last_used_ar_chart = SL::DB::Customer->load_cached($form->{customer_id})->last_used_ar_chart;
+      $form->{"AR_amount_chart_id_1"} = $last_used_ar_chart->id if $last_used_ar_chart;
+    }
   }
 
   $form->{invtotal} =

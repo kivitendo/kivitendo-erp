@@ -634,6 +634,10 @@ sub update {
 
   if (($form->{previous_vendor_id} || $form->{vendor_id}) != $form->{vendor_id}) {
     IR->get_vendor(\%::myconfig, $form);
+    if (($form->{rowcount} == 1) && ($form->{amount_1} == 0)) {
+      my $last_used_ap_chart = SL::DB::Vendor->load_cached($form->{vendor_id})->last_used_ap_chart;
+      $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
+    }
   }
 
   $form->{rowcount} = $count + ($params{dont_add_new_row} ? 0 : 1);
