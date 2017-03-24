@@ -435,30 +435,24 @@ sub prepare_template_filename {
 
   my ($filename, $display_filename);
 
-  if ($form->{type} eq "stylesheet") {
-    $filename = "css/$myconfig->{stylesheet}";
-    $display_filename = $myconfig->{stylesheet};
+  $filename = $form->{formname};
 
-  } else {
-    $filename = $form->{formname};
-
-    if ($form->{language}) {
-      my ($id, $template_code) = split(/--/, $form->{language});
-      $filename .= "_${template_code}";
-    }
-
-    if ($form->{printer}) {
-      my ($id, $template_code) = split(/--/, $form->{printer});
-      $filename .= "_${template_code}";
-    }
-
-    $filename .= "." . ($form->{format} eq "html" ? "html" : "tex");
-    if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
-      $filename =~ s|.*/||;
-    }
-    $display_filename = $filename;
-    $filename = SL::DB::Default->get->templates . "/$filename";
+  if ($form->{language}) {
+    my ($id, $template_code) = split(/--/, $form->{language});
+    $filename .= "_${template_code}";
   }
+
+  if ($form->{printer}) {
+    my ($id, $template_code) = split(/--/, $form->{printer});
+    $filename .= "_${template_code}";
+  }
+
+  $filename .= "." . ($form->{format} eq "html" ? "html" : "tex");
+  if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
+    $filename =~ s|.*/||;
+  }
+  $display_filename = $filename;
+  $filename = SL::DB::Default->get->templates . "/$filename";
 
   $main::lxdebug->leave_sub();
 

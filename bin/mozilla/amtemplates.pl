@@ -95,7 +95,7 @@ sub save_template {
 
   $main::auth->assert('admin');
 
-  $form->isblank("formname", $locale->text("You're not editing a file.")) unless ($form->{type} eq "stylesheet");
+  $form->isblank("formname", $locale->text("You're not editing a file."));
 
   my ($filename) = AM->prepare_template_filename(\%myconfig, $form);
   if (my $error = AM->save_template($filename, $form->{content})) {
@@ -126,7 +126,7 @@ sub display_template_form {
 
   my $format = $form->{"format"} eq "html" ? "html" : "tex";
 
-  $form->{"title"} = $form->{"type"} eq "stylesheet" ? $locale->text("Edit the stylesheet") : $locale->text("Edit templates");
+  $form->{"title"} = $locale->text("Edit templates");
   if ($form->{"format"}) {
       $form->{"title"} = uc($form->{"format"}) . " - " . $form->{"title"};
   }
@@ -135,7 +135,7 @@ sub display_template_form {
 
   my @hidden = qw(type format);
 
-  if (($form->{"type"} ne "stylesheet") && !$form->{"edit"}) {
+  if (!$form->{"edit"}) {
     $options{"SHOW_EDIT_OPTIONS"} = 1;
 
     #
@@ -266,7 +266,7 @@ sub display_template_form {
     push(@hidden, qw(formname language printer));
   }
 
-  if ($form->{formname} || ($form->{type} eq "stylesheet")) {
+  if ($form->{formname}) {
     $options{"SHOW_CONTENT"} = 1;
 
     ($options{"filename"}, $options{"display_filename"})

@@ -1315,14 +1315,6 @@
     action: display_template_form
     format: tex
     type: templates
-- parent: system_templates
-  id: system_templates_stylesheet
-  name: Stylesheet
-  order: 300
-  module: amtemplates.pl
-  params:
-    action: display_template_form
-    type: stylesheet
 - parent: system
   id: system_general_ledger_corrections
   name: General Ledger Corrections

@@ -1160,7 +1160,6 @@ $self->{texts} = {
   'Edit the request_quotation'  => 'Bearbeiten der Preisanfrage',
   'Edit the sales_order'        => 'Bearbeiten des Auftrags',
   'Edit the sales_quotation'    => 'Bearbeiten des Angebots',
-  'Edit the stylesheet'         => 'Stilvorlage bearbeiten',
   'Edit units'                  => 'Einheiten bearbeiten',
   'Edit user signature'         => 'Benutzersignatur bearbeiten',
   'Editable'                    => 'Bearbeitbar',
