@@ -770,6 +770,8 @@ sub audit_control {
 
   AM->closedto(\%::myconfig, $::form);
 
+  setup_am_audit_control_action_bar();
+
   $::form->header;
   print $::form->parse_html_template('am/audit_control');
 
@@ -1612,6 +1614,20 @@ sub setup_am_edit_bins_action_bar {
       link => [
         t8('Abort'),
         link => 'am.pl?action=edit_warehouse&id=' . E($params{id}),
+      ],
+    );
+  }
+}
+
+sub setup_am_audit_control_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => 'doclose' } ],
+        accesskey => 'enter',
       ],
     );
   }

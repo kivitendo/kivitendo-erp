@@ -5,7 +5,7 @@
 
 <h1>[% title | html %]</h1>
 
-<form method=post action=am.pl>
+<form method="post" action="am.pl" id="form">
 
 <table>
   <tr>
@@ -18,11 +18,4 @@
   </tr>
 </table>
 
-<hr size=3 noshade>
-
-<br>
-<input type=hidden name=nextsub value=doclose>
-<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
-
 </form>
-
