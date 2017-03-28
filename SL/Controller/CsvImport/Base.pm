@@ -221,47 +221,58 @@ sub check_vc {
 
   my $is_ambiguous;
   if (!$entry->{object}->$id_column) {
-    my $vc = $entry->{raw_data}->{customernumber} && $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} };
-    if ($vc && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
-    }
-    $vc ||= $entry->{raw_data}->{vendornumber} && $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} };
-    if ($vc && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
-    }
-
-    $entry->{object}->$id_column($vc->id) if $vc;
-  }
-
-  if (!$entry->{object}->$id_column) {
-    my $vc = $entry->{raw_data}->{customer} && $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} };
-    if ($vc && $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}->{customer} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
-    }
-    $vc ||= $entry->{raw_data}->{vendor} && $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} };
-    if ($vc && $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
+    my $vc;
+    if ($entry->{raw_data}->{customernumber}) {
+      $vc = $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} };
+      if ($vc && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
+    } elsif ($entry->{raw_data}->{vendornumber}) {
+      $vc = $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} };
+      if ($vc && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
     }
 
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
   if (!$entry->{object}->$id_column) {
-    my $vc = $entry->{raw_data}->{customer_gln} && $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} };
-    if ($vc && $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
-    }
-    $vc ||= $entry->{raw_data}->{vendor_gln} && $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} };
-    if ($vc && $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1) {
-      $vc = undef;
-      $is_ambiguous = 1;
+    my $vc;
+    if ($entry->{raw_data}->{customer}) {
+      $vc = $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} };
+      if ($vc && $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}->{customer} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
+    } elsif ($entry->{raw_data}->{vendor}) {
+      $vc = $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} };
+      if ($vc && $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
     }
 
+    $entry->{object}->$id_column($vc->id) if $vc;
+  }
+
+  if (!$entry->{object}->$id_column) {
+    my $vc;
+    if ($entry->{raw_data}->{customer_gln}) {
+      $vc = $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} };
+      if ($vc && $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
+    } elsif ($entry->{raw_data}->{vendor_gln}) {
+      $vc = $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} };
+      if ($vc && $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1) {
+        $vc = undef;
+        $is_ambiguous = 1;
+      }
+    }
     $entry->{object}->$id_column($vc->id) if $vc;
   }
 
