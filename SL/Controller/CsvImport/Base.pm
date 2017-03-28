@@ -202,12 +202,12 @@ sub init_vc_counts_by {
 
   my $vc_counts_by;
 
-  $vc_counts_by->{number}->{customers}->{$_->number}++ for @{ $self->all_vc->{customers} };
-  $vc_counts_by->{number}->{vendors}->  {$_->number}++ for @{ $self->all_vc->{vendors} };
-  $vc_counts_by->{name}->  {customers}->{$_->name}++   for @{ $self->all_vc->{customers} };
-  $vc_counts_by->{name}->  {vendors}->  {$_->name}++   for @{ $self->all_vc->{vendors} };
-  $vc_counts_by->{gln}->   {customers}->{$_->gln}++    for @{ $self->all_vc->{customers} };
-  $vc_counts_by->{gln}->   {vendors}->  {$_->gln}++    for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{number}->{customers}->{$_->customernumber}++ for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{number}->{vendors}->  {$_->vendornumber}++   for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{name}->  {customers}->{$_->name}++           for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{name}->  {vendors}->  {$_->name}++           for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{gln}->   {customers}->{$_->gln}++            for @{ $self->all_vc->{customers} };
+  $vc_counts_by->{gln}->   {vendors}->  {$_->gln}++            for @{ $self->all_vc->{vendors} };
 
   return $vc_counts_by;
 }
