@@ -28,7 +28,7 @@ sub make_sort_string {
   my $sort_by_str = $sort_spec->{columns}->{$sort_by};
   $sort_by_str    = [ $sort_by_str ] unless ref($sort_by_str) eq 'ARRAY';
 
-  # generaate tiebreaker
+  # generate tiebreaker
   push @$sort_by_str, @{ $sort_spec->{tiebreaker} };
 
   $sort_by_str    = join(', ', map { "${_} ${sort_dir_str}${nulls_str}" } @{ $sort_by_str });
