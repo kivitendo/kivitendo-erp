@@ -438,6 +438,7 @@ sub get_warehouse_journal {
     'trans_type'     => ['trans_type'],
     'employee'       => ['employee'],
     'projectnumber'  => ['projectnumber'],
+    'chargenumber'   => ['chargenumber'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
