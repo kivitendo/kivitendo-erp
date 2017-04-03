@@ -39,6 +39,7 @@ use SL::DBUtils;
 use Data::Dumper;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 use List::Util qw(sum);
+use List::UtilsBy qw(partition_by sort_by);
 use SL::DB;
 
 # use warnings;
@@ -1845,18 +1846,33 @@ sub income_statement {
                   $form, "pos_eur");
 
 
+  # add extra information to form to be used by template
+  my %charts_by_category =
+    partition_by { $_->{pos_eur} }
+    sort_by      { $_->{accno}   }
+    map          { $form->{charts}->{$_} }
+    keys %{ $form->{charts} };
+  $form->{"charts_by_category"} = \%charts_by_category;
+
+  $form->{"categories_income"}  = \@categories_einnahmen;
+  $form->{"categories_expense"} = \@categories_ausgaben;
+
+  $form->{category_names} = AM->get_eur_categories($myconfig, $form);
+
+  my %eur_amounts;
+
   foreach my $item (@categories_einnahmen) {
-    $form->{"eur${item}"} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
+    $eur_amounts{$item} = $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
     $form->{"sumeura"} += $form->{$item};
   }
   foreach my $item (@categories_ausgaben) {
-    $form->{"eur${item}"} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
+    $eur_amounts{$item} = $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
     $form->{"sumeurb"} += $form->{$item};
   }
 
   $form->{"guvsumme"} = $form->{"sumeura"} - $form->{"sumeurb"};
+
+  $form->{eur_amounts} = \%eur_amounts;
 
   foreach my $item (@ergebnisse) {
     $form->{$item} =

@@ -1,8 +1,12 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
+[% L.button_tag('', LxERP.t8('Hide buttons'), id="hide_buttons_button", class="hide") %]
+[% L.button_tag('', LxERP.t8('Show charts'),  id="show_charts_button",  class="hide") %]
+[% L.button_tag('', LxERP.t8('Hide charts'),  id="hide_charts_button",  class="hide") %]
 
-<h3 align=center> [% title %]</h3>
+<h3 align="center" id="show_buttons"> [% title %]</h3>
 <h3 align=center>
 [% period %]<br>
 [% accounting_method %]<br>
@@ -10,70 +14,56 @@
 <br>[% report_date %]
 </h3>
 
-<table width=100% border=0>
+<style type="text/css">
+
+#eurtable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tr.category {
+  /* background set via jquery */
+}
+
+tr.chart {
+  border: 0;
+}
+
+td.chartname {
+  padding-left: 50px;
+}
+
+tr.chartrow {
+  font-size: 75%;
+}
+
+.guv_row_background {
+  background:#f0f0f0;
+}
+</style>
+
+<table id="eurtable">
 <tr>
   <td width=75% align=left colspan=2><font size="+1"><b>A. Betriebseinnahmen</font></b><br></td>
   <td></td>
 </tr>
 
-<tr>
-  <td>
-    Umsatzerl&ouml;se
-  </td>
-  <td>
-    [% eur1 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    sonstige Erl&ouml;se
-  </td>
-  <td>
-    [% eur2 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Privatanteile
-  </td>
-  <td>
-    [% eur3 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Zinsertr&auml;ge
-  </td>
-  <td>
-    [% eur4 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Au&szlig;erordentliche Ertr&auml;ge
-  </td>
-  <td>
-    [% eur5 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Vereinnahmte Umsatzsteuer
-  </td>
-  <td>
-    [% eur6 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Umsatzsteuererstattungen
-  </td>
-  <td>
-    [% eur7 %]
-  </td>
-</tr>
-
-
+[% FOREACH i IN categories_income %]
+  <tr class="category" data-catid="cat[% i %]">
+    <td>
+      [% HTML.escape(category_names.item(i)) %]
+    </td>
+    <td class="numeric">
+      [% eur_amounts.item(i) %]
+    </td>
+  </tr>
+  [% FOREACH chart = charts_by_category.item(i).list %]
+  <tr class="chartrow cat[% i %]">
+    <td class="chartname">[% chart.accno %] [% chart.description %]</td>
+    <td class="numeric"> [% LxERP.format_amount(chart.amount,2) %] </td>
+  </tr>
+  [% END %]
+[% END %]
 <tr>
   <td> </td>
   <td><hr noshade size=1></td>
@@ -92,184 +82,22 @@
   <td></td>
 </tr>
 
-<tr>
-  <td>
-    Wareneing&auml;nge
-  </td>
-  <td>
-    [% eur8 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    L&ouml;hne und Geh&auml;lter
-  </td>
-  <td>
-    [% eur9 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Gesetzlicher sozialer Aufwand
-  </td>
-  <td>
-    [% eur10 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Mieten
-  </td>
-  <td>
-    [% eur11 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Gas, Strom, Wasser
-  </td>
-  <td>
-    [% eur12 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Instandhaltung
-  </td>
-  <td>
-    [% eur13 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Steuern, Versicherungen, Beitr&auml;ge
-  </td>
-  <td>
-    [% eur14 %]
-  </td>
-</tr>
-<tr>
-  <td>
-    Kfz-Steuern
-  </td>
-  <td>
-    [% eur15 %]
-  </td>
-</tr><tr>
-  <td>
-    Kfz-Versicherungen
-  </td>
-  <td>
-    [% eur16 %]
-  </td>
-</tr><tr>
-  <td>
-    Sonstige Fahrzeugkosten
-  </td>
-  <td>
-    [% eur17 %]
-  </td>
-</tr><tr>
-  <td>
-    Werbe- und Reisekosten
-  </td>
-  <td>
-    [% eur18 %]
-  </td>
-</tr><tr>
-  <td>
-    Instandhaltung und Werkzeuge
-  </td>
-  <td>
-    [% eur19 %]
-  </td>
-</tr><tr>
-  <td>
-    Fachzeitschriften, B&uuml;cher
-  </td>
-  <td>
-    [% eur20 %]
-  </td>
-</tr><tr>
-  <td>
-    Miete f&uuml;r Einrichtungen
-  </td>
-  <td>
-    [% eur21 %]
-  </td>
-</tr><tr>
-  <td>
-    Rechts- und Beratungskosten
-  </td>
-  <td>
-    [% eur22 %]
-  </td>
-</tr><tr>
-  <td>
-    B&uuml;robedarf, Porto, Telefon
-  </td>
-  <td>
-    [% eur23 %]
-  </td>
-</tr><tr>
-  <td>
-    Sonstige Aufwendungen
-  </td>
-  <td>
-    [% eur24 %]
-  </td>
-</tr><tr>
-  <td>
-    Abschreibungen auf Anlageverm&ouml;gen
-  </td>
-  <td>
-    [% eur25 %]
-  </td>
-</tr><tr>
-  <td>
-    Abschreibungen auf GWG
-  </td>
-  <td>
-    [% eur26 %]
-  </td>
-</tr><tr>
-  <td>
-    Vorsteuer
-  </td>
-  <td>
-    [% eur27 %]
-  </td>
-</tr><tr>
-  <td>
-    Umsatzsteuerzahlungen
-  </td>
-  <td>
-    [% eur28 %]
-  </td>
-</tr><tr>
-  <td>
-    Zinsaufwand
-  </td>
-  <td>
-    [% eur29 %]
-  </td>
-</tr><tr>
-  <td>
-    Au&szlig;erordentlicher Aufwand
-  </td>
-  <td>
-    [% eur30 %]
-  </td>
-</tr><tr>
-  <td>
-    Betriebliche Steuern
-  </td>
-  <td>
-    [% eur31 %]
-  </td>
-</tr>
-
-
+[% FOREACH i IN categories_expense %]
+  <tr class="category" data-catid="cat[% i %]">
+    <td>
+      [% HTML.escape(category_names.item(i)) %]
+    </td>
+    <td class="numeric">
+      [% eur_amounts.item(i) %]
+    </td>
+  </tr>
+  [% FOREACH chart = charts_by_category.item(i).list %]
+  <tr class="chartrow cat[% i %]">
+    <td class="chartname">[% chart.accno %] [% chart.description %]</td>
+    <td class="numeric"> [% LxERP.format_amount(chart.amount,2) %] </td>
+  </tr>
+  [% END %]
+[% END %]
 <tr>
   <td> </td>
   <td><hr noshade size=1></td>
@@ -290,6 +118,88 @@
 
 </table>
 
+
+<br>
+
+[% L.button_tag('', LxERP.t8('Show chart list'), id="show_chartlist_button", class="hide") %]
+[% L.button_tag('', LxERP.t8('Hide chart list'), id="hide_chartlist_button", class="hide") %]
+
+<div id="chartlist">
+<div>[% 'Chart list' | $T8 %]</div>
+<div>
+<table>
+<tr>
+  <th>[% 'Chart'    | $T8 %]</th>
+  <th>[% 'Amount'   | $T8 %]</th>
+  <th>[% 'Category' | $T8 %]</th>
+</tr>
+[% FOREACH key = charts.keys.sort %]
+[% UNLESS charts.$key.pos_eur %]
+[% NEXT %]
+[% END %]
+<tr>
+ <td>[% charts.$key.accno %]</td>
+ <td class="numeric">[%  LxERP.format_amount( charts.$key.amount, 2 ) %]</td>
+ <td>[% HTML.escape(category_names.item(charts.$key.pos_eur)) %]</td>
+</tr>
+[% END %]
+</table>
+</div>
+</div>
 </body>
 </html>
 
+<script language="javascript">
+$( document ).ready(function() {
+  $( ".chartrow" ).hide();
+  $( "#hide_charts_button" ).hide();
+  $( "#hide_chartlist_button" ).hide();
+  $( "#chartlist" ).hide();
+  $( '.category:even' ).css('background-color','#f0f0f0');
+  $( '.category:odd' ).css('background-color','#f8f8f8');
+
+  $( "#show_chartlist_button" ).click(function() {
+    $( "#chartlist" ).toggle();
+    $('html, body').animate({
+        scrollTop: $(this).offset().top
+    }, 500);
+    $(this).hide();
+    $("#hide_chartlist_button").show();
+  });
+
+  $( "#hide_chartlist_button" ).click(function() {
+    $( "#chartlist" ).toggle();
+    $('html, body').animate({
+        scrollTop: $(this).offset().top
+    }, 500);
+    $(this).hide();
+    $("#show_chartlist_button").show();
+  });
+
+  $( "#hide_buttons_button" ).click(function() {
+    $( ".hide" ).hide();
+  });
+
+  $( "#show_buttons" ).click(function() {
+    $( ".hide" ).show();
+  });
+
+  $( "#show_charts_button" ).click(function() {
+    $( ".chartrow" ).show();
+    $(this).hide();
+    $("#hide_charts_button").show();
+  });
+
+  $( "#hide_charts_button" ).click(function() {
+    $( ".chartrow" ).hide();
+    $(this).hide();
+    $("#show_charts_button").show();
+  });
+
+  $( ".category" ).click(function() {
+    var chartrow_class = $(this).attr('data-catid');
+    $('.' + chartrow_class).toggle();
+  });
+})
+
+</script>
