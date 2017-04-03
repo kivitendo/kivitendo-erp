@@ -368,13 +368,15 @@ sub generate_datev_data {
   $main::lxdebug->enter_sub();
 
   my ($self, %params)   = @_;
-  my $fromto            = $params{from_to};
+  my $fromto            = $params{from_to} // '';
   my $progress_callback = $params{progress_callback} || sub {};
 
   my $form     =  $main::form;
 
   my $trans_id_filter = '';
-  my ($ar_department_id_filter, $ap_department_id_filter, $gl_department_id_filter);
+  my $ar_department_id_filter = '';
+  my $ap_department_id_filter = '';
+  my $gl_department_id_filter = '';
   if ( $form->{department_id} ) {
     $ar_department_id_filter = " AND ar.department_id = ? ";
     $ap_department_id_filter = " AND ap.department_id = ? ";
