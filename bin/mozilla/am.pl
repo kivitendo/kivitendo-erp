@@ -227,38 +227,7 @@ sub account_header {
   }
 
   my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  my %eur = (
-          1  => "Umsatzerlöse",
-          2  => "sonstige Erlöse",
-          3  => "Privatanteile",
-          4  => "Zinserträge",
-          5  => "Ausserordentliche Erträge",
-          6  => "Vereinnahmte Umsatzst.",
-          7  => "Umsatzsteuererstattungen",
-          8  => "Wareneingänge",
-          9  => "Löhne und Gehälter",
-          10 => "Gesetzl. sozialer Aufw.",
-          11 => "Mieten",
-          12 => "Gas, Strom, Wasser",
-          13 => "Instandhaltung",
-          14 => "Steuern, Versich., Beiträge",
-          15 => "Kfz-Steuern",
-          16 => "Kfz-Versicherungen",
-          17 => "Sonst. Fahrzeugkosten",
-          18 => "Werbe- und Reisekosten",
-          19 => "Instandhaltung u. Werkzeuge",
-          20 => "Fachzeitschriften, Bücher",
-          21 => "Miete für Einrichtungen",
-          22 => "Rechts- und Beratungskosten",
-          23 => "Bürobedarf, Porto, Telefon",
-          24 => "Sonstige Aufwendungen",
-          25 => "Abschreibungen auf Anlagever.",
-          26 => "Abschreibungen auf GWG",
-          27 => "Vorsteuer",
-          28 => "Umsatzsteuerzahlungen",
-          29 => "Zinsaufwand",
-          30 => "Ausserordentlicher Aufwand",
-          31 => "Betriebliche Steuern");
+  my %eur = %{ AM->get_eur_categories(\%myconfig, $form) };
   foreach my $item (sort({ $a <=> $b } keys(%eur))) {
     my $text = H($::locale->{iconv_utf8}->convert($eur{$item}));
     if ($item == $form->{pos_eur}) {
@@ -285,29 +254,7 @@ sub account_header {
 
   my $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
-  my %bwapos = (
-             1  => 'Umsatzerlöse',
-             2  => 'Best.Verdg.FE/UE',
-             3  => 'Aktiv.Eigenleistung',
-             4  => 'Mat./Wareneinkauf',
-             5  => 'So.betr.Erlöse',
-             10 => 'Personalkosten',
-             11 => 'Raumkosten',
-             12 => 'Betriebl.Steuern',
-             13 => 'Vers./Beiträge',
-             14 => 'Kfz.Kosten o.St.',
-             15 => 'Werbe-Reisek.',
-             16 => 'Kosten Warenabgabe',
-             17 => 'Abschreibungen',
-             18 => 'Rep./instandhlt.',
-             19 => 'Übrige Steuern',
-             20 => 'Sonst.Kosten',
-             30 => 'Zinsauwand',
-             31 => 'Sonst.neutr.Aufw.',
-             32 => 'Zinserträge',
-             33 => 'Sonst.neutr.Ertrag',
-             34 => 'Verr.kalk.Kosten',
-             35 => 'Steuern Eink.u.Ertr.');
+  my %bwapos = %{ AM->get_bwa_categories(\%myconfig, $form) };
   foreach my $item (sort({ $a <=> $b } keys %bwapos)) {
     my $text = H($::locale->{iconv_utf8}->convert($bwapos{$item}));
     if ($item == $form->{pos_bwa}) {

@@ -1318,4 +1318,22 @@ SQL
   $main::lxdebug->leave_sub();
 }
 
+sub get_eur_categories {
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = SL::DB->client->dbh;
+  my %eur_categories = selectall_as_map($form, $dbh, "select * from eur_categories order by id", 'id', 'description');
+
+  return \%eur_categories;
+}
+
+sub get_bwa_categories {
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = SL::DB->client->dbh;
+  my %bwa_categories = selectall_as_map($form, $dbh, "select * from bwa_categories order by id", 'id', 'description');
+
+  return \%bwa_categories;
+}
+
 1;
