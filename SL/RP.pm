@@ -1653,9 +1653,7 @@ sub bwa {
     keys %{ $form->{charts} };
   $form->{"charts_by_category"} = \%charts_by_category;
 
-  # $main::lxdebug->dump(0, "charts_by_category", $form->{charts_by_category} );
-
-  $form->{category_names} = { selectall_as_map($form, $dbh, "select * from bwa_categories order by id", 'id', 'description') };
+  $form->{category_names} = AM->get_bwa_categories($myconfig, $form);
 
   my @periods        = qw(jetzt kumm);
   my @gesamtleistung = qw(1 3);
