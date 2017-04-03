@@ -1646,6 +1646,17 @@ sub bwa {
     &get_accounts_g($dbh, $last_period, $kummfromdate, $kummtodate, $form, "pos_bwa");
   }
 
+  my %charts_by_category =
+    partition_by { $_->{pos_bwa} }
+    sort_by      { $_->{accno}   }
+    map          { $form->{charts}->{$_} }
+    keys %{ $form->{charts} };
+  $form->{"charts_by_category"} = \%charts_by_category;
+
+  # $main::lxdebug->dump(0, "charts_by_category", $form->{charts_by_category} );
+
+  $form->{category_names} = { selectall_as_map($form, $dbh, "select * from bwa_categories order by id", 'id', 'description') };
+
   my @periods        = qw(jetzt kumm);
   my @gesamtleistung = qw(1 3);
   my @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 20);

@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
 
 <table border=0 cellpadding=0 cellspacing=0>
 <tr class="headline">
@@ -513,3 +514,58 @@ colspan="11">&nbsp;</td></tr>
 </tr>
 
 </table>
+
+<br>
+[% L.button_tag('', LxERP.t8('Show chart list'), id="show_chartlist_button", class="hide") %]
+[% L.button_tag('', LxERP.t8('Hide chart list'), id="hide_chartlist_button", class="hide") %]
+<div id="chartlist">
+<div>[% 'Chart list' | $T8 %]</div>
+<div>
+<table>
+<tr>
+  <th>[% 'Chart'    | $T8 %]</th>
+  <th>[% 'Amount'   | $T8 %]</th>
+  <th>[% 'Category' | $T8 %]</th>
+</tr>
+[% FOREACH key = charts.keys.sort %]
+[% UNLESS charts.$key.pos_bwa %]
+[% NEXT %]
+[% END %]
+<tr>
+ <td>[% charts.$key.accno %]</td>
+ <td class="numeric">[%  LxERP.format_amount( charts.$key.amount, 2 ) %]</td>
+ <td>[% HTML.escape(category_names.item(charts.$key.pos_bwa)) %]</td>
+</tr>
+[% END %]
+</table>
+</div>
+</div>
+
+[% # L.dump(charts_by_category.item(1)) # Debug Umsatzerlöse %]
+
+<script language="javascript">
+$( document ).ready(function() {
+  $( "#hide_chartlist_button" ).hide();
+  $( "#chartlist" ).hide();
+
+  $( "#show_chartlist_button" ).click(function() {
+    $( "#chartlist" ).toggle();
+    $('html, body').animate({
+        scrollTop: $(this).offset().top
+    }, 500);
+    $(this).hide();
+    $("#hide_chartlist_button").show();
+  });
+
+  $( "#hide_chartlist_button" ).click(function() {
+    $( "#chartlist" ).toggle();
+    $('html, body').animate({
+        scrollTop: $(this).offset().top
+    }, 500);
+    $(this).hide();
+    $("#show_chartlist_button").show();
+  });
+
+})
+
+</script>
