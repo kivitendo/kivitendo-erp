@@ -188,8 +188,8 @@ sub init_vc_by {
                     vendors   => { map { ( $_->vendornumber   => $_ ) } @{ $self->all_vc->{vendors}   } } );
   my %by_name   = ( customers => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{customers} } },
                     vendors   => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{vendors}   } } );
-  my %by_gln    = ( customers => { map { ( $_->gln            => $_ ) } @{ $self->all_vc->{customers} } },
-                    vendors   => { map { ( $_->gln            => $_ ) } @{ $self->all_vc->{vendors}   } } );
+  my %by_gln    = ( customers => { map { ( $_->gln            => $_ ) } grep $_->gln, @{ $self->all_vc->{customers} } },
+                    vendors   => { map { ( $_->gln            => $_ ) } grep $_->gln, @{ $self->all_vc->{vendors}   } } );
 
   return { id     => \%by_id,
            number => \%by_number,
@@ -200,14 +200,14 @@ sub init_vc_by {
 sub init_vc_counts_by {
   my ($self) = @_;
 
-  my $vc_counts_by;
+  my $vc_counts_by = {};
 
   $vc_counts_by->{number}->{customers}->{$_->customernumber}++ for @{ $self->all_vc->{customers} };
   $vc_counts_by->{number}->{vendors}->  {$_->vendornumber}++   for @{ $self->all_vc->{vendors} };
   $vc_counts_by->{name}->  {customers}->{$_->name}++           for @{ $self->all_vc->{customers} };
   $vc_counts_by->{name}->  {vendors}->  {$_->name}++           for @{ $self->all_vc->{vendors} };
-  $vc_counts_by->{gln}->   {customers}->{$_->gln}++            for @{ $self->all_vc->{customers} };
-  $vc_counts_by->{gln}->   {vendors}->  {$_->gln}++            for @{ $self->all_vc->{vendors} };
+  $vc_counts_by->{gln}->   {customers}->{$_->gln}++            for grep $_->gln, @{ $self->all_vc->{customers} };
+  $vc_counts_by->{gln}->   {vendors}->  {$_->gln}++            for grep $_->gln, @{ $self->all_vc->{vendors} };
 
   return $vc_counts_by;
 }
