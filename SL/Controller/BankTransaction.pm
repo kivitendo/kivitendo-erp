@@ -189,6 +189,8 @@ sub action_list {
     foreach ( @{$all_open_sepa_export_items}) {
       last if scalar (@all_sepa_invoices) == 0;
       foreach my $open_invoice (@all_sepa_invoices){
+        $open_invoice->{agreement}    = 0;
+        $open_invoice->{rule_matches} ='';
         if ( $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id ) {
           #$main::lxdebug->message(LXDebug->DEBUG2(),"exitem2=".$_->id." for invoice ".$open_invoice->id);
           my $factor = ( $_->ar_id == $open_invoice->id?1:-1);
