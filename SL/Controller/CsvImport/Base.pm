@@ -288,6 +288,9 @@ sub check_vc {
 sub handle_cvars {
   my ($self, $entry) = @_;
 
+  my $object = $entry->{object_to_save} || $entry->{object};
+  return unless $object->can('cvars_by_config');
+
   my %type_to_column = ( text      => 'text_value',
                          textfield => 'text_value',
                          select    => 'text_value',
@@ -296,6 +299,7 @@ sub handle_cvars {
                          number    => 'number_value_as_number',
                          bool      => 'bool_value' );
 
+  # autovivify all cvars (cvars_by_config will do that for us)
   my @cvars;
   my %changed_cvars;
   foreach my $config (@{ $self->all_cvar_configs }) {
@@ -310,17 +314,13 @@ sub handle_cvars {
   }
 
   # merge existing with new cvars. swap every existing with the imported one, push the rest
-  if (@cvars) {
-    my $object     = $entry->{object_to_save} || $entry->{object};
-    my @orig_cvars = $object->custom_variables;
-    for (@orig_cvars) {
-      $_ = $changed_cvars{ $_->config->name } if $changed_cvars{ $_->config->name };
-      delete $changed_cvars{ $_->config->name };
-    }
-    push @orig_cvars, values %changed_cvars;
-
-    $object->custom_variables(\@orig_cvars);
+  my @orig_cvars = @{ $object->cvars_by_config };
+  for (@orig_cvars) {
+    $_ = $changed_cvars{ $_->config->name } if $changed_cvars{ $_->config->name };
+    delete $changed_cvars{ $_->config->name };
   }
+  push @orig_cvars, values %changed_cvars;
+  $object->custom_variables(\@orig_cvars);
 }
 
 sub init_profile {
