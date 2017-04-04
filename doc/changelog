@@ -38,9 +38,9 @@ große Features:
   Gekennzeichnet durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E")
   Flexibel änderbar und erweiterbar.
 
-  Der Typ des Artikel und die Klassifizierung werden durch zwei
+  Der Typ des Artikels und die Klassifizierung werden durch zwei
   Buchstaben dargestellt.  Der erste Buchstabe ist eine Lokalisierung
-  des Typs des Artikel ('P','A','S') , deutch 'W', 'E', und 'D' für
+  des Typs des Artikels ('P','A','S') , deutsch 'W', 'E', und 'D' für
   Ware, Erzeugnis oder Dienstleistung, ggf. weitere Typen.  Der zweite
   Buchstabe ist eine Lokalisierung der Klassifizierungsabkürzung
   (abbreviation).
@@ -126,12 +126,12 @@ kleinere neue Features und Detailverbesserungen:
   - Neuer Controller für Preisgruppen, die nun sortiert und ungültig gesetzt
     werden können.
 
-  - Neuer Berichte "Auftragsartikelsuche", um schnell Autragspositionen aus
-    Verkaufsauträgen finden zu können:
+  - Neuer Bericht "Auftragsartikelsuche", um schnell Auftragspositionen aus
+    Verkaufsaufträgen finden zu können:
     Verkauf -> Berichte -> Auftragsartikelsuche
 
   - Neuer Artikeltyp "Sortiment"
-    Einem Sortiment	können wie einem Erzeugnis mehrere Artikel zugeordnet
+    Einem Sortiment können wie einem Erzeugnis mehrere Artikel zugeordnet
     werden. Beim Hinzufügen eines Sortiments zu einem Beleg werden alle
     Bestandteile des Sortiments als Einzelteile zum Beleg hinzugefügt, so als
     ob man das manuell gemacht hätte. Der Sortimentsartikel wird ohne Preis
