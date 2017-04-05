@@ -1875,7 +1875,7 @@ sub erfolgsrechnung {
       accounts => get_accounts_ch($category),
     );
     foreach my $account (@{$category{accounts}}) {
-      $account->{total} += ($account->{category} eq $category ? 1 : -1) * get_total_ch($account->{id}, $fromdate, $todate);
+      $account->{total} += get_total_ch($account->{id}, $fromdate, $todate);
       $category{total} += $account->{total};
       $account->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $account->{total}), 2);
     }
