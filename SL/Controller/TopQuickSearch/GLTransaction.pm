@@ -49,7 +49,7 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => $_->transdate->to_kivitendo,
+           transdate => $_->transdate->ymd(''), # only used for sorting
            label     => $_->oneline_summary,
            value     => '',
            id        => 'gl.pl?action=edit&id=' . $_->id,
@@ -63,7 +63,7 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => $_->transdate->to_kivitendo,
+           transdate => $_->transdate->ymd(''),
            label     => $_->oneline_summary,
            value     => "",
            id        => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
@@ -77,7 +77,7 @@ sub query_autocomplete {
     map(
       {
         {
-           transdate => $_->transdate->to_kivitendo,
+           transdate => $_->transdate->ymd(''),
            label     => $_->oneline_summary,
            value     => "",
            id        => ($_->invoice ? "ir" : "ap" ) . '.pl?action=edit&id=' . $_->id,
