@@ -1289,6 +1289,8 @@ sub check_delivered_flag {
   foreach my $i (1 .. $form->{rowcount}) {
     next if (!$form->{"id_$i"});
 
+    $form->{"ship_$i"} = 0 if $form->{saveasnew};
+
     if ($form->parse_amount(\%myconfig, $form->{"qty_$i"}) == $form->parse_amount(\%myconfig, $form->{"ship_$i"})) {
       $all_delivered = 1;
       next;
@@ -1299,6 +1301,7 @@ sub check_delivered_flag {
   }
 
   $form->{delivered} = 1 if $all_delivered;
+  $form->{delivered} = 0 if $form->{saveasnew};
 
   $main::lxdebug->leave_sub();
 }
