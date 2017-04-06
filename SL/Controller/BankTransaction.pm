@@ -666,25 +666,23 @@ sub save_single_bank_transaction {
                               source       => $source,
                               memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
-      } elsif (( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) ||
-               (!$invoice->is_sales && $invoice->invoice_type eq 'ap_transaction' )) {
-        # no check for overpayment/multiple payments
+      } else {
+        # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
 
-        # 1. $invoice->open_amount is arap.amount - ararp.paid (always positive!)
-        # 2. $bank_transaction->amount is negative for outgoing transactions and positive for
-        #    incoming transactions.
-        # 1. and 2. => we have to turn the sign for invoice_amount in bank_transactions
-        # for verifying expected data, check t/bank/bank_transactions.t
-        $bank_transaction->invoice_amount($invoice->open_amount * -1);
+        if ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
+          # $invoice->open_amount     is negative for credit_notes
+          # $bank_transaction->amount is negative for outgoing transactions
+          # so $amount_of_transaction is negative but needs positive
+          $amount_of_transaction *= -1;
 
-        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
-                              trans_id     => $invoice->id,
-                              amount       => $invoice->open_amount,
-                              payment_type => $payment_type,
-                              source       => $source,
-                              memo         => $memo,
-                              transdate    => $bank_transaction->transdate->to_kivitendo);
-      } else { # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
+        } elsif (!$invoice->is_sales && $invoice->invoice_type eq 'ap_transaction' ) {
+          # $invoice->open_amount may be negative for ap_transaction but may be positiv for negativ ap_transaction
+          # if $invoice->open_amount is negative $bank_transaction->amount is positve
+          # if $invoice->open_amount is positive $bank_transaction->amount is negative
+          # but amount of transaction is for both positive
+          $amount_of_transaction *= -1 if $invoice->open_amount == - $amount_of_transaction;
+        }
+
         my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,

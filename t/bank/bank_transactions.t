@@ -1,4 +1,4 @@
-use Test::More tests => 88;
+use Test::More tests => 100;
 
 use strict;
 
@@ -66,15 +66,18 @@ clear_up();
 reset_state(); # initialise customers/vendors/bank/currency/...
 
 test1();
+
 test_overpayment_with_partialpayment();
 test_overpayment();
 test_skonto_exact();
 test_two_invoices();
 test_partial_payment();
 test_credit_note();
-test_neg_ap_transaction();
 test_ap_transaction();
+test_neg_ap_transaction();
 test_ap_payment_transaction();
+test_ap_payment_part_transaction();
+
 # remove all created data at end of test
 clear_up();
 
@@ -118,6 +121,7 @@ sub reset_state {
     bank                      => 'Geizkasse',
     bank_code                 => 'G1235',
     depositor                 => 'Test Customer',
+    customernumber            => 'CUST1704',
   )->save;
 
   $payment_terms = SL::Dev::Payment::create_payment_terms;
@@ -131,6 +135,7 @@ sub reset_state {
     bank           => 'Geizkasse',
     bank_code      => 'G1235',
     depositor      => 'Test Vendor',
+    vendornumber   => 'VEND1704',
   )->save;
 
   $ar_chart        = SL::DB::Manager::Chart->find_by( accno => '1400' ); # Forderungen
@@ -181,11 +186,13 @@ sub test_ar_transaction {
 
 sub test_ap_transaction {
   my (%params) = @_;
+  my $testname = 'test_ap_transaction';
+
   my $netamount = 100;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::PurchaseInvoice->new(
     invoice      => 0,
-    invnumber    => $params{invnumber} || 'test_ap_transaction',
+    invnumber    => $params{invnumber} || $testname,
     amount       => $amount,
     netamount    => $netamount,
     transdate    => $transdate1,
@@ -205,10 +212,10 @@ sub test_ap_transaction {
   $invoice->create_ap_row(chart => $ap_chart);
   $invoice->save;
 
-  is($invoice->currency_id , $currency_id , 'currency_id has been saved');
-  is($invoice->netamount   , 100          , 'ap amount has been converted');
-  is($invoice->amount      , 119          , 'ap amount has been converted');
-  is($invoice->taxincluded , 0            , 'ap transaction doesn\'t have taxincluded');
+  is($invoice->currency_id , $currency_id , "$testname: currency_id has been saved");
+  is($invoice->netamount   , 100          , "$testname: ap amount has been converted");
+  is($invoice->amount      , 119          , "$testname: ap amount has been converted");
+  is($invoice->taxincluded , 0            , "$testname: ap transaction doesn\'t have taxincluded");
 
   is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_amount_chart->id , trans_id => $invoice->id)->amount , '-100.00000' , $ap_amount_chart->accno . ': has been converted for currency');
   is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ap_chart->id        , trans_id => $invoice->id)->amount , '119.00000'  , $ap_chart->accno . ': has been converted for currency');
@@ -490,12 +497,12 @@ sub test_neg_ap_transaction {
 
 sub test_ap_payment_transaction {
   my (%params) = @_;
-  my $testname = 'test_ap_two_transaction';
+  my $testname = 'test_ap_payment_transaction';
   my $netamount = 115;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::PurchaseInvoice->new(
     invoice      => 0,
-    invnumber    => $params{invnumber} || 'test_ap_two_transaction',
+    invnumber    => $params{invnumber} || $testname,
     amount       => $amount,
     netamount    => $netamount,
     transdate    => $transdate1,
@@ -504,7 +511,7 @@ sub test_ap_payment_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
-    notes        => 'test_ap_transaction',
+    notes        => $testname,
   );
   $invoice->add_ap_amount_row(
     amount     => $invoice->netamount,
@@ -540,4 +547,77 @@ sub test_ap_payment_transaction {
 
   return $invoice;
 };
+
+sub test_ap_payment_part_transaction {
+  my (%params) = @_;
+  my $testname = 'test_ap_payment_p_transaction';
+  my $netamount = 115;
+  my $amount    = $::form->round_amount($netamount * 1.19,2);
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+    invoice      => 0,
+    invnumber    => $params{invnumber} || $testname,
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => $testname,
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->netamount, 115  , "$testname: netamount ok");
+  is($invoice->amount   , 136.85, "$testname: amount ok");
+
+  my $bt            = SL::Dev::Payment::create_bank_transaction(record        => $invoice,
+                                                                amount        => $invoice->amount-100,
+                                                                bank_chart_id => $bank->id,
+                                                                transdate     => DateTime->today->add(days => 10),
+                                                               );
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $invoice->load;
+  $bt->load;
+
+  is($invoice->amount   , '136.85000', "$testname: amount ok");
+  is($invoice->netamount, '115.00000', "$testname: netamount ok");
+  is($bt->amount,         '-36.85000', "$testname: bt amount ok");
+  is($invoice->paid     ,  '36.85000', "$testname: paid ok");
+  is($bt->invoice_amount, '-36.85000', "$testname: bt invoice amount for ap was assigned");
+
+  my $bt2           = SL::Dev::Payment::create_bank_transaction(record        => $invoice,
+                                                                amount        => 100,
+                                                                bank_chart_id => $bank->id,
+                                                                transdate     => DateTime->today->add(days => 10),
+                                                               );
+  $::form->{invoice_ids} = {
+    $bt2->id => [ $invoice->id ]
+  };
+
+  save_btcontroller_to_string();
+  $invoice->load;
+  $bt2->load;
+
+  is($invoice->amount   , '136.85000', "$testname: amount ok");
+  is($invoice->netamount, '115.00000', "$testname: netamount ok");
+  is($bt2->amount,        '-100.00000',"$testname: bt amount ok");
+  is($invoice->paid     , '136.85000', "$testname: paid ok");
+  is($bt2->invoice_amount,'-100.00000', "$testname: bt invoice amount for ap was assigned");
+
+  return $invoice;
+};
+
 1;
