@@ -165,6 +165,9 @@ kleinere neue Features und Detailverbesserungen:
 
   - Finanzübersicht: Neue Spalte »Kosten« analog zu BWA-Kosten
 
+  - Kontennachweis in den Berichten BWA und GuV/EÜR. Die Hartkodierung der
+    Kategorienamen für BWA und GuV/EÜR im Code wurde in die Datenbank verlagert.
+
 Administrative Änderungen
 
   - Diverse Textsuchen werden jetzt durch eine neue Klasse Indizes
