@@ -104,6 +104,9 @@ sub check_objects {
 
       $existing_vc->$_( $entry->{object}->$_ ) for @{ $methods }, keys %{ $self->clone_methods };
 
+      $self->handle_cvars($entry);
+      $existing_vc->custom_variables($entry->{object}->custom_variables);
+
       push @{ $entry->{information} }, $::locale->text('Updating existing entry in database');
 
     } else {
