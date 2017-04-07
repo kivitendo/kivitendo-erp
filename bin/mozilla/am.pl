@@ -1397,8 +1397,6 @@ sub setup_am_edit_account_action_bar {
         action => [
           t8('Save'),
           submit    => [ '#form', { action => "save_account" } ],
-          disabled  => $::form->{id} && !$::form->{orphaned} ? t8('The object is in use and cannot be changed.')
-                     :                                         undef,
           accesskey => 'enter',
         ],
 
