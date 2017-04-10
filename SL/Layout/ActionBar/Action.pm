@@ -65,7 +65,7 @@ This base class for actions can be used to implement elements that can be
 added to L<SL::Layout::ActionBar>.
 
 Elements can be interactive or simply used for layout. Most of the actual
-semantik is handled in the corresponding javascript C<js/kivi.ActionBar.js>, so
+semantics are handled in the corresponding javascript C<js/kivi.ActionBar.js>, so
 this is only used to generate the DOM elements and to provide information for
 request time logic decisions.
 
@@ -190,7 +190,7 @@ If present, a click will C<disable> the action to prevent multiple activations.
 
 =item * C<< accesskey => $text >>
 
-Registeres an accesskey for this element. While the most common accesskey is
+Registers an accesskey for this element. While the most common accesskey is
 'enter', in theory every other should work as well. Modifier keys can be added
 to the accesskey string with 'ctrl+', 'alt+', or 'shift+'. 'shift+' is not
 necessary for upper case letters.

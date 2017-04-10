@@ -199,7 +199,7 @@ A string type, followed by the parameters needed for that type. Type may be one 
 
 C<separator> will use no parameters, the other three will expect one arrayref.
 
-Two additional pseuso parameters are supported for those:
+Two additional pseudo parameters are supported for those:
 
 =over 4
 
