@@ -82,7 +82,6 @@ sub check_objects {
     $self->check_taxzone($entry,  take_default => 1);
     $self->check_currency($entry, take_default => 1);
     $self->check_salesman($entry);
-    $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };
 
@@ -110,6 +109,9 @@ sub check_objects {
     } else {
       $object->$numbercolumn('####');
     }
+
+    $self->handle_cvars($entry);
+
   } continue {
     $i++;
   }
