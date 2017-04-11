@@ -311,14 +311,15 @@ sub handle_cvars {
 
   # merge existing with new cvars. swap every existing with the imported one, push the rest
   if (@cvars) {
-    my @orig_cvars = ($entry->{object_to_save} || $entry->{object})->custom_variables;
+    my $object     = $entry->{object_to_save} || $entry->{object};
+    my @orig_cvars = $object->custom_variables;
     for (@orig_cvars) {
       $_ = $changed_cvars{ $_->config->name } if $changed_cvars{ $_->config->name };
       delete $changed_cvars{ $_->config->name };
     }
     push @orig_cvars, values %changed_cvars;
 
-    $entry->{object}->custom_variables(\@orig_cvars);
+    $object->custom_variables(\@orig_cvars);
   }
 }
 
