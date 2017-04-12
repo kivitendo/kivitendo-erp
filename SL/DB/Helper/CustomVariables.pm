@@ -513,6 +513,23 @@ If the Manager for the calling C<SL::DB::Object> has included the helper L<SL::D
 
 =back
 
+=head1 BUGS AND CAVEATS
+
+=over 4
+
+=item * Conditional method export
+
+Prolonged use has shown that users expect all methods to be present or none.
+Future versions of this will likely remove the optional aliasing.
+
+=item * Sematics need to be updated
+
+There are a few transitions that are currently neither supported nor well
+defined, most of the happening when the config of a cvar gets changed which
+instances are already saved. This needs to be cleaned up.
+
+=back
+
 =head1 AUTHOR
 
 Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
