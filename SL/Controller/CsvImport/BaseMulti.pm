@@ -170,6 +170,7 @@ sub handle_cvars {
   my ($self, $entry, %params) = @_;
 
   return if @{ $entry->{errors} };
+  return unless $entry->{object}->can('cvars_by_config');
 
   my %type_to_column = ( text      => 'text_value',
                          textfield => 'text_value',
@@ -183,7 +184,7 @@ sub handle_cvars {
 
   # autovivify all cvars (cvars_by_config will do that for us)
   my @cvars;
-  @cvars = @{ $entry->{object}->cvars_by_config } if $entry->{object}->can('cvars_by_config');
+  @cvars = @{ $entry->{object}->cvars_by_config };
 
   foreach my $config (@{ $self->cvar_configs_by->{row_ident}->{$entry->{raw_data}->{datatype}} }) {
     next unless exists $entry->{raw_data}->{ "cvar_" . $config->name };
