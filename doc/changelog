@@ -77,6 +77,26 @@ große Features:
 - Jahresabschlußbuchungen (EB/SB)
   Mit Saldovortrag auf die 9000er-Konten
 
+- Belegvorlagen und Entwürfe
+
+  Der bisherige Mechanismus der Entwürfe in Rechnungsbelegen, der
+  ursprünglich nur zum Zwischenspeichern gedacht war, wurde in zwei
+  Mechanismen aufgeteilt: Entwürfe und Belegvorlagen.
+
+  Die neuen Entwürfe sind nur noch zur Zwischenspeicherung
+  gedacht. Sie sind nur für die Person sichtbar, die den Entwurf
+  angelegt hat. Auch werden sie bei Abmeldung automatisch entfernt.
+
+  Die neuen Belegvorlagen hingegen sind dazu gedacht,
+  z.B. wiederkehrende Zahlungen schnell verbuchen zu können. Sie sind
+  für alle Personen sichtbar und dauerhaft vorhanden.
+
+  Beide Mechanismen sind über den »Mehr«-Button in den Belegmasken
+  erreichbar.
+
+  Weiterhin wurden diese Mechanismen so umgebaut, dass sie nun auch
+  updatesicher sind.
+
 kleinere neue Features und Detailverbesserungen:
 
   - Wiederkehrende Rechnungen können mit der Periode 'einmalig' konfiguriert werden
