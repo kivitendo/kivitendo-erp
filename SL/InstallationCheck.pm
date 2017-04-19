@@ -33,6 +33,7 @@ BEGIN {
   { name => "File::Copy::Recursive",               url => "http://search.cpan.org/~dmuey/",     debian => 'libfile-copy-recursive-perl' },
   { name => "File::MimeInfo::Magic",               url => "http://search.cpan.org/~michielb/",  debian => 'libfile-mimeinfo-perl' },
   { name => "GD",                                  url => "http://search.cpan.org/~lds/",       debian => 'libgd-gd2-perl', },
+  { name => 'HTML::Entities',                      url => 'http://search.cpan.org/~gaas/',      debian => 'libhtml-parser-perl', },
   { name => 'HTML::Parser',                        url => 'http://search.cpan.org/~gaas/',      debian => 'libhtml-parser-perl', },
   { name => 'HTML::Restrict',                      url => 'http://search.cpan.org/~oalders/', },
   { name => "Image::Info",                         url => "http://search.cpan.org/~srezic/",    debian => 'libimage-info-perl' },
