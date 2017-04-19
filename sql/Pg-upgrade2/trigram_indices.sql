@@ -2,7 +2,6 @@
 -- @description: Trigram Indizes für häufig durchsuchte Spalten
 -- @depends: release_3_4_1
 -- @encoding: utf-8
--- @may_fail: 1
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 

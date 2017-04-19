@@ -15,7 +15,7 @@ Upgrade auf v3.4.x Unstable
   eingebaut werden, z.B. falls zweiseitg ausgedruckt wird. Statt die Anzahl
   Seiten per Ghostscript zu ermitteln wird dazu "pdfinfo" genutzt.
   Das muß installiert sein. Der Script "installation_check.pl" prüft dies.
-
+  
 * In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
   multipliziert, um Lücken für neue Rechte zu schaffen.
 
@@ -24,24 +24,9 @@ Upgrade auf v3.4.x Unstable
   "0". Falls Kunden per CSV-Import importiert werden muß dieses Feld in der
   CSV-Datei ebenfalls umbenannt werden.
 
-* Es wird jetzt Postgres 9.1 vorausgesetzt um GIN Indizes zu verwenden.
-  Da hier verschiedene Bedingungen auf dem Zielsystem erfüllt werden
-  müssen, ist dies mit dem may_fail Flag gekennzeichnet.
-  Wer sicher sein will, dass die Optimierung bei ihm aktiviert ist,
-  sollte das Skript direkt in der Datenbank ausführen.
-  $ cd /var/www/kivitendo-erp/
-  $ psql -U postgres -h 127.0.0.1 meinekividb
-  # \i sql/Pg-upgrade2/trigram_indices.sql
-
-  Details:
-  Die Erweiterung befindet sich in dem contrib Bereich von postgres,
-  bei den meisten Distributionen muss dieses Paket extra installiert werden
-  (s.a. https://www.postgresql.org/docs/9.1/static/contrib.html).
-
-  Bei debian/ubuntu befindet sich dies bspw. in postgresql-contrib
-  i.d.R. verlangt die Erweiterung superuser Rechte, daher
-  muss für die Erstellung der Erweiterung bspw. mit dem Benutzer postgres
-  ausgeführt werden, Details s.a. https://www.postgresql.org/docs/9.1/static/pgtrgm.html
+* Es wird jetzt Postgres 9.1 vorausgesetzt um GIN Indizes zu verwenden. Wenn
+  das auf dem Zielsystem absolut nicht möglich ist, muss das Upgradescript
+  sql/Pg-Upgrade2/trigram_indices.sql deaktiviert oder entfernt werden.
 
 * Für das neue Feature Lieferantenbriefe ist die Standardvorlage für Briefe
   (letter.tex) angepasst worden. Statt letter.customer muss der Adressat jetzt
