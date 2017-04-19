@@ -4,7 +4,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v3.4.x Unstable
+Upgrade auf v3.5.0-alpha
 ===========================
 
 * Die Tabelle "files" ist hinzugekommen. Diese wird von der Dateiverwaltung
