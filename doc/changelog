@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2017-xx-xx - Release 3.4.x Unstable
+2017-xx-xx - Release 3.5.0-alpha
 
 große Features:
 
@@ -181,8 +181,6 @@ kleinere neue Features und Detailverbesserungen:
   - Projekt: unter "verknüpfte Belege" auch Belege anzeigen, wo
     Einzelpositionen mit dem Projekt verknüpft sind, nicht nur der Beleg
     (globalproject_id)
-
-  - Belegvorlagen umgestellt (Drafts)
 
   - Abteilungsfilter in mehr Berichten eingefügt
 
