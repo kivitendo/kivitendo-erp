@@ -383,11 +383,11 @@ sub init_include_cvars {
 #
 
 sub create_or_update {
-  my $self   = shift;
-  my $is_new = !$self->requirement_spec->id;
+  my $self                 = shift;
+  my $is_new               = !$self->requirement_spec->id;
   my $previous_customer_id = $self->requirement_spec->customer_id;
-  my $params = delete($::form->{requirement_spec}) || { };
-  my $cvars  = delete($::form->{cvars})            || { };
+  my $params               = delete($::form->{requirement_spec}) || { };
+  my $cvars                = delete($::form->{cvars})            || { };
 
   # Forcefully make it clear to Rose which custom_variables exist (or don't), so that the ones added with »add_custom_variables« are visible when calling »custom_variables«.
   if ($is_new) {
