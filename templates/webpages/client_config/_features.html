@@ -299,5 +299,13 @@
    <td align="right">[% LxERP.t8('Add Customer/Vendor Number as a reference add-on for SEPA export.') %]</td>
    <td>[% L.yes_no_tag('defaults.sepa_reference_add_vc_vc_id', SELF.defaults.sepa_reference_add_vc_vc_id) %]</td>
   </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Enable experimental features') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_experimental', SELF.defaults.feature_experimental) %]</td>
+   <td>[% LxERP.t8('Experimental features are:') %] [% LxERP.t8('new order controller') %]</td>
+  </tr>
+
  </table>
 </div>
