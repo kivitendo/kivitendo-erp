@@ -32,6 +32,7 @@ my (%uselines, %modules, %supplied, %requires);
    'Rose::DB::Object::Metadata'          => 1,
    'Rose::DB::Object::Helpers'           => 1,
    'Rose::DB::Object::Util'              => 1,
+   'Rose::DB::Object::Constants'         => 1,
   },
   'Rose::Object' => {
     'Rose::Object::MakeMethods::Generic' => 1,
