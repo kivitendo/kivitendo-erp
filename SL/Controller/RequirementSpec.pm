@@ -385,6 +385,7 @@ sub init_include_cvars {
 sub create_or_update {
   my $self   = shift;
   my $is_new = !$self->requirement_spec->id;
+  my $previous_customer_id = $self->requirement_spec->customer_id;
   my $params = delete($::form->{requirement_spec}) || { };
   my $cvars  = delete($::form->{cvars})            || { };
 
@@ -425,6 +426,18 @@ sub create_or_update {
       $self->requirement_spec($self->copy_source->create_copy(%{ $params }));
     } else {
       $self->requirement_spec->save(cascade => 1);
+
+      # If the current requirement spec has versions and the
+      # customer's been changed, then the customer of all the versions
+      # has to be changed, too.
+      if (   !$is_new
+          && !$self->requirement_spec->is_template
+          && ($previous_customer_id != $self->requirement_spec->customer_id)) {
+        SL::DB::Manager::RequirementSpec->update_all(
+          set   => { customer_id     => $self->requirement_spec->customer_id },
+          where => [ working_copy_id => $self->requirement_spec->id          ],
+        );
+      }
     }
     1;
   })) {
