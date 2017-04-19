@@ -3044,7 +3044,6 @@ $self->{texts} = {
   'The object has been deleted.' => 'Das Objekt wurde gelöscht..',
   'The object has been saved.'  => 'Das Objekt wurde gespeichert.',
   'The object has not been saved yet.' => 'Das Objekt wurde noch nicht gespeichert.',
-  'The object is in use and cannot be changed.' => 'Das Objekt ist in Benutzung und kann nicht geändert werden.',
   'The object is in use and cannot be deleted.' => 'Das Objekt ist in Benutzung und kann nicht gelöscht werden.',
   'The option field is empty.'  => 'Das Optionsfeld ist leer.',
   'The order has been deleted'  => 'Der Auftrag wurde gelöscht.',
