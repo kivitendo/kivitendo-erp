@@ -74,7 +74,7 @@
   name: Add Assortment
   icon: assortment_add
   order: 550
-  access: part_service_assembly_edit
+  access: part_service_assembly_edit & client/feature_experimental
   params:
     action: Part/add_assortment
 - parent: master_data

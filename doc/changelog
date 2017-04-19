@@ -153,7 +153,7 @@ kleinere neue Features und Detailverbesserungen:
     Verkaufsaufträgen finden zu können:
     Verkauf -> Berichte -> Auftragsartikelsuche
 
-  - Neuer Artikeltyp "Sortiment"
+  - Neuer Artikeltyp "Sortiment" (experimentell)
     Einem Sortiment können wie einem Erzeugnis mehrere Artikel zugeordnet
     werden. Beim Hinzufügen eines Sortiments zu einem Beleg werden alle
     Bestandteile des Sortiments als Einzelteile zum Beleg hinzugefügt, so als
@@ -171,6 +171,7 @@ kleinere neue Features und Detailverbesserungen:
 
     Einschränkungen: das "Auspacken" eines Sortiments beim Hinzufügen in einem
     Beleg funktioniert derzeit nur beim neuen Auftragscontroller.
+    Auftragscontroller und Sortiment haben beide noch den Status experimentell.
 
   - Detailverbesserung Druckvorlage RB
     Adressfeld um Absender ergänzt. Firmenname nicht mehr aus Titlebar, sondern
