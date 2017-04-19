@@ -24,10 +24,6 @@ Upgrade auf v3.4.x Unstable
   "0". Falls Kunden per CSV-Import importiert werden muß dieses Feld in der
   CSV-Datei ebenfalls umbenannt werden.
 
-* Es wird jetzt Postgres 9.1 vorausgesetzt um GIN Indizes zu verwenden. Wenn
-  das auf dem Zielsystem absolut nicht möglich ist, muss das Upgradescript
-  sql/Pg-Upgrade2/trigram_indices.sql deaktiviert oder entfernt werden.
-
 * Für das neue Feature Lieferantenbriefe ist die Standardvorlage für Briefe
   (letter.tex) angepasst worden. Statt letter.customer muss der Adressat jetzt
   aus letter.custoemr_vendor erzeugt werden.
