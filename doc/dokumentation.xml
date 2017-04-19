@@ -2,7 +2,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.4.1: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.5.0-alpha: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -3006,7 +3006,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
       <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege
       in anderen Währungen als der Standardwährung erstellt, so muss in
-      kivitendo 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
+      kivitendo ab Version 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
       <para>Das heisst, Firmen in der Schweiz, die teilweise Verkaufsrechnungen
       in Euro oder anderen Währungen erstellen wollen, müssen beim Erstellen
       der Datenbank als Genauigkeit 0.01 wählen und können zur Zeit die
