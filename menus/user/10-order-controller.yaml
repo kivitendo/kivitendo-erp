@@ -3,7 +3,7 @@
   name: Add Sales Order (experimental)
   icon: sales_order_add
   order: 350
-  access: sales_order_edit
+  access: sales_order_edit & client/feature_experimental
   params:
     action: Order/add
     type: sales_order
@@ -13,7 +13,7 @@
   name: Add Purchase Order (experimental)
   icon: purchase_order_add
   order: 250
-  access: purchase_order_edit
+  access: purchase_order_edit & client/feature_experimental
   params:
     action: Order/add
     type: purchase_order

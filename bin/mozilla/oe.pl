@@ -1017,7 +1017,7 @@ sub orders {
   $form->{l_open}              = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered}         = "Y"                     if ($form->{delivered} && $form->{notdelivered});
   $form->{l_periodic_invoices} = "Y"                     if ($form->{periodic_invoices_active} && $form->{periodic_invoices_inactive});
-  $form->{l_edit_exp}          = "Y"                     if (any { $form->{type} eq $_ } qw(sales_order purchase_order));
+  $form->{l_edit_exp}          = "Y"                     if $::instance_conf->get_feature_experimental && (any { $form->{type} eq $_ } qw(sales_order purchase_order));
   map { $form->{"l_${_}"} = 'Y' } qw(order_probability expected_billing_date expected_netamount) if $form->{l_order_probability_expected_billing_date};
 
   my $attachment_basename;

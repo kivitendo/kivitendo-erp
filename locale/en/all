@@ -3745,6 +3745,7 @@ $self->{texts} = {
   'monthly'                     => '',
   'more'                        => '',
   'never'                       => '',
+  'new order controller'        => '',
   'next'                        => '',
   'no'                          => '',
   'no article assigned yet'     => '',
