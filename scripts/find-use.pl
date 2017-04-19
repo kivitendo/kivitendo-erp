@@ -81,6 +81,7 @@ find(sub {
     next if /SL::/;
     next if /Support::Files/; # our own test support module
     next if /use (warnings|strict|vars|lib|constant|utf8)/;
+    next if /^use (with|the)/;
 
     my ($useline) = m/^use\s+(.*?)$/;
 
