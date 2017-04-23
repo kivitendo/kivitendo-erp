@@ -100,6 +100,7 @@ Complex usage, overwriting some defaults, and save to database:
   SL::Dev::CustomerVendor::create_vendor(name        => 'Test vendor',
                                          taxzone_id  => 2,
                                          notes       => "Order for 100$ for free delivery",
+                                         payment_id  => 5,
                                         )->save;
 
 =head1 BUGS
