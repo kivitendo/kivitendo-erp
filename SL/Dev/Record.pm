@@ -2,7 +2,7 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_project);
+our @EXPORT = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
@@ -101,6 +101,34 @@ sub create_sales_delivery_order {
     'closed'     => undef,
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone_id,
+    donumber     => $params{donumber}    // undef,
+    currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
+    taxincluded  => $params{taxincluded} // 0,
+    employee_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    salesman_id  => $params{employee_id} // SL::DB::Manager::Employee->current->id,
+    transdate    => $params{transdate}   // DateTime->today,
+    orderitems   => $orderitems,
+  );
+  $delivery_order->assign_attributes(%params) if %params;
+  $delivery_order->save;
+  return $delivery_order;
+}
+
+sub create_purchase_delivery_order {
+  my (%params) = @_;
+
+  my $record_type = 'purchase_delivery_order';
+  my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
+  _check_items($orderitems, $record_type);
+
+  my $vendor = $params{vendor} // SL::Dev::CustomerVendor::create_vendor(name => 'Testvendor')->save;
+  die "illegal customer" unless ref($vendor) eq 'SL::DB::Vendor';
+
+  my $delivery_order = SL::DB::DeliveryOrder->new(
+    'is_sales'   => 'false',
+    'closed'     => undef,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
     donumber     => $params{donumber}    // undef,
     currency_id  => $params{currency_id} // $::instance_conf->get_currency_id,
     taxincluded  => $params{taxincluded} // 0,
