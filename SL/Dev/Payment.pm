@@ -88,14 +88,14 @@ SL::Dev::Payment - create objects for payment-related testing, with minimal defa
 Create payment terms.
 
 Minimal example with default values (30days, 5% skonto within 5 days):
-  my $payment_terms = SL::Dev::Record::create_payment_terms;
+  my $payment_terms = SL::Dev::Payment::create_payment_terms;
 
 =head2 C<create_bank_account %PARAMS>
 
 Required params: chart_id
 
 Example:
-  my $bank_account = SL::Dev::Record::create_bank_account(chart_id => SL::DB::Manager::Chart->find_by(description => 'Bank')->id);
+  my $bank_account = SL::Dev::Payment::create_bank_account(chart_id => SL::DB::Manager::Chart->find_by(description => 'Bank')->id);
 
 =head2 C<create_bank_transaction %PARAMS>
 
@@ -115,9 +115,9 @@ Param amount should always be relative to the absolute amount of the invoice, i.
 values for sales and purchases.
 
 Example:
-  my $payment_terms = SL::Dev::Record::create_payment_terms;
+  my $payment_terms = SL::Dev::Payment::create_payment_terms;
   my $bank_chart    = SL::DB::Manager::Chart->find_by(description => 'Bank');
-  my $bank_account  = SL::Dev::Record::create_bank_account(chart_id => $bank_chart->id);
+  my $bank_account  = SL::Dev::Payment::create_bank_account(chart_id => $bank_chart->id);
   my $customer      = SL::Dev::CustomerVendor::create_customer(iban           => 'DE12500105170648489890',
                                                                bank_code      => 'abc',
                                                                account_number => '44444',
