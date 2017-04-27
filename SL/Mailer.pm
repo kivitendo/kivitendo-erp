@@ -162,7 +162,7 @@ sub _create_attachment_part {
   $attachment_content ||= ' ';
   $attributes{charset}  = $self->{charset} if $self->{charset} && ($attributes{content_type} =~ m{^text/});
 
-  $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{Type} . " filename=" . $attributes{Filename});
+  $::lxdebug->message(LXDebug->DEBUG2(), "mail6 mtype=" . $attributes{content_type} . " filename=" . $attributes{filename});
 
   my $ent;
   if ( $attributes{content_type} eq 'message/rfc822' ) {
@@ -247,6 +247,7 @@ sub send {
     #$::lxdebug->message(0, "message: " . $email->as_string);
     # return "boom";
 
+    $::lxdebug->message(LXDebug->DEBUG2(), "mail1 from=".$self->{from}." to=".$self->{to});
     my $from_obj = (Email::Address->parse($self->{from}))[0];
 
     $self->{driver}->start_mail(from => $from_obj->address, to => [ $self->_all_recipients ]);

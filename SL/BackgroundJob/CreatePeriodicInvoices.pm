@@ -404,7 +404,7 @@ sub _email_invoice {
       $mail->{subject}     = $data->{config}->email_subject;
       $mail->{message}     = $data->{config}->email_body;
       $mail->{attachments} = [{
-        filename => $pdf_file_name,
+        path     => $pdf_file_name,
         name     => sprintf('%s %s.pdf', $::locale->text('Invoice'), $data->{invoice}->invnumber),
       }];
 
