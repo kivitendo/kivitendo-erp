@@ -940,6 +940,8 @@ sub post {
         1;
       }) {
         push @errors, $EVAL_ERROR;
+        # we have to use the error dialog here, otherwise the @errors won't be printed
+        $form->error($locale->text('Cannot post invoice and/or transfer out! Error message:') . "\n" . join("\n", @errors));
         die 'transaction error';
       }
 
