@@ -626,6 +626,9 @@ sub mark_as_paid {
 }
 
 sub show_draft {
+  # unless no lazy implementation of save draft without invdate
+  # set the current date like in version <= 3.4.1
+  $::form->{invdate}   = DateTime->today->to_lxoffice;
   update();
 }
 
