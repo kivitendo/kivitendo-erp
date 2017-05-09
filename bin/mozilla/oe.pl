@@ -362,13 +362,13 @@ sub setup_oe_action_bar {
           t8('Sales Order'),
           submit   => [ '#form', { action => "sales_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-          only_if  => $params{is_sales_quo},
+          only_if  => $params{is_sales_quo} || $params{is_pur_ord},
         ],
         action => [
           t8('Purchase Order'),
           submit   => [ '#form', { action => "purchase_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
-          only_if  => $params{is_req_quo},
+          only_if  => $params{is_sales_ord} || $params{is_req_quo},
         ],
         action => [
           t8('Delivery Order'),
@@ -386,11 +386,13 @@ sub setup_oe_action_bar {
           t8('Quotation'),
           submit   => [ '#form', { action => "quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          only_if  => $params{is_sales_ord},
         ],
         action => [
           t8('Request for Quotation'),
           submit   => [ '#form', { action => "request_for_quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          only_if  => $params{is_pur_ord},
         ],
       ], # end of combobox "Workflow"
 
