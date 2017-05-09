@@ -202,19 +202,6 @@ sub kpsewhich {
 EOL
   }
 }
-sub check_pdfinfo {
-  my $line = "Looking for pdfinfo executable";
-  my $shell_out = `pdfinfo -v 2>&1 | grep version 2> /dev/null`;
-  my ($label,$vers,$ver_string)  = split / /,$shell_out;
-  if ( $label && $label eq 'pdfinfo' ) {
-    print_line($line, $ver_string, 'green');
-  } else {
-    print_line($line, 'not installed','red');
-    my %modinfo = ( name => 'pdfinfo' );
-    push @missing_modules, \%modinfo;
-
-  }
-}
 
 sub check_pdfinfo {
   my $line = "Looking for pdfinfo executable";
