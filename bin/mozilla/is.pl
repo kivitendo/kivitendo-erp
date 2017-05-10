@@ -331,7 +331,7 @@ sub setup_is_action_bar {
         ],
         action => [
           t8('Sales Order'),
-          submit   => [ '#form', { action => "sales_order" } ],
+          submit   => [ '#form', { action => "order" } ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Workflow"
