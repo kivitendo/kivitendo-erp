@@ -49,6 +49,7 @@ use Encode;
 use File::Copy;
 use IO::File;
 use Math::BigInt;
+use POSIX qw(strftime);
 use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
@@ -1026,7 +1027,7 @@ sub parse_template {
   $suffix =  $self->{IN};
   $suffix =~ s/.*\.//;
   ($temp_fh, $self->{tmpfile}) = File::Temp::tempfile(
-    'kivitendo-printXXXXXX',
+    strftime('kivitendo-print-%Y%m%d%H%M%S-XXXXXX', localtime()),
     SUFFIX => '.' . ($suffix || 'tex'),
     DIR    => $userspath,
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
