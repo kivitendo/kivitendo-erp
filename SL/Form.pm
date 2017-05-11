@@ -1023,6 +1023,8 @@ sub parse_template {
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
+  my $keep_temp_files = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
+
   my ($temp_fh, $suffix);
   $suffix =  $self->{IN};
   $suffix =~ s/.*\.//;
@@ -1030,9 +1032,10 @@ sub parse_template {
     strftime('kivitendo-print-%Y%m%d%H%M%S-XXXXXX', localtime()),
     SUFFIX => '.' . ($suffix || 'tex'),
     DIR    => $userspath,
-    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
+    UNLINK => $keep_temp_files ? 0 : 1,
   );
   close $temp_fh;
+  chmod 0644, $self->{tmpfile} if $keep_temp_files;
   (undef, undef, $self->{template_meta}{tmpfile}) = File::Spec->splitpath( $self->{tmpfile} );
 
   $out              = $self->{OUT};
