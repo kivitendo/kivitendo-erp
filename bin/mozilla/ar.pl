@@ -407,8 +407,7 @@ sub form_header {
     };
 
     my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
-    my $amount_chart_id   = $form->{"AR_amount_chart_id_$i"} // $default_ar_amount_chart_id;
-    my $chart_has_changed = $::form->{"previous_AR_amount_chart_id_$i"} && ($amount_chart_id != $::form->{"previous_AR_amount_chart_id_$i"});
+    my $amount_chart_id = $form->{"AR_amount_chart_id_$i"} // $default_ar_amount_chart_id;
 
     foreach my $item ( GL->get_active_taxes_for_chart($amount_chart_id, $transdate) ) {
       my $key             = $item->id . "--" . $item->rate;
@@ -420,7 +419,7 @@ sub form_header {
       $taxchart_labels{$key} = $item->taxdescription . " " . $item->rate * 100 . ' %';
     }
 
-    $taxchart_to_use      = $default_taxchart // $first_taxchart if $chart_has_changed || !$taxchart_to_use;
+    $taxchart_to_use    //= $default_taxchart // $first_taxchart;
     my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     $transaction->{selectAR_amount} =

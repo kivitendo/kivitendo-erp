@@ -816,10 +816,9 @@ sub display_rows {
     my %taxchart_labels = ();
     my @taxchart_values = ();
 
-    my $accno_id          = $::form->{"accno_id_$i"};
-    my $chart             = $charts_by_id{$accno_id} // $default_chart;
-    $accno_id             = $chart->{id};
-    my $chart_has_changed = $::form->{"previous_accno_id_$i"} && ($accno_id != $::form->{"previous_accno_id_$i"});
+    my $accno_id = $::form->{"accno_id_$i"};
+    my $chart    = $charts_by_id{$accno_id} // $default_chart;
+    $accno_id    = $chart->{id};
     my ($first_taxchart, $default_taxchart, $taxchart_to_use);
 
     foreach my $item ( GL->get_active_taxes_for_chart($accno_id, $transdate) ) {
@@ -832,7 +831,7 @@ sub display_rows {
       $taxchart_labels{$key} = $item->taxdescription . " " . $item->rate * 100 . ' %';
     }
 
-    $taxchart_to_use      = $default_taxchart // $first_taxchart if $chart_has_changed || !$taxchart_to_use;
+    $taxchart_to_use    //= $default_taxchart // $first_taxchart;
     my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     my $accno = qq|<td>| .
