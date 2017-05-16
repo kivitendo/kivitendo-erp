@@ -38,6 +38,12 @@ Upgrade auf v3.5.0-alpha
   Buchungsgruppen ersetzt und für die Erkennung des Artikeltyps gibt es nun die
   Spalte part_type
 
+* Das Anlegen und Editieren von Waren wurde komplett erneuert. Falls man aus
+  einem Beleg eine Ware erstellt ist der Rücksprung in dem Beleg nicht mehr
+  möglich. Wer diese Funktion dringend benötigt, sollte mit dem Upgrade auf
+  diese Version noch warten und am Besten einen Entwickler mit Bezug auf
+  dieses Ticket (http://redmine.kivitendo-premium.de/issues/247) kontaktieren.
+
 Upgrade auf v3.4.1
 ==================
 
