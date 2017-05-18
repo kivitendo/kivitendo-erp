@@ -1,4 +1,4 @@
-use Test::More tests => 100;
+use Test::More tests => 105;
 
 use strict;
 
@@ -77,6 +77,7 @@ test_ap_transaction();
 test_neg_ap_transaction();
 test_ap_payment_transaction();
 test_ap_payment_part_transaction();
+test_neg_sales_invoice();
 
 # remove all created data at end of test
 clear_up();
@@ -619,5 +620,40 @@ sub test_ap_payment_part_transaction {
 
   return $invoice;
 };
+
+sub test_neg_sales_invoice {
+
+  my $testname = 'test_neg_sales_invoice';
+
+  my $part1 = SL::Dev::Part::create_part(   partnumber => 'Funkenhaube öhm')->save;
+  my $part2 = SL::Dev::Part::create_service(partnumber => 'Service-Pauschale Pasch!')->save;
+
+  my $neg_sales_inv = SL::Dev::Record::create_sales_invoice(
+    invnumber    => '20172201',
+    customer     => $customer,
+    taxincluded  => 0,
+    invoiceitems => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
+                      SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => -50),
+                    ]
+  );
+  my $bt            = SL::Dev::Payment::create_bank_transaction(record        => $neg_sales_inv,
+                                                                amount        => $neg_sales_inv->amount,
+                                                                bank_chart_id => $bank->id,
+                                                                transdate     => DateTime->today,
+                                                               );
+  $::form->{invoice_ids} = {
+    $bt->id => [ $neg_sales_inv->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $neg_sales_inv->load;
+  $bt->load;
+  is($neg_sales_inv->amount   , '-345.10000', "$testname: amount ok");
+  is($neg_sales_inv->netamount, '-290.00000', "$testname: netamount ok");
+  is($neg_sales_inv->paid     , '-345.10000', "$testname: paid ok");
+  is($bt->amount              , '-345.10000', "$testname: bt amount ok");
+  is($bt->invoice_amount      , '-345.10000', "$testname: bt invoice_amount ok");
+}
 
 1;

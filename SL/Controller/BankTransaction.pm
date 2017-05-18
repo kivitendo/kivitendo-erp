@@ -669,7 +669,8 @@ sub save_single_bank_transaction {
       } else {
         # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
 
-        if ( $invoice->is_sales && $invoice->invoice_type eq 'credit_note' ) {
+        # this catches credit_notes and negative sales invoices
+        if ( $invoice->is_sales && $invoice->amount < 0 ) {
           # $invoice->open_amount     is negative for credit_notes
           # $bank_transaction->amount is negative for outgoing transactions
           # so $amount_of_transaction is negative but needs positive
