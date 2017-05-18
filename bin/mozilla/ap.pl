@@ -998,7 +998,7 @@ sub ap_transactions {
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
     'taxzone'                 => { 'text' => $locale->text('Tax rate'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
-    'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
+    'charts'                  => { 'text' => $locale->text('Chart'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
   );
 

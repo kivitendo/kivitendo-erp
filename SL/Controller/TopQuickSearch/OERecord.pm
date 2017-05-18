@@ -106,7 +106,7 @@ sub init_models {
         by  => 'transdate',
         dir => 0,
       },
-      transdate => t8('Transdate'),
+      transdate => t8('Date'),
     },
     paginated  => {
       per_page => 10,

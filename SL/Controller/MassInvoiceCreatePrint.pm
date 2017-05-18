@@ -213,7 +213,7 @@ sub _init_sales_delivery_order_models {
       },
       customer     => t8('Customer'),
       employee     => t8('Employee'),
-      transdate    => t8('Date'),
+      transdate    => t8('Delivery Order Date'),
       donumber     => t8('Delivery Order Number'),
       ordnumber     => t8('Order Number'),
     },
@@ -324,8 +324,8 @@ sub make_filter_summary {
 
   my @filters = (
     [ $filter->{customer}{"name:substr::ilike"}, t8('Customer') ],
-    [ $filter->{"transdate:date::ge"},           t8('Transdate') . " " . t8('From Date') ],
-    [ $filter->{"transdate:date::le"},           t8('Transdate') . " " . t8('To Date')   ],
+    [ $filter->{"transdate:date::ge"},           t8('Delivery Order Date') . " " . t8('From Date') ],
+    [ $filter->{"transdate:date::le"},           t8('Delivery Order Date') . " " . t8('To Date')   ],
   );
 
   for (@filters) {

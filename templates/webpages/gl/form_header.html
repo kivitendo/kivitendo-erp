@@ -66,7 +66,7 @@
           <td align=left>
             <table>
               <tr>
-                <th align=right width=50% nowrap>[% 'Date' | $T8 %]</th>
+                <th align=right width=50% nowrap>[% 'Transdate' | $T8 %]</th>
                 <td>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
               </tr>
             </table>
@@ -74,12 +74,12 @@
         </tr>
 [%- IF id %]
         <tr>
-          <th align=right>[% 'Belegnummer' | $T8 %]</th>
+          <th align=right>[% 'ID' | $T8 %]</th>
           <td>[% L.input_tag('id', id,  size=20, readonly=readonly) %]</td>
           <td align=left>
           <table>
               <tr>
-                <th align=right width=50%>[% 'Buchungsdatum' | $T8 %]</th>
+                <th align=right width=50%>[% 'Gldate' | $T8 %]</th>
                 <td align=left>[% L.date_tag('gldate', gldate, readonly=1) %]</td>
               </tr>
             </table>

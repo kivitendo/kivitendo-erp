@@ -45,8 +45,8 @@
   <tr>
     <th align=right>[% 'Filter date by' | $T8 %]</th>
     <td colspan=3>
-    <input name=datesort class=radio type=radio value=gldate checked> [% 'Booking Date' | $T8 %]
-    <input name=datesort class=radio type=radio value=transdate> [% 'Invoice Date' | $T8 %]
+    <input name=datesort class=radio type=radio value=transdate checked> [% 'Transdate' | $T8 %]
+    <input name=datesort class=radio type=radio value=gldate> [% 'Gldate' | $T8 %]
   </td>
   </tr>
   <tr>
@@ -74,9 +74,9 @@
                     <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
                     <td>[% 'ID' | $T8 %]</td>
                     <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Invoice Date' | $T8 %]</td>
+                    <td>[% 'Transdate' | $T8 %]</td>
                     <td align=right><input name="l_gldate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>[% 'Booking Date' | $T8 %]</td>
+                    <td>[% 'Gldate' | $T8 %]</td>
                     <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
                     <td>[% 'Reference' | $T8 %]</td>
                     <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>

@@ -85,12 +85,12 @@ my %datev_column_defs = (
   taxkey            => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Taxkey'), },
   tax_accname       => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account Name'), },
   tax_accno         => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Tax Account'), },
-  transdate         => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Invoice Date'), },
+  transdate         => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Transdate'), },
   vcnumber          => { type => 'Rose::DB::Object::Metadata::Column::Text',    text => t8('Customer/Vendor Number'), },
   customer_id       => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Customer (database ID)'), },
   vendor_id         => { type => 'Rose::DB::Object::Metadata::Column::Integer', text => t8('Vendor (database ID)'), },
   itime             => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Create Date'), },
-  gldate            => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Booking Date'), },
+  gldate            => { type => 'Rose::DB::Object::Metadata::Column::Date',    text => t8('Gldate'), },
 );
 
 my @datev_columns = qw(

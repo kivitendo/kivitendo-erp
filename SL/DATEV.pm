@@ -1202,7 +1202,7 @@ sub csv_export_for_tax_accountant {
     taxkey            => { 'text' => $::locale->text('Taxkey'), },
     tax_accname       => { 'text' => $::locale->text('Tax Account Name'), },
     tax_accno         => { 'text' => $::locale->text('Tax Account'), },
-    transdate         => { 'text' => $::locale->text('Invoice Date'), },
+    transdate         => { 'text' => $::locale->text('Transdate'), },
     vcnumber          => { 'text' => $::locale->text('Customer/Vendor Number'), },
   );
 

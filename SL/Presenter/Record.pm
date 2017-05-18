@@ -445,7 +445,7 @@ sub _gl_transaction_list {
     title   => $::locale->text('GL Transactions'),
     type    => 'gl_transaction',
     columns => [
-      [ $::locale->text('Date'),        'transdate'                                                    ],
+      [ $::locale->text('Transdate'),        'transdate'                                                    ],
       [ $::locale->text('Reference'),   'reference'                                                    ],
       [ $::locale->text('Description'), sub { $self->gl_transaction($_[0 ], display => 'table-cell') } ],
     ],

@@ -415,7 +415,7 @@ sub generate_report {
   my $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
 
   my @columns = qw(
-    gldate         transdate        id             reference      description
+    transdate      gldate   id      reference      description
     notes          source   doccnt  debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
     credit_tax     credit_tax_accno projectnumbers balance employee
@@ -434,7 +434,7 @@ sub generate_report {
   push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
   push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
   push @options,      $locale->text('Employee')    . " : $employee"                                   if $employee;
-  my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Invoice Date') :  $locale->text('Booking Date');
+  my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Transdate') :  $locale->text('Gldate');
   push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
   push @date_options, $locale->text('From'), $locale->date(\%myconfig, $form->{datefrom}, 1)          if ($form->{datefrom});
   push @date_options, $locale->text('Bis'),  $locale->date(\%myconfig, $form->{dateto},   1)          if ($form->{dateto});
@@ -460,8 +460,8 @@ sub generate_report {
 
   my %column_defs = (
     'id'               => { 'text' => $locale->text('ID'), },
-    'transdate'        => { 'text' => $locale->text('Invoice Date'), },
-    'gldate'           => { 'text' => $locale->text('Booking Date'), },
+    'transdate'        => { 'text' => $locale->text('Transdate'), },
+    'gldate'           => { 'text' => $locale->text('Gldate'), },
     'reference'        => { 'text' => $locale->text('Reference'), },
     'source'           => { 'text' => $locale->text('Source'), },
     'doccnt'           => { 'text' => $locale->text('Document Count'), },

@@ -1031,7 +1031,7 @@ sub ar_transactions {
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
-    'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
+    'charts'                  => { 'text' => $locale->text('Chart'), },
     'customertype'            => { 'text' => $locale->text('Customer type'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
     'department'              => { 'text' => $locale->text('Department'), },

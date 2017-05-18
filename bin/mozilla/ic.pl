@@ -194,7 +194,7 @@ sub generate_report {
     'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
     'soldtotal'          => { 'text' => $locale->text('Qty in Selected Records'), },
     'name'               => { 'text' => $locale->text('Name in Selected Records'), },
-    'transdate'          => { 'text' => $locale->text('Transdate'), },
+    'transdate'          => { 'text' => $locale->text('Transdate Record'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
     'shop'               => { 'text' => $locale->text('Shop article'), },

@@ -32,7 +32,7 @@
   [% CASE 'reqdate' %]
     [% 'Reqdate' | $T8 %] [% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %] [% L.date_tag('price_rule.items[].value_date', item.value_date) %]
   [% CASE 'transdate' %]
-    [% 'Transdate' | $T8 %] [% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %] [% L.date_tag('price_rule.items[].value_date', item.value_date) %]
+    [% 'Transdate Record' | $T8 %] [% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %] [% L.date_tag('price_rule.items[].value_date', item.value_date) %]
   [% CASE 'pricegroup' %]
     [% 'Pricegroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag('price_rule.items[].value_int', SELF.pricegroups, title_key='pricegroup', default=item.value_int) %]
   [% CASE %]
