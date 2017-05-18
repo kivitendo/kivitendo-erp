@@ -1914,13 +1914,13 @@ sub erfolgsrechnung {
     foreach my $account (@{$category{accounts}}) {
       $account->{total} += get_total_ch($account->{id}, $fromdate, $todate);
       $category{total} += $account->{total};
-      $account->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $account->{total}), 2);
+      $account->{total} = $form->format_amount($myconfig, $form->round_amount($account->{total}, 2), 2);
     }
     $form->{total} += $category{total};
-    $category{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $category{total}), 2);
+    $category{total} = $form->format_amount($myconfig, $form->round_amount($category{total}, 2), 2);
     push(@{$form->{categories}}, \%category);
   }
-  $form->{total} = $form->format_amount($myconfig, $form->parse_amount($myconfig, $form->{total}), 2);
+  $form->{total} = $form->format_amount($myconfig, $form->round_amount($form->{total}, 2), 2);
 
   $main::lxdebug->leave_sub();
   return {};
