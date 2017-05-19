@@ -1062,7 +1062,9 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
         url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag
-        (Stand Sept. 2015)</ulink></para>
+        (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017)
+        <ulink url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
+        SSL-Konfigurations-Generator</ulink>.</para>
       </sect2>
     </sect1>
 
