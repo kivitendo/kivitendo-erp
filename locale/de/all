@@ -2097,9 +2097,7 @@ $self->{texts} = {
   'Payment Reminder'            => 'Zahlungserinnerung',
   'Payment Terms'               => 'Zahlungsbedingungen',
   'Payment Terms missing in row ' => 'Zahlungsfrist fehlt in Zeile ',
-  'Payment bookings disallowed. After the booking this record may be
-                                 suggested with the amount of \'#1\' or otherwise has to be choosen manually.
-                                 No automatic payment booking will be done to chart \'#2\'.' => 'Zahlungsbuchungen nicht erlaubt. Nach der Verbuchung kann dieser Beleg in der Vorschlagsliste mit dem Zahlungs-Betrag von \'#1\' erscheinen, ansonsten muss dieser manuell verknüpft werden. Es wird nicht automatisch eine Zahlungsbuchung auf das Konto \'#2\' durchgeführt.',
+  'Payment bookings disallowed. After the booking this record may be suggested with the amount of \'#1\' or otherwise has to be choosen manually. No automatic payment booking will be done to chart \'#2\'.' => 'Zahlungsbuchungen nicht erlaubt. Nach der Verbuchung kann dieser Beleg in der Vorschlagsliste mit dem Zahlungs-Betrag von \'#1\' erscheinen, ansonsten muss dieser manuell verknüpft werden. Es wird nicht automatisch eine Zahlungsbuchung auf das Konto \'#2\' durchgeführt.',
   'Payment date missing!'       => 'Tag der Zahlung fehlt!',
   'Payment list'                => 'Zahlungsliste',
   'Payment posted!'             => 'Zahlung gebucht!',
