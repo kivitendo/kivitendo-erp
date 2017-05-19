@@ -244,6 +244,7 @@
   </tr>
   <tr>
     <td>
+      [% UNLESS no_payment_bookings %]
       <table width="100%">
         <tr class="listheading">
           <th class="listheading" colspan="7">[% 'Payments' | $T8 %]</th>
@@ -365,6 +366,7 @@
           <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
         </tr>
       </table>
+      [% END %]
     </td>
   </tr>
 </table>

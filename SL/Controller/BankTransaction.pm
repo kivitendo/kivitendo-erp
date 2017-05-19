@@ -890,17 +890,16 @@ sub load_ap_record_template_url {
   my ($self, $template) = @_;
 
   return $self->url_for(
-    controller                 => 'ap.pl',
-    action                     => 'load_record_template',
-    id                         => $template->id,
-    'form_defaults.amount_1'   => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
-    'form_defaults.transdate'  => $self->transaction->transdate_as_date,
-    'form_defaults.duedate'    => $self->transaction->transdate_as_date,
-    'form_defaults.datepaid_1' => $self->transaction->transdate_as_date,
-    'form_defaults.paid_1'     => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
-    'form_defaults.currency'   => $self->transaction->currency->name,
-    'form_defaults.AP_paid_1'  => $self->transaction->local_bank_account->chart->accno,
-    'form_defaults.callback'   => $self->callback,
+    controller                           => 'ap.pl',
+    action                               => 'load_record_template',
+    id                                   => $template->id,
+    'form_defaults.amount_1'             => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
+    'form_defaults.transdate'            => $self->transaction->transdate_as_date,
+    'form_defaults.duedate'              => $self->transaction->transdate_as_date,
+    'form_defaults.no_payment_bookings'  => 1,
+    'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
+    'form_defaults.AP_paid_1_suggestion' => $self->transaction->local_bank_account->chart->accno,
+    'form_defaults.callback'             => $self->callback,
   );
 }
 
