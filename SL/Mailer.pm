@@ -221,8 +221,11 @@ sub send {
   # Create driver for delivery method (sendmail/SMTP)
   $self->{driver} = eval { $self->_create_driver };
   if (!$self->{driver}) {
-    $self->_store_in_journal('failed', 'driver could not be created; check your configuration');
-    return "send email : $@";
+    my $error = $@;
+    $self->_store_in_journal('failed', 'driver could not be created; check your configuration & log files');
+    $::lxdebug->message(LXDebug::WARN(), "Mailer error during 'send': $error");
+
+    return "send email : $error";
   }
 
   # Set defaults & headers
