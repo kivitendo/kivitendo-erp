@@ -13,13 +13,11 @@ use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(background_job) ],
-  'scalar --get_set_init' => [ qw(task_server back_to models) ],
+  'scalar --get_set_init' => [ qw(task_server back_to models background_job) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_task_server');
-__PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute show) ]);
 
 #
 # actions
@@ -149,9 +147,8 @@ sub create_or_update {
   $self->redirect_to($self->back_to);
 }
 
-sub load_background_job {
-  my ($self) = @_;
-  $self->background_job(SL::DB::BackgroundJob->new(id => $::form->{id})->load);
+sub init_background_job {
+  return $::form->{id} ? SL::DB::BackgroundJob->new(id => $::form->{id})->load : undef;
 }
 
 sub init_task_server {
