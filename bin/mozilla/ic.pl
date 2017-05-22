@@ -405,7 +405,7 @@ sub generate_report {
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),
-    qw(l_type_and_classific classification_id),
+    qw(l_type_and_classific classification_id l_part l_service l_assembly l_assortment),
     @itemstatus_keys,
     @callback_keys,
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
