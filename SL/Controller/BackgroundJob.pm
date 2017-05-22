@@ -36,7 +36,7 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->background_job(SL::DB::BackgroundJob->new(cron_spec => '* * * * *',  package_name => 'Test'));
+  $self->background_job(SL::DB::BackgroundJob->new(cron_spec => '* * * * *',  package_name => 'Test')) unless $self->background_job;
   $self->setup_form_action_bar;
   $self->render('background_job/form',
                 title       => $::locale->text('Create a new background job'),
@@ -50,6 +50,13 @@ sub action_edit {
   $self->render('background_job/form',
                 title       => $::locale->text('Edit background job'),
                 JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
+}
+
+sub action_edit_as_new {
+  my ($self) = @_;
+
+  $self->background_job($self->background_job->clone_and_reset);
+  $self->action_new;
 }
 
 sub action_show {
@@ -221,6 +228,11 @@ sub setup_form_action_bar {
         action => [
           t8('Save and execute'),
           submit => [ '#form', { action => 'BackgroundJob/save_and_execute' } ],
+        ],
+        action => [
+          t8('Use as new'),
+          submit   => [ '#form', { action => 'BackgroundJob/edit_as_new' } ],
+          disabled => $is_new ? t8('The object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
 
