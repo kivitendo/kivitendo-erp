@@ -25,11 +25,11 @@
     <td>[% L.select_tag('filter.status:eq_ignore_empty', [ [ '', '' ], [ 'failure', LxERP.t8('failed') ], [ 'success', LxERP.t8('succeeded') ] ], default=filter.status_eq_ignore_empty) %]</td>
    </tr>
    <tr>
-    <th align="right">[% LxERP.t8('Run at') %] [% LxERP.t8('From Date') %]</th>
+    <th align="right">[% LxERP.t8('Execution date from') %]</th>
     <td>[% L.date_tag('filter.run_at:date::ge', filter.run_at_date__ge) %]</td>
    </tr>
    <tr>
-    <th align="right">[% LxERP.t8('Run at') %] [% LxERP.t8('To Date') %]</th>
+    <th align="right">[% LxERP.t8('Execution date to') %]</th>
     <td>[% L.date_tag('filter.run_at:date::le', filter.run_at_date__le) %]</td>
    </tr>
   </table>
