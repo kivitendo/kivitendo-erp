@@ -92,7 +92,7 @@ sub setup_show_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        $self->task_server->is_running ? t8('Stop server') : t8('Start server'),
+        $self->task_server->is_running ? t8('Stop (verb)') : t8('Start (verb)'),
         submit    => [ '#form' ],
         accesskey => 'enter',
       ],
