@@ -17,7 +17,6 @@ use Cwd;
 use Daemon::Generic;
 use Data::Dumper;
 use DateTime;
-use Encode qw();
 use English qw(-no_match_vars);
 use File::Spec;
 use List::MoreUtils qw(any);
@@ -158,6 +157,7 @@ sub notify_on_failure {
     EVAL_PERL   => 0,
     ABSOLUTE    => 1,
     CACHE_SIZE  => 0,
+    ENCODING    => 'utf8',
   });
 
   return debug("Could not create Template instance") unless $template;
@@ -174,7 +174,7 @@ sub notify_on_failure {
       subject      => $cfg->{email_subject},
       content_type => 'text/plain',
       charset      => 'utf-8',
-      message      => Encode::decode('utf-8', $body),
+      message      => $body,
     )->send;
 
     1;

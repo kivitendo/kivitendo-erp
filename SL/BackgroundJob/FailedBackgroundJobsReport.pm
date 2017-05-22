@@ -39,12 +39,12 @@ sub send_email {
     EVAL_PERL   => 0,
     ABSOLUTE    => 1,
     CACHE_SIZE  => 0,
+    ENCODING    => 'utf8',
   }) || die("Could not create Template instance");
 
   my $file_name = $self->data->{template} || 'templates/webpages/failed_background_jobs_report/email.txt';
   my $body;
   $template->process($file_name, { SELF => $self }, \$body);
-  $body = Encode::decode('utf-8', $body);
 
   Mailer->new(
     from         => $self->data->{from},
