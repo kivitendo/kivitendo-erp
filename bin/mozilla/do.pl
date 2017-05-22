@@ -401,8 +401,11 @@ sub form_header {
   my $class       = "SL::DB::" . ($form->{vc} eq 'customer' ? 'Customer' : 'Vendor');
   $form->{VC_OBJ} = $class->load_cached($form->{ $form->{vc} . '_id' });
 
-  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
-  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
+  my $current_employee   = SL::DB::Manager::Employee->current;
+  $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id}   = $form->{old_salesman_id} if $form->{old_salesman_id};
+  $form->{employee_id} ||= $current_employee->id;
+  $form->{salesman_id} ||= $current_employee->id;
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
   $form->get_lists("price_factors"  => "ALL_PRICE_FACTORS",
