@@ -40,6 +40,7 @@ __PACKAGE__->run_before('check_part_id', only   => [ qw(edit delete) ]);
 sub action_add_part {
   my ($self, %params) = @_;
 
+  $::form->{callback} = $self->url_for(action => 'add_part') unless $::form->{callback};
   $self->part( SL::DB::Part->new_part );
   $self->add;
 };
@@ -47,6 +48,7 @@ sub action_add_part {
 sub action_add_service {
   my ($self, %params) = @_;
 
+  $::form->{callback} = $self->url_for(action => 'add_service') unless $::form->{callback};
   $self->part( SL::DB::Part->new_service );
   $self->add;
 };
@@ -54,6 +56,7 @@ sub action_add_service {
 sub action_add_assembly {
   my ($self, %params) = @_;
 
+  $::form->{callback} = $self->url_for(action => 'add_assembly') unless $::form->{callback};
   $self->part( SL::DB::Part->new_assembly );
   $self->add;
 };
@@ -61,6 +64,7 @@ sub action_add_assembly {
 sub action_add_assortment {
   my ($self, %params) = @_;
 
+  $::form->{callback} = $self->url_for(action => 'add_assortment') unless $::form->{callback};
   $self->part( SL::DB::Part->new_assortment );
   $self->add;
 };
@@ -130,8 +134,12 @@ sub action_save {
 
   flash_later('info', $is_new ? t8('The item has been created.') : t8('The item has been saved.'));
 
-  # reload item, this also resets last_modification!
-  $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
+  if ( $::form->{callback} ) {
+    $self->redirect_to($::form->unescape($::form->{callback}));
+  } else {
+    # default behaviour after save: reload item, this also resets last_modification!
+    $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
+  }
 }
 
 sub action_save_as_new {
@@ -164,11 +172,15 @@ sub action_delete {
   }) or return $self->js->error(t8('The item couldn\'t be deleted!') . " " . $self->part->db->error)->render;
 
   flash_later('info', t8('The item has been deleted.'));
-  my @redirect_params = (
-    controller => 'controller.pl',
-    action => 'LoginScreen/user_login'
-  );
-  $self->redirect_to(@redirect_params);
+  if ( $::form->{callback} ) {
+    $self->redirect_to($::form->unescape($::form->{callback}));
+  } else {
+    my @redirect_params = (
+        controller => 'controller.pl',
+        action     => 'LoginScreen/user_login'
+    );
+    $self->redirect_to(@redirect_params);
+  }
 }
 
 sub action_use_as_new {
