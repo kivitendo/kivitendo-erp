@@ -132,7 +132,16 @@ sub _build_form {
 sub draft_list {
   my ($self) = @_;
 
-  my $result = selectall_hashref_query($::form, $::form->get_standard_dbh, <<SQL, $self->module, $self->submodule, SL::DB::Manager::Employee->current->id);
+  if ($::auth->assert('all_drafts_edit', 1)) {
+   my $result = selectall_hashref_query($::form, $::form->get_standard_dbh, <<SQL, $self->module, $self->submodule);
+    SELECT d.*, date(d.itime) AS date
+    FROM drafts d
+    WHERE (d.module      = ?)
+      AND (d.submodule   = ?)
+    ORDER BY d.itime
+SQL
+  } else {
+    my $result = selectall_hashref_query($::form, $::form->get_standard_dbh, <<SQL, $self->module, $self->submodule, SL::DB::Manager::Employee->current->id);
     SELECT d.*, date(d.itime) AS date
     FROM drafts d
     WHERE (d.module      = ?)
@@ -140,6 +149,7 @@ sub draft_list {
       AND (d.employee_id = ?)
     ORDER BY d.itime
 SQL
+  }
 }
 
 sub dialog_html {

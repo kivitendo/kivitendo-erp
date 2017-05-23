@@ -1106,6 +1106,7 @@ $self->{texts} = {
   'Edit Warehouse'              => 'Lager bearbeiten',
   'Edit acceptance status'      => 'Abnahmestatus bearbeiten',
   'Edit additional articles'    => 'Zusätzliche Artikel bearbeiten',
+  'Edit all drafts'             => 'Entwürfe von allen Benutzern bearbeiten',
   'Edit article/section assignments' => 'Zuweisung Artikel/Abschnitte bearbeiten',
   'Edit assignment of articles to sections' => 'Zuweisung Artikel zu Abschnitten bearbeiten',
   'Edit background job'         => 'Hintergrund-Job bearbeiten',
