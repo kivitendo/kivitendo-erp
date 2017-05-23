@@ -55,7 +55,8 @@ sub action_edit {
 sub action_edit_as_new {
   my ($self) = @_;
 
-  $self->background_job($self->background_job->clone_and_reset);
+  delete $::form->{background_job}->{id};
+  $self->background_job(SL::DB::BackgroundJob->new(%{ $::form->{background_job} }));
   $self->action_new;
 }
 
