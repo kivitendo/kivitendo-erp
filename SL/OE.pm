@@ -1279,7 +1279,6 @@ sub order_details {
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
   my %price_factors;
 
   foreach my $pfac (@{ $form->{ALL_PRICE_FACTORS} }) {
@@ -1607,6 +1606,7 @@ sub order_details {
 
   $form->{username} = $myconfig->{name};
 
+  $form->{department}    = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
