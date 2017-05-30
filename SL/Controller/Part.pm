@@ -94,8 +94,11 @@ sub action_save {
       return $self->js->error(t8('The document has been changed by another user. Please reopen it in another window and copy the changes to the new window'))->render;
   }
 
-  if ( $is_new and !$::form->{part}{partnumber} ) {
-    $self->check_next_transnumber_is_free or return $self->js->error(t8('The next partnumber in the number range already exists!'))->render;
+  if (    $is_new
+       && $::form->{part}{partnumber}
+       && SL::DB::Manager::Part->find_by(partnumber => $::form->{part}{partnumber})
+     ) {
+    return $self->js->error(t8('The partnumber is already being used'))->render;
   }
 
   $self->parse_form;
@@ -1037,17 +1040,6 @@ sub form_check_partnumber_is_unique {
 }
 
 # general checking functions
-sub check_next_transnumber_is_free {
-  my ($self) = @_;
-
-  my ($next_transnumber, $count);
-  $self->part->db->with_transaction(sub {
-    $next_transnumber = $self->part->get_next_trans_number;
-    $count = SL::DB::Manager::Part->get_all_count(where => [ partnumber => $next_transnumber ]);
-    return 1;
-  }) or die $@;
-  $count ? return 0 : return 1;
-}
 
 sub check_part_id {
   die t8("Can't load item without a valid part.id") . "\n" unless $::form->{part}{id};
