@@ -154,7 +154,7 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.add_assortment_item = function() {
-    if ($('#add_assortment_item_id').val() === '') return;
+    if ($('#assortment_picker').val() === '') return;
 
     $('#row_table_id thead a img').remove();
 
@@ -168,7 +168,7 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.add_assembly_item = function() {
-    if ($('#add_assembly_item_id').val() === '') return;
+    if ($('#assembly_picker').val() === '') return;
 
     var data = $('#assembly :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_assembly_item' },
