@@ -241,7 +241,7 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.add_makemodel_row = function() {
-    if ($('#add_makemodelid').val() === '') return;
+    if ($('#add_makemodel').val() === '') return;
 
     var data = $('#makemodel_table :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_makemodel_row' });
