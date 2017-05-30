@@ -132,7 +132,8 @@ sub action_save {
     1;
   }) or return $self->js->error(t8('The item couldn\'t be saved!') . " " . $self->part->db->error )->render;
 
-  flash_later('info', $is_new ? t8('The item has been created.') : t8('The item has been saved.'));
+  ;
+  flash_later('info', $is_new ? t8('The item has been created.') . " " . $self->part->displayable_name : t8('The item has been saved.'));
 
   if ( $::form->{callback} ) {
     $self->redirect_to($::form->unescape($::form->{callback}));
