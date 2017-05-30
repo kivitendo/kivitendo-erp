@@ -41,16 +41,7 @@
     [% END %]
     </td>
     <td nowrap>
-    [% IF orphaned %]
-      [%- L.select_tag("assembly_items[].unit",
-                      ITEM.part.available_units,
-                      default = ITEM.part.unit,
-                      title_key = 'name',
-                      value_key = 'name',
-                      class = 'unitselect') %]
-    [% ELSE %]
       [% ITEM.part.unit | html %]
-    [% END %]
     </td>
     [% IF orphaned %]
     <td>[% L.checkbox_tag("assembly_items[].bom", checked=ITEM.bom, for_submit=1) %]</td>
