@@ -20,7 +20,7 @@ sub do_scoping {
 }
 
 sub parts_scoping {
-  SL::DB::Manager::Part->type_filter($_[0]);
+ # SL::DB::Manager::Part->type_filter($_[0]);
 }
 
 my %specs = ( ar                      => { number_column => 'invnumber',                                                                           },
