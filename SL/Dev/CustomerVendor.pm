@@ -2,7 +2,7 @@ package SL::Dev::CustomerVendor;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_customer);
+our @EXPORT = qw(create_customer create_vendor);
 
 use SL::DB::TaxZone;
 use SL::DB::Currency;
