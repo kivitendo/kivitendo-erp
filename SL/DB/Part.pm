@@ -165,6 +165,24 @@ sub last_modification {
   return $self->mtime // $self->itime;
 };
 
+sub used_in_record {
+  my ($self) = @_;
+  die 'not an accessor' if @_ > 1;
+
+  return 1 unless $self->id;
+
+  my @relations = qw(
+    SL::DB::InvoiceItem
+    SL::DB::OrderItem
+    SL::DB::DeliveryOrderItem
+  );
+
+  for my $class (@relations) {
+    eval "require $class";
+    return 1 if $class->_get_manager_class->get_all_count(query => [ parts_id => $self->id ]);
+  }
+  return 0;
+}
 sub orphaned {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
@@ -521,6 +539,10 @@ This function uses the part's associated buchungsgruppe and uses the
 fields belonging to the tax zone given by C<$params{taxzone}>.
 
 The information retrieved by the function is cached.
+
+=item C<used_in_record>
+
+Checks if this article has been used in orders, invoices or delivery orders.
 
 =item C<orphaned>
 
