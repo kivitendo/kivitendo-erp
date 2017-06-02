@@ -19,9 +19,7 @@
             <table id="ic3">
              <tr>
               <th align="right">[% 'Part Number' | $T8 %]</th>
-              [% SET readonly = 1 %]
-              [%- IF !SELF.part.id or !SELF.part.used_in_record %][% readonly = 0 %][% END %]
-              <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, readonly=readonly class="initial_focus") %]</td>
+              <td>[% L.input_tag("part.partnumber", SELF.part.partnumber, size=40, class="initial_focus") %]</td>
              </tr>
              <tr>
               <th align="right">[% 'Part Classification' | $T8 %]</th>
@@ -239,4 +237,3 @@
     <td><hr size="3" noshade></td>
   </tr>
  </table>
-
