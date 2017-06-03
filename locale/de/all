@@ -3241,7 +3241,8 @@ $self->{texts} = {
   'This is the client to be selected by default on the login screen.' => 'Dies ist derjenige Mandant, der im Loginbildschirm standardmäßig ausgewählt sein wird.',
   'This is the default bin for parts' => 'Standard-Lagerplatz für Stammdaten/Waren',
   'This is the default warehouse for ignoring onhand' => 'Standardlager für Auslagern ohne Prüfung auf Bestand.',
-  'This is the root directory for the File storage backend, must be writable for webserver. If you have more than one client you need another direcctory. All other directories must be created by hand and reachable from the webserver' => '',
+  'This is the root directory for the File storage backend, must be writable for webserver. If you have more than one client you need another direcctory. All other directories must be created by hand and reachable from the webserver' => 'Dies ist das Wurzelverzeichnis für das Datei-Backend. Haben Sie mehr als einen Mandanten, so muss pro Mandant ein anderes Verzeichnis eingetragen sein. Dies ist von Hand anzulegen. Alle Verzeichnisse müssen für den Webserver schreibbar sein. 
+',
   'This list is capped at 15 items to keep it fast. If you need a full list, please use reports.' => 'Diese Liste ist auf 15 Zeilen begrenzt. Wenn Sie eine vollständige Liste benötigen, erstellen Sie bitte einen Bericht.',
   'This makemodel price does not exist anymore' => 'Dieser Lieferantenpreis existiert nicht mehr',
   'This means that the user has created an AP transaction and chosen a taxkey for sales taxes, or that he has created an AR transaction and chosen a taxkey for input taxes.' => 'Das bedeutet, dass ein Benutzer eine Kreditorenbuchung angelegt und in ihr einen Umsatzsteuer-Steuerschlüssel verwendet oder eine Debitorenbuchung mit Vorsteuer-Steuerschlüssel angelegt hat.',
