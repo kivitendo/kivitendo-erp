@@ -7,8 +7,6 @@ our @EXPORT_OK = qw(create_massprint_pdf merge_massprint_pdf create_pdfs print_p
 our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
-use SL::Helper::CreatePDF qw(:all);
-use SL::Helper::File qw(store_pdf append_general_pdf_attachments);
 
 sub create_pdfs {
   my ($self, %params) = @_;
@@ -166,4 +164,3 @@ Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 
 =cut
-
