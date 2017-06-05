@@ -2221,6 +2221,7 @@ $self->{texts} = {
   'Pricegroups'                 => 'Preisgruppen',
   'Prices'                      => 'Preise',
   'Print'                       => 'Drucken',
+  'Print and Post'              => 'Drucken und Buchen',
   'Print automatically'         => 'Automatisch ausdrucken',
   'Print both sided'            => 'Beidseitig ausdrucken',
   'Print delivery orders'       => 'Drucke Lieferscheine',
