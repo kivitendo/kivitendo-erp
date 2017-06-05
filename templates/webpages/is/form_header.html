@@ -284,9 +284,11 @@
 [% IF resubmit && is_format_html %]
        window.open('about:blank','Beleg');
        document.invoice.target = 'Beleg';
-       $('#action_print').click();
+       kivi.SalesPurchase.show_print_dialog();
+       kivi.SalesPurchase.print_record();
 [% ELSIF resubmit %]
-       $('#action_print').click();
+       kivi.SalesPurchase.show_print_dialog();
+       kivi.SalesPurchase.print_record();
 [% ELSIF creditwarning != '' %]
        alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
 [% ELSE %]
