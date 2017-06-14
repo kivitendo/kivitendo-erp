@@ -9,9 +9,8 @@
 
 #frame-header {
   background-color: #d0cfc9;
-  text-align: center;
+  text-align: left;
   margin: 0;
-  padding: 0;
   color: black;
   border: 0;
   overflow: hidden;
@@ -30,6 +29,7 @@
 
 #frame-header .frame-header-left {
   float: left;
+  margin-right: 10px;
 }
 #frame-header .frame-header-right {
   float: right;
@@ -46,12 +46,10 @@
 }
 
 #frame-header .frame-header-right {
-  margin-top: 3px;
+  vertical-align: middle;
 }
 
 #frame-header #ajax-spinner {
-  margin-top: 2px;
-  margin-right: 10px;
   display: none;
   width: 16px;
   height: 16px;
@@ -61,4 +59,5 @@
 
 #frame-header input {
   font-size: 100%;
+  margin-top: 1px;
 }
