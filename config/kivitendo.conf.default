@@ -102,6 +102,12 @@ memberfile = users/members
 # if set the export to geierlein is enabled
 # geierlein_path = geierlein
 
+#
+# document path for FileSystem FileManagement:
+#  (must be reachable read/write but not executable from webserver)
+# document_path = /var/local/kivi_documents
+#
+
 [mail_delivery]
 # Delivery method can be 'sendmail' or 'smtp'. For 'method = sendmail' the
 # parameter 'mail_delivery.sendmail' is used as the executable to call. If

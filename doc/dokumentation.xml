@@ -6530,7 +6530,7 @@ Beschreibung: &lt;%description%&gt;
           </mediaobject>
         </screenshot>
         <para>Die einzelnen Backends sind einzeln einschaltbar. Spezifische Backend-Konfigurierungen sind hier
-        noch ergänzbar. Für das Backend Dateisystem ist das Wurzelverzeichnis für den Mandanten einzugeben.</para>
+        noch ergänzbar.</para>
         </sect4>
           <sect4>
             <title>Reiter "Allgemeine Dokumentenanhänge"</title>
@@ -6569,7 +6569,17 @@ Beschreibung: &lt;%description%&gt;
           <para>Es ist daran gedacht, statt dem default Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen,
           dies wird nach Bedarf implementiert.</para>
         </sect3>
-      </sect2>
+        <sect3 id="file_management.kiviconfig" xreflabel="kivitendo-Konfigurationsdatei">
+          <title>kivitendo-Konfigurationsdatei</title>
+          <para>Dort ist im Abschnitt [paths] der relative oder absolute Pfad zum Dokumentenwurzelverzeichnis einzutragen.
+          Dieser muss für den Webserver schreib- und lesbar sein, jedoch nicht ausführbar.</para>
+          <programlisting>
+[paths]
+document_path = /var/local/kivi_documents
+          </programlisting>
+          <para>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch ein Unterverzeichnis mit der ID des Mandanten angelegt</para>
+        </sect3>
+     </sect2>
     </sect1>
   </chapter>
 

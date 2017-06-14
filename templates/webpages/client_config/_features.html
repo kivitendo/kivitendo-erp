@@ -76,11 +76,6 @@
    <td>[% LxERP.t8('Use File Storage backend') %]</td>
   </tr>
   <tr>
-   <td align="right">[% LxERP.t8('Root path for file storage') %]</td>
-   <td>[% L.input_tag('defaults.doc_files_rootpath',SELF.defaults.doc_files_rootpath, style=style, onchange="verifyRootPath(this);") %]</td>
-   <td>[% LxERP.t8('This is the root directory for the File storage backend, must be writable for webserver. If you have more than one client you need another direcctory. All other directories must be created by hand and reachable from the webserver') %]</td>
-  </tr>
-  <tr>
    <td align="right">[% LxERP.t8('WebDAV') %]</td>
    <td>[% L.yes_no_tag('defaults.doc_webdav', SELF.defaults.doc_webdav) %]</td>
    <td>[% LxERP.t8('Use WebDAV Storage backend') %]</td>

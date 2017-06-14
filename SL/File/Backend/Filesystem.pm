@@ -85,7 +85,7 @@ sub get_mtime {
   die "unknown version" if $params{version} &&
                           ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
-  die "no file found in backend" if !-f $path;
+  die "no file found in backend or configuration to filesystem is wrong" if !-f $path;
   my @st = stat($path);
   my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
   $main::lxdebug->message(LXDebug->DEBUG2(), "dt=" .$dt);
@@ -109,9 +109,9 @@ sub get_content {
 }
 
 sub enabled {
-  return 0 unless $::instance_conf->get_doc_files || $::instance_conf->get_doc_files_rootpath;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "root path=" . $::instance_conf->get_doc_files_rootpath . " isdir=" .( -d $::instance_conf->get_doc_files_rootpath?"YES":"NO"));
-  return 0 unless -d $::instance_conf->get_doc_files_rootpath;
+  return 0 unless $::instance_conf->get_doc_files;
+  return 0 unless $::lx_office_conf{paths}->{document_path};
+  return 0 unless -d $::lx_office_conf{paths}->{document_path};
   return 1;
 }
 
@@ -123,12 +123,12 @@ sub enabled {
 sub _filesystem_path {
   my ($self, $dbfile, $version) = @_;
 
-  die "No files backend enabled" unless $::instance_conf->get_doc_files || $::instance_conf->get_doc_files_rootpath;
+  die "No files backend enabled" unless $::instance_conf->get_doc_files || $::lx_office_conf{paths}->{document_path};
 
   # use filesystem with depth 3
   $version    = $dbfile->backend_data if !$version || $version < 1 || $version > $dbfile->backend_data;
   my $iddir   = sprintf("%04d", $dbfile->id % 1000);
-  my $path    = File::Spec->catdir($::instance_conf->get_doc_files_rootpath, $iddir, $dbfile->id);
+  my $path    = File::Spec->catdir($::lx_office_conf{paths}->{document_path}, $::auth->client->{id}, $iddir, $dbfile->id);
   $main::lxdebug->message(LXDebug->DEBUG2(), "file path=" .$path." id=" .$dbfile->id." version=".$version." basename=".$dbfile->id . '_' . $version);
   if (!-d $path) {
     File::Path::make_path($path, { chmod => 0770 });
