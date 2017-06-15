@@ -15,8 +15,8 @@
   </tr>
   <tr>
    <td align="right">[% "Deleted" | $T8 %]:</td>
-   <td> [% L.radio_button_tag("SELF.employee.deleted", value=1, checked=SELF.employee.deleted, label=LxERP.t8("Yes")) %]
-    [% L.radio_button_tag("SELF.employee.deleted", value=0, checked=!SELF.employee.deleted, label=LxERP.t8("No")) %]
+   <td> [% L.radio_button_tag("employee.deleted", value=1, checked=SELF.employee.deleted, label=LxERP.t8("Yes")) %]
+    [% L.radio_button_tag("employee.deleted", value=0, checked=!SELF.employee.deleted, label=LxERP.t8("No")) %]
    </td>
   </tr>
  </table>
