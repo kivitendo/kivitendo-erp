@@ -212,7 +212,7 @@ sub check_pdfinfo {
     print_line($line, $ver_string, 'green');
   } else {
     print_line($line, 'not installed','red');
-    my %modinfo = ( name => 'pdfinfo' );
+    my %modinfo = ( debian => 'poppler-utils' );
     push @missing_modules, \%modinfo;
 
   }
