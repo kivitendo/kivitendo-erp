@@ -344,7 +344,7 @@ sub handle_request {
 
   $::locale   = undef;
   $::form     = undef;
-  $::myconfig = ();
+  %::myconfig = ();
   $::request  = undef;
 
   SL::DBConnect::Cache->reset_all;
