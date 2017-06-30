@@ -823,8 +823,9 @@ sub post {
       $form->{what_done} = "invoice";
       $form->save_history;
     }
-    # /saving the history
-    # Dieser Text wird niemals ausgegeben: Probleme beim redirect?
+    # no restore_from_session_id needed. we like to have a newly generated
+    # list of invoices for bank transactions
+    print $form->redirect_header($form->{callback}) if ($form->{callback} =~ /BankTransaction/);
     $form->redirect($locale->text('AP transaction posted.')) unless $inline;
   } else {
     $form->error($locale->text('Cannot post transaction!'));
