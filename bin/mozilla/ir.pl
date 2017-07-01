@@ -274,6 +274,15 @@ sub setup_ir_action_bar {
       'separator',
 
       combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Use As New'),
+          submit   => [ '#form', { action => "use_as_new" } ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+        ],
+       ], # end of combobox "Workflow"
+
+      combobox => [
         action => [ t8('more') ],
         action => [
           t8('History'),
