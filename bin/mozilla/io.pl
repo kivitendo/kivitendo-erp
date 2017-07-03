@@ -898,7 +898,7 @@ sub order {
   $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
 
-  delete $form->{$_} foreach (qw(printed emailed queued));
+  delete $form->{$_} foreach (qw(id printed emailed queued));
 
   # When creating a new sales order from a saved sales invoice, reset id,
   # ordnumber, transdate and deliverydate as we are creating a new order. This
@@ -979,7 +979,7 @@ sub quotation {
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
-  delete $form->{$_} foreach (qw(printed emailed queued));
+  delete $form->{$_} foreach (qw(id printed emailed queued));
 
   my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {
