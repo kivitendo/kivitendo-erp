@@ -9,6 +9,7 @@ use SL::DBUtils qw(selectall_hashref_query selectall_as_map);
 use List::Util qw(min);
 use List::MoreUtils qw(any all);
 use List::UtilsBy qw(partition_by);
+use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar'                => [ qw(objects objects_or_ids shipped_qty ) ],
@@ -85,6 +86,14 @@ my $oe_do_record_links = <<'';
   WHERE from_id IN (%s)
     AND from_table = 'oe'
     AND to_table = 'delivery_orders'
+
+my @known_item_identity_fields = qw(parts_id description reqdate serialnumber);
+my %item_identity_fields = (
+  parts_id     => t8('Part'),
+  description  => t8('Description'),
+  reqdate      => t8('Reqdate'),
+  serialnumber => t8('Serial Number'),
+);
 
 sub calculate {
   my ($self, $data) = @_;
@@ -244,6 +253,10 @@ sub normalize_input {
   $self->shipped_qty({});
 }
 
+sub available_item_identity_fields {
+  map { [ $_ => $item_identity_fields{$_} ] } @known_item_identity_fields;
+}
+
 sub init_oe_ids {
   my ($self) = @_;
 
@@ -268,9 +281,9 @@ sub init_delivered {
   $d;
 }
 
-sub init_require_stock_out { 0 }
-sub init_item_identity_fields { [ qw(parts_id description reqdate serialnumber) ] }
-sub init_fill_up { 1 }
+sub init_require_stock_out    { $::instance_conf->get_shipped_qty_require_stock_out }
+sub init_item_identity_fields { [ grep $item_identity_fields{$_}, @{ $::instance_conf->get_shipped_qty_item_identity_fields } ] }
+sub init_fill_up              { $::instance_conf->get_shipped_qty_fill_up  }
 
 1;
 
