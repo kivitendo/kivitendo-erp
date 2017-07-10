@@ -59,8 +59,6 @@ require "bin/mozilla/reportgenerator.pl";
 
 use strict;
 
-our %TMPL_VAR;
-
 1;
 
 # end of main
@@ -477,12 +475,12 @@ sub form_header {
 
   # Container for template variables. Unfortunately this has to be
   # visible in form_footer too, so package local level and not my here.
-  %TMPL_VAR = ();
+  my $TMPL_VAR = $::request->cache('tmpl_var', {});
   if ($form->{id}) {
-    $TMPL_VAR{oe_obj} = SL::DB::Order->new(id => $form->{id})->load;
+    $TMPL_VAR->{oe_obj} = SL::DB::Order->new(id => $form->{id})->load;
   }
-  $TMPL_VAR{vc_obj} = SL::DB::Customer->new(id => $form->{customer_id})->load if $form->{customer_id};
-  $TMPL_VAR{vc_obj} = SL::DB::Vendor->new(id => $form->{vendor_id})->load     if $form->{vendor_id};
+  $TMPL_VAR->{vc_obj} = SL::DB::Customer->new(id => $form->{customer_id})->load if $form->{customer_id};
+  $TMPL_VAR->{vc_obj} = SL::DB::Vendor->new(id => $form->{vendor_id})->load     if $form->{vendor_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -498,7 +496,7 @@ sub form_header {
                         $form->{"delivered"} ? "checked" : "",  $locale->text('Delivery Order(s) for full qty created') if $form->{"type"} =~ /_order$/;
   push @tmp, sprintf qq|<input name="closed" id="closed" type="checkbox" class="checkbox" value="1" %s><label for="closed">%s</label>|,
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
-  $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
+  $TMPL_VAR->{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 
@@ -526,17 +524,17 @@ sub form_header {
       @old_ids_cond,
     ]);
 
-  $TMPL_VAR{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
-  $form->{ALL_PROJECTS}            = $TMPL_VAR{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
+  $TMPL_VAR->{ALL_PROJECTS}          = SL::DB::Manager::Project->get_all_sorted(query => \@conditions);
+  $form->{ALL_PROJECTS}            = $TMPL_VAR->{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
 
   # label subs
   my $employee_list_query_gen      = sub { $::form->{$_[0]} ? [ or => [ id => $::form->{$_[0]}, deleted => 0 ] ] : [ deleted => 0 ] };
-  $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => $employee_list_query_gen->('employee_id'));
-  $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => $employee_list_query_gen->('salesman_id'));
-  $TMPL_VAR{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
+  $TMPL_VAR->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => $employee_list_query_gen->('employee_id'));
+  $TMPL_VAR->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all_sorted(query => $employee_list_query_gen->('salesman_id'));
+  $TMPL_VAR->{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
     or => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
-  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
+  $TMPL_VAR->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
       and      => [
@@ -545,20 +543,20 @@ sub form_header {
       ]
     ]
   ]);
-  $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
+  $TMPL_VAR->{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
 
   # currencies and exchangerate
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
-  $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
+  $TMPL_VAR->{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
   # credit remaining
   my $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
-  $TMPL_VAR{is_credit_remaining_negativ} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
+  $TMPL_VAR->{is_credit_remaining_negativ} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
   # business
-  $TMPL_VAR{business_label} = ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type'));
+  $TMPL_VAR->{business_label} = ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type'));
 
   push @custom_hiddens, "customer_pricegroup_id" if $form->{vc} eq 'customer';
 
@@ -566,14 +564,14 @@ sub form_header {
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
   $follow_up_vc                   =~ s/--\d*\s*$//;
-  $TMPL_VAR{follow_up_trans_info} =  ($form->{type} =~ /_quotation$/ ? $form->{quonumber} : $form->{ordnumber}) . " ($follow_up_vc)";
+  $TMPL_VAR->{follow_up_trans_info} =  ($form->{type} =~ /_quotation$/ ? $form->{quonumber} : $form->{ordnumber}) . " ($follow_up_vc)";
 
   if ($form->{id}) {
     my $follow_ups = FU->follow_ups('trans_id' => $form->{id}, 'not_done' => 1);
 
     if (scalar @{ $follow_ups }) {
-      $TMPL_VAR{num_follow_ups}     = scalar                    @{ $follow_ups };
-      $TMPL_VAR{num_due_follow_ups} = sum map { $_->{due} * 1 } @{ $follow_ups };
+      $TMPL_VAR->{num_follow_ups}     = scalar                    @{ $follow_ups };
+      $TMPL_VAR->{num_due_follow_ups} = sum map { $_->{due} * 1 } @{ $follow_ups };
     }
   }
 
@@ -589,8 +587,8 @@ sub form_header {
   }
 
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
-  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
-  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
+  $TMPL_VAR->{dateformat}          = $myconfig{dateformat};
+  $TMPL_VAR->{numberformat}        = $myconfig{numberformat};
 
   if ($form->{type} eq 'sales_order') {
     if (!$form->{periodic_invoices_config}) {
@@ -624,7 +622,7 @@ sub form_header {
 
   push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
 
-  $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
+  $TMPL_VAR->{HIDDENS} = [ map { name => $_, value => $form->{$_} },
      qw(id type vc proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
         max_dunning_level dunning_amount
@@ -634,18 +632,18 @@ sub form_header {
         @custom_hiddens,
         map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
 
-  %TMPL_VAR = (
-     %TMPL_VAR,
-     %type_check_vars,
-  );
+  $TMPL_VAR->{$_} = $type_check_vars{$_} for keys %type_check_vars;
 
-  $TMPL_VAR{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+  $TMPL_VAR->{ORDER_PROBABILITIES} = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
   if ($type_check_vars{is_sales} && $::instance_conf->get_transport_cost_reminder_article_number_id) {
-    $TMPL_VAR{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
+    $TMPL_VAR->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
   }
 
-  print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
+  print $form->parse_html_template("oe/form_header", {
+    %$TMPL_VAR,
+    %type_check_vars,
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -663,8 +661,10 @@ sub form_footer {
 
   my $introws = max 5, $form->numtextrows($form->{intnotes}, 35, 8);
 
-  $TMPL_VAR{notes}    = qq|<textarea name="notes" class="texteditor" wrap="soft" style="width: 350px; height: 150px">| . H($form->{notes}) . qq|</textarea>|;
-  $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
+  my $TMPL_VAR = $::request->cache('tmpl_var', {});
+
+  $TMPL_VAR->{notes}    = qq|<textarea name="notes" class="texteditor" wrap="soft" style="width: 350px; height: 150px">| . H($form->{notes}) . qq|</textarea>|;
+  $TMPL_VAR->{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
   if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
     my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
@@ -678,7 +678,7 @@ sub form_footer {
         $form->{invtotal} += $form->{"${item}_total"} = $form->round_amount( $form->{"${item}_base"} * $form->{"${item}_rate"}, 2);
         $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
 
-        $TMPL_VAR{tax} .= qq|
+        $TMPL_VAR->{tax} .= qq|
               <tr>
                 <th align=right>$form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
                 <td align=right>$form->{"${item}_total"}</td>
@@ -693,7 +693,7 @@ sub form_footer {
         $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
         $form->{"${item}_netto"} = $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
 
-        $TMPL_VAR{tax} .= qq|
+        $TMPL_VAR->{tax} .= qq|
               <tr>
                 <th align=right>Enthaltene $form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
                 <td align=right>$form->{"${item}_total"}</td>
@@ -714,12 +714,12 @@ sub form_footer {
   );
   $form->{oldinvtotal} = $form->{invtotal};
 
-  $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $TMPL_VAR->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   my $print_options_html = setup_sales_purchase_print_options();
 
   print $form->parse_html_template("oe/form_footer", {
-     %TMPL_VAR,
+     %$TMPL_VAR,
      print_options   => $print_options_html,
      is_sales        => scalar ($form->{type} =~ /^sales_/),              # these vars are exported, so that the template
      is_order        => scalar ($form->{type} =~ /_order$/),              # may determine what to show
