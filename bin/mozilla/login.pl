@@ -38,7 +38,6 @@ require "bin/mozilla/todo.pl";
 
 use strict;
 
-our $cgi;
 our $form;
 our $auth;
 
