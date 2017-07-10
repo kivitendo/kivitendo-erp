@@ -560,13 +560,15 @@ sub item_selected {
   my $row = $curr_row;
 
   if ($myconfig{item_multiselect}) {
-    foreach (grep(/^select_qty_/, keys(%{ $form }))) {
+    my %multi_items;
+    for (keys %$form) {
       next unless $form->{$_};
-      $_ =~ /^select_qty_(\d+)/;
-      $form->{"id_${row}"}  = $1;
-      $form->{"qty_${row}"} = $form->{$_};
+      next unless /^select_qty_(\d+)/;
+      $multi_items{"id_${row}"}  = $1;
+      $multi_items{"qty_${row}"} = $form->{$_};
       $row++;
     }
+    $form->{$_} = $multi_items{$_} for keys %multi_items;
   } else {
     $form->{"id_${row}"} = delete($form->{select_item_id}) || croak 'Missing item selection ID';
     $row++;
