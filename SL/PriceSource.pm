@@ -154,7 +154,7 @@ from messing it up. By default this means the price will be read-only.
 Implementations can choose to make prices editable, but even then deviations
 from the calculatied price will be marked.
 
-A that is not set from a source will not have any of this.
+A price that is not set from a source will not have any of this.
 
 =item 3.
 
@@ -176,12 +176,12 @@ information about rising or falling prices.
 =head1 STRUCTURE
 
 Price sources are managed by this package (L<SL::PriceSource>), and all
-external access should be by using it's interface.
+external access should be by using its interface.
 
 Each source is an instance of L<SL::PriceSource::Base> and the available
 implementations are recorded in L<SL::PriceSource::ALL>. Prices and discounts
 returned by interface methods are instances of L<SL::PriceSource::Price> and
-L<SL::PriceSource::Discout>.
+L<SL::PriceSource::Discount>.
 
 Returned prices and discounts should be checked for entries in C<invalid> and
 C<missing>, see documentation in their classes.
@@ -213,21 +213,23 @@ Returns all available discounts.
 
 =item C<best_price>
 
-Attempts to get the best available price. returns L<empty_price> if no price is found.
+Attempts to get the best available price. returns L<empty_price> if no price is
+found.
 
 =item C<best_discount>
 
-Attempts to get the best available discount. returns L<empty_discount> if no discount is found.
+Attempts to get the best available discount. returns L<empty_discount> if no
+discount is found.
 
 =item C<empty_price>
 
-A special empty price, that does not change the previously entered price, and
+A special empty price that does not change the previously entered price and
 opens the price field to manual changes.
 
 =item C<empty_discount>
 
-A special empty discount, that does not change the previously entered discount, and
-opens the discount field to manual changes.
+A special empty discount that does not change the previously entered discount
+and opens the discount field to manual changes.
 
 =back
 
@@ -305,10 +307,22 @@ Specifically when changing from sales to purchase records prices don't make
 sense anymore. The guarantees should be updated to reflect this and
 transposition guidelines should be documented.
 
+The previously mentioned linked prices can emulated by allowing price sources
+to set a new price when changing to a new record in the workflow. The decision
+about whether a price is eligable to be set can be suggested by the price
+source implementation but is ultimately up to the surrounding framework, which
+can make this configurable.
+
 =item *
 
 Prices were originally planned as a context element rather than a modal popup.
 It would be great to have this now with better framework.
+
+=item *
+
+Large records (30 positions or more) in combination with complicated price
+sources run into n+1 problems. There should be an extra hook that allows price
+source implementations to make bulk calculations before the actual position loop.
 
 =back
 
