@@ -697,34 +697,35 @@ sub item_selected {
 }
 
 sub new_item {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
   _check_io_auth();
 
-  my $price_key = ($form->{type} =~ m/request_quotation|purchase_order/) || ($form->{script} eq 'ir.pl') ? 'lastcost' : 'sellprice';
-
-  # change callback
-  $form->{old_callback} = $form->escape($form->{callback}, 1);
-  $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
-
-  # save all form variables except action in the session and keep the key in the previousform variable
-  my $previousform = $::auth->save_form_in_session(skip_keys => [ qw(action) ]);
+  my $price = $::form->{vc} eq 'customer' ? 'sellprice_as_number' : 'lastcost_as_number';
+  my $previousform = $::auth->save_form_in_session;
+  my $callback     = build_std_url("action=return_from_new_item", "previousform=$previousform");
+  my $i            = $::form->{rowcount};
 
   my @HIDDENS;
-  push @HIDDENS,      { 'name' => 'previousform', 'value' => $previousform };
-  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
-  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit);
-  push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
-  push @HIDDENS,      { 'name' => $price_key,     'value' => $form->parse_amount(\%myconfig, $form->{"sellprice_$form->{rowcount}"}) };
-  push @HIDDENS,      { 'name' => 'notes',        'value' => $form->{"longdescription_$form->{rowcount}"} };
+  push @HIDDENS,      { 'name' => 'callback',     'value' => $callback };
+  push @HIDDENS, map +{ 'name' => $_,             'value' => $::form->{$_} },        qw(rowcount vc);
+  push @HIDDENS, map +{ 'name' => "part.$_",      'value' => $::form->{"${_}_$i"} }, qw(partnumber description unit price_factor_id);
+  push @HIDDENS,      { 'name' => "part.$price",  'value' => $::form->{"sellprice_$i"} };
+  push @HIDDENS,      { 'name' => "part.notes",   'value' => $::form->{"longdescription_$i"} };
 
-  $form->header();
-  print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
+  $::form->header;
+  print $::form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
+}
 
-  $main::lxdebug->leave_sub();
+sub return_from_new_item {
+  _check_io_auth();
+
+  my $part = SL::DB::Manager::Part->find_by(id => delete $::form->{new_parts_id}) or die 'can not find part that was just saved!';
+
+  $::auth->restore_form_from_session(delete $::form->{previousform}, form => $::form);
+
+  $::form->{"id_$::form->{rowcount}"} = $part->id;
+
+  my $url = build_std_url("script=$::form->{script}", "RESTORE_FORM_FROM_SESSION_ID=" . $::auth->save_form_in_session);
+  print $::request->{cgi}->redirect($url);
 }
 
 sub check_form {

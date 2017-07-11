@@ -16,6 +16,7 @@ use DateTime;
 use SL::DB::History;
 use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
 use SL::CVar;
+use SL::MoreCommon qw(save_form);
 use Carp;
 
 use Rose::Object::MakeMethods::Generic (
@@ -68,6 +69,15 @@ sub action_add_assortment {
   $self->part( SL::DB::Part->new_assortment );
   $self->add;
 };
+
+sub action_add_from_record {
+  my ($self) = @_;
+
+  check_has_valid_part_type($::form->{part}{part_type});
+
+  $self->parse_form;
+  $self->add;
+}
 
 sub action_add {
   my ($self) = @_;
@@ -139,7 +149,8 @@ sub action_save {
   flash_later('info', $is_new ? t8('The item has been created.') . " " . $self->part->displayable_name : t8('The item has been saved.'));
 
   if ( $::form->{callback} ) {
-    $self->redirect_to($::form->unescape($::form->{callback}));
+    $self->redirect_to($::form->unescape($::form->{callback}) . '&new_parts_id=' . $self->part->id);
+
   } else {
     # default behaviour after save: reload item, this also resets last_modification!
     $self->redirect_to(controller => 'Part', action => 'edit', 'part.id' => $self->part->id);
