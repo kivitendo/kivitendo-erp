@@ -1983,9 +1983,16 @@ sub _get_files_for_email_dialog {
 }
 
 sub show_sales_purchase_email_dialog {
-  my $contact    = $::form->{cp_id} ? SL::DB::Contact->load_cached($::form->{cp_id}) : undef;
+  my $email = '';
+  if ($::form->{cp_id}) {
+    $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
+  } elsif ($::form->{vc} && $::form->{vc_id}) {
+    $email = SL::DB::Customer->load_cached($::form->{vc_id})->email if 'customer' eq $::form->{vc};
+    $email = SL::DB::Vendor  ->load_cached($::form->{vc_id})->email if 'vendor'   eq $::form->{vc};
+  }
+
   my $email_form = {
-    to                  => $contact ? $contact->cp_email : '',
+    to                  => $email,
     subject             => $::form->generate_email_subject,
     attachment_filename => $::form->generate_attachment_filename,
   };
