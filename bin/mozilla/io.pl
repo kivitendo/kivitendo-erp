@@ -1954,10 +1954,12 @@ sub _get_files_for_email_dialog {
 
   return %files if !$::instance_conf->get_doc_storage;
 
-  $files{versions} = [ SL::File->get_all_versions(object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'document') ];
-  $files{files}    = [ SL::File->get_all(         object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'attachment') ];
-  $files{vc_files} = [ SL::File->get_all(         object_id => $::form->{vc_id}, object_type => $::form->{vc},   file_type => 'attachment') ]
-    if $::form->{vc} && $::form->{"vc_id"};
+  if ($::form->{id}) {
+    $files{versions} = [ SL::File->get_all_versions(object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'document') ];
+    $files{files}    = [ SL::File->get_all(         object_id => $::form->{id},    object_type => $::form->{type}, file_type => 'attachment') ];
+    $files{vc_files} = [ SL::File->get_all(         object_id => $::form->{vc_id}, object_type => $::form->{vc},   file_type => 'attachment') ]
+      if $::form->{vc} && $::form->{"vc_id"};
+  }
 
   my @parts =
     uniq_by { $_->{id} }
