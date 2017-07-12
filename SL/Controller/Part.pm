@@ -26,6 +26,7 @@ use Rose::Object::MakeMethods::Generic (
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
+                                  parts_classification_filter
                                   all_languages all_units all_price_factors) ],
   'scalar'                => [ qw(warehouse bin) ],
 );
@@ -74,6 +75,9 @@ sub action_add_from_record {
   my ($self) = @_;
 
   check_has_valid_part_type($::form->{part}{part_type});
+
+  die 'parts_classification_type must be "sales" or "purchases"'
+    unless $::form->{parts_classification_type} =~ m/^(sales|purchases)$/;
 
   $self->parse_form;
   $self->add;
@@ -966,6 +970,15 @@ sub init_multi_items_models {
       partnumber  => t8('Partnumber'),
       description => t8('Description')}
   );
+}
+
+sub init_parts_classification_filter {
+  return [] unless $::form->{parts_classification_type};
+
+  return [ used_for_sale     => 't' ] if $::form->{parts_classification_type} eq 'sales';
+  return [ used_for_purchase => 't' ] if $::form->{parts_classification_type} eq 'purchases';
+
+  die "no query rules for parts_classification_type " . $::form->{parts_classification_type};
 }
 
 # simple checks to run on $::form before saving

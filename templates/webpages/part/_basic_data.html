@@ -23,7 +23,7 @@
              </tr>
              <tr>
               <th align="right">[% 'Part Classification' | $T8 %]</th>
-              <td>[% P.select_classification('part.classification_id', default => SELF.part.classification_id) %]</td>
+              <td>[% P.select_classification('part.classification_id', default => SELF.part.classification_id, type => SELF.parts_classification_filter ) %]</td>
              </tr>
              <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>

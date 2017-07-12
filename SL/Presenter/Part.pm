@@ -104,9 +104,13 @@ sub separate_abbreviation {
 #
 sub select_classification {
   my ($self, $name, %attributes) = @_;
+
   $attributes{value_key} = 'id';
   $attributes{title_key} = 'description';
-  my $collection = SL::DB::Manager::PartClassification->get_all_sorted();
+
+  my $classification_type_filter = delete $attributes{type} // [];
+
+  my $collection = SL::DB::Manager::PartClassification->get_all_sorted( where => $classification_type_filter );
   $_->description($::locale->text($_->description)) for @{ $collection };
   return $self->select_tag( $name, $collection, %attributes );
 }

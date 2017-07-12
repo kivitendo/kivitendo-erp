@@ -704,12 +704,16 @@ sub new_item {
   my $callback     = build_std_url("action=return_from_new_item", "previousform=$previousform");
   my $i            = $::form->{rowcount};
 
+  my $parts_classification_type = $::form->{vc} eq 'customer' ? 'sales' : 'purchases';
+
   my @HIDDENS;
   push @HIDDENS,      { 'name' => 'callback',     'value' => $callback };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $::form->{$_} },        qw(rowcount vc);
   push @HIDDENS, map +{ 'name' => "part.$_",      'value' => $::form->{"${_}_$i"} }, qw(partnumber description unit price_factor_id);
   push @HIDDENS,      { 'name' => "part.$price",  'value' => $::form->{"sellprice_$i"} };
   push @HIDDENS,      { 'name' => "part.notes",   'value' => $::form->{"longdescription_$i"} };
+
+  push @HIDDENS,      { 'name' => "parts_classification_type", 'value' => $parts_classification_type };
 
   $::form->header;
   print $::form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
