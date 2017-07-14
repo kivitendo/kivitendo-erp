@@ -1299,6 +1299,17 @@ parameter part_type as an action. Example:
 
   controller.pl?action=Part/add&part_type=service
 
+=item C<action_add_from_record>
+
+When adding new items to records they can be created on the fly if the entered
+partnumber or description doesn't exist yet. After being asked what part type
+the new item should have the user is redirected to the correct edit page.
+
+Depending on whether the item was added from a sales or a purchase record, only
+the relevant part classifications should be selectable for new item, so this
+parameter is passed on via a hidden parts_classification_type in the new_item
+template.
+
 =item C<action_save>
 
 Saves the current part and then reloads the edit page for the part.
