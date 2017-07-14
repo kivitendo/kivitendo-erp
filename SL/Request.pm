@@ -42,6 +42,10 @@ sub init_type {
   return 'html';
 }
 
+sub is_https {
+  $ENV{HTTPS} && 'on' eq lc $ENV{HTTPS};
+}
+
 sub cache {
   my ($self, $topic, $default) = @_;
 

@@ -376,7 +376,7 @@ sub _get_request_uri {
   return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
   return URI->new                                  if !$ENV{REQUEST_URI}; # for testing
 
-  my $scheme =  $ENV{HTTPS} && (lc $ENV{HTTPS} eq 'on') ? 'https' : 'http';
+  my $scheme =  $::request->is_https ? 'https' : 'http';
   my $port   =  $ENV{SERVER_PORT};
   $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
                       || (($scheme eq 'https') && ($port == 443));
@@ -426,7 +426,7 @@ sub create_http_response {
       $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
                                      '-value'  => $session_cookie_value,
                                      '-path'   => $uri->path,
-                                     '-secure' => $ENV{HTTPS});
+                                     '-secure' => $::request->is_https);
     }
   }
 
