@@ -326,7 +326,11 @@ sub _get_backend {
     die $::locale->text('backend "#1" not enabled',$backend_name) unless $obj->enabled;
     1;
   } or do {
-    die $::locale->text('backend "#1" not found',$backend_name);
+    if ( $obj ) {
+      die $@;
+    } else {
+      die $::locale->text('backend "#1" not found',$backend_name);
+    }
   };
   return $obj;
 }
