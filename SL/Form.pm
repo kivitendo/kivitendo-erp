@@ -426,7 +426,7 @@ sub create_http_response {
       $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
                                      '-value'  => $session_cookie_value,
                                      '-path'   => $uri->path,
-                                     '-secure' => $ENV{HTTPS});
+                                     '-secure' => ($ENV{HTTPS} and $ENV{HTTPS} !~ /off/i) );
     }
   }
 
