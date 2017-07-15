@@ -197,6 +197,35 @@ Administrative Änderungen
 
 Bugfixes:
 
+- Bugfix #268 "Schnellsuchfelder und ""Benutzer-Mandant-Abmelden""-Header wird abgeschnitten, wenn nicht alles auf einer Zeile Platz hat"
+- Bugfix #262 department in oe.pl (Angebot/Auftrag) wird nicht mehr an die Druckvorlage übergeben
+- Bugfix #258 Falscher Bearbeiter (und beim Verkauf Verkäufer) beim erstellen von neuen Verkaufs- oder Einkaufsbelegen
+- Bugfix #257 Darstellungsfehler bei Mail von Taskserverjob FailedBackgroundJobsReport
+- Bugfix #256 "Taskserver: Job bearbeiten ? ""Speichern und Ausführen"" erstellt zusätzlichen Job; diverse kleinere Probleme beim Tasklserver"
+- Bugfix #255 "Beim Erfassen von Erzeugnissen fehlt beim Hinzufügen von mehreren Artikeln die Artikelbeschreibung, der Button ""erfassen"" erzeugt eine Fehlermeldung, Eingabe von Untereinheiten wird ignoriert"
+- Bugfix #252 Hochladen von Dateianhängen gibt Fehlermeldung
+- Bugfix #250 Artikel, Dienstleistungen usw. werden nicht mehr angelegt wenn die Nummer schon in einem anderen Nummernkreis vergeben ist (das ist neu)
+- Bugfix #249 "Drucken von Rechnungen aus Liste ""Rechnungen, Gutschriften & Debitorenbuchungen"" geht nicht mit dem Dateimanagement"
+- Bugfix #245 Workflow Verkaufsrechnung -> Verkaufsauftrag fehlende Rechte
+- Bugfix #243 Kontoauszug verbuchen: Nach dem Buchen in Belegen (Vorlagen) wird beim Rücksprung die aktuelle Ansicht nicht erneuert
+- Bugfix #242 Kontoauszug verbuchen bei negativer Verkaufsrechnung dreht das Vorzeichen bei Zahlung um
+- Bugfix #238 PDFs werden nicht mehr bei wiederkehrenden Rechnung per E-Mail erzeugt/angehangen
+- Bugfix #235 Neuerfassen von Ware. Fehlermeldung, wenn man zuerst den Lieferanten eingibt
+- Bugfix #218 Benachrichtigung automatisch erstellter Rechnungen fehlerhaft
+- Bugfix #211 Sortieren und speichern commit #26dfef7da64e9712db7
+- Bugfix #208 Taskserver erzeugt immer neue session Einträge
+- Bugfix #207 Projekt in Kreditorenbuchung und Debitorenbuchung
+- Bugfix #204 Automatisches Auslagern beim Rechnung schreiben funktioniert mit Commit 8c1d5d nicht mehr
+- Bugfix #200 Rabatt mit Nachkommastellen wird abgeschnitten, beim Workflow Lieferschein -> Rechnung
+- Bugfix #194 Fehler »load_draft not defined in locale/de/all« beim Entwurfladen aus Bankauszug verbuchen
+- Bugfix #192 »Kontoauszug verbuchen« kommt mit multipler Zuweisung nicht zurecht
+- Bugfix #191 »Kontoauszug verbuchen« nutzt keine Datenbanktransaktionen
+- Bugfix #181 Storno-Rechnung als neu verwenden
+- Bugfix #180 Hänger / Verklemmung bei Benutzung von Rose und standard_dbh
+- Bugfix #164 Prüfung der Bücherkontrolle in Zahlungseingängen und Zahlungsausgängen fehlerhaft
+- Bugfix #156 Beim Erstellen einer Rechnung aus einem Lieferantenlieferschein gibt es bei manchen Lieferscheinen eine Fehlermeldung
+- Bugfix #99 Rabatt wird falsch geparsed/formatiert beim Workflow Auftrag->Angebot, Auftrag->Rechnung, Angebot->Rechnung
+
   - Pflichtenheftmodul: Es wurde eine Fehlermeldung angezeigt, wenn im
     rechten Teil des Fensters aktuell Textblöcke zu sehen sind,
     während Abschnitte oder Funktionsblöcke via Drag & Drop verschoben
