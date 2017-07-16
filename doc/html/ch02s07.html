@@ -8,7 +8,12 @@
       konfiguriert werden. Danach wird er für jeden Mandanten, für den er
       laufen soll, in der Adminsitrationsmaske eingeschaltet.</p><p>Beachten Sie, dass der Task-Server in den Boot-Vorgang Ihres
       Servers integriert werden muss, damit er automatisch gestartet wird.
-      Dies kann kivitendo nicht für Sie erledigen.</p><div class="sect2" title="2.7.1. Verfügbare und notwendige Konfigurationsoptionen"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-des-Task-Servers"></a>2.7.1. Verfügbare und notwendige Konfigurationsoptionen</h3></div></div></div><p>Die Konfiguration erfolgt über den Abschnitt
+      Dies kann kivitendo nicht für Sie erledigen.</p><p>Da der Taskserver als Perlscript läuft, wird Arbeitsspeicher,
+      der einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
+      solange der Taskserver läuft. Dies kann dazu führen, dass ein länger
+      laufender Taskserver mit der Zeit immer mehr Arbeitsspeicher für sich
+      beansprucht. Es ist deshalb sinnvoll, dass der Taskserver in regelmässigen
+      Abständen neu gestartet wird.</p><div class="sect2" title="2.7.1. Verfügbare und notwendige Konfigurationsoptionen"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-des-Task-Servers"></a>2.7.1. Verfügbare und notwendige Konfigurationsoptionen</h3></div></div></div><p>Die Konfiguration erfolgt über den Abschnitt
         <code class="literal">[task_server]</code> in der Datei
         <code class="filename">config/kivitendo.conf</code>. Die dort verfügbaren
         Optionen sind:</p><div class="variablelist"><dl><dt><span class="term">
@@ -34,22 +39,21 @@
         Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
         einzubinden. Da das bei neueren Linux-Distributionen aber nicht
         zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
-        anstelle eines symbolischen Links verwendet werden können.</p><div class="sect3" title="2.7.3.1. SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE, ältere Fedora)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1124"></a>2.7.3.1. SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE,
+        anstelle eines symbolischen Links verwendet werden können.</p><div class="sect3" title="2.7.3.1. SystemV-basierende Systeme (z.B. ältere Debian, ältere OpenSUSE, ältere Fedora)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1126"></a>2.7.3.1. SystemV-basierende Systeme (z.B. ältere Debian, ältere OpenSUSE,
           ältere Fedora)</h4></div></div></div><p>Kopieren Sie die Datei
           <code class="filename">scripts/boot/system-v/kivitendo-task-server</code>
           nach <code class="filename">/etc/init.d/kivitendo-task-server</code>. Passen
           Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <code class="literal">DAEMON=....</code>). Binden Sie das Script in den
           Boot-Prozess ein. Dies ist distributionsabhängig:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian-basierende Systeme:</p><pre class="programlisting">update-rc.d kivitendo-task-server defaults
-# Nur bei Debian Squeeze und neuer:
 insserv kivitendo-task-server</pre></li><li class="listitem"><p>Ältere OpenSUSE und ältere Fedora:</p><pre class="programlisting">chkconfig --add kivitendo-task-server</pre></li></ul></div><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden:</p><pre class="programlisting">/etc/init.d/kivitendo-task-server start</pre></div><div class="sect3" title="2.7.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1153"></a>2.7.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)</h4></div></div></div><p>Kopieren Sie die Datei
+          werden:</p><pre class="programlisting">/etc/init.d/kivitendo-task-server start</pre></div><div class="sect3" title="2.7.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1155"></a>2.7.3.2. Upstart-basierende Systeme (z.B. Ubuntu bis 14.04)</h4></div></div></div><p>Kopieren Sie die Datei
           <code class="filename">scripts/boot/upstart/kivitendo-task-server.conf</code>
           nach <code class="filename">/etc/init/kivitendo-task-server.conf</code>.
           Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <code class="literal">exec ....</code>).</p><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden:</p><pre class="programlisting">service kivitendo-task-server start</pre></div><div class="sect3" title="2.7.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere Fedora, neuere Ubuntu und Debians)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1171"></a>2.7.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere
-          Fedora, neuere Ubuntu und Debians)</h4></div></div></div><p>Kopieren Sie die Datei <code class="filename">scripts/boot/systemd/kivitendo-task-server.service</code> nach
+          werden:</p><pre class="programlisting">service kivitendo-task-server start</pre></div><div class="sect3" title="2.7.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere Fedora, neuere Ubuntu und neuere Debians)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e1173"></a>2.7.3.3. systemd-basierende Systeme (z.B. neure openSUSE, neuere
+          Fedora, neuere Ubuntu und neuere Debians)</h4></div></div></div><p>Kopieren Sie die Datei <code class="filename">scripts/boot/systemd/kivitendo-task-server.service</code> nach
           <code class="filename">/etc/systemd/system/</code>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeilen
           <code class="literal">ExecStart=....</code> und <code class="literal">ExecStop=...</code>).</p><p>Machen Sie anschließend das Script systemd bekannt, und binden Sie es in den Boot-Prozess ein. Dazu führen Sie die folgenden
           Befehl aus:</p><pre class="programlisting">systemctl daemon-reload

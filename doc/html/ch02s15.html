@@ -1,40 +1,72 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.15. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.0-beta: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s14.html" title="2.14. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR"><link rel="next" href="ch02s16.html" title="2.16. Verhalten des Bilanzberichts"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.15. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s14.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s16.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.15. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="config.skr04-update-3804"></a>2.15. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</h2></div></div></div><div class="sect2" title="2.15.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="config.skr04-update-3804.introduction"></a>2.15.1. Einführung</h3></div></div></div><p>Die Umsatzsteuerumstellung auf 19% für SKR04 für die
-        Steuerschlüssel "EU ohne USt-ID Nummer" ist erst 2010 erfolgt.
-        kivitendo beinhaltet ein Upgradeskript, das das Konto 3804 automatisch
-        erstellt und die Steuereinstellungen korrekt einstellt. Hat der
-        Benutzer aber schon selber das Konto 3804 angelegt, oder gab es schon
-        Buchungen im Zeitraum nach dem 01.01.2007 auf das Konto 3803, wird das
-        Upgradeskript vorsichtshalber nicht ausgeführt, da der Benutzer sich
-        vielleicht schon selbst geholfen hat und mit seinen Änderungen
-        zufrieden ist. Die korrekten Einstellungen kann man aber auch per Hand
-        ausführen. Nachfolgend werden die entsprechenden Schritte anhand von
-        Screenshots dargestellt.</p><p>Für den Fall, daß Buchungen mit der Steuerschlüssel "EU ohne
-        USt.-IdNr." nach dem 01.01.2007 erfolgt sind, ist davon auszugehen,
-        dass diese mit dem alten Umsatzsteuersatz von 16% gebucht worden sind,
-        und diese Buchungen sollten entsprechend kontrolliert werden.</p></div><div class="sect2" title="2.15.2. Konto 3804 manuell anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="config.skr04-update-3804.create-chart"></a>2.15.2. Konto 3804 manuell anlegen</h3></div></div></div><p>Die folgenden Schritte sind notwendig, um das Konto manuell
-        anzulegen und zu konfigurieren. Zuerst wird in
-        <span class="guimenu">System</span> →
-        <span class="guisubmenu">Kontenübersicht</span> → <span class="guimenuitem">Konto
-        erfassen</span> das Konto angelegt.</p><div class="screenshot"><div class="mediaobject"><img src="images/skr04-update-3804/konto3804.png"></div></div><p>Als Zweites muss Steuergruppe 13 für Konto 3803 angepasst
-        werden. Dazu unter <span class="guimenu">System</span> →
-        <span class="guisubmenu">Steuern</span> →
-        <span class="guimenuitem">Bearbeiten</span> den Eintrag mit Steuerschlüssel
-        13 auswählen und ihn wie im folgenden Screenshot angezeigt
-        anpassen.</p><div class="screenshot"><div class="mediaobject"><img src="images/skr04-update-3804/steuer3803.png"></div></div><p>Als Drittes wird ein neuer Eintrag mit Steuerschlüssel 13 für
-        Konto 3804 (19%) angelegt. Dazu unter <span class="guimenu">System</span> →
-        <span class="guisubmenu">Steuern</span> →
-        <span class="guimenuitem">Erfassen</span> auswählen und die Werte aus dem
-        Screenshot übernehmen.</p><div class="screenshot"><div class="mediaobject"><img src="images/skr04-update-3804/steuer3804.png"></div></div><p>Als Nächstes sind alle Konten anzupassen, die als
-        Steuerautomatikkonto die 3803 haben, sodass sie ab dem 1.1.2007 auch
-        Steuerautomatik auf 3804 bekommen. Dies betrifft in der
-        Standardkonfiguration die Konten 4315 und 4726. Als Beispiel für 4315
-        müssen Sie dazu unter <span class="guimenu">System</span> →
-        <span class="guisubmenu">Kontenübersicht</span> → <span class="guimenuitem">Konten
-        anzeigen</span> das Konto 4315 anklicken und die Einstellungen
-        wie im Screenshot gezeigt vornehmen.</p><div class="screenshot"><div class="mediaobject"><img src="images/skr04-update-3804/konto4315.png"></div></div><p>Als Letztes sollte die Steuerliste unter
-        <span class="guimenu">System</span> → <span class="guisubmenu">Steuern</span> →
-        <span class="guimenuitem">Bearbeiten</span> kontrolliert werden. Zum
-        Vergleich der Screenshot.</p><div class="screenshot"><div class="mediaobject"><img src="images/skr04-update-3804/steuerliste.png"></div></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s14.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s16.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.14. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung:
-      EUR&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.16. Verhalten des Bilanzberichts</td></tr></table></div></body></html>
+   <title>2.15. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.0-beta: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s14.html" title="2.14. Nomenklatur"><link rel="next" href="ch02s16.html" title="2.16. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.15. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung:
+      EUR</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s14.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s16.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.15. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="config.eur"></a>2.15. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung:
+      EUR</h2></div></div></div><div class="sect2" title="2.15.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.introduction"></a>2.15.1. Einführung</h3></div></div></div><p>kivitendo besaß bis inklusive Version 2.6.3 einen
+        Konfigurationsparameter namens <code class="varname">eur</code>, der sich in der
+        Konfigurationsdatei <code class="filename">config/kivitendo.conf</code> (damals
+        noch <code class="filename">config/lx_office.conf</code>) befand. Somit galt er
+        für alle Mandanten, die in dieser Installation benutzt wurden.</p><p>Mit der nachfolgenden Version wurde der Parameter zum Einen in
+        die Mandantendatenbank verschoben und dabei auch gleich in drei
+        Einzelparameter aufgeteilt, mit denen sich das Verhalten genauer
+        steuern lässt.</p></div><div class="sect2" title="2.15.2. Konfigurationsparameter"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.parameters"></a>2.15.2. Konfigurationsparameter</h3></div></div></div><p>Es gibt drei Parameter, die die Gewinnermittlungsart,
+        Versteuerungsart und die Warenbuchungsmethode regeln:</p><div class="variablelist"><dl><dt><span class="term">
+                     <code class="varname">profit_determination</code>
+                  </span></dt><dd><p>Dieser Parameter legt die Berechnungsmethode für die
+              Gewinnermittlung fest. Er enthält entweder
+              <code class="literal">balance</code> für
+              Betriebsvermögensvergleich/Bilanzierung oder
+              <code class="literal">income</code> für die
+              Einnahmen-Überschuss-Rechnung.</p></dd><dt><span class="term">
+                     <code class="varname">accounting_method</code>
+                  </span></dt><dd><p>Dieser Parameter steuert die Buchungs- und
+              Berechnungsmethoden für die Versteuerungsart. Er enthält
+              entweder <code class="literal">accrual</code> für die Soll-Versteuerung
+              oder <code class="literal">cash</code> für die Ist-Versteuerung.</p></dd><dt><span class="term">
+                     <code class="varname">inventory_system</code>
+                  </span></dt><dd><p>Dieser Parameter legt die Warenbuchungsmethode fest. Er
+              enthält entweder <code class="literal">perpetual</code> für die
+              Bestandsmethode oder <code class="literal">periodic</code> für die
+              Aufwandsmethode.</p></dd></dl></div><p>Zum Vergleich der Funktionalität bis und nach 2.6.3:
+        <code class="varname">eur</code> = 1 bedeutete Einnahmen-Überschuss-Rechnung,
+        Ist-Versteuerung und Aufwandsmethode. <code class="varname">eur</code> = 0
+        bedeutete hingegen Bilanzierung, Soll-Versteuerung und
+        Bestandsmethode.</p><p>Die Konfiguration "<code class="varname">eur</code>" unter
+        <code class="varname">[system]</code> in der <a class="link" href="ch02s04.html" title="2.4. kivitendo-Konfigurationsdatei">Konfigurationsdatei</a>
+        
+               <code class="filename">config/kivitendo.conf</code> wird nun nicht mehr
+        benötigt und kann entfernt werden. Dies muss manuell geschehen.</p></div><div class="sect2" title="2.15.3. Festlegen der Parameter"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.setting-parameters"></a>2.15.3. Festlegen der Parameter</h3></div></div></div><p>Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in
+        der Admininstration können diese Optionen nun unabhängig voneinander
+        eingestellt werden.</p><p>Für die Schweiz sind folgende Einstellungen üblich:
+		</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Sollversteuerung</p></li><li class="listitem"><p>Aufwandsmethode</p></li><li class="listitem"><p>Bilanzierung</p></li></ul></div><p>
+		Diese Einstellungen werden automatisch beim Erstellen einer neuen
+		Datenbank vorausgewählt, wenn in <code class="filename">config/kivitendo.conf</code> unter
+		<code class="varname">[system]</code> 
+               <code class="literal">default_manager = swiss</code> eingestellt ist.
+        </p><p>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
+        Variablen werden so gesetzt, daß sich an der Funktionalität nichts
+        ändert.</p><p>Die aktuelle Konfiguration wird unter Nummernkreise und
+        Standardkonten unter dem neuen Punkt "Einstellungen" (read-only)
+        angezeigt. Unter <span class="guimenu">System</span> →
+        <span class="guisubmenu">Mandantenkonfiguration</span> können die
+        Einstellungen auch geändert werden. Dabei ist zu beachten, dass eine
+        Änderung vorhandene Daten so belässt und damit evtl. die Ergebnisse
+        verfälscht. Dies gilt vor Allem für die Warenbuchungsmethode (siehe
+        auch <a class="link" href="ch02s15.html#config.eur.inventory-system-perpetual" title="2.15.4. Bemerkungen zur Bestandsmethode">
+        Bemerkungen zur Bestandsmethode</a>).</p></div><div class="sect2" title="2.15.4. Bemerkungen zur Bestandsmethode"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.inventory-system-perpetual"></a>2.15.4. Bemerkungen zur Bestandsmethode</h3></div></div></div><p>Die Bestandsmethode ist eigentlich eine sehr elegante Methode,
+        funktioniert in kivitendo aber nur unter bestimmten Bedingungen:
+        Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt
+        werden, und man beim Jahreswechsel nicht mit einer leeren Datenbank
+        anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie
+        der Einkaufswert der Ware nach dem FIFO-Prinzip aus den
+        Einkaufsrechnungen berechnet wird.</p><p>Die Bestandsmethode kann vom Prinzip her also nur funktioneren,
+        wenn man mit den Buchungen bei Null anfängt, und man kann auch nicht
+        im laufenden Betrieb von der Aufwandsmethode zur Bestandsmethode
+        wechseln.</p></div><div class="sect2" title="2.15.5. Bekannte Probleme"><div class="titlepage"><div><div><h3 class="title"><a name="config.eur.knonw-issues"></a>2.15.5. Bekannte Probleme</h3></div></div></div><p>Bei bestimmten Berichten kann man derzeit noch inviduell
+        einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es
+        werden im Code Variablen wie $accrual oder $cash gesetzt. Diese
+        Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
+        die Konfigurationsvariable
+        <code class="varname">$::lx_office_conf{system}-&gt;{eur}</code> ausgewertet
+        wurde.</p><p>Es fehlen Hilfetext beim Neuanlegen eines Mandanten, was die
+        Optionen bewirken, z.B. mit zwei Standardfällen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s14.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s16.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.14. Nomenklatur&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.16. SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</td></tr></table></div></body></html>

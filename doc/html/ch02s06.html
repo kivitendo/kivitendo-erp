@@ -15,8 +15,7 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 &lt;/Directory&gt;
 
 &lt;Directory /var/www/kivitendo-erp/users&gt;
- Order Deny,Allow
- Deny from All
+ Require all granted
 &lt;/Directory&gt;</pre><p>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
         das kivitendo-Archiv entpacket haben.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Vor den einzelnen Optionen muss bei einigen Distributionen ein
           Plus ‘<code class="literal">+</code>’ gesetzt werden.</p><p>Bei einigen Distribution (Ubuntu ab 14.04, Debian ab 8.2) muss
