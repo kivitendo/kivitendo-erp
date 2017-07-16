@@ -1,7 +1,38 @@
 -- deutschsprachiger Kontenplan nach Schweizer Kontenrahmen KMU für Firmen in der Schweiz, die nicht mehrwertsteuerpflichtig sind
 -- Erstellt am 4.6.2014
--- Korrigiert: November 2015
+-- Korrigiert: November 2015 und Juli 2017
 -- Grundlage: Revision OR Stand 1.1.2013, insbesondere Art. 957a Abs. 2
+-- Redaktion: revamp-it, http://www.revamp-it.ch
+-- Copyright 2014,2015,2017
+
+-- This file is part of kivitendo.
+-- kivitendo is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2 of the License, or
+-- (at your option) any later version.
+--
+-- kivitendo is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with kivitendo. If not, see <http://www.gnu.org/licenses/>.
+
+-- Diese Datei ist Teil von kivitendo.
+--
+-- kivitendo ist Freie Software: Sie können es unter den Bedingungen
+-- der GNU General Public License, wie von der Free Software Foundation,
+-- Version 2 der Lizenz oder (nach Ihrer Wahl) jeder späteren
+-- veröffentlichten Version, weiterverbreiten und/oder modifizieren.
+--
+-- kivitendo wird in der Hoffnung, dass es nützlich sein wird, aber
+-- OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
+-- Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+-- Siehe die GNU General Public License für weitere Details.
+--
+-- Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
+-- Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>.
 
 DELETE FROM chart;
 
@@ -49,8 +80,8 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 ('2100', 'Bankverbindlichkeiten','A','L','AR_paid:AP_paid','2100',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('2140', 'Übrige verzinsliche Verbindlichkeiten','A','L','AP','2140',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('220',  'Übrige kurzfristige Verbindlichkeiten','H','','','220',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
-('2200', 'Geschuldete MWST(2,5)','A','L','AR_tax:IC_taxpart:IC_taxservice:CT_tax','2200',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
-('2201', 'Geschuldete MWST(8,0)','A','L','AR_tax:IC_taxpart:IC_taxservice:CT_tax','2201',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
+('2200', 'Geschuldete MWST(2,5)','A','L','AR_tax:IC_taxpart:IC_taxservice','2200',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
+('2201', 'Geschuldete MWST(8,0)','A','L','AR_tax:IC_taxpart:IC_taxservice','2201',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('2206', 'Verrechnungssteuer','A','L','AP','2206',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('2210', 'Geschuldete Steuern','A','L','AP','2210',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
 ('2250', 'Personalaufwand','A','L','AP','2250',0,NULL,NULL,NULL,NULL,FALSE,'2011-01-01 00:00:00.000000'),
