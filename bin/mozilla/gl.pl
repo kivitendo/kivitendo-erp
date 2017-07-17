@@ -1339,9 +1339,7 @@ sub post {
   my $locale   = $main::locale;
 
   if ($::myconfig{mandatory_departments} && !$form->{department_id}) {
-    $form->{saved_message} = $::locale->text('You have to specify a department.');
-    update();
-    exit;
+    $form->error($locale->text('You have to specify a department.'));
   }
 
   $form->{title}  = $locale->text("$form->{title} General Ledger Transaction");
