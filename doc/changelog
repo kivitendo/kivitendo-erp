@@ -202,6 +202,7 @@ Administrative Änderungen
 
 Bugfixes:
 
+- Bugfix #273 "Bei Schweizer Kontenplänen erscheint beim Aufruf der Maske zum Dialogbuchen eine Fehlermeldung"
 - Bugfix #268 "Schnellsuchfelder und ""Benutzer-Mandant-Abmelden""-Header wird abgeschnitten, wenn nicht alles auf einer Zeile Platz hat"
 - Bugfix #262 department in oe.pl (Angebot/Auftrag) wird nicht mehr an die Druckvorlage übergeben
 - Bugfix #258 Falscher Bearbeiter (und beim Verkauf Verkäufer) beim erstellen von neuen Verkaufs- oder Einkaufsbelegen
