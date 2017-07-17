@@ -1902,6 +1902,7 @@ sub erfolgsrechnung {
   my %categories = (I => "ERTRAG", E => "AUFWAND");
   my $fromdate = conv_dateq($form->{fromdate});
   my $todate = conv_dateq($form->{todate});
+  my $department_id = conv_i((split /--/, $form->{department})[1], 'NULL');
 
   $form->{total} = 0;
 
@@ -1909,10 +1910,10 @@ sub erfolgsrechnung {
     my %category = (
       name => $categories{$category},
       total => 0,
-      accounts => get_accounts_ch($category),
+      accounts => get_accounts_ch($category)
     );
     foreach my $account (@{$category{accounts}}) {
-      $account->{total} += get_total_ch($account->{id}, $fromdate, $todate);
+      $account->{total} = get_total_ch($department_id, $account->{id}, $fromdate, $todate);
       $category{total} += $account->{total};
       $account->{total} = $form->format_amount($myconfig, $form->round_amount($account->{total}, 2), 2);
     }
@@ -1930,7 +1931,7 @@ sub get_accounts_ch {
   $main::lxdebug->enter_sub();
 
   my ($category) = @_;
-  my ($inclusion);
+  my $inclusion = '' ;
 
   if ($category eq 'I') {
     $inclusion = "AND pos_er = NULL OR pos_er = '1'";
@@ -1955,7 +1956,7 @@ sub get_accounts_ch {
 sub get_total_ch {
   $main::lxdebug->enter_sub();
 
-  my ($chart_id, $fromdate, $todate) = @_;
+  my ($department_id, $chart_id, $fromdate, $todate) = @_;
   my $total = 0;
   my $query = qq|
     SELECT SUM(amount)
@@ -1964,7 +1965,16 @@ sub get_total_ch {
       AND transdate >= ?
       AND transdate <= ?
   |;
-  $total += _query($query, $chart_id, $fromdate, $todate)->[0]->{sum};
+  if ($department_id) {
+    $query .= qq| AND COALESCE(
+        (SELECT department_id FROM ar WHERE ar.id=trans_id),
+        (SELECT department_id FROM gl WHERE gl.id=trans_id),
+        (SELECT department_id FROM ap WHERE ap.id=trans_id)
+    ) = ? |;
+    $total += _query($query, $chart_id, $fromdate, $todate, $department_id)->[0]->{sum};
+  } else {
+    $total += _query($query, $chart_id, $fromdate, $todate)->[0]->{sum};
+  }
 
   $main::lxdebug->leave_sub();
   return $total;
