@@ -15,10 +15,10 @@ my $temp_dir    = File::Temp::tempdir("kivi-t-file-filesystem.XXXXXX", TMPDIR =>
 my $storage_dir = "$temp_dir/storage";
 
 mkdir($storage_dir) || die $!;
-
-my $db = SL::DB::Object->new->db;
-$db->dbh->do("UPDATE defaults SET doc_files = 't'");
-$db->dbh->do("UPDATE defaults SET doc_files_rootpath = ?", undef, $storage_dir);
+{
+local $::lx_office_conf{paths}->{document_path} = $storage_dir;
+$::instance_conf->data;
+local $::instance_conf->{data}{doc_files} = 1;
 
 my $scannerfile = "${temp_dir}/f2";
 
@@ -111,6 +111,8 @@ sub clear_up {
     SL::Dev::File->delete_all();
     unlink($scannerfile);
   };
+}
+
 }
 
 sub reset_state {
