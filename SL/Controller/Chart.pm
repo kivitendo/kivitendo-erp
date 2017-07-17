@@ -29,6 +29,7 @@ sub action_ajax_autocomplete {
     if (1 == scalar @{ $exact_matches = SL::DB::Manager::Chart->get_all(
       query => [
         SL::DB::Manager::Chart->type_filter($::form->{filter}{type}),
+        charttype => 'A',
         or => [
           description => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
           accno       => { ilike => $::form->{filter}{'all:substr:multi::ilike'} },
@@ -108,6 +109,9 @@ sub init_models {
       accno       => t8('Account number'),
       description => t8('Description'),
     },
+    query => [
+      charttype => 'A',
+    ],
   );
 }
 
