@@ -1082,6 +1082,8 @@ sub form_header {
                    "charts"    => { "key"       => "ALL_CHARTS",
                                     "transdate" => $::form->{transdate} });
 
+  # we cannot book on charttype header
+  @{ $::form->{ALL_CHARTS} } = grep { $_->{charttype} ne 'H' }  @{ $::form->{ALL_CHARTS} };
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
 
   my $title      = $::form->{title};
