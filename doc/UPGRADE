@@ -4,7 +4,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v3.5.0-beta
+Upgrade auf v3.5.0
 ===========================
 
 * Neue Perl Abhängigkeiten:
