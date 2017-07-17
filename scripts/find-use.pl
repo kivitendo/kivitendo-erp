@@ -62,6 +62,9 @@ my (%uselines, %modules, %supplied, %requires);
   'HTML::Parser' => {
     'HTML::Entities'                     => 1,
   },
+  'URI' => {
+    'URI::Escape'                        => 1,
+  },
 );
 
 GetOptions(
