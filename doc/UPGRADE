@@ -4,17 +4,18 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v3.5.0-alpha
+Upgrade auf v3.5.0-beta
 ===========================
 
-* Die Tabelle "files" ist hinzugekommen. Diese wird von der Dateiverwaltung
-  verwendet. Zum Erkennen der Dateiinhalte wird das Paket File::MimeInfo::Magic
-  benötigt.
+* Neue Perl Abhängigkeiten:
 
-* Die PDF-Generierung ist erweitert. Beim Massendruck können auch Leerseiten
-  eingebaut werden, z.B. falls zweiseitg ausgedruckt wird. Statt die Anzahl
-  Seiten per Ghostscript zu ermitteln wird dazu "pdfinfo" genutzt.
-  Das muß installiert sein. Der Script "installation_check.pl" prüft dies.
+  * File::MimeInfo - für den Dateiupload
+  * Sys::CPU
+  * Thread::Pool::Simple
+
+* Neue externe Abhängigkeiten:
+
+  * pdfinfo
 
 * In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
   multipliziert, um Lücken für neue Rechte zu schaffen.
@@ -37,12 +38,6 @@ Upgrade auf v3.5.0-alpha
   und income_accno_id entfernt. Deren Funktionalität wurde schon lange durch
   Buchungsgruppen ersetzt und für die Erkennung des Artikeltyps gibt es nun die
   Spalte part_type
-
-* Das Anlegen und Editieren von Waren wurde komplett erneuert. Falls man aus
-  einem Beleg eine Ware erstellt ist der Rücksprung in dem Beleg nicht mehr
-  möglich. Wer diese Funktion dringend benötigt, sollte mit dem Upgrade auf
-  diese Version noch warten und am Besten einen Entwickler mit Bezug auf
-  dieses Ticket (http://redmine.kivitendo-premium.de/issues/247) kontaktieren.
 
 Upgrade auf v3.4.1
 ==================

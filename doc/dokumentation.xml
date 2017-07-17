@@ -215,7 +215,7 @@
           </listitem>
 
           <listitem>
-            <para><literal>File::MimeInfo::Magic</literal></para>
+            <para><literal>File::MimeInfo</literal></para>
           </listitem>
 
           <listitem>
