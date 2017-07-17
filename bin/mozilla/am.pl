@@ -84,7 +84,6 @@ sub add_account {
   $form->{callback} = "am.pl?action=list_account" unless $form->{callback};
 
   &account_header;
-  &form_footer;
 
   $main::lxdebug->leave_sub();
 }
@@ -342,21 +341,6 @@ sub account_header {
 
 
   $main::lxdebug->leave_sub();
-}
-
-sub form_footer {
-  $::lxdebug->enter_sub;
-  $::auth->assert('config');
-
-  print $::form->parse_html_template('am/form_footer', {
-    show_save        => !$::form->{id}
-                     || ($::form->{id} && $::form->{orphaned})
-                     || ($::form->{type} eq "account" && !$::form->{new_chart_valid}),
-    show_delete      => $::form->{id} && $::form->{orphaned},
-    show_save_as_new => $::form->{id} && $::form->{type} eq "account",
-  });
-
-  $::lxdebug->leave_sub;
 }
 
 sub save_account {
