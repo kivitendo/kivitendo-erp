@@ -153,6 +153,11 @@ kleinere neue Features und Detailverbesserungen:
     Verkaufsaufträgen finden zu können:
     Verkauf -> Berichte -> Auftragsartikelsuche
 
+  - Part-Controller - neue Maske um Artikel anzulegen / zu bearbeiten
+    Umgestellt auf Controller, dadurch kein "Erneuern mehr". Die Bearbeitung
+    von Erzeugnisbestandteilen hat sich dadurch verändert, dies geschieht nun
+    in einem eigenen Tab.
+
   - Neuer Artikeltyp "Sortiment" (experimentell)
     Einem Sortiment können wie einem Erzeugnis mehrere Artikel zugeordnet
     werden. Beim Hinzufügen eines Sortiments zu einem Beleg werden alle
