@@ -65,6 +65,9 @@ my (%uselines, %modules, %supplied, %requires);
   'URI' => {
     'URI::Escape'                        => 1,
   },
+  'File::MimeInfo' => {
+    'File::MimeInfo::Magic'              => 1,
+  },
 );
 
 GetOptions(
