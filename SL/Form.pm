@@ -1087,7 +1087,8 @@ sub parse_template {
 
   if ( !$self->{preview} && $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage) {
     $self->{attachment_filename} ||= $self->generate_attachment_filename;
-    $self->{print_file_id} = $self->store_pdf($self)->id;
+    my $file_obj = $self->store_pdf($self);
+    $self->{print_file_id} = $file_obj->id if $file_obj;
   }
   if ($self->{media} eq 'email') {
     if ( getcwd() eq $self->{"tmpdir"} ) {
