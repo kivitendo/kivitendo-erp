@@ -363,6 +363,12 @@ sub link_details {
       'title' => $locale->text('Sales Invoice') . " $params{trans_info}",
     };
 
+  } elsif ($params{trans_type} eq 'purchase_invoice') {
+    $link = {
+      'url'   => 'ir.pl?action=edit&type=purchase_invoice&id=' . $params{trans_id},
+      'title' => $locale->text('Purchase Invoice') . " $params{trans_info}",
+    };
+
   } elsif ($params{trans_type} eq 'credit_note') {
     $link = {
       'url'   => 'is.pl?action=edit&type=credit_note&id=' . $params{trans_id},
