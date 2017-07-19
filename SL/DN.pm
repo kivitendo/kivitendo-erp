@@ -837,6 +837,7 @@ sub print_dunning {
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
          c.ustid,
+         ar.id AS invoice_id,
          co.*
        FROM dunning d
        LEFT JOIN ar          ON (d.trans_id = ar.id)
@@ -850,7 +851,7 @@ sub print_dunning {
 
   $query =
     qq|SELECT
-         cfg.interest_rate, cfg.template AS formname,
+         cfg.interest_rate, cfg.template AS formname, cfg.dunning_level,
          cfg.email_subject, cfg.email_body, cfg.email_attachment,
          d.transdate AS dunning_date,
          (SELECT SUM(fee)
@@ -909,6 +910,12 @@ sub print_dunning {
   $form->get_employee_data('prefix' => 'employee', 'id' => $form->{employee_id});
   $form->get_employee_data('prefix' => 'salesman', 'id' => $form->{salesman_id});
 
+  $form->{attachment_type}    = "dunning";
+  if ( $form->{dunning_level} ) {
+    $form->{attachment_type} .= $form->{dunning_level} if $form->{dunning_level} < 4;
+  }
+  $form->{attachment_filename} = $form->get_formname_translation($form->{attachment_type}) . "_${dunning_id}.pdf";
+  $form->{attachment_id} = $form->{invoice_id};
   $form->parse_template($myconfig);
 
   $main::lxdebug->leave_sub();
@@ -926,11 +933,13 @@ sub print_invoice_for_fees {
   $query =
     qq|SELECT
          d.fee_interest_ar_id,
-         dcfg.template
+         d.trans_id AS invoice_id,
+         dcfg.template,
+         dcfg.dunning_level
        FROM dunning d
        LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
        WHERE d.dunning_id = ?|;
-  my ($ar_id, $template) = selectrow_query($form, $dbh, $query, $dunning_id);
+  my ($ar_id, $invoice_id, $template, $dunning_level) = selectrow_query($form, $dbh, $query, $dunning_id);
 
   if (!$ar_id) {
     $main::lxdebug->leave_sub();
@@ -998,6 +1007,9 @@ sub print_invoice_for_fees {
 
   map { delete $form->{$_} } grep /^[a-z_]+_\d+$/, keys %{ $form };
 
+  $form->{attachment_filename} = $form->get_formname_translation('dunning_invoice') . "_${dunning_id}.pdf";
+  $form->{attachment_type}     = "dunning";
+  $form->{attachment_id}       = $form->{invoice_id};
   $form->parse_template($myconfig);
 
   restore_form($saved_form);

@@ -11,7 +11,8 @@ sub store_pdf {
   my ($self, $form) = @_;
   return unless $::instance_conf->get_doc_storage;
   my $type = $form->{type};
-  $type = $form->{formname} if $form->{formname} && !$form->{type};
+  $type = $form->{formname}        if $form->{formname} && !$form->{type};
+  $type = $form->{attachment_type} if $form->{attachment_type};
   my $id = $form->{id};
   $id = $form->{attachment_id} if $form->{attachment_id} && !$form->{id};
   return if !$id || !$type;
@@ -83,7 +84,7 @@ SL::Helper::File - Helper for $::Form to store generated PDF-Documents
  $self->append_general_pdf_attachments(filepath => $pdf_filename, type => $form->{type}) if ( $ext_for_format eq 'pdf' );
 
 #It is also used in MassPrint Helper
-# 
+#
 
 =head1 DESCRIPTION
 
@@ -151,4 +152,3 @@ Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
 
 =cut
-

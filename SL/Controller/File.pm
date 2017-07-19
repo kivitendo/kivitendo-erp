@@ -373,8 +373,11 @@ sub _do_list {
   my @files;
   $main::lxdebug->message(LXDebug->DEBUG2(), "do_list: object_id=".$self->object_id." object_type=".$self->object_type." file_type=".$self->file_type." json=".$json);
   if ( $self->file_type eq 'document' ) {
+    my @object_types;
+    push @object_types, $self->object_type;
+    push @object_types, ('dunning','dunning1','dunning2','dunning3') if $self->object_type eq 'invoice';
     @files   = SL::File->get_all_versions(object_id   => $self->object_id  ,
-                                          object_type => $self->object_type,
+                                          object_type => \@object_types,
                                           file_type   => $self->file_type  );
 
     $main::lxdebug->message(LXDebug->DEBUG2(), "cnt1=".scalar(@files));
