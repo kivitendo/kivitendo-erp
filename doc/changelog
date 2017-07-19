@@ -2,6 +2,14 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2017-XX-XX - Release 3.5.X
+
+kleinere neue Features und Detailverbesserungen:
+
+  - SEPA-XML: alle Sonderzeichen filtern
+  - SEPA-Export: Export wieder rückgängig machen, falls noch Status offen
+
+
 2017-07-17 - Release 3.5.0
 
 große Features:
