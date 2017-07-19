@@ -11,6 +11,7 @@ use SL::DB::PurchaseInvoice;
 use SL::DB;
 use SL::Locale::String qw(t8);
 use DateTime;
+use Carp;
 
 sub retrieve_open_invoices {
   $main::lxdebug->enter_sub();
@@ -291,6 +292,25 @@ sub close_export {
   $main::lxdebug->leave_sub();
 }
 
+sub undo_export {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my $sepa_export = SL::DB::Manager::SepaExport->find_by(id => $params{id});
+
+  croak "Not a valid SEPA Export id: $params{id}" unless $sepa_export;
+  croak "Cannot undo closed exports."             if $sepa_export->closed;
+  croak "Cannot undo executed exports."           if $sepa_export->executed;
+
+  die "Could not undo $sepa_export->id" if !$sepa_export->delete();
+
+  $main::lxdebug->leave_sub();
+}
+
 sub list_exports {
   $main::lxdebug->enter_sub();
 
@@ -525,3 +545,53 @@ sub _post_payment {
 }
 
 1;
+
+
+__END__
+
+=head1 NAME
+
+SL::SEPA - Base class for SEPA objects
+
+=head1 SYNOPSIS
+
+ # get all open invoices we like to pay via SEPA
+ my $invoices = SL::SEPA->retrieve_open_invoices(vc => 'vendor');
+
+ # add some IBAN and purposes for open transaction
+ # and assign this to a SEPA export
+ my $id = SL::SEPA->create_export('employee'       => $::myconfig{login},
+                                 'bank_transfers' => \@bank_transfers,
+                                 'vc'             => 'vendor');
+
+=head1 DESCRIPTIONS
+
+This is the base class for SEPA. SEPA and the underlying directories
+(SEPA::XML etc) are used to genereate valid XML files for the SEPA
+(Single European Payment Area) specification and offers this structure
+as a download via a xml file.
+
+An export can have one or more transaction which have to
+comply to the specification (IBAN, BIC, amount, purpose, etc).
+
+Furthermore kivitendo sepa exports have two
+valid states: Open or closed and executed or not executed.
+
+The state closed can be set via a user interface and the
+state executed is automatically assigned if the action payment
+is triggered.
+
+=head1 FUNCTIONS
+
+=head2 C<undo_export> $sepa_export_id
+
+Needs a valid sepa_export id and deletes the sepa export if
+the state of the export is neither executed nor closed.
+Returns undef if the deletion was successfully.
+Otherwise the function just dies with a short notice of the id.
+
+=cut
+
+
+
+

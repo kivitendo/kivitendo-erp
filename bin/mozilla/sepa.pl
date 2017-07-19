@@ -607,13 +607,28 @@ sub bank_transfer_mark_as_closed {
   $main::lxdebug->leave_sub();
 }
 
+sub bank_transfer_undo_sepa_xml {
+  $main::lxdebug->enter_sub();
+
+  my $form       = $main::form;
+  my $locale     = $main::locale;
+
+  map { SL::SEPA->undo_export('id' => $_); } @{ $form->{ids} || [] };
+
+  $form->{title} = $locale->text('Undo SEPA exports');
+  $form->header();
+  $form->show_generic_information($locale->text('The selected exports have been undone.'));
+
+  $main::lxdebug->leave_sub();
+}
+
 sub dispatcher {
   my $form = $main::form;
 
   foreach my $action (qw(bank_transfer_create bank_transfer_edit bank_transfer_list
                          bank_transfer_post_payments bank_transfer_download_sepa_xml
                          bank_transfer_mark_as_closed_step1 bank_transfer_mark_as_closed_step2
-                         bank_transfer_payment_list_as_pdf)) {
+                         bank_transfer_payment_list_as_pdf bank_transfer_undo_sepa_xml)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
       return;
@@ -696,6 +711,12 @@ sub setup_sepa_list_transfers_action_bar {
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
           confirm => [ $params{is_vendor} ? t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.')
                                           : t8('Do you really want to close the selected SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.') ],
+        ],
+        action => [
+          t8('Undo SEPA exports'),
+          submit => [ '#form', { action => 'bank_transfer_undo_sepa_xml' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+          confirm => [ t8('Do you really want to undo the selected SEPA exports? You have to reassign the export again.') ],
         ],
       ], # end of combobox "Actions"
     );
