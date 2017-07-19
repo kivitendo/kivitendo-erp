@@ -72,6 +72,10 @@ sub _replace_special_chars {
 
   map { $text =~ s/$_/$special_chars{$_}/g; } keys %special_chars;
 
+  # for all other non ascii chars 'OLÉ S.L.' and 'Årdberg AB'!
+  use Text::Unidecode qw(unidecode);
+  $text = unidecode($text);
+
   return $text;
 }
 
