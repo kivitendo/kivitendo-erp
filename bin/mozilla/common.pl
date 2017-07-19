@@ -243,14 +243,19 @@ sub show_history {
   } else {
     $restriction = '';
   };
-
+#changed by freiphone.
+  $form->get_employee();
+  my $freiphone_employee = $form->{employee_id};
   print $form->parse_html_template( "common/show_history", {
     "DATEN"        => $form->get_history($dbh,$form->{input_name},$restriction,$form->{order}),
+    "employee_id"  => $freiphone_employee,
+    "trans_id"	   => $form->{input_name},
     "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
     uc($sort)      => 1,
     uc($sort)."BY" => $sortby,
     callback       => $callback,
-  } );
+  } );  
+#end of change
 
   $dbh->disconnect();
   $main::lxdebug->leave_sub();
