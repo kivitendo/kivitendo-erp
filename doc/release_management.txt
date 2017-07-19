@@ -118,7 +118,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 
   3. Das Modul in SL/InstallationCheck.pm eintragen. Testen.
 
-  4. Das Modul in der Installationsanleitung eintragen.
+  4. Das Modul in der Installationsanleitung (documentation.xml) eintragen.
 
 * doc/UPGRADE doku aktualisieren und auf Vollständigkeit prüfen.
 

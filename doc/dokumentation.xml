@@ -303,6 +303,10 @@
             <para><literal>Text::Iconv</literal></para>
           </listitem>
 
+           <listitem>
+            <para><literal>Text::Unidecode</literal></para>
+          </listitem>
+
           <listitem>
             <para><literal>URI</literal></para>
           </listitem>
@@ -315,6 +319,8 @@
             <para><literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
+        <para>Seit Version größer v3.5.0 sind die folgenden Pakete hinzugekommen:
+        <literal>Text::Unidecode</literal></para>
 
         <para>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
         <literal>Algorithm::CheckDigits</literal><literal>PBKDF2::Tiny</literal></para>
@@ -368,7 +374,7 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl
 </programlisting>
 
           <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
@@ -502,16 +508,45 @@ tar xvzf kivitendo-erp-3.4.1.tgz</programlisting>
         <para>Wir empfehlen eine Installation mittels des Versionsmanagager
         git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
         viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
-        die Pfade anpassen) bspw. wie folgt: <programlisting>cd /usr/local/src/
+        die Pfade anpassen) bspw. wie folgt: <programlisting>cd /var/www/
 git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</programlisting>
+        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag -l listet
+       alle Tags auf, das egrep schmeisst alle Einträge mit beta oder rc raus und
+       das tail gibt davon den obersten Treffer zurück).
+
         Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
         erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
         verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
         nach dem letzten Kommando (weiterführende Informationen <ulink
-        url="http://git-scm.com/book/en/v2/Getting-Started-Git-Basics">getting
-        started with git</ulink>).</para>
+        url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
+        Git Magic</ulink>).</para>
+
+<para>
+        Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von 3.4.1 nach 3.5:
+        <programlisting>
+$ git clone https://github.com/kivitendo/kivitendo-erp.git
+$ cd kivitendo-erp/
+$ git checkout release-3.4.1     # das ist der aktuelle release, den wir wollen
+$ git add templates/fullhouse    # das sind unsere druckvorlagen inkl. produktbilder
+$ git commit -m "juhu tolle ändernungen"
+[meine_aenderungen 1d89e41] juhu tolle ändernungen
+ 4 files changed, 380 insertions(+)
+ create mode 100644 templates/fullhouse/img/webdav/tesla.png
+ create mode 100644 templates/fullhouse/mahnung.tex
+ create mode 100644 templates/fullhouse/zahlungserinnerung_zwei.tex
+ create mode 100644 templates/fullhouse/zahlungserinnerung_zwei_invoice.tex
+
+# 5 Jahre später ...
+
+$ git fetch
+$ git rebase --onto release-3.5.0 release-3.4.1 meine_aenderungen
+Zunächst wird der Branch zurückgespult, um Ihre Änderungen
+darauf neu anzuwenden ...
+Wende an: juhu tolle ändernungen
+$ service apache2 restart
+</programlisting></para>
       </note>
     </sect1>
 
