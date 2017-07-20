@@ -302,7 +302,7 @@ sub setup_do_action_bar {
         ],
         action => [
           t8('Transfer in'),
-          submit   => [ '#form', { action => "transfer_in"> 1 } ],
+          submit   => [ '#form', { action => "transfer_in" } ],
           checks   => [ @req_trans_desc, @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => !$is_customer,
