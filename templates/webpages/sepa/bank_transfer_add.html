@@ -55,7 +55,7 @@
      <tr class="listrow[% IF !invoice.vc_bank_info_ok && invoice.checked %]_error[% END %]">
       <td align="center">
        [%- IF invoice.vc_bank_info_ok %]
-        [% L.checkbox_tag("ids[]", value=invoice.id, checked=checked) %]
+        [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
        [%- END %]
       </td>
       <td>
