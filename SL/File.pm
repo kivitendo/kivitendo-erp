@@ -122,7 +122,7 @@ sub delete_all {
 
 sub delete {
   my ($self, %params) = @_;
-  die "no id or dbfile" unless $params{id} || $params{dbfile};
+  die "no id or dbfile in delete" unless $params{id} || $params{dbfile};
   my $rc = 0;
   eval {
     $rc = SL::DB->client->with_transaction(\&_delete, $self, %params);

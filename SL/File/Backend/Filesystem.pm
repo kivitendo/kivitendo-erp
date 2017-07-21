@@ -16,7 +16,8 @@ sub delete {
   my ($self, %params) = @_;
   $main::lxdebug->message(LXDebug->DEBUG2(), "del in backend " . $self . "  file " . $params{dbfile});
   $main::lxdebug->message(LXDebug->DEBUG2(), "file id=" . ($params{dbfile}->id * 1));
-  die "no dbfile" unless $params{dbfile};
+  $main::lxdebug->message(LXDebug->DEBUG2(), "last=" .  $params{last}." all_bnl=". $params{all_but_notlast});
+  die "no dbfile in backend delete" unless $params{dbfile};
   my $backend_data = $params{dbfile}->backend_data;
   $backend_data    = 0                               if $params{last};
   $backend_data    = $params{dbfile}->backend_data-1 if $params{all_but_notlast};
@@ -30,22 +31,23 @@ sub delete {
     }
     if ($params{all_but_notlast}) {
       my $from = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
-      my $to   = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
-      die "file not exists" unless -f $from;
+      my $to   = $self->_filesystem_path($params{dbfile},1);
+      die "file not exists in backend delete" unless -f $from;
       rename($from,$to);
       $params{dbfile}->backend_data(1);
     } else {
       $params{dbfile}->backend_data(0);
       my $dir_path = $self->_filesystem_path($params{dbfile});
       rmdir($dir_path);
-      $main::lxdebug->message(LXDebug->DEBUG2(), "unlink " .$dir_path);
+      $main::lxdebug->message(LXDebug->DEBUG2(), "rmdir " .$dir_path);
     }
   } else {
     my $file_path = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
-    die "file not exists" unless -f $file_path;
+    die "file not exists in backend delete" unless -f $file_path;
     unlink($file_path);
     $params{dbfile}->backend_data($params{dbfile}->backend_data-1);
   }
+  return 1;
 }
 
 sub rename {
@@ -85,7 +87,7 @@ sub get_mtime {
   die "unknown version" if $params{version} &&
                           ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
-  die "no file found in backend or configuration to filesystem is wrong" if !-f $path;
+  die "no file found in backend get_mtime" if !-f $path;
   my @st = stat($path);
   my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
   $main::lxdebug->message(LXDebug->DEBUG2(), "dt=" .$dt);
@@ -96,7 +98,7 @@ sub get_filepath {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
-  die "no file" if !-f $path;
+  die "no file in backend get_filepath" if !-f $path;
   return $path;
 }
 
