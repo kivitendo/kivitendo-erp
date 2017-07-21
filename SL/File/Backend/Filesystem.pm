@@ -14,19 +14,14 @@ use File::Path qw(make_path);
 
 sub delete {
   my ($self, %params) = @_;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "del in backend " . $self . "  file " . $params{dbfile});
-  $main::lxdebug->message(LXDebug->DEBUG2(), "file id=" . ($params{dbfile}->id * 1));
-  $main::lxdebug->message(LXDebug->DEBUG2(), "last=" .  $params{last}." all_bnl=". $params{all_but_notlast});
   die "no dbfile in backend delete" unless $params{dbfile};
   my $backend_data = $params{dbfile}->backend_data;
   $backend_data    = 0                               if $params{last};
   $backend_data    = $params{dbfile}->backend_data-1 if $params{all_but_notlast};
 
   if ($backend_data > 0 ) {
-    $main::lxdebug->message(LXDebug->DEBUG2(), "backend_data=" .$backend_data);
     for my $version ( 1..$backend_data) {
       my $file_path = $self->_filesystem_path($params{dbfile},$version);
-      $main::lxdebug->message(LXDebug->DEBUG2(), "unlink " .$file_path);
       unlink($file_path);
     }
     if ($params{all_but_notlast}) {
@@ -39,7 +34,6 @@ sub delete {
       $params{dbfile}->backend_data(0);
       my $dir_path = $self->_filesystem_path($params{dbfile});
       rmdir($dir_path);
-      $main::lxdebug->message(LXDebug->DEBUG2(), "rmdir " .$dir_path);
     }
   } else {
     my $file_path = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
@@ -83,14 +77,12 @@ sub get_version_count {
 sub get_mtime {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
-  $main::lxdebug->message(LXDebug->DEBUG2(), "version=" .$params{version});
   die "unknown version" if $params{version} &&
                           ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
   die "no file found in backend get_mtime" if !-f $path;
   my @st = stat($path);
   my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
-  $main::lxdebug->message(LXDebug->DEBUG2(), "dt=" .$dt);
   return $dt;
 }
 
@@ -131,7 +123,6 @@ sub _filesystem_path {
   $version    = $dbfile->backend_data if !$version || $version < 1 || $version > $dbfile->backend_data;
   my $iddir   = sprintf("%04d", $dbfile->id % 1000);
   my $path    = File::Spec->catdir($::lx_office_conf{paths}->{document_path}, $::auth->client->{id}, $iddir, $dbfile->id);
-  $main::lxdebug->message(LXDebug->DEBUG2(), "file path=" .$path." id=" .$dbfile->id." version=".$version." basename=".$dbfile->id . '_' . $version);
   if (!-d $path) {
     File::Path::make_path($path, { chmod => 0770 });
   }

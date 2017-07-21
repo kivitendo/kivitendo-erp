@@ -140,11 +140,8 @@ sub action_ajax_rename {
     $self->js->flash('error',$::locale->text('File not exists !'))->render();
     return;
   }
-  $main::lxdebug->message(LXDebug->DEBUG2(), "object_id=".$file->object_id." object_type=".$file->object_type." dbfile=".$file);
   my $sessionfile = $::form->{sessionfile};
-      $main::lxdebug->message(LXDebug->DEBUG2(), "sessionfile=".$sessionfile);
   if ( $sessionfile && -f $sessionfile ) {
-     $main::lxdebug->message(LXDebug->DEBUG2(), "file=".$file->file_name." to=".$::form->{to}." sessionfile=".$sessionfile);
     # new uploaded file
     if ( $::form->{to} eq $file->file_name ) {
       # no rename so use as new version
@@ -177,7 +174,6 @@ sub action_ajax_rename {
 
     eval {
       $res = $file->rename($::form->{to});
-      $main::lxdebug->message(LXDebug->DEBUG2(), "rename result=".$res);
       1;
     } or do {
       $self->js->flash(       'error', t8('internal error (see details)'))
@@ -222,14 +218,12 @@ sub action_ajax_files_uploaded {
   my ($self) = @_;
 
   my $source = 'uploaded';
-  $main::lxdebug->message(LXDebug->DEBUG2(), "file_upload UPLOAD=".$::form->{ATTACHMENTS}->{uploadfiles});
   my @existing;
   if ( $::form->{ATTACHMENTS}->{uploadfiles} ) {
     my @upfiles = @{ $::form->{ATTACHMENTS}->{uploadfiles} };
     foreach my $idx (0 .. scalar(@upfiles) - 1) {
       eval {
         my $fname = uri_unescape($upfiles[$idx]->{filename});
-        $main::lxdebug->message(LXDebug->DEBUG2(), "file_upload name=".$fname);
         ## normalize and find basename
         # first split with unix rules
         # after that split with windows rules
@@ -250,7 +244,6 @@ sub action_ajax_files_uploaded {
           $mime_type = File::MimeInfo::Magic::mimetype($basefile);
           $mime_type = 'application/octet-stream' if $mime_type eq 'application/pdf' || !$mime_type;
         }
-        $main::lxdebug->message(LXDebug->DEBUG2(), "mime_type=".$mime_type);
         if ( $self->file_type eq 'image' && $self->file_probe_image_type($mime_type, $basefile)) {
           next;
         }
@@ -262,9 +255,7 @@ sub action_ajax_files_uploaded {
                                         file_name     => $basefile,
                                       );
 
-        $main::lxdebug->message(LXDebug->DEBUG2(), "store1 exist=".$existobj);
         if ($existobj) {
-  $main::lxdebug->message(LXDebug->DEBUG2(), "id=".$existobj->id." sessionfile=". $sfile->file_name);
           push @existing, $existobj->id.'_'.$sfile->file_name;
         } else {
           my $fileobj = SL::File->save(object_id     => $self->object_id,
@@ -277,7 +268,6 @@ sub action_ajax_files_uploaded {
                                        #file_contents => ${$upfiles[$idx]->{data}},
                                        file_path     => $sfile->file_name
                                      );
-          $main::lxdebug->message(LXDebug->DEBUG2(), "obj=".$fileobj);
           unlink($sfile->file_name);
         }
         1;
@@ -338,7 +328,6 @@ sub check_object_params {
   $self->object_id($id);
   $self->object_model($file_types{$type}->{model});
   $self->object_right($file_types{$type}->{right});
-  $main::lxdebug->message(LXDebug->DEBUG2(), "checked: object_id=".$self->object_id." object_type=".$self->object_type." is_global=".$self->is_global);
 
  # $::auth->assert($self->object_right);
 
@@ -371,7 +360,6 @@ sub _delete_all {
 sub _do_list {
   my ($self,$json) = @_;
   my @files;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "do_list: object_id=".$self->object_id." object_type=".$self->object_type." file_type=".$self->file_type." json=".$json);
   if ( $self->file_type eq 'document' ) {
     my @object_types;
     push @object_types, $self->object_type;
@@ -380,13 +368,11 @@ sub _do_list {
                                           object_type => \@object_types,
                                           file_type   => $self->file_type  );
 
-    $main::lxdebug->message(LXDebug->DEBUG2(), "cnt1=".scalar(@files));
   }
   elsif ( $self->file_type eq 'attachment' ||  $self->file_type eq 'image' ) {
     @files   = SL::File->get_all(object_id   => $self->object_id  ,
                                  object_type => $self->object_type,
                                  file_type   => $self->file_type  );
-    $main::lxdebug->message(LXDebug->DEBUG2(), "cnt2=".scalar(@files));
   }
   $self->files(\@files);
   $self->_mk_render('file/list',1,0,$json);
@@ -396,7 +382,6 @@ sub _get_from_import {
   my ($self,$path) = @_;
   my @foundfiles ;
 
-  $main::lxdebug->message(LXDebug->DEBUG2(), "import path=".$path);
   my $language = $::lx_office_conf{system}->{language};
   my $timezone = $::locale->get_local_time_zone()->name;
   if (opendir my $dir, $path) {
@@ -404,12 +389,10 @@ sub _get_from_import {
     foreach my $file ( @files) {
       next if (($file eq '.') || ($file eq '..'));
       $file = Encode::decode('utf-8', $file);
-      $main::lxdebug->message(LXDebug->DEBUG2(), "file=".$file);
 
       next if( -d "$path/$file");
 
       my $tmppath = File::Spec->catfile( $path, $file );
-      $main::lxdebug->message(LXDebug->DEBUG2(), "tmppath=".$tmppath." file=".$file);
       next if( ! -f $tmppath);
 
       my $st = stat($tmppath);
@@ -425,7 +408,6 @@ sub _get_from_import {
 
     }
   }
-  $main::lxdebug->message(LXDebug->DEBUG2(), "return ".scalar(@foundfiles)." files");
   return @foundfiles;
 }
 
@@ -436,11 +418,8 @@ sub _mk_render {
     ##TODO  here a configurable code must be implemented
 
     my $title;
-    $main::lxdebug->message(LXDebug->DEBUG2(), "mk_render: object_id=".$self->object_id." object_type=".$self->object_type.
-                              " file_type=".$self->file_type." json=".$json." filecount=".scalar(@{ $self->files })." is_global=".$self->is_global);
     my @sources = $self->_get_sources();
     foreach my $source ( @sources ) {
-      $main::lxdebug->message(LXDebug->DEBUG2(), "mk_render: source name=".$source->{name});
       @{$source->{files}} = grep { $_->source eq $source->{name}} @{ $self->files };
     }
     if ( $self->file_type eq 'document' ) {
@@ -467,7 +446,6 @@ sub _mk_render {
       if ( $self->existing && scalar(@{$self->existing}) > 0) {
         my $first = shift @{$self->existing};
         my ($first_id,$sfile) = split('_',$first,2);
-        #$main::lxdebug->message(LXDebug->DEBUG2(), "id=".$first_id." sessionfile=". $sfile);
         my $file = SL::File->get(id => $first_id );
         $self->js->run('kivi.File.askForRename',$first_id,$file->file_name,$sfile,join (',', @{$self->existing}), $self->is_global);
       }
@@ -490,7 +468,6 @@ sub _mk_render {
 sub _get_sources {
   my ($self) = @_;
   my @sources;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "get_sources file_type=". $self->file_type);
   if ( $self->file_type eq 'document' ) {
     ##TODO statt gen neue attribute in filetypes :
     if (($file_types{$self->object_type}->{gen}*1 & 1)==1) {
@@ -510,7 +487,6 @@ sub _get_sources {
     }
     if (($file_types{$self->object_type}->{gen}*1 & 2)==2) {
       my @others =  SL::File->get_other_sources();
-      $main::lxdebug->message(LXDebug->DEBUG2(), "other cnt=". scalar(@others));
       foreach my $scanner_or_mailrx (@others) {
         my $other = {
           'name'         => $scanner_or_mailrx->{name},
@@ -567,7 +543,6 @@ sub _get_sources {
     };
     push @sources , $attdata;
   }
-  $main::lxdebug->message(LXDebug->DEBUG2(), "get_sources count=".scalar(@sources));
   return @sources;
 }
 
