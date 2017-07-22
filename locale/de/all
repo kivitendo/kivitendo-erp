@@ -2728,6 +2728,7 @@ $self->{texts} = {
   'Sold order items'            => 'Verkaufte Auftragsartikel',
   'Soldtotal does not make sense without any bsooqr options' => 'Option "Menge in gewählten Belegen" ohne gewählte Belege wird ignoriert.',
   'Solution'                    => 'Lösung',
+  'Sorry, I am too stupid to figure out the default warehouse/bin and the sold qty. I drop the default warehouse/bin option.' => 'Entschuldigung, ich bin nicht in der Lage Standard-Lager und die Menge in gewählten Belegen gleichzeitig anzuzeigen. Ich lass die Standard-Lager weg.',
   'Sort By'                     => 'Sortiert nach',
   'Source'                      => 'Beleg',
   'Source BIC'                  => 'Quell-BIC',

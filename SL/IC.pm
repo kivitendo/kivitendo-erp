@@ -128,6 +128,7 @@ sub assembly_item {
 #
 # column flags:
 #   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_rop l_image l_drawing l_microfiche l_partsgroup
+#   l_warehouse  l_bin
 #
 # exclusives:
 #   itemstatus  = active | onhand | short | obsolete | orphaned
@@ -136,6 +137,8 @@ sub assembly_item {
 # joining filters:
 #   make model                               - makemodel
 #   serialnumber transdatefrom transdateto   - invoice/orderitems
+#   warehouse                                - warehouse
+#   bin                                      - bin
 #
 # binary flags:
 #   bought sold onorder ordered rfq quoted   - aggreg joins with invoices/orders
@@ -151,6 +154,8 @@ sub assembly_item {
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
 #   warehouse onhand
 #   search by overrides of description
+#   soldtotal drops option default warehouse and bin
+#   soldtotal can not work if there are no documents checked
 #
 # disabled sanity checks and changes:
 #  - searchitems = assembly will no longer disable bought
@@ -167,6 +172,9 @@ sub all_parts {
   my ($self, $myconfig, $form) = @_;
   my $dbh = $form->get_standard_dbh($myconfig);
 
+  # sanity backend check
+  croak "Cannot combine soldtotal with default bin or default warehouse" if ($form->{l_soldtotal} && ($form->{l_bin} || $form->{l_warehouse}));
+
   $form->{parts}     = +{ };
   $form->{soldtotal} = undef if $form->{l_soldtotal}; # security fix. top100 insists on putting strings in there...
 
@@ -178,6 +186,7 @@ sub all_parts {
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
+  my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin');
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -212,8 +221,10 @@ sub all_parts {
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
     mv         => 'LEFT JOIN vendor AS mv ON mv.id = mm.make',
     project    => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
+    warehouse  => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
+    bin        => 'LEFT JOIN bin ON bin.id = p.bin_id',
   );
-  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac project);
+  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -442,6 +453,8 @@ sub all_parts {
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
+  $joins_needed{bin}         = 1 if $form->{l_bin};
+  $joins_needed{warehouse}   = 1 if $form->{l_warehouse};
 
   # special case for description search.
   # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
@@ -477,6 +490,16 @@ sub all_parts {
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = @group_tokens ? ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens : '';
+
+  # key of %no_simple_l_switch is the logical l_switch.
+  # the assigned value is the 'not so simple
+  # select token'
+  my $no_simple_select_clause;
+  foreach my $no_simple_l_switch (keys %no_simple_l_switches) {
+    next unless $form->{"l_${no_simple_l_switch}"};
+    $no_simple_select_clause .= ', '. $no_simple_l_switches{$no_simple_l_switch};
+  }
+  $select_clause .= $no_simple_select_clause;
 
   my %oe_flag_to_cvar = (
     bought   => 'invoice',

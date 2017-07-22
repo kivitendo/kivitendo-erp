@@ -167,7 +167,6 @@ sub generate_report {
   $form->{title} = $locale->text('Articles');
 
   my %column_defs = (
-    'bin'                => { 'text' => $locale->text('Bin'), },
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
     'notes'              => { 'text' => $locale->text('Notes'), },
@@ -201,6 +200,8 @@ sub generate_report {
     'type_and_classific' => { 'text' => $locale->text('Type'), },
     'projectnumber'      => { 'text' => $locale->text('Project Number'), },
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
+    'warehouse'          => { 'text' => $locale->text('Default Warehouse'), },
+    'bin'                => { 'text' => $locale->text('Default Bin'), },
   );
 
   $revers     = $form->{revers};
@@ -327,8 +328,8 @@ sub generate_report {
 
   if ($form->{l_service} && !$form->{l_assembly} && !$form->{l_part}) {
 
-    # remove bin, weight and rop from list
-    map { $form->{"l_$_"} = "" } qw(bin weight rop);
+    # remove warehouse, bin, weight and rop from list
+    map { $form->{"l_$_"} = "" } qw(bin weight rop warehouse);
 
     $form->{l_onhand} = "";
 
@@ -364,6 +365,10 @@ sub generate_report {
 
     flash('warning', $::locale->text('Soldtotal does not make sense without any bsooqr options'));
   }
+  if ($form->{l_soldtotal} && ($form->{l_warehouse} || $form->{l_bin})) {
+    delete $form->{"l_$_"} for  qw(bin warehouse);
+    flash('warning', $::locale->text('Sorry, I am too stupid to figure out the default warehouse/bin and the sold qty. I drop the default warehouse/bin option.'));
+  }
   if ($form->{l_name} && !$bsooqr_mode) {
     delete $form->{l_name};
 
@@ -372,7 +377,8 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber type_and_classific description notes partsgroup bin onhand rop soldtotal unit listprice
+    partnumber type_and_classific description notes partsgroup warehouse bin
+    onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -416,7 +422,7 @@ sub generate_report {
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop);
-  my @sort_no_revers   = qw(partsgroup bin priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
+  my @sort_no_revers   = qw(partsgroup priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {
     $column_defs{$col}->{link} = join '&', $callback, "sort=$col", map { "$_=" . E($form->{$_}) } qw(revers lastsort);

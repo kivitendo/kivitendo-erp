@@ -8,7 +8,7 @@ kleinere neue Features und Detailverbesserungen:
 
   - SEPA-XML: alle Sonderzeichen filtern
   - SEPA-Export: Export wieder rückgängig machen, falls noch Status offen
-
+  - Stammdaten -> Berichte -> Artikel: Standardlager und Lagerplatz optional anzeigen
 
 2017-07-17 - Release 3.5.0
 
