@@ -222,11 +222,11 @@ sub action_list {
     # the arrays $bt->{proposals} and $bt->{rule_matches}, and the agreement
     # score is stored in $bt->{agreement}
 
-    foreach my $open_invoice (@all_non_sepa_invoices){
+    foreach my $open_invoice (@all_non_sepa_invoices) {
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
-      $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,$open_invoice->amount*($open_invoice->{is_ar}?1:-1),2);
-      $main::lxdebug->message(LXDebug->DEBUG2(),"nons invoice_id=".$open_invoice->id." amount=".$open_invoice->amount." agreement=".$open_invoice->{agreement}." rules matches=".$open_invoice->{rule_matches}) if $open_invoice->{agreement} > 2;
-    };
+      $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,
+                                      $open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1), 2);
+    }
 
     my $agreement = 15;
     my $min_agreement = 3; # suggestions must have at least this score
