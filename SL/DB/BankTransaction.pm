@@ -209,7 +209,7 @@ sub get_agreement_with_invoice {
     };
   };
 
-#  # if there is exactly one non-executed sepa_export_item for the invoice
+  # if there is exactly one non-executed sepa_export_item for the invoice
   if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
     if (scalar @$seis == 1) {
       my $sei = $seis->[0];
@@ -219,7 +219,7 @@ sub get_agreement_with_invoice {
       my $arap = $invoice->is_sales ? 'ar' : 'ap';
 
       if (abs($self->amount) == ($sei->amount) && $invoice->id == $sei->arap_id) {
-        $agreement += $points{sepa_export_item};
+        $agreement    += $points{sepa_export_item};
         $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
       }
     } else {
@@ -227,6 +227,8 @@ sub get_agreement_with_invoice {
       # zero: do nothing, no sepa_export_item exists, no match
       # more than one: does this ever apply? Currently you can't create sepa
       # exports for invoices that already have a non-executed sepa_export
+      # TODO: Catch the more than one case. User is allowed to split
+      # payments for one invoice item in one sepa export.
     }
   }
 
