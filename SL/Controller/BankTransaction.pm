@@ -222,7 +222,7 @@ sub action_list {
     # the arrays $bt->{proposals} and $bt->{rule_matches}, and the agreement
     # score is stored in $bt->{agreement}
 
-    foreach my $open_invoice (@all_non_sepa_invoices) {
+    foreach my $open_invoice (@all_non_sepa_invoices, @all_sepa_invoices) {
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
       $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,
                                       $open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1), 2);
