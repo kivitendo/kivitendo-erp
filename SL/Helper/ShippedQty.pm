@@ -7,7 +7,7 @@ use SL::AM;
 use Scalar::Util qw(blessed);
 use SL::DBUtils qw(selectall_hashref_query selectall_as_map);
 use List::Util qw(min);
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use List::UtilsBy qw(partition_by);
 use SL::Locale::String qw(t8);
 
@@ -262,8 +262,9 @@ sub init_oe_ids {
 
   die 'oe_ids not initialized in id mode'            if !$self->objects_or_ids;
   die 'objects not initialized before accessing ids' if $self->objects_or_ids && !defined $self->objects;
+  die 'objects need to be Order or OrderItem'        if any  {  ref($_) !~ /^SL::DB::Order(?:Item)?$/ } @{ $self->objects };
 
-  [ map { $_->id } @{ $self->objects } ]
+  [ uniq map { ref($_) =~ /Item/ ? $_->trans_id : $_->id } @{ $self->objects } ]
 }
 
 sub init_dbh { SL::DB->client->dbh }
@@ -308,6 +309,8 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
 
   $helper->calculate($order_object);
   $helper->calculate(\@order_objects);
+  $helper->calculate($orderitem_object);
+  $helper->calculate(\@orderitem_objects);
   $helper->calculate($oe_id);
   $helper->calculate(\@oe_ids);
 
