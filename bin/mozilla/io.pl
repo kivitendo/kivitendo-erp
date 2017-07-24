@@ -63,6 +63,7 @@ use SL::DB::Vendor;
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
+use SL::Helper::ShippedQty;
 
 require "bin/mozilla/common.pl";
 
@@ -1669,37 +1670,13 @@ sub _update_part_information {
 }
 
 sub _update_ship {
-  $main::lxdebug->enter_sub();
+  my $helper = SL::Helper::ShippedQty->new->calculate($::form->{id});
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  if (!$form->{ordnumber} || !$form->{id}) {
-    map { $form->{"ship_$_"} = 0 } (1..$form->{rowcount});
-    $main::lxdebug->leave_sub();
-    return;
+  for my $i (1..$::form->{rowcount}) {
+    if (my $oid = $::form->{"orderitems_id_$i"}) {
+      $::form->{"ship_$i"} = $helper->shipped_qty->{$oid};
+    }
   }
-
-  my $all_units = AM->retrieve_all_units();
-
-  my %ship = DO->get_shipped_qty('oe_id' => $form->{id});
-
-  foreach my $i (1..$form->{rowcount}) {
-    next unless ($form->{"id_${i}"});
-
-    $form->{"ship_$i"} = 0;
-
-    my $ship_entry = $ship{$i};
-
-    next if (!$ship_entry || ($ship_entry->{qty_ordered} <= 0));
-
-    my $rowqty = $ship_entry->{qty_ordered} - $ship_entry->{qty_notdelivered};
-    $rowqty   *= $all_units->{$form->{"unit_$i"}}->{factor} /
-                 $all_units->{$form->{"partunit_$i"}}->{factor} if !$form->{simple_save};
-    $form->{"ship_$i"}  = $rowqty;
-  }
-
-  $main::lxdebug->leave_sub();
 }
 
 sub _update_custom_variables {
