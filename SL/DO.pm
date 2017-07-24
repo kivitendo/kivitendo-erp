@@ -44,6 +44,7 @@ use SL::CVar;
 use SL::DB::DeliveryOrder;
 use SL::DB::Status;
 use SL::DBUtils;
+use SL::Helper::ShippedQty;
 use SL::HTML::Restrict;
 use SL::RecordLinks;
 use SL::IC;
@@ -561,28 +562,24 @@ SQL
 }
 
 sub mark_orders_if_delivered {
-  $main::lxdebug->enter_sub();
-
-  my $self   = shift;
-  my %params = @_;
+  my ($self, %params) = @_;
 
   Common::check_params(\%params, qw(do_id type));
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  my $do     = SL::DB::Manager::DeliveryOrder->find_by(id => $params{do_id});
+  my $orders = $do->linked_records(from => 'Order');
+
+  SL::Helper::ShippedQty->new->calculate($orders)->write_to_objects;
 
   SL::DB->client->with_transaction(sub {
-    my $dbh      = $params{dbh} || SL::DB->client->dbh;
+    for my $oe (@$orders) {
+      next if $params{type} eq 'sales'    && !$oe->customer_id;
+      next if $params{type} eq 'purchase' && !$oe->vendor_id;
 
-    my %ship = $self->get_shipped_qty('dbh' => $dbh, 'do_id' => $form->{id}, 'delivered' => 1);
-
-    foreach my $oe_id (keys %ship) {
-        do_query($form, $dbh,"UPDATE oe SET delivered = ".($ship{$oe_id}->{delivered}?"TRUE":"FALSE")." WHERE id = ?", $oe_id);
+      $oe->update_attributes(delivered => $oe->{delivered});
     }
     1;
   }) or do { die SL::DB->client->error };
-
-  $main::lxdebug->leave_sub();
 }
 
 sub close_orders {
