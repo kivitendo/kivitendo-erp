@@ -108,6 +108,8 @@ sub calculate {
 
   $self->calculate_item_links;
   $self->calculate_fill_up if $self->fill_up;
+
+  $self;
 }
 
 sub calculate_item_links {
