@@ -338,14 +338,19 @@ defaults
 
 Creates a new warehouse and bins, and immediately saves them. Returns the
 warehouse and the first bin object.
+
   my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins();
 
 Create named warehouse with 10 bins:
-  my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins(warehouse_description => 'Testlager',
-                                                                 bin_description       => 'Testlagerplatz',
-                                                                 number_of_bins        => 10,
-                                                                );
+
+  my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins(
+    warehouse_description => 'Test warehouse',
+    bin_description       => 'Test bin',
+    number_of_bins        => 10,
+  );
+
 To access the second bin:
+
   my $bin2 = $wh->bins->[1];
 
 =head2 C<set_stock %PARAMS>
@@ -353,55 +358,107 @@ To access the second bin:
 Change the stock level of a certain part by creating an inventory event.
 To access the updated onhand the part object needs to be loaded afterwards.
 
-Mandatory params:
-  part - an SL::DB::Part object or a parts_id
-  qty | abs_qty
-    qty     : the qty to increase of decrease the stock level by
-    abs_qty : sets stock level for a certain part to abs_qty by creating
-              a stock event with the current difference
+Parameter:
 
-Optional params:
-  bin_id | bin
-  shippingdate : may be a DateTime object or a string that needs to be parsed by parse_date_to_object.
-  unit         : SL::DB::Unit object, or the name of an SL::DB::Unit object
+=over 4
+
+=item C<part>
+
+Mandatory. An SL::DB::Part object or a parts_id.
+
+=item C<qty>
+
+The qty to increase of decrease the stock level by.
+
+Exactly one of C<qty> and C<abs_qty> is mandatory.
+
+=item C<abs_qty>
+
+Sets stock level for a certain part to abs_qty by creating a stock event with
+the current difference.
+
+Exactly one of C<qty> and C<abs_qty> is mandatory.
+
+=item C<bin_id>
+
+=item C<bin>
+
+Optional. The bin for inventory entry.
 
 If no bin is passed the default bin of the part is used, if that doesn't exist
 either there will be an error.
+
+=item C<shippingdate>
+
+Optional. May be a DateTime object or a string that needs to be parsed by
+parse_date_to_object.
+
+=item C<unit>
+
+Optional. SL::DB::Unit object, or the name of an SL::DB::Unit object.
+
+=back
 
 C<set_stock> creates the SL::DB::Inventory object from scratch, rather
 than passing params to WH->transfer_in or WH->transfer_out.
 
 Examples:
+
   my $part = SL::DB::Manager::Part->find_by(partnumber => '1');
-  SL::Dev::Inventory::set_stock(part => $part, qty =>  5);
+  SL::Dev::Inventory::set_stock(part => $part, abs_qty => 5);
   SL::Dev::Inventory::set_stock(part => $part, qty => -2);
   $part->load;
   $part->onhand; # 3
 
 Set stock level of a part in a certain bin_id to 10:
+
   SL::Dev::Inventory::set_stock(part => $part, bin_id => 99, abs_qty => 10);
 
 Create 10 warehouses with 5 bins each, then create 100 parts and increase the
 stock qty in a random bin by a random positive qty for each of the parts:
 
-  SL::Dev::Inventory::create_warehouse_and_bins(warehouse_description => "Testlager $_") for ( 1 .. 10 );
-  SL::Dev::Part::create_part(description => "Testpart $_")->save for ( 1 .. 100 );
+  SL::Dev::Inventory::create_warehouse_and_bins(
+    warehouse_description => "Test Warehouse $_"
+  ) for 1 .. 10;
+  SL::Dev::Part::create_part(
+    description => "Test Part $_"
+  )->save for 1 .. 100;
   my $bins = SL::DB::Manager::Bin->get_all;
-  SL::Dev::Inventory::set_stock(part => $_,
-                                qty  => int(rand(99))+1,
-                                bin  => $bins->[ rand @{$bins} ],
-                               ) foreach @{ SL::DB::Manager::Part->get_all() };
+  SL::Dev::Inventory::set_stock(
+    part => $_,
+    qty  => int(rand(99))+1,
+    bin  => $bins->[ rand @{$bins} ],
+  ) for @{ SL::DB::Manager::Part->get_all };
 
 =head2 C<transfer_stock %PARAMS>
 
 Transfers parts from one bin to another.
 
-Mandatory params:
-  part | parts_id    - an SL::DB::Part object or a parts_id
-  from_bin           - an SL::DB::Bin object
-  to_bin qty         - an SL::DB::Bin object
+Parameters:
 
-Optional params: shippingdate
+=over 4
+
+=item C<part>
+
+=item C<part_id>
+
+Mandatory. An SL::DB::Part object or a parts_id.
+
+=item C<from_bin>
+
+=item C<to_bin>
+
+Mandatory. SL::DB::Bin objects.
+
+=item C<qty>
+
+Mandatory.
+
+=item C<shippingdate>
+
+Optional.
+
+=back
 
 The unit is always base_unit and there is no check for negative stock values.
 
@@ -410,12 +467,17 @@ of the stock to a different bin inside the same warehouse:
 
   my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins();
   my $part = SL::Dev::Part::create_part->save;
-  SL::Dev::Inventory::set_stock(part => $part, bin_id => $wh->bins->[2]->id, qty => 5);
-  SL::Dev::Inventory::transfer_stock(part     => $part,
-                                     from_bin => $wh->bins->[2],
-                                     to_bin   => $wh->bins->[4],
-                                     qty      => 3
-                                    );
+  SL::Dev::Inventory::set_stock(
+    part   => $part,
+    bin_id => $wh->bins->[2]->id,
+    qty    => 5,
+  );
+  SL::Dev::Inventory::transfer_stock(
+    part     => $part,
+    from_bin => $wh->bins->[2],
+    to_bin   => $wh->bins->[4],
+    qty      => 3,
+  );
   $part->get_stock(bin_id => $wh->bins->[4]->id); # 3.00000
   $part->get_stock(bin_id => $wh->bins->[2]->id); # 2.00000
 
@@ -434,6 +496,7 @@ works on database objects.
 As this is just Dev it doesn't check for negative stocks etc.
 
 Usage:
+
   my $sales_delivery_order = SL::DB::Manager::DeliveryOrder->find_by(donumber => 112);
   SL::Dev::Inventory::transfer_sales_delivery_order($sales_delivery_order1);
 
@@ -449,6 +512,7 @@ Transfers a delivery order item from a delivery order. The whole qty is transfer
 Doesn't check for available qty.
 
 Usage:
+
   SL::Dev::Inventory::transfer_delivery_order_item($doi, $wh, $bin, $trans_type);
 
 =head2 C<transfer_in %PARAMS>
@@ -458,31 +522,69 @@ is entered via the web interface.
 
 Does some param checking, sets some defaults, but otherwise uses WH->transfer.
 
-Mandatory params:
-  part               - an SL::DB::Part object
-  qty                - a number
+Parameters:
 
-Optional params: shippingdate
-  bin           - an SL::DB::Bin object, defaults to $part->bin
-  wh            - an SL::DB::Bin object, defaults to $part->warehouse
-  unit          - a string such as 't', 'Stck', defaults to $part->unit->name
-  shippingdate  - a DateTime object, defaults to today
-  transfer_type - a string such as 'correction', defaults to 'stock'
-  comment
+=over 4
+
+=item C<part>
+
+Mandatory. An SL::DB::Part object.
+
+=item C<qty>
+
+Mandatory.
+
+=item C<bin>
+
+Optional. An SL::DB::Bin object, defaults to $part->bin.
+
+=item C<wh>
+
+Optional. An SL::DB::Bin object, defaults to $part->warehouse.
+
+=item C<unit>
+
+Optional. A string such as 't', 'Stck', defaults to $part->unit->name.
+
+=item C<shippingdate>
+
+Optional. A DateTime object, defaults to today.
+
+=item C<transfer_type>
+
+Optional. A string such as 'correction', defaults to 'stock'.
+
+=item C<comment>
+
+Optional.
+
+=back
 
 Example minimal usage using part default warehouse and bin:
+
   my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins();
-  my $part       = SL::Dev::Part::create_part(unit => 'kg', warehouse => $wh, bin => $bin)->save;
-  SL::Dev::Inventory::transfer_in(part => $part, qty => '0.9', unit => 't', comment => '900 kg in t');
+  my $part       = SL::Dev::Part::create_part(
+    unit      => 'kg',
+    warehouse => $wh,
+    bin       => $bin,
+  )->save;
+  SL::Dev::Inventory::transfer_in(
+    part    => $part,
+    qty     => 0.9,
+    unit    => 't',
+    comment => '900 kg in t',
+  );
 
 Example with specific transfer_type and warehouse and bin and shipping_date:
+
   my $shipping_date = DateTime->today->subtract( days => 20 );
-  SL::Dev::Inventory::transfer_in(part          => $part,
-                                  qty           => 5,
-                                  transfer_type => 'correction',
-                                  bin           => $bin,
-                                  shipping_date => $shipping_date,
-                                 );
+  SL::Dev::Inventory::transfer_in(
+    part          => $part,
+    qty           => 5,
+    transfer_type => 'correction',
+    bin           => $bin,
+    shipping_date => $shipping_date,
+  );
 
 =head2 C<transfer_out %PARAMS>
 
