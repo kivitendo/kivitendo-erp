@@ -2,16 +2,18 @@ package SL::Dev::Inventory;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_warehouse_and_bins set_stock);
+our @EXPORT = qw(create_warehouse_and_bins set_stock transfer_stock transfer_sales_delivery_order transfer_purchase_delivery_order transfer_delivery_order_item transfer_in transfer_out);
 
 use SL::DB::Warehouse;
 use SL::DB::Bin;
 use SL::DB::Inventory;
 use SL::DB::TransferType;
 use SL::DB::Employee;
+use SL::DB::DeliveryOrderItemsStock;
 use SL::WH;
 use DateTime;
 use Data::Dumper;
+use Carp;
 
 sub create_warehouse_and_bins {
   my (%params) = @_;
@@ -184,6 +186,143 @@ sub transfer_stock {
   # return 1;
 }
 
+sub _transfer {
+  my (%params) = @_;
+
+  my $transfer_type = delete $params{transfer_type};
+
+  die "param transfer_type is not a SL::DB::TransferType object: " . Dumper($transfer_type) unless ref($transfer_type) eq 'SL::DB::TransferType';
+
+  my $shippingdate  = delete $params{shippingdate}  // DateTime->today;
+
+  my $part = delete($params{part}) or croak 'part missing';
+  my $qty  = delete($params{qty})  or croak 'qty missing';
+
+  # distinguish absolute qty in inventory depending on transfer type direction
+  $qty *= -1 if $transfer_type->direction eq 'out';
+
+  # use defaults for unit/wh/bin is they exist and nothing else is specified
+  my $unit = delete($params{unit}) // $part->unit      or croak 'unit missing';
+  my $bin  = delete($params{bin})  // $part->bin       or croak 'bin missing';
+  # if bin is given, we don't need a warehouse param
+  my $wh   = $bin->warehouse or croak 'wh missing';
+
+  WH->transfer({
+    parts_id         => $part->id,
+    dst_bin          => $bin,
+    dst_wh           => $wh,
+    qty              => $qty,
+    transfer_type    => $transfer_type,
+    unit             => $unit,
+    comment          => delete $params{comment},
+    shippingdate     => $shippingdate,
+  });
+}
+
+sub transfer_in {
+  my (%params) = @_;
+
+  my $transfer_type = delete $params{transfer_type} // 'stock';
+
+  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by( direction => 'in', description => $transfer_type ) or die "Can't find transfer_type with direction in and descriptin " . $params{transfer_type};
+
+  $params{transfer_type} = $transfer_type_obj;
+
+  _transfer(%params);
+}
+
+sub transfer_out {
+  my (%params) = @_;
+
+  my $transfer_type = delete $params{transfer_type} // 'shipped';
+
+  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by( direction => 'out', description => $transfer_type ) or die "Can't find transfer_type with direction in and descriptin " . $params{transfer_type};
+
+  $params{transfer_type} = $transfer_type_obj;
+
+  _transfer(%params);
+}
+
+sub transfer_sales_delivery_order {
+  my ($sales_delivery_order) = @_;
+  die "first argument must be a sales delivery order Rose DB object" unless ref($sales_delivery_order) eq 'SL::DB::DeliveryOrder' and $sales_delivery_order->is_sales;
+
+  die "the delivery order has already been delivered" if $sales_delivery_order->delivered;
+
+  my ($wh, $bin, $trans_type);
+
+  $sales_delivery_order->db->with_transaction(sub {
+
+   foreach my $doi ( @{ $sales_delivery_order->items } ) {
+     next if $doi->part->is_service or $doi->part->is_assortment;
+     my $trans_type = SL::DB::Manager::TransferType->find_by(direction => 'out', description => 'shipped');
+     transfer_delivery_order_item($doi, $wh, $bin, $trans_type);
+   };
+   $sales_delivery_order->delivered(1);
+   $sales_delivery_order->save(changes_only=>1);
+   1;
+  }) or die "error while transferring sales_delivery_order: " . $sales_delivery_order->db->error;
+};
+
+sub transfer_purchase_delivery_order {
+  my ($purchase_delivery_order) = @_;
+  die "first argument must be a purchase delivery order Rose DB object" unless ref($purchase_delivery_order) eq 'SL::DB::DeliveryOrder' and not $purchase_delivery_order->is_sales;
+
+  my ($wh, $bin, $trans_type);
+
+  $purchase_delivery_order->db->with_transaction(sub {
+
+   foreach my $doi ( @{ $purchase_delivery_order->items } ) {
+     my $trans_type = SL::DB::Manager::TransferType->find_by(direction => 'in', description => 'stock');
+     transfer_delivery_order_item($doi, $wh, $bin, $trans_type);
+   };
+   1;
+  }) or die "error while transferring purchase_Delivery_order: " . $purchase_delivery_order->db->error;
+};
+
+sub transfer_delivery_order_item {
+  my ($doi, $wh, $bin, $trans_type) = @_;
+
+  unless ( defined $trans_type and ref($trans_type eq 'SL::DB::TransferType') ) {
+    if ( $doi->record->is_sales ) {
+      $trans_type //=  SL::DB::Manager::TransferType->find_by(direction => 'out', description => 'shipped');
+    } else {
+      $trans_type //= SL::DB::Manager::TransferType->find_by(direction => 'in', description => 'stock');
+    }
+  }
+
+  $bin //= $doi->part->bin;
+  $wh  //= $doi->part->warehouse;
+
+  die "no bin and wh specified and part has no default bin or wh" unless $bin and $wh;
+
+  my $employee = SL::DB::Manager::Employee->current || die "No employee";
+
+  # dois are converted to base_qty, which is qty
+  # AM->convert_unit( 'g' => 'kg') * 1000;   # 1
+  #               $doi->unit   $doi->part->unit   $doi->qty
+  my $dois = SL::DB::DeliveryOrderItemsStock->new(
+    delivery_order_item => $doi,
+    qty                 => AM->convert_unit($doi->unit => $doi->part->unit) * $doi->qty,
+    unit                => $doi->part->unit,
+    warehouse_id        => $wh->id,
+    bin_id              => $bin->id,
+  )->save;
+
+  my $inventory = SL::DB::Inventory->new(
+    parts                      => $dois->delivery_order_item->part,
+    qty                        => $dois->delivery_order_item->record->is_sales ? $dois->qty * -1 : $dois->qty,
+    oe                         => $doi->record,
+    warehouse_id               => $dois->warehouse_id,
+    bin_id                     => $dois->bin_id,
+    trans_type_id              => $trans_type->id,
+    delivery_order_items_stock => $dois,
+    trans_id                   => $dois->id,
+    employee_id                => $employee->id,
+    shippingdate               => $doi->record->transdate,
+  )->save;
+};
+
 1;
 
 __END__
@@ -279,6 +418,75 @@ of the stock to a different bin inside the same warehouse:
                                     );
   $part->get_stock(bin_id => $wh->bins->[4]->id); # 3.00000
   $part->get_stock(bin_id => $wh->bins->[2]->id); # 2.00000
+
+=head2 C<transfer_sales_delivery_order %PARAMS>
+
+Takes a SL::DB::DeliveryOrder object as its first argument and transfers out
+all the items via their default bin, creating the delivery_order_stock and
+inventory entries.
+
+Assumes a fresh delivery order where nothing has been transferred out yet.
+
+Should work like the functions in do.pl transfer_in/transfer_out and DO.pm
+transfer_in_out, except that those work on the current form where as this just
+works on database objects.
+
+As this is just Dev it doesn't check for negative stocks etc.
+
+Usage:
+  my $sales_delivery_order = SL::DB::Manager::DeliveryOrder->find_by(donumber => 112);
+  SL::Dev::Inventory::transfer_sales_delivery_order($sales_delivery_order1);
+
+=head2 C<transfer_purchase_delivery_order %PARAMS>
+
+Transfer in all the items in a purchase order.
+
+Behaves like C<transfer_sales_delivery_order>.
+
+=head2 C<transfer_delivery_order_item @PARAMS>
+
+Transfers a delivery order item from a delivery order. The whole qty is transferred.
+Doesn't check for available qty.
+
+Usage:
+  SL::Dev::Inventory::transfer_delivery_order_item($doi, $wh, $bin, $trans_type);
+
+=head2 C<transfer_in %PARAMS>
+
+Create stock in event for a part. Ideally the interface should mirror how data
+is entered via the web interface.
+
+Does some param checking, sets some defaults, but otherwise uses WH->transfer.
+
+Mandatory params:
+  part               - an SL::DB::Part object
+  qty                - a number
+
+Optional params: shippingdate
+  bin           - an SL::DB::Bin object, defaults to $part->bin
+  wh            - an SL::DB::Bin object, defaults to $part->warehouse
+  unit          - a string such as 't', 'Stck', defaults to $part->unit->name
+  shippingdate  - a DateTime object, defaults to today
+  transfer_type - a string such as 'correction', defaults to 'stock'
+  comment
+
+Example minimal usage using part default warehouse and bin:
+  my ($wh, $bin) = SL::Dev::Inventory::create_warehouse_and_bins();
+  my $part       = SL::Dev::Part::create_part(unit => 'kg', warehouse => $wh, bin => $bin)->save;
+  SL::Dev::Inventory::transfer_in(part => $part, qty => '0.9', unit => 't', comment => '900 kg in t');
+
+Example with specific transfer_type and warehouse and bin and shipping_date:
+  my $shipping_date = DateTime->today->subtract( days => 20 );
+  SL::Dev::Inventory::transfer_in(part          => $part,
+                                  qty           => 5,
+                                  transfer_type => 'correction',
+                                  bin           => $bin,
+                                  shipping_date => $shipping_date,
+                                 );
+
+=head2 C<transfer_out %PARAMS>
+
+Create stock out event for a part. See C<transfer_in>.
 
 =head1 BUGS
 
