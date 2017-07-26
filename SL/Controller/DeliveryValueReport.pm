@@ -9,6 +9,7 @@ use SL::DB::Business;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
+use SL::Helper::ShippedQty;
 use SL::AM;
 use SL::DBUtils ();
 use Carp;
@@ -37,8 +38,6 @@ my %sort_columns = (
   netto_shipped_qty       => t8('Net Value in delivery orders'),
   delivered_qty           => t8('transferred in / out'),
   netto_delivered_qty     => t8('Net value transferred in / out'),
-  do_closed_qty           => t8('Qty in closed delivery orders'),
-  netto_do_closed_qty     => t8('Net value in closed delivery orders')
 );
 
 
@@ -69,7 +68,7 @@ sub prepare_report {
 
   my @columns     = qw(reqdate customer vendor ordnumber partnumber description unit qty netto_qty
                        not_shipped_qty netto_not_shipped_qty shipped_qty netto_shipped_qty delivered_qty
-                       netto_delivered_qty do_closed_qty netto_do_closed_qty);
+                       netto_delivered_qty);
 
 
   my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
@@ -103,9 +102,6 @@ sub prepare_report {
                                              $_[0]{shipped_qty} - $_[0]{delivered_qty} - $_[0]{do_closed_qty})
                                              * ($_[0]->sellprice * (1 - $_[0]->discount) /
                                                                              ($_[0]->price_factor || 1)), 2))  },},
-    do_closed_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{do_closed_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           },},
-    netto_do_closed_qty => {    sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_do_closed_qty}, 2) },},
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                           },
                            obj_link => sub { $self->link_to($_[0]->order)                                      } },
     vendor            => {      sub => sub { $_[0]->order->vendor->name                                        },
@@ -255,42 +251,27 @@ sub link_to {
 
 sub calc_qtys_price {
   my ($self, $orderitems) = @_;
-  # using $orderitem->shipped_qty 40 times is far too slow. need to do it manually
-  # also for calc net values
 
   return unless scalar @$orderitems;
 
-  my %orderitems_by_id = map { $_->id => $_ } @$orderitems;
+  SL::Helper::ShippedQty
+    ->new(require_stock_out => 1)
+    ->calculate($orderitems)
+    ->write_to_objects;
 
-  my $query = <<SQL;
-    SELECT oi.id, doi.qty, doi.unit, doe.delivered, doe.closed,
-           oi.sellprice, oi.discount, oi.price_factor
-    FROM record_links rl
-    INNER JOIN delivery_order_items doi ON (doi.id = rl.to_id)
-    INNER JOIN orderitems oi            ON (oi.id  = rl.from_id)
-    INNER JOIN delivery_orders doe      ON (doe.id = doi.delivery_order_id)
-    WHERE rl.from_table = 'orderitems'
-      AND rl.to_table   = 'delivery_order_items'
-      AND oi.id IN (@{[ join ', ', ("?")x @$orderitems ]})
-SQL
+  $_->{delivered_qty} = delete $_->{shipped_qty} for @$orderitems;
 
-  my $result = SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, $query, map { $_->id } @$orderitems);
+  SL::Helper::ShippedQty
+    ->new(require_stock_out => 0)
+    ->calculate($orderitems)
+    ->write_to_objects;
 
-  for my $row (@$result) {
-    my $item = $orderitems_by_id{ $row->{id} };
-    $item->{shipped_qty}   ||= 0;
-    $item->{delivered_qty} ||= 0;
-    $item->{do_closed_qty} ||= 0;
-    $item->{shipped_qty}    += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  unless ($row->{delivered} || $row->{closed});
-    $item->{delivered_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  if ($row->{delivered} && !$row->{closed});
-    $item->{do_closed_qty}  += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty}  if ($row->{closed});
-    $item->{not_shipped_qty} += AM->convert_unit($row->{unit} => $item->unit) * $row->{qty} unless ($row->{delivered});
+  for my $item (@$orderitems) {
+    $item->{not_shipped_qty} = $item->qty - $item->{shipped_qty};
 
-    my $price_factor = $row->{price_factor} || 1;
-    $item->{netto_shipped_qty}   = $item->{shipped_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
-    $item->{netto_delivered_qty} = $item->{delivered_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
-    $item->{netto_do_closed_qty} = $item->{do_closed_qty} * $row->{sellprice} * (1 - $row->{discount} ) / $price_factor;
-
+    my $price_factor = $item->price_factor || 1;
+    $item->{netto_shipped_qty}   = $item->{shipped_qty}   * $item->sellprice * (1 - $item->discount) / $price_factor;
+    $item->{netto_delivered_qty} = $item->{delivered_qty} * $item->sellprice * (1 - $item->discount) / $price_factor;
   }
 }
 
