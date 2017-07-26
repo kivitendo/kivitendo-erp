@@ -80,7 +80,8 @@ sub get_mtime {
   die "unknown version" if $params{version} &&
                           ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
   my $path = $self->_filesystem_path($params{dbfile},$params{version});
-  die "no file found in backend get_mtime" if !-f $path;
+  die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
+
   my @st = stat($path);
   my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
   return $dt;
