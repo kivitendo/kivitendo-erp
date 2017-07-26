@@ -125,9 +125,9 @@ SL::Helper::ShippedQty
 is($purchase_order->orderitems->[0]->{shipped_qty}, 11, "require_stock_out => 1: first purchase orderitem has shipped_qty");
 is($purchase_order->orderitems->[0]->{delivered},    1, "require_stock_out => 1: first purchase orderitem is delivered");
 
-my $purchase_orderitem_part1 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $purchase_order->id);
+my $purchase_orderitem_part2 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $purchase_order->id);
 
-is($purchase_orderitem_part1->shipped_qty(require_stock_out => 1), 11, "OrderItem shipped_qty from helper ok");
+is($purchase_orderitem_part2->shipped_qty(require_stock_out => 1), 11, "OrderItem shipped_qty from helper ok");
 
 
 note('testing sales, no fill_up');
