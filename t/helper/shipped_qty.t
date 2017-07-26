@@ -34,7 +34,7 @@ $vendor   = SL::Dev::CustomerVendor::create_vendor(  name => 'Testlieferant')->s
 my $default_sellprice = 10;
 my $default_lastcost  =  4;
 
-my ($wh) = SL::Dev::Inventory->create_warehouse_and_bins();
+my ($wh) = SL::Dev::Inventory::create_warehouse_and_bins();
 my $bin1 = SL::DB::Manager::Bin->find_by(description => "Bin 1");
 my $bin2 = SL::DB::Manager::Bin->find_by(description => "Bin 2");
 
