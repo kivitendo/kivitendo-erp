@@ -346,7 +346,7 @@ loop over and over, so take advantage of batch processing when possible.
 
 =head1 MOTIVATION AND PROBLEMS
 
-The concept of shipped qty is sadly not as straight forward as it sounds on
+The concept of shipped qty is sadly not as straight forward as it sounds at
 first glance. Any correct implementation must in some way deal with the
 following problems.
 
@@ -363,7 +363,7 @@ inventory it will mean when the delivery order is saved.
 How to find the correct matching elements. After the changes
 to record item links it's natural to assume that each position is linked, but
 for various reasons this might not be the case. Positions that are not linked
-in database need to be matched by marching.
+in the database need to be matched by marching.
 
 =item *
 
@@ -384,7 +384,7 @@ be part of the identity of a position for finding shipped matches.
 
 =item *
 
-Certain delivery orders might not be eligable for qty calculations if delivery
+Certain delivery orders might not be eligible for qty calculations if delivery
 orders are used for other purposes.
 
 =item *
@@ -481,7 +481,7 @@ linked elements were found.
 
 =item C<delivered>
 
-Valid after L</calculate>. Returns a hasref with delivered flag by order id.
+Valid after L</calculate>. Returns a hashref with a delivered flag by order id.
 
 =back
 
@@ -494,20 +494,20 @@ with a delivery order and evaluates whether those are delivered or not. No
 detailed information is needed.
 
 This is to be integrated into fast delivered check on the orders. The calling
-convention for the delivery_order is not scope of this module.
+convention for the delivery_order is not part of the scope of this module.
 
 =head2 do_mode
 
 Originally used for printing delivery orders. Resolves for each position for
-much was originally ordered, and how much remains undelivered.
+how much was originally ordered, and how much remains undelivered.
 
-This one is likely to be dropped. The information makes only sense without
+This one is likely to be dropped. The information only makes sense without
 combined merge/split deliveries and is very fragile with unaccounted delivery
 orders.
 
 =head2 oe mode
 
-Same from order perspective. Used for transitions to delivery orders, where
+Same from the order perspective. Used for transitions to delivery orders, where
 delivered qtys should be removed from positions. Also used each time a record
 is rendered to show the shipped qtys. Also used to find orders that are not
 fully delivered.
@@ -670,14 +670,14 @@ this is the old get_shipped_qty algorithm by Martin for reference
 
 =head1 COMPLEXITY OBSERVATIONS
 
-Perl ops except sort are expected to be constant (relative to the op overhead).
+Perl ops except for sort are expected to be constant (relative to the op overhead).
 
 =head2 Record item links
 
 The query itself has indices available for all joins and filters and should
-scale with sublinear with number of affected orderitems.
+scale with sublinear with the number of affected orderitems.
 
-The rest of the code iterates through the result and call C<AM::convert_unit>,
+The rest of the code iterates through the result and calls C<AM::convert_unit>,
 which caches internally and is asymptotically constant.
 
 =head2 Fill up
@@ -694,7 +694,7 @@ Iterating through the values of the partitions scales with the number of
 elements in the multimap, and does not add additional complexity.
 
 The sort and parallel walk are O(nlogn) for the length of the subdivisions,
-whioch again makes square worst case, but much less than that in the general
+which again makes square worst case, but much less than that in the general
 case.
 
 =head3 Space requirements
