@@ -309,16 +309,16 @@
   <td>[% LxERP.t8('If yes, delivery order positions are considered "delivered" only if they have been stocked out of the inventory. Otherwise saving the delivery order is considered delivered.') %]</td>
  </tr>
  <tr>
-  <td align="right">[% LxERP.t8('Use fill up when calculating shipped quantitiies?') %]</td>
+  <td align="right">[% LxERP.t8('Use fill up when calculating shipped quantities?') %]</td>
   <td>[% L.yes_no_tag('defaults.shipped_qty_fill_up', SELF.defaults.shipped_qty_fill_up) %]</td>
-  <td>[% LxERP.t8('Linked positions will always reconciled first. If this is set to yes, unlinked positions will be reconciled in a second step. This is necessary in very old databases (with open delivery orders from before 3.4.0) and in businesses where delivery orders are frequently amended. Usually the direct links are faster and more accurate. Defaults to true for historical reasons only.') %]</td>
+  <td>[% LxERP.t8('Linked positions will always be reconciled first. If this is set to yes, unlinked positions will be reconciled in a second step. This is necessary in very old databases (with open delivery orders from before 3.4.0) and in businesses where delivery orders are frequently amended. Usually the direct links are faster and more accurate. Defaults to true for historical reasons only.') %]</td>
  </tr>
  <tr>
   <td align="right">[% LxERP.t8('Position identity fields for fill up?') %]</td>
   <td>
     [% L.select_tag("defaults.shipped_qty_item_identity_fields[]", SELF.available_shipped_qty_item_identity_fields, id="defaults_shipped_qty_item_identity_fields", multiple=1, default=SELF.defaults.shipped_qty_item_identity_fields) %]
     [% L.multiselect2side("defaults_shipped_qty_item_identity_fields", labelsx=LxERP.t8("Available identity fields"), labeldx=LxERP.t8("Selected identity fields")) %]</td>
-  <td>[% LxERP.t8('Only applies if the previous is set to true. When filling up unlinked positions, consider them matches if ALL of these fields match. For example, in a business with variants that are defined by special description, description needs to be part of the identity. If delivering several similar order positions by delivery date is common, reqdate should be included in the identity. Serialnumber is useful when the serialnumber in order and delivery order has to match.') %]</td>
+  <td>[% LxERP.t8('Only applies if the previous is set to true. When filling up unlinked positions, consider them matches if ALL of these fields match. For example, in a business with variants that are defined by a special description, description needs to be part of the identity. If delivering several similar order positions by delivery date is common, reqdate should be included in the identity. Serialnumber is useful when the serialnumber in the order and delivery order has to match.') %]</td>
  </tr>
 
 
