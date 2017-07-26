@@ -50,10 +50,12 @@ my $no_stock_fill_up_doi_query = <<'';
       AND to_id = doi.id)
 
 my $stock_item_links_query = <<'';
-  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit, i.qty AS doi_qty, p.unit AS doi_unit
+  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit,
+    (CASE WHEN doe.customer_id > 0 THEN -1 ELSE 1 END) * i.qty AS doi_qty, p.unit AS doi_unit
   FROM record_links rl
   INNER JOIN orderitems oi                   ON oi.id = rl.from_id AND rl.from_table = 'orderitems'
   INNER JOIN delivery_order_items doi        ON doi.id = rl.to_id AND rl.to_table = 'delivery_order_items'
+  INNER JOIN delivery_orders doe             ON doe.id = doi.delivery_order_id
   INNER JOIN delivery_order_items_stock dois ON dois.delivery_order_item_id = doi.id
   INNER JOIN inventory i                     ON dois.id = i.delivery_order_items_stock_id
   INNER JOIN parts p                         ON p.id = doi.parts_id
@@ -61,10 +63,12 @@ my $stock_item_links_query = <<'';
   ORDER BY oi.trans_id, oi.position
 
 my $stock_fill_up_doi_query = <<'';
-  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber, i.qty, p.unit
+  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber,
+    (CASE WHEN doe.customer_id > 0 THEN -1 ELSE 1 END) * i.qty, p.unit
   FROM delivery_order_items doi
   INNER JOIN parts p                         ON p.id = doi.parts_id
   INNER JOIN delivery_order_items_stock dois ON dois.delivery_order_item_id = doi.id
+  INNER JOIN delivery_orders doe             ON doe.id = doi.delivery_order_id
   INNER JOIN inventory i                     ON dois.id = i.delivery_order_items_stock_id
   WHERE doi.delivery_order_id IN (
     SELECT to_id
