@@ -78,8 +78,9 @@ sub get_mtime {
   my ($self, %params) = @_;
   die "no dbfile" unless $params{dbfile};
   die "unknown version" if $params{version} &&
-                          ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data) ;
-  my $path = $self->_filesystem_path($params{dbfile},$params{version});
+                          ($params{version} < 0 || $params{version} > $params{dbfile}->backend_data);
+  my $path = $self->_filesystem_path($params{dbfile}, $params{version});
+
   die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
 
   my @st = stat($path);
