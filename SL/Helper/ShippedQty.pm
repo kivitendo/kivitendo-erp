@@ -306,7 +306,6 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
     fill_up              => 0,
     require_stock_out    => 0,
     item_identity_fields => [ qw(parts_id description reqdate serialnumber) ],
-    set_delivered        => 1,
   );
 
   $helper->calculate($order_object);
@@ -324,10 +323,10 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
   $helper->write_to_objects;
 
   # shipped_qtys by oi_id
-  my $shipped_qtys_by_oi_id = $helper->shipped_qtys;
+  my $shipped_qty = $helper->shipped_qty->{$oi->id};
 
   # delivered by oe_id
-  my $delivered_by_oe_id = $helper->delievered;
+  my $delivered = $helper->delievered->{$oi->id};
 
 =head1 DESCRIPTION
 
