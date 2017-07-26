@@ -134,7 +134,8 @@ sub action_ajax_add_list {
   my @with_objects = ($vc);
   push @with_objects, $project if $manager->can($project_id);
 
-  my $objects = $manager->get_all_sorted(where => \@where, with_objects => \@with_objects);
+  # show the newest records first (should be better for 80% of the cases TODO sortable click
+  my $objects = $manager->get_all_sorted(where => \@where, with_objects => \@with_objects, sort_by => 'itime',  sort_dir => 'ASC');
   my $output  = $self->render(
     'record_links/add_list',
     { output => 0 },
