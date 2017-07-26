@@ -1194,8 +1194,8 @@ sub setup_ap_display_form_action_bar {
   my $closedto                = $::form->datetonum($::form->{closedto},  \%::myconfig);
   my $is_closed               = $transdate <= $closedto;
 
-  my $change_never            = $::instance_conf->get_ar_changeable == 0;
-  my $change_on_same_day_only = $::instance_conf->get_ar_changeable == 2 && ($::form->current_date(\%::myconfig) ne $::form->{gldate});
+  my $change_never            = $::instance_conf->get_ap_changeable == 0;
+  my $change_on_same_day_only = $::instance_conf->get_ap_changeable == 2 && ($::form->current_date(\%::myconfig) ne $::form->{gldate});
 
   my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ap', $::form->{id});
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ap');
