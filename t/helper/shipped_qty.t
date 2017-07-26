@@ -76,12 +76,12 @@ SL::Helper::ShippedQty
   ->calculate($purchase_order)
   ->write_to_objects;
 
-is($purchase_order->orderitems->[0]->{shipped_qty}, undef, "first purchase orderitem has no shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},   '',    "first purchase orderitem is not delivered");
+is($purchase_order->orderitems->[0]->{shipped_qty}, 0, "first purchase orderitem has no shipped_qty");
+is($purchase_order->orderitems->[0]->{delivered},   '', "first purchase orderitem is not delivered");
 
 my $purchase_orderitem_part1 = SL::DB::Manager::OrderItem->find_by( parts_id => $part1->id, trans_id => $purchase_order->id);
 
-is($purchase_orderitem_part1->shipped_qty, undef, "OrderItem shipped_qty method ok");
+is($purchase_orderitem_part1->shipped_qty, 0, "OrderItem shipped_qty method ok");
 
 is($purchase_order->closed,     0, 'purchase order is open');
 is($purchase_order->delivered, '', 'purchase order is not delivered');
@@ -108,8 +108,8 @@ SL::Helper::ShippedQty
   ->calculate($purchase_order)
   ->write_to_objects;
 
-is($purchase_order->orderitems->[0]->{shipped_qty}, undef, "require_stock_out => 1: first purchase orderitem has no shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},   '',    "require_stock_out => 1: first purchase orderitem is not delivered");
+is($purchase_order->orderitems->[0]->{shipped_qty}, 0,  "require_stock_out => 1: first purchase orderitem has no shipped_qty");
+is($purchase_order->orderitems->[0]->{delivered},   '', "require_stock_out => 1: first purchase orderitem is not delivered");
 
 # ship items from delivery order
 SL::Dev::Inventory::transfer_purchase_delivery_order($purchase_delivery_order);
@@ -145,13 +145,13 @@ SL::Helper::ShippedQty
   ->calculate($sales_order)
   ->write_to_objects;
 
-is($sales_order->orderitems->[0]->{shipped_qty}, undef, "first sales orderitem has no shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   '',    "first sales orderitem is not delivered");
+is($sales_order->orderitems->[0]->{shipped_qty}, 0,  "first sales orderitem has no shipped_qty");
+is($sales_order->orderitems->[0]->{delivered},   '', "first sales orderitem is not delivered");
 
 my $orderitem_part1 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $sales_order->id);
 my $orderitem_part2 = SL::DB::Manager::OrderItem->find_by(parts_id => $part2->id, trans_id => $sales_order->id);
 
-is($orderitem_part1->shipped_qty, undef, "OrderItem shipped_qty method ok");
+is($orderitem_part1->shipped_qty, 0, "OrderItem shipped_qty method ok");
 
 # create sales delivery order from sales order
 my $sales_delivery_order = $sales_order->convert_to_delivery_order;
@@ -172,8 +172,8 @@ SL::Helper::ShippedQty
   ->calculate($sales_order)
   ->write_to_objects;
 
-is($sales_order->orderitems->[0]->{shipped_qty}, undef, "require_stock_out => 1: first sales orderitem has no shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   '',    "require_stock_out => 1: first sales orderitem is not delivered");
+is($sales_order->orderitems->[0]->{shipped_qty}, 0,  "require_stock_out => 1: first sales orderitem has no shipped_qty");
+is($sales_order->orderitems->[0]->{delivered},   '', "require_stock_out => 1: first sales orderitem is not delivered");
 
 # ship items from delivery order
 SL::Dev::Inventory::transfer_sales_delivery_order($sales_delivery_order);

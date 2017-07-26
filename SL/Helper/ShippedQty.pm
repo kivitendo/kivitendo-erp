@@ -207,7 +207,7 @@ sub write_to {
 
   for my $obj (@$objects) {
     if ('SL::DB::OrderItem' eq ref $obj) {
-      $obj->{shipped_qty} = $shipped_qty->{$obj->id};
+      $obj->{shipped_qty} = $shipped_qty->{$obj->id} //= 0;
       $obj->{delivered}   = $shipped_qty->{$obj->id} == $obj->qty;
     } elsif ('SL::DB::Order' eq ref $obj) {
       if (exists $obj->{orderitems}) {
@@ -452,12 +452,25 @@ No return value. All internal errors will throw an exception.
 
 =item C<write_to_objects>
 
-Save the C<shipped_qty> and C<delivered> state to the objects. If L</calculate>
-was called with objects, then C<write_to_objects> will use these.
+Save the C<shipped_qty> and C<delivered> state to the given objects. If
+L</calculate> was called with objects, then C<write_to_objects> will use these.
+
+C<shipped_qty> and C<delivered> will be directly infused into the objects
+without calling the accessor for delivered. If you want to save afterwards,
+you'll have to do that yourself.
+
+C<shipped_qty> is guaranteed to be coerced to a number. If no delivery_order
+was found it will be set to zero.
+
+C<delivered> is guaranteed only to be the correct boolean value, but not
+any specific value.
 
 =item C<shipped_qty>
 
 Valid after L</calculate>. Returns a hasref with shipped qtys by orderitems id.
+
+Unlike the result of C</write_to>, entries in C<shipped_qty> may be C<undef> if
+linked elements were found.
 
 =item C<delivered>
 
