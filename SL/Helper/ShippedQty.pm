@@ -61,7 +61,7 @@ my $stock_item_links_query = <<'';
   ORDER BY oi.trans_id, oi.position
 
 my $stock_fill_up_doi_query = <<'';
-  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber, i.qty, i.unit
+  SELECT doi.id, doi.delivery_order_id, doi.position, doi.parts_id, doi.description, doi.reqdate, doi.serialnumber, i.qty, p.unit
   FROM delivery_order_items doi
   INNER JOIN parts p                         ON p.id = doi.parts_id
   INNER JOIN delivery_order_items_stock dois ON dois.delivery_order_item_id = doi.id
