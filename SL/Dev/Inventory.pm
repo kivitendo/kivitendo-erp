@@ -2,7 +2,11 @@ package SL::Dev::Inventory;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_warehouse_and_bins set_stock transfer_stock transfer_sales_delivery_order transfer_purchase_delivery_order transfer_delivery_order_item transfer_in transfer_out);
+our @EXPORT = qw(
+  create_warehouse_and_bins set_stock transfer_stock
+  transfer_sales_delivery_order transfer_purchase_delivery_order
+  transfer_delivery_order_item transfer_in transfer_out
+);
 
 use SL::DB::Warehouse;
 use SL::DB::Bin;
