@@ -109,9 +109,9 @@ SL::Helper::Object - Meta Object Helper Mixin
 
 =head1 DESCRIPTION
 
-Sick of writing getter, setter? No because Rose::Object::MakeMethods got you covered.
+Sick of writing getter, setter? No because Rose::Object::MakeMethods has you covered.
 
-Sick of writing all the rest that Rose an't do? Put it here. Functionality in this
+Sick of writing all the rest that Rose can't do? Put it here. Functionality in this
 mixin is passed as an include parameter, but are still described as functions:
 
 =head1 FUNCTIONS
