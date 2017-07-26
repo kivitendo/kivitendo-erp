@@ -225,6 +225,7 @@ sub write_to {
       die "unknown reference '@{[ ref $obj ]}' for @{[ __PACKAGE__ ]}::write_to";
     }
   }
+  $self;
 }
 
 sub write_to_objects {
@@ -331,6 +332,9 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
 
   # delivered by oe_id
   my $delivered = $helper->delievered->{$oi->id};
+
+  # calculate and write_to can be chained:
+  my $helper = SL::Helper::ShippedQty->new->calculate($orders)->write_to_objects;
 
 =head1 DESCRIPTION
 
