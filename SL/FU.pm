@@ -246,6 +246,10 @@ sub follow_ups {
     $where .= qq| AND (date_trunc('DAY', fu.itime) <= ?)|;
     push @values, conv_date($params{itime_to});
   }
+  if ($params{created_for}) {
+    $where .= qq| AND fu.created_for_user = ?|;
+    push @values, conv_i($params{created_for});
+  }
 
   if ($params{all_users}) {
     $where_user = qq|OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?))|;
