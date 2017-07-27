@@ -214,7 +214,7 @@ sub write_to {
       $obj->{shipped_qty} = $shipped_qty->{$obj->id} //= 0;
       $obj->{delivered}   = $shipped_qty->{$obj->id} == $obj->qty;
     } elsif ('SL::DB::Order' eq ref $obj) {
-      if (exists $obj->{orderitems}) {
+      if (defined $obj->{orderitems}) {
         $self->write_to($obj->{orderitems});
         $obj->{delivered} = all { $_->{delivered} } @{ $obj->{orderitems} };
       } else {
