@@ -12,12 +12,12 @@ use List::UtilsBy qw(partition_by);
 use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar'                => [ qw(objects objects_or_ids shipped_qty ) ],
-  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out fill_up item_identity_fields oi2oe oi_qty delivered) ],
+  'scalar'                => [ qw(objects objects_or_ids shipped_qty keep_matches) ],
+  'scalar --get_set_init' => [ qw(oe_ids dbh require_stock_out fill_up item_identity_fields oi2oe oi_qty delivered matches) ],
 );
 
 my $no_stock_item_links_query = <<'';
-  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit, doi.qty AS doi_qty, doi.unit AS doi_unit
+  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit, doi.id AS doi_id, doi.qty AS doi_qty, doi.unit AS doi_unit
   FROM record_links rl
   INNER JOIN orderitems oi            ON oi.id = rl.from_id AND rl.from_table = 'orderitems'
   INNER JOIN delivery_order_items doi ON doi.id = rl.to_id AND rl.to_table = 'delivery_order_items'
@@ -50,7 +50,7 @@ my $no_stock_fill_up_doi_query = <<'';
       AND to_id = doi.id)
 
 my $stock_item_links_query = <<'';
-  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit,
+  SELECT oi.trans_id, oi.id AS oi_id, oi.qty AS oi_qty, oi.unit AS oi_unit, doi.id AS doi_id,
     (CASE WHEN doe.customer_id > 0 THEN -1 ELSE 1 END) * i.qty AS doi_qty, p.unit AS doi_unit
   FROM record_links rl
   INNER JOIN orderitems oi                   ON oi.id = rl.from_id AND rl.from_table = 'orderitems'
@@ -128,10 +128,13 @@ sub calculate_item_links {
   my $data = selectall_hashref_query($::form, $self->dbh, $query, @oe_ids);
 
   for (@$data) {
+    my $qty = $_->{doi_qty} * AM->convert_unit($_->{doi_unit} => $_->{oi_unit});
     $self->shipped_qty->{$_->{oi_id}} //= 0;
-    $self->shipped_qty->{$_->{oi_id}} += $_->{doi_qty} * AM->convert_unit($_->{doi_unit} => $_->{oi_unit});
+    $self->shipped_qty->{$_->{oi_id}} += $qty;
     $self->oi2oe->{$_->{oi_id}}        = $_->{trans_id};
     $self->oi_qty->{$_->{oi_id}}       = $_->{oi_qty};
+
+    push @{ $self->matches }, [ $_->{oi_id}, $_->{doi_id}, $qty, 1 ] if $self->keep_matches;
   }
 }
 
@@ -194,6 +197,7 @@ sub calculate_fill_up {
 
         $self->shipped_qty->{$oi->{id}} += $min_qty;
         $doi->{qty}                     -= $min_qty / $factor;  # TODO: find a way to avoid float rounding
+        push @{ $self->matches }, [ $oi->{id}, $doi->{id}, $min_qty, 0 ] if $self->keep_matches;
       }
     }
   }
@@ -278,6 +282,7 @@ sub init_dbh { SL::DB->client->dbh }
 
 sub init_oi2oe { {} }
 sub init_oi_qty { {} }
+sub init_matches { [] }
 sub init_delivered {
   my ($self) = @_;
   my $d = { };
@@ -442,6 +447,14 @@ default is a client setting. Possible values include:
 
 =back
 
+=item * C<keep_matches>
+
+Boolean. If set to true the internal matchings of OrderItems and
+DeliveryOrderItems will be kept for later postprocessing, in case you need more
+than this modules provides.
+
+See C<matches> for the returned format.
+
 =back
 
 =item C<calculate OBJECTS>
@@ -482,6 +495,30 @@ linked elements were found.
 =item C<delivered>
 
 Valid after L</calculate>. Returns a hashref with a delivered flag by order id.
+
+=item C<matches>
+
+Valid after L</calculate> with C<with_matches> set. Returns an arrayref of
+individual matches. Each match is an arrayref with these fields:
+
+=over 4
+
+=item *
+
+The id of the OrderItem.
+
+=item *
+
+The id of the DeliveryOrderItem.
+
+=item *
+
+The qty that was matched between the two converted to the unit of the OrderItem.
+
+=item *
+
+A boolean flag indicating if this match was found with record_item links. If
+false, the match was made in the fill up stage.
 
 =back
 
