@@ -104,11 +104,11 @@ sub calculate {
 
   die 'Need exactly one argument, either id, object or arrayref of ids or objects.' unless 2 == @_;
 
-  return if !$data || ('ARRAY' eq ref $data && !@$data);
+  return $self if !$data || ('ARRAY' eq ref $data && !@$data);
 
   $self->normalize_input($data);
 
-  return unless @{ $self->oe_ids };
+  return $self unless @{ $self->oe_ids };
 
   $self->calculate_item_links;
   $self->calculate_fill_up if $self->fill_up;
