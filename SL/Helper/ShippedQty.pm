@@ -485,6 +485,13 @@ was found it will be set to zero.
 C<delivered> is guaranteed only to be the correct boolean value, but not
 any specific value.
 
+Note: C<write_to> will avoid loading unnecessary objects. This means if it is
+called with an Order object that has not loaded its orderitems yet, only
+C<delivered> will be set in the Order object. A subsequent C<<
+$order->orderitems->[0]->{delivered} >> will return C<undef>, and C<<
+$order->orderitems->[0]->shipped_qty >> will invoke another implicit
+calculation.
+
 =item C<shipped_qty>
 
 Valid after L</calculate>. Returns a hasref with shipped qtys by orderitems id.
