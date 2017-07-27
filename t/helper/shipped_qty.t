@@ -71,26 +71,29 @@ my $purchase_order = SL::Dev::Record::create_purchase_order(
                 ]
 );
 
+Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
+$purchase_order->orderitems;
+
 SL::Helper::ShippedQty
   ->new(require_stock_out => 1)  # should make no difference while there is no delivery order
   ->calculate($purchase_order)
   ->write_to_objects;
 
 is($purchase_order->orderitems->[0]->{shipped_qty}, 0, "first purchase orderitem has no shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},   '', "first purchase orderitem is not delivered");
+ok(!$purchase_order->orderitems->[0]->{delivered},     "first purchase orderitem is not delivered");
 
 my $purchase_orderitem_part1 = SL::DB::Manager::OrderItem->find_by( parts_id => $part1->id, trans_id => $purchase_order->id);
 
 is($purchase_orderitem_part1->shipped_qty, 0, "OrderItem shipped_qty method ok");
 
 is($purchase_order->closed,     0, 'purchase order is open');
-is($purchase_order->delivered, '', 'purchase order is not delivered');
+ok(!$purchase_order->delivered,    'purchase order is not delivered');
 
 note('converting purchase order to delivery order');
 # create purchase delivery order from purchase order
 my $purchase_delivery_order = $purchase_order->convert_to_delivery_order;
 is($purchase_order->closed,    0, 'purchase order is open');
-is($purchase_order->delivered, 1, 'purchase order is now delivered');
+ok($purchase_order->delivered,    'purchase order is now delivered');
 
 SL::Helper::ShippedQty
   ->new(require_stock_out => 0)
@@ -98,7 +101,7 @@ SL::Helper::ShippedQty
   ->write_to_objects;
 
 is($purchase_order->orderitems->[0]->{shipped_qty}, 11, "require_stock_out => 0: first purchase orderitem has shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},    1, "require_stock_out => 0: first purchase orderitem is delivered");
+ok($purchase_order->orderitems->[0]->{delivered},       "require_stock_out => 0: first purchase orderitem is delivered");
 
 Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
 $purchase_order->orderitems;
@@ -109,7 +112,7 @@ SL::Helper::ShippedQty
   ->write_to_objects;
 
 is($purchase_order->orderitems->[0]->{shipped_qty}, 0,  "require_stock_out => 1: first purchase orderitem has no shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},   '', "require_stock_out => 1: first purchase orderitem is not delivered");
+ok(!$purchase_order->orderitems->[0]->{delivered},      "require_stock_out => 1: first purchase orderitem is not delivered");
 
 # ship items from delivery order
 SL::Dev::Inventory::transfer_purchase_delivery_order($purchase_delivery_order);
@@ -118,12 +121,12 @@ Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
 $purchase_order->orderitems;
 
 SL::Helper::ShippedQty
-  ->new(require_stock_out => 1)  # shouldn't make a difference now after shipping
+  ->new(require_stock_out => 1, keep_matches => 1)  # shouldn't make a difference now after shipping
   ->calculate($purchase_order)
   ->write_to_objects;
 
 is($purchase_order->orderitems->[0]->{shipped_qty}, 11, "require_stock_out => 1: first purchase orderitem has shipped_qty");
-is($purchase_order->orderitems->[0]->{delivered},    1, "require_stock_out => 1: first purchase orderitem is delivered");
+ok($purchase_order->orderitems->[0]->{delivered},       "require_stock_out => 1: first purchase orderitem is delivered");
 
 my $purchase_orderitem_part2 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $purchase_order->id);
 
@@ -140,13 +143,16 @@ my $sales_order = SL::Dev::Record::create_sales_order(
                 ]
 );
 
+Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
+$sales_order->orderitems;
+
 SL::Helper::ShippedQty
   ->new(require_stock_out => 1)  # should make no difference while there is no delivery order
   ->calculate($sales_order)
   ->write_to_objects;
 
 is($sales_order->orderitems->[0]->{shipped_qty}, 0,  "first sales orderitem has no shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   '', "first sales orderitem is not delivered");
+ok(!$sales_order->orderitems->[0]->{delivered},      "first sales orderitem is not delivered");
 
 my $orderitem_part1 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $sales_order->id);
 my $orderitem_part2 = SL::DB::Manager::OrderItem->find_by(parts_id => $part2->id, trans_id => $sales_order->id);
@@ -162,7 +168,7 @@ SL::Helper::ShippedQty
   ->write_to_objects;
 
 is($sales_order->orderitems->[0]->{shipped_qty}, 5, "require_stock_out => 0: first sales orderitem has shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   1, "require_stock_out => 0: first sales orderitem is delivered");
+ok($sales_order->orderitems->[0]->{delivered},      "require_stock_out => 0: first sales orderitem is delivered");
 
 Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
 $sales_order->orderitems;
@@ -173,7 +179,7 @@ SL::Helper::ShippedQty
   ->write_to_objects;
 
 is($sales_order->orderitems->[0]->{shipped_qty}, 0,  "require_stock_out => 1: first sales orderitem has no shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   '', "require_stock_out => 1: first sales orderitem is not delivered");
+ok(!$sales_order->orderitems->[0]->{delivered},      "require_stock_out => 1: first sales orderitem is not delivered");
 
 # ship items from delivery order
 SL::Dev::Inventory::transfer_sales_delivery_order($sales_delivery_order);
@@ -187,7 +193,7 @@ SL::Helper::ShippedQty
   ->write_to_objects;
 
 is($sales_order->orderitems->[0]->{shipped_qty}, 5, "require_stock_out => 1: first sales orderitem has no shipped_qty");
-is($sales_order->orderitems->[0]->{delivered},   1, "require_stock_out => 1: first sales orderitem is not delivered");
+ok($sales_order->orderitems->[0]->{delivered},      "require_stock_out => 1: first sales orderitem is not delivered");
 
 $orderitem_part1 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $sales_order->id);
 
