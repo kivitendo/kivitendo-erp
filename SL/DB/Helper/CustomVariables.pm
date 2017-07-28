@@ -422,7 +422,7 @@ passed to import.
 
 =item C<cvars_by_config>
 
-Thi will return a list of CVars with the following changes over the standard accessor:
+This will return a list of CVars with the following changes over the standard accessor:
 
 =over 4
 
@@ -522,11 +522,11 @@ If the Manager for the calling C<SL::DB::Object> has included the helper L<SL::D
 Prolonged use has shown that users expect all methods to be present or none.
 Future versions of this will likely remove the optional aliasing.
 
-=item * Sematics need to be updated
+=item * Semantics need to be updated
 
 There are a few transitions that are currently neither supported nor well
-defined, most of the happening when the config of a cvar gets changed which
-instances are already saved. This needs to be cleaned up.
+defined, most of them happening when the config of a cvar gets changed, but
+whose instances have already been saved. This needs to be cleaned up.
 
 =back
 
