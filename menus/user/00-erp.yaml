@@ -1200,6 +1200,13 @@
   module: generictranslations.pl
   params:
     action: edit_sepa_strings
+- parent: system_languages_and_translations
+  id: system_languages_and_translations_email_strings
+  name: Preset email strings
+  order: 500
+  module: generictranslations.pl
+  params:
+    action: edit_email_strings
 - parent: system
   id: system_payment_terms
   name: Payment Terms

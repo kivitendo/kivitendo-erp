@@ -5,6 +5,23 @@ use SL::Locale::String qw(t8);
 
 use strict;
 
+# convention:
+# preset_text_$formname will generate a input textarea
+# and will be preset in $form email dialog if the form name matches
+
+my %mail_strings = (
+  salutation_male                     => t8('Salutation male'),
+  salutation_female                   => t8('Salutation female'),
+  salutation_general                  => t8('Salutation general'),
+  salutation_punctuation_mark         => t8('Salutation punctuation mark'),
+  preset_text_sales_quotation         => t8('Preset email text for sales quotations'),
+  preset_text_sales_order             => t8('Preset email text for sales orders'),
+  preset_text_sales_delivery_order    => t8('Preset email text for sales delivery orders'),
+  preset_text_invoice                 => t8('Preset email text for sales invoices'),
+  preset_text_request_quotation       => t8('Preset email text for requests (rfq)'),
+  preset_text_purchase_order          => t8('Preset email text for purchase orders'),
+);
+
 sub edit_greetings {
   $main::lxdebug->enter_sub();
 
@@ -135,6 +152,61 @@ sub save_sepa_strings {
 
   $main::lxdebug->leave_sub();
 }
+sub edit_email_strings {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $form->get_lists('languages' => 'LANGUAGES');
+  unshift @{ $form->{LANGUAGES} }, { 'id' => 'default', };
+
+  my (%translations, $translation_list);
+  foreach (keys %mail_strings)  {
+    $translation_list = GenericTranslations->list(translation_type => $_);
+    %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
+
+    foreach my $language (@{ $form->{LANGUAGES} }) {
+      $language->{$_} = $translations{$language->{id}};
+    }
+  }
+  setup_generictranslations_edit_email_strings_action_bar();
+
+  $form->{title} = $locale->text('Edit preset email strings');
+  $form->header();
+  print $form->parse_html_template('generictranslations/edit_email_strings',{ 'MAIL_STRINGS' => \%mail_strings });
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save_email_strings {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $form->get_lists('languages' => 'LANGUAGES');
+
+  unshift @{ $form->{LANGUAGES} }, { };
+  foreach my $language (@{ $form->{LANGUAGES} }) {
+    foreach (keys %mail_strings)  {
+      GenericTranslations->save('translation_type' => $_,
+                                'translation_id'   => undef,
+                                'language_id'      => $language->{id},
+                                'translation'      => $form->{"translation__" . ($language->{id} || 'default') . "__" . $_},
+                               );
+    }
+  }
+  $form->{message} = $locale->text('The Mail strings have been saved.');
+
+  edit_email_strings();
+
+  $main::lxdebug->leave_sub();
+}
 
 sub setup_generictranslations_edit_greetings_action_bar {
   my %params = @_;
@@ -158,6 +230,19 @@ sub setup_generictranslations_edit_sepa_strings_action_bar {
       action => [
         t8('Save'),
         submit    => [ '#form', { action => "save_sepa_strings" } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+sub setup_generictranslations_edit_email_strings_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        submit    => [ '#form', { action => "save_email_strings" } ],
         accesskey => 'enter',
       ],
     );
