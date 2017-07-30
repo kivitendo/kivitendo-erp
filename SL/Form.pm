@@ -1375,6 +1375,38 @@ sub generate_email_subject {
   return $subject;
 }
 
+sub generate_email_body {
+  $main::lxdebug->enter_sub();
+  my ($self) = @_;
+  # simple german and english will work grammatically (most european languages as well)
+  # Dear Mr Alan Greenspan:
+  # Sehr geehrte Frau Meyer,
+  # A l’attention de Mme Villeroy,
+  # Gentile Signora Ferrari,
+  my $body = '';
+
+  if ($self->{cp_id}) {
+    my $givenname = SL::DB::Contact->load_cached($self->{cp_id})->cp_givenname; # for qw(gender givename name);
+    my $name      = SL::DB::Contact->load_cached($self->{cp_id})->cp_name; # for qw(gender givename name);
+    my $gender    = SL::DB::Contact->load_cached($self->{cp_id})->cp_gender; # for qw(gender givename name);
+    my $mf = $gender eq 'f' ? 'female' : 'male';
+    $body  = GenericTranslations->get(translation_type => "salutation_$mf", language_id => $self->{language_id});
+    $body .= ' ' . $givenname . ' ' . $name if $body;
+  } else {
+    $body  = GenericTranslations->get(translation_type => "salutation_general", language_id => $self->{language_id});
+  }
+
+  return undef unless $body;
+
+  $body   .= GenericTranslations->get(translation_type =>"salutation_punctuation_mark", language_id => $self->{language_id}) . "\n";
+  $body   .= GenericTranslations->get(translation_type =>"preset_text_$self->{formname}", language_id => $self->{language_id});
+
+  $body = $main::locale->unquote_special_chars('HTML', $body);
+
+  $main::lxdebug->leave_sub();
+  return $body;
+}
+
 sub cleanup {
   $main::lxdebug->enter_sub();
 
