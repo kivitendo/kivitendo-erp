@@ -312,9 +312,7 @@ sub transfer_assembly {
    }
     # gibt die Fehlermeldung zurück. A.) Keine Teile definiert
     #                                B.) Artikel und Anzahl der fehlenden Teile/Dienstleistungen
-    if ($kannNichtFertigen) {
-      return 0;
-    }
+    die "<br><br>" . $kannNichtFertigen if ($kannNichtFertigen);
 
     # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
     my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore,
