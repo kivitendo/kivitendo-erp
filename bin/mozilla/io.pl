@@ -1976,6 +1976,7 @@ sub show_sales_purchase_email_dialog {
   my $email_form = {
     to                  => $email,
     subject             => $::form->generate_email_subject,
+    message             => $::form->generate_email_body,
     attachment_filename => $::form->generate_attachment_filename,
   };
 
