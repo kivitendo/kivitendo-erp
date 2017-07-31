@@ -529,6 +529,8 @@ false, the match was made in the fill up stage.
 
 =back
 
+=back
+
 =head1 REPLACED FUNCTIONALITY
 
 =head2 delivered mode
