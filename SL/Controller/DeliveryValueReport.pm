@@ -11,7 +11,8 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 use SL::Helper::ShippedQty;
 use SL::AM;
-use SL::DBUtils ();
+use SL::DBUtils qw(selectall_as_map);
+use List::MoreUtils qw(uniq);
 use Carp;
 use Data::Dumper;
 
@@ -38,6 +39,8 @@ my %sort_columns = (
   netto_shipped_qty       => t8('Net Value in delivery orders'),
   delivered_qty           => t8('transferred in / out'),
   netto_delivered_qty     => t8('Net value transferred in / out'),
+  do_closed_qty           => t8('Qty in closed delivery orders'),
+  netto_do_closed_qty     => t8('Net value in closed delivery orders'),
 );
 
 
@@ -68,7 +71,7 @@ sub prepare_report {
 
   my @columns     = qw(reqdate customer vendor ordnumber partnumber description unit qty netto_qty
                        not_shipped_qty netto_not_shipped_qty shipped_qty netto_shipped_qty delivered_qty
-                       netto_delivered_qty);
+                       netto_delivered_qty do_closed_qty netto_do_closed_qty);
 
 
   my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
@@ -82,26 +85,18 @@ sub prepare_report {
                            obj_link => sub { $self->link_to($_[0]->part)                                      } },
     partnumber        => {      sub => sub { $_[0]->part->partnumber                                          },
                            obj_link => sub { $self->link_to($_[0]->part)                                      } },
-    qty               => {      sub => sub { $_[0]->qty_as_number .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
-    netto_qty         => {      sub => sub { $::form->format_amount(\%::myconfig,
-                                              ($_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount) /
-                                                                         ($_[0]->price_factor || 1), 2))       },},
-    unit              => {      sub => sub {  $_[0]->unit                                                      },
-                            visible => $rp_csv_mod                                                             },
-    shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
-    netto_shipped_qty => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_shipped_qty}, 2) },},
-    not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}
-                                               - $_[0]{delivered_qty} - $_[0]{do_closed_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
-    delivered_qty     => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{delivered_qty}, 2) .
-                                             ($rp_csv_mod ? '' : ' ' .  $_[0]->unit)                           } },
-    netto_delivered_qty => {    sub => sub { $::form->format_amount(\%::myconfig, $_[0]{netto_delivered_qty}, 2) },},
-    netto_not_shipped_qty => {  sub => sub { $::form->format_amount(\%::myconfig,(($_[0]->qty -
-                                             $_[0]{shipped_qty} - $_[0]{delivered_qty} - $_[0]{do_closed_qty})
-                                             * ($_[0]->sellprice * (1 - $_[0]->discount) /
-                                                                             ($_[0]->price_factor || 1)), 2))  },},
+    qty               => {      sub => sub { _format_qty($_[0], 'qty', $rp_csv_mod)                           } },
+    netto_qty         => {      sub => sub { _format_val($_[0], 'qty')                                        },},
+    unit              => {      sub => sub {  $_[0]->unit                                                     },
+                            visible => $rp_csv_mod                                                              },
+    shipped_qty       => {      sub => sub { _format_qty($_[0], 'shipped_qty', $rp_csv_mod)                   } },
+    netto_shipped_qty => {      sub => sub { _format_val($_[0], 'shipped_qty')                                },},
+    not_shipped_qty   => {      sub => sub { _format_qty($_[0], 'not_shipped_qty', $rp_csv_mod)               } },
+    netto_not_shipped_qty => {  sub => sub { _format_val($_[0], 'not_shipped_qty')                            },},
+    delivered_qty     => {      sub => sub { _format_qty($_[0], 'delivered_qty', $rp_csv_mod)                 } },
+    netto_delivered_qty => {    sub => sub { _format_val($_[0], 'delivered_qty')                              },},
+    do_closed_qty     => {      sub => sub { _format_qty($_[0], 'do_closed_qty', $rp_csv_mod)                 },},
+    netto_do_closed_qty => {    sub => sub { _format_val($_[0], 'do_closed_qty')                              },},
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                           },
                            obj_link => sub { $self->link_to($_[0]->order)                                      } },
     vendor            => {      sub => sub { $_[0]->order->vendor->name                                        },
@@ -248,6 +243,18 @@ sub link_to {
   }
 }
 
+sub _format_qty {
+  my ($item, $col, $csv_mod) = @_;
+
+  $::form->format_amount(\%::myconfig, $item->{$col}, 2) .  ($csv_mod ? '' : ' ' .  $item->unit)
+}
+
+sub _format_val {
+  my ($item, $col) = @_;
+
+  $::form->format_amount(\%::myconfig, $item->{$col} * $item->sellprice * (1 - $item->discount) / ($item->price_factor || 1), 2)
+}
+
 
 sub calc_qtys_price {
   my ($self, $orderitems) = @_;
@@ -261,17 +268,31 @@ sub calc_qtys_price {
 
   $_->{delivered_qty} = delete $_->{shipped_qty} for @$orderitems;
 
-  SL::Helper::ShippedQty
-    ->new(require_stock_out => 0)
+  my $helper = SL::Helper::ShippedQty
+    ->new(require_stock_out => 0, keep_matches => 1)
     ->calculate($orderitems)
     ->write_to_objects;
 
   for my $item (@$orderitems) {
     $item->{not_shipped_qty} = $item->qty - $item->{shipped_qty};
+    $item->{do_closed_qty}   = 0;
 
     my $price_factor = $item->price_factor || 1;
-    $item->{netto_shipped_qty}   = $item->{shipped_qty}   * $item->sellprice * (1 - $item->discount) / $price_factor;
-    $item->{netto_delivered_qty} = $item->{delivered_qty} * $item->sellprice * (1 - $item->discount) / $price_factor;
+  }
+
+  if (my @all_doi_ids = uniq map { $_->[1] } @{ $helper->matches }) {
+    my %oi_by_id = map { $_->id => $_ } @$orderitems;
+    my $query    = sprintf <<'', join ', ', ("?")x@all_doi_ids;
+      SELECT DISTINCT doi.id, closed FROM delivery_orders
+      LEFT JOIN delivery_order_items doi ON (doi.delivery_order_id = delivery_order.id)
+      WHERE doi.id IN (%s)
+
+    my %doi_is_closed = selectall_as_map($::form, SL::DB->client->dbh, $query, (id => 'closed'), @all_doi_ids);
+
+    for my $match (@{ $helper->matches }) {
+      next unless $doi_is_closed{$match->[1]};
+      $oi_by_id{$match->[0]}->{do_closed_qty} += $match->[2];
+    }
   }
 }
 
