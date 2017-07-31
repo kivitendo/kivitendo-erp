@@ -104,8 +104,6 @@ sub calculate {
 
   die 'Need exactly one argument, either id, object or arrayref of ids or objects.' unless 2 == @_;
 
-  return $self if !$data || ('ARRAY' eq ref $data && !@$data);
-
   $self->normalize_input($data);
 
   return $self unless @{ $self->oe_ids };
@@ -234,6 +232,8 @@ sub write_to {
 
 sub write_to_objects {
   my ($self) = @_;
+
+  return unless @{ $self->oe_ids };
 
   die 'Can only use write_to_objects, when calculate was called with objects. Use write_to instead.' unless $self->objects_or_ids;
 
