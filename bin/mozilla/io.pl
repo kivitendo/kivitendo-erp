@@ -1670,6 +1670,7 @@ sub _update_part_information {
 }
 
 sub _update_ship {
+  return unless $::form->{id};
   my $helper = SL::Helper::ShippedQty->new->calculate($::form->{id});
 
   for my $i (1..$::form->{rowcount}) {
