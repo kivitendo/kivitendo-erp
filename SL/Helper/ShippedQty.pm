@@ -258,6 +258,7 @@ sub normalize_input {
     $self->objects($data);
   } else {
     die 'object or reference in data while expecting ids' if any { ref($_) } @$data;
+    die 'ids need to be numbers'                          if any { ! ($_ * 1) } @$data;
     $self->oe_ids($data);
   }
 
