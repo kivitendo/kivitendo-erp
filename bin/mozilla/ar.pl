@@ -792,7 +792,7 @@ sub post {
   }
   # /saving the history
 
-  $form->redirect($locale->text("AR transaction posted.")) unless $inline;
+  $form->redirect($locale->text('AR transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id}) unless $inline;
 
   $main::lxdebug->leave_sub();
 }
