@@ -22,16 +22,18 @@ sub _setup_action_bar {
   my $key   = $::form->{CONTROLLER_DISPATCH} ? 'action'                             : 'report_generator_form.report_generator_dispatch_to';
   my $value = $::form->{CONTROLLER_DISPATCH} ? $::form->{CONTROLLER_DISPATCH} . "/" : '';
 
-  $::request->layout->get('actionbar')->add(
-    action => [
-      $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
-      submit => [ '#report_generator_form', { $key => "${value}report_generator_export_as_${type}" } ],
-    ],
-    action => [
-      $::locale->text('Back'),
-      submit => [ '#report_generator_form', { $key => "${value}report_generator_back" } ],
-    ],
-  );
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $type eq 'pdf' ? $::locale->text('PDF export') : $::locale->text('CSV export'),
+        submit => [ '#report_generator_form', { $key => "${value}report_generator_export_as_${type}" } ],
+      ],
+      action => [
+        $::locale->text('Back'),
+        submit => [ '#report_generator_form', { $key => "${value}report_generator_back" } ],
+      ],
+    );
+  }
 }
 
 sub action_report_generator_export_as_pdf {
