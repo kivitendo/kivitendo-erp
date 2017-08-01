@@ -3,12 +3,13 @@ package SL::Helper::ShippedQty;
 use strict;
 use parent qw(Rose::Object);
 
-use SL::AM;
+use Carp;
 use Scalar::Util qw(blessed);
-use SL::DBUtils qw(selectall_hashref_query selectall_as_map);
 use List::Util qw(min);
 use List::MoreUtils qw(any all uniq);
 use List::UtilsBy qw(partition_by);
+use SL::AM;
+use SL::DBUtils qw(selectall_hashref_query selectall_as_map);
 use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
@@ -102,7 +103,7 @@ my %item_identity_fields = (
 sub calculate {
   my ($self, $data) = @_;
 
-  die 'Need exactly one argument, either id, object or arrayref of ids or objects.' unless 2 == @_;
+  croak 'Need exactly one argument, either id, object or arrayref of ids or objects.' unless 2 == @_;
 
   $self->normalize_input($data);
 
@@ -207,7 +208,7 @@ sub calculate_fill_up {
 sub write_to {
   my ($self, $objects) = @_;
 
-  die 'expecting array of objects' unless 'ARRAY' eq ref $objects;
+  croak 'expecting array of objects' unless 'ARRAY' eq ref $objects;
 
   my $shipped_qty = $self->shipped_qty;
 
@@ -235,7 +236,7 @@ sub write_to_objects {
 
   return unless @{ $self->oe_ids };
 
-  die 'Can only use write_to_objects, when calculate was called with objects. Use write_to instead.' unless $self->objects_or_ids;
+  croak 'Can only use write_to_objects, when calculate was called with objects. Use write_to instead.' unless $self->objects_or_ids;
 
   $self->write_to($self->objects);
 }
@@ -254,11 +255,11 @@ sub normalize_input {
   $self->objects_or_ids(!!blessed($data->[0]));
 
   if ($self->objects_or_ids) {
-    die 'unblessed object in data while expecting object' if any { !blessed($_) } @$data;
+    croak 'unblessed object in data while expecting object' if any { !blessed($_) } @$data;
     $self->objects($data);
   } else {
-    die 'object or reference in data while expecting ids' if any { ref($_) } @$data;
-    die 'ids need to be numbers'                          if any { ! ($_ * 1) } @$data;
+    croak 'object or reference in data while expecting ids' if any { ref($_) } @$data;
+    croak 'ids need to be numbers'                          if any { ! ($_ * 1) } @$data;
     $self->oe_ids($data);
   }
 
@@ -272,9 +273,9 @@ sub available_item_identity_fields {
 sub init_oe_ids {
   my ($self) = @_;
 
-  die 'oe_ids not initialized in id mode'            if !$self->objects_or_ids;
-  die 'objects not initialized before accessing ids' if $self->objects_or_ids && !defined $self->objects;
-  die 'objects need to be Order or OrderItem'        if any  {  ref($_) !~ /^SL::DB::Order(?:Item)?$/ } @{ $self->objects };
+  croak 'oe_ids not initialized in id mode'            if !$self->objects_or_ids;
+  croak 'objects not initialized before accessing ids' if $self->objects_or_ids && !defined $self->objects;
+  croak 'objects need to be Order or OrderItem'        if any  {  ref($_) !~ /^SL::DB::Order(?:Item)?$/ } @{ $self->objects };
 
   [ uniq map { ref($_) =~ /Item/ ? $_->trans_id : $_->id } @{ $self->objects } ]
 }
