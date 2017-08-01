@@ -284,7 +284,7 @@ sub calc_qtys_price {
     my %oi_by_id = map { $_->id => $_ } @$orderitems;
     my $query    = sprintf <<'', join ', ', ("?")x@all_doi_ids;
       SELECT DISTINCT doi.id, closed FROM delivery_orders
-      LEFT JOIN delivery_order_items doi ON (doi.delivery_order_id = delivery_order.id)
+      LEFT JOIN delivery_order_items doi ON (doi.delivery_order_id = delivery_orders.id)
       WHERE doi.id IN (%s)
 
     my %doi_is_closed = selectall_as_map($::form, SL::DB->client->dbh, $query, (id => 'closed'), @all_doi_ids);
