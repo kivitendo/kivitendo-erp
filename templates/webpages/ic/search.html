@@ -224,6 +224,10 @@
           <td>[%- L.checkbox_tag('l_name', label=LxERP.t8('Name in Selected Records'), value='Y') %]</td>
           <td>[%- L.checkbox_tag('l_soldtotal', label=LxERP.t8('Qty in Selected Records'), value='Y') %]</td>
          </tr>
+         <tr>
+          <td>[%- L.checkbox_tag('l_warehouse', label=LxERP.t8('Default Warehouse'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_bin', label=LxERP.t8('Default Bin'), value='Y') %]</td>
+         </tr>
 
          [% CUSTOM_VARIABLES_INCLUSION_CODE %]
         </table>
