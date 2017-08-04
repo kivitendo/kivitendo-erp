@@ -401,6 +401,7 @@ sub form_header {
   my $class       = "SL::DB::" . ($form->{vc} eq 'customer' ? 'Customer' : 'Vendor');
   $form->{VC_OBJ} = $class->load_cached($form->{ $form->{vc} . '_id' });
 
+  $form->{CONTACT_OBJ}   = $form->{cp_id} ? SL::DB::Contact->load_cached($form->{cp_id}) : undef;
   my $current_employee   = SL::DB::Manager::Employee->current;
   $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id}   = $form->{old_salesman_id} if $form->{old_salesman_id};

@@ -147,10 +147,8 @@
          <th align="right">[% 'Contact Person' | $T8 %]</th>
          <td>
           [%- IF delivered %]
-          <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
-          [%- IF cp_id == row.cp_id %]
-          [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
-          [%- END %]
+            [% L.hidden_tag("cp_id", cp_id) %]
+            [% HTML.escape(CONTACT_OBJ.full_name) %][% IF CONTACT_OBJ.cp_abteilung %] ([% HTML.escape(CONTACT_OBJ.cp_abteilung) %])[% END %]
           [%- ELSE %]
             [% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value_key = 'cp_id', title_key = 'full_name_dep', with_empty = 1, style='width: 250px') %]
           [%- END %]
