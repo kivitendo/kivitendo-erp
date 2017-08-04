@@ -1969,7 +1969,9 @@ sub show_sales_purchase_email_dialog {
   my $email = '';
   if ($::form->{cp_id}) {
     $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
-  } elsif ($::form->{vc} && $::form->{vc_id}) {
+  }
+
+  if (!$email && $::form->{vc} && $::form->{vc_id}) {
     $email = SL::DB::Customer->load_cached($::form->{vc_id})->email if 'customer' eq $::form->{vc};
     $email = SL::DB::Vendor  ->load_cached($::form->{vc_id})->email if 'vendor'   eq $::form->{vc};
   }
