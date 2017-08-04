@@ -1976,6 +1976,8 @@ sub show_sales_purchase_email_dialog {
     $email = SL::DB::Vendor  ->load_cached($::form->{vc_id})->email if 'vendor'   eq $::form->{vc};
   }
 
+  $email = '' if $::form->{type} =~ m{^ purchase (?: _delivery)? _order $}x;
+
   my $email_form = {
     to                  => $email,
     subject             => $::form->generate_email_subject,
