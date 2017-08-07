@@ -14,7 +14,7 @@ sub today_local {
 
 package main;
 
-use Test::More tests => 80;
+use Test::More tests => 56;
 
 use lib 't';
 use strict;
@@ -22,6 +22,7 @@ use utf8;
 
 use Carp;
 use Support::TestSetup;
+use SL::Dev::ALL;
 
 use_ok 'SL::BackgroundJob::CreatePeriodicInvoices';
 use_ok 'SL::DB::Chart';
@@ -34,15 +35,11 @@ use_ok 'SL::DB::TaxZone';
 
 Support::TestSetup::login();
 
-our ($ar_chart, $buchungsgruppe, $currency_id, $customer, $employee, $order, $part, $tax_zone, $unit, @invoices);
+our ($ar_chart, $customer, $order, $part, $unit, @invoices);
 
 sub init_common_state {
-  $ar_chart       = SL::DB::Manager::Chart->find_by(accno => '1400')                        || croak "No AR chart";
-  $buchungsgruppe = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 19%') || croak "No accounting group";
-  $currency_id    = SL::DB::Default->get->currency_id;
-  $employee       = SL::DB::Manager::Employee->current                                      || croak "No employee";
-  $tax_zone       = SL::DB::Manager::TaxZone->find_by( description => 'Inland')             || croak "No taxzone";
-  $unit           = SL::DB::Manager::Unit->find_by(name => 'psch')                          || croak "No unit";
+  $ar_chart = SL::DB::Manager::Chart->find_by(accno => '1400') || croak "No AR chart";
+  $unit     = SL::DB::Manager::Unit->find_by(name => 'psch')   || croak "No unit";
 }
 
 sub clear_up {
@@ -57,39 +54,31 @@ sub create_invoices {
   # Clean up: remove invoices, orders, parts and customers
   clear_up();
 
-  $customer     = SL::DB::Customer->new(
-    name        => 'Test Customer',
-    currency_id => $currency_id,
-    taxzone_id  => $tax_zone->id,
+  $customer = SL::Dev::CustomerVendor::create_customer(
+    name => 'Test Customer',
     %{ $params{customer} }
   )->save;
 
-  $part = SL::DB::Part->new(
-    partnumber         => 'T4254',
-    description        => 'Fourty-two fifty-four',
-    lastcost           => 222.22,
-    sellprice          => 333.33,
-    part_type          => 'part',
-    buchungsgruppen_id => $buchungsgruppe->id,
-    unit               => $unit->name,
+  $part = SL::Dev::Part::create_part(
+    partnumber  => 'T4254',
+    description => 'Fourty-two fifty-four',
+    lastcost    => 222.22,
+    sellprice   => 333.33,
+    unit        => $unit->name,
     %{ $params{part} }
   )->save;
-  $part->load;
 
-  $order                     = SL::DB::Order->new(
-    customer_id              => $customer->id,
-    currency_id              => $currency_id,
-    taxzone_id               => $tax_zone->id,
+  $order = SL::Dev::Record::create_sales_order(
+    save                     => 1,
+    customer                 => $customer,
     transaction_description  => '<%period_start_date%>',
     orderitems               => [
-      { parts_id             => $part->id,
-        description          => $part->description,
-        lastcost             => $part->lastcost,
-        sellprice            => $part->sellprice,
-        qty                  => 1,
-        unit                 => $unit->name,
+      SL::Dev::Record::create_order_item(
+        part => $part,
+        qty  => 1,
+        unit => $unit->name,
         %{ $params{orderitem} },
-      },
+      ),
     ],
     periodic_invoices_config => {
       active                 => 1,
@@ -98,10 +87,6 @@ sub create_invoices {
     },
     %{ $params{order} },
   );
-
-  $order->calculate_prices_and_taxes;
-
-  ok($order->save(cascade => 1));
 
   SL::BackgroundJob::CreatePeriodicInvoices->new->run(SL::DB::BackgroundJob->new);
 
