@@ -383,7 +383,7 @@ Required params: record_type (sales_invoice, sales_order, sales_delivery_order)
 
 Example including creation of part and of invoice:
   my $part    = SL::Dev::Part::create_part(  partnumber  => 'T4254')->save;
-  my $item    = SL::Dev::Record::create_item(record_type => 'sales_invoice', part => $part, qty => 2.5);
+  my $item    = SL::Dev::Record::create_invoice_item(part => $part, qty => 2.5);
   my $invoice = SL::Dev::Record::create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
