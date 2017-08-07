@@ -3,6 +3,8 @@ use Test::More;
 
 use lib 't';
 
+use SL::Dev::Part;
+
 use_ok 'Support::TestSetup';
 use_ok 'SL::DB::Bin';
 use_ok 'SL::DB::Part';
@@ -26,8 +28,7 @@ SL::DB::Manager::Bin      ->delete_all(where => [ or => [ description => NAME() 
 SL::DB::Manager::Warehouse->delete_all(where => [ description => NAME() ]);
 
 # Create test data
-$part = SL::DB::Part->new(unit => 'mg', description => NAME(), partnumber => NAME(), part_type => 'part');
-$part->save();
+$part = SL::Dev::Part::create_part(unit => 'mg', description => NAME(), partnumber => NAME())->save();
 
 is(ref($part), 'SL::DB::Part', 'loading a part to test with id ' . $part->id);
 
