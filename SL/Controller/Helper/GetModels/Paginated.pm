@@ -57,8 +57,6 @@ sub finalize {
     # try to use Filtered if available and nothing else is configured, but don't
     # blow up if the controller does not use Filtered
     my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
-                          :     $self->paginate_args  eq '__FILTER__'
-                             && $self->get_models->filtered ? $self->get_models->filtered->read_params
                           :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
                           :                                               ();
 
