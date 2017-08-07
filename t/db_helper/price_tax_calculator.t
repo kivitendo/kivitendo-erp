@@ -10,6 +10,7 @@ use Data::Dumper;
 use List::MoreUtils qw(uniq);
 use Support::TestSetup;
 use Test::Exception;
+use SL::Dev::ALL;
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
@@ -22,11 +23,12 @@ use SL::DB::Part;
 use SL::DB::Unit;
 use SL::DB::TaxZone;
 
-my ($customer, $currency_id, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
+my ($customer, @parts, $buchungsgruppe, $buchungsgruppe7, $unit, $employee, $tax, $tax7, $taxzone);
 
 sub clear_up {
   SL::DB::Manager::Order->delete_all(all => 1);
   SL::DB::Manager::DeliveryOrder->delete_all(all => 1);
+  SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
@@ -47,44 +49,38 @@ sub reset_state {
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                                              || croak "No tax for 7\%";
   $taxzone         = SL::DB::Manager::TaxZone->find_by( description => 'Inland')                                           || croak "No taxzone";
 
-  $currency_id     = $::instance_conf->get_currency_id;
-
-  $customer     = SL::DB::Customer->new(
+  $customer     = SL::Dev::CustomerVendor::create_customer(
     name        => 'Test Customer',
-    currency_id => $currency_id,
     taxzone_id  => $taxzone->id,
     %{ $params{customer} }
   )->save;
 
   @parts = ();
-  push @parts, SL::DB::Part->new(
+  push @parts, SL::Dev::Part::create_part(
     partnumber         => 'T4254',
     description        => 'Fourty-two fifty-four',
     lastcost           => 1.93,
     sellprice          => 2.34,
-    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe->id,
     unit               => $unit->name,
     %{ $params{part1} }
   )->save;
 
-  push @parts, SL::DB::Part->new(
+  push @parts, SL::Dev::Part::create_part(
     partnumber         => 'T0815',
     description        => 'Zero EIGHT fifteeN @ 7%',
     lastcost           => 5.473,
     sellprice          => 9.714,
-    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe7->id,
     unit               => $unit->name,
     %{ $params{part2} }
   )->save;
 
-  push @parts, SL::DB::Part->new(
+  push @parts, SL::Dev::Part::create_part(
     partnumber         => 'T888',
     description        => 'Triple 8',
     lastcost           => 0,
     sellprice          => 0.6,
-    part_type          => 'part',
     buchungsgruppen_id => $buchungsgruppe->id,
     unit               => $unit->name,
     %{ $params{part3} }
@@ -95,16 +91,8 @@ sub reset_state {
 sub new_invoice {
   my %params  = @_;
 
-  return SL::DB::Invoice->new(
-    customer_id => $customer->id,
-    currency_id => $currency_id,
-    employee_id => $employee->id,
-    salesman_id => $employee->id,
-    gldate      => DateTime->today_local->to_kivitendo,
+  return SL::Dev::Record::create_sales_invoice(
     taxzone_id  => $taxzone->id,
-    transdate   => DateTime->today_local->to_kivitendo,
-    invoice     => 1,
-    type        => 'invoice',
     %params,
   );
 }
@@ -114,12 +102,8 @@ sub new_item {
 
   my $part = delete($params{part}) || $parts[0];
 
-  return SL::DB::InvoiceItem->new(
-    parts_id    => $part->id,
-    lastcost    => $part->lastcost,
-    sellprice   => $part->sellprice,
-    description => $part->description,
-    unit        => $part->unit,
+  return SL::Dev::Record::create_invoice_item(
+    part => $part,
     %params,
   );
 }
@@ -127,7 +111,7 @@ sub new_item {
 sub test_default_invoice_one_item_19_tax_not_included() {
   reset_state();
 
-  my $item    = new_item(qty => 2.5);
+  my $item = new_item(qty => 2.5);
   my $invoice = new_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
