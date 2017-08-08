@@ -183,7 +183,7 @@ sub _all_configs {
   }
 
   $params{module}
-    ? $cache->{modules}{$params{module}}
+    ? $cache->{module}{$params{module}}
     : $cache->{all};
 }
 
