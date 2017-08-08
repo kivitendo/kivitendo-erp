@@ -124,8 +124,13 @@ sub is_valid {
 
   require SL::DB::CustomVariableValidity;
 
-  my $query = [config_id => $self->config_id, trans_id => $self->trans_id];
-  return (SL::DB::Manager::CustomVariableValidity->get_all_count(query => $query) == 0) ? 1 : 0;
+  # only base level custom variables can be invalid. ovverloaded ones could potentially clash on trans_id, so disallow them
+  return 1 if $_->sub_module;
+
+  $self->{is_valid} //= do {
+    my $query = [config_id => $self->config_id, trans_id => $self->trans_id];
+    (SL::DB::Manager::CustomVariableValidity->get_all_count(query => $query) == 0) ? 1 : 0;
+  }
 }
 
 1;
