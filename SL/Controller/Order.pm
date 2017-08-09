@@ -211,7 +211,7 @@ sub action_print {
     }
   }
   if ($self->order->ordnumber && $::instance_conf->get_doc_storage) {
-    SL::File->store( object_id     => $self->order->id,
+    SL::File->save(  object_id     => $self->order->id,
                      object_type   => $self->type,
                      mime_type     => 'application/pdf',
                      source        => 'created',
