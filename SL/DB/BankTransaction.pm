@@ -47,6 +47,11 @@ sub linked_invoices {
   return [ @linked_invoices ];
 }
 
+sub is_collective_transaction {
+  $_[0]->transaction_code eq "191";
+}
+
+
 sub get_agreement_with_invoice {
   my ($self, $invoice) = @_;
 
@@ -73,9 +78,15 @@ sub get_agreement_with_invoice {
     skonto_exact_amount         => 5,
     wrong_sign                  => -1,
     sepa_export_item            => 5,
+    collective_sepa_transaction => 20,
   );
 
   my ($agreement,$rule_matches);
+
+  if ( $self->is_collective_transaction && $self->{sepa_export_ok}) {
+    $agreement += $points{collective_sepa_transaction};
+    $rule_matches .= 'collective_sepa_transaction(' . $points{'collective_sepa_transaction'} . ') ';
+  }
 
   # compare banking arrangements
   my ($iban, $bank_code, $account_number);
@@ -210,15 +221,11 @@ sub get_agreement_with_invoice {
   };
 
   # if there is exactly one non-executed sepa_export_item for the invoice
-  if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
-    if (scalar @$seis == 1) {
+  if ( my $seis = $invoice->{sepa_export_item} ) {
+      if (scalar @$seis == 1) {
       my $sei = $seis->[0];
 
-      # test for amount and id matching only, sepa transfer date and bank
-      # transaction date needn't match
-      my $arap = $invoice->is_sales ? 'ar' : 'ap';
-
-      if (abs($self->amount) == ($sei->amount) && $invoice->id == $sei->arap_id) {
+      if ( abs(abs($self->amount) - abs($sei->amount)) < 0.01 ) {
         $agreement    += $points{sepa_export_item};
         $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
       }

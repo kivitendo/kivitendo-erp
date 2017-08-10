@@ -1,4 +1,4 @@
-use Test::More tests => 105;
+use Test::More tests => 130;
 
 use strict;
 
@@ -41,6 +41,8 @@ sub clear_up {
   SL::DB::Manager::Part->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
+  SL::DB::Manager::SepaExportItem->delete_all(all => 1);
+  SL::DB::Manager::SepaExport->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::PaymentTerm->delete_all(all => 1);
   SL::DB::Manager::Currency->delete_all(where => [ name => 'CUR' ]);
@@ -78,6 +80,9 @@ test_neg_ap_transaction();
 test_ap_payment_transaction();
 test_ap_payment_part_transaction();
 test_neg_sales_invoice();
+
+test_bt_rule1();
+test_sepa_export();
 
 # remove all created data at end of test
 clear_up();
@@ -655,5 +660,76 @@ sub test_neg_sales_invoice {
   is($bt->amount              , '-345.10000', "$testname: bt amount ok");
   is($bt->invoice_amount      , '-345.10000', "$testname: bt invoice_amount ok");
 }
+
+sub test_bt_rule1 {
+
+  my $testname = 'test_bt_rule1';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'bt_rule1');
+
+  my $bt = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction) or die "Couldn't create bank_transaction";
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '0.00000' , "$testname: not paid");
+  is($bt->invoice_amount     , '0.00000' , "$testname: bt invoice amount was not assigned");
+
+  my $bt_controller = SL::Controller::BankTransaction->new;
+  $::form->{dont_render_for_test} = 1;
+  $::form->{filter}{bank_account} = $bank_account->id;
+  my $bt_transactions = $bt_controller->action_list;
+
+  is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
+  is($bt_transactions->[0]->{agreement}, 20 , "$testname: agreement == 20");
+  my $match = join ( ' ',@{$bt_transactions->[0]->{rule_matches}});
+  #print "rule_matches='".$match."'\n";
+  is($match,
+     "remote_account_number(3) exact_amount(4) own_invnumber_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  $bt->invoice_amount($bt->amount);
+  $bt->save;
+  is($bt->invoice_amount     , '119.00000' , "$testname: bt invoice amount now set");
+};
+
+sub test_sepa_export {
+
+  my $testname = 'test_sepa_export';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'sepa1');
+
+  my $bt  = SL::Dev::Payment::create_bank_transaction(record => $ar_transaction) or die "Couldn't create bank_transaction";
+  my $se  = SL::Dev::Payment::create_sepa_export();
+  my $sei = SL::Dev::Payment::create_sepa_export_item(
+    chart_id       => $bank->id,
+    ar_id          => $ar_transaction->id,
+    sepa_export_id => $se->id,
+    vc_iban        => $customer->iban,
+    vc_bic         => $customer->bic,
+    vc_mandator_id => $customer->mandator_id,
+    vc_depositor   => $customer->depositor,
+    amount         => $ar_transaction->amount,
+  );
+
+  $ar_transaction->load;
+  $bt->load;
+  $sei->load;
+  is($ar_transaction->paid   , '0.00000' , "$testname: sepa1 not paid");
+  is($bt->invoice_amount     , '0.00000' , "$testname: bt invoice amount was not assigned");
+  is($bt->amount             , '119.00000' , "$testname: bt amount ok");
+  is($sei->amount            , '119.00000' , "$testname: sepa export amount ok");
+
+  my $bt_controller = SL::Controller::BankTransaction->new;
+  $::form->{dont_render_for_test} = 1;
+  $::form->{filter}{bank_account} = $bank_account->id;
+  my $bt_transactions = $bt_controller->action_list;
+
+  is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
+  is($bt_transactions->[0]->{agreement}, 25 , "$testname: agreement == 25");
+  my $match = join ( ' ',@{$bt_transactions->[0]->{rule_matches}});
+  is($match,
+     "remote_account_number(3) exact_amount(4) own_invnumber_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) sepa_export_item(5) ",
+     "$testname: rule_matches ok");
+};
+
 
 1;
