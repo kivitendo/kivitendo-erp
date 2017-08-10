@@ -1,9 +1,9 @@
 [%- USE HTML -%][%- USE LxERP %][%- USE T8 %]
 [%- BLOCK output %]
  <div id="flash_[% type %]" class="flash_message_[% type %]"[% IF !messages || !messages.size %] style="display: none"[% END %]>
-  <a href='#' style='float:right' 
-     onclick='$("#flash_[% type %]_content").empty();$("#flash_[% type %]_detail").empty();$("#flash_[% type %]").hide()'> 
-     <img src='image/close.png' border='0' alt='[% 'Close Flash' | $T8 %]'></a> 
+  <a href='#' style='float:right'
+     onclick='$("#flash_[% type %]_content").empty();$("#flash_[% type %]_detail").empty();$("#flash_[% type %]").hide()'>
+     <img src='image/close.png' border='0' alt='[% 'Close Flash' | $T8 %]'></a>
   <span class="flash_title">[%- title %]:</span>
   <span id="flash_[% type %]_content">
    [% FOREACH message = messages %]
@@ -17,8 +17,8 @@
   <div id="flash_detail_[% type %]" style="display: none">
     <br>
     <span id="flash_[% type %]_detail"></span><br>
-    <a href='#' style='float:left' 
-      onclick='$("#flash_detail_[% type %]").hide()'> 
+    <a href='#' style='float:left'
+      onclick='$("#flash_detail_[% type %]").hide()'>
       <img src='image/close.png' border='0' alt='[% 'Close Details' | $T8 %]'></a><br>
   </div>
  </div>
