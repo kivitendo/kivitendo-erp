@@ -22,7 +22,7 @@ sub run {
 
   my $profile = $self->profile;
 
-  $self->csv(SL::Helper::Csv->new(file                    => $self->file->file_name,
+  $self->csv(SL::Helper::Csv->new(file                   => ('SCALAR' eq ref $self->file)? $self->file: $self->file->file_name,
                                   encoding                => $self->controller->profile->get('charset'),
                                   profile                 => $profile,
                                   ignore_unknown_columns  => 1,

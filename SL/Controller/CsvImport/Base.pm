@@ -34,7 +34,7 @@ sub run {
   $self->controller->track_progress(phase => 'parsing csv', progress => 0);
 
   my $profile = $self->profile;
-  $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
+  $self->csv(SL::Helper::Csv->new(file                   => ('SCALAR' eq ref $self->file)? $self->file: $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
                                   profile                => [{ profile => $profile, class => $self->class, mapping => $self->controller->mappings_for_profile }],
                                   ignore_unknown_columns => 1,
