@@ -288,6 +288,12 @@ Print the manual page and exit.
 Log in as C<username>. The default is to use the value from the
 configuration file and C<demo> if none is set there.
 
+=item B<-c>, B<--client>=C<client>
+
+Use the database for client C<client>. C<client> can be a client's
+database ID or its name. The default is to use the value from the
+configuration file.
+
 =item B<-o>, B<--log-file>=C<filename>
 
 Use C<filename> as the log file. The default is to use the value from
