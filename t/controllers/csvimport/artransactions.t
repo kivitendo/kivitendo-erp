@@ -65,7 +65,16 @@ reset_state(customer => {id => 960, customernumber => 2});
 sub test_import {
   my $file = shift;
 
-  my $controller = SL::Controller::CsvImport->new();
+  my $controller = SL::Controller::CsvImport->new(
+    type => 'ar_transactions'
+  );
+  $controller->load_default_profile;
+  $controller->profile->set(
+    encoding     => 'utf-8',
+    sep_char     => ',',
+    quote_char   => '"',
+    numberformat => $::myconfig{numberformat},
+  );
 
   my $csv_artransactions_import = SL::Controller::CsvImport::ARTransaction->new(
     settings    => {'ar_column'          => 'Rechnung',
@@ -77,56 +86,7 @@ sub test_import {
   );
 
   # $csv_artransactions_import->init_vc_by;
-  $csv_artransactions_import->test_run(0);
-  $csv_artransactions_import->csv(SL::Helper::Csv->new(file                    => $csv_artransactions_import->file,
-                                                       profile                 => $csv_artransactions_import->profile,
-                                                       encoding                => 'utf-8',
-                                                       ignore_unknown_columns  => 1,
-                                                       strict_profile          => 1,
-                                                       case_insensitive_header => 1,
-                                                       sep_char                => ',',
-                                                       quote_char              => '"',
-                                                       ignore_unknown_columns  => 1,
-                                                     ));
-
-  $csv_artransactions_import->csv->parse;
-
-  $csv_artransactions_import->controller->errors([ $csv_artransactions_import->csv->errors ]) if $csv_artransactions_import->csv->errors;
-
-  return if ( !$csv_artransactions_import->csv->header || $csv_artransactions_import->csv->errors );
-
-  my $headers;
-  my $i = 0;
-  foreach my $header (@{ $csv_artransactions_import->csv->header }) {
-
-    my $profile   = $csv_artransactions_import->csv->profile->[$i]->{profile};
-    my $row_ident = $csv_artransactions_import->csv->profile->[$i]->{row_ident};
-
-    my $h = { headers => [ grep { $profile->{$_} } @{ $header } ] };
-    $h->{methods} = [ map { $profile->{$_} } @{ $h->{headers} } ];
-    $h->{used}    = { map { ($_ => 1) }      @{ $h->{headers} } };
-
-    $headers->{$row_ident} = $h;
-    $i++;
-  }
-
-  $csv_artransactions_import->controller->headers($headers);
-
-  my $raw_data_headers;
-  my $info_headers;
-  foreach my $p (@{ $csv_artransactions_import->csv->profile }) {
-    my $ident = $p->{row_ident};
-    $raw_data_headers->{$ident} = { used => { }, headers => [ ] };
-    $info_headers->{$ident}     = { used => { }, headers => [ ] };
-  }
-  $csv_artransactions_import->controller->raw_data_headers($raw_data_headers);
-  $csv_artransactions_import->controller->info_headers($info_headers);
-
-  my $objects  = $csv_artransactions_import->csv->get_objects;
-  my @raw_data = @{ $csv_artransactions_import->csv->get_data };
-
-  $csv_artransactions_import->controller->data([ pairwise { no warnings 'once'; { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @$objects, @raw_data ]);
-  $csv_artransactions_import->check_objects;
+  $csv_artransactions_import->run({test => 0});
 
   # don't try and save objects that have errors
   $csv_artransactions_import->save_objects unless scalar @{$csv_artransactions_import->controller->data->[0]->{errors}};

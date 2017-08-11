@@ -96,8 +96,17 @@ reset_state();
 #####
 sub test_import {
   my ($file,$settings) = @_;
-  my @profiles;
-  my $controller = SL::Controller::CsvImport->new();
+
+  my $controller = SL::Controller::CsvImport->new(
+    type => 'parts'
+  );
+  $controller->load_default_profile;
+  $controller->profile->set(
+    encoding     => 'utf-8',
+    sep_char     => ';',
+    quote_char   => '"',
+    numberformat => $::myconfig{numberformat},
+  );
 
   my $csv_part_import = SL::Controller::CsvImport::Part->new(
     settings   => $settings,
@@ -106,39 +115,7 @@ sub test_import {
   );
   #print "profile param type=".$csv_part_import->settings->{parts_type}."\n";
 
-  $csv_part_import->test_run(0);
-  $csv_part_import->csv(SL::Helper::Csv->new(file                    => $csv_part_import->file,
-                                             profile                 => [{ profile => $csv_part_import->profile,
-                                                                           class   => $csv_part_import->class,
-                                                                           mapping => $csv_part_import->controller->mappings_for_profile }],
-                                             encoding                => 'utf-8',
-                                             ignore_unknown_columns  => 1,
-                                             strict_profile          => 1,
-                                             case_insensitive_header => 1,
-                                             sep_char                => ';',
-                                             quote_char              => '"',
-                                             ignore_unknown_columns  => 1,
-                                            ));
-
-  $csv_part_import->csv->parse;
-
-  $csv_part_import->controller->errors([ $csv_part_import->csv->errors ]) if $csv_part_import->csv->errors;
-
-  return if ( !$csv_part_import->csv->header || $csv_part_import->csv->errors );
-
-  my $headers         = { headers => [ grep { $csv_part_import->csv->dispatcher->is_known($_, 0) } @{ $csv_part_import->csv->header } ] };
-  $headers->{methods} = [ map { $_->{path} } @{ $csv_part_import->csv->specs->[0] } ];
-  $headers->{used}    = { map { ($_ => 1) }  @{ $headers->{headers} } };
-  $csv_part_import->controller->headers($headers);
-  $csv_part_import->controller->raw_data_headers({ used => { }, headers => [ ] });
-  $csv_part_import->controller->info_headers({ used => { }, headers => [ ] });
-
-  my $objects  = $csv_part_import->csv->get_objects;
-  my @raw_data = @{ $csv_part_import->csv->get_data };
-
-  $csv_part_import->controller->data([ pairwise { no warnings 'once'; { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @$objects, @raw_data ]);
-
-  $csv_part_import->check_objects;
+  $csv_part_import->run({test => 0});
 
   # don't try and save objects that have errors
   $csv_part_import->save_objects unless scalar @{$csv_part_import->controller->data->[0]->{errors}};
