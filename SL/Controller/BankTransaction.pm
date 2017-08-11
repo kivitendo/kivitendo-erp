@@ -155,7 +155,7 @@ sub action_list {
 
     $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
 
-    if ( $bt->is_collective_transaction ) {
+    if ( $bt->is_batch_transaction ) {
       foreach ( keys  %sepa_exports) {
         if ( abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
           ## jupp
@@ -166,7 +166,7 @@ sub action_list {
           next;
         }
       }
-      # colletive transaction has no remotename !!
+      # batch transaction has no remotename !!
     } else {
       next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
     }

@@ -47,7 +47,7 @@ sub linked_invoices {
   return [ @linked_invoices ];
 }
 
-sub is_collective_transaction {
+sub is_batch_transaction {
   $_[0]->transaction_code eq "191";
 }
 
@@ -78,14 +78,14 @@ sub get_agreement_with_invoice {
     skonto_exact_amount         => 5,
     wrong_sign                  => -1,
     sepa_export_item            => 5,
-    collective_sepa_transaction => 20,
+    batch_sepa_transaction      => 20,
   );
 
   my ($agreement,$rule_matches);
 
-  if ( $self->is_collective_transaction && $self->{sepa_export_ok}) {
-    $agreement += $points{collective_sepa_transaction};
-    $rule_matches .= 'collective_sepa_transaction(' . $points{'collective_sepa_transaction'} . ') ';
+  if ( $self->is_batch_transaction && $self->{sepa_export_ok}) {
+    $agreement += $points{batch_sepa_transaction};
+    $rule_matches .= 'batch_sepa_transaction(' . $points{'batch_sepa_transaction'} . ') ';
   }
 
   # compare banking arrangements
