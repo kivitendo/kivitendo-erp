@@ -317,7 +317,6 @@ sub action_filter_templates {
   my ($self) = @_;
 
   $self->{transaction}      = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
-  my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
 
   my @filter;
   push @filter, ('vendor.name' => { ilike => '%' . $::form->{vendor} . '%' }) if $::form->{vendor};
