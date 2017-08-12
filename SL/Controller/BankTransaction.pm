@@ -263,13 +263,19 @@ sub action_create_invoice {
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(iban => $self->transaction->{remote_account_number});
   my $use_vendor_filter     = $self->transaction->{remote_account_number} && $vendor_of_transaction;
 
-  my $templates             = SL::DB::Manager::RecordTemplate->get_all(
+  my $templates_ap = SL::DB::Manager::RecordTemplate->get_all(
     where        => [ template_type => 'ap_transaction' ],
     with_objects => [ qw(employee vendor) ],
   );
+  my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
+    query        => [ template_type => 'gl_transaction',
+                      chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transaction->local_bank_account_id)->chart_id,
+                    ],
+    with_objects => [ qw(employee record_template_items) ],
+  );
 
-  #Filter templates
-  $templates = [ grep { $_->vendor_id == $vendor_of_transaction->id } @{ $templates } ] if $use_vendor_filter;
+  # pre filter templates_ap, if we have a vendor match (IBAN eq IBAN) - show and allow user to edit this via gui!
+  $templates_ap = [ grep { $_->vendor_id == $vendor_of_transaction->id } @{ $templates_ap } ] if $use_vendor_filter;
 
   $self->callback($self->url_for(
     action                => 'list',
@@ -281,9 +287,10 @@ sub action_create_invoice {
   $self->render(
     'bank_transactions/create_invoice',
     { layout => 0 },
-    title       => t8('Create invoice'),
-    TEMPLATES   => $templates,
-    vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
+    title        => t8('Create invoice'),
+    TEMPLATES_GL => $use_vendor_filter ? undef : $templates_gl,
+    TEMPLATES_AP => $templates_ap,
+    vendor_name  => $use_vendor_filter ? $vendor_of_transaction->name : undef,
   );
 }
 
@@ -319,11 +326,20 @@ sub action_filter_templates {
   $self->{transaction}      = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
 
   my @filter;
-  push @filter, ('vendor.name' => { ilike => '%' . $::form->{vendor} . '%' }) if $::form->{vendor};
+  push @filter, ('vendor.name'   => { ilike => '%' . $::form->{vendor} . '%' })    if $::form->{vendor};
+  push @filter, ('template_name' => { ilike => '%' . $::form->{template} . '%' })  if $::form->{template};
+  push @filter, ('reference'     => { ilike => '%' . $::form->{reference} . '%' }) if $::form->{reference};
 
-  my $templates = SL::DB::Manager::RecordTemplate->get_all(
-    where        => [ template_type => 'ap_transaction', (or => \@filter) x !!@filter ],
+  my $templates_ap = SL::DB::Manager::RecordTemplate->get_all(
+    where        => [ template_type => 'ap_transaction', (and => \@filter) x !!@filter ],
     with_objects => [ qw(employee vendor) ],
+  );
+  my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
+    query        => [ template_type => 'gl_transaction',
+                      chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transaction->local_bank_account_id)->chart_id,
+                      (and => \@filter) x !!@filter
+                    ],
+    with_objects => [ qw(employee record_template_items) ],
   );
 
   $::form->{filter} //= {};
@@ -338,7 +354,8 @@ sub action_filter_templates {
   my $output  = $self->render(
     'bank_transactions/_template_list',
     { output => 0 },
-    TEMPLATES => $templates,
+    TEMPLATES_AP => $templates_ap,
+    TEMPLATES_GL => $templates_gl,
   );
 
   $self->render(\to_json({ html => $output }), { type => 'json', process => 0 });
@@ -860,6 +877,19 @@ sub load_ap_record_template_url {
     'form_defaults.no_payment_bookings'  => 1,
     'form_defaults.paid_1_suggestion'    => $::form->format_amount(\%::myconfig, -1 * $self->transaction->amount, 2),
     'form_defaults.AP_paid_1_suggestion' => $self->transaction->local_bank_account->chart->accno,
+    'form_defaults.callback'             => $self->callback,
+  );
+}
+
+sub load_gl_record_template_url {
+  my ($self, $template) = @_;
+
+  return $self->url_for(
+    controller                           => 'gl.pl',
+    action                               => 'load_record_template',
+    id                                   => $template->id,
+    'form_defaults.amount_1'             => -1 * $self->transaction->amount,
+    'form_defaults.transdate'            => $self->transaction->transdate_as_date,
     'form_defaults.callback'             => $self->callback,
   );
 }

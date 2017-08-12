@@ -49,7 +49,7 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
-
+use Carp;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -94,7 +94,8 @@ sub load_record_template {
   die "invalid template type" unless $template->template_type eq 'gl_transaction';
 
   $template->substitute_variables;
-
+  my $payment_suggestion =  $::form->{form_defaults}->{amount_1};
+  # croak ("hier" . $payment_suggestion);
   # Clean the current $::form before rebuilding it from the template.
   my $form_defaults = delete $::form->{form_defaults};
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
@@ -133,8 +134,8 @@ sub load_record_template {
 
     $::form->{"accno_id_${row}"}          = $item->chart_id;
     $::form->{"previous_accno_id_${row}"} = $item->chart_id;
-    $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, $item->amount1, 2) if $item->amount1 * 1;
-    $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, $item->amount2, 2) if $item->amount2 * 1;
+    $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount1), 2) if $item->amount1 * 1;
+    $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount2), 2) if $item->amount2 * 1;
     $::form->{"taxchart_${row}"}          = $item->tax_id . '--' . $tax->rate;
     $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id);
   }
@@ -1317,7 +1318,6 @@ sub post_transaction {
 
     $form->error($err[$errno]);
   }
-  undef($form->{callback});
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|gltransaction_| . $form->{id};
@@ -1327,6 +1327,12 @@ sub post_transaction {
   }
   # /saving the history
 
+  if ($form->{callback} =~ /BankTransaction/) {
+    print $form->redirect_header($form->{callback});
+    $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
+  }
+  # remove or clarify
+  undef($form->{callback});
   $main::lxdebug->leave_sub();
 }
 

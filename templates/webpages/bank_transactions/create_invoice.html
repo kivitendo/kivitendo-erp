@@ -25,27 +25,42 @@
 
 
 <br>
-[% LxERP.t8('Vendor filter for AP transaction templates') %]:
 
-<form method="post" action="javascript:kivi.BankTransaction.filter_templates()">
+<form method="post" action="javascript:kivi.BankTransaction.filter_templates()" id="create_invoice_window_form">
  [% L.hidden_tag("bt_id",               SELF.transaction.id) %]
  [% L.hidden_tag("filter.bank_account", FORM.filter.bank_account) %]
  [% L.hidden_tag("filter.fromdate",     FORM.filter.fromdate) %]
  [% L.hidden_tag("filter.todate",      FORM.filter.todate) %]
  <table>
   <tr>
+   <th align="right">[%- LxERP.t8("Template Description") %]</th>
+   <td>[% P.input_tag("template", template_name, style="width: 250px") %]</td>
+  </tr>
+  <tr>
    <th align="right">[%- LxERP.t8("Vendor") %]</th>
-   <td>[% P.input_tag("vendor", vendor_name, class="initial_focus", style="width: 250px") %]</td>
+   <td>[% P.input_tag("vendor", vendor_name,  style="width: 250px") %]</td>
+  </tr>
+  <tr>
+   <th align="right">[%- LxERP.t8("Reference") %]</th>
+   <td>[% P.input_tag("reference", reference_name, style="width: 250px") %]</td>
   </tr>
  </table>
-</form>
-
   <p>
-   [% P.button_tag("kivi.BankTransaction.filter_templates()", LxERP.t8("Filter vendors")) %]
+   [% P.submit_tag('', LxERP.t8("Filter")) %]
+   [% P.button_tag('$("#create_invoice_window_form").resetForm()', LxERP.t8('Reset')) %]
    <a href="#" onclick="$('#create_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
   </p>
-
+</form>
   <hr>
 <div id="templates">
  [% PROCESS "bank_transactions/_template_list.html" %]
 </div>
+
+<script type="text/javascript">
+<!--
+$(function() {
+  $('#template').focus();
+});
+
+//-->
+</script>

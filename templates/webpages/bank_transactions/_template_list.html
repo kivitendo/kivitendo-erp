@@ -1,5 +1,7 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE P -%][% IF TEMPLATES.size %]
- [% LxERP.t8('Template suggestions') %]:
+[%- USE HTML -%][%- USE LxERP -%][%- USE P -%]
+
+[% IF TEMPLATES_AP.size %]
+ [% LxERP.t8('AP template suggestions') %]:
  <table>
   <thead>
    <tr>
@@ -11,7 +13,7 @@
   </thead>
 
   <tbody>
-   [% FOREACH template = TEMPLATES %]
+   [% FOREACH template = TEMPLATES_AP %]
     <tr class="listrow">
      <td>[% P.link(SELF.load_ap_record_template_url(template), template.template_name) %]</td>
      <td>[% HTML.escape(template.vendor.name) %]</td>
@@ -22,5 +24,32 @@
   </tbody>
  </table>
 [% ELSE %]
- <p class="message_hint">[% LxERP.t8('No template was found.') %]</p>
+ <p class="message_hint">[% LxERP.t8('No AP template was found.') %]</p>
+[% END %]
+
+[% IF TEMPLATES_GL.size %]
+ [% LxERP.t8('GL template suggestions') %]:
+ <table>
+  <thead>
+   <tr>
+    <th class="listheading">[% LxERP.t8('Description') %]</th>
+    <th class="listheading">[% LxERP.t8('Reference') %]</th>
+    <th class="listheading">[% LxERP.t8('Employee') %]</th>
+    <th class="listheading">[% LxERP.t8('Template date') %]</th>
+   </tr>
+  </thead>
+
+  <tbody>
+   [% FOREACH template = TEMPLATES_GL %]
+    <tr class="listrow">
+     <td>[% P.link(SELF.load_gl_record_template_url(template), template.template_name) %]</td>
+     <td>[% HTML.escape(template.reference) %]</td>
+     <td>[% HTML.escape(template.employee.name || template.employee.login) %]</td>
+     <td>[% HTML.escape(template.itime_as_date) %]</td>
+    </tr>
+   [% END %]
+  </tbody>
+ </table>
+[% ELSE %]
+ <p class="message_hint">[% LxERP.t8('No GL template was found.') %]</p>
 [% END %]
