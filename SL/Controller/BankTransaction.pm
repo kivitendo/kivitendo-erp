@@ -277,7 +277,6 @@ sub action_create_invoice {
     { layout => 0 },
     title       => t8('Create invoice'),
     TEMPLATES   => $templates,
-    vendor_id   => $use_vendor_filter ? $vendor_of_transaction->id   : undef,
     vendor_name => $use_vendor_filter ? $vendor_of_transaction->name : undef,
   );
 }
@@ -315,7 +314,6 @@ sub action_filter_templates {
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->{transaction}->{remote_account_number});
 
   my @filter;
-  push @filter, ('vendor.id'   => $::form->{vendor_id})                       if $::form->{vendor_id};
   push @filter, ('vendor.name' => { ilike => '%' . $::form->{vendor} . '%' }) if $::form->{vendor};
 
   my $templates = SL::DB::Manager::RecordTemplate->get_all(
