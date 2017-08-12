@@ -888,7 +888,7 @@ sub load_gl_record_template_url {
     controller                           => 'gl.pl',
     action                               => 'load_record_template',
     id                                   => $template->id,
-    'form_defaults.amount_1'             => -1 * $self->transaction->amount,
+    'form_defaults.amount_1'             => abs($self->transaction->amount), # always positive
     'form_defaults.transdate'            => $self->transaction->transdate_as_date,
     'form_defaults.callback'             => $self->callback,
   );
