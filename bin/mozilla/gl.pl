@@ -49,7 +49,6 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
-use Carp;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -95,7 +94,7 @@ sub load_record_template {
 
   $template->substitute_variables;
   my $payment_suggestion =  $::form->{form_defaults}->{amount_1};
-  # croak ("hier" . $payment_suggestion);
+
   # Clean the current $::form before rebuilding it from the template.
   my $form_defaults = delete $::form->{form_defaults};
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
