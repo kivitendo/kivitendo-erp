@@ -254,7 +254,13 @@ sub action_create_invoice {
 
   $self->transaction(SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id}));
 
-  my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(account_number => $self->transaction->{remote_account_number});
+  # This was dead code: We compared vendor.account_name with bank_transaction.iban.
+  # This did never match (Kontonummer != IBAN). It's kivis 09/02 (2013) day
+  # If refactored/improved, also consider that vendor.iban should be normalized
+  # user may like to input strings like: 'AT 3333 3333 2222 1111' -> can be checked strictly
+  # at Vendor code because we need the correct data for all sepa exports.
+
+  my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(iban => $self->transaction->{remote_account_number});
   my $use_vendor_filter     = $self->transaction->{remote_account_number} && $vendor_of_transaction;
 
   my $templates             = SL::DB::Manager::RecordTemplate->get_all(
