@@ -99,11 +99,11 @@ sub get_agreement_with_invoice {
   if ( $bank_code eq $self->remote_bank_code && $account_number eq $self->remote_account_number ) {
     $agreement += $points{remote_account_number};
     $rule_matches .= 'remote_account_number(' . $points{'remote_account_number'} . ') ';
-  };
+  }
   if ( $iban eq $self->remote_account_number ) {
     $agreement += $points{remote_account_number};
     $rule_matches .= 'remote_account_number(' . $points{'remote_account_number'} . ') ';
-  };
+  }
 
   my $datediff = $self->transdate->{utc_rd_days} - $invoice->transdate->{utc_rd_days};
   $invoice->{datediff} = $datediff;
@@ -112,19 +112,19 @@ sub get_agreement_with_invoice {
   if (abs(abs($invoice->amount) - abs($self->amount)) < 0.01) {
     $agreement += $points{exact_amount};
     $rule_matches .= 'exact_amount(' . $points{'exact_amount'} . ') ';
-  };
+  }
 
   # compare open amount, preventing double points when open amount = invoice amount
   if ( $invoice->amount != $invoice->open_amount && abs(abs($invoice->open_amount) - abs($self->amount)) < 0.01) {
     $agreement += $points{exact_open_amount};
     $rule_matches .= 'exact_open_amount(' . $points{'exact_open_amount'} . ') ';
-  };
+  }
 
   if ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < 0.01) {
     $agreement += $points{skonto_exact_amount};
     $rule_matches .= 'skonto_exact_amount(' . $points{'skonto_exact_amount'} . ') ';
     $invoice->{skonto_type} = 'with_skonto_pt';
-  };
+  }
 
   #search invoice number in purpose
   my $invnumber = $invoice->invnumber;
@@ -143,11 +143,11 @@ sub get_agreement_with_invoice {
   if ( $invoice->is_sales && $self->amount < 0 ) {
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
-  };
+  }
   if ( ! $invoice->is_sales && $self->amount > 0 ) {
     $agreement += $points{wrong_sign};
     $rule_matches .= 'wrong_sign(' . $points{'wrong_sign'} . ') ';
-  };
+  }
 
   # search customer/vendor number in purpose
   my $cvnumber;
@@ -165,7 +165,7 @@ sub get_agreement_with_invoice {
   if ( $cvname && $self->purpose =~ /\b\Q$cvname\E\b/i ) {
     $agreement += $points{cust_vend_name_in_purpose};
     $rule_matches .= 'cust_vend_name_in_purpose(' . $points{'cust_vend_name_in_purpose'} . ') ';
-  };
+  }
 
   # compare depositorname, don't try to match empty depositors
   my $depositorname;
@@ -174,24 +174,24 @@ sub get_agreement_with_invoice {
   if ( $depositorname && $self->remote_name =~ /$depositorname/ ) {
     $agreement += $points{depositor_matches};
     $rule_matches .= 'depositor_matches(' . $points{'depositor_matches'} . ') ';
-  };
+  }
 
   #Check if words in remote_name appear in cvname
   my $check_string_points = _check_string($self->remote_name,$cvname);
   if ( $check_string_points ) {
     $agreement += $check_string_points;
     $rule_matches .= 'remote_name(' . $check_string_points . ') ';
-  };
+  }
 
   # transdate prefilter: compare transdate of bank_transaction with transdate of invoice
   if ( $datediff < -5 ) { # this might conflict with advance payments
     $agreement += $points{payment_before_invoice};
     $rule_matches .= 'payment_before_invoice(' . $points{'payment_before_invoice'} . ') ';
-  };
+  }
   if ( $datediff < 30 ) {
     $agreement += $points{payment_within_30_days};
     $rule_matches .= 'payment_within_30_days(' . $points{'payment_within_30_days'} . ') ';
-  };
+  }
 
   # only if we already have a good agreement, let date further change value of agreement.
   # this is so that if there are several plausible open invoices which are all equal
@@ -216,9 +216,9 @@ sub get_agreement_with_invoice {
       $agreement += $points{datebonus_negative};
       $rule_matches .= 'datebonus_negative(' . $points{'datebonus_negative'} . ') ';
     } else {
-  # e.g. datediff > 120
-    };
-  };
+      # e.g. datediff > 120
+    }
+  }
 
   # if there is exactly one non-executed sepa_export_item for the invoice
   if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
