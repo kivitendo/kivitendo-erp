@@ -221,11 +221,15 @@ sub get_agreement_with_invoice {
   };
 
   # if there is exactly one non-executed sepa_export_item for the invoice
-  if ( my $seis = $invoice->{sepa_export_item} ) {
-      if (scalar @$seis == 1) {
+  if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
+    if (scalar @$seis == 1) {
       my $sei = $seis->[0];
 
-      if ( abs(abs($self->amount) - abs($sei->amount)) < 0.01 ) {
+      # test for amount and id matching only, sepa transfer date and bank
+      # transaction date needn't match
+      my $arap = $invoice->is_sales ? 'ar' : 'ap';
+
+      if (abs($self->amount) == ($sei->amount) && $invoice->id == $sei->arap_id) {
         $agreement    += $points{sepa_export_item};
         $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
       }
