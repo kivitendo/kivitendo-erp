@@ -244,18 +244,7 @@ sub save_objects {
   my $with_number    = [ grep { $_->{object}->$numbercolumn ne '####' } @{ $self->controller->data } ];
   my $without_number = [ grep { $_->{object}->$numbercolumn eq '####' } @{ $self->controller->data } ];
 
-  foreach my $entry (@{$with_number}, @{$without_number}) {
-    my $object = $entry->{object};
-
-    my $number = SL::TransNumber->new(type        => $self->table(),
-                                      number      => $object->$numbercolumn(),
-                                      business_id => $object->business_id(),
-                                      save        => 1);
-
-    if ( $object->$numbercolumn eq '####' || !$number->is_unique() ) {
-      $object->$numbercolumn($number->create_unique());
-    }
-  }
+  $_->{object}->$numbercolumn('') for @{ $without_number };
 
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
