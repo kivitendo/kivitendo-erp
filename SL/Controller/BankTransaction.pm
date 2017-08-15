@@ -130,7 +130,6 @@ sub action_list {
         my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
         #$main::lxdebug->message(LXDebug->DEBUG2(),"sepa_exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
         $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
-        push @{$open_invoice->{sepa_export_item}}, $_;
         $open_invoice->{skonto_type} = $_->payment_type;
         $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
         $sepa_exports{$_->sepa_export_id}->{count}++;

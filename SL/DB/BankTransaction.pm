@@ -227,8 +227,6 @@ sub get_agreement_with_invoice {
 
       # test for amount and id matching only, sepa transfer date and bank
       # transaction date needn't match
-      my $arap = $invoice->is_sales ? 'ar' : 'ap';
-
       if (abs($self->amount) == ($sei->amount) && $invoice->id == $sei->arap_id) {
         $agreement    += $points{sepa_export_item};
         $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
