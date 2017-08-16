@@ -969,7 +969,9 @@ sub invoice {
   $main::auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{convert_from_do_ids} = $form->{id};
-  $form->{deliverydate}        = $form->{transdate};
+  # if we have a reqdate (Liefertermin), this is definetely the preferred
+  # deliverydate for invoices
+  $form->{deliverydate}        = $form->{reqdate} || $form->{transdate};
   $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
   $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
