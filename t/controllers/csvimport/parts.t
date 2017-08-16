@@ -102,7 +102,7 @@ sub test_import {
   );
   $controller->load_default_profile;
   $controller->profile->set(
-    encoding     => 'utf-8',
+    charset      => 'utf-8',
     sep_char     => ';',
     quote_char   => '"',
     numberformat => $::myconfig{numberformat},
