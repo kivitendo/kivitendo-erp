@@ -296,7 +296,7 @@ sub setup_do_action_bar {
         action => [
           t8('Transfer out via default'),
           submit   => [ '#form', { action => "transfer_out_default" } ],
-          checks   => [ @req_trans_desc, @transfer_qty ],
+          checks   => [ @req_trans_desc ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => $is_customer && $::instance_conf->get_transfer_default,
         ],
@@ -310,7 +310,7 @@ sub setup_do_action_bar {
         action => [
           t8('Transfer in via default'),
           submit   => [ '#form', { action => "transfer_in_default" } ],
-          checks   => [ @req_trans_desc, @transfer_qty ],
+          checks   => [ @req_trans_desc ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => !$is_customer && $::instance_conf->get_transfer_default,
         ],
@@ -1808,7 +1808,7 @@ sub transfer_in_out_default {
       # ... and do not create a hash entry in %qty_parts below (will skip check for bins for the transfer == out case)
       # ... and push only a empty (undef) element to @all_requests (will skip check for bin_id and warehouse_id and will not alter the row)
 
-      $qty = 0 if (!$::instance_conf->get_transfer_default_services && !defined($part_info_map{$form->{"id_$i"}}->{inventory_accno_id}) && !$part_info_map{$form->{"id_$i"}}->{assembly});
+      $qty = 0 if (!$::instance_conf->get_transfer_default_services && $part_info_map{$form->{"id_$i"}}->{part_type} eq 'service');
       $qty_parts{$form->{"id_$i"}} += $qty;
       if ($qty == 0) {
         delete $qty_parts{$form->{"id_$i"}} unless $qty_parts{$form->{"id_$i"}};
