@@ -75,7 +75,7 @@ my %supported_methods = (
 
   # ## jQuery UI dialog plugin ## pattern: $(<TARGET>).dialog('<FUNCTION>')
 
-  # Opening and closing and closing a popup
+  # Opening and closing a popup
   'dialog:open'          => 1, # kivi.popup_dialog(<TARGET>)
   'dialog:close'         => 1,
 
@@ -352,7 +352,7 @@ This module enables the generation of jQuery-using JavaScript code on
 the server side. That code is then evaluated in a safe way on the
 client side.
 
-The workflow is usally that the client creates an AJAX request, the
+The workflow is usually that the client creates an AJAX request, the
 server creates some actions and sends them back, and the client then
 implements each of these actions.
 
@@ -662,7 +662,7 @@ C<select_node>, C<deselect_node>, C<deselect_all>
 
 =head1 ADDING SUPPORT FOR ADDITIONAL FUNCTIONS
 
-In order not having to maintain two files (this one and
+In order to not have to maintain two files (this one and
 C<js/client_js.js>) there's a script that can parse this file's
 C<%supported_methods> definition and generate the file
 C<js/client_js.js> accordingly. The steps are:
