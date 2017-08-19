@@ -192,8 +192,8 @@ SL::Helper::ShippedQty
   ->calculate($sales_order)
   ->write_to_objects;
 
-is($sales_order->orderitems->[0]->{shipped_qty}, 5, "require_stock_out => 1: first sales orderitem has no shipped_qty");
-ok($sales_order->orderitems->[0]->{delivered},      "require_stock_out => 1: first sales orderitem is not delivered");
+is($sales_order->items_sorted->[0]->{shipped_qty}, 5, "require_stock_out => 1: first sales orderitem has no shipped_qty");
+ok($sales_order->items_sorted->[0]->{delivered},      "require_stock_out => 1: first sales orderitem is not delivered");
 
 $orderitem_part1 = SL::DB::Manager::OrderItem->find_by(parts_id => $part1->id, trans_id => $sales_order->id);
 
