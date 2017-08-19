@@ -143,7 +143,7 @@ my $sales_order = SL::Dev::Record::create_sales_order(
                 ]
 );
 
-Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
+Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
 $sales_order->orderitems;
 
 SL::Helper::ShippedQty
