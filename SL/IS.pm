@@ -2130,6 +2130,11 @@ sub get_customer {
   my $payment_id;
 
   # get customer
+  my $where = '';
+  if ($cid) {
+    $where .= 'AND c.id = ?';
+    push @values, $cid;
+  }
   $query =
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,
@@ -2141,8 +2146,7 @@ sub get_customer {
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
        LEFT JOIN currencies cu ON (c.currency_id=cu.id)
-       WHERE c.id = ?|;
-  push @values, $cid;
+       WHERE 1 = 1 $where|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
 
   delete $ref->{salesman_id} if !$ref->{salesman_id};
