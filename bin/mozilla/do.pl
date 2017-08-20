@@ -458,7 +458,7 @@ sub form_header {
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup});");
 
 
-  $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')';
+  $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')' if $form->{VC_OBJ};
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer));
 
