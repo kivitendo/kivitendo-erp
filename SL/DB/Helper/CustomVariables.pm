@@ -182,9 +182,9 @@ sub _all_configs {
     $cache->{module} = { partition_by { $_->module } @$configs };
   }
 
-  $params{module}
-    ? $cache->{module}{$params{module}}
-    : $cache->{all};
+  return $params{module} && !ref $params{module} ? $cache->{module}{$params{module}}
+       : $params{module} &&  ref $params{module} ? [ map { @{ $cache->{module}{$_} } } @{ $params{module} } ]
+       : $cache->{all};
 }
 
 sub _overload_by_module {
