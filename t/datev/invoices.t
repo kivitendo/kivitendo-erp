@@ -123,7 +123,7 @@ my $umsatzsumme = sum map { $_->{umsatz} } @{ $datev_lines };
 cmp_ok($::form->round_amount($umsatzsumme,2), '==', 3924.5, "Sum of all bookings ok");
 
 note('testing gldatefrom');
-my $datev = SL::DATEV->new(
+$datev = SL::DATEV->new(
   dbh        => $dbh,
   from       => $startdate,
   to         => DateTime->new(year => 2017, month => 01, day => 31),
@@ -133,8 +133,8 @@ $::form               = Support::TestSetup->create_new_form;
 $::form->{gldatefrom} = DateTime->new(year => 2017, month => 3, day => 1)->to_kivitendo;
 
 $datev->generate_datev_data(from_to => $datev->fromto);
-my $datev_lines = $datev->generate_datev_lines;
-my $umsatzsumme = sum map { $_->{umsatz} } @{ $datev_lines };
+$datev_lines = $datev->generate_datev_lines;
+$umsatzsumme = sum map { $_->{umsatz} } @{ $datev_lines };
 cmp_ok($umsatzsumme, '==', 1569.8, "Sum of bookings made after March 1st (only invoice2) ok");
 
 $::form->{gldatefrom} = DateTime->new(year => 2017, month => 5, day => 1)->to_kivitendo;
