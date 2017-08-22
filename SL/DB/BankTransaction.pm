@@ -48,7 +48,7 @@ sub linked_invoices {
 }
 
 sub is_batch_transaction {
-  $_[0]->transaction_code eq "191";
+  ($_[0]->transaction_code // '') eq "191";
 }
 
 
