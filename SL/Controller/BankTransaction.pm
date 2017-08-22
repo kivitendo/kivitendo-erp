@@ -126,7 +126,7 @@ sub action_list {
     $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount,2);
     $open_invoice->{skonto_type} = 'without_skonto';
     foreach ( @{$all_open_sepa_export_items}) {
-      if ( $_->ap_id == $open_invoice->id ||  $_->ar_id == $open_invoice->id ) {
+      if (($_->ap_id && $_->ap_id == $open_invoice->id) || ($_->ar_id && $_->ar_id == $open_invoice->id)) {
         my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
         #$main::lxdebug->message(LXDebug->DEBUG2(),"sepa_exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
         $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
@@ -216,11 +216,16 @@ sub action_list {
                                           : abs(@{ $_->{proposals} }[0]->amount + $_->amount) < 0.01)
   } @{ $bank_transactions };
 
-  push  @proposals, @otherproposals;
+  push @proposals, @otherproposals;
 
   # sort bank transaction proposals by quality (score) of proposal
-  $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 1;
-  $bank_transactions = [ sort { $b->{agreement} <=> $a->{agreement} } @{ $bank_transactions } ] if $::form->{sort_by} eq 'proposal' and $::form->{sort_dir} == 0;
+  if ($::form->{sort_by} && $::form->{sort_by} eq 'proposal') {
+    if ($::form->{sort_dir}) {
+      $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ];
+    } else {
+      $bank_transactions = [ sort { $b->{agreement} <=> $a->{agreement} } @{ $bank_transactions } ];
+    }
+  }
 
   # for testing with t/bank/banktransaction.t :
   if ( $::form->{dont_render_for_test} ) {
