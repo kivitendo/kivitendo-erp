@@ -86,7 +86,7 @@ sub test_import {
   );
 
   # $csv_artransactions_import->init_vc_by;
-  $csv_artransactions_import->run({test => 0});
+  $csv_artransactions_import->run(test => 0);
 
   # don't try and save objects that have errors
   $csv_artransactions_import->save_objects unless scalar @{$csv_artransactions_import->controller->data->[0]->{errors}};

@@ -115,7 +115,7 @@ sub test_import {
   );
   #print "profile param type=".$csv_part_import->settings->{parts_type}."\n";
 
-  $csv_part_import->run({test => 0});
+  $csv_part_import->run(test => 0);
 
   # don't try and save objects that have errors
   $csv_part_import->save_objects unless scalar @{$csv_part_import->controller->data->[0]->{errors}};
