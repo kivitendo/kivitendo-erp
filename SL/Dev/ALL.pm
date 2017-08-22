@@ -2,11 +2,20 @@ package SL::Dev::ALL;
 
 use strict;
 
+use Exporter;
 use SL::Dev::Part;
 use SL::Dev::CustomerVendor;
 use SL::Dev::Inventory;
 use SL::Dev::Record;
 use SL::Dev::Payment;
+
+sub import {
+  no strict "refs";
+  for (qw(Part CustomerVendor Inventory Record Payment)) {
+    Exporter::export_to_level("SL::Dev::$_", 1, @_);
+  }
+}
+
 
 1;
 

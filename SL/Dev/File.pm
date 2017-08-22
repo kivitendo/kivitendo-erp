@@ -2,9 +2,15 @@ package SL::Dev::File;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_scanned create_uploaded create_created get_all_count get_all get_all_versions delete_all);
+our @EXPORT_OK = qw(create_scanned create_uploaded create_created);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::File;
+
+my %common_params = (
+  object_id   => 1,
+  object_type => 'sales_order',
+);
 
 sub create_scanned {
   my (%params) = @_;
@@ -38,8 +44,7 @@ sub _create_file {
   my (%params) = @_;
 
   my $fileobj = SL::File->save(
-    object_id          => 1,
-    object_type        => 'sales_order',
+    %common_params,
     mime_type          => 'text/plain',
     description        => 'Test File',
     file_type          => $params{file_type},
@@ -51,33 +56,11 @@ sub _create_file {
   return $fileobj;
 }
 
-sub get_all_count {
-  my ($class,%params) = @_;
-  $params{object_id}   = 1;
-  $params{object_type} = 'sales_order';
-  return SL::File->get_all_count(%params);
-}
+sub get_all          { SL::File->get_all         (%common_params, @_) }
+sub get_all_count    { SL::File->get_all_count   (%common_params, @_) }
+sub get_all_versions { SL::File->get_all_versions(%common_params, @_) }
+sub delete_all       { SL::File->delete_all      (%common_params, @_) }
 
-sub get_all {
-  my ($class,%params) = @_;
-  $params{object_id}   = 1;
-  $params{object_type} = 'sales_order';
-  SL::File->get_all(%params);
-}
-
-sub get_all_versions {
-  my ($class,%params) = @_;
-  $params{object_id}   = 1;
-  $params{object_type} = 'sales_order';
-  SL::File->get_all_versions(%params);
-}
-
-sub delete_all {
-  my ($class,%params) = @_;
-  $params{object_id}   = 1;
-  $params{object_type} = 'sales_order';
-  SL::File->delete_all(%params);
-}
 1;
 
 __END__
@@ -93,8 +76,6 @@ SL::Dev::File - create file objects for testing, with minimal defaults
 =head2 C<create_uploaded %PARAMS>
 
 =head2 C<create_created %PARAMS>
-
-=head2 C<delete_all>
 
 =head1 AUTHOR
 

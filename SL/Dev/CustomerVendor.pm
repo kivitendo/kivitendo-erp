@@ -2,13 +2,14 @@ package SL::Dev::CustomerVendor;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_customer create_vendor);
+our @EXPORT_OK = qw(new_customer new_vendor);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::TaxZone;
 use SL::DB::Currency;
 use SL::DB::Customer;
 
-sub create_customer {
+sub new_customer {
   my (%params) = @_;
 
   my $taxzone    = _check_taxzone(delete $params{taxzone_id});
@@ -22,7 +23,7 @@ sub create_customer {
   return $customer;
 }
 
-sub create_vendor {
+sub new_vendor {
   my (%params) = @_;
 
   my $taxzone    = _check_taxzone(delete $params{taxzone_id});
@@ -69,7 +70,7 @@ SL::Dev::CustomerVendor - create customer and vendor objects for testing, with m
 
 =head1 FUNCTIONS
 
-=head2 C<create_customer %PARAMS>
+=head2 C<new_customer %PARAMS>
 
 Creates a new customer.
 
@@ -87,7 +88,7 @@ Complex usage, overwriting some defaults, and save to database:
 If neither taxzone_id or currency_id (both are NOT NULL) are passed as params
 then default values are used.
 
-=head2 C<create_vendor %PARAMS>
+=head2 C<new_vendor %PARAMS>
 
 Creates a new vendor.
 

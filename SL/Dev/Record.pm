@@ -2,13 +2,14 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project);
+our @EXPORT_OK = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Employee;
-use SL::Dev::Part;
-use SL::Dev::CustomerVendor;
+use SL::Dev::Part qw(new_part);
+use SL::Dev::CustomerVendor qw(new_vendor new_customer);
 use SL::DB::Project;
 use SL::DB::ProjectStatus;
 use SL::DB::ProjectType;
@@ -28,7 +29,7 @@ sub create_sales_invoice {
   my $invoiceitems = delete $params{invoiceitems} // _create_two_items($record_type);
   _check_items($invoiceitems, $record_type);
 
-  my $customer = delete $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  my $customer = delete $params{customer} // new_customer(name => 'Testcustomer')->save;
   die "illegal customer" unless defined $customer && ref($customer) eq 'SL::DB::Customer';
 
   my $invoice = SL::DB::Invoice->new(
@@ -59,7 +60,7 @@ sub create_credit_note {
   my $invoiceitems = delete $params{invoiceitems} // _create_two_items($record_type);
   _check_items($invoiceitems, $record_type);
 
-  my $customer = delete $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  my $customer = delete $params{customer} // new_customer(name => 'Testcustomer')->save;
   die "illegal customer" unless defined $customer && ref($customer) eq 'SL::DB::Customer';
 
   # adjust qty for credit note items
@@ -93,7 +94,7 @@ sub create_sales_delivery_order {
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
   _check_items($orderitems, $record_type);
 
-  my $customer = $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  my $customer = $params{customer} // new_customer(name => 'Testcustomer')->save;
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
@@ -121,7 +122,7 @@ sub create_purchase_delivery_order {
   my $orderitems = delete $params{orderitems} // _create_two_items($record_type);
   _check_items($orderitems, $record_type);
 
-  my $vendor = $params{vendor} // SL::Dev::CustomerVendor::create_vendor(name => 'Testvendor')->save;
+  my $vendor = $params{vendor} // new_vendor(name => 'Testvendor')->save;
   die "illegal customer" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $delivery_order = SL::DB::DeliveryOrder->new(
@@ -151,7 +152,7 @@ sub create_sales_order {
 
   my $save = delete $params{save} // 0;
 
-  my $customer = $params{customer} // SL::Dev::CustomerVendor::create_customer(name => 'Testcustomer')->save;
+  my $customer = $params{customer} // new_customer(name => 'Testcustomer')->save;
   die "illegal customer" unless ref($customer) eq 'SL::DB::Customer';
 
   my $order = SL::DB::Order->new(
@@ -182,7 +183,7 @@ sub create_purchase_order {
 
   my $save = delete $params{save} // 0;
 
-  my $vendor = $params{vendor} // SL::Dev::CustomerVendor::create_vendor(name => 'Testvendor')->save;
+  my $vendor = $params{vendor} // new_vendor(name => 'Testvendor')->save;
   die "illegal vendor" unless ref($vendor) eq 'SL::DB::Vendor';
 
   my $order = SL::DB::Order->new(
@@ -263,12 +264,12 @@ sub _create_item {
 sub _create_two_items {
   my ($record_type) = @_;
 
-  my $part1 = SL::Dev::Part::create_part(description => 'Testpart 1',
-                                         sellprice   => 12,
-                                        )->save;
-  my $part2 = SL::Dev::Part::create_part(description => 'Testpart 2',
-                                         sellprice   => 10,
-                                        )->save;
+  my $part1 = new_part(description => 'Testpart 1',
+                       sellprice   => 12,
+                      )->save;
+  my $part2 = new_part(description => 'Testpart 2',
+                       sellprice   => 10,
+                      )->save;
   my $item1 = _create_item(record_type => $record_type, part => $part1, qty => 5);
   my $item2 = _create_item(record_type => $record_type, part => $part2, qty => 8);
   return [ $item1, $item2 ];

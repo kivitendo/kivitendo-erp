@@ -2,7 +2,8 @@ package SL::Dev::Payment;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT = qw(create_payment_terms create_bank_account create_bank_transaction);
+our @EXPORT_OK = qw(create_payment_terms create_bank_account create_bank_transaction create_sepa_export create_sepa_export_item);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::PaymentTerm;
 use SL::DB::BankAccount;
