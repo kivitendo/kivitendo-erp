@@ -388,6 +388,10 @@ sub generate_datev_data {
     $gl_itime_filter = " AND gl.itime >= ? ";
     $ar_itime_filter = " AND ar.itime >= ? ";
     $ap_itime_filter = " AND ap.itime >= ? ";
+  } else {
+    $gl_itime_filter = "";
+    $ar_itime_filter = "";
+    $ap_itime_filter = "";
   }
 
   if ( $self->{trans_id} ) {
