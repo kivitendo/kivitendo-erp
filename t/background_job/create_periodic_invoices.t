@@ -22,7 +22,7 @@ use utf8;
 
 use Carp;
 use Support::TestSetup;
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 
 use_ok 'SL::BackgroundJob::CreatePeriodicInvoices';
 use_ok 'SL::DB::Chart';
@@ -54,12 +54,12 @@ sub create_invoices {
   # Clean up: remove invoices, orders, parts and customers
   clear_up();
 
-  $customer = SL::Dev::CustomerVendor::create_customer(
+  $customer = new_customer(
     name => 'Test Customer',
     %{ $params{customer} }
   )->save;
 
-  $part = SL::Dev::Part::create_part(
+  $part = new_part(
     partnumber  => 'T4254',
     description => 'Fourty-two fifty-four',
     lastcost    => 222.22,
@@ -68,7 +68,7 @@ sub create_invoices {
     %{ $params{part} }
   )->save;
 
-  $order = SL::Dev::Record::create_sales_order(
+  $order = create_sales_order(
     save                     => 1,
     customer                 => $customer,
     transaction_description  => '<%period_start_date%>',

@@ -10,7 +10,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use SL::DB::Part;
-use SL::Dev::Part;
+use SL::Dev::Part qw(new_part);
 
 Support::TestSetup::login();
 
@@ -21,7 +21,7 @@ local $SIG{__WARN__} = sub {};
 
 # test simple transaction
 
-my $part = create_part();
+my $part = new_part();
 SL::DB->client->with_transaction(sub {
   $part->save;
   ok 1, 'part saved';
@@ -31,7 +31,7 @@ SL::DB->client->with_transaction(sub {
 };
 
 # test failing transaction
-my $part2 = create_part(partnumber => $part->partnumber); # woops, duplicate partnumber
+my $part2 = new_part(partnumber => $part->partnumber); # woops, duplicate partnumber
 SL::DB->client->with_transaction(sub {
   $part2->save;
   ok 0, 'part saved';
@@ -55,7 +55,7 @@ dies_ok {
 # TODO - not possible to test without locally adding hooks in run time
 
 # test if error gets correctly stored in db->error
-$part2 = create_part(partnumber => $part->partnumber); # woops, duplicate partnumber
+$part2 = new_part(partnumber => $part->partnumber); # woops, duplicate partnumber
 SL::DB->client->with_transaction(sub {
   $part2->save;
   ok 0, 'part saved';

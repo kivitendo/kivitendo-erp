@@ -5,7 +5,7 @@ use lib 't';
 use Support::TestSetup;
 use Carp;
 use Test::Exception;
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 use SL::DB::Part;
 use SL::DB::Order;
 use SL::DB::Customer;
@@ -20,71 +20,71 @@ Support::TestSetup::login();
 
 clear_up();
 
-my $vendor   = SL::Dev::CustomerVendor::create_vendor->save;
-my $customer = SL::Dev::CustomerVendor::create_customer->save;
-my $project  = SL::Dev::Record::create_project(projectnumber => 'p1', description => 'Project 1')->save;
+my $vendor   = new_vendor()->save;
+my $customer = new_customer()->save;
+my $project  = create_project(projectnumber => 'p1', description => 'Project 1');
 
-my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
-my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+my $part1 = new_part(   partnumber => 'T4254')->save;
+my $part2 = new_service(partnumber => 'Serv1')->save;
 
 # sales order with globalproject_id and item project_ids
-my $sales_order = SL::Dev::Record::create_sales_order(
+my $sales_order = create_sales_order(
   save             => 1,
   customer         => $customer,
   globalproject_id => $project->id,
   taxincluded      => 0,
-  orderitems       => [ SL::Dev::Record::create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
-                        SL::Dev::Record::create_order_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
+  orderitems       => [ create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
+                        create_order_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
                       ]
 );
 
 # sales order with no globalproject_id but item project_ids
-my $sales_order2 = SL::Dev::Record::create_sales_order(
+my $sales_order2 = create_sales_order(
   save             => 1,
   customer         => $customer,
   taxincluded      => 0,
-  orderitems       => [ SL::Dev::Record::create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
-                        SL::Dev::Record::create_order_item(part => $part2, qty => 10, sellprice => 50),
+  orderitems       => [ create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
+                        create_order_item(part => $part2, qty => 10, sellprice => 50),
                       ]
 );
 
 # purchase order with globalproject_id and item project_ids
-my $purchase_order = SL::Dev::Record::create_purchase_order(
+my $purchase_order = create_purchase_order(
   save             => 1,
   vendor           => $vendor,
   globalproject_id => $project->id,
   taxincluded      => 0,
-  orderitems       => [ SL::Dev::Record::create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
-                        SL::Dev::Record::create_order_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
+  orderitems       => [ create_order_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
+                        create_order_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
                       ]
 );
 
 # sales_invoice with globalproject_id, and all items with project_id
-my $sales_invoice = SL::Dev::Record::create_sales_invoice(
+my $sales_invoice = create_sales_invoice(
   customer         => $customer,
   globalproject_id => $project->id,
   taxincluded      => 0,
-  invoiceitems     => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
-                        SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
+  invoiceitems     => [ create_invoice_item(part => $part1, qty =>  3, sellprice => 70, project_id => $project->id),
+                        create_invoice_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
                       ]
 );
 
 # sales_invoice with globalproject_id, but none of the items has a project_id
-my $sales_invoice2 = SL::Dev::Record::create_sales_invoice(
+my $sales_invoice2 = create_sales_invoice(
   customer         => $customer,
   globalproject_id => $project->id,
   taxincluded      => 0,
-  invoiceitems     => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
-                        SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => 50),
+  invoiceitems     => [ create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
+                        create_invoice_item(part => $part2, qty => 10, sellprice => 50),
                       ]
 );
 
 # one of the invoice items has the project id, but there is no globalproject_id
-my $sales_invoice4 = SL::Dev::Record::create_sales_invoice(
+my $sales_invoice4 = create_sales_invoice(
   customer         => $customer,
   taxincluded      => 0,
-  invoiceitems     => [ SL::Dev::Record::create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
-                        SL::Dev::Record::create_invoice_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
+  invoiceitems     => [ create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
+                        create_invoice_item(part => $part2, qty => 10, sellprice => 50, project_id => $project->id),
                       ]
 );
 

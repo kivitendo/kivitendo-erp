@@ -10,7 +10,7 @@ use Data::Dumper;
 use List::MoreUtils qw(uniq);
 use Support::TestSetup;
 use Test::Exception;
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
@@ -49,14 +49,14 @@ sub reset_state {
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                                              || croak "No tax for 7\%";
   $taxzone         = SL::DB::Manager::TaxZone->find_by( description => 'Inland')                                           || croak "No taxzone";
 
-  $customer     = SL::Dev::CustomerVendor::create_customer(
+  $customer     = new_customer(
     name        => 'Test Customer',
     taxzone_id  => $taxzone->id,
     %{ $params{customer} }
   )->save;
 
   @parts = ();
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => 'T4254',
     description        => 'Fourty-two fifty-four',
     lastcost           => 1.93,
@@ -66,7 +66,7 @@ sub reset_state {
     %{ $params{part1} }
   )->save;
 
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => 'T0815',
     description        => 'Zero EIGHT fifteeN @ 7%',
     lastcost           => 5.473,
@@ -76,7 +76,7 @@ sub reset_state {
     %{ $params{part2} }
   )->save;
 
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => 'T888',
     description        => 'Triple 8',
     lastcost           => 0,
@@ -91,7 +91,7 @@ sub reset_state {
 sub new_invoice {
   my %params  = @_;
 
-  return SL::Dev::Record::create_sales_invoice(
+  return create_sales_invoice(
     taxzone_id  => $taxzone->id,
     %params,
   );
@@ -102,7 +102,7 @@ sub new_item {
 
   my $part = delete($params{part}) || $parts[0];
 
-  return SL::Dev::Record::create_invoice_item(
+  return create_invoice_item(
     part => $part,
     %params,
   );

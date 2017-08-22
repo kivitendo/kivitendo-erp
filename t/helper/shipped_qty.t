@@ -18,7 +18,7 @@ use SL::DB::DeliveryOrderItemsStock;
 use SL::DB::Bin;
 use SL::WH;
 use SL::AM;
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 use SL::Helper::ShippedQty;
 use DateTime;
 
@@ -28,13 +28,13 @@ clear_up();
 
 my ($customer, $vendor, @parts, $unit);
 
-$customer = SL::Dev::CustomerVendor::create_customer(name => 'Testkunde'    )->save;
-$vendor   = SL::Dev::CustomerVendor::create_vendor(  name => 'Testlieferant')->save;
+$customer = new_customer(name => 'Testkunde'    )->save;
+$vendor   = new_vendor(  name => 'Testlieferant')->save;
 
 my $default_sellprice = 10;
 my $default_lastcost  =  4;
 
-my ($wh) = SL::Dev::Inventory::create_warehouse_and_bins();
+my ($wh) = create_warehouse_and_bins();
 my $bin1 = SL::DB::Manager::Bin->find_by(description => "Bin 1");
 my $bin2 = SL::DB::Manager::Bin->find_by(description => "Bin 2");
 
@@ -46,7 +46,7 @@ my %part_defaults = (
 
 # create 3 parts to be used in test
 for my $i ( 1 .. 4 ) {
-  SL::Dev::Part::create_part( %part_defaults, partnumber => $i, description => "part $i test" )->save;
+  new_part( %part_defaults, partnumber => $i, description => "part $i test" )->save;
 };
 
 my $part1 = SL::DB::Manager::Part->find_by( partnumber => '1' );
@@ -63,11 +63,11 @@ my %default_transfer_params = ( wh => $wh, bin => $bin1, unit => 'Stck');
 
 note("testing purchases, no fill_up");
 
-my $purchase_order = SL::Dev::Record::create_purchase_order(
+my $purchase_order = create_purchase_order(
   save       => 1,
-  orderitems => [ SL::Dev::Record::create_order_item(part => $part1, qty => 11),
-                  SL::Dev::Record::create_order_item(part => $part2, qty => 12),
-                  SL::Dev::Record::create_order_item(part => $part3, qty => 13),
+  orderitems => [ create_order_item(part => $part1, qty => 11),
+                  create_order_item(part => $part2, qty => 12),
+                  create_order_item(part => $part3, qty => 13),
                 ]
 );
 
@@ -115,7 +115,7 @@ is($purchase_order->items_sorted->[0]->{shipped_qty}, 0,  "require_stock_out => 
 ok(!$purchase_order->items_sorted->[0]->{delivered},      "require_stock_out => 1: first purchase orderitem is not delivered");
 
 # ship items from delivery order
-SL::Dev::Inventory::transfer_purchase_delivery_order($purchase_delivery_order);
+transfer_purchase_delivery_order($purchase_delivery_order);
 
 Rose::DB::Object::Helpers::forget_related($purchase_order, 'orderitems');
 $purchase_order->orderitems;
@@ -135,11 +135,11 @@ is($purchase_orderitem_part2->shipped_qty(require_stock_out => 1), 11, "OrderIte
 
 note('testing sales, no fill_up');
 
-my $sales_order = SL::Dev::Record::create_sales_order(
+my $sales_order = create_sales_order(
   save       => 1,
-  orderitems => [ SL::Dev::Record::create_order_item(part => $part1, qty => 5),
-                  SL::Dev::Record::create_order_item(part => $part2, qty => 6),
-                  SL::Dev::Record::create_order_item(part => $part3, qty => 7),
+  orderitems => [ create_order_item(part => $part1, qty => 5),
+                  create_order_item(part => $part2, qty => 6),
+                  create_order_item(part => $part3, qty => 7),
                 ]
 );
 
@@ -182,7 +182,7 @@ is($sales_order->items_sorted->[0]->{shipped_qty}, 0,  "require_stock_out => 1: 
 ok(!$sales_order->items_sorted->[0]->{delivered},      "require_stock_out => 1: first sales orderitem is not delivered");
 
 # ship items from delivery order
-SL::Dev::Inventory::transfer_sales_delivery_order($sales_delivery_order);
+transfer_sales_delivery_order($sales_delivery_order);
 
 Rose::DB::Object::Helpers::forget_related($sales_order, 'orderitems');
 $sales_order->orderitems;

@@ -22,7 +22,7 @@ use utf8;
 
 use Carp;
 use Support::TestSetup;
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 
 use_ok 'SL::BackgroundJob::CreatePeriodicInvoices';
 use_ok 'SL::Controller::FinancialControllingReport';
@@ -47,19 +47,19 @@ sub init_common_state {
   $unit           = SL::DB::Manager::Unit->find_by(name => 'psch')   || croak "No unit";
 }
 
-sub create_sales_order {
+sub make_sales_order {
   my %params = @_;
 
   cleanup();
 
   $params{$_} ||= {} for qw(customer part order orderitem);
 
-  $customer     = SL::Dev::CustomerVendor::create_customer(
+  $customer     = new_customer(
     name        => 'Test Customer',
     %{ $params{customer} }
   )->save;
 
-  $part = SL::Dev::Part::create_part(
+  $part = new_part(
     partnumber         => 'T4254',
     description        => 'Fourty-two fifty-four',
     lastcost           => 222.22,
@@ -69,13 +69,13 @@ sub create_sales_order {
   )->save;
   $part->load;
 
-  $order                     = SL::Dev::Record::create_sales_order(
+  $order                     = create_sales_order(
     save                     => 1,
     customer                 => $customer,
     transaction_description  => '<%period_start_date%>',
     transdate                => DateTime->from_kivitendo('01.03.2014'),
     orderitems               => [
-                                  SL::Dev::Record::create_order_item(
+                                  create_order_item(
                                     part => $part,
                                     qty  => 1,
                                     %{ $params{orderitem} },
@@ -103,7 +103,7 @@ my @columns = qw(net_amount         other_amount
 sub run_tests {
   my ($msg, $num_orders, $values, %order_params) = @_;
 
-  create_sales_order(%order_params);
+  make_sales_order(%order_params);
 
   is($num_orders, scalar @{ $ctrl->orders }, "${msg}, #orders");
   is_deeply([ map { ($ctrl->orders->[0]->{$_} // 0) * 1 } @columns ],

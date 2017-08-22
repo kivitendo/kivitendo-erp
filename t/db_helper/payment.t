@@ -10,9 +10,9 @@ use Support::TestSetup;
 use Test::Exception;
 use List::Util qw(sum);
 
-use SL::Dev::Record;
-use SL::Dev::CustomerVendor;
-use SL::Dev::Part;
+use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note);
+use SL::Dev::CustomerVendor qw(new_customer new_vendor);
+use SL::Dev::Part qw(new_part);
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Exchangerate;
@@ -109,7 +109,7 @@ sub reset_state {
                                              currency_id => $currency->id,
                                             )->save;
 
-  $customer     = SL::Dev::CustomerVendor::create_customer(
+  $customer     = new_customer(
     name        => 'Test Customer',
     currency_id => $currency_id,
     taxzone_id  => $taxzone->id,
@@ -134,7 +134,7 @@ sub reset_state {
     auto_calculation => 1,
   )->save;
 
-  $vendor       = SL::Dev::CustomerVendor::create_vendor(
+  $vendor       = new_vendor(
     name        => 'Test Vendor',
     currency_id => $currency_id,
     taxzone_id  => $taxzone->id,
@@ -143,7 +143,7 @@ sub reset_state {
 
 
   @parts = ();
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => 'T4254',
     description        => 'Fourty-two fifty-four',
     lastcost           => 1.93,
@@ -153,7 +153,7 @@ sub reset_state {
     %{ $params{part1} }
   )->save;
 
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => 'T0815',
     description        => 'Zero EIGHT fifteeN @ 7%',
     lastcost           => 5.473,
@@ -162,7 +162,7 @@ sub reset_state {
     unit               => $unit->name,
     %{ $params{part2} }
   )->save;
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => '19%',
     description        => 'Testware 19%',
     lastcost           => 0,
@@ -171,7 +171,7 @@ sub reset_state {
     unit               => $unit->name,
     %{ $params{part3} }
   )->save;
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     partnumber         => '7%',
     description        => 'Testware 7%',
     lastcost           => 0,
@@ -302,8 +302,8 @@ sub total_amount {
 sub test_default_invoice_one_item_19_without_skonto() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item    = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
@@ -338,8 +338,8 @@ sub test_default_invoice_one_item_19_without_skonto() {
 sub test_default_invoice_one_item_19_without_skonto_overpaid() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item    = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
@@ -379,9 +379,9 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid() {
 sub test_default_invoice_two_items_19_7_tax_with_skonto() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -413,9 +413,9 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto() {
 sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 1,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -450,9 +450,9 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included() {
 sub test_default_invoice_two_items_19_7_without_skonto() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -485,9 +485,9 @@ sub test_default_invoice_two_items_19_7_without_skonto() {
 sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -516,9 +516,9 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment() {
 sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -552,9 +552,9 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments() {
 sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -598,9 +598,9 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
   # (11.66) rather than the 19% account (5.85).  The actual tax amount is
   # higher for the 19% case, though (1.11 compared to 0.82)
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -635,9 +635,9 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
   reset_state() if $ALWAYS_RESET;
 
   # if there are two cents left there will be two skonto bookings, 1 cent each
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 1.2);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -671,8 +671,8 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
 sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item    = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
@@ -712,8 +712,8 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
 sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item    = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 2.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item ],
     payment_id   => $payment_terms->id,
@@ -857,9 +857,9 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_pa
 sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 1);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 1);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[2], qty => 1);
+  my $item2   = create_invoice_item(part => $parts[3], qty => 1);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],
     payment_id   => $payment_terms->id,
@@ -892,11 +892,11 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50() {
 sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $item3   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item4   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item2   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $item3   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
@@ -928,11 +928,11 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25() {
 sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $item3   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item4   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item2   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $item3   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 1,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
@@ -966,11 +966,11 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included() {
 sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $item3   = SL::Dev::Record::create_invoice_item(part => $parts[2], qty => 0.5);
-  my $item4   = SL::Dev::Record::create_invoice_item(part => $parts[3], qty => 0.5);
-  my $invoice = SL::Dev::Record::create_sales_invoice(
+  my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item2   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $item3   = create_invoice_item(part => $parts[2], qty => 0.5);
+  my $item4   = create_invoice_item(part => $parts[3], qty => 0.5);
+  my $invoice = create_sales_invoice(
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2, $item3, $item4 ],
     payment_id   => $payment_terms->id,
@@ -1413,9 +1413,9 @@ sub test_ap_currency_tax_not_included_and_payment_2_credit_note {
 sub test_credit_note_two_items_19_7_tax_tax_not_included() {
   reset_state() if $ALWAYS_RESET;
 
-  my $item1   = SL::Dev::Record::create_invoice_item(part => $parts[0], qty => 5);
-  my $item2   = SL::Dev::Record::create_invoice_item(part => $parts[1], qty => 3);
-  my $invoice = SL::Dev::Record::create_credit_note(
+  my $item1   = create_invoice_item(part => $parts[0], qty => 5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 3);
+  my $invoice = create_credit_note(
     invnumber    => 'cn1',
     taxincluded  => 0,
     invoiceitems => [ $item1, $item2 ],

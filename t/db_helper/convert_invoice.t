@@ -22,7 +22,7 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Part;
 use SL::DB::Unit;
 
-use SL::Dev::ALL;
+use SL::Dev::ALL qw(:ALL);
 
 my ($customer, $employee, $payment_do, $unit, @parts, $department);
 
@@ -41,7 +41,7 @@ sub reset_state {
   clear_up();
 
   $unit     = SL::DB::Manager::Unit->find_by(name => 'kg') || die "Can't find unit 'kg'";
-  $customer = SL::Dev::CustomerVendor::create_customer->save;
+  $customer = new_customer()->save;
 
   $employee = SL::DB::Employee->new(
     'login' => 'testuser',
@@ -52,7 +52,7 @@ sub reset_state {
     'description' => 'Test Department',
   )->save;
 
-  $payment_do = SL::Dev::Payment::create_payment_terms(
+  $payment_do = create_payment_terms(
      'description'      => '14Tage 2%Skonto, 30Tage netto',
      'description_long' => "Innerhalb von 14 Tagen abzüglich 2 % Skonto, innerhalb von 30 Tagen rein netto.|Bei einer Zahlung bis zum <%skonto_date%> gewähren wir 2 % Skonto (EUR <%skonto_amount%>) entspricht EUR <%total_wo_skonto%>.Bei einer Zahlung bis zum <%netto_date%> ist der fällige Betrag in Höhe von <%total%> <%currency%> zu überweisen.",
      'percent_skonto'   => '0.02',
@@ -62,7 +62,7 @@ sub reset_state {
 
   # two real parts
   @parts = ();
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     description => "description 1",
     lastcost    => '49.95000',
     listprice   => '0.00000',
@@ -72,7 +72,7 @@ sub reset_state {
     weight      => '0.79',
   )->save;
 
-  push @parts, SL::Dev::Part::create_part(
+  push @parts, new_part(
     description => "description 2",
     lastcost    => '153.00000',
     listprice   => '0.00000',
@@ -89,7 +89,7 @@ Support::TestSetup::login();
 reset_state();
 
 # we create L20199 with two items
-my $do1 = SL::Dev::Record::create_sales_delivery_order(
+my $do1 = create_sales_delivery_order(
   'department_id' => $department->id,
   'donumber'      => 'L20199',
   'employee_id'   => $employee->id,
@@ -103,7 +103,7 @@ my $do1 = SL::Dev::Record::create_sales_delivery_order(
   'customer_id'   => $customer->id,
   'notes'         => '<ul><li><strong>fett</strong></li><li><strong>und</strong></li><li><strong>mit</strong></li><li><strong>bullets</strong></li><li>&nbsp;</li></ul>',
   orderitems => [
-                  SL::Dev::Record::create_delivery_order_item(
+                  create_delivery_order_item(
                     part               => $parts[0],
                     discount           => '0.25',
                     lastcost           => '49.95000',
@@ -113,7 +113,7 @@ my $do1 = SL::Dev::Record::create_sales_delivery_order(
                     sellprice          => '242.20000',
                     unit               => $unit->name,
                   ),
-                  SL::Dev::Record::create_delivery_order_item(
+                  create_delivery_order_item(
                     part            => $parts[1],
                     discount        => '0.25',
                     lastcost        => '153.00000',

@@ -22,7 +22,9 @@ use utf8;
 
 use Carp;
 use Support::TestSetup;
-use SL::Dev::ALL;
+use SL::Dev::Record qw(create_sales_order create_order_item);
+use SL::Dev::CustomerVendor qw(new_customer);
+use SL::Dev::Part qw(new_part);
 
 use_ok 'SL::BackgroundJob::CreatePeriodicInvoices';
 use_ok 'SL::Controller::FinancialOverview';
@@ -46,7 +48,7 @@ sub init_common_state {
   $unit           = SL::DB::Manager::Unit->find_by(name => 'psch')   || croak "No unit";
 }
 
-sub create_sales_order {
+sub make_sales_order {
   my %params = @_;
 
   $params{$_} ||= {} for qw(customer part order orderitem);
@@ -54,12 +56,12 @@ sub create_sales_order {
   # Clean up: remove invoices, orders, parts and customers
   clear_up();
 
-  $customer     = SL::Dev::CustomerVendor::create_customer(
+  $customer     = new_customer(
     name        => 'Test Customer',
     %{ $params{customer} }
   )->save;
 
-  $part = SL::Dev::Part::create_part(
+  $part = new_part(
     partnumber         => 'T4254',
     description        => 'Fourty-two fifty-four',
     lastcost           => 222.22,
@@ -68,12 +70,12 @@ sub create_sales_order {
   )->save;
   $part->load;
 
-  $order                     = SL::Dev::Record::create_sales_order(
+  $order                     = create_sales_order(
     save                     => 1,
     customer                 => $customer,
     transaction_description  => '<%period_start_date%>',
     transdate                => DateTime->from_kivitendo('01.03.2014'),
-    orderitems => [ SL::Dev::Record::create_order_item(part => $part, qty =>  1, %{ $params{orderitem} }) ],
+    orderitems => [ create_order_item(part => $part, qty =>  1, %{ $params{orderitem} }) ],
     periodic_invoices_config => $params{periodic_invoices_config} ? {
       active                 => 1,
       ar_chart_id            => $ar_chart->id,
@@ -95,7 +97,7 @@ init_common_state();
 
 # ----------------------------------------------------------------------
 # An order without periodic invoices:
-create_sales_order();
+make_sales_order();
 
 is_deeply($ctrl->data->{$_}, { months => [ (0) x 12 ], quarters => [ 0, 0, 0, 0 ], year => 0 }, "no periodic invoices, data for $_")
   for qw(purchase_invoices purchase_orders requests_for_quotation sales_invoices sales_quotations);
@@ -105,7 +107,7 @@ is_deeply($ctrl->data->{$_}, { months => [ 0, 0, 333.33, 0, 0, 0, 0, 0, 0, 0, 0,
 
 # ----------------------------------------------------------------------
 # order_value_periodicity=y, periodicity=q
-create_sales_order(
+make_sales_order(
   periodic_invoices_config  => {
     periodicity             => 'm',
     order_value_periodicity => 'y',
@@ -124,7 +126,7 @@ is_deeply($ctrl->data->{sales_orders_per_inv},
 
 # ----------------------------------------------------------------------
 # order_value_periodicity=y, periodicity=q, starting in previous year
-create_sales_order(
+make_sales_order(
   order                     => {
     transdate               => DateTime->from_kivitendo('01.03.2013'),
   },
@@ -146,7 +148,7 @@ is_deeply($ctrl->data->{sales_orders_per_inv},
 
 # ----------------------------------------------------------------------
 # order_value_periodicity=y, periodicity=q, starting in previous year, ending middle of year
-create_sales_order(
+make_sales_order(
   order                     => {
     transdate               => DateTime->from_kivitendo('01.03.2013'),
   },
@@ -170,7 +172,7 @@ is_deeply($ctrl->data->{sales_orders_per_inv},
 
 # ----------------------------------------------------------------------
 # order_value_periodicity=y, periodicity=q, starting and ending before current
-create_sales_order(
+make_sales_order(
   order                     => {
     transdate               => DateTime->from_kivitendo('01.03.2012'),
   },

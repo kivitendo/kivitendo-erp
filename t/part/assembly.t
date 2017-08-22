@@ -7,7 +7,7 @@ use Test::Exception;
 use SL::DB::Unit;
 use SL::DB::Part;
 use SL::DB::Assembly;
-use SL::Dev::Part;
+use SL::Dev::Part qw(new_assembly);
 use SL::DB::Helper::ValidateAssembly;
 
 Support::TestSetup::login();
@@ -32,13 +32,13 @@ is($assembly_item->assembly_part->partnumber, '19000', 'assembly part assembly p
 
 
 
-my $assembly2_part = SL::Dev::Part::create_assembly( partnumber => '20000', assnumber => 'as2' )->save;
+my $assembly2_part = new_assembly( partnumber => '20000', assnumber => 'as2' )->save;
 my $retval = validate_assembly($assembly_part,$assembly2_part);
 ok(!defined $retval, 'assembly 19000 can be child of assembly 20000' );
 $assembly2_part->add_assemblies(SL::DB::Assembly->new(parts_id => $assembly_part->id, qty => 3, bom => 1));
 $assembly2_part->save;
 
-my $assembly3_part = SL::Dev::Part::create_assembly( partnumber => '30000', assnumber => 'as3' )->save;
+my $assembly3_part = new_assembly( partnumber => '30000', assnumber => 'as3' )->save;
 $retval = validate_assembly($assembly3_part,$assembly_part);
 ok(!defined $retval, 'assembly 30000 can be child of assembly 19000' );
 
@@ -92,7 +92,7 @@ sub clear_up {
 sub reset_state {
   my %params = @_;
 
-  my $assembly = SL::Dev::Part::create_assembly( assnumber => '19000', partnumber => '19000' )->save;
+  my $assembly = new_assembly( assnumber => '19000', partnumber => '19000' )->save;
 };
 
 1;
