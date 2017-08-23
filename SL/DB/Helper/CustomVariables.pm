@@ -380,7 +380,8 @@ sub _all_invalids {
   # easy 2: no module in params? no validity
   return [] unless $params{module};
 
-  my @module_configs = grep { $_->module eq $params{module} } @$configs;
+  my %wanted_modules = ref $params{module} ? map { $_ => 1 } @{ $params{module} } : ($params{module} => 1);
+  my @module_configs = grep { $wanted_modules{$_->module} } @$configs;
 
   return [] unless @module_configs;
 
