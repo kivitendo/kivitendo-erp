@@ -92,13 +92,12 @@ sub make_cvar_by_configs {
         my $cvar;
         if ( $cvars_by_config{$_->id} ) {
           $cvar = $cvars_by_config{$_->id};
-          $cvar->{is_valid} = !$invalids_by_config{$_->id};
         }
         else {
           $cvar = _new_cvar($self, %params, config => $_);
           $self->add_custom_variables($cvar);
-          $cvar->{is_valid} = 1;
         }
+        $cvar->{is_valid} = !$invalids_by_config{$_->id};
         $cvar->{config}   = $_;
         $cvar;
       }
