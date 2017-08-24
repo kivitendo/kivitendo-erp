@@ -6382,12 +6382,12 @@ Beschreibung: &lt;%description%&gt;
       <sect2>
         <title>Übersicht</title>
 
-        <para>Die Klassifizierung von Artikeln dient einer weiteren Gliederung
+        <para>Die Klassifizierung von Artikeln dient einer weiteren Gliederung,
         um zum Beispiel den Einkauf vom Verkauf zu trennen, gekennzeichnet
         durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E").
         Für jede Klassifizierung besteht eine Beschreibung und eine Abkürzung
         die normalerweise aus einem Zeichen besteht, kann aber auf mehrere
-        Zeichen erweitert werden, falls zur Unterscheidung notwendig, sinnvoll
+        Zeichen erweitert werden, falls zur Unterscheidung notwendig. Sinnvoll
         sind jedoch nur maximal 2 Zeichen.</para>
       </sect2>
 
@@ -6415,15 +6415,15 @@ Beschreibung: &lt;%description%&gt;
 
           <listitem>
             <para>- keine - (diese wird bei einer Aktualisierung für alle
-            existierenden Artikel genommen, gültig für Verkauf und
+            existierenden Artikel verwendet und ist gültig für Verkauf und
             Einkauf)</para>
           </listitem>
         </itemizedlist>
 
         <para>Es können weitere Klassifizierungen angelegt werden. So kann es
-        z.B. für separat auszuweisende Artikel folgened Klassen geben:</para>
+        z.B. für separat auszuweisende Artikel folgende Klassen geben:</para>
 
-        <orderedlist>
+        <itemizedlist>
           <listitem>
             <para>Lieferung (Logistik, Transport) mit Kürzel L</para>
           </listitem>
@@ -6431,7 +6431,7 @@ Beschreibung: &lt;%description%&gt;
           <listitem>
             <para>Material (Verpackungsmaterial) mit Kürzel M</para>
           </listitem>
-        </orderedlist>
+        </itemizedlist>
       </sect2>
 
       <sect2>
@@ -6453,32 +6453,33 @@ Beschreibung: &lt;%description%&gt;
 
           <listitem>
             <para>separat ausweisen - hierzu gibt es zur Dokumentengenerierung
-            (LaTeX) zusätzliche Variable</para>
+            (LaTeX) eine zusätzliche Variable</para>
           </listitem>
         </itemizedlist>
 
-        <para>Beim separat ausweisen stehen im LaTeX die Variable <emphasis
-        role="bold">&lt;%non_separate_subtotal%&gt; </emphasis>zur Verfügung,
-        die alle nicht separat auszuweisenden Artikelkosten saldiert, sowie
-        pro separat auszuweisenden Klassifizierungen die Variable<emphasis
-        role="bold"> &lt;%separate_X_subtotal%&gt;</emphasis> wobei X das
-        Kürzel der Klassifizierung ist.</para>
+        <para>Für das Attribut "separat ausweisen" stehen in den LaTeX-Vorlagen
+        die Variable <emphasis role="bold">&lt;%non_separate_subtotal%&gt;
+        </emphasis>zur Verfügung, die alle nicht separat auszuweisenden
+        Artikelkosten saldiert, sowie pro separat auszuweisenden
+        Klassifizierungen die Variable<emphasis role="bold">&lt;
+        %separate_X_subtotal%&gt;</emphasis>, wobei X das Kürzel der
+        Klassifizierung ist.</para>
 
         <para>Im obigen Beispiel wäre das für Lieferkosten <emphasis
         role="bold">&lt;%separate_L_subtotal%&gt;</emphasis> und für
-        Verpackungsmaterial <emphasis
-        role="bold">&lt;%separate_M_subtotal%&gt; </emphasis>.</para>
+        Verpackungsmaterial <emphasis role="bold">
+        &lt;%separate_M_subtotal%&gt;</emphasis>.</para>
       </sect2>
 
       <sect2>
         <title>Zwei-Zeichen Abkürzung</title>
 
-        <para>Der Typ des Artikel und die Klassifizierung werden durch zwei
+        <para>Der Typ des Artikels und die Klassifizierung werden durch zwei
         Buchstaben dargestellt. Der erste Buchstabe ist eine Lokalisierung des
-        Typs des Artikel ('P','A','S') , deutch 'W', 'E', und 'D' für Ware
-        Erzeugnis oder Dienstleistung, ggf. weitere Typen.</para>
+        Artikel-Typs ('P','A','S'), deutsch 'W', 'E', und 'D' für Ware
+        Erzeugnis oder Dienstleistung und ggf. weiterer Typen.</para>
 
-        <para>Der zweite (und ggf. auch ein dritter Buchstabe, falls nötig)
+        <para>Der zweite Buchstabe (und ggf. auch ein dritter, falls nötig)
         entspricht der lokalisierten Abkürzung der Klassifizierung.</para>
 
         <para>Diese Abkürzung wird überall beim Auflisten von Artikeln zur
@@ -6491,7 +6492,7 @@ Beschreibung: &lt;%description%&gt;
 
       <sect2>
         <title>Übersicht</title>
-        <para>Parallel zum alten WebDAV gibt es eine Datei-Management-Sytem, daß Dateien
+        <para>Parallel zum alten WebDAV gibt es ein Datei-Management-System, das Dateien
         verschiedenen Typs verwaltet. Dies können</para>
         <orderedlist>
           <listitem>
@@ -6504,10 +6505,10 @@ Beschreibung: &lt;%description%&gt;
             <para>per Scanner eingelesene PDF-Dateien,</para>
           </listitem>
           <listitem>
-            <para>per Email empfangene Dateianhänge unterschiedlichen Formats,</para>
+            <para>per E-Mail empfangene Dateianhänge unterschiedlichen Formats,</para>
           </listitem>
           <listitem>
-            <para>sowie speziel an Artikel hochgeladene Bilder sein.</para>
+            <para>sowie speziel für Artikel hochgeladene Bilder sein.</para>
           </listitem>
         </orderedlist>
         <screenshot>
@@ -6527,67 +6528,68 @@ Beschreibung: &lt;%description%&gt;
       </para>
         <itemizedlist>
           <listitem>
-            <para>Dateisystem,</para>
+            <para>Dateisystem</para>
           </listitem>
           <listitem>
-            <para>WebDAV,</para>
+            <para>WebDAV</para>
           </listitem>
           <listitem>
-            <para>Schnittstelle zu externem Dokumenten-Management-System,</para>
+            <para>Schnittstelle zu externen Dokumenten-Management-Systemen</para>
           </listitem>
           <listitem>
-            <para>andere Datenbank,</para>
+            <para>andere Datenbank</para>
           </listitem>
           <listitem>
             <para>etc ...</para>
           </listitem>
         </itemizedlist>
-        <para>Es gibt unterschiedliche Typen von Dateien, jedem Typ läßt sich in der
-              Mandantenkonfigurierung ein bestimmtes Backend zuordnen.
+        <para>Es gibt unterschiedliche Typen von Dateien. Jedem Typ läßt sich in der
+              Mandantenkonfiguration ein bestimmtes Backend zuordnen.
         </para>
         <itemizedlist>
           <listitem>
-            <para>"document", das sind entweder generierte,eingescannte oder hochgeladene PDF-Dateien,
-                  die zu bestimmten ERP-Daten (ERP-Objekte, wi z.B. Rechnung, Lieferschein) gehören.</para>
+            <para>"document": Das sind entweder generierte, eingescannte oder hochgeladene PDF-Dateien,
+                  die zu bestimmten ERP-Daten (ERP-Objekte, wie z.B. Rechnung, Lieferschein) gehören.</para>
           </listitem>
           <listitem>
-            <para>"attachment", zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden,
-            z.B. technische Zeichnungen,Aufmaße. Diese können auch an Artikeln,
-            Lieferanten und Kunden hinterlegt sein</para>
+            <para>"attachment": zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden,
+            z.B. technische Zeichnungen, Aufmaße. Diese können auch für Artikel,
+            Lieferanten und Kunden hinterlegt sein.</para>
           </listitem>
           <listitem>
-            <para>"image", Bilder an Artikeln. Diese können auch verkleinert in einer Vorschau (Thumbnail)
+            <para>"image": Bilder für Artikel. Diese können auch verkleinert in einer Vorschau (Thumbnail)
             angezeigt werden.</para>
           </listitem>
         </itemizedlist>
-        <para>Zusätzlich werden in der Datenbank zu den Dateien neben der Zuordnung zu ERP-Objekten, des Dateityps
-        des Dateinamens und des Backends in dem die Datei gespeichert ist auch die Quelle der Datei notiert:
+        <para>Zusätzlich werden in der Datenbank zu den Dateien neben der Zuordnung zu ERP-Objekten, Dateityp
+        Dateinamen und Backend, in dem die Datei gespeichert ist, auch die Quelle der Datei notiert:
         </para>
         <itemizedlist>
           <listitem>
-            <para> "created" , vom System erzeugte Dokumente"</para>
+            <para> "created": vom System erzeugte Dokumente"</para>
           </listitem>
           <listitem>
-            <para> "uploaded", hochgeladene Dokumente</para>
+            <para> "uploaded": hochgeladene Dokumente</para>
           </listitem>
           <listitem>
-            <para> "email", vom Mailsystem empfangene Dateien</para>
+            <para> "email": vom Mail-System empfangene Dateien</para>
           </listitem>
           <listitem>
-            <para> "scanner[1]", von einem oder mehreren Scannern erzeugte Dateien. Existieren mehrere Scanner,
-            so sind diese durch unterschiedliche Quellennamen zu definieren</para>
+            <para> "scanner[1]": von einem oder mehreren Scannern erzeugte Dateien. Existieren mehrere Scanner,
+            so sind diese durch unterschiedliche Quellennamen zu definieren.</para>
           </listitem>
         </itemizedlist>
         <para>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es für "attachment" und "image" nur
         die Quelle "uploaded". Für "document" gibt es auf jeden Fall die Quelle "created".
-        Die Quellen "scanner" und "email" müssen derzeit in der Datenbank konfiguriert werden (siehe <xref linkend="file_management.dbconfig"/>.</para>
+        Die Quellen "scanner" und "email" müssen derzeit in der Datenbank konfiguriert werden
+        (siehe <xref linkend="file_management.dbconfig"/>).</para>
       </sect2>
 
       <sect2>
         <title>Anwendung</title>
         <para>Die Daten werden bei den ERP-Objekten als extra Reiter dargestellt.
         Eine Verkaufsrechnung z.B. hat die
-        Reiter "Dokumente" und "Dateianhänge.</para>
+        Reiter "Dokumente" und "Dateianhänge".</para>
         <screenshot>
           <screeninfo>Reiter "Dateianhänge"</screeninfo>
           <mediaobject>
@@ -6598,7 +6600,7 @@ Beschreibung: &lt;%description%&gt;
         </screenshot>
         <para>Bei den Dateianhängen wird immer nur die aktuelle Version einer Datei angezeigt.
         Wird eine Datei mit gleichem Namen hochgeladen, so wird eine neue Version der Datei erstellt.
-        Vorher wird der Anwender durch einen Dialog ob er eine neue Version anlegen will oder
+        Vorher wird der Anwender durch einen Dialog gefragt, ob er eine neue Version anlegen will oder
         ob er die Datei umbenennen will, falls es eine neue Datei sein soll.</para>
         <screenshot>
           <screeninfo>Reiter "Dateianhänge"</screeninfo>
@@ -6609,8 +6611,8 @@ Beschreibung: &lt;%description%&gt;
           </mediaobject>
         </screenshot>
         <para>Es können mehrere Dateien gleichzeitig hochgeladen werden,
-        solange in Summe die maximale Größe nicht überschritten wird.
-        (siehe <xref linkend="file_management.clientconfig"/></para>
+        solange in Summe die maximale Größe nicht überschritten wird
+        (siehe <xref linkend="file_management.clientconfig"/>).</para>
         <screenshot>
           <screeninfo>Reiter "Dokumente"</screeninfo>
           <mediaobject>
@@ -6621,7 +6623,7 @@ Beschreibung: &lt;%description%&gt;
         </screenshot>
         <para>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt es nur "erzeugte Dokumente".
         Es werden alle Versionen der generierten Datei angezeigt. Für Verkaufsrechnungen kommen keine
-        anderen Quellen zur Geltung. Werden entsprechend
+        anderen Quellen zur Geltung. Werden entsprechend der
         <xref linkend="file_management.dbconfig"/> zusätzliche Quellen konfiguriert, so sind diese z.B. bei
         Einkaufsrechnungen sichtbar:</para>
         <screenshot>
@@ -6640,12 +6642,12 @@ Beschreibung: &lt;%description%&gt;
       <sect2>
         <title>Konfigurierung</title>
         <sect3 id="file_management.clientconfig" xreflabel="Mandantenkonfigurierung">
-          <title>Mandantenkonfigurierung</title>
+          <title>Mandantenkonfiguration</title>
           <sect4>
             <title>Reiter "Features"</title>
-            <para>Unter dem Reiter <emphasis role="bold">Features</emphasis> im Abschnit Dateimanagement ist
-            neben dem "alten" WebDAV das Dateimangement general zu- und abschaltbar, sowie die Zuordnung der
-          Dateitypen zu Backends. Die Löschbarkeit von Dateien sowie die maximale Uploadgröße sind Backend-unabhängig</para>
+            <para>Unter dem Reiter <emphasis role="bold">Features</emphasis> im Abschnitt Dateimanagement ist
+            neben dem "alten" WebDAV das Dateimangement generell zu- und abschaltbar, sowie die Zuordnung der
+          Dateitypen zu Backends. Die Löschbarkeit von Dateien, sowie die maximale Uploadgröße sind Backend-unabhängig</para>
         <screenshot>
           <screeninfo>Mandantenkonfig Reiter "Features"</screeninfo>
           <mediaobject>
@@ -6671,15 +6673,15 @@ Beschreibung: &lt;%description%&gt;
           </mediaobject>
         </screenshot>
         <para>Diese Anhänge werden beim Generieren von PDF-Dateien an die ERP-Dokumente angehängt,
-        z.B. AGBs oder aktuelle Angebote. Es werden in dem Fall die Daten kopiert, sodaß an den ERP-Dokumenten immer
+        z.B. AGBs oder aktuelle Angebote. Es werden in dem Fall die Daten kopiert, sodass an den ERP-Dokumenten immer
         die Anhänge zum Generierungszeitpunkt eingebettet sind.
         </para>
         </sect4>
         </sect3>
         <sect3 id="file_management.dbconfig" xreflabel="Datenbank-Konfigurierung">
           <title>Datenbank-Konfigurierung</title>
-          <para>Die zusätzlichen Quellen für email oder ein oder mehrere Scanner sind derzeit vom Administrator
-          direkt in der Datenbanktablle "user_preferences" einzurichten. Die "value" ist im JSON-Format
+          <para>Die zusätzlichen Quellen für "email" oder ein oder mehrere Scanner sind derzeit vom Administrator
+          direkt in der Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im JSON-Format
           mit den jeweiligen Werten des Verzeichnisses und der Beschreibung der Quelle.</para>
           <programlisting>
  id |  login    |  namespace   | version |   key    |          value
@@ -6691,8 +6693,8 @@ Beschreibung: &lt;%description%&gt;
   3 | #default# | file_sources | 0.00000 | emails   |
                              {"dir":"/var/tmp/emails","desc":"Empfangene Mails" }
           </programlisting>
-          <para>Es ist daran gedacht, statt dem default Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen,
-          dies wird nach Bedarf implementiert.</para>
+          <para>Es ist daran gedacht, statt dem Default-Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen.
+          Dies wird nach Bedarf implementiert.</para>
         </sect3>
         <sect3 id="file_management.kiviconfig" xreflabel="kivitendo-Konfigurationsdatei">
           <title>kivitendo-Konfigurationsdatei</title>
@@ -6702,7 +6704,7 @@ Beschreibung: &lt;%description%&gt;
 [paths]
 document_path = /var/local/kivi_documents
           </programlisting>
-          <para>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch ein Unterverzeichnis mit der ID des Mandanten angelegt</para>
+          <para>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch ein Unterverzeichnis mit der ID des Mandanten angelegt.</para>
         </sect3>
      </sect2>
     </sect1>
