@@ -70,7 +70,7 @@ _=\\_
 μ={\\textmu}
 Δ=$\\Delta$
 Ω=$\\Omega$
-~={\\textasciitilde}
+~={\\raisebox{0.5ex}{\\texttildelow}}
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
