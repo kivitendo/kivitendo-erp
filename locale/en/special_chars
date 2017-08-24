@@ -29,7 +29,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © ‐ Ω ~ μ Δ
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω μ Δ ~
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -38,7 +38,9 @@ $=\\$
 <bullet>=$\\bullet$
 %=\\%
 _=\\_
-#=\\#
+# A hash mark starts a comment; therefore the line is ignored. So use
+# its hex code instead.
+\x23=\\#
 {=\\{
 }=\\}
 <=$<$
@@ -51,14 +53,24 @@ _=\\_
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
-§=\\S
-®=\\textregistered
-©=\\textcopyright
+§=\\S\s
+®={\\textregistered}
+©={\\textcopyright}
+\xad=\\-
+➔=$\\rightarrow$
+→=$\\rightarrow$
+←=$\\leftarrow$
+\xa0=~
+|={\\textbar}
+−={\\textemdash}
+≤=$\\leq$
+≥=$\\geq$
 ‐={}-{}
-~=${}$~
+​={\\hspace{0pt}}
 μ={\\textmu}
 Δ=$\\Delta$
 Ω=$\\Omega$
+~={\\textasciitilde}
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
