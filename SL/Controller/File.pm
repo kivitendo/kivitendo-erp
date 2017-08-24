@@ -32,9 +32,8 @@ use SL::SessionFile;
 use SL::File;
 use SL::Controller::Helper::ThumbnailCreator qw(file_probe_image_type);
 
-use constant DO_DELETE    =>   0;
-use constant DO_UNIMPORT  =>   1;
-
+use constant DO_DELETE   => 0;
+use constant DO_UNIMPORT => 1;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -45,22 +44,22 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_object_params', only => [ qw(list ajax_delete ajax_importdialog ajax_import ajax_unimport ajax_upload ajax_files_uploaded) ]);
 
 my %file_types = (
-  'sales_quotation' =>         { gen => 1 ,gltype => '',   dir =>'SalesQuotation',       model => 'Order',          right => 'import_ar'  },
-  'sales_order'     =>         { gen => 1 ,gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
-  'sales_delivery_order' =>    { gen => 1 ,gltype => '',   dir =>'SalesDeliveryOrder',   model => 'DeliveryOrder',  right => 'import_ar'  },
-  'invoice'         =>         { gen => 1 ,gltype => 'ar', dir =>'SalesInvoice',         model => 'Invoice',        right => 'import_ar'  },
-  'credit_note'     =>         { gen => 1 ,gltype => '',   dir =>'CreditNote',           model => 'Invoice',        right => 'import_ar'  },
-  'request_quotation' =>       { gen => 3 ,gltype => '',   dir =>'RequestForQuotation',  model => 'Order',          right => 'import_ap'  },
-  'purchase_order' =>          { gen => 3 ,gltype => '',   dir =>'PurchaseOrder',        model => 'Order',          right => 'import_ap'  },
-  'purchase_delivery_order' => { gen => 3 ,gltype => '',   dir =>'PurchaseDeliveryOrder',model => 'DeliveryOrder',  right => 'import_ap'  },
-  'purchase_invoice' =>        { gen => 2 ,gltype => 'ap', dir =>'PurchaseInvoice',      model => 'PurchaseInvoice',right => 'import_ap'  },
-  'vendor' =>                  { gen => 0 ,gltype => '',   dir =>'Vendor',               model => 'Vendor',         right => 'xx'  },
-  'customer' =>                { gen => 1 ,gltype => '',   dir =>'Customer',             model => 'Customer',       right => 'xx'  },
-  'part' =>                    { gen => 0 ,gltype => '',   dir =>'Part',                 model => 'Part',           right => 'xx'  },
-  'gl_transaction' =>          { gen => 2 ,gltype => 'gl', dir =>'GeneralLedger',        model => 'GLTransaction',  right => 'import_ap'  },
-  'draft' =>                   { gen => 0 ,gltype => '',   dir =>'Draft',                model => 'Draft',          right => 'xx'  },
-  'csv_customer' =>            { gen => 1 ,gltype => '',   dir =>'Reports',              model => 'Customer',       right => 'xx'  },
-  'csv_vendor'   =>            { gen => 1 ,gltype => '',   dir =>'Reports',              model => 'Vendor',         right => 'xx'  },
+  'sales_quotation'         => { gen => 1, gltype => '',   dir => 'SalesQuotation',        model => 'Order',           right => 'import_ar' },
+  'sales_order'             => { gen => 1, gltype => '',   dir => 'SalesOrder',            model => 'Order',           right => 'import_ar' },
+  'sales_delivery_order'    => { gen => 1, gltype => '',   dir => 'SalesDeliveryOrder',    model => 'DeliveryOrder',   right => 'import_ar' },
+  'invoice'                 => { gen => 1, gltype => 'ar', dir => 'SalesInvoice',          model => 'Invoice',         right => 'import_ar' },
+  'credit_note'             => { gen => 1, gltype => '',   dir => 'CreditNote',            model => 'Invoice',         right => 'import_ar' },
+  'request_quotation'       => { gen => 3, gltype => '',   dir => 'RequestForQuotation',   model => 'Order',           right => 'import_ap' },
+  'purchase_order'          => { gen => 3, gltype => '',   dir => 'PurchaseOrder',         model => 'Order',           right => 'import_ap' },
+  'purchase_delivery_order' => { gen => 3, gltype => '',   dir => 'PurchaseDeliveryOrder', model => 'DeliveryOrder',   right => 'import_ap' },
+  'purchase_invoice'        => { gen => 2, gltype => 'ap', dir => 'PurchaseInvoice',       model => 'PurchaseInvoice', right => 'import_ap' },
+  'vendor'                  => { gen => 0, gltype => '',   dir => 'Vendor',                model => 'Vendor',          right => 'xx'        },
+  'customer'                => { gen => 1, gltype => '',   dir => 'Customer',              model => 'Customer',        right => 'xx'        },
+  'part'                    => { gen => 0, gltype => '',   dir => 'Part',                  model => 'Part',            right => 'xx'        },
+  'gl_transaction'          => { gen => 2, gltype => 'gl', dir => 'GeneralLedger',         model => 'GLTransaction',   right => 'import_ap' },
+  'draft'                   => { gen => 0, gltype => '',   dir => 'Draft',                 model => 'Draft',           right => 'xx'        },
+  'csv_customer'            => { gen => 1, gltype => '',   dir => 'Reports',               model => 'Customer',        right => 'xx'        },
+  'csv_vendor'              => { gen => 1, gltype => '',   dir => 'Reports',               model => 'Vendor',          right => 'xx'        },
 );
 
 #--- 4 locale ---#
@@ -73,10 +72,10 @@ my %file_types = (
 sub action_list {
   my ($self) = @_;
 
-  my $isjson = 0;
-  $isjson = 1 if $::form->{json};
+  my $is_json = 0;
+  $is_json = 1 if $::form->{json};
 
-  $self->_do_list($isjson);
+  $self->_do_list($is_json);
 }
 
 sub action_ajax_importdialog {
@@ -105,17 +104,17 @@ sub action_ajax_import {
   my $ids    = $::form->{ids};
   my $source = $::form->{source};
   my $path   = $::form->{path};
-  my @files = $self->_get_from_import($path);
+  my @files  = $self->_get_from_import($path);
   foreach my $filename (@{ $::form->{$ids} || [] }) {
-    my ($file,undef) = grep { $_->{name} eq $filename } @files;
+    my ($file, undef) = grep { $_->{name} eq $filename } @files;
     if ( $file ) {
-      my $obj = SL::File->save(object_id     => $self->object_id,
-                               object_type   => $self->object_type,
-                               mime_type     => 'application/pdf',
-                               source        => $source,
-                               file_type     => 'document',
-                               file_name     => $file->{filename},
-                               file_path     => $file->{path}
+      my $obj = SL::File->save(object_id   => $self->object_id,
+                               object_type => $self->object_type,
+                               mime_type   => 'application/pdf',
+                               source      => $source,
+                               file_type   => 'document',
+                               file_name   => $file->{filename},
+                               file_path   => $file->{path}
                              );
       unlink($file->{path}) if $obj;
     }
@@ -125,19 +124,19 @@ sub action_ajax_import {
 
 sub action_ajax_delete {
   my ($self) = @_;
-  $self->_delete_all(DO_DELETE,$::locale->text('Following files are deleted:'));
+  $self->_delete_all(DO_DELETE, $::locale->text('Following files are deleted:'));
 }
 
 sub action_ajax_unimport {
   my ($self) = @_;
-  $self->_delete_all(DO_UNIMPORT,$::locale->text('Following files are unimported:'));
+  $self->_delete_all(DO_UNIMPORT, $::locale->text('Following files are unimported:'));
 }
 
 sub action_ajax_rename {
   my ($self) = @_;
   my $file = SL::File->get(id => $::form->{id});
   if ( ! $file ) {
-    $self->js->flash('error',$::locale->text('File not exists !'))->render();
+    $self->js->flash('error', $::locale->text('File not exists !'))->render();
     return;
   }
   my $sessionfile = $::form->{sessionfile};
@@ -146,18 +145,18 @@ sub action_ajax_rename {
     if ( $::form->{to} eq $file->file_name ) {
       # no rename so use as new version
       $file->save_file($sessionfile);
-      $self->js->flash('warning',$::locale->text('File \'#1\' is used as new Version !',$file->file_name));
+      $self->js->flash('warning', $::locale->text('File \'#1\' is used as new Version !', $file->file_name));
 
     } else {
-      # new filename so it is a new file with same attributes as old file
+      # new filename, so it is a new file with the same attributes as the old file
       eval {
-        SL::File->save(object_id     => $file->object_id,
-                       object_type   => $file->object_type,
-                       mime_type     => $file->mime_type,
-                       source        => $file->source,
-                       file_type     => $file->file_type,
-                       file_name     => $::form->{to},
-                       file_path     => $sessionfile
+        SL::File->save(object_id   => $file->object_id,
+                       object_type => $file->object_type,
+                       mime_type   => $file->mime_type,
+                       source      => $file->source,
+                       file_type   => $file->file_type,
+                       file_name   => $::form->{to},
+                       file_path   => $sessionfile
                      );
         unlink($sessionfile);
         1;
@@ -170,10 +169,10 @@ sub action_ajax_rename {
 
   } else {
     # normal rename
-    my $res;
+    my $result;
 
     eval {
-      $res = $file->rename($::form->{to});
+      $result = $file->rename($::form->{to});
       1;
     } or do {
       $self->js->flash(       'error', t8('internal error (see details)'))
@@ -181,11 +180,11 @@ sub action_ajax_rename {
       return;
     };
 
-    if ($res != SL::File::RENAME_OK) {
+    if ($result != SL::File::RENAME_OK) {
       $self->js->flash('error',
-                         $res == SL::File::RENAME_EXISTS ? $::locale->text('File still exists !')
-                       : $res == SL::File::RENAME_SAME   ? $::locale->text('Same Filename !')
-                       :                                   $::locale->text('File not exists !'))
+                         $result == SL::File::RENAME_EXISTS ? $::locale->text('File still exists !')
+                       : $result == SL::File::RENAME_SAME   ? $::locale->text('Same Filename !')
+                       :                                      $::locale->text('File not exists !'))
         ->render;
       return;
     }
@@ -209,7 +208,7 @@ sub action_ajax_upload {
   $self->{accept_types} = '';
   $self->{accept_types} = 'image/png,image/gif,image/jpeg,image/tiff,*png,*gif,*.jpg,*.tif' if $self->{file_type} eq 'image';
   $self->render('file/upload_dialog',
-                { layout          => 0
+                { layout => 0
                 },
   );
 }
@@ -224,47 +223,47 @@ sub action_ajax_files_uploaded {
     foreach my $idx (0 .. scalar(@upfiles) - 1) {
       eval {
         my $fname = uri_unescape($upfiles[$idx]->{filename});
-        ## normalize and find basename
+        # normalize and find basename
         # first split with unix rules
         # after that split with windows rules
-        my ($volume,$directories,$basefile) = File::Spec::Unix->splitpath($fname);
-        ($volume,$directories,$basefile) = File::Spec::Win32->splitpath($basefile);
+        my ($volume, $directories, $basefile) = File::Spec::Unix->splitpath($fname);
+        ($volume, $directories, $basefile) = File::Spec::Win32->splitpath($basefile);
 
         # to find real mime_type by magic we must save the filedata
 
-        my $sess_fname = "file_upload_".$self->object_type."_".$self->object_id."_".$idx;
-        my $sfile     = SL::SessionFile->new($sess_fname, mode => 'w');
+        my $sess_fname = "file_upload_" . $self->object_type . "_" . $self->object_id . "_" . $idx;
+        my $sfile      = SL::SessionFile->new($sess_fname, mode => 'w');
 
         $sfile->fh->print(${$upfiles[$idx]->{data}});
         $sfile->fh->close;
         my $mime_type = File::MimeInfo::Magic::magic($sfile->file_name);
 
         if (! $mime_type) {
-          # if filename has the suffix "pdf", but is really no pdf set mimetype for no suffix
+          # if filename has the suffix "pdf", but isn't really a pdf, set mimetype for no suffix
           $mime_type = File::MimeInfo::Magic::mimetype($basefile);
           $mime_type = 'application/octet-stream' if $mime_type eq 'application/pdf' || !$mime_type;
         }
         if ( $self->file_type eq 'image' && $self->file_probe_image_type($mime_type, $basefile)) {
           next;
         }
-        my ($existobj) = SL::File->get_all(object_id     => $self->object_id,
-                                        object_type   => $self->object_type,
-                                        mime_type     => $mime_type,
-                                        source        => $source,
-                                        file_type     => $self->file_type,
-                                        file_name     => $basefile,
-                                      );
+        my ($existobj) = SL::File->get_all(object_id   => $self->object_id,
+                                           object_type => $self->object_type,
+                                           mime_type   => $mime_type,
+                                           source      => $source,
+                                           file_type   => $self->file_type,
+                                           file_name   => $basefile,
+                                          );
 
-        if ($existobj) {
-          push @existing, $existobj->id.'_'.$sfile->file_name;
-        } else {
+           if ($existobj) {
+             push @existing, $existobj->id.'_'.$sfile->file_name;
+           } else {
           my $fileobj = SL::File->save(object_id     => $self->object_id,
                                        object_type   => $self->object_type,
                                        mime_type     => $mime_type,
                                        source        => $source,
                                        file_type     => $self->file_type,
                                        file_name     => $basefile,
-                                       ## two possibilities: what is better ? content or sessionfile ??
+                                       ## two possibilities: which is better ? content or sessionfile ??
                                        #file_contents => ${$upfiles[$idx]->{data}},
                                        file_path     => $sfile->file_name
                                      );
@@ -284,7 +283,7 @@ sub action_ajax_files_uploaded {
 
 sub action_download {
   my ($self) = @_;
-  my ($id,$version) = split /_/, $::form->{id};
+  my ($id, $version) = split /_/, $::form->{id};
   my $file = SL::File->get(id => $id );
   $file->version($version) if $version;
   my $ref  = $file->get_content;
@@ -303,24 +302,24 @@ sub action_download {
 sub check_object_params {
   my ($self) = @_;
 
-  my $id = ($::form->{object_id} // 0) * 1;
-  my $draftid = ($::form->{draft_id} // 0) * 1;
-  my $gldoc = 0;
-  my $type = undef;
+  my $id      = ($::form->{object_id} // 0) * 1;
+  my $draftid = ($::form->{draft_id}  // 0) * 1;
+  my $gldoc   = 0;
+  my $type    = undef;
 
   if ( $draftid == 0 && $id == 0 && $::form->{is_global} ) {
     $gldoc = 1;
-    $type = $::form->{object_type};
+    $type  = $::form->{object_type};
   }
   elsif ( $id == 0 ) {
-    $id = $::form->{draft_id};
+    $id   = $::form->{draft_id};
     $type = 'draft';
   } elsif ( $::form->{object_type} ) {
     $type = $::form->{object_type};
   }
-  die "No object type"     if ! $type;
-  die "No file type"       if ! $::form->{file_type};
-  die "Unkown object type" if ! $file_types{$type};
+  die "No object type"     unless $type;
+  die "No file type"       unless $::form->{file_type};
+  die "Unkown object type" unless $file_types{$type};
 
   $self->is_global($gldoc);
   $self->file_type($::form->{file_type});
@@ -342,44 +341,46 @@ sub check_object_params {
 #
 
 sub _delete_all {
-  my ($self,$do_unimport,$infotext) = @_;
+  my ($self, $do_unimport, $infotext) = @_;
   my $files = '';
   my $ids = $::form->{ids};
   foreach my $id_version (@{ $::form->{$ids} || [] }) {
-    my ($id,$version) = split /_/, $id_version;
+    my ($id, $version) = split /_/, $id_version;
     my $dbfile = SL::File->get(id => $id);
     $dbfile->version($version) if $dbfile && $version;
     if ( $dbfile && $dbfile->delete ) {
-      $files .= ' '.$dbfile->file_name;
+      $files .= ' ' . $dbfile->file_name;
     }
   }
-  $self->js->flash('info',$infotext.$files) if $files;
+  $self->js->flash('info', $infotext . $files) if $files;
   $self->_do_list(1);
 }
 
 sub _do_list {
-  my ($self,$json) = @_;
+  my ($self, $json) = @_;
   my @files;
   if ( $self->file_type eq 'document' ) {
     my @object_types;
     push @object_types, $self->object_type;
-    push @object_types, ('dunning','dunning1','dunning2','dunning3') if $self->object_type eq 'invoice';
-    @files   = SL::File->get_all_versions(object_id   => $self->object_id  ,
-                                          object_type => \@object_types,
-                                          file_type   => $self->file_type  );
+    push @object_types, qw(dunning dunning1 dunning2 dunning3) if $self->object_type eq 'invoice'; # hardcoded object types?
+    @files = SL::File->get_all_versions(object_id   => $self->object_id,
+                                        object_type => \@object_types,
+                                        file_type   => $self->file_type,
+                                       );
 
   }
-  elsif ( $self->file_type eq 'attachment' ||  $self->file_type eq 'image' ) {
-    @files   = SL::File->get_all(object_id   => $self->object_id  ,
+  elsif ( $self->file_type eq 'attachment' || $self->file_type eq 'image' ) {
+    @files   = SL::File->get_all(object_id   => $self->object_id,
                                  object_type => $self->object_type,
-                                 file_type   => $self->file_type  );
+                                 file_type   => $self->file_type,
+                                );
   }
   $self->files(\@files);
-  $self->_mk_render('file/list',1,0,$json);
+  $self->_mk_render('file/list', 1, 0, $json);
 }
 
 sub _get_from_import {
-  my ($self,$path) = @_;
+  my ($self, $path) = @_;
   my @foundfiles ;
 
   my $language = $::lx_office_conf{system}->{language};
@@ -390,20 +391,20 @@ sub _get_from_import {
       next if (($file eq '.') || ($file eq '..'));
       $file = Encode::decode('utf-8', $file);
 
-      next if( -d "$path/$file");
+      next if ( -d "$path/$file" );
 
       my $tmppath = File::Spec->catfile( $path, $file );
-      next if( ! -f $tmppath);
+      next if( ! -f $tmppath );
 
       my $st = stat($tmppath);
-      my $dt = DateTime->from_epoch( epoch => $st->mtime, time_zone => $timezone, locale => $language);
-      my $sname = $main::locale->quote_special_chars('HTML',$file);
-      push @foundfiles , {
+      my $dt = DateTime->from_epoch( epoch => $st->mtime, time_zone => $timezone, locale => $language );
+      my $sname = $main::locale->quote_special_chars('HTML', $file);
+      push @foundfiles, {
         'name'     => $file,
         'filename' => $sname,
         'path'     => $tmppath,
         'mtime'    => $st->mtime,
-        'date'     => $dt->dmy('.')." ".$dt->hms,
+        'date'     => $dt->dmy('.') . " " . $dt->hms,
       };
 
     }
@@ -412,10 +413,10 @@ sub _get_from_import {
 }
 
 sub _mk_render {
-  my ($self,$template,$edit,$scanner,$json) = @_;
+  my ($self, $template, $edit, $scanner, $json) = @_;
   my $err;
   eval {
-    ##TODO  here a configurable code must be implemented
+    ##TODO make code configurable
 
     my $title;
     my @sources = $self->_get_sources();
@@ -432,22 +433,22 @@ sub _mk_render {
 
     my $output         = SL::Presenter->get->render(
       $template,
-      title             => $title,
-      SOURCES           => \@sources,
-      edit_attachments  => $edit,
-      object_type       => $self->object_type,
-      object_id         => $self->object_id,
-      file_type         => $self->file_type,
-      is_global         => $self->is_global,
-      json              => $json,
+      title            => $title,
+      SOURCES          => \@sources,
+      edit_attachments => $edit,
+      object_type      => $self->object_type,
+      object_id        => $self->object_id,
+      file_type        => $self->file_type,
+      is_global        => $self->is_global,
+      json             => $json,
     );
     if ( $json ) {
       $self->js->html('#'.$self->file_type.'_list_'.$self->object_type, $output);
       if ( $self->existing && scalar(@{$self->existing}) > 0) {
         my $first = shift @{$self->existing};
-        my ($first_id,$sfile) = split('_',$first,2);
+        my ($first_id, $sfile) = split('_', $first, 2);
         my $file = SL::File->get(id => $first_id );
-        $self->js->run('kivi.File.askForRename',$first_id,$file->file_name,$sfile,join (',', @{$self->existing}), $self->is_global);
+        $self->js->run('kivi.File.askForRename', $first_id, $file->file_name, $sfile, join (',', @{$self->existing}), $self->is_global);
       }
       $self->js->render();
     } else {
@@ -469,7 +470,7 @@ sub _get_sources {
   my ($self) = @_;
   my @sources;
   if ( $self->file_type eq 'document' ) {
-    ##TODO statt gen neue attribute in filetypes :
+    # TODO statt gen neue attribute in filetypes :
     if (($file_types{$self->object_type}->{gen}*1 & 1)==1) {
       my $gendata = {
         'name'         => 'created',
@@ -490,7 +491,7 @@ sub _get_sources {
       foreach my $scanner_or_mailrx (@others) {
         my $other = {
           'name'         => $scanner_or_mailrx->{name},
-          'title'        => $main::locale->text('from \'#1\' imported Files',$scanner_or_mailrx->{description}),
+          'title'        => $main::locale->text('from \'#1\' imported Files', $scanner_or_mailrx->{description}),
           'chk_action'   => $scanner_or_mailrx->{name}.'_unimport',
           'chk_title'    => $main::locale->text('Unimport documents'),
           'chkall_title' => $main::locale->text('Unimport all'),
@@ -499,7 +500,7 @@ sub _get_sources {
           'can_rename'   => 1,
           'rename_title' => $main::locale->text('Rename Documents'),
           'can_import'   => 1,
-          'import_title' => $main::locale->text('Add Document from \'#1\'',$scanner_or_mailrx->{name}),
+          'import_title' => $main::locale->text('Add Document from \'#1\'', $scanner_or_mailrx->{name}),
           'path'         => $scanner_or_mailrx->{directory},
           'done_text'    => $main::locale->text('unimported')
         };
@@ -558,20 +559,15 @@ __END__
 
 SL::Controller::File - Controller for managing files
 
-
 =head1 SYNOPSIS
 
-=begin text
-
-    # The Controller is called direct from the webpages
-
+The Controller is called directly from the webpages
 
     <a href="controller.pl?action=File/list&file_type=document\
        &object_type=[% HTML.escape(type) %]&object_id=[% HTML.url(id) %]">
 
 
-    # or indirect via javascript functions from js/kivi.File.js
-
+or indirectly via javascript functions from js/kivi.File.js
 
     kivi.popup_dialog({ url:     'controller.pl',
                         data:    { action     : 'File/ajax_upload',
@@ -580,9 +576,6 @@ SL::Controller::File - Controller for managing files
                                    object_id  : id
                                  }
                            ...
-
-=end text
-
 
 =head1 DESCRIPTION
 
@@ -735,14 +728,13 @@ Available C<FORM PARAMS>:
 
 =item C<form.ids>
 
-The ids of the files to unimport. Only this files are unimported not all versions of a file if the exists
+The ids of the files to unimport. Only these files are unimported not all versions of a file if the exists
 
 =back
 
 =head2 C<action_ajax_rename>
 
 One file can be renamed. There can be some checks if the same filename still exists at one object.
-
 
 =head1 AUTHOR
 
