@@ -321,8 +321,11 @@ sub form_header {
 
   $TMPL_VAR{invoice_obj} = SL::DB::PurchaseInvoice->load_cached($form->{id}) if $form->{id};
   $TMPL_VAR{vendor_obj}  = SL::DB::Vendor->load_cached($form->{vendor_id})   if $form->{vendor_id};
-  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
-  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
+  my $current_employee   = SL::DB::Manager::Employee->current;
+  $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id}   = $form->{old_salesman_id} if $form->{old_salesman_id};
+  $form->{employee_id} ||= $current_employee->id;
+  $form->{salesman_id} ||= $current_employee->id;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
