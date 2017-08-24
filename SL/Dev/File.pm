@@ -7,11 +7,6 @@ our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::File;
 
-my %common_params = (
-  object_id   => 1,
-  object_type => 'sales_order',
-);
-
 sub create_scanned {
   my (%params) = @_;
   $params{source}    = 'scanner1';
@@ -44,22 +39,17 @@ sub _create_file {
   my (%params) = @_;
 
   my $fileobj = SL::File->save(
-    %common_params,
-    mime_type          => 'text/plain',
-    description        => 'Test File',
-    file_type          => $params{file_type},
-    source             => $params{source},
-    file_name          => $params{file_name},
-    file_contents      => $params{file_contents},
-    file_path          => $params{file_path}
+    mime_type     => 'text/plain',
+    description   => 'Test File',
+    %params,
+    # file_type     => $params{file_type},
+    # source        => $params{source},
+    # file_name     => $params{file_name},
+    # file_contents => $params{file_contents},
+    # file_path     => $params{file_path}
   );
   return $fileobj;
 }
-
-sub get_all          { SL::File->get_all         (%common_params, @_) }
-sub get_all_count    { SL::File->get_all_count   (%common_params, @_) }
-sub get_all_versions { SL::File->get_all_versions(%common_params, @_) }
-sub delete_all       { SL::File->delete_all      (%common_params, @_) }
 
 1;
 
