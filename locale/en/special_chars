@@ -29,7 +29,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω μ Δ ~
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° ~ § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ <200b> Ω μ Δ
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -53,14 +53,15 @@ _=\\_
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
-§=\\S\s
-®={\\textregistered}
-©={\\textcopyright}
+~={\\raisebox{0.5ex}{\\texttildelow}}
+§=\\S
+®=\\textregistered
+©=\\textcopyright
 \xad=\\-
+\xa0=~
 ➔=$\\rightarrow$
 →=$\\rightarrow$
 ←=$\\leftarrow$
-\xa0=~
 |={\\textbar}
 −={\\textemdash}
 ≤=$\\leq$
@@ -70,7 +71,6 @@ _=\\_
 μ={\\textmu}
 Δ=$\\Delta$
 Ω=$\\Omega$
-~={\\raisebox{0.5ex}{\\texttildelow}}
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
