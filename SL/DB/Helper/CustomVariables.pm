@@ -182,7 +182,7 @@ sub _all_configs {
   }
 
   return $params{module} && !ref $params{module} ? $cache->{module}{$params{module}}
-       : $params{module} &&  ref $params{module} ? [ map { @{ $cache->{module}{$_} } } @{ $params{module} } ]
+       : $params{module} &&  ref $params{module} ? [ map { @{ $cache->{module}{$_} // [] } } @{ $params{module} } ]
        : $cache->{all};
 }
 
