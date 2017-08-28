@@ -443,6 +443,8 @@ sub dbupdate2 {
 
   my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
+  $::lxdebug->log_time("DB upgrades commencing");
+
   foreach my $control (@upgradescripts) {
     # Apply upgrade. Control will only return to us if the upgrade has
     # been applied correctly and if the update has not requested user
@@ -452,6 +454,8 @@ sub dbupdate2 {
 
     $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
+
+  $::lxdebug->log_time("DB upgrades finished");
 
   $dbh->disconnect;
 }

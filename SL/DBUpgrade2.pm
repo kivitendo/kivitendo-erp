@@ -291,8 +291,12 @@ sub process_perl_script {
 sub process_file {
   my ($self, $dbh, $filename, $version_or_control) = @_;
 
-  return $filename =~ m/sql$/ ? $self->process_query(      $dbh, $filename, $version_or_control)
-                              : $self->process_perl_script($dbh, $filename, $version_or_control);
+  my $result = $filename =~ m/sql$/ ? $self->process_query(      $dbh, $filename, $version_or_control)
+                                    : $self->process_perl_script($dbh, $filename, $version_or_control);
+
+  $::lxdebug->log_time("DB upgrade script '${filename}' finished");
+
+  return $result;
 }
 
 sub unapplied_upgrade_scripts {
@@ -338,12 +342,16 @@ sub apply_admin_dbupgrade_scripts {
 
   print $self->{form}->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
 
+  $::lxdebug->log_time("DB upgrades commencing");
+
   foreach my $control (@unapplied_scripts) {
     $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
 
     $self->process_file($dbh, "sql/Pg-upgrade2-auth/$control->{file}", $control);
   }
+
+  $::lxdebug->log_time("DB upgrades finished");
 
   print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
 
