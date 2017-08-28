@@ -82,6 +82,7 @@ sub init_models {
     source     => {
       filter => {
         'all:substr:multi::ilike' => $::form->{term}, # all filter spec is set in SL::DB::Manager::Customer
+        or => [ obsolete => undef, obsolete => 0 ],
       },
     },
     sorted     => {

@@ -19,6 +19,18 @@ sub description_field { t8('Contacts') }
 sub query_autocomplete {
   my ($self) = @_;
 
+  my $cv_query = <<SQL;
+    SELECT id FROM customer
+    WHERE (obsolete IS NULL)
+       OR (obsolete = FALSE)
+
+    UNION
+
+    SELECT id FROM vendor
+    WHERE (obsolete IS NULL)
+       OR (obsolete = FALSE)
+SQL
+
   my $result = SL::DB::Manager::Contact->get_all(
     query => [
       or => [
@@ -26,7 +38,7 @@ sub query_autocomplete {
         cp_givenname => { ilike => like($::form->{term}) },
         cp_email     => { ilike => like($::form->{term}) },
       ],
-      cp_cv_id => [ \'SELECT id FROM customer UNION SELECT id FROM vendor' ],
+      cp_cv_id => [ \$cv_query ],
     ],
     limit => 10,
     sort_by => 'cp_name',

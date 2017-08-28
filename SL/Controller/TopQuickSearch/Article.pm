@@ -83,6 +83,7 @@ sub init_models {
     source     => {
       filter => {
         (part_type => $self->part_type) x!!$self->part_type,
+        or => [ obsolete => undef, obsolete => 0 ],
         'all:substr:multi::ilike' => $::form->{term},
       },
     },
