@@ -225,7 +225,7 @@ sub send {
     $self->_store_in_journal('failed', 'driver could not be created; check your configuration & log files');
     $::lxdebug->message(LXDebug::WARN(), "Mailer error during 'send': $error");
 
-    return "send email : $error";
+    return $error;
   }
 
   # Set defaults & headers
@@ -264,7 +264,7 @@ sub send {
 
   $self->{journalentry} = $self->_store_in_journal;
 
-  return $ok ? '' : "send email: $error";
+  return $ok ? '' : ($error || "undefined error");
 }
 
 sub _all_recipients {

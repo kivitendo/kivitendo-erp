@@ -3014,6 +3014,7 @@ $self->{texts} = {
   'The documents have been sent to the printer \'#1\'.' => 'Die Dokumente sind zum Drucker \'#1\' geschickt',
   'The dunnings have been printed.' => 'Die Mahnung(en) wurden gedruckt.',
   'The email has been sent.'    => 'Die E-Mail wurde verschickt.',
+  'The email was not sent due to the following error: #1.' => 'Die E-Mail wurde aufgrund des folgenden Fehlers nicht verschickt: #1',
   'The employee is missing.'    => 'Der Bearbeiter fehlt.',
   'The end date is the last day for which invoices will possibly be created.' => 'Das Enddatum ist das letztmögliche Datum, an dem eine Rechnung erzeugt wird.',
   'The execution schedule is invalid.' => 'Der Ausführungszeitplan ist ungültig.',

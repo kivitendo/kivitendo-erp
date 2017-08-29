@@ -1199,7 +1199,12 @@ sub send_email {
   $mail->{message}  =~ s/\r//g;
   $mail->{message} .= $full_signature;
   $self->{emailerr} = $mail->send();
-  # $self->error($self->cleanup . "$err") if $self->{emailerr};
+
+  if ($self->{emailerr}) {
+    $self->cleanup;
+    $self->error($::locale->text('The email was not sent due to the following error: #1.', $self->{emailerr}));
+  }
+
   $self->{email_journal_id} = $mail->{journalentry};
   $self->{snumbers}  = "emailjournal" . "_" . $self->{email_journal_id};
   $self->{what_done} = $::form->{type};
