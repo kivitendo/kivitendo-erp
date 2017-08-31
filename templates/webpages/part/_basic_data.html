@@ -28,11 +28,7 @@
              <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>
               <td>
-               [%- IF description_area %]
-               <textarea name="description" rows="[% HTML.escape(rows) %]" cols="40" wrap="soft">[% HTML.escape(description) %]</textarea>
-               [%- ELSE %]
-               [% L.input_tag("part.description", SELF.part.description, size=40) %]</td>
-               [%- END %]
+               [% L.areainput_tag("part.description", SELF.part.description, size=40) %]</td>
               </td>
              </tr>
              <tr>
