@@ -279,9 +279,15 @@ sub areainput_tag {
   my $maxrows = delete $attributes{max_rows};
   my $rows    = $::form->numtextrows($value, $cols, $maxrows, $minrows);
 
-  return $rows > 1
-    ? $self->textarea_tag($name, $value, %attributes, rows => $rows, cols => $cols)
-    : $self->input_tag($name, $value, %attributes, size => $cols);
+  $attributes{id} ||= _tag_id();
+  my $id            = $attributes{id};
+
+  return $self->textarea_tag($name, $value, %attributes, rows => $rows, cols => $cols) if $rows > 1;
+
+  return '<span>'
+    . $self->input_tag($name, $value, %attributes, size => $cols)
+    . "<img src=\"image/edit-entry.png\" onclick=\"kivi.switch_areainput_to_textarea('${id}')\" style=\"margin-left: 2px;\">"
+    . '</span>';
 }
 
 sub multiselect2side {

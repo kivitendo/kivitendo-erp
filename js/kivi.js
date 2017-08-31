@@ -535,6 +535,23 @@ namespace("kivi", function(ns) {
 
     return true;
   };
+
+  ns.switch_areainput_to_textarea = function(id) {
+    var $input = $('#' + id);
+    if (!$input.length)
+      return;
+
+    var $area = $('<textarea></textarea>');
+
+    $area.prop('rows', 3);
+    $area.prop('cols', $input.prop('size') || 40);
+    $area.prop('name', $input.prop('name'));
+    $area.prop('id',   $input.prop('id'));
+    $area.val($input.val());
+
+    $input.parent().replaceWith($area);
+    $area.focus();
+  };
 });
 
 kivi = namespace('kivi');
