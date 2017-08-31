@@ -21,7 +21,8 @@ body {
 /* Input elements */
 input,
 textarea,
-select {
+select,
+div.cke_textarea_inline {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   -khtml-border-radius: 0;
@@ -50,7 +51,8 @@ select {
 
 input:focus,
 textarea:focus,
-select:focus {
+select:focus,
+div.cke_textarea_inline:focus {
   background-color: #ffffa0;
   border: 1px solid #fe5f14;
 }
@@ -582,4 +584,16 @@ div.layout-actionbar .layout-actionbar-default-action {
    at the top of the div covering the whole admin area. */
 body > div.admin {
   padding-top: 24px;
+}
+
+/* cke editor */
+.cke_top {
+  padding: 0 !important;
+}
+.cke_toolgroup {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+.cke_button {
+  padding: 0px; 6px !important;
 }

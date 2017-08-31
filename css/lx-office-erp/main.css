@@ -10,7 +10,7 @@ A:hover { color: black;
            text-decoration: none;
          }
 
-input, textarea, select {
+input, textarea, select, div.cke_textarea_inline {
   border: 1px;
   border-color: darkgray lightgray lightgray;
   border-style: solid;
@@ -27,14 +27,14 @@ select {
   padding: 0 14px 0 0;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus, textarea:focus, select:focus, div.cke_textarea_inline:focus {
   background-color: whitesmoke;
   border: 1px;
   border-color: gray lightgray lightgray;
   border-style: solid;
 }
 
-input:hover, textarea:hover, select:hover {
+input:hover, textarea:hover, select:hover, div.cke_textarea_inline:hover {
   border-color: dimgray darkgray darkgray;
 }
 
@@ -586,4 +586,16 @@ div.layout-actionbar-combobox div.layout-actionbar-combobox-head span:after {
 }
 div.layout-actionbar .layout-actionbar-default-action {
   font-weight: bold;
+}
+
+/* cke editor */
+.cke_top {
+  padding: 0 !important;
+}
+.cke_toolgroup {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+.cke_button {
+  padding: 0px; 6px !important;
 }
