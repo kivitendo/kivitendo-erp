@@ -222,17 +222,17 @@ namespace("kivi", function(ns) {
       entities:      false,
       language:      'de',
       removePlugins: 'resize',
-      toolbar:       buttons
-    }
+      extraPlugins:  'inline_resize',
+      toolbar:       buttons,
+      disableAutoInline: true,
+      title:         false
+    };
 
-    var style = $e.prop('style');
-    $(['width', 'height']).each(function(idx, prop) {
-      var matches = (style[prop] || '').match(/(\d+)px/);
-      if (matches && (matches.length > 1))
-        config[prop] = matches[1];
-    });
+   config.height = $e.height();
+   config.width  = $e.width();
 
-    $e.ckeditor(config);
+    var editor = CKEDITOR.inline($e.get(0), config);
+    $e.data('editor', editor);
 
     if ($e.hasClass('texteditor-autofocus'))
       $e.ckeditor(function() { ns.focus_ckeditor($e); });
