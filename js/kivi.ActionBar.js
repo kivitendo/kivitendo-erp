@@ -164,7 +164,7 @@ namespace('kivi.ActionBar', function(k){
         kivi.ActionBar.Accesskeys.add_accesskey(data.submit[0], data.accesskey, $e);
       }
       if (data.call) {
-        kivi.ActionBar.Accesskeys.add_accesskey(undefined, data.accesskey, $e);
+        kivi.ActionBar.Accesskeys.add_accesskey('body', data.accesskey, $e);
       }
       if (data.accesskey == 'enter') {
         $e.addClass(CLASSES.default);
