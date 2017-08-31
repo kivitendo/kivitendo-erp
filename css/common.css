@@ -200,3 +200,16 @@ div.layout-actionbar-combobox-list div.layout-actionbar-action {
   text-align: left;
   padding: 4px;
 }
+
+div.cke_textarea_inline > :first-child {
+  margin-top: 0;
+}
+div.cke_textarea_inline > :last-child {
+  margin-bottom: 0;
+}
+div.cke_textarea_inline {
+  overflow-y: auto;
+}
+div.cke_textarea_inline:focus {
+  outline: 0;
+}
