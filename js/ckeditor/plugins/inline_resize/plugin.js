@@ -94,6 +94,7 @@
     float_space.setStyle( 'cursor', 'se-resize' )
     float_space.on('mousedown', mousedown_fn);
     float_space.unselectable();
+    float_space.hide();
 
     editor.on( 'focus', function( evt ) {
       layout( evt );
