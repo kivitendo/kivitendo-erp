@@ -307,7 +307,7 @@ sub sync_from_backend {
   return unless $params{file_type};
   my $file = SL::DB::File->new;
   $file->file_type($params{file_type});
-  my $backend = $self->_get_backend(dbfile => $file->backend);
+  my $backend = $self->_get_backend($self->_get_backend_by_file_type($file));
   return unless $backend;
   $backend->sync_from_backend(%params);
 }

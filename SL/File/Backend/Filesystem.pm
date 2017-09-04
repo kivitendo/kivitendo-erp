@@ -111,6 +111,34 @@ sub enabled {
   return 1;
 }
 
+sub sync_from_backend {
+  my ($self, %params) = @_;
+  my @query = (file_type => $params{file_type});
+  push @query, (file_name => $params{file_name}) if $params{file_name};
+  push @query, (mime_type => $params{mime_type}) if $params{mime_type};
+  push @query, (source    => $params{source})    if $params{source};
+
+  my $sortby = $params{sort_by} || 'itime DESC,file_name ASC';
+
+  my @files = @{ SL::DB::Manager::File->get_all(query => [@query], sort_by => $sortby) };
+  for (@files) {
+    $main::lxdebug->message(LXDebug->DEBUG2(), "file id=" . $_->id." version=".$_->backend_data);
+    my $newversion = $_->backend_data;
+    for my $version ( reverse 1 .. $_->backend_data ) {
+      my $path = $self->_filesystem_path($_, $version);
+      $main::lxdebug->message(LXDebug->DEBUG2(), "path=".$path." exists=".( -f $path?1:0));
+      last if -f $path;
+      $newversion = $version - 1;
+    }
+    $main::lxdebug->message(LXDebug->DEBUG2(), "newversion=".$newversion." version=".$_->backend_data);
+    if ( $newversion < $_->backend_data ) {
+      $_->backend_data($newversion);
+      $_->save   if $newversion >  0;
+      $_->delete if $newversion <= 0;
+    }
+  }
+
+}
 
 #
 # internals
