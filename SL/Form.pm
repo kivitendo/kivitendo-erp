@@ -1067,14 +1067,14 @@ sub parse_template {
   # therefore copy to webdav, even if we do not have the webdav feature enabled (just archive)
   my $copy_to_webdav =  $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
 
-  if ( $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage ) {
+  if ( $ext_for_format eq 'pdf' && $self->doc_storage_enabled ) {
     $self->append_general_pdf_attachments(filepath =>  $self->{tmpdir}."/".$self->{tmpfile},
                                           type     =>  $self->{type});
   }
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
     Common::copy_file_to_webdav_folder($self)                                                                         if $copy_to_webdav;
-    if (!$self->{preview} && $::instance_conf->get_doc_storage)
+    if (!$self->{preview} && $self->doc_storage_enabled)
     {
       $self->{attachment_filename} ||= $self->generate_attachment_filename;
       $self->store_pdf($self);
@@ -1089,7 +1089,7 @@ sub parse_template {
 
   Common::copy_file_to_webdav_folder($self) if $copy_to_webdav;
 
-  if ( !$self->{preview} && $ext_for_format eq 'pdf' && $::instance_conf->get_doc_storage) {
+  if ( !$self->{preview} && $ext_for_format eq 'pdf' && $self->doc_storage_enabled) {
     $self->{attachment_filename} ||= $self->generate_attachment_filename;
     my $file_obj = $self->store_pdf($self);
     $self->{print_file_id} = $file_obj->id if $file_obj;

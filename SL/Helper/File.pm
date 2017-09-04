@@ -3,13 +3,20 @@ package SL::Helper::File;
 use strict;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(store_pdf append_general_pdf_attachments);
+our @EXPORT_OK = qw(store_pdf append_general_pdf_attachments doc_storage_enabled);
 our %EXPORT_TAGS = (all => \@EXPORT_OK,);
 use SL::File;
 
+sub doc_storage_enabled {
+  return 0 unless $::instance_conf->get_doc_storage;
+  return 1 if     $::instance_conf->get_doc_storage_for_documents eq 'Filesystem' && $::instance_conf->get_doc_files;
+  return 1 if     $::instance_conf->get_doc_storage_for_documents eq 'Webdav'     && $::instance_conf->get_doc_webdav;
+  return 0;
+}
+
 sub store_pdf {
   my ($self, $form) = @_;
-  return unless $::instance_conf->get_doc_storage;
+  return unless $self->doc_storage_enabled;
   my $type = $form->{type};
   $type = $form->{formname}        if $form->{formname} && !$form->{type};
   $type = $form->{attachment_type} if $form->{attachment_type};
@@ -71,7 +78,6 @@ __END__
 =head1 NAME
 
 SL::Helper::File - Helper for $::Form to store generated PDF-Documents
-
 
 =head1 SYNOPSIS
 
