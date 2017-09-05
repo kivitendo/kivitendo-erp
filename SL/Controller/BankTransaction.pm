@@ -101,7 +101,6 @@ sub action_list {
       @where
     ],
   );
- $::lxdebug->log_time('asdf');
   # credit notes have a negative amount, treat differently
   my $all_open_ar_invoices = SL::DB::Manager::Invoice        ->get_all(where => [ or => [ amount => { gt => \'paid' },
                                                                                           and => [ type    => 'credit_note',
@@ -115,7 +114,6 @@ sub action_list {
   my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $bank_account->chart_id ,
                                                                              'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
 
-  $::lxdebug->log_time('asdf 2');
   my @all_open_invoices;
   # filter out invoices with less than 1 cent outstanding
   push @all_open_invoices, map { $_->{is_ar}=1 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ar_invoices };
@@ -141,7 +139,6 @@ sub action_list {
     }
   }
 
- $::lxdebug->log_time('asdf 4');
   # try to match each bank_transaction with each of the possible open invoices
   # by awarding points
   my @proposals;
@@ -202,7 +199,6 @@ sub action_list {
         push(@{$bt->{rule_matches}}, $_->{rule_matches});
       };
     };
-  $::lxdebug->log_time('asdf 5');
   }  # finished one bt
   # finished all bt
 
