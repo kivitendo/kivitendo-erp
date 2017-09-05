@@ -157,41 +157,39 @@ namespace("kivi", function(ns) {
   };
 
   ns.focus_ckeditor_when_ready = function(element) {
-    $(element).ckeditor(function() { ns.focus_ckeditor(element); });
+    $(element).data('ckeditorInstance').on('instanceReady', function() { ns.focus_ckeditor(element); });
   };
 
   ns.focus_ckeditor = function(element) {
-    var editor   = $(element).ckeditorGet();
-		var editable = editor.editable();
-
-		if (editable.is('textarea')) {
-			var textarea = editable.$;
-
-			if (CKEDITOR.env.ie)
-				textarea.createTextRange().execCommand('SelectAll');
-			else {
-				textarea.selectionStart = 0;
-				textarea.selectionEnd   = textarea.value.length;
-			}
-
-			textarea.focus();
-
-		} else {
-			if (editable.is('body'))
-				editor.document.$.execCommand('SelectAll', false, null);
-
-			else {
-				var range = editor.createRange();
-				range.selectNodeContents(editable);
-				range.select();
-			}
-
-			editor.forceNextSelectionCheck();
-			editor.selectionChange();
-
-      editor.focus();
-		}
+    $(element).data('ckeditorInstance').focus();
   };
+
+  ns.selectall_ckeditor = function(element) {
+    var editor   = $(element).ckeditorGet();
+    var editable = editor.editable();
+    if (editable.is('textarea')) {
+      var textarea = editable.$;
+
+      if (CKEDITOR.env.ie)
+        textarea.createTextRange().execCommand('SelectAll');
+      else {
+        textarea.selectionStart = 0;
+        textarea.selectionEnd   = textarea.value.length;
+      }
+    } else {
+      if (editable.is('body'))
+        editor.document.$.execCommand('SelectAll', false, null);
+
+      else {
+        var range = editor.createRange();
+        range.selectNodeContents(editable);
+        range.select();
+      }
+
+      editor.forceNextSelectionCheck();
+      editor.selectionChange();
+    }
+  }
 
   ns.init_tabwidget = function(element) {
     var $element   = $(element);
@@ -228,14 +226,14 @@ namespace("kivi", function(ns) {
       title:         false
     };
 
-   config.height = $e.height();
-   config.width  = $e.width();
+    config.height = $e.height();
+    config.width  = $e.width();
 
     var editor = CKEDITOR.inline($e.get(0), config);
-    $e.data('editor', editor);
+    $e.data('ckeditorInstance', editor);
 
     if ($e.hasClass('texteditor-autofocus'))
-      $e.ckeditor(function() { ns.focus_ckeditor($e); });
+      editor.on('instanceReady', function() { ns.focus_ckeditor($e); });
   };
 
   ns.reinit_widgets = function() {
