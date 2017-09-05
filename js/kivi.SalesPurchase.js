@@ -32,8 +32,6 @@ namespace('kivi.SalesPurchase', function(ns) {
 
     $edit.val(params.default_longdescription);
 
-    kivi.init_text_editor($edit);
-
     $('#popup_edit_longdescription_runningnumber').html(params.runningnumber);
     $('#popup_edit_longdescription_partnumber').html(params.partnumber);
 
