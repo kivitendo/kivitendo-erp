@@ -1,4 +1,4 @@
-use Test::More tests => 130;
+use Test::More tests => 137;
 
 use strict;
 
@@ -76,7 +76,8 @@ test_two_invoices();
 test_partial_payment();
 test_credit_note();
 test_ap_transaction();
-test_neg_ap_transaction();
+test_neg_ap_transaction(invoice => 0);
+test_neg_ap_transaction(invoice => 1);
 test_ap_payment_transaction();
 test_ap_payment_part_transaction();
 test_neg_sales_invoice();
@@ -448,11 +449,11 @@ sub test_credit_note {
 
 sub test_neg_ap_transaction {
   my (%params) = @_;
-  my $testname = 'test_neg_ap_transaction';
+  my $testname = 'test_neg_ap_transaction' . $params{invoice} ? ' invoice booking' : ' credit booking';
   my $netamount = -20;
   my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::PurchaseInvoice->new(
-    invoice      => 0,
+    invoice      => $params{invoice} // 0,
     invnumber    => $params{invnumber} || 'test_neg_ap_transaction',
     amount       => $amount,
     netamount    => $netamount,
