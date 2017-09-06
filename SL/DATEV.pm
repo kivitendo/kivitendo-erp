@@ -420,13 +420,17 @@ sub generate_datev_data {
          'ar' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ar.department_id,
-         ar.notes
+         ar.notes,
+         project.projectnumber as projectnumber, project.description as projectdescription,
+         department.description as departmentdescription
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
        LEFT JOIN chart c     ON (ac.chart_id    = c.id)
        LEFT JOIN tax t       ON (ac.tax_id      = t.id)
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
+       LEFT JOIN department  ON (department.id  = ar.department_id)
+       LEFT JOIN project     ON (project.id     = ar.globalproject_id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -445,13 +449,17 @@ sub generate_datev_data {
          'ap' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ap.department_id,
-         ap.notes
+         ap.notes,
+         project.projectnumber as projectnumber, project.description as projectdescription,
+         department.description as departmentdescription
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
        LEFT JOIN chart c   ON (ac.chart_id  = c.id)
        LEFT JOIN tax t     ON (ac.tax_id    = t.id)
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
+       LEFT JOIN department  ON (department.id  = ap.department_id)
+       LEFT JOIN project     ON (project.id     = ap.globalproject_id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -470,12 +478,15 @@ sub generate_datev_data {
          'gl' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          gl.department_id,
-         gl.notes
+         gl.notes,
+         '' as projectnumber, '' as projectdescription,
+         department.description as departmentdescription
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
        LEFT JOIN tax t   ON (ac.tax_id    = t.id)
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
+       LEFT JOIN department  ON (department.id  = gl.department_id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
