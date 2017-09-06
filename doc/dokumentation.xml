@@ -5391,6 +5391,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
           <para>Die benutzerdefinierten Variablen der Lieferadressen stehen
           unter einem ähnlichen Namensschema zur Verfügung. Hier lautet der
           Präfix <varname>shiptocvar_</varname>.</para>
+
+          <para>Analog stehen die benutzerdefinierten Variablen für Ansprechpersonen mit dem Namenspräfix <varname>cp_cvar_</varname> zur Verfügung.</para>
         </sect3>
       </sect2>
 

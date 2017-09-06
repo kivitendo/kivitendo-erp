@@ -107,6 +107,7 @@ sub flatten_to_form {
   }
 
   _copy_custom_variables($self, $form, 'vc_cvar_', '', $cvar_validity{vc});
+  _copy_custom_variables($self->contact, $form, 'cp_cvar_', '') if $self->contact;
 
   return $self;
 }
@@ -133,7 +134,7 @@ sub _copy {
 sub _copy_custom_variables {
   my ($src, $form, $prefix, $postfix, $cvar_validity) = @_;
 
-  my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem))
+  my $obj = (any { ref($src) eq $_ } qw(SL::DB::OrderItem SL::DB::DeliveryOrderItem SL::DB::InvoiceItem SL::DB::Contact))
           ? $src
           : $src->customervendor;
 

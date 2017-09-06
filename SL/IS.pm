@@ -664,6 +664,13 @@ sub customer_details {
                                                     'trans_id' => $form->{customer_id});
   map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
 
+  if ($form->{cp_id}) {
+    $custom_variables = CVar->get_custom_variables(dbh      => $dbh,
+                                                   module   => 'Contacts',
+                                                   trans_id => $form->{cp_id});
+    $form->{"cp_cvar_$_->{name}"} = $_->{value} for @{ $custom_variables };
+  }
+
   $form->{cp_greeting} = GenericTranslations->get('dbh'              => $dbh,
                                                   'translation_type' => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
                                                   'language_id'      => $language_id,

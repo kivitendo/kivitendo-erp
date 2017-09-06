@@ -1033,6 +1033,13 @@ sub set_customer_cvars {
                                                   translation_type => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
                                                   language_id      => $form->{language_id},
                                                   allow_fallback   => 1);
+  if ($form->{cp_id}) {
+    $custom_variables = CVar->get_custom_variables(dbh      => $form->get_standard_dbh,
+                                                   module   => 'Contacts',
+                                                   trans_id => $form->{cp_id});
+    $form->{"cp_cvar_$_->{name}"} = $_->{value} for @{ $custom_variables };
+  }
+
 }
 
 1;
