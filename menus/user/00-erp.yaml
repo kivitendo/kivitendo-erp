@@ -685,10 +685,20 @@
     action: bank_transfer_add
     vc: vendor
 - parent: cash
-  id: cash_bank_import
+  id: cash_bank_import_menu
   name: Bank Import
   order: 500
   access: bank_transaction
+- parent: cash_bank_import_menu
+  id: cash_bank_import_csv
+  name: Custom CSV format
+  order: 100
+  params:
+    action: CsvImport/new
+    profile.type: bank_transactions
+- parent: cash_bank_import_menu
+  name: SWIFT MT940 format
+  order: 200
   params:
     action: BankImport/upload_mt940
 - parent: cash
@@ -1292,13 +1302,6 @@
   params:
     action: CsvImport/new
     profile.type: ar_transactions
-- parent: system_import_csv
-  id: cash_bank_import_csv
-  name: Bank transactions
-  order: 900
-  params:
-    action: CsvImport/new
-    profile.type: bank_transactions
 - parent: system
   id: system_templates
   name: Templates
