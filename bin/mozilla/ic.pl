@@ -500,7 +500,7 @@ sub generate_report {
       $soldtotal                  = 0 if ($form->{sold});
     }
 
-    my $edit_link               = build_std_url('script=controller.pl', 'action=Part/edit', 'part.id=' . E($ref->{id}), 'callback');
+    my $edit_link               = build_std_url('script=controller.pl', 'action=Part/edit', 'part.id=' . E($ref->{id}));
     $row->{partnumber}->{link}  = $edit_link;
     $row->{description}->{link} = $edit_link;
 

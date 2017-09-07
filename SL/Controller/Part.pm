@@ -42,7 +42,6 @@ __PACKAGE__->run_before('check_part_id', only   => [ qw(edit delete) ]);
 sub action_add_part {
   my ($self, %params) = @_;
 
-  $::form->{callback} = $self->url_for(action => 'add_part') unless $::form->{callback};
   $self->part( SL::DB::Part->new_part );
   $self->add;
 };
@@ -50,7 +49,6 @@ sub action_add_part {
 sub action_add_service {
   my ($self, %params) = @_;
 
-  $::form->{callback} = $self->url_for(action => 'add_service') unless $::form->{callback};
   $self->part( SL::DB::Part->new_service );
   $self->add;
 };
@@ -58,7 +56,6 @@ sub action_add_service {
 sub action_add_assembly {
   my ($self, %params) = @_;
 
-  $::form->{callback} = $self->url_for(action => 'add_assembly') unless $::form->{callback};
   $self->part( SL::DB::Part->new_assembly );
   $self->add;
 };
@@ -66,7 +63,6 @@ sub action_add_assembly {
 sub action_add_assortment {
   my ($self, %params) = @_;
 
-  $::form->{callback} = $self->url_for(action => 'add_assortment') unless $::form->{callback};
   $self->part( SL::DB::Part->new_assortment );
   $self->add;
 };
@@ -194,11 +190,7 @@ sub action_delete {
   if ( $::form->{callback} ) {
     $self->redirect_to($::form->unescape($::form->{callback}));
   } else {
-    my @redirect_params = (
-        controller => 'controller.pl',
-        action     => 'LoginScreen/user_login'
-    );
-    $self->redirect_to(@redirect_params);
+    $self->redirect_to(controller => 'ic.pl', action => 'search', searchitems => 'article');
   }
 }
 
