@@ -572,7 +572,7 @@ sub setup_client {
   my ($self) = @_;
 
   $self->client(SL::DB::Manager::AuthClient->get_default || $self->all_clients->[0]) if !$self->client;
-  $::auth->set_client($self->client->id);
+  $::auth->set_client($self->client->id) if $self->client;
 }
 
 #
