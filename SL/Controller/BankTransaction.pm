@@ -291,9 +291,9 @@ sub action_create_invoice {
     'bank_transactions/create_invoice',
     { layout => 0 },
     title        => t8('Create invoice'),
-    TEMPLATES_GL => $use_vendor_filter ? undef : $templates_gl,
+    TEMPLATES_GL => $use_vendor_filter && @{ $templates_ap } ? undef : $templates_gl,
     TEMPLATES_AP => $templates_ap,
-    vendor_name  => $use_vendor_filter ? $vendor_of_transaction->name : undef,
+    vendor_name  => $use_vendor_filter && @{ $templates_ap } ? $vendor_of_transaction->name : undef,
   );
 }
 
@@ -328,15 +328,13 @@ sub action_filter_templates {
 
   $self->{transaction}      = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
 
-  my @filter;
-  push @filter, ('vendor.name'   => { ilike => '%' . $::form->{vendor} . '%' })    if $::form->{vendor};
-  push @filter, ('template_name' => { ilike => '%' . $::form->{template} . '%' })  if $::form->{template};
-  push @filter, ('reference'     => { ilike => '%' . $::form->{reference} . '%' }) if $::form->{reference};
+  my (@filter, @filter_ap);
 
-  my $templates_ap = SL::DB::Manager::RecordTemplate->get_all(
-    where        => [ template_type => 'ap_transaction', (and => \@filter) x !!@filter ],
-    with_objects => [ qw(employee vendor) ],
-  );
+  # filter => gl and ap | filter_ap = ap (i.e. vendorname)
+  push @filter,    ('template_name' => { ilike => '%' . $::form->{template} . '%' })  if $::form->{template};
+  push @filter,    ('reference'     => { ilike => '%' . $::form->{reference} . '%' }) if $::form->{reference};
+  push @filter_ap, ('vendor.name'   => { ilike => '%' . $::form->{vendor} . '%' })    if $::form->{vendor};
+  push @filter_ap, @filter;
   my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
     query        => [ template_type => 'gl_transaction',
                       chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transaction->local_bank_account_id)->chart_id,
@@ -345,6 +343,10 @@ sub action_filter_templates {
     with_objects => [ qw(employee record_template_items) ],
   );
 
+  my $templates_ap = SL::DB::Manager::RecordTemplate->get_all(
+    where        => [ template_type => 'ap_transaction', (and => \@filter_ap) x !!@filter_ap ],
+    with_objects => [ qw(employee vendor) ],
+  );
   $::form->{filter} //= {};
 
   $self->callback($self->url_for(
