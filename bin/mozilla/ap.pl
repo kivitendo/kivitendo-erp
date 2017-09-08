@@ -744,10 +744,11 @@ sub post {
   my ($inline) = @_;
 
   # check if there is a vendor, invoice, due date and invnumber
-  $form->isblank("transdate", $locale->text("Invoice Date missing!"));
-  $form->isblank("duedate",   $locale->text("Due Date missing!"));
-  $form->isblank("vendor_id", $locale->text('Vendor missing!'));
-  $form->isblank("invnumber", $locale->text('Invoice Number missing!'));
+  $form->isblank("transdate",   $locale->text("Invoice Date missing!"));
+  $form->isblank("duedate",     $locale->text("Due Date missing!"));
+  $form->isblank("vendor_id",   $locale->text('Vendor missing!'));
+  $form->isblank("invnumber",   $locale->text('Invoice Number missing!'));
+  $form->isblank("AP_chart_id", $locale->text('No contra account selected!'));
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {
     $form->{saved_message} = $::locale->text('You have to specify a department.');
