@@ -936,6 +936,8 @@ sub generate_datev_lines {
       }
       $datev_data{datum} = $transaction->[$haben]->{'transdate'};
       $datev_data{waehrung} = 'EUR';
+      $datev_data{kost1} = $transaction->[$haben]->{'departmentdescription'};
+      $datev_data{kost2} = $transaction->[$haben]->{'projectdescription'};
 
       if ($transaction->[$haben]->{'name'} ne "") {
         $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
