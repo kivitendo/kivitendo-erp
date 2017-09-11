@@ -2,7 +2,7 @@ package SL::Dev::Record;
 
 use strict;
 use base qw(Exporter);
-our @EXPORT_OK = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project);
+our @EXPORT_OK = qw(create_invoice_item create_sales_invoice create_credit_note create_order_item  create_sales_order create_purchase_order create_delivery_order_item create_sales_delivery_order create_purchase_delivery_order create_project create_department);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use SL::DB::Invoice;
@@ -278,8 +278,8 @@ sub _create_two_items {
 sub create_project {
   my (%params) = @_;
   my $project = SL::DB::Project->new(
-    projectnumber     => 1,
-    description       => "Test project",
+    projectnumber     => delete $params{projectnumber} // 1,
+    description       => delete $params{description} // "Test project",
     active            => 1,
     valid             => 1,
     project_status_id => SL::DB::Manager::ProjectStatus->find_by(name => "running")->id,
@@ -289,6 +289,17 @@ sub create_project {
   return $project;
 }
 
+sub create_department {
+  my (%params) = @_;
+
+  my $department = SL::DB::Department->new(
+    'description' => delete $params{description} // 'Test Department',
+  )->save;
+
+  $department->assign_attributes(%params) if %params;
+  return $department;
+
+}
 1;
 
 __END__
@@ -401,6 +412,28 @@ Minimal example, creating a project with status "running" and type "Standard":
     projectnumber => 'p1',
     description   => 'Test project',
   )
+
+If C<$params{description}> or C<$params{projectnumber}> exists, this will override the
+default value 'Test project'.
+
+C<%params> should only contain alterable keys from the object Project.
+
+=head2 C<create_department %PARAMS>
+
+Creates a default department.
+
+Minimal example:
+  my $department = SL::Dev::Record::create_department();
+
+  my $department = SL::Dev::Record::create_department(
+    description => 'Hawaii',
+  )
+
+If C<$params{description}> exists, this will override the
+default value 'Test Department'.
+
+C<%params> should only contain alterable keys from the object Department.
+
 
 =head1 TODO
 
