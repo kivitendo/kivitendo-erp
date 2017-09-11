@@ -23,6 +23,8 @@ my $bank            = SL::DB::Manager::Chart->find_by(description => 'Bank')    
 my $date            = DateTime->new(year => 2017, month =>  1, day => 1);
 my $payment_date    = DateTime->new(year => 2017, month =>  1, day => 5);
 my $gldate          = DateTime->new(year => 2017, month =>  2, day => 9); # simulate bookings for Jan being made in Feb
+my $department      = create_department(description => 'Kostenstelle DATEV-Schnittstelle 2018');
+my $project         = create_project(projectnumber => 2017, description => 'Crowd-Funding September 2017');
 
 my $part1 = new_part(partnumber => '19', description => 'Part 19%')->save;
 my $part2 = new_part(
@@ -40,7 +42,9 @@ my $invoice = create_sales_invoice(
   transdate    => $date,
   invoiceitems => [ create_invoice_item(part => $part1, qty =>  3, sellprice => 70),
                     create_invoice_item(part => $part2, qty => 10, sellprice => 50),
-                  ]
+                  ],
+  department_id    => $department->id,
+  globalproject_id => $project->id,
 );
 $invoice->pay_invoice(chart_id      => $bank->id,
                       amount        => $invoice->open_amount,
@@ -53,7 +57,6 @@ my $datev1 = SL::DATEV->new(
   trans_id   => $invoice->id,
 );
 $datev1->generate_datev_data;
-my $kne_lines1 = $datev1->generate_datev_lines;
 cmp_bag $datev1->generate_datev_lines, [
                                          {
                                            'belegfeld1'   => '1 sales invoice',
@@ -61,6 +64,8 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8400',
                                            'konto'        => '1400',
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '249.9',
                                            'waehrung'     => 'EUR'
                                          },
@@ -70,6 +75,8 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8300',
                                            'konto'        => '1400',
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => 535,
                                            'waehrung'     => 'EUR'
                                          },
@@ -79,6 +86,8 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
                                            'konto'        => '1200',
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
                                            'waehrung'     => 'EUR'
                                          },
@@ -150,6 +159,8 @@ sub clear_up {
   SL::DB::Manager::Invoice->delete_all(       all => 1);
   SL::DB::Manager::Customer->delete_all(      all => 1);
   SL::DB::Manager::Part->delete_all(          all => 1);
+  SL::DB::Manager::Project->delete_all(       all => 1);
+  SL::DB::Manager::Department->delete_all(    all => 1);
 };
 
 1;
