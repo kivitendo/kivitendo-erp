@@ -96,7 +96,7 @@
 
     <tr>
       <th align="right">[% 'Partsgroup' | $T8 %]</th>
-      <td>[% P.select_tag("partsgroupd_id", ALL_PARTSGROUPS, title_key="partsgroup", with_empty=1, style=style) %]</td>
+      <td>[% P.select_tag("partsgroup_id", ALL_PARTSGROUPS, title_key="partsgroup", with_empty=1, style=style) %]</td>
       <td align="right" nowrap>[% 'Country' | $T8 %]</td>
       <td>[% P.input_tag("country", "", style=style) %]</td>
     </tr>
