@@ -1896,9 +1896,11 @@ sub _make_record_item {
       if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
         $obj->${\"$method\_as_date"}($value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-        $obj->${\"$method\_as_number"}($value);
+        $obj->${\"$method\_as_number"}(($value // '') eq '' ? undef : $value);
       } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
         $obj->$method(!!$value);
+      } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Big)?(?:Int(?:eger)?|Serial)$/) {
+        $obj->$method(($value // '') eq '' ? undef : $value * 1);
       } else {
         $obj->$method($value);
       }
@@ -1947,9 +1949,11 @@ sub _make_record {
     if ($obj->meta->column($method)->isa('Rose::DB::Object::Metadata::Column::Date')) {
       $obj->${\"$method\_as_date"}($::form->{$method});
     } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Numeric|Float|DoublePrecsion)$/) {
-      $obj->${\"$method\_as_number"}($::form->{$method});
+      $obj->${\"$method\_as_number"}(($::form->{$method} // '') eq '' ? undef : $::form->{$method});
     } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::Boolean$/) {
       $obj->$method(!!$::form->{$method});
+    } elsif ((ref $obj->meta->column($method)) =~ /^Rose::DB::Object::Metadata::Column::(?:Big)?(?:Int(?:eger)?|Serial)$/) {
+      $obj->$method(($::form->{$method} // '') eq '' ? undef : $::form->{$method} * 1);
     } else {
       $obj->$method($::form->{$method});
     }
