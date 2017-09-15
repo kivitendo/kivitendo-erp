@@ -348,7 +348,10 @@ sub log_time {
   return 1 unless want_request_timer();
 
   my $now                    = $self->get_request_time;
-  my $diff                   = int((($now - ($self->{previous_log_time} // 0)) * 10_000 + 5) / 10);
+
+  return 1 unless $now;
+
+  my $diff                   = $self->{previous_log_time} ? int((($now - ($self->{previous_log_time} // 0)) * 10_000 + 5) / 10) : $now * 10_0000 + 5;
   $self->{previous_log_time} = $now;
 
   $self->_write("time", "${now}s Δ ${diff}ms" . (@slurp ? " (@slurp)" : ''));
