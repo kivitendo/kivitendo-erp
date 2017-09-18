@@ -164,7 +164,7 @@ Note that constraints from the rest of the C<record> do not apply anymore. If
 information needed for the retrieval can be deleted elsewhere, then you must
 guard against that.
 
-If the price for the same coditions changed, return the new price. It will be
+If the price for the same conditions changed, return the new price. It will be
 presented as an option to the user if the record is still editable.
 
 If the price is not valid anymore or not reconstructable, return a price with
