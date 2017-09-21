@@ -8,6 +8,9 @@ kleinere neue Features und Detailverbesserungen:
 
   - SEPA-XML: alle Sonderzeichen filtern
   - SEPA-Export: Export wieder rückgängig machen, falls noch Status offen
+  - DATEV-Export: Um Strukturtyp CSV-Export erweitert
+  - DATEV-Export: Kostenstellen (Kost1 und Kost2) vorbelegen
+  - DATEV-Export: Buchungssätze nach Abteilung filtern
   - Stammdaten -> Berichte -> Artikel: Standardlager und Lagerplatz optional anzeigen
   - Vorbelegte Texte inkl. Ansprechpartner für den E-Mail-Versand bei allen Workflows hinzugefügt.
   - DATEV-Export: Buchungen für einen bestimmten Zeitraum ab einem
