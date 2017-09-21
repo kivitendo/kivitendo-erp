@@ -1,0 +1,10 @@
+"EXTF";510;46;"Zahlungsbedingungen";2;20150729093357008;;"RE";"Admin";"";55003;63021;20150101;4;;;"";"";;;;"";;"";;"";;;"";"";
+Nummer;Bezeichnung;Fälligkeitstyp;Skonto 1%;Skonto 1 Tage;Skonto 2 %;Skonto 2 Tage;Fällig Tage;Rechnung bis / Zeitraum 1;Skonto1 Datum / Zeitraum 1;Skonto 1 Monat / Zeitraum 1;Skonto 2 Datum / Zeitraum 1;Skonto 2 Monat / Zeitraum 1;Fällig Datum / Zeitraum 1;Fällig Monat / Zeitraum 1;Rechnung bis / Zeitraum 2;Skonto1 Datum / Zeitraum 2;Skonto 1 Monat / Zeitraum 2;Skonto 2 Datum / Zeitraum 2;Skonto 2 Monat / Zeitraum 2;Fällig Datum / Zeitraum 2;Fällig Monat / Zeitraum 2;Rechnung bis / Zeitraum 3;Skonto1 Datum / Zeitraum 3;Skonto1 Monat / Zeitraum 3;Skonto 2 Datum / Zeitraum 3;Skonto 2 Monat / Zeitraum 3;Fällig Datum / Zeitraum 3;Fällig Monat / Zeitraum 3;Leerfeld;Verwendung
+10;"14 Tage 2% oder 30 Tage Netto";1;200;14;;;30;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+11;"14 Tage 3% oder 30 Tage Netto";1;300;14;200;10;30;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+12;"30 Tage Netto";1;300;10;;;30;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+13;"14 Tage 3% oder 60 Tage Netto";1;300;14;;;60;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+14;"10 Tage 2% oder 30 Tage Netto";1;200;10;;;30;10;20;0;;0;31;0;20;31;0;;0;10;0;31;10;0;;0;20;0;"";
+15;"10 Tage 3% oder 30 Tage Netto";1;300;10;;;30;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+16;"sofort ohne Abzug";1;;;;;;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";
+17;"Vorkasse";1;;;;;;;;0;;0;;0;;;0;;0;;0;;;0;;0;;0;"";

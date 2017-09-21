@@ -34,7 +34,7 @@ my $part2 = new_part(
 )->save;
 
 my $invoice = create_sales_invoice(
-  invnumber    => "1 sales invoice",
+  invnumber    => "Þ sales ¥& invöice",
   itime        => $gldate,
   gldate       => $gldate,
   intnotes     => 'booked in February',
@@ -59,7 +59,7 @@ my $datev1 = SL::DATEV->new(
 $datev1->generate_datev_data;
 cmp_bag $datev1->generate_datev_lines, [
                                          {
-                                           'belegfeld1'   => '1 sales invoice',
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8400',
@@ -67,10 +67,11 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '249.9',
-                                           'waehrung'     => 'EUR'
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => '1 sales invoice',
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8300',
@@ -78,10 +79,11 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => 535,
-                                           'waehrung'     => 'EUR'
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => '1 sales invoice',
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
@@ -89,10 +91,60 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
-                                           'waehrung'     => 'EUR'
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                        ], "trans_id datev check ok";
 
+my $startdate = DateTime->new(year => 2017, month =>  1, day =>  1);
+my $enddate   = DateTime->new(year => 2017, month => 12, day => 31);
+
+# check conversion to csv
+$datev1->from($startdate);
+$datev1->to($enddate);
+
+# splice away the header, because sort won't do
+# we need sort, because pay_invoice is not acc_trans_id order safe
+my @data_csv = splice @{ $datev1->csv_buchungsexport() }, 2, 5;
+@data_csv    = sort { $a->[0] <=> $b->[0] } @data_csv;
+
+my $cp1252_belegfeld1   = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& i');
+my $cp1252_buchungstext = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& invöice');
+
+cmp_bag($data_csv[1], [ 535, 'S', 'EUR', undef, undef, undef, '1400', '8300', undef, '0101', $cp1252_belegfeld1,
+                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef ]
+       );
+
+cmp_bag($data_csv[0], [ '249,9', 'S', 'EUR', undef, undef, undef, '1400', '8400', undef, '0101', $cp1252_belegfeld1,
+                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef ]
+       );
+cmp_bag($data_csv[2], [ '784,9', 'S', 'EUR', undef, undef, undef, '1200', '1400', undef, '0501', $cp1252_belegfeld1,
+                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
+                     undef, undef, undef, undef, undef ]
+        );
 my $march_9 = DateTime->new(year => 2017, month =>  3, day => 9);
 my $invoice2 = create_sales_invoice(
   invnumber    => "2 sales invoice",
@@ -117,9 +169,6 @@ my $credit_note = create_credit_note(
                     create_invoice_item(part => $part2, qty => 10, sellprice => 50),
                   ]
 );
-
-my $startdate = DateTime->new(year => 2017, month =>  1, day =>  1);
-my $enddate   = DateTime->new(year => 2017, month => 12, day => 31);
 
 my $datev = SL::DATEV->new(
   dbh        => $dbh,
@@ -161,6 +210,7 @@ sub clear_up {
   SL::DB::Manager::Part->delete_all(          all => 1);
   SL::DB::Manager::Project->delete_all(       all => 1);
   SL::DB::Manager::Department->delete_all(    all => 1);
+  SL::DATEV->clean_temporary_directories;
 };
 
 1;

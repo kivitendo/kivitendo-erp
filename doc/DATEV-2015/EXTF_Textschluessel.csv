@@ -1,0 +1,10 @@
+"EXTF";510;44;"Textschlüssel";2;20150729103107277;;"RE";"Admin";"";29098;55003;20150101;7;;;"";"";;;;"";;"";;;"";;;"";""
+TS-Nr.;Beschriftung;Ref.-TS;Konto Soll;Konto Haben;Sprach-ID
+30;"Weizen";30;5005000;4000000;"de-DE"
+31;"Winterweizen";30;5005000;4000000;"de-DE"
+32;"Dinkel";30;5005000;4000000;"de-DE"
+33;"Sommerweizen";33;5005000;4000000;"de-DE"
+34;"corn";30;5005000;4000000;"en-GB"
+35;"oat";35;5005000;4000000;"en-GB"
+38;"Energiegetreide";38;5005000;4100000;"de-DE"
+39;"durum wheat";39;5005000;4000000;"en-GB"

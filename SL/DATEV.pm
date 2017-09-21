@@ -32,9 +32,11 @@ use strict;
 
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
+use SL::DATEV::CSV;
 use SL::DB;
 use SL::HTML::Util ();
 use SL::Locale::String qw(t8);
+use SL::Iconv qw(convert);
 
 use Data::Dumper;
 use DateTime;
@@ -345,7 +347,26 @@ sub kne_export {
 }
 
 sub csv_export {
-  die 'not yet implemented';
+  my ($self) = @_;
+  my $result;
+
+  die 'no exporttype set!' unless $self->has_exporttype;
+
+  if ($self->exporttype == DATEV_ET_BUCHUNGEN) {
+    _csv_buchungsexport_to_file($self, data => $self->csv_buchungsexport);
+
+  } elsif ($self->exporttype == DATEV_ET_STAMM) {
+    die 'will never be implemented';
+    # 'Background: Export should only contain non
+    #  DATEV-Charts and DATEV import will only
+    #  import new Charts.'
+  } elsif ($self->exporttype == DATEV_ET_CSV) {
+    $result = $self->csv_export_for_tax_accountant;
+  } else {
+    die 'unrecognized exporttype';
+  }
+
+return $result;
 }
 
 sub obe_export {
@@ -800,9 +821,6 @@ sub datetofour {
 
   my ($day, $month, $year) = split(/\./, $date);
 
-  if ($day =~ /^0/) {
-    $day = substr($day, 1, 1);
-  }
   if (length($month) < 2) {
     $month = "0" . $month;
   }
@@ -949,7 +967,7 @@ sub generate_datev_lines {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
       }
     }
-
+    $datev_data{soll_haben_kennzeichen} = (0 < $umsatz) ? 'H' : 'S';
     $datev_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???
 
     # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
@@ -1325,6 +1343,98 @@ sub csv_export_for_tax_accountant {
   return { download_token => $self->download_token, filenames => \@filenames };
 }
 
+sub csv_buchungsexport {
+  my $self = shift;
+  my %params = @_;
+
+  $self->generate_datev_data(from_to => $self->fromto);
+  return if $self->errors;
+
+  my @datev_lines = @{ $self->generate_datev_lines };
+
+  my @csv_columns = SL::DATEV::CSV->kivitendo_to_datev();
+  my @csv_headers = SL::DATEV::CSV->generate_csv_header(
+                      from                     => $self->from->ymd(''),
+                      to                       => $self->to->ymd(''),
+                      first_day_of_fiscal_year => $self->to->year . '0101',
+                      locked                   => 0
+                    );
+
+  my @array_of_datev;
+
+  # 2 Headers
+  push @array_of_datev, \@csv_headers;
+  push @array_of_datev, [ map { $_->{csv_header_name} } @csv_columns ];
+
+  foreach my $row ( @datev_lines ) {
+    my @current_datev_row;
+
+    # format transformation
+    foreach (qw(belegfeld1 kost1 kost2)) {
+      $row->{$_} = SL::Iconv::convert("UTF-8", "CP1252", $row->{$_}) if $row->{$_};
+    }
+    # shorten strings
+    if ($row->{belegfeld1}) {
+      $row->{buchungsbes} = $row->{belegfeld1} if $row->{belegfeld1};
+      $row->{belegfeld1}  = substr($row->{belegfeld1}, 0, 12);
+      $row->{buchungsbes} = substr($row->{buchungsbes}, 0, 60);
+    }
+
+    $row->{datum}       = datetofour($row->{datum}, 0);
+    $row->{kost1}       = substr($row->{kost1}, 0, 8) if $row->{kost1};
+    $row->{kost2}       = substr($row->{kost2}, 0, 8) if $row->{kost2};
+
+    # , as decimal point and trim for UstID
+    $row->{umsatz}      =~ s/\./,/;
+    $row->{ustid}       =~ s/\s//g if $row->{ustid}; # trim whitespace
+
+    foreach my $column (@csv_columns) {
+      if (exists $column->{max_length} && $column->{kivi_datev_name} ne 'not yet implemented') {
+        # check max length
+        die "Incorrect lenght of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
+      }
+      if (exists $column->{valid_check} && $column->{kivi_datev_name} ne 'not yet implemented') {
+        # more checks
+        die "Not a valid value: '$row->{ $column->{kivi_datev_name} }'" .
+            " for '$column->{kivi_datev_name}' with amount '$row->{umsatz}'"
+              unless ($column->{valid_check}->($row->{ $column->{kivi_datev_name} }));
+      }
+      push @current_datev_row, $row->{ $column->{kivi_datev_name} };
+    }
+    push @array_of_datev, \@current_datev_row;
+  }
+  return \@array_of_datev;
+}
+
+sub _csv_buchungsexport_to_file {
+  my $self   = shift;
+  my %params = @_;
+
+  # we can definitely deny shorter data structures
+  croak ("Need at least 2 rows for header info") unless scalar @{ $params{data} } > 1;
+
+  my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
+  my @data = \$params{data};
+
+  # EXTF_Buchungsstapel.csv: ISO-8859 text, with very long lines, with CRLF line terminators
+  my $csv = Text::CSV_XS->new({
+              binary       => 1,
+              sep_char     => ";",
+              always_quote => 1,
+              eol          => "\r\n",
+            }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
+
+  if ($csv->version >= 1.18) {
+    # get rid of stupid datev warnings in "Validity program"
+    $csv->quote_empty(1);
+  }
+
+  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(iso-8859-1)') or die "Can't open: $!";
+  $csv->print($csv_file, $_) for @{ $params{data} };
+  $csv_file->close;
+
+  return { download_token => $self->download_token, filenames => $params{filename} };
+}
 sub DESTROY {
   clean_temporary_directories();
 }
@@ -1522,6 +1632,35 @@ Example:
   #                  ]
   # };
 
+
+=item csv_buchungsexport
+
+Generates the CSV-Format data for the CSV DATEV export and returns
+an 2-dimensional array as an array_ref.
+
+Requires $self->fromto for a valid DATEV header.
+
+Furthermore we assume that the first day of the fiscal year is
+the first of January and we cannot guarantee that our data in kivitendo
+is locked, that means a booking cannot be modified after a defined (vat tax)
+period.
+Some validity checks (max_length and regex) will be done if the
+data structure contains them and the field is defined.
+
+To add or alter the structure of the data take a look at SL::DATEV::CSV.pm
+
+=item _csv_buchungsexport_to_file
+
+Generates one downloadable csv file wrapped in a zip archive.
+Basically this method is just a thin wrapper for TEXT::CSV_XS.pm
+
+Generates a CSV-file with the same encodings as defined in DATEV Format CSV 2015:
+ $ file
+ $ EXTF_Buchungsstapel.csv: ISO-8859 text, with very long lines, with CRLF line terminators
+
+Usage: _csv_buchungsexport_to_file($self, data => $self->csv_buchungsexport);
+
+
 =back
 
 =head1 ATTRIBUTES
@@ -1650,6 +1789,7 @@ OBE export is currently not implemented.
 =head1 SEE ALSO
 
 L<SL::DATEV::KNEFile>
+L<SL::DATEV::CSV>
 
 =head1 AUTHORS
 
