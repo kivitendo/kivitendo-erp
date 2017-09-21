@@ -1939,7 +1939,7 @@ sub setup_sales_purchase_print_options {
   $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
   $print_form->{languages} = SL::DB::Manager::Language->get_all_sorted;
 
-  $print_form->{$_} = $::form->{$_} for qw(type media language_id printer_id);
+  $print_form->{$_} = $::form->{$_} for qw(type media language_id printer_id storno);
 
   return SL::Helper::PrintOptions->get_print_options(
     form    => $print_form,
