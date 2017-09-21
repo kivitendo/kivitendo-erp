@@ -2,8 +2,6 @@ package SL::SEPA::XML::Transaction;
 
 use strict;
 
-use SL::DB::Helper::ReplaceSpecialChars qw(replace_special_chars);
-
 use Carp;
 use Encode;
 use List::Util qw(first);
@@ -37,7 +35,7 @@ sub _init {
 
   map { $self->{$_} = $self->{sepa}->{iconv}->convert($params{$_})       } keys %params;
   map { $self->{$_} =~ s/\s+//g                                          } qw(src_iban src_bic dst_iban dst_bic);
-  map { $self->{$_} = replace_special_chars($self->{$_}) } qw(company reference end_to_end_id);
+  map { $self->{$_} = $self->{sepa}->_replace_special_chars($self->{$_}) } qw(company reference end_to_end_id);
 }
 
 sub get {

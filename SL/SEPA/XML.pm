@@ -12,7 +12,6 @@ use XML::Writer;
 
 use SL::Iconv;
 use SL::SEPA::XML::Transaction;
-use SL::DB::Helper::ReplaceSpecialChars qw(replace_special_chars);
 
 sub new {
   my $class = shift;
@@ -41,7 +40,7 @@ sub _init {
   croak "Missing parameter: $missing_parameter" if ($missing_parameter);
   croak "Missing parameter: creditor_id"        if !$self->{creditor_id} && $self->{collection};
 
-  map { $self->{$_} = replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id creditor_id);
+  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id creditor_id);
 }
 
 sub add_transaction {
@@ -53,6 +52,31 @@ sub add_transaction {
   }
 
   return 1;
+}
+
+sub _replace_special_chars {
+  my $self = shift;
+  my $text = shift;
+
+  my %special_chars = (
+    'ä' => 'ae',
+    'ö' => 'oe',
+    'ü' => 'ue',
+    'Ä' => 'Ae',
+    'Ö' => 'Oe',
+    'Ü' => 'Ue',
+    'ß' => 'ss',
+    '&' => '+',
+    '`' => '\'',
+    );
+
+  map { $text =~ s/$_/$special_chars{$_}/g; } keys %special_chars;
+
+  # for all other non ascii chars 'OLÉ S.L.' and 'Årdberg AB'!
+  use Text::Unidecode qw(unidecode);
+  $text = unidecode($text);
+
+  return $text;
 }
 
 sub _format_amount {

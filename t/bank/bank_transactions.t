@@ -1,4 +1,4 @@
-use Test::More tests => 138;
+use Test::More tests => 137;
 
 use strict;
 
@@ -119,7 +119,7 @@ sub reset_state {
   )->save;
 
   $customer = new_customer(
-    name                      => 'Test Customer OLÉ S.L. Årdbärg AB',
+    name                      => 'Test Customer',
     iban                      => 'DE12500105170648489890',
     bic                       => 'TESTBIC',
     account_number            => '648489890',
@@ -710,15 +710,6 @@ sub test_sepa_export {
     vc_depositor   => $customer->depositor,
     amount         => $ar_transaction->amount,
   );
-  require SL::SEPA::XML;
-  my $sepa_xml   = SL::SEPA::XML->new('company'     => $customer->name,
-                                      'creditor_id' => "id",
-                                      'src_charset' => 'UTF-8',
-                                      'message_id'  => "test",
-                                      'grouped'     => 1,
-                                      'collection'  => 1,
-                                     );
-  is($sepa_xml->{company}    , 'Test Customer OLE S.L. Ardbaerg AB');
 
   $ar_transaction->load;
   $bt->load;
