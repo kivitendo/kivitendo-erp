@@ -1,0 +1,55 @@
+[%- USE HTML %]
+[%- USE T8 %]
+[%- USE L -%]
+[%- USE P -%]
+[%- USE LxERP -%]
+[%- USE Dumper -%]
+
+[%  LxERP.t8("Part") %]: [% HTML.escape(SELF.shop_part.part.displayable_name) %]<br>
+[%  LxERP.t8("Shop") %]: [% HTML.escape(SELF.shop_part.shop.description) %]
+<br>
+[% # Dumper.dump_html(SELF.shop_part.shop_category) %]
+<br>
+[% # Dumper.dump_html(CATEGORIES) %]
+
+<form action="controller.pl" method="post">
+  [% BLOCK recurse %]
+    [% # path = '' %]<!-- TODO: Pfad wg neuer Kategorie im Shop anlegen -->
+    [% FOREACH obj = data %]
+      <ul>
+        <li>
+        [% checked = '' %]
+        [% # path = path _ obj.name %]
+        [% # test = path.split('\|') %]
+        [% # Dumper.dump_html(SELF.shop_part.shop_category) %]
+        [% IF SELF.shop_part.shop_category.1.grep(obj.name).size %]
+          [% checked = 'checked' %]
+        [% ELSE %]
+          [% FOREACH cat_row = SELF.shop_part.shop_category %]
+            [% IF cat_row.1.grep(obj.name).size %]
+              [% checked = 'checked' %]
+            [% END %]
+          [% END %]
+        [% END %]
+          [% L.checkbox_tag('categories[]',value=obj.id, checked=checked) %][% HTML.escape(obj.name) %][% L.hidden_tag("cat_id_" _ obj.id, obj.name) %]</li>
+        [% IF obj.childrenCount >= 1 %]
+          [% # path = path _ '|' %]
+          [% INCLUDE recurse data=obj.children %]
+        [% END %]
+      </ul>
+    [% END %]
+  [% END %]
+  <div><h2>[% LxERP.t8("Shopcategories") %]</h2>
+      [% FOREACH row = CATEGORIES %]
+<!-- TODO: Is still hardcoded 'Root' is shopware specified -->
+        [% IF row.name == 'Root' %]
+          [% IF row.childrenCount >= 1 %]
+            [% path = '' %]
+            [% INCLUDE recurse data=row.children path=path %]
+          [% END %]
+        [% END %]
+      [% END %]
+  </div>
+    [% L.button_tag("kivi.ShopPart.save_categories(" _ SELF.shop_part.id _", " _ SELF.shop_part.shop.id _")", LxERP.t8("Save"))  %]</td>
+</form>
+
