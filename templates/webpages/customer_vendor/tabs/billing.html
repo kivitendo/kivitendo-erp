@@ -353,6 +353,10 @@
      <tr>
       <th align="right">[%- LxERP.t8("Hourly rate") %]</th>
       <td>[% L.input_tag("cv.hourly_rate_as_number", SELF.cv.hourly_rate_as_number) %]</td>
+      <th align="right" valign="top" nowrap>[% 'Shoporderlock' | $T8 %]</th>
+      <td>
+        [% L.checkbox_tag('cv.order_lock', checked = SELF.cv.order_lock, for_submit=1) %]
+      </td>
      </tr>
     [% END %]
   </table>

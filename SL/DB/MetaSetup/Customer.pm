@@ -46,6 +46,7 @@ __PACKAGE__->meta->columns(
   name                      => { type => 'text', not_null => 1 },
   notes                     => { type => 'text' },
   obsolete                  => { type => 'boolean', default => 'false' },
+  order_lock                => { type => 'boolean', default => 'false' },
   payment_id                => { type => 'integer' },
   phone                     => { type => 'text' },
   pricegroup_id             => { type => 'integer' },
