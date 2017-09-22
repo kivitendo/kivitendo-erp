@@ -39,6 +39,8 @@ BEGIN {
   { name => "JSON",                                url => "http://search.cpan.org/~makamaka",   debian => 'libjson-perl' },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/", debian => 'liblist-moreutils-perl' },
   { name => "List::UtilsBy",                       url => "http://search.cpan.org/~pevans/",    debian => 'liblist-utilsby-perl' },
+  { name => "LWP::Authen::Digest",                 url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
+  { name => "LWP::UserAgent",                      url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Params::Validate",                    url => "http://search.cpan.org/~drolsky/",   debian => 'libparams-validate-perl' },
   { name => "PBKDF2::Tiny",    version => '0.005', url => "http://search.cpan.org/~arodland/", },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
