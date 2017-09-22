@@ -367,6 +367,27 @@
   params:
     action: Letter/list
     is_sales: 1
+- id: webshop
+  name: Webshop
+  order: 250
+- parent: webshop
+  id: webshop_import
+  name: Webshop Import
+  access: shop_order
+  params:
+    action: ShopOrder/list
+    filter.transferred:eq_ignore_empty: 0
+    filter.obsolete: 0
+    db: shop_orders
+    sort_by: shop_ordernumber
+- parent: webshop
+  id: webshop_articles
+  name: Webshop articles
+  access: shop_part_edit
+  params:
+    action: ShopPart/list_articles
+    db: shop_parts
+    sort_by: part.onhand
 - id: ap
   name: AP
   icon: ap
@@ -1242,6 +1263,13 @@
   module: am.pl
   params:
     action: list_warehouses
+- parent: system
+  id: system_shops
+  name: Web shops
+  order: 2350
+  access: edit_shop_config
+  params:
+    action: Shop/list
 - parent: system
   id: system_import_csv
   name: Import CSV
