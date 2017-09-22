@@ -640,7 +640,6 @@ sub action_ajaj_autocomplete {
 }
 
 sub action_test_page {
-  $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $_[0]->render('customer_vendor/test_page');
 }
 
@@ -939,7 +938,6 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts('autocomplete_customer.js');
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
   $::request->{layout}->add_javascripts('kivi.File.js');
 

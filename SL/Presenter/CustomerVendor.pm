@@ -53,18 +53,17 @@ sub customer_vendor_picker {
   }
 
   my $id = delete($params{id}) || $self->name_to_id($name);
-  my $fat_set_item = delete $params{fat_set_item};
 
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'customer_vendor_autocomplete';
-  push @classes, 'customer-vendor-picker-fat-set-item' if $fat_set_item;
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(type)) .
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
+      'data-customer-vendor-picker-data' => JSON::to_json(\%params),
+    ) .
     $self->input_tag("", ref $value  ? $value->displayable_name : '', id => "${id}_name", %params);
 
-  $::request->layout->add_javascripts('autocomplete_customer.js');
+  $::request->layout->add_javascripts('kivi.CustomerVendor.js');
   $::request->presenter->need_reinit_widgets($id);
 
   $self->html_tag('span', $ret, class => 'customer_vendor_picker');

@@ -18,7 +18,7 @@
             empty_title = LxERP.t8('New contact'),
             value_key = 'cp_id',
             title_key = 'full_name',
-            onchange = "kivi.CustomerVendor.selectContact({onFormSet: function(){ contactsMapWidget.testInputs(); local_reinit_widgets(); }});",
+            onchange = "kivi.CustomerVendor.selectContact({onFormSet: function(){ contactsMapWidget.testInputs(); kivi.reinit_widgets(); }});",
           )
         %]
       </td>

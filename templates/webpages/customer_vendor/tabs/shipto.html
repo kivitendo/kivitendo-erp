@@ -16,7 +16,7 @@
              title_key = 'displayable_id',
              with_empty = 1,
              empty_title = LxERP.t8('New shipto'),
-             onchange = "kivi.CustomerVendor.selectShipto({onFormSet: function(){ shiptoMapWidget.testInputs(); local_reinit_widgets(); }});",
+             onchange = "kivi.CustomerVendor.selectShipto({onFormSet: function(){ shiptoMapWidget.testInputs(); kivi.reinit_widgets(); }});",
            )
         %]
       </td>
