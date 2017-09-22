@@ -22,6 +22,7 @@ use SL::Presenter::RequirementSpec;
 use SL::Presenter::RequirementSpecItem;
 use SL::Presenter::RequirementSpecTextBlock;
 use SL::Presenter::SepaExport;
+use SL::Presenter::ShopOrder;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 use SL::Presenter::BankAccount;
