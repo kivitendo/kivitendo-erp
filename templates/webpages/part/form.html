@@ -41,6 +41,9 @@
     [%- IF CUSTOM_VARIABLES.size %]
     <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
     [%- END %]
+    [% IF AUTH.assert('shop_part_edit', 1) && SELF.part.id && SELF.part.shop %]
+    <li><a href="#shop_variables">[% 'Shop variables' | $T8 %]</a></li>
+    [% END %]
    </ul>
 
    <div id="basic_data">
@@ -67,6 +70,11 @@
    <div id="sales_price_information">
      [% PROCESS part/_sales_price_information.html id=SELF.part.id %]
    </div>
+   [% IF AUTH.assert('shop_part_edit', 1) && SELF.part.id %]
+   <div id="shop_variables">
+     [% PROCESS 'part/_shop.html' %]
+   </div>
+   [%- END %]
    [%- END %]
 
    [%- IF CUSTOM_VARIABLES.size %]
