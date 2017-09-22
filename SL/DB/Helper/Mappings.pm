@@ -196,6 +196,7 @@ my %kivitendo_package_names = (
   schema_info                    => 'schema_info',
   shipto                         => 'shipto',
   shops                          => 'shop',
+  shop_images                    => 'shop_image',
   shop_orders                    => 'shop_order',
   shop_order_items               => 'shop_order_item',
   shop_parts                     => 'shop_part',

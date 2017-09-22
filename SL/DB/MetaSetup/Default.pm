@@ -55,6 +55,7 @@ __PACKAGE__->meta->columns(
   doc_storage_for_attachments               => { type => 'text', default => 'Filesystem' },
   doc_storage_for_documents                 => { type => 'text', default => 'Filesystem' },
   doc_storage_for_images                    => { type => 'text', default => 'Filesystem' },
+  doc_storage_for_shopimages                => { type => 'text', default => 'Filesystem' },
   doc_webdav                                => { type => 'boolean', default => 'false' },
   dunning_ar                                => { type => 'integer' },
   dunning_ar_amount_fee                     => { type => 'integer' },

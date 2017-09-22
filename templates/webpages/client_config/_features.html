@@ -59,6 +59,14 @@
     <td>[% LxERP.t8('Use this storage backend for uploaded images') %]</td>
   </tr>
   <tr>
+    <td align="right">[% LxERP.t8('Storage Type for shopimages') %]</td>
+    <td>[% L.select_tag('defaults.doc_storage_for_shopimages',
+         [ [ 'None', LxERP.t8('None') ], [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_shopimages,
+                               onchange="return checkavailable_filebackend(this);") %]</td>
+    <td>[% LxERP.t8('Use this storage backend for uploaded images') %]</td>
+  </tr>
+  <tr>
    <td align="right">[% LxERP.t8('Delete printfiles') %]</td>
    <td>[% L.yes_no_tag('defaults.doc_delete_printfiles', SELF.defaults.doc_delete_printfiles) %]</td>
    <td>[% LxERP.t8('Allow to delete generated printfiles') %]</td>
