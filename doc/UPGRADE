@@ -4,6 +4,24 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v3.5.1
+
+* Neue Perlabhängigkeiten
+
+  * LWP::Authen::Digest für WebshopApi
+  * LWP::UserAgent für WebshopApi
+
+* Verwendung der WebshopApi
+
+  * Bestehende Datenbanken, die die WebshopApi verwenden sollen benötigen die
+    Postgres Erweiterung pg_trgm
+    Diese kann wie folgt installiert werden:
+
+    su - postgres
+    psql <DATENBANK>
+    CREATE EXTENSION IF NOT EXISTS pg_trgm;
+    \q
+
 Upgrade auf v3.5.0
 ===========================
 

@@ -1,42 +1,43 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
    <title>2.13. OpenDocument-Vorlagen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s12.html" title="2.12. Drucken mit kivitendo"><link rel="next" href="ch02s14.html" title="2.14. Nomenklatur"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.13. OpenDocument-Vorlagen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s12.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s14.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.13. OpenDocument-Vorlagen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="OpenDocument-Vorlagen"></a>2.13. OpenDocument-Vorlagen</h2></div></div></div><p>kivitendo unterstützt die Verwendung von Vorlagen im
-      OpenDocument-Format, wie es LibreOffice oder OpenOffice (ab Version 2) erzeugen.
-      kivitendo kann dabei sowohl neue OpenDocument-Dokumente als auch aus
-      diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
+      OpenDocument-Format, wie es LibreOffice oder OpenOffice (ab Version 2)
+      erzeugen. kivitendo kann dabei sowohl neue OpenDocument-Dokumente als
+      auch aus diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
       OpenDocument-Vorlagen zu aktivieren muss in der Datei
       <code class="filename">config/kivitendo.conf</code> die Variable
       <code class="literal">opendocument</code> im Abschnitt
       <code class="literal">print_templates</code> auf ‘<code class="literal">1</code>’ stehen.
       Dieses ist die Standardeinstellung.</p><p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
       weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-      LibreOffice oder OpenOffice benötigt. Soll dieses Feature genutzt werden, so muss
-      neben LibreOffice oder OpenOffice auch der “X virtual frame buffer”
-      (xvfb) installiert werden. Bei Debian ist er im Paket “xvfb” enthalten.
-      Andere Distributionen enthalten ihn in anderen Paketen.</p><p>Nach der Installation müssen in der Datei
+      LibreOffice oder OpenOffice benötigt. Soll dieses Feature genutzt
+      werden, so muss neben LibreOffice oder OpenOffice auch der “X virtual
+      frame buffer” (xvfb) installiert werden. Bei Debian ist er im Paket
+      “xvfb” enthalten. Andere Distributionen enthalten ihn in anderen
+      Paketen.</p><p>Nach der Installation müssen in der Datei
       <code class="filename">config/kivitendo.conf</code> im Abschnitt
-      <code class="literal">applications</code> zwei weitere Variablen
-      angepasst werden:</p><p>
-            <code class="literal">openofficeorg_writer</code> muss den
-      vollständigen Pfad zu LibreOffice oder OpenOffice enthalten.
-      Dabei dürfen keine Anführungszeichen eingesetzt werden.</p><p>Beispiel für Debian oder Ubuntu:</p><pre class="programlisting">openofficeorg_writer = /usr/bin/libreoffice</pre><p>
+      <code class="literal">applications</code> zwei weitere Variablen angepasst
+      werden:</p><p>
+            <code class="literal">openofficeorg_writer</code> muss den vollständigen
+      Pfad zu LibreOffice oder OpenOffice enthalten. Dabei dürfen keine
+      Anführungszeichen eingesetzt werden.</p><p>Beispiel für Debian oder Ubuntu:</p><pre class="programlisting">openofficeorg_writer = /usr/bin/libreoffice</pre><p>
             <code class="literal">xvfb</code> muss den Pfad zum “X virtual frame buffer”
       enthalten.</p><p>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
-      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die benutzt
-      wird, wenn die Variable <code class="literal">$openofficeorg_daemon</code> gesetzt
-      ist, startet ein LibreOffice oder OpenOffice, das auch nach der Umwandlung
-      des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen wird dann diese
-      laufende Instanz benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung
-      deutlich reduziert wird, weil nicht für jedes Dokument ein LibreOffice bzw.
-      OpenOffice gestartet werden muss. Der Nachteil ist, dass diese Methode
-      Python und die Python-UNO-Bindings benötigt, die Bestandteil von LibreOffice
-      bzw. OpenOffice sind.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für die Verbindung zu LibreOffice bzw. OpenOffice wird
+      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die
+      benutzt wird, wenn die Variable <code class="literal">$openofficeorg_daemon</code>
+      gesetzt ist, startet ein LibreOffice oder OpenOffice, das auch nach der
+      Umwandlung des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen
+      wird dann diese laufende Instanz benutzt. Der Vorteil ist, dass die Zeit
+      zur Umwandlung deutlich reduziert wird, weil nicht für jedes Dokument
+      ein LibreOffice bzw. OpenOffice gestartet werden muss. Der Nachteil ist,
+      dass diese Methode Python und die Python-UNO-Bindings benötigt, die
+      Bestandteil von LibreOffice bzw. OpenOffice sind.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für die Verbindung zu LibreOffice bzw. OpenOffice wird
         normalerweise der Python-Interpreter
-        <code class="filename">/usr/bin/python</code> benutzt.
-        Sollte dies nicht der richtige sein, so kann man mit zwei
-        Konfigurationsvariablen entscheiden, welcher Python-Interpreter
-        genutzt wird. Mit der Option <code class="literal">python_uno</code> aus dem
-        Abschnitt <code class="literal">applications</code> wird der Interpreter selber
+        <code class="filename">/usr/bin/python</code> benutzt. Sollte dies nicht der
+        richtige sein, so kann man mit zwei Konfigurationsvariablen
+        entscheiden, welcher Python-Interpreter genutzt wird. Mit der Option
+        <code class="literal">python_uno</code> aus dem Abschnitt
+        <code class="literal">applications</code> wird der Interpreter selber
         festgelegt; sie steht standardmäßig auf dem eben erwähnten Wert
         <code class="literal">/usr/bin/python</code>.</p><p>Zusätzlich ist es möglich, Pfade anzugeben, in denen Python
         neben seinen normalen Suchpfaden ebenfalls nach Modulen gesucht wird,
@@ -48,22 +49,21 @@
         voneinander getrennt werden. Der Inhalt wird an den Python-Interpreter
         über die Umgebungsvariable <code class="literal">PYTHONPATH</code>
         übergeben.</p></td></tr></table></div><p>Ist <code class="literal">$openofficeorg_daemon</code> nicht gesetzt, so
-      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet
-      und die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses
-      Makro muss in der Dokumentenvorlage enthalten sein und
+      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet und
+      die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses Makro muss
+      in der Dokumentenvorlage enthalten sein und
       “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
-      ‘<code class="literal">templates/print/rev-odt/invoice.odt</code>’
-      enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
-      ebenfalls enthalten sein muss.</p><p>Als letztes muss herausgefunden werden, welchen Namen
-      OpenOffice bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen
-      gibt. Unter Debian ist dies momentan
-      <code class="literal">~/.config/libreoffice</code>. kivitendo verwendet das
-      Verzeichnis <code class="literal">users/.openoffice.org2</code>.
-      Eventuell muss dieses Verzeichnis umbenannt werden.</p><p>Dieses Verzeichnis, wie auch das komplette
+      ‘<code class="literal">templates/print/rev-odt/invoice.odt</code>’ enthält ein
+      solches Makro, das in jeder anderen Dokumentenvorlage ebenfalls
+      enthalten sein muss.</p><p>Als letztes muss herausgefunden werden, welchen Namen OpenOffice
+      bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen gibt.
+      Unter Debian ist dies momentan <code class="literal">~/.config/libreoffice</code>.
+      kivitendo verwendet das Verzeichnis
+      <code class="literal">users/.openoffice.org2</code>. Eventuell muss dieses
+      Verzeichnis umbenannt werden.</p><p>Dieses Verzeichnis, wie auch das komplette
       <code class="literal">users</code>-Verzeichnis, muss vom Webserver beschreibbar
-      sein. Dieses wurde bereits erledigt (siehe <a class="xref" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), kann aber
-      erneut überprüft werden, wenn die Konvertierung nach PDF
-      fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2233"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
+      sein. Dieses wurde bereits erledigt (siehe <a class="xref" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), kann aber erneut
+      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2233"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
         Aufgaben erfüllen.</p><p>Der Vorlagensatz "rev-odt" enthält solche Vorlagen mit <span class="bold"><strong>Schweizer Bank-Einzahlungsscheinen (BESR)</strong></span>.
         Diese Makros haben die Aufgabe, die in den Einzahlungsscheinen
         benötigte Referenznummer und Kodierzeile zu erzeugen. Hier eine kurze
@@ -73,19 +73,17 @@
           sales_order_besr.odt</p></div><div class="sect3" title="2.13.1.2. Vorbereitungen im Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2251"></a>2.13.1.2. Vorbereitungen im Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
           Standardvorlage ohne Einzahlungsschein weitere Vorlagen (z.B. mit
           Einzahlungsschein) auswählbar sind, muss für jedes Vorlagen-Suffix
-          ein Drucker eingerichtet werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Druckeradministration → Drucker hinzufügen</p></li><li class="listitem"><p>Mandant wählen</p></li><li class="listitem"><p>Druckerbeschreibung → aussagekräftiger Text: wird in
-              der Auftrags- bzw. Rechnungsmaske als Auswahl angezeigt (z.B.
-              mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Druckbefehl → beliebiger Text (hat für das Erzeugen
-              von Aufträgen oder Rechnungen als odt-Datei keine Bedeutung,
-              darf aber nicht leer sein)</p></li><li class="listitem"><p>Vorlagenkürzel → besr bzw. selbst gewähltes
-              Vorlagensuffix (muss genau der Zeichenfolge entsprechen, die
-              zwischen "invoice_" bzw. "sales_order_" und ".odt"
-              steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2275"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
+          ein Drucker eingerichtet werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Druckeradministration → Drucker hinzufügen</p></li><li class="listitem"><p>Mandant wählen</p></li><li class="listitem"><p>Druckerbeschreibung → aussagekräftiger Text: wird in der
+              Auftrags- bzw. Rechnungsmaske als Auswahl angezeigt (z.B. mit
+              Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Druckbefehl → beliebiger Text (hat für das Erzeugen von
+              Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
+              aber nicht leer sein)</p></li><li class="listitem"><p>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
+              (muss genau der Zeichenfolge entsprechen, die zwischen
+              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2275"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
           im Rechnungs- bzw. Auftragsformular angezeigt haben möchte, kann
           dies persönlich für sich bei den Benutzereinstellungen
-          konfigurieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Programm → Benutzereinstellungen →
-              Druckoptionen</p></li><li class="listitem"><p>Standardvorlagenformat → OpenDocument/OASIS</p></li><li class="listitem"><p>Standardausgabekanal → Bildschirm</p></li><li class="listitem"><p>Standarddrucker → gewünschte Druckerbeschreibung
-              auswählen (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2299"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
+          konfigurieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Programm → Benutzereinstellungen → Druckoptionen</p></li><li class="listitem"><p>Standardvorlagenformat → OpenDocument/OASIS</p></li><li class="listitem"><p>Standardausgabekanal → Bildschirm</p></li><li class="listitem"><p>Standarddrucker → gewünschte Druckerbeschreibung auswählen
+              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2299"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
           aus dem von kivitendo erzeugten odt-Dokument die korrekte
           Referenznummer inklusive Prüfziffer sowie die Kodierzeile in
           OCRB-Schrift erzeugen und am richtigen Ort ins Dokument
@@ -122,13 +120,12 @@
           wurde.</p></div><div class="sect3" title="2.13.1.6. Makroeinstellungen in LibreOffice anpassen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2368"></a>2.13.1.6. Makroeinstellungen in LibreOffice anpassen</h4></div></div></div><p>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
           die Meldung kommt, dass Makros aus Sicherheitsgründen nicht
           ausgeführt werden, so müssen folgende Einstellungen in LibreOffice
-          angepasst werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Extras → Optionen → Sicherheit →
-              Makrosicherheit</p></li><li class="listitem"><p>Sicherheitslevel auf "Mittel" einstellen (Diese
+          angepasst werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Extras → Optionen → Sicherheit → Makrosicherheit</p></li><li class="listitem"><p>Sicherheitslevel auf "Mittel" einstellen (Diese
               Einstellung muss auf jedem Computer durchgeführt werden, mit dem
               von kivitendo erzeugte odt-Rechnungen oder Aufträge geöffnet
               werden.)</p></li><li class="listitem"><p>Beim Öffnen einer odt-Rechnung oder eines odt-Auftrags bei
-              der entsprechenden Nachfrage "Makros ausführen" auswählen.
-              </p><p>
+              der entsprechenden Nachfrage "Makros ausführen"
+              auswählen.</p><p>
                         <span class="bold"><strong>Wichtig</strong></span>: die Makros sind
               so eingestellt, dass sie beim Öffnen der Vorlagen selbst nicht
               ausgeführt werden. Das heisst für das Ansehen und Bearbeiten der

@@ -143,8 +143,9 @@
         <title>Benötigte Perl-Pakete installieren</title>
 
         <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
-        Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen Version
-        (s.a. Liste der unterstützten Betriebssysteme) benötigt.</para>
+        Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
+        Version (s.a. Liste der unterstützten Betriebssysteme)
+        benötigt.</para>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
         Bestandteil einer Standard-Perl-Installation sind. Um zu überprüfen,
@@ -303,7 +304,7 @@
             <para><literal>Text::Iconv</literal></para>
           </listitem>
 
-           <listitem>
+          <listitem>
             <para><literal>Text::Unidecode</literal></para>
           </listitem>
 
@@ -319,8 +320,9 @@
             <para><literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
-        <para>Seit Version größer v3.5.0 sind die folgenden Pakete hinzugekommen:
-        <literal>Text::Unidecode</literal></para>
+
+        <para>Seit Version größer v3.5.0 sind die folgenden Pakete
+        hinzugekommen: <literal>Text::Unidecode</literal></para>
 
         <para>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
         <literal>Algorithm::CheckDigits</literal><literal>PBKDF2::Tiny</literal></para>
@@ -428,6 +430,7 @@ cpan HTML::Restrict</programlisting>
           <programlisting>cpan Rose::Db::Object</programlisting>
         </sect3>
       </sect2>
+
       <sect2>
         <title>Andere Pakete installieren</title>
 
@@ -448,7 +451,6 @@ cpan HTML::Restrict</programlisting>
 
         <para>OpenSuSE: <programlisting>zypper install poppler-tools</programlisting></para>
       </sect2>
-
     </sect1>
 
     <sect1 id="Manuelle-Installation-des-Programmpaketes"
@@ -512,10 +514,9 @@ tar xvzf kivitendo-erp-3.4.1.tgz</programlisting>
 git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</programlisting>
-        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag -l listet
-       alle Tags auf, das egrep schmeisst alle Einträge mit beta oder rc raus und
-       das tail gibt davon den obersten Treffer zurück).
-
+        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit beta
+        oder rc raus und das tail gibt davon den obersten Treffer zurück).
         Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
         erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
         verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
@@ -523,9 +524,8 @@ git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</programlisting>
         url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
         Git Magic</ulink>).</para>
 
-<para>
-        Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von 3.4.1 nach 3.5:
-        <programlisting>
+        <para>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
+        3.4.1 nach 3.5: <programlisting>
 $ git clone https://github.com/kivitendo/kivitendo-erp.git
 $ cd kivitendo-erp/
 $ git checkout release-3.4.1     # das ist der aktuelle release, den wir wollen
@@ -682,29 +682,40 @@ password =
 [system]
 default_manager = german</programlisting>
 
-		<para>Für kivitendo Installationen in der Schweiz sollte hier <varname>german</varname>
-		durch <varname>swiss</varname> ersetzt werden.</para>
-		<para>Die Einstellung <varname>default_manager = swiss</varname> bewirkt:</para>
-		<itemizedlist>
-            <listitem>
-              <para>Beim Erstellen einer neuen Datenbank in der kivitendo Administration
-              werden automatisch die Standard-Werte für die Schweiz voreingestellt:
-              Währung CHF, 5er-Rundung, Schweizer KMU-Kontenplan, Sollversteuerung,
-              Aufwandsmethode, Bilanzierung (die Werte können aber manuell angepasst werden).</para>
-			</listitem>
-			<listitem>
-				<para>Einstellen der Standardkonten für Rundungserträge und -aufwendungen
-			(unter Mandantenkonfiguration → Standardkonten veränderbar)</para>
-			</listitem>
-			<listitem>
-				<para>das verwendete Zahlenformat wird auf <varname>1'000.00</varname> eingestellt
-				 (unter Programm → Benutzereinstellungen veränderbar)</para>
-			</listitem>
-			<listitem>
-				<para>DATEV-Automatik und UStVA werden nicht angezeigt, Erfolgsrechnung
-				ersetzt GUV ( unter Mandantenkonfiguration → Features veränderbar)</para>
-			</listitem>
-		</itemizedlist>
+        <para>Für kivitendo Installationen in der Schweiz sollte hier
+        <varname>german</varname> durch <varname>swiss</varname> ersetzt
+        werden.</para>
+
+        <para>Die Einstellung <varname>default_manager = swiss</varname>
+        bewirkt:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Beim Erstellen einer neuen Datenbank in der kivitendo
+            Administration werden automatisch die Standard-Werte für die
+            Schweiz voreingestellt: Währung CHF, 5er-Rundung, Schweizer
+            KMU-Kontenplan, Sollversteuerung, Aufwandsmethode, Bilanzierung
+            (die Werte können aber manuell angepasst werden).</para>
+          </listitem>
+
+          <listitem>
+            <para>Einstellen der Standardkonten für Rundungserträge und
+            -aufwendungen (unter Mandantenkonfiguration → Standardkonten
+            veränderbar)</para>
+          </listitem>
+
+          <listitem>
+            <para>das verwendete Zahlenformat wird auf
+            <varname>1'000.00</varname> eingestellt (unter Programm →
+            Benutzereinstellungen veränderbar)</para>
+          </listitem>
+
+          <listitem>
+            <para>DATEV-Automatik und UStVA werden nicht angezeigt,
+            Erfolgsrechnung ersetzt GUV ( unter Mandantenkonfiguration →
+            Features veränderbar)</para>
+          </listitem>
+        </itemizedlist>
 
         <para>Nutzt man wiederkehrende Rechnungen, kann man unter
         <varname>[periodic_invoices]</varname> den Login eines Benutzers
@@ -1038,7 +1049,6 @@ Require all denied
             <programlisting>
   Order Deny,Allow
   Deny from All </programlisting>
-
           </warning>
 
           <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
@@ -1098,8 +1108,8 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
         url="http://redmine.kivitendo-premium.de/boards/1/topics/142">Foreneintrag
-        (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017)
-        <ulink url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
+        (Stand Sept. 2015)</ulink> und einen aktuellen (Stand Mai 2017) <ulink
+        url="https://mozilla.github.io/server-side-tls/ssl-config-generator/">
         SSL-Konfigurations-Generator</ulink>.</para>
       </sect2>
     </sect1>
@@ -1121,12 +1131,12 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
       Servers integriert werden muss, damit er automatisch gestartet wird.
       Dies kann kivitendo nicht für Sie erledigen.</para>
 
-      <para>Da der Taskserver als Perlscript läuft, wird Arbeitsspeicher,
-      der einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
+      <para>Da der Taskserver als Perlscript läuft, wird Arbeitsspeicher, der
+      einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
       solange der Taskserver läuft. Dies kann dazu führen, dass ein länger
       laufender Taskserver mit der Zeit immer mehr Arbeitsspeicher für sich
-      beansprucht. Es ist deshalb sinnvoll, dass der Taskserver in regelmässigen
-      Abständen neu gestartet wird.</para>
+      beansprucht. Es ist deshalb sinnvoll, dass der Taskserver in
+      regelmässigen Abständen neu gestartet wird.</para>
 
       <sect2 id="Konfiguration-des-Task-Servers">
         <title>Verfügbare und notwendige Konfigurationsoptionen</title>
@@ -1191,8 +1201,8 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         anstelle eines symbolischen Links verwendet werden können.</para>
 
         <sect3>
-          <title>SystemV-basierende Systeme (z.B. ältere Debian, ältere OpenSUSE,
-          ältere Fedora)</title>
+          <title>SystemV-basierende Systeme (z.B. ältere Debian, ältere
+          OpenSUSE, ältere Fedora)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/system-v/kivitendo-task-server</filename>
@@ -1241,18 +1251,23 @@ insserv kivitendo-task-server</programlisting>
           <title>systemd-basierende Systeme (z.B. neure openSUSE, neuere
           Fedora, neuere Ubuntu und neuere Debians)</title>
 
-          <para>Kopieren Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
-          <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeilen
-          <literal>ExecStart=....</literal> und <literal>ExecStop=...</literal>).</para>
+          <para>Kopieren Sie die Datei
+          <filename>scripts/boot/systemd/kivitendo-task-server.service</filename>
+          nach <filename>/etc/systemd/system/</filename>. Passen Sie in der
+          kopierten Datei den Pfad zum Task-Server an (Zeilen
+          <literal>ExecStart=....</literal> und
+          <literal>ExecStop=...</literal>).</para>
 
-          <para>Machen Sie anschließend das Script systemd bekannt, und binden Sie es in den Boot-Prozess ein. Dazu führen Sie die folgenden
-          Befehl aus:</para>
+          <para>Machen Sie anschließend das Script systemd bekannt, und binden
+          Sie es in den Boot-Prozess ein. Dazu führen Sie die folgenden Befehl
+          aus:</para>
 
           <programlisting>systemctl daemon-reload
 systemctl enable kivitendo-task-server.service</programlisting>
 
-          <para>Wenn Sie den Task-Server jetzt sofort starten möchten, anstatt den Server neu zu starten, so können Sie das mit dem
-          folgenden Befehl tun:</para>
+          <para>Wenn Sie den Task-Server jetzt sofort starten möchten, anstatt
+          den Server neu zu starten, so können Sie das mit dem folgenden
+          Befehl tun:</para>
 
           <programlisting>systemctl start kivitendo-task-server.service</programlisting>
         </sect3>
@@ -2234,14 +2249,14 @@ systemctl enable kivitendo-task-server.service</programlisting>
         und nicht nur Teile davon, da dies sonst oft zu einer odt-Datei führt,
         die vom Parser nicht korrekt gelesen werden kann.</para>
 
-        <para>Mahnungen können unter folgenden Einschränkungen mit den odt-Vorlagen
-        im Vorlagensatz rev-odt erzeugt werden:</para>
+        <para>Mahnungen können unter folgenden Einschränkungen mit den
+        odt-Vorlagen im Vorlagensatz rev-odt erzeugt werden:</para>
 
         <itemizedlist>
           <listitem>
             <para>als Druckoption steht nur 'PDF(OpenDocument/OASIS)' zur
-            Verfügung, das heisst, die Mahnungen werden als PDF-Datei ausgegeben.
-            </para>
+            Verfügung, das heisst, die Mahnungen werden als PDF-Datei
+            ausgegeben.</para>
           </listitem>
 
           <listitem>
@@ -2254,10 +2269,10 @@ systemctl enable kivitendo-task-server.service</programlisting>
         <para>Mehrere Mahnungen für eine Kundin / einen Kunden werden zu einer
         PDF-Datei zusammengefasst</para>
 
-        <para>Die Vorlagen zahlungserinnerung.odt sowie mahnung.odt sind für das
-        Erstellen einer Zahlungserinnerung bzw. Mahnung selbst vorgesehen, die
-        Vorlage mahnung_invoice.odt für das Erstellen einer Rechnung über die
-        verrechneten Mahngebühren und Verzugszinsen.</para>
+        <para>Die Vorlagen zahlungserinnerung.odt sowie mahnung.odt sind für
+        das Erstellen einer Zahlungserinnerung bzw. Mahnung selbst vorgesehen,
+        die Vorlage mahnung_invoice.odt für das Erstellen einer Rechnung über
+        die verrechneten Mahngebühren und Verzugszinsen.</para>
 
         <para>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
         odt-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
@@ -2358,9 +2373,9 @@ systemctl enable kivitendo-task-server.service</programlisting>
       <title>OpenDocument-Vorlagen</title>
 
       <para>kivitendo unterstützt die Verwendung von Vorlagen im
-      OpenDocument-Format, wie es LibreOffice oder OpenOffice (ab Version 2) erzeugen.
-      kivitendo kann dabei sowohl neue OpenDocument-Dokumente als auch aus
-      diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
+      OpenDocument-Format, wie es LibreOffice oder OpenOffice (ab Version 2)
+      erzeugen. kivitendo kann dabei sowohl neue OpenDocument-Dokumente als
+      auch aus diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
       OpenDocument-Vorlagen zu aktivieren muss in der Datei
       <filename>config/kivitendo.conf</filename> die Variable
       <literal>opendocument</literal> im Abschnitt
@@ -2369,42 +2384,47 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
       <para>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
       weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-      LibreOffice oder OpenOffice benötigt. Soll dieses Feature genutzt werden, so muss
-      neben LibreOffice oder OpenOffice auch der “X virtual frame buffer”
-      (xvfb) installiert werden. Bei Debian ist er im Paket “xvfb” enthalten.
-      Andere Distributionen enthalten ihn in anderen Paketen.</para>
+      LibreOffice oder OpenOffice benötigt. Soll dieses Feature genutzt
+      werden, so muss neben LibreOffice oder OpenOffice auch der “X virtual
+      frame buffer” (xvfb) installiert werden. Bei Debian ist er im Paket
+      “xvfb” enthalten. Andere Distributionen enthalten ihn in anderen
+      Paketen.</para>
 
       <para>Nach der Installation müssen in der Datei
       <filename>config/kivitendo.conf</filename> im Abschnitt
-      <literal>applications</literal> zwei weitere Variablen
-      angepasst werden:</para>
-      <para><literal>openofficeorg_writer</literal> muss den
-      vollständigen Pfad zu LibreOffice oder OpenOffice enthalten.
-      Dabei dürfen keine Anführungszeichen eingesetzt werden.</para>
+      <literal>applications</literal> zwei weitere Variablen angepasst
+      werden:</para>
+
+      <para><literal>openofficeorg_writer</literal> muss den vollständigen
+      Pfad zu LibreOffice oder OpenOffice enthalten. Dabei dürfen keine
+      Anführungszeichen eingesetzt werden.</para>
+
       <para>Beispiel für Debian oder Ubuntu:</para>
+
       <programlisting>openofficeorg_writer = /usr/bin/libreoffice</programlisting>
+
       <para><literal>xvfb</literal> muss den Pfad zum “X virtual frame buffer”
       enthalten.</para>
 
       <para>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
-      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die benutzt
-      wird, wenn die Variable <literal>$openofficeorg_daemon</literal> gesetzt
-      ist, startet ein LibreOffice oder OpenOffice, das auch nach der Umwandlung
-      des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen wird dann diese
-      laufende Instanz benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung
-      deutlich reduziert wird, weil nicht für jedes Dokument ein LibreOffice bzw.
-      OpenOffice gestartet werden muss. Der Nachteil ist, dass diese Methode
-      Python und die Python-UNO-Bindings benötigt, die Bestandteil von LibreOffice
-      bzw. OpenOffice sind.</para>
+      LibreOffice bzw. OpenOffice kommuniziert. Die erste Variante, die
+      benutzt wird, wenn die Variable <literal>$openofficeorg_daemon</literal>
+      gesetzt ist, startet ein LibreOffice oder OpenOffice, das auch nach der
+      Umwandlung des Dokumentes gestartet bleibt. Bei weiteren Umwandlungen
+      wird dann diese laufende Instanz benutzt. Der Vorteil ist, dass die Zeit
+      zur Umwandlung deutlich reduziert wird, weil nicht für jedes Dokument
+      ein LibreOffice bzw. OpenOffice gestartet werden muss. Der Nachteil ist,
+      dass diese Methode Python und die Python-UNO-Bindings benötigt, die
+      Bestandteil von LibreOffice bzw. OpenOffice sind.</para>
 
       <note>
         <para>Für die Verbindung zu LibreOffice bzw. OpenOffice wird
         normalerweise der Python-Interpreter
-        <filename>/usr/bin/python</filename> benutzt.
-        Sollte dies nicht der richtige sein, so kann man mit zwei
-        Konfigurationsvariablen entscheiden, welcher Python-Interpreter
-        genutzt wird. Mit der Option <literal>python_uno</literal> aus dem
-        Abschnitt <literal>applications</literal> wird der Interpreter selber
+        <filename>/usr/bin/python</filename> benutzt. Sollte dies nicht der
+        richtige sein, so kann man mit zwei Konfigurationsvariablen
+        entscheiden, welcher Python-Interpreter genutzt wird. Mit der Option
+        <literal>python_uno</literal> aus dem Abschnitt
+        <literal>applications</literal> wird der Interpreter selber
         festgelegt; sie steht standardmäßig auf dem eben erwähnten Wert
         <literal>/usr/bin/python</literal>.</para>
 
@@ -2421,27 +2441,26 @@ systemctl enable kivitendo-task-server.service</programlisting>
       </note>
 
       <para>Ist <literal>$openofficeorg_daemon</literal> nicht gesetzt, so
-      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet
-      und die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses
-      Makro muss in der Dokumentenvorlage enthalten sein und
+      wird für jedes Dokument LibreOffice bzw. OpenOffice neu gestartet und
+      die Konvertierung mit Hilfe eines Makros durchgeführt. Dieses Makro muss
+      in der Dokumentenvorlage enthalten sein und
       “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
-      ‘<literal>templates/print/rev-odt/invoice.odt</literal>’
-      enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
-      ebenfalls enthalten sein muss.</para>
+      ‘<literal>templates/print/rev-odt/invoice.odt</literal>’ enthält ein
+      solches Makro, das in jeder anderen Dokumentenvorlage ebenfalls
+      enthalten sein muss.</para>
 
-      <para>Als letztes muss herausgefunden werden, welchen Namen
-      OpenOffice bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen
-      gibt. Unter Debian ist dies momentan
-      <literal>~/.config/libreoffice</literal>. kivitendo verwendet das
-      Verzeichnis <literal>users/.openoffice.org2</literal>.
-      Eventuell muss dieses Verzeichnis umbenannt werden.</para>
+      <para>Als letztes muss herausgefunden werden, welchen Namen OpenOffice
+      bzw. LibreOffice dem Verzeichnis mit den Benutzereinstellungen gibt.
+      Unter Debian ist dies momentan <literal>~/.config/libreoffice</literal>.
+      kivitendo verwendet das Verzeichnis
+      <literal>users/.openoffice.org2</literal>. Eventuell muss dieses
+      Verzeichnis umbenannt werden.</para>
 
       <para>Dieses Verzeichnis, wie auch das komplette
       <literal>users</literal>-Verzeichnis, muss vom Webserver beschreibbar
       sein. Dieses wurde bereits erledigt (siehe <xref
-      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber
-      erneut überprüft werden, wenn die Konvertierung nach PDF
-      fehlschlägt.</para>
+      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber erneut
+      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</para>
 
       <sect2>
         <title>OpenDocument (odt) Druckvorlagen mit Makros</title>
@@ -2482,22 +2501,21 @@ systemctl enable kivitendo-task-server.service</programlisting>
             </listitem>
 
             <listitem>
-              <para>Druckerbeschreibung → aussagekräftiger Text: wird in
-              der Auftrags- bzw. Rechnungsmaske als Auswahl angezeigt (z.B.
-              mit Einzahlungsschein Bank xy)</para>
+              <para>Druckerbeschreibung → aussagekräftiger Text: wird in der
+              Auftrags- bzw. Rechnungsmaske als Auswahl angezeigt (z.B. mit
+              Einzahlungsschein Bank xy)</para>
             </listitem>
 
             <listitem>
-              <para>Druckbefehl → beliebiger Text (hat für das Erzeugen
-              von Aufträgen oder Rechnungen als odt-Datei keine Bedeutung,
-              darf aber nicht leer sein)</para>
+              <para>Druckbefehl → beliebiger Text (hat für das Erzeugen von
+              Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
+              aber nicht leer sein)</para>
             </listitem>
 
             <listitem>
-              <para>Vorlagenkürzel → besr bzw. selbst gewähltes
-              Vorlagensuffix (muss genau der Zeichenfolge entsprechen, die
-              zwischen "invoice_" bzw. "sales_order_" und ".odt"
-              steht.)</para>
+              <para>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
+              (muss genau der Zeichenfolge entsprechen, die zwischen
+              "invoice_" bzw. "sales_order_" und ".odt" steht.)</para>
             </listitem>
 
             <listitem>
@@ -2516,8 +2534,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
           <itemizedlist>
             <listitem>
-              <para>Programm → Benutzereinstellungen →
-              Druckoptionen</para>
+              <para>Programm → Benutzereinstellungen → Druckoptionen</para>
             </listitem>
 
             <listitem>
@@ -2529,8 +2546,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
             </listitem>
 
             <listitem>
-              <para>Standarddrucker → gewünschte Druckerbeschreibung
-              auswählen (z.B. mit Einzahlungsschein Bank xy)</para>
+              <para>Standarddrucker → gewünschte Druckerbeschreibung auswählen
+              (z.B. mit Einzahlungsschein Bank xy)</para>
             </listitem>
 
             <listitem>
@@ -2606,8 +2623,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
                   </listitem>
 
                   <listitem>
-					<para>DDDEND: muss am Ende der Zeile vorhanden sein</para>
-				  </listitem>
+                    <para>DDDEND: muss am Ende der Zeile vorhanden sein</para>
+                  </listitem>
                 </itemizedlist></para>
             </listitem>
 
@@ -2655,8 +2672,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
           <itemizedlist>
             <listitem>
-              <para>Extras → Optionen → Sicherheit →
-              Makrosicherheit</para>
+              <para>Extras → Optionen → Sicherheit → Makrosicherheit</para>
             </listitem>
 
             <listitem>
@@ -2668,8 +2684,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
             <listitem>
               <para>Beim Öffnen einer odt-Rechnung oder eines odt-Auftrags bei
-              der entsprechenden Nachfrage "Makros ausführen" auswählen.
-              </para>
+              der entsprechenden Nachfrage "Makros ausführen"
+              auswählen.</para>
 
               <para><emphasis role="bold">Wichtig</emphasis>: die Makros sind
               so eingestellt, dass sie beim Öffnen der Vorlagen selbst nicht
@@ -2688,42 +2704,42 @@ systemctl enable kivitendo-task-server.service</programlisting>
       <sect2 id="booking.dates">
         <title>Datum bei Buchungen</title>
 
-        <para>Seit der Version 3.5 werden für Buchungen in kivitendo einheitlich
-        folgende Bezeichnungen verwendet:</para>
+        <para>Seit der Version 3.5 werden für Buchungen in kivitendo
+        einheitlich folgende Bezeichnungen verwendet:</para>
 
         <itemizedlist>
           <listitem>
-            <para><option>Erfassungsdatum</option> (en: <option>Entry Date</option>,
-            code: <option>Gldate</option>)</para>
+            <para><option>Erfassungsdatum</option> (en: <option>Entry
+            Date</option>, code: <option>Gldate</option>)</para>
 
-            <para>bezeichnet das Datum, an dem die Buchung in kivitendo erfasst wurde.
-            </para>
+            <para>bezeichnet das Datum, an dem die Buchung in kivitendo
+            erfasst wurde.</para>
           </listitem>
 
           <listitem>
-            <para><option>Buchungsdatum</option> (en: <option>Booking Date</option>,
-            code: <option>Transdate</option>)</para>
+            <para><option>Buchungsdatum</option> (en: <option>Booking
+            Date</option>, code: <option>Transdate</option>)</para>
 
-            <para>bezeichnet das buchhaltungstechnisch für eine Buchung relevante
-            Datum</para>
+            <para>bezeichnet das buchhaltungstechnisch für eine Buchung
+            relevante Datum</para>
 
             <para>Das <option>Rechnungsdatum</option> bei Verkaufs- und
             Einkaufsrechnungen entspricht dem Buchungsdatum. Das heisst, in
             Berichten wie dem Buchungsjournal, in denen eine Spalte
-            <option>Buchungsdatum</option> angezeigt werden kann, erscheint hier
-            im Fall von Rechnungen das Rechnungsdatum.</para>
+            <option>Buchungsdatum</option> angezeigt werden kann, erscheint
+            hier im Fall von Rechnungen das Rechnungsdatum.</para>
           </listitem>
 
           <listitem>
-            <para>Bezieht sich ein verbuchter Beleg auf einen Zeitpunkt, der nicht mit
-            dem Buchungsdatum übereinstimmt, so kann dieses Datum momentan in kivitendo
-            nur unter Bemerkungen erfasst werden.</para>
+            <para>Bezieht sich ein verbuchter Beleg auf einen Zeitpunkt, der
+            nicht mit dem Buchungsdatum übereinstimmt, so kann dieses Datum
+            momentan in kivitendo nur unter Bemerkungen erfasst werden.</para>
 
-            <para>Möglicherweise wird für solche Fälle in einer späteren Version von
-            kivitendo ein dritter Datumswert für Buchungen erstellt. (Beispiel:
-            Einkaufsbeleg stammt aus einem früheren Jahr, das bereits
-            buchhaltungstechnisch abgeschlossen wurde, und muss deshalb später
-            verbucht werden.)</para>
+            <para>Möglicherweise wird für solche Fälle in einer späteren
+            Version von kivitendo ein dritter Datumswert für Buchungen
+            erstellt. (Beispiel: Einkaufsbeleg stammt aus einem früheren Jahr,
+            das bereits buchhaltungstechnisch abgeschlossen wurde, und muss
+            deshalb später verbucht werden.)</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -2814,21 +2830,23 @@ systemctl enable kivitendo-task-server.service</programlisting>
         eingestellt werden.</para>
 
         <para>Für die Schweiz sind folgende Einstellungen üblich:
-		<itemizedlist>
+        <itemizedlist>
             <listitem>
-				<para>Sollversteuerung</para>
+              <para>Sollversteuerung</para>
             </listitem>
+
             <listitem>
-				<para>Aufwandsmethode</para>
-			</listitem>
-			<listitem>
-				<para>Bilanzierung</para>
-			</listitem>
-		</itemizedlist>
-		Diese Einstellungen werden automatisch beim Erstellen einer neuen
-		Datenbank vorausgewählt, wenn in <filename>config/kivitendo.conf</filename> unter
-		<varname>[system]</varname> <literal>default_manager = swiss</literal> eingestellt ist.
-        </para>
+              <para>Aufwandsmethode</para>
+            </listitem>
+
+            <listitem>
+              <para>Bilanzierung</para>
+            </listitem>
+          </itemizedlist> Diese Einstellungen werden automatisch beim
+        Erstellen einer neuen Datenbank vorausgewählt, wenn in
+        <filename>config/kivitendo.conf</filename> unter
+        <varname>[system]</varname> <literal>default_manager = swiss</literal>
+        eingestellt ist.</para>
 
         <para>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
         Variablen werden so gesetzt, daß sich an der Funktionalität nichts
@@ -2907,9 +2925,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Die folgenden Schritte sind notwendig, um das Konto manuell
         anzulegen und zu konfigurieren. Zuerst wird in
-        <guimenu>System</guimenu> →
-        <guisubmenu>Kontenübersicht</guisubmenu> → <guimenuitem>Konto
-        erfassen</guimenuitem> das Konto angelegt.</para>
+        <guimenu>System</guimenu> → <guisubmenu>Kontenübersicht</guisubmenu> →
+        <guimenuitem>Konto erfassen</guimenuitem> das Konto angelegt.</para>
 
         <screenshot>
           <screeninfo>Konto 3804 erfassen</screeninfo>
@@ -2940,9 +2957,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Als Drittes wird ein neuer Eintrag mit Steuerschlüssel 13 für
         Konto 3804 (19%) angelegt. Dazu unter <guimenu>System</guimenu> →
-        <guisubmenu>Steuern</guisubmenu> →
-        <guimenuitem>Erfassen</guimenuitem> auswählen und die Werte aus dem
-        Screenshot übernehmen.</para>
+        <guisubmenu>Steuern</guisubmenu> → <guimenuitem>Erfassen</guimenuitem>
+        auswählen und die Werte aus dem Screenshot übernehmen.</para>
 
         <screenshot>
           <screeninfo>Steuerschlüssel 13 für 3804 (19%) anlegen</screeninfo>
@@ -3045,88 +3061,102 @@ systemctl enable kivitendo-task-server.service</programlisting>
     </sect1>
 
     <sect1 id="config.erfolgsrechnung">
-	  <title>Erfolgsrechnung</title>
+      <title>Erfolgsrechnung</title>
 
-	  <para>Seit der Version 3.4.1 existiert in kivitendo der Bericht <emphasis role="bold">
-	  Erfolgsrechnung</emphasis>.</para>
+      <para>Seit der Version 3.4.1 existiert in kivitendo der Bericht
+      <emphasis role="bold"> Erfolgsrechnung</emphasis>.</para>
 
-	  <para>Die Erfolgsrechnung kann in der Mandantenkonfiguration unter Features
-	  an- oder abgeschaltet werden. Mit der Einstellung <varname>default_manager = swiss
-	  </varname> in der <filename>config/kivitendo.conf</filename> wird beim neu Erstellen
-	  einer Datenbank automatisch die Anzeige der Erfolgsrechnung im Menü <guimenu>Berichte
-	  </guimenu> ausgewählt und ersetzt dort die GUV.</para>
+      <para>Die Erfolgsrechnung kann in der Mandantenkonfiguration unter
+      Features an- oder abgeschaltet werden. Mit der Einstellung
+      <varname>default_manager = swiss </varname> in der
+      <filename>config/kivitendo.conf</filename> wird beim neu Erstellen einer
+      Datenbank automatisch die Anzeige der Erfolgsrechnung im Menü
+      <guimenu>Berichte </guimenu> ausgewählt und ersetzt dort die GUV.</para>
 
-	  <para>Im Gegensatz zur GUV werden bei der Erfolgsrechnung sämtliche Aufwands- und
-	  Erlöskonten einzeln aufgelistet (analog zur Bilanz), sortiert nach ERTRAG und AUFWAND.</para>
+      <para>Im Gegensatz zur GUV werden bei der Erfolgsrechnung sämtliche
+      Aufwands- und Erlöskonten einzeln aufgelistet (analog zur Bilanz),
+      sortiert nach ERTRAG und AUFWAND.</para>
 
-	  <para>Bei den Konteneinstellungen muss bei jedem Konto, das in der Erfolgsrechnung
-	  erscheinen soll, unter <varname>Sonstige Einstellungen/Erfolgsrechnung</varname>
-	  entweder <literal>01.Ertrag</literal> oder <literal>06.Aufwand</literal>  ausgewählt
-	  werden.</para>
+      <para>Bei den Konteneinstellungen muss bei jedem Konto, das in der
+      Erfolgsrechnung erscheinen soll, unter <varname>Sonstige
+      Einstellungen/Erfolgsrechnung</varname> entweder
+      <literal>01.Ertrag</literal> oder <literal>06.Aufwand</literal>
+      ausgewählt werden.</para>
 
-	  <para>Wird bei einem Erlöskonto <literal>06.Aufwand</literal> ausgewählt,
-	  so wird dieses Konto als Aufwandsminderung unter AUFWAND aufgelistet.</para>
+      <para>Wird bei einem Erlöskonto <literal>06.Aufwand</literal>
+      ausgewählt, so wird dieses Konto als Aufwandsminderung unter AUFWAND
+      aufgelistet.</para>
 
-	  <para>Wird bei einem Aufwandskonto <literal>01.Ertrag</literal> ausgewählt,
-	  so wird dieses Konto als Ertragsminderung unter ERTRAG aufgelistet.</para>
+      <para>Wird bei einem Aufwandskonto <literal>01.Ertrag</literal>
+      ausgewählt, so wird dieses Konto als Ertragsminderung unter ERTRAG
+      aufgelistet.</para>
 
-	  <para>Soll bei einer bereits bestehenden Buchhaltung in Zukunft zusätzlich
-	  die Erfolgsrechnung als Bericht verwendet werden, so müssen die Einstellungen
-	  zu allen Erlös- und Aufwandskonten unter <varname>Sonstige
-	  Einstellungen/Erfolgsrechnung</varname> überprüft und allenfalls neu gesetzt werden.</para>
+      <para>Soll bei einer bereits bestehenden Buchhaltung in Zukunft
+      zusätzlich die Erfolgsrechnung als Bericht verwendet werden, so müssen
+      die Einstellungen zu allen Erlös- und Aufwandskonten unter
+      <varname>Sonstige Einstellungen/Erfolgsrechnung</varname> überprüft und
+      allenfalls neu gesetzt werden.</para>
     </sect1>
 
     <sect1 id="config.rounding">
-	  <title>Rundung in Verkaufsbelegen</title>
+      <title>Rundung in Verkaufsbelegen</title>
 
-	  <para>In der Schweiz hat die kleinste aktuell benutzte Münze den Wert von 5 Rappen (0.05 CHF).</para>
+      <para>In der Schweiz hat die kleinste aktuell benutzte Münze den Wert
+      von 5 Rappen (0.05 CHF).</para>
 
-	  <para>Auch wenn im elektronischen Zahlungsverkehr Beträge mit einer Genauigkeit
-	  von 0.01 CHF verwendet werden können, ist es trotzdem nach wie vor üblich,
-	  Rechnungen mit auf 0.05 CHF gerundeten Beträgen auszustellen.</para>
+      <para>Auch wenn im elektronischen Zahlungsverkehr Beträge mit einer
+      Genauigkeit von 0.01 CHF verwendet werden können, ist es trotzdem nach
+      wie vor üblich, Rechnungen mit auf 0.05 CHF gerundeten Beträgen
+      auszustellen.</para>
 
-	  <para>In kivitendo kann seit der Version 3.4.1 die Einstellung für eine solche
-	  Rundung pro Mandant / Datenbank festgelegt werden.</para>
+      <para>In kivitendo kann seit der Version 3.4.1 die Einstellung für eine
+      solche Rundung pro Mandant / Datenbank festgelegt werden.</para>
 
-	  <para>Die Einstellung wird beim Erstellen der Datenbank bei <literal>Genauigkeit</literal>
-	  festgelegt. Sie kann anschliessend über das Webinterface von kivitendo nicht mehr
-	  verändert werden.</para>
+      <para>Die Einstellung wird beim Erstellen der Datenbank bei
+      <literal>Genauigkeit</literal> festgelegt. Sie kann anschliessend über
+      das Webinterface von kivitendo nicht mehr verändert werden.</para>
 
-	  <para>Abhängig vom Wert für <varname>default_manager</varname> in
-	  <filename>config/kivitendo.conf</filename> werden dabei folgende
-	  Werte voreingestellt:</para>
-	  <itemizedlist>
+      <para>Abhängig vom Wert für <varname>default_manager</varname> in
+      <filename>config/kivitendo.conf</filename> werden dabei folgende Werte
+      voreingestellt:</para>
+
+      <itemizedlist>
         <listitem>
           <para>0.05 (default_manager = swiss)</para>
         </listitem>
+
         <listitem>
           <para>0.01 (default_manager = german)</para>
         </listitem>
       </itemizedlist>
+
       <para>Der Wert wird in der Datenbank in der Tabelle <varname>defaults
       </varname>in der Spalte <varname>precision</varname> gespeichert.</para>
 
       <para>In allen Verkaufsangeboten, Verkaufsaufträgen, Verkaufsrechnungen
-      und Verkaufsgutschriften wird der Endbetrag inkl. MWST gerundet,
-      wenn dieser nicht der eingestellten Genauigkeit entspricht.</para>
+      und Verkaufsgutschriften wird der Endbetrag inkl. MWST gerundet, wenn
+      dieser nicht der eingestellten Genauigkeit entspricht.</para>
 
       <para>Beim Buchen einer Verkaufsrechnung wird der Rundungsbetrag
       automatisch auf die in der Mandantenkonfiguration festgelegten
-      Standardkonten für Rundungserträge bzw. Rundungsaufwendungen gebucht.</para>
+      Standardkonten für Rundungserträge bzw. Rundungsaufwendungen
+      gebucht.</para>
 
-      <para>(Die berechnete MWST wird durch den Rundungsbetrag nicht mehr verändert.)</para>
+      <para>(Die berechnete MWST wird durch den Rundungsbetrag nicht mehr
+      verändert.)</para>
 
       <para>Die in den Druckvorlagen zur Verfügung stehenden Variablen
       <varname>quototal</varname>, <varname>ordtotal</varname> bzw.
       <varname>invtotal</varname> enthalten den gerundeten Betrag.</para>
 
-      <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege
-      in anderen Währungen als der Standardwährung erstellt, so muss in
-      kivitendo ab Version 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
-      <para>Das heisst, Firmen in der Schweiz, die teilweise Verkaufsrechnungen
-      in Euro oder anderen Währungen erstellen wollen, müssen beim Erstellen
-      der Datenbank als Genauigkeit 0.01 wählen und können zur Zeit die
-      5er Rundung noch nicht nutzen.</para>
+      <para><emphasis role="bold">Achtung:</emphasis> Werden Verkaufsbelege in
+      anderen Währungen als der Standardwährung erstellt, so muss in kivitendo
+      ab Version 3.4.1 die Genauigkeit 0.01 verwendet werden.</para>
+
+      <para>Das heisst, Firmen in der Schweiz, die teilweise
+      Verkaufsrechnungen in Euro oder anderen Währungen erstellen wollen,
+      müssen beim Erstellen der Datenbank als Genauigkeit 0.01 wählen und
+      können zur Zeit die 5er Rundung noch nicht nutzen.</para>
     </sect1>
 
     <sect1 id="config.client">
@@ -3642,8 +3672,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
         linkend="dokumentenvorlagen-und-variablen.tag-style"/>).</para>
 
         <para>kivitendo unterstützt LaTeX-, HTML- und OpenDocument-Vorlagen.
-        Sofern es nicht ausdrücklich eingeschränkt wird, gilt das im
-        Folgenden gesagte für alle Vorlagenarten.</para>
+        Sofern es nicht ausdrücklich eingeschränkt wird, gilt das im Folgenden
+        gesagte für alle Vorlagenarten.</para>
 
         <para>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
         verfügbar als hier aufgelistet werden. Die meisten davon können
@@ -4937,8 +4967,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
               <term><varname>rounding</varname></term>
 
               <listitem>
-                <para>Betrag, um den <varname>invtotal</varname> gerundet wurde
-                (kann positiv oder negativ sein)</para>
+                <para>Betrag, um den <varname>invtotal</varname> gerundet
+                wurde (kann positiv oder negativ sein)</para>
               </listitem>
             </varlistentry>
 
@@ -5392,7 +5422,9 @@ systemctl enable kivitendo-task-server.service</programlisting>
           unter einem ähnlichen Namensschema zur Verfügung. Hier lautet der
           Präfix <varname>shiptocvar_</varname>.</para>
 
-          <para>Analog stehen die benutzerdefinierten Variablen für Ansprechpersonen mit dem Namenspräfix <varname>cp_cvar_</varname> zur Verfügung.</para>
+          <para>Analog stehen die benutzerdefinierten Variablen für
+          Ansprechpersonen mit dem Namenspräfix <varname>cp_cvar_</varname>
+          zur Verfügung.</para>
         </sect3>
       </sect2>
 
@@ -5415,18 +5447,21 @@ systemctl enable kivitendo-task-server.service</programlisting>
         <sect3 id="dokumentenvorlagen-und-variablen.dunning-allgemein">
           <title>Allgemeine Variablen in Mahnungen</title>
 
-          <para>Die Variablen des Bearbeiters, bzw. Verkäufers stehen wie gewohnt als
-          <varname>employee_...</varname> bzw. <varname>salesman_...</varname> zur Verfügung.
-          Werden mehrere Rechnungen in einer Mahnung zusammengefasst, so werden
-          die Metadaten (Bearbeiter, Abteilung, etc) der ersten angemahnten Rechnung
-          im Ausdruck genommen.</para>
-          <para>Die Adressdaten des Kunden stehen als Variablen <varname>name</varname>,
-          <varname>street</varname>, <varname>zipcode</varname>,
-          <varname>city</varname>, <varname>country</varname>,
-          <varname>department_1</varname>, <varname>department_2</varname>,
-          und <varname>email</varname> zur Verfügung. Der Ansprechpartner <varname>cp_...</varname>
-          steht auch zu Verfügung, wird allerdings auch nur von der ersten angemahnten Rechnung (s.o.)
-          genommen.</para>
+          <para>Die Variablen des Bearbeiters, bzw. Verkäufers stehen wie
+          gewohnt als <varname>employee_...</varname> bzw.
+          <varname>salesman_...</varname> zur Verfügung. Werden mehrere
+          Rechnungen in einer Mahnung zusammengefasst, so werden die Metadaten
+          (Bearbeiter, Abteilung, etc) der ersten angemahnten Rechnung im
+          Ausdruck genommen.</para>
+
+          <para>Die Adressdaten des Kunden stehen als Variablen
+          <varname>name</varname>, <varname>street</varname>,
+          <varname>zipcode</varname>, <varname>city</varname>,
+          <varname>country</varname>, <varname>department_1</varname>,
+          <varname>department_2</varname>, und <varname>email</varname> zur
+          Verfügung. Der Ansprechpartner <varname>cp_...</varname> steht auch
+          zu Verfügung, wird allerdings auch nur von der ersten angemahnten
+          Rechnung (s.o.) genommen.</para>
 
           <para>Weitere Variablen beinhalten:</para>
 
@@ -6284,18 +6319,19 @@ Beschreibung: &lt;%description%&gt;
     </sect1>
 
     <sect1 id="features.warehouse">
-
-
       <title>Mandantenkonfiguration Lager</title>
 
-      <para>
-       Die Lagerverwaltung in kivitendo funktioniert standardmässig wie folgt: Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die
-       Möglichkeit hier über den Menüpunkt Lager entsprechende Warenbewegungen durchzuführen.  Ferner kann jede Position eines Lieferscheins
-       ein-, bzw. ausgelagert werden (Einkauf-, bzw. Verkauf). Es können beliebig viele Lager mit beliebig vielen Lagerplätzen abgebildet
-       werden. Die Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder Einzelposition und das Auswählen dieser Position zu
-       einem Lager mit Lagerplatz. Dieses Verfahren lässt sich schrittweise vereinfachen, je nachdem wie die Einstellungen in der
-       Mandatenkonfiguration gesetzt werden.
-      </para>
+      <para>Die Lagerverwaltung in kivitendo funktioniert standardmässig wie
+      folgt: Wird ein Lager mit einem Lagerplatz angelegt, so gibt es die
+      Möglichkeit hier über den Menüpunkt Lager entsprechende Warenbewegungen
+      durchzuführen. Ferner kann jede Position eines Lieferscheins ein-, bzw.
+      ausgelagert werden (Einkauf-, bzw. Verkauf). Es können beliebig viele
+      Lager mit beliebig vielen Lagerplätzen abgebildet werden. Die
+      Lagerbewegungen über einen Lieferschein erfolgt durch Anklicken jeder
+      Einzelposition und das Auswählen dieser Position zu einem Lager mit
+      Lagerplatz. Dieses Verfahren lässt sich schrittweise vereinfachen, je
+      nachdem wie die Einstellungen in der Mandatenkonfiguration gesetzt
+      werden.</para>
 
       <itemizedlist>
         <listitem>
@@ -6315,9 +6351,7 @@ Beschreibung: &lt;%description%&gt;
         </listitem>
       </itemizedlist>
 
-      <para>
-       Zusätzliche Funktionshinweise:
-      </para>
+      <para>Zusätzliche Funktionshinweise:</para>
 
       <itemizedlist>
         <listitem>
@@ -6334,48 +6368,47 @@ Beschreibung: &lt;%description%&gt;
           verwendet.</para>
         </listitem>
       </itemizedlist>
-
-
     </sect1>
 
     <sect1 id="features.swiss-charts-of-accounts">
-	  <title>Schweizer Kontenpläne</title>
+      <title>Schweizer Kontenpläne</title>
 
-	  <para>Seit der Version 3.5 stehen in kivitendo 3 Kontenpläne für
-	  den Einsatz in der Schweiz zur Verfügung, einer für Firmen und
-	  Organisationen, die nicht mehrwertsteuerpflichtig sind, einer
-	  für Firmen, die mehrwertsteuerpflichtig sind und einer speziell
-          für Vereine.</para>
+      <para>Seit der Version 3.5 stehen in kivitendo 3 Kontenpläne für den
+      Einsatz in der Schweiz zur Verfügung, einer für Firmen und
+      Organisationen, die nicht mehrwertsteuerpflichtig sind, einer für
+      Firmen, die mehrwertsteuerpflichtig sind und einer speziell für
+      Vereine.</para>
 
-	  <para>Die Kontenpläne orientieren sich am in der Schweiz üblicherweise
-	  verwendeten KMU-Kontenrahmen und sind mit der Revision des Schweizerischen
-	  Obligationenrechts (OR) vom 1.1.2013 kompatibel, insbesondere
-	  <literal>Art.957a Abs.2</literal>.</para>
+      <para>Die Kontenpläne orientieren sich am in der Schweiz üblicherweise
+      verwendeten KMU-Kontenrahmen und sind mit der Revision des
+      Schweizerischen Obligationenrechts (OR) vom 1.1.2013 kompatibel,
+      insbesondere <literal>Art.957a Abs.2</literal>.</para>
 
-          <para>Beim Vereinskontenplan sind standardmässig nur die Konten 1100
-          (Debitoren CHF) und 1101 (Debitoren EUR) als Buchungskonten im Verkauf
-          sowie die Konten 2000 (Kreditoren CHF) und 2001 (Kreditoren EUR) als
-          Buchungskonten im Einkauf vorgesehen. Weitere Konten können bei Bedarf
-          in den Konto-Detaileinstellungen als Einkaufs- oder Verkaufskonten
-          konfiguriert werden.</para>
+      <para>Beim Vereinskontenplan sind standardmässig nur die Konten 1100
+      (Debitoren CHF) und 1101 (Debitoren EUR) als Buchungskonten im Verkauf
+      sowie die Konten 2000 (Kreditoren CHF) und 2001 (Kreditoren EUR) als
+      Buchungskonten im Einkauf vorgesehen. Weitere Konten können bei Bedarf
+      in den Konto-Detaileinstellungen als Einkaufs- oder Verkaufskonten
+      konfiguriert werden.</para>
 
-	  <para>Die Möglichkeit, Saldosteuersätze zu verwenden ist in der aktuellen
-	  Version von kivitendo noch nicht integriert.</para>
+      <para>Die Möglichkeit, Saldosteuersätze zu verwenden ist in der
+      aktuellen Version von kivitendo noch nicht integriert.</para>
 
-	  <para>Trotzdem können auch Firmen, die per Saldosteuersatz mit der
-	  Eidgenössischen Steuerverwaltung abrechnen, kivitendo bereits nutzen.
-	  Dazu wird der Kontenplan mit MWST ausgewählt. Anschliessend müssen
-	  alle Aufwandskonten editiert werden und dort der Steuersatz auf 0%
-	  gesetzt werden.</para>
+      <para>Trotzdem können auch Firmen, die per Saldosteuersatz mit der
+      Eidgenössischen Steuerverwaltung abrechnen, kivitendo bereits nutzen.
+      Dazu wird der Kontenplan mit MWST ausgewählt. Anschliessend müssen alle
+      Aufwandskonten editiert werden und dort der Steuersatz auf 0% gesetzt
+      werden.</para>
 
-	  <para>So werden bei Kreditorenbuchungen keine Vorsteuern verbucht.</para>
+      <para>So werden bei Kreditorenbuchungen keine Vorsteuern
+      verbucht.</para>
 
-          <para>Bezugssteuern für aus dem Ausland bezogene Dienstleistungen müssen
-          manuell verbucht werden.</para>
+      <para>Bezugssteuern für aus dem Ausland bezogene Dienstleistungen müssen
+      manuell verbucht werden.</para>
 
-	  <para>Wünsche für Anpassungen an den Schweizer Kontenplänen sowie
-	  Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne
-	  bitte an <literal>empfang@revamp-it.ch</literal> senden.</para>
+      <para>Wünsche für Anpassungen an den Schweizer Kontenplänen sowie
+      Vorschläge für weitere (z.B. branchenspezifische) Kontenpläne bitte an
+      <literal>empfang@revamp-it.ch</literal> senden.</para>
     </sect1>
 
     <sect1 id="features.part_classification">
@@ -6384,13 +6417,13 @@ Beschreibung: &lt;%description%&gt;
       <sect2>
         <title>Übersicht</title>
 
-        <para>Die Klassifizierung von Artikeln dient einer weiteren Gliederung,
-        um zum Beispiel den Einkauf vom Verkauf zu trennen, gekennzeichnet
-        durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel (z.B. "E").
-        Für jede Klassifizierung besteht eine Beschreibung und eine Abkürzung
-        die normalerweise aus einem Zeichen besteht, kann aber auf mehrere
-        Zeichen erweitert werden, falls zur Unterscheidung notwendig. Sinnvoll
-        sind jedoch nur maximal 2 Zeichen.</para>
+        <para>Die Klassifizierung von Artikeln dient einer weiteren
+        Gliederung, um zum Beispiel den Einkauf vom Verkauf zu trennen,
+        gekennzeichnet durch eine Beschreibung (z.B. "Einkauf") und ein Kürzel
+        (z.B. "E"). Für jede Klassifizierung besteht eine Beschreibung und
+        eine Abkürzung die normalerweise aus einem Zeichen besteht, kann aber
+        auf mehrere Zeichen erweitert werden, falls zur Unterscheidung
+        notwendig. Sinnvoll sind jedoch nur maximal 2 Zeichen.</para>
       </sect2>
 
       <sect2>
@@ -6459,13 +6492,13 @@ Beschreibung: &lt;%description%&gt;
           </listitem>
         </itemizedlist>
 
-        <para>Für das Attribut "separat ausweisen" stehen in den LaTeX-Vorlagen
-        die Variable <emphasis role="bold">&lt;%non_separate_subtotal%&gt;
-        </emphasis>zur Verfügung, die alle nicht separat auszuweisenden
-        Artikelkosten saldiert, sowie pro separat auszuweisenden
-        Klassifizierungen die Variable<emphasis role="bold">&lt;
-        %separate_X_subtotal%&gt;</emphasis>, wobei X das Kürzel der
-        Klassifizierung ist.</para>
+        <para>Für das Attribut "separat ausweisen" stehen in den
+        LaTeX-Vorlagen die Variable <emphasis
+        role="bold">&lt;%non_separate_subtotal%&gt; </emphasis>zur Verfügung,
+        die alle nicht separat auszuweisenden Artikelkosten saldiert, sowie
+        pro separat auszuweisenden Klassifizierungen die Variable<emphasis
+        role="bold">&lt; %separate_X_subtotal%&gt;</emphasis>, wobei X das
+        Kürzel der Klassifizierung ist.</para>
 
         <para>Im obigen Beispiel wäre das für Lieferkosten <emphasis
         role="bold">&lt;%separate_L_subtotal%&gt;</emphasis> und für
@@ -6494,27 +6527,38 @@ Beschreibung: &lt;%description%&gt;
 
       <sect2>
         <title>Übersicht</title>
-        <para>Parallel zum alten WebDAV gibt es ein Datei-Management-System, das Dateien
-        verschiedenen Typs verwaltet. Dies können</para>
+
+        <para>Parallel zum alten WebDAV gibt es ein Datei-Management-System,
+        das Dateien verschiedenen Typs verwaltet. Dies können</para>
+
         <orderedlist>
           <listitem>
-            <para>aus ERP-Daten per LaTeX Template erzeugte PDF-Dokumente,</para>
+            <para>aus ERP-Daten per LaTeX Template erzeugte
+            PDF-Dokumente,</para>
           </listitem>
+
           <listitem>
-            <para>zu bestimmten ERP-Daten gehörende Anhangdateien unterschiedlichen Formats,</para>
+            <para>zu bestimmten ERP-Daten gehörende Anhangdateien
+            unterschiedlichen Formats,</para>
           </listitem>
+
           <listitem>
             <para>per Scanner eingelesene PDF-Dateien,</para>
           </listitem>
+
           <listitem>
-            <para>per E-Mail empfangene Dateianhänge unterschiedlichen Formats,</para>
+            <para>per E-Mail empfangene Dateianhänge unterschiedlichen
+            Formats,</para>
           </listitem>
+
           <listitem>
             <para>sowie speziel für Artikel hochgeladene Bilder sein.</para>
           </listitem>
         </orderedlist>
+
         <screenshot>
           <screeninfo>Übersicht</screeninfo>
+
           <mediaobject>
             <imageobject>
               <imagedata contentwidth="600" fileref="images/DMS-Overview.png"/>
@@ -6526,165 +6570,233 @@ Beschreibung: &lt;%description%&gt;
       <sect2>
         <title>Struktur</title>
 
-      <para>Über eine vom Speichermedium unabhängige Zwischenschicht werden die Dateien und ihre Versionen in der Datenbank verwaltet. Darunter können verschiedene Implementierungen (Backends) gleichzeitig existieren:
-      </para>
+        <para>Über eine vom Speichermedium unabhängige Zwischenschicht werden
+        die Dateien und ihre Versionen in der Datenbank verwaltet. Darunter
+        können verschiedene Implementierungen (Backends) gleichzeitig
+        existieren:</para>
+
         <itemizedlist>
           <listitem>
             <para>Dateisystem</para>
           </listitem>
+
           <listitem>
             <para>WebDAV</para>
           </listitem>
+
           <listitem>
-            <para>Schnittstelle zu externen Dokumenten-Management-Systemen</para>
+            <para>Schnittstelle zu externen
+            Dokumenten-Management-Systemen</para>
           </listitem>
+
           <listitem>
             <para>andere Datenbank</para>
           </listitem>
+
           <listitem>
             <para>etc ...</para>
           </listitem>
         </itemizedlist>
-        <para>Es gibt unterschiedliche Typen von Dateien. Jedem Typ läßt sich in der
-              Mandantenkonfiguration ein bestimmtes Backend zuordnen.
-        </para>
+
+        <para>Es gibt unterschiedliche Typen von Dateien. Jedem Typ läßt sich
+        in der Mandantenkonfiguration ein bestimmtes Backend zuordnen.</para>
+
         <itemizedlist>
           <listitem>
-            <para>"document": Das sind entweder generierte, eingescannte oder hochgeladene PDF-Dateien,
-                  die zu bestimmten ERP-Daten (ERP-Objekte, wie z.B. Rechnung, Lieferschein) gehören.</para>
+            <para>"document": Das sind entweder generierte, eingescannte oder
+            hochgeladene PDF-Dateien, die zu bestimmten ERP-Daten
+            (ERP-Objekte, wie z.B. Rechnung, Lieferschein) gehören.</para>
           </listitem>
+
           <listitem>
-            <para>"attachment": zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden,
-            z.B. technische Zeichnungen, Aufmaße. Diese können auch für Artikel,
-            Lieferanten und Kunden hinterlegt sein.</para>
+            <para>"attachment": zusätzlich hochgeladene Dokumente, die an
+            bestimmte ERP-Objekte angehängt werden, z.B. technische
+            Zeichnungen, Aufmaße. Diese können auch für Artikel, Lieferanten
+            und Kunden hinterlegt sein.</para>
           </listitem>
+
           <listitem>
-            <para>"image": Bilder für Artikel. Diese können auch verkleinert in einer Vorschau (Thumbnail)
-            angezeigt werden.</para>
+            <para>"image": Bilder für Artikel. Diese können auch verkleinert
+            in einer Vorschau (Thumbnail) angezeigt werden.</para>
           </listitem>
         </itemizedlist>
-        <para>Zusätzlich werden in der Datenbank zu den Dateien neben der Zuordnung zu ERP-Objekten, Dateityp
-        Dateinamen und Backend, in dem die Datei gespeichert ist, auch die Quelle der Datei notiert:
-        </para>
+
+        <para>Zusätzlich werden in der Datenbank zu den Dateien neben der
+        Zuordnung zu ERP-Objekten, Dateityp Dateinamen und Backend, in dem die
+        Datei gespeichert ist, auch die Quelle der Datei notiert:</para>
+
         <itemizedlist>
           <listitem>
-            <para> "created": vom System erzeugte Dokumente"</para>
+            <para>"created": vom System erzeugte Dokumente"</para>
           </listitem>
+
           <listitem>
-            <para> "uploaded": hochgeladene Dokumente</para>
+            <para>"uploaded": hochgeladene Dokumente</para>
           </listitem>
+
           <listitem>
-            <para> "email": vom Mail-System empfangene Dateien</para>
+            <para>"email": vom Mail-System empfangene Dateien</para>
           </listitem>
+
           <listitem>
-            <para> "scanner[1]": von einem oder mehreren Scannern erzeugte Dateien. Existieren mehrere Scanner,
-            so sind diese durch unterschiedliche Quellennamen zu definieren.</para>
+            <para>"scanner[1]": von einem oder mehreren Scannern erzeugte
+            Dateien. Existieren mehrere Scanner, so sind diese durch
+            unterschiedliche Quellennamen zu definieren.</para>
           </listitem>
         </itemizedlist>
-        <para>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es für "attachment" und "image" nur
-        die Quelle "uploaded". Für "document" gibt es auf jeden Fall die Quelle "created".
-        Die Quellen "scanner" und "email" müssen derzeit in der Datenbank konfiguriert werden
-        (siehe <xref linkend="file_management.dbconfig"/>).</para>
+
+        <para>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es
+        für "attachment" und "image" nur die Quelle "uploaded". Für "document"
+        gibt es auf jeden Fall die Quelle "created". Die Quellen "scanner" und
+        "email" müssen derzeit in der Datenbank konfiguriert werden (siehe
+        <xref linkend="file_management.dbconfig"/>).</para>
       </sect2>
 
       <sect2>
         <title>Anwendung</title>
-        <para>Die Daten werden bei den ERP-Objekten als extra Reiter dargestellt.
-        Eine Verkaufsrechnung z.B. hat die
-        Reiter "Dokumente" und "Dateianhänge".</para>
+
+        <para>Die Daten werden bei den ERP-Objekten als extra Reiter
+        dargestellt. Eine Verkaufsrechnung z.B. hat die Reiter "Dokumente" und
+        "Dateianhänge".</para>
+
         <screenshot>
           <screeninfo>Reiter "Dateianhänge"</screeninfo>
+
           <mediaobject>
             <imageobject>
-              <imagedata scale="50" fileref="images/DMS-Anhaenge.png"/>
+              <imagedata fileref="images/DMS-Anhaenge.png" scale="50"/>
             </imageobject>
           </mediaobject>
         </screenshot>
-        <para>Bei den Dateianhängen wird immer nur die aktuelle Version einer Datei angezeigt.
-        Wird eine Datei mit gleichem Namen hochgeladen, so wird eine neue Version der Datei erstellt.
-        Vorher wird der Anwender durch einen Dialog gefragt, ob er eine neue Version anlegen will oder
-        ob er die Datei umbenennen will, falls es eine neue Datei sein soll.</para>
+
+        <para>Bei den Dateianhängen wird immer nur die aktuelle Version einer
+        Datei angezeigt. Wird eine Datei mit gleichem Namen hochgeladen, so
+        wird eine neue Version der Datei erstellt. Vorher wird der Anwender
+        durch einen Dialog gefragt, ob er eine neue Version anlegen will oder
+        ob er die Datei umbenennen will, falls es eine neue Datei sein
+        soll.</para>
+
         <screenshot>
           <screeninfo>Reiter "Dateianhänge"</screeninfo>
+
           <mediaobject>
             <imageobject>
-              <imagedata width="100" contentwidth="40" fileref="images/DMS-Anhaenge-hochladen.png"/>
+              <imagedata contentwidth="40"
+                         fileref="images/DMS-Anhaenge-hochladen.png"
+                         width="100"/>
             </imageobject>
           </mediaobject>
         </screenshot>
+
         <para>Es können mehrere Dateien gleichzeitig hochgeladen werden,
-        solange in Summe die maximale Größe nicht überschritten wird
-        (siehe <xref linkend="file_management.clientconfig"/>).</para>
+        solange in Summe die maximale Größe nicht überschritten wird (siehe
+        <xref linkend="file_management.clientconfig"/>).</para>
+
         <screenshot>
           <screeninfo>Reiter "Dokumente"</screeninfo>
+
           <mediaobject>
             <imageobject>
-              <imagedata  width="500" fileref="images/DMS-Dokumente.png"/>
+              <imagedata fileref="images/DMS-Dokumente.png" width="500"/>
             </imageobject>
           </mediaobject>
         </screenshot>
-        <para>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt es nur "erzeugte Dokumente".
-        Es werden alle Versionen der generierten Datei angezeigt. Für Verkaufsrechnungen kommen keine
-        anderen Quellen zur Geltung. Werden entsprechend der
-        <xref linkend="file_management.dbconfig"/> zusätzliche Quellen konfiguriert, so sind diese z.B. bei
-        Einkaufsrechnungen sichtbar:</para>
+
+        <para>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt
+        es nur "erzeugte Dokumente". Es werden alle Versionen der generierten
+        Datei angezeigt. Für Verkaufsrechnungen kommen keine anderen Quellen
+        zur Geltung. Werden entsprechend der <xref
+        linkend="file_management.dbconfig"/> zusätzliche Quellen konfiguriert,
+        so sind diese z.B. bei Einkaufsrechnungen sichtbar:</para>
+
         <screenshot>
           <screeninfo>Reiter "Dokumente"</screeninfo>
+
           <mediaobject>
             <imageobject>
-              <imagedata  contentwidth="600" fileref="images/DMS-Dokumente-Scanner.png"/>
+              <imagedata contentwidth="600"
+                         fileref="images/DMS-Dokumente-Scanner.png"/>
             </imageobject>
           </mediaobject>
         </screenshot>
-        <para>Statt des Löschens wird hier die Datei zurück zur Quelle verschoben. Somit kann die Datei anschließend
-        an ein anderes ERP-Objekt angehängt werden.</para>
-        <para>Derzeit sind "Titel" und "Beschreibung" noch nicht genutzt. Sie sind bisher nur bei Bildern relevant.</para>
+
+        <para>Statt des Löschens wird hier die Datei zurück zur Quelle
+        verschoben. Somit kann die Datei anschließend an ein anderes
+        ERP-Objekt angehängt werden.</para>
+
+        <para>Derzeit sind "Titel" und "Beschreibung" noch nicht genutzt. Sie
+        sind bisher nur bei Bildern relevant.</para>
       </sect2>
 
       <sect2>
         <title>Konfigurierung</title>
-        <sect3 id="file_management.clientconfig" xreflabel="Mandantenkonfigurierung">
+
+        <sect3 id="file_management.clientconfig"
+               xreflabel="Mandantenkonfigurierung">
           <title>Mandantenkonfiguration</title>
+
           <sect4>
             <title>Reiter "Features"</title>
-            <para>Unter dem Reiter <emphasis role="bold">Features</emphasis> im Abschnitt Dateimanagement ist
-            neben dem "alten" WebDAV das Dateimangement generell zu- und abschaltbar, sowie die Zuordnung der
-          Dateitypen zu Backends. Die Löschbarkeit von Dateien, sowie die maximale Uploadgröße sind Backend-unabhängig</para>
-        <screenshot>
-          <screeninfo>Mandantenkonfig Reiter "Features"</screeninfo>
-          <mediaobject>
-            <imageobject>
-              <imagedata  width="500" fileref="images/DMS-ClientConfig.png"/>
-            </imageobject>
-          </mediaobject>
-        </screenshot>
-        <para>Die einzelnen Backends sind einzeln einschaltbar. Spezifische Backend-Konfigurierungen sind hier
-        noch ergänzbar.</para>
-        </sect4>
+
+            <para>Unter dem Reiter <emphasis role="bold">Features</emphasis>
+            im Abschnitt Dateimanagement ist neben dem "alten" WebDAV das
+            Dateimangement generell zu- und abschaltbar, sowie die Zuordnung
+            der Dateitypen zu Backends. Die Löschbarkeit von Dateien, sowie
+            die maximale Uploadgröße sind Backend-unabhängig</para>
+
+            <screenshot>
+              <screeninfo>Mandantenkonfig Reiter "Features"</screeninfo>
+
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/DMS-ClientConfig.png" width="500"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+
+            <para>Die einzelnen Backends sind einzeln einschaltbar.
+            Spezifische Backend-Konfigurierungen sind hier noch
+            ergänzbar.</para>
+          </sect4>
+
           <sect4>
             <title>Reiter "Allgemeine Dokumentenanhänge"</title>
-            <para>Unter dem Reiter <emphasis role="bold">Allgemeine Dokumentenanhänge</emphasis>
-            kann für alle ERP-Dokumente ( Angebote, Aufträge, Lieferscheine, Rechnungen im Verkauf und Einkauf )
-            allgemeingültige Anhänge hochgeladen werden.</para>
-        <screenshot>
-          <screeninfo>Mandantenkonfig Reiter "Allgemeine Dokumentenanhänge"</screeninfo>
-          <mediaobject>
-            <imageobject>
-              <imagedata  width="500" fileref="images/DMS-Allgemeine-Dokumentenanhaenge.png"/>
-            </imageobject>
-          </mediaobject>
-        </screenshot>
-        <para>Diese Anhänge werden beim Generieren von PDF-Dateien an die ERP-Dokumente angehängt,
-        z.B. AGBs oder aktuelle Angebote. Es werden in dem Fall die Daten kopiert, sodass an den ERP-Dokumenten immer
-        die Anhänge zum Generierungszeitpunkt eingebettet sind.
-        </para>
-        </sect4>
+
+            <para>Unter dem Reiter <emphasis role="bold">Allgemeine
+            Dokumentenanhänge</emphasis> kann für alle ERP-Dokumente (
+            Angebote, Aufträge, Lieferscheine, Rechnungen im Verkauf und
+            Einkauf ) allgemeingültige Anhänge hochgeladen werden.</para>
+
+            <screenshot>
+              <screeninfo>Mandantenkonfig Reiter "Allgemeine
+              Dokumentenanhänge"</screeninfo>
+
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/DMS-Allgemeine-Dokumentenanhaenge.png"
+                             width="500"/>
+                </imageobject>
+              </mediaobject>
+            </screenshot>
+
+            <para>Diese Anhänge werden beim Generieren von PDF-Dateien an die
+            ERP-Dokumente angehängt, z.B. AGBs oder aktuelle Angebote. Es
+            werden in dem Fall die Daten kopiert, sodass an den ERP-Dokumenten
+            immer die Anhänge zum Generierungszeitpunkt eingebettet
+            sind.</para>
+          </sect4>
         </sect3>
-        <sect3 id="file_management.dbconfig" xreflabel="Datenbank-Konfigurierung">
+
+        <sect3 id="file_management.dbconfig"
+               xreflabel="Datenbank-Konfigurierung">
           <title>Datenbank-Konfigurierung</title>
-          <para>Die zusätzlichen Quellen für "email" oder ein oder mehrere Scanner sind derzeit vom Administrator
-          direkt in der Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im JSON-Format
-          mit den jeweiligen Werten des Verzeichnisses und der Beschreibung der Quelle.</para>
+
+          <para>Die zusätzlichen Quellen für "email" oder ein oder mehrere
+          Scanner sind derzeit vom Administrator direkt in der
+          Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im
+          JSON-Format mit den jeweiligen Werten des Verzeichnisses und der
+          Beschreibung der Quelle.</para>
+
           <programlisting>
  id |  login    |  namespace   | version |   key    |          value
 ----+-----------+--------------+---------+----------+---------------------------
@@ -6695,20 +6807,252 @@ Beschreibung: &lt;%description%&gt;
   3 | #default# | file_sources | 0.00000 | emails   |
                              {"dir":"/var/tmp/emails","desc":"Empfangene Mails" }
           </programlisting>
-          <para>Es ist daran gedacht, statt dem Default-Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen.
-          Dies wird nach Bedarf implementiert.</para>
+
+          <para>Es ist daran gedacht, statt dem Default-Eintrag später für
+          bestimmte Benutzer ('login') bestimmte Quellen zuzulassen. Dies wird
+          nach Bedarf implementiert.</para>
         </sect3>
-        <sect3 id="file_management.kiviconfig" xreflabel="kivitendo-Konfigurationsdatei">
+
+        <sect3 id="file_management.kiviconfig"
+               xreflabel="kivitendo-Konfigurationsdatei">
           <title>kivitendo-Konfigurationsdatei</title>
-          <para>Dort ist im Abschnitt [paths] der relative oder absolute Pfad zum Dokumentenwurzelverzeichnis einzutragen.
-          Dieser muss für den Webserver schreib- und lesbar sein, jedoch nicht ausführbar.</para>
+
+          <para>Dort ist im Abschnitt [paths] der relative oder absolute Pfad
+          zum Dokumentenwurzelverzeichnis einzutragen. Dieser muss für den
+          Webserver schreib- und lesbar sein, jedoch nicht ausführbar.</para>
+
           <programlisting>
 [paths]
 document_path = /var/local/kivi_documents
           </programlisting>
-          <para>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch ein Unterverzeichnis mit der ID des Mandanten angelegt.</para>
+
+          <para>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch
+          ein Unterverzeichnis mit der ID des Mandanten angelegt.</para>
         </sect3>
-     </sect2>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Webshop-Api</title>
+
+      <para>Das Shopmodul bietet die Möglichkeit Onlineshopartikel und
+      Onlineshopbestellungen zu verwalten und zu bearbeiten.</para>
+
+      <para>Es ist Multishopfähig, d.h. Artikel können mehreren oder
+      unterschiedlichen Shops zugeordnet werden. Bestellungen können aus
+      mehreren Shops geholt werden.</para>
+
+      <para>Zur Zeit bietet das Modul nur einen Connector zur REST-Api von
+      Shopware. Weitere Connectoren können dazu programmiert und eingerichtet
+      werden.</para>
+
+      <sect2>
+        <title>Installationvorraussetzungen</title>
+
+        <para>In der Datenbank <literal>template1</literal> muss die
+        Unterstützung für die trigram-Extension eingerichet werden. Melden Sie
+        sich dafür als Benutzer “postgres” an der Datenbank an:
+        <programlisting>su - postgres
+psql template1</programlisting></para>
+
+        <para>führen Sie die folgenden Kommandos aus:</para>
+
+        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
+\q</programlisting>
+      </sect2>
+
+      <sect2>
+        <title>Rechte für die Webshopapi</title>
+
+        <para>In der Administration können folgende Rechte vergeben
+        werden</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Webshopartikel anlegen und bearbeiten</para>
+          </listitem>
+
+          <listitem>
+            <para>Shopbestellungen holen und bearbeiten</para>
+          </listitem>
+
+          <listitem>
+            <para>Shopbestellungen holen und bearbeiten</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2>
+        <title>Konfiguration</title>
+
+        <para>Unter System-&gt;Webshops können Shops angelegt und konfiguriert
+        werden</para>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata contentdepth="500" contentwidth="700"
+                       fileref="images/Shop_Listing.png"/>
+          </imageobject>
+        </mediaobject>
+      </sect2>
+
+      <sect2>
+        <title>Webshopartikel</title>
+
+        <sect3>
+          <title>Shopvariablenreiter in Artikelstammdaten</title>
+
+          <para>Mit dem Recht "Shopartikel anlegen und bearbeiten" öffnet sich
+          der Reiter "Shopvariablen" in den Artikelstammdaten. Hier können
+          jetzt die Artikel mit unterschiedlichen Beschreibung und/oder
+          Preisen für die konfigutierten Shops angelegt und bearbeitet werden.
+          An dieser Stelle können auch beliebig viele Bilder dem Shopartikel
+          zugeordnet werden. Artikelbilder gelten für alle Shops.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata contentdepth="500" contentwidth="600"
+                         fileref="images/Shop_Artikel.png"/>
+            </imageobject>
+          </mediaobject>
+
+          <para>Die Artikelgruppen werden direkt vom Shopsystem geholt somit
+          ist es möglich einen Artikel auch mehreren Gruppen
+          zuzuordenen</para>
+        </sect3>
+
+        <sect3>
+          <title>Shopartikelliste</title>
+
+          <para>Unter dem Menu Webshop-&gt;Webshop Artikel hat man nochmal
+          eine Gesamtübersicht. Von hier aus ist es möglich Artikel im Stapel
+          unter verschiedenen Kriterien &lt;alles&gt;&lt;nur Preis&gt;&lt;nur
+          Bestand&gt;&lt;Preis und Bestand&gt; an die jeweiligen Shops
+          hochzuladen.</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/Shop_Artikel_Listing.png"/>
+            </imageobject>
+          </mediaobject>
+        </sect3>
+      </sect2>
+
+      <sect2>
+        <title>Bestellimport</title>
+
+        <para>Unter dem Menupunkt Webshop-&gt;Webshop Import öffnet sich die
+        Bestellimportsliste. Hier ist sind Möglichkeiten gegeben Neue
+        Bestellungen vom Shop abzuholen, geholte Bestellungen im Stapel oder
+        einzeln als Auftrag zu transferieren. Die Liste kann nach
+        verschiedenen Kriterien gefiltert werden.</para>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/Shop_Bestell.png"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>Bei Einträgen in der Liste.</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>keine Kundennummer: Es gibt ähnliche Kundendatensätze und
+            der Datensatz konnte nicht eindeutig zugewiesen werden.</para>
+          </listitem>
+
+          <listitem>
+            <para>Kundennummer und Rechnungen rot hinterlegt: Der Kunde hat
+            offene Posten und kann deswegen nicht im Stapel übernommen
+            werden.</para>
+          </listitem>
+
+          <listitem>
+            <para>Rechnungsadresse grün hinterlegt: Der Kunde konnte eindeutig
+            einem Datensatz zugeordnet werden. Die Shopbestellung kann im
+            Stapel mit dem Button "Anwenden" und wenn markiert als Auftrag
+            übernommen werden.</para>
+          </listitem>
+
+          <listitem>
+            <para>Kundennummer vorhanden, aber die Checkbox "Auftrag
+            erstellen" fehlt. Der Kunde hat vermutlich eine
+            Shopauftragssperre.</para>
+          </listitem>
+
+          <listitem>
+            <para>Lieferadresse grau hinterlegt: Optische Anzeige, dass es
+            sich um eine unterschiedliche Lieferadresse handelt.
+            Lieferadressen werden aber grundsätzlich beim Transferieren zu
+            Aufträgen mit übernommen.</para>
+          </listitem>
+
+          <listitem>
+            <para>In der Spalte Positionen/Betrag/Versandkosten zeigt sich ein
+            tooltip zu den Positionen.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Maske Auftrag erstellen</para>
+
+        <para>Viele Shopsysteme haben drei verschieden Adresstypen Kunden-,
+        Rechnungs-, und Lieferadresse, die sich auch alle unterscheiden
+        können. Diese werden im oberen Bereich angezeigt. Es ist möglich jede
+        dieser Adresse einzeln in kivitendo als Kunde zu übernehmen. Es werden
+        die Werte Formulareingabe übernommen. Es wird bei einer Änderung
+        allerdings nur diese in die kivitendo Kundenstammdaten übernommen, die
+        Shopbestellung bleibt bestehen.</para>
+
+        <para>Mit der mittleren Adresse(Rechnungsadresse) im oberen Bereich,
+        kann ich den ausgewählten kivitendodatensatz des mittleren Bereich
+        überschreiben. Das ist sinnvoll, wenn ich erkenne, das der Kunde z.B.
+        umgezogen ist.</para>
+
+        <para>Im mittleren Bereich das Adresslisting zeigt:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Rot hinterlegt: Kunde hat eine Shopauftragssperre, diese
+            muss zuerst deaktiviert werden bevor ich diesem Kunden eine
+            Shopbestellung zuordnen kann.</para>
+          </listitem>
+
+          <listitem>
+            <para>Kundenname fett und rot: Hier hat der Kunde eine Bemerkung
+            in den Stammdaten. Ein Tooltip zeigt diese Bemerkung. Das kann dan
+            auch der Grund für die Auftragssperre sein.</para>
+          </listitem>
+
+          <listitem>
+            <para>Die Buttons "Auftrag erstellen" und "Kunde mit
+            Rechnungsadresse überschreiben" zeigen sich erst, wenn ein Kunde
+            aus dem Listing ausgewählt ist.</para>
+          </listitem>
+
+          <listitem>
+            <para>Es ist aber möglich die Shopbestellung zu löschen.</para>
+          </listitem>
+
+          <listitem>
+            <para>Ist eine Bestellung schon übernommen, zeigen sich an dieser
+            Stelle, die dazugehörigen Belegverknüpfungen.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2>
+        <title>Mapping der Daten</title>
+
+        <para>Das Mapping der kivitendo Daten mit den Shopdaten geschieht in
+        der Datei SL/ShopConnector/&lt;SHOPCONNECTORNAME&gt;.pm
+        z.B.:SL/ShopConnector/Shopware.pm</para>
+
+        <para>In dieser Datei gibt es einen Bereich wo die Bestellpostionen,
+        die Bestellkopfdaten und die Artikeldaten gemapt werden. In dieser
+        Datei kann ein individelles Mapping dann gemacht werden. Zu Shopware
+        gibt es hier eine sehr gute Dokumentation: <ulink
+        url="https://developers.shopware.com/developers-guide/rest-api/">https://developers.shopware.com/developers-guide/rest-api/</ulink></para>
+      </sect2>
     </sect1>
   </chapter>
 
@@ -6992,7 +7336,8 @@ document_path = /var/local/kivi_documents
             </listitem>
 
             <listitem>
-              <para>Enthält unter anderem Datumsformat dateformat und Nummernformat numberformat</para>
+              <para>Enthält unter anderem Datumsformat dateformat und
+              Nummernformat numberformat</para>
             </listitem>
 
             <listitem>
@@ -7981,12 +8326,14 @@ $self-&gt;{more_texts} = {
           </listitem>
 
           <listitem>
-            <para><literal>Sys::CPU</literal> (Debian-Panetname: <literal>libsys-cpu-perl</literal>; Fedora und openSUSE: nicht
+            <para><literal>Sys::CPU</literal> (Debian-Panetname:
+            <literal>libsys-cpu-perl</literal>; Fedora und openSUSE: nicht
             vorhanden)</para>
           </listitem>
 
           <listitem>
-            <para><literal>Thread::Pool::Simple</literal> (Debian-Panetname: <literal>libthread-pool-simple-perl</literal>; Fedora und
+            <para><literal>Thread::Pool::Simple</literal> (Debian-Panetname:
+            <literal>libthread-pool-simple-perl</literal>; Fedora und
             openSUSE: nicht vorhanden)</para>
           </listitem>
         </itemizedlist>

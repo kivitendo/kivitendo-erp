@@ -1,42 +1,62 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>3.8. Dateiverwaltung (Mini-DMS)</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s07.html" title="3.7. Artikelklassifizierung"><link rel="next" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.8. Dateiverwaltung (Mini-DMS)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s07.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.8. Dateiverwaltung (Mini-DMS)"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.file_managment"></a>3.8. Dateiverwaltung (Mini-DMS)</h2></div></div></div><div class="sect2" title="3.8.1. Übersicht"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6376"></a>3.8.1. Übersicht</h3></div></div></div><p>Parallel zum alten WebDAV gibt es ein Datei-Management-System, das Dateien
-        verschiedenen Typs verwaltet. Dies können</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>aus ERP-Daten per LaTeX Template erzeugte PDF-Dokumente,</p></li><li class="listitem"><p>zu bestimmten ERP-Daten gehörende Anhangdateien unterschiedlichen Formats,</p></li><li class="listitem"><p>per Scanner eingelesene PDF-Dateien,</p></li><li class="listitem"><p>per E-Mail empfangene Dateianhänge unterschiedlichen Formats,</p></li><li class="listitem"><p>sowie speziel für Artikel hochgeladene Bilder sein.</p></li></ol></div><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Overview.png"></div></div></div><div class="sect2" title="3.8.2. Struktur"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6403"></a>3.8.2. Struktur</h3></div></div></div><p>Über eine vom Speichermedium unabhängige Zwischenschicht werden die Dateien und ihre Versionen in der Datenbank verwaltet. Darunter können verschiedene Implementierungen (Backends) gleichzeitig existieren:
-      </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Dateisystem</p></li><li class="listitem"><p>WebDAV</p></li><li class="listitem"><p>Schnittstelle zu externen Dokumenten-Management-Systemen</p></li><li class="listitem"><p>andere Datenbank</p></li><li class="listitem"><p>etc ...</p></li></ul></div><p>Es gibt unterschiedliche Typen von Dateien. Jedem Typ läßt sich in der
-              Mandantenkonfiguration ein bestimmtes Backend zuordnen.
-        </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>"document": Das sind entweder generierte, eingescannte oder hochgeladene PDF-Dateien,
-                  die zu bestimmten ERP-Daten (ERP-Objekte, wie z.B. Rechnung, Lieferschein) gehören.</p></li><li class="listitem"><p>"attachment": zusätzlich hochgeladene Dokumente, die an bestimmte ERP-Objekte angehängt werden,
-            z.B. technische Zeichnungen, Aufmaße. Diese können auch für Artikel,
-            Lieferanten und Kunden hinterlegt sein.</p></li><li class="listitem"><p>"image": Bilder für Artikel. Diese können auch verkleinert in einer Vorschau (Thumbnail)
-            angezeigt werden.</p></li></ul></div><p>Zusätzlich werden in der Datenbank zu den Dateien neben der Zuordnung zu ERP-Objekten, Dateityp
-        Dateinamen und Backend, in dem die Datei gespeichert ist, auch die Quelle der Datei notiert:
-        </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> "created": vom System erzeugte Dokumente"</p></li><li class="listitem"><p> "uploaded": hochgeladene Dokumente</p></li><li class="listitem"><p> "email": vom Mail-System empfangene Dateien</p></li><li class="listitem"><p> "scanner[1]": von einem oder mehreren Scannern erzeugte Dateien. Existieren mehrere Scanner,
-            so sind diese durch unterschiedliche Quellennamen zu definieren.</p></li></ul></div><p>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es für "attachment" und "image" nur
-        die Quelle "uploaded". Für "document" gibt es auf jeden Fall die Quelle "created".
-        Die Quellen "scanner" und "email" müssen derzeit in der Datenbank konfiguriert werden
-        (siehe <a class="xref" href="ch03s08.html#file_management.dbconfig" title="3.8.4.2. Datenbank-Konfigurierung">Datenbank-Konfigurierung</a>).</p></div><div class="sect2" title="3.8.3. Anwendung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6455"></a>3.8.3. Anwendung</h3></div></div></div><p>Die Daten werden bei den ERP-Objekten als extra Reiter dargestellt.
-        Eine Verkaufsrechnung z.B. hat die
-        Reiter "Dokumente" und "Dateianhänge".</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Anhaenge.png"></div></div><p>Bei den Dateianhängen wird immer nur die aktuelle Version einer Datei angezeigt.
-        Wird eine Datei mit gleichem Namen hochgeladen, so wird eine neue Version der Datei erstellt.
-        Vorher wird der Anwender durch einen Dialog gefragt, ob er eine neue Version anlegen will oder
-        ob er die Datei umbenennen will, falls es eine neue Datei sein soll.</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Anhaenge-hochladen.png"></div></div><p>Es können mehrere Dateien gleichzeitig hochgeladen werden,
-        solange in Summe die maximale Größe nicht überschritten wird
-        (siehe <a class="xref" href="ch03s08.html#file_management.clientconfig" title="3.8.4.1. Mandantenkonfiguration">Mandantenkonfigurierung</a>).</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Dokumente.png"></div></div><p>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt es nur "erzeugte Dokumente".
-        Es werden alle Versionen der generierten Datei angezeigt. Für Verkaufsrechnungen kommen keine
-        anderen Quellen zur Geltung. Werden entsprechend der
-        <a class="xref" href="ch03s08.html#file_management.dbconfig" title="3.8.4.2. Datenbank-Konfigurierung">Datenbank-Konfigurierung</a> zusätzliche Quellen konfiguriert, so sind diese z.B. bei
-        Einkaufsrechnungen sichtbar:</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Dokumente-Scanner.png"></div></div><p>Statt des Löschens wird hier die Datei zurück zur Quelle verschoben. Somit kann die Datei anschließend
-        an ein anderes ERP-Objekt angehängt werden.</p><p>Derzeit sind "Titel" und "Beschreibung" noch nicht genutzt. Sie sind bisher nur bei Bildern relevant.</p></div><div class="sect2" title="3.8.4. Konfigurierung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6498"></a>3.8.4. Konfigurierung</h3></div></div></div><div class="sect3" title="3.8.4.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.clientconfig"></a>3.8.4.1. Mandantenkonfiguration</h4></div></div></div><div class="sect4" title="3.8.4.1.1. Reiter &#34;Features&#34;"><div class="titlepage"><div><div><h5 class="title"><a name="d0e6504"></a>3.8.4.1.1. Reiter "Features"</h5></div></div></div><p>Unter dem Reiter <span class="bold"><strong>Features</strong></span> im Abschnitt Dateimanagement ist
-            neben dem "alten" WebDAV das Dateimangement generell zu- und abschaltbar, sowie die Zuordnung der
-          Dateitypen zu Backends. Die Löschbarkeit von Dateien, sowie die maximale Uploadgröße sind Backend-unabhängig</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-ClientConfig.png"></div></div><p>Die einzelnen Backends sind einzeln einschaltbar. Spezifische Backend-Konfigurierungen sind hier
-        noch ergänzbar.</p></div><div class="sect4" title="3.8.4.1.2. Reiter &#34;Allgemeine Dokumentenanhänge&#34;"><div class="titlepage"><div><div><h5 class="title"><a name="d0e6520"></a>3.8.4.1.2. Reiter "Allgemeine Dokumentenanhänge"</h5></div></div></div><p>Unter dem Reiter <span class="bold"><strong>Allgemeine Dokumentenanhänge</strong></span>
-            kann für alle ERP-Dokumente ( Angebote, Aufträge, Lieferscheine, Rechnungen im Verkauf und Einkauf )
-            allgemeingültige Anhänge hochgeladen werden.</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Allgemeine-Dokumentenanhaenge.png"></div></div><p>Diese Anhänge werden beim Generieren von PDF-Dateien an die ERP-Dokumente angehängt,
-        z.B. AGBs oder aktuelle Angebote. Es werden in dem Fall die Daten kopiert, sodass an den ERP-Dokumenten immer
-        die Anhänge zum Generierungszeitpunkt eingebettet sind.
-        </p></div></div><div class="sect3" title="3.8.4.2. Datenbank-Konfigurierung"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.dbconfig"></a>3.8.4.2. Datenbank-Konfigurierung</h4></div></div></div><p>Die zusätzlichen Quellen für "email" oder ein oder mehrere Scanner sind derzeit vom Administrator
-          direkt in der Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im JSON-Format
-          mit den jeweiligen Werten des Verzeichnisses und der Beschreibung der Quelle.</p><pre class="programlisting">
+   <title>3.8. Dateiverwaltung (Mini-DMS)</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s07.html" title="3.7. Artikelklassifizierung"><link rel="next" href="ch03s09.html" title="3.9. Webshop-Api"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.8. Dateiverwaltung (Mini-DMS)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s07.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch03s09.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.8. Dateiverwaltung (Mini-DMS)"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.file_managment"></a>3.8. Dateiverwaltung (Mini-DMS)</h2></div></div></div><div class="sect2" title="3.8.1. Übersicht"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6381"></a>3.8.1. Übersicht</h3></div></div></div><p>Parallel zum alten WebDAV gibt es ein Datei-Management-System,
+        das Dateien verschiedenen Typs verwaltet. Dies können</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>aus ERP-Daten per LaTeX Template erzeugte
+            PDF-Dokumente,</p></li><li class="listitem"><p>zu bestimmten ERP-Daten gehörende Anhangdateien
+            unterschiedlichen Formats,</p></li><li class="listitem"><p>per Scanner eingelesene PDF-Dateien,</p></li><li class="listitem"><p>per E-Mail empfangene Dateianhänge unterschiedlichen
+            Formats,</p></li><li class="listitem"><p>sowie speziel für Artikel hochgeladene Bilder sein.</p></li></ol></div><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Overview.png"></div></div></div><div class="sect2" title="3.8.2. Struktur"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6408"></a>3.8.2. Struktur</h3></div></div></div><p>Über eine vom Speichermedium unabhängige Zwischenschicht werden
+        die Dateien und ihre Versionen in der Datenbank verwaltet. Darunter
+        können verschiedene Implementierungen (Backends) gleichzeitig
+        existieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Dateisystem</p></li><li class="listitem"><p>WebDAV</p></li><li class="listitem"><p>Schnittstelle zu externen
+            Dokumenten-Management-Systemen</p></li><li class="listitem"><p>andere Datenbank</p></li><li class="listitem"><p>etc ...</p></li></ul></div><p>Es gibt unterschiedliche Typen von Dateien. Jedem Typ läßt sich
+        in der Mandantenkonfiguration ein bestimmtes Backend zuordnen.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>"document": Das sind entweder generierte, eingescannte oder
+            hochgeladene PDF-Dateien, die zu bestimmten ERP-Daten
+            (ERP-Objekte, wie z.B. Rechnung, Lieferschein) gehören.</p></li><li class="listitem"><p>"attachment": zusätzlich hochgeladene Dokumente, die an
+            bestimmte ERP-Objekte angehängt werden, z.B. technische
+            Zeichnungen, Aufmaße. Diese können auch für Artikel, Lieferanten
+            und Kunden hinterlegt sein.</p></li><li class="listitem"><p>"image": Bilder für Artikel. Diese können auch verkleinert
+            in einer Vorschau (Thumbnail) angezeigt werden.</p></li></ul></div><p>Zusätzlich werden in der Datenbank zu den Dateien neben der
+        Zuordnung zu ERP-Objekten, Dateityp Dateinamen und Backend, in dem die
+        Datei gespeichert ist, auch die Quelle der Datei notiert:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>"created": vom System erzeugte Dokumente"</p></li><li class="listitem"><p>"uploaded": hochgeladene Dokumente</p></li><li class="listitem"><p>"email": vom Mail-System empfangene Dateien</p></li><li class="listitem"><p>"scanner[1]": von einem oder mehreren Scannern erzeugte
+            Dateien. Existieren mehrere Scanner, so sind diese durch
+            unterschiedliche Quellennamen zu definieren.</p></li></ul></div><p>Je nach Dateityp sind nur bestimmte Quellen zulässig. So gibt es
+        für "attachment" und "image" nur die Quelle "uploaded". Für "document"
+        gibt es auf jeden Fall die Quelle "created". Die Quellen "scanner" und
+        "email" müssen derzeit in der Datenbank konfiguriert werden (siehe
+        <a class="xref" href="ch03s08.html#file_management.dbconfig" title="3.8.4.2. Datenbank-Konfigurierung">Datenbank-Konfigurierung</a>).</p></div><div class="sect2" title="3.8.3. Anwendung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6460"></a>3.8.3. Anwendung</h3></div></div></div><p>Die Daten werden bei den ERP-Objekten als extra Reiter
+        dargestellt. Eine Verkaufsrechnung z.B. hat die Reiter "Dokumente" und
+        "Dateianhänge".</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Anhaenge.png"></div></div><p>Bei den Dateianhängen wird immer nur die aktuelle Version einer
+        Datei angezeigt. Wird eine Datei mit gleichem Namen hochgeladen, so
+        wird eine neue Version der Datei erstellt. Vorher wird der Anwender
+        durch einen Dialog gefragt, ob er eine neue Version anlegen will oder
+        ob er die Datei umbenennen will, falls es eine neue Datei sein
+        soll.</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Anhaenge-hochladen.png"></div></div><p>Es können mehrere Dateien gleichzeitig hochgeladen werden,
+        solange in Summe die maximale Größe nicht überschritten wird (siehe
+        <a class="xref" href="ch03s08.html#file_management.clientconfig" title="3.8.4.1. Mandantenkonfiguration">Mandantenkonfigurierung</a>).</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Dokumente.png"></div></div><p>Sind keine weiteren Quellen für Dokumente konfiguriert, so gibt
+        es nur "erzeugte Dokumente". Es werden alle Versionen der generierten
+        Datei angezeigt. Für Verkaufsrechnungen kommen keine anderen Quellen
+        zur Geltung. Werden entsprechend der <a class="xref" href="ch03s08.html#file_management.dbconfig" title="3.8.4.2. Datenbank-Konfigurierung">Datenbank-Konfigurierung</a> zusätzliche Quellen konfiguriert,
+        so sind diese z.B. bei Einkaufsrechnungen sichtbar:</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Dokumente-Scanner.png"></div></div><p>Statt des Löschens wird hier die Datei zurück zur Quelle
+        verschoben. Somit kann die Datei anschließend an ein anderes
+        ERP-Objekt angehängt werden.</p><p>Derzeit sind "Titel" und "Beschreibung" noch nicht genutzt. Sie
+        sind bisher nur bei Bildern relevant.</p></div><div class="sect2" title="3.8.4. Konfigurierung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e6503"></a>3.8.4. Konfigurierung</h3></div></div></div><div class="sect3" title="3.8.4.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.clientconfig"></a>3.8.4.1. Mandantenkonfiguration</h4></div></div></div><div class="sect4" title="3.8.4.1.1. Reiter &#34;Features&#34;"><div class="titlepage"><div><div><h5 class="title"><a name="d0e6509"></a>3.8.4.1.1. Reiter "Features"</h5></div></div></div><p>Unter dem Reiter <span class="bold"><strong>Features</strong></span>
+            im Abschnitt Dateimanagement ist neben dem "alten" WebDAV das
+            Dateimangement generell zu- und abschaltbar, sowie die Zuordnung
+            der Dateitypen zu Backends. Die Löschbarkeit von Dateien, sowie
+            die maximale Uploadgröße sind Backend-unabhängig</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-ClientConfig.png"></div></div><p>Die einzelnen Backends sind einzeln einschaltbar.
+            Spezifische Backend-Konfigurierungen sind hier noch
+            ergänzbar.</p></div><div class="sect4" title="3.8.4.1.2. Reiter &#34;Allgemeine Dokumentenanhänge&#34;"><div class="titlepage"><div><div><h5 class="title"><a name="d0e6525"></a>3.8.4.1.2. Reiter "Allgemeine Dokumentenanhänge"</h5></div></div></div><p>Unter dem Reiter <span class="bold"><strong>Allgemeine
+            Dokumentenanhänge</strong></span> kann für alle ERP-Dokumente (
+            Angebote, Aufträge, Lieferscheine, Rechnungen im Verkauf und
+            Einkauf ) allgemeingültige Anhänge hochgeladen werden.</p><div class="screenshot"><div class="mediaobject"><img src="images/DMS-Allgemeine-Dokumentenanhaenge.png"></div></div><p>Diese Anhänge werden beim Generieren von PDF-Dateien an die
+            ERP-Dokumente angehängt, z.B. AGBs oder aktuelle Angebote. Es
+            werden in dem Fall die Daten kopiert, sodass an den ERP-Dokumenten
+            immer die Anhänge zum Generierungszeitpunkt eingebettet
+            sind.</p></div></div><div class="sect3" title="3.8.4.2. Datenbank-Konfigurierung"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.dbconfig"></a>3.8.4.2. Datenbank-Konfigurierung</h4></div></div></div><p>Die zusätzlichen Quellen für "email" oder ein oder mehrere
+          Scanner sind derzeit vom Administrator direkt in der
+          Datenbanktabelle "user_preferences" einzurichten. Die "value" ist im
+          JSON-Format mit den jeweiligen Werten des Verzeichnisses und der
+          Beschreibung der Quelle.</p><pre class="programlisting">
  id |  login    |  namespace   | version |   key    |          value
 ----+-----------+--------------+---------+----------+---------------------------
   1 | #default# | file_sources | 0.00000 | scanner1 |
@@ -45,9 +65,12 @@
                              {"dir":"/var/tmp/scanner2","desc":"Scanner Verkauf"}
   3 | #default# | file_sources | 0.00000 | emails   |
                              {"dir":"/var/tmp/emails","desc":"Empfangene Mails" }
-          </pre><p>Es ist daran gedacht, statt dem Default-Eintrag später für bestimmte Benutzer ('login') bestimmte Quellen zuzulassen.
-          Dies wird nach Bedarf implementiert.</p></div><div class="sect3" title="3.8.4.3. kivitendo-Konfigurationsdatei"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.kiviconfig"></a>3.8.4.3. kivitendo-Konfigurationsdatei</h4></div></div></div><p>Dort ist im Abschnitt [paths] der relative oder absolute Pfad zum Dokumentenwurzelverzeichnis einzutragen.
-          Dieser muss für den Webserver schreib- und lesbar sein, jedoch nicht ausführbar.</p><pre class="programlisting">
+          </pre><p>Es ist daran gedacht, statt dem Default-Eintrag später für
+          bestimmte Benutzer ('login') bestimmte Quellen zuzulassen. Dies wird
+          nach Bedarf implementiert.</p></div><div class="sect3" title="3.8.4.3. kivitendo-Konfigurationsdatei"><div class="titlepage"><div><div><h4 class="title"><a name="file_management.kiviconfig"></a>3.8.4.3. kivitendo-Konfigurationsdatei</h4></div></div></div><p>Dort ist im Abschnitt [paths] der relative oder absolute Pfad
+          zum Dokumentenwurzelverzeichnis einzutragen. Dieser muss für den
+          Webserver schreib- und lesbar sein, jedoch nicht ausführbar.</p><pre class="programlisting">
 [paths]
 document_path = /var/local/kivi_documents
-          </pre><p>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch ein Unterverzeichnis mit der ID des Mandanten angelegt.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s07.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.7. Artikelklassifizierung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;Kapitel 4. Entwicklerdokumentation</td></tr></table></div></body></html>
+          </pre><p>Unter diesem Wurzelverzeichnis wird pro Mandant automatisch
+          ein Unterverzeichnis mit der ID des Mandanten angelegt.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s07.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch03s09.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.7. Artikelklassifizierung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;3.9. Webshop-Api</td></tr></table></div></body></html>

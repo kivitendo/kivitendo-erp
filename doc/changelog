@@ -4,6 +4,14 @@
 
 2017-XX-XX - Release 3.5.X
 
+große Features
+
+- WebshopApi
+
+	WebshopApi mit bisher einem Konnektor für Shopware.
+	Damit ist es möglich Bestellungen aus dem Shop abzuholen und Artikel
+	abzugleichen.
+
 kleinere neue Features und Detailverbesserungen:
 
   - SEPA-XML: alle Sonderzeichen filtern

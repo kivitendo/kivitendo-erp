@@ -29,17 +29,15 @@ tar xvzf kivitendo-erp-3.4.1.tgz</pre><p>Wechseln Sie in das entpackte Verzeichn
 git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</pre><p>
-        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag -l listet
-       alle Tags auf, das egrep schmeisst alle Einträge mit beta oder rc raus und
-       das tail gibt davon den obersten Treffer zurück).
-
+        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit beta
+        oder rc raus und das tail gibt davon den obersten Treffer zurück).
         Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
         erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
         verwalten. Hierfür reicht ein simples </p><pre class="programlisting">  git checkout -b meine_eigenen_änderungen</pre><p>
         nach dem letzten Kommando (weiterführende Informationen <a class="ulink" href="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html" target="_top">
-        Git Magic</a>).</p><p>
-        Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von 3.4.1 nach 3.5:
-        </p><pre class="programlisting">
+        Git Magic</a>).</p><p>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
+        3.4.1 nach 3.5: </p><pre class="programlisting">
 $ git clone https://github.com/kivitendo/kivitendo-erp.git
 $ cd kivitendo-erp/
 $ git checkout release-3.4.1     # das ist der aktuelle release, den wir wollen
