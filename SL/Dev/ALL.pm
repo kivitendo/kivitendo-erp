@@ -8,10 +8,11 @@ use SL::Dev::CustomerVendor;
 use SL::Dev::Inventory;
 use SL::Dev::Record;
 use SL::Dev::Payment;
+use SL::Dev::Shop;
 
 sub import {
   no strict "refs";
-  for (qw(Part CustomerVendor Inventory Record Payment)) {
+  for (qw(Part CustomerVendor Inventory Record Payment Shop)) {
     Exporter::export_to_level("SL::Dev::$_", 1, @_);
   }
 }
