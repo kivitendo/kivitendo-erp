@@ -54,6 +54,12 @@ __PACKAGE__->meta->add_relationships(
     query_args      => [ what_done => 'part' ],
     manager_args    => { sort_by => 'itime' },
   },
+  shop_parts     => {
+    type         => 'one to many',
+    class        => 'SL::DB::ShopPart',
+    column_map   => { id => 'part_id' },
+    manager_args => { with_objects => [ 'shop' ] },
+  },
 );
 
 __PACKAGE__->meta->initialize;
