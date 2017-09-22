@@ -3,9 +3,11 @@ package SL::ShopConnector::ALL;
 use strict;
 
 my %shop_connector_by_name = (
+  shopware    => 'SL::ShopConnector::Shopware',
 );
 
 my %shop_connector_by_connector = (
+  shopware   => 'SL::ShopConnector::Shopware',
 );
 
 my @shop_connector_order = qw(
@@ -13,6 +15,7 @@ my @shop_connector_order = qw(
 );
 
 my @shop_connectors = (
+  { id => "shopware",   description => "Shopware" },
 );
 
 
