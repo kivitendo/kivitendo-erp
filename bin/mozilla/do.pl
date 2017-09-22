@@ -460,7 +460,7 @@ sub form_header {
 
   $form->{follow_up_trans_info} = $form->{donumber} .'('. $form->{VC_OBJ}->name .')' if $form->{VC_OBJ};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.File kivi.MassDeliveryOrderPrint kivi.SalesPurchase kivi.Part kivi.CustomerVendor ckeditor/ckeditor ckeditor/adapters/jquery kivi.io));
 
   my @custom_hidden;
   push @custom_hidden, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };

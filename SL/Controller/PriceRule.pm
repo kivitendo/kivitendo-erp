@@ -239,7 +239,7 @@ sub all_price_rule_item_types {
 }
 
 sub add_javascripts  {
-  $::request->{layout}->add_javascripts(qw(kivi.PriceRule.js autocomplete_customer.js autocomplete_vendor.js kivi.Part.js));
+  $::request->{layout}->add_javascripts(qw(kivi.PriceRule.js autocomplete_vendor.js kivi.Part.js kivi.CustomerVendor.js));
 }
 
 sub init_price_rule {

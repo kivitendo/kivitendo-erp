@@ -103,7 +103,7 @@ sub form_header {
 
   $auth->assert('cash');
 
-  $::request->layout->add_javascripts("autocomplete_customer.js");
+  $::request->layout->add_javascripts("kivi.CustomerVendor.js");
 
   my ($arap, $exchangerate);
 

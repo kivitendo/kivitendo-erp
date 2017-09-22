@@ -389,7 +389,7 @@ sub form_header {
   $TMPL_VAR{payment_terms_obj} = get_payment_terms_for_invoice();
   $form->{duedate}             = $TMPL_VAR{payment_terms_obj}->calc_date(reference_date => $form->{invdate}, due_date => $form->{duedate})->to_kivitendo if $TMPL_VAR{payment_terms_obj};
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File  kivi.SalesPurchase kivi.Part ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_customer autocomplete_project client_js));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.Draft kivi.File kivi.SalesPurchase kivi.Part kivi.CustomerVendor ckeditor/ckeditor ckeditor/adapters/jquery kivi.io autocomplete_project client_js));
 
   setup_ir_action_bar();
 
