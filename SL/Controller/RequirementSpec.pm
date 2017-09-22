@@ -325,7 +325,7 @@ sub setup {
 
   $::auth->assert('requirement_spec_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery kivi.Part kivi.CustomerVendor.js);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec ckeditor/ckeditor ckeditor/adapters/jquery kivi.Part kivi.CustomerVendor);
   $self->init_visible_section;
 
   return 1;
