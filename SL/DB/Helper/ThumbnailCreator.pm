@@ -1,6 +1,8 @@
-package SL::Controller::Helper::ThumbnailCreator;
+package SL::DB::Helper::ThumbnailCreator;
 
 use strict;
+
+use parent qw(SL::Controller::Base);
 
 use SL::Locale::String qw(t8);
 use Carp;
@@ -13,8 +15,9 @@ use Rose::DB::Object::Util;
 
 require Exporter;
 our @ISA      = qw(Exporter);
-our @EXPORT   = qw(file_create_thumbnail file_update_thumbnail file_probe_type file_probe_image_type file_update_type_and_dimensions);
+our @EXPORT   = qw(file_create_thumbnail file_update_thumbnail file_probe_type file_update_type_and_dimensions);
 
+# TODO PDFs and others like odt,txt,...
 our %supported_mime_types = (
   'image/gif'  => { extension => 'gif', convert_to_png => 1, },
   'image/png'  => { extension => 'png' },
@@ -23,9 +26,10 @@ our %supported_mime_types = (
 );
 
 sub file_create_thumbnail {
-  my ($thumb) = @_;
-  croak "No picture set yet" if !$thumb->{content};
-  my $image            = GD::Image->new($thumb->{content});
+  my ($self) = @_;
+  croak "No picture set yet" if !$self->file_content;
+
+  my $image            = GD::Image->new($self->file_content);
   my ($width, $height) = $image->getBounds;
   my $max_dim          = 64;
   my $curr_max         = max $width, $height, 1;
@@ -36,11 +40,11 @@ sub file_create_thumbnail {
 
   $thumbnail->copyResized($image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 
-  $thumb->{thumbnail_img_content} = $thumbnail->png;
-  $thumb->{thumbnail_img_content_type} = "image/png";
-  $thumb->{thumbnail_img_width} = $new_width;
-  $thumb->{thumbnail_img_height} = $new_height;
-  return $thumb;
+  $self->thumbnail_img_content($thumbnail->png);
+  $self->thumbnail_img_content_type('image/png');
+  $self->thumbnail_img_width($new_width);
+  $self->thumbnail_img_height($new_height);
+  return 1;
 
 }
 
@@ -52,35 +56,26 @@ sub file_update_thumbnail {
   return 1;
 }
 
-sub file_probe_image_type {
-  my ($self, $mime_type, $basefile) = @_;
-
-  if ( !$supported_mime_types{ $mime_type } ) {
-    $self->js->flash('error',t8('file \'#1\' has unsupported image type \'#2\' (supported types: #3)',
-                                $basefile, $mime_type, join(' ', sort keys %supported_mime_types)));
-    return 1;
-  }
-  return 0;
-}
-
 sub file_probe_type {
-  my ($content) = @_;
-  return (t8("No file uploaded yet")) if !$content;
-  my $info = Image::Info::image_info(\$content);
+  my ($self) = @_;
+
+  return (t8("No file uploaded yet")) if !$self->file_content;
+  my $mime_type = File::MimeInfo::Magic::magic($self->file_content);
+
+  my $info = Image::Info::image_info(\$self->{file_content});
   if (!$info || $info->{error} || !$info->{file_media_type} || !$supported_mime_types{ $info->{file_media_type} }) {
     $::lxdebug->warn("Image::Info error: " . $info->{error}) if $info && $info->{error};
     return (t8('Unsupported image type (supported types: #1)', join(' ', sort keys %supported_mime_types)));
   }
 
-  my $thumbnail;
-  $thumbnail->{file_content_type} = $info->{file_media_type};
-  $thumbnail->{file_image_width} = $info->{width};
-  $thumbnail->{file_image_height} = $info->{height};
-  $thumbnail->{content} = $content;
+  $self->file_content_type($info->{file_media_type});
+  $self->files_img_width($info->{width});
+  $self->files_img_height($info->{height});
+  $self->files_mtime(DateTime->now_local);
 
-  $thumbnail = &file_create_thumbnail($thumbnail);
+  $self->file_create_thumbnail;
 
-  return $thumbnail;
+  return ();
 }
 
 sub file_update_type_and_dimensions {
@@ -110,31 +105,20 @@ __END__
 
 =head1 NAME
 
-  SL::DB::Helper::ThumbnailCreator - DatabaseClass Helper for Fileuploads
+SL::DB::Helper::ThumbnailCreator - DatabaseClass Helper for Fileuploads
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helper::ThumbnailCreator;
+use SL::DB::Helper::ThumbnailCreator;
 
-  # synopsis...
+# synopsis...
 
 =head1 DESCRIPTION
 
-  # longer description..
+# longer description..
 
 =head1 AUTHOR
 
-  Werner Hahn E<lt>wh@futureworldsearch.netE<gt>
+Werner Hahn E<lt>wh@futureworldsearch.netE<gt>
 
 =cut
-
-
-=head1 INTERFACE
-
-
-=head1 DEPENDENCIES
-
-
-=head1 SEE ALSO
-
-
