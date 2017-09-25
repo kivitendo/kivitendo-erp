@@ -1411,7 +1411,6 @@ sub _csv_buchungsexport_to_file {
   my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
   my @data = \$params{data};
 
-  # EXTF_Buchungsstapel.csv: ISO-8859 text, with very long lines, with CRLF line terminators
   my $csv = Text::CSV_XS->new({
               binary       => 1,
               sep_char     => ";",
@@ -1424,7 +1423,7 @@ sub _csv_buchungsexport_to_file {
     $csv->quote_empty(1);
   }
 
-  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(iso-8859-1)') or die "Can't open: $!";
+  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
   $csv->print($csv_file, $_) for @{ $params{data} };
   $csv_file->close;
 
