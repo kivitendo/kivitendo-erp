@@ -122,7 +122,7 @@ sub action_ajax_add_list {
   my ($self) = @_;
 
   my $manager     = 'SL::DB::Manager::' . $self->link_type_desc->{model};
-  my $vc          = $self->link_type =~ m/sales_|^invoice|requirement_spec|letter/ ? 'customer' : 'vendor';
+  my $vc          = $self->link_type =~ m/shop|sales_|^invoice|requirement_spec|letter/ ? 'customer' : 'vendor';
   my $project     = $self->link_type_desc->{project};
   my $project_id  = "${project}_id";
   my $description = $self->link_type_desc->{description};
