@@ -36,7 +36,6 @@ use SL::DATEV::CSV;
 use SL::DB;
 use SL::HTML::Util ();
 use SL::Locale::String qw(t8);
-use SL::Iconv qw(convert);
 
 use Data::Dumper;
 use DateTime;
@@ -1369,10 +1368,6 @@ sub csv_buchungsexport {
   foreach my $row ( @datev_lines ) {
     my @current_datev_row;
 
-    # format transformation
-    foreach (qw(belegfeld1 kost1 kost2)) {
-      $row->{$_} = SL::Iconv::convert("UTF-8", "CP1252", $row->{$_}) if $row->{$_};
-    }
     # shorten strings
     if ($row->{belegfeld1}) {
       $row->{buchungsbes} = $row->{belegfeld1} if $row->{belegfeld1};
