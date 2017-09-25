@@ -20,29 +20,26 @@ __END__
 
 =head1 NAME
 
-  SL::DB::File - Databaseclass for File
+SL::DB::File - Databaseclass for File
 
 =head1 SYNOPSIS
 
-  use SL::DB::File;
+use SL::DB::File;
 
-  # synopsis...
+# synopsis...
 
 =head1 DESCRIPTION
 
-  # longer description.
-
+# longer description.
 
 =head1 INTERFACE
 
-
 =head1 DEPENDENCIES
-
 
 =head1 SEE ALSO
 
 =head1 AUTHOR
 
-  Werner Hahn E<lt>wh@futureworldsearch.netE<gt>
+Werner Hahn E<lt>wh@futureworldsearch.netE<gt>
 
 =cut
