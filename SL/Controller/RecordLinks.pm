@@ -15,6 +15,7 @@ use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
 use SL::DB::RequirementSpec;
 use SL::DBUtils qw(like);
+use SL::DB::ShopOrder;
 use SL::JSON;
 use SL::Locale::String;
 
@@ -36,7 +37,8 @@ my %link_type_defaults = (
 );
 
 my @link_type_specifics = (
-  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id',           description => 'title',   description_title => t8('Title'),   date => undef, project => 'project', filter => 'working_copy_filter', },
+  { title => t8('Requirement spec'),        type => 'requirement_spec',        model => 'RequirementSpec', number => 'id', project => 'project', description => 'title', date => undef, filter => 'working_copy_filter', },
+  { title => t8('Shop Order'),              type => 'shop_order',              model => 'ShopOrder',       number => 'shop_ordernumber', date => 'order_date', project => undef, },
   { title => t8('Sales quotation'),         type => 'sales_quotation',         model => 'Order',           number => 'quonumber', },
   { title => t8('Sales Order'),             type => 'sales_order',             model => 'Order',           number => 'ordnumber', },
   { title => t8('Sales delivery order'),    type => 'sales_delivery_order',    model => 'DeliveryOrder',   number => 'donumber',  },
@@ -60,6 +62,7 @@ sub action_ajax_list {
   eval {
     my $linked_records = $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
     push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
+
     my $output         = SL::Presenter->get->grouped_record_list(
       $linked_records,
       with_columns      => [ qw(record_link_direction) ],
