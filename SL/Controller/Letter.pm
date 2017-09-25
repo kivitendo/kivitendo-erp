@@ -241,8 +241,8 @@ sub action_print_letter {
       my $signature        = $::myconfig{signature};
       $mail->{$_}          = $params{email}->{$_} for qw(to cc subject message bcc);
       $mail->{from}        = qq|"$::myconfig{name}" <$::myconfig{email}>|;
-      $mail->{attachments} = [{ filename => $result{file_name},
-                                name     => $params{email}->{attachment_filename} }];
+      $mail->{attachments} = [{ path => $result{file_name},
+                                name => $params{email}->{attachment_filename} }];
       $mail->{message}    .=  "\n-- \n$signature";
       $mail->{message}     =~ s/\r//g;
 

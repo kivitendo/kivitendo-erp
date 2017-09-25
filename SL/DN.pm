@@ -904,7 +904,7 @@ sub print_dunning {
   delete $form->{tmpfile};
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
                                            'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
   $form->get_employee_data('prefix' => 'employee', 'id' => $form->{employee_id});
