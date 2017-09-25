@@ -127,7 +127,7 @@ sub export3 {
     setup_datev_export3_action_bar(download_token => $datev->download_token);
 
     $::form->header;
-    print $::form->parse_html_template('datev/export3');
+    print $::form->parse_html_template('datev/export3', { WARNINGS => $datev->warnings });
   } else {
     $::form->error("Export schlug fehl.\n" . join "\n", $datev->errors);
   }

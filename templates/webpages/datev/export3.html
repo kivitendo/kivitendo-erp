@@ -15,7 +15,14 @@
 [% END %]
 
 </b>
-  <br>
+<br/><br/>
+[% IF WARNINGS.size %]
+  <b>[% 'Warning: One or more field value are not in valid DATEV format at:' | $T8 %]</b><br /><br />
+  [%- FOREACH warning = WARNINGS %]
+    [% warning | $T8 %]<br/>
+  [%- END %]
+<br />
+[% END %]
 
 [% IF datev.net_gross_differences.size %]
 [% INCLUDE 'datev/net_gross_difference.html'

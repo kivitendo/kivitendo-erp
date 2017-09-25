@@ -215,6 +215,16 @@ sub trans_id {
   return $self->{trans_id};
 }
 
+sub warnings {
+  my $self = shift;
+
+  if (@_) {
+    $self->{warnings} = \@_;
+  } else {
+   return $self->{warnings};
+  }
+}
+
 sub accnofrom {
  my $self = shift;
 
@@ -1365,6 +1375,7 @@ sub csv_buchungsexport {
   push @array_of_datev, \@csv_headers;
   push @array_of_datev, [ map { $_->{csv_header_name} } @csv_columns ];
 
+  my @warnings;
   foreach my $row ( @datev_lines ) {
     my @current_datev_row;
 
@@ -1389,15 +1400,17 @@ sub csv_buchungsexport {
         die "Incorrect lenght of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
       }
       if (exists $column->{valid_check} && $column->{kivi_datev_name} ne 'not yet implemented') {
-        # more checks
-        die "Not a valid value: '$row->{ $column->{kivi_datev_name} }'" .
-            " for '$column->{kivi_datev_name}' with amount '$row->{umsatz}'"
-              unless ($column->{valid_check}->($row->{ $column->{kivi_datev_name} }));
+        # more checks, listed as user warnings
+        push @warnings, t8("Wrong field value '#1' for field '#2' for the transaction" .
+                            " with amount '#3'",$row->{ $column->{kivi_datev_name} },
+                            $column->{kivi_datev_name},$row->{umsatz})
+          unless ($column->{valid_check}->($row->{ $column->{kivi_datev_name} }));
       }
       push @current_datev_row, $row->{ $column->{kivi_datev_name} };
     }
     push @array_of_datev, \@current_datev_row;
   }
+  $self->warnings(@warnings) if @warnings;
   return \@array_of_datev;
 }
 

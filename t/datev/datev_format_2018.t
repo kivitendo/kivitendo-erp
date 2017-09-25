@@ -68,20 +68,31 @@ $datev1->generate_datev_lines;
 # check conversion to csv
 $datev1->from($startdate);
 $datev1->to($enddate);
-eval {
-  $datev1->csv_buchungsexport();
-  1;  };
-like($@, qr/^Not a valid value: '' for 'belegfeld1' with .*/, "wrong encoding");
+$datev1->csv_buchungsexport();
+my @warnings = $datev1->warnings;
+is(@warnings[0]->[0]->{untranslated},
+  'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'wrong_encoding');
 
-# redefine invnumber, but still broken
+
+# redefine invnumber, we have mixed encodings, should still generate a warning
 $invoice->invnumber('ݗݘݰݶmuh');
 $invoice->save();
-$datev1->generate_datev_data;
-$datev1->generate_datev_lines;
-eval {
-  $datev1->csv_buchungsexport();
-  1;  };
-like($@, qr/^Not a valid value: '' for 'belegfeld1' with amount/, "mixed encoding");
+
+my $datev3 = SL::DATEV->new(
+  dbh        => $dbh,
+  trans_id   => $invoice->id,
+);
+
+$datev3->from($startdate);
+$datev3->to($enddate);
+$datev3->generate_datev_data;
+$datev3->generate_datev_lines;
+$datev3->csv_buchungsexport;
+@warnings = [];
+@warnings = $datev3->warnings;
+is(@warnings[0]->[0]->{untranslated},
+  'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'mixed_wrong_encoding');
+
 
 
 # create one haben buchung with GLTransaction today
