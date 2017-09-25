@@ -170,6 +170,12 @@ namespace('kivi.File', function(ns) {
     return false;
   }
 
+  ns.delete_file = function(id,controller_action) {
+    $.post('controller.pl', { action: controller_action, id: id }, function(data) {
+      kivi.eval_json_result(data);
+    });
+  };
+
   ns.unimport = function(id,type,file_type,checkbox_class) {
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 

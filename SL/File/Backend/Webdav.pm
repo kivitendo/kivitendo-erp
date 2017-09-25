@@ -128,7 +128,9 @@ my %type_to_path = (
   assembly                => 'erzeugnisse',
   letter                  => 'briefe',
   general_ledger          => 'dialogbuchungen',
+  gl_transaction          => 'dialogbuchungen',
   accounts_payable        => 'kreditorenbuchungen',
+  shop_image              => 'shopbilder',
 );
 
 my %type_to_model = (
@@ -146,7 +148,9 @@ my %type_to_model = (
   assembly                => 'Part',
   letter                  => 'Letter',
   general_ledger          => 'GLTransaction',
+  gl_transaction          => 'GLTransaction',
   accounts_payable        => 'GLTransaction',
+  shop_image              => 'Part',
 );
 
 my %model_to_number = (
@@ -156,7 +160,8 @@ my %model_to_number = (
   PurchaseInvoice => 'invnumber',
   Part            => 'partnumber',
   Letter          => 'letternumber',
-  GLTransaction   => 'reference'
+  GLTransaction   => 'reference',
+  ShopImage       => 'partnumber',
 );
 
 sub webdav_path {

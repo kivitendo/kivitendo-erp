@@ -1,11 +1,23 @@
 [%- USE L -%][%- USE LxERP -%][%- USE JavaScript -%]
 
 <form method="post" id="upload_form" enctype="multipart/form-data" action="controller.pl">
+  [% SET multiple = 'true' %]
+  [% IF SELF.object_type == 'shop_image' %][% multiple = 'false' %][% END %]
  <table>
   <tr>
    <td>[%- LxERP.t8("Filename") %]:</td><td>
-   <input type="file" name="uploadfiles[]" multiple="true" id="upload_files" size="45" accept="[% SELF.accept_types %]" onchange="kivi.File.allow_upload_submit();"></td>
+   <input type="file" name="uploadfiles[]" multiple="[% multiple %]" id="upload_files" size="45" accept="[% SELF.accept_types %]" onchange="kivi.File.allow_upload_submit();"></td>
   </tr>
+  [% IF SELF.object_type == 'shop_image' %]
+    <tr>
+      <td>[% LxERP.t8("Title") %]</td>
+      <td>[% L.input_tag("title",'') %]</td>
+    </tr>
+    <tr>
+      <td>[% LxERP.t8("Description") %]</td>
+      <td>[% L.input_tag("description",'') %]</td>
+    </tr>
+  [% END %]
  </table>
 
  <p>

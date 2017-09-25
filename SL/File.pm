@@ -8,8 +8,10 @@ use Clone qw(clone);
 use SL::File::Backend;
 use SL::File::Object;
 use SL::DB::History;
+use SL::DB::ShopImage;
 use SL::DB::File;
 use SL::Helper::UserPreferences;
+use SL::Controller::Helper::ThumbnailCreator qw(file_probe_type);
 use SL::JSON;
 
 use constant RENAME_OK          => 0;
@@ -240,6 +242,21 @@ sub _save {
 
   $file->mtime(DateTime->now_local);
   $file->save;
+  #ShopImage
+  if($file->object_type eq "shop_image"){
+    my $image_content = $params{file_contents};
+    my $thumbnail = file_probe_type($image_content);
+    my $shopimage = SL::DB::ShopImage->new();
+    $shopimage->assign_attributes(
+                                  file_id                => $file->id,
+                                  thumbnail_content      => $thumbnail->{thumbnail_img_content},
+                                  org_file_height        => $thumbnail->{file_image_height},
+                                  org_file_width         => $thumbnail->{file_image_width},
+                                  thumbnail_content_type => $thumbnail->{thumbnail_img_content_type},
+                                  object_id              => $file->object_id,
+                                 );
+    $shopimage->save;
+  }
   if ($params{file_type} eq 'document' && $params{source} ne 'created') {
     SL::DB::History->new(
       addition    => 'IMPORT',
