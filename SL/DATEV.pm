@@ -219,7 +219,7 @@ sub warnings {
   my $self = shift;
 
   if (@_) {
-    $self->{warnings} = \@_;
+    $self->{warnings} = [@_];
   } else {
    return $self->{warnings};
   }
