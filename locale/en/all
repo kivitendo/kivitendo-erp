@@ -1338,6 +1338,7 @@ $self->{texts} = {
   'File name'                   => '',
   'File not exists !'           => '',
   'File still exists !'         => '',
+  'File upload'                 => '',
   'Filemanagement'              => '',
   'Filename'                    => '',
   'Files'                       => '',

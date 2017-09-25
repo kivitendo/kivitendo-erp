@@ -56,6 +56,7 @@ namespace("kivi").setupLocale({
 "Edit text block":"Textblock bearbeiten",
 "Enter longdescription":"Langtext eingeben",
 "Error: Name missing":"Fehler: Name fehlt",
+"File upload":"Datei Upload",
 "Function block actions":"Funktionsblockaktionen",
 "Generate and print sales delivery orders":"Erzeuge und drucke Lieferscheine",
 "Hide all details":"Alle Details verbergen",
