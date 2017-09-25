@@ -3,14 +3,9 @@
 [%- USE L -%]
 [%- USE P -%]
 [%- USE LxERP -%]
-[%- USE Dumper -%]
 
 [%  LxERP.t8("Part") %]: [% HTML.escape(SELF.shop_part.part.displayable_name) %]<br>
-[%  LxERP.t8("Shop") %]: [% HTML.escape(SELF.shop_part.shop.description) %]
-<br>
-[% # Dumper.dump_html(SELF.shop_part.shop_category) %]
-<br>
-[% # Dumper.dump_html(CATEGORIES) %]
+[%  LxERP.t8("Shop") %]: [% HTML.escape(SELF.shop_part.shop.description) %]<br>
 
 <form action="controller.pl" method="post">
   [% BLOCK recurse %]
@@ -21,7 +16,6 @@
         [% checked = '' %]
         [% # path = path _ obj.name %]
         [% # test = path.split('\|') %]
-        [% # Dumper.dump_html(SELF.shop_part.shop_category) %]
         [% IF SELF.shop_part.shop_category.1.grep(obj.name).size %]
           [% checked = 'checked' %]
         [% ELSE %]
@@ -52,4 +46,3 @@
   </div>
     [% L.button_tag("kivi.ShopPart.save_categories(" _ SELF.shop_part.id _", " _ SELF.shop_part.shop.id _")", LxERP.t8("Save"))  %]</td>
 </form>
-

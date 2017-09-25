@@ -1,5 +1,5 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
-[%- USE Dumper -%]
+
 [% SET data = job.data_as_hash %]
 
 <h2>[% LxERP.t8("Watch status") %]</h2>
@@ -24,7 +24,7 @@ JOBID: [% job.id %] <p>
    </td>
   </tr>
   <tr>
-   <th valign="top" align="left">[% LxERP.t8("Number of data uploaded:") %]</th>
+   <th valign="top" align="left">[% LxERP.t8("Number of data sets uploaded:") %]</th>
    <td valign="top">[% IF data.status > 0 %][% HTML.escape(data.num_uploaded) %] / [% HTML.escape(data.record_ids.size) %][% ELSE %]–[% END %]</td>
   </tr>
 
@@ -35,9 +35,9 @@ JOBID: [% job.id %] <p>
   –
     <table>
      <tr class="listheader">
-      <th>[% LxERP.t8("Part") %]</th>
-      <th>[% LxERP.t8("Partnumber") %]</th>
-      <th>[% LxERP.t8("Message") %]</th>
+      <th>[% LxERP.t8("Part")       %] </th>
+      <th>[% LxERP.t8("Partnumber") %] </th>
+      <th>[% LxERP.t8("Message")    %] </th>
      </tr>
 
  [% FOREACH message = data.conversion %]

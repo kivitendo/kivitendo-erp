@@ -5,16 +5,14 @@
 <form action='controller.pl' metdod='post' id="shop_part_filter">
   [% L.hidden_tag('filter.shop.obsolete', 0) %]
  <table id='filter_table'>
-
     <tr>
      <td>[% 'Shop' | $T8 %]</td>
      <td>[% L.select_tag('filter.shop_id:eq_ignore_empty', SELF.shops, value_key = 'value', title_key = 'title', default=0) %]</td>
     </tr>
     <tr>
-     <td>[% 'Part marked as "Shop article"' %]
+     <td>[% 'Part marked as "Shop part"' %]
      <td>[% L.yes_no_tag('filter.part.shop', FORM.filter.part.shop, default='1', with_empty=1, empty_title='---') %]</td>
     </tr>
-
  </table>
 
  <p>

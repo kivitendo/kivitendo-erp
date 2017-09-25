@@ -34,15 +34,15 @@ JOBID: [% job.id %] <p>
   –
     <table>
      <tr class="listheader">
-      <th>[% LxERP.t8("Part") %]</th>
+      <th>[% LxERP.t8("Part")       %]</th>
       <th>[% LxERP.t8("Partnumber") %]</th>
-      <th>[% LxERP.t8("Message") %]</th>
+      <th>[% LxERP.t8("Message")    %]</th>
      </tr>
 
  [% FOREACH message = data.conversion %]
      <tr>
-      <td valign="top">[% HTML.escape(message.id) %]</td>
-      <td valign="top">[% HTML.escape(message.number) %]</td>
+      <td valign="top">[% HTML.escape(message.id)      %]</td>
+      <td valign="top">[% HTML.escape(message.number)  %]</td>
       <td valign="top">[% HTML.escape(message.message) %]</td>
      </tr>
  [% END %]

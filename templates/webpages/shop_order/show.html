@@ -176,22 +176,20 @@
   <div style="height: 250px; overflow:auto; margin:15px;">
     <table width="99%">
       <tr class="listheading">
-        <th>[% 'Position' | $T8 %]</th>
-        <th>[% 'Partnumber' | $T8 %]</th>
-        <th>[% 'Part Description' | $T8 %]</th>
-        <th>[% 'Qty' | $T8 %]</th>
-        <th>[% 'Price' | $T8 %]</th>
-        <th>[% 'Extended' | $T8 %]</th>
+        <th>[% 'Position'          | $T8 %]</th>
+        <th>[% 'Partnumber'        | $T8 %]</th>
+        <th>[% 'Partdescriptipion' | $T8 %]</th>
+        <th>[% 'Qty'               | $T8 %]</th>
+        <th>[% 'Price'             | $T8 %]</th>
+        <th>[% 'Extended'          | $T8 %]</th>
       </tr>
-      [% FOREACH pos = IMPORT.shop_order_items %]
       <tr class="listrow">
-        <td>[% count() %]</td>
-        <td>[% HTML.escape(pos.partnumber) %]</td>
-        <td>[% HTML.escape(pos.description) %]</td>
-        <td>[% pos.quantity_as_number%]</td>
-        <td>[% pos.price_as_number%]</td>
-        [% SET extended = pos.price * pos.quantity %]
-        <td>[% LxERP.format_amount(extended,2) %]</td>
+        <td>[% loop.index                                      %]</td>
+        <td>[% HTML.escape(pos.partnumber)                     %]</td>
+        <td>[% HTML.escape(pos.description)                    %]</td>
+        <td>[% pos.quantity_as_number                          %]</td>
+        <td>[% pos.price_as_number                             %]</td>
+        <td>[% LxERP.format_amount(pos.price * pos.quantity,2) %]</td>
       </tr>
       [% END %]
     </table>
@@ -205,4 +203,3 @@ $("input[type=radio]").change(function(){
       $('#transfer').css("display", 'block');
 });
 </script>
-[% # L.dump(IMPORT) %]

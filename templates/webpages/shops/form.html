@@ -1,11 +1,9 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 -%]
-[%- USE Dumper -%]
 
 [% SET style="width: 400px" %]
 [% SET size=34 %]
 
 <h1>[% HTML.escape(title) %]</h1>
-[% #Dumper.dump_html(SELF.shop) %]
 <form id="form" action="controller.pl" method="post">
 
 [%- INCLUDE 'common/flash.html' %]

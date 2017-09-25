@@ -1,9 +1,8 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
-[% USE Dumper %]
 
 [% L.stylesheet_tag('webshop') %]
 [%- INCLUDE 'common/flash.html' %]
-<h1>[% title %]<span style="float:right;">[% 'Number data sets' | $T8 %]: [% SHOPORDERS.size %]</span></h1>
+<h1>[% title %]<span style="float:right;">[% 'Number of data sets' | $T8 %]: [% SHOPORDERS.size %]</span></h1>
 [%- PROCESS 'shop_order/_filter.html' filter=SELF.models.filtered.laundered %]
 
 <hr>
@@ -147,7 +146,6 @@
  </form>
  <form method="post" action="controller.pl" name="shop_orders_list" id="shoporderslist">
   [% FOREACH shop_order = SHOPORDERS %]
-  [% # Dumper.dump_html(shop_order) %]
     [% IF shop_order.kivi_customer.id && shop_order.kivi_customer.order_lock == 0 && shop_order.open_invoices == 0 %] [% SET transferable = 1 %] [% SET transferable_class = 'class="shop_transferable"' %] [% ELSE %] [% SET transferable = 0 %] [% SET transferable_class = '' %][% END %]
   <tr class="listrow">
     <td>[% HTML.escape(shop_order.shop.description) %]</td>

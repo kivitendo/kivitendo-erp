@@ -3,13 +3,11 @@
 [%- USE L -%]
 [%- USE P -%]
 [%- USE LxERP -%]
-[%- USE Dumper -%]
 
 <p>
 [% LxERP.t8("Part") %]: [% HTML.escape(SELF.shop_part.part.displayable_name) %]<br>
 [% LxERP.t8("Shop") %]: [% HTML.escape(SELF.shop_part.shop.description) %]
 <p>
-[% # Dumper.dump_html(SELF) %]
 <form action="controller.pl" method="post">
   <div>
     [% IF SELF.shop_part.id %]
@@ -55,7 +53,6 @@
      <td>[% L.textarea_tag("shop_part.metatag_description", SELF.shop_part.metatag_description, rows=4) %]</td>
     </tr>
     </table>
-    [% # L.dump(SELF.shop_part) %]
 
     [% IF SELF.shop_part.id %]
     [% L.button_tag("kivi.ShopPart.save_shop_part(" _ SELF.shop_part.id _ ")", LxERP.t8("Save"))  %]</td>
@@ -71,11 +68,6 @@
   </div>
 </form>
 
-
-
 [%- IF SELF.shop_part.part.image && INSTANCE_CONF.get_parts_show_image %]
          <a href="[% SELF.shop_part.part.image | html %]" target="_blank"><img style="[% INSTANCE_CONF.get_parts_image_css %]" src="[% SELF.shop_part.part.image | html %]"/></a>
 [%- END %]
-
-[% # SELF.shop_part.shop_description %]
-[% # L.dump(SELF.shop_part) %]
