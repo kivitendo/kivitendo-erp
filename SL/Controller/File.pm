@@ -44,22 +44,23 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_object_params', only => [ qw(list ajax_delete ajax_importdialog ajax_import ajax_unimport ajax_upload ajax_files_uploaded) ]);
 
 my %file_types = (
-  'sales_quotation'         => { gen => 1, gltype => '',   dir => 'SalesQuotation',        model => 'Order',           right => 'import_ar' },
-  'sales_order'             => { gen => 1, gltype => '',   dir => 'SalesOrder',            model => 'Order',           right => 'import_ar' },
-  'sales_delivery_order'    => { gen => 1, gltype => '',   dir => 'SalesDeliveryOrder',    model => 'DeliveryOrder',   right => 'import_ar' },
-  'invoice'                 => { gen => 1, gltype => 'ar', dir => 'SalesInvoice',          model => 'Invoice',         right => 'import_ar' },
-  'credit_note'             => { gen => 1, gltype => '',   dir => 'CreditNote',            model => 'Invoice',         right => 'import_ar' },
-  'request_quotation'       => { gen => 3, gltype => '',   dir => 'RequestForQuotation',   model => 'Order',           right => 'import_ap' },
-  'purchase_order'          => { gen => 3, gltype => '',   dir => 'PurchaseOrder',         model => 'Order',           right => 'import_ap' },
-  'purchase_delivery_order' => { gen => 3, gltype => '',   dir => 'PurchaseDeliveryOrder', model => 'DeliveryOrder',   right => 'import_ap' },
-  'purchase_invoice'        => { gen => 2, gltype => 'ap', dir => 'PurchaseInvoice',       model => 'PurchaseInvoice', right => 'import_ap' },
-  'vendor'                  => { gen => 0, gltype => '',   dir => 'Vendor',                model => 'Vendor',          right => 'xx'        },
-  'customer'                => { gen => 1, gltype => '',   dir => 'Customer',              model => 'Customer',        right => 'xx'        },
-  'part'                    => { gen => 0, gltype => '',   dir => 'Part',                  model => 'Part',            right => 'xx'        },
-  'gl_transaction'          => { gen => 2, gltype => 'gl', dir => 'GeneralLedger',         model => 'GLTransaction',   right => 'import_ap' },
-  'draft'                   => { gen => 0, gltype => '',   dir => 'Draft',                 model => 'Draft',           right => 'xx'        },
-  'csv_customer'            => { gen => 1, gltype => '',   dir => 'Reports',               model => 'Customer',        right => 'xx'        },
-  'csv_vendor'              => { gen => 1, gltype => '',   dir => 'Reports',               model => 'Vendor',          right => 'xx'        },
+  'sales_quotation'         => { gen => 1, gltype => '',   dir =>'SalesQuotation',       model => 'Order',          right => 'import_ar'  },
+  'sales_order'             => { gen => 1, gltype => '',   dir =>'SalesOrder',           model => 'Order',          right => 'import_ar'  },
+  'sales_delivery_order'    => { gen => 1, gltype => '',   dir =>'SalesDeliveryOrder',   model => 'DeliveryOrder',  right => 'import_ar'  },
+  'invoice'                 => { gen => 1, gltype => 'ar', dir =>'SalesInvoice',         model => 'Invoice',        right => 'import_ar'  },
+  'credit_note'             => { gen => 1, gltype => '',   dir =>'CreditNote',           model => 'Invoice',        right => 'import_ar'  },
+  'request_quotation'       => { gen => 3, gltype => '',   dir =>'RequestForQuotation',  model => 'Order',          right => 'import_ap'  },
+  'purchase_order'          => { gen => 3, gltype => '',   dir =>'PurchaseOrder',        model => 'Order',          right => 'import_ap'  },
+  'purchase_delivery_order' => { gen => 3, gltype => '',   dir =>'PurchaseDeliveryOrder',model => 'DeliveryOrder',  right => 'import_ap'  },
+  'purchase_invoice'        => { gen => 2, gltype => 'ap', dir =>'PurchaseInvoice',      model => 'PurchaseInvoice',right => 'import_ap'  },
+  'vendor'                  => { gen => 0, gltype => '',   dir =>'Vendor',               model => 'Vendor',         right => 'xx'         },
+  'customer'                => { gen => 1, gltype => '',   dir =>'Customer',             model => 'Customer',       right => 'xx'         },
+  'part'                    => { gen => 0, gltype => '',   dir =>'Part',                 model => 'Part',           right => 'xx'         },
+  'gl_transaction'          => { gen => 2, gltype => 'gl', dir =>'GeneralLedger',        model => 'GLTransaction',  right => 'import_ap'  },
+  'draft'                   => { gen => 0, gltype => '',   dir =>'Draft',                model => 'Draft',          right => 'xx'         },
+  'csv_customer'            => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Customer',       right => 'xx'         },
+  'csv_vendor'              => { gen => 1, gltype => '',   dir =>'Reports',              model => 'Vendor',         right => 'xx'         },
+  'shop_image'              => { gen => 0, gltype => '',   dir =>'ShopImages',           model => 'Part',           right => 'xx'         },
 );
 
 #--- 4 locale ---#
@@ -252,20 +253,22 @@ sub action_ajax_files_uploaded {
                                            source      => $source,
                                            file_type   => $self->file_type,
                                            file_name   => $basefile,
-                                          );
+                                      );
 
-           if ($existobj) {
-             push @existing, $existobj->id.'_'.$sfile->file_name;
-           } else {
-          my $fileobj = SL::File->save(object_id     => $self->object_id,
-                                       object_type   => $self->object_type,
-                                       mime_type     => $mime_type,
-                                       source        => $source,
-                                       file_type     => $self->file_type,
-                                       file_name     => $basefile,
-                                       ## two possibilities: which is better ? content or sessionfile ??
-                                       #file_contents => ${$upfiles[$idx]->{data}},
-                                       file_path     => $sfile->file_name
+        if ($existobj) {
+          push @existing, $existobj->id.'_'.$sfile->file_name;
+        } else {
+          my $fileobj = SL::File->save(object_id        => $self->object_id,
+                                       object_type      => $self->object_type,
+                                       mime_type        => $mime_type,
+                                       source           => $source,
+                                       file_type        => $self->file_type,
+                                       file_name        => $basefile,
+                                       title            => $::form->{title},
+                                       description      => $::form->{description},
+                                       ## two possibilities: what is better ? content or sessionfile ??
+                                       file_contents    => ${$upfiles[$idx]->{data}},
+                                       file_path        => $sfile->file_name
                                      );
           unlink($sfile->file_name);
         }
@@ -376,7 +379,14 @@ sub _do_list {
                                 );
   }
   $self->files(\@files);
-  $self->_mk_render('file/list', 1, 0, $json);
+
+  if($self->object_type eq 'shop_image'){
+    $self->js
+      ->run('kivi.ShopPart.show_images', $self->object_id)
+      ->render();
+  }else{
+    $self->_mk_render('file/list', 1, 0, $json);
+  }
 }
 
 sub _get_from_import {
