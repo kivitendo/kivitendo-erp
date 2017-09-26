@@ -6859,6 +6859,15 @@ psql template1</programlisting></para>
 
         <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
 \q</programlisting>
+
+        <para>Für bestehende Datenbanken muss die Extension in der Datenbank
+        angelegt werden</para>
+
+        <programlisting>su - postgres
+psql DATENBANKNAME</programlisting>
+
+        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
+\q</programlisting>
       </sect2>
 
       <sect2>
@@ -6902,12 +6911,14 @@ psql template1</programlisting></para>
         <sect3>
           <title>Shopvariablenreiter in Artikelstammdaten</title>
 
-          <para>Mit dem Recht "Shopartikel anlegen und bearbeiten" öffnet sich
-          der Reiter "Shopvariablen" in den Artikelstammdaten. Hier können
-          jetzt die Artikel mit unterschiedlichen Beschreibung und/oder
-          Preisen für die konfigutierten Shops angelegt und bearbeitet werden.
-          An dieser Stelle können auch beliebig viele Bilder dem Shopartikel
-          zugeordnet werden. Artikelbilder gelten für alle Shops.</para>
+          <para>Mit dem Recht "Shopartikel anlegen und bearbeiten" und des
+          Markers <emphasis role="bold">"Shopartikel" in den Basisdaten
+          </emphasis>zeigt sich der Reiter "Shopvariablen" in den
+          Artikelstammdaten. Hier können jetzt die Artikel mit
+          unterschiedlichen Beschreibung und/oder Preisen für die
+          konfigutierten Shops angelegt und bearbeitet werden. An dieser
+          Stelle können auch beliebig viele Bilder dem Shopartikel zugeordnet
+          werden. Artikelbilder gelten für alle Shops.</para>
 
           <mediaobject>
             <imageobject>
