@@ -2141,6 +2141,7 @@ $self->{texts} = {
   'Part Type'                   => 'Artikel-Typ',
   'Part Unit'                   => 'Einheit',
   'Part classifications'        => 'Artikel-Klassifizierungen',
+  'Part marked as "Shop part"'  => '',
   'Part picker'                 => 'Artikelauswahl',
   'Part with partnumber: #1 not found' => 'Artikel mit Artikelnummer #1 wurde nicht gefunden',
   'PartClassAbbreviation'       => 'Abkürzung der Artikel-Klassifizierung',

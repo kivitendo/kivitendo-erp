@@ -2141,6 +2141,7 @@ $self->{texts} = {
   'Part Type'                   => '',
   'Part Unit'                   => '',
   'Part classifications'        => '',
+  'Part marked as "Shop part"'  => '',
   'Part picker'                 => '',
   'Part with partnumber: #1 not found' => '',
   'PartClassAbbreviation'       => '',
