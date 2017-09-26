@@ -2,6 +2,8 @@ package SL::ShopConnector::ALL;
 
 use strict;
 
+use SL::ShopConnector::Shopware;
+
 my %shop_connector_by_name = (
   shopware    => 'SL::ShopConnector::Shopware',
 );

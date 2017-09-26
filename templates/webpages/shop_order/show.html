@@ -184,7 +184,8 @@
         <th>[% 'Extended'          | $T8 %]</th>
       </tr>
       <tr class="listrow">
-        <td>[% loop.index                                      %]</td>
+      [% FOREACH pos = IMPORT.shop_order_items %]
+        <td>[% loop.index+1                                      %]</td>
         <td>[% HTML.escape(pos.partnumber)                     %]</td>
         <td>[% HTML.escape(pos.description)                    %]</td>
         <td>[% pos.quantity_as_number                          %]</td>
