@@ -36,7 +36,6 @@ $self->{texts} = {
   '...done'                     => '...fertig',
   '...on the TODO list'         => '...auf der Aufgabenliste',
   '0% tax with taxkey'          => '0% Steuer mit Steuerschl&uuml;ssel ',
-  '1)'                          => '',
   '1. Quarter'                  => '1. Quartal',
   '2 years'                     => '2 Jahre',
   '2. Quarter'                  => '2. Quartal',
