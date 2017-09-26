@@ -12,7 +12,7 @@ CREATE OR REPLACE FUNCTION update_shop_orders_on_delete_oe() RETURNS TRIGGER AS 
   BEGIN
     UPDATE shop_orders SET oe_trans_id = NULL WHERE oe_trans_id = OLD.id;
 
-    RETURN OLD.id;
+    RETURN OLD;
   END;
 $$ LANGUAGE plpgsql;
 
