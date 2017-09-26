@@ -878,6 +878,8 @@ sub post {
     $form->{callback} = 'ir.pl?action=add';
     $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
+                  . ", " . $locale->text('ID')
+                  . ': ' . $form->{id} . ' '
                   . $locale->text('posted!'));
   }
   $form->error($locale->text('Cannot post invoice!'));
