@@ -4,7 +4,6 @@
 -- @encoding: utf-8
 -- @ignore: 1
 
--- CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX customer_customernumber_gin_trgm_idx    ON customer        USING gin (customernumber          gin_trgm_ops);
 CREATE INDEX customer_name_gin_trgm_idx              ON customer        USING gin (name                    gin_trgm_ops);
