@@ -6,6 +6,9 @@ use Support::TestSetup;
 use Carp;
 use Test::Exception;
 use SL::Dev::ALL;
+use SL::Dev::Part qw(new_part);
+use SL::Dev::Shop qw(new_shop new_shop_part);
+use SL::Dev::CustomerVendor qw(new_customer);
 use SL::DB::Shop;
 use SL::DB::ShopOrder;
 use SL::DB::ShopOrderItem;
@@ -21,27 +24,25 @@ sub reset_state {
 
   clear_up();
 
-  $shop = SL::Dev::Shop::new_shop( connector         => 'shopware',
-                                   last_order_number => 20000,
-                                   pricetype         => 'brutto',
-                                   price_source      => 'master_data',
-                                   taxzone_id        => 1,
-                                 );
+  $shop = new_shop( connector         => 'shopware',
+                    last_order_number => 20000,
+                    pricetype         => 'brutto',
+                    price_source      => 'master_data',
+                    taxzone_id        => 1,
+                  );
   $shopware = SL::Shop->new( config => $shop );
-  $part = SL::Dev::Part::new_part( partnumber   => 'SW10002',
-                                         description  => 'TITANIUM CARBON GS 12m cm',
-                                       );
-  $shop_part = SL::Dev::Shop::new_shop_part(part => $part, shop => $shop);
+  $part = new_part( partnumber   => 'SW10002',
+                    description  => 'TITANIUM CARBON GS 12m cm',
+                  );
+  $shop_part = new_shop_part(part => $part, shop => $shop);
 
   $employee = SL::DB::Manager::Employee->current || croak "No employee";
 
-  $customer = SL::Dev::CustomerVendor::new_customer(
-    name    => 'Evil Inc',
-    street  => 'Evil Street',
-    zipcode => '66666',
-    email   => 'evil@evilinc.com'
-  )->save;
-
+  $customer = new_customer( name    => 'Evil Inc',
+                            street  => 'Evil Street',
+                            zipcode => '66666',
+                            email   => 'evil@evilinc.com'
+                          )->save;
 }
 
 sub get_json {

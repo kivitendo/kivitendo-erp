@@ -6,6 +6,9 @@ use Support::TestSetup;
 use Carp;
 use Test::Exception;
 use SL::Dev::ALL;
+use SL::Dev::Part qw(new_part);
+use SL::Dev::Shop qw(new_shop new_shop_part new_shop_order);
+use SL::Dev::CustomerVendor qw(new_customer);
 use SL::DB::Shop;
 use SL::DB::ShopOrder;
 use SL::DB::ShopOrderItem;
@@ -19,18 +22,17 @@ sub reset_state {
 
   clear_up();
 
-  $shop = SL::Dev::Shop::new_shop->save;
-  $part = SL::Dev::Part::new_part->save;
-  $shop_part = SL::Dev::Shop::new_shop_part(part => $part, shop => $shop)->save;
+  $shop = new_shop->save;
+  $part = new_part->save;
+  $shop_part = new_shop_part(part => $part, shop => $shop)->save;
 
   $employee = SL::DB::Manager::Employee->current || croak "No employee";
 
-  $customer = SL::Dev::CustomerVendor::new_customer(
-    name    => 'Evil Inc',
-    street  => 'Evil Street',
-    zipcode => '66666',
-    email   => 'evil@evilinc.com'
-  )->save;
+  $customer = new_customer( name    => 'Evil Inc',
+                            street  => 'Evil Street',
+                            zipcode => '66666',
+                            email   => 'evil@evilinc.com'
+                          )->save;
 }
 
 sub save_shorcontroller_to_string {
@@ -67,7 +69,7 @@ reset_state();
 
 my $shop_trans_id = 1;
 
-$shop_order = SL::Dev::Shop::new_shop_order(
+$shop_order = new_shop_order(
   shop              => $shop,
   shop_trans_id     => $shop_trans_id,
   amount            => 59.5,
@@ -96,7 +98,7 @@ is(scalar @{ $fuzzy_customers }, 1, 'found 1 matching customer');
 is($fuzzy_customers->[0]->name, 'Evil Inc', 'matched customer Evil Inc');
 
 note('adding a not-so-similar customer');
-my $customer_different = SL::Dev::CustomerVendor::new_customer(
+my $customer_different = new_customer(
   name    => "Different Name",
   street  => 'Good Straet', # difference large enough from "Evil Street"
   zipcode => $customer->zipcode,
@@ -106,7 +108,7 @@ $fuzzy_customers = $shop_order->check_for_existing_customers;
 is(scalar @{ $fuzzy_customers }, 1, 'still only found 1 matching customer (zipcode equal + street dissimilar');
 
 note('adding a similar customer');
-my $customer_similar = SL::Dev::CustomerVendor::new_customer(
+my $customer_similar = new_customer(
   name    => "Different Name",
   street  => 'Good Street', # difference not large enough from "Evil Street", street matches
   zipcode => $customer->zipcode,
