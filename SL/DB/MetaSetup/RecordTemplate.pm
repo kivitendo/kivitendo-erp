@@ -25,6 +25,7 @@ __PACKAGE__->meta->columns(
   ordnumber      => { type => 'text' },
   project_id     => { type => 'integer' },
   reference      => { type => 'text' },
+  show_details   => { type => 'boolean', default => 'false', not_null => 1 },
   taxincluded    => { type => 'boolean', default => 'false', not_null => 1 },
   template_name  => { type => 'text', not_null => 1 },
   template_type  => { type => 'enum', check_in => [ 'ar_transaction', 'ap_transaction', 'gl_transaction' ], db_type => 'record_template_type', not_null => 1 },
