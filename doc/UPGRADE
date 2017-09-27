@@ -11,7 +11,20 @@ Upgrade auf v3.5.1
   * LWP::Authen::Digest für WebshopApi
   * LWP::UserAgent für WebshopApi
 
-* Verwendung der WebshopApi
+* Neue Postgres Erweiterung pg_trgm
+
+  * Um diese Erweiterung zu installieren:
+
+    su - postgres
+    psql template1
+    CREATE EXTENSION IF NOT EXISTS pg_trgm;
+    \q
+
+    Wenn die Extension installiert ist können in den beiden Dateien
+    - sql/Pg-upgrade2/trigram_indices_webshop.sql
+    - sql/Pg-upgrade2/trigram_indices.sql
+    das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
+    Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
 
   * Bestehende Datenbanken, die die WebshopApi verwenden sollen benötigen die
     Postgres Erweiterung pg_trgm
@@ -21,12 +34,6 @@ Upgrade auf v3.5.1
     psql <DATENBANK>
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
     \q
-
-    Wenn die Extension installiert ist können in den beiden Dateien
-    - sql/Pg-upgrade2/trigram_indices_webshop.sql
-    - sql/Pg-upgrade2/trigram_indices.sql
-    das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
-    Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
 
 Upgrade auf v3.5.0
 ===========================
