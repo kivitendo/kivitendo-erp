@@ -29,7 +29,8 @@ namespace('kivi.File', function(ns) {
                                , close: function() {
                                  $dlg.remove().appendTo('#' + parent_id);
                                }
-                              } });
+                              }
+    });
     return true;
   }
 
@@ -59,14 +60,20 @@ namespace('kivi.File', function(ns) {
     $('#next_ids_id').val(next_ids);
     $('#sessionfile_id').val(sessionfile);
     $('#rename_extra_text').html(kivi.t8("The uploaded filename still exists.<br>If you not modify the name this is a new version of the file"));
+    var $dlg       = $('#rename_dialog');
+    var parent_id  = $dlg.parent("div.ui-tabs-panel").attr('id');
     kivi.popup_dialog(
       {
         id:     'rename_dialog',
         dialog: { title: kivi.t8("Rename attachment")
                   , width:  400
                   , height: 200
-                  , modal:  true }
-      });
+                  , modal:  true
+                  , close: function() {
+                    $dlg.remove().appendTo('#' + parent_id);
+                  } }
+      }
+    );
   }
 
   ns.upload = function(id,type,filetype,upload_title,gl) {
