@@ -350,9 +350,13 @@ sub _delete_all {
   foreach my $id_version (@{ $::form->{$ids} || [] }) {
     my ($id, $version) = split /_/, $id_version;
     my $dbfile = SL::File->get(id => $id);
-    $dbfile->version($version) if $dbfile && $version;
-    if ( $dbfile && $dbfile->delete ) {
-      $files .= ' ' . $dbfile->file_name;
+    if ( $dbfile ) {
+      if ( $version ) {
+        $dbfile->version($version);
+        $files .= ' ' . $dbfile->file_name if $dbfile->delete_version;
+      } else {
+        $files .= ' ' . $dbfile->file_name if $dbfile->delete;
+      }
     }
   }
   $self->js->flash('info', $infotext . $files) if $files;

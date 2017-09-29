@@ -72,6 +72,7 @@ sub get_all_versions {
   foreach my $fileobj (@fileobjs) {
     $main::lxdebug->message(LXDebug->DEBUG2(), "obj=" . $fileobj . " id=" . $fileobj->id." versions=".$fileobj->version_count);
     my $maxversion = $fileobj->version_count;
+    $fileobj->version($maxversion);
     push @versionobjs, $fileobj;
     if ($maxversion > 1) {
       for my $version (2..$maxversion) {
@@ -162,8 +163,8 @@ sub _delete {
   }
   if ($backend->delete(%params)) {
     my $do_delete = 0;
-    if ( $params{last} || $params{all_but_notlast} ) {
-      if ( $backend->get_version_count > 0 ) {
+    if ( $params{last} || $params{version} || $params{all_but_notlast} ) {
+      if ( $backend->get_version_count(%params) > 0 ) {
         $params{dbfile}->mtime(DateTime->now_local);
         $params{dbfile}->save;
       } else {

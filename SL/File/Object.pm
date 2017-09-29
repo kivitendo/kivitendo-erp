@@ -97,6 +97,10 @@ sub delete_last_version {
   SL::File->delete(dbfile => $_[0]->loaded_db_file, last => 1 )
 }
 
+sub delete_version {
+  SL::File->delete(dbfile => $_[0]->loaded_db_file, version => $_[0]->version )
+}
+
 sub purge {
   SL::File->delete(dbfile => $_[0]->loaded_db_file, all_but_notlast => 1 )
 }

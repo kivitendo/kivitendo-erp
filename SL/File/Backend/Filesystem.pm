@@ -15,16 +15,28 @@ use File::Path qw(make_path);
 sub delete {
   my ($self, %params) = @_;
   die "no dbfile in backend delete" unless $params{dbfile};
-  my $backend_data = $params{dbfile}->backend_data;
-  $backend_data    = 0                               if $params{last};
-  $backend_data    = $params{dbfile}->backend_data-1 if $params{all_but_notlast};
+  my $last_version  = $params{dbfile}->backend_data;
+  my $first_version = 1;
+  $last_version     = 0                               if $params{last};
+  $last_version     = $params{dbfile}->backend_data-1 if $params{all_but_notlast};
+  $last_version     = $params{version}                if $params{version};
+  $first_version    = $params{version}                if $params{version};
 
-  if ($backend_data > 0 ) {
-    for my $version ( 1..$backend_data) {
+  if ($last_version > 0 ) {
+    for my $version ( $first_version..$last_version) {
       my $file_path = $self->_filesystem_path($params{dbfile},$version);
       unlink($file_path);
     }
-    if ($params{all_but_notlast}) {
+    if ($params{version}) {
+      for my $version ( $last_version+1 .. $params{dbfile}->backend_data) {
+        my $from = $self->_filesystem_path($params{dbfile},$version);
+        my $to   = $self->_filesystem_path($params{dbfile},$version - 1);
+        die "file not exists in backend delete" unless -f $from;
+        rename($from,$to);
+      }
+      $params{dbfile}->backend_data($params{dbfile}->backend_data-1);
+    }
+    elsif ($params{all_but_notlast}) {
       my $from = $self->_filesystem_path($params{dbfile},$params{dbfile}->backend_data);
       my $to   = $self->_filesystem_path($params{dbfile},1);
       die "file not exists in backend delete" unless -f $from;
@@ -32,6 +44,8 @@ sub delete {
       $params{dbfile}->backend_data(1);
     } else {
       $params{dbfile}->backend_data(0);
+    }
+    unless ($params{dbfile}->backend_data) {
       my $dir_path = $self->_filesystem_path($params{dbfile});
       rmdir($dir_path);
     }

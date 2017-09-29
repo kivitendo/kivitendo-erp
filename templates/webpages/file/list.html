@@ -44,14 +44,10 @@ $(function() {
   [%- FOREACH file = source.files %]
    <tr class="listrow[% loop.count % 2 %]">
     [%- IF edit_attachments %]
-    [%- IF file.newest %]
-    <td>[%- L.checkbox_tag(checkname _ '[]', 'value'=file.id, 'class'=checkname) %]</td>
-    [%- ELSE %]
+    <td>[%- L.checkbox_tag(checkname _ '[]', 'value'=file.id _ '_' _ file.version, 'class'=checkname) %]</td>
     <td></td>
     [%- END %]
-    <td></td>
-    [%- END %]
-    <td>[% file.mtime_as_timestamp_s %]</td>
+    <td>[% file.mtime_as_timestamp_s %][% L.hidden_tag("version[]", file.version) %]</td>
     <td><a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">
         <span id="[% "filename_" _ file.id %][%- IF file.version %]_[% file.version %][%- END %]">[% file.file_name %]</span></a></td>
     [%- IF file_type == 'image' %]
