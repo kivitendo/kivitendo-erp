@@ -98,7 +98,7 @@ sub get_mtime {
   die "No file found at $path. Expected: $params{dbfile}{file_name}, file.id: $params{dbfile}{id}" if !-f $path;
 
   my @st = stat($path);
-  my $dt = DateTime->from_epoch(epoch => $st[9])->clone();
+  my $dt = DateTime->from_epoch(epoch => $st[9], time_zone => $::locale->get_local_time_zone()->name, locale => $::lx_office_conf{system}->{language})->clone();
   return $dt;
 }
 
