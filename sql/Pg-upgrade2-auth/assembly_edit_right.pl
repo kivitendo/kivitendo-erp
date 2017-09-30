@@ -14,7 +14,7 @@ use SL::DBUtils;
 sub run {
   my ($self) = @_;
 
-  $self->db_query("INSERT INTO auth.master_rights (position, name, description) VALUES ( 55000, 'assembly_edit', 'Always edit assembly items (user can change/delete items even if assemblies are already produced)')");
+  $self->db_query("INSERT INTO auth.master_rights (position, name, description) VALUES ( 550, 'assembly_edit', 'Always edit assembly items (user can change/delete items even if assemblies are already produced)')");
 
   my $groups = $main::auth->read_groups();
 
