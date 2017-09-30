@@ -248,6 +248,14 @@
           </listitem>
 
           <listitem>
+            <para>LWP::Authen::Digest</para>
+          </listitem>
+
+          <listitem>
+            <para>LWP::UserAgent</para>
+          </listitem>
+
+          <listitem>
             <para><literal>Net::SMTP::SSL</literal> (optional, bei
             E-Mail-Versand über SSL; siehe Abschnitt "<xref
             linkend="config.sending-email.smtp"/>")</para>
@@ -322,7 +330,8 @@
         </itemizedlist>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
-        hinzugekommen: <literal>Text::Unidecode</literal></para>
+        hinzugekommen: <literal>Text::Unidecode, LWP::Authen::Digest,
+        LWP::UserAgent</literal></para>
 
         <para>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
         <literal>Algorithm::CheckDigits</literal><literal>PBKDF2::Tiny</literal></para>
@@ -376,7 +385,7 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl
 </programlisting>
 
           <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
@@ -401,7 +410,7 @@ cpan HTML::Restrict</programlisting>
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced</programlisting>
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle nutzen:</para>
@@ -422,7 +431,7 @@ cpan HTML::Restrict</programlisting>
   perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
   perl-URI perl-XML-Writer perl-YAML perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server</programlisting>
+  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle nutzen:</para>
@@ -6847,12 +6856,26 @@ document_path = /var/local/kivi_documents
       werden.</para>
 
       <sect2>
-        <title>Installationvorraussetzungen</title>
+        <title>Installationsempfehlung</title>
 
-        <para>In der Datenbank <literal>template1</literal> muss die
-        Unterstützung für die trigram-Extension eingerichet werden. Melden Sie
-        sich dafür als Benutzer “postgres” an der Datenbank an:
-        <programlisting>su - postgres
+        <para>Optionale Postgreserweiterung pg_trgm(Trigram)</para>
+
+        <para>Die Trigramerweiterung bietet eine Ähnlichkeitsuche. Diese
+        verwendet das Shopmodul, wenn installiert, beim Bestellimport um zu
+        entscheiden ob ein Kunde neu angelegt oder als Vorschlag angezeigt
+        wird. </para>
+
+        <para>Die Erweiterung wird bisher nur beim Ableich der Straße genutzt,
+        da hier oft unterschiedliche Schreibweisen vorhanden sind. </para>
+
+        <para>z.B Dorfstraße, Dorfstrasse, Dorfstr., Dorf Straße usw.. So wird
+        vermieden, dass Kunden eventuell doppelt angelegt werden. </para>
+
+        <para>Um diese Erweiterung generell in kivitendo zu installieren, um
+        neuen Mandanten und der kivitendo-Test-Suite zugänglich zu
+        machen:</para>
+
+        <para><programlisting>su - postgres
 psql template1</programlisting></para>
 
         <para>führen Sie die folgenden Kommandos aus:</para>
@@ -6860,8 +6883,8 @@ psql template1</programlisting></para>
         <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
 \q</programlisting>
 
-        <para>Für bestehende Datenbanken muss die Extension in der Datenbank
-        angelegt werden</para>
+        <para>Für bestehende Mandanten-Datenbanken kann die Extension in der
+        Datenbank angelegt werden:</para>
 
         <programlisting>su - postgres
 psql DATENBANKNAME</programlisting>
@@ -6886,7 +6909,7 @@ psql DATENBANKNAME</programlisting>
           </listitem>
 
           <listitem>
-            <para>Shopbestellungen holen und bearbeiten</para>
+            <para>Shop anlegen und bearbeiten</para>
           </listitem>
         </itemizedlist>
       </sect2>

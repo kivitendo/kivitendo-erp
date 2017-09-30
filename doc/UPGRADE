@@ -11,29 +11,37 @@ Upgrade auf v3.5.1
   * LWP::Authen::Digest für WebshopApi
   * LWP::UserAgent für WebshopApi
 
-* Neue Postgres Erweiterung pg_trgm
+* Optionale Postgres Erweiterung pg_trgm(Trigram)
 
-  * Um diese Erweiterung zu installieren:
+  Die Trigramerweiterung bietet eine Ähnlichkeitsuche.
+  Diese verwendet das Shopmodul, wenn installiert, beim Bestellimport
+  um zu entscheiden ob ein Kunde neu angelegt oder als Vorschlag angezeigt wird.
+  Die Erweiterung wird bisher nur beim Ableich der Straße genutzt, da hier oft
+  unterschiedliche Schreibweisen vorhanden sind.
+  z.B Dorfstraße, Dorfstrasse, Dorfstr., Dorf Straße usw..
+  So wird vermieden, dass Kunden eventuell doppelt angelegt werden.
+
+  * Um diese Erweiterung generell in kivitendo zu installieren, um neuen Mandanten
+    und der kivitendo-Test-Suite zugänglich zu machen:
 
     su - postgres
     psql template1
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
     \q
 
-    Wenn die Extension installiert ist können in den beiden Dateien
-    - sql/Pg-upgrade2/trigram_indices_webshop.sql
-    - sql/Pg-upgrade2/trigram_indices.sql
-    das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
-    Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
-
-  * Bestehende Datenbanken, die die WebshopApi verwenden sollen benötigen die
-    Postgres Erweiterung pg_trgm
-    Diese kann wie folgt installiert werden:
+  * Bei bestehende Mandanten-Datenbanken,
+    kann Erweiterung pg_trgm nachträglich installiert werden:
 
     su - postgres
     psql <DATENBANK>
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
     \q
+
+    Wenn die Extension installiert ist können(kein muss) in den beiden Dateien
+    - sql/Pg-upgrade2/trigram_indices_webshop.sql
+    - sql/Pg-upgrade2/trigram_indices.sql
+    das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
+    Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
 
 Upgrade auf v3.5.0
 ===========================
