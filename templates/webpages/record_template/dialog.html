@@ -17,6 +17,16 @@
  [% L.button_tag("kivi.RecordTemplate.create()", LxERP.t8("Save")) %]
 </p>
 
+<h2 class="listheading">[% LxERP.t8("Filter record template") %]</h2>
+<p>
+<form method="post" action="javascript:kivi.RecordTemplate.filter_templates()">
+ [% LxERP.t8("Name") %]:
+ [% L.input_tag("template_filter", SELF.template_filter) %]
+ [% L.submit_tag('', LxERP.t8("Filter")) %]
+ [% L.button_tag('$("#template_filter").val("")', LxERP.t8('Reset')) %]
+</form>
+</p>
+
 [% SET templates = SELF.templates.as_list %]
 
 [% IF templates.size %]

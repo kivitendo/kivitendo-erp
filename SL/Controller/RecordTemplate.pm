@@ -52,7 +52,7 @@ sub action_show_dialog {
         title => t8('Record templates'),
       },
     })
-    ->focus("#record_template_dialog_new_template_name")
+    ->focus("#template_filter")
     ->render;
 }
 
@@ -84,6 +84,20 @@ sub action_delete {
     ->render;
 }
 
+sub action_filter_templates {
+  my ($self) = @_;
+
+  $self->{template_filter} = $::form->{template_filter};
+
+  $self
+    ->js
+    ->html('#record_template_dialog', $self->dialog_html)
+    ->focus("#record_template_dialog_new_template_name")
+    ->reinit_widgets
+    ->focus("#template_filter")
+    ->render();
+}
+
 #
 # helpers
 #
@@ -98,9 +112,10 @@ sub init_template      { SL::DB::RecordTemplate->new(id => $::form->{id})->load 
 
 sub init_templates {
   my ($self) = @_;
-
   return scalar SL::DB::Manager::RecordTemplate->get_all_sorted(
-    where => [ template_type => $self->template_type ],
+    where => [ template_type => $self->template_type,
+              (template_name => { ilike => '%' . $::form->{template_filter} . '%' })x!! ($::form->{template_filter})
+             ],
   );
 }
 

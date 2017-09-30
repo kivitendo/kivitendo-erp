@@ -1371,6 +1371,7 @@ $self->{texts} = {
   'Filter for customer variables' => 'Filter für benutzerdefinierte Kundenvariablen',
   'Filter for item variables'   => 'Filter für benutzerdefinierte Artikelvariablen',
   'Filter parts'                => 'Artikel filtern',
+  'Filter record template'      => 'Filter für Buchungsvorlagen',
   'Financial Controlling'       => 'Finanzcontrolling',
   'Financial Controlling Report' => 'Finanzcontrollingbericht',
   'Financial Overview'          => 'Finanzübersicht',
