@@ -77,7 +77,7 @@ sub export_bewegungsdaten {
   setup_datev_export2_action_bar();
 
   $::form->header;
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   print $::form->parse_html_template('datev/export_bewegungsdaten');
 
   $::lxdebug->leave_sub;

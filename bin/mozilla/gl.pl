@@ -224,7 +224,7 @@ sub add {
   $form->{credit} = 0;
   $form->{tax}    = 0;
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
@@ -245,7 +245,7 @@ sub prepare_transaction {
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   my $i        = 1;
   my $tax      = 0;
@@ -336,7 +336,7 @@ sub search {
     projects  => { key => "ALL_PROJECTS", all => 1 },
   );
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   setup_gl_search_action_bar();
 
@@ -1085,7 +1085,7 @@ sub form_header {
 
   # we cannot book on charttype header
   @{ $::form->{ALL_CHARTS} } = grep { $_->{charttype} ne 'H' }  @{ $::form->{ALL_CHARTS} };
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   my $title      = $::form->{title};
   $::form->{title} = $::locale->text("$title General Ledger Transaction");

@@ -412,7 +412,7 @@ sub form_header {
   $form->get_lists("price_factors"  => "ALL_PRICE_FACTORS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   # Projects
   my @old_project_ids = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
@@ -647,7 +647,7 @@ sub search {
                                          "all" => 1 },
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   $form->{title}             = $locale->text('Delivery Orders');
 
   setup_do_search_action_bar();

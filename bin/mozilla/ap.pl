@@ -413,7 +413,7 @@ sub form_header {
     @{ $form->{ALL_CHARTS} }
   );
 
-  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all;
+  $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   my %project_labels = ();
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
