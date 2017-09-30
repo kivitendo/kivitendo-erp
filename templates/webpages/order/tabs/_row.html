@@ -38,8 +38,9 @@
       <div name="partclassification">[% P.typeclass_abbreviation(ITEM.part) %]</div>
     </td>
     <td>
-      [% L.input_tag("order.orderitems[].description",
+      [% L.areainput_tag("order.orderitems[].description",
                      ITEM.description,
+                     size='40',
                      style='width: 300px') %]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
