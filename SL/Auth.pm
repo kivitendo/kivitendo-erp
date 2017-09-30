@@ -1309,6 +1309,11 @@ close the database connection.
 Creating a new database handle on each request can take up to 30% of the
 pre-request startup time, so we want to avoid that for fast ajax calls.
 
+=item C<assert, $right, $dont_abort>
+
+Checks if current user has the C<$right>. If C<$dont_abort> is falsish
+the request dies with a access denied error, otherwise returns true or false.
+
 =back
 
 =head1 BUGS

@@ -14,6 +14,9 @@ große Features
 
 kleinere neue Features und Detailverbesserungen:
 
+  - Abteilungs-Auswahl konsequent alphabetisch sortieren
+  - Buchungsvorlagen schneller über den Namen filtern (suchen).
+  - Neues Recht Erzeugnisse unabhängig vom Status editieren (default 0)
   - SEPA-XML: alle Sonderzeichen filtern
   - SEPA-Export: Export wieder rückgängig machen, falls noch Status offen
   - DATEV-Export: Um Strukturtyp CSV-Export erweitert

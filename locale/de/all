@@ -267,6 +267,7 @@ $self->{texts} = {
   'Allow direct creation of new purchase invoices' => 'Direktes Anlegen neuer Einkaufsrechnungen zulassen',
   'Allow the following users access to my follow-ups:' => 'Erlaube den folgenden Benutzern Zugriff auf meine Wiedervorlagen:',
   'Allow to delete generated printfiles' => 'Löschen von erzeugten Dokumenten erlaubt',
+  'Always edit assembly items (user can change/delete items even if assemblies are already produced)' => 'Erzeugnisbestandteile verändern (Löschen/Umsortieren) auch nachdem dieses Erzeugnis schon produziert wurde.',
   'Always save orders with a projectnumber (create new projects)' => 'Aufträge immer mit Projektnummer speichern (neue Projekt erstellen)',
   'Amended Advance Turnover Tax Return' => 'Berichtigte Anmeldung',
   'Amount'                      => 'Betrag',
