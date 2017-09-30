@@ -111,14 +111,19 @@ sub convert_to_sales_order {
 
 sub check_for_existing_customers {
   my ($self, %params) = @_;
+  my $customers;
 
-  my $name     = $self->billing_lastname ne '' ? $self->billing_firstname . " " . $self->billing_lastname : '';
-  my $lastname = $self->billing_lastname ne '' ? "%" . $self->billing_lastname . "%"                      : '';
-  my $company  = $self->billing_company  ne '' ? "%" . $self->billing_company  . "%"                      : '';
-  my $street   = $self->billing_street   ne '' ?  $self->billing_street                                   : '';
+  my $name             = $self->billing_lastname ne '' ? $self->billing_firstname . " " . $self->billing_lastname : '';
+  my $lastname         = $self->billing_lastname ne '' ? "%" . $self->billing_lastname . "%"                      : '';
+  my $company          = $self->billing_company  ne '' ? "%" . $self->billing_company  . "%"                      : '';
+  my $street           = $self->billing_street   ne '' ?  $self->billing_street                                   : '';
+  my $street_not_fuzzy = $self->billing_street   ne '' ?  "%" . $self->billing_street . "%"                       : '';
+  my $zipcode          = $self->billing_street   ne '' ?  $self->billing_zipcode                                  : '';
+  my $email            = $self->billing_street   ne '' ?  $self->billing_email                                    : '';
 
-  # Fuzzysearch for street to find e.g. "Dorfstrasse - Dorfstr. - Dorfstraße"
-  my $fs_query = <<SQL;
+  if($self->check_trgm) {
+    # Fuzzysearch for street to find e.g. "Dorfstrasse - Dorfstr. - Dorfstraße"
+    my $fs_query = <<SQL;
 SELECT *
 FROM customer
 WHERE (
@@ -134,12 +139,33 @@ WHERE (
 ) AND obsolete = 'F'
 SQL
 
-  my @values = ($lastname, $company, $self->billing_zipcode, $street, $self->billing_zipcode, $self->billing_email);
+    my @values = ($lastname, $company, $self->billing_zipcode, $street, $self->billing_zipcode, $self->billing_email);
 
-  my $customers = SL::DB::Manager::Customer->get_objects_from_sql(
-    sql  => $fs_query,
-    args => \@values,
-  );
+    $customers = SL::DB::Manager::Customer->get_objects_from_sql(
+      sql  => $fs_query,
+      args => \@values,
+    );
+  }else{
+    # If trgm extension is not installed
+    $customers = SL::DB::Manager::Customer->get_all(
+      where => [
+          or => [
+            and => [
+                     or => [ 'name' => { ilike => $lastname },
+                             'name' => { ilike => $company  },
+                           ],
+                     'zipcode' => { ilike => $zipcode },
+                   ],
+            and => [
+                     and => [ 'street'  => { ilike => $street_not_fuzzy },
+                              'zipcode' => { ilike => $zipcode },
+                            ],
+                   ],
+            or  => [ 'email' => { ilike => $email } ],
+          ],
+      ],
+    );
+  }
 
   return $customers;
 }
@@ -208,6 +234,17 @@ sub compare_to {
   return $result || ($self->id <=> $other->id);
 }
 
+sub check_trgm {
+  my ( $self ) = @_;
+
+  my $dbh     = $::form->get_standard_dbh();
+  my $sql     = "SELECT installed_version FROM pg_available_extensions WHERE name = 'pg_trgm'";
+  my @version = selectall_hashref_query($::form, $dbh, $sql);
+
+  return 1 if($version[0]->{installed_version});
+  return 0;
+}
+
 1;
 
 __END__
@@ -243,6 +280,10 @@ returns only one customer from the check_for_existing_customers if the return fr
 When it is 0 get customer creates a new customer object of the shop order billing data and returns it
 
 =item C<compare_to>
+
+=item C<check_trgm>
+
+Checks if the postgresextension pg_trgm is installed and return 0 or 1.
 
 =back
 

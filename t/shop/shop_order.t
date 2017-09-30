@@ -67,6 +67,8 @@ Support::TestSetup::login();
 
 reset_state();
 
+my $trgm = SL::DB::ShopOrder->check_trgm;
+
 my $shop_trans_id = 1;
 
 $shop_order = new_shop_order(
@@ -76,9 +78,9 @@ $shop_order = new_shop_order(
   billing_lastname  => 'Schmidt',
   billing_firstname => 'Sven',
   billing_company   => 'Evil Inc',
-  billing_street    => 'Evil Street',
+  billing_street    => 'Evil Street 666',
   billing_zipcode   => $customer->zipcode,
-  billing_email     => $customer->email,
+  billing_email     => 'email',
 );
 
 my $shop_order_item = SL::DB::ShopOrderItem->new(
@@ -107,15 +109,33 @@ my $customer_different = new_customer(
 $fuzzy_customers = $shop_order->check_for_existing_customers;
 is(scalar @{ $fuzzy_customers }, 1, 'still only found 1 matching customer (zipcode equal + street dissimilar');
 
-note('adding a similar customer');
+note('adding 2 similar customers and 1 dissimilar but same email');
 my $customer_similar = new_customer(
   name    => "Different Name",
-  street  => 'Good Street', # difference not large enough from "Evil Street", street matches
+  street  => 'Evil Street 666', # difference not large enough from "Evil Street", street matches
   zipcode => $customer->zipcode,
   email   => "foo",
 )->save;
+my $customer_similar_2 = new_customer(
+  name    => "Different Name",
+  street  => 'Evil Straet', # difference not large enough from "Evil Street", street matches
+  zipcode => $customer->zipcode,
+  email   => "foofoo",
+)->save;
+my $customer_same_email = new_customer(
+  name    => "Different Name",
+  street  => 'Angel Way', # difference large enough from "Evil Street", street not matches , same email
+  zipcode => $customer->zipcode,
+  email   => 'email',
+)->save;
+my $customers = SL::DB::Manager::Customer->get_all();
+
 $fuzzy_customers = $shop_order->check_for_existing_customers;
-is(scalar @{ $fuzzy_customers }, 2, 'found 2 matching customers (zipcode equal + street similar)');
+if($trgm){
+  is(scalar @{ $fuzzy_customers }, 4, 'found 4 matching customers (zipcode equal + street similar + same email) trgm_pg is installed');
+}else{
+  is(scalar @{ $fuzzy_customers }, 3, 'found 3 matching customers (zipcode equal + %street% + same email) trgm_pg is not installed, could be 4 with trgm_pg');
+}
 
 is($shop->description   , 'testshop' , 'shop description ok');
 is($shop_order->shop_id , $shop->id  , "shop_id ok");
