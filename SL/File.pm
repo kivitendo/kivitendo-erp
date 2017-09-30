@@ -220,6 +220,8 @@ sub _save {
         title          => $params{title},
         description    => $params{description},
       );
+      $file->itime($params{mtime})    if $params{mtime};
+      $params{itime} = $params{mtime} if $params{mtime};
     }
   } else {
     $exists = 1;
@@ -236,12 +238,14 @@ sub _save {
     # load itime for new file
     $file->save->load;
   }
-  $main::lxdebug->message(LXDebug->DEBUG2(), "backend3=" .$file->backend);
+
+  $file->mtime(DateTime->now_local) unless $params{mtime};
+  $file->mtime($params{mtime}     ) if     $params{mtime};
+
   my $backend = $self->_get_backend($file->backend);
   $params{dbfile} = $file;
   $backend->save(%params);
 
-  $file->mtime(DateTime->now_local);
   $file->save;
   #ShopImage
   if($file->object_type eq "shop_image"){

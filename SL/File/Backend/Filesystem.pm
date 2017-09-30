@@ -79,6 +79,9 @@ sub save {
     print OUT $params{file_contents};
     close(OUT);
   }
+  if ($params{mtime}) {
+    utime($params{mtime}, $params{mtime}, $tofile);
+  }
   return 1;
 }
 

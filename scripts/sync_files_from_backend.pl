@@ -82,7 +82,7 @@ parse_args(\%config);
 setup();
 
 SL::File->sync_from_backend( file_type => 'document');
-SL::File->sync_from_backend( file_type => 'attachments');
-SL::File->sync_from_backend( file_type => 'images');
+SL::File->sync_from_backend( file_type => 'attachment');
+SL::File->sync_from_backend( file_type => 'image');
 
 1;
