@@ -61,11 +61,13 @@ sub run {
       push @invoices_to_print, $data if $config->print;
       push @invoices_to_email, $data if $config->send_email;
 
+      # disalbe one timer only, if they are already processed
+      # disable one time configs (periodicity is only one time).
+      my $inactive_ordnumber = $config->disable_one_time_config;
+      push @disabled_orders, $inactive_ordnumber if $inactive_ordnumber;
+
       # last;
     }
-    # disable one time configs (periodicity is only one time).
-    my $inactive_ordnumber = $config->disable_one_time_config;
-    push @disabled_orders, $inactive_ordnumber if $inactive_ordnumber;
   }
 
   foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
