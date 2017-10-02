@@ -1497,6 +1497,7 @@ $self->{texts} = {
   'Hide help text'              => 'Hilfetext verbergen',
   'Hide mappings (csv_import)'  => 'Spaltenzuordnungen verbergen',
   'Hide settings'               => 'Einstellungen verbergen',
+  'Hint: Not all VC Numbers are personal accounts compliant' => 'Hinweis: Nicht alle Kunden-/Lieferantennummern sind DATEV-Personenkonten kompatibel.',
   'Hints'                       => 'Hinweise',
   'History'                     => 'Historie',
   'History Search'              => 'Historien Suche',

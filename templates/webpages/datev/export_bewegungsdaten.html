@@ -88,14 +88,20 @@
   <td><hr size=3 noshade></td>
   </tr>
   [% END %]
-  [% IF show_pk_option %]
    <tr>
      <td>
         <table>
          <tr>
+          [% IF show_pk_option %]
            <td align=left>[% 'Export with CV Charts' | $T8 %]</td>
            <td align=left></td>
            <td>[% L.checkbox_tag('use_pk', value => 1, checked => 0) %]</td>
+          [% ELSE %]
+           <td align=left><font color="gray">[% 'Export with CV Charts' | $T8 %]</font></td>
+           <td align=left></td>
+           <td>[% L.checkbox_tag('use_pk', value => 1, checked => 0, disabled => 1) %] </td>
+           <td colspan="2"><font color="gray">[% 'Hint: Not all VC Numbers are personal accounts compliant' | $T8 %]</font></td>
+          [% END %]
          </tr>
         </table>
      </td>
@@ -103,7 +109,6 @@
    <tr>
   <td><hr size=3 noshade></td>
   </tr>
-  [% END %]
 </table>
 
 <input type=hidden name=beraternr value="[% beraternr %]">
