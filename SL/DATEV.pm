@@ -1397,7 +1397,7 @@ sub csv_buchungsexport {
     foreach my $column (@csv_columns) {
       if (exists $column->{max_length} && $column->{kivi_datev_name} ne 'not yet implemented') {
         # check max length
-        die "Incorrect lenght of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
+        die "Incorrect length of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
       }
       if (exists $column->{valid_check} && $column->{kivi_datev_name} ne 'not yet implemented') {
         # more checks, listed as user warnings

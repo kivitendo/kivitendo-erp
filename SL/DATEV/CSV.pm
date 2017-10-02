@@ -243,7 +243,7 @@ sub generate_csv_header {
   my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
   my $default_curr       = SL::DB::Default->get_default_currency;
 
-  # datev metadata and the string lenght limits
+  # datev metadata and the string length limits
   my %meta_datev;
   my %meta_datev_to_valid_length = (
     beraternr   =>  7,
