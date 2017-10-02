@@ -180,6 +180,7 @@ clear_up();
 
 sub clear_up {
   SL::DB::Manager::AccTransaction->delete_all( all => 1);
+  SL::DB::Manager::GLTransaction->delete_all(  all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(    all => 1);
   SL::DB::Manager::Invoice->delete_all(        all => 1);
   SL::DB::Manager::Customer->delete_all(       all => 1);
