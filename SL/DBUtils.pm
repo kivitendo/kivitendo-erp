@@ -429,7 +429,7 @@ SL::DBUTils.pm: All about database connections in kivitendo
 =head1 DESCRIPTION
 
 DBUtils provides wrapper functions for low level database retrieval. It saves
-you the trouble of mucking around with statement handles for small databse
+you the trouble of mucking around with statement handles for small database
 queries and does exception handling in the common cases for you.
 
 Query and retrieval function share the parameter scheme:
