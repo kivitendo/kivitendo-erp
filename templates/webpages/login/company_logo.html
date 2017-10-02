@@ -9,7 +9,7 @@
  <center>
   <a class="nomobile" href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo[% xmas %].png" class='kivitendo-logo' border="0" alt='[% 'kivitendo' | $T8 %]' title="[% 'kivitendo Homepage' | $T8 %]"></a>
 
-  <h3 class="login">[% 'kivitendo' | $T8 %] [% version %]</h3>
+  <h3 class="login">[% 'kivitendo' | $T8 %] [% FORM.read_version %]</h3>
 
 [%- IF git_head %]
   <p>[%- LxERP.t8("Git revision: #1, #2 #3", git_head.hash.substr(0, 7), git_head.author_date.to_kivitendo, git_head.author_date.strftime('%H:%M:%S %Z')) %]</p>

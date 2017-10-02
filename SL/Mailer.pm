@@ -34,6 +34,7 @@ use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;
 use SL::Template;
+use SL::Version;
 
 use strict;
 
@@ -87,7 +88,7 @@ sub _create_message_id {
   $domain     =~ s/.*\@//;
   $domain     =~ s/>.*//;
 
-  return  "kivitendo-$self->{version}-" . time() . "-${$}-${num_sent}\@$domain";
+  return  "kivitendo-" . SL::Version->get_version . "-" . time() . "-${$}-${num_sent}\@$domain";
 }
 
 sub _create_address_headers {
@@ -234,7 +235,7 @@ sub send {
   $self->{headers}       =  [
     Subject              => $self->{subject},
     'Message-ID'         => '<' . $self->_create_message_id . '>',
-    'X-Mailer'           => "kivitendo $self->{version}",
+    'X-Mailer'           => "kivitendo " . SL::Version->get_version,
   ];
   $self->{mail_attachments} = [];
   $self->{content_by_name}  = $::instance_conf->get_email_journal == 1 && $::instance_conf->get_doc_files;

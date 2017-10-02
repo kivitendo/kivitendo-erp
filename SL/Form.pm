@@ -110,8 +110,6 @@ sub new {
 
   bless $self, $type;
 
-  $self->{version} = $self->read_version;
-
   $main::lxdebug->leave_sub();
 
   return $self;
@@ -183,7 +181,7 @@ sub flatten_standard_variables {
   $main::lxdebug->enter_sub(2);
 
   my $self      = shift;
-  my %skip_keys = map { $_ => 1 } (qw(login password header stylesheet titlebar version), @_);
+  my %skip_keys = map { $_ => 1 } (qw(login password header stylesheet titlebar), @_);
 
   my @variables;
 
@@ -470,7 +468,7 @@ sub header {
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
   $self->{favicon} ||= "favicon.ico";
-  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title} || !$self->{titlebar};
+  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->read_version if $self->{title} || !$self->{titlebar};
 
   # build includes
   if ($self->{refresh_url} || $self->{refresh_time}) {
@@ -564,7 +562,7 @@ sub set_standard_title {
   $::lxdebug->enter_sub;
   my $self = shift;
 
-  $self->{titlebar}  = "kivitendo " . $::locale->text('Version') . " $self->{version}";
+  $self->{titlebar}  = "kivitendo " . $::locale->text('Version') . " " . $self->read_version;
   $self->{titlebar} .= "- $::myconfig{name}"   if $::myconfig{name};
   $self->{titlebar} .= "- $::myconfig{dbname}" if $::myconfig{name};
 
@@ -1129,7 +1127,7 @@ sub send_email {
   my $mail = Mailer->new;
 
   map { $mail->{$_} = $self->{$_} }
-    qw(cc subject message version format);
+    qw(cc subject message format);
 
   $mail->{bcc}    = $self->get_bcc_defaults($myconfig, $self->{bcc});
   $mail->{to}     = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
