@@ -301,7 +301,7 @@ sub read_cgi_input {
 
   my $encoding     = delete $temp_target->{INPUT_ENCODING} || 'UTF-8';
 
-  _recode_recursively(SL::Iconv->new($encoding, 'UTF-8'), $temp_target => $target) if keys %$target;
+  _recode_recursively(SL::Iconv->new($encoding, 'UTF-8'), $temp_target => $target) if keys %$temp_target;
 
   if ($target->{RESTORE_FORM_FROM_SESSION_ID}) {
     my %temp_form;
