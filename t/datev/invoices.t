@@ -59,10 +59,12 @@ my $datev1 = SL::DATEV->new(
   dbh        => $invoice->db->dbh,
   trans_id   => $invoice->id,
 );
+
 $datev1->generate_datev_data;
+
 cmp_bag $datev1->generate_datev_lines, [
                                          {
-                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8400',
@@ -74,7 +76,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8300',
@@ -86,7 +88,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
