@@ -225,6 +225,16 @@ sub warnings {
   }
 }
 
+sub use_pk {
+ my $self = shift;
+
+ if (@_) {
+   $self->{use_pk} = $_[0];
+ }
+
+ return $self->{use_pk};
+}
+
 sub accnofrom {
  my $self = shift;
 
@@ -440,11 +450,18 @@ sub generate_datev_data {
 
   my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
+  my $ar_accno = "c.accno";
+  my $ap_accno = "c.accno";
+  if ( $self->use_pk ) {
+    $ar_accno = "CASE WHEN ac.chart_link = 'AR' THEN ct.customernumber ELSE c.accno END as accno";
+    $ap_accno = "CASE WHEN ac.chart_link = 'AP' THEN ct.vendornumber   ELSE c.accno END as accno";
+  }
+
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
          ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate, ar.itime::date,
          ct.name, ct.ustid, ct.customernumber AS vcnumber, ct.id AS customer_id, NULL AS vendor_id,
-         c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
+         $ar_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
          t.rate AS taxrate, t.taxdescription,
          'ar' as table,
@@ -473,7 +490,7 @@ sub generate_datev_data {
        SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
          ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate, ap.itime::date,
          ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
-         c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
+         $ap_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
          t.rate AS taxrate, t.taxdescription,
          'ap' as table,
@@ -956,6 +973,7 @@ sub generate_datev_lines {
 
     if ($trans_lines >= 2) {
 
+      # Personenkontenerweiterung: accno has already been replaced if use_pk was set
       $datev_data{'gegenkonto'} = $transaction->[$haben]->{'accno'};
       $datev_data{'konto'}      = $transaction->[$soll]->{'accno'};
       if ($transaction->[$haben]->{'invnumber'} ne "") {

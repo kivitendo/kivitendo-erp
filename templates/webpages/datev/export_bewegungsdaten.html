@@ -88,6 +88,20 @@
   <td><hr size=3 noshade></td>
   </tr>
   [% END %]
+   <tr>
+     <td>
+        <table>
+         <tr>
+           <td align=left>[% 'Export with CV Charts' | $T8 %]</td>
+           <td align=left></td>
+           <td>[% L.checkbox_tag('use_pk', value => 1, checked => 0) %]</td>
+         </tr>
+        </table>
+     </td>
+   </tr>
+   <tr>
+  <td><hr size=3 noshade></td>
+  </tr>
 </table>
 
 <input type=hidden name=beraternr value="[% beraternr %]">

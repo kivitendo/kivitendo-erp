@@ -112,6 +112,7 @@ sub export3 {
       $::form->{zeitraum}, $::form->{monat}, $::form->{quartal},
       $::form->{transdatefrom}, $::form->{transdateto},
     );
+    $data{use_pk} = $::form->{use_pk};
   } else {
     die 'invalid exporttype';
   }

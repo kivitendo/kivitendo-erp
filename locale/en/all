@@ -1340,6 +1340,7 @@ $self->{texts} = {
   'Export date to'              => '',
   'Export error in transaction #1: Rounding error too large #2' => '',
   'Export error in transaction #1: Unbalanced ledger before next transaction (#2)' => '',
+  'Export with CV Charts'       => '',
   'Extend automatically by n months' => '',
   'Extended'                    => '',
   'Extended status'             => '',
