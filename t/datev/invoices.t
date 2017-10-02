@@ -25,6 +25,8 @@ my $payment_date    = DateTime->new(year => 2017, month =>  1, day => 5);
 my $gldate          = DateTime->new(year => 2017, month =>  2, day => 9); # simulate bookings for Jan being made in Feb
 my $department      = create_department(description => 'Kostenstelle DATEV-Schnittstelle 2018');
 my $project         = create_project(projectnumber => 2017, description => 'Crowd-Funding September 2017');
+my $customer        = new_customer(customernumber => '10001', name => 'Testcustomer')->save;
+my $vendor          = new_vendor(vendornumber => '70001', name => 'Testvendor')->save;
 
 my $part1 = new_part(partnumber => '19', description => 'Part 19%')->save;
 my $part2 = new_part(
@@ -35,6 +37,7 @@ my $part2 = new_part(
 
 my $invoice = create_sales_invoice(
   invnumber    => "Þ sales ¥& invöice",
+  customer     => $customer,
   itime        => $gldate,
   gldate       => $gldate,
   intnotes     => 'booked in February',
@@ -96,12 +99,55 @@ cmp_bag $datev1->generate_datev_lines, [
                                          },
                                        ], "trans_id datev check ok";
 
+$datev1->use_pk(1);
+$datev1->generate_datev_data;
+cmp_bag $datev1->generate_datev_lines, [
+                                         {
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'buchungstext' => 'Testcustomer',
+                                           'datum'        => '01.01.2017',
+                                           'gegenkonto'   => '8400',
+                                           'konto'        => $customer->customernumber,
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
+                                           'umsatz'       => '249.9',
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
+                                         },
+                                         {
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'buchungstext' => 'Testcustomer',
+                                           'datum'        => '01.01.2017',
+                                           'gegenkonto'   => '8300',
+                                           'konto'        => $customer->customernumber,
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
+                                           'umsatz'       => 535,
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
+                                         },
+                                         {
+                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'buchungstext' => 'Testcustomer',
+                                           'datum'        => '05.01.2017',
+                                           'gegenkonto'   => $customer->customernumber,
+                                           'konto'        => '1200',
+                                           'kost1'        => 'Kostenstelle DATEV-Schnittstelle 2018',
+                                           'kost2'        => 'Crowd-Funding September 2017',
+                                           'umsatz'       => '784.9',
+                                           'waehrung'     => 'EUR',
+                                           'soll_haben_kennzeichen' => 'S',
+                                         },
+                                       ], "trans_id datev check use_pk ok";
+
+
 my $startdate = DateTime->new(year => 2017, month =>  1, day =>  1);
 my $enddate   = DateTime->new(year => 2017, month => 12, day => 31);
 
 # check conversion to csv
 $datev1->from($startdate);
 $datev1->to($enddate);
+$datev1->use_pk(0); # reset use_pk for csv_buchungsexport
 
 # splice away the header, because sort won't do
 # we need sort, because pay_invoice is not acc_trans_id order safe
@@ -148,6 +194,7 @@ cmp_bag($data_csv[2], [ '784,9', 'S', 'EUR', undef, undef, undef, '1200', '1400'
 my $march_9 = DateTime->new(year => 2017, month =>  3, day => 9);
 my $invoice2 = create_sales_invoice(
   invnumber    => "2 sales invoice",
+  customer     => $customer,
   itime        => $march_9,
   gldate       => $march_9,
   intnotes     => 'booked in March',
@@ -160,6 +207,7 @@ my $invoice2 = create_sales_invoice(
 
 my $credit_note = create_credit_note(
   invnumber    => 'Gutschrift 34',
+  customer     => $customer,
   itime        => $gldate,
   gldate       => $gldate,
   intnotes     => 'booked in February',
@@ -179,6 +227,72 @@ $datev->generate_datev_data(from_to => $datev->fromto);
 my $datev_lines = $datev->generate_datev_lines;
 my $umsatzsumme = sum map { $_->{umsatz} } @{ $datev_lines };
 cmp_ok($::form->round_amount($umsatzsumme,2), '==', 3924.5, "Sum of all bookings ok");
+
+$datev->generate_datev_data(use_pk => 1, from_to => $datev->fromto);
+$datev_lines = $datev->generate_datev_lines;
+
+note('testing purchase invoice');
+my $purchase_invoice = new_purchase_invoice();
+$datev1 = SL::DATEV->new(
+  dbh        => $purchase_invoice->db->dbh,
+  trans_id   => $purchase_invoice->id,
+);
+
+$datev1->generate_datev_data;
+cmp_bag $datev1->generate_datev_lines, [
+                                        {
+                                          'belegfeld1'             => 'ap1',
+                                          'buchungstext'           => 'Testvendor',
+                                          'datum'                  => '01.01.2017',
+                                          'gegenkonto'             => '1600',
+                                          'konto'                  => '3400',
+                                          'kost1'                  => undef,
+                                          'kost2'                  => undef,
+                                          'soll_haben_kennzeichen' => 'H',
+                                          'umsatz'                 => 119,
+                                          'waehrung'               => 'EUR'
+                                        },
+                                        {
+                                          'belegfeld1'             => 'ap1',
+                                          'buchungstext'           => 'Testvendor',
+                                          'datum'                  => '01.01.2017',
+                                          'gegenkonto'             => '1600',
+                                          'konto'                  => '3300',
+                                          'kost1'                  => undef,
+                                          'kost2'                  => undef,
+                                          'soll_haben_kennzeichen' => 'H',
+                                          'umsatz'                 => 107,
+                                          'waehrung'               => 'EUR'
+                                        }
+                                       ], "trans_id datev check purchase_invoice ok";
+$datev1->use_pk(1);
+$datev1->generate_datev_data;
+cmp_bag $datev1->generate_datev_lines, [
+                                        {
+                                          'belegfeld1'             => 'ap1',
+                                          'buchungstext'           => 'Testvendor',
+                                          'datum'                  => '01.01.2017',
+                                          'gegenkonto'             => $vendor->vendornumber,
+                                          'konto'                  => '3400',
+                                          'kost1'                  => undef,
+                                          'kost2'                  => undef,
+                                          'soll_haben_kennzeichen' => 'H',
+                                          'umsatz'                 => 119,
+                                          'waehrung'               => 'EUR'
+                                        },
+                                        {
+                                          'belegfeld1'             => 'ap1',
+                                          'buchungstext'           => 'Testvendor',
+                                          'datum'                  => '01.01.2017',
+                                          'gegenkonto'             => $vendor->vendornumber,
+                                          'konto'                  => '3300',
+                                          'kost1'                  => undef,
+                                          'kost2'                  => undef,
+                                          'soll_haben_kennzeichen' => 'H',
+                                          'umsatz'                 => 107,
+                                          'waehrung'               => 'EUR'
+                                        }
+                                       ], "trans_id datev check purchase_invoice use_pk ok";
 
 note('testing gldatefrom');
 $datev = SL::DATEV->new(
@@ -200,12 +314,115 @@ $datev->generate_datev_data(from_to => $datev->fromto);
 cmp_bag $datev->generate_datev_lines, [], "no bookings for January made after May 1st: ok";
 
 done_testing();
-clear_up();
+# clear_up();
+
+sub new_purchase_invoice {
+  # manually create a Kreditorenbuchung from scratch, ap + acc_trans bookings, as no helper exists yet, like $invoice->post.
+  # arap-Booking must come last in the acc_trans order
+  # this function was essentially copied from t/db_helper/payment.t, refactor once $purchase_invoice->post exists
+  my $currency_id = $::instance_conf->get_currency_id;
+  my $employee    = SL::DB::Manager::Employee->current                          || die "No employee";
+  my $taxzone     = SL::DB::Manager::TaxZone->find_by( description => 'Inland') || die "No taxzone";
+
+  my $purchase_invoice = SL::DB::PurchaseInvoice->new(
+    amount      => '226',
+    currency_id => $currency_id,
+    employee_id => $employee->id,
+    gldate      => $date,
+    invnumber   => "ap1",
+    invoice     => 0,
+    itime       => $date,
+    mtime       => $date,
+    netamount   => '200',
+    paid        => '0',
+    taxincluded => 0,
+    taxzone_id  => $taxzone->id,
+    transdate   => $date,
+    type        => 'invoice',
+    vendor_id   => $vendor->id,
+  )->save;
+
+  my $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3400');
+  my $expense_chart_booking= SL::DB::AccTransaction->new(
+    amount     => '-100',
+    chart_id   => $expense_chart->id,
+    chart_link => $expense_chart->link,
+    itime      => $date,
+    mtime      => $date,
+    source     => '',
+    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id,
+    taxkey     => 9,
+    transdate  => $date,
+    trans_id   => $purchase_invoice->id,
+  );
+  $expense_chart_booking->save;
+
+  my $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1576');
+  my $tax_chart_booking= SL::DB::AccTransaction->new(
+    amount     => '-19',
+    chart_id   => $tax_chart->id,
+    chart_link => $tax_chart->link,
+    itime      => $date,
+    mtime      => $date,
+    source     => '',
+    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 9)->id,
+    taxkey     => 0,
+    transdate  => $date,
+    trans_id   => $purchase_invoice->id,
+  );
+  $tax_chart_booking->save;
+  $expense_chart  = SL::DB::Manager::Chart->find_by(accno => '3300');
+  $expense_chart_booking= SL::DB::AccTransaction->new(
+    amount     => '-100',
+    chart_id   => $expense_chart->id,
+    chart_link => $expense_chart->link,
+    itime      => $date,
+    mtime      => $date,
+    source     => '',
+    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id,
+    taxkey     => 8,
+    transdate  => $date,
+    trans_id   => $purchase_invoice->id,
+  );
+  $expense_chart_booking->save;
+
+  $tax_chart  = SL::DB::Manager::Chart->find_by(accno => '1571');
+  $tax_chart_booking= SL::DB::AccTransaction->new(
+    trans_id   => $purchase_invoice->id,
+    chart_id   => $tax_chart->id,
+    chart_link => $tax_chart->link,
+    amount     => '-7',
+    transdate  => $date,
+    itime      => $date,
+    mtime      => $date,
+    source     => '',
+    taxkey     => 0,
+    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 8)->id,
+  );
+  $tax_chart_booking->save;
+  my $arap_chart  = SL::DB::Manager::Chart->find_by(accno => '1600');
+  my $arap_booking= SL::DB::AccTransaction->new(
+    trans_id   => $purchase_invoice->id,
+    chart_id   => $arap_chart->id,
+    chart_link => $arap_chart->link,
+    amount     => '226',
+    transdate  => $date,
+    itime      => $date,
+    mtime      => $date,
+    source     => '',
+    taxkey     => 0,
+    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id,
+  );
+  $arap_booking->save;
+
+  return $purchase_invoice;
+}
 
 sub clear_up {
   SL::DB::Manager::AccTransaction->delete_all(all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(   all => 1);
   SL::DB::Manager::Invoice->delete_all(       all => 1);
+  SL::DB::Manager::PurchaseInvoice->delete_all(all => 1);
   SL::DB::Manager::Customer->delete_all(      all => 1);
   SL::DB::Manager::Part->delete_all(          all => 1);
   SL::DB::Manager::Project->delete_all(       all => 1);
