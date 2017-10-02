@@ -19,6 +19,7 @@ use List::UtilsBy qw(partition_by sort_by);
 use SL::DB::Helper::ALL; # since we work on meta data, we need everything
 use SL::DB::Helper::Mappings;
 use SL::Locale::String qw(t8);
+use SL::Version;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(from to writer company location) ],
@@ -579,7 +580,7 @@ sub tag {
 
 sub make_comment {
   my $gobd_version  = API_VERSION();
-  my $kivi_version  = $::form->read_version;
+  my $kivi_version  = SL::Version->get_version;
   my $person        = $::myconfig{name};
   my $contact       = join ', ',
     (t8("Email") . ": $::myconfig{email}" ) x!! $::myconfig{email},
