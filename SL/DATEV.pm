@@ -1460,6 +1460,22 @@ sub _csv_buchungsexport_to_file {
 
   return { download_token => $self->download_token, filenames => $params{filename} };
 }
+
+sub check_vcnumbers_are_valid_pk_numbers {
+  my ($self) = @_;
+
+  my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
+  my $pk_length = $length_of_accounts + 1;
+  my $query = <<"SQL";
+   SELECT customernumber AS vcnumber FROM customer WHERE customernumber !~ '^[[:digit:]]{$pk_length}\$'
+   UNION
+   SELECT vendornumber   AS vcnumber FROM vendor   WHERE vendornumber   !~ '^[[:digit:]]{$pk_length}\$'
+   LIMIT 1;
+SQL
+  my ($has_non_pk_accounts)  = selectrow_query($::form, SL::DB->client->dbh, $query);
+  return defined $has_non_pk_accounts ? 0 : 1;
+}
+
 sub DESTROY {
   clean_temporary_directories();
 }
@@ -1685,6 +1701,19 @@ Generates a CSV-file with the same encodings as defined in DATEV Format CSV 2015
 
 Usage: _csv_buchungsexport_to_file($self, data => $self->csv_buchungsexport);
 
+=item check_vcnumbers_are_valid_pk_numbers
+
+Returns 1 if all vcnumbers are suitable for the DATEV export, 0 if not.
+
+Finds the default length of charts (e.g. 4), adds 1 for the pk chart length
+(e.g. 5), and checks the database for any customers or vendors whose customer-
+or vendornumber doesn't consist of only numbers with exactly that length. E.g.
+for a chart length of four "10001" would be ok, but not "10001b" or "1000".
+
+All vcnumbers are checked, obsolete customers or vendors aren't exempt.
+
+There is also no check for the typical customer range 10000-69999 and the
+typical vendor range 70000-99999.
 
 =back
 
