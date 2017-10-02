@@ -79,6 +79,7 @@ use SL::Request;
 use SL::Template;
 use SL::User;
 use SL::Util;
+use SL::Version;
 use SL::X;
 use Template;
 use URI;
@@ -91,14 +92,7 @@ use SL::Helper::CreatePDF qw(merge_pdfs);
 use strict;
 
 sub read_version {
-  my ($self) = @_;
-
-  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
-  my $version =  <VERSION_FILE>;
-  $version    =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
-  close VERSION_FILE;
-
-  return $version;
+  SL::Version->get_version;
 }
 
 sub new {
