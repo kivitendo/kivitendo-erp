@@ -14,6 +14,11 @@ __PACKAGE__->meta->add_relationship(
     type                  => 'many to many',
     map_class             => 'SL::DB::CustomVariableConfigPartsgroup',
   },
+  parts          => {
+    type         => 'one to many',
+    class        => 'SL::DB::Part',
+    column_map   => { id => 'partsgroup_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
