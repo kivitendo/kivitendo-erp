@@ -10,16 +10,18 @@ use strict;
 # and will be preset in $form email dialog if the form name matches
 
 my %mail_strings = (
-  salutation_male                     => t8('Salutation male'),
-  salutation_female                   => t8('Salutation female'),
-  salutation_general                  => t8('Salutation general'),
-  salutation_punctuation_mark         => t8('Salutation punctuation mark'),
-  preset_text_sales_quotation         => t8('Preset email text for sales quotations'),
-  preset_text_sales_order             => t8('Preset email text for sales orders'),
-  preset_text_sales_delivery_order    => t8('Preset email text for sales delivery orders'),
-  preset_text_invoice                 => t8('Preset email text for sales invoices'),
-  preset_text_request_quotation       => t8('Preset email text for requests (rfq)'),
-  preset_text_purchase_order          => t8('Preset email text for purchase orders'),
+  salutation_male                             => t8('Salutation male'),
+  salutation_female                           => t8('Salutation female'),
+  salutation_general                          => t8('Salutation general'),
+  salutation_punctuation_mark                 => t8('Salutation punctuation mark'),
+  preset_text_sales_quotation                 => t8('Preset email text for sales quotations'),
+  preset_text_sales_order                     => t8('Preset email text for sales orders'),
+  preset_text_sales_delivery_order            => t8('Preset email text for sales delivery orders'),
+  preset_text_invoice                         => t8('Preset email text for sales invoices'),
+  preset_text_request_quotation               => t8('Preset email text for requests (rfq)'),
+  preset_text_purchase_order                  => t8('Preset email text for purchase orders'),
+  preset_text_periodic_invoices_email_body    => t8('Preset email body for periodic invoices'),
+  preset_text_periodic_invoices_email_subject => t8('Preset email subject for periodic invoices'),
 );
 
 sub edit_greetings {

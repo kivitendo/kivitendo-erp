@@ -2117,11 +2117,16 @@ sub edit_periodic_invoices_config {
   $config = YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
 
   if ('HASH' ne ref $config) {
+    my $lang_id = $::form->{language_id};
     $config =  { periodicity             => 'm',
                  order_value_periodicity => 'p', # = same as periodicity
                  start_date_as_date      => $::form->{transdate} || $::form->current_date,
                  extend_automatically_by => 12,
                  active                  => 1,
+                 email_subject           => GenericTranslations->get(language_id => $lang_id,
+                                              translation_type =>"preset_text_periodic_invoices_email_subject"),
+                 email_body              => GenericTranslations->get(language_id => $lang_id,
+                                              translation_type =>"preset_text_periodic_invoices_email_body"),
                };
   }
 

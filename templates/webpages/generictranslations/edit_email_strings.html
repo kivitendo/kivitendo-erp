@@ -22,6 +22,10 @@
        [%- ELSE %]
        [%- HTML.escape(language.description) %]
        [%- END %]
+       [%- IF mail_string.search('preset_text_periodic_invoices') %]
+        <br />
+        <a href="doc/html/ch03.html#features.periodic-invoices.variables" target="_blank">?</a>
+       [%- END %]
       </td>
       <td>
        [%- IF mail_string.search('preset') %]

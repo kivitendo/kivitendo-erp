@@ -6,11 +6,13 @@ function edit_periodic_invoices_config() {
   var config    = $('#periodic_invoices_config').val();
   var cus_id    = $('[name=customer_id]').val();
   var transdate = $('#transdate').val();
+  var lang_id   = $('#language_id').val();
 
   var url       = "oe.pl?" +
     "action=edit_periodic_invoices_config&" +
-    "customer_id="              + encodeURIComponent(cus_id) + "&" +
-    "periodic_invoices_config=" + encodeURIComponent(config) + "&" +
+    "customer_id="              + encodeURIComponent(cus_id)  + "&" +
+    "language_id="              + encodeURIComponent(lang_id) + "&" +
+    "periodic_invoices_config=" + encodeURIComponent(config)  + "&" +
     "transdate="                + encodeURIComponent(transdate || '');
 
   // alert(url);
