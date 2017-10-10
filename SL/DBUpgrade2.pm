@@ -320,14 +320,6 @@ sub unapplied_upgrade_scripts {
   return grep { !$_->{applied} } @all_scripts;
 }
 
-sub update2_available {
-  my ($self, $dbh) = @_;
-
-  my @unapplied_scripts = $self->unapplied_upgrade_scripts($dbh);
-
-  return !!@unapplied_scripts;
-}
-
 sub apply_admin_dbupgrade_scripts {
   my ($self, $called_from_admin) = @_;
 
@@ -654,14 +646,6 @@ representations that can be applied in order.
 Returns a list if upgrade scripts (their internal hash representation)
 that haven't been applied to a database yet. C<$dbh> is an open handle
 to the database that is checked.
-
-Requires that the scripts have been parsed.
-
-=item C<update2_available $dbh>
-
-Returns trueish if at least one upgrade script hasn't been applied to
-a database yet. C<$dbh> is an open handle to the database that is
-checked.
 
 Requires that the scripts have been parsed.
 
