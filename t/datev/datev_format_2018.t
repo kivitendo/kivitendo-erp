@@ -70,7 +70,7 @@ $datev1->from($startdate);
 $datev1->to($enddate);
 $datev1->csv_buchungsexport();
 my @warnings = $datev1->warnings;
-is(@warnings[0]->[0]->{untranslated},
+is($warnings[0]->[0]->{untranslated},
   'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'wrong_encoding');
 
 
@@ -90,7 +90,7 @@ $datev3->generate_datev_lines;
 $datev3->csv_buchungsexport;
 @warnings = [];
 @warnings = $datev3->warnings;
-is(@warnings[0]->[0]->{untranslated},
+is($warnings[0]->[0]->{untranslated},
   'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'mixed_wrong_encoding');
 
 
