@@ -424,6 +424,7 @@ namespace('kivi.Part', function(ns) {
           self.handle_changed_text();
         }
         if (event.which == KEY.ENTER) {
+          event.preventDefault();
           self.handle_changed_text({
             match_none: self.o.action.commit_none,
             match_one:  self.o.action.commit_one,
