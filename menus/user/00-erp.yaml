@@ -718,6 +718,7 @@
     action: CsvImport/new
     profile.type: bank_transactions
 - parent: cash_bank_import_menu
+  id: cash_bank_import_mt940
   name: SWIFT MT940 format
   order: 200
   params:
