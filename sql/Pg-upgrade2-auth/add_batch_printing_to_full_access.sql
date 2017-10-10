@@ -1,7 +1,6 @@
 -- @tag: add_batch_printing_to_full_access
 -- @description: Gruppe "Vollzugriff" Recht auf Stapeldruck-Menü gewähren
 -- @depends:
--- @charset: utf-8
 DELETE FROM auth.group_rights
 WHERE ("right" = 'batch_printing')
   AND group_id = (

@@ -1,7 +1,6 @@
 # @tag: invoice_positions
 # @description: Spalte für Positionen der Einträge in Rechnungen
 # @depends: release_3_1_0
-# @encoding: utf-8
 package SL::DBUpgrade2::invoice_positions;
 
 use strict;

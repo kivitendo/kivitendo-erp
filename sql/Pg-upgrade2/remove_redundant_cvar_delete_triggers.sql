@@ -1,7 +1,6 @@
 -- @tag: remove_redundant_cvar_delete_triggers
 -- @description: Entfernt doppelte Trigger zum Löschen von benutzerdefinierten Variablen
 -- @depends: custom_variables_delete_via_trigger custom_variables_delete_via_trigger_2 delete_cvars_on_trans_deletion
--- @encoding: utf-8
 
 -- drop triggers
 DROP TRIGGER IF EXISTS delete_orderitems_dependencies           ON orderitems;

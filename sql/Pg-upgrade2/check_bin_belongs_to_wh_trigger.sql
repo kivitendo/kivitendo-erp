@@ -1,7 +1,6 @@
 -- @tag: check_bin_belongs_to_wh_trigger
 -- @description: Trigger, um sicher zu stellen, dass ein angegebener Lagerplatz auch zum Lager gehört.
 -- @depends: delivery_orders warehouse
--- @encoding: utf-8
 
 CREATE FUNCTION check_bin_belongs_to_wh() RETURNS "trigger"
   AS 'BEGIN

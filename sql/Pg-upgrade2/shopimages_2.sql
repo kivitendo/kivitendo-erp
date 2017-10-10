@@ -1,6 +1,5 @@
 -- @tag:shopimages_2
 -- @description: Umbennung der Spalten für Weite und Breite in die Weite und Breite des orginal Bildes
--- @charset: UTF-8
 -- @depends: release_3_5_0 files shop_parts shopimages
 -- @ignore: 0
 

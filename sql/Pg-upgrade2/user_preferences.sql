@@ -1,7 +1,6 @@
 -- @tag: user_preferences
 -- @description: Benutzereinstellungen
 -- @depends: release_3_4_1
--- @encoding: utf-8
 
 CREATE TABLE user_preferences (
   id         SERIAL PRIMARY KEY,

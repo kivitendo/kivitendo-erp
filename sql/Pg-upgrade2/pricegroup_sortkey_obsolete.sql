@@ -1,6 +1,5 @@
 -- @tag: pricegroup_sortkey_obsolete
 -- @description: Sortierreihenfolge und ungültig für Preisgruppen
--- @charset: UTF-8
 -- @depends: release_3_4_1
 -- @ignore: 0
 

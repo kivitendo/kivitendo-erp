@@ -1,6 +1,5 @@
 -- @tag: shop_3
 -- @description: Add columns itime and mtime and transaction_description for table shops
--- @charset: UTF-8
 -- @depends: shops
 -- @ignore: 0
 

@@ -1,7 +1,6 @@
 -- @tag: delete_translations_on_tax_delete
 -- @description: Übersetzungen löschen, wenn Steuer gelöscht wird
 -- @depends: release_3_0_0
--- @encoding: utf-8
 
 CREATE OR REPLACE FUNCTION generic_translations_delete_on_tax_delete_trigger()
 RETURNS TRIGGER AS $$

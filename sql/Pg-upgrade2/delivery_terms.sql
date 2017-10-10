@@ -1,7 +1,6 @@
 -- @tag: delivery_terms
 -- @description: Neue Tabelle und Spalten für Lieferbedingungen
 -- @depends: release_3_0_0
--- @encoding: utf-8
 
 CREATE TABLE delivery_terms (
        id                        integer        NOT NULL DEFAULT nextval('id'),

@@ -1,6 +1,5 @@
 -- @tag:shopimages
 -- @description: Tabelle für Shopbilder und zusätzliche Konfiguration und valid_type für Filemanagement
--- @charset: UTF-8
 -- @depends: release_3_5_0 files shop_parts
 -- @ignore: 0
 

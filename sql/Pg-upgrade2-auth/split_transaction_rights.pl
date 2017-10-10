@@ -1,7 +1,6 @@
 # @tag: split_transaction_rights
 # @description: Finanzbuchhaltungsrechte für Buchungen aufspalten
 # @depends: release_3_4_0 master_rights_position_gaps
-# @charset: utf-8
 # @locales: General Ledger Transaction
 # @locales: AR Transactions
 # @locales: AP Transactions

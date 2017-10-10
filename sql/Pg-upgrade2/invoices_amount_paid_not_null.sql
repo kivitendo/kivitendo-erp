@@ -1,7 +1,6 @@
 -- @tag: invoices_amount_paid_not_null
 -- @description: Bei Rechnungen die drei Spalten "amount", "netamount" und "paid" auf NOT NULL setzen
 -- @depends: release_3_2_0
--- @encoding: utf-8
 
 UPDATE ar SET amount    = 0 WHERE amount    IS NULL;
 ALTER TABLE ar ALTER COLUMN amount    SET NOT NULL;

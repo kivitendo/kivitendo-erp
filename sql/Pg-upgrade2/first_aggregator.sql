@@ -1,7 +1,6 @@
 -- @tag: first_aggregator
 -- @description: SQL Aggregat Funktion FIRST
 -- @depends: release_3_0_0
--- @encoding: utf-8
 
 CREATE OR REPLACE FUNCTION public.first_agg ( anyelement, anyelement )
 RETURNS anyelement LANGUAGE SQL IMMUTABLE STRICT AS $$

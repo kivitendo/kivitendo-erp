@@ -98,11 +98,16 @@ sub parse_dbupdate_controls {
       _control_error($form, $file_name, sprintf($locale->text("Missing 'description' field."))) ;
     }
 
+    delete @{$control}{qw(depth applied)};
+
+    my @unknown_keys = grep { !m{^ (?: depends | description | file | ignore | locales | may_fail | priority | tag ) $}x } keys %{ $control };
+    if (@unknown_keys) {
+      _control_error($form, $file_name, sprintf($locale->text("Unknown control fields: #1", join(' ', sort({ lc $a cmp lc $b } @unknown_keys)))));
+    }
+
     $control->{"priority"}  *= 1;
     $control->{"priority"} ||= 1000;
     $control->{"file"}       = $file;
-
-    delete @{$control}{qw(depth applied)};
 
     $all_controls{$control->{"tag"}} = $control;
 

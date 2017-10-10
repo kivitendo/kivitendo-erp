@@ -1,7 +1,6 @@
 -- @tag: letter_vendorletter
 -- @description: Briefe jetzt auch für Lieferanten
 -- @depends: release_3_4_1
--- @encoding: utf-8
 
 ALTER TABLE letter ALTER COLUMN customer_id DROP NOT NULL;
 ALTER TABLE letter ADD COLUMN vendor_id INTEGER REFERENCES vendor(id);

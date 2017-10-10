@@ -1,6 +1,5 @@
 -- @tag: shop_parts
 -- @description: Add tables for part information for shop
--- @charset: UTF-8
 -- @depends: release_3_5_0 shops
 -- @ignore: 0
 

@@ -1,6 +1,5 @@
 -- @tag: partsgroup_sortkey_obsolete
 -- @description: Sortierreihenfolge und ungültig für Warengruppen
--- @charset: UTF-8
 -- @depends: release_3_4_1
 -- @ignore: 0
 

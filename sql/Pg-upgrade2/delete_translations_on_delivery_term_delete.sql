@@ -1,7 +1,6 @@
 -- @tag: delete_translations_on_delivery_term_delete
 -- @description: Übersetzungen löschen, wenn Lieferbedingung gelöscht wird
 -- @depends: delivery_terms
--- @encoding: utf-8
 
 CREATE OR REPLACE FUNCTION generic_translations_delete_on_delivery_terms_delete_trigger()
 RETURNS TRIGGER AS $$

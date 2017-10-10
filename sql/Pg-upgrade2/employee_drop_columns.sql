@@ -2,7 +2,6 @@
 -- @description: Obsolete Felder in employee entfernt und Datenfelder zum Speichern für die Historie der Mitarbeiter (nach Löschen eines Benutzer) hinzugefügt. Aktuell alle Felder die der Benutzer unter persönliche Einstellungen ändern kann
 -- @depends: release_3_0_0
 -- @ignore: 0
--- @charset: utf-8
 ALTER TABLE employee DROP COLUMN addr1;
 ALTER TABLE employee DROP COLUMN addr2;
 ALTER TABLE employee DROP COLUMN addr3;

@@ -3561,6 +3561,7 @@ $self->{texts} = {
   'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' => 'Einheiten, die bereits in Benutzung sind (z.B. bei einer Warendefinition, einer Rechnung oder bei einer Lagerbuchung) können nachträglich nicht mehr verändert werden.',
   'Unknown Category'            => 'Unbekannte Kategorie',
   'Unknown Link'                => 'Unbekannte Verknüpfung',
+  'Unknown control fields: #1'  => 'Unbekannte Kontrollfelder: #1',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abhängigkeit \'%s\'.',
   'Unknown module: #1'          => 'Unbekanntes Modul #1',
   'Unknown problem type.'       => 'Unbekannter Problem-Typ',

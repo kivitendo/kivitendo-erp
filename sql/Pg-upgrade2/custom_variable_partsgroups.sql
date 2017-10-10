@@ -1,7 +1,6 @@
 -- @tag: custom_variable_partsgroups
 -- @description: Beziehung zwischen cvar configs und partsgroups für Filter nach Warengruppen
 -- @depends: release_3_1_0
--- @charset: utf-8
 
 CREATE TABLE custom_variable_config_partsgroups (
   custom_variable_config_id integer NOT NULL,

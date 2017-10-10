@@ -1,7 +1,6 @@
 -- @tag: add_master_rights
 -- @description: Rechte in die Datenbank migrieren
 -- @depends: release_3_2_0
--- @charset: utf-8
 -- @locales: Master Data
 -- @locales: Create customers and vendors. Edit all vendors. Edit only customers where salesman equals employee (login)
 -- @locales: Create customers and vendors. Edit all vendors. Edit all customers

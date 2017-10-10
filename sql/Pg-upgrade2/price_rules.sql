@@ -1,7 +1,6 @@
 -- @tag: price_rules
 -- @description:  Preismatrix Tabellen
 -- @depends: release_3_1_0
--- @encoding: utf-8
 
 CREATE TABLE price_rules (
   id       SERIAL PRIMARY KEY,

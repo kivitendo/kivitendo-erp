@@ -1,6 +1,5 @@
 -- @tag: files
 -- @description: Tabelle für Files
--- @charset: UTF-8
 -- @depends: release_3_4_1
 CREATE TABLE files(
   id                          SERIAL PRIMARY KEY,

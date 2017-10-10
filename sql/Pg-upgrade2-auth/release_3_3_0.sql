@@ -1,4 +1,3 @@
 -- @tag: release_3_3_0
 -- @description: Abhängigkeitsscript für Release 3.3.0
 -- @depends: release_3_2_0 sales_letter_rights delivery_plan_rights requirement_spec_rights delivery_process_value bank_transaction_rights details_and_report_of_parts productivity_rights rights_for_showing_ar_and_ap_transactions
--- @charset: utf-8

@@ -1,7 +1,6 @@
 # @tag: orderitems_delivery_order_items_positions
 # @description: Spalte für Positionen der Einträge in Angeboten/Auftträgen und Lieferscheinen.
 # @depends: release_3_1_0
-# @encoding: utf-8
 package SL::DBUpgrade2::orderitems_delivery_order_items_positions;
 
 use strict;

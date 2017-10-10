@@ -1,7 +1,6 @@
 -- @tag: remove_redundant_customer_vendor_delete_triggers
 -- @description: Entfernt doppelte/falsche Trigger zum Aufräumen nach dem Löschen von Kunden/Lieferanten
 -- @depends: release_3_1_0
--- @encoding: utf-8
 
 -- drop triggers
 DROP TRIGGER IF EXISTS del_customer ON customer;
