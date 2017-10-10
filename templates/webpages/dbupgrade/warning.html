@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE LxERP %]
+[%- USE LxERP %][%- USE L -%]
 <form name="Form" method="post" action="controller.pl">
 
  <input type="hidden" name="action" value="LoginScreen/login">
@@ -8,6 +8,30 @@
  <p class="message_hint">
   [% LxERP.t8('kivitendo is about to update the database [ #1 ].', dbname) | html %]
  </p>
+
+ [% IF superuser.need_privileges && !superuser.have_privileges %]
+  <p>
+   [% LxERP.t8("Database superuser privileges are required for the update.") %]
+   [% LxERP.t8("Please provide corresponding credentials.") %]
+  </p>
+
+  [% IF superuser.error %]
+   <p>[% LxERP.t8("Error: #1", superuser.error) %]</p>
+  [% END %]
+
+  <table border="0">
+   <tr>
+    <td>[% LxERP.t8("User name") %]:</td>
+    <td>[% L.input_tag("database_superuser_username", superuser.username) %]</td>
+   </tr>
+
+   <tr>
+    <td>[% LxERP.t8("Password") %]:</td>
+    <td>[% L.input_tag("database_superuser_password", superuser.password, type="password") %]</td>
+   </tr>
+  </table>
+ [% END %]
+
  <p>
   [% 'You should create a backup of the database before proceeding because the backup might not be reversible.' | $T8 %]
  </p>

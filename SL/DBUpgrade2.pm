@@ -100,7 +100,7 @@ sub parse_dbupdate_controls {
 
     delete @{$control}{qw(depth applied)};
 
-    my @unknown_keys = grep { !m{^ (?: depends | description | file | ignore | locales | may_fail | priority | tag ) $}x } keys %{ $control };
+    my @unknown_keys = grep { !m{^ (?: depends | description | file | ignore | locales | may_fail | priority | superuser_privileges | tag ) $}x } keys %{ $control };
     if (@unknown_keys) {
       _control_error($form, $file_name, sprintf($locale->text("Unknown control fields: #1", join(' ', sort({ lc $a cmp lc $b } @unknown_keys)))));
     }

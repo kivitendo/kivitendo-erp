@@ -36,7 +36,7 @@
 package User;
 
 use IO::File;
-use Fcntl qw(:seek);
+use List::MoreUtils qw(any);
 
 use SL::DB;
 #use SL::Auth;
@@ -103,6 +103,42 @@ sub country_codes {
   return %cc;
 }
 
+sub _handle_superuser_privileges {
+  my ($self, $form) = @_;
+
+  if ($form->{database_superuser_username}) {
+    $::auth->set_session_value("database_superuser_username" => $form->{database_superuser_username}, "database_superuser_password" => $form->{database_superuser_password});
+  }
+
+  my %dbconnect_form          = %{ $form };
+  my ($su_user, $su_password) = map { $::auth->get_session_value("database_superuser_$_") } qw(username password);
+
+  if ($su_user) {
+    $dbconnect_form{dbuser}   = $su_user;
+    $dbconnect_form{dbpasswd} = $su_password;
+  }
+
+  dbconnect_vars(\%dbconnect_form, $form->{dbname});
+
+  my %result = (
+    username => $dbconnect_form{dbuser},
+    password => $dbconnect_form{dbpasswd},
+  );
+
+  $::auth->set_session_value("database_superuser_username" => $dbconnect_form{dbuser}, "database_superuser_password" => $dbconnect_form{dbpasswd});
+
+  my $dbh = SL::DBConnect->connect($dbconnect_form{dbconnect}, $dbconnect_form{dbuser}, $dbconnect_form{dbpasswd}, SL::DBConnect->get_options);
+  return (%result, error => $::locale->text('The credentials (username & password) for connecting database are wrong.')) if !$dbh;
+
+  my ($is_superuser) = $dbh->selectrow_array(qq|SELECT usesuper FROM pg_user WHERE usename = ?|, undef, $dbconnect_form{dbuser});
+
+  $dbh->disconnect;
+
+  return (%result, have_privileges => 1) if $is_superuser;
+  return (%result)                       if !$su_user; # no error message if credentials weren't set by the user
+  return (%result, error => $::locale->text('The database user \'#1\' does not have superuser privileges.', $dbconnect_form{dbuser}));
+}
+
 sub login {
   my ($self, $form) = @_;
 
@@ -149,8 +185,22 @@ sub login {
 
   $form->{dbupdate} = "db" . $::auth->client->{dbname};
 
-  if ($form->{"show_dbupdate_warning"}) {
-    print $form->parse_html_template("dbupgrade/warning", { unapplied_scripts => \@unapplied_scripts });
+  my $show_update_warning = $form->{"show_dbupdate_warning"};
+  my %superuser           = (need_privileges => (any { $_->{superuser_privileges} } @unapplied_scripts));
+
+  if ($superuser{need_privileges}) {
+    %superuser = (
+      %superuser,
+      $self->_handle_superuser_privileges($form),
+    );
+    $show_update_warning = 1 if !$superuser{have_privileges};
+  }
+
+  if ($show_update_warning) {
+    print $form->parse_html_template("dbupgrade/warning", {
+      unapplied_scripts => \@unapplied_scripts,
+      superuser         => \%superuser,
+    });
     $::dispatcher->end_request;
   }
 
@@ -442,6 +492,21 @@ sub dbupdate2 {
   $self->create_schema_info_table($form, $dbh);
 
   my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
+  my $need_superuser = (any { $_->{superuser_privileges} } @upgradescripts);
+  my $superuser_dbh;
+
+  if ($need_superuser) {
+    my %dbconnect_form = (
+      %{ $form },
+      dbuser   => $::auth->get_session_value("database_superuser_username"),
+      dbpasswd => $::auth->get_session_value("database_superuser_password"),
+    );
+
+    if ($dbconnect_form{dbuser} ne $form->{dbuser}) {
+      dbconnect_vars(\%dbconnect_form, $db);
+      $superuser_dbh = SL::DBConnect->connect($dbconnect_form{dbconnect}, $dbconnect_form{dbuser}, $dbconnect_form{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
+    }
+  }
 
   $::lxdebug->log_time("DB upgrades commencing");
 
@@ -449,15 +514,18 @@ sub dbupdate2 {
     # Apply upgrade. Control will only return to us if the upgrade has
     # been applied correctly and if the update has not requested user
     # interaction.
-    $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
+    my $script_dbh = $control->{superuser_privileges} ? ($superuser_dbh // $dbh) : $dbh;
+
+    $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}" . ($control->{superuser_privileges} ? " with superuser privileges" : ""));
     print $form->parse_html_template("dbupgrade/upgrade_message2", $control) unless $silent;
 
-    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
+    $dbupdater->process_file($script_dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
   $::lxdebug->log_time("DB upgrades finished");
 
   $dbh->disconnect;
+  $superuser_dbh->disconnect if $superuser_dbh;
 }
 
 sub data {
