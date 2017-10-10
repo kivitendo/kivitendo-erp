@@ -16,7 +16,7 @@ use SL::Layout::None;
 use SL::LxOfficeConf;
 use Support::TestSetup;
 
-our ($db_cfg, $dbh);
+our ($db_cfg, $dbh, $superuser_dbh);
 
 sub dbg {
   # diag(@_);
@@ -85,6 +85,7 @@ sub drop_and_create_database {
 
 sub report_success {
   $dbh->disconnect;
+  $superuser_dbh->disconnect if $superuser_dbh;
   ok(1, "Database has been setup sucessfully.");
   done_testing();
 }
@@ -97,7 +98,8 @@ sub apply_dbupgrade {
 
   dbg("Applying $file");
 
-  my $error = $dbupdater->process_file($dbh, $file, $control);
+  my $script_dbh = $control && $control->{superuser_privileges} ? ($superuser_dbh // $dbh) : $dbh;
+  my $error      = $dbupdater->process_file($script_dbh, $file, $control);
 
   BAIL_OUT("Error applying $file: $error") if $error;
 }
@@ -116,6 +118,17 @@ sub create_initial_schema {
   $::auth->{dbh} = $dbh;
   my $dbupdater  = SL::DBUpgrade2->new(form => $::form, return_on_error => 1, silent => 1);
   my $coa        = 'Germany-DATEV-SKR03EU';
+
+  if ($db_cfg->{superuser_user} && ($db_cfg->{superuser_user} ne $db_cfg->{user})) {
+    @dbi_options = (
+      'dbi:Pg:dbname=' . $db_cfg->{db} . ';host=' . $db_cfg->{host} . ';port=' . $db_cfg->{port},
+      $db_cfg->{superuser_user},
+      $db_cfg->{superuser_password},
+      SL::DBConnect->get_options(PrintError => 0, PrintWarn => 0),
+    );
+
+    $superuser_dbh = SL::DBConnect->connect(@dbi_options) || BAIL_OUT("Database superuser connection failed: " . $DBI::errstr);
+  }
 
   apply_dbupgrade($dbupdater, "sql/lx-office.sql");
   apply_dbupgrade($dbupdater, "sql/${coa}-chart.sql");

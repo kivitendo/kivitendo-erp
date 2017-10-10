@@ -256,12 +256,14 @@ log_file = /tmp/kivitendo_console_debug.log
 # database will be dropped & created before any other test is run. The
 # following parameters must be given:
 [testing/database]
-host     = localhost
-port     = 5432
-db       =
-user     = postgres
-password =
-template = template1
+host               = localhost
+port               = 5432
+db                 =
+user               = postgres
+password           =
+template           = template1
+superuser_user     = postgres
+superuser_password =
 
 [devel]
 # Several settings related to the development of kivitendo.
