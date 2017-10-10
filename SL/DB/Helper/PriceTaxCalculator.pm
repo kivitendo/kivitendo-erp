@@ -112,7 +112,7 @@ sub _calculate_item {
     $item->marge_percent(0);
 
   } else {
-    my $lastcost       = ! ($item->lastcost * 1) ? ($part->lastcost || 0) : $item->lastcost;
+    my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
     $linetotal_cost    = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
 
     $item->marge_total(  $linetotal - $linetotal_cost);
