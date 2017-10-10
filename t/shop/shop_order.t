@@ -38,7 +38,7 @@ sub reset_state {
 sub save_shorcontroller_to_string {
 
   my $output;
-  open(my $outputFH, '<', \$output) or die "OUTPUT";
+  open(my $outputFH, '>', \$output) or die "OUTPUT";
   my $oldFH = select $outputFH;
   my $shor_controller = SL::Controller::ShopOrder->new;
   $shor_controller->action_transfer;
