@@ -119,6 +119,19 @@ sub build_tree {
     push @{ $by_parent{ $node->{parent} // '' } //= [] }, $node;
   }
 
+  # autovivify order in by_parent, so that numerical sorting for entries without order
+  # preserves their order and position with respect to entries with order.
+  for (values %by_parent) {
+    my $last_order = 0;
+    for my $node (@$_) {
+      if (defined $node->{order} && $node->{order} * 1) {
+        $last_order = $node->{order};
+      } else {
+        $node->{order} = ++$last_order;
+      }
+    }
+  }
+
   my $tree = { };
   $self->{by_id}{''} = $tree;
 
