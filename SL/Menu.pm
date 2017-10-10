@@ -73,6 +73,8 @@ sub _merge {
   for my $node (@$data) {
     my $id = $node->{id};
 
+    die "menu: node with name '$node->{name}' does not have an id" if !$id;
+
     my $merge_to = $by_id->{$id};
 
     if (!$merge_to) {
