@@ -59,8 +59,8 @@ sub convert_to_sales_order {
   if(!scalar(@error_report)){
 
     my $shipto_id;
-    if ($self->billing_firstname ne $self->delivery_firstname || $self->billing_lastname ne $self->delivery_lastname || $self->billing_city ne $self->delivery_city || $self->billing_street ne $self->delivery_street) {
-      if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_firstname . " " . $self->delivery_lastname,
+    if ($self->has_differing_delivery_address) {
+      if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_fullname,
                                                          shiptostreet => $self->delivery_street,
                                                          shiptocity   => $self->delivery_city,
                                                         )) {
@@ -68,7 +68,7 @@ sub convert_to_sales_order {
       } else {
         my $deliveryaddress = SL::DB::Shipto->new;
         $deliveryaddress->assign_attributes(
-          shiptoname         => $self->delivery_firstname . " " . $self->delivery_lastname,
+          shiptoname         => $self->delivery_fullname,
           shiptodepartment_1 => $self->delivery_company,
           shiptodepartment_2 => $self->delivery_department,
           shiptostreet       => $self->delivery_street,
@@ -243,6 +243,18 @@ sub check_trgm {
 
   return 1 if($version[0]->{installed_version});
   return 0;
+}
+
+sub has_differing_delivery_address {
+  my ($self) = @_;
+  ($self->billing_firstname // '') ne ($self->delivery_firstname // '') ||
+  ($self->billing_lastname  // '') ne ($self->delivery_lastname  // '') ||
+  ($self->billing_city      // '') ne ($self->delivery_city      // '') ||
+  ($self->billing_street    // '') ne ($self->delivery_street    // '')
+}
+
+sub delivery_fullname {
+  ($_[0]->delivery_firstname // '') . " " . ($_[0]->delivery_lastname // '')
 }
 
 1;
