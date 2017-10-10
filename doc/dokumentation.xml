@@ -6856,44 +6856,6 @@ document_path = /var/local/kivi_documents
       werden.</para>
 
       <sect2>
-        <title>Installationsempfehlung</title>
-
-        <para>Optionale Postgreserweiterung pg_trgm(Trigram)</para>
-
-        <para>Die Trigramerweiterung bietet eine Ähnlichkeitsuche. Diese
-        verwendet das Shopmodul, wenn installiert, beim Bestellimport um zu
-        entscheiden ob ein Kunde neu angelegt oder als Vorschlag angezeigt
-        wird. </para>
-
-        <para>Die Erweiterung wird bisher nur beim Ableich der Straße genutzt,
-        da hier oft unterschiedliche Schreibweisen vorhanden sind. </para>
-
-        <para>z.B Dorfstraße, Dorfstrasse, Dorfstr., Dorf Straße usw.. So wird
-        vermieden, dass Kunden eventuell doppelt angelegt werden. </para>
-
-        <para>Um diese Erweiterung generell in kivitendo zu installieren, um
-        neuen Mandanten und der kivitendo-Test-Suite zugänglich zu
-        machen:</para>
-
-        <para><programlisting>su - postgres
-psql template1</programlisting></para>
-
-        <para>führen Sie die folgenden Kommandos aus:</para>
-
-        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
-\q</programlisting>
-
-        <para>Für bestehende Mandanten-Datenbanken kann die Extension in der
-        Datenbank angelegt werden:</para>
-
-        <programlisting>su - postgres
-psql DATENBANKNAME</programlisting>
-
-        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
-\q</programlisting>
-      </sect2>
-
-      <sect2>
         <title>Rechte für die Webshopapi</title>
 
         <para>In der Administration können folgende Rechte vergeben
