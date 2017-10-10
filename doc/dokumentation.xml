@@ -8340,6 +8340,12 @@ $self-&gt;{more_texts} = {
         <literal>testing/database</literal> Datenbankverbindungsparameter
         angegeben werden. Der hier angegebene Benutzer muss weiterhin das
         Recht haben, Datenbanken anzulegen und zu löschen.</para>
+
+        <para>Der so angegebene Benutzer muss nicht zwingend über Super-User-Rechte verfügen. Allerdings gibt es einige Datenbank-Upgrades,
+        die genau diese Rechte benötigen. Für den Fall kann man in diesem Konfigurationsabschnitt einen weiteren Benutzeraccount angeben,
+        der dann über Super-User-Rechte verfügt, und mit dem die betroffenen Upgrades durchgeführt werden. In der
+        Beispiel-Konfigurationsdatei finden Sie die benötigten Parameter.</para>
+
       </sect2>
 
       <sect2 id="devel.testsuite.execution">
