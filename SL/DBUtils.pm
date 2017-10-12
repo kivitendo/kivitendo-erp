@@ -392,6 +392,13 @@ sub like {
   return "%" . SL::Util::trim($string // '') . "%";
 }
 
+sub role_is_superuser {
+  my ($dbh, $login)  = @_;
+  my ($is_superuser) = $dbh->selectrow_array(qq|SELECT usesuper FROM pg_user WHERE usename = ?|, undef, $login);
+
+  return $is_superuser;
+}
+
 1;
 
 

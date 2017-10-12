@@ -130,7 +130,7 @@ sub _handle_superuser_privileges {
   my $dbh = SL::DBConnect->connect($dbconnect_form{dbconnect}, $dbconnect_form{dbuser}, $dbconnect_form{dbpasswd}, SL::DBConnect->get_options);
   return (%result, error => $::locale->text('The credentials (username & password) for connecting database are wrong.')) if !$dbh;
 
-  my ($is_superuser) = $dbh->selectrow_array(qq|SELECT usesuper FROM pg_user WHERE usename = ?|, undef, $dbconnect_form{dbuser});
+  my $is_superuser = SL::DBUtils::role_is_superuser($dbh, $dbconnect_form{dbuser});
 
   $dbh->disconnect;
 

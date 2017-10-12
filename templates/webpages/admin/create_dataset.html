@@ -10,6 +10,13 @@
   [% LxERP.t8('In the latter case the tables needed by kivitendo will be created in that database.') %]
  </p>
 
+ [% IF !superuser.have_privileges %]
+  <p>
+   [% LxERP.t8("Database superuser privileges are required for parts of the database modifications.") %]
+   [% LxERP.t8("Please provide corresponding credentials.") %]
+  </p>
+ [% END %]
+
  <table border="0">
   <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Existing Datasets') %]</th>
@@ -20,6 +27,18 @@
    <th align="right" nowrap>[% LxERP.t8('Create Dataset') %]</th>
    <td>[% L.input_tag('db', FORM.db, class="initial_focus") %]</td>
   </tr>
+
+  [% IF !superuser.have_privileges %]
+   <tr>
+    <th align="right" nowrap>[% LxERP.t8("Database Superuser") %]</th>
+    <td>[% L.input_tag("database_superuser_user", superuser.username) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>[% LxERP.t8("Password") %]</th>
+    <td>[% L.input_tag("database_superuser_password", superuser.password, type="password") %]</td>
+   </tr>
+  [% END %]
 
   <tr>
    <td colspan="1"> </td>
