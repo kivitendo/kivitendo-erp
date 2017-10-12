@@ -121,33 +121,6 @@ function check_right_date_format(input_name) {
   }
 }
 
-function validate_dates(input_name_1, input_name_2) {
-  var tempArray1 = new Array();
-  var tempArray2 = new Array();
-  tempArray1 = getDateArray(input_name_1);
-  tempArray2 = getDateArray(input_name_2);
-  if(check_right_date_format(input_name_1) && check_right_date_format(input_name_2)) {
-    if(!((new Date(tempArray2[0], tempArray2[1], tempArray2[2])).getTime() >= (new Date(tempArray1[0], tempArray1[1], tempArray1[2])).getTime())) {
-      show_alert_and_focus(input_name_1, wrongDateFormat);
-      return show_alert_and_focus(input_name_2, wrongDateFormat);
-    }
-    if(!((new Date(tempArray2[0], tempArray2[1], tempArray2[2])).getTime() >= (new Date(1900, 1, 1)).getTime())) {
-      show_alert_and_focus(input_name_1, wrongDateFormat);
-      return show_alert_and_focus(input_name_2, wrongDateFormat);
-    }
-  }
-}
-
-function getDateArray(input_name) {
-  formatArray[2] = input_name.value.substring(dateFormat.indexOf("d"), 2);
-  formatArray[1] = input_name.value.substring(dateFormat.indexOf("m"), 2);
-  formatArray[0] = input_name.value.substring(dateFormat.indexOf("y"), (dateFormat.length == 10 ? 4 : 2));
-  if(dateFormat.length == 8) {
-    formatArray[0] += (formatArray[0] < 70 ? 2000 : 1900);
-  }
-  return formatArray;
-}
-
 function show_alert_and_focus(input_name, errorMessage) {
   input_name.select();
   alert(errorMessage + "\n\r\n\r--> " + input_name.value);
