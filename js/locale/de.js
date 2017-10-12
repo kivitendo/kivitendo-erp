@@ -56,6 +56,7 @@ namespace("kivi").setupLocale({
 "Edit text block":"Textblock bearbeiten",
 "Enter longdescription":"Langtext eingeben",
 "Error: Name missing":"Fehler: Name fehlt",
+"Falsches Datumsformat!":"Falsches Datumsformat!",
 "File upload":"Datei Upload",
 "Function block actions":"Funktionsblockaktionen",
 "Generate and print sales delivery orders":"Erzeuge und drucke Lieferscheine",
@@ -138,5 +139,6 @@ namespace("kivi").setupLocale({
 "sort items":"Positionen sortieren",
 "start upload":"Hochladen beginnt",
 "time and effort based position":"Aufwandsposition",
-"uploaded":"Hochgeladen"
+"uploaded":"Hochgeladen",
+"wrongformat":"Falsches Format"
 });

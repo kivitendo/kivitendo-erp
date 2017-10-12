@@ -34,9 +34,6 @@ function centerParms(width,height,extra) {
 }
 
 function check_right_number_format(input_name) {
-  if(decpoint && thpoint && thpoint == decpoint) {
-    return show_alert_and_focus(input_name, wrongNumberFormat);
-  }
   var test_val = input_name.value;
   if(thpoint && thpoint == ','){
     test_val = test_val.replace(/,/g, '');
@@ -52,19 +49,21 @@ function check_right_number_format(input_name) {
   }
   var forbidden = test_val.match(/[^\s\d\(\)\-\+\*\/\.]/g);
   if (forbidden && forbidden.length > 0 ){
-    return show_alert_and_focus(input_name, wrongNumberFormat);
+    return annotate(input_name, kivi.t8('wrongformat'), kivi.myconfig.numberformat);
   }
 
   try{
     eval(test_val);
   }catch(err){
-    return show_alert_and_focus(input_name, wrongNumberFormat);
+    return annotate(input_name, kivi.t8('wrongformat'), kivi.myconfig.numberformat);
   }
 
+  return annotate(input_name);
 }
 
 function check_right_date_format(input_name) {
   if(input_name.value == "") {
+    annotate(input_name);
     return true;
   }
 
@@ -111,21 +110,35 @@ function check_right_date_format(input_name) {
   if(!(dateFormat.lastIndexOf("y") == 3) && !matching.test(input_name.value)) {
     matching = new RegExp(dateFormat.replace(/\w/g, '\\d') + '\\d\\d\$', "ig");
     if(!matching.test(input_name.value)) {
-      return show_alert_and_focus(input_name, wrongDateFormat);
+      return annotate(input_name, kivi.t8('Falsches Datumsformat!'), kivi.myconfig.dateformat);
     }
   }
   else {
     if (dateFormat.lastIndexOf("y") == 3 && !matching.test(input_name.value)) {
-      return show_alert_and_focus(input_name, wrongDateFormat);
+      return annotate(input_name, kivi.t8('Falsches Datumsformat!'), kivi.myconfig.dateformat);
     }
   }
+  return annotate(input_name);
 }
 
-function show_alert_and_focus(input_name, errorMessage) {
-  input_name.select();
-  alert(errorMessage + "\n\r\n\r--> " + input_name.value);
-  input_name.focus();
-  return false;
+function annotate(input_name, error, expected) {
+  var $e = $(input_name);
+  if (error) {
+    $e.addClass('kivi-validator-invalid');
+    var tooltip = error + ' (' + expected + ')';
+    if ($e.hasClass('tooltipstered'))
+      $e.tooltipster('destroy');
+
+    $e.tooltipster({
+      content: tooltip,
+      theme: 'tooltipster-light',
+    });
+    $e.tooltipster('show');
+  } else {
+    $e.removeClass('kivi-validator-invalid');
+    if ($e.hasClass('tooltipstered'))
+      $e.tooltipster('destroy');
+  }
 }
 
 function get_input_value(input_name) {
