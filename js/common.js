@@ -1,26 +1,3 @@
-function setupPoints(numberformat, wrongFormat) {
-  decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,|\'/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,|\'/) ? 6 : 5));
-  if (numberformat.substring(1, 2).match(/\.|\,|\'/)) {
-    thpoint = numberformat.substring(1, 2);
-  }
-  else {
-    thpoint = null;
-  }
-  wrongNumberFormat = wrongFormat + " ( " + numberformat + " ) ";
-}
-
-function setupDateFormat(setDateFormat, setWrongDateFormat) {
-  dateFormat = setDateFormat;
-  wrongDateFormat = setWrongDateFormat + " ( " + setDateFormat + " ) ";
-  formatArray = new Array();
-  if(dateFormat.match(/^\w\w\W/)) {
-    seperator = dateFormat.substring(2,3);
-  }
-  else {
-    seperator = dateFormat.substring(4,5);
-  }
-}
-
 function centerParms(width,height,extra) {
   xPos = (screen.width - width) / 2;
   yPos = (screen.height - height) / 2;
@@ -34,6 +11,9 @@ function centerParms(width,height,extra) {
 }
 
 function check_right_number_format(input_name) {
+  var decpoint = kivi._number_format.decimalSep;
+  var thpoint  = kivi._number_format.thousandSep;
+
   var test_val = input_name.value;
   if(thpoint && thpoint == ','){
     test_val = test_val.replace(/,/g, '');
@@ -66,6 +46,9 @@ function check_right_date_format(input_name) {
     annotate(input_name);
     return true;
   }
+
+  var dateFormat = kivi.myconfig.dateformat;
+  var seperator  = kivi._date_format.sep;
 
   if ( ( input_name.value.match(/^\d+$/ ) ) && !(dateFormat.lastIndexOf("y") == 3) ) {
     // date shortcuts for entering date without separator for three date styles, e.g.
