@@ -445,7 +445,7 @@ sub action_do_delete_dataset {
 
   if (@errors) {
     flash('error', @errors);
-    return $self->create_dataset_form;
+    return $self->delete_dataset_form;
   }
 
   User->new->dbdelete($::form);
