@@ -393,7 +393,7 @@ sub display_row {
       '-labels' => \%projectnumber_labels,
       '-default' => $form->{"project_id_$i"}
     ));
-    $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" onchange="check_right_date_format(this)" value="$form->{"reqdate_$i"}">|;
+    $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" data-validate="date" value="$form->{"reqdate_$i"}">|;
     $column_data{subtotal}  = sprintf qq|<input type="checkbox" name="subtotal_$i" value="1" %s>|, $form->{"subtotal_$i"} ? 'checked' : '';
 
 # begin marge calculations
