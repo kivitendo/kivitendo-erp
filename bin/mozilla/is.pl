@@ -256,7 +256,6 @@ sub setup_is_action_bar {
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_is_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_is_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
-  my @req_trans_desc          = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -265,6 +264,7 @@ sub setup_is_action_bar {
         submit    => [ '#form', { action => "update" } ],
         disabled  => $form->{locked} ? t8('The billing period has already been locked.') : undef,
         id        => 'update_button',
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 
@@ -272,7 +272,7 @@ sub setup_is_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -282,7 +282,7 @@ sub setup_is_action_bar {
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Mark as paid'),
@@ -297,13 +297,13 @@ sub setup_is_action_bar {
         action => [ t8('Storno'),
           submit   => [ '#form', { action => "storno" } ],
           confirm  => t8('Do you really want to cancel this invoice?'),
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
                     : $form->{locked}          ? t8('The billing period has already been locked.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
@@ -319,12 +319,13 @@ sub setup_is_action_bar {
         action => [
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [
           t8('Credit Note'),
           submit   => [ '#form', { action => "credit_note" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $form->{type} eq "credit_note" ? t8('Credit notes cannot be converted into other credit notes.')
                     : !$form->{id}                   ? t8('This invoice has not been posted yet.')
                     :                                  undef,
@@ -332,6 +333,7 @@ sub setup_is_action_bar {
         action => [
           t8('Sales Order'),
           submit   => [ '#form', { action => "order" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -341,17 +343,17 @@ sub setup_is_action_bar {
         action => [
           ($form->{id} ? t8('Print') : t8('Preview')),
           call     => [ 'kivi.SalesPurchase.show_print_dialog', $form->{id} ? 'print' : 'preview' ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} && $form->{locked} ? t8('The billing period has already been locked.') : undef,
         ],
         action => [ t8('Print and Post'),
           call     => [ 'kivi.SalesPurchase.show_print_dialog', $form->{id} ? 'print' : 'print_and_post' ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $form->{id} ? t8('This invoice has already been posted.') : undef,,
         ],
         action => [ t8('E Mail'),
           call     => [ 'kivi.SalesPurchase.show_email_dialog' ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Export"
@@ -378,6 +380,7 @@ sub setup_is_action_bar {
       ], # end of combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub form_header {

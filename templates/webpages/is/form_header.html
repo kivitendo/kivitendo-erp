@@ -180,7 +180,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Transaction description' | $T8 %]</th>
-          <td colspan="3"><input size='35' name="transaction_description" id="transaction_description" value="[% HTML.escape(transaction_description) %]"></td>
+          <td colspan="3">[% L.input_tag("transaction_description", transaction_description, size=35, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
         </tr>
       </table>
     </td>
