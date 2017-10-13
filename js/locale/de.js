@@ -56,7 +56,6 @@ namespace("kivi").setupLocale({
 "Edit text block":"Textblock bearbeiten",
 "Enter longdescription":"Langtext eingeben",
 "Error: Name missing":"Fehler: Name fehlt",
-"Falsches Datumsformat!":"Falsches Datumsformat!",
 "File upload":"Datei Upload",
 "Function block actions":"Funktionsblockaktionen",
 "Generate and print sales delivery orders":"Erzeuge und drucke Lieferscheine",
@@ -110,7 +109,6 @@ namespace("kivi").setupLocale({
 "The URL is missing.":"URL fehlt",
 "The action can only be executed once.":"Die Aktion kann nur einmal ausgeführt werden.",
 "The description is missing.":"Die Beschreibung fehlt.",
-"The field '#{title}' must be set.":"Das Feld »#{title}« muss gesetzt sein.",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",
 "The option field is empty.":"Das Optionsfeld ist leer.",
@@ -123,6 +121,7 @@ namespace("kivi").setupLocale({
 "There are duplicate parts at positions":"Es gibt doppelte Artikel bei den Positionen",
 "There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?":"Einige der Lagerbewegungen sind nicht vollständig und Lagerbewegungen können nachträglich nicht mehr verändert werden. Wollen Sie wirklich fortfahren?",
 "There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"Es gibt einen oder mehrere Abschnitte ohne Artikelzuweisung; daher kann der neue Beleg noch nicht erstellt werden.",
+"This field must not be empty.":"Dieses Feld darf nicht leer sein.",
 "This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?":"Dieser Auftrag besitzt eine aktive Konfiguration für wiederkehrende Rechnungen. Wenn Sie jetzt speichern, so werden alle zukünftig hieraus erzeugten Rechnungen die Änderungen enthalten, nicht aber die bereits erzeugten Rechnungen. Wollen Sie speichern?",
 "Time/cost estimate actions":"Aktionen für Kosten-/Zeitabschätzung",
 "Title":"Titel",
@@ -132,6 +131,8 @@ namespace("kivi").setupLocale({
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
 "Vendor missing!":"Lieferant fehlt!",
 "Version actions":"Aktionen für Versionen",
+"Wrong date format (#1)":"Falsches Datumsformat (#1)",
+"Wrong number format (#1)":"Falsches Zahlenformat (#1)",
 "Yes":"Ja",
 "filename has not uploadable characters ":"Bitte Dateinamen ändern. Er hat für den Upload nicht verwendbare Sonderzeichen ",
 "filesize too big: ":"Datei zu groß: ",
@@ -139,6 +140,5 @@ namespace("kivi").setupLocale({
 "sort items":"Positionen sortieren",
 "start upload":"Hochladen beginnt",
 "time and effort based position":"Aufwandsposition",
-"uploaded":"Hochgeladen",
-"wrongformat":"Falsches Format"
+"uploaded":"Hochgeladen"
 });

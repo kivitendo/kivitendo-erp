@@ -31,6 +31,12 @@ namespace("kivi", function(ns) {
   };
 
   ns.parse_date = function(date) {
+    if (date === undefined)
+      return undefined;
+
+    if (date === '')
+      return null;
+
     var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
     var today = new Date();
 
@@ -91,8 +97,11 @@ namespace("kivi", function(ns) {
   };
 
   ns.parse_amount = function(amount) {
-    if ((amount === undefined) || (amount === ''))
-      return 0;
+    if (amount === undefined)
+      return undefined;
+
+    if (amount === '')
+      return null;
 
     if (ns._number_format.decimalSep == ',')
       amount = amount.replace(/\./g, "").replace(/,/g, ".");
@@ -101,7 +110,7 @@ namespace("kivi", function(ns) {
 
     // Make sure no code wich is not a math expression ends up in eval().
     if (!amount.match(/^[0-9 ()\-+*/.]*$/))
-      return 0;
+      return undefined;
 
     amount = amount.replace(/^0+(\d+)/, '$1');
 
@@ -109,7 +118,7 @@ namespace("kivi", function(ns) {
     try {
       return eval(amount);
     } catch (err) {
-      return 0;
+      return undefined;
     }
   };
 
@@ -283,6 +292,7 @@ namespace("kivi", function(ns) {
 
     if (ns.Part) ns.Part.reinit_widgets();
     if (ns.CustomerVendor) ns.CustomerVendor.reinit_widgets();
+    if (ns.Validator) ns.Validator.reinit_widgets();
 
     if (ns.ProjectPicker)
       ns.run_once_for('input.project_autocomplete', 'project_picker', function(elt) {
@@ -499,6 +509,14 @@ namespace("kivi", function(ns) {
       console.log('No duplicate IDs found :)');
   };
 
+  ns.validate_form = function(selector) {
+    if (!kivi.Validator) {
+      console.log('kivi.Validator is not loaded');
+    } else {
+      kivi.Validator.validate_all(selector);
+    }
+  };
+
   // Verifies that at least one checkbox matching the
   // "checkbox_selector" is actually checked. If not, an error message
   // is shown, and false is returned. Otherwise (at least one of them
@@ -512,62 +530,6 @@ namespace("kivi", function(ns) {
     alert(kivi.t8('No entries have been selected.'));
 
     return false;
-  };
-
-  // Performs various validation steps on the descendants of
-  // 'selector'. Elements that should be validated must have an
-  // attribute named "data-validate" which is set to a space-separated
-  // list of tests to perform. Additionally, the attribute
-  // "data-title" must be set to a human-readable name of the field
-  // that can be shown as part of an error message.
-  //
-  // Supported validation tests are:
-  // - "required": the field must be set (its .val() must not be empty)
-  //
-  // The validation will abort and return "false" as soon as
-  // validation routine fails.
-  //
-  // The function returns "true" if all validations succeed for all
-  // elements.
-  ns.validate_form = function(selector) {
-    var validate_field = function(elt) {
-      var $elt  = $(elt);
-      var tests = $elt.data('validate').split(/ +/);
-      var info  = {
-        title: $elt.data('title'),
-        value: $elt.val(),
-      };
-
-      for (var test_idx in tests) {
-        var test = tests[test_idx];
-
-        if (test === "required") {
-          if ($elt.val() === '') {
-            alert(kivi.t8("The field '#{title}' must be set.", info));
-            return false;
-          }
-
-        } else {
-          var error = "kivi.validate_form: unknown test '" + test + "' for element ID '" + $elt.prop('id') + "'";
-          console.error(error);
-          alert(error);
-
-          return false;
-        }
-      }
-
-      return true;
-    };
-
-    selector = selector || '#form';
-    var ok   = true;
-    var to_check = $(selector + ' [data-validate]').toArray();
-
-    for (var to_check_idx in to_check)
-      if (!validate_field(to_check[to_check_idx]))
-        return false;
-
-    return true;
   };
 
   ns.switch_areainput_to_textarea = function(id) {
