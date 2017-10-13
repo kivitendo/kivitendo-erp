@@ -420,6 +420,7 @@ label {
   vertical-align: middle;
   height: 100%;
 }
+.kivi-validator-invalid,
 .customer-vendor-picker-undefined,
 .chartpicker-undefined,
 .projectpicker-undefined,
