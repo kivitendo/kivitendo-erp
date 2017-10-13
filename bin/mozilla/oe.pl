@@ -311,7 +311,6 @@ sub setup_oe_action_bar {
                         || $params{is_pur_ord}
                         || ($params{is_sales_quo} && $::instance_conf->get_allow_sales_invoice_from_sales_quotation)
                         || ($params{is_sales_ord} && $::instance_conf->get_allow_sales_invoice_from_sales_order);
-  my @req_trans_desc     = qw(kivi.SalesPurchase.check_transaction_description)         x!!$::instance_conf->get_require_transaction_description_ps;
   my @req_trans_cost_art = qw(kivi.SalesPurchase.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
   my @warn_p_invoice     = qw(kivi.SalesPurchase.oe_warn_save_active_periodic_invoice)  x!!$has_active_periodic_invoice;
 
@@ -321,6 +320,7 @@ sub setup_oe_action_bar {
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
+        checks   => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 
@@ -328,18 +328,18 @@ sub setup_oe_action_bar {
         action => [
           t8('Save'),
           submit  => [ '#form', { action => "save" } ],
-          checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
+          checks  => [ 'kivi.validate_form', @req_trans_cost_art, @warn_p_invoice ],
         ],
         action => [
           t8('Save as new'),
           submit   => [ '#form', { action => "save_as_new" } ],
-          checks   => [ @req_trans_desc, @req_trans_cost_art ],
+          checks   => [ 'kivi.validate_form', @req_trans_cost_art ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Close'),
           submit  => [ '#form', { action => "save_and_close" } ],
-          checks  => [ @req_trans_desc, @req_trans_cost_art, @warn_p_invoice ],
+          checks  => [ 'kivi.validate_form', @req_trans_cost_art, @warn_p_invoice ],
         ],
         action => [
           t8('Delete'),
@@ -360,36 +360,42 @@ sub setup_oe_action_bar {
           t8('Sales Order'),
           submit   => [ '#form', { action => "sales_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $params{is_sales_quo} || $params{is_pur_ord},
         ],
         action => [
           t8('Purchase Order'),
           submit   => [ '#form', { action => "purchase_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $params{is_sales_ord} || $params{is_req_quo},
         ],
         action => [
           t8('Delivery Order'),
           submit   => [ '#form', { action => "delivery_order" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $params{is_sales_ord} || $params{is_pur_ord},
         ],
         action => [
           t8('Invoice'),
           submit   => [ '#form', { action => "invoice" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $allow_invoice,
         ],
         action => [
           t8('Quotation'),
           submit   => [ '#form', { action => "quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $params{is_sales_ord},
         ],
         action => [
           t8('Request for Quotation'),
           submit   => [ '#form', { action => "request_for_quotation" } ],
           disabled => !$form->{id} ? t8('This record has not been saved yet.') : undef,
+          checks   => [ 'kivi.validate_form' ],
           only_if  => $params{is_pur_ord},
         ],
       ], # end of combobox "Workflow"
@@ -399,12 +405,12 @@ sub setup_oe_action_bar {
         action => [
           t8('Print'),
           call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
-          checks => [ @req_trans_desc ],
+          checks => [ 'kivi.validate_form' ],
         ],
         action => [
           t8('E Mail'),
           call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
-          checks => [ @req_trans_desc ],
+          checks => [ 'kivi.validate_form' ],
         ],
         action => [
           t8('Download attachments of all parts'),
@@ -429,6 +435,7 @@ sub setup_oe_action_bar {
       ], # end of combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_oe_search_action_bar {
@@ -440,9 +447,11 @@ sub setup_oe_search_action_bar {
         t8('Search'),
         submit    => [ '#form' ],
         accesskey => 'enter',
+        checks    => [ 'kivi.validate_form' ],
       ],
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_oe_orders_action_bar {
