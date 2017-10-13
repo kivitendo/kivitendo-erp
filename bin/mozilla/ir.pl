@@ -226,6 +226,7 @@ sub setup_ir_action_bar {
       action => [
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
+        checks    => [ 'kivi.validate_form' ],
         id        => 'update_button',
         accesskey => 'enter',
       ],
@@ -234,6 +235,7 @@ sub setup_ir_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -243,11 +245,13 @@ sub setup_ir_action_bar {
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [
           t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
+          checks   => [ 'kivi.validate_form' ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
           only_if  => $::instance_conf->get_ir_show_mark_as_paid,
@@ -257,11 +261,13 @@ sub setup_ir_action_bar {
       combobox => [
         action => [ t8('Storno'),
           submit   => [ '#form', { action => "storno" } ],
+          checks   => [ 'kivi.validate_form' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
+          checks   => [ 'kivi.validate_form' ],
           confirm  => t8('Do you really want to delete this object?'),
           disabled => !$form->{id}             ? t8('This invoice has not been posted yet.')
                     : $form->{locked}          ? t8('The billing period has already been locked.')
@@ -278,6 +284,7 @@ sub setup_ir_action_bar {
         action => [
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
        ], # end of combobox "Workflow"
@@ -304,6 +311,7 @@ sub setup_ir_action_bar {
       ], # end of combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub form_header {
