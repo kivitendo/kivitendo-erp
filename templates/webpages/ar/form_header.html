@@ -254,7 +254,7 @@
          </td>
          <td align=center>
   [%- IF row.changeable %]
-          <input name="paid_[% loop.count %]" size=11 value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" onBlur="check_right_number_format(this)">
+          <input name="paid_[% loop.count %]" size=11 data-validate="number" class="numeric" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
   [%- ELSE %]
          [% row.paid | html %]<input type=hidden name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
   [%- END %]

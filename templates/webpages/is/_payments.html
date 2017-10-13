@@ -72,7 +72,7 @@
      </td>
      <td align="center">
      [% IF $changeable %]
-       <input name="paid_[% i %]" size="11" value="[% LxERP.format_amount($paid, 2, 1) %]">
+       <input name="paid_[% i %]" size="11" data-validate="number" class="numeric" value="[% LxERP.format_amount($paid, 2, 1) %]">
      [% ELSE %]
        <input type="hidden" name="paid_[% i %]" value="[% LxERP.format_amount($paid, 2, 1) %]">
        [% LxERP.format_amount($paid, 2, 1) %]
@@ -112,17 +112,6 @@
      </td>
 
     </tr>
-  [% IF $changeable %]
-    <tr style='display:none'>
-     <td>
-    <script type='text/javascript'>
-     $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
-     $('#datepaid_[% i %]').change(function(){ check_right_date_format(this) });
-    </script>
-     </td>
-    </tr>
-  [% END %]
-
 [% END # foreach %]
 
     <tr>
