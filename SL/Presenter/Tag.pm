@@ -7,7 +7,7 @@ use SL::HTML::Restrict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag stringify_attributes restricted_html link);
+our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag stringify_attributes restricted_html link);
 
 use Carp;
 
@@ -256,6 +256,27 @@ sub ajax_submit_tag {
 
   return $self->button_tag($onclick, $text, %attributes);
 }
+
+sub input_number_tag {
+  my ($self, $name, $value, %params) = @_;
+
+  _set_id_attribute(\%params, $name);
+  my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
+  my @classes  = ('numeric');
+  push @classes, delete($params{class}) if $params{class};
+  my %class    = @classes ? (class => join(' ', @classes)) : ();
+
+  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->presenter->need_reinit_widgets($params{id});
+
+  return $self->input_tag(
+    $name, $::form->foramt_amount(\%::myconfig, $value),
+    "data-validate" => "number",
+    %params,
+    %class, @onchange,
+  );
+}
+
 
 sub javascript {
   my ($self, $data) = @_;

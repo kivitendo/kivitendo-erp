@@ -77,6 +77,7 @@ sub button_tag               { return _call_presenter('button_tag',             
 sub submit_tag               { return _call_presenter('submit_tag',               @_); }
 sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',          @_); }
 sub link                     { return _call_presenter('link',                     @_); }
+sub input_number_tag         { return _call_presenter('input_number_tag',         @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -169,12 +170,13 @@ sub date_tag {
   push @classes, delete($params{class}) if $params{class};
   my %class    = @classes ? (class => join(' ', @classes)) : ();
 
+  $::request->layout->add_javascripts('kivi.Validator.js');
   $::request->presenter->need_reinit_widgets($params{id});
 
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
     size   => 11,
-    onchange => "check_right_date_format(this);",
+    "data-validate" => "date",
     %params,
     %class, @onchange,
   );
