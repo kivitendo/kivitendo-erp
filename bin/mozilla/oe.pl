@@ -600,7 +600,7 @@ sub form_header {
     }
   }
 
-  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase kivi.File kivi.Part kivi.CustomerVendor show_form_details show_history show_vc_details ckeditor/ckeditor ckeditor/adapters/jquery kivi.io));
+  $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.SalesPurchase kivi.File kivi.Part kivi.CustomerVendor kivi.Validator show_form_details show_history show_vc_details ckeditor/ckeditor ckeditor/adapters/jquery kivi.io));
 
 
   # original snippets:
