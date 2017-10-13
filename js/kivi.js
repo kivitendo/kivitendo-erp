@@ -513,7 +513,7 @@ namespace("kivi", function(ns) {
     if (!kivi.Validator) {
       console.log('kivi.Validator is not loaded');
     } else {
-      kivi.Validator.validate_all(selector);
+      return kivi.Validator.validate_all(selector);
     }
   };
 
