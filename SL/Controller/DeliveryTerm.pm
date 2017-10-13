@@ -166,6 +166,7 @@ sub setup_form_action_bar {
       ],
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 1;
