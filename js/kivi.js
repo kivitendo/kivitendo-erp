@@ -363,8 +363,8 @@ namespace("kivi", function(ns) {
   };
 
   // Return a function object by its name (a string). Works both with
-  // global functions (e.g. "check_right_date_format") and those in
-  // namespaces (e.g. "kivi.t8").
+  // global functions (e.g. "focus_by_name") and those in namespaces (e.g.
+  // "kivi.t8").
   // Returns null if the object is not found.
   ns.get_function_by_name = function(name) {
     var parts = name.match("(.+)\\.([^\\.]+)$");
