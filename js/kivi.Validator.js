@@ -34,6 +34,8 @@ namespace("kivi.Validator", function(ns) {
 
     for (var test_idx in tests) {
       var test = tests[test_idx];
+      if (!ns.checks[test])
+        continue;
 
       if (ns.checks[test]) {
         if (!ns.checks[test]($e))
