@@ -1168,10 +1168,12 @@ sub setup_ap_search_action_bar {
       action => [
         $::locale->text('Search'),
         submit    => [ '#form', { action => "ap_transactions" } ],
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_ap_transactions_action_bar {
@@ -1211,6 +1213,7 @@ sub setup_ap_display_form_action_bar {
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 
@@ -1218,7 +1221,7 @@ sub setup_ap_display_form_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
-          checks   => [ 'kivi.AP.check_fields_before_posting' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting' ],
           disabled => $is_closed                                  ? t8('The billing period has already been locked.')
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -1228,6 +1231,7 @@ sub setup_ap_display_form_action_bar {
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [ t8('Mark as paid'),
@@ -1241,7 +1245,7 @@ sub setup_ap_display_form_action_bar {
       combobox => [
         action => [ t8('Storno'),
           submit   => [ '#form', { action => "storno" } ],
-          checks   => [ 'kivi.AP.check_fields_before_posting' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           disabled => !$::form->{id}         ? t8('This invoice has not been posted yet.')
                       : $has_storno          ? t8('This invoice has been canceled already.')
@@ -1268,6 +1272,7 @@ sub setup_ap_display_form_action_bar {
         action => [
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -1298,4 +1303,5 @@ sub setup_ap_display_form_action_bar {
       ], # end of combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
