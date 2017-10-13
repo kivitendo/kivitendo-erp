@@ -103,7 +103,7 @@ namespace("kivi", function(ns) {
     if (!amount.match(/^[0-9 ()\-+*/.]*$/))
       return 0;
 
-    amount = amount.replace(/^0+/, '');
+    amount = amount.replace(/^0+(\d+)/, '$1');
 
     /* jshint -W061 */
     try {
