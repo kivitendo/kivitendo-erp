@@ -247,6 +247,7 @@ sub setup_do_action_bar {
         [ t8('Update'),
           submit    => [ '#form', { action => "update" } ],
           id        => 'update_button',
+          checks    => [ 'kivi.validate_form' ],
           accesskey => 'enter',
         ],
 
@@ -254,19 +255,19 @@ sub setup_do_action_bar {
         action => [
           t8('Save'),
           submit   => [ '#form', { action => "save" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
         ],
         action => [
           t8('Save as new'),
           submit   => [ '#form', { action => "save_as_new" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$::form->{id},
         ],
         action => [
           t8('Mark as closed'),
           submit   => [ '#form', { action => "mark_closed" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           confirm  => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
           disabled => !$::form->{id}    ? t8('This record has not been saved yet.')
                     : $::form->{closed} ? t8('This record has already been closed.')
@@ -289,28 +290,28 @@ sub setup_do_action_bar {
         action => [
           t8('Transfer out'),
           submit   => [ '#form', { action => "transfer_out" } ],
-          checks   => [ @req_trans_desc, @transfer_qty ],
+          checks   => [ 'kivi.validate_form', @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => $is_customer,
         ],
         action => [
           t8('Transfer out via default'),
           submit   => [ '#form', { action => "transfer_out_default" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => $is_customer && $::instance_conf->get_transfer_default,
         ],
         action => [
           t8('Transfer in'),
           submit   => [ '#form', { action => "transfer_in" } ],
-          checks   => [ @req_trans_desc, @transfer_qty ],
+          checks   => [ 'kivi.validate_form', @transfer_qty ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => !$is_customer,
         ],
         action => [
           t8('Transfer in via default'),
           submit   => [ '#form', { action => "transfer_in_default" } ],
-          checks   => [ @req_trans_desc ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => $::form->{delivered} ? t8('This record has already been delivered.') : undef,
           only_if  => !$is_customer && $::instance_conf->get_transfer_default,
         ],
@@ -330,12 +331,12 @@ sub setup_do_action_bar {
         action => [
           t8('Print'),
           call   => [ 'kivi.SalesPurchase.show_print_dialog' ],
-          checks => [ @req_trans_desc ],
+          checks => [ 'kivi.validate_form' ],
         ],
         action => [
           t8('E Mail'),
           call   => [ 'kivi.SalesPurchase.show_email_dialog' ],
-          checks => [ @req_trans_desc ],
+          checks => [ 'kivi.validate_form' ],
         ],
       ], # end of combobox "Export"
 
@@ -354,6 +355,7 @@ sub setup_do_action_bar {
       ], # end if combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_do_search_action_bar {
@@ -365,9 +367,11 @@ sub setup_do_search_action_bar {
         t8('Search'),
         submit    => [ '#form' ],
         accesskey => 'enter',
+        checks    => [ 'kivi.validate_form' ],
       ],
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_do_orders_action_bar {
