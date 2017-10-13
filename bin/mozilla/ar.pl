@@ -874,10 +874,12 @@ sub setup_ar_search_action_bar {
       action => [
         $::locale->text('Search'),
         submit    => [ '#form' ],
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 sub setup_ar_transactions_action_bar {
@@ -1257,6 +1259,7 @@ sub setup_ar_form_header_action_bar {
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 
@@ -1264,7 +1267,7 @@ sub setup_ar_form_header_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
-          checks   => [ 'kivi.AR.check_fields_before_posting' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
           disabled => $is_closed                                  ? t8('The billing period has already been locked.')
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -1287,7 +1290,7 @@ sub setup_ar_form_header_action_bar {
       combobox => [
         action => [ t8('Storno'),
           submit   => [ '#form', { action => "storno" } ],
-          checks   => [ 'kivi.AR.check_fields_before_posting' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           disabled => !$::form->{id}         ? t8('This invoice has not been posted yet.')
                       : $has_storno          ? t8('This invoice has been canceled already.')
@@ -1313,6 +1316,7 @@ sub setup_ar_form_header_action_bar {
         action => [
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
           disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -1343,6 +1347,7 @@ sub setup_ar_form_header_action_bar {
       ], # end of combobox "more"
     );
   }
+  $::request->layout->add_javascripts('kivi.Validator.js');
 }
 
 1;
