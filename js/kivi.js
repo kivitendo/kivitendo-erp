@@ -32,11 +32,49 @@ namespace("kivi", function(ns) {
 
   ns.parse_date = function(date) {
     var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
-    date     = new Date(
-      ((parts[ ns._date_format.y ] || 0) * 1) || (new Date()).getFullYear(),
-       (parts[ ns._date_format.m ] || 0) * 1 - 1, // Months are 0-based.
-       (parts[ ns._date_format.d ] || 0) * 1
-    );
+    var today = new Date();
+
+    // without separator?
+    // assume fixed pattern, and extract parts again
+    if (parts.length == 1) {
+      date  = parts[0];
+      parts = date.match(/../g);
+      if (date.length == 8) {
+        parts[ns._date_format.y] += parts.splice(ns._date_format.y + 1, 1)
+      }
+      else
+      if (date.length == 6 || date.length == 4) {
+      }
+      else
+      if (date.length == 1 || date.length == 2) {
+        parts = []
+        parts[ ns._date_format.y ] = today.getFullYear();
+        parts[ ns._date_format.m ] = today.getMonth() + 1;
+        parts[ ns._date_format.d ] = date;
+      }
+      else {
+        return undefined;
+      }
+    }
+
+    if (parts.length == 3) {
+      var year = +parts[ ns._date_format.y ] || 0 * 1 || (new Date()).getFullYear();
+      if (year < 100) {
+        year += year > 70 ? 1900 : 2000;
+      }
+      date = new Date(
+        year,
+        (parts[ ns._date_format.m ] || 0) * 1 - 1, // Months are 0-based.
+        (parts[ ns._date_format.d ] || 0) * 1
+      );
+    } else if (parts.length == 2) {
+      date = new Date(
+        (new Date()).getFullYear(),
+        (parts[ (ns._date_format.m > ns._date_format.d) * 1 ] || 0) * 1 - 1, // Months are 0-based.
+        (parts[ (ns._date_format.d > ns._date_format.m) * 1 ] || 0) * 1
+      );
+    } else
+      return undefined;
 
     return isNaN(date.getTime()) ? undefined : date;
   };
@@ -59,11 +97,13 @@ namespace("kivi", function(ns) {
     if (ns._number_format.decimalSep == ',')
       amount = amount.replace(/\./g, "").replace(/,/g, ".");
 
-    amount = amount.replace(/[\',]/g, "")
+    amount = amount.replace(/[\',]/g, "");
 
     // Make sure no code wich is not a math expression ends up in eval().
     if (!amount.match(/^[0-9 ()\-+*/.]*$/))
       return 0;
+
+    amount = amount.replace(/^0+/, '');
 
     /* jshint -W061 */
     try {

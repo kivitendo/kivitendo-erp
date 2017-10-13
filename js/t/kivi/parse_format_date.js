@@ -12,7 +12,17 @@ QUnit.test("kivi.parse_date function for German date style with dots", function(
   assert.deepEqual(kivi.parse_date("25.12."), new Date((new Date).getFullYear(), 11, 25));
   assert.deepEqual(kivi.parse_date("25.12"), new Date((new Date).getFullYear(), 11, 25));
 
+  assert.deepEqual(kivi.parse_date("2512"), new Date((new Date).getFullYear(), 11, 25));
+  assert.deepEqual(kivi.parse_date("25122015"), new Date(2015, 11, 25));
+  assert.deepEqual(kivi.parse_date("251215"), new Date(2015, 11, 25));
+  assert.deepEqual(kivi.parse_date("25"), new Date((new Date).getFullYear(), (new Date).getMonth(), 25));
+  assert.deepEqual(kivi.parse_date("1"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
+  assert.deepEqual(kivi.parse_date("01"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
+
   assert.deepEqual(kivi.parse_date("Totally Invalid!"), undefined);
+  assert.deepEqual(kivi.parse_date(":"), undefined);
+  assert.deepEqual(kivi.parse_date("::"), undefined);
+  assert.deepEqual(kivi.parse_date(""), undefined);
 });
 
 QUnit.test("kivi.parse_date function for German date style with slashes", function( assert ) {
@@ -99,6 +109,13 @@ QUnit.test("kivi.format_date function for ISO date style", function( assert ) {
   assert.deepEqual(kivi.format_date(new Date(2007, 0, 1)), "2007-01-01");
   assert.deepEqual(kivi.format_date(new Date(2008, 1, 29)), "2008-02-29");
   assert.deepEqual(kivi.format_date(new Date(2014, 11, 11)), "2014-12-11");
+
+  assert.deepEqual(kivi.parse_date("1225"), new Date((new Date).getFullYear(), 11, 25));
+  assert.deepEqual(kivi.parse_date("20151225"), new Date(2015, 11, 25));
+  assert.deepEqual(kivi.parse_date("151225"), new Date(2015, 11, 25));
+  assert.deepEqual(kivi.parse_date("25"), new Date((new Date).getFullYear(), (new Date).getMonth(), 25));
+  assert.deepEqual(kivi.parse_date("1"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
+  assert.deepEqual(kivi.parse_date("01"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
 
   assert.deepEqual(kivi.format_date(new Date(undefined, undefined, undefined)), undefined);
 });
