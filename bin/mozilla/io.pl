@@ -317,7 +317,7 @@ sub display_row {
 
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
-    $column_data{qty}  = $cgi->textfield(-name => "qty_$i", -size => 5, -value => $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec));
+    $column_data{qty}  = $cgi->textfield(-name => "qty_$i", -size => 5, -"data-validate" => "number", -class => "numeric", -value => $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec));
     $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)", -value => $locale->text('*/'))
                        . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"})
       if $form->{"formel_$i"};
@@ -377,10 +377,10 @@ sub display_row {
     my $edit_discounts  = $main::auth->assert('edit_prices', 1) && !$::form->{"active_discount_source_$i"};
     $column_data{sellprice}   = (!$edit_prices)
                                 ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
-                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
+                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -"data-validate" => "number", -class => "numeric", -value => $sellprice_value);
     $column_data{discount}    = (!$edit_discounts)
                                   ? $cgi->hidden(   -name => "discount_$i", -id => "discount_$i", -value => $discount_value) . $discount_value . ' %'
-                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -value => $discount_value);
+                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -"data-validate" => "number", -class => "numeric", -value => $discount_value);
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
