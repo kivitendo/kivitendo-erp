@@ -21,8 +21,10 @@ namespace("kivi.Validator", function(ns) {
     var to_check = $(selector + ' [data-validate]').toArray();
 
     for (var to_check_idx in to_check)
-      if (!ns.validate($(to_check[to_check_idx])))
+      if (!ns.validate($(to_check[to_check_idx]))) {
+        $(to_check[to_check_idx]).focus();
         return false;
+      }
 
     return true;
   };
