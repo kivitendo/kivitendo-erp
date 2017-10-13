@@ -86,7 +86,7 @@ namespace("kivi.Validator", function(ns) {
 
       var parsed_date = kivi.parse_date(date_string);
 
-      if (parsed_number === null) {
+      if (parsed_date === null) {
         $e.val('');
         ns.annotate($e);
         return true;
