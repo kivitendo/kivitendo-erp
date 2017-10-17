@@ -1,0 +1,85 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE LxERP %]
+[% USE L %]
+
+[% SET style='width: 300px' %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" id="piece_list" name="piece_list" action="controller.pl">
+  [% L.hidden_tag('callback'      , FORM.callback) %]
+  [% L.hidden_tag('filter_columns', SELF.filter_columns) %]
+  [% L.hidden_tag('filter_rows'   , SELF.filter_rows) %]
+  [% L.hidden_tag('sort_column'   , SELF.sort_column) %]
+
+  <p style="padding:0 1em 0 1em">
+    [% 'all' | $T8 %]<br>
+    [% IF SELF.filter_rows.producer_id %][% 'Producer' | $T8 %]: [% SELF.vendor.displayable_name %]<br>[% END %]
+    [% IF SELF.filter_rows.part_id %][% 'Part' | $T8 %]: [% SELF.part.displayable_name %]<br>[% END %]
+    [% IF SELF.filter_rows.batch_id %][% 'Batch' | $T8 %]: [% SELF.batch.batchnumber %]<br>[% END %]
+    [% IF SELF.filter_rows.serialnumber %][% 'Serial Number' | $T8 %]: [% SELF.filter_rows.serialnumber %]<br>[% END %]
+    [% IF SELF.filter_rows.weight_from %][% 'Weight' | $T8 %]: [% 'From' | $T8 %] SELF.filter_rows.weight_from %]<br>
+      [% IF SELF.filter_rows.weight_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.weight_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.weight_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.weight_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.delivery_in_id %][% 'Incoming Delivery Order' | $T8 %]: [% SELF.delivery_in.donumber %]<br>[% END %]
+    [% IF SELF.filter_rows.bin_id %][% 'Bin' | $T8 %]: [% SELF.bin.full_description %]<br>[% END %]
+    [% IF SELF.filter_rows.delivery_out_id %][% 'Outgoing Delivery Order' | $T8 %]: [% SELF.delivery_out.donumber %]<br>[% END %]
+    [% IF SELF.filter_rows.insertdate_from %][% 'Insert Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.insertdate_from %]
+      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.changedate_from %][% 'Update' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
+      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.employee_id %] [% 'Employee' | $T8 %]: [% SELF.employee.safe_name %]<br>[% END %]
+
+  </p>
+  </table>
+  <table id="list_table">
+    <style id="list_table">tr:nth-child(even){background-color:#fffdb0}td,th{padding:0.2em 1em 0.2em 1em}</style>
+    <thead>
+      <tr bgcolor="#e3e3e3">
+        <th align="left">[% 'ID' | $T8 %]</th>
+          [% FOREACH column = SELF.columns %]
+            [% SET key = column.key %]
+            [% SET label = column.label %]
+            [% IF SELF.filter_columns.$key %]
+              <th align="left">
+                <a href="controller.pl?action=Piece/list&callback=[% SELF.callback %]&sort_column=[% key %]&[% SELF.filter %]"
+                >[% label | $T8 %]</a>
+              </th>
+            [% END %]
+        [% END %]
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH piece = SELF.all_pieces %]
+        <tr>
+          <td align="left"><a href="controller.pl?action=Piece/edit&db=pieces&id=[% piece.id %]&callback=[% SELF.callback %]&sort_column=[% SELF.sort_column %]&[% SELF.filter %]">[% piece.id %]</a></td>
+          [% IF SELF.filter_columns.producer %]<td align="left">[% piece.producer.displayable_name %]</td>[% END %]
+          [% IF SELF.filter_columns.part %]<td align="left">[% piece.part.displayable_name %]</td>[% END %]
+          [% IF SELF.filter_columns.batch %]<td align="left">[% piece.batch.batchnumber %]</td>[% END %]
+          [% IF SELF.filter_columns.serialnumber %]<td align="left">[% piece.serialnumber %]</td>[% END %]
+          [% IF SELF.filter_columns.weight %]<td align="left">[% piece.weight %]</td>[% END %]
+          [% IF SELF.filter_columns.delivery_in %]<td align="left">[% piece.delivery.donumber %]</td>[% END %]
+          [% IF SELF.filter_columns.bin %]<td align="left">[% piece.bin.full_description %]</td>[% END %]
+          [% IF SELF.filter_columns.delivery_out %]<td align="left">[% piece.delivery.donumber %]</td>[% END %]
+          [% IF SELF.filter_columns.insertdate %]<td align="left">[% piece.itime_as_date %]</td>[% END %]
+          [% IF SELF.filter_columns.changedate %]<td align="left">[% piece.mtime_as_date %]</td>[% END %]
+          [% IF SELF.filter_columns.employee %]<td align="left">[% piece.employee.safe_name %]</td>[% END %]
+        </tr>
+      [% END %]
+    </tbody>
+    <tfoot>
+    </tfoot>
+  </table>
+  <hr size="3" noshade>
+</form>

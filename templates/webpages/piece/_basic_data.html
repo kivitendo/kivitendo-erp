@@ -1,0 +1,65 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<table id="basic_data_table" width="50%">
+  <tr valign="top">
+    <td>
+      <table id="piece1">
+        <tr>
+          <th align="left">* [% 'Producer' | $T8 %]</th>
+          <td>[% L.customer_vendor_picker('piece.producer_id', SELF.piece.producer_id, type='vendor', fat_set_item=1, style='width: 300px', class="initial_focus") %]</td>
+        </tr>
+        <tr>
+          <th align="left">* [% 'Part' | $T8 %]</th>
+          <td>[% L.part_picker('piece.part_id', SELF.piece.part_id, part_type='part,assembly', fat_set_item=1, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Batch' | $T8 %]</th>
+          <td>[% L.select_tag('piece.batch_id', SELF.all_batches, default=SELF.piece.batch_id, title_key='displayable_name', style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">* [% 'Serial Number' | $T8 %]</th>
+          <td>[% L.input_tag("piece.serialnumber", SELF.piece.serialnumber, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Weight' | $T8 %]</th>
+          <td>[% L.input_tag("piece.weight", SELF.piece.weight, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Incoming Delivery Order' | $T8 %]</th>
+          <td>[% L.select_tag('piece.delivery_in_id', SELF.all_deliveries, default=SELF.piece.delivery_in_id, title_key='donumber', style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Bin' | $T8 %]</th>
+          <td>[% L.select_tag('piece.bin_id', SELF.all_bins, default=(SELF.piece.bin_id), title_key='full_description', style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Outgoing Delivery Order' | $T8 %]</th>
+          <td>[% L.select_tag('piece.delivery_out_id', SELF.all_deliveries, default=SELF.piece.delivery_out_id, title_key='donumber', style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left" valign="top">[% 'Notes' | $T8 %]</th>
+          <td>[% L.textarea_tag('piece.notes', SELF.piece.notes, wrap="soft", style="width: 300px; height: 150px", class="texteditor") %]</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table id="piece2">
+        <tr>
+          <th align="left">[% 'Insert Date' | $T8 %]</th>
+          <td>[% SELF.piece.itime_as_date %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Updated' | $T8 %]</th>
+          <td>[% SELF.piece.mtime_as_date %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Employee' | $T8 %]</th>
+            <td>[% L.select_tag('piece.employee_id', SELF.all_employees, default=(SELF.piece.employee_id ? SELF.piece.employee_id : SELF.current_employee_id), title_key='safe_name') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
