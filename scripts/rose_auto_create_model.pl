@@ -430,8 +430,6 @@ sub drop_and_create_test_database {
     $auth_dbh->disconnect;
 
     dbh_do($dbh_template, "DROP DATABASE \"" . $db_cfg->{db} . "\"", message => "Database could not be dropped");
-
-    $::auth->reset;
   }
 
   notice("Creating database");
@@ -465,6 +463,8 @@ sub drop_and_create_test_database {
   apply_dbupgrade($dbupdater, $dbh, 'sql/auth_db.sql');
 
   apply_upgrades(auth => 1, dbh => $dbh);
+
+  $::auth->reset;
 
   notice("Creating client, user, group and employee");
 
