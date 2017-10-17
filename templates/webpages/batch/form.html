@@ -1,0 +1,25 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<h1>[% FORM.title %] [% IF SELF.batch.id %]: [% HTML.escape(SELF.batch.displayable_name) %][% END %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" id="batch_form" name="batch_form" action="controller.pl">
+  [% L.hidden_tag('callback'         , FORM.callback) %]
+  [% L.hidden_tag('id'               , SELF.batch.id) %]
+  [% L.hidden_tag('filter_columns'   , SELF.filter_columns) %]
+  [% L.hidden_tag('filter_rows'      , SELF.filter_rows) %]
+  [% L.hidden_tag('sort_column'      , SELF.sort_column) %]
+  <div id="batch_tabs" class="tabwidget">
+    <ul>
+      <li><a href="#basic_data">[% 'Basic Data' | $T8 %]</a></li>
+    </ul>
+    <div id="basic_data">
+      [% PROCESS 'batch/_basic_data.html' %]
+    </div>
+  </div>
+</form>
+

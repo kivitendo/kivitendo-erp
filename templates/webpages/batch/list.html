@@ -1,0 +1,81 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE LxERP %]
+[% USE L %]
+
+[% SET style='width: 300px' %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+[% INCLUDE 'common/flash.html' %]
+
+<form method="post" id="batch_list" name="batch_list" action="controller.pl">
+  [% L.hidden_tag('callback'      , FORM.callback) %]
+  [% L.hidden_tag('filter_columns', SELF.filter_columns) %]
+  [% L.hidden_tag('filter_rows'   , SELF.filter_rows) %]
+  [% L.hidden_tag('sort_column'   , SELF.sort_column) %]
+
+  <p style="padding:0 1em 0 1em">
+    [% 'all' | $T8 %]<br>
+    [% IF SELF.filter_rows.producer_id %][% 'Producer' | $T8 %]: [% SELF.vendor.displayable_name %]<br>[% END %]
+    [% IF SELF.filter_rows.part_id %][% 'Part' | $T8 %]: [% SELF.part.displayable_name %]<br>[% END %]
+    [% IF SELF.filter_rows.batchnumber %][% 'Batch Number' | $T8 %]: [% SELF.filter_rows.batchnumber %]<br>[% END %]
+    [% IF SELF.filter_rows.batchdate_from %][% 'Batch Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.batchdate_from %]
+      [% IF SELF.filter_rows.batchdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.batchdate_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.batchdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.batchdate_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.location %] [% 'Batch Location' | $T8 %]: [% SELF.filter_rows.location %]<br>[% END %]
+    [% IF SELF.filter_rows.process %] [% 'Batch Process' | $T8 %]: [% SELF.filter_rows.process %]<br>[% END %]
+    [% IF SELF.filter_rows.insertdate_from %][% 'Insert Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.insertdate_from %]
+      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.changedate_from %][% 'Update' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
+      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %][% END %]<br>
+    [% ELSE %]
+      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
+    [% END %]
+    [% IF SELF.filter_rows.employee_id %] [% 'Employee' | $T8 %]: [% SELF.employee.safe_name %]<br>[% END %]
+  </p>
+
+  </table>
+  <table id="list_table">
+    <style id="list_table">tr:nth-child(even){background-color:#fffdb0}td,th{padding:0.2em 1em 0.2em 1em}</style>
+    <thead>
+      <tr bgcolor="#e3e3e3">
+        <th align="left">[% 'ID' | $T8 %]</th>
+          [% FOREACH column = SELF.columns %]
+            [% SET key = column.key %]
+            [% SET label = column.label %]
+            [% IF SELF.filter_columns.$key %]
+              <th align="left">
+                <a href="controller.pl?action=Batch/list&callback=[% SELF.callback %]&sort_column=[% key %]&[% SELF.filter %]"
+                >[% label | $T8 %]</a>
+              </th>
+            [% END %]
+        [% END %]
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH batch = SELF.all_batches %]
+        <tr>
+          <td align="left"><a href="controller.pl?action=Batch/edit&db=batches&id=[% batch.id %]&callback=[% SELF.callback %]&sort_column=[% SELF.sort_column %]&[% SELF.filter %]">[% batch.id %]</a></td>
+          [% IF SELF.filter_columns.producer %]<td align="left">[% batch.producer.displayable_name %]</td>[% END %]
+          [% IF SELF.filter_columns.part %]<td align="left">[% batch.part.displayable_name %]</td>[% END %]
+          [% IF SELF.filter_columns.batchnumber %]<td align="left">[% batch.batchnumber %]</td>[% END %]
+          [% IF SELF.filter_columns.batchdate %]<td align="left">[% batch.batchdate_as_date %]</td>[% END %]
+          [% IF SELF.filter_columns.location %]<td align="left">[% batch.location %]</td>[% END %]
+          [% IF SELF.filter_columns.process %]<td align="left">[% batch.process %]</td>[% END %]
+          [% IF SELF.filter_columns.insertdate %]<td align="left">[% batch.itime_as_date %]</td>[% END %]
+          [% IF SELF.filter_columns.changedate %]<td align="left">[% batch.mtime_as_date %]</td>[% END %]
+          [% IF SELF.filter_columns.employee %]<td align="left">[% batch.employee.safe_name %]</td>[% END %]
+        </tr>
+      [% END %]
+    </tbody>
+    <tfoot>
+    </tfoot>
+  </table>
+  <hr size="3" noshade>
+</form>

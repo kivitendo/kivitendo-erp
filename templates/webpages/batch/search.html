@@ -1,0 +1,84 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+[% SET style='width: 300px' %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<form method="post" id="batch_search" name="batch_search" action="controller.pl">
+
+<table id="search_table" width="50%">
+  <tr valign="top">
+    <td align="right"><input id="filter_columns.producer" name="filter_columns.producer" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Producer' | $T8 %]</th>
+    <td align="left">[% L.customer_vendor_picker('filter_rows.producer_id', SELF.filter_rows.producer_id, type='vendor', fat_set_item=1, style=style, class='initiacheck.focus') %]</td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.part" name="filter_columns.part" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Part' | $T8 %]</th>
+    <td>[% L.part_picker('filter_rows.part_id', SELF.filter_rows.part_id, part_type='part,assembly', fat_set_item=1, style=style) %]</td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.batchnumber" name="filter_columns.batchnumber" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Batch Number' | $T8 %]</th>
+    <td>[% L.input_tag("filter_rows.batchnumber", SELF.filter_rows.batchnumber, style=style) %]</td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.batchdate" name="filter_columns.batchdate" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Batch Date' | $T8 %]</th>
+    <td>
+      <table width="300">
+        <tr>
+          <td align="left">[% L.date_tag('filter_rows.batchdate_from', SELF.filter_rows.batchdate_from, style='width: 75px') %]</td>
+          <td>[% 'Bis' | $T8 %]</td>
+          <td align="right">[% L.date_tag('filter_rows.batchdate_to', SELF.filter_rows.batchdate_to, style='width: 75px') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.location" name="filter_columns.location" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Batch Location' | $T8 %]</th>
+    <td>[% L.input_tag("filter_rows.location", SELF.filter_rows.location, style=style) %]</td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.process" name="filter_columns.process" class="checkbox" type="checkbox" value="1" checked></td>
+    <th align="left">[% 'Batch Process' | $T8 %]</th>
+    <td>[% L.input_tag("filter_rows.process", SELF.filter_rows.process, style=style) %]</td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.insertdate" name="filter_columns.insertdate" class="checkbox" type="checkbox" value="1"></td>
+    <th align="left">[% 'Insert Date' | $T8 %]</th>
+    <td>
+      <table width="300">
+        <tr>
+          <td align="left">[% L.date_tag('filter_rows.insertdate_from', SELF.filter_rows.insertdate_from, style='width: 75px') %]</td>
+          <td>[% 'Bis' | $T8 %]</td>
+          <td align="right">[% L.date_tag('filter_rows.insertdate_to', SELF.filter_rows.insertdate_to, style='width: 75px') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.changedate" name="filter_columns.changedate" class="checkbox" type="checkbox" value="1"></td>
+    <th align="left">[% 'Updated' | $T8 %]</th>
+    <td>
+      <table width="300">
+        <tr>
+          <td align="left">[% L.date_tag('filter_rows.changedate_from', SELF.filter_rows.changedate_from, style='width: 75px') %]</td>
+          <td>[% 'Bis' | $T8 %]</td>
+          <td align="right">[% L.date_tag('filter_rows.changedate_to', SELF.filter_rows.changedate_to, style='width: 75px') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td align="right"><input id="filter_columns.employee" name="filter_columns.employee" class="checkbox" type="checkbox" value="1"></td>
+    <th align="left">[% 'Employee' | $T8 %]</th>
+    <td>[% L.select_tag('filter_rows.employee_id', SELF.all_employees, title_key='safe_name', with_empty=1, style=style) %]</td>
+  </tr>
+</table>
+
+</form>

@@ -1,0 +1,57 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+
+<table id="basic_data_table" width="50%">
+  <tr valign="top">
+    <td>
+      <table id="batch1">
+        <tr>
+          <th align="left">* [% 'Producer' | $T8 %]</th>
+          <td>[% L.customer_vendor_picker('batch.producer_id', SELF.batch.producer_id, type='vendor', fat_set_item=1, style='width: 300px', class="initial_focus") %]</td>
+        </tr>
+        <tr>
+          <th align="left">* [% 'Part' | $T8 %]</th>
+          <td>[% L.part_picker('batch.part_id', SELF.batch.part_id, part_type='part,assembly', fat_set_item=1, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">* [% 'Batch Number' | $T8 %]</th>
+          <td>[% L.input_tag("batch.batchnumber", SELF.batch.batchnumber, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">* [% 'Batch Date' | $T8 %]</th>
+          <td>[% L.date_tag('batch.batchdate', SELF.batch.batchdate, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Batch Location' | $T8 %]</th>
+          <td>[% L.input_tag("batch.location", SELF.batch.location, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Batch Process' | $T8 %]</th>
+          <td>[% L.input_tag("batch.process", SELF.batch.process, style='width: 300px') %]</td>
+        </tr>
+        <tr>
+          <th align="left" valign="top">[% 'Notes' | $T8 %]</th>
+          <td>[% L.textarea_tag('batch.notes', SELF.batch.notes, wrap="soft", style="width: 300px; height: 150px", class="texteditor") %]</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table id="batch2">
+        <tr>
+          <th align="left">[% 'Insert Date' | $T8 %]</th>
+          <td>[% SELF.batch.itime_as_date %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Updated' | $T8 %]</th>
+          <td>[% SELF.batch.mtime_as_date %]</td>
+        </tr>
+        <tr>
+          <th align="left">[% 'Employee' | $T8 %]</th>
+          <td>[% L.select_tag('batch.employee_id', SELF.all_employees,default=(SELF.batch.employee_id ? SELF.batch.employee_id : SELF.current_employee_id), title_key='safe_name') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
