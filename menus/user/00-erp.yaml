@@ -546,6 +546,44 @@
   params:
     action: Letter/list
     is_sales: 0
+- id: production
+  name: Production
+  icon: production
+  access: client/feature_production
+  order: 350
+- parent: production
+  id: production_add_batch
+  name: Add Batch
+  icon: batch_add
+  order: 100
+  params:
+    action: Batch/add
+- parent: production
+  id: production_add_piece
+  name: Add Piece
+  icon: piece_add
+  order: 200
+  params:
+    action: Piece/add
+- parent: production
+  id: production_reports
+  name: Reports
+  icon: production_report
+  order: 300
+- parent: production_reports
+  id: production_reports_batches
+  name: Batches
+  icon: batch_report
+  order: 100
+  params:
+    action: Batch/search
+- parent: production_reports
+  id: production_reports_pieces
+  name: Pieces
+  icon: piece_report
+  order: 200
+  params:
+    action: Piece/search
 - id: warehouse
   name: Warehouse
   icon: warehouse

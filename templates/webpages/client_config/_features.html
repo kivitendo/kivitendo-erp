@@ -2,6 +2,14 @@
 [% SET style="width: 250px" %]
 <div id="features">
  <table>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Production") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Production') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_production', SELF.defaults.feature_production) %]</td>
+   <td>[% LxERP.t8('Use Production') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("DATEV") %]</td></tr>
 
   <tr>

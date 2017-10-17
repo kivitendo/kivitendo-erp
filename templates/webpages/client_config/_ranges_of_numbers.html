@@ -22,25 +22,20 @@
   <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Sales Order Number') %]</td>
    <td>[% L.input_tag("defaults.sonumber", SELF.defaults.sonumber, size="15") %]</td>
-  </tr>
-
-  <tr>
-   <td align="right" nowrap>[% LxERP.t8('Last Purchase Order Number') %]</td>
-   <td>[% L.input_tag("defaults.ponumber", SELF.defaults.ponumber, size="15") %]</td>
    <td align="right" nowrap>[% LxERP.t8('Last Article Number') %]</td>
    <td>[% L.input_tag("defaults.articlenumber", SELF.defaults.articlenumber, size="15") %]</td>
   </tr>
 
   <tr>
-   <td align="right" nowrap>[% LxERP.t8('Last Sales Quotation Number') %]</td>
-   <td>[% L.input_tag("defaults.sqnumber", SELF.defaults.sqnumber, size="15") %]</td>
+   <td align="right" nowrap>[% LxERP.t8('Last Purchase Order Number') %]</td>
+   <td>[% L.input_tag("defaults.ponumber", SELF.defaults.ponumber, size="15") %]</td>
    <td align="right" nowrap>[% LxERP.t8('Last Service Number') %]</td>
    <td>[% L.input_tag("defaults.servicenumber", SELF.defaults.servicenumber, size="15") %]</td>
   </tr>
 
   <tr>
-   <td align="right" nowrap>[% LxERP.t8('Last RFQ Number') %]</td>
-   <td>[% L.input_tag("defaults.rfqnumber", SELF.defaults.rfqnumber, size="15") %]</td>
+   <td align="right" nowrap>[% LxERP.t8('Last Sales Quotation Number') %]</td>
+   <td>[% L.input_tag("defaults.sqnumber", SELF.defaults.sqnumber, size="15") %]</td>
    <td align="right" nowrap>[% LxERP.t8('Last Assembly Number') %]</td>
    <td>[% L.input_tag("defaults.assemblynumber", SELF.defaults.assemblynumber, size="15") %]</td>
   </tr>
@@ -55,8 +50,30 @@
   </tr>
 
   <tr>
+   <td align="right" nowrap>[% LxERP.t8('Last RFQ Number') %]</td>
+   <td>[% L.input_tag("defaults.rfqnumber", SELF.defaults.rfqnumber, size="15") %]</td>
+   [%- IF INSTANCE_CONF.get_feature_experimental %]
+   <td align="right" nowrap>[% LxERP.t8('Last Assortment Number') %]</td>
+   <td>[% L.input_tag("defaults.assortmentnumber", SELF.defaults.assortmentnumber, size="15") %]</td>
+   [%- END -%]
+  </tr>
+
+  <tr>
+   <td align="right" nowrap>[% LxERP.t8('Last Sales Delivery Order Number') %]</td>
+   <td>[% L.input_tag("defaults.sdonumber", SELF.defaults.sdonumber, size="15") %]</td>
+   [%- IF INSTANCE_CONF.get_feature_production %]
+   <td align="right" nowrap>[% LxERP.t8('Last Batch Number') %]</td>
+   <td>[% L.input_tag("defaults.batchnumber", SELF.defaults.batchnumber, size="15") %]</td>
+   [%- END -%]
+  </tr>
+
+  <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Purchase Delivery Order Number') %]</td>
    <td>[% L.input_tag("defaults.pdonumber", SELF.defaults.pdonumber, size="15") %]</td>
+   [%- IF INSTANCE_CONF.get_feature_production %]
+   <td align="right" nowrap>[% LxERP.t8('Last Serial Number') %]</td>
+   <td>[% L.input_tag("defaults.serialnumber", SELF.defaults.serialnumber, size="15") %]</td>
+   [%- END -%]
   </tr>
  </table>
 </div>
