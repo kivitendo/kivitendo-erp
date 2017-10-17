@@ -224,6 +224,10 @@ sub digest {
 
 __END__
 
+=pod
+
+=encoding utf8
+
 =head1 NAME
 
 SL::DB::Order - Order Datenbank Objekt.

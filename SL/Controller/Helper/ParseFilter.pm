@@ -272,6 +272,10 @@ sub _apply_complex {
 
 __END__
 
+=pod
+
+=encoding utf8
+
 =head1 NAME
 
 SL::Controller::Helper::ParseFilter - Convert a form filter spec into a RDBO get_all filter

@@ -73,11 +73,11 @@ of your tester object will be collected and processed.
 
 =over 4
 
-=item E<tester>
+=item C<tester>
 
-=item E<init_tester>
+=item C<init_tester>
 
-If you don't bother overriding E<init_tester>, your test will use a
+If you don't bother overriding C<init_tester>, your test will use a
 L<Test::More> object by default. Any other L<Test::Builder> object will do.
 
 The TAP output of your builder will be collected and processed for further handling.

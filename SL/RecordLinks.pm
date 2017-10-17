@@ -212,6 +212,10 @@ sub delete {
 
 __END__
 
+=pod
+
+=encoding utf8
+
 =head1 NAME
 
 SL::RecordLinks - Verlinkung von kivitendo Objekten.
