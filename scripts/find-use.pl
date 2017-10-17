@@ -224,7 +224,6 @@ find-use
 =head1 EXAMPLE
 
  # perl scipts/find-use.pl
- !missing : Perl::Tags
  !missing : Template::Constants
  !missing : DBI
 

@@ -74,7 +74,6 @@ BEGIN {
   { name => "Log::Log4perl",                       url => "http://search.cpan.org/~mschilli/",  debian => 'liblog-log4perl-perl' },
   { name => "LWP::Simple",                         url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Moose::Role",                         url => "http://search.cpan.org/~doy/",       debian => 'libmoose-perl' },
-  { name => "Perl::Tags",                          url => "http://search.cpan.org/~osfameron/", debian => 'libperl-tags-perl' },
   { name => "Sys::CPU",                            url => "http://search.cpan.org/~mkoderer/",  debian => 'libsys-cpu-perl' },
   { name => "Test::Deep",                          url => "http://search.cpan.org/~rjbs/",      debian => 'libtest-deep-perl' },
   { name => "Test::Exception",                     url => "http://search.cpan.org/~adie/",      debian => 'libtest-exception-perl' },
