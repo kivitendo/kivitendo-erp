@@ -28,8 +28,9 @@ sub last_modification {
 }
 
 sub validate {
-  my( $self, $locale ) = ( shift, $::locale );
+  my( $self, $form, $locale ) = ( shift, $::form, $::locale );
   my @errors = ();
+  $self->weight && $self->weight( $form->parse_amount( \%::myconfig, $self->weight ) );
   $self->producer_id  || push @errors, $locale->text( 'The producer is missing.' );
   $self->part_id      || push @errors, $locale->text( 'The part is missing.' );
   $self->serialnumber || push @errors, $locale->text( 'The serial number is missing.' );
