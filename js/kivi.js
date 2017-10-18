@@ -37,6 +37,9 @@ namespace("kivi", function(ns) {
     if (date === '')
       return null;
 
+    if (date === '0')
+      return new Date();
+
     var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
     var today = new Date();
 
