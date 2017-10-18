@@ -24,6 +24,7 @@ QUnit.test("kivi.parse_date function for German date style with dots", function(
   assert.deepEqual(kivi.parse_date("::"), undefined);
   assert.deepEqual(kivi.parse_date(""), null);
   assert.deepEqual(kivi.parse_date("0"), new Date());
+  assert.deepEqual(kivi.parse_date("29.02.20008"), undefined);
 });
 
 QUnit.test("kivi.parse_date function for German date style with slashes", function( assert ) {

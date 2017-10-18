@@ -68,6 +68,8 @@ namespace("kivi", function(ns) {
 
     if (parts.length == 3) {
       var year = +parts[ ns._date_format.y ] || 0 * 1 || (new Date()).getFullYear();
+      if (year > 9999)
+        return undefined;
       if (year < 100) {
         year += year > 70 ? 1900 : 2000;
       }
