@@ -7,6 +7,7 @@ use SL::DB::Datev;
 
 use Carp;
 use DateTime;
+use Encode qw(decode);
 
 
 my @kivitendo_to_datev = (
@@ -205,9 +206,7 @@ my @kivitendo_to_datev = (
   );
 
 sub check_encoding {
-  use Encode qw( decode );
-  # counter test: arabic doesnt work: ݐ
-  my $test = shift;
+  my ($test) = @_;
   return undef unless $test;
   if (eval {
     decode('Windows-1252', $test, Encode::FB_CROAK|Encode::LEAVE_SRC);
@@ -218,7 +217,7 @@ sub check_encoding {
 }
 
 sub kivitendo_to_datev {
-  my $self = shift;
+  my ($self) = @_;
 
   my $entries = scalar (@kivitendo_to_datev);
   push @kivitendo_to_datev, { kivi_datev_name => 'not yet implemented' } for 1 .. (116 - $entries);
@@ -347,6 +346,7 @@ Line 3 - n:  must contain 116 fields, a smaller subset is mandatory.
 =item check_encoding
 
 Helper function, returns true if a string is not empty and cp1252 encoded
+For example some arabic utf-8 like  ݐ  will return false
 
 =item generate_csv_header(from => 'YYYYDDMM', to => 'YYYYDDMM', locked => 0,
                           first_day_of_fiscal_year => 'YYYYDDMM')
