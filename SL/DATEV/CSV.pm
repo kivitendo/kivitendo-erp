@@ -16,28 +16,28 @@ my @kivitendo_to_datev = (
                               csv_header_name => t8('Transaction Value'),
                               max_length      => 13,
                               type            => 'Value',
-                              valid_check     => sub { return (shift =~ m/^\d{1,10}(\,\d{1,2})?$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^\d{1,10}(\,\d{1,2})?$/) },
                             },
                             {
                               kivi_datev_name => 'soll_haben_kennzeichen',
                               csv_header_name => t8('Debit/Credit Label'),
                               max_length      => 1,
                               type            => 'Text',
-                              valid_check     => sub { return (shift =~ m/^(S|H)$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^(S|H)$/) },
                             },
                             {
                               kivi_datev_name => 'waehrung',
                               csv_header_name => t8('Transaction Value Currency Code'),
                               max_length      => 3,
                               type            => 'Text',
-                              valid_check     => sub { return (shift =~ m/^[A-Z]{3}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[A-Z]{3}$/) },
                             },
                             {
                               kivi_datev_name => 'wechselkurs',
                               csv_header_name => t8('Exchange Rate'),
                               max_length      => 11,
                               type            => 'Number',
-                              valid_check     => sub { return (shift =~ m/^[0-9]*\.?[0-9]*$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]*\.?[0-9]*$/) },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
@@ -52,42 +52,42 @@ my @kivitendo_to_datev = (
                               csv_header_name => t8('Account'),
                               max_length      => 9, # May contain a maximum of 8 or 9 digits -> perldoc
                               type            => 'Account',
-                              valid_check     => sub { return (shift =~ m/^[0-9]{4,9}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{4,9}$/) },
                             },
                             {
                               kivi_datev_name => 'gegenkonto',
                               csv_header_name => t8('Contra Account'),
                               max_length      => 9, # May contain a maximum of 8 or 9 digits -> perldoc
                               type            => 'Account',
-                              valid_check     => sub { return (shift =~ m/^[0-9]{4,9}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{4,9}$/) },
                             },
                             {
                               kivi_datev_name => 'buchungsschluessel',
                               csv_header_name => t8('Posting Key'),
                               max_length      => 2,
                               type            => 'Text',
-                              valid_check     => sub { return (shift =~ m/^[0-9]{0,2}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{0,2}$/) },
                             },
                             {
                               kivi_datev_name => 'datum',
                               csv_header_name => t8('Invoice Date'),
                               max_length      => 4,
                               type            => 'Date',
-                              valid_check     => sub { return (shift =~ m/^[0-9]{4}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{4}$/) },
                             },
                             {
                               kivi_datev_name => 'belegfeld1',
                               csv_header_name => t8('Invoice Field 1'),
                               max_length      => 12,
                               type            => 'Text',
-                              valid_check     => sub { my $text = shift; check_encoding($text); },
+                              valid_check     => sub { my ($text) = @_; check_encoding($text); },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
                               csv_header_name => t8('Invoice Field 2'),
                              max_length      => 12,
                               type            => 'Text',
-                              valid_check     => sub { return (shift =~ m/[ -~]{1,12}/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/[ -~]{1,12}/) },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
@@ -99,7 +99,7 @@ my @kivitendo_to_datev = (
                               csv_header_name => t8('Posting Text'),
                               max_length      => 60,
                               type            => 'Text',
-                              valid_check     => sub { my $text = shift; return 1 unless $text; check_encoding($text);  },
+                              valid_check     => sub { my ($text) = @_; return 1 unless $text; check_encoding($text);  },
                             },  # pos 14
                             {
                               kivi_datev_name => 'not yet implemented',
@@ -176,21 +176,21 @@ my @kivitendo_to_datev = (
                               csv_header_name => t8('Cost Center'),
                               max_length      => 8,
                               type            => 'Text',
-                              valid_check     => sub { my $text = shift; return 1 unless $text; check_encoding($text);  },
+                              valid_check     => sub { my ($text) = @_; return 1 unless $text; check_encoding($text);  },
                             }, # pos 37
                             {
                               kivi_datev_name => 'kost2',
                               csv_header_name => t8('Cost Center'),
                               max_length      => 8,
                               type            => 'Text',
-                              valid_check     => sub { my $text = shift; return 1 unless $text; check_encoding($text);  },
+                              valid_check     => sub { my ($text) = @_; return 1 unless $text; check_encoding($text);  },
                             }, # pos 38
                             {
                               kivi_datev_name => 'not yet implemented',
                               csv_header_name => t8('KOST Quantity'),
                               max_length      => 9,
                               type            => 'Number',
-                              valid_check     => sub { return (shift =~ m/^[0-9]{0,9}$/) },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{0,9}$/) },
                             }, # pos 39
                             {
                               kivi_datev_name => 'ustid',
@@ -198,7 +198,7 @@ my @kivitendo_to_datev = (
                               max_length      => 15,
                               type            => 'Text',
                               valid_check     => sub {
-                                                       my $ustid = shift;
+                                                       my ($ustid) = @_;
                                                        return 1 unless defined($ustid);
                                                        return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
                                                      },
@@ -266,6 +266,11 @@ sub generate_csv_header {
 
   return @header;
 }
+
+sub _format_amount {
+  $::form->format_amount({ numberformat => '1000,00' }, @_);
+}
+
 1;
 
 __END__
@@ -367,5 +372,11 @@ Furthermore C<params{locked}> needs to be a boolean in number format (0|1).
 =item kivitendo_to_datev
 
 Returns the data structure C<@datev_data> as an array
+
+=item _format_amount
+
+Lightweight wrapper for form->format_amount.
+Expects a number in kivitendo database format and returns the same number
+in DATEV format.
 
 =back
