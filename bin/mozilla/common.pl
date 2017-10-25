@@ -242,7 +242,7 @@ sub show_history {
   if ( $form->{trans_id_type} eq 'glid' ) {
     $restriction = "AND ( snumbers LIKE 'invnumber%' OR what_done LIKE '%Buchungsnummer%' OR snumbers LIKE 'gltransaction%' OR snumbers LIKE 'emailjournal%' ) ";
   } elsif ( $form->{trans_id_type} eq 'id' ) {
-    $restriction = " AND ( snumbers NOT LIKE 'invnumber_%' AND snumbers NOT LIKE 'gltransaction%' AND snumbers NOT LIKE 'emailjournal%' AND (what_done NOT LIKE '%Buchungsnummer%' OR what_done IS null))";
+    $restriction = " AND ( snumbers NOT LIKE 'invnumber_%' AND snumbers NOT LIKE 'gltransaction%' AND (what_done NOT LIKE '%Buchungsnummer%' OR what_done IS null))";
   } else {
     $restriction = '';
   };
