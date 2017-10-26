@@ -507,6 +507,20 @@ sub display_row {
   $main::lxdebug->leave_sub();
 }
 
+sub setup_io_select_item_action_bar {
+  my %params = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Continue'),
+        submit    => [ '#form' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 sub select_item {
   $main::lxdebug->enter_sub();
 
@@ -514,6 +528,8 @@ sub select_item {
   my $mode            = $params{mode}            || croak "Missing parameter 'mode'";
   my $pre_entered_qty = $params{pre_entered_qty} || 1;
   _check_io_auth();
+
+  setup_io_select_item_action_bar();
 
   my $previous_form = $::auth->save_form_in_session(form => $::form);
   $::form->{title}  = $::myconfig{item_multiselect} ?

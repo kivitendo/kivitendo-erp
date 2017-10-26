@@ -2,7 +2,7 @@
 [% SET COLS = 8 %]
 <h1>[% title %]</h1>
 
- <form method="post" action="[% HTML.escape(script) %]">
+ <form method="post" action="[% HTML.escape(script) %]" id="form">
 
   <table width="100%">
    <tr class="listheading">
@@ -56,9 +56,7 @@
 
   [% L.hidden_tag('select_item_mode', MODE) %]
   [% L.hidden_tag('select_item_previous_form', PREVIOUS_FORM) %]
-  [% L.hidden_tag('nextsub', 'item_selected') %]
-
-  [% L.submit_tag('action', LxERP.t8('Continue')) %]
+  [% L.hidden_tag('action', 'item_selected') %]
  </form>
 
 [%- IF MYCONFIG.item_multiselect %]
