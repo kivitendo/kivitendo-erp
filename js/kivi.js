@@ -75,14 +75,14 @@ namespace("kivi", function(ns) {
       }
       date = new Date(
         year,
-        (parts[ ns._date_format.m ] || 0) * 1 - 1, // Months are 0-based.
-        (parts[ ns._date_format.d ] || 0) * 1
+        (parts[ ns._date_format.m ] || (today.getMonth() + 1)) * 1 - 1, // Months are 0-based.
+        (parts[ ns._date_format.d ] || today.getDate()) * 1
       );
     } else if (parts.length == 2) {
       date = new Date(
         (new Date()).getFullYear(),
-        (parts[ (ns._date_format.m > ns._date_format.d) * 1 ] || 0) * 1 - 1, // Months are 0-based.
-        (parts[ (ns._date_format.d > ns._date_format.m) * 1 ] || 0) * 1
+        (parts[ (ns._date_format.m > ns._date_format.d) * 1 ] || (today.getMonth() + 1)) * 1 - 1, // Months are 0-based.
+        (parts[ (ns._date_format.d > ns._date_format.m) * 1 ] || today.getDate()) * 1
       );
     } else
       return undefined;

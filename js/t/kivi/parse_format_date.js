@@ -1,3 +1,12 @@
+function today() {
+  var today = new Date();
+  today.setMilliseconds(0);
+  today.setSeconds(0);
+  today.setMinutes(0);
+  today.setHours(0);
+  return today;
+};
+
 QUnit.test("kivi.parse_date function for German date style with dots", function( assert ) {
   kivi.setup_formats({ dates: "dd.mm.yy" });
 
@@ -22,6 +31,8 @@ QUnit.test("kivi.parse_date function for German date style with dots", function(
   assert.deepEqual(kivi.parse_date("Totally Invalid!"), undefined);
   assert.deepEqual(kivi.parse_date(":"), undefined);
   assert.deepEqual(kivi.parse_date("::"), undefined);
+  assert.deepEqual(kivi.parse_date("."), today());
+  assert.deepEqual(kivi.parse_date(".."), today());
   assert.deepEqual(kivi.parse_date(""), null);
   assert.deepEqual(kivi.parse_date("0"), new Date());
   assert.deepEqual(kivi.parse_date("29.02.20008"), undefined);
@@ -41,6 +52,9 @@ QUnit.test("kivi.parse_date function for German date style with slashes", functi
   assert.deepEqual(kivi.parse_date("25/12/"), new Date((new Date).getFullYear(), 11, 25));
   assert.deepEqual(kivi.parse_date("25/12"), new Date((new Date).getFullYear(), 11, 25));
 
+  assert.deepEqual(kivi.parse_date("/"), today());
+  assert.deepEqual(kivi.parse_date("//"), today());
+
   assert.deepEqual(kivi.parse_date("Totally Invalid!"), undefined);
 });
 
@@ -57,6 +71,9 @@ QUnit.test("kivi.parse_date function for American date style", function( assert 
 
   assert.deepEqual(kivi.parse_date("12/25/"), new Date((new Date).getFullYear(), 11, 25));
   assert.deepEqual(kivi.parse_date("12/25"), new Date((new Date).getFullYear(), 11, 25));
+
+  assert.deepEqual(kivi.parse_date("/"), today());
+  assert.deepEqual(kivi.parse_date("//"), today());
 
   assert.deepEqual(kivi.parse_date("Totally Invalid!"), undefined);
 });
@@ -118,6 +135,9 @@ QUnit.test("kivi.format_date function for ISO date style", function( assert ) {
   assert.deepEqual(kivi.parse_date("25"), new Date((new Date).getFullYear(), (new Date).getMonth(), 25));
   assert.deepEqual(kivi.parse_date("1"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
   assert.deepEqual(kivi.parse_date("01"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
+
+  assert.deepEqual(kivi.parse_date("-"), today());
+  assert.deepEqual(kivi.parse_date("--"), today());
 
   assert.deepEqual(kivi.format_date(new Date(undefined, undefined, undefined)), undefined);
 });
