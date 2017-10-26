@@ -135,7 +135,8 @@ sub action_ajax_unimport {
 
 sub action_ajax_rename {
   my ($self) = @_;
-  my $file = SL::File->get(id => $::form->{id});
+  my ($id, $version) = split /_/, $::form->{id};
+  my $file = SL::File->get(id => $id);
   if ( ! $file ) {
     $self->js->flash('error', $::locale->text('File not exists !'))->render();
     return;
