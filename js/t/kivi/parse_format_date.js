@@ -35,6 +35,7 @@ QUnit.test("kivi.parse_date function for German date style with dots", function(
   assert.deepEqual(kivi.parse_date(".."), today());
   assert.deepEqual(kivi.parse_date(""), null);
   assert.deepEqual(kivi.parse_date("0"), new Date());
+  assert.deepEqual(kivi.parse_date("00"), new Date());
   assert.deepEqual(kivi.parse_date("29.02.20008"), undefined);
 });
 
@@ -135,6 +136,9 @@ QUnit.test("kivi.format_date function for ISO date style", function( assert ) {
   assert.deepEqual(kivi.parse_date("25"), new Date((new Date).getFullYear(), (new Date).getMonth(), 25));
   assert.deepEqual(kivi.parse_date("1"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
   assert.deepEqual(kivi.parse_date("01"), new Date((new Date).getFullYear(), (new Date).getMonth(), 1));
+
+  assert.deepEqual(kivi.parse_date("0"), new Date());
+  assert.deepEqual(kivi.parse_date("00"), new Date());
 
   assert.deepEqual(kivi.parse_date("-"), today());
   assert.deepEqual(kivi.parse_date("--"), today());

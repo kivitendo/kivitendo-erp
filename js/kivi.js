@@ -37,7 +37,7 @@ namespace("kivi", function(ns) {
     if (date === '')
       return null;
 
-    if (date === '0')
+    if (date === '0' || date === '00')
       return new Date();
 
     var parts = date.replace(/\s+/g, "").split(ns._date_format.sep);
