@@ -72,4 +72,12 @@ namespace('kivi.RecordTemplate', function(ns) {
       id: id
     }, kivi.eval_json_result);
   };
+
+  ns.filter_templates = function() {
+    $.post('controller.pl', {
+      action: 'RecordTemplate/filter_templates',
+      template_filter: $("#template_filter").val(),
+      template_type: $("#record_template_dialog_template_type").val(),
+    }, kivi.eval_json_result);
+  };
 });
