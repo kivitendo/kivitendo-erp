@@ -567,19 +567,6 @@ sub get_warehouse_journal {
   my ($h_oe_id, $q_oe_id);
   if ($form->{l_oe_id}) {
     $q_oe_id = <<SQL;
-      SELECT oe.id AS id,
-        CASE WHEN oe.quotation THEN oe.quonumber ELSE oe.ordnumber END AS number,
-        CASE
-          WHEN oe.customer_id IS NOT NULL AND     COALESCE(oe.quotation, FALSE) THEN 'sales_quotation'
-          WHEN oe.customer_id IS NOT NULL AND NOT COALESCE(oe.quotation, FALSE) THEN 'sales_order'
-          WHEN oe.customer_id IS     NULL AND     COALESCE(oe.quotation, FALSE) THEN 'request_quotation'
-          ELSE                                                                       'purchase_order'
-        END AS type
-      FROM oe
-      WHERE oe.id = ?
-
-      UNION
-
       SELECT dord.id AS id, dord.donumber AS number,
         CASE
           WHEN dord.customer_id IS NULL THEN 'purchase_delivery_order'
@@ -587,18 +574,6 @@ sub get_warehouse_journal {
         END AS type
       FROM delivery_orders dord
       WHERE dord.id = ?
-
-      UNION
-
-      SELECT ar.id AS id, ar.invnumber AS number, 'sales_invoice' AS type
-      FROM ar
-      WHERE ar.id = ?
-
-      UNION
-
-      SELECT ap.id AS id, ap.invnumber AS number, 'purchase_invoice' AS type
-      FROM ap
-      WHERE ap.id = ?
 
       UNION
 
@@ -632,8 +607,7 @@ SQL
     }
 
     if ($h_oe_id && ($ref->{oe_id} || $ref->{invoice_id})) {
-      my $id = $ref->{oe_id} ? $ref->{oe_id} : $ref->{invoice_id};
-      do_statement($form, $h_oe_id, $q_oe_id, ($id) x 6);
+      do_statement($form, $h_oe_id, $q_oe_id, $ref->{oe_id}, ($ref->{invoice_id}) x 2);
       $ref->{oe_id_info} = $h_oe_id->fetchrow_hashref() || {};
     }
 
