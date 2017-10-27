@@ -462,7 +462,7 @@ sub _mk_render {
         my $first = shift @{$self->existing};
         my ($first_id, $sfile) = split('_', $first, 2);
         my $file = SL::File->get(id => $first_id );
-        $self->js->run('kivi.File.askForRename', $first_id, $file->file_name, $sfile, join (',', @{$self->existing}), $self->is_global);
+        $self->js->run('kivi.File.askForRename', $first_id, $file->file_type, $file->file_name, $sfile, join (',', @{$self->existing}), $self->is_global);
       }
       $self->js->render();
     } else {

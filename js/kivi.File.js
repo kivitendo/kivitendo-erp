@@ -1,27 +1,27 @@
 namespace('kivi.File', function(ns) {
 
   ns.rename = function(id,type,file_type,checkbox_class,is_global) {
-    var $dlg       = $('#rename_dialog');
+    var $dlg       = $('#rename_dialog_'+file_type);
     var parent_id  = $dlg.parent("div.ui-tabs-panel").attr('id');
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
     if (checkboxes.size() === 0) {
-		  alert(kivi.t8("No file selected, please set one checkbox!"));
-		  return false;
-	  }
+      alert(kivi.t8("No file selected, please set one checkbox!"));
+      return false;
+    }
     if (checkboxes.size() > 1) {
-	    alert(kivi.t8("More than one file selected, please set only one checkbox!"));
-		  return false;
-	  }
+      alert(kivi.t8("More than one file selected, please set only one checkbox!"));
+      return false;
+    }
     var file_id = checkboxes[0].value;
-    $('#newfilename_id').val($('#filename_'+file_id).text());
-    $('#next_ids_id').val('');
-    $('#is_global_id').val(is_global);
-    $('#rename_id_id').val(file_id);
-    $('#sessionfile_id').val('');
-  	$('#rename_extra_text').html('');
+    $('#newfilename_id_'+file_type).val($('#filename_'+file_id).text());
+    $('#next_ids_id_'+file_type).val('');
+    $('#is_global_id_'+file_type).val(is_global);
+    $('#rename_id_id_'+file_type).val(file_id);
+    $('#sessionfile_id_'+file_type).val('');
+    $('#rename_extra_text_'+file_type).html('');
     kivi.popup_dialog({
-                      id:     'rename_dialog',
+                      id:     'rename_dialog_'+file_type,
                       dialog: { title: kivi.t8("Rename attachment")
                                , width:  400
                                , height: 200
@@ -34,37 +34,37 @@ namespace('kivi.File', function(ns) {
     return true;
   }
 
-  ns.renameclose = function() {
-    $("#rename_dialog").dialog('close');
+  ns.renameclose = function(file_type) {
+    $("#rename_dialog_"+file_type).dialog('close');
     return false;
   }
 
-  ns.renameaction = function() {
-	  $("#rename_dialog").dialog('close');
+  ns.renameaction = function(file_type) {
+    $("#rename_dialog_"+file_type).dialog('close');
     var data = {
       action:          'File/ajax_rename',
-      id:              $('#rename_id_id').val(),
-	    to:              $('#newfilename_id').val(),
-      next_ids:        $('#next_ids_id').val(),
-      is_global:       $('#is_global_id').val(),
-      sessionfile:     $('#sessionfile_id').val(),
+      id:              $('#rename_id_id_'+file_type).val(),
+      to:              $('#newfilename_id_'+file_type).val(),
+      next_ids:        $('#next_ids_id_'+file_type).val(),
+      is_global:       $('#is_global_id_'+file_type).val(),
+      sessionfile:     $('#sessionfile_id_'+file_type).val(),
     };
     $.post("controller.pl", data, kivi.eval_json_result);
     return true;
   }
 
-  ns.askForRename = function(file_id,file_name,sessionfile,next_ids,is_global) {
-    $('#newfilename_id').val(file_name);
-    $('#rename_id_id').val(file_id);
-    $('#is_global_id').val(is_global);
-    $('#next_ids_id').val(next_ids);
-    $('#sessionfile_id').val(sessionfile);
-    $('#rename_extra_text').html(kivi.t8("The uploaded filename still exists.<br>If you not modify the name this is a new version of the file"));
-    var $dlg       = $('#rename_dialog');
+  ns.askForRename = function(file_id,file_type,file_name,sessionfile,next_ids,is_global) {
+    $('#newfilename_id_'+file_type).val(file_name);
+    $('#rename_id_id_'+file_type).val(file_id);
+    $('#is_global_id_'+file_type).val(is_global);
+    $('#next_ids_id_'+file_type).val(next_ids);
+    $('#sessionfile_id_'+file_type).val(sessionfile);
+    $('#rename_extra_text_'+file_type).html(kivi.t8("The uploaded filename still exists.<br>If you not modify the name this is a new version of the file"));
+    var $dlg       = $('#rename_dialog_'+file_type);
     var parent_id  = $dlg.parent("div.ui-tabs-panel").attr('id');
     kivi.popup_dialog(
       {
-        id:     'rename_dialog',
+        id:     'rename_dialog_'+file_type,
         dialog: { title: kivi.t8("Rename attachment")
                   , width:  400
                   , height: 200
@@ -237,11 +237,11 @@ namespace('kivi.File', function(ns) {
   ns.importaction = function(id,type,file_type,fromwhere,frompath,checkbox_class) {
     var checkboxes = $('.'+checkbox_class).filter(function () { return  $(this).prop('checked'); });
 
-	  $("#import_dialog").dialog('close');
+    $("#import_dialog").dialog('close');
     if (checkboxes.size() === 0) {
-		  return false;
-	  }
-  	var data = {
+      return false;
+    }
+    var data = {
         action     : 'File/ajax_import',
         object_id  : id,
         object_type: type,
@@ -255,7 +255,7 @@ namespace('kivi.File', function(ns) {
   }
 
   ns.downloadOrderitemsFiles = function(type,id) {
-	  var data = {
+    var data = {
       action:       'DownloadZip/download_orderitems_files',
       object_type:  type,
       object_id:    id,
