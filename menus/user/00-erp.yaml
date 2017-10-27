@@ -1071,6 +1071,12 @@
   module: am.pl
   params:
     action: list_account
+- parent: system_chart_of_accounts
+  id: system_chart_of_accounts_report_configuration_overview
+  name: Report configuration overview
+  order: 300
+  params:
+    action: Chart/show_report_configuration_overview
 - parent: system
   id: system_buchungsgruppen
   name: Booking groups

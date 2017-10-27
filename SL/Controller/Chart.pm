@@ -4,6 +4,9 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
+use List::UtilsBy qw(partition_by sort_by);
+
+use SL::AM;
 use SL::DB::Chart;
 use SL::Controller::Helper::GetModels;
 use SL::Locale::String qw(t8);
@@ -80,6 +83,42 @@ sub action_show {
 
     $self->render(\ SL::JSON::to_json($chart_hash), { layout => 0, type => 'json', process => 0 });
   }
+}
+
+sub action_show_report_configuration_overview {
+  my ($self) = @_;
+
+  my @all_charts = sort { $a->accno cmp $b->accno } @{ SL::DB::Manager::Chart->get_all(inject_results => 1) };
+  my @types      = qw(bilanz bwa er eur);
+  my %headings   = (
+    bilanz       => t8('Balance'),
+    bwa          => t8('BWA'),
+    er           => t8('Erfolgsrechnung'),
+    eur          => t8('EUER'),
+  );
+
+  my @data;
+
+  foreach my $type (@types) {
+    my $method = "pos_${type}";
+    my $names  = $type eq 'bwa' ? AM->get_bwa_categories(\%::myconfig, $::form)
+               : $type eq 'eur' ? AM->get_eur_categories(\%::myconfig, $::form)
+               :                  {};
+    my %charts = partition_by { $_->$method // '' } @all_charts;
+    delete $charts{''};
+
+    next if !%charts;
+
+    push @data, {
+      type      => $type,
+      heading   => $headings{$type},
+      charts    => \%charts,
+      positions => [ sort { ($a * 1) <=> ($b * 1) } keys %charts ],
+      names     => $names,
+    };
+  }
+
+  $self->render('chart/report_configuration_overview', DATA => \@data);
 }
 
 sub init_charts {
