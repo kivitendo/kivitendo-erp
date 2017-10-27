@@ -813,7 +813,7 @@ sub init_part {
 
 sub init_orphaned {
   my ($self) = @_;
-  return $::auth->assert('assembly_edit', 1) // $self->part->orphaned;
+  return $self->part->orphaned;
 }
 
 sub init_models {

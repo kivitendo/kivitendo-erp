@@ -5,11 +5,11 @@
 [%- USE P %]
   <tr class="listrow[% listrow %] assembly_item_row">
     <td style='display:none'>
-      [% IF orphaned %]
+      [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
       [% L.hidden_tag("assembly_items[+].parts_id", ITEM.part.id) %]
       [% END %]
     </td>
-    <td align="center" [% UNLESS orphaned %]style='display:none'[% END %]>
+    <td align="center" [% UNLESS orphaned || AUTH.assert('assembly_edit', 1) %]style='display:none'[% END %]>
       [%- L.button_tag("kivi.Part.delete_item_row(this)",
                        LxERP.t8("X")) %] [% # , confirm=LxERP.t8("Are you sure?")) %]
     </td>
@@ -18,7 +18,7 @@
         [% HTML.escape(position) or HTML.escape(ITEM.position) %]
       </div>
     </td>
-    <td align="center" [% UNLESS orphaned %]style='display:none'[% END %]>
+    <td align="center" [% UNLESS orphaned || AUTH.assert('assembly_edit', 1) %]style='display:none'[% END %]>
       <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
     </td>
     <td nowrap>
@@ -31,7 +31,7 @@
        [% HTML.escape(ITEM.part.description) %]
     </td>
     <td>
-    [% IF orphaned %]
+    [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
       [%- L.input_tag("assembly_items[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 10,
@@ -43,7 +43,7 @@
     <td nowrap>
       [% ITEM.part.unit | html %]
     </td>
-    [% IF orphaned %]
+    [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
     <td>[% L.checkbox_tag("assembly_items[].bom", checked=ITEM.bom, for_submit=1) %]</td>
     [% ELSE %]
     <td>[% IF ITEM.bom %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %]</td>

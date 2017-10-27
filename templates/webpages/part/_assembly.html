@@ -13,11 +13,11 @@
  <thead>
    <tr class="listheading">
      <th class="listheading" style='display:none'></th>
-     [% IF SELF.orphaned %]
+     [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
      <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
      [% END %]
      <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
-     [% IF SELF.orphaned %]
+     [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
      <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
      [% END %]
      <th id="partnumber_header_id"  class="listheading" nowrap width="5"><a href='#' onClick='javascript:kivi.Part.reorder_items("partnumber")' >[%- 'Partnumber'  | $T8 %]</a></th>
@@ -37,7 +37,7 @@
 </tbody>
 <tbody id="assembly_input">
 <tr>
- [% IF SELF.orphaned %]
+ [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
  <td></td>
  <td></td>
  <td align="right">[% 'Part' | $T8 %]:</td>
@@ -60,7 +60,7 @@
  <td id="items_sum_diff"      class="numeric">[%- LxERP.format_amount(items_sum_diff,      2, 0) %]</td>
 </tr>
 <tr>
- [% IF SELF.orphaned %]
+ [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
  <td></td>
  <td></td>
  [% END %]
