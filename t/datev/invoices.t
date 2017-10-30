@@ -3,6 +3,7 @@ use Test::More;
 use Test::Deep qw(cmp_bag);
 
 use lib 't';
+use utf8;
 
 use_ok 'Support::TestSetup';
 use SL::DATEV qw(:CONSTANTS);
@@ -62,9 +63,10 @@ my $datev1 = SL::DATEV->new(
 
 $datev1->generate_datev_data;
 
-cmp_bag $datev1->generate_datev_lines, [
+my @data_datev   = sort { $a->{umsatz} <=> $b->{umsatz} } @{ $datev1->generate_datev_lines() };
+cmp_bag \@data_datev, [
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8400',
@@ -76,7 +78,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8300',
@@ -88,7 +90,8 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
+                                           'buchungstext' => 'Testcustomer',
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
@@ -105,7 +108,7 @@ $datev1->use_pk(1);
 $datev1->generate_datev_data;
 cmp_bag $datev1->generate_datev_lines, [
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8400',
@@ -117,7 +120,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '01.01.2017',
                                            'gegenkonto'   => '8300',
@@ -129,7 +132,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
-                                           'belegfeld1'   => Encode::decode('utf-8', "Þ sales ¥& invöice"),
+                                           'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => $customer->customernumber,
@@ -154,7 +157,7 @@ $datev1->use_pk(0); # reset use_pk for csv_buchungsexport
 # splice away the header, because sort won't do
 # we need sort, because pay_invoice is not acc_trans_id order safe
 my @data_csv = splice @{ $datev1->csv_buchungsexport() }, 2, 5;
-@data_csv    = sort { $a->[0] <=> $b->[0] } @data_csv;
+@data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
 
 my $cp1252_belegfeld1   = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& i');
 my $cp1252_buchungstext = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& invöice');
