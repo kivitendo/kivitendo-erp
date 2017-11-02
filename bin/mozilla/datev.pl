@@ -79,6 +79,10 @@ sub export_bewegungsdaten {
   $::form->header;
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
   $::form->{show_pk_option}  = SL::DATEV->new->check_vcnumbers_are_valid_pk_numbers;
+
+  # check if we have mismatching number length domains
+  SL::DATEV->new->check_valid_length_of_accounts;
+
   print $::form->parse_html_template('datev/export_bewegungsdaten');
 
   $::lxdebug->leave_sub;

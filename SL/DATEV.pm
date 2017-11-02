@@ -1417,6 +1417,23 @@ SQL
   return defined $has_non_pk_accounts ? 0 : 1;
 }
 
+
+sub check_valid_length_of_accounts {
+  my ($self) = @_;
+
+  my $query = <<"SQL";
+  SELECT DISTINCT char_length (accno) FROM chart WHERE charttype='A' AND id in (select chart_id from acc_trans);
+SQL
+
+  my $accno_length = selectall_hashref_query($::form, SL::DB->client->dbh, $query);
+  if (1 < keys $accno_length) {
+    $::form->error(t8("Invalid combination of ledger account number length." .
+                      " Mismatch length of #1 with length of #2. Please check your account settings. ",
+                      $accno_length->[0]->{char_length}, $accno_length->[1]->{char_length}));
+  }
+  return 1;
+}
+
 sub DESTROY {
   clean_temporary_directories();
 }
@@ -1656,6 +1673,12 @@ All vcnumbers are checked, obsolete customers or vendors aren't exempt.
 There is also no check for the typical customer range 10000-69999 and the
 typical vendor range 70000-99999.
 
+=item check_valid_length_of_accounts
+
+Returns 1 if all currently booked accounts have only one common number length domain (e.g. 4 or 6).
+Will throw an error if more than one distinct size is detected.
+The error message gives a short hint with the value of the (at least)
+two mismatching number length domains.
 =back
 
 =head1 ATTRIBUTES
