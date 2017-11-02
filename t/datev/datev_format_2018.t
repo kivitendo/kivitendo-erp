@@ -68,8 +68,12 @@ $datev1->generate_datev_lines;
 # check conversion to csv
 $datev1->from($startdate);
 $datev1->to($enddate);
-$datev1->csv_buchungsexport();
-my @warnings = $datev1->warnings;
+my ($datev_ref, $warnings_ref) = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+                                                     from         => $startdate,
+                                                     to           => $enddate,
+                                                     locked       => $datev1->locked,
+                                                    );
+my @warnings = $warnings_ref;
 is($warnings[0]->[0]->{untranslated},
   'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'wrong_encoding');
 
@@ -87,9 +91,16 @@ $datev3->from($startdate);
 $datev3->to($enddate);
 $datev3->generate_datev_data;
 $datev3->generate_datev_lines;
-$datev3->csv_buchungsexport;
+my ($datev_ref2, $warnings_ref2) = SL::DATEV::CSV->new(datev_lines  => $datev3->generate_datev_lines,
+                                                       from         => $startdate,
+                                                       to           => $enddate,
+                                                       locked       => $datev3->locked,
+                                                      );
+
+
+
 @warnings = [];
-@warnings = $datev3->warnings;
+@warnings = $warnings_ref2;
 is($warnings[0]->[0]->{untranslated},
   'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'mixed_wrong_encoding');
 
@@ -157,9 +168,14 @@ $datev2->to($enddate);
 $datev2->generate_datev_data;
 $datev2->generate_datev_lines;
 
-my @data_csv = splice @{ $datev2->csv_buchungsexport() }, 2, 5;
-@data_csv    = sort { $a->[0] <=> $b->[0] } @data_csv;
+my ($datev_ref3, $warnings_ref3) = SL::DATEV::CSV->new(datev_lines  => $datev2->generate_datev_lines,
+                                                       from         => $startdate,
+                                                       to           => $enddate,
+                                                       locked       => $datev2->locked,
+                                                      );
 
+my @data_csv = splice @{ $datev_ref3 }, 2, 5;
+@data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
 
 my $cp1252_posting_text   = SL::Iconv::convert("UTF-8", "CP1252", 'Reisekosten März 2018');
 cmp_bag($data_csv[0], [ 100, 'H', 'EUR', undef, undef, undef, '4660', '1000', 9, '1703', 'Reisekosten ',

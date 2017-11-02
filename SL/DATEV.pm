@@ -372,7 +372,30 @@ sub csv_export {
   die 'no exporttype set!' unless $self->has_exporttype;
 
   if ($self->exporttype == DATEV_ET_BUCHUNGEN) {
-    _csv_buchungsexport_to_file($self, data => $self->csv_buchungsexport);
+
+  $self->generate_datev_data(from_to => $self->fromto);
+  return if $self->errors;
+
+  my $datev_ref = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
+                                      from         => $self->from,
+                                      to           => $self->to,
+                                      locked       => $self->locked,
+                                     );
+
+  my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
+
+  my $csv = Text::CSV_XS->new({
+              binary       => 1,
+              sep_char     => ";",
+              always_quote => 1,
+              eol          => "\r\n",
+            }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
+
+  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
+  $csv->print($csv_file, $_) for @{ $datev_ref };
+  $csv_file->close;
+
+  return { download_token => $self->download_token, filenames => $filename };
 
   } elsif ($self->exporttype == DATEV_ET_STAMM) {
     die 'will never be implemented';
@@ -402,6 +425,15 @@ sub fromto {
 
 sub _sign {
   $_[0] <=> 0;
+}
+
+sub locked {
+ my $self = shift;
+
+ if (@_) {
+   $self->{locked} = $_[0];
+ }
+ return $self->{locked};
 }
 
 sub generate_datev_data {
@@ -1370,97 +1402,6 @@ sub csv_export_for_tax_accountant {
   return { download_token => $self->download_token, filenames => \@filenames };
 }
 
-sub csv_buchungsexport {
-  my $self = shift;
-  my %params = @_;
-
-  $self->generate_datev_data(from_to => $self->fromto);
-  return if $self->errors;
-
-  my @datev_lines = @{ $self->generate_datev_lines };
-
-  my @csv_columns = SL::DATEV::CSV->kivitendo_to_datev();
-  my @csv_headers = SL::DATEV::CSV->generate_csv_header(
-                      from                     => $self->from->ymd(''),
-                      to                       => $self->to->ymd(''),
-                      first_day_of_fiscal_year => $self->to->year . '0101',
-                      locked                   => 0
-                    );
-
-  my @array_of_datev;
-
-  # 2 Headers
-  push @array_of_datev, \@csv_headers;
-  push @array_of_datev, [ map { $_->{csv_header_name} } @csv_columns ];
-
-  my @warnings;
-  foreach my $row ( @datev_lines ) {
-    my @current_datev_row;
-
-    # shorten strings
-    if ($row->{belegfeld1}) {
-      $row->{buchungsbes} = $row->{belegfeld1} if $row->{belegfeld1};
-      $row->{belegfeld1}  = substr($row->{belegfeld1}, 0, 12);
-      $row->{buchungsbes} = substr($row->{buchungsbes}, 0, 60);
-    }
-
-    $row->{datum}       = datetofour($row->{datum}, 0);
-    $row->{kost1}       = substr($row->{kost1}, 0, 8) if $row->{kost1};
-    $row->{kost2}       = substr($row->{kost2}, 0, 8) if $row->{kost2};
-
-    # , as decimal point and trim for UstID
-    $row->{umsatz}      =~ s/\./,/;
-    $row->{ustid}       =~ s/\s//g if $row->{ustid}; # trim whitespace
-
-    foreach my $column (@csv_columns) {
-      if (exists $column->{max_length} && $column->{kivi_datev_name} ne 'not yet implemented') {
-        # check max length
-        die "Incorrect length of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
-      }
-      if (exists $column->{valid_check} && $column->{kivi_datev_name} ne 'not yet implemented') {
-        # more checks, listed as user warnings
-        push @warnings, t8("Wrong field value '#1' for field '#2' for the transaction" .
-                            " with amount '#3'",$row->{ $column->{kivi_datev_name} },
-                            $column->{kivi_datev_name},$row->{umsatz})
-          unless ($column->{valid_check}->($row->{ $column->{kivi_datev_name} }));
-      }
-      push @current_datev_row, $row->{ $column->{kivi_datev_name} };
-    }
-    push @array_of_datev, \@current_datev_row;
-  }
-  $self->warnings(@warnings) if @warnings;
-  return \@array_of_datev;
-}
-
-sub _csv_buchungsexport_to_file {
-  my $self   = shift;
-  my %params = @_;
-
-  # we can definitely deny shorter data structures
-  croak ("Need at least 2 rows for header info") unless scalar @{ $params{data} } > 1;
-
-  my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
-  my @data = \$params{data};
-
-  my $csv = Text::CSV_XS->new({
-              binary       => 1,
-              sep_char     => ";",
-              always_quote => 1,
-              eol          => "\r\n",
-            }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
-
-  if ($csv->version >= 1.18) {
-    # get rid of stupid datev warnings in "Validity program"
-    $csv->quote_empty(1);
-  }
-
-  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
-  $csv->print($csv_file, $_) for @{ $params{data} };
-  $csv_file->close;
-
-  return { download_token => $self->download_token, filenames => $params{filename} };
-}
-
 sub check_vcnumbers_are_valid_pk_numbers {
   my ($self) = @_;
 
@@ -1762,6 +1703,11 @@ correctly.
 =item accnoto
 
 Set boundary account numbers for the export. Only useful for a stammdaten export.
+
+=item locked
+
+Boolean if the transactions are locked (read-only in kivitenod) or not.
+Default value is false
 
 =back
 

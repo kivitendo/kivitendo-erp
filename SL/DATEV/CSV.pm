@@ -4,6 +4,7 @@ use strict;
 
 use SL::Locale::String qw(t8);
 use SL::DB::Datev;
+use SL::Helper::DateTime;
 
 use Carp;
 use DateTime;
@@ -205,6 +206,26 @@ my @kivitendo_to_datev = (
                             }, # pos 40
   );
 
+sub new {
+  my $class = shift;
+  my %data  = @_;
+
+  my $obj = bless {}, $class;
+
+  croak(t8('We need a valid from date'))      unless (ref $data{from} eq 'DateTime');
+  croak(t8('We need a valid to date'))        unless (ref $data{to}   eq 'DateTime');
+  croak(t8('We need a array of datev_lines')) unless (ref $data{datev_lines} eq 'ARRAY');
+
+  # TODO no params here, better class variables/values
+  return _csv_buchungsexport(from        => $data{from},
+                             to          => $data{to},
+                             datev_lines => $data{datev_lines},
+                             locked      => $data{locked},
+                            );
+
+  $obj;
+}
+
 sub check_encoding {
   my ($test) = @_;
   return undef unless $test;
@@ -216,7 +237,7 @@ sub check_encoding {
   }
 }
 
-sub kivitendo_to_datev {
+sub _kivitendo_to_datev {
   my ($self) = @_;
 
   my $entries = scalar (@kivitendo_to_datev);
@@ -224,15 +245,16 @@ sub kivitendo_to_datev {
   return @kivitendo_to_datev;
 }
 
-sub generate_csv_header {
-  my ($self, %params)   = @_;
+sub _generate_csv_header {
+  my %params  = @_;
 
   # we need from and to in YYYYDDMM
-  croak "Wrong format for from" unless $params{from} =~ m/^[0-9]{8}$/;
-  croak "Wrong format for to"   unless $params{to} =~ m/^[0-9]{8}$/;
+  croak "Wrong format for from $params{from}" unless $params{from} =~ m/^[0-9]{8}$/;
+  croak "Wrong format for to $params{to}"   unless $params{to} =~ m/^[0-9]{8}$/;
 
   # who knows if we want locking and when our fiscal year starts
-  croak "Wrong state of locking"      unless $params{locked} =~ m/(0|1)/;
+  # croak "Wrong state of locking"      unless $params{locked} =~ m/^(0|1)$/;
+  my $locked = defined($params{locked}) ? 1 : 0;
   croak "No startdate of fiscal year" unless $params{first_day_of_fiscal_year} =~ m/^[0-9]{8}$/;
 
 
@@ -260,11 +282,67 @@ sub generate_csv_header {
     "EXTF", "300", 21, "Buchungsstapel", 7, $created_on, "", "ki",
     "kivitendo-datev", "", $meta_datev{beraternr}, $meta_datev{mandantennr},
     $params{first_day_of_fiscal_year}, $length_of_accounts,
-    $params{from}, $params{to}, "", "", 1, "", $params{locked},
+    $params{from}, $params{to}, "", "", 1, "", $locked,
     $default_curr, "", "", "",""
   );
 
   return @header;
+}
+
+sub _csv_buchungsexport {
+  my %params = @_;
+
+  my @csv_columns = _kivitendo_to_datev();
+  my @csv_headers = _generate_csv_header(
+                      from                     => $params{from}->ymd(''),
+                      to                       => $params{to}->ymd(''),
+                      first_day_of_fiscal_year => $params{to}->year . '0101',
+                      locked                   => $params{locked}
+                    );
+
+  my @array_of_datev;
+
+  # 2 Headers
+  push @array_of_datev, \@csv_headers;
+  push @array_of_datev, [ map { $_->{csv_header_name} } @csv_columns ];
+
+  my @warnings;
+  foreach my $row (@{ $params{datev_lines} }) {
+    my @current_datev_row;
+
+    # shorten strings
+    if ($row->{belegfeld1}) {
+      $row->{buchungsbes} = $row->{belegfeld1} if $row->{belegfeld1};
+      $row->{belegfeld1}  = substr($row->{belegfeld1}, 0, 12);
+      $row->{buchungsbes} = substr($row->{buchungsbes}, 0, 60);
+    }
+
+    $row->{datum} = DateTime->from_kivitendo($row->{datum})->strftime('%d%m');
+
+    $row->{kost1}       = substr($row->{kost1}, 0, 8) if $row->{kost1};
+    $row->{kost2}       = substr($row->{kost2}, 0, 8) if $row->{kost2};
+
+    # , as decimal point and trim for UstID
+    $row->{umsatz}      = _format_amount($row->{umsatz});
+    $row->{ustid}       =~ s/\s//g if $row->{ustid}; # trim whitespace
+
+    foreach my $column (@csv_columns) {
+      if (exists $column->{max_length} && $column->{kivi_datev_name} ne 'not yet implemented') {
+        # check max length
+        die "Incorrect length of field" if length($row->{ $column->{kivi_datev_name} }) > $column->{max_length};
+      }
+      if (exists $column->{valid_check} && $column->{kivi_datev_name} ne 'not yet implemented') {
+        # more checks, listed as user warnings
+        push @warnings, t8("Wrong field value '#1' for field '#2' for the transaction" .
+                            " with amount '#3'",$row->{ $column->{kivi_datev_name} },
+                            $column->{kivi_datev_name},$row->{umsatz})
+          unless ($column->{valid_check}->($row->{ $column->{kivi_datev_name} }));
+      }
+      push @current_datev_row, $row->{ $column->{kivi_datev_name} };
+    }
+    push @array_of_datev, \@current_datev_row;
+  }
+  return (\@array_of_datev, \@warnings);
 }
 
 sub _format_amount {
@@ -282,6 +360,27 @@ __END__
 SL::DATEV::CSV - kivitendo DATEV CSV Specification
 
 =head1 SYNOPSIS
+
+  use SL::DATEV qw(:CONSTANTS);
+  use SL::DATEV::CSV;
+
+  my $startdate = DateTime->new(year => 2014, month => 9, day => 1);
+  my $enddate   = DateTime->new(year => 2014, month => 9, day => 31);
+  my $datev = SL::DATEV->new(
+    exporttype => DATEV_ET_BUCHUNGEN,
+    format     => DATEV_FORMAT_CSV,
+    from       => $startdate,
+    to         => $enddate,
+  );
+  $datev->generate_datev_data;
+
+  my $datev_ref = SL::DATEV::CSV->new(datev_lines  => $datev->generate_datev_lines,
+                                      from         => $datev->from,
+                                      to           => $datev->to,
+                                      locked       => $datev->locked,
+                                     );
+
+=head1 DESCRIPTION
 
 The parsing of the DATEV CSV is index based, therefore the correct
 column must be present at the corresponding index, i.e.:
@@ -348,6 +447,11 @@ Line 3 - n:  must contain 116 fields, a smaller subset is mandatory.
 
 =over 4
 
+=item new PARAMS
+
+Constructor for CSV-DATEV export.
+Checks mandantory params as described in section synopsis.
+
 =item check_encoding
 
 Helper function, returns true if a string is not empty and cp1252 encoded
@@ -366,7 +470,7 @@ All params are mandatory:
 C<params{from}>,  C<params{to}>
 and C<params{first_day_of_fiscal_year}> have to be in YYYYDDMM date string
 format.
-Furthermore C<params{locked}> needs to be a boolean in number format (0|1).
+Furthermore C<params{locked}> is a perlish boolean.
 
 
 =item kivitendo_to_datev
@@ -378,5 +482,23 @@ Returns the data structure C<@datev_data> as an array
 Lightweight wrapper for form->format_amount.
 Expects a number in kivitendo database format and returns the same number
 in DATEV format.
+
+=item _csv_buchungsexport
+
+Generates the CSV-Format data for the CSV DATEV export and returns
+an 2-dimensional array as an array_ref.
+May additionally return a second array_ref with warnings.
+
+Requires the same date fields as the constructor for a valid DATEV header.
+
+Furthermore we assume that the first day of the fiscal year is
+the first of January and we cannot guarantee that our data in kivitendo
+is locked, that means a booking cannot be modified after a defined (vat tax)
+period.
+Some validity checks (max_length and regex) will be done if the
+data structure contains them and the field is defined.
+
+To add or alter the structure of the data take a look at the C<@kivitendo_to_datev> structure.
+
 
 =back

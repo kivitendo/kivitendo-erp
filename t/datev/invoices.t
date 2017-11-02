@@ -91,7 +91,9 @@ cmp_bag \@data_datev, [
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
-                                           'buchungstext' => 'Testcustomer',
+
+
+'buchungstext' => 'Testcustomer',
                                            'buchungstext' => 'Testcustomer',
                                            'datum'        => '05.01.2017',
                                            'gegenkonto'   => '1400',
@@ -152,11 +154,22 @@ my $enddate   = DateTime->new(year => 2017, month => 12, day => 31);
 # check conversion to csv
 $datev1->from($startdate);
 $datev1->to($enddate);
-$datev1->use_pk(0); # reset use_pk for csv_buchungsexport
+# reset use_pk for csv_buchungsexport
+$datev1->use_pk(0);
+$datev1->generate_datev_data;
+
+
+my ($datev_ref, $w_ref) = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+                                              from         => $startdate,
+                                              to           => $enddate,
+                                              locked       => $datev1->locked,
+                                   );
+# warnings should be undef -> no array elements at all
+is(scalar @{ $w_ref }, 0);
 
 # splice away the header, because sort won't do
 # we need sort, because pay_invoice is not acc_trans_id order safe
-my @data_csv = splice @{ $datev1->csv_buchungsexport() }, 2, 5;
+my @data_csv = splice @{ $datev_ref }, 2, 5;
 @data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
 
 my $cp1252_belegfeld1   = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& i');
