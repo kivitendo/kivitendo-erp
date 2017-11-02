@@ -376,11 +376,11 @@ sub csv_export {
   $self->generate_datev_data(from_to => $self->fromto);
   return if $self->errors;
 
-  my $datev_ref = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
-                                      from         => $self->from,
-                                      to           => $self->to,
-                                      locked       => $self->locked,
-                                     );
+  my $datev_ref, $self->warnings = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
+                                                       from         => $self->from,
+                                                       to           => $self->to,
+                                                       locked       => $self->locked,
+                                                      );
 
   my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
 
