@@ -28,7 +28,7 @@ tar xvzf kivitendo-erp-3.4.1.tgz</pre><p>Wechseln Sie in das entpackte Verzeichn
         die Pfade anpassen) bspw. wie folgt: </p><pre class="programlisting">cd /var/www/
 git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
-git checkout `git tag -l | egrep -ve "(beta|rc)" | tail -1`</pre><p>
+git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</pre><p>
         Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
         -l listet alle Tags auf, das egrep schmeisst alle Einträge mit beta
         oder rc raus und das tail gibt davon den obersten Treffer zurück).
