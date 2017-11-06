@@ -524,7 +524,7 @@ git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</programlisting>
         Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
-        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit beta
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha, beta
         oder rc raus und das tail gibt davon den obersten Treffer zurück).
         Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
         erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
