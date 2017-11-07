@@ -1679,6 +1679,7 @@ Returns 1 if all currently booked accounts have only one common number length do
 Will throw an error if more than one distinct size is detected.
 The error message gives a short hint with the value of the (at least)
 two mismatching number length domains.
+
 =back
 
 =head1 ATTRIBUTES
