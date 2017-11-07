@@ -375,8 +375,8 @@ sub csv_export {
 
   $self->generate_datev_data(from_to => $self->fromto);
   return if $self->errors;
-
-  my $datev_ref, $self->warnings = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
+  my $datev_ref;
+  ($datev_ref, $self->{warnings}) = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
                                                        from         => $self->from,
                                                        to           => $self->to,
                                                        locked       => $self->locked,
