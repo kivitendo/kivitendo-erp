@@ -68,17 +68,21 @@ $datev1->generate_datev_lines;
 # check conversion to csv
 $datev1->from($startdate);
 $datev1->to($enddate);
-my ($datev_ref, $warnings_ref) = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+my ($datev_ref, $warnings_ref, $die_message);
+eval {
+  ($datev_ref, $warnings_ref) = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
                                                      from         => $startdate,
                                                      to           => $enddate,
                                                      locked       => $datev1->locked,
                                                     );
-my @warnings = $warnings_ref;
-is($warnings[0]->[0]->{untranslated},
-  'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'wrong_encoding');
+  1;
+} or do {
+  $die_message = $@;
+};
+
+ok($die_message =~ m/Falscher Feldwert 'ݗݘݰݶ' für Feld 'belegfeld1' bei der Transaktion mit dem Umsatz von/, 'wrong_encoding');
 
 
-# redefine invnumber, we have mixed encodings, should still generate a warning
 $invoice->invnumber('ݗݘݰݶmuh');
 $invoice->save();
 
@@ -91,20 +95,20 @@ $datev3->from($startdate);
 $datev3->to($enddate);
 $datev3->generate_datev_data;
 $datev3->generate_datev_lines;
-my ($datev_ref2, $warnings_ref2) = SL::DATEV::CSV->new(datev_lines  => $datev3->generate_datev_lines,
+my ($datev_ref2, $warnings_ref2, $die_message2);
+eval {
+  ($datev_ref2, $warnings_ref2) = SL::DATEV::CSV->new(datev_lines  => $datev3->generate_datev_lines,
                                                        from         => $startdate,
                                                        to           => $enddate,
                                                        locked       => $datev3->locked,
                                                       );
+  1;
+} or do {
+  $die_message2 = $@;
+};
 
-
-
-@warnings = [];
-@warnings = $warnings_ref2;
-is($warnings[0]->[0]->{untranslated},
-  'Wrong field value \'#1\' for field \'#2\' for the transaction with amount \'#3\'', 'mixed_wrong_encoding');
-
-
+# redefine invnumber, we have mixed encodings, should still fail
+ok($die_message2 =~ m/Falscher Feldwert 'ݗݘݰݶmuh' für Feld 'belegfeld1' bei der Transaktion mit dem Umsatz von/, 'mixed_wrong_encoding');
 
 # create one haben buchung with GLTransaction today
 
@@ -145,7 +149,7 @@ push(@acc_trans, SL::DB::AccTransaction->new(
 ));
 
 my $gl_transaction = SL::DB::GLTransaction->new(
-  reference      => "Reisekosten März 2018",
+  reference      => "Reise März 2018",
   description    => "Reisekonsten März 2018 / Ma Schmidt",
   transdate      => $today,
   gldate         => $today,
@@ -176,18 +180,16 @@ my ($datev_ref3, $warnings_ref3) = SL::DATEV::CSV->new(datev_lines  => $datev2->
 
 my @data_csv = splice @{ $datev_ref3 }, 2, 5;
 @data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
-
-my $cp1252_posting_text   = SL::Iconv::convert("UTF-8", "CP1252", 'Reisekosten März 2018');
-cmp_bag($data_csv[0], [ 100, 'H', 'EUR', undef, undef, undef, '4660', '1000', 9, '1703', 'Reisekosten ',
-                     undef, undef, $cp1252_posting_text, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, '', undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef ]
+cmp_bag($data_csv[0], [ 100, 'H', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '' ]
        );
 
 done_testing();

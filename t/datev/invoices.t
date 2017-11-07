@@ -172,42 +172,39 @@ is(scalar @{ $w_ref }, 0);
 my @data_csv = splice @{ $datev_ref }, 2, 5;
 @data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
 
-my $cp1252_belegfeld1   = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& i');
-my $cp1252_buchungstext = SL::Iconv::convert("UTF-8", "CP1252", 'Þ sales ¥& invöice');
-
-cmp_bag($data_csv[1], [ 535, 'S', 'EUR', undef, undef, undef, '1400', '8300', undef, '0101', $cp1252_belegfeld1,
-                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef ]
+cmp_bag($data_csv[1], [ 535, 'S', 'EUR', '', '', '', '1400', '8300', '', '0101', "\x{de} sales \x{a5}& i",
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '' ]
        );
 
-cmp_bag($data_csv[0], [ '249,9', 'S', 'EUR', undef, undef, undef, '1400', '8400', undef, '0101', $cp1252_belegfeld1,
-                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef ]
+cmp_bag($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', '0101', "\x{de} sales \x{a5}& i",
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '' ]
        );
-cmp_bag($data_csv[2], [ '784,9', 'S', 'EUR', undef, undef, undef, '1200', '1400', undef, '0501', $cp1252_belegfeld1,
-                     undef, undef, $cp1252_buchungstext, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, 'Crowd-Fu', 'Kostenst', undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, undef,
-                     undef, undef, undef, undef, undef ]
+cmp_bag($data_csv[2], [ '784,9', 'S', 'EUR', '', '', '', '1200', '1400', '', '0501', "\x{de} sales \x{a5}& i",
+                     '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '', '', '', '', '', '', '', '', '',
+                     '', '', '', '', '' ]
         );
 my $march_9 = DateTime->new(year => 2017, month =>  3, day => 9);
 my $invoice2 = create_sales_invoice(
