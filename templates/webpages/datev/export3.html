@@ -7,10 +7,10 @@
   <br>
 
   <br><b>
-[% IF kne %]
+[% IF exportformat == 'kne' %]
   [% 'KNE Export successful!' | $T8 %]
 [% END %]
-[% IF csv %]
+[% IF exportformat == 'csv' %]
   [% 'CSV Export successful!' | $T8 %]
 [% END %]
 

@@ -106,7 +106,7 @@ sub export3 {
 
   my %data = (
     exporttype => $::form->{exporttype} ? DATEV_ET_STAMM : DATEV_ET_BUCHUNGEN,
-    format     => $::form->{kne}        ? DATEV_FORMAT_KNE : $::form->{csv} ? DATEV_FORMAT_CSV : die "unknown format",
+    format     => $::form->{exportformat} eq 'kne' ? DATEV_FORMAT_KNE :  DATEV_FORMAT_CSV,
   );
 
   if ($::form->{exporttype} == DATEV_ET_STAMM) {
