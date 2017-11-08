@@ -2926,6 +2926,7 @@ $self->{texts} = {
   'Storage Type for generated/imported PDF Documents' => 'Speichertyp für erzeugte oder importierte Dokumente',
   'Storage Type for images'     => 'Speichertyp für Bilder',
   'Storage Type for shopimages' => 'Speichertyp für Shopbilder',
+  'Storing PDF in storage backend failed: #1' => 'Speichern der PDF-Datei im Datei-Speicher fehlgeschlagen: #1',
   'Storing PDF to webdav folder failed: #1' => 'Speichern der PDF im WebDAV Ordner fehlgeschlagen: #1',
   'Storing the emails in the journal is currently disabled in the client configuration.' => 'Das Speichern von versendeten E-Mails ist derzeit in der Mandantenkonfigurierung abgeschaltet.',
   'Storno'                      => 'Storno',

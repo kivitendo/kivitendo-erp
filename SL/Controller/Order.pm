@@ -211,13 +211,18 @@ sub action_print {
     }
   }
   if ($self->order->ordnumber && $::instance_conf->get_doc_storage) {
-    SL::File->save(  object_id     => $self->order->id,
+    eval {
+      SL::File->save(object_id     => $self->order->id,
                      object_type   => $self->type,
                      mime_type     => 'application/pdf',
                      source        => 'created',
                      file_type     => 'document',
                      file_name     => $pdf_filename,
                      file_contents => $pdf);
+      1;
+    } or do {
+      $self->js->flash('error', t8('Storing PDF in storage backend failed: #1', $@));
+    }
   }
   $self->js->render;
 }

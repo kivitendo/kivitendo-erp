@@ -2909,6 +2909,7 @@ $self->{texts} = {
   'Storage Type for generated/imported PDF Documents' => '',
   'Storage Type for images'     => '',
   'Storage Type for shopimages' => '',
+  'Storing PDF in storage backend failed: #1' => '',
   'Storing PDF to webdav folder failed: #1' => '',
   'Storing the emails in the journal is currently disabled in the client configuration.' => '',
   'Storno'                      => '',
