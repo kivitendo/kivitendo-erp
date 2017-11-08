@@ -304,6 +304,7 @@ sub _generate_csv_header {
   my $datev = SL::DB::Manager::Datev->get_first();
 
   while (my ($k, $v) = each %meta_datev_to_valid_length) {
+    next unless $datev->{$k};
     $meta_datev{$k} = substr $datev->{$k}, 0, $v;
   }
 
