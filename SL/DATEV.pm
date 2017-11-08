@@ -377,10 +377,10 @@ sub csv_export {
   return if $self->errors;
   my $datev_ref;
   ($datev_ref, $self->{warnings}) = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
-                                                       from         => $self->from,
-                                                       to           => $self->to,
-                                                       locked       => $self->locked,
-                                                      );
+                                                        from         => $self->from,
+                                                        to           => $self->to,
+                                                        locked       => $self->locked,
+                                                       );
 
   my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
 
@@ -1405,6 +1405,8 @@ sub csv_export_for_tax_accountant {
 sub check_vcnumbers_are_valid_pk_numbers {
   my ($self) = @_;
 
+  # better use a class variable and set this in sub new (also needed in DATEV::CSV)
+  # calculation is also a bit more sane in sub check_valid_length_of_accounts
   my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
   my $pk_length = $length_of_accounts + 1;
   my $query = <<"SQL";
@@ -1426,7 +1428,7 @@ sub check_valid_length_of_accounts {
 SQL
 
   my $accno_length = selectall_hashref_query($::form, SL::DB->client->dbh, $query);
-  if (1 < keys $accno_length) {
+  if (1 < scalar @$accno_length) {
     $::form->error(t8("Invalid combination of ledger account number length." .
                       " Mismatch length of #1 with length of #2. Please check your account settings. ",
                       $accno_length->[0]->{char_length}, $accno_length->[1]->{char_length}));
