@@ -20,7 +20,7 @@ my @kivitendo_to_datev = (
                               type            => 'Value',
                               required        => 1,
                               input_check     => sub { my ($input) = @_; return (looks_like_number($input) && length($input) <= 13) },
-                              formatter       => sub { my ($input) = @_; return _format_amount($input) },
+                              formatter       => \&_format_amount,
                               valid_check     => sub { my ($check) = @_; return ($check =~ m/^\d{1,10}(\,\d{1,2})?$/) },
                             },
                             {
