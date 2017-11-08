@@ -560,6 +560,7 @@ namespace('kivi.Part', function(ns) {
             id:   $(this).children('input.part_picker_id').val(),
             name: $(this).children('input.part_picker_description').val(),
             classification_id: $(this).children('input.part_picker_classification_id').val(),
+            ean:  $(this).children('input.part_picker_ean').val(),
             unit: $(this).children('input.part_picker_unit').val(),
             partnumber:  $(this).children('input.part_picker_partnumber').val(),
             description: $(this).children('input.part_picker_description').val(),

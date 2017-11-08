@@ -468,10 +468,19 @@ div.ppp_block span.ppp_block_description {
   float:right;
   font-weight:bold;
 }
+div.ppp_block span.ppp_block_ean {
+  float:left;
+  margin-left:1em;
+}
 div.cpc_block span.cpc_block_description {
   float:left;
   margin-left:1em;
   font-weight:bold;
+}
+div.ppp_line span.ppp_block_number,
+div.ppp_line span.ppp_block_ean {
+  float:left;
+  margin-left:1em;
 }
 div.ppp_line span.ppp_block_description,
 div.cpc_line span.cpc_block_description

@@ -549,6 +549,7 @@ sub action_ajax_autocomplete {
      id          => $_->id,
      partnumber  => $_->partnumber,
      description => $_->description,
+     ean         => $_->ean,
      part_type   => $_->part_type,
      unit        => $_->unit,
      cvars       => { map { ($_->config->name => { value => $_->value_as_text, is_valid => $_->is_valid }) } @{ $_->cvars_by_config } },

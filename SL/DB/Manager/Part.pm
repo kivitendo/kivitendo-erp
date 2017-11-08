@@ -22,7 +22,7 @@ __PACKAGE__->add_filter_specs(
   },
   all => sub {
     my ($key, $value, $prefix) = @_;
-    return or => [ map { $prefix . $_ => $value } qw(partnumber description) ]
+    return or => [ map { $prefix . $_ => $value } qw(partnumber description ean) ]
   }
 );
 
