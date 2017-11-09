@@ -626,7 +626,7 @@ TODO: Describe format_date
 
 =item C<format_date_object $datetime, %params>
 
-Formats the C<$datetime> object accoring to the user's locale setting.
+Formats the C<$datetime> object according to the user's locale setting.
 
 The parameter C<precision> can control whether or not the time
 component is formatted as well:
