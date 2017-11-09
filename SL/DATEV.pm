@@ -373,29 +373,29 @@ sub csv_export {
 
   if ($self->exporttype == DATEV_ET_BUCHUNGEN) {
 
-  $self->generate_datev_data(from_to => $self->fromto);
-  return if $self->errors;
-  my $datev_ref;
-  ($datev_ref, $self->{warnings}) = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
-                                                        from         => $self->from,
-                                                        to           => $self->to,
-                                                        locked       => $self->locked,
-                                                       );
+    $self->generate_datev_data(from_to => $self->fromto);
+    return if $self->errors;
+    my $datev_ref;
+    ($datev_ref, $self->{warnings}) = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
+                                                          from         => $self->from,
+                                                          to           => $self->to,
+                                                          locked       => $self->locked,
+                                                         );
 
-  my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
+    my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
 
-  my $csv = Text::CSV_XS->new({
-              binary       => 1,
-              sep_char     => ";",
-              always_quote => 1,
-              eol          => "\r\n",
-            }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
+    my $csv = Text::CSV_XS->new({
+                binary       => 1,
+                sep_char     => ";",
+                always_quote => 1,
+                eol          => "\r\n",
+              }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
 
-  my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
-  $csv->print($csv_file, $_) for @{ $datev_ref };
-  $csv_file->close;
+    my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
+    $csv->print($csv_file, $_) for @{ $datev_ref };
+    $csv_file->close;
 
-  return { download_token => $self->download_token, filenames => $filename };
+    return { download_token => $self->download_token, filenames => $filename };
 
   } elsif ($self->exporttype == DATEV_ET_STAMM) {
     die 'will never be implemented';
@@ -408,7 +408,7 @@ sub csv_export {
     die 'unrecognized exporttype';
   }
 
-return $result;
+  return $result;
 }
 
 sub obe_export {
