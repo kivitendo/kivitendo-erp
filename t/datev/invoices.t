@@ -160,18 +160,19 @@ $datev1->use_pk(0);
 $datev1->generate_datev_data;
 
 
-my ($datev_ref, $w_ref) = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
-                                              from         => $startdate,
-                                              to           => $enddate,
-                                              locked       => $datev1->locked,
+my $datev_csv = SL::DATEV::CSV->new(datev_lines  => $datev1->generate_datev_lines,
+                                    from         => $startdate,
+                                    to           => $enddate,
+                                    locked       => $datev1->locked,
                                    );
-# warnings should be undef -> no array elements at all
-is(scalar @{ $w_ref }, 0);
+$datev_csv->lines;
 
-# splice away the header, because sort won't do
+
 # we need sort, because pay_invoice is not acc_trans_id order safe
-my @data_csv = splice @{ $datev_ref }, 2, 5;
-@data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
+my @data_csv    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv->lines };
+# warnings should be undef -> no array elements at all
+is(scalar @{ $datev_csv->warnings }, 0);
+
 
 cmp_deeply($data_csv[1], [ 535, 'S', 'EUR', '', '', '', '1400', '8300', '', '0101', "\x{de} sales \x{a5}& i",
                      '', '', '', '', '', '', '', '', '', '', '',
