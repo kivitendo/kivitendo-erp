@@ -232,7 +232,6 @@ my @kivitendo_to_datev = (
                               formatter       => sub { my ($input) = @_; $input =~ s/\s//g; return $input },
                               valid_check     => sub {
                                                        my ($ustid) = @_;
-#                                                       croak("hier" . $ustid) if $ustid;
                                                        return 1 if ('' eq $ustid);
                                                        return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
                                                      },
