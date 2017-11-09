@@ -272,8 +272,8 @@ sub header {
   my @header;
 
   # we can safely set these defaults
-  # TODO use Helper::DateTime and get length_of_accounts from DATEV.pm
-  my $today              = DateTime->now(time_zone => "local");
+  # TODO get length_of_accounts from DATEV.pm
+  my $today              = DateTime->now_local;
   my $created_on         = $today->ymd('') . $today->hms('') . '000';
   my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
   my $default_curr       = SL::DB::Default->get_default_currency;
