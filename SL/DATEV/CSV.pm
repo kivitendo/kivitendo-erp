@@ -263,11 +263,7 @@ sub check_encoding {
 }
 
 sub _kivitendo_to_datev {
-  my ($self) = @_;
-
-  my $entries = scalar (@kivitendo_to_datev);
-  push @kivitendo_to_datev, { kivi_datev_name => 'not yet implemented' } for 1 .. (116 - $entries);
-  return @kivitendo_to_datev;
+  @kivitendo_to_datev, ({ kivi_datev_name => 'not yet implemented' }) x (116 - @kivitendo_to_datev);
 }
 
 sub header {
@@ -534,14 +530,7 @@ To add or alter the structure of the data take a look at the C<@kivitendo_to_dat
 
 =head1 TODO CAVEAT
 
-
-Currently no effort has be done that _kivitenod_to_datev is only intializied once:
-Therefore the second call may generate integrity faults:
-
-  my $datev_csv_1 = SL::DATEV::CSV->new(...)->lines;
-  my $datev_csv_2 = SL::DATEV::CSV->new(...)->lines;
-
-Secondly one can circumevent the check of the warnings.quite easily,
+One can circumevent the check of the warnings.quite easily,
 becaus warnings are generated after the call to lines:
 
   # WRONG usage
