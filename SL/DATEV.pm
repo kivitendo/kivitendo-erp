@@ -375,12 +375,14 @@ sub csv_export {
 
     $self->generate_datev_data(from_to => $self->fromto);
     return if $self->errors;
-    my $datev_ref;
-    ($datev_ref, $self->{warnings}) = SL::DATEV::CSV->new(datev_lines  => $self->generate_datev_lines,
-                                                          from         => $self->from,
-                                                          to           => $self->to,
-                                                          locked       => $self->locked,
-                                                         );
+
+    my $datev_csv = SL::DATEV::CSV->new(
+      datev_lines  => $self->generate_datev_lines,
+      from         => $self->from,
+      to           => $self->to,
+      locked       => $self->locked,
+    );
+
 
     my $filename = "EXTF_DATEV_kivitendo" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
 
@@ -392,8 +394,10 @@ sub csv_export {
               }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
 
     my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
-    $csv->print($csv_file, $_) for @{ $datev_ref };
+    $csv->print($csv_file, $_) for @{ $datev_csv->header };
+    $csv->print($csv_file, $_) for @{ $datev_csv->lines  };
     $csv_file->close;
+    $self->{warnings} = $datev_csv->warnings;
 
     return { download_token => $self->download_token, filenames => $filename };
 
@@ -1633,33 +1637,6 @@ Example:
   #                  ]
   # };
 
-
-=item csv_buchungsexport
-
-Generates the CSV-Format data for the CSV DATEV export and returns
-an 2-dimensional array as an array_ref.
-
-Requires $self->fromto for a valid DATEV header.
-
-Furthermore we assume that the first day of the fiscal year is
-the first of January and we cannot guarantee that our data in kivitendo
-is locked, that means a booking cannot be modified after a defined (vat tax)
-period.
-Some validity checks (max_length and regex) will be done if the
-data structure contains them and the field is defined.
-
-To add or alter the structure of the data take a look at SL::DATEV::CSV.pm
-
-=item _csv_buchungsexport_to_file
-
-Generates one downloadable csv file wrapped in a zip archive.
-Basically this method is just a thin wrapper for TEXT::CSV_XS.pm
-
-Generates a CSV-file with the same encodings as defined in DATEV Format CSV 2015:
- $ file
- $ EXTF_Buchungsstapel.csv: ISO-8859 text, with very long lines, with CRLF line terminators
-
-Usage: _csv_buchungsexport_to_file($self, data => $self->csv_buchungsexport);
 
 =item check_vcnumbers_are_valid_pk_numbers
 

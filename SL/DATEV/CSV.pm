@@ -11,6 +11,9 @@ use Carp;
 use Encode qw(decode);
 use Scalar::Util qw(looks_like_number);
 
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(datev_lines from to locked warnings) ],
+);
 
 my @kivitendo_to_datev = (
                             {
@@ -239,19 +242,12 @@ sub new {
   my $class = shift;
   my %data  = @_;
 
-  my $obj = bless {}, $class;
-
   croak(t8('We need a valid from date'))      unless (ref $data{from} eq 'DateTime');
   croak(t8('We need a valid to date'))        unless (ref $data{to}   eq 'DateTime');
   croak(t8('We need a array of datev_lines')) unless (ref $data{datev_lines} eq 'ARRAY');
 
-  # TODO no params here, better class variables/values
-  return _csv_buchungsexport(from        => $data{from},
-                             to          => $data{to},
-                             datev_lines => $data{datev_lines},
-                             locked      => $data{locked},
-                            );
-
+  my $obj = bless {}, $class;
+  $obj->$_($data{$_}) for keys %data;
   $obj;
 }
 
@@ -274,20 +270,13 @@ sub _kivitendo_to_datev {
   return @kivitendo_to_datev;
 }
 
-sub _generate_csv_header {
-  my %params  = @_;
+sub header {
+  my ($self) = @_;
 
-  # we need from and to in YYYYDDMM
-  croak "Wrong format for from $params{from}" unless $params{from} =~ m/^[0-9]{8}$/;
-  croak "Wrong format for to $params{to}"     unless $params{to} =~ m/^[0-9]{8}$/;
-
-  # who knows if we want locking and when our fiscal year starts
-  # croak "Wrong state of locking"      unless $params{locked} =~ m/^(0|1)$/;
-  my $locked = defined($params{locked}) ? 1 : 0;
-  croak "No startdate of fiscal year" unless $params{first_day_of_fiscal_year} =~ m/^[0-9]{8}$/;
-
+  my @header;
 
   # we can safely set these defaults
+  # TODO use Helper::DateTime and get lenght_of_accounts from DATEV.pm
   my $today              = DateTime->now(time_zone => "local");
   my $created_on         = $today->ymd('') . $today->hms('') . '000';
   my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
@@ -308,36 +297,28 @@ sub _generate_csv_header {
     $meta_datev{$k} = substr $datev->{$k}, 0, $v;
   }
 
-  my @header = (
+  my @header_row_1 = (
     "EXTF", "300", 21, "Buchungsstapel", 7, $created_on, "", "ki",
     "kivitendo-datev", "", $meta_datev{beraternr}, $meta_datev{mandantennr},
-    $params{first_day_of_fiscal_year}, $length_of_accounts,
-    $params{from}, $params{to}, "", "", 1, "", $locked,
+    $self->first_day_of_fiscal_year->ymd(''), $length_of_accounts,
+    $self->from->ymd(''), $self->to->ymd(''), "", "", 1, "", $self->locked,
     $default_curr, "", "", "",""
   );
+  push @header, [ @header_row_1 ];
 
-  return @header;
+  # second header row, just the column names
+  push @header, [ map { $_->{csv_header_name} } _kivitendo_to_datev() ];
+
+  return \@header;
 }
 
-sub _csv_buchungsexport {
-  my %params = @_;
+sub lines {
+  my ($self) = @_;
 
+  my (@array_of_datev, @warnings);
   my @csv_columns = _kivitendo_to_datev();
-  my @csv_headers = _generate_csv_header(
-                      from                     => $params{from}->ymd(''),
-                      to                       => $params{to}->ymd(''),
-                      first_day_of_fiscal_year => $params{to}->year . '0101',
-                      locked                   => $params{locked}
-                    );
 
-  my @array_of_datev;
-
-  # 2 Headers
-  push @array_of_datev, \@csv_headers;
-  push @array_of_datev, [ map { $_->{csv_header_name} } @csv_columns ];
-
-  my @warnings;
-  foreach my $row (@{ $params{datev_lines} }) {
+  foreach my $row (@{ $self->datev_lines }) {
     my @current_datev_row;
 
     # 1. check all datev_lines and see if we have a defined value
@@ -357,10 +338,9 @@ sub _csv_buchungsexport {
         }
       }
       # checkpoint a: no undefined data. All strict checks now!
-      if (exists $column->{input_check}) {
+      if (exists $column->{input_check} && !$column->{input_check}->($data)) {
         die t8("Wrong field value '#1' for field '#2' for the transaction with amount '#3'",
-                $data, $column->{kivi_datev_name}, $row->{umsatz})
-          unless  $column->{input_check}->($data);
+                $data, $column->{kivi_datev_name}, $row->{umsatz});
       }
       # checkpoint b: we can safely format the input
       if ($column->{formatter}) {
@@ -375,11 +355,18 @@ sub _csv_buchungsexport {
     }
     push @array_of_datev, \@current_datev_row;
   }
-  return (\@array_of_datev, \@warnings);
+  $self->warnings(\@warnings);
+  return \@array_of_datev;
 }
+
+# helper
 
 sub _format_amount {
   $::form->format_amount({ numberformat => '1000,00' }, @_);
+}
+
+sub first_day_of_fiscal_year {
+  $_[0]->to->clone->truncate(to => 'year');
 }
 
 1;
@@ -407,11 +394,25 @@ SL::DATEV::CSV - kivitendo DATEV CSV Specification
   );
   $datev->generate_datev_data;
 
-  my $datev_ref = SL::DATEV::CSV->new(datev_lines  => $datev->generate_datev_lines,
+  my $datev_csv = SL::DATEV::CSV->new(datev_lines  => $datev->generate_datev_lines,
                                       from         => $datev->from,
                                       to           => $datev->to,
                                       locked       => $datev->locked,
                                      );
+  $datev_csv->header;   # returns the required 2 rows of header ($aref = [ ["row1" ..], [ "row2" .. ] ]) as array of array
+  $datev_csv->lines;    # returns an array_ref of rows of array_refs soll uns die ein Arrayref von Zeilen zurückgeben, die jeweils Arrayrefs sind
+  $datev_csv->warnings; # returns warnings
+
+
+  # The above object methods can be directly chained to a CSV export function, like this:
+  my $csv_file = IO::File->new($somewhere_in_filesystem)') or die "Can't open: $!";
+  $csv->print($csv_file, $_) for @{ $datev_csv->header };
+  $csv->print($csv_file, $_) for @{ $datev_csv->lines  };
+  $csv_file->close;
+  $self->{warnings} = $datev_csv->warnings;
+
+
+
 
 =head1 DESCRIPTION
 
@@ -490,21 +491,13 @@ Checks mandantory params as described in section synopsis.
 Helper function, returns true if a string is not empty and cp1252 encoded
 For example some arabic utf-8 like  ݐ  will return false
 
-=item generate_csv_header(from => 'YYYYDDMM', to => 'YYYYDDMM', locked => 0,
-                          first_day_of_fiscal_year => 'YYYYDDMM')
+=item header
 
 Mostly all other header information are constants or metadata loaded
 from SL::DB::Datev.pm.
 
 Returns the first two entries for the header (see above: File Structure)
 as an array.
-
-All params are mandatory:
-C<params{from}>,  C<params{to}>
-and C<params{first_day_of_fiscal_year}> have to be in YYYYDDMM date string
-format.
-Furthermore C<params{locked}> is a perlish boolean.
-
 
 =item kivitendo_to_datev
 
@@ -516,7 +509,11 @@ Lightweight wrapper for form->format_amount.
 Expects a number in kivitendo database format and returns the same number
 in DATEV format.
 
-=item _csv_buchungsexport
+=item first_day_of_fiscal_year
+
+Takes a look at $self->to to  determine the first day of the fiscal year.
+
+=item lines
 
 Generates the CSV-Format data for the CSV DATEV export and returns
 an 2-dimensional array as an array_ref.
@@ -533,5 +530,26 @@ data structure contains them and the field is defined.
 
 To add or alter the structure of the data take a look at the C<@kivitendo_to_datev> structure.
 
-
 =back
+
+=head1 TODO CAVEAT
+
+
+Currently no effort has be done that _kivitenod_to_datev is only intializied once:
+Therefore the second call may generate integrity faults:
+
+  my $datev_csv_1 = SL::DATEV::CSV->new(...)->lines;
+  my $datev_csv_2 = SL::DATEV::CSV->new(...)->lines;
+
+Secondly one can circumevent the check of the warnings.quite easily,
+becaus warnings are generated after the call to lines:
+
+  # WRONG usage
+  die if @{ $datev_csv->warnings };
+  somethin_with($datev_csv->lines);
+
+  # safe usage
+  my $lines = $datev_csv->lines;
+  die if @{ $datev_csv->warnings };
+  somethin_with($lines);
+
