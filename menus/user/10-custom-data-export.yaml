@@ -1,0 +1,14 @@
+---
+- parent: reports
+  id: custom_data_export
+  name: Custom data export
+  order: 9000
+  params:
+    action: CustomDataExport/list
+- parent: system
+  id: custom_data_export_designer
+  name: Custom data export
+  order: 2250
+  access: custom_data_export_designer
+  params:
+    action: CustomDataExportDesigner/list

@@ -32,6 +32,8 @@ use SL::DB::CsvImportReport;
 use SL::DB::CsvImportReportRow;
 use SL::DB::CsvImportReportStatus;
 use SL::DB::Currency;
+use SL::DB::CustomDataExportQuery;
+use SL::DB::CustomDataExportQueryParameter;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
 use SL::DB::CustomVariableConfigPartsgroup;

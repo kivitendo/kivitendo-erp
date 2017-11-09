@@ -1,0 +1,45 @@
+[% USE HTML %][% USE L %][% USE LxERP %]
+
+<h1>[% FORM.title %] — [% LxERP.t8("Step #1/#2", 2, 2) %] — [% LxERP.t8("Query parameters") %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<form method="post" action="controller.pl" id="form">
+ [% L.hidden_tag("id", SELF.query.id) %]
+ [% L.hidden_tag("query.name", SELF.query.name) %]
+ [% L.hidden_tag("query.access_right", SELF.query.access_right) %]
+ [% L.hidden_tag("query.description", SELF.query.description) %]
+ [% L.hidden_tag("query.sql_query", SELF.query.sql_query) %]
+
+ [% IF !PARAMETERS.size %]
+  <p>
+   [% LxERP.t8("The SQL query does not contain any parameter that need to be configured.") %]
+  </p>
+
+ [% ELSE %]
+
+ <table>
+  <thead>
+   <tr class="listheading">
+    <th>[% LxERP.t8("Variable Name") %]</th>
+    <th>[% LxERP.t8("Type") %]</th>
+    <th>[% LxERP.t8("Description") %]</th>
+   </tr>
+  </thead>
+
+  <tbody>
+   [% FOREACH parameter = PARAMETERS %]
+    <tr class="listrow">
+     <td>
+      [% L.hidden_tag("parameters[+].name", parameter.name) %]
+      [% HTML.escape(parameter.name) %]
+     </td>
+     <td>
+      [% L.select_tag("parameters[].parameter_type", [ [ "text", LxERP.t8("Text") ], [ "number", LxERP.t8("Number") ], [ "date", LxERP.t8("Date") ] ], default=parameter.parameter_type) %]
+     </td>
+     <td>[% L.input_tag("parameters[].description", parameter.description, size=100) %]</td>
+    </tr>
+   [% END %]
+  </tbody>
+ [% END %]
+</form>
