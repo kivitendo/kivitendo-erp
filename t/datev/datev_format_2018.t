@@ -23,7 +23,7 @@ my $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'S
 my $date            = DateTime->new(year => 2017, month =>  7, day => 19);
 my $department      = create_department(description => 'Kästchenweiße heiße Preise');
 my $project         = create_project(projectnumber => 2017, description => '299');
-
+my $customer        = new_customer(name => 'Test customer', ustid => 'DE12345678')->save();
 my $part1 = new_part(partnumber => '19', description => 'Part 19%')->save;
 my $part2 = new_part(
   partnumber         => '7',
@@ -42,6 +42,7 @@ my $invoice = create_sales_invoice(
                   ],
   department_id    => $department->id,
   globalproject_id => $project->id,
+  customer_id      => $customer->id,
 );
 
 # lets make a boom
@@ -112,6 +113,68 @@ my $lines_aref = $datev_csv2->lines; # dies only if we assign (do stuff with the
 # redefine invnumber, we have mixed encodings, should still fail
 ok($die_message2 =~ m/Falscher Feldwert 'ݗݘݰݶmuh' für Feld 'belegfeld1' bei der Transaktion mit dem Umsatz von/, 'mixed_wrong_encoding');
 
+# check with good number
+$invoice->invnumber('meine muh');
+$invoice->save();
+
+my $datev4 = SL::DATEV->new(
+  dbh        => $dbh,
+  trans_id   => $invoice->id,
+);
+
+$datev4->from($startdate);
+$datev4->to($enddate);
+$datev4->generate_datev_data;
+$datev4->generate_datev_lines;
+my ($datev_csv4, $die_message3, $lines_aref);
+eval {
+  $datev_csv4 = SL::DATEV::CSV->new(datev_lines  => $datev4->generate_datev_lines,
+                                    from         => $startdate,
+                                    to           => $enddate,
+                                    locked       => $datev4->locked,
+                                   );
+  $lines_aref = $datev_csv4->lines; # dies only if we assign (do stuff with the data)
+
+  1;
+} or do {
+  $die_message3 = $@;
+};
+ok(!($die_message3), 'no die message');
+ok(scalar @{ $datev_csv4->warnings } == 0, 'no warnings');
+
+my @sorted =  sort { $a->[0] cmp $b->[0] } @{ $lines_aref };
+cmp_deeply $sorted[0],    [ '1963,5', 'S', 'EUR', '', '', '',
+                            '1400', '8400', '', '1907', 'meine muh',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', "K\x{e4}stchen",
+                            '299', '','DE12345678', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '',
+                          ];
+cmp_deeply $sorted[1],     [ '535', 'S', 'EUR', '', '', '',
+                             '1400', '8300', '', '1907','meine muh',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', "K\x{e4}stchen",
+                            '299', '','DE12345678', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '',
+                            '',
+                          ];
 # create one haben buchung with GLTransaction today
 
 my $expense_chart = SL::DB::Manager::Chart->find_by(accno => '4660'); # Reisekosten
@@ -180,8 +243,7 @@ my $datev_csv3  = SL::DATEV::CSV->new(datev_lines  => $datev2->generate_datev_li
                                       locked       => $datev2->locked,
                                      );
 
-my @data_csv = $datev_csv3->lines;
-@data_csv    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv3->lines };
+my @data_csv    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv3->lines };
 cmp_deeply($data_csv[0], [ 100, 'H', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
