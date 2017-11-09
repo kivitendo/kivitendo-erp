@@ -1,15 +1,15 @@
 package SL::DATEV::CSV;
 
 use strict;
-
-use SL::Locale::String qw(t8);
-use SL::DB::Datev;
-use DateTime; # safer before the Helper
-use SL::Helper::DateTime;
-
 use Carp;
+use DateTime;
 use Encode qw(decode);
 use Scalar::Util qw(looks_like_number);
+
+use SL::DB::Datev;
+use SL::DB::Chart;
+use SL::Helper::DateTime;
+use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(datev_lines from to locked warnings) ],
