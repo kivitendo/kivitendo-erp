@@ -229,9 +229,10 @@ my @kivitendo_to_datev = (
                               type            => 'Text',
                               default         => '',
                               input_check     => sub { my ($check) = @_; return ($check eq '' || $check =~ m/[A-Z]{2}\w{5,13}/) },
-                              formatter       => sub { my ($input) = @_; return ($input =~ s/\s//g) },
+                              formatter       => sub { my ($input) = @_; $input =~ s/\s//g; return $input },
                               valid_check     => sub {
                                                        my ($ustid) = @_;
+#                                                       croak("hier" . $ustid) if $ustid;
                                                        return 1 if ('' eq $ustid);
                                                        return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
                                                      },
@@ -276,7 +277,7 @@ sub header {
   my @header;
 
   # we can safely set these defaults
-  # TODO use Helper::DateTime and get lenght_of_accounts from DATEV.pm
+  # TODO use Helper::DateTime and get length_of_accounts from DATEV.pm
   my $today              = DateTime->now(time_zone => "local");
   my $created_on         = $today->ymd('') . $today->hms('') . '000';
   my $length_of_accounts = length(SL::DB::Manager::Chart->get_first(where => [charttype => 'A'])->accno) // 4;
@@ -334,7 +335,7 @@ sub lines {
         if (defined $column->{default}) {
           $data = $column->{default};
         } else {
-           die 'No sensible value or a sensible default found for the entry: ' . $column->{kivi_datev_name};
+          die 'No sensible value or a sensible default found for the entry: ' . $column->{kivi_datev_name};
         }
       }
       # checkpoint a: no undefined data. All strict checks now!
