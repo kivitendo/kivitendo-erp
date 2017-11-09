@@ -1,6 +1,6 @@
 use strict;
 use Test::More;
-use Test::Deep qw(cmp_bag);
+use Test::Deep qw(cmp_deeply cmp_bag);
 
 use lib 't';
 use utf8;
@@ -64,7 +64,7 @@ my $datev1 = SL::DATEV->new(
 $datev1->generate_datev_data;
 
 my @data_datev   = sort { $a->{umsatz} <=> $b->{umsatz} } @{ $datev1->generate_datev_lines() };
-cmp_bag \@data_datev, [
+cmp_deeply \@data_datev, [
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
                                            'buchungstext' => 'Testcustomer',
@@ -108,6 +108,7 @@ cmp_bag \@data_datev, [
 
 $datev1->use_pk(1);
 $datev1->generate_datev_data;
+# TODO for cmp_deeply we need to sort the incoming data structure (see below)
 cmp_bag $datev1->generate_datev_lines, [
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
@@ -172,10 +173,10 @@ is(scalar @{ $w_ref }, 0);
 my @data_csv = splice @{ $datev_ref }, 2, 5;
 @data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
 
-cmp_bag($data_csv[1], [ 535, 'S', 'EUR', '', '', '', '1400', '8300', '', '0101', "\x{de} sales \x{a5}& i",
+cmp_deeply($data_csv[1], [ 535, 'S', 'EUR', '', '', '', '1400', '8300', '', '0101', "\x{de} sales \x{a5}& i",
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', 'Kostenst', 'Crowd-Fu', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -184,10 +185,10 @@ cmp_bag($data_csv[1], [ 535, 'S', 'EUR', '', '', '', '1400', '8300', '', '0101',
                      '', '', '', '', '' ]
        );
 
-cmp_bag($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', '0101', "\x{de} sales \x{a5}& i",
+cmp_deeply($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', '0101', "\x{de} sales \x{a5}& i",
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', 'Kostenst', 'Crowd-Fu', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -195,10 +196,10 @@ cmp_bag($data_csv[0], [ '249,9', 'S', 'EUR', '', '', '', '1400', '8400', '', '01
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '' ]
        );
-cmp_bag($data_csv[2], [ '784,9', 'S', 'EUR', '', '', '', '1200', '1400', '', '0501', "\x{de} sales \x{a5}& i",
+cmp_deeply($data_csv[2], [ '784,9', 'S', 'EUR', '', '', '', '1200', '1400', '', '0501', "\x{de} sales \x{a5}& i",
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
-                     '', 'Crowd-Fu', 'Kostenst', '', '', '', '', '', '', '', '',
+                     '', 'Kostenst', 'Crowd-Fu', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -254,7 +255,7 @@ $datev1 = SL::DATEV->new(
 );
 
 $datev1->generate_datev_data;
-cmp_bag $datev1->generate_datev_lines, [
+cmp_deeply $datev1->generate_datev_lines, [
                                         {
                                           'belegfeld1'             => 'ap1',
                                           'buchungstext'           => 'Testvendor',
@@ -282,7 +283,7 @@ cmp_bag $datev1->generate_datev_lines, [
                                        ], "trans_id datev check purchase_invoice ok";
 $datev1->use_pk(1);
 $datev1->generate_datev_data;
-cmp_bag $datev1->generate_datev_lines, [
+cmp_deeply $datev1->generate_datev_lines, [
                                         {
                                           'belegfeld1'             => 'ap1',
                                           'buchungstext'           => 'Testvendor',
@@ -326,7 +327,7 @@ cmp_ok($umsatzsumme, '==', 1569.8, "Sum of bookings made after March 1st (only i
 
 $::form->{gldatefrom} = DateTime->new(year => 2017, month => 5, day => 1)->to_kivitendo;
 $datev->generate_datev_data(from_to => $datev->fromto);
-cmp_bag $datev->generate_datev_lines, [], "no bookings for January made after May 1st: ok";
+cmp_deeply $datev->generate_datev_lines, [], "no bookings for January made after May 1st: ok";
 
 done_testing();
 # clear_up();

@@ -1,6 +1,6 @@
 use strict;
 use Test::More;
-use Test::Deep qw(cmp_bag);
+use Test::Deep qw(cmp_deeply);
 
 use lib 't';
 
@@ -180,7 +180,7 @@ my ($datev_ref3, $warnings_ref3) = SL::DATEV::CSV->new(datev_lines  => $datev2->
 
 my @data_csv = splice @{ $datev_ref3 }, 2, 5;
 @data_csv    = sort { $a->[0] cmp $b->[0] } @data_csv;
-cmp_bag($data_csv[0], [ 100, 'H', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+cmp_deeply($data_csv[0], [ 100, 'H', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '',
