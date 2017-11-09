@@ -4,10 +4,10 @@ use strict;
 
 use SL::Locale::String qw(t8);
 use SL::DB::Datev;
+use DateTime; # safer before the Helper
 use SL::Helper::DateTime;
 
 use Carp;
-use DateTime;
 use Encode qw(decode);
 use Scalar::Util qw(looks_like_number);
 
