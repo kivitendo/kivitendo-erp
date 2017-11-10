@@ -2,36 +2,82 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2017-XX-XX - Release 3.5.X
+2017-XX-XX - Release 3.5.1-beta
 
-große Features
+Größere neue Features:
 
 - WebshopApi
 
-	WebshopApi mit bisher einem Konnektor für Shopware.
-	Damit ist es möglich Bestellungen aus dem Shop abzuholen und Artikel
-	abzugleichen.
+  WebshopApi mit bisher einem Konnektor für Shopware.
+  Damit ist es möglich Bestellungen aus dem Shop abzuholen und Artikel
+  abzugleichn.
 
-kleinere neue Features und Detailverbesserungen:
+Mittelgroße neue Features:
+
+- DATEV-Export überarbeitet
+
+__- Um Strukturtyp CSV-Export erweitert
+  - DATEV-Export: Kostenstellen (Kost1 und Kost2) vorbelegen
+  - DATEV-Export: Buchungssätze nach Abteilung filtern
+  - DATEV-Export: Buchungen für einen bestimmten Zeitraum ab einem
+    Buchungsdatum filtern. Z.B. wenn man einen DATEV-Export für Januar schon
+    exportiert hat, und im Juni noch ein Buchung für Januar nachbucht, kann man
+    mit "Erfassungsdatum Von: 01.06.2017" nur diese eine Buchung aus Januar
+    exportieren.
+
+Kleinere neue Features und Detailverbesserungen:
 
   - Abteilungs-Auswahl konsequent alphabetisch sortieren
   - Buchungsvorlagen schneller über den Namen filtern (suchen).
   - Neues Recht Erzeugnisse unabhängig vom Status editieren (default 0)
   - SEPA-XML: alle Sonderzeichen filtern
   - SEPA-Export: Export wieder rückgängig machen, falls noch Status offen
-  - DATEV-Export: Um Strukturtyp CSV-Export erweitert
-  - DATEV-Export: Kostenstellen (Kost1 und Kost2) vorbelegen
-  - DATEV-Export: Buchungssätze nach Abteilung filtern
   - Stammdaten -> Berichte -> Artikel: Standardlager und Lagerplatz optional anzeigen
-  - Vorbelegte Texte inkl. Ansprechpartner für den E-Mail-Versand bei allen Workflows hinzugefügt.
-  - DATEV-Export: Buchungen für einen bestimmten Zeitraum ab einem
-    Buchungsdatum filtern. Z.B. wenn man einen DATEV-Export für Januar schon
-    exportiert hat, und im Juni noch ein Buchung für Januar nachbucht, kann man
-    mit "Erfassungsdatum Von: 01.06.2017" nur diese eine Buchung aus Januar
-    exportieren.
+  - Vorbelegte Texte inkl. Ansprechpartner für den E-Mail-Versand bei allen Workflows
+    hinzugefügt.
   - Kontoauszug verbuchen -> Buchung erstellen um Dialogbuchungen erweitert.
     Vom Kontoimport ist es jetzt auch möglich in Vorlagen aus der Dialog-
     Buchungsmaske zu buchen und nicht nur in Kreditorenbuchungsvorlagen
+  - Neuer Bericht: Berichtskonfigurationsübersicht
+__- Verbesserte Datumsvalidierung per Javascript
+__- Neues Benutzer-Recht Erzeugnisbestandteile editieren
+__- Dialogbuchungsvorlagen um 'Details anzeigen' erweitert
+__- Nach dem Speichern Buchungsnummer bei Debitoren/Kreditorenbuchungen und Einkaufsrechnungen
+    als Info anzeigen
+__- Bankimport: CSV- und MT940-Menüpunkte in Untermenü in »Zahlungsverkehr«
+__- Schnellsuchen - ungültige Einträge aus Stammdaten nicht mit anzeigen
+  - Workflow Lieferschein -> Rechnung. Liefertermin als Rechnungslieferdatum setzen
+__- Einkaufsrechnungen: Bearbeiter*in & Verkäufer*in mit aktueller Benutzer*in vorbelegen
+__- Bemerkungsfeldeditor (CKEditor): Größe änderbar und Buttonzeile "schwebt"
+    über dem Eingabebereich wenn im Fokus
+
+Administrative Änderungen
+
+  - Für die Tests müssen in der kivitendo.conf unter [testing/database]
+    Einträge für superuser_user und superuser_password gesetzt werden. Siehe
+    Beispiel in config/kivitendo.conf.default
+
+Bugfixes:
+
+- Bugfix #305 Kein customerpicker im Formular Rechnung erfassen
+- Bugfix #304 Datumsformat wechselt willkürlich auf Datenbank Format "YYYY-MM-DD"
+- Bugfix #303 Zahlungserinnerung PDF anhängen in E-Mail funktioniert nicht mehr
+- Bugfix #300 Kontoauszug verbuchen bei negativer Einkaufsrechnung wird das Vorzeichen bei Zahlung umgedreht
+- Bugfix #296 Verkauf -> Lieferschein erfassen erzeugt Fehlermeldung
+- Bugfix #286 DMS aktiv. Speichertyp für Belege auf 'kein' gesetzt -> Belegdruck defekt
+- Bugfix #283 Lieferwertbericht wirft Fehler
+- Bugfix #280 Drucken beim neuem OrderController geht nicht mit aktiviertem Dateimanagement und Webdav
+- Bugfix #277 Kontoauszug verbuchen. Vorschlagsliste ignoriert SEPA-Überweisungen
+- Bugfix #276 Mini-DMS Auswahl der Belege bei Lieferschein fehlt
+- Bugfix #275 Löschen von DMS-Anhängen wirft Fehler
+- Bugfix #274 Mahnungen lassen sich nicht mehr erzeugen mit aktivierten Dateimanagementfeature
+- Bugfix #270 Artikelzuweisung bzw. Zusätzliche Artikel im Pflichtenheft kaputt
+- Bugfix #265 Kontoauszug verbuchen bei negativer Kreditorenbuchung wird das Vorzeichen bei Zahlung umgedreht
+- Bugfix #264 Artikelnummer nicht mehr änderbar
+- Bugfix #263 Emailadresse der Stammdaten wird nicht mehr übernommen
+- Bugfix #8   Datumswarnung in Safari blockiert Browser
+
+
 
 2017-07-17 - Release 3.5.0
 
