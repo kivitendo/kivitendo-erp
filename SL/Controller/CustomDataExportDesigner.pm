@@ -82,7 +82,7 @@ sub check_auth {
 }
 
 sub setup_javascripts {
-  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->layout->add_javascripts('kivi.Validator.js', 'kivi.CustomDataExportDesigner.js');
 }
 
 #
@@ -181,13 +181,13 @@ sub gather_query_parameters {
   my %used_parameter_names  = map  { ($_ => 1) }                       $self->query->used_parameter_names;
   my @existing_parameters   = grep { $used_parameter_names{$_->name} } @{ $self->query->parameters // [] };
   my %parameters_by_name    = map  { ($_->name => $_) }                @existing_parameters;
-  $parameters_by_name{$_} //= SL::DB::CustomDataExportQueryParameter->new(name => $_, parameter_type => 'text') for keys %used_parameter_names;
+  $parameters_by_name{$_} //= SL::DB::CustomDataExportQueryParameter->new(name => $_, parameter_type => 'text', default_value_type => 'none') for keys %used_parameter_names;
 
   foreach my $parameter_data (@{ $::form->{parameters} // [] }) {
     my $parameter_obj = $parameters_by_name{ $parameter_data->{name} };
     next unless $parameter_obj;
 
-    $parameter_obj->$_($parameter_data->{$_}) for qw(parameter_type description);
+    $parameter_obj->$_($parameter_data->{$_}) for qw(parameter_type description default_value_type default_value);
   }
 
   return sort_by { lc $_->name } values %parameters_by_name;

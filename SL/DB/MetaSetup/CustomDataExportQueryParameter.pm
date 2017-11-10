@@ -9,13 +9,15 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('custom_data_export_query_parameters');
 
 __PACKAGE__->meta->columns(
-  description    => { type => 'text' },
-  id             => { type => 'serial', not_null => 1 },
-  itime          => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime          => { type => 'timestamp', default => 'now()', not_null => 1 },
-  name           => { type => 'text', not_null => 1 },
-  parameter_type => { type => 'enum', check_in => [ 'text', 'number', 'date', 'timestamp' ], db_type => 'custom_data_export_query_parameter_type_enum', not_null => 1 },
-  query_id       => { type => 'integer', not_null => 1 },
+  default_value      => { type => 'text' },
+  default_value_type => { type => 'enum', check_in => [ 'none', 'current_user_login', 'sql_query', 'fixed_value' ], db_type => 'custom_data_export_query_parameter_default_value_type_enum', not_null => 1 },
+  description        => { type => 'text' },
+  id                 => { type => 'serial', not_null => 1 },
+  itime              => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime              => { type => 'timestamp', default => 'now()', not_null => 1 },
+  name               => { type => 'text', not_null => 1 },
+  parameter_type     => { type => 'enum', check_in => [ 'text', 'number', 'date', 'timestamp' ], db_type => 'custom_data_export_query_parameter_type_enum', not_null => 1 },
+  query_id           => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

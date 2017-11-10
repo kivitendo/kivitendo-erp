@@ -17,7 +17,7 @@ use SL::Locale::String qw(t8);
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(rows) ],
-  'scalar --get_set_init' => [ qw(query queries parameters today) ],
+  'scalar --get_set_init' => [ qw(query queries parameters) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -72,7 +72,6 @@ sub setup_javascripts {
 
 sub init_query      { $::form->{id} ? SL::DB::CustomDataExportQuery->new(id => $::form->{id})->load : SL::DB::CustomDataExportQuery->new }
 sub init_parameters { [ sort_by { lc $_->name } @{ $_[0]->query->parameters // [] } ] }
-sub init_today      { DateTime->today_local }
 
 sub init_queries {
   my %rights_map     = %{ $::auth->load_rights_for_user($::form->{login}) };
