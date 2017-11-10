@@ -1121,7 +1121,6 @@ sub _setup_edit_action_bar {
         action => [
           t8('Save and Delivery Order'),
           call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
-          accesskey => 'enter',
         ],
 
       ], # end of combobox "Save"
