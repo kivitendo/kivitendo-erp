@@ -434,7 +434,7 @@ sub invoice_details {
       }
       my $tax_rate = $taxrate * 100;
       push(@{ $form->{TEMPLATE_ARRAYS}->{tax_rate} }, qq|$tax_rate|);
-      if ($form->{"assembly_$i"}) {
+      if ($form->{"part_type_$i"} eq 'assembly') {
         $sameitem = "";
 
         # get parts and push them onto the stack
@@ -865,9 +865,9 @@ sub _post_invoice {
 
       next if $payments_only;
 
-      if ($form->{"inventory_accno_$i"} || $form->{"assembly_$i"}) {
+      if ($form->{"inventory_accno_$i"} || $form->{"part_type_$i"} eq 'assembly') {
 
-        if ($form->{"assembly_$i"}) {
+        if ($form->{"part_type_$i"} eq 'assembly') {
           # record assembly item as allocated
           &process_assembly($dbh, $myconfig, $form, $position, $form->{"id_$i"}, $baseqty);
 

@@ -1505,7 +1505,7 @@ sub order_details {
       $tax_rate = $taxrate * 100;
       push(@{ $form->{TEMPLATE_ARRAYS}->{tax_rate} }, qq|$tax_rate|);
 
-      if ($form->{"assembly_$i"}) {
+      if ($form->{"part_type_$i"} eq 'assembly') {
         $sameitem = "";
 
         # get parts and push them onto the stack

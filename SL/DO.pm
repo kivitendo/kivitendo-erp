@@ -1011,7 +1011,7 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$si_position-1] },          $si->{unit};
     }
 
-    if ($form->{"assembly_$i"}) {
+    if ($form->{"part_type_$i"} eq 'assembly') {
       $sameitem = "";
 
       # get parts and push them onto the stack
