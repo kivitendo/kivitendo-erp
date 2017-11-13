@@ -413,13 +413,6 @@ sub items_lastcost_sum {
   sum map { $_->linetotal_lastcost } @{$self->items};
 };
 
-sub assortment_lastcost_sum {
-  my ($self) = @_;
-
-  return unless $self->is_assortment;
-  sum map { $_->linetotal_lastcost } @{$self->assortment_items};
-};
-
 1;
 
 __END__
@@ -562,21 +555,9 @@ Used to set the accounting information from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
 
-=item C<assembly_sellprice_sum>
+=item C<items_lastcost_sum>
 
-Non-recursive sellprice sum of all the assembly item sellprices.
-
-=item C<assortment_sellprice_sum>
-
-Non-recursive sellprice sum of all the assortment item sellprices.
-
-=item C<assembly_lastcost_sum>
-
-Non-recursive lastcost sum of all the assembly item lastcosts.
-
-=item C<assortment_lastcost_sum>
-
-Non-recursive lastcost sum of all the assortment item lastcosts.
+Non-recursive lastcost sum of all the items in an assembly or assortment.
 
 =item C<get_stock %params>
 
