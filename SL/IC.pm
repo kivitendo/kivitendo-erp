@@ -246,7 +246,7 @@ sub all_parts {
   );
 
   # if the join condition in these blocks are met, the column
-  # of the scecified table will gently override (coalesce actually) the original value
+  # of the specified table will gently override (coalesce actually) the original value
   # use it to conditionally coalesce values from subtables
   my @column_override = (
     #  column name,   prefix,  joins_needed,  nick name (in case column is named like another)
