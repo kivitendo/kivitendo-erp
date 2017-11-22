@@ -16,7 +16,7 @@ Mittelgroße neue Features:
 
 - DATEV-Export überarbeitet
 
-__- Um Strukturtyp CSV-Export erweitert
+  - Um Strukturtyp CSV-Export erweitert
   - DATEV-Export: Kostenstellen (Kost1 und Kost2) vorbelegen
   - DATEV-Export: Buchungssätze nach Abteilung filtern
   - DATEV-Export: Buchungen für einen bestimmten Zeitraum ab einem
@@ -45,16 +45,16 @@ Kleinere neue Features und Detailverbesserungen:
     Vom Kontoimport ist es jetzt auch möglich in Vorlagen aus der Dialog-
     Buchungsmaske zu buchen und nicht nur in Kreditorenbuchungsvorlagen
   - Neuer Bericht: Berichtskonfigurationsübersicht
-__- Verbesserte Datumsvalidierung per Javascript
-__- Neues Benutzer-Recht Erzeugnisbestandteile editieren
-__- Dialogbuchungsvorlagen um 'Details anzeigen' erweitert
-__- Nach dem Speichern Buchungsnummer bei Debitoren/Kreditorenbuchungen und Einkaufsrechnungen
+  - Verbesserte Datumsvalidierung per Javascript
+  - Neues Benutzer-Recht Erzeugnisbestandteile editieren
+  - Dialogbuchungsvorlagen um 'Details anzeigen' erweitert
+  - Nach dem Speichern Buchungsnummer bei Debitoren/Kreditorenbuchungen und Einkaufsrechnungen
     als Info anzeigen
-__- Bankimport: CSV- und MT940-Menüpunkte in Untermenü in »Zahlungsverkehr«
-__- Schnellsuchen - ungültige Einträge aus Stammdaten nicht mit anzeigen
+  - Bankimport: CSV- und MT940-Menüpunkte in Untermenü in »Zahlungsverkehr«
+  - Schnellsuchen - ungültige Einträge aus Stammdaten nicht mit anzeigen
   - Workflow Lieferschein -> Rechnung. Liefertermin als Rechnungslieferdatum setzen
-__- Einkaufsrechnungen: Bearbeiter*in & Verkäufer*in mit aktueller Benutzer*in vorbelegen
-__- Bemerkungsfeldeditor (CKEditor): Größe änderbar und Buttonzeile "schwebt"
+  - Einkaufsrechnungen: Bearbeiter*in & Verkäufer*in mit aktueller Benutzer*in vorbelegen
+  - Bemerkungsfeldeditor (CKEditor): Größe änderbar und Buttonzeile "schwebt"
     über dem Eingabebereich wenn im Fokus
 
 Administrative Änderungen
