@@ -194,7 +194,7 @@ namespace('kivi.Part', function(ns) {
   ns.close_picker_dialogs = function() {
     $('.part_autocomplete').each(function(_, e) {
       var picker = $(e).data('part_picker');
-      if (picker) picker.close_dialog();
+      if (picker && picker.dialog) picker.close_dialog();
     });
   }
 
