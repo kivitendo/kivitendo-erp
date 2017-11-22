@@ -49,8 +49,10 @@ Upgrade auf v3.5.1
   Im KNE-Export war im Belegfeld2 die Fälligkeit der Buchung gesetzt und in
   Buchungsbeschreibung der Kunden- oder Lieferantenname.
   Bei nicht valider Umsatz-Steuer-Identnummer wird der Export abgelehnt.
-  Da das Feld ein Freitext-Feld ist unternimmt kivitendo keine eigene Normalisierung,
-  bzw. Konvertierung.
+  Da das Feld ein Freitext-Feld und keine Validierung bei der Eingabe hat(te)
+  unternimmt kivitendo keine eigene Normalisierung,  bzw. Konvertierung
+  des Datenfelds.
+
   Eine Bereinigung der Ust-IDs muss der kivitendo-Admin eigenverantwortlich unternehmen.
   Hier exemplarisch ein SQL-Schnipsel zum Ersetzen der Leerzeichen in diesem Feld:
   UPDATE customer SET ustid=REPLACE(ustid, ' ', '') WHERE ustid LIKE '% %';
