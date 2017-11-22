@@ -24,6 +24,12 @@ __- Um Strukturtyp CSV-Export erweitert
     exportiert hat, und im Juni noch ein Buchung für Januar nachbucht, kann man
     mit "Erfassungsdatum Von: 01.06.2017" nur diese eine Buchung aus Januar
     exportieren.
+  - Überlagerung mit Kunden- Lieferantennummer als Personenkonto möglich
+    Anstatt des Sammelkontos kann die Kunden- oder Lieferantennummer aus
+    den Stammdaten genommen werden, falls der Nummernkreis der DATEV-Konform
+    für Personenkonten entspricht.
+  - Belegfeld 2 wird nicht mehr gesetzt
+  - Buchungsbeschreibung wird nicht mehr gesetzt
 
 Kleinere neue Features und Detailverbesserungen:
 

@@ -43,6 +43,12 @@ Upgrade auf v3.5.1
     das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
     Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
 
+* Änderungen DATEV-Export Format CSV
+
+  Die Felder Belegfeld2 und Buchungsbeschreibung werden nicht mehr befüllt.
+  Im KNE-Export war im Belegfeld2 die Fälligkeit der Buchung gesetzt und in
+  Buchungsbeschreibung der Kunden- oder Lieferantenname.
+
 Upgrade auf v3.5.0
 ===========================
 
