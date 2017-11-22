@@ -587,7 +587,8 @@ sub generate_datev_data {
 
        SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ac.memo,
          ap.invnumber, ap.duedate, ap.amount as umsatz, COALESCE(ap.tax_point, ap.deliverydate) AS deliverydate, ap.itime::date,
-         ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
+         CASE WHEN (COALESCE(ap.invoice, FALSE) = TRUE OR COALESCE(ap.notes, '') = '') THEN ct.name ELSE ap.notes END AS name,
+         ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
          $ap_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
          t.rate AS taxrate, t.taxdescription,
