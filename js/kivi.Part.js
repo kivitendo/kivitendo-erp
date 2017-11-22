@@ -173,7 +173,7 @@ namespace('kivi.Part', function(ns) {
     var data = $('#assembly :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_assembly_item' },
               { name: 'part.id', value: $("#part_id").val()     },
-              { name: 'part.part_type', value: 'assortment'     });
+              { name: 'part.part_type', value: 'assembly'       });
     $('#assembly_picker').data('part_picker').clear();
 
     $.post("controller.pl", data, kivi.eval_json_result);
