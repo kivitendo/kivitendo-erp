@@ -400,10 +400,13 @@ sub _email_invoice {
       );
     }
 
+    my $global_bcc = SL::DB::Default->get->global_bcc;
+
     for my $recipient (@recipients) {
       my $mail             = Mailer->new;
       $mail->{from}        = $data->{config}->email_sender || $::lx_office_conf{periodic_invoices}->{email_from};
       $mail->{to}          = $recipient;
+      $mail->{bcc}         = $global_bcc;
       $mail->{subject}     = $data->{config}->email_subject;
       $mail->{message}     = $data->{config}->email_body;
       $mail->{attachments} = [{
