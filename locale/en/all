@@ -4028,6 +4028,7 @@ $self->{texts} = {
   'start upload'                => '',
   'stock'                       => '',
   'stock_br'                    => 'stock',
+  'stocktaking'                 => '',
   'succeeded'                   => '',
   'sum'                         => '',
   'tax_chartaccno'              => '',

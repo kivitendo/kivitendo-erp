@@ -71,6 +71,7 @@ use strict;
 #  $locale->text('return_material')
 #  $locale->text('release_material')
 #  $locale->text('assembled')
+#  $locale->text('stocktaking')
 
 # --------------------------------------------------------------------
 # Transfer

@@ -4082,6 +4082,7 @@ $self->{texts} = {
   'start upload'                => 'Hochladen beginnt',
   'stock'                       => 'Einlagerung',
   'stock_br'                    => 'Eingel.',
+  'stocktaking'                 => 'Inventur',
   'succeeded'                   => 'erfolgreich',
   'sum'                         => 'Summe',
   'tax_chartaccno'              => 'Automatikkonto',
