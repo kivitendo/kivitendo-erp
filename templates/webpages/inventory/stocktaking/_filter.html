@@ -1,0 +1,15 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+<table id="filter_table">
+ <tr>
+  <th align="right">[% 'Cutoff Date' | $T8 %]</th>
+  <td>[% L.date_tag('filter.cutoff_date:date', filter.cutoff_date_date) %]</td>
+ </tr>
+ <tr>
+  <th align="right">[% 'Comment' | $T8 %]</th>
+  <td>[% L.input_tag('filter.comment:substr::ilike', filter.comment_substr__ilike, size=60) %]</td>
+ </tr>
+</table>

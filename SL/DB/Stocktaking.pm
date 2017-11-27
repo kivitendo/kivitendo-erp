@@ -10,4 +10,9 @@ use SL::DB::Manager::Stocktaking;
 
 __PACKAGE__->meta->initialize;
 
+# part accessor is badly named
+sub part {
+  goto &parts;
+}
+
 1;

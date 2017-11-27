@@ -544,6 +544,13 @@
     action: transfer_warehouse_selection
     trans_type: removal
 - parent: warehouse
+  id: warehouse_stocktaking
+  name: Stocktaking
+  order: 450
+  access: warehouse_management
+  params:
+    action: Inventory/stocktaking
+- parent: warehouse
   id: warehouse_reports
   name: Reports
   order: 500
@@ -571,6 +578,13 @@
   access: warehouse_contents | warehouse_management
   params:
     action: Inventory/stock_usage
+- parent: warehouse_reports
+  id: warehouse_stocktaking_journal
+  name: Stocktaking Journal
+  order: 400
+  access: warehouse_contents | warehouse_management
+  params:
+    action: Inventory/stocktaking_journal
 - id: general_ledger
   name: General Ledger
   icon: gl

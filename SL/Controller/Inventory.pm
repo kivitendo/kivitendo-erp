@@ -7,9 +7,11 @@ use POSIX qw(strftime);
 use parent qw(SL::Controller::Base);
 
 use SL::DB::Inventory;
+use SL::DB::Stocktaking;
 use SL::DB::Part;
 use SL::DB::Warehouse;
 use SL::DB::Unit;
+use SL::DB::Default;
 use SL::WH;
 use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
@@ -17,23 +19,24 @@ use SL::Presenter::Tag qw(select_tag);
 use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Controller::Helper::GetModels;
 
 use English qw(-no_match_vars);
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(warehouses units) ],
+  'scalar --get_set_init' => [ qw(warehouses units is_stocktaking stocktaking_models stocktaking_cutoff_date) ],
   'scalar'                => [ qw(warehouse bin unit part) ],
 );
 
 __PACKAGE__->run_before('_check_auth');
 __PACKAGE__->run_before('_check_warehouses');
-__PACKAGE__->run_before('load_part_from_form',   only => [ qw(stock_in part_changed mini_stock stock) ]);
-__PACKAGE__->run_before('load_unit_from_form',   only => [ qw(stock_in part_changed mini_stock stock) ]);
-__PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse_changed stock) ]);
-__PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock) ]);
+__PACKAGE__->run_before('load_part_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed save_stocktaking) ]);
+__PACKAGE__->run_before('load_unit_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed save_stocktaking) ]);
+__PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse_changed stock stocktaking save_stocktaking) ]);
+__PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock stocktaking save_stocktaking) ]);
 __PACKAGE__->run_before('set_target_from_part',  only => [ qw(part_changed) ]);
 __PACKAGE__->run_before('mini_stock',            only => [ qw(stock_in mini_stock) ]);
-__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_usage stock_in warehouse_changed part_changed) ]);
+__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_usage stock_in warehouse_changed part_changed stocktaking stocktaking_part_changed save_stocktaking) ]);
 __PACKAGE__->run_before('set_layout');
 
 sub action_stock_in {
@@ -483,6 +486,123 @@ sub action_mini_stock {
     ->render;
 }
 
+sub action_stocktaking {
+  my ($self) = @_;
+
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Inventory);
+  $::request->layout->focus('#part_id_name');
+  $self->setup_stock_stocktaking_action_bar;
+  $self->render('inventory/stocktaking/form', title => t8('Stocktaking'));
+}
+
+sub action_save_stocktaking {
+  my ($self) = @_;
+
+  return $self->js->flash('error', t8('A target quantitiy has to be given'))->render()
+    if $::form->{target_qty} eq '';
+
+  my $target_qty = $::form->parse_amount(\%::myconfig, $::form->{target_qty});
+
+  return $self->js->flash('error', t8('Error: A negative target quantity is not allowed.'))->render()
+    if $target_qty < 0;
+
+  my $stocked_qty  = _get_stocked_qty($self->part,
+                                      warehouse_id => $self->warehouse->id,
+                                      bin_id       => $self->bin->id,
+                                      chargenumber => $::form->{chargenumber},
+                                      bestbefore   => $::form->{bestbefore},);
+
+  my $stocked_qty_in_form_units = $self->part->unit_obj->convert_to($stocked_qty, $self->unit);
+
+  if (!$::form->{dont_check_already_counted}) {
+    my $already_counted = _already_counted($self->part,
+                                           warehouse_id => $self->warehouse->id,
+                                           bin_id       => $self->bin->id,
+                                           cutoff_date  => $::form->{cutoff_date_as_date},
+                                           chargenumber => $::form->{chargenumber},
+                                           bestbefore   => $::form->{bestbefore});
+    if (scalar @$already_counted) {
+      my $reply = $self->js->dialog->open({
+        html   => $self->render('inventory/stocktaking/_already_counted_dialog',
+                                { output => 0 },
+                                already_counted           => $already_counted,
+                                stocked_qty               => $stocked_qty,
+                                stocked_qty_in_form_units => $stocked_qty_in_form_units),
+        id     => 'already_counted_dialog',
+        dialog => {
+          title => t8('Already counted'),
+        },
+      })->render;
+
+      return $reply;
+    }
+  }
+
+  # - target_qty is in units given in form ($self->unit)
+  # - WH->transfer expects qtys in given unit (here: unit from form (unit -> $self->unit))
+  # Therefore use stocked_qty in form units for calculation.
+  my $qty        = $target_qty - $stocked_qty_in_form_units;
+  my $src_or_dst = $qty < 0? 'src' : 'dst';
+  $qty           = abs($qty);
+
+  my $transfer_error;
+  # do stock
+  $::form->throw_on_error(sub {
+    eval {
+      WH->transfer({
+        parts                   => $self->part,
+        $src_or_dst.'_bin'      => $self->bin,
+        $src_or_dst.'_wh'       => $self->warehouse,
+        qty                     => $qty,
+        unit                    => $self->unit,
+        transfer_type           => 'stocktaking',
+        chargenumber            => $::form->{chargenumber},
+        bestbefore              => $::form->{bestbefore},
+        ean                     => $::form->{ean},
+        comment                 => $::form->{comment},
+        record_stocktaking      => 1,
+        stocktaking_qty         => $target_qty,
+        stocktaking_cutoff_date => $::form->{cutoff_date_as_date},
+      });
+      1;
+    } or do { $transfer_error = $EVAL_ERROR->getMessage; }
+  });
+
+  return $self->js->flash('error', $transfer_error)->render()
+    if $transfer_error;
+
+  flash_later('info', $::locale->text('Part successful counted'));
+  $self->redirect_to(action              => 'stocktaking',
+                     warehouse_id        => $self->warehouse->id,
+                     bin_id              => $self->bin->id,
+                     cutoff_date_as_date => $self->stocktaking_cutoff_date->to_kivitendo);
+}
+
+sub action_reload_stocktaking_history {
+  my ($self) = @_;
+
+  $::form->{filter}{'cutoff_date:date'} = $self->stocktaking_cutoff_date->to_kivitendo;
+  $::form->{filter}{'employee_id'}      = SL::DB::Manager::Employee->current->id;
+
+  $self->prepare_stocktaking_report;
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->stocktaking_models->get, layout => 0, header => 0);
+}
+
+sub action_stocktaking_part_changed {
+  my ($self) = @_;
+
+  $self->js
+    ->replaceWith('#unit_id', $self->build_unit_select)
+    ->focus('#target_qty')
+    ->render;
+}
+
+sub action_stocktaking_journal {
+  my ($self) = @_;
+
+  $self->prepare_stocktaking_report(full => 1);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->stocktaking_models->get);
+}
 #================================================================
 
 sub _check_auth {
@@ -503,6 +623,52 @@ sub init_warehouses {
 
 sub init_units {
   SL::DB::Manager::Unit->get_all;
+}
+
+sub init_is_stocktaking {
+  return $_[0]->action_name =~ m{stocktaking};
+}
+
+sub init_stocktaking_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller   => $self,
+    model        => 'Stocktaking',
+    sorted       => {
+      _default => {
+        by    => 'itime',
+        dir   => 0,
+      },
+      itime        => t8('Insert Date'),
+      qty          => t8('Target Qty'),
+      chargenumber => t8('Charge Number'),
+      comment      => t8('Comment'),
+      employee     => t8('Employee'),
+      ean          => t8('EAN'),
+      partnumber   => t8('Part Number'),
+      part         => t8('Part Description'),
+      bin          => t8('Bin'),
+      cutoff_date  => t8('Cutoff Date'),
+    },
+    with_objects => ['employee', 'parts', 'warehouse', 'bin'],
+  );
+}
+
+sub init_stocktaking_cutoff_date {
+  my ($self) = @_;
+
+  return DateTime->from_kivitendo($::form->{cutoff_date_as_date}) if $::form->{cutoff_date_as_date};
+  return SL::DB::Default->get->stocktaking_cutoff_date if SL::DB::Default->get->stocktaking_cutoff_date;
+
+  # Default cutoff date is last day of current year, but if current month
+  # is janurary, it is the last day of the last year.
+  my $now    = DateTime->now_local;
+  my $cutoff = DateTime->new(year => $now->year, month => 12, day => 31);
+  if ($now->month < 1) {
+    $cutoff->substract(years => 1);
+  }
+  return $cutoff;
 }
 
 sub set_target_from_part {
@@ -538,11 +704,17 @@ sub load_unit_from_form {
 }
 
 sub load_wh_from_form {
-  $_[0]->warehouse(SL::DB::Manager::Warehouse->find_by_or_create(id => $::form->{warehouse_id}));
+  my $preselected;
+  $preselected = SL::DB::Default->get->stocktaking_warehouse_id if $_[0]->is_stocktaking;
+
+  $_[0]->warehouse(SL::DB::Manager::Warehouse->find_by_or_create(id => ($::form->{warehouse_id} || $preselected)));
 }
 
 sub load_bin_from_form {
-  $_[0]->bin(SL::DB::Manager::Bin->find_by_or_create(id => $::form->{bin_id}));
+  my $preselected;
+  $preselected = SL::DB::Default->get->stocktaking_bin_id if $_[0]->is_stocktaking;
+
+  $_[0]->bin(SL::DB::Manager::Bin->find_by_or_create(id => ($::form->{bin_id} || $preselected)));
 }
 
 sub set_layout {
@@ -619,6 +791,109 @@ sub show_no_warehouses_error {
   $::form->show_generic_error($msg);
 }
 
+sub prepare_stocktaking_report {
+  my ($self, %params) = @_;
+
+  my $callback    = $self->stocktaking_models->get_callback;
+
+  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $self->{report} = $report;
+
+  my @columns     = qw(itime employee ean partnumber part qty unit bin chargenumber comment cutoff_date);
+  my @sortable    = qw(itime employee ean partnumber part qty bin chargenumber comment cutoff_date);
+
+  my %column_defs = (
+    itime           => { sub   => sub { $_[0]->itime_as_timestamp },
+                         text  => t8('Insert Date'), },
+    employee        => { sub   => sub { $_[0]->employee->safe_name },
+                         text  => t8('Employee'), },
+    ean             => { sub   => sub { $_[0]->part->ean },
+                         text  => t8('EAN'), },
+    partnumber      => { sub   => sub { $_[0]->part->partnumber },
+                         text  => t8('Part Number'), },
+    part            => { sub   => sub { $_[0]->part->description },
+                         text  => t8('Part Description'), },
+    qty             => { sub   => sub { $_[0]->qty_as_number },
+                         text  => t8('Target Qty'),
+                         align => 'right', },
+    unit            => { sub   => sub { $_[0]->part->unit },
+                         text  => t8('Unit'), },
+    bin             => { sub   => sub { $_[0]->bin->full_description },
+                         text  => t8('Bin'), },
+    chargenumber    => { text  => t8('Charge Number'), },
+    comment         => { text  => t8('Comment'), },
+    cutoff_date     => { sub   => sub { $_[0]->cutoff_date_as_date },
+                         text  => t8('Cutoff Date'), },
+  );
+
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'Inventory',
+    output_format         => 'HTML',
+    title                 => (!!$params{full})? $::locale->text('Stocktaking Journal') : $::locale->text('Stocktaking History'),
+    allow_pdf_export      => !!$params{full},
+    allow_csv_export      => !!$params{full},
+  );
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+  $report->set_export_options(qw(stocktaking_journal filter));
+  $report->set_options_from_form;
+  $self->stocktaking_models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->stocktaking_models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable) if !!$params{full};
+  if (!!$params{full}) {
+    $report->set_options(
+      raw_top_info_text    => $self->render('inventory/stocktaking/full_report_top', { output => 0 }),
+    );
+  }
+  $report->set_options(
+    raw_bottom_info_text => $self->render('inventory/stocktaking/report_bottom',   { output => 0 }),
+  );
+}
+
+sub _get_stocked_qty {
+  my ($part, %params) = @_;
+
+  my $bestbefore_filter  = '';
+  my $bestbefore_val_cnt = 0;
+  if ($::instance_conf->get_show_bestbefore) {
+    $bestbefore_filter  = ($params{bestbefore}) ? 'AND bestbefore = ?' : 'AND bestbefore IS NULL';
+    $bestbefore_val_cnt = ($params{bestbefore}) ? 1                    : 0;
+  }
+
+  my $query = <<SQL;
+    SELECT sum(qty) FROM inventory
+      WHERE parts_id = ? AND warehouse_id = ? AND bin_id = ? AND chargenumber = ? $bestbefore_filter
+      GROUP BY warehouse_id, bin_id, chargenumber
+SQL
+
+  my @values = ($part->id,
+                $params{warehouse_id},
+                $params{bin_id},
+                $params{chargenumber});
+  push @values, $params{bestbefore} if $bestbefore_val_cnt;
+
+  my ($stocked_qty) = selectrow_query($::form, $::form->get_standard_dbh, $query, @values);
+
+  return 1*($stocked_qty || 0);
+}
+
+sub _already_counted {
+  my ($part, %params) = @_;
+
+  my %bestbefore_filter;
+  if ($::instance_conf->get_show_bestbefore) {
+    %bestbefore_filter = (bestbefore => $params{bestbefore});
+  }
+
+  SL::DB::Manager::Stocktaking->get_all(query => [and => [parts_id     => $part->id,
+                                                          warehouse_id => $params{warehouse_id},
+                                                          bin_id       => $params{bin_id},
+                                                          cutoff_date  => $params{cutoff_date},
+                                                          chargenumber => $params{chargenumber},
+                                                          %bestbefore_filter]],
+                                        sort_by => ['itime DESC']);
+}
+
 sub setup_stock_in_action_bar {
   my ($self, %params) = @_;
 
@@ -648,6 +923,20 @@ sub setup_stock_usage_action_bar {
   }
 }
 
+sub setup_stock_stocktaking_action_bar {
+  my ($self, %params) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Save'),
+        call      => [ 'kivi.Inventory.save_stocktaking' ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
 1;
 __END__
 
@@ -655,17 +944,42 @@ __END__
 
 =head1 NAME
 
-SL::Controller::Inventory - Report Controller for inventory
+SL::Controller::Inventory - Controller for inventory
 
 =head1 DESCRIPTION
 
-This controller makes three reports about inventory in warehouses/stocks
+This controller handles stock in, stocktaking and reports about inventory
+in warehouses/stocks
 
 - warehouse content
 
 - warehouse journal
 
 - warehouse withdrawal
+
+- stocktaking
+
+=head2 Stocktaking
+
+Stocktaking allows to document the counted quantities of parts during
+stocktaking for a certain cutoff date. Differences between counted and stocked
+quantities are corrected in the stock. The transfer type 'stocktacking' is set
+here.
+
+After picking a part, the mini stock for this part is displayed. At the bottom
+of the form a history of already counted parts for the current employee and the
+choosen cutoff date is shown.
+
+Warehouse, bin and cutoff date canbe preselected in the client configuration.
+
+If a part was already counted for this cutoff date, warehouse and bin, a warning
+is displayed, allowing the user to choose to add the counted quantity to the
+stocked one or to take his counted quantity as the new stocked quantity.
+
+There is also a journal of stocktakings.
+
+Templates are located under C<templates/webpages/inventory/stocktaking>.
+JavaScript functions can be found in C<js/kivi.Inventory.js>.
 
 =head1 FUNCTIONS
 
@@ -681,6 +995,30 @@ The search parameter for report are made like the reports in bin/mozilla/rp.pl
 Make a report about stock withdrawal.
 
 The manual pagination is implemented like the pagination in SL::Controller::CsvImport.
+
+=item C<action_stocktaking>
+
+This action renders the input form for stocktaking.
+
+=item C<action_save_stocktaking>
+
+This action saves the stocktaking values and corrects the stock after checking
+if the part is already counted for this warehouse, bin and cutoff date.
+For saving SL::WH->transfer is called.
+
+=item C<action_reload_stocktaking_history>
+
+This action is responsible for displaying the stocktaking history at the bottom
+of the form. It uses the stocktaking journal with fixed filters for cutoff date
+and the current employee. The history is displayed via javascript.
+
+=item C<action_stocktaking_part_changed>
+
+This action is called after the user selected or changed the part.
+
+=item C<is_stocktaking>
+
+This is a method to check if actions are called from stocktaking form.
 
 =back
 
@@ -698,9 +1036,16 @@ the format is adapted to this
 
 =head1 AUTHOR
 
-only for C<action_stock_usage> and C<action_usage>:
+=over 4
+
+=item only for C<action_stock_usage> and C<action_usage>:
 
 Martin Helmling E<lt>martin.helmling@opendynamic.deE<gt>
 
+=item for stocktaking:
+
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+=back
 
 =cut
