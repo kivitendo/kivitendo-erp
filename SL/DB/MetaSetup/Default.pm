@@ -136,6 +136,9 @@ __PACKAGE__->meta->columns(
   signature                                 => { type => 'text' },
   sonumber                                  => { type => 'text' },
   sqnumber                                  => { type => 'text' },
+  stocktaking_bin_id                        => { type => 'integer' },
+  stocktaking_cutoff_date                   => { type => 'date' },
+  stocktaking_warehouse_id                  => { type => 'integer' },
   taxnumber                                 => { type => 'text' },
   templates                                 => { type => 'text' },
   transfer_default                          => { type => 'boolean', default => 'true' },
@@ -197,6 +200,16 @@ __PACKAGE__->meta->foreign_keys(
   requirement_spec_section_order_part => {
     class       => 'SL::DB::Part',
     key_columns => { requirement_spec_section_order_part_id => 'id' },
+  },
+
+  stocktaking_bin => {
+    class       => 'SL::DB::Bin',
+    key_columns => { stocktaking_bin_id => 'id' },
+  },
+
+  stocktaking_warehouse => {
+    class       => 'SL::DB::Warehouse',
+    key_columns => { stocktaking_warehouse_id => 'id' },
   },
 
   warehouse => {
