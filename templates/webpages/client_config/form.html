@@ -68,6 +68,7 @@ function checkavailable_filebackend(elem) {
 $(function() {
   warehouse_selected([% SELF.defaults.warehouse_id || -1 %], [% SELF.defaults.bin_id || -1 %], 'bin_id');
   warehouse_selected([% SELF.defaults.warehouse_id_ignore_onhand || -1 %], [% SELF.defaults.bin_id_ignore_onhand || -1 %], 'bin_id_ignore_onhand');
+  warehouse_selected([% SELF.defaults.stocktaking_warehouse_id || -1 %], [% SELF.defaults.stocktaking_bin_id || -1 %], 'stocktaking_bin_id');
 
   enable_template_controls();
   $('#doc_max_filesize_MB').val(parseInt($('#defaults_doc_max_filesize').val())/1000000.0);
@@ -95,6 +96,7 @@ $(function() {
 [%- END %]
    <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
    <li><a href="#features">[% LxERP.t8('Features') %]</a></li>
+   <li><a href="#stocktaking">[% LxERP.t8('Stocktaking') %]</a></li>
   </ul>
 
 [% PROCESS 'client_config/_ranges_of_numbers.html' %]
@@ -107,6 +109,7 @@ $(function() {
 [%- END %]
 [% PROCESS 'client_config/_warehouse.html' %]
 [% PROCESS 'client_config/_features.html' %]
+[% PROCESS 'client_config/_stocktaking.html' %]
 [% PROCESS 'client_config/_miscellaneous.html' %]
  </div>
 </form>
