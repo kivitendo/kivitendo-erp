@@ -256,6 +256,8 @@ sub setup_is_action_bar {
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_is_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_is_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
+  my $payments_balanced       = ($::form->{oldtotalpaid} == 0);
+  my $has_storno              = ($::form->{storno} && !$::form->{storno_id});
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -298,7 +300,9 @@ sub setup_is_action_bar {
           submit   => [ '#form', { action => "storno" } ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$form->{id}        ? t8('This invoice has not been posted yet.')
+                    : !$payments_balanced ? t8('Cancelling is disallowed. Either undo or balance the current payments until the open amount matches the invoice amount')
+                    : undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
@@ -308,6 +312,7 @@ sub setup_is_action_bar {
                     : $form->{locked}          ? t8('The billing period has already been locked.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_storno              ? t8('Can only delete the "Storno zu" part of the cancellation pair.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"
