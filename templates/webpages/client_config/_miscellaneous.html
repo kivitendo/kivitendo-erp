@@ -89,9 +89,11 @@
   </tr>
 
 [% FOREACH currency = SELF.all_currencies %]
-  [% L.hidden_tag("currencies[+].id", currency.id) %]
   <tr>
-   <td align="right">[% IF loop.count == 1 %][% LxERP.t8("Currencies") %][% END %]</td>
+   <td align="right">
+     [% L.hidden_tag("currencies[+].id", currency.id) %]
+     [% IF loop.count == 1 %][% LxERP.t8("Currencies") %][% END %]
+   </td>
    <td>[% L.input_tag("currencies[].name", currency.name, style=style) %]</td>
    <td align="center">[% L.radio_button_tag('defaults.currency_id', value=currency.id, id='defaults.currency_id_' _ currency.id, checked=(SELF.defaults.currency_id == currency.id)) %]</td>
    <td>[% IF loop.count == 1 %][% LxERP.t8("Edit the currency names in order to rename them.") %][%- END %]</td>
