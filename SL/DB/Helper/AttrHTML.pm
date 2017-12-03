@@ -67,7 +67,7 @@ all/restricting to wanted HTML tags in columns
 
   # In a Rose model:
   use SL::DB::Helper::AttrHTML;
-  __PACKAGE__->attr_as_html(
+  __PACKAGE__->attr_html(
     'content',
     with_stripped => 0,
     allowed_tags  => { b => [ '/' ], i => [ '/' ] },
