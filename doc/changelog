@@ -28,6 +28,7 @@ Mittelgroße neue Features:
     Anstatt des Sammelkontos kann die Kunden- oder Lieferantennummer aus
     den Stammdaten genommen werden, falls der Nummernkreis der DATEV-Konform
     für Personenkonten entspricht.
+  - Belegfeld 2 wird nicht mehr gesetzt
   - Buchungsbeschreibung wird nicht mehr gesetzt
 
 Kleinere neue Features und Detailverbesserungen:

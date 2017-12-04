@@ -45,9 +45,9 @@ Upgrade auf v3.5.1
 
 * Änderungen DATEV-Export Format CSV
 
-  Das Feld Buchungsbeschreibung wird nicht mehr befüllt.
-  Im KNE-Export war im Feld  Buchungsbeschreibung der Kunden- oder Lieferantenname gesetzt.
-
+  Die Felder Belegfeld2 und Buchungsbeschreibung werden nicht mehr befüllt.
+  Im KNE-Export war im Belegfeld2 die Fälligkeit der Buchung gesetzt und in
+  Buchungsbeschreibung der Kunden- oder Lieferantenname.
   Bei nicht valider Umsatz-Steuer-Identnummer wird der Export abgelehnt.
   Da das Feld ein Freitext-Feld und keine Validierung bei der Eingabe hat(te)
   unternimmt kivitendo keine eigene Normalisierung,  bzw. Konvertierung
