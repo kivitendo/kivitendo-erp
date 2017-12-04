@@ -1030,7 +1030,6 @@ sub generate_datev_lines {
         $datev_data{belegfeld2} = $transaction->[$haben]->{'duedate'};
       }
     }
-    $datev_data{soll_haben_kennzeichen} = (0 < $umsatz) ? 'H' : 'S';
     $datev_data{umsatz} = abs($umsatz); # sales invoices without tax have a different sign???
 
     # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
