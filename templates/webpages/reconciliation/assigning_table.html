@@ -35,5 +35,11 @@
     </tr>
   </tbody>
 </table>
-  [% IF show_button %][% L.button_tag("submit_with_action('reconcile')", LxERP.t8("Reconcile")) %][% END %]
+  [% UNLESS errors %]
+   [% L.button_tag("submit_with_action('reconcile')", LxERP.t8("Reconcile")) %]
+  [% ELSE %]
+    [% FOREACH error IN errors %]
+      [% error %]
+    [% END %]
+  [% END %]
 [% END %]

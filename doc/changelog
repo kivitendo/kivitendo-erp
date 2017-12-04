@@ -56,6 +56,7 @@ Kleinere neue Features und Detailverbesserungen:
   - Einkaufsrechnungen: Bearbeiter*in & Verkäufer*in mit aktueller Benutzer*in vorbelegen
   - Bemerkungsfeldeditor (CKEditor): Größe änderbar und Buttonzeile "schwebt"
     über dem Eingabebereich wenn im Fokus
+  - Kontenabgleich mit Bank. Hinweise auf Fehler bei nicht vorhandenem 'Abgleichen'-Knopf
 
 Administrative Änderungen
 

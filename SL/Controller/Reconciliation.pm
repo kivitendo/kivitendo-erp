@@ -88,7 +88,7 @@ sub action_update_reconciliation_table {
   my $output = $self->render('reconciliation/assigning_table', { output => 0 },
                  bt_sum => $::form->format_amount(\%::myconfig, $self->{bt_sum}, 2),
                  bb_sum => $::form->format_amount(\%::myconfig, -1 * $self->{bb_sum}, 2),
-                 show_button => !@errors
+                 errors => @errors,
                  );
 
   my %result = ( html => $output );
