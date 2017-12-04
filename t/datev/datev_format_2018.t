@@ -244,7 +244,7 @@ my $datev_csv3  = SL::DATEV::CSV->new(datev_lines  => $datev2->generate_datev_li
                                      );
 
 my @data_csv    = sort { $a->[0] cmp $b->[0] } @{ $datev_csv3->lines };
-cmp_deeply($data_csv[0], [ 100, 'H', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
+cmp_deeply($data_csv[0], [ 100, 'S', 'EUR', '', '', '', '4660', '1000', 9, '1703', 'Reise März 2',
                      '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '', '', '',
                      '', '', '', '', '', '', '', '', '', '', '',

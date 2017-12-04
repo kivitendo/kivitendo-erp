@@ -75,7 +75,6 @@ cmp_deeply \@data_datev, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '249.9',
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
@@ -87,7 +86,6 @@ cmp_deeply \@data_datev, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => 535,
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
@@ -102,7 +100,6 @@ cmp_deeply \@data_datev, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                        ], "trans_id datev check ok";
 
@@ -120,7 +117,6 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '249.9',
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
@@ -132,7 +128,6 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => 535,
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                          {
                                            'belegfeld1'   => "\x{de} sales \x{a5}& inv\x{f6}ice",
@@ -144,7 +139,6 @@ cmp_bag $datev1->generate_datev_lines, [
                                            'kost2'        => 'Crowd-Funding September 2017',
                                            'umsatz'       => '784.9',
                                            'waehrung'     => 'EUR',
-                                           'soll_haben_kennzeichen' => 'S',
                                          },
                                        ], "trans_id datev check use_pk ok";
 
@@ -265,7 +259,6 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'konto'                  => '3400',
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
-                                          'soll_haben_kennzeichen' => 'H',
                                           'umsatz'                 => 119,
                                           'waehrung'               => 'EUR'
                                         },
@@ -277,7 +270,6 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'konto'                  => '3300',
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
-                                          'soll_haben_kennzeichen' => 'H',
                                           'umsatz'                 => 107,
                                           'waehrung'               => 'EUR'
                                         }
@@ -293,7 +285,6 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'konto'                  => '3400',
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
-                                          'soll_haben_kennzeichen' => 'H',
                                           'umsatz'                 => 119,
                                           'waehrung'               => 'EUR'
                                         },
@@ -305,7 +296,6 @@ cmp_deeply $datev1->generate_datev_lines, [
                                           'konto'                  => '3300',
                                           'kost1'                  => undef,
                                           'kost2'                  => undef,
-                                          'soll_haben_kennzeichen' => 'H',
                                           'umsatz'                 => 107,
                                           'waehrung'               => 'EUR'
                                         }
