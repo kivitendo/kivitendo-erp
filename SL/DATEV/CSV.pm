@@ -294,7 +294,7 @@ sub header {
   }
 
   my @header_row_1 = (
-    "EXTF", "300", 21, "Buchungsstapel", 7, $created_on, "", "ki",
+    "EXTF", "510", 21, "Buchungsstapel", 7, $created_on, "", "ki",
     "kivitendo-datev", "", $meta_datev{beraternr}, $meta_datev{mandantennr},
     $self->first_day_of_fiscal_year->ymd(''), $length_of_accounts,
     $self->from->ymd(''), $self->to->ymd(''), "", "", 1, "", $self->locked,
