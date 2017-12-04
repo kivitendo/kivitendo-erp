@@ -65,7 +65,9 @@ Administrative Änderungen
     Beispiel in config/kivitendo.conf.default
 
 Bugfixes:
-
+- Bugfix #326 Das Löschen von Storno Rechnungen R(S) wirft einen SQL-Fehler
+- Bugfix #325 Rechnungen mit Zahlungsverknüpfungen können storniert werden
+- Bugfix #324 DATEV CSV-Export ggf. fehlerhaft bei Buchungen ohne Steuer
 - Bugfix #320 Stücklistenpositionen werden nicht mehr ausgedruckt
 - Bugfix #305 Kein customerpicker im Formular Rechnung erfassen
 - Bugfix #304 Datumsformat wechselt willkürlich auf Datenbank Format "YYYY-MM-DD"
