@@ -203,6 +203,7 @@ my %kivitendo_package_names = (
   shop_order_items               => 'shop_order_item',
   shop_parts                     => 'shop_part',
   status                         => 'status',
+  stocktakings                   => 'stocktaking',
   tax                            => 'tax',
   taxkeys                        => 'tax_key',
   tax_zones                      => 'tax_zone',
