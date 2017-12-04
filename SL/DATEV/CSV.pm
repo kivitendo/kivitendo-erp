@@ -111,9 +111,9 @@ my @kivitendo_to_datev = (
                               max_length      => 12,
                               type            => 'Text',
                               default         => '',
-                              input_check     => sub { my ($check) = @_; return 1 unless $check; return (ref (DateTime->from_kivitendo($check)) eq 'DateTime') },
-                              formatter       => sub { my ($input) = @_; return DateTime->from_kivitendo($input)->strftime('%d%m%y') },
-                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{6}$/) },
+                              input_check     => sub { my ($check) = @_; return (ref (DateTime->from_kivitendo($check)) eq 'DateTime') },
+                              formatter       => sub { my ($input) = @_; return DateTime->from_kivitendo($input)->strftime('%d%m') },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{4}$/) },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
