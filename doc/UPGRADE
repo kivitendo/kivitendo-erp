@@ -11,7 +11,7 @@ Upgrade auf v3.5.1
   * LWP::Authen::Digest für WebshopApi
   * LWP::UserAgent für WebshopApi
 
-* Optionale Postgres Erweiterung pg_trgm(Trigram)
+* Zwingende Postgres Erweiterung pg_trgm(Trigram)
 
   Die Trigramerweiterung bietet eine Ähnlichkeitsuche.
   Diese verwendet das Shopmodul, wenn installiert, beim Bestellimport
@@ -21,27 +21,35 @@ Upgrade auf v3.5.1
   z.B Dorfstraße, Dorfstrasse, Dorfstr., Dorf Straße usw..
   So wird vermieden, dass Kunden eventuell doppelt angelegt werden.
 
-  * Um diese Erweiterung generell in kivitendo zu installieren, um neuen Mandanten
-    und der kivitendo-Test-Suite zugänglich zu machen:
+  * Zunächst muss geprüft werden, ob die Erweiterung prinzipiell für postgres
+    vorhanden ist, dafür kann folgendes Select-Statement in template1 genutzt werden:
+
+    # select * from pg_available_extensions where name ='pg_trgm';
+
+    Sollte bei diesem Statement kein Ergebnis kommen, so muss die entsprechende
+    Erweiterung für die eigene Distribution nachinstalliert werden.
+    Bei debian/ubuntu befindet sich diese im Paket postgresql-contrib
+    und kann mit
+
+    $ apt install postgresql-contrib
+
+    installiert werden.
+
+
+  * Um diese Erweiterung generell in Postgres zu aktivieren, muss folgendes gemacht werden:
 
     su - postgres
     psql template1
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
     \q
 
-  * Bei bestehende Mandanten-Datenbanken,
-    kann Erweiterung pg_trgm nachträglich installiert werden:
+  * Damit bestehende Mandanten diese Erweiterung nutzen, muss mandantenspezifische (DB)
+    die Erweiterung pg_trgm nachträglich aktiviert werden:
 
     su - postgres
     psql <DATENBANK>
     CREATE EXTENSION IF NOT EXISTS pg_trgm;
     \q
-
-    Wenn die Extension installiert ist können(kein muss) in den beiden Dateien
-    - sql/Pg-upgrade2/trigram_indices_webshop.sql
-    - sql/Pg-upgrade2/trigram_indices.sql
-    das ignore auf 0 gesetzt werden und beide Dateien werden dann beim Anmelden eingespielt.
-    Die Trigramindices sind ein Performancegewinn bei größeren Datenbanken
 
 * Änderungen DATEV-Export Format CSV
 

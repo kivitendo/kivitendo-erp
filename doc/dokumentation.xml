@@ -848,6 +848,31 @@ psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
 \q</programlisting>
         </note>
       </sect2>
+      <sect2 id="Erweiterung-für-trigram">
+        <title>Erweiterung für Trigraph Prozeduren</title>
+
+        <para>In der Datenbank <literal>template1</literal> muss die
+        Unterstützung für Trigram Indexes eingerichet werden.
+        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
+        <programlisting>su - postgres
+psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
+
+        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
+\q</programlisting>
+
+        <note>
+          <para><literal>pg_trgm</literal> ist je nach Distribution
+          nicht im Standard-Paket von Postgres enthalten. Ein
+
+       <programlisting>select * from pg_available_extensions where name ='pg_trgm';</programlisting>
+        in template1 sollte entsprechend erfolgreich sein.
+        Andernfalls muss das Paket nachinstalliert werden, bspw. bei debian/ubuntu
+
+        <programlisting>apt install potgresql-contrib</programlisting>
+          </para>
+        </note>
+      </sect2>
+
 
       <sect2 id="Datenbankbenutzer-anlegen">
         <title>Datenbankbenutzer anlegen</title>

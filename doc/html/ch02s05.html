@@ -37,7 +37,22 @@ psql template1</pre><p> führen Sie die folgenden Kommandos aus:</p><pre class="
           anzulegen. In diesen Versionen ist die Extension meist auch schon
           vorhanden. Sollten Sie eine ältere Version von Postgres haben,
           benutzen Sie stattdessen den folgenden Befehl.</p><pre class="programlisting">CREATE LANGUAGE 'plpgsql';
-\q</pre></td></tr></table></div></div><div class="sect2" title="2.5.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.5.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
+\q</pre></td></tr></table></div></div><div class="sect2" title="2.5.4. Erweiterung für Trigraph Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-trigram"></a>2.5.4. Erweiterung für Trigraph Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
+        Unterstützung für Trigram Indexes eingerichet werden.
+        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
+        </p><pre class="programlisting">su - postgres
+psql template1</pre><p> führen Sie die folgenden Kommandos aus:</p><pre class="programlisting">CREATE EXTENSION IF NOT EXISTS pg_trgm;
+\q</pre><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
+                  <code class="literal">pg_trgm</code> ist je nach Distribution
+          nicht im Standard-Paket von Postgres enthalten. Ein
+
+       </p><pre class="programlisting">select * from pg_available_extensions where name ='pg_trgm';</pre><p>
+        in template1 sollte entsprechend erfolgreich sein.
+        Andernfalls muss das Paket nachinstalliert werden, bspw. bei debian/ubuntu
+
+        </p><pre class="programlisting">apt install potgresql-contrib</pre><p>
+          
+               </p></td></tr></table></div></div><div class="sect2" title="2.5.5. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.5.5. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
         benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</p><p>Die Frage, ob der neue User Superuser sein soll, können Sie mit
