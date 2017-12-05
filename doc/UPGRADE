@@ -8,8 +8,8 @@ Upgrade auf v3.5.1
 
 * Neue Perlabhängigkeiten
 
-  * LWP::Authen::Digest für WebshopApi
-  * LWP::UserAgent für WebshopApi
+* LWP::Authen::Digest für WebshopApi
+* LWP::UserAgent für WebshopApi
 
 * Zwingende Postgres Erweiterung pg_trgm(Trigram)
 
@@ -22,49 +22,34 @@ Upgrade auf v3.5.1
   So wird vermieden, dass Kunden eventuell doppelt angelegt werden.
 
   * Zunächst muss geprüft werden, ob die Erweiterung prinzipiell für postgres
-    vorhanden ist, dafür kann folgendes Select-Statement in template1 genutzt werden:
+  vorhanden ist, dafür kann folgendes Select-Statement in template1 genutzt werden:
 
-    # select * from pg_available_extensions where name ='pg_trgm';
+  # select * from pg_available_extensions where name ='pg_trgm';
 
-    Sollte bei diesem Statement kein Ergebnis kommen, so muss die entsprechende
-    Erweiterung für die eigene Distribution nachinstalliert werden.
-    Bei debian/ubuntu befindet sich diese im Paket postgresql-contrib
-    und kann mit
+  Sollte bei diesem Statement kein Ergebnis kommen, so muss die entsprechende
+  Erweiterung für die eigene Distribution nachinstalliert werden.
+  Bei debian/ubuntu befindet sich diese im Paket postgresql-contrib
+  und kann mit
 
-    $ apt install postgresql-contrib
+  $ apt install postgresql-contrib
 
-    installiert werden.
+  installiert werden.
 
   * Diese Erweiterung wird mit dem SQL-Updatescript sql/Pg-upgrade2/trigram_extension.sql
-    und Datenbank-Super-Benutzer Rechten automatisch installiert.
-    Um den Systembenutzer "postgres" mit SuperUserRechten auszustatten
-    braucht dieser ein Passwort.
+  und Datenbank-Super-Benutzer Rechten automatisch installiert.
+  Dazu braucht der DatenbankSuperbenutzer "postgres" ein Passwort
 
-    su - postgres
-    psql
-    \password
-    <Eingabe passwort>
-    \q
+  su - postgres
+  psql
+  \password
+  <Eingabe passwort>
+  \q
 
-    Passwort und Benutzername können jetzt beim Anlegen einer neuen Datenbank bzw.
-    bei Updatescripten, die SuperUserRechte benötigen eingegeben werden.
+  Passwort und Benutzername können jetzt beim Anlegen einer neuen Datenbank bzw.
+  bei Updatescripten, die SuperUserRechte benötigen eingegeben werden.
 
-    * Um diese Erweiterung manuell zu installieren und generell in Postgres zu aktivieren, muss folgendes gemacht werden:
 
-    su - postgres
-    psql template1
-    CREATE EXTENSION IF NOT EXISTS pg_trgm;
-    \q
-
-  * Damit bestehende Mandanten diese Erweiterung nutzen, muss mandantenspezifische (DB)
-    die Erweiterung pg_trgm nachträglich aktiviert werden:
-
-    su - postgres
-    psql <DATENBANK>
-    CREATE EXTENSION IF NOT EXISTS pg_trgm;
-    \q
-
-* Änderungen DATEV-Export Format CSV
+  * Änderungen DATEV-Export Format CSV
 
   Die Felder Belegfeld2 und Buchungsbeschreibung werden nicht mehr befüllt.
   Im KNE-Export war im Belegfeld2 die Fälligkeit der Buchung gesetzt und in
@@ -78,65 +63,65 @@ Upgrade auf v3.5.1
   Hier exemplarisch ein SQL-Schnipsel zum Ersetzen der Leerzeichen in diesem Feld:
   UPDATE customer SET ustid=REPLACE(ustid, ' ', '') WHERE ustid LIKE '% %';
 
-Upgrade auf v3.5.0
-===========================
+  Upgrade auf v3.5.0
+  ===========================
 
-* Neue Perl Abhängigkeiten:
+  * Neue Perl Abhängigkeiten:
 
   * File::MimeInfo - für den Dateiupload
   * Sys::CPU
   * Thread::Pool::Simple
 
-* Neue externe Abhängigkeiten:
+  * Neue externe Abhängigkeiten:
 
   * pdfinfo
 
-* In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
+  * In der Rechte-Tabelle auth.master_rights wurden alle Positionswerte mit 100
   multipliziert, um Lücken für neue Rechte zu schaffen.
 
-* In der Tabelle "customer" wurde die Spalte "klass" nach "pricegroup_id"
+  * In der Tabelle "customer" wurde die Spalte "klass" nach "pricegroup_id"
   migriert. Bei Kunden ohne Preisgruppe ist der Datenbankwert jetzt NULL statt
   "0". Falls Kunden per CSV-Import importiert werden muß dieses Feld in der
   CSV-Datei ebenfalls umbenannt werden.
 
-* Für das neue Feature Lieferantenbriefe ist die Standardvorlage für Briefe
+  * Für das neue Feature Lieferantenbriefe ist die Standardvorlage für Briefe
   (letter.tex) angepasst worden. Statt letter.customer muss der Adressat jetzt
   aus letter.custoemr_vendor erzeugt werden.
 
-* In der Tabelle parts wurde die Boolean-Spalte "assembly" entfernt. Zur
+  * In der Tabelle parts wurde die Boolean-Spalte "assembly" entfernt. Zur
   Erkennung von Waren/Dienstleistungen/Erzeugnissen gibt es nun in parts eine
   neue Spalte part_type vom ENUM-Typ, der auf die Werte 'part', 'service',
   'assembly' und 'assortment' beschränkt ist.
 
-* In der Tabelle parts wurde die Spalten inventory_accno_id, expense_accno_id
+  * In der Tabelle parts wurde die Spalten inventory_accno_id, expense_accno_id
   und income_accno_id entfernt. Deren Funktionalität wurde schon lange durch
   Buchungsgruppen ersetzt und für die Erkennung des Artikeltyps gibt es nun die
   Spalte part_type
 
-Upgrade auf v3.4.1
-==================
+  Upgrade auf v3.4.1
+  ==================
 
-* Neue Druckvariante Gelangensbestätigung für Verkaufs-Aufträge
+  * Neue Druckvariante Gelangensbestätigung für Verkaufs-Aufträge
 
-    Im Standard-Vorlagensatz RB befindet sich als Vorlage die ic_supply.tex
-    als Orientierung für die Anpassung an eigene Vorlagen. Eigene Vorlagen
-    müssen entsprechend um diesen Typ für die 3.4.1 erweitert werden.
+  Im Standard-Vorlagensatz RB befindet sich als Vorlage die ic_supply.tex
+  als Orientierung für die Anpassung an eigene Vorlagen. Eigene Vorlagen
+  müssen entsprechend um diesen Typ für die 3.4.1 erweitert werden.
 
-* Druckvorlagen für Briefe
+  * Druckvorlagen für Briefe
 
-    Die Erzeugung der Druckausgabe für die Brieffunktion wurde auf die
-    Verwendung des Template Toolkits umgestellt. Dazu muss die verwendete
-    Druckvorlage "letter.tex" angepasst werden. Im Standard-Vorlagensatz RB ist
-    das bereits geschehen. Falls keine manuellen Änderungen an der "letter.tex"
-    aus einer vorherigen Version gemacht wurden, reicht es, diese Datei
-    ("templates/print/RB/letter.tex") in das verwendete Vorlagenverzeichnis zu
-    kopieren. Ansonsten kann diese Datei als Beispiel dienen.
+  Die Erzeugung der Druckausgabe für die Brieffunktion wurde auf die
+  Verwendung des Template Toolkits umgestellt. Dazu muss die verwendete
+  Druckvorlage "letter.tex" angepasst werden. Im Standard-Vorlagensatz RB ist
+  das bereits geschehen. Falls keine manuellen Änderungen an der "letter.tex"
+  aus einer vorherigen Version gemacht wurden, reicht es, diese Datei
+  ("templates/print/RB/letter.tex") in das verwendete Vorlagenverzeichnis zu
+  kopieren. Ansonsten kann diese Datei als Beispiel dienen.
 
 
-Upgrade auf v3.4.0
-==================
+  Upgrade auf v3.4.0
+  ==================
 
-* Neue Perl-Modul-Abhängigkeiten:
+  * Neue Perl-Modul-Abhängigkeiten:
 
   * Algorithm::CheckDigits
   * PBKDF2::Tiny
@@ -145,14 +130,14 @@ Upgrade auf v3.4.0
 
   $ scripts/installation_check.pl -ro
 
-* Der in der Dokumentation beschriebene Mechanismus für die CGI-Anbindung
+  * Der in der Dokumentation beschriebene Mechanismus für die CGI-Anbindung
   (2.6.1 Grundkonfiguration mittels CGI) wurde geändert. Ein einfacher Alias
   auf das Programmverzeichnis funktioniert nicht mehr, und es muss immer ein
   AliasMatch auf einen dispatcher eingerichtet werden. Die Dokumentation wurde
   aktualisiert. Für Benutzer der empfohlenen FastCGI Anbindung ändert sich
   nichts.
 
-* Der Task-Server ist nun mandantenfähig. Für jeden Mandanten, für den
+  * Der Task-Server ist nun mandantenfähig. Für jeden Mandanten, für den
   der Task-Server laufen soll, muss in der Administrationsoberfläche
   in der Konfiguration des Mandanten hinterlegt werden, welchen
   kivitendo-Benutzer der Task-Server nutzen soll. Ist bei einem
@@ -165,7 +150,7 @@ Upgrade auf v3.4.0
   noch existieren und verweigert den Start mit einer hilfreichen
   Fehlermeldung, solange sie noch vorhanden sind.
 
-* Die Unterstützung unsicherer Passwort-Hashing-Mechanism wurde
+  * Die Unterstützung unsicherer Passwort-Hashing-Mechanism wurde
   entfernt. Für BenutzerInnen, die noch alte Mechanismen verwenden,
   müssen die Passwörter einmalig in der Administrationsoberfläche
   zurückgesetzt werden.
@@ -173,27 +158,27 @@ Upgrade auf v3.4.0
   Dies betrifft nur Accounts, deren Passwort sich das letzte Mal vor
   kivitendo 2.7.0 geändert hat.
 
-Upgrade auf v3.3.0
-==================
+  Upgrade auf v3.3.0
+  ==================
 
-* Bei Upgrade von Versionen vor v.3.2.x wie immer erst die dortigen
+  * Bei Upgrade von Versionen vor v.3.2.x wie immer erst die dortigen
   Upgradehinweise beachten.
 
-* Es gibt keine neuen Perl-Modul-Abhängigkeiten.
+  * Es gibt keine neuen Perl-Modul-Abhängigkeiten.
 
-* Die alte ungepflegte Druckvorlagenvariante "Standard" wurde entfernt.
+  * Die alte ungepflegte Druckvorlagenvariante "Standard" wurde entfernt.
   Bereits verwendete Druckvorlagen, die darauf aufbauen, funktionieren
   natürlich weiterhin.
 
-* Für die Verwendung des MT940 Import Features der Bankerweiterung muß
+  * Für die Verwendung des MT940 Import Features der Bankerweiterung muß
   aqbanking installiert werden. Dies wird nur für die Konvertierung vom MT940
   ins CSV Format benötigt, das Kommandozeilentool "aqbanking-cli" befindet sich
   z.B. unter Ubuntu im Paket aqbanking-tools.
 
-Upgrade auf v3.2.0
-==================
+  Upgrade auf v3.2.0
+  ==================
 
-* Neue Perl-Modul-Abhängigkeiten:
+  * Neue Perl-Modul-Abhängigkeiten:
 
   * GD
   * HTML::Restrict
@@ -207,42 +192,42 @@ Upgrade auf v3.2.0
   Sofern das Upgrade von einer früheren Version als 3.1.0 geschieht auch die
   Upgradehinweise der Vorversionen beachten.
 
-* Druckvorlagen auf shipto-Verwendung prüfen
+  * Druckvorlagen auf shipto-Verwendung prüfen
 
   Hier hat sich das Standardverhalten geändert und ggf. werden shipto* nicht mehr
   ausgedruckt, hier müssten die Druckvorlagen individuell angepasst werden, s.a.
   Changelog -> Verkaufsbeleg-Ausdruck.
 
-Upgrade auf v3.1.0
-==================
+  Upgrade auf v3.1.0
+  ==================
 
 
-* BEVOR ein Aufruf im Administrationsbereich erfolgt, muss zwingend der
+  * BEVOR ein Aufruf im Administrationsbereich erfolgt, muss zwingend der
   webdav Ordner im Installationspfad vorhanden sein!
-   -  mkdir webdav/
-   -  Rechte für webserver setzen ($ chmod www-data webdav/)
+  -  mkdir webdav/
+-  Rechte für webserver setzen ($ chmod www-data webdav/)
   Dieses "Feature" war in vorhergehenden Versionen optional, wird aber
   für das Upgrade auf Mandantenfähigkeit vorausgesetzt.
 
-* Neue Softwarevoraussetzungen: Perl v5.10.1 oder neuer sowie
+  * Neue Softwarevoraussetzungen: Perl v5.10.1 oder neuer sowie
   PostgreSQL 8.4 oder neuer werden zwingend vorausgesetzt. Ein Betrieb
   mit älteren Versionen ist nicht mehr möglich.
 
-* Neue Perl-Modul-Abhängigkeiten:
+  * Neue Perl-Modul-Abhängigkeiten:
 
   * File::Copy::Recursive
   * Rose::DB::Object muss v0.788 oder neuer sein (aufgrund eines Bugs
-    in besagtem Modul im Zusammenspiel mit PostgreSQL)
+      in besagtem Modul im Zusammenspiel mit PostgreSQL)
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
   $ scripts/installation_check.pl -ro
 
-* Die Datenbank muss zwingend Unicode als Encoding nutzen. Daher wird
+  * Die Datenbank muss zwingend Unicode als Encoding nutzen. Daher wird
   auch die Konfigurationsvariable "system.dbcharset" nicht mehr
   unterstützt.
 
-* Einführung von Mandanten. Früher war die Konfiguration der
+  * Einführung von Mandanten. Früher war die Konfiguration der
   Datenbanken für jeden Benutzer getrennt vorzunehmen. Mit diesem
   Release wurden Mandanten eingeführt: ein Mandant bekommt einen Namen
   sowie die Datenbankkonfiguration, und Benutzer bekommen
@@ -258,7 +243,7 @@ Upgrade auf v3.1.0
   manuell anzupassen. Dazu gehören:
 
   - der Task-Server (config/kivitendo.conf)
-  - CSV-Import von der Shell aus (scripts/csv-import-from-shell.sh)
+- CSV-Import von der Shell aus (scripts/csv-import-from-shell.sh)
 
   Die folgenden Scripte sind ebenfalls betroffen, allerdings nur für
   Entwickler interessant:
@@ -266,28 +251,28 @@ Upgrade auf v3.1.0
   - scripts/dbupgrade2_tool.pl
   - scripts/rose_auto_create_model.pl
 
-* Neue Benutzerrechte
+  * Neue Benutzerrechte
 
   Diese müssen bei vorhandenen Gruppen eventuell nachgepflegt werden. Z.B. bei
   der Gruppe Vollzugriff
 
   - Stammdaten -> Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten.
-    Alle Kunden bearbeiten
+  Alle Kunden bearbeiten
   - Konfiguration -> Verändern der kivitendo-Installationseinstellungen (die
-    meisten Menüpunkte unterhalb von 'System')
+      meisten Menüpunkte unterhalb von 'System')
 
-* Die alten ungepflegten Druckvorlagenvarianten French und Service
+  * Die alten ungepflegten Druckvorlagenvarianten French und Service
   wurden entfernt.
 
-* Die HTML-Druckvorlagen der Berichte (GuV, Bilanz, SuSa, BWA, UStVA) werden
+  * Die HTML-Druckvorlagen der Berichte (GuV, Bilanz, SuSa, BWA, UStVA) werden
   jetzt alle zentral in den Webvorlagen verwaltet, es werden keine
   benutzerangepasste Versionen der Druckvorlagen im Druckvorlagenverzeichnis
   mehr unterstützt.
 
-Upgrade auf v3.0.0
-==================
+  Upgrade auf v3.0.0
+  ==================
 
-* Neue Abhängigkeiten
+  * Neue Abhängigkeiten
 
   * Clone 1.16
   * Email::MIME
@@ -302,37 +287,37 @@ Upgrade auf v3.0.0
 
   $ scripts/installation_check.pl -ro
 
-* Neue Entwicklerabhängigkeiten
+  * Neue Entwicklerabhängigkeiten
 
   * Test::Deep
   * GD 2.00
 
-* Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
+  * Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
   Rechnungen sind jetzt standardmässig deaktiviert und müssen unter "System" ->
   "Mandantenkonfiguration" aktiviert werden.
 
-* Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
+  * Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
   französische Version respektive wurden entfernt. Es bleiben offiziell
   unterstützte Übersetzungen in Deutsch ("de") und English ("en").
 
-* Dieses ist die letzte Version, die Perl-Versionen vor 5.10.1
+  * Dieses ist die letzte Version, die Perl-Versionen vor 5.10.1
   unterstützen wird.  Ab dem nächsten Release werden Sprachkonstrukte
   verwendet werden, die nicht mehr in 5.8 kompilieren, und Module, die
   seit v5.10.1 zu den Coremodulen gehören, werden ab dann nicht mehr
   als explizite Abhängigkeiten gelistet.
 
 
-Upgrade auf v2.7.0
-==================
+  Upgrade auf v2.7.0
+  ==================
 
-* In der Version 2.7.0 wird das XUL Menü entfernt. Alle Benutzer die das XUL
+  * In der Version 2.7.0 wird das XUL Menü entfernt. Alle Benutzer die das XUL
   Menü noch eingestellt haben, werden beim ersten Einloggen auf ein
   Kompatibilitätsmenü gesetzt. Das Javascriptmenü wurde entsprechend erweitert
   um der Funktionalität nahe zu kommen.
 
-* Das Lizenzenfeature wurde ersatzlos entfernt.
+  * Das Lizenzenfeature wurde ersatzlos entfernt.
 
-* In den LaTeX Vorlagen gilt der Befehl "pagebreak" und die dazugehörigen
+  * In den LaTeX Vorlagen gilt der Befehl "pagebreak" und die dazugehörigen
   "sumcarriedforward" und "lastpage" als deprecated und werden in einer
   kommenden Version komplett entfernt. Die Mechanik ist anfällig gegenüber
   subtilen Formatierungsfehlern bei bestimmten Zahlenformaten und ist
@@ -340,31 +325,31 @@ Upgrade auf v2.7.0
   auf einer Seite. Die Standardvorlagen sind entsprechend angepasst worden
   und müssen in der Administration neu angelegt werden.
 
-* Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
+  * Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
   Druckvorlagen jetzt reserviert. Wenn eine Ihrer Vorlagensätze "print" heisst,
   benennen Sie ihn um bevor Sie das Update starten.
 
-* Die Druckvorlagen für USTVA vor 2012 wurden entfernt und das Ausdrucken von
+  * Die Druckvorlagen für USTVA vor 2012 wurden entfernt und das Ausdrucken von
   USTVA als PDF ist deprecated. Da die Eingabe von Erklärungen als PDF nicht
   mehr gestattet ist, sollten Archivkopien der USTVA direkt bei Elster bezogen
   werden, oder auf anderem Wege erstellt werden. Der Prozess dazu wird sich in
   einer kommenden Version ändern.
 
-* Die Namen der von LaTeX generierten PDF-Dateien sind jetzt in der
+  * Die Namen der von LaTeX generierten PDF-Dateien sind jetzt in der
   eingestellten Dokumentensprache, nicht mehr in der Oberflächensprache des
   Bearbeiters.
 
-* Neue Abhängigkeiten
+  * Neue Abhängigkeiten
 
   * JSON
   * String::ShellQuote
-  * Digest::SHA (optional, empfohlen)
+* Digest::SHA (optional, empfohlen)
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
   $ scripts/installation_check.pl -ro
 
-* CSV-Import wurde neu in Perl implementiert
+  * CSV-Import wurde neu in Perl implementiert
 
   Der PHP-Code wurde entfernt. Automatische Skripte, die per Aufruf von
   lxo-import/partsB.php?cron=1 die Datei parts.csv importiert haben,
@@ -372,132 +357,132 @@ Upgrade auf v2.7.0
   benutzt werden. Im Unterschied zur PHP-Version werden unbekannte Warengruppen
   nicht mehr automatisch angelegt, stattdessen bricht das Skript ab.
 
-* Rechteverwaltung
+  * Rechteverwaltung
 
   * Das Recht "Kunden und Lieferanten bearbeiten" wurde aufgespalten in zwei
-    einzelne Rechte. Ein Updatescript passt bestehende Gruppenaentsprechend an.
+  einzelne Rechte. Ein Updatescript passt bestehende Gruppenaentsprechend an.
   * Das Recht "Preise nd Rabatte bearbeiten" wurde neu eingeführt und ist
-    notwendig um in Belegen Preise ändern zu können. Es wird beim Upgrade
-    automatisch allen Benutzern erteilt.
+  notwendig um in Belegen Preise ändern zu können. Es wird beim Upgrade
+  automatisch allen Benutzern erteilt.
   * Das Recht "Administration" wurde neu eingeführt, und ist dazu da
-    administrative Tätigkeiten an der Mandantendatenbank aus einm Benutzerlogin
-    heraus durchzuführen. Es ist standardmäßig NICHT vergeben.
+  administrative Tätigkeiten an der Mandantendatenbank aus einm Benutzerlogin
+  heraus durchzuführen. Es ist standardmäßig NICHT vergeben.
   * Der Vorlageneditor wurde unter das Recht Administration gestellt, war
-    vorher Konfiguration.
+  vorher Konfiguration.
 
 
-Upgrade auf v2.6.3
-==================
+  Upgrade auf v2.6.3
+  ==================
 
-1. Mit Version 2.6.3. wurden die beiden Konfigurationsdateien
-authentication.pl und lx-erp.conf, sowie deren Varianten,
-abgeschafft. Stattdessen gibt es nun die Datei lx_office.conf, die
-aber erst neu angelegt werden muß. Als Vorlage dient hierfür die Datei
-lx_office.conf.default. Die entsprechenden Werte muß man selber neu
-konfigurieren, dies ist automatisiert zu fehleranfällig.
+  1. Mit Version 2.6.3. wurden die beiden Konfigurationsdateien
+  authentication.pl und lx-erp.conf, sowie deren Varianten,
+  abgeschafft. Stattdessen gibt es nun die Datei lx_office.conf, die
+  aber erst neu angelegt werden muß. Als Vorlage dient hierfür die Datei
+  lx_office.conf.default. Die entsprechenden Werte muß man selber neu
+  konfigurieren, dies ist automatisiert zu fehleranfällig.
 
-Nach dem Upgrade kann man sich so lange nicht anmelden, bis lx_office.conf
-angelegt und authentication.pl und lx-erp.conf gelöscht oder verschoben wurden.
+  Nach dem Upgrade kann man sich so lange nicht anmelden, bis lx_office.conf
+  angelegt und authentication.pl und lx-erp.conf gelöscht oder verschoben wurden.
 
-Es gibt keine local-Variante der lx_office.conf, arbeitet man mit git sollte
-man lx_office.conf nicht einchecken.
+  Es gibt keine local-Variante der lx_office.conf, arbeitet man mit git sollte
+  man lx_office.conf nicht einchecken.
 
-Eine etwas ausführlichere Beschreibung findet sich in Kapitel 2.3
-"Lx-Office-Konfigurationsdatei" in doc/Lx-Office-Dokumentation.pdf
+  Eine etwas ausführlichere Beschreibung findet sich in Kapitel 2.3
+  "Lx-Office-Konfigurationsdatei" in doc/Lx-Office-Dokumentation.pdf
 
-2. Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
-handelt es sich um einen Dämonen, der im Hintergrund läuft, in
-regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
-zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
-Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
-benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
-bekommen. Die Einrichtung des Dämonen wird in der
-Installationsdokumentation im Abschnitt "Der Task-Server" beschrieben.
+  2. Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
+  handelt es sich um einen Dämonen, der im Hintergrund läuft, in
+  regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
+  zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
+  Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+  benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+  bekommen. Die Einrichtung des Dämonen wird in der
+  Installationsdokumentation im Abschnitt "Der Task-Server" beschrieben.
 
-3. Mit Version 2.6.3 sind einige Abhängigkeiten von Perl-Modulen
-hinzugekommen. Bitte führen sie vor dem ersten Aufrufen der einmal
-den folgenden Befehl im Lx-Office Verzeichnis aus:
+  3. Mit Version 2.6.3 sind einige Abhängigkeiten von Perl-Modulen
+  hinzugekommen. Bitte führen sie vor dem ersten Aufrufen der einmal
+  den folgenden Befehl im Lx-Office Verzeichnis aus:
 
-$ scripts/installation_check.pl
+  $ scripts/installation_check.pl
 
-Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
-der Installationsanweisung.
+  Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+  der Installationsanweisung.
 
-Zumindest folgende Module sind neu benötigt:
+  Zumindest folgende Module sind neu benötigt:
 
-* Config::Std
-* Params::Validate
+  * Config::Std
+  * Params::Validate
 
-4. Sollten Sie die FCGI-Version einsetzen, das Apache-Modul
-"mod_fcgid" (nicht "mod_fastcgi") benutzen und von diesem Modul die
-Version v2.6.3 oder später installiert haben, so ist außerdem wichtig,
-seinen Parameter "FcgidMaxRequestLen" deutlich zu erhöhen, weil sich
-dieser im Release mod_fcgid-Release v2.6.3 deutlich geändert
-hat. Details dazu finden sich in Kapitel 2.5.2 "Konfiguration für
-FastCGI/FCGI" in doc/Lx-Office-Dokumentation.pdf
-
-
-Upgrade auf v2.6.2
-==================
-
- Vor dem Einloggen
- -----------------
-
-Mit Version 2.6.2 sind einige Abhängigkeiten von Perl-Modulen hinzugekommen.
-Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
-Lx-Office Verzeichnis aus:
-
-$ scripts/installation_check.pl
-
-Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
-der Installationsanweisung.
-
-Zumindest folgende Module sind neu benötigt:
-
-* Rose::Object, Rose::DB und Rose::DB::Object (die Installation von
-  Rose::DB::Object via CPAN oder den Paketmechanismus Ihrer
-  Distribution sollte für die automatische Installation der anderen
-  zwei Pakete sorgen)
-
- Neue Gruppenrechte
- ------------------
-
-Es wurde ein neues Recht "Druck" eingeführt. Dieses bestimmt, ob die
-Benutzerin das Menü "Druck" zu Gesicht bekommt oder nicht, unabhängig
-davon, wie die Rechte für die einzelnen Unterpunkte gesetzt sind.
-
-Für bereits bestehende Gruppen muss es sofern gewünscht vom
-Administrator manuell gewährt werden.
+  4. Sollten Sie die FCGI-Version einsetzen, das Apache-Modul
+  "mod_fcgid" (nicht "mod_fastcgi") benutzen und von diesem Modul die
+  Version v2.6.3 oder später installiert haben, so ist außerdem wichtig,
+  seinen Parameter "FcgidMaxRequestLen" deutlich zu erhöhen, weil sich
+  dieser im Release mod_fcgid-Release v2.6.3 deutlich geändert
+  hat. Details dazu finden sich in Kapitel 2.5.2 "Konfiguration für
+  FastCGI/FCGI" in doc/Lx-Office-Dokumentation.pdf
 
 
-Upgrade auf v2.6.1
-==================
+  Upgrade auf v2.6.2
+  ==================
 
- Vor dem Einloggen
- -----------------
+  Vor dem Einloggen
+  -----------------
 
-Mit Version 2.6.1 wurden die Listen der benötigten Perl Module überarbeitet.
-Einige der vorher in den Abhängigkeiten gelisteten Module waren Coremodules
-(und damit in jeder Perldistribution vorhanden), oder ihrerseits Abhängigkeiten
-anderer benötigter Module. Durch die Überarbeitung hat sich die Liste deutlich
-geändert.
+  Mit Version 2.6.2 sind einige Abhängigkeiten von Perl-Modulen hinzugekommen.
+  Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
+  Lx-Office Verzeichnis aus:
 
-Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
-Lx-Office Verzeichnis aus:
+  $ scripts/installation_check.pl
 
-$ scripts/installation_check.pl
+  Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+  der Installationsanweisung.
 
-Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
-der Installationsanweisung.
+  Zumindest folgende Module sind neu benötigt:
 
-Zumindest folgende Module sind neu benötigt:
+  * Rose::Object, Rose::DB und Rose::DB::Object (die Installation von
+      Rose::DB::Object via CPAN oder den Paketmechanismus Ihrer
+      Distribution sollte für die automatische Installation der anderen
+      zwei Pakete sorgen)
 
-* URI
-* XML::Writer
+  Neue Gruppenrechte
+  ------------------
 
- Neue Konfigurationsvariablen
- ----------------------------
+  Es wurde ein neues Recht "Druck" eingeführt. Dieses bestimmt, ob die
+  Benutzerin das Menü "Druck" zu Gesicht bekommt oder nicht, unabhängig
+  davon, wie die Rechte für die einzelnen Unterpunkte gesetzt sind.
 
-In der config/lx-erp.conf ist als neue Option $show_best_before hinzugekommen.
-Die Variable kontrolliert die Anzeige von Mindesthaltbarkeitsdaten. Sie ist
+  Für bereits bestehende Gruppen muss es sofern gewünscht vom
+  Administrator manuell gewährt werden.
+
+
+  Upgrade auf v2.6.1
+  ==================
+
+  Vor dem Einloggen
+  -----------------
+
+  Mit Version 2.6.1 wurden die Listen der benötigten Perl Module überarbeitet.
+  Einige der vorher in den Abhängigkeiten gelisteten Module waren Coremodules
+  (und damit in jeder Perldistribution vorhanden), oder ihrerseits Abhängigkeiten
+  anderer benötigter Module. Durch die Überarbeitung hat sich die Liste deutlich
+  geändert.
+
+  Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
+  Lx-Office Verzeichnis aus:
+
+  $ scripts/installation_check.pl
+
+  Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+  der Installationsanweisung.
+
+  Zumindest folgende Module sind neu benötigt:
+
+  * URI
+  * XML::Writer
+
+  Neue Konfigurationsvariablen
+  ----------------------------
+
+  In der config/lx-erp.conf ist als neue Option $show_best_before hinzugekommen.
+  Die Variable kontrolliert die Anzeige von Mindesthaltbarkeitsdaten. Sie ist
 standardmäßig deaktiviert.

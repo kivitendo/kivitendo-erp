@@ -856,8 +856,8 @@ psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
         <para>Ab Version 3.5.1 wird die Trigram-Index-Erweiterung benötigt.
         Diese wird mit dem SQL-Updatescript
         sql/Pg-upgrade2/trigram_extension.sql und Datenbank-Super-Benutzer
-        Rechten automatisch installiert. Um den Systembenutzer "postgres" mit
-        SuperUserRechten auszustatten braucht dieser ein Passwort.</para>
+        Rechten automatisch installiert. Dazu braucht der
+        DatenbankSuperbenutzer "postgres" ein Passwort.</para>
 
         <programlisting>su - postgres
 psql
@@ -870,20 +870,12 @@ Eingabe Passwort
         einer Datenbank bzw. bei Updatescripten, die SuperuserRechte
         benötigen, eingegeben werden.</para>
 
-        <para>Um die Trigramerweiterung selbst zu installieren:</para>
-
-        <para><programlisting>su - postgres
-psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
-
-        <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
-\q</programlisting>
-
         <note>
           <para><literal>pg_trgm</literal> ist je nach Distribution nicht im
           Standard-Paket von Postgres enthalten. Ein <programlisting>select * from pg_available_extensions where name ='pg_trgm';</programlisting>
           in template1 sollte entsprechend erfolgreich sein. Andernfalls muss
           das Paket nachinstalliert werden, bspw. bei debian/ubuntu
-          <programlisting>apt install potgresql-contrib</programlisting></para>
+          <programlisting>apt install postgresql-contrib</programlisting></para>
         </note>
       </sect2>
 
