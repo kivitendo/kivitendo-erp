@@ -2,7 +2,8 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.5.1-beta: Installation, Konfiguration, Entwicklung</title>
+  <title>kivitendo 3.5.1-beta: Installation, Konfiguration,
+  Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -524,11 +525,11 @@ git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</programlisting>
         Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
-        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha, beta
-        oder rc raus und das tail gibt davon den obersten Treffer zurück).
-        Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
-        erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
-        verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha,
+        beta oder rc raus und das tail gibt davon den obersten Treffer
+        zurück). Sehr sinnvoll ist es, direkt im Anschluss einen eigenen
+        Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
+        damit zu verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
         nach dem letzten Kommando (weiterführende Informationen <ulink
         url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
         Git Magic</ulink>).</para>
@@ -848,31 +849,43 @@ psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
 \q</programlisting>
         </note>
       </sect2>
-      <sect2 id="Erweiterung-für-trigram">
-        <title>Erweiterung für Trigraph Prozeduren</title>
 
-        <para>In der Datenbank <literal>template1</literal> muss die
-        Unterstützung für Trigram Indexes eingerichet werden.
-        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
+      <sect2 id="Erweiterung-für-trigram">
+        <title>Erweiterung für Trigram Prozeduren</title>
+
+        <para>Ab Version 3.5.1 wird die Trigram-Index-Erweiterung benötigt.
+        Diese wird mit dem SQL-Updatescript
+        sql/Pg-upgrade2/trigram_extension.sql und Datenbank-Super-Benutzer
+        Rechten automatisch installiert. Um den Systembenutzer "postgres" mit
+        SuperUserRechten auszustatten braucht dieser ein Passwort.</para>
+
         <programlisting>su - postgres
+psql
+\password postgres
+
+Eingabe Passwort
+\q</programlisting>
+
+        <para>Benutzername Postgres und Passwort können jetzt beim Anlegen
+        einer Datenbank bzw. bei Updatescripten, die SuperuserRechte
+        benötigen, eingegeben werden.</para>
+
+        <para>Um die Trigramerweiterung selbst zu installieren:</para>
+
+        <para><programlisting>su - postgres
 psql template1</programlisting> führen Sie die folgenden Kommandos aus:</para>
 
         <programlisting>CREATE EXTENSION IF NOT EXISTS pg_trgm;
 \q</programlisting>
 
         <note>
-          <para><literal>pg_trgm</literal> ist je nach Distribution
-          nicht im Standard-Paket von Postgres enthalten. Ein
-
-       <programlisting>select * from pg_available_extensions where name ='pg_trgm';</programlisting>
-        in template1 sollte entsprechend erfolgreich sein.
-        Andernfalls muss das Paket nachinstalliert werden, bspw. bei debian/ubuntu
-
-        <programlisting>apt install potgresql-contrib</programlisting>
-          </para>
+          <para><literal>pg_trgm</literal> ist je nach Distribution nicht im
+          Standard-Paket von Postgres enthalten. Ein <programlisting>select * from pg_available_extensions where name ='pg_trgm';</programlisting>
+          in template1 sollte entsprechend erfolgreich sein. Andernfalls muss
+          das Paket nachinstalliert werden, bspw. bei debian/ubuntu
+          <programlisting>apt install potgresql-contrib</programlisting></para>
         </note>
       </sect2>
-
 
       <sect2 id="Datenbankbenutzer-anlegen">
         <title>Datenbankbenutzer anlegen</title>
@@ -8366,11 +8379,14 @@ $self-&gt;{more_texts} = {
         angegeben werden. Der hier angegebene Benutzer muss weiterhin das
         Recht haben, Datenbanken anzulegen und zu löschen.</para>
 
-        <para>Der so angegebene Benutzer muss nicht zwingend über Super-User-Rechte verfügen. Allerdings gibt es einige Datenbank-Upgrades,
-        die genau diese Rechte benötigen. Für den Fall kann man in diesem Konfigurationsabschnitt einen weiteren Benutzeraccount angeben,
-        der dann über Super-User-Rechte verfügt, und mit dem die betroffenen Upgrades durchgeführt werden. In der
-        Beispiel-Konfigurationsdatei finden Sie die benötigten Parameter.</para>
-
+        <para>Der so angegebene Benutzer muss nicht zwingend über
+        Super-User-Rechte verfügen. Allerdings gibt es einige
+        Datenbank-Upgrades, die genau diese Rechte benötigen. Für den Fall
+        kann man in diesem Konfigurationsabschnitt einen weiteren
+        Benutzeraccount angeben, der dann über Super-User-Rechte verfügt, und
+        mit dem die betroffenen Upgrades durchgeführt werden. In der
+        Beispiel-Konfigurationsdatei finden Sie die benötigten
+        Parameter.</para>
       </sect2>
 
       <sect2 id="devel.testsuite.execution">

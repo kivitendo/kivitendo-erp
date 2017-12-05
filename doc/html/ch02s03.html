@@ -30,11 +30,11 @@ git clone https://github.com/kivitendo/kivitendo-erp.git
 cd kivitendo-erp/
 git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</pre><p>
         Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
-        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha, beta
-        oder rc raus und das tail gibt davon den obersten Treffer zurück).
-        Sehr sinnvoll ist es, direkt im Anschluss einen eigenen Branch zu
-        erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen damit zu
-        verwalten. Hierfür reicht ein simples </p><pre class="programlisting">  git checkout -b meine_eigenen_änderungen</pre><p>
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha,
+        beta oder rc raus und das tail gibt davon den obersten Treffer
+        zurück). Sehr sinnvoll ist es, direkt im Anschluss einen eigenen
+        Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
+        damit zu verwalten. Hierfür reicht ein simples </p><pre class="programlisting">  git checkout -b meine_eigenen_änderungen</pre><p>
         nach dem letzten Kommando (weiterführende Informationen <a class="ulink" href="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html" target="_top">
         Git Magic</a>).</p><p>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
         3.4.1 nach 3.5: </p><pre class="programlisting">

@@ -35,8 +35,21 @@ Upgrade auf v3.5.1
 
     installiert werden.
 
+  * Diese Erweiterung wird mit dem SQL-Updatescript sql/Pg-upgrade2/trigram_extension.sql
+    und Datenbank-Super-Benutzer Rechten automatisch installiert.
+    Um den Systembenutzer "postgres" mit SuperUserRechten auszustatten
+    braucht dieser ein Passwort.
 
-  * Um diese Erweiterung generell in Postgres zu aktivieren, muss folgendes gemacht werden:
+    su - postgres
+    psql
+    \password
+    <Eingabe passwort>
+    \q
+
+    Passwort und Benutzername können jetzt beim Anlegen einer neuen Datenbank bzw.
+    bei Updatescripten, die SuperUserRechte benötigen eingegeben werden.
+
+    * Um diese Erweiterung manuell zu installieren und generell in Postgres zu aktivieren, muss folgendes gemacht werden:
 
     su - postgres
     psql template1
