@@ -1023,8 +1023,7 @@ sub aging {
   $report->set_options('std_column_visibility' => 1);
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-
-  my @hidden_variables = qw(todate customer vendor arap title ct fordate reporttype department);
+  my @hidden_variables = qw(todate customer vendor arap title ct fordate reporttype department fromdate);
   $report->set_export_options('generate_' . ($form->{arap} eq 'ar' ? 'ar' : 'ap') . '_aging', @hidden_variables);
 
   my @options;
