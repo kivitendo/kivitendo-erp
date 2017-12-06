@@ -1,4 +1,4 @@
-#========= ===========================================================
+========= ===========================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -1065,8 +1065,8 @@ sub parse_template {
   close OUT if $self->{OUT};
   # check only one flag (webdav_documents)
   # therefore copy to webdav, even if we do not have the webdav feature enabled (just archive)
-  my $copy_to_webdav =  $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
-
+  my $copy_to_webdav =  $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type}
+                        && $self->{type} ne 'statement';
   if ( $ext_for_format eq 'pdf' && $self->doc_storage_enabled ) {
     $self->append_general_pdf_attachments(filepath =>  $self->{tmpdir}."/".$self->{tmpfile},
                                           type     =>  $self->{type});
