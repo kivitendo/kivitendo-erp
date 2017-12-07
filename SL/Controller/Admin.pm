@@ -597,7 +597,7 @@ sub login_form {
   my ($self, %params) = @_;
   $::request->layout(SL::Layout::AdminLogin->new);
   my $version         = SL::Version->get_version;
-  $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version, logo_url => $::form->read_logo );
+  $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version );
 }
 
 sub edit_user_form {
