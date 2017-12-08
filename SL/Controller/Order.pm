@@ -39,10 +39,10 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(save save_and_delivery_order print create_pdf send_email) ]);
+                        only => [ qw(save save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
-                        only => [ qw(save save_and_delivery_order print create_pdf send_email) ]);
+                        only => [ qw(save save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
 #
 # actions
@@ -334,6 +334,28 @@ sub action_save_and_delivery_order {
   my @redirect_params = (
     controller => 'oe.pl',
     action     => 'oe_delivery_order_from_order',
+    id         => $self->order->id,
+  );
+
+  $self->redirect_to(@redirect_params);
+}
+
+# save the order and redirect to the frontend subroutine for a new
+# invoice
+sub action_save_and_invoice {
+  my ($self) = @_;
+
+  my $errors = $self->_save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+  flash_later('info', $::locale->text('The order has been saved'));
+
+  my @redirect_params = (
+    controller => 'oe.pl',
+    action     => 'oe_invoice_from_order',
     id         => $self->order->id,
   );
 
@@ -1123,6 +1145,10 @@ sub _setup_edit_action_bar {
           t8('Save and Delivery Order'),
           call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
         ],
+        action => [
+          t8('Save and Invoice'),
+          call      => [ 'kivi.Order.save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+        ],
 
       ], # end of combobox "Save"
 
@@ -1349,7 +1375,7 @@ java script functions
 
 =item * credit limit
 
-=item * more workflows (save as new / invoice)
+=item * more workflows (save as new, quotation, purchase order)
 
 =item * price sources: little symbols showing better price / better discount
 
@@ -1449,6 +1475,13 @@ editor or on text processing application).
 =item *
 
 A warning when leaving the page without saveing unchanged inputs.
+
+=item *
+
+Workflows for delivery order and invoice are in the menu "Save", because the
+order is saved before opening the new document form. Nevertheless perhaps these
+workflow buttons should be put under "Workflows".
+
 
 =back
 

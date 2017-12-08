@@ -2048,6 +2048,19 @@ sub oe_delivery_order_from_order {
   delivery_order();
 }
 
+sub oe_invoice_from_order {
+
+  return if !$::form->{id};
+
+  my $order = SL::DB::Order->new(id => $::form->{id})->load;
+  $order->flatten_to_form($::form, format_amounts => 1);
+
+  # fake last empty row
+  $::form->{rowcount}++;
+
+  invoice();
+}
+
 sub yes {
   call_sub($main::form->{yes_nextsub});
 }

@@ -55,6 +55,16 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.save_and_invoice = function(warn_on_duplicates) {
+    if (!ns.check_cv()) return;
+    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/save_and_invoice' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.delete_order = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/delete' });
