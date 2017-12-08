@@ -517,7 +517,7 @@ sub action_add_multi_items {
 
         # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
         $item->discount(1) unless $assortment_item->charge;
-        push @items, $assortment_item;
+        push @items, $item;
       }
     }
   }
