@@ -366,6 +366,7 @@ sub action_customer_vendor_changed {
     $self->order->taxincluded(defined($self->order->$cv_method->taxincluded_checked)
                               ? $self->order->$cv_method->taxincluded_checked
                               : $::myconfig{taxincluded_checked});
+    $self->js->val('#order_salesman_id', $self->order->$cv_method->salesman_id);
   }
 
   $self->order->payment_id($self->order->$cv_method->payment_id);
@@ -1362,8 +1363,6 @@ java script functions
 
 =item * access rights
 
-=item * preset salesman from customer
-
 =item * display weights
 
 =item * history
@@ -1385,6 +1384,8 @@ java script functions
 
 Customer discount is not displayed as a valid discount in price source popup
 (this might be a bug in price sources)
+
+(I cannot reproduce this (Bernd))
 
 =item *
 
