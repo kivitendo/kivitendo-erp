@@ -115,7 +115,7 @@
     <td colspan="100%">
       [%- IF MYCONFIG.show_form_details %]
         <div name="second_row" data-loaded="1">
-          [%- PROCESS order/tabs/_second_row.html ITEM=ITEM %]
+          [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=TYPE %]
         </div>
       [%- ELSE %]
         <div name="second_row">

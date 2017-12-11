@@ -180,7 +180,7 @@
             </thead>
 
             [%- FOREACH item = SELF.order.items_sorted %]
-              [%- PROCESS order/tabs/_row.html ITEM=item ID=item.id ALL_PRICE_FACTORS=SELF.all_price_factors %]
+              [%- PROCESS order/tabs/_row.html ITEM=item ID=item.id TYPE=SELF.type ALL_PRICE_FACTORS=SELF.all_price_factors %]
             [%- END %]
 
           </table>

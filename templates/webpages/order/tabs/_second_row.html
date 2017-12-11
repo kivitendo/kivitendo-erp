@@ -14,7 +14,7 @@
     [% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]&nbsp;
     <b>[%- 'Subtotal' | $T8 %]</b>&nbsp;
     [% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]&nbsp;
-    [%- IF ITEM.order.is_sales %]
+    [%- IF TYPE == "sales_order" %]
       <b>[%- 'Ertrag' | $T8 %]</b>&nbsp;
         <span name="linemargin">
           <span[%- IF ITEM.marge_total < 0 -%] class="plus0"[%- END -%]>

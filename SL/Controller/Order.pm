@@ -447,6 +447,7 @@ sub action_add_item {
   my $row_as_html = $self->p->render('order/tabs/_row',
                                      ITEM              => $item,
                                      ID                => $item_id,
+                                     TYPE              => $self->type,
                                      ALL_PRICE_FACTORS => $self->all_price_factors
   );
 
@@ -472,6 +473,7 @@ sub action_add_item {
       my $row_as_html = $self->p->render('order/tabs/_row',
                                          ITEM              => $item,
                                          ID                => $item_id,
+                                         TYPE              => $self->type,
                                          ALL_PRICE_FACTORS => $self->all_price_factors
       );
       $self->js
@@ -553,6 +555,7 @@ sub action_add_multi_items {
     my $row_as_html = $self->p->render('order/tabs/_row',
                                        ITEM              => $item,
                                        ID                => $item_id,
+                                       TYPE              => $self->type,
                                        ALL_PRICE_FACTORS => $self->all_price_factors
     );
 
@@ -665,7 +668,7 @@ sub _js_load_second_row {
     $item->parse_custom_variable_values;
   }
 
-  my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item);
+  my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
 
   $self->js
     ->html('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', $row_as_html)
