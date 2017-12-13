@@ -41,7 +41,7 @@ use SL::Dispatcher;
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_client, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword, $opt_create, $opt_type);
-my ($opt_description, $opt_encoding, @opt_depends, $opt_auth_db);
+my ($opt_description, @opt_depends, $opt_auth_db);
 
 our (%myconfig, $form, $user, $auth, $locale, $controls, $dbupgrader);
 
@@ -117,9 +117,6 @@ dbupgrade2_tool.pl [options]
   Options for --create:
     --type               \'sql\' or \'pl\'. Defaults to sql.
     --description        The description field of the generated upgrade.
-    --encoding           Encoding used for the file. Defaults to \'utf8\'.
-                         Note: Your editor will not be told to open the file in
-                         this encoding.
     --depends            Tags of upgrades which this upgrade depends upon.
                          Defaults to the latest stable release upgrade.
                          Multiple values possible.
@@ -267,8 +264,9 @@ sub create_upgrade {
   my $dbupgrader  = $params{dbupgrader};
   my $type        = $params{type}        || 'sql';
   my $description = $params{description} || '';
-  my $encoding    = $params{encoding}    || 'utf-8';
   my @depends     = @{ $params{depends} };
+
+  my $encoding    = 'utf-8';
 
   if (!@depends) {
     my @releases = grep { /^release_/ } keys %$controls;
@@ -295,7 +293,6 @@ sub create_upgrade {
   print $fh "$comment \@tag: $filename\n";
   print $fh "$comment \@description: $description\n";
   print $fh "$comment \@depends: @depends\n";
-  print $fh "$comment \@encoding: $encoding\n";
 
   if ($type eq 'pl') {
     print $fh "package SL::DBUpgrade2::$filename;\n";
@@ -498,7 +495,6 @@ GetOptions("list"         => \$opt_list,
            "applied"      => \$opt_applied,
            "create=s"     => \$opt_create,
            "type=s"       => \$opt_type,
-           "encoding=s"   => \$opt_encoding,
            "description=s" => \$opt_description,
            "depends=s"    => \@opt_depends,
            "unapplied"    => \$opt_unapplied,
@@ -527,7 +523,6 @@ create_upgrade(filename   => $opt_create,
                dbupgrader  => $dbupgrader,
                type        => $opt_type,
                description => $opt_description,
-               encoding    => $opt_encoding,
                depends     => \@opt_depends) if ($opt_create);
 
 if ($opt_client && !connect_auth()->set_client($opt_client)) {
