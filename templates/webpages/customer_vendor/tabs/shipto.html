@@ -135,7 +135,7 @@
     [% END %]
   </table>
 
-  [% L.button_tag('submitInputButton(this);', LxERP.t8('Delete Shipto'), name = 'action_delete_shipto', class = 'submit') %]
+  [% L.button_tag('submitInputButton("delete_shipto");', LxERP.t8('Delete Shipto'), class = 'submit') %]
   [% IF ( !SELF.shipto.shipto_id ) %]
     <script type="text/javascript">
       $('#action_delete_shipto').hide();

@@ -57,23 +57,13 @@
 
 <script type="text/javascript">
 <!--
-  function submitInputButton(button)
+  function submitInputButton(action)
   {
-    var hidden = document.createElement("input");
-    hidden.setAttribute("type", "hidden");
+    var $hidden = $("<input type='hidden' name='action' value='CustomerVendor/" + action + "'>"),
+        $form   = $('#form');
 
-    if ( button.hasAttribute("name") )
-      hidden.setAttribute("name", button.getAttribute("name"));
-
-    if ( button.hasAttribute("value") )
-      hidden.setAttribute("value", button.getAttribute("value"));
-
-
-    button.form.appendChild(hidden);
-
-    button.disabled = true;
-
-    button.form.submit();
+    $form.append($hidden);
+    $form.submit();
   }
 
   function check_taxzone_and_ustid() {
