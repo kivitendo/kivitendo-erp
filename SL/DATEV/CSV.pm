@@ -231,10 +231,10 @@ my @kivitendo_to_datev = (
                               input_check     => sub {
                                                        my ($ustid) = @_;
                                                        return 1 if ('' eq $ustid);
-                                                       $ustid =~ s{\s+}{}g;
+                                                       $ustid =~ s{[\s.]+}{}g;
                                                        return ($ustid =~ m/^CH|^[A-Z]{2}\w{5,13}$/);
                                                      },
-                              formatter       => sub { my ($input) = @_; $input =~ s/\s//g; return $input },
+                              formatter       => sub { my ($input) = @_; $input =~ s/[\s.]+//g; return $input },
                               valid_check     => sub {
                                                        my ($ustid) = @_;
                                                        return 1 if ('' eq $ustid);
