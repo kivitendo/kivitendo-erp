@@ -1,4 +1,4 @@
-use Test::More tests => 84;
+use Test::More tests => 86;
 
 use lib 't';
 use utf8;
@@ -809,9 +809,33 @@ $csv->parse;
 is $csv->get_objects->[0]->sellprice, 4.99, 'case insensitive mapping with profile works';
 
 
+# self-mapping with profile
+$csv = SL::Helper::Csv->new(
+  file   => \"sellprice\n4,99",        # " # make emacs happy
+  case_insensitive_header => 1,
+  profile => [{
+    profile => { sellprice => 'sellprice_as_number' },
+    mapping => { sellprice => 'sellprice' },
+    class  => 'SL::DB::Part',
+  }],
+);
+$csv->parse;
+is $csv->get_objects->[0]->sellprice, 4.99, 'self-mapping with profile works';
+
+# self-mapping without profile
+$csv = SL::Helper::Csv->new(
+  file   => \"sellprice\n4.99",        # " # make emacs happy
+  case_insensitive_header => 1,
+  profile => [{
+    mapping => { sellprice => 'sellprice' },
+    class  => 'SL::DB::Part',
+  }],
+);
+$csv->parse;
+is $csv->get_objects->[0]->sellprice, 4.99, 'self-mapping without profile works';
+
 # vim: ft=perl
 # set emacs to perl mode
 # Local Variables:
 # mode: perl
 # End:
-

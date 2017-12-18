@@ -130,7 +130,7 @@ sub parse_profile {
 sub _parse_profile {
   my ($self, %params) = @_;
 
-  my $profile = $params{profile};
+  my $profile = $params{profile} // {};
   my $class   = $params{class};
   my $header  = $params{header};
   my $mapping = $params{mapping};
@@ -141,7 +141,7 @@ sub _parse_profile {
     next unless $col;
     if (exists $mapping->{$col} && $profile->{$mapping->{$col}}) {
       push @specs, $self->make_spec($col, $profile->{$mapping->{$col}}, $class);
-    } elsif (exists $mapping->{$col}) {
+    } elsif (exists $mapping->{$col} && !%{ $profile }) {
       push @specs, $self->make_spec($col, $mapping->{$col}, $class);
     } elsif (exists $profile->{$col}) {
       push @specs, $self->make_spec($col, $profile->{$col}, $class);
