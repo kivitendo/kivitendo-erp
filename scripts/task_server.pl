@@ -246,6 +246,10 @@ sub run_once_for_all_clients {
 
         my $history = $job->run;
 
+        debug("   Executed job " . $job->package_name .
+              "; result: " . (!$history ? "no return value" : $history->has_failed ? "failed" : "succeeded") .
+              ($history && $history->has_failed ? "; error: " . $history->error_col : ""));
+
         notify_on_failure(history => $history) if $history && $history->has_failed;
       }
 
