@@ -1050,7 +1050,7 @@ sub generate_datev_lines {
       $datev_data{buchungsschluessel} = $taxkey;
     }
 
-    push(@datev_lines, \%datev_data);
+    push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
 
   # example of modifying export data:
