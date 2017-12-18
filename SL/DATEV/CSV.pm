@@ -22,7 +22,7 @@ my @kivitendo_to_datev = (
                               max_length      => 13,
                               type            => 'Value',
                               required        => 1,
-                              input_check     => sub { my ($input) = @_; return (looks_like_number($input) && length($input) <= 13 && $input >= 0) },
+                              input_check     => sub { my ($input) = @_; return (looks_like_number($input) && length($input) <= 13 && $input > 0) },
                               formatter       => \&_format_amount,
                               valid_check     => sub { my ($check) = @_; return ($check =~ m/^\d{1,10}(\,\d{1,2})?$/) },
                             },
