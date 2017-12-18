@@ -733,9 +733,13 @@ sub cleanup_reports {
 }
 
 sub check_task_server {
+  if (!$::auth->client->{task_server_user_id}) {
+    flash('error', t8('The task server is required for this module but not enabled for the current client. Please enable it for the client "#1" in the administration section.', $::auth->client->{name}));
+  }
+
   return 1 if $_[0]->task_server->is_running;
 
-  flash('info', t8('The task server is not running at the moment but needed for this module'));
+  flash('warning', t8('The task server is not running at the moment but needed for this module'));
 
   1;
 }

@@ -3304,6 +3304,7 @@ $self->{texts} = {
   'The task server is already running.' => 'Der Task-Server läuft bereits.',
   'The task server is not running at the moment but needed for this module' => 'Der Taskserver wird für dieses Modul benötigt, läuft aber im Moment nicht.',
   'The task server is not running.' => 'Der Task-Server läuft nicht.',
+  'The task server is required for this module but not enabled for the current client. Please enable it for the client "#1" in the administration section.' => 'Der Task-Server wird für dieses Modul benötigt, ist aber für den aktuellen Mandanten deaktiviert. Bitte aktivieren Sie ihn für den Mandanten »#1« im Administrationsbereich.',
   'The task server was started successfully.' => 'Der Task-Server wurde erfolgreich gestartet.',
   'The task server was stopped successfully.' => 'Der Task-Server wurde erfolgreich beendet.',
   'The tax zone has been deleted.' => 'Die Steuerzone wurde gelöscht.',
