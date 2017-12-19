@@ -19,6 +19,7 @@ use SL::DB::RequirementSpecRisk;
 use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
+use SL::Presenter::Text qw(truncate);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -192,7 +193,7 @@ sub action_ajax_create {
   my $type = $self->item->item_type;
 
   if ($type eq 'section') {
-    my $node = $self->presenter->requirement_spec_item_jstree_data($self->item);
+    my $node = $self->item->presenter->jstree_data;
     $self->invalidate_version;
     $self->render_list($self->item)
       ->hide('#section-list-empty')
@@ -205,7 +206,7 @@ sub action_ajax_create {
 
   my $template = 'requirement_spec_item/_' . (apply { s/-/_/g; $_ } $type);
   my $html     = $self->render($template, { output => 0 }, requirement_spec_item => $self->item, id_prefix => $type eq 'function-block' ? '' : 'sub-');
-  my $node     = $self->presenter->requirement_spec_item_jstree_data($self->item);
+  my $node     = $self->item->presenter->jstree_data;
 
   $self->js
     ->replaceWith('#' . $prefix . '_form', $html)
@@ -298,7 +299,7 @@ sub action_ajax_update {
       ->remove('#edit_section_form')
       ->html('#section-header-' . $self->item->id, $html)
       ->show('#section-header-' . $self->item->id)
-      ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
+      ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $self->item->presenter->tree_node_title)
       ->prop('#fb-' . $self->item->id . ' a', 'title', $self->item->content_excerpt)
       ->addClass('#fb-' . $self->item->id . ' a', 'tooltip')
       ->reinit_widgets
@@ -319,7 +320,7 @@ sub action_ajax_update {
     ->prop('#fb-' . $self->item->id . ' a', 'title', $self->item->content_excerpt)
     ->addClass('#fb-' . $self->item->id . ' a', 'tooltip')
     ->reinit_widgets
-    ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
+    ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $self->item->presenter->tree_node_title);
 
   $self->replace_bottom($self->item, id_prefix => $id_prefix);
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
@@ -439,7 +440,7 @@ sub assign_requirement_spec_id_rec {
 sub create_and_insert_node_rec {
   my ($self, $item, $new_parent_id, $insert_after) = @_;
 
-  my $node = $self->presenter->requirement_spec_item_jstree_data($item);
+  my $node = $item->presenter->jstree_data;
   $self->js->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : $new_parent_id ? ('#fb-' . $new_parent_id, 'last') : ('#sections', 'last'), $node);
 
   $self->create_and_insert_node_rec($_, $item->id) for @{ $item->children || [] };
@@ -562,7 +563,7 @@ sub select_node {
 
 sub create_dependency_item {
   my $self = shift;
-  [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description_as_stripped_html))) ];
+  [ $_[0]->id, truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description_as_stripped_html))) ];
 }
 
 sub create_dependencies {

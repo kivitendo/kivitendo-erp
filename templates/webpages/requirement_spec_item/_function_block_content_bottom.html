@@ -1,7 +1,7 @@
 [%- USE LxERP -%][%- USE P -%]<div id="[% id_prefix %]function-block-content-bottom-[% requirement_spec_item.id %]" class="smaller" style="text-align:right">
  [%- IF requirement_spec_item.dependencies.size -%]
  <span class="gray">
-  [%- LxERP.t8("Dependencies") -%]: [%- P.requirement_spec_item_dependency_list(requirement_spec_item) -%]
+  [%- LxERP.t8("Dependencies") -%]: [%- requirement_spec_item.presenter.requirement_spec_item_dependency_list -%]
  </span><br>
  [%- END -%]
  <span class="gray">

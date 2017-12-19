@@ -145,7 +145,7 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \begin{longtable}{p{2.8cm}p{11.7cm}}
   Funktionsblock & $( KiviLatex.filter(item.fb_number) )$\\
   Beschreibung & $( KiviLatex.filter_html(item.description_as_restricted_html) )$\\
-  Abhängigkeiten & $( KiviLatex.filter(P.requirement_spec_item_dependency_list(item)) )$
+  Abhängigkeiten & $( KiviLatex.filter(item.presenter.requirement_spec_item_dependency_list) )$
 \end{longtable}}
 
 %    $( FOREACH sub_item = item.children_sorted )$
@@ -155,7 +155,7 @@ $( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
 \begin{longtable}{p{2.8cm}p{11.7cm}}
   Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$\\
   Beschreibung & $( KiviLatex.filter_html(sub_item.description_as_restricted_html) )$\\
-  Abhängigkeiten & $( KiviLatex.filter(P.requirement_spec_item_dependency_list(sub_item)) )$
+  Abhängigkeiten & $( KiviLatex.filter(sub_item.presenter.requirement_spec_item_dependency_list) )$
 \end{longtable}}
 
 %    $( END )$

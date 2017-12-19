@@ -56,7 +56,7 @@ $(function() {
       attr:     { id: "tb-front", class: "text-block-context-menu" },
       children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=0) %]
- [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+ [% tb.presenter.jstree_data.json %][% IF !loop.last %],[% END %]
 [% END %]
       ]},
 
@@ -65,7 +65,7 @@ $(function() {
       attr:     { id: "sections", class: "section-context-menu" },
       children: [
 [% FOREACH section = sections %]
- [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
+ [% section.presenter.jstree_data.json %][% IF !loop.last %],[% END %]
 [% END %]
       ]},
 
@@ -74,7 +74,7 @@ $(function() {
       attr:     { id: "tb-back", class: "text-block-context-menu" },
       children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=1) %]
- [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+ [% tb.presenter.jstree_data.json %][% IF !loop.last %],[% END %]
 [% END %]
       ]}
   ];

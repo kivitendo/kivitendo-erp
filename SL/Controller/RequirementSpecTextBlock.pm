@@ -102,7 +102,7 @@ sub action_ajax_create {
   $self->text_block->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
 
   my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
-  my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
+  my $node = $self->text_block->presenter->jstree_data;
 
   $self->invalidate_version
     ->hide('#text-block-list-empty')
@@ -272,7 +272,7 @@ sub action_ajax_paste {
     $self->js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'));
   }
 
-  my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
+  my $node = $self->text_block->presenter->jstree_data;
   $self->invalidate_version
     ->run(SORTABLE_PICTURE_LIST())
     ->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
