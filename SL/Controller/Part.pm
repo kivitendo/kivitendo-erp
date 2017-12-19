@@ -19,6 +19,7 @@ use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
 use SL::CVar;
 use SL::MoreCommon qw(save_form);
 use Carp;
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
@@ -408,10 +409,10 @@ sub action_multi_items_update_result {
   my $count = $_[0]->multi_items_models->count;
 
   if ($count == 0) {
-    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('No results.'));
+    my $text = escape($::locale->text('No results.'));
     $_[0]->render($text, { layout => 0 });
   } elsif ($count > $max_count) {
-    my $text = SL::Presenter::EscapedText->new(text => $::locale->text('Too many results (#1 from #2).', $count, $max_count));
+    my $text = escpae($::locale->text('Too many results (#1 from #2).', $count, $max_count));
     $_[0]->render($text, { layout => 0 });
   } else {
     my $multi_items = $_[0]->multi_items_models->get;

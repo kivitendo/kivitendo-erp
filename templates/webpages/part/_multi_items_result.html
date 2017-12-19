@@ -25,7 +25,7 @@
                        class = 'multi_items_qty numeric') %]
       </td>
       <td>[% HTML.escape(item.unit) %]</td>
-      <td>[% P.part(item) %] [% HTML.escape(item.description) %]</td>
+      <td>[% item.presenter.part %] [% HTML.escape(item.description) %]</td>
       <td class="numeric">[% HTML.escape(item.sellprice_as_number) %]</td>
       <td class="numeric">[% HTML.escape(item.partsgroup.partsgroup) %]</td>
     </tr>

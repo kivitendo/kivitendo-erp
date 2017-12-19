@@ -22,10 +22,10 @@
       <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]" class="dragdrop">
     </td>
     <td nowrap>
-       [% P.part(ITEM.part) %]
+       [% ITEM.part.presenter.part %]
     </td>
     <td nowrap>
-       [% P.type_abbreviation(ITEM.part.part_type) %][% P.classification_abbreviation(ITEM.part.classification_id) %]
+       [% P.part.type_abbreviation(ITEM.part.part_type) %][% P.classification_abbreviation(ITEM.part.classification_id) %]
     </td>
     <td>
        [% HTML.escape(ITEM.part.description) %]

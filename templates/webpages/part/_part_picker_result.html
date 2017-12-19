@@ -16,7 +16,7 @@
   <span class='ppp_block_description'>[% part.description | html %]</span>
   <div style='clear:both;'></div>
   <span class='ppp_block_sellprice'>[% 'Sellprice' | $T8 %]: [% part.sellprice_as_number | html %]</span>
-  <span class='ppp_block_description'>[% P.typeclass_abbreviation(part) %]</span>
+  <span class='ppp_block_description'>[% part.presenter.typeclass_abbreviation %]</span>
 </div>
 [%- END %]
 

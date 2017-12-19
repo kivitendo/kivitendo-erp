@@ -41,6 +41,7 @@ use SL::CVar;
 use SL::IC;
 use SL::Helper::Flash qw(flash);
 use SL::HTML::Util;
+use SL::Presenter::Part;
 use SL::ReportGenerator;
 
 #use SL::PE;
@@ -556,8 +557,8 @@ sub generate_report {
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
     $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
-    $row->{type_and_classific}{data} = $::request->presenter->type_abbreviation($ref->{part_type}).
-                                       $::request->presenter->classification_abbreviation($ref->{classification_id});
+    $row->{type_and_classific}{data} = SL::Presenter::Part::type_abbreviation($ref->{part_type}).
+                                       SL::Presenter::Part::classification_abbreviation($ref->{classification_id});
 
     $report->add_data($row);
 

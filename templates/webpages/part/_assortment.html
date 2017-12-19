@@ -2,6 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 
 <div id="assortment" name="assortment">
 
@@ -40,7 +41,7 @@
  <td></td>
  <td></td>
  <td align="right">[% 'Part' | $T8 %]:</td>
- <td>[% L.part_picker('add_items[+].parts_id', '', style='width: 300px', multiple=1, id='assortment_picker', action={set_multi_items='kivi.Part.set_multi_assortment_items'}) %]</td>
+ <td>[% P.part.picker('add_items[+].parts_id', '', style='width: 300px', multiple=1, id='assortment_picker', action={set_multi_items='kivi.Part.set_multi_assortment_items'}) %]</td>
  <td>[%- L.button_tag("kivi.Part.add_assortment_item()", LxERP.t8("Add")) %]</td>
  <td>[% L.button_tag('$("#assortment_picker").data("part_picker").open_dialog()', LxERP.t8('Add multiple items')) %]</td>
  <td>[% L.hidden_tag('add_items[].qty_as_number', 1) %]</td>
