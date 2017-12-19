@@ -3,6 +3,8 @@ package SL::Template::Plugin::P;
 use base qw( Template::Plugin );
 
 use SL::Presenter;
+use SL::Presenter::ALL;
+use SL::Presenter::Simple;
 use SL::Presenter::EscapedText;
 
 use strict;
@@ -24,21 +26,28 @@ sub AUTOLOAD {
   our $AUTOLOAD;
 
   my ($self, @args) = @_;
-
   my $presenter     = SL::Presenter->get;
   my $method        =  $AUTOLOAD;
   $method           =~ s/.*:://;
 
   return '' if $method eq 'DESTROY';
 
-  if (!$presenter->can($method)) {
-    $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
-    return '';
-  }
-
   splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
 
-  $presenter->$method(@args);
+  if ($SL::Presenter::ALL::presenters{$method}) {
+    return SL::Presenter::ALL::wrap($SL::Presenter::ALL::presenters{$method});
+  }
+
+  if (my $sub = SL::Presenter::Simple->can($method)) {
+    return $sub->(@args);
+  }
+
+  if ($presenter->can($method)) {
+    return $presenter->$method(@args);
+  }
+
+  $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
+  return;
 }
 
 1;
@@ -57,10 +66,10 @@ SL::Template::Plugin::P - Template plugin for the presentation layer
 
   [% USE P %]
 
-  Customer: [% P.customer(customer) %]
+  Customer: [% customer.presenter.customer %]
 
   Linked records:
-  [% P.grouped_record_list(RECORDS) %]
+  [% P.record.grouped_list(RECORDS) %]
 
 =head1 FUNCTIONS
 

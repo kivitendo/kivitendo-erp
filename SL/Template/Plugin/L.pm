@@ -8,6 +8,8 @@ use List::Util qw(max);
 use Scalar::Util qw(blessed);
 
 use SL::Presenter;
+use SL::Presenter::ALL;
+use SL::Presenter::Simple;
 use SL::Util qw(_hashify);
 
 use strict;
@@ -50,14 +52,18 @@ sub _call_presenter {
 
   my $presenter              = $::request->presenter;
 
-  if (!$presenter->can($method)) {
-    $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
-    return '';
-  }
-
   splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
 
-  $presenter->$method(@args);
+  if (my $sub = SL::Presenter::Simple->can($method)) {
+    return $sub->(@args);
+  }
+
+  if ($presenter->can($method)) {
+    return $presenter->$method(@args);
+  }
+
+  $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
+  return;
 }
 
 sub name_to_id    { return _call_presenter('name_to_id',    @_); }
@@ -69,10 +75,6 @@ sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub javascript    { return _call_presenter('javascript',    @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
-sub part_picker   { return _call_presenter('part_picker',   @_); }
-sub chart_picker  { return _call_presenter('chart_picker',  @_); }
-sub customer_vendor_picker   { return _call_presenter('customer_vendor_picker',   @_); }
-sub project_picker           { return _call_presenter('project_picker',           @_); }
 sub button_tag               { return _call_presenter('button_tag',               @_); }
 sub submit_tag               { return _call_presenter('submit_tag',               @_); }
 sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',          @_); }

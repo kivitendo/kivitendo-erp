@@ -2,39 +2,39 @@ package SL::Presenter::Order;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(sales_quotation sales_order request_quotation purchase_order);
+our @EXPORT_OK = qw(sales_quotation sales_order request_quotation purchase_order);
 
 use Carp;
 
 sub sales_quotation {
-  my ($self, $order, %params) = @_;
+  my ($order, %params) = @_;
 
-  return _oe_record($self, $order, 'sales_quotation', %params);
+  return _oe_record($order, 'sales_quotation', %params);
 }
 
 sub sales_order {
-  my ($self, $order, %params) = @_;
+  my ($order, %params) = @_;
 
-  return _oe_record($self, $order, 'sales_order', %params);
+  return _oe_record($order, 'sales_order', %params);
 }
 
 sub request_quotation {
-  my ($self, $order, %params) = @_;
+  my ($order, %params) = @_;
 
-  return _oe_record($self, $order, 'request_quotation', %params);
+  return _oe_record($order, 'request_quotation', %params);
 }
 
 sub purchase_order {
-  my ($self, $order, %params) = @_;
+  my ($order, %params) = @_;
 
-  return _oe_record($self, $order, 'purchase_order', %params);
+  return _oe_record($order, 'purchase_order', %params);
 }
 
 sub _oe_record {
-  my ($self, $order, $type, %params) = @_;
+  my ($order, $type, %params) = @_;
 
   $params{display} ||= 'inline';
 
@@ -43,11 +43,12 @@ sub _oe_record {
   my $number_method = $order->quotation ? 'quonumber' : 'ordnumber';
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="oe.pl?action=edit&amp;type=' . $type . '&amp;id=' . $self->escape($order->id) . '">',
-    $self->escape($order->$number_method),
+    $params{no_link} ? '' : '<a href="oe.pl?action=edit&amp;type=' . $type . '&amp;id=' . escape($order->id) . '">',
+    escape($order->$number_method),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+
+  is_escaped($text);
 }
 
 1;
@@ -68,19 +69,19 @@ quotations, sales orders, requests for quotations and purchase orders
 
   # Sales quotations:
   my $object = SL::DB::Manager::Order->get_first(where => [ SL::DB::Manager::Order->type_filter('sales_quotation') ]);
-  my $html   = SL::Presenter->get->sales_quotation($object, display => 'inline');
+  my $html   = SL::Presenter::Order::sales_quotation($object, display => 'inline');
 
   # Sales orders:
   my $object = SL::DB::Manager::Order->get_first(where => [ SL::DB::Manager::Order->type_filter('sales_order') ]);
-  my $html   = SL::Presenter->get->sales_order($object, display => 'inline');
+  my $html   = SL::Presenter::Order::sales_order($object, display => 'inline');
 
   # Requests for quotations:
   my $object = SL::DB::Manager::Order->get_first(where => [ SL::DB::Manager::Order->type_filter('request_quotation') ]);
-  my $html   = SL::Presenter->get->request_quotation($object, display => 'inline');
+  my $html   = SL::Presenter::Order::request_quotation($object, display => 'inline');
 
   # Purchase orders:
   my $object = SL::DB::Manager::Order->get_first(where => [ SL::DB::Manager::Order->type_filter('purchase_order') ]);
-  my $html   = SL::Presenter->get->purchase_order($object, display => 'inline');
+  my $html   = SL::Presenter::Order::purchase_order($object, display => 'inline');
 
 =head1 FUNCTIONS
 

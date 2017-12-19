@@ -7,25 +7,7 @@ use parent qw(Rose::Object);
 use Carp;
 use Template;
 
-use SL::Presenter::Chart;
-use SL::Presenter::CustomerVendor;
-use SL::Presenter::DeliveryOrder;
-use SL::Presenter::EscapedText;
-use SL::Presenter::Invoice;
-use SL::Presenter::GL;
-use SL::Presenter::Letter;
-use SL::Presenter::Order;
-use SL::Presenter::Part;
-use SL::Presenter::Project;
-use SL::Presenter::Record;
-use SL::Presenter::RequirementSpec;
-use SL::Presenter::RequirementSpecItem;
-use SL::Presenter::RequirementSpecTextBlock;
-use SL::Presenter::SepaExport;
-use SL::Presenter::ShopOrder;
-use SL::Presenter::Text;
-use SL::Presenter::Tag;
-use SL::Presenter::BankAccount;
+use SL::Presenter::EscapedText qw(is_escaped);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(need_reinit_widgets) ],
@@ -80,15 +62,15 @@ sub render {
   if (!$options->{process}) {
     # If $template is a reference then don't try to read a file.
     my $ref = ref $template;
-    return $template                                                                if $ref eq 'SL::Presenter::EscapedText';
-    return SL::Presenter::EscapedText->new(text => ${ $template }, is_escaped => 1) if $ref eq 'SCALAR';
+    return $template                  if $ref eq 'SL::Presenter::EscapedText';
+    return is_escaped(${ $template }) if $ref eq 'SCALAR';
 
     # Otherwise return the file's content.
     my $file    = IO::File->new($source, "r") || croak("Template file ${source} could not be read");
     my $content = do { local $/ = ''; <$file> };
     $file->close;
 
-    return SL::Presenter::EscapedText->new(text => $content, is_escaped => 1);
+    return is_escaped($content);
   }
 
   # Processing was requested. Set up all variables.
@@ -108,7 +90,7 @@ sub render {
   my $parser = $self->get_template;
   $parser->process($source, \%params, \$output) || croak $parser->error;
 
-  return SL::Presenter::EscapedText->new(text => $output, is_escaped => 1);
+  return is_escaped($output);
 }
 
 sub get_template {
@@ -130,28 +112,6 @@ sub get_template {
                   }) || croak;
 
   return $self->{template};
-}
-
-sub escape {
-  my ($self, $text) = @_;
-
-  return SL::Presenter::EscapedText->new(text => $text);
-}
-
-sub escaped_text {
-  my ($self, $text) = @_;
-
-  return SL::Presenter::EscapedText->new(text => $text, is_escaped => 1);
-}
-
-sub escape_js {
-  my ($self, $text) = @_;
-
-  $text =~ s|\\|\\\\|g;
-  $text =~ s|\"|\\\"|g;
-  $text =~ s|\n|\\n|g;
-
-  return SL::Presenter::EscapedText->new(text => $text, is_escaped => 1);
 }
 
 1;
@@ -176,14 +136,15 @@ SL::Presenter - presentation layer class
   # Higher-level rendering of certain objects:
   use SL::DB::Customer;
 
-  my $linked_customer_name = $presenter->customer($customer, display => 'table-cell');
+  my $linked_customer_name = $customer->presenter->customer(display => 'table-cell');
 
   # Render a list of links to sales/purchase records:
   use SL::DB::Order;
+  use SL::Presenter::Record qw(grouped_record_list);
 
   my $quotation = SL::DB::Manager::Order->get_first(where => { quotation => 1 });
   my $records   = $quotation->linked_records(direction => 'to');
-  my $html      = $presenter->grouped_record_list($records);
+  my $html      = grouped_record_list($records);
 
 =head1 CLASS FUNCTIONS
 
@@ -308,35 +269,6 @@ it at all:
     'customer/contact',
     { type => 'json', process => 0 }
   );
-
-=item C<escape $text>
-
-Returns an HTML-escaped version of C<$text>. Instead of a string an
-instance of the thin proxy-object L<SL::Presenter::EscapedText> is
-returned.
-
-It is safe to call C<escape> on an instance of
-L<SL::Presenter::EscapedText>. This is a no-op (the same instance will
-be returned).
-
-=item C<escaped_text $text>
-
-Returns an instance of L<SL::Presenter::EscapedText>. C<$text> is
-assumed to be a string that has already been HTML-escaped.
-
-It is safe to call C<escaped_text> on an instance of
-L<SL::Presenter::EscapedText>. This is a no-op (the same instance will
-be returned).
-
-=item C<escape_js $text>
-
-Returns a JavaScript-escaped version of C<$text>. Instead of a string
-an instance of the thin proxy-object L<SL::Presenter::EscapedText> is
-returned.
-
-It is safe to call C<escape> on an instance of
-L<SL::Presenter::EscapedText>. This is a no-op (the same instance will
-be returned).
 
 =item C<get_template>
 

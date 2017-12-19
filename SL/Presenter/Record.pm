@@ -2,10 +2,11 @@ package SL::Presenter::Record;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter;
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(grouped_record_list empty_record_list record_list record);
+our @EXPORT_OK = qw(grouped_record_list empty_record_list record_list record);
 
 use SL::Util;
 
@@ -20,63 +21,67 @@ sub _arrayify {
 }
 
 sub record {
-  my ($self, $record, %params) = @_;
+  my ($record, %params) = @_;
 
   my %grouped = _group_records( [ $record ] ); # pass $record as arrayref
   my $type    = (keys %grouped)[0];
 
-  return $self->sales_invoice(   $record, %params) if $type eq 'sales_invoices';
-  return $self->purchase_invoice($record, %params) if $type eq 'purchase_invoices';
-  return $self->ar_transaction(  $record, %params) if $type eq 'ar_transactions';
-  return $self->ap_transaction(  $record, %params) if $type eq 'ap_transactions';
-  return $self->gl_transaction(  $record, %params) if $type eq 'gl_transactions';
+  $record->presenter->sales_invoice(   $record, %params) if $type eq 'sales_invoices';
+  $record->presenter->purchase_invoice($record, %params) if $type eq 'purchase_invoices';
+  $record->presenter->ar_transaction(  $record, %params) if $type eq 'ar_transactions';
+  $record->presenter->ap_transaction(  $record, %params) if $type eq 'ap_transactions';
+  $record->presenter->gl_transaction(  $record, %params) if $type eq 'gl_transactions';
 
   return '';
 }
 
 sub grouped_record_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
   %params    = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links with_columns object_id object_model);
 
   my %groups = _sort_grouped_lists(_group_records($list));
   my $output = '';
 
-  $output .= _requirement_spec_list(       $self, $groups{requirement_specs},        %params) if $groups{requirement_specs};
-  $output .= _shop_order_list(             $self, $groups{shop_orders},              %params) if $groups{shop_orders};
-  $output .= _sales_quotation_list(        $self, $groups{sales_quotations},         %params) if $groups{sales_quotations};
-  $output .= _sales_order_list(            $self, $groups{sales_orders},             %params) if $groups{sales_orders};
-  $output .= _sales_delivery_order_list(   $self, $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
-  $output .= _sales_invoice_list(          $self, $groups{sales_invoices},           %params) if $groups{sales_invoices};
-  $output .= _ar_transaction_list(         $self, $groups{ar_transactions},          %params) if $groups{ar_transactions};
+  $output .= _requirement_spec_list(       $groups{requirement_specs},        %params) if $groups{requirement_specs};
+  $output .= _shop_order_list(             $groups{shop_orders},              %params) if $groups{shop_orders};
+  $output .= _sales_quotation_list(        $groups{sales_quotations},         %params) if $groups{sales_quotations};
+  $output .= _sales_order_list(            $groups{sales_orders},             %params) if $groups{sales_orders};
+  $output .= _sales_delivery_order_list(   $groups{sales_delivery_orders},    %params) if $groups{sales_delivery_orders};
+  $output .= _sales_invoice_list(          $groups{sales_invoices},           %params) if $groups{sales_invoices};
+  $output .= _ar_transaction_list(         $groups{ar_transactions},          %params) if $groups{ar_transactions};
 
-  $output .= _request_quotation_list(      $self, $groups{purchase_quotations},      %params) if $groups{purchase_quotations};
-  $output .= _purchase_order_list(         $self, $groups{purchase_orders},          %params) if $groups{purchase_orders};
-  $output .= _purchase_delivery_order_list($self, $groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
-  $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
-  $output .= _ap_transaction_list(         $self, $groups{ap_transactions},          %params) if $groups{ap_transactions};
+  $output .= _request_quotation_list(      $groups{purchase_quotations},      %params) if $groups{purchase_quotations};
+  $output .= _purchase_order_list(         $groups{purchase_orders},          %params) if $groups{purchase_orders};
+  $output .= _purchase_delivery_order_list($groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
+  $output .= _purchase_invoice_list(       $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
+  $output .= _ap_transaction_list(         $groups{ap_transactions},          %params) if $groups{ap_transactions};
 
-  $output .= _gl_transaction_list(         $self, $groups{gl_transactions},          %params) if $groups{gl_transactions};
+  $output .= _gl_transaction_list(         $groups{gl_transactions},          %params) if $groups{gl_transactions};
 
-  $output .= _bank_transactions(           $self, $groups{bank_transactions},        %params) if $groups{bank_transactions};
+  $output .= _bank_transactions(           $groups{bank_transactions},        %params) if $groups{bank_transactions};
 
-  $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
-  $output .= _sepa_transfer_list(          $self, $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
+  $output .= _sepa_collection_list(        $groups{sepa_collections},         %params) if $groups{sepa_collections};
+  $output .= _sepa_transfer_list(          $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
 
-  $output .= _letter_list(                 $self, $groups{letters},                  %params) if $groups{letters};
+  $output .= _letter_list(                 $groups{letters},                  %params) if $groups{letters};
 
-  $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output);
+  $output  = SL::Presenter->get->render('presenter/record/grouped_record_list', %params, output => $output);
 
   return $output;
 }
 
+sub grouped_list { goto &grouped_record_list }
+
 sub empty_record_list {
-  my ($self, %params) = @_;
-  return $self->grouped_record_list([], %params);
+  my (%params) = @_;
+  return grouped_record_list([], %params);
 }
 
+sub empty_list { goto &empty_record_list }
+
 sub record_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
   my @columns;
 
@@ -133,7 +138,7 @@ sub record_list {
         $cell{value} = $spec->{data}->($obj);
 
       } else {
-        $cell{value} = $rel_type && $self->can($rel_type)                                       ? $self->$rel_type($obj->$method, display => 'table-cell')
+        $cell{value} = ref $obj->$method && $obj->$method->isa('SL::DB::Object') && $obj->$method->presenter->can($rel_type) ? $obj->$method->presenter->$rel_type(display => 'table-cell')
                      : $type eq 'Rose::DB::Object::Metadata::Column::Date'                      ? $call->($obj, $method . '_as_date')
                      : $type =~ m/^Rose::DB::Object::Metadata::Column::(?:Float|Numeric|Real)$/ ? $::form->format_amount(\%::myconfig, $call->($obj, $method), 2)
                      : $type eq 'Rose::DB::Object::Metadata::Column::Boolean'                   ? $call->($obj, $method . '_as_bool_yn')
@@ -154,13 +159,15 @@ sub record_list {
            alignment => $data[0]->{columns}->[$_]->{alignment},
          }, (0..scalar(@columns) - 1);
 
-  return $self->render(
+  return SL::Presenter->get->render(
     'presenter/record/record_list',
     %params,
     TABLE_HEADER => \@header,
     TABLE_ROWS   => \@data,
   );
 }
+
+sub list { goto &record_list }
 
 #
 # private methods
@@ -215,14 +222,14 @@ sub _sort_grouped_lists {
 }
 
 sub _requirement_spec_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Requirement specs'),
     type    => 'requirement_spec',
     columns => [
-      [ $::locale->text('Requirement spec number'), sub { $self->requirement_spec($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Requirement spec number'), sub { $_[0]->presenter->requirement_spec(display => 'table-cell') } ],
       [ $::locale->text('Customer'),                'customer'                                                      ],
       [ $::locale->text('Title'),                   'title'                                                         ],
       [ $::locale->text('Project'),                 'project',                                                      ],
@@ -233,15 +240,15 @@ sub _requirement_spec_list {
 }
 
 sub _shop_order_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Shop Orders'),
     type    => 'shop_order',
     columns => [
       [ $::locale->text('Shop Order Date'),         sub { $_[0]->order_date->to_kivitendo }                         ],
-      [ $::locale->text('Shop Order Number'),       sub { $self->shop_order($_[0], display => 'table-cell') }       ],
+      [ $::locale->text('Shop Order Number'),       sub { $_[0]->presenter->shop_order(display => 'table-cell') }   ],
       [ $::locale->text('Transfer Date'),           'transfer_date'                                                 ],
       [ $::locale->text('Amount'),                  'amount'                                                        ],
     ],
@@ -250,15 +257,15 @@ sub _shop_order_list {
 }
 
 sub _sales_quotation_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Sales Quotations'),
     type    => 'sales_quotation',
     columns => [
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
-      [ $::locale->text('Quotation Number'),        sub { $self->sales_quotation($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->sales_quotation(display => 'table-cell') }         ],
       [ $::locale->text('Customer'),                'customer'                                                                 ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -270,15 +277,15 @@ sub _sales_quotation_list {
 }
 
 sub _request_quotation_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Request Quotations'),
     type    => 'request_quotation',
     columns => [
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
-      [ $::locale->text('Quotation Number'),        sub { $self->request_quotation($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -290,15 +297,15 @@ sub _request_quotation_list {
 }
 
 sub _sales_order_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Sales Orders'),
     type    => 'sales_order',
     columns => [
       [ $::locale->text('Order Date'),              'transdate'                                                                ],
-      [ $::locale->text('Order Number'),            sub { $self->sales_order($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Order Number'),            sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
       [ $::locale->text('Quotation'),               'quonumber' ],
       [ $::locale->text('Customer'),                'customer'                                                                 ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
@@ -311,15 +318,15 @@ sub _sales_order_list {
 }
 
 sub _purchase_order_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Purchase Orders'),
     type    => 'purchase_order',
     columns => [
       [ $::locale->text('Order Date'),              'transdate'                                                                ],
-      [ $::locale->text('Order Number'),            sub { $self->purchase_order($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Order Number'),            sub { $_[0]->presenter->purchase_order(display => 'table-cell') }          ],
       [ $::locale->text('Request for Quotation'),   'quonumber' ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
@@ -332,15 +339,15 @@ sub _purchase_order_list {
 }
 
 sub _sales_delivery_order_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Sales Delivery Orders'),
     type    => 'sales_delivery_order',
     columns => [
       [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
-      [ $::locale->text('Delivery Order Number'),   sub { $self->sales_delivery_order($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->sales_delivery_order(display => 'table-cell') }    ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
       [ $::locale->text('Customer'),                'customer'                                                                 ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -353,15 +360,15 @@ sub _sales_delivery_order_list {
 }
 
 sub _purchase_delivery_order_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Purchase Delivery Orders'),
     type    => 'purchase_delivery_order',
     columns => [
       [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
-      [ $::locale->text('Delivery Order Number'),   sub { $self->purchase_delivery_order($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->purchase_delivery_order(display => 'table-cell') } ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -374,16 +381,16 @@ sub _purchase_delivery_order_list {
 }
 
 sub _sales_invoice_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Sales Invoices'),
     type    => 'sales_invoice',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
       [ $::locale->text('Type'),                    sub { $_[0]->displayable_type } ],
-      [ $::locale->text('Invoice Number'),          sub { $self->sales_invoice($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),          sub { $_[0]->presenter->sales_invoice(display => 'table-cell') } ],
       [ $::locale->text('Quotation Number'),        'quonumber' ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
       [ $::locale->text('Customer'),                'customer'                ],
@@ -396,15 +403,15 @@ sub _sales_invoice_list {
 }
 
 sub _purchase_invoice_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Purchase Invoices'),
     type    => 'purchase_invoice',
     columns => [
       [ $::locale->text('Invoice Date'),                 'transdate'               ],
-      [ $::locale->text('Invoice Number'),               sub { $self->purchase_invoice($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),               sub { $_[0]->presenter->purchase_invoice(display => 'table-cell') } ],
       [ $::locale->text('Request for Quotation Number'), 'quonumber' ],
       [ $::locale->text('Order Number'),                 'ordnumber' ],
       [ $::locale->text('Vendor'),                       'vendor'                 ],
@@ -417,16 +424,16 @@ sub _purchase_invoice_list {
 }
 
 sub _ar_transaction_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('AR Transactions'),
     type    => 'ar_transaction',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
       [ $::locale->text('Type'),                    sub { $_[0]->displayable_type } ],
-      [ $::locale->text('Invoice Number'),          sub { $self->ar_transaction($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),          sub { $_[0]->presenter->ar_transaction(display => 'table-cell') } ],
       [ $::locale->text('Customer'),                'customer'                ],
       [ $::locale->text('Net amount'),              'netamount'               ],
       [ $::locale->text('Paid'),                    'paid'                    ],
@@ -437,15 +444,15 @@ sub _ar_transaction_list {
 }
 
 sub _ap_transaction_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('AP Transactions'),
     type    => 'ap_transaction',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'                      ],
-      [ $::locale->text('Invoice Number'),          sub { $self->ap_transaction($_[0 ], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),          sub { $_[0]->presenter->ap_transaction(display => 'table-cell') } ],
       [ $::locale->text('Vendor'),                  'vendor'                         ],
       [ $::locale->text('Net amount'),              'netamount'                      ],
       [ $::locale->text('Paid'),                    'paid'                           ],
@@ -456,32 +463,32 @@ sub _ap_transaction_list {
 }
 
 sub _gl_transaction_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('GL Transactions'),
     type    => 'gl_transaction',
     columns => [
       [ $::locale->text('Transdate'),        'transdate'                                                    ],
       [ $::locale->text('Reference'),   'reference'                                                    ],
-      [ $::locale->text('Description'), sub { $self->gl_transaction($_[0 ], display => 'table-cell') } ],
+      [ $::locale->text('Description'), sub { $_[0]->presenter->gl_transaction(display => 'table-cell') } ],
     ],
     %params,
   );
 }
 
 sub _bank_transactions {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Bank transactions'),
     type    => 'bank_transactions',
     columns => [
       [ $::locale->text('Transdate'),            'transdate'                      ],
-      [ $::locale->text('Local Bank Code'),      sub { $self->bank_code($_[0]->local_bank_account) }  ],
-      [ $::locale->text('Local account number'), sub { $self->account_number($_[0]->local_bank_account) }  ],
+      [ $::locale->text('Local Bank Code'),      sub { $_[0]->local_bank_account->presenter->bank_code }  ],
+      [ $::locale->text('Local account number'), sub { $_[0]->local_bank_account->presenter->account_number }  ],
       [ $::locale->text('Remote Bank Code'),     'remote_bank_code' ],
       [ $::locale->text('Remote account number'),'remote_account_number' ],
       [ $::locale->text('Valutadate'),           'valutadate' ],
@@ -495,7 +502,7 @@ sub _bank_transactions {
 }
 
 sub _sepa_export_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
   my ($source, $destination) = $params{type} eq 'sepa_transfer' ? qw(our vc)                                 : qw(vc our);
   $params{title}             = $params{type} eq 'sepa_transfer' ? $::locale->text('Bank transfers via SEPA') : $::locale->text('Bank collections via SEPA');
@@ -503,7 +510,7 @@ sub _sepa_export_list {
 
   delete $params{edit_record_links};
 
-  return $self->record_list(
+  return record_list(
     $list,
     columns => [
       [ $::locale->text('Export Number'),    'sepa_export',                                  ],
@@ -520,25 +527,25 @@ sub _sepa_export_list {
 }
 
 sub _sepa_transfer_list {
-  my ($self, $list, %params) = @_;
-  _sepa_export_list($self, $list, %params, type => 'sepa_transfer');
+  my ($list, %params) = @_;
+  _sepa_export_list($list, %params, type => 'sepa_transfer');
 }
 
 sub _sepa_collection_list {
-  my ($self, $list, %params) = @_;
-  _sepa_export_list($self, $list, %params, type => 'sepa_collection');
+  my ($list, %params) = @_;
+  _sepa_export_list($list, %params, type => 'sepa_collection');
 }
 
 sub _letter_list {
-  my ($self, $list, %params) = @_;
+  my ($list, %params) = @_;
 
-  return $self->record_list(
+  return record_list(
     $list,
     title   => $::locale->text('Letters'),
     type    => 'letter',
     columns => [
       [ $::locale->text('Date'),         'date'                                                ],
-      [ $::locale->text('Letternumber'), sub { $self->letter($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Letternumber'), sub { $_[0]->presenter->letter(display => 'table-cell') } ],
       [ $::locale->text('Customer'),     'customer'                                            ],
       [ $::locale->text('Reference'),    'reference'                                           ],
       [ $::locale->text('Subject'),      'subject'                                             ],

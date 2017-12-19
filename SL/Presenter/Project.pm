@@ -2,15 +2,16 @@ package SL::Presenter::Project;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
 
 use Exporter qw(import);
-our @EXPORT = qw(project project_picker);
+our @EXPORT_OK = qw(project project_picker);
 
 use Carp;
 
 sub project {
-  my ($self, $project, %params) = @_;
+  my ($project, %params) = @_;
 
   return '' unless $project;
 
@@ -22,31 +23,33 @@ sub project {
   my $callback    = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Project/edit&amp;id=' . $self->escape($project->id) . $callback . '">',
-    $self->escape($description),
+    $params{no_link} ? '' : '<a href="controller.pl?action=Project/edit&amp;id=' . escape($project->id) . $callback . '">',
+    escape($description),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+  is_escaped($text);
 }
 
 sub project_picker {
-  my ($self, $name, $value, %params) = @_;
+  my ($name, $value, %params) = @_;
 
   $value      = SL::DB::Manager::Project->find_by(id => $value) if $value && !ref $value;
-  my $id      = delete($params{id}) || $self->name_to_id($name);
+  my $id      = delete($params{id}) || name_to_id($name);
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'project_autocomplete';
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(customer_id)) .
-    $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
+    input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
+    join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(customer_id)) .
+    input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('autocomplete_project.js');
   $::request->presenter->need_reinit_widgets($id);
 
-  $self->html_tag('span', $ret, class => 'project_picker');
+  html_tag('span', $ret, class => 'project_picker');
 }
+
+sub picker { goto &project_picker };
 
 1;
 
@@ -63,7 +66,7 @@ SL::Presenter::Project - Presenter module for project Rose::DB objects
 =head1 SYNOPSIS
 
   my $project = SL::DB::Manager::Project->get_first;
-  my $html    = SL::Presenter->get->project($project, display => 'inline');
+  my $html    = SL::Presenter::Project->project($project, display => 'inline');
 
 =head1 FUNCTIONS
 

@@ -5,53 +5,62 @@ use strict;
 use SL::DB::Part;
 use SL::DB::PartClassification;
 use SL::Locale::String qw(t8);
+use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker part select_classification classification_abbreviation type_abbreviation separate_abbreviation typeclass_abbreviation);
+our @EXPORT_OK = qw(
+  part_picker part select_classification classification_abbreviation
+  type_abbreviation separate_abbreviation typeclass_abbreviation
+);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
 
 sub part {
-  my ($self, $part, %params) = @_;
+  my ($part, %params) = @_;
 
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Part/edit&part.id=' . $self->escape($part->id) . '">',
-    $self->escape($part->partnumber),
+    $params{no_link} ? '' : '<a href="controller.pl?action=Part/edit&part.id=' . escape($part->id) . '">',
+    escape($part->partnumber),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+
+  is_escaped($text);
 }
 
 sub part_picker {
-  my ($self, $name, $value, %params) = @_;
+  my ($name, $value, %params) = @_;
 
   $value = SL::DB::Manager::Part->find_by(id => $value) if $value && !ref $value;
-  my $id = $params{id} || $self->name_to_id($name);
+  my $id = $params{id} || name_to_id($name);
 
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'part_autocomplete';
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
+    input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-part-picker-data' => JSON::to_json(\%params),
     ) .
-    $self->input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
+    input_tag("", ref $value ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('kivi.Part.js');
   $::request->presenter->need_reinit_widgets($id);
 
-  $self->html_tag('span', $ret, class => 'part_picker');
+  html_tag('span', $ret, class => 'part_picker');
 }
+
+sub picker { goto &part_picker }
 
 #
 # shortcut for article type
 #
 sub type_abbreviation {
-  my ($self, $part_type) = @_;
+  my ($part_type) = @_;
   return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
   return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
   return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
@@ -77,23 +86,23 @@ sub type_abbreviation {
 # shortcut for article type
 #
 sub classification_abbreviation {
-  my ($self, $id) = @_;
+  my ($id) = @_;
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation ? t8($obj->abbreviation) : '';
 }
 
 sub typeclass_abbreviation {
-  my ($self, $part) = @_;
+  my ($part) = @_;
   return '' if !$part || !$part->isa('SL::DB::Part');
-  return $self->type_abbreviation($part->part_type).$self->classification_abbreviation($part->classification_id);
+  return type_abbreviation($part->part_type) . classification_abbreviation($part->classification_id);
 }
 
 #
 # shortcut for article type
 #
 sub separate_abbreviation {
-  my ($self, $id) = @_;
+  my ($id) = @_;
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation && $obj->report_separate ? t8($obj->abbreviation) : '';
@@ -103,7 +112,7 @@ sub separate_abbreviation {
 # generate selection tag
 #
 sub select_classification {
-  my ($self, $name, %attributes) = @_;
+  my ($name, %attributes) = @_;
 
   $attributes{value_key} = 'id';
   $attributes{title_key} = 'description';
@@ -112,7 +121,7 @@ sub select_classification {
 
   my $collection = SL::DB::Manager::PartClassification->get_all_sorted( where => $classification_type_filter );
   $_->description($::locale->text($_->description)) for @{ $collection };
-  return $self->select_tag( $name, $collection, %attributes );
+  select_tag( $name, $collection, %attributes );
 }
 
 1;

@@ -3,11 +3,15 @@ package SL::Presenter::Tag;
 use strict;
 
 use SL::HTML::Restrict;
-
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag stringify_attributes restricted_html link);
+our @EXPORT_OK = qw(
+  html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
+  checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
+  stringify_attributes restricted_html link
+);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
 
@@ -37,57 +41,57 @@ sub _J {
 }
 
 sub stringify_attributes {
-  my ($self, %params) = @_;
+  my (%params) = @_;
 
   my @result = ();
   while (my ($name, $value) = each %params) {
     next unless $name;
     next if $_valueless_attributes{$name} && !$value;
     $value = '' if !defined($value);
-    push @result, $_valueless_attributes{$name} ? $self->escape($name) : $self->escape($name) . '="' . $self->escape($value) . '"';
+    push @result, $_valueless_attributes{$name} ? escape($name) : escape($name) . '="' . escape($value) . '"';
   }
 
   return @result ? ' ' . join(' ', @result) : '';
 }
 
 sub html_tag {
-  my ($self, $tag, $content, %params) = @_;
-  my $attributes = $self->stringify_attributes(%params);
+  my ($tag, $content, %params) = @_;
+  my $attributes = stringify_attributes(%params);
 
   return "<${tag}${attributes}>" unless defined($content);
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
 sub input_tag {
-  my ($self, $name, $value, %attributes) = @_;
+  my ($name, $value, %attributes) = @_;
 
   _set_id_attribute(\%attributes, $name);
   $attributes{type} ||= 'text';
 
-  return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
+  html_tag('input', undef, %attributes, name => $name, value => $value);
 }
 
 sub hidden_tag {
-  my ($self, $name, $value, %attributes) = @_;
-  return $self->input_tag($name, $value, %attributes, type => 'hidden');
+  my ($name, $value, %attributes) = @_;
+  input_tag($name, $value, %attributes, type => 'hidden');
 }
 
 sub man_days_tag {
-  my ($self, $name, $object, %attributes) = @_;
+  my ($name, $object, %attributes) = @_;
 
   my $size           =  delete($attributes{size})   || 5;
   my $method         =  $name;
   $method            =~ s/^.*\.//;
 
-  my $time_selection =  $self->input_tag( "${name}_as_man_days_string", _call_on($object, "${method}_as_man_days_string"), %attributes, size => $size);
-  my $unit_selection =  $self->select_tag("${name}_as_man_days_unit",   [[ 'h', $::locale->text('h') ], [ 'man_day', $::locale->text('MD') ]],
+  my $time_selection = input_tag("${name}_as_man_days_string", _call_on($object, "${method}_as_man_days_string"), %attributes, size => $size);
+  my $unit_selection = select_tag("${name}_as_man_days_unit",   [[ 'h', $::locale->text('h') ], [ 'man_day', $::locale->text('MD') ]],
                                           %attributes, default => _call_on($object, "${method}_as_man_days_unit"));
 
   return $time_selection . $unit_selection;
 }
 
 sub name_to_id {
-  my ($self, $name) = @_;
+  my ($name) = @_;
 
   $name =~ s/\[\+?\]/ _id() /ge; # give constructs with [] or [+] unique ids
   $name =~ s/[^\w_]/_/g;
@@ -97,7 +101,7 @@ sub name_to_id {
 }
 
 sub select_tag {
-  my ($self, $name, $collection, %attributes) = @_;
+  my ($name, $collection, %attributes) = @_;
 
   _set_id_attribute(\%attributes, $name);
 
@@ -180,11 +184,11 @@ sub select_tag {
       push(@options, [$value, $title, $selected{$value} || $default]);
     }
 
-    return join '', map { $self->html_tag('option', $self->escape($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
+    return join '', map { html_tag('option', escape($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
   };
 
   my $code  = '';
-  $code    .= $self->html_tag('option', $self->escape($empty_title || ''), value => '') if $with_empty;
+  $code    .= html_tag('option', escape($empty_title || ''), value => '') if $with_empty;
 
   if (!$with_optgroups) {
     $code .= $list_to_code->($collection);
@@ -192,15 +196,15 @@ sub select_tag {
   } else {
     $code .= join '', map {
       my ($optgroup_title, $sub_collection) = @{ $_ };
-      $self->html_tag('optgroup', $list_to_code->($sub_collection), label => $optgroup_title)
+      html_tag('optgroup', $list_to_code->($sub_collection), label => $optgroup_title)
     } @{ $collection };
   }
 
-  return $self->html_tag('select', $code, %attributes, name => $name);
+  html_tag('select', $code, %attributes, name => $name);
 }
 
 sub checkbox_tag {
-  my ($self, $name, %attributes) = @_;
+  my ($name, %attributes) = @_;
 
   _set_id_attribute(\%attributes, $name);
 
@@ -216,27 +220,27 @@ sub checkbox_tag {
   }
 
   my $code  = '';
-  $code    .= $self->hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
-  $code    .= $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
-  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
-  $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
+  $code    .= hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
+  $code    .= html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  $code    .= html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
   return $code;
 }
 
 sub button_tag {
-  my ($self, $onclick, $value, %attributes) = @_;
+  my ($onclick, $value, %attributes) = @_;
 
   _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
 
   $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
 
-  return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
+  html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
 sub submit_tag {
-  my ($self, $name, $value, %attributes) = @_;
+  my ($name, $value, %attributes) = @_;
 
   _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
 
@@ -244,21 +248,21 @@ sub submit_tag {
     $attributes{onclick} = 'return confirm("'. _J(delete($attributes{confirm})) .'");';
   }
 
-  return $self->input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
+  input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
 }
 
 sub ajax_submit_tag {
-  my ($self, $url, $form_selector, $text, %attributes) = @_;
+  my ($url, $form_selector, $text, %attributes) = @_;
 
   $url           = _J($url);
   $form_selector = _J($form_selector);
   my $onclick    = qq|kivi.submit_ajax_form('${url}', '${form_selector}')|;
 
-  return $self->button_tag($onclick, $text, %attributes);
+  button_tag($onclick, $text, %attributes);
 }
 
 sub input_number_tag {
-  my ($self, $name, $value, %params) = @_;
+  my ($name, $value, %params) = @_;
 
   _set_id_attribute(\%params, $name);
   my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
@@ -269,7 +273,7 @@ sub input_number_tag {
   $::request->layout->add_javascripts('kivi.Validator.js');
   $::request->presenter->need_reinit_widgets($params{id});
 
-  return $self->input_tag(
+  input_tag(
     $name, $::form->foramt_amount(\%::myconfig, $value),
     "data-validate" => "number",
     %params,
@@ -279,36 +283,36 @@ sub input_number_tag {
 
 
 sub javascript {
-  my ($self, $data) = @_;
-  return $self->html_tag('script', $data, type => 'text/javascript');
+  my ($data) = @_;
+  html_tag('script', $data, type => 'text/javascript');
 }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
 
   if (!delete($attributes->{no_id}) && !$attributes->{id}) {
-    $attributes->{id}  = name_to_id(undef, $name);
+    $attributes->{id}  = name_to_id($name);
     $attributes->{id} .= '_' . $attributes->{value} if $unique;
   }
 
-  return %{ $attributes };
+  %{ $attributes };
 }
 
 my $html_restricter;
 
 sub restricted_html {
-  my ($self, $value) = @_;
+  my ($value) = @_;
 
   $html_restricter ||= SL::HTML::Restrict->create;
   return $html_restricter->process($value);
 }
 
 sub link {
-  my ($self, $href, $content, %params) = @_;
+  my ($href, $content, %params) = @_;
 
   $href ||= '#';
 
-  return $self->html_tag('a', $content, %params, href => $href);
+  html_tag('a', $content, %params, href => $href);
 }
 
 1;

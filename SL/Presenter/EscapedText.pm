@@ -1,11 +1,16 @@
 package SL::Presenter::EscapedText;
 
 use strict;
+use Exporter qw(import);
+
+our @EXPORT_OK = qw(escape is_escaped escape_js);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use JSON ();
 
-use overload '""' => \&escaped;
+use overload '""' => \&escaped_text;
 
+# static constructors
 sub new {
   my ($class, %params) = @_;
 
@@ -17,13 +22,32 @@ sub new {
   return $self;
 }
 
-sub escaped {
+sub escape {
+  __PACKAGE__->new(text => $_[0]);
+}
+
+sub is_escaped {
+  __PACKAGE__->new(text => $_[0], is_escaped => 1);
+}
+
+sub escape_js {
+  my ($text) = @_;
+
+  $text =~ s|\\|\\\\|g;
+  $text =~ s|\"|\\\"|g;
+  $text =~ s|\n|\\n|g;
+
+  __PACKAGE__->new(text => $text, is_escaped => 1);
+}
+
+# internal magic
+sub escaped_text {
   my ($self) = @_;
   return $self->{text};
 }
 
 sub TO_JSON {
-  goto &escaped;
+  goto &escaped_text;
 }
 
 1;
@@ -35,15 +59,18 @@ __END__
 
 =head1 NAME
 
-SL::Presenter::EscapedText - Thin proxy object around HTML-escaped strings
+SL::Presenter::EscapedText - Thin proxy object to invert the burden of escaping HTML output
 
 =head1 SYNOPSIS
 
-  use SL::Presenter::EscapedText;
+  use SL::Presenter::EscapedText qw(escape is_escaped escape_js);
 
   sub blackbox {
     my ($text) = @_;
     return SL::Presenter::EscapedText->new(text => $text);
+
+    # or shorter:
+    # return escape($text);
   }
 
   sub build_output {
@@ -67,7 +94,7 @@ But higher functions should not have to care if the output is already
 escaped -- they should be able to simply escape it again. Without
 producing stuff like '&amp;amp;'.
 
-Stringification is overloaded. It will return the same as L<escaped>.
+Stringification is overloaded. It will return the same as L<escaped_text>.
 
 This works together with the template plugin
 L<SL::Template::Plugin::P> and its C<escape> method.
@@ -88,7 +115,25 @@ Otherwise C<text> is HTML-escaped and stored in the new instance. This
 can be overridden by setting C<$params{is_escaped}> to a trueish
 value.
 
-=item C<escaped>
+=item C<escape $text>
+
+Static constructor, can be exported. Equivalent to calling C<< new(text => $text) >>.
+
+=item C<is_escaped $text>
+
+Static constructor, can be exported. Equivalent to calling C<< new(text => $text, escaped => 1) >>.
+
+=item C<escape_js $text>
+
+Static constructor, can be exported. Like C<escape> but also escapes Javascript.
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item C<escaped_text>
 
 Returns the escaped string (not an instance of C<EscapedText> but an
 actual string).

@@ -2,26 +2,26 @@ package SL::Presenter::SepaExport;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(sepa_export);
+our @EXPORT_OK = qw(sepa_export);
 
 use Carp;
 
 sub sepa_export {
-  my ($self, $sepa_export, %params) = @_;
+  my ($sepa_export, %params) = @_;
 
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="sepa.pl?action=bank_transfer_edit&amp;vc=' . $self->escape($sepa_export->vc) . '&amp;id=' . $self->escape($sepa_export->id) . '">',
-    $self->escape($sepa_export->id),
+    $params{no_link} ? '' : '<a href="sepa.pl?action=bank_transfer_edit&amp;vc=' . escape($sepa_export->vc) . '&amp;id=' . escape($sepa_export->id) . '">',
+    escape($sepa_export->id),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+  is_escaped($text);
 }
 
 1;

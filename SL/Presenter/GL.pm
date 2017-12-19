@@ -2,26 +2,27 @@ package SL::Presenter::GL;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(gl_transaction);
+our @EXPORT_OK = qw(gl_transaction);
 
 use Carp;
 
 sub gl_transaction {
-  my ($self, $gl_transaction, %params) = @_;
+  my ($gl_transaction, %params) = @_;
 
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="gl.pl?action=edit&amp;id=' . $self->escape($gl_transaction->id) . '">',
-    $self->escape($gl_transaction->reference),
+    $params{no_link} ? '' : '<a href="gl.pl?action=edit&amp;id=' . escape($gl_transaction->id) . '">',
+    escape($gl_transaction->reference),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+
+  is_escaped($text);
 }
 
 1;
@@ -39,7 +40,7 @@ SL::Presenter::GL - Presenter module for GL transaction
 =head1 SYNOPSIS
 
   my $object = SL::DB::Manager::GLTransaction->get_first();
-  my $html   = SL::Presenter->get->gl_transaction($object, display => 'inline');
+  my $html   = SL::Presenter::GL::gl_transaction($object, display => 'inline');
 
 =head1 FUNCTIONS
 

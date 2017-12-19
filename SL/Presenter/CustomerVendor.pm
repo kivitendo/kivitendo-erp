@@ -2,30 +2,31 @@ package SL::Presenter::CustomerVendor;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
 
 use Exporter qw(import);
-our @EXPORT = qw(customer_vendor customer vendor customer_vendor_picker);
+our @EXPORT_OK = qw(customer_vendor customer vendor customer_vendor_picker);
 
 use Carp;
 
 sub customer_vendor {
-  my ($self, $customer_vendor, %params) = @_;
-  return _customer_vendor($self, $customer_vendor, ref($customer_vendor) eq 'SL::DB::Customer' ? 'customer' : 'vendor', %params);
+  my ($customer_vendor, %params) = @_;
+  return _customer_vendor($customer_vendor, ref($customer_vendor) eq 'SL::DB::Customer' ? 'customer' : 'vendor', %params);
 }
 
 sub customer {
-  my ($self, $customer, %params) = @_;
-  return _customer_vendor($self, $customer, 'customer', %params);
+  my ($customer, %params) = @_;
+  return _customer_vendor($customer, 'customer', %params);
 }
 
 sub vendor {
-  my ($self, $vendor, %params) = @_;
-  return _customer_vendor($self, $vendor, 'vendor', %params);
+  my ($vendor, %params) = @_;
+  return _customer_vendor($vendor, 'vendor', %params);
 }
 
 sub _customer_vendor {
-  my ($self, $cv, $type, %params) = @_;
+  my ($cv, $type, %params) = @_;
 
   $params{display} ||= 'inline';
 
@@ -34,15 +35,16 @@ sub _customer_vendor {
   my $callback = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=CustomerVendor/edit&amp;db=' . $type . '&amp;id=' . $self->escape($cv->id) . '">',
-    $self->escape($cv->name),
+    $params{no_link} ? '' : '<a href="controller.pl?action=CustomerVendor/edit&amp;db=' . $type . '&amp;id=' . escape($cv->id) . '">',
+    escape($cv->name),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+
+  is_escaped($text);
 }
 
 sub customer_vendor_picker {
-  my ($self, $name, $value, %params) = @_;
+  my ($name, $value, %params) = @_;
 
   croak 'Unknown "type" parameter' unless $params{type} =~ m{^(?:customer|vendor)$};
   croak 'Unknown value class'      if     $value && ref($value) && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
@@ -52,22 +54,24 @@ sub customer_vendor_picker {
     $value    = $class->find_by(id => $value);
   }
 
-  my $id = delete($params{id}) || $self->name_to_id($name);
+  my $id = delete($params{id}) || name_to_id($name);
 
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'customer_vendor_autocomplete';
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
+    input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-customer-vendor-picker-data' => JSON::to_json(\%params),
     ) .
-    $self->input_tag("", ref $value  ? $value->displayable_name : '', id => "${id}_name", %params);
+    input_tag("", ref $value  ? $value->displayable_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('kivi.CustomerVendor.js');
   $::request->presenter->need_reinit_widgets($id);
 
-  $self->html_tag('span', $ret, class => 'customer_vendor_picker');
+  html_tag('span', $ret, class => 'customer_vendor_picker');
 }
+
+sub picker { goto &customer_vendor_picker }
 
 1;
 
@@ -86,11 +90,11 @@ vendor Rose::DB objects
 
   # Customers:
   my $customer = SL::DB::Manager::Customer->get_first;
-  my $html     = SL::Presenter->get->customer($customer, display => 'inline');
+  my $html     = SL::Presenter::CustomerVendor::customer($customer, display => 'inline');
 
   # Vendors:
   my $vendor = SL::DB::Manager::Vendor->get_first;
-  my $html   = SL::Presenter->get->vendor($customer, display => 'inline');
+  my $html   = SL::Presenter::Customer::Vendor::vendor($customer, display => 'inline');
 
 =head1 FUNCTIONS
 

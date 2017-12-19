@@ -2,27 +2,27 @@ package SL::Presenter::Letter;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(letter);
+our @EXPORT_OK = qw(letter);
 
 use Carp;
 
 sub letter {
-  my ($self, $letter, %params) = @_;
+  my ($letter, %params) = @_;
 
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="controller.pl?action=Letter/edit&amp;letter.id=' . $self->escape($letter->id) . '">',
-    $self->escape($letter->letternumber),
+    $params{no_link} ? '' : '<a href="controller.pl?action=Letter/edit&amp;letter.id=' . escape($letter->id) . '">',
+    escape($letter->letternumber),
     $params{no_link} ? '' : '</a>',
   );
 
-  return $self->escaped_text($text);
+  is_escaped($text);
 }
 
 1;
@@ -40,7 +40,7 @@ SL::Presenter::Letter - Presenter module for letter objects
 =head1 SYNOPSIS
 
   my $letter = SL::DB::Manager::Letter->get_first(where => [ … ]);
-  my $html   = SL::Presenter->get->letter($letter, display => 'inline');
+  my $html   = SL::Presenter::Letter::letter($letter, display => 'inline');
 
 =head1 FUNCTIONS
 

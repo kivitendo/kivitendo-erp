@@ -2,21 +2,22 @@ package SL::Presenter::Text;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape);
 
 use Exporter qw(import);
-our @EXPORT = qw(format_man_days simple_format truncate);
+our @EXPORT_OK = qw(format_man_days simple_format truncate);
+our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
 
 sub truncate {
-  my ($self, $text, %params) = @_;
+  my ($text, %params) = @_;
 
-  return Common::truncate($text, %params);
+  escape(Common::truncate($text, %params));
 }
 
 sub simple_format {
-  my ($self, $text, %params) = @_;
+  my ($text, %params) = @_;
 
   $text =  $::locale->quote_special_chars('HTML', $text || '');
 
@@ -28,18 +29,18 @@ sub simple_format {
 }
 
 sub format_man_days {
-  my ($self, $value, %params) = @_;
+  my ($value, %params) = @_;
 
   return '---' if $params{skip_zero} && !$value;
 
-  return $self->escape($::locale->text('#1 h', $::form->format_amount(\%::myconfig, $value, 2))) if 8.0 > $value;
+  return escape($::locale->text('#1 h', $::form->format_amount(\%::myconfig, $value, 2))) if 8.0 > $value;
 
   $value     /= 8.0;
   my $output  = $::locale->text('#1 MD', int($value));
   my $rest    = ($value - int($value)) * 8.0;
   $output    .= ' ' . $::locale->text('#1 h', $::form->format_amount(\%::myconfig, $rest)) if $rest > 0.0;
 
-  return $self->escape($output);
+  escape($output);
 }
 
 1;

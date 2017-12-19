@@ -2,38 +2,38 @@ package SL::Presenter::DeliveryOrder;
 
 use strict;
 
-use parent qw(Exporter);
+use SL::Presenter::EscapedText qw(escape is_escaped);
 
 use Exporter qw(import);
-our @EXPORT = qw(sales_delivery_order purchase_delivery_order);
+our @EXPORT_OK = qw(sales_delivery_order purchase_delivery_order);
 
 use Carp;
 
 sub sales_delivery_order {
-  my ($self, $delivery_order, %params) = @_;
+  my ($delivery_order, %params) = @_;
 
-  return _do_record($self, $delivery_order, 'sales_delivery_order', %params);
+  return _do_record($delivery_order, 'sales_delivery_order', %params);
 }
 
 sub purchase_delivery_order {
-  my ($self, $delivery_order, %params) = @_;
+  my ($delivery_order, %params) = @_;
 
-  return _do_record($self, $delivery_order, 'purchase_delivery_order', %params);
+  return _do_record($delivery_order, 'purchase_delivery_order', %params);
 }
 
 sub _do_record {
-  my ($self, $delivery_order, $type, %params) = @_;
+  my ($delivery_order, $type, %params) = @_;
 
   $params{display} ||= 'inline';
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
   my $text = join '', (
-    $params{no_link} ? '' : '<a href="do.pl?action=edit&amp;type=' . $type . '&amp;id=' . $self->escape($delivery_order->id) . '">',
-    $self->escape($delivery_order->donumber),
+    $params{no_link} ? '' : '<a href="do.pl?action=edit&amp;type=' . $type . '&amp;id=' . escape($delivery_order->id) . '">',
+    escape($delivery_order->donumber),
     $params{no_link} ? '' : '</a>',
   );
-  return $self->escaped_text($text);
+  is_escaped($text);
 }
 
 1;
@@ -53,11 +53,11 @@ for sales and purchase delivery orders
 
   # Sales delivery orders:
   my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ is_sales => 1 ]);
-  my $html   = SL::Presenter->get->sales_delivery_order($object, display => 'inline');
+  my $html   = SL::Presenter::DeliveryOrder::sales_delivery_order($object, display => 'inline');
 
   # Purchase delivery orders:
   my $object = SL::DB::Manager::DeliveryOrder->get_first(where => [ or => [ is_sales => undef, is_sales => 0 ]]);
-  my $html   = SL::Presenter->get->purchase_delivery_order($object, display => 'inline');
+  my $html   = SL::Presenter::DeliveryOrder::purchase_delivery_order($object, display => 'inline');
 
 =head1 FUNCTIONS
 
