@@ -35,12 +35,12 @@
 [%- IF SELF.is_sales %]
     <tr>
      <th align='right'>[% 'Customer' | $T8 %]:</th>
-     <td>[% P.customer_vendor_picker('letter.customer_id', letter.customer_id, type='customer') %]</td>
+     <td>[% P.customer_vendor.picker('letter.customer_id', letter.customer_id, type='customer') %]</td>
     </tr>
 [%- ELSE %]
     <tr>
      <th align='right'>[% 'Vendor' | $T8 %]:</th>
-     <td>[% P.customer_vendor_picker('letter.vendor_id', letter.vendor_id, type='vendor') %]</td>
+     <td>[% P.customer_vendor.picker('letter.vendor_id', letter.vendor_id, type='vendor') %]</td>
     </tr>
 [%- END %]
     <tr>

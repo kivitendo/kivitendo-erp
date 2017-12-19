@@ -1,16 +1,17 @@
 [% USE L %]
+[% USE P %]
 
 <h1>Projekt-Picker-Testpage</h1>
 
 <br>
-[% L.project_picker('project_id', '', style='width: 600px') %] text<br>
+[% P.project.picker('project_id', '', style='width: 600px') %] text<br>
 
 Runtime test:<br>
 <div id='runtime_picker'>'
 
 <script>
 $(function() {
-  $('#runtime_picker').html('[% L.project_picker("project2_id") %]');
+  $('#runtime_picker').html('[% P.project.picker("project2_id") %]');
   kivi.reinit_widgets();
 })
 </script>

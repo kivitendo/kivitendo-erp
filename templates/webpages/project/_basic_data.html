@@ -28,7 +28,7 @@
 
  <tr>
   <th align="right">[% 'Customer' | $T8 %]</th>
-<td>[% L.customer_vendor_picker('project.customer_id', SELF.project.customer_id, type='customer', fat_set_item=1, style='width: 300px', default=SELF.project.customer_id)%] [%- IF SELF.project.customer_id %]
+<td>[% P.customer_vendor.picker('project.customer_id', SELF.project.customer_id, type='customer', fat_set_item=1, style='width: 300px', default=SELF.project.customer_id)%] [%- IF SELF.project.customer_id %]
 [%- END %]
 </td>
  </tr>

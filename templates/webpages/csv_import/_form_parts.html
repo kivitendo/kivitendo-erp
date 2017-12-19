@@ -43,7 +43,7 @@
 <tr>
  <th align="right">[%- LxERP.t8('Parts Classification') %]:</th>
  <td colspan="10">
-  [% P.select_classification('settings.part_classification', default = SELF.profile.get('part_classification'), style = 'width: 300px') %]
+  [% P.part.select_classification('settings.part_classification', default = SELF.profile.get('part_classification'), style = 'width: 300px') %]
  </td>
 </tr>
 

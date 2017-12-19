@@ -45,6 +45,7 @@ use SL::WH;
 use SL::OE;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
+use SL::Presenter::Part;
 
 use SL::DB::Part;
 
@@ -700,8 +701,8 @@ sub generate_journal {
   my $idx       = 0;
 
   foreach my $entry (@contents) {
-    $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{part_type}).
-                                   $::request->presenter->classification_abbreviation($entry->{classification_id});
+    $entry->{type_and_classific} = SL::Presenter::Part::type_abbreviation($entry->{part_type}) .
+                                   SL::Presenter::Part::classification_abbreviation($entry->{classification_id});
     $entry->{qty}        = $form->format_amount(\%myconfig, $entry->{qty});
     $entry->{trans_type} = $locale->text($entry->{trans_type});
 
@@ -915,8 +916,8 @@ sub generate_report {
 
   foreach my $entry (@contents) {
 
-    $entry->{type_and_classific} = $::request->presenter->type_abbreviation($entry->{part_type}).
-                                   $::request->presenter->classification_abbreviation($entry->{classification_id});
+    $entry->{type_and_classific} = SL::Presenter::Part::type_abbreviation($entry->{part_type}).
+                                   SL::Presenter::Part::classification_abbreviation($entry->{classification_id});
     map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
     $total_stock_value   += $entry->{stock_value} * 1;
     $entry->{qty}         = $form->format_amount(\%myconfig, $entry->{qty});

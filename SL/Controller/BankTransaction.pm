@@ -25,7 +25,6 @@ use SL::DB::BankAccount;
 use SL::DB::RecordTemplate;
 use SL::DB::SepaExportItem;
 use SL::DBUtils qw(like);
-use SL::Presenter;
 
 use List::MoreUtils qw(any);
 use List::Util qw(max);

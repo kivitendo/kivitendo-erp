@@ -20,6 +20,7 @@ use SL::Helper::PrintOptions;
 use SL::Locale::String qw(t8);
 use SL::Mailer;
 use SL::IS;
+use SL::Presenter::Tag qw(select_tag);
 use SL::ReportGenerator;
 use SL::Webdav;
 use SL::Webdav::File;
@@ -124,7 +125,7 @@ sub action_update_contacts {
   $self->js
     ->replaceWith(
       '#letter_cp_id',
-      SL::Presenter->get->select_tag('letter.cp_id', $contacts, default => $default, value_key => 'cp_id', title_key => 'full_name')
+      select_tag('letter.cp_id', $contacts, default => $default, value_key => 'cp_id', title_key => 'full_name')
     )
     ->render;
 }

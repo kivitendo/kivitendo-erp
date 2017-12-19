@@ -1,6 +1,7 @@
 [% USE HTML %]
 [% USE T8 %]
 [% USE L %]
+[% USE P %]
 [% USE LxERP %]
 <form action="controller.pl" method="post" name="Form" id="search_form">
 
@@ -20,12 +21,12 @@
 [%- IF SELF.is_sales %]
   <tr>
    <td align="right">[% 'Customer' | $T8 %]</td>
-   <td>[% L.customer_vendor_picker('filter.customer_id', filter.customer_id, type='customer', style='width:250px') %]</td>
+   <td>[% P.customer_vendor.picker('filter.customer_id', filter.customer_id, type='customer', style='width:250px') %]</td>
   </tr>
 [%- ELSE %]
   <tr>
    <td align="right">[% 'Vendor' | $T8 %]</td>
-   <td>[% L.customer_vendor_picker('filter.vendor_id', filter.vendor_id, type='vendor', style='width:250px') %]</td>
+   <td>[% P.customer_vendor.picker('filter.vendor_id', filter.vendor_id, type='vendor', style='width:250px') %]</td>
   </tr>
 [%- END %]
   <tr>

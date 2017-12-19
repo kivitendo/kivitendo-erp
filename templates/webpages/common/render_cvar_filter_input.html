@@ -1,4 +1,4 @@
-[%- USE HTML -%][%- USE L -%][%- USE LxERP -%][%- USE T8 -%]
+[%- USE HTML -%][%- USE L -%][%- USE LxERP -%][%- USE T8 -%][%- USE P -%]
 [%- SET id__    = cvar_cfg.id
         name__  = 'filter.cvar.' _ id__
         value__ = filter.cvar.$id__ %]
@@ -19,13 +19,13 @@
     L.select_tag(name__, options__, default=value__, class=cvar_class) %]
 
 [% ELSIF cvar_cfg.type == 'customer' %]
- [%- L.customer_vendor_picker(name__, value__, type='customer', class=cvar_class) %]
+ [%- P.customer_vendor.picker(name__, value__, type='customer', class=cvar_class) %]
 
 [% ELSIF cvar_cfg.type == 'vendor' %]
- [%- L.customer_vendor_picker(name__, value__, type='vendor', class=cvar_class) %]
+ [%- P.customer_vendor.picker(name__, value__, type='vendor', class=cvar_class) %]
 
 [% ELSIF cvar_cfg.type == 'part' %]
- [%- L.part_picker(name__, value__, class=cvar_class) %]
+ [%- P.part.picker(name__, value__, class=cvar_class) %]
 
 [%- ELSE %]
  [% SET value_name__ = id__ _ '_substr__ilike'

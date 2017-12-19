@@ -1,6 +1,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 [%- USE T8 %]
 
 [%- BLOCK customized_report %]
@@ -106,13 +107,13 @@
 [%- BLOCK customer %]
   <tr>
     <th align=right nowrap>[% 'Customer' | $T8 %]</th>
-    <td colspan=3>[% L.customer_vendor_picker('customer_id', '', type='customer') %]</td>
+    <td colspan=3>[% P.customer_vendor.picker('customer_id', '', type='customer') %]</td>
   </tr>
 [%- END %]
 [%- BLOCK projectnumber %]
   <tr>
     <th align=right nowrap>[% 'Project' | $T8 %]</th>
-    <td colspan=3>[% L.project_picker('project_id', '') %]</td>
+    <td colspan=3>[% P.project.picker('project_id', '') %]</td>
   </tr>
 [%- END %]
 

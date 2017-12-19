@@ -13,7 +13,7 @@ use SL::DB::Unit;
 use SL::WH;
 use SL::ReportGenerator;
 use SL::Locale::String qw(t8);
-use SL::Presenter;
+use SL::Presenter::Tag qw(select_tag);
 use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Controller::Helper::ReportGenerator;
@@ -21,7 +21,7 @@ use SL::Controller::Helper::ReportGenerator;
 use English qw(-no_match_vars);
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(warehouses units p) ],
+  'scalar --get_set_init' => [ qw(warehouses units) ],
   'scalar'                => [ qw(warehouse bin unit part) ],
 );
 
@@ -505,10 +505,6 @@ sub init_units {
   SL::DB::Manager::Unit->get_all;
 }
 
-sub init_p {
-  SL::Presenter->get;
-}
-
 sub set_target_from_part {
   my ($self) = @_;
 
@@ -554,7 +550,7 @@ sub set_layout {
 }
 
 sub build_warehouse_select {
- $_[0]->p->select_tag('warehouse_id', $_[0]->warehouses,
+  select_tag('warehouse_id', $_[0]->warehouses,
    title_key => 'description',
    default   => $_[0]->warehouse->id,
    onchange  => 'reload_bin_selection()',
@@ -562,7 +558,7 @@ sub build_warehouse_select {
 }
 
 sub build_bin_select {
-  $_[0]->p->select_tag('bin_id', [ $_[0]->warehouse->bins ],
+  select_tag('bin_id', [ $_[0]->warehouse->bins ],
     title_key => 'description',
     default   => $_[0]->bin->id,
   );
@@ -570,11 +566,11 @@ sub build_bin_select {
 
 sub build_unit_select {
   $_[0]->part->id
-    ? $_[0]->p->select_tag('unit_id', $_[0]->part->available_units,
+    ? select_tag('unit_id', $_[0]->part->available_units,
         title_key => 'name',
         default   => $_[0]->part->unit_obj->id,
       )
-    : $_[0]->p->select_tag('unit_id', $_[0]->units,
+    : select_tag('unit_id', $_[0]->units,
         title_key => 'name',
       )
 }

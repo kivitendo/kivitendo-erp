@@ -29,7 +29,7 @@
     <td>[% IF problem.result == 'error' %][% LxERP.t8("Error") %][% ELSE %][% LxERP.t8("Warning") %][% END %]</td>
     <td>
      [% FOREACH invoice = problem.invoices %]
-      [% P.invoice(invoice) %]
+      [% invoice.presenter.invoice %]
       [% UNLESS loop.last %]<br>[% END %]
      [% END %]
     </td>

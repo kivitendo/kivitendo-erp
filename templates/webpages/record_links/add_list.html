@@ -26,7 +26,7 @@
   [% END %]
   <td>[%- HTML.escape(object.$description_column) %]</td>
   [% IF project_column %]
-   <td>[%- P.project(object.$project_column, no_link=1) %]</td>
+   <td>[%- object.$project_column.presenter.project(no_link=1) %]</td>
   [% END %]
  </tr>
  [%- END %]

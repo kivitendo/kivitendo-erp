@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE P %]
 [%- USE LxERP %][%- USE P -%]
 [%- BLOCK cvar_inputs %]
 [%- SET render_cvar_tag_options = {};
@@ -56,14 +57,14 @@
 
 [%- ELSIF cvar.var.type == 'customer' %]
 [%- render_cvar_tag_options.type = 'customer' %]
-[%- L.customer_vendor_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[%- P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'vendor' %]
 [%- render_cvar_tag_options.type = 'vendor' %]
-[%- L.customer_vendor_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[%- P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'part' %]
-[% L.part_picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
+[% P.part.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
 [%- ELSIF cvar.var.type == 'number' %]
 [%- L.input_tag(cvar_tag_name, LxERP.format_amount(cvar.value, -2), render_cvar_tag_options) %]

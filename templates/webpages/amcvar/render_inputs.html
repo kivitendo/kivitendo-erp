@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE P %]
 
 [%- SET var_name = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
 
@@ -25,13 +26,13 @@
 <input name="[% var_name %]" value="[% HTML.escape(var.value) %]">
 
 [%- ELSIF var.type == 'customer' %]
-[% L.customer_vendor_picker(var_name, var.value, type='customer') %]
+[% P.customer_vendor.picker(var_name, var.value, type='customer') %]
 
 [%- ELSIF var.type == 'vendor' %]
-[% L.customer_vendor_picker(var_name, var.value, type='vendor') %]
+[% P.customer_vendor.picker(var_name, var.value, type='vendor') %]
 
 [%- ELSIF var.type == 'part' %]
-[% L.part_picker(var_name, var.value) %]
+[% P.part.picker(var_name, var.value) %]
 
 [%- ELSIF var.type == 'select' %]
 

@@ -1,4 +1,4 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%]
 
 [% SET style="width: 400px" %]
 
@@ -29,7 +29,7 @@
  </tr>
  <tr>
   <th align="right">[% LxERP.t8('Chart') %]</th>
-  <td>[% L.chart_picker('object.chart_id', SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, style=style, "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
+  <td>[% P.chart.picker('object.chart_id', SELF.object.chart_id, type='AR_paid,AP_paid', category='A,L,Q', choose=1, style=style, "data-validate"="required", "data-title"=LxERP.t8("Chart")) %]</td>
  </tr>
  <tr>
   <th align="right">[% LxERP.t8('Obsolete') %]</th>

@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
+[%- USE P %]
 [%- USE LxERP %]
 [%- USE HTML %]
 <form action='controller.pl' method='post' id='search_form'>
@@ -20,15 +21,15 @@
   </tr>
   <tr>
    <th align="right">[% 'Part' | $T8 %]</th>
-   <td>[% L.part_picker('filter.item_type_matches[].part', FORM.filter.item_type_matches.0.part, style='width: 300px') %]</td>
+   <td>[% P.part.picker('filter.item_type_matches[].part', FORM.filter.item_type_matches.0.part, style='width: 300px') %]</td>
   </tr>
   <tr id='price_rule_filter_customer_tr' [% "style='display:hidden' " UNLESS SELF.vc == 'customer' %]>
    <th align="right">[% 'Customer' | $T8 %]</th>
-   <td>[% L.customer_vendor_picker('filter.item_type_matches[].customer', FORM.filter.item_type_matches.0.customer, type='customer', id='price_rule_filter_customer', style='width: 300px') %]</td>
+   <td>[% P.customer_vendor.picker('filter.item_type_matches[].customer', FORM.filter.item_type_matches.0.customer, type='customer', id='price_rule_filter_customer', style='width: 300px') %]</td>
   </tr>
   <tr id='price_rule_filter_vendor_tr' [% "style='display:hidden' " UNLESS SELF.vc == 'customer' %]>
    <th align="right">[% 'Vendor' | $T8 %]</th>
-   <td>[% L.customer_vendor_picker('filter.item_type_matches[].vendor', FORM.filter.item_type_matches.0.vendor, type='vendor', id='price_rule_filter_vendor', style='width: 300px') %]</td>
+   <td>[% P.customer_vendor.picker('filter.item_type_matches[].vendor', FORM.filter.item_type_matches.0.vendor, type='vendor', id='price_rule_filter_vendor', style='width: 300px') %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Business' | $T8 %]</th>

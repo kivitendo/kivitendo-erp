@@ -1,4 +1,4 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
 [% SET style="width: 400px" %]
 
 <form action="controller.pl" method="post" id="form">
@@ -13,9 +13,9 @@
   <tr>
     <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(bg.description) %]</th>
     [%- IF NOT SELF.config.id %]
-    <td>[% L.chart_picker('income_accno_id_' _ bg.id, SELF.defaults.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
+    <td>[% P.chart.picker('income_accno_id_' _ bg.id, SELF.defaults.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
-    <td>[% L.chart_picker('income_accno_id_' _ bg.id, CHARTLIST.${bg.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
+    <td>[% P.chart.picker('income_accno_id_' _ bg.id, CHARTLIST.${bg.id}.income_accno_id, choose=1, type='IC_income,IC_sale', style=style) %]</td>
     [%- ELSE %]
     <td>[% CHARTLIST.${bg.id}.income_accno_description %]</td>
     [%- END %]
@@ -23,9 +23,9 @@
   <tr>
     <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(bg.description) %]</th>
     [%- IF NOT SELF.config.id %]
-    <td>[% L.chart_picker('expense_accno_id_' _ bg.id, SELF.defaults.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
+    <td>[% P.chart.picker('expense_accno_id_' _ bg.id, SELF.defaults.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSIF SELF.config.id AND SELF.config.orphaned %]
-    <td>[% L.chart_picker('expense_accno_id_' _ bg.id, CHARTLIST.${bg.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
+    <td>[% P.chart.picker('expense_accno_id_' _ bg.id, CHARTLIST.${bg.id}.expense_accno_id, choose=1, type='IC_expense,IC_cogs', style=style) %]</td>
     [%- ELSE %]
     <td>[% CHARTLIST.${bg.id}.expense_accno_description %]</td>
     [%- END %]

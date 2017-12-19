@@ -18,6 +18,7 @@ use SL::DBUtils qw(like);
 use SL::DB::ShopOrder;
 use SL::JSON;
 use SL::Locale::String;
+use SL::Presenter::Record qw(grouped_record_list);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -63,7 +64,7 @@ sub action_ajax_list {
     my $linked_records = $self->object->linked_records(direction => 'both', recursive => 1, save_path => 1);
     push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
 
-    my $output         = SL::Presenter->get->grouped_record_list(
+    my $output         = grouped_record_list(
       $linked_records,
       with_columns      => [ qw(record_link_direction) ],
       edit_record_links => 1,

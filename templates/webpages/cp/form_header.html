@@ -25,7 +25,7 @@
         <tr>
           <th align=right>[% is_customer ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]</th>
           <td>
-           [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, class="initial_focus", style=style) %]
+           [% P.customer_vendor.picker(vc_id, $vc_id, type=vc, class="initial_focus", style=style) %]
            [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
           </td>
         </tr>

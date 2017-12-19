@@ -297,7 +297,7 @@ sub prepare_report {
     project_type  => { sub  => sub { $_[0]->project_type->description } },
     project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Status') },
     customer      => { sub       => sub { !$_[0]->customer_id ? '' : $_[0]->customer->name },
-                       raw_data  => sub { !$_[0]->customer_id ? '' : $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) } },
+                       raw_data  => sub { !$_[0]->customer_id ? '' : $_[0]->customer->presenter->customer(display => 'table-cell', callback => $callback) } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
     valid         => { sub  => sub { $_[0]->valid    ? $::locale->text('Valid')  : $::locale->text('Invalid')  },

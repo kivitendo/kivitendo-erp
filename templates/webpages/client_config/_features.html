@@ -243,7 +243,7 @@
    <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>
    <td>
     [% IF SELF.h_unit_name %]
-     [% P.part_picker('defaults.requirement_spec_section_order_part_id', SELF.defaults.requirement_spec_section_order_part_id, convertible_unit=SELF.h_unit_name, style=style) %]
+     [% P.part.picker('defaults.requirement_spec_section_order_part_id', SELF.defaults.requirement_spec_section_order_part_id, convertible_unit=SELF.h_unit_name, style=style) %]
     [% ELSE %]
      [% LxERP.t8("Error: this feature requires that articles with a time-based unit (e.g. 'h' or 'min') exist.") %]
     [% END %]
@@ -253,7 +253,7 @@
   <tr><td class="listheading" colspan="4">[% LxERP.t8('Transport and service costs reminder') %]</td></tr>
  <tr>
   <td align="right">[% LxERP.t8('Default transport article number') %]</td>
-  <td>[% L.part_picker('defaults.transport_cost_reminder_article_number_id', SELF.defaults.transport_cost_reminder_article_number_id, style=style) %]</td>
+  <td>[% P.part.picker('defaults.transport_cost_reminder_article_number_id', SELF.defaults.transport_cost_reminder_article_number_id, style=style) %]</td>
    <td>[% LxERP.t8('Before saving a sales order, this article will be checked and a warning is generated.') %]</td>
  </tr>
 

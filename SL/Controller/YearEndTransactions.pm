@@ -15,6 +15,8 @@ use SL::DB::GLTransaction;
 use SL::DB::AccTransaction;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 
+use SL::Presenter::Tag qw(checkbox_tag);
+
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(charts charts9000 cbob_chart cb_date cb_startdate ob_date cb_reference ob_reference cb_description ob_description) ],
 );
@@ -110,7 +112,7 @@ sub prepare_report {
   my $idx = 1;
 
   my %column_defs = (
-    'ids'         => { raw_header_data => $self->presenter->checkbox_tag("", id => "check_all",
+    'ids'         => { raw_header_data => checkbox_tag("", id => "check_all",
                                                                           checkall => "[data-checkall=1]"), 'align' => 'center' },
     'chart'       => { text => $::locale->text('Account'), },
     'description' => { text => $::locale->text('Description'), },
@@ -152,7 +154,7 @@ sub prepare_report {
       my $chart_id = $chart->id;
       my $row = { map { $_ => { 'data' => '' } } @columns };
       $row->{ids}  = {
-        'raw_data' => $self->presenter->checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
+        'raw_data' => checkbox_tag("multi_id_${idx}", value => $chart_id, "data-checkall" => 1),
         'valign'   => 'center',
         'align'    => 'center',
       };

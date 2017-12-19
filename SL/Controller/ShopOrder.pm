@@ -12,7 +12,6 @@ use SL::DB::Shop;
 use SL::DB::History;
 use SL::DBUtils;
 use SL::Shop;
-use SL::Presenter;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::Controller::Helper::ParseFilter;
