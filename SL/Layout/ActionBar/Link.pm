@@ -3,6 +3,8 @@ package SL::Layout::ActionBar::Link;
 use strict;
 use parent qw(SL::Layout::ActionBar::Action);
 
+use SL::Presenter::Tag qw(html_tag);
+
 sub from_params {
   my ($class, $data) = @_;
 
@@ -16,7 +18,7 @@ sub from_params {
 sub render {
   my ($self) = @_;
 
-  return $self->p->html_tag(
+  html_tag(
     'div', $self->text,
     id    => $self->id,
     class => 'layout-actionbar-action layout-actionbar-link',

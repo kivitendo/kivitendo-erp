@@ -3,7 +3,7 @@ package SL::Layout::ActionBar::Action;
 use strict;
 use parent qw(Rose::Object);
 
-use SL::Presenter;
+use SL::Presenter::Tag qw(name_to_id);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(id params text) ],
@@ -35,18 +35,13 @@ sub callable { 0 }
 
 # shortcut for presenter
 
-sub p {
-  SL::Presenter->get
-}
-
 sub init_params {
   +{}
 }
 
 # unique id to tie div and javascript together
 sub init_id {
-  $_[0]->params->{id} //
-  $_[0]->p->name_to_id('action[]')
+  $_[0]->params->{id} // name_to_id('action[]')
 }
 
 1;

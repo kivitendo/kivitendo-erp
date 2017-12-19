@@ -10,6 +10,8 @@ use SL::Layout::ActionBar::ComboBox;
 use SL::Layout::ActionBar::Link;
 use SL::Layout::ActionBar::Separator;
 
+use SL::Presenter::Tag qw(html_tag);
+
 use constant HTML_CLASS => 'layout-actionbar';
 
 use Rose::Object::MakeMethods::Generic (
@@ -30,7 +32,7 @@ sub pre_content {
 
   my $content = join '', map { $_->render } @{ $self->actions };
   return if !$content;
-  $::request->presenter->html_tag('div', $content, class => HTML_CLASS);
+  html_tag('div', $content, class => HTML_CLASS);
 }
 
 sub javascripts_inline {

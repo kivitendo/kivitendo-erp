@@ -5,6 +5,7 @@ use parent qw(SL::Layout::ActionBar::Action);
 
 use JSON;
 use List::MoreUtils qw(none);
+use SL::Presenter::Tag qw(html_tag);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(actions) ],
@@ -25,9 +26,9 @@ sub render {
   return                if none { $_->callable } @{ $_[0]->actions };
   return $first->render if !@rest;
 
-  $_[0]->p->html_tag('div',
-    $_[0]->p->html_tag('div', $first->render . $_[0]->p->html_tag('span'), class => 'layout-actionbar-combobox-head') .
-    $_[0]->p->html_tag('div', join('', map { $_->render } @rest), class => 'layout-actionbar-combobox-list'),
+  html_tag('div',
+    html_tag('div', $first->render . html_tag('span'), class => 'layout-actionbar-combobox-head') .
+    html_tag('div', join('', map { $_->render } @rest), class => 'layout-actionbar-combobox-list'),
     id    => $_[0]->id,
     class => 'layout-actionbar-combobox',
   );

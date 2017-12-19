@@ -3,8 +3,6 @@ package SL::Layout::Content;
 use strict;
 use parent qw(SL::Layout::Base);
 
-use SL::Presenter;
-
 sub start_content {
   "<div id='content'>";
 }
