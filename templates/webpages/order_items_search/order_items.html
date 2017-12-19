@@ -2,6 +2,7 @@
 [%- USE LxERP %]
 [%- USE T8 %]
 [%- USE L %]
+[%- USE P %]
 
 [% SET size=50 %]
 [% SET show_images=0 %]
@@ -13,7 +14,7 @@
  <table>
   </tr>
     <td>[% 'Customer' | $T8 %]</td>
-    <td>[% L.customer_vendor_picker('filter.order.customer.id', FORM.customer_id, type='customer', class="filter", size=size) %]</td>
+    <td>[% P.customer_vendor.picker('filter.order.customer.id', FORM.customer_id, type='customer', class="filter", size=size) %]</td>
   </tr>
   <tr>
     <td>[% 'Part' | $T8 %]</td>

@@ -46,7 +46,7 @@ sub link {
   my ($self) = @_;
 
   my $html;
-  $html   = SL::Presenter->get->gl_transaction($self, display => 'inline');
+  $html   = $self->presenter->gl_transaction(display => 'inline');
 
   return $html;
 }

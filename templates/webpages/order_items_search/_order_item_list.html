@@ -21,9 +21,9 @@
  </tr>
  [% FOREACH order_item = SELF.orderitems %]
  <tr id="tr_[% loop.count %]" class="listrow[% loop.count % 2 %]">
-  <td>                 [% P.part(order_item.part, no_link => 0)               %]</td>
-  <td>                 [% P.customer(order_item.order.customer, no_link => 0) %]</td>
-  <td class="numeric"> [% P.sales_order(order_item.order, no_link => 0)       %]</td>
+  <td>                 [% order_item.part.presenter.part(no_link => 0)               %]</td>
+  <td>                 [% order_item.order.customer.presenter.customer(no_link => 0) %]</td>
+  <td class="numeric"> [% order_item.order.presenter.sales_order(no_link => 0)       %]</td>
   <td>                 [% order_item.order.transdate.to_kivitendo             %]</td>
   <td class="numeric [% IF order_item.delivered_qty == order_item.qty %]shipped[% ELSE %]not_shipped[% END %]">
     [% LxERP.format_amount(order_item.qty, qty_round) %] [% order_item.unit | html %]

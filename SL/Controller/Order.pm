@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
-use SL::Presenter;
+use SL::Presenter::Tag qw(select_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -771,12 +771,12 @@ sub _check_auth {
 sub build_contact_select {
   my ($self) = @_;
 
-  $self->p->select_tag('order.cp_id', [ $self->order->{$self->cv}->contacts ],
-                       value_key  => 'cp_id',
-                       title_key  => 'full_name_dep',
-                       default    => $self->order->cp_id,
-                       with_empty => 1,
-                       style      => 'width: 300px',
+  select_tag('order.cp_id', [ $self->order->{$self->cv}->contacts ],
+    value_key  => 'cp_id',
+    title_key  => 'full_name_dep',
+    default    => $self->order->cp_id,
+    with_empty => 1,
+    style      => 'width: 300px',
   );
 }
 
@@ -786,12 +786,12 @@ sub build_contact_select {
 sub build_shipto_select {
   my ($self) = @_;
 
-  $self->p->select_tag('order.shipto_id', [ $self->order->{$self->cv}->shipto ],
-                       value_key  => 'shipto_id',
-                       title_key  => 'displayable_id',
-                       default    => $self->order->shipto_id,
-                       with_empty => 1,
-                       style      => 'width: 300px',
+  select_tag('order.shipto_id', [ $self->order->{$self->cv}->shipto ],
+    value_key  => 'shipto_id',
+    title_key  => 'displayable_id',
+    default    => $self->order->shipto_id,
+    with_empty => 1,
+    style      => 'width: 300px',
   );
 }
 

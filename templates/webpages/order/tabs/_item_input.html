@@ -1,4 +1,4 @@
-[%- USE T8 %][%- USE HTML %][%- USE LxERP %][%- USE L %]
+[%- USE T8 %][%- USE HTML %][%- USE LxERP %][%- USE L %][%- USE P %]
 
  <div>
   <table id="input_row_table_id">
@@ -14,7 +14,7 @@
     </thead>
     <tbody>
       <tr valign="top" class="listrow">
-        <td>[% L.part_picker('add_item.parts_id', '', fat_set_item=1, style='width: 300px', class="add_item_input") %]</td>
+        <td>[% P.part.picker('add_item.parts_id', '', fat_set_item=1, style='width: 300px', class="add_item_input") %]</td>
         <td>[% L.input_tag('add_item.description', '', class="add_item_input") %]</td>
         <td>
           [% L.input_tag('add_item.qty_as_number', '', size = 5, class="add_item_input numeric") %]

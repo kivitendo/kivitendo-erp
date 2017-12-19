@@ -99,8 +99,8 @@ sub link {
   my ($self) = @_;
 
   my $html;
-  $html   = SL::Presenter->get->purchase_invoice($self, display => 'inline') if $self->invoice;
-  $html   = SL::Presenter->get->ap_transaction($self, display => 'inline') if !$self->invoice;
+  $html   = $self->presenter->purchase_invoice(display => 'inline') if $self->invoice;
+  $html   = $self->presenter->ap_transaction(display => 'inline') if !$self->invoice;
 
   return $html;
 }

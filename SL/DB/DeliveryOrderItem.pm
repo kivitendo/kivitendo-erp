@@ -43,7 +43,7 @@ sub displayable_delivery_order_info {
 
   $dec //= 2;
 
-  return SL::Presenter->get->sales_delivery_order($self->delivery_order, display => 'inline')
+  $self->delivery_order->presenter->sales_delivery_order(display => 'inline')
          . " " . $::form->format_amount(\%::myconfig, $self->qty, $dec) . " " . $self->unit
          . " (" . $self->delivery_order->transdate->to_kivitendo . ")";
 };

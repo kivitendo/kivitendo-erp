@@ -60,7 +60,7 @@
                     <th align="right">[% IF vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
                     <td>
                      [%- SET vc_id = vc _ "_id" %]
-                     [% P.customer_vendor_picker(vc_id, $vc_id, type=vc, style="width: 250px", class="initial_focus", onchange="\$('#update_button').click()") %]
+                     [% P.customer_vendor.picker(vc_id, $vc_id, type=vc, style="width: 250px", class="initial_focus", onchange="\$('#update_button').click()") %]
                      [% P.button_tag("show_vc_details('" _ HTML.escape(vc) _  "')", LxERP.t8("Details (one letter abbreviation)")) %]
                      [% P.hidden_tag("previous_" _ vc_id, $vc_id) %]
                     </td>

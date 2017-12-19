@@ -51,7 +51,7 @@
         <tr>
           <th align="right">[% 'Vendor' | $T8 %]</th>
           <td>
-           [% P.customer_vendor_picker("vendor_id", vendor_id, type="vendor", style="width: 250px", class="initial_focus", onchange="\$('#update_button').click()") %]
+           [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", style="width: 250px", class="initial_focus", onchange="\$('#update_button').click()") %]
            [% P.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)')) %]
            [% P.hidden_tag("previous_vendor_id", vendor_id) %]
           </td>
@@ -181,7 +181,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
-          <td>[% P.project_picker('globalproject_id', globalproject_id) %]</td>
+          <td>[% P.project.picker('globalproject_id', globalproject_id) %]</td>
         </tr>
       </table>
     </td>

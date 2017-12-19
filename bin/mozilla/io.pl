@@ -53,6 +53,7 @@ use SL::IC;
 use SL::IO;
 use SL::File;
 use SL::PriceSource;
+use SL::Presenter::Part;
 
 use SL::DB::Contact;
 use SL::DB::Customer;
@@ -308,8 +309,8 @@ sub display_row {
 
 
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
-    $column_data{type_and_classific} = $::request->presenter->type_abbreviation($form->{"part_type_$i"}).
-                                       $::request->presenter->classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
+    $column_data{type_and_classific} = SL::Presenter::Part::type_abbreviation($form->{"part_type_$i"}).
+                                       SL::Presenter::Part::classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
                                 : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))

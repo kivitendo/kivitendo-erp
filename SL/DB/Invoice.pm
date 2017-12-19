@@ -578,8 +578,8 @@ sub link {
   my ($self) = @_;
 
   my $html;
-  $html   = SL::Presenter->get->sales_invoice($self, display => 'inline') if $self->invoice;
-  $html   = SL::Presenter->get->ar_transaction($self, display => 'inline') if !$self->invoice;
+  $html   = $self->presenter->sales_invoice(display => 'inline') if $self->invoice;
+  $html   = $self->presenter->ar_transaction(display => 'inline') if !$self->invoice;
 
   return $html;
 }

@@ -1,4 +1,5 @@
 [%- USE L %]
+[%- USE P %]
 [%- USE HTML %]
 [%- USE T8 %]
 [%- USE LxERP %][%- USE P -%]
@@ -82,7 +83,7 @@
               <tr>
                 <th align="right" nowrap>[% 'Vendor' | $T8 %]</th>
                 <td colspan="3">
-                 [% P.customer_vendor_picker("vendor_id", vendor_id, type="vendor", style="width: 300px", onchange="\$('#update_button').click()") %]
+                 [% P.customer_vendor.picker("vendor_id", vendor_id, type="vendor", style="width: 300px", onchange="\$('#update_button').click()") %]
                  [% L.button_tag("show_vc_details('vendor')", LxERP.t8('Details (one letter abbreviation)')) %]
                  [% L.hidden_tag("previous_vendor_id", vendor_id) %]
                 </td>
@@ -188,7 +189,7 @@
           <tr>
             <td>
               [% SET selected_chart_id = "AP_amount_chart_id_"_ i %]
-              [% P.chart_picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
+              [% P.chart.picker("AP_amount_chart_id_" _ i, $selected_chart_id, style="width: 400px", type="AP_amount", class=(initial_focus == 'row_' _ i ? "initial_focus" : "")) %]
               [% L.hidden_tag("previous_AP_amount_chart_id_" _ i, $selected_chart_id) %]
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
@@ -217,7 +218,7 @@
         </tr>
         <tr>
           <td>
-            [% P.chart_picker('AP_chart_id', AP_chart_id, style="width: 400px", type="AP") %]
+            [% P.chart.picker('AP_chart_id', AP_chart_id, style="width: 400px", type="AP") %]
           </td>
           <th align="left">[% invtotal | html %]</th>
           <td colspan="4"></td>

@@ -35,7 +35,7 @@
       <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
     </td>
     <td>
-      <div name="partclassification">[% P.typeclass_abbreviation(ITEM.part) %]</div>
+      <div name="partclassification">[% ITEM.part.presenter.typeclass_abbreviation %]</div>
     </td>
     <td>
       [% L.areainput_tag("order.orderitems[].description",

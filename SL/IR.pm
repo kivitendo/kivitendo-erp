@@ -50,6 +50,7 @@ use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::TaxZone;
 use SL::DB;
+use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use List::Util qw(min);
 
 use strict;
@@ -1309,8 +1310,8 @@ sub retrieve_item {
     if (($::form->{"partnumber_$i"} ne '') && ($ref->{ean} eq $::form->{"partnumber_$i"})) {
       push @{ $ref->{matches} ||= [] }, $::locale->text('EAN') . ': ' . $ref->{ean};
     }
-    $ref->{type_and_classific} = $::request->presenter->type_abbreviation($ref->{part_type}).
-                                 $::request->presenter->classification_abbreviation($ref->{classification_id});
+    $ref->{type_and_classific} = type_abbreviation($ref->{part_type}) .
+                                 classification_abbreviation($ref->{classification_id});
 
     if (! $ref->{used_for_purchase} ) {
        $has_wrong_pclass = PCLASS_NOTFORPURCHASE;

@@ -57,6 +57,7 @@ use SL::DB::Tax;
 use SL::DB::TaxZone;
 use SL::TransNumber;
 use SL::DB;
+use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use Data::Dumper;
 
 use strict;
@@ -2353,8 +2354,8 @@ sub retrieve_item {
       push @{ $ref->{matches} ||= [] }, $::locale->text('EAN') . ': ' . $ref->{ean};
     }
 
-    $ref->{type_and_classific} = $::request->presenter->type_abbreviation($ref->{part_type}).
-                                 $::request->presenter->classification_abbreviation($ref->{classification_id});
+    $ref->{type_and_classific} = type_abbreviation($ref->{part_type}) .
+                                 classification_abbreviation($ref->{classification_id});
     if (! $ref->{used_for_sale} ) {
       $has_wrong_pclass = PCLASS_NOTFORSALE ;
       next;
