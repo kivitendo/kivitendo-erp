@@ -213,8 +213,15 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 2. RELEASE
 ==========
 
+* VERSION auf aktuelle Version setzen
+ - Changelog auf Tagesdatum plus Versionssnummer
+ - dokumentation.xml Versionsnummer anpassen
+ - bei der Datei VERSION Versionsnummer anpassen
+
+
 * Annotated tag erstellen und pushen
 
+  # falls möglich den Tag mit dem Commit von VERSION setzen (Konvention)
   $ git tag -a release-3.0.0
   $ git push origin tags/release-3.0.0
 
