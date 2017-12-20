@@ -56,8 +56,10 @@ SL::Presenter::Text - Presenter module for assorted text helpers
 
 =head1 SYNOPSIS
 
+  use  SL::Presenter::Text qw(truncate);
+
   my $long_text = "This is very, very long. Need shorter, surely.";
-  my $truncated = $::request->presenter->truncate($long_text, at => 10);
+  my $truncated = truncate($long_text, at => 10);
   # Result: "This is..."
 
 =head1 FUNCTIONS
