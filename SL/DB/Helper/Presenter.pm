@@ -17,9 +17,17 @@ sub AUTOLOAD {
 
   return if $method eq 'DESTROY';
 
+  eval "require $self->[0]";
+
   if (my $sub = $self->[0]->can($method)) {
     return $sub->($self->[1], @args);
   }
+}
+
+sub can {
+  my ($self, $method) = @_;
+  eval "require $self->[0]";
+  $self->[0]->can($method);
 }
 
 1;
