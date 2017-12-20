@@ -22,6 +22,11 @@ my @rose_reserved_methods = qw(
   not_found save update import
 );
 
+my %db_to_presenter_mapping = (
+  Customer => 'CustomerVendor',
+  Vendor   => 'CustomerVendor',
+);
+
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new();
@@ -240,16 +245,13 @@ sub clone_and_reset {
 }
 
 sub presenter {
-  my ($class_or_self) = @_;
+  my ($self) = @_;
 
-  if (ref $class_or_self) {
-    my $class = ref $class_or_self;
-    $class =~ s{^SL::DB::}{SL::Presenter::};
-    return SL::DB::Helper::Presenter->new($class, $class_or_self);
-  } else {
-    $class_or_self =~ s{^SL::DB::}{SL::Presenter::};
-    return $class_or_self;
-  }
+  my $class =  ref $self;
+  $class    =~ s{^SL::DB::}{};
+  $class    =  "SL::Presenter::" . ($db_to_presenter_mapping{$class} // $class);
+
+  return SL::DB::Helper::Presenter->new($class, $self);
 }
 
 sub as_debug_info {
