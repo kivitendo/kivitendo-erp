@@ -3,7 +3,7 @@
 [%- USE L %]
 [%- USE T8 %]
 [%- IF SELF.part.id %]
-<h3>[% LxERP.t8('Stock for part #1', SELF.part.displayable_name) %]</h3>
+<h3>[% LxERP.t8('Stock for part #1', SELF.part.displayable_name) %][%- IF SELF.part.ean -%] ([%- SELF.part.ean -%])[%- END -%]</h3>
 
 [%- IF SELF.stock_empty && !SELF.part.bin_id  %]
 <p>[% 'Nothing stocked yet.' | $T8 %]</p>
@@ -22,7 +22,7 @@
   <tr class='listrow'>
     <td>[% bin.warehouse.description %]</td>
     <td>[% bin.description %]</td>
-    <td class='numeric'>[% LxERP.format_amount(stock__set.sum, 2) %]</td>
+    <td class='numeric'>[% LxERP.format_amount(stock__set.sum, 2) %]&nbsp;[%- SELF.part.unit -%]</td>
   </tr>
   [%- END -%]
 [%- END -%]
