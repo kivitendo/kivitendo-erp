@@ -60,7 +60,7 @@ sub company_logo {
   # create the logo screen
   $form->header() unless $form->{noheader};
 
-  print $form->parse_html_template('login/company_logo');
+  print $form->parse_html_template('login/company_logo', { version => $::form->read_version });
 
   $main::lxdebug->leave_sub();
 }
