@@ -12,6 +12,7 @@ use File::Copy ();
 use File::Path ();
 use List::MoreUtils qw(uniq);
 use SL::DBUtils qw(selectfirst_hashref_query);
+use SL::Presenter::EscapedText qw(escape);
 use version;
 
 use Rose::Object::MakeMethods::Generic (
@@ -152,7 +153,7 @@ sub convert_column_to_html {
   foreach my $row (selectall_hashref_query($::form, $self->dbh, qq|SELECT id, $column FROM $table WHERE $column IS NOT NULL|)) {
     next if !$row->{$column} || (($row->{$column} =~ m{^<[a-z]+>}) && ($row->{$column} =~ m{</[a-z]+>$}));
 
-    my $new_content = "" . $::request->presenter->escape($row->{$column});
+    my $new_content = "" . escape($row->{$column});
     $new_content    =~ s{\r}{}g;
     $new_content    =~ s{\n\n+}{</p><p>}g;
     $new_content    =~ s{\n}{<br />}g;

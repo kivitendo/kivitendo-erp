@@ -7,6 +7,7 @@ use strict;
 use utf8;
 
 use SL::DBUtils;
+use SL::Presenter::EscapedText qw(escape);
 
 use parent qw(SL::DBUpgrade2::Base);
 
@@ -18,7 +19,7 @@ sub convert_column {
   foreach my $row (selectall_hashref_query($::form, $self->dbh, qq|SELECT id, $column FROM $table WHERE $column IS NOT NULL|)) {
     next if !$row->{$column} || (($row->{$column} =~ m{^<[a-z]+>}) && ($row->{$column} =~ m{</[a-z]+>$}));
 
-    my $new_content = "" . $::request->presenter->escape($row->{$column});
+    my $new_content = "" . escape($row->{$column});
     $new_content    =~ s{\r}{}g;
     $new_content    =~ s{\n\n+}{</p><p>}g;
     $new_content    =~ s{\n}{<br />}g;
