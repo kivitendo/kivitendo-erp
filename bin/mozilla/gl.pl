@@ -49,6 +49,8 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
+use SL::Presenter::Tag;
+use SL::Presenter::Chart;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -836,8 +838,8 @@ sub display_rows {
     my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     my $accno = qq|<td>| .
-      $::request->presenter->chart_picker("accno_id_$i", $accno_id, style => "width: 300px") .
-      $::request->presenter->hidden_tag("previous_accno_id_$i", $accno_id)
+      SL::Presenter::Chart::picker("accno_id_$i", $accno_id, style => "width: 300px") .
+      SL::Presenter::Tag::hidden_tag("previous_accno_id_$i", $accno_id)
       . qq|</td>|;
     my $tax_ddbox = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",

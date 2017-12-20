@@ -51,6 +51,8 @@ use SL::DB::RecordTemplate;
 use SL::DB::Tax;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
+use SL::Presenter::Tag;
+use SL::Presenter::Chart;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -423,8 +425,8 @@ sub form_header {
     my $selected_taxchart = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
 
     $transaction->{selectAR_amount} =
-        $::request->presenter->chart_picker("AR_amount_chart_id_$i", $amount_chart_id, style => "width: 400px", type => "AR_amount", class => ($form->{initial_focus} eq "row_$i" ? "initial_focus" : ""))
-      . $::request->presenter->hidden_tag("previous_AR_amount_chart_id_$i", $amount_chart_id);
+        SL::Presenter::Chart::picker("AR_amount_chart_id_$i", $amount_chart_id, style => "width: 400px", type => "AR_amount", class => ($form->{initial_focus} eq "row_$i" ? "initial_focus" : ""))
+      . SL::Presenter::Tag::hidden_tag("previous_AR_amount_chart_id_$i", $amount_chart_id);
 
     $transaction->{taxchart} =
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
@@ -1004,7 +1006,7 @@ sub ar_transactions {
   $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
-    'ids'                     => { raw_header_data => $::request->presenter->checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
+    'ids'                     => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
     'transdate'               => { 'text' => $locale->text('Date'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'type'                    => { 'text' => $locale->text('Type'), },
@@ -1182,7 +1184,7 @@ sub ar_transactions {
       . "&id=" . E($ar->{id}) . "&callback=${callback}";
 
     $row->{ids} = {
-      raw_data =>  $::request->presenter->checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),
+      raw_data =>  SL::Presenter::Tag::checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),
       valign   => 'center',
       align    => 'center',
     };

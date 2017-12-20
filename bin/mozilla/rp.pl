@@ -44,6 +44,7 @@ use SL::DB::Customer;
 use SL::RP;
 use SL::Iconv;
 use SL::Locale::String qw(t8);
+use SL::Presenter::Tag;
 use SL::ReportGenerator;
 use Data::Dumper;
 use List::MoreUtils qw(any);
@@ -1008,7 +1009,7 @@ sub aging {
   my @columns = qw(statement ct invnumber transdate duedate amount open);
 
   my %column_defs = (
-    'statement' => { raw_header_data => $::request->presenter->checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
+    'statement' => { raw_header_data => SL::Presenter::Tag::checkbox_tag("checkall", checkall => '[name^=statement_]'), 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, align => "center" },
     'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'invnumber' => { 'text' => $locale->text('Invoice'), },
     'transdate' => { 'text' => $locale->text('Date'), },
