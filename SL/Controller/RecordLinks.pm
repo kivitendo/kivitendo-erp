@@ -106,7 +106,7 @@ sub action_ajax_add_filter {
   my $presenter = $self->presenter;
 
   my @link_type_select = map { [ $_->{type}, $_->{title} ] } @link_types;
-  my @projects         = map { [ $_->id, $presenter->project($_, display => 'inline', style => 'both', no_link => 1) ] } @{ SL::DB::Manager::Project->get_all_sorted };
+  my @projects         = map { [ $_->id, $_->presenter->project(display => 'inline', style => 'both', no_link => 1) ] } @{ SL::DB::Manager::Project->get_all_sorted };
   my $is_sales         = $self->object->can('customer_id') && $self->object->customer_id;
 
   $self->render(
