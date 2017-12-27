@@ -4,12 +4,13 @@ use strict;
 
 use SL::HTML::Restrict;
 use SL::Presenter::EscapedText qw(escape);
+use Scalar::Util qw(blessed);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
-  stringify_attributes restricted_html textarea_tag link
+  stringify_attributes restricted_html textarea_tag link date_tag
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -328,6 +329,27 @@ sub link {
   $href ||= '#';
 
   html_tag('a', $content, %params, href => $href);
+}
+
+sub date_tag {
+  my ($name, $value, %params) = @_;
+
+  _set_id_attribute(\%params, $name);
+  my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
+  my @classes  = $params{no_cal} || $params{readonly} ? () : ('datepicker');
+  push @classes, delete($params{class}) if $params{class};
+  my %class    = @classes ? (class => join(' ', @classes)) : ();
+
+  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->presenter->need_reinit_widgets($params{id});
+
+  input_tag(
+    $name, blessed($value) ? $value->to_lxoffice : $value,
+    size   => 11,
+    "data-validate" => "date",
+    %params,
+    %class, @onchange,
+  );
 }
 
 1;

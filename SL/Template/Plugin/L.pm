@@ -81,6 +81,7 @@ sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',        
 sub link                     { return _call_presenter('link',                     @_); }
 sub input_number_tag         { return _call_presenter('input_number_tag',         @_); }
 sub textarea_tag             { return _call_presenter('textarea_tag',             @_); }
+sub date_tag                 { return _call_presenter('date_tag',                 @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -152,27 +153,6 @@ sub stylesheet_tag {
   return $code;
 }
 
-my $date_tag_id_idx = 0;
-sub date_tag {
-  my ($self, $name, $value, %params) = _hashify(3, @_);
-
-  _set_id_attribute(\%params, $name);
-  my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
-  my @classes  = $params{no_cal} || $params{readonly} ? () : ('datepicker');
-  push @classes, delete($params{class}) if $params{class};
-  my %class    = @classes ? (class => join(' ', @classes)) : ();
-
-  $::request->layout->add_javascripts('kivi.Validator.js');
-  $::request->presenter->need_reinit_widgets($params{id});
-
-  return $self->input_tag(
-    $name, blessed($value) ? $value->to_lxoffice : $value,
-    size   => 11,
-    "data-validate" => "date",
-    %params,
-    %class, @onchange,
-  );
-}
 
 # simple version with select_tag
 sub vendor_selector {
