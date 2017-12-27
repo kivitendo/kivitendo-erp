@@ -20,6 +20,11 @@ my %_valueless_attributes = map { $_ => 1 } qw(
   readonly selected hidden
 );
 
+my %_singleton_tags = map { $_ => 1 } qw(
+  area base br col command embed hr img input keygen link meta param source
+  track wbr
+);
+
 sub _call_on {
   my ($object, $method, @params) = @_;
   return $object->$method(@params);
@@ -58,7 +63,7 @@ sub html_tag {
   my ($tag, $content, %params) = @_;
   my $attributes = stringify_attributes(%params);
 
-  return "<${tag}${attributes}>" unless defined($content);
+  return "<${tag}${attributes}>" if !defined($content) && $_singleton_tags{$tag};
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
