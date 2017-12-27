@@ -80,6 +80,7 @@ sub submit_tag               { return _call_presenter('submit_tag',             
 sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',          @_); }
 sub link                     { return _call_presenter('link',                     @_); }
 sub input_number_tag         { return _call_presenter('input_number_tag',         @_); }
+sub textarea_tag             { return _call_presenter('textarea_tag',             @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -92,17 +93,6 @@ sub img_tag {
   $options{alt} ||= '';
 
   return $self->html_tag('img', undef, %options);
-}
-
-sub textarea_tag {
-  my ($self, $name, $content, %attributes) = _hashify(3, @_);
-
-  _set_id_attribute(\%attributes, $name);
-  $attributes{rows}  *= 1; # required by standard
-  $attributes{cols}  *= 1; # required by standard
-  $content            = $content ? _H($content) : '';
-
-  return $self->html_tag('textarea', $content, %attributes, name => $name);
 }
 
 sub radio_button_tag {

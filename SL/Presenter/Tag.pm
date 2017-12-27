@@ -9,7 +9,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
-  stringify_attributes restricted_html link
+  stringify_attributes restricted_html textarea_tag link
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -310,6 +310,16 @@ sub restricted_html {
 
   $html_restricter ||= SL::HTML::Restrict->create;
   return $html_restricter->process($value);
+}
+
+sub textarea_tag {
+  my ($name, $content, %attributes) = @_;
+
+  _set_id_attribute(\%attributes, $name);
+  $attributes{rows}  *= 1; # required by standard
+  $attributes{cols}  *= 1; # required by standard
+
+  html_tag('textarea', $content, %attributes, name => $name);
 }
 
 sub link {
