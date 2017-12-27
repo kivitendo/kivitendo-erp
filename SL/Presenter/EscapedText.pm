@@ -10,6 +10,14 @@ use JSON ();
 
 use overload '""' => \&escaped_text;
 
+my %html_entities = (
+  '<' => '&lt;',
+  '>' => '&gt;',
+  '&' => '&amp;',
+  '"' => '&quot;',
+  "'" => '&apos;',
+);
+
 # static constructors
 sub new {
   my ($class, %params) = @_;
@@ -17,9 +25,15 @@ sub new {
   return $params{text} if ref($params{text}) eq $class;
 
   my $self      = bless {}, $class;
-  $self->{text} = $params{is_escaped} ? $params{text} : $::locale->quote_special_chars('HTML', $params{text});
+  $self->{text} = $params{is_escaped} ? $params{text} : quote_html($params{text});
 
   return $self;
+}
+
+sub quote_html {
+  return undef unless defined $_[0];
+  (my $x = $_[0]) =~ s/(["'<>&])/$html_entities{$1}/ge;
+  $x
 }
 
 sub escape {
