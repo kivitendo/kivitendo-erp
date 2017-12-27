@@ -279,7 +279,7 @@ sub input_number_tag {
   $::request->presenter->need_reinit_widgets($params{id});
 
   input_tag(
-    $name, $::form->foramt_amount(\%::myconfig, $value),
+    $name, $::form->format_amount(\%::myconfig, $value, $params{precision}),
     "data-validate" => "number",
     %params,
     %class, @onchange,
