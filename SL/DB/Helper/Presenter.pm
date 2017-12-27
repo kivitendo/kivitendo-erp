@@ -19,6 +19,8 @@ sub AUTOLOAD {
 
   eval "require $self->[0]";
 
+  splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
+
   if (my $sub = $self->[0]->can($method)) {
     return $sub->($self->[1], @args);
   }
