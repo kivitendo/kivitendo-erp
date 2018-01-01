@@ -252,7 +252,7 @@ sub check_ap_paid {
   my ($self) = @_;
 
   my $query = qq|
-      select invnumber,paid,
+      select invnumber,paid,id,
             (select sum(amount) from acc_trans a left join chart c on (c.id = a.chart_id) where trans_id = ap.id and c.link like '%AP_paid%') as accpaid ,
             paid-(select sum(amount) from acc_trans a left join chart c on (c.id = a.chart_id) where trans_id = ap.id and c.link like '%AP_paid%') as diff
      from ap
@@ -268,7 +268,7 @@ sub check_ap_paid {
   $self->tester->ok(!$errors, "Vergleich ap paid mit acc_trans AP_paid");
   for my $paid_diff_ap (@{ $paid_diffs_ap }) {
      next if $paid_diff_ap->{diff} == 0;
-     $self->tester->diag("ap invnumber: $paid_diff_ap->{invnumber} : paid: $paid_diff_ap->{paid}    acc_paid= $paid_diff_ap->{accpaid}    diff: $paid_diff_ap->{diff}");
+     $self->tester->diag("ap invnumber: $paid_diff_ap->{invnumber} : ID :: ID :  $paid_diff_ap->{id}  : paid: $paid_diff_ap->{paid}    acc_paid= $paid_diff_ap->{accpaid}    diff: $paid_diff_ap->{diff}");
   }
 }
 
