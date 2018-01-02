@@ -55,4 +55,6 @@ sub invnumber {
   return $_[0]->reference;
 }
 
+sub date { goto &gldate }
+
 1;
