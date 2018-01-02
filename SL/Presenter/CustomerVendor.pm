@@ -6,7 +6,7 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(customer_vendor customer vendor customer_vendor_picker);
+our @EXPORT_OK = qw(customer_vendor customer vendor customer_vendor_picker customer_picker vendor_picker);
 
 use Carp;
 
@@ -46,6 +46,9 @@ sub _customer_vendor {
 sub customer_vendor_picker {
   my ($name, $value, %params) = @_;
 
+  $params{type} //= 'customer' if 'SL::DB::Customer' eq ref $value;
+  $params{type} //= 'vendor'   if 'SL::DB::Vendor'   eq ref $value;
+
   croak 'Unknown "type" parameter' unless $params{type} =~ m{^(?:customer|vendor)$};
   croak 'Unknown value class'      if     $value && ref($value) && (ref($value) !~ m{^SL::DB::(?:Customer|Vendor)$});
 
@@ -71,7 +74,9 @@ sub customer_vendor_picker {
   html_tag('span', $ret, class => 'customer_vendor_picker');
 }
 
-sub picker { goto &customer_vendor_picker }
+sub customer_picker { my ($name, $value, @slurp) = @_; customer_vendor_picker($name, $value, @slurp, type => 'customer') }
+sub vendor_picker   { my ($name, $value, @slurp) = @_; customer_vendor_picker($name, $value, @slurp, type => 'vendor') }
+sub picker          { goto &customer_vendor_picker }
 
 1;
 
