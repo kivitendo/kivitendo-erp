@@ -314,7 +314,11 @@ sub all_parts {
 
   # special case smart search
   if ($form->{all}) {
-    $form->{"l_$_"} = 1 for qw(partnumber description unit sellprice lastcost cvar_packaging linetotal);
+    $form->{"l_$_"}       = 1 for qw(partnumber description unit sellprice lastcost cvar_packaging linetotal);
+    $form->{l_service}    = 1 if($form->{searchitems} eq 'service' || $form->{searchitems} eq '');
+    $form->{l_assembly}   = 1 if($form->{searchitems} eq 'assembly' || $form->{searchitems} eq '');
+    $form->{l_part}       = 1 if($form->{searchitems} eq 'part' || $form->{searchitems} eq '');
+    $form->{l_assortment} = 1 if($form->{searchitems} eq 'assortment' || $form->{searchitems} eq '');
     push @where_tokens, "p.partnumber ILIKE ? OR p.description ILIKE ?";
     push @bind_vars,    (like($form->{all})) x 2;
   }
