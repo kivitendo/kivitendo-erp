@@ -2,6 +2,32 @@
 # Veränderungen von kivitendo #
 ###############################
 
+2017-XX-XX - Release 3.5.X
+
+Mittelgroße neue Features:
+
+- Inventurerfassung
+
+  Portierung aus einem Kundenprojekt mit folgenden Anforderungen/Features:
+  - eigene Maske unter Lager->Inventur
+  - Anzeige des aktuellen Lagerbestands des zu erfassenden Artikels
+  - Angabe des Artikels auch über EAN
+  - Angabe eines Stichtages
+  - Vorbelegung Lager/Lagerplatz und Stichtag in Mandantenkonfiguration
+  - korrigieren des Lagerbestands entsprechend der Zählung (mit neuem
+    Transfertyp "Inventur")
+  - Speichern der gezählten Menge (auch wenn keine Korrektur des Bestands
+    stattfindet)
+  - Warnung, wenn gleicher Artikel für gleichen Lagerplatz und Stichtag schon
+    gezählt wurde und Möglichkeit die eigene gezählte Menge zu der vorhandenen
+    hinzuzuzählen oder die vorher gezählte Menge durch die eigene Menge zu
+    korrigieren
+  - Historie der Inventurerfassung des aktuellen Bearbeiters unterhalb
+    der Erfassungsmaske
+  - Bericht über Inventurerfassungen
+
+
+
 2017-12-12 - Release 3.5.1
 
 Größere neue Features:
