@@ -98,6 +98,7 @@ sub action_list {
     where        => [
       amount                => {ne => \'invoice_amount'},
       local_bank_account_id => $::form->{filter}{bank_account},
+      cleared               => 0,
       @where
     ],
   );
