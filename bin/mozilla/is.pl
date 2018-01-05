@@ -784,10 +784,6 @@ sub update {
 
       } else {
         $form->{"id_$i"}   = 0;
-        if ( $form->{is_wrong_ptype} > 0 ) {
-          $form->{"partnumber_$i"}  = "";
-          $form->{"description_$i"} = "";
-        }
         new_item();
       }
     }
