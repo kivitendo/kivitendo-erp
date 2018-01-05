@@ -1378,18 +1378,6 @@ sub retrieve_item {
     $stw->finish();
     chop $ref->{taxaccounts};
 
-    ## vendor_id ggf beim ersten mal noch nicht gesetzt nur vendor <name>--<id>
-    ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor}) if  ! $form->{vendor_id};
-
-    if ( $form->{vendor_id} ) {
-      my $mm = SL::DB::Manager::MakeModel->get_first(
-        query => [ parts_id => $ref->{id} , make => $form->{vendor_id} ] );
-      if ( $mm ) {
-        $::lxdebug->message(LXDebug->DEBUG2(), "mm id=".$mm->{id}." price=".$mm->{lastcost});
-        $ref->{lastcost} = $mm->{lastcost};
-      }
-    }
-
     $ref->{onhand} *= 1;
     push @{ $form->{item_list} }, $ref;
 
