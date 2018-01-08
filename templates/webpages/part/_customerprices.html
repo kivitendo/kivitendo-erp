@@ -38,13 +38,3 @@
     </td>
   </tr>
   [% L.sortable_element('#customerprice_rows') %]
-
-  <script type="text/javascript">
-  $(function() {
-
-    $('#customerprice_rows').on('sortstop', function(event, ui) {
-      kivi.Part.customerprice_renumber_positions();
-    });
-
-  })
-  </script>

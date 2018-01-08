@@ -39,13 +39,3 @@
     </td>
   </tr>
   [% L.sortable_element('#makemodel_rows') %]
-
-  <script type="text/javascript">
-  $(function() {
-
-    $('#makemodel_rows').on('sortstop', function(event, ui) {
-      kivi.Part.makemodel_renumber_positions();
-    });
-
-  })
-  </script>

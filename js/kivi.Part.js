@@ -744,6 +744,14 @@ namespace('kivi.Part', function(ns) {
       if (!$(elt).data('part_picker'))
         $(elt).data('part_picker', new kivi.Part.Picker($(elt)));
     });
+
+    kivi.run_once_for('#customerprice_rows', 'customerprice_row_sort_renumber', function(elt) {
+      $(elt).on('sortstop', kivi.Part.customerprice_renumber_positions);
+    });
+
+    kivi.run_once_for('#makemodel_rows', 'makemodel_row_sort_renumber', function(elt) {
+      $(elt).on('sortstop', kivi.Part.makemodel_renumber_positions);
+    });
   }
 
   ns.init = function() {
