@@ -1,6 +1,6 @@
 -- @tag: stocktakings
 -- @description: Tabelle für in einer Inventur gezählte Artikel
--- @depends: warehouse
+-- @depends: warehouse release_3_5_1
 
 
 CREATE TABLE stocktakings (
