@@ -2,7 +2,7 @@
 [%- USE L %]
 [%- USE HTML %]
 [%- USE LxERP %]
-        <tr class="listrow[% listrow % 2 %] customerprice_row">
+        <tr class="listrow customerprice_row">
          <td style='display:none'>
          [% L.hidden_tag("customerprices[+].customer_id", customerprice.customer_id) %]
          [% L.hidden_tag("customerprices[].id"   , customerprice.id) %]
