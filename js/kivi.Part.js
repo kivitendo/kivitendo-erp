@@ -755,22 +755,6 @@ namespace('kivi.Part', function(ns) {
        ns.reformat_number(event);
     });
 
-    $('.add_makemodel_input').keydown(function(event) {
-      if(event.keyCode == 13) {
-        event.preventDefault();
-        ns.add_makemodel_row();
-        return false;
-      }
-    });
-
-    $('.add_customerprice_input').keydown(function(event) {
-      if(event.keyCode == 13) {
-        event.preventDefault();
-        ns.add_customerprice_row();
-        return false;
-      }
-    });
-
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
     ns.init();

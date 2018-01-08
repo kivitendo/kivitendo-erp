@@ -31,7 +31,7 @@
          <td></td>
          <td></td>
          <td align="right">[% 'Vendor' | $T8 %]</td>
-         <td rowspan="2">[% P.customer_vendor.picker('add_makemodel', '', type='vendor', style='width: 300px', class="add_makemodel_input") %]</td>
+         <td rowspan="2">[% P.customer_vendor.picker('add_makemodel', '', type='vendor', style='width: 300px', class="add_makemodel_input", action={commit_one='kivi.Part.add_makemodel_row'}) %]</td>
          <td rowspan="2" align="right">[% L.button_tag('kivi.Part.add_makemodel_row()', LxERP.t8('Add')) %]</td>
         </tr>
        </tbody>
