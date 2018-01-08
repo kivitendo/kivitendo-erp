@@ -22,7 +22,7 @@ sub requirement_spec {
     $params{no_link} ? '' : '</a>',
   );
 
-  is_scaped($text);
+  is_escaped($text);
 }
 
 1;
