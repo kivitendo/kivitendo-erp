@@ -354,10 +354,12 @@ test {
       or => [
         'part.partnumber'  => { ilike => '%term1%' },
         'part.description' => { ilike => '%term1%' },
+        'part.ean'         => { ilike => '%term1%' },
       ],
       or => [
         'part.partnumber'  => { ilike => '%term2%' },
         'part.description' => { ilike => '%term2%' },
+        'part.ean'         => { ilike => '%term2%' },
       ],
     ]
   ],
