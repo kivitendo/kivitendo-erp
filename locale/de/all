@@ -1803,6 +1803,7 @@ $self->{texts} = {
   'Local bank code'             => 'Lokale Bankleitzahl',
   'Lock System'                 => 'System sperren',
   'Lock and unlock installation' => 'Installation sperren/entsperren',
+  'Lock bookings'               => 'Buchungen festschreiben',
   'Lock file handling failed. Please verify that the directory "#1" is writeable by the webserver.' => 'Die Lockdateibehandlung schlug fehl. Bitte stellen Sie sicher, dass der Webserver das Verzeichnis "#1" beschreiben darf.',
   'Lockfile created!'           => 'System gesperrt!',
   'Lockfile removed!'           => 'System entsperrt!',
