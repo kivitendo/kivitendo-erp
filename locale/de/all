@@ -900,6 +900,7 @@ $self->{texts} = {
   'Debit/Credit Label'          => 'Soll-/Haben-Kennzeichen',
   'Dec'                         => 'Dez',
   'December'                    => 'Dezember',
+  'December last year period'   => 'Dezember letzten Jahres',
   'Decimalplaces'               => 'Dezimalstellen',
   'Decrease'                    => 'Verringern',
   'Default (no language selected)' => 'Standard (keine Sprache ausgewählt)',
