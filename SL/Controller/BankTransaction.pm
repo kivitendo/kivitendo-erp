@@ -153,6 +153,7 @@ sub action_list {
     $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
 
     if ( $bt->is_batch_transaction ) {
+      my $found=0;
       foreach ( keys  %sepa_exports) {
         if ( abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
           ## jupp
@@ -160,9 +161,11 @@ sub action_list {
           $bt->{sepa_export_ok} = 1;
           $sepa_exports{$_}->{proposed}=1;
           push(@proposals, $bt);
-          next;
+          $found=1;
+          last;
         }
       }
+      next if $found;
       # batch transaction has no remotename !!
     } else {
       next unless $bt->{remote_name};  # bank has no name, usually fees, use create invoice to assign
