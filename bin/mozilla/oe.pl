@@ -2042,9 +2042,17 @@ sub oe_delivery_order_from_order {
   my $order = SL::DB::Order->new(id => $::form->{id})->load;
   $order->flatten_to_form($::form, format_amounts => 1);
 
+  # hack: add partsgroup for first row if it does not exists,
+  # because _remove_billed_or_delivered_rows and _remove_full_delivered_rows
+  # determine fields to handled by existing fields for the first row. If partsgroup
+  # is missing there, for deleted rows the partsgroup_field is not emptied and in
+  # update_delivery_order it will not considered an empty row ...
+  $::form->{partsgroup_1} = '' if !exists $::form->{partsgroup_1};
+
   # fake last empty row
   $::form->{rowcount}++;
 
+  _update_ship();
   delivery_order();
 }
 
@@ -2055,9 +2063,17 @@ sub oe_invoice_from_order {
   my $order = SL::DB::Order->new(id => $::form->{id})->load;
   $order->flatten_to_form($::form, format_amounts => 1);
 
+  # hack: add partsgroup for first row if it does not exists,
+  # because _remove_billed_or_delivered_rows and _remove_full_delivered_rows
+  # determine fields to handled by existing fields for the first row. If partsgroup
+  # is missing there, for deleted rows the partsgroup_field is not emptied and in
+  # update_delivery_order it will not considered an empty row ...
+  $::form->{partsgroup_1} = '' if !exists $::form->{partsgroup_1};
+
   # fake last empty row
   $::form->{rowcount}++;
 
+  _update_ship();
   invoice();
 }
 
