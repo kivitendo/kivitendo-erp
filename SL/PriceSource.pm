@@ -324,6 +324,17 @@ Large records (30 positions or more) in combination with complicated price
 sources run into n+1 problems. There should be an extra hook that allows price
 source implementations to make bulk calculations before the actual position loop.
 
+=item *
+
+Prices have defined information channels for missing and invalid, but it would
+be deriable to have more information flow. For example a limited offer might
+expire in three days while the record is valid for 20 days. THis mismatch is
+impossible to resolve automatically, but informing the user about it would be a
+nice thing.
+
+This can also extend to diagnostics on class level, where implementations can
+call attention to likely misconfigurations.
+
 =back
 
 =head1 AUTHOR
