@@ -20,6 +20,7 @@ use SL::CVar;
 use SL::MoreCommon qw(save_form);
 use Carp;
 use SL::Presenter::EscapedText qw(escape is_escaped);
+use SL::Presenter::Tag qw(select_tag);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
@@ -857,11 +858,12 @@ sub parse_form_customerprices {
 }
 
 sub build_bin_select {
-  $_[0]->p->select_tag('part.bin_id', [ $_[0]->warehouse->bins ],
+  select_tag('part.bin_id', [ $_[0]->warehouse->bins ],
     title_key => 'description',
     default   => $_[0]->bin->id,
   );
 }
+
 
 # get_set_inits for partpicker
 
