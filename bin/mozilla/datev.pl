@@ -118,6 +118,7 @@ sub export3 {
       $::form->{transdatefrom}, $::form->{transdateto},
     );
     $data{use_pk} = $::form->{use_pk};
+    $data{locked} = $::form->{locked};
   } else {
     die 'invalid exporttype';
   }
