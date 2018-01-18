@@ -119,7 +119,7 @@ my @kivitendo_to_datev = (
                               type            => 'Value',
                             },
                             {
-                              kivi_datev_name => 'buchungsbes',
+                              kivi_datev_name => 'buchungstext',
                               csv_header_name => t8('Posting Text'),
                               max_length      => 60,
                               type            => 'Text',
