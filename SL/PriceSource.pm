@@ -4,7 +4,13 @@ use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(record_item record) ],
-  'array --get_set_init' => [ qw(all_price_sources) ],
+  'scalar --get_set_init' => [ qw(
+    best_price best_discount
+  ) ],
+  'array --get_set_init' => [ qw(
+    all_price_sources
+    available_prices available_discounts
+  ) ],
 );
 
 use List::UtilsBy qw(min_by max_by);
@@ -16,46 +22,62 @@ sub init_all_price_sources {
   my ($self) = @_;
 
   [ map {
-    $_->new(record_item => $self->record_item, record => $self->record)
+    $self->price_source_by_class($_);
   } SL::PriceSource::ALL->all_enabled_price_sources ]
+}
+
+sub price_source_by_class {
+  my ($self, $class) = @_;
+  return unless $class;
+
+  $self->{price_source_by_name}{$class} //=
+    $class->new(record_item => $self->record_item, record => $self->record);
 }
 
 sub price_from_source {
   my ($self, $source) = @_;
-  my ($source_name, $spec) = split m{/}, $source, 2;
+  return empty_price() if !$source;
 
-  my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
+  ${ $self->{price_from_source} //= {} }{$source} //= do {
+    my ($source_name, $spec) = split m{/}, $source, 2;
+    my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
+    my $source_object = $self->price_source_by_class($class);
 
-  return $class
-    ? $class->new(record_item => $self->record_item, record => $self->record)->price_from_source($source, $spec)
-    : empty_price();
+    $source_object
+      ? $source_object->price_from_source($source, $spec)
+      : empty_price();
+  }
 }
 
 sub discount_from_source {
   my ($self, $source) = @_;
-  my ($source_name, $spec) = split m{/}, $source, 2;
+  return empty_discount() if !$source;
 
-  my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
+  ${ $self->{discount_from_source} //= {} }{$source} //= do {
+    my ($source_name, $spec) = split m{/}, $source, 2;
+    my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
+    my $source_object = $self->price_source_by_class($class);
 
-  return $class
-    ? $class->new(record_item => $self->record_item, record => $self->record)->discount_from_source($source, $spec)
-    : empty_discount();
+    $source_object
+      ? $source_object->discount_from_source($source, $spec)
+      : empty_discount();
+  }
 }
 
-sub available_prices {
-  map { $_->available_prices } $_[0]->all_price_sources;
+sub init_available_prices {
+  [ map { $_->available_prices } $_[0]->all_price_sources ];
 }
 
-sub available_discounts {
-  return if $_[0]->record_item->part->not_discountable;
-  map { $_->available_discounts } $_[0]->all_price_sources;
+sub init_available_discounts {
+  return [] if $_[0]->record_item->part->not_discountable;
+  [ map { $_->available_discounts } $_[0]->all_price_sources ];
 }
 
-sub best_price {
+sub init_best_price {
   min_by { $_->price } max_by { $_->priority } grep { $_->price > 0 } grep { $_ } map { $_->best_price } $_[0]->all_price_sources;
 }
 
-sub best_discount {
+sub init_best_discount {
   max_by { $_->discount } max_by { $_->priority } grep { $_->discount } grep { $_ } map { $_->best_discount } $_[0]->all_price_sources;
 }
 
