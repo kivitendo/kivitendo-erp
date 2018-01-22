@@ -99,6 +99,6 @@
 <div id="email_form_print_options"></div>
 
 <p>
- [% L.button_tag("kivi.SalesPurchase.send_email()", LxERP.t8("Send email")) %]
+ [% L.button_tag(email_form.js_send_function, LxERP.t8("Send email")) %]
  [% L.button_tag("\$('#send_email_dialog').dialog('close');", LxERP.t8("Abort")) %]
 </p>

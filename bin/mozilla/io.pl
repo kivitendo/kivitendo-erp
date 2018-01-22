@@ -2000,6 +2000,7 @@ sub show_sales_purchase_email_dialog {
     subject             => $::form->generate_email_subject,
     message             => $::form->generate_email_body,
     attachment_filename => $::form->generate_attachment_filename,
+    js_send_function    => 'kivi.SalesPurchase.send_email()',
   };
 
   my %files = _get_files_for_email_dialog();
