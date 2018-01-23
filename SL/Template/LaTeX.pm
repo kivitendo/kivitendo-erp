@@ -123,8 +123,8 @@ sub format_string {
     // $formatters{ $self->{default_content_type} }
     // $formatters{ text };
 
-  $content  =~ s{[^\p{Print}]|\p{Cf}}{}g;
-  $variable =~ s{[^\p{Print}]|\p{Cf}}{}g;
+  $content  =~ s{[^\p{Print}\n]|\p{Cf}}{}g;
+  $variable =~ s{[^\p{Print}\n]|\p{Cf}}{}g;
 
   return $formatter->($self, $content, variable => $variable);
 }
