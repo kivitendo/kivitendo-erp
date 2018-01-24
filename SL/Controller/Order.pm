@@ -152,6 +152,7 @@ sub action_print {
   my $language;
   $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
+  # create a form for generate_attachment_filename
   my $form = Form->new;
   $form->{ordnumber} = $self->order->ordnumber;
   $form->{type}      = $self->type;
@@ -1198,9 +1199,8 @@ sub _create_pdf {
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
   $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
-  $print_form->{language}    = $params->{language}->template_code if $print_form->{language};
-  $print_form->{language_id} = $params->{language}->id            if $print_form->{language};
 
+  $order->language($params->{language});
   $order->flatten_to_form($print_form, format_amounts => 1);
 
   # search for the template
