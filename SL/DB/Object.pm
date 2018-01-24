@@ -23,9 +23,9 @@ my @rose_reserved_methods = qw(
 );
 
 my %db_to_presenter_mapping = (
-  Customer => 'CustomerVendor',
+  Customer        => 'CustomerVendor',
   PurchaseInvoice => 'Invoice',
-  Vendor   => 'CustomerVendor',
+  Vendor          => 'CustomerVendor',
 );
 
 sub new {
