@@ -2758,7 +2758,6 @@ $self->{texts} = {
   'Send printout of record'     => 'Belegausdruck mitschicken',
   'Send the last printout created for this record' => 'Den zuletzt erstellen Belegausdruck mitschicken',
   'Sender'                      => 'AbsenderIn',
-  'Sending E-mail: '            => 'E-Mail versenden: ',
   'Sent emails can be optionally stored in the database with or without their attachments.' => 'Gesendete E-Mails können optional mit oder ohne ihre Anhänge in der Datenbank gespeichert werden.',
   'Sent on'                     => 'Verschickt am',
   'Sent payments can only be posted for purchase invoices and sales credit notes.' => 'Gesendete Zahlungen können nur mit Einkaufsrechnungen und Verkaufsgutschriften verbucht werden.',

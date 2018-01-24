@@ -24,9 +24,11 @@ use SL::Helper::PrintOptions;
 use SL::Controller::Helper::GetModels;
 
 use List::Util qw(first);
+use List::UtilsBy qw(sort_by uniq_by);
 use List::MoreUtils qw(none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
+use Cwd;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -254,10 +256,11 @@ sub action_show_email_dialog {
                     ->render($self);
   }
 
-  $self->{email}->{to}   = $self->order->contact->cp_email if $self->order->contact;
-  $self->{email}->{to} ||= $self->order->$cv_method->email;
-  $self->{email}->{cc}   = $self->order->$cv_method->cc;
-  $self->{email}->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc, SL::DB::Default->get->global_bcc;
+  my $email_form;
+  $email_form->{to}   = $self->order->contact->cp_email if $self->order->contact;
+  $email_form->{to} ||= $self->order->$cv_method->email;
+  $email_form->{cc}   = $self->order->$cv_method->cc;
+  $email_form->{bcc}  = join ', ', grep $_, $self->order->$cv_method->bcc, SL::DB::Default->get->global_bcc;
   # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
@@ -267,11 +270,19 @@ sub action_show_email_dialog {
   $form->{language} = 'de';
   $form->{format}   = 'pdf';
 
-  $self->{email}->{subject}             = $form->generate_email_subject();
-  $self->{email}->{attachment_filename} = $form->generate_attachment_filename();
-  $self->{email}->{message}             = $form->create_email_signature();
+  $email_form->{subject}             = $form->generate_email_subject();
+  $email_form->{attachment_filename} = $form->generate_attachment_filename();
+  $email_form->{message}             = $form->generate_email_body();
+  $email_form->{js_send_function}    = 'kivi.Order.send_email()';
 
-  my $dialog_html = $self->render('order/tabs/_email_dialog', { output => 0 });
+  my %files = $self->_get_files_for_email_dialog();
+  my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
+                                  email_form  => $email_form,
+                                  show_bcc    => $::auth->assert('email_bcc', 'may fail'),
+                                  FILES       => \%files,
+                                  is_customer => $self->cv eq 'customer',
+  );
+
   $self->js
       ->run('kivi.Order.show_email_dialog', $dialog_html)
       ->reinit_widgets
@@ -284,38 +295,56 @@ sub action_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
-  my $mail      = Mailer->new;
-  $mail->{from} = qq|"$::myconfig{name}" <$::myconfig{email}>|;
-  $mail->{$_}   = $::form->{email}->{$_} for qw(to cc bcc subject message);
+  my $email_form  = delete $::form->{email_form};
+  my %field_names = (to => 'email');
 
-  my $pdf;
-  my @errors = _create_pdf($self->order, \$pdf, {media => 'email'});
-  if (scalar @errors) {
-    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+  $::form->{ $field_names{$_} // $_ } = $email_form->{$_} for keys %{ $email_form };
+
+  # for Form::cleanup which may be called in Form::send_email
+  $::form->{cwd}    = getcwd();
+  $::form->{tmpdir} = $::lx_office_conf{paths}->{userspath};
+
+  $::form->{media}  = 'email';
+
+  if (($::form->{attachment_policy} // '') eq 'normal') {
+    my $language;
+    $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
+
+    my $pdf;
+    my @errors = _create_pdf($self->order, \$pdf, {media      => $::form->{media},
+                                                   format     => $::form->{print_options}->{format},
+                                                   formname   => $::form->{print_options}->{formname},
+                                                   language   => $language,
+                                                   groupitems => $::form->{print_options}->{groupitems}});
+    if (scalar @errors) {
+      return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
+    }
+
+    my $sfile = SL::SessionFile::Random->new(mode => "w");
+    $sfile->fh->print($pdf);
+    $sfile->fh->close;
+
+    $::form->{tmpfile} = $sfile->file_name;
+    $::form->{tmpdir}  = $sfile->get_path; # for Form::cleanup which may be called in Form::send_email
   }
 
-  $mail->{attachments} = [{ "content" => $pdf,
-                            "name"    => $::form->{email}->{attachment_filename} }];
-
-  if (my $err = $mail->send) {
-    return $self->js->flash('error', t8('Sending E-mail: ') . $err)
-                    ->render($self);
-  }
+  $::form->send_email(\%::myconfig, 'pdf');
 
   # internal notes
   my $intnotes = $self->order->intnotes;
   $intnotes   .= "\n\n" if $self->order->intnotes;
   $intnotes   .= t8('[email]')                                                                                        . "\n";
   $intnotes   .= t8('Date')       . ": " . $::locale->format_date_object(DateTime->now_local, precision => 'seconds') . "\n";
-  $intnotes   .= t8('To (email)') . ": " . $mail->{to}                                                                . "\n";
-  $intnotes   .= t8('Cc')         . ": " . $mail->{cc}                                                                . "\n"    if $mail->{cc};
-  $intnotes   .= t8('Bcc')        . ": " . $mail->{bcc}                                                               . "\n"    if $mail->{bcc};
-  $intnotes   .= t8('Subject')    . ": " . $mail->{subject}                                                           . "\n\n";
-  $intnotes   .= t8('Message')    . ": " . $mail->{message};
+  $intnotes   .= t8('To (email)') . ": " . $::form->{email}                                                           . "\n";
+  $intnotes   .= t8('Cc')         . ": " . $::form->{cc}                                                              . "\n"    if $::form->{cc};
+  $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
+  $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
+  $intnotes   .= t8('Message')    . ": " . $::form->{message};
 
   $self->js
       ->val('#order_intnotes', $intnotes)
       ->run('kivi.Order.close_email_dialog')
+      ->flash('info', t8('The email has been sent.'))
       ->render($self);
 }
 
@@ -1237,6 +1266,38 @@ sub _create_pdf {
   return @errors;
 }
 
+sub _get_files_for_email_dialog {
+  my ($self) = @_;
+
+  my %files = map { ($_ => []) } qw(versions files vc_files part_files);
+
+  return %files if !$::instance_conf->get_doc_storage;
+
+  if ($self->order->id) {
+    $files{versions} = [ SL::File->get_all_versions(object_id => $self->order->id,              object_type => $self->order->type, file_type => 'document') ];
+    $files{files}    = [ SL::File->get_all(         object_id => $self->order->id,              object_type => $self->order->type, file_type => 'attachment') ];
+    $files{vc_files} = [ SL::File->get_all(         object_id => $self->order->{$self->cv}->id, object_type => $self->cv,          file_type => 'attachment') ];
+  }
+
+  my @parts =
+    uniq_by { $_->{id} }
+    map {
+      +{ id         => $_->part->id,
+         partnumber => $_->part->partnumber }
+    } @{$self->order->items_sorted};
+
+  foreach my $part (@parts) {
+    my @pfiles = SL::File->get_all(object_id => $part->{id}, object_type => 'part');
+    push @{ $files{part_files} }, map { +{ %{ $_ }, partnumber => $part->{partnumber} } } @pfiles;
+  }
+
+  foreach my $key (keys %files) {
+    $files{$key} = [ sort_by { lc $_->{db_file}->{file_name} } @{ $files{$key} } ];
+  }
+
+  return %files;
+}
+
 sub _sales_order_type {
   'sales_order';
 }
@@ -1354,10 +1415,6 @@ Results for the filter in the multi items dialog
 
 Dialog for selecting price and discount sources
 
-=item * C<template/webpages/order/tabs/_email_dialog.html>
-
-Email dialog
-
 =back
 
 =item * C<js/kivi.Order.js>
@@ -1439,6 +1496,10 @@ should be implemented.
 
 C<show_multi_items_dialog> does not use the currently inserted string for
 filtering.
+
+=item *
+
+The language selected in print or email dialog is not saved when the order is saved.
 
 =back
 

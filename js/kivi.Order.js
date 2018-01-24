@@ -114,16 +114,35 @@ namespace('kivi.Order', function(ns) {
 
   var email_dialog;
 
+  ns.setup_send_email_dialog = function() {
+    kivi.SalesPurchase.show_all_print_options_elements();
+    kivi.SalesPurchase.show_print_options_elements([ 'sendmode', 'media', 'copies', 'remove_draft' ], false);
+
+    $('#print_options_form table').first().remove().appendTo('#email_form_print_options');
+
+    var to_focus = $('#email_form_to').val() === '' ? 'to' : 'subject';
+    $('#email_form_' + to_focus).focus();
+  };
+
+  ns.finish_send_email_dialog = function() {
+    kivi.SalesPurchase.show_all_print_options_elements();
+
+    $('#email_form_print_options table').first().remove().prependTo('#print_options_form');
+    return true;
+  };
+
   ns.show_email_dialog = function(html) {
-    var id            = 'jqueryui_popup_dialog';
+    var id            = 'send_email_dialog';
     var dialog_params = {
       id:     id,
       width:  800,
-      height: 500,
+      height: 600,
+      title:  kivi.t8('Send email'),
       modal:  true,
+      beforeClose: kivi.Order.finish_send_email_dialog,
       close: function(event, ui) {
         email_dialog.remove();
-      },
+      }
     };
 
     $('#' + id).remove();
@@ -132,6 +151,8 @@ namespace('kivi.Order', function(ns) {
     email_dialog.html(html);
     email_dialog.dialog(dialog_params);
 
+    kivi.Order.setup_send_email_dialog();
+
     $('.cancel').click(ns.close_email_dialog);
 
     return true;
@@ -139,7 +160,8 @@ namespace('kivi.Order', function(ns) {
 
   ns.send_email = function() {
     var data = $('#order_form').serializeArray();
-    data = data.concat($('#email_form').serializeArray());
+    data = data.concat($('[name^="email_form."]').serializeArray());
+    data = data.concat($('[name^="print_options."]').serializeArray());
     data.push({ name: 'action', value: 'Order/send_email' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };

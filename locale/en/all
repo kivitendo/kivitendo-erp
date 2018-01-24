@@ -2715,7 +2715,6 @@ $self->{texts} = {
   'Send printout of record'     => '',
   'Send the last printout created for this record' => '',
   'Sender'                      => '',
-  'Sending E-mail: '            => '',
   'Sent emails can be optionally stored in the database with or without their attachments.' => '',
   'Sent on'                     => '',
   'Sent payments can only be posted for purchase invoices and sales credit notes.' => '',
