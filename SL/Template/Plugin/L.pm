@@ -78,7 +78,7 @@ sub simple_format { return _call_presenter('simple_format', @_); }
 sub button_tag               { return _call_presenter('button_tag',               @_); }
 sub submit_tag               { return _call_presenter('submit_tag',               @_); }
 sub ajax_submit_tag          { return _call_presenter('ajax_submit_tag',          @_); }
-sub link                     { return _call_presenter('link',                     @_); }
+sub link                     { return _call_presenter('link_tag',                 @_); }
 sub input_number_tag         { return _call_presenter('input_number_tag',         @_); }
 sub textarea_tag             { return _call_presenter('textarea_tag',             @_); }
 sub date_tag                 { return _call_presenter('date_tag',                 @_); }

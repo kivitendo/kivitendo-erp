@@ -10,7 +10,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
-  stringify_attributes restricted_html textarea_tag link date_tag
+  stringify_attributes restricted_html textarea_tag link_tag date_tag
 );
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -323,13 +323,15 @@ sub textarea_tag {
   html_tag('textarea', $content, %attributes, name => $name);
 }
 
-sub link {
+sub link_tag {
   my ($href, $content, %params) = @_;
 
   $href ||= '#';
 
   html_tag('a', $content, %params, href => $href);
 }
+# alias for compatibility
+sub link { goto &link_tag }
 
 sub date_tag {
   my ($name, $value, %params) = @_;
