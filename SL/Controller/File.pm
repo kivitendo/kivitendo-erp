@@ -66,6 +66,7 @@ my %file_types = (
   'purchase_invoice'        => { gen => 6, gltype => 'ap', dir =>'PurchaseInvoice',      model => 'PurchaseInvoice',right => 'import_ap'  },
   'vendor'                  => { gen => 0, gltype => '',   dir =>'Vendor',               model => 'Vendor',         right => 'xx'         },
   'customer'                => { gen => 1, gltype => '',   dir =>'Customer',             model => 'Customer',       right => 'xx'         },
+  'project'                 => { gen => 0, gltype => '',   dir =>'Project',              model => 'Project',        right => 'xx'         },
   'part'                    => { gen => 0, gltype => '',   dir =>'Part',                 model => 'Part',           right => 'xx'         },
   'gl_transaction'          => { gen => 6, gltype => 'gl', dir =>'GeneralLedger',        model => 'GLTransaction',  right => 'import_ap'  },
   'draft'                   => { gen => 0, gltype => '',   dir =>'Draft',                model => 'Draft',          right => 'xx'         },

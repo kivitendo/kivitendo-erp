@@ -20,6 +20,12 @@
     [%- IF SELF.may_edit_invoice_permissions %]
      <li><a href="#invoice_permissions">[% 'Permissions for invoices' | $T8 %]</a></li>
     [%- END %]
+    [%- IF SELF.project.id %]
+    <li><a href="#project_details">[% 'Project Details' | $T8 %]</a></li>
+      [%- IF INSTANCE_CONF.get_doc_storage %]
+        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=project&object_id=[% SELF.project.id %]">[% 'Attachments' | $T8 %]</a></li>
+      [%- END %]
+    [%- END %]
     [%- IF SELF.project.id and AUTH.assert('record_links', 1) %]
     <li><a href="#linked_records">[% 'Linked Records' | $T8 %]</a></li>
     [%- END %]
