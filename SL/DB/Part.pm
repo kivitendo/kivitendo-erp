@@ -11,6 +11,7 @@ use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
 use SL::DB::Chart;
 use SL::DB::Helper::AttrHTML;
+use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'IC',
@@ -70,6 +71,7 @@ __PACKAGE__->meta->add_relationships(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_sorted({ unsorted => 'makemodels', position => 'sortorder' });
 
 __PACKAGE__->before_save('_before_save_set_partnumber');
 
