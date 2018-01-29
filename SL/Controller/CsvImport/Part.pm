@@ -667,7 +667,7 @@ sub handle_makemodel {
   my %old_makemodels_by_mm = map { $_->make . $; . $_->model => $_ } $entry->{part}->makemodels;
   my @new_makemodels;
 
-  foreach my $makemodel ($object->makemodels()) {
+  foreach my $makemodel (@{ $object->makemodels_sorted }) {
     my $makemodel_orig = $old_makemodels_by_mm{$makemodel->make,$makemodel->model};
     $found_any = 1;
 
@@ -680,11 +680,11 @@ sub handle_makemodel {
     }
   }
 
-  $entry->{part}->makemodels([ $entry->{part}->makemodels, @new_makemodels ]) if @new_makemodels;
+  $entry->{part}->makemodels([ $entry->{part}->makemodels_sorted, @new_makemodels ]) if @new_makemodels;
 
   # reindex makemodels
   my $i = 0;
-  $_->sortorder(++$i) for @{ $entry->{part}->makemodels };
+  $_->sortorder(++$i) for @{ $entry->{part}->makemodels_sorted };
 
   $self->save_with_cascade(1) if $found_any;
 }
