@@ -2183,7 +2183,7 @@ sub edit_periodic_invoices_config {
   }
 
   $::form->header(no_layout => 1);
-  print $::form->parse_html_template('oe/edit_periodic_invoices_config', $config);
+  print $::form->parse_html_template('oe/edit_periodic_invoices_config', {config => $config});
 
   $::lxdebug->leave_sub();
 }
