@@ -3283,6 +3283,7 @@ $self->{texts} = {
   'The payment term has been saved.' => 'Die Zahlungsbedingungen wurden gespeichert.',
   'The payment term is in use and cannot be deleted.' => 'Die Zahlungsbedingungen werden bereits benutzt und können nicht gelöscht werden.',
   'The payments have been posted.' => 'Die Zahlungen wurden gebucht.',
+  'The periodic invoices config has been assigned.' => 'Die Konfiguration für wiederkehrende Rechnungen wurde übernommen.',
   'The port is missing.'        => 'Port fehlt',
   'The preferred one is to install packages provided by your operating system distribution (e.g. Debian or RPM packages).' => 'Die bevorzugte Art, ein Perl-Modul zu installieren, ist durch Installation eines von Ihrem Betriebssystem zur Verfügung gestellten Paketes (z.B. Debian-Pakete oder RPM).',
   'The price rule for this discount does not exist anymore' => 'Die Preisregel für diesen Rabatt existiert nicht mehr',

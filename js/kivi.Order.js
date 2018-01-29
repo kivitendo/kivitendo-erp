@@ -546,6 +546,67 @@ namespace('kivi.Order', function(ns) {
     kivi.io.close_dialog();
   };
 
+  ns.show_periodic_invoices_config_dialog = function() {
+    if ($('#type').val() !== 'sales_order') return;
+
+    kivi.popup_dialog({
+      url: 'controller.pl?action=Order/show_periodic_invoices_config_dialog',
+      data: { type       : $('#type').val(),
+              id         : $('#id').val(),
+              config     : $('#order_periodic_invoices_config').val(),
+              customer_id: $('#order_customer_id').val(),
+              transdate  : $('#order_transdate').val(),
+              language_id: $('#language_id').val()
+            },
+      id: 'jq_periodic_invoices_config_dialog',
+      load: kivi.reinit_widgets,
+      dialog: {
+        title: kivi.t8('Edit the configuration for periodic invoices'),
+        width:  800,
+        height: 650
+      }
+    });
+    return true;
+  };
+
+  ns.close_periodic_invoices_config_dialog = function() {
+    $('#jq_periodic_invoices_config_dialog').dialog('close');
+  };
+
+  ns.assign_periodic_invoices_config = function() {
+    var data = $('[name="Form"]').serializeArray();
+    data.push({ name: 'type',   value: $('#type').val() });
+    data.push({ name: 'action', value: 'Order/assign_periodic_invoices_config' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.check_save_active_periodic_invoices = function() {
+    var type = $('#type').val();
+    if (type !== 'sales_order') return true;
+
+    var active = false;
+    $.ajax({
+      url: 'controller.pl',
+      data: { action: 'Order/get_has_active_periodic_invoices',
+              type  : type,
+              id    : $('#id').val(),
+              config: $('#order_periodic_invoices_config').val(),
+      },
+      method: "GET",
+      async: false,
+      dataType: 'text',
+      success: function(val){
+        active = val;
+      }
+    });
+
+    if (active == 1) {
+      return confirm(kivi.t8('This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?'));
+    }
+
+    return true;
+  };
+
 });
 
 $(function(){

@@ -4,7 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
-use SL::Presenter::Tag qw(select_tag);
+use SL::Presenter::Tag qw(select_tag hidden_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::PriceSource;
@@ -25,7 +25,7 @@ use SL::Controller::Helper::GetModels;
 
 use List::Util qw(first);
 use List::UtilsBy qw(sort_by uniq_by);
-use List::MoreUtils qw(none pairwise first_index);
+use List::MoreUtils qw(any none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
@@ -346,6 +346,105 @@ sub action_send_email {
       ->run('kivi.Order.close_email_dialog')
       ->flash('info', t8('The email has been sent.'))
       ->render($self);
+}
+
+# open the periodic invoices config dialog
+#
+# If there are values in the form (i.e. dialog was opened before),
+# then use this values. Create new ones, else.
+sub action_show_periodic_invoices_config_dialog {
+  my ($self) = @_;
+
+  my $config = _make_periodic_invoices_config_from_yaml(delete $::form->{config});
+  $config  ||= SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $::form->{id}) if $::form->{id};
+  $config  ||= SL::DB::PeriodicInvoicesConfig->new(periodicity             => 'm',
+                                                   order_value_periodicity => 'p', # = same as periodicity
+                                                   start_date_as_date      => $::form->{transdate} || $::form->current_date,
+                                                   extend_automatically_by => 12,
+                                                   active                  => 1,
+                                                   email_subject           => GenericTranslations->get(
+                                                                                language_id      => $::form->{language_id},
+                                                                                translation_type =>"preset_text_periodic_invoices_email_subject"),
+                                                   email_body              => GenericTranslations->get(
+                                                                                language_id      => $::form->{language_id},
+                                                                                translation_type =>"preset_text_periodic_invoices_email_body"),
+  );
+  $config->periodicity('m')             if none { $_ eq $config->periodicity             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES;
+  $config->order_value_periodicity('p') if none { $_ eq $config->order_value_periodicity } ('p', @SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIODICITIES);
+
+  $::form->get_lists(printers => "ALL_PRINTERS",
+                     charts   => { key       => 'ALL_CHARTS',
+                                   transdate => 'current_date' });
+
+  $::form->{AR} = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
+
+  if ($::form->{customer_id}) {
+    $::form->{ALL_CONTACTS} = SL::DB::Manager::Contact->get_all_sorted(where => [ cp_cv_id => $::form->{customer_id} ]);
+  }
+
+  $self->render('oe/edit_periodic_invoices_config', { layout => 0 },
+                popup_dialog             => 1,
+                popup_js_close_function  => 'kivi.Order.close_periodic_invoices_config_dialog()',
+                popup_js_assign_function => 'kivi.Order.assign_periodic_invoices_config()',
+                config                   => $config,
+                %$::form);
+}
+
+# assign the values of the periodic invoices config dialog
+# as yaml in the hidden tag and set the status.
+sub action_assign_periodic_invoices_config {
+  my ($self) = @_;
+
+  $::form->isblank('start_date_as_date', $::locale->text('The start date is missing.'));
+
+  my $config = { active                  => $::form->{active}     ? 1 : 0,
+                 terminated              => $::form->{terminated} ? 1 : 0,
+                 direct_debit            => $::form->{direct_debit} ? 1 : 0,
+                 periodicity             => (any { $_ eq $::form->{periodicity}             }       @SL::DB::PeriodicInvoicesConfig::PERIODICITIES)              ? $::form->{periodicity}             : 'm',
+                 order_value_periodicity => (any { $_ eq $::form->{order_value_periodicity} } ('p', @SL::DB::PeriodicInvoicesConfig::ORDER_VALUE_PERIODICITIES)) ? $::form->{order_value_periodicity} : 'p',
+                 start_date_as_date      => $::form->{start_date_as_date},
+                 end_date_as_date        => $::form->{end_date_as_date},
+                 first_billing_date_as_date => $::form->{first_billing_date_as_date},
+                 print                   => $::form->{print} ? 1 : 0,
+                 printer_id              => $::form->{print} ? $::form->{printer_id} * 1 : undef,
+                 copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,
+                 extend_automatically_by => $::form->{extend_automatically_by} * 1 || undef,
+                 ar_chart_id             => $::form->{ar_chart_id} * 1,
+                 send_email                 => $::form->{send_email} ? 1 : 0,
+                 email_recipient_contact_id => $::form->{email_recipient_contact_id} * 1 || undef,
+                 email_recipient_address    => $::form->{email_recipient_address},
+                 email_sender               => $::form->{email_sender},
+                 email_subject              => $::form->{email_subject},
+                 email_body                 => $::form->{email_body},
+               };
+
+  my $periodic_invoices_config = YAML::Dump($config);
+
+  my $status = $self->_get_periodic_invoices_status($config);
+
+  $self->js
+    ->remove('#order_periodic_invoices_config')
+    ->insertAfter(hidden_tag('order.periodic_invoices_config', $periodic_invoices_config), '#periodic_invoices_status')
+    ->run('kivi.Order.close_periodic_invoices_config_dialog')
+    ->html('#periodic_invoices_status', $status)
+    ->flash('info', t8('The periodic invoices config has been assigned.'))
+    ->render($self);
+}
+
+sub action_get_has_active_periodic_invoices {
+  my ($self) = @_;
+
+  my $config = _make_periodic_invoices_config_from_yaml(delete $::form->{config});
+  $config  ||= SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $::form->{id}) if $::form->{id};
+
+  my $has_active_periodic_invoices =
+       $self->type eq _sales_order_type()
+    && $config
+    && $config->active
+    && (!$config->end_date || ($config->end_date > DateTime->today_local))
+    && $config->get_previous_billed_period_start_date;
+
+  $_[0]->render(\ !!$has_active_periodic_invoices, { type => 'text' });
 }
 
 # save the order and redirect to the frontend subroutine for a new
@@ -896,7 +995,7 @@ sub _load_order {
 
 # load or create a new order object
 #
-# And assign changes from the for to this object.
+# And assign changes from the form to this object.
 # If the order is loaded from db, check if items are deleted in the form,
 # remove them form the object and collect them for removing from db on saving.
 # Then create/update items from form (via _make_item) and add them.
@@ -910,8 +1009,13 @@ sub _make_order {
   $order   = SL::DB::Manager::Order->find_by(id => $::form->{id}) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems => []);
 
-  my $form_orderitems = delete $::form->{order}->{orderitems};
+  my $form_orderitems               = delete $::form->{order}->{orderitems};
+  my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
+
   $order->assign_attributes(%{$::form->{order}});
+
+  my $periodic_invoices_config = _make_periodic_invoices_config_from_yaml($form_periodic_invoices_config);
+  $order->periodic_invoices_config($periodic_invoices_config) if $periodic_invoices_config;
 
   # remove deleted items
   $self->item_ids_to_delete([]);
@@ -1106,23 +1210,22 @@ sub _save {
 sub _pre_render {
   my ($self) = @_;
 
-  $self->{all_taxzones}        = SL::DB::Manager::TaxZone->get_all_sorted();
-  $self->{all_departments}     = SL::DB::Manager::Department->get_all_sorted();
-  $self->{all_employees}       = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
-                                                                                       deleted => 0 ] ],
-                                                                    sort_by => 'name');
-  $self->{all_salesmen}        = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
-                                                                                       deleted => 0 ] ],
-                                                                    sort_by => 'name');
-  $self->{all_projects}        = SL::DB::Manager::Project->get_all(where => [ or => [ id => $self->order->globalproject_id,
-                                                                                      active => 1 ] ],
-                                                                   sort_by => 'projectnumber');
-  $self->{all_payment_terms}   = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
-                                                                                                 obsolete => 0 ] ]);
-
-  $self->{all_delivery_terms}  = SL::DB::Manager::DeliveryTerm->get_all_sorted();
-
-  $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
+  $self->{all_taxzones}             = SL::DB::Manager::TaxZone->get_all_sorted();
+  $self->{all_departments}          = SL::DB::Manager::Department->get_all_sorted();
+  $self->{all_employees}            = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
+                                                                                            deleted => 0 ] ],
+                                                                         sort_by => 'name');
+  $self->{all_salesmen}             = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
+                                                                                            deleted => 0 ] ],
+                                                                         sort_by => 'name');
+  $self->{all_projects}             = SL::DB::Manager::Project->get_all(where => [ or => [ id => $self->order->globalproject_id,
+                                                                                           active => 1 ] ],
+                                                                        sort_by => 'projectnumber');
+  $self->{all_payment_terms}        = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
+                                                                                                      obsolete => 0 ] ]);
+  $self->{all_delivery_terms}       = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $self->{current_employee_id}      = SL::DB::Manager::Employee->current->id;
+  $self->{periodic_invoices_status} = $self->_get_periodic_invoices_status($self->order->periodic_invoices_config);
 
   my $print_form = Form->new('');
   $print_form->{type}      = $self->type;
@@ -1156,7 +1259,7 @@ sub _pre_render {
                                                 } } @all_objects;
   }
 
-  $::request->{layout}->use_javascript("${_}.js")  for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery);
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery edit_periodic_invoices_config);
   $self->_setup_edit_action_bar;
 }
 
@@ -1172,15 +1275,18 @@ sub _setup_edit_action_bar {
         action => [
           t8('Save'),
           call      => [ 'kivi.Order.save', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
           accesskey => 'enter',
         ],
         action => [
           t8('Save and Delivery Order'),
           call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
         action => [
           t8('Save and Invoice'),
           call      => [ 'kivi.Order.save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
 
       ], # end of combobox "Save"
@@ -1296,6 +1402,29 @@ sub _get_files_for_email_dialog {
   }
 
   return %files;
+}
+
+sub _make_periodic_invoices_config_from_yaml {
+  my ($yaml_config) = @_;
+
+  return if !$yaml_config;
+  my $attr = YAML::Load($yaml_config);
+  return if 'HASH' ne ref $attr;
+  return SL::DB::PeriodicInvoicesConfig->new(%$attr);
+}
+
+
+sub _get_periodic_invoices_status {
+  my ($self, $config) = @_;
+
+  return                      if $self->type ne _sales_order_type();
+  return t8('not configured') if !$config;
+
+  my $active = ('HASH' eq ref $config)                           ? $config->{active}
+             : ('SL::DB::PeriodicInvoicesConfig' eq ref $config) ? $config->active
+             :                                                     die "Cannot get status of periodic invoices config";
+
+  return $active ? t8('active') : t8('inactive');
 }
 
 sub _sales_order_type {
@@ -1442,8 +1571,6 @@ java script functions
 =item * select units in input row?
 
 =item * custom shipto address
-
-=item * periodic invoices
 
 =item * language / part translations
 

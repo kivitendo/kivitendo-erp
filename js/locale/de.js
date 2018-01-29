@@ -54,6 +54,7 @@ namespace("kivi").setupLocale({
 "Edit picture":"Bild bearbeiten",
 "Edit project link":"Projektverknüpfung bearbeiten",
 "Edit text block":"Textblock bearbeiten",
+"Edit the configuration for periodic invoices":"Konfiguration für wiederkehrende Rechnungen bearbeiten",
 "Enter longdescription":"Langtext eingeben",
 "Error: Name missing":"Fehler: Name fehlt",
 "File upload":"Datei Upload",
