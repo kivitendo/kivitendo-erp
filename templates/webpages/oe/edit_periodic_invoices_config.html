@@ -87,13 +87,13 @@
     <tr>
      <th align="right">[%- LxERP.t8('Printer') %]</th>
      <td valign="top">
-      [% L.select_tag("printer_id", ALL_PRINTERS, title_key = 'printer_description', default = config.printer_id, disabled = !config.print, style=style) %]
+      [% L.select_tag("printer_id", ALL_PRINTERS, title_key = 'printer_description', default = config.printer_id, disabled = !config.print, id = "pic_printer_id", style=style) %]
      </td>
     </tr>
 
     <tr>
      <th align="right">[%- LxERP.t8('Copies') %]</th>
-     <td valign="top">[% L.input_tag("copies", config.copies, size => 6, disabled => !config.print) %]</td>
+     <td valign="top">[% L.input_tag("copies", config.copies, size => 6, disabled => !config.print, id = "pic_copies") %]</td>
     </tr>
 
     <tr class="rule-before">
@@ -147,8 +147,8 @@
   <!--
     function toggle_printer_id_ctrl() {
       var disabled = !$('#print').prop('checked');
-      $('#printer_id').prop('disabled', disabled);
-      $('#copies').prop('disabled', disabled);
+      $('#pic_printer_id').prop('disabled', disabled);
+      $('#pic_copies').prop('disabled', disabled);
     }
 
     function toggle_send_email_ctrl() {
