@@ -2,7 +2,10 @@
 [% USE LxERP %]
 [% USE L %]
 [% SET style="width: 400px" %]
+
+[%- IF !popup_dialog -%]
 <h1>[% title %]</h1>
+[%- END -%]
 
  <form name="Form" action="oe.pl" method="post">
 
@@ -135,12 +138,18 @@
   <p>(3): [% LxERP.t8("Multiple addresses can be entered separated by commas.") %]</p>
   <p>(4): [% LxERP.t8("If left empty the default sender from the kivitendo configuration will be used (key 'email_from' in section 'periodic_invoices'; current value: #1).", HTML.escape(LXCONFIG.periodic_invoices.email_from)) %]</p>
 
-  [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
+  [%- IF popup_dialog -%]
+    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
+    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel')) %]
 
-  <p>
-   [% L.submit_tag('', LxERP.t8('Assign')) %]
-   [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;") %]
-  </p>
+  [%- ELSE -%]
+    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
+
+    <p>
+     [% L.submit_tag('', LxERP.t8('Assign')) %]
+     [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;") %]
+    </p>
+  [%- END -%]
  </form>
 
  <script type="text/javascript">
