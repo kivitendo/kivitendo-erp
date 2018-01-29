@@ -3646,49 +3646,6 @@
 			})
 			.appendTo("body");
 		$(document).bind("mousedown", function (e) { if($.vakata.context.vis && !$.contains($.vakata.context.cnt[0], e.target)) { $.vakata.context.hide(); } });
-		if(typeof $.hotkeys !== "undefined") {
-			$(document)
-				.bind("keydown", "up", function (e) { 
-					if($.vakata.context.vis) { 
-						var o = $.vakata.context.cnt.find("ul:visible").last().children(".vakata-hover").removeClass("vakata-hover").prevAll("li:not(.vakata-separator)").first();
-						if(!o.length) { o = $.vakata.context.cnt.find("ul:visible").last().children("li:not(.vakata-separator)").last(); }
-						o.addClass("vakata-hover");
-						e.stopImmediatePropagation(); 
-						e.preventDefault();
-					} 
-				})
-				.bind("keydown", "down", function (e) { 
-					if($.vakata.context.vis) { 
-						var o = $.vakata.context.cnt.find("ul:visible").last().children(".vakata-hover").removeClass("vakata-hover").nextAll("li:not(.vakata-separator)").first();
-						if(!o.length) { o = $.vakata.context.cnt.find("ul:visible").last().children("li:not(.vakata-separator)").first(); }
-						o.addClass("vakata-hover");
-						e.stopImmediatePropagation(); 
-						e.preventDefault();
-					} 
-				})
-				.bind("keydown", "right", function (e) { 
-					if($.vakata.context.vis) { 
-						$.vakata.context.cnt.find(".vakata-hover").children("ul").show().children("li:not(.vakata-separator)").removeClass("vakata-hover").first().addClass("vakata-hover");
-						e.stopImmediatePropagation(); 
-						e.preventDefault();
-					} 
-				})
-				.bind("keydown", "left", function (e) { 
-					if($.vakata.context.vis) { 
-						$.vakata.context.cnt.find(".vakata-hover").children("ul").hide().children(".vakata-separator").removeClass("vakata-hover");
-						e.stopImmediatePropagation(); 
-						e.preventDefault();
-					} 
-				})
-				.bind("keydown", "esc", function (e) { 
-					$.vakata.context.hide(); 
-					e.preventDefault();
-				})
-				.bind("keydown", "space", function (e) { 
-					$.vakata.context.cnt.find(".vakata-hover").last().children("a").click();
-					e.preventDefault();
-				});
-		}
 	});
 
 	$.jstree.plugin("contextmenu", {
