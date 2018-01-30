@@ -3,7 +3,7 @@ package SL::PriceSource;
 use strict;
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(record_item record) ],
+  scalar => [ qw(record_item record fast) ],
   'scalar --get_set_init' => [ qw(
     best_price best_discount
   ) ],
@@ -31,7 +31,7 @@ sub price_source_by_class {
   return unless $class;
 
   $self->{price_source_by_name}{$class} //=
-    $class->new(record_item => $self->record_item, record => $self->record);
+    $class->new(record_item => $self->record_item, record => $self->record, fast => $self->fast);
 }
 
 sub price_from_source {
@@ -253,7 +253,18 @@ opens the price field to manual changes.
 A special empty discount that does not change the previously entered discount
 and opens the discount field to manual changes.
 
+=item C<fast>
+
+If set to true, indicates that calls may skip doing intensive work and instead
+return a price or discount flagged as unknown. The caller must be prepared to
+deal with those.
+
+Typically this is intended to delay expensive calculations until they can be
+done in a second batch pass. If the information is already present, it is still
+encouraged that implementations return the correct values.
+
 =back
+
 
 =head1 SEE ALSO
 

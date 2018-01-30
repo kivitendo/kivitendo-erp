@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(SL::DB::Object);
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(record_item record) ],
+  scalar => [ qw(record_item record fast) ],
 );
 
 sub name { die 'name needs to be implemented' }
