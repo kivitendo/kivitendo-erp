@@ -4,7 +4,7 @@ use strict;
 
 use parent 'SL::DB::Object';
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(price description spec price_source invalid missing) ],
+  scalar => [ qw(price description spec price_source invalid missing unknown) ],
   'scalar --get_set_init' => [ qw(priority editable) ],
 );
 
@@ -148,6 +148,12 @@ OPTIONAL. Both indicator and localized message that the conditions for this
 price are no longer valid, and that the price should be changed.
 
 If price is missing, you do not need to supply anything except C<source>.
+
+=item C<unknown>
+
+OPTIONAL. Boolean indicator that this price was not computed for performance
+reasons. This is only valid for PriceSources flagged as C<fast>. This price
+must be ignored.
 
 =back
 
