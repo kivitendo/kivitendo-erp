@@ -69,8 +69,10 @@ sub get_agreement_with_invoice {
     depositor_matches           => 2,
     exact_amount                => 4,
     exact_open_amount           => 4,
-    invnumber_in_purpose        => 2,
-    own_invnumber_in_purpose    => 5,
+    invoice_in_purpose          => 2,
+    own_invoice_in_purpose      => 5,
+    invnumber_in_purpose        => 1,
+    own_invnumber_in_purpose    => 4,
     # overpayment                 => -1, # either other invoice is more likely, or several invoices paid at once
     payment_before_invoice      => -2,
     payment_within_30_days      => 1,
@@ -132,11 +134,21 @@ sub get_agreement_with_invoice {
   my $squashed_purpose = $self->purpose;
   $squashed_purpose =~ s/ //g;
   if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
-    $agreement += $points{own_invnumber_in_purpose};
-    $rule_matches .= 'own_invnumber_in_purpose(' . $points{'own_invnumber_in_purpose'} . ') ';
+    $agreement      += $points{own_invoice_in_purpose};
+    $rule_matches   .= 'own_invoice_in_purpose(' . $points{'own_invoice_in_purpose'} . ') ';
   } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
-    $agreement += $points{invnumber_in_purpose};
-    $rule_matches .= 'invnumber_in_purpose(' . $points{'invnumber_in_purpose'} . ') ';
+    $agreement      += $points{invoice_in_purpose};
+    $rule_matches   .= 'invoice_in_purpose(' . $points{'invoice_in_purpose'} . ') ';
+  } else {
+    # only check number part of invoice number
+    $invnumber      =~ s/[A-Za-z_]+//g;
+    if (length($invnumber) > 4 && $squashed_purpose =~ /$invnumber/ && $invoice->is_sales){
+      $agreement    += $points{own_invnumber_in_purpose};
+      $rule_matches .= 'own_invnumber_in_purpose(' . $points{'own_invnumber_in_purpose'} . ') ';
+    } elsif (length($invnumber) > 3 && $squashed_purpose =~ /$invnumber/ ) {
+      $agreement    += $points{invnumber_in_purpose};
+      $rule_matches .= 'invnumber_in_purpose(' . $points{'invnumber_in_purpose'} . ') ';
+    }
   }
 
   #check sign
