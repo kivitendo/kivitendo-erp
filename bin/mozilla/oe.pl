@@ -297,14 +297,14 @@ sub setup_oe_action_bar {
   my $form   = $::form;
 
   my $has_active_periodic_invoice;
-  if ($params{obj}) {
+  if ($params{oe_obj}) {
     $has_active_periodic_invoice =
-         $params{obj}->is_type('sales_order')
-      && $params{obj}->periodic_invoices_config
-      && $params{obj}->periodic_invoices_config->active
-      && (   !$params{obj}->periodic_invoices_config->end_date
-          || ($params{obj}->periodic_invoices_config->end_date > DateTime->today_local))
-      && $params{obj}->periodic_invoices_config->get_previous_billed_period_start_date;
+         $params{oe_obj}->is_type('sales_order')
+      && $params{oe_obj}->periodic_invoices_config
+      && $params{oe_obj}->periodic_invoices_config->active
+      && (   !$params{oe_obj}->periodic_invoices_config->end_date
+          || ($params{oe_obj}->periodic_invoices_config->end_date > DateTime->today_local))
+      && $params{oe_obj}->periodic_invoices_config->get_previous_billed_period_start_date;
   }
 
   my $allow_invoice      = $params{is_req_quo}
@@ -622,7 +622,11 @@ sub form_header {
     is_pur_ord   => scalar($form->{type} =~ /purchase_order$/),
   );
 
-  setup_oe_action_bar(%type_check_vars);
+  setup_oe_action_bar(
+    %type_check_vars,
+    oe_obj => $TMPL_VAR->{oe_obj},
+    vc_obj => $TMPL_VAR->{vc_obj},
+  );
 
   $form->header;
   if ($form->{CFDD_shipto} && $form->{CFDD_shipto_id} ) {
