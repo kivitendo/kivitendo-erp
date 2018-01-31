@@ -87,6 +87,8 @@ test_one_inv_and_two_invoices_with_skonto_exact();
 test_bt_rule1();
 test_sepa_export();
 
+reset_state();
+test_two_banktransactions();
 # remove all created data at end of test
 clear_up();
 
@@ -157,8 +159,8 @@ sub reset_state {
 
 sub test_ar_transaction {
   my (%params) = @_;
-  my $netamount = 100;
-  my $amount    = $params{amount} || $::form->round_amount(100 * 1.19,2);
+  my $netamount = $params{amount} || 100;
+  my $amount    = $::form->round_amount($netamount * 1.19,2);
   my $invoice   = SL::DB::Invoice->new(
       invoice      => 0,
       invnumber    => $params{invnumber} || undef, # let it use its own invnumber
@@ -183,13 +185,14 @@ sub test_ar_transaction {
   $invoice->save;
 
   is($invoice->currency_id , $currency_id , 'currency_id has been saved');
-  is($invoice->netamount   , 100          , 'ar amount has been converted');
-  is($invoice->amount      , 119          , 'ar amount has been converted');
+  is($invoice->netamount   , $netamount   , 'ar amount has been converted');
+  is($invoice->amount      , $amount      , 'ar amount has been converted');
   is($invoice->taxincluded , 0            , 'ar transaction doesn\'t have taxincluded');
 
-  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_amount_chart->id , trans_id => $invoice->id)->amount , '100.00000'  , $ar_amount_chart->accno . ': has been converted for currency');
-  is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_chart->id        , trans_id => $invoice->id)->amount , '-119.00000' , $ar_chart->accno . ': has been converted for currency');
-
+  if ( $netamount == 100 ) {
+    is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_amount_chart->id , trans_id => $invoice->id)->amount , '100.00000'  , $ar_amount_chart->accno . ': has been converted for currency');
+    is(SL::DB::Manager::AccTransaction->find_by(chart_id => $ar_chart->id        , trans_id => $invoice->id)->amount , '-119.00000' , $ar_chart->accno . ': has been converted for currency');
+  }
   return $invoice;
 };
 
@@ -312,7 +315,7 @@ sub test_two_invoices {
   $ar_transaction_2->load;
   $bt->load;
 
-  is($ar_transaction_1->paid   , '119.00000' , "$testname: salesinv_1 was paid");
+  is($ar_transaction_1->paid   , '119.00000' , "$testname: salesinv_1 wcsv_import_reportsas paid");
   is($ar_transaction_1->closed , 1           , "$testname: salesinv_1 is closed");
   is($ar_transaction_2->paid   , '119.00000' , "$testname: salesinv_2 was paid");
   is($ar_transaction_2->closed , 1           , "$testname: salesinv_2 is closed");
@@ -812,14 +815,14 @@ sub test_bt_rule1 {
   my $bt_controller = SL::Controller::BankTransaction->new;
   $::form->{dont_render_for_test} = 1;
   $::form->{filter}{bank_account} = $bank_account->id;
-  my $bt_transactions = $bt_controller->action_list;
+  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
 
   is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
   is($bt_transactions->[0]->{agreement}, 20 , "$testname: agreement == 20");
   my $match = join ( ' ',@{$bt_transactions->[0]->{rule_matches}});
   #print "rule_matches='".$match."'\n";
   is($match,
-     "remote_account_number(3) exact_amount(4) own_invnumber_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "remote_account_number(3) exact_amount(4) own_invoice_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
      "$testname: rule_matches ok");
   $bt->invoice_amount($bt->amount);
   $bt->save;
@@ -865,14 +868,99 @@ sub test_sepa_export {
   my $bt_controller = SL::Controller::BankTransaction->new;
   $::form->{dont_render_for_test} = 1;
   $::form->{filter}{bank_account} = $bank_account->id;
-  my $bt_transactions = $bt_controller->action_list;
+  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
 
   is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
   is($bt_transactions->[0]->{agreement}, 25 , "$testname: agreement == 25");
   my $match = join ( ' ',@{$bt_transactions->[0]->{rule_matches}});
   is($match,
-     "remote_account_number(3) exact_amount(4) own_invnumber_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) sepa_export_item(5) ",
+     "remote_account_number(3) exact_amount(4) own_invoice_in_purpose(5) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) sepa_export_item(5) ",
      "$testname: rule_matches ok");
+};
+
+sub test_two_banktransactions {
+
+  my $testname = 'two_banktransactions';
+
+  my $ar_transaction_1 = test_ar_transaction(invnumber => 'salesinv10000' , amount => 2912.00 );
+  my $bt1 = create_bank_transaction(record        => $ar_transaction_1,
+                                    amount        => $ar_transaction_1->amount,
+                                    purpose       => "Rechnung10000 beinahe",
+                                    bank_chart_id => $bank->id,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my $bt2 = create_bank_transaction(record        => $ar_transaction_1,
+                                    amount        => $ar_transaction_1->amount + 0.01,
+                                    purpose       => "sicher salesinv20000 vielleicht",
+                                    bank_chart_id => $bank->id,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement1, $rule_matches1) = $bt1->get_agreement_with_invoice($ar_transaction_1);
+  is($agreement1, 19, "bt1 19 points for ar_transaction_1 in $testname ok");
+  #print "rule_matches1=".$rule_matches1."\n";
+  is($rule_matches1,
+     "remote_account_number(3) exact_amount(4) own_invnumber_in_purpose(4) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+  my ($agreement2, $rule_matches2) = $bt2->get_agreement_with_invoice($ar_transaction_1);
+  is($agreement2, 11, "bt2 11 points for ar_transaction_1 in $testname ok");
+  is($rule_matches2,
+     "remote_account_number(3) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus0(3) ",
+     "$testname: rule_matches ok");
+
+  my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv20000' , amount => 2912.01 );
+  my $ar_transaction_3 = test_ar_transaction(invnumber => 'zweitemit10000', amount => 2912.00 );
+     ($agreement1, $rule_matches1) = $bt1->get_agreement_with_invoice($ar_transaction_2);
+
+  is($agreement1, 11, "bt1 11 points for ar_transaction_2 in $testname ok");
+
+     ($agreement2, $rule_matches2) = $bt2->get_agreement_with_invoice($ar_transaction_2);
+  is($agreement2, 20, "bt2 20 points for ar_transaction_2 in $testname ok");
+
+     ($agreement2, $rule_matches2) = $bt2->get_agreement_with_invoice($ar_transaction_1);
+  is($agreement2, 11, "bt2 11 points for ar_transaction_1 in $testname ok");
+
+  my $bt3 = create_bank_transaction(record        => $ar_transaction_3,
+                                    amount        => $ar_transaction_3->amount,
+                                    purpose       => "sicher Rechnung10000 vielleicht",
+                                    bank_chart_id => $bank->id,
+                                  ) or die "Couldn't create bank_transaction";
+
+  my ($agreement3, $rule_matches3) = $bt3->get_agreement_with_invoice($ar_transaction_3);
+  is($agreement3, 19, "bt3 19 points for ar_transaction_3 in $testname ok");
+
+  $bt2->delete;
+  $ar_transaction_2->delete;
+
+  #nun sollten zwei gleichwertige Rechnungen $ar_transaction_1 und $ar_transaction_3 für $bt1 gefunden werden
+  #aber es darf keine Proposals geben mit mehreren Rechnungen
+  my $bt_controller = SL::Controller::BankTransaction->new;
+  $::form->{dont_render_for_test} = 1;
+  $::form->{filter}{bank_account} = $bank_account->id;
+  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+
+  is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
+  is(scalar(@$proposals)         , 0  , "$testname: no proposals");
+
+  $ar_transaction_3->delete;
+
+  # Jetzt gibt es zwei Kontobewegungen mit gleichen Punkten für eine Rechnung.
+  # hier darf es auch keine Proposals geben
+
+  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+
+  is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
+  is(scalar(@$proposals)         , 0  , "$testname: no proposals");
+
+  # Jetzt gibt es zwei Kontobewegungen für eine Rechnung.
+  # eine Bewegung bekommt mehr Punkte
+  # hier darf es auch keine Proposals geben
+  $bt3->update_attributes( purpose => "fuer Rechnung salesinv10000");
+
+  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+
+  is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
+  is(scalar(@$proposals)         , 1  , "$testname: one proposal");
+
 };
 
 
