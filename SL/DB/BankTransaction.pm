@@ -111,18 +111,27 @@ sub get_agreement_with_invoice {
   $invoice->{datediff} = $datediff;
 
   # compare amount
-  if (abs(abs($invoice->amount) - abs($self->amount)) < 0.01) {
+  if (abs(abs($invoice->amount) - abs($self->amount)) < 0.01 &&
+        $::form->format_amount(\%::myconfig,abs($invoice->amount),2) eq
+        $::form->format_amount(\%::myconfig,abs($self->amount),2)
+      ) {
     $agreement += $points{exact_amount};
     $rule_matches .= 'exact_amount(' . $points{'exact_amount'} . ') ';
   }
 
   # compare open amount, preventing double points when open amount = invoice amount
-  if ( $invoice->amount != $invoice->open_amount && abs(abs($invoice->open_amount) - abs($self->amount)) < 0.01) {
+  if ( $invoice->amount != $invoice->open_amount && abs(abs($invoice->open_amount) - abs($self->amount)) < 0.01 &&
+         $::form->format_amount(\%::myconfig,abs($invoice->amount_less_skonto),2) eq
+         $::form->format_amount(\%::myconfig,abs($self->amount),2)
+       ) {
     $agreement += $points{exact_open_amount};
     $rule_matches .= 'exact_open_amount(' . $points{'exact_open_amount'} . ') ';
   }
 
-  if ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < 0.01) {
+  if ( $invoice->skonto_date && abs(abs($invoice->amount_less_skonto) - abs($self->amount)) < 0.01 &&
+         $::form->format_amount(\%::myconfig,abs($invoice->amount_less_skonto),2) eq
+         $::form->format_amount(\%::myconfig,abs($self->amount),2)
+       ) {
     $agreement += $points{skonto_exact_amount};
     $rule_matches .= 'skonto_exact_amount(' . $points{'skonto_exact_amount'} . ') ';
     $invoice->{skonto_type} = 'with_skonto_pt';
