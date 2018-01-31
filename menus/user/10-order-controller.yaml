@@ -1,4 +1,13 @@
 - parent: ar
+  id: ar_add_quotation_experimental
+  name: Add Quotation (experimental)
+  icon: quotation_add
+  order: 250
+  access: sales_quotation_edit & client/feature_experimental
+  params:
+    action: Order/add
+    type: sales_quotation
+- parent: ar
   id: ar_add_sales_order_experimental
   name: Add Sales Order (experimental)
   icon: sales_order_add
@@ -8,6 +17,15 @@
     action: Order/add
     type: sales_order
 
+- parent: ap
+  id: ap_add_rfq_experimental
+  name: Add RFQ (experimental)
+  icon: rfq_add
+  order: 150
+  access: request_quotation_edit & client/feature_experimental
+  params:
+    action: Order/add
+    type: request_quotation
 - parent: ap
   id: ap_add_purchase_order_experimental
   name: Add Purchase Order (experimental)

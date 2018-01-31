@@ -1,6 +1,6 @@
 namespace('kivi.Order', function(ns) {
   ns.check_cv = function() {
-    if ($('#type').val() == 'sales_order') {
+    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
       if ($('#order_customer_id').val() === '') {
         alert(kivi.t8('Please select a customer.'));
         return false;
@@ -610,13 +610,13 @@ namespace('kivi.Order', function(ns) {
 });
 
 $(function(){
-  if ($('#type').val() == 'sales_order') {
+  if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#order_customer_id').change(kivi.Order.reload_cv_dependant_selections);
   } else {
     $('#order_vendor_id').change(kivi.Order.reload_cv_dependant_selections);
   }
 
-  if ($('#type').val() == 'sales_order') {
+  if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
   } else {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.lastcost, -2)) });

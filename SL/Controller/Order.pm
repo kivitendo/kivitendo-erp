@@ -60,8 +60,10 @@ sub action_add {
   $self->_pre_render();
   $self->render(
     'order/form',
-    title => $self->type eq _sales_order_type()    ? $::locale->text('Add Sales Order')
-           : $self->type eq _purchase_order_type() ? $::locale->text('Add Purchase Order')
+    title => $self->type eq _sales_order_type()       ? $::locale->text('Add Sales Order')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('Add Purchase Order')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('Add Quotation')
+           : $self->type eq _request_quotation_type() ? $::locale->text('Add Request for Quotation')
            : '',
     %{$self->{template_args}}
   );
@@ -76,8 +78,10 @@ sub action_edit {
   $self->_pre_render();
   $self->render(
     'order/form',
-    title => $self->type eq _sales_order_type()    ? $::locale->text('Edit Sales Order')
-           : $self->type eq _purchase_order_type() ? $::locale->text('Edit Purchase Order')
+    title => $self->type eq _sales_order_type()       ? $::locale->text('Edit Sales Order')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('Edit Purchase Order')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('Edit Quotation')
+           : $self->type eq _request_quotation_type() ? $::locale->text('Edit Request for Quotation')
            : '',
     %{$self->{template_args}}
   );
@@ -94,7 +98,13 @@ sub action_delete {
     return $self->js->render();
   }
 
-  flash_later('info', $::locale->text('The order has been deleted'));
+  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been deleted')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been deleted')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been deleted')
+           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been deleted')
+           : '';
+  flash_later('info', $text);
+
   my @redirect_params = (
     action => 'add',
     type   => $self->type,
@@ -114,7 +124,13 @@ sub action_save {
     return $self->js->render();
   }
 
-  flash_later('info', $::locale->text('The order has been saved'));
+  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+           : '';
+  flash_later('info', $text);
+
   my @redirect_params = (
     action => 'edit',
     type   => $self->type,
@@ -458,7 +474,13 @@ sub action_save_and_delivery_order {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
-  flash_later('info', $::locale->text('The order has been saved'));
+
+  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+           : '';
+  flash_later('info', $text);
 
   my @redirect_params = (
     controller => 'oe.pl',
@@ -480,7 +502,13 @@ sub action_save_and_invoice {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
-  flash_later('info', $::locale->text('The order has been saved'));
+
+  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+           : '';
+  flash_later('info', $text);
 
   my @redirect_params = (
     controller => 'oe.pl',
@@ -856,7 +884,7 @@ sub _js_redisplay_amounts_and_taxes {
 #
 
 sub init_valid_types {
-  [ _sales_order_type(), _purchase_order_type() ];
+  [ _sales_order_type(), _purchase_order_type(), _sales_quotation_type(), _request_quotation_type() ];
 }
 
 sub init_type {
@@ -872,8 +900,8 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = $self->type eq _sales_order_type()    ? 'customer'
-         : $self->type eq _purchase_order_type() ? 'vendor'
+  my $cv = (any { $self->type eq $_ } (_sales_order_type(),    _sales_quotation_type()))   ? 'customer'
+         : (any { $self->type eq $_ } (_purchase_order_type(), _request_quotation_type())) ? 'vendor'
          : die "Not a valid type for order";
 
   return $cv;
@@ -1007,7 +1035,8 @@ sub _make_order {
   # order here solves this problem.
   my $order;
   $order   = SL::DB::Manager::Order->find_by(id => $::form->{id}) if $::form->{id};
-  $order ||= SL::DB::Order->new(orderitems => []);
+  $order ||= SL::DB::Order->new(orderitems => [],
+                                quotation  => (any { $self->type eq $_ } (_sales_quotation_type(), _request_quotation_type())));
 
   my $form_orderitems               = delete $::form->{order}->{orderitems};
   my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
@@ -1226,6 +1255,7 @@ sub _pre_render {
   $self->{all_delivery_terms}       = SL::DB::Manager::DeliveryTerm->get_all_sorted();
   $self->{current_employee_id}      = SL::DB::Manager::Employee->current->id;
   $self->{periodic_invoices_status} = $self->_get_periodic_invoices_status($self->order->periodic_invoices_config);
+  $self->{order_probabilities}      = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
   my $print_form = Form->new('');
   $print_form->{type}      = $self->type;
@@ -1266,8 +1296,9 @@ sub _pre_render {
 sub _setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my $deletion_allowed = (($self->cv eq 'customer') && $::instance_conf->get_sales_order_show_delete)
-                      || (($self->cv eq 'vendor')   && $::instance_conf->get_purchase_order_show_delete);
+  my $deletion_allowed = (any { $self->type eq $_ } (_sales_quotation_type(), _request_quotation_type()))
+                      || (($self->type eq _sales_order_type())    && $::instance_conf->get_sales_order_show_delete)
+                      || (($self->type eq _purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1282,6 +1313,7 @@ sub _setup_edit_action_bar {
           t8('Save and Delivery Order'),
           call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          only_if   => (any { $self->type eq $_ } (_sales_order_type(), _purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
@@ -1433,6 +1465,14 @@ sub _sales_order_type {
 
 sub _purchase_order_type {
   'purchase_order';
+}
+
+sub _sales_quotation_type {
+  'sales_quotation';
+}
+
+sub _request_quotation_type {
+  'request_quotation';
 }
 
 1;

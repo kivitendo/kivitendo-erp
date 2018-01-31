@@ -108,30 +108,64 @@
           </tr>
           [% END %]
 
+          [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
           <tr>
             <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
             <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, size = 11) %]</td>
           </tr>
+          [%- END -%]
 
+          [%- IF (SELF.type == "sales_order" || SELF.type == "sales_quotation") -%]
+            [%- SET quo_nr_txt = 'Quotation Number' -%]
+          [%- ELSE -%]
+            [%- SET quo_nr_txt = 'RFQ Number' -%]
+          [%- END -%]
           <tr>
-            <th width="70%" align="right" nowrap>[% 'Quotation Number' | $T8 %]</th>
+            <th width="70%" align="right" nowrap>[% quo_nr_txt | $T8 %]</th>
             <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size = 11) %]</td>
           </tr>
 
+          [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
           <tr>
             <th width="70%" align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
             <td>[% L.input_tag('order.cusordnumber', SELF.order.cusordnumber, size = 11) %]</td>
           </tr>
+          [%- END -%]
 
+          [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+            [%- SET transdate_txt = 'Order Date' -%]
+          [%- ELSIF SELF.type == "sales_quotation" -%]
+            [%- SET transdate_txt = 'Quotation Date' -%]
+          [%- ELSE -%]
+            [%- SET transdate_txt = 'RFQ Date' -%]
+          [%- END -%]
           <tr>
-            <th width="70%" align="right" nowrap>[% 'Order Date' | $T8 %]</th>
+            <th width="70%" align="right" nowrap>[% transdate_txt | $T8 %]</th>
             <td>[% L.date_tag('order.transdate', SELF.order.transdate) %]</td>
           </tr>
 
+          [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+            [%- SET reqdate_txt = 'Reqdate' -%]
+          [%- ELSIF SELF.type == "sales_quotation" -%]
+            [%- SET reqdate_txt = 'Valid until' -%]
+          [%- ELSE -%]
+            [%- SET reqdate_txt = 'Required by' -%]
+          [%- END -%]
           <tr>
-            <th width="70%" align="right" nowrap>[% 'Reqdate' | $T8 %]</th>
+            <th width="70%" align="right" nowrap>[% reqdate_txt | $T8 %]</th>
             <td>[% L.date_tag('order.reqdate', SELF.order.reqdate) %]</td>
           </tr>
+
+          [%- IF SELF.type == "sales_quotation" -%]
+          <tr>
+            <th width="70%" align="right" nowrap>[% 'Order probability' | $T8 %]</th>
+            <td>[%- L.select_tag('order.order_probability', SELF.order_probabilities, title='title', default=SELF.order.order_probability) %]%</td>
+          </tr>
+          <tr>
+            <th width="70%" align="right" nowrap>[% 'Expected billing date' | $T8 %]</th>
+            <td>[%- L.date_tag('order.expected_billing_date', SELF.order.expected_billing_date) %]</td>
+          </tr>
+          [%- END %]
 
           <tr>
             <th width="70%" align="right" nowrap>[% 'Insert Date' | $T8 %]</th>
