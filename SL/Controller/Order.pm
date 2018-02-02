@@ -1307,7 +1307,6 @@ sub _setup_edit_action_bar {
           t8('Save'),
           call      => [ 'kivi.Order.save', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
-          accesskey => 'enter',
         ],
         action => [
           t8('Save and Delivery Order'),
