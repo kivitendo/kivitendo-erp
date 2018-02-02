@@ -129,7 +129,7 @@ SL::Dev::Part - create part objects for testing, with minimal defaults
 
 =head1 SYNOPSIS
 
-  use SL::DEV::Part qw(new_part new_assembly new_service new_assortment);
+  use SL::Dev::Part qw(new_part new_assembly new_service new_assortment);
 
   # simple default objects
   my $part     = new_part()->save;
