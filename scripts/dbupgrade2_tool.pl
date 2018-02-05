@@ -338,8 +338,7 @@ sub apply_upgrade {
 
   my @upgradescripts = map { $controls->{$_}->{applied} = 0; $controls->{$_} } @order;
 
-  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
-  $dbh->{AutoCommit} = 0;
+  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : SL::DB->client->dbh;
 
   $dbh->{PrintWarn}  = 0;
   $dbh->{PrintError} = 0;
@@ -366,12 +365,7 @@ sub apply_upgrade {
 
     # apply upgrade
     print "Applying upgrade $control->{file}\n";
-
-    if ($file_type eq "sql") {
-      $dbupgrader->process_query($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
-    } else {
-      $dbupgrader->process_perl_script($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
-    }
+    $dbupgrader->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
   $dbh->disconnect unless $opt_auth_db;
@@ -407,7 +401,7 @@ sub dump_sql_result {
 sub dump_applied {
   my @results;
 
-  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
+  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : SL::DB->client->dbh;
   $dbh->{AutoCommit} = 0;
 
   $dbh->{PrintWarn}  = 0;
@@ -435,7 +429,7 @@ sub dump_applied {
 sub dump_unapplied {
   my @results;
 
-  my $dbh = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
+  my $dbh = $opt_auth_db ? connect_auth()->dbconnect : SL::DB->client->dbh;
 
   $dbh->{PrintWarn}  = 0;
   $dbh->{PrintError} = 0;
