@@ -9,7 +9,7 @@
     [% P.hidden_tag("invoice_ids." _ bt_id _"[]", invoice.id) %]
     [% LxERP.t8("Invno.") %]: [% HTML.escape(invoice.invnumber) %]
     [% LxERP.t8("Open amount") %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
-    [% P.link("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ invoice.id _ ")") %]
+    [% P.link_tag("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ invoice.id _ ")") %]
    </span>
   </td>
   <td>[% P.input_tag("sources_" _ bt_id _ "_" _ invoice.id, "") %]</td>

@@ -6,5 +6,5 @@
  [% IF SELECT_OPTIONS.size %]
   [% P.select_tag("invoice_skontos." _ bt_id _ "[]", SELECT_OPTIONS, value_key="payment_type", title_key="display") %]
  [% END %]
- [% P.link("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ prop_id _ ")") %]
+ [% P.link_tag("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ prop_id _ ")") %]
 </span>
