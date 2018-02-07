@@ -17,6 +17,7 @@ use SL::DB::Unit;
 use SL::DB::Part;
 use SL::DB::Printer;
 use SL::DB::Language;
+use SL::DB::RecordLink;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
@@ -60,11 +61,7 @@ sub action_add {
   $self->_pre_render();
   $self->render(
     'order/form',
-    title => $self->type eq _sales_order_type()       ? $::locale->text('Add Sales Order')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('Add Purchase Order')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('Add Quotation')
-           : $self->type eq _request_quotation_type() ? $::locale->text('Add Request for Quotation')
-           : '',
+    title => $self->_get_title_for('add'),
     %{$self->{template_args}}
   );
 }
@@ -78,11 +75,7 @@ sub action_edit {
   $self->_pre_render();
   $self->render(
     'order/form',
-    title => $self->type eq _sales_order_type()       ? $::locale->text('Edit Sales Order')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('Edit Purchase Order')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('Edit Quotation')
-           : $self->type eq _request_quotation_type() ? $::locale->text('Edit Request for Quotation')
-           : '',
+    title => $self->_get_title_for('edit'),
     %{$self->{template_args}}
   );
 }
@@ -517,6 +510,16 @@ sub action_save_and_invoice {
   );
 
   $self->redirect_to(@redirect_params);
+}
+
+# workflow from sales quotation to sales order
+sub action_sales_order {
+  $_[0]->_workflow_sales_or_purchase_order();
+}
+
+# workflow from rfq to purchase order
+sub action_purchase_order {
+  $_[0]->_workflow_sales_or_purchase_order();
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -1087,9 +1090,9 @@ sub _make_item {
   $item ||= SL::DB::OrderItem->new(custom_variables => []);
 
   $item->assign_attributes(%$attr);
-  $item->longdescription($item->part->notes)   if $is_new && !defined $attr->{longdescription};
-  $item->project_id($record->globalproject_id) if $is_new && !defined $attr->{project_id};
-  $item->lastcost($item->part->lastcost)       if $is_new && !defined $attr->{lastcost_as_number};
+  $item->longdescription($item->part->notes)                     if $is_new && !defined $attr->{longdescription};
+  $item->project_id($record->globalproject_id)                   if $is_new && !defined $attr->{project_id};
+  $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if $is_new && !defined $attr->{lastcost_as_number};
 
   return $item;
 }
@@ -1145,7 +1148,7 @@ sub _new_item {
   $new_attr{active_discount_source} = $discount_src;
   $new_attr{longdescription}        = $part->notes           if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
-  $new_attr{lastcost}               = $part->lastcost;
+  $new_attr{lastcost}               = $record->is_sales ? $part->lastcost : 0;
 
   # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the order/orderitem is
@@ -1230,9 +1233,61 @@ sub _save {
   $db->with_transaction(sub {
     SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete};
     $self->order->save(cascade => 1);
+
+    # link records
+    if ($::form->{converted_from_oe_id}) {
+      SL::DB::Order->new(id => $::form->{converted_from_oe_id})->load->link_to_record($self->order);
+
+      if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
+        my $idx = 0;
+        foreach (@{ $self->order->items_sorted }) {
+          my $from_id = $::form->{converted_from_orderitems_ids}->[$idx];
+          next if !$from_id;
+          SL::DB::RecordLink->new(from_table => 'orderitems',
+                                  from_id    => $from_id,
+                                  to_table   => 'orderitems',
+                                  to_id      => $_->id
+          )->save;
+          $idx++;
+        }
+      }
+    }
+    1;
   }) || push(@{$errors}, $db->error);
 
   return $errors;
+}
+
+sub _workflow_sales_or_purchase_order {
+  my ($self) = @_;
+
+  my $destination_type = $::form->{type} eq _sales_quotation_type()   ? _sales_order_type()
+                       : $::form->{type} eq _request_quotation_type() ? _purchase_order_type()
+                       : '';
+
+  $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
+  $self->{converted_from_oe_id} = delete $::form->{id};
+
+  # change form type
+  $::form->{type} = $destination_type;
+  $self->init_type;
+  $self->_check_auth;
+
+  $self->_recalc();
+  $self->_get_unalterable_data();
+  $self->_pre_render();
+
+  # trigger rendering values for second row/longdescription as hidden,
+  # because they are loaded only on demand. So we need to keep the values
+  # from the source.
+  $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
+  $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
+
+  $self->render(
+    'order/form',
+    title => $self->_get_title_for('edit'),
+    %{$self->{template_args}}
+  );
 }
 
 
@@ -1319,8 +1374,23 @@ sub _setup_edit_action_bar {
           call      => [ 'kivi.Order.save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
-
       ], # end of combobox "Save"
+
+      combobox => [
+        action => [
+          t8('Workflow'),
+        ],
+        action => [
+          t8('Sales Order'),
+          submit  => [ '#order_form', { action => "Order/sales_order" } ],
+          only_if => (any { $self->type eq $_ } (_sales_quotation_type())),
+        ],
+        action => [
+          t8('Purchase Order'),
+          submit  => [ '#order_form', { action => "Order/purchase_order" } ],
+          only_if   => (any { $self->type eq $_ } (_request_quotation_type())),
+        ],
+      ], # end of combobox "Workflow"
 
       combobox => [
         action => [
@@ -1456,6 +1526,29 @@ sub _get_periodic_invoices_status {
              :                                                     die "Cannot get status of periodic invoices config";
 
   return $active ? t8('active') : t8('inactive');
+}
+
+sub _get_title_for {
+  my ($self, $action) = @_;
+
+  return '' if none { lc($action)} qw(add edit);
+
+  # for locales:
+  # $::locale->text("Add Sales Order");
+  # $::locale->text("Add Purchase Order");
+  # $::locale->text("Add Quotation");
+  # $::locale->text("Add Request for Quotation");
+  # $::locale->text("Edit Sales Order");
+  # $::locale->text("Edit Purchase Order");
+  # $::locale->text("Edit Quotation");
+  # $::locale->text("Edit Request for Quotation");
+
+  $action = ucfirst(lc($action));
+  return $self->type eq _sales_order_type()       ? $::locale->text("$action Sales Order")
+       : $self->type eq _purchase_order_type()    ? $::locale->text("$action Purchase Order")
+       : $self->type eq _sales_quotation_type()   ? $::locale->text("$action Quotation")
+       : $self->type eq _request_quotation_type() ? $::locale->text("$action Request for Quotation")
+       : '';
 }
 
 sub _sales_order_type {

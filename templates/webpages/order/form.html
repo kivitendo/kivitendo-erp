@@ -14,9 +14,10 @@
 </div>
 
 <form method="post" action="controller.pl" id="order_form">
-  [% L.hidden_tag('callback', FORM.callback) %]
-  [% L.hidden_tag('type',     FORM.type) %]
-  [% L.hidden_tag('id',       SELF.order.id) %]
+  [% L.hidden_tag('callback',             FORM.callback) %]
+  [% L.hidden_tag('type',                 FORM.type) %]
+  [% L.hidden_tag('id',                   SELF.order.id) %]
+  [% L.hidden_tag('converted_from_oe_id', SELF.converted_from_oe_id) %]
 
   [%- INCLUDE 'common/flash.html' %]
 

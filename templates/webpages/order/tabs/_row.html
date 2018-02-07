@@ -15,6 +15,7 @@
                      alt=LxERP.t8('Show details'), title=LxERP.t8('Show details'), class="expand") %]
       [%- END %]
       [% L.hidden_tag("orderitem_ids[+]", ID) %]
+      [% L.hidden_tag("converted_from_orderitems_ids[+]", ITEM.converted_from_orderitems_id) %]
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
     </td>
@@ -42,6 +43,9 @@
                      ITEM.description,
                      size='40',
                      style='width: 300px') %]
+      [%- IF ITEM.render_longdescription -%]
+        [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
+      [%- END -%]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
     <td>
@@ -113,7 +117,7 @@
 
   <tr [%- IF !MYCONFIG.show_form_details -%]style="display:none"[%- END -%]>
     <td colspan="100%">
-      [%- IF MYCONFIG.show_form_details %]
+      [%- IF MYCONFIG.show_form_details || ITEM.render_second_row %]
         <div name="second_row" data-loaded="1">
           [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=TYPE %]
         </div>
