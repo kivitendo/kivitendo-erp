@@ -4,6 +4,17 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+
+Upgrade auf v3.x.x
+
+* Fallback-Module entfernt
+
+Einige Default-Module die als Fallback zu Verfügung standen, werden ab
+dieser Version nicht mehr mit ausgeliefert.
+Bitte vor dem Anmelden an der Weboberfläche 'scripts/installation_check.pl' ausführen
+und die entsprechenden Module installieren.
+
+
 Upgrade auf v3.5.1
 
 * Neue Perlabhängigkeiten
