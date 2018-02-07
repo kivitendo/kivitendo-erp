@@ -637,7 +637,7 @@ sub get_payment_select_options_for_bank_transaction {
   if ( $open_amount &&                   # invoice amount not 0
        $self->skonto_date &&             # check whether skonto applies
        ( abs(abs($self->amount_less_skonto) - abs($bt->amount)) < 0.01 ||
-        ( $bt->transaction_code eq "191" && abs($self->amount_less_skonto) < abs($bt->amount) )) &&
+        ( abs($self->amount_less_skonto) < abs($bt->amount) )) &&
        $self->check_skonto_configuration) {
          if ( $self->within_skonto_period($bt->transdate) ) {
            push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
