@@ -395,6 +395,9 @@ namespace('kivi.CustomerVendor', function(ns) {
         },
         select: function(event, ui) {
           self.set_item(ui.item);
+          if (self.o.action.commit_one) {
+            self.run_action(self.o.action.commit_one);
+          }
         },
         search: function(event, ui) {
           if ((event.which == KEY.SHIFT) || (event.which == KEY.CTRL) || (event.which == KEY.ALT))
