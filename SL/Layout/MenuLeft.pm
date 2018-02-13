@@ -3,25 +3,22 @@ package SL::Layout::MenuLeft;
 use strict;
 use parent qw(SL::Layout::Base);
 
-use URI;
-
 use List::MoreUtils qw(apply);
+use SL::JSON qw(to_json);
+use URI;
 
 sub stylesheets {
   qw(icons16.css icons24.css menu.css)
 }
 
 sub javascripts_inline {
-  my $self = shift;
-  my $sections = [ section_menu($self->menu) ];
-  $self->presenter->render('menu/menu',
-    sections  => $sections,
-  )
+  "\$(function(){kivi.LeftMenu.init(@{[ to_json([ section_menu($_[0]->menu) ]) ]})});"
 }
 
 sub javascripts {
   qw(
     js/jquery.cookie.js
+    js/kivi.LeftMenu.js
   );
 }
 
