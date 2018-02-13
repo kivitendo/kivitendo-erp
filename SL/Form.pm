@@ -194,36 +194,6 @@ sub flatten_standard_variables {
   return @variables;
 }
 
-sub debug {
-  $main::lxdebug->enter_sub();
-
-  my ($self) = @_;
-
-  print "\n";
-
-  map { print "$_ = $self->{$_}\n" } (sort keys %{$self});
-
-  $main::lxdebug->leave_sub();
-}
-
-sub dumper {
-  $main::lxdebug->enter_sub(2);
-
-  my $self          = shift;
-  my $password      = $self->{password};
-
-  $self->{password} = 'X' x 8;
-
-  local $Data::Dumper::Sortkeys = 1;
-  my $output                    = Dumper($self);
-
-  $self->{password} = $password;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $output;
-}
-
 sub escape {
   my ($self, $str) = @_;
 
@@ -3614,29 +3584,6 @@ sub create_email_signature {
   return $signature;
 
 };
-
-sub layout {
-  my ($self) = @_;
-  $::lxdebug->enter_sub;
-
-  my %style_to_script_map = (
-    v3  => 'v3',
-    neu => 'new',
-  );
-
-  my $menu_script = $style_to_script_map{$::myconfig{menustyle}} || '';
-
-  package main;
-  require "bin/mozilla/menu$menu_script.pl";
-  package Form;
-  require SL::Controller::FrameHeader;
-
-
-  my $layout = SL::Controller::FrameHeader->new->action_header . ::render();
-
-  $::lxdebug->leave_sub;
-  return $layout;
-}
 
 sub calculate_tax {
   # this function calculates the net amount and tax for the lines in ar, ap and
