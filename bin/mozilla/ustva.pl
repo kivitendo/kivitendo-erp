@@ -507,12 +507,6 @@ sub ustva_vorauswahl {
 #  $::lxdebug->leave_sub();
 #}
 
-sub debug {
-  $::lxdebug->enter_sub();
-  $::form->debug();
-  $::lxdebug->leave_sub();
-}
-
 sub show_options {
   $::lxdebug->enter_sub();
 
