@@ -179,7 +179,7 @@ sub kpsewhich {
   $package =~ s/[^-_0-9A-Za-z]//g;
   my $type_desc = $type eq 'cls' ? 'document class' : 'package';
 
-  eval { use String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
+  eval { require String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
      $dw         = shell_quote $dw;
   my $e_package  = shell_quote $package;
   my $e_type     = shell_quote $type;

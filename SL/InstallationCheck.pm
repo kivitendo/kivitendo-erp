@@ -127,7 +127,7 @@ sub template_dirs {
 
 sub classes_from_latex {
   my ($path, $class) = @_;
-  eval { use String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
+  eval { require String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
   $path  = shell_quote $path;
   $class = shell_quote $class;
 
