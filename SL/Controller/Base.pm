@@ -29,6 +29,7 @@ sub url_for {
   my %params      = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
   my $controller  = delete($params{controller}) || $self->controller_name;
   my $action      = $params{action}             || 'dispatch';
+  my $fragment    = delete $params{hash} // delete $params{fragment} // '';
 
   my $script;
   if ($controller =~ m/\.pl$/) {
@@ -41,7 +42,7 @@ sub url_for {
 
   my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten(\%params) };
 
-  return "${script}?${query}";
+  return "${script}?${query}" . ($fragment ? "#$fragment" : '');
 }
 
 sub redirect_to {
