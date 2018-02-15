@@ -58,7 +58,7 @@ sub select_autocomplete {
 
   my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{id});
 
-  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $contact->cp_cv_id, contact_id => $contact->cp_id, db => db_for_contact($contact), hash => 'contacts');
+  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $contact->cp_cv_id, contact_id => $contact->cp_id, db => db_for_contact($contact), fragment => 'contacts');
 }
 
 sub do_search {
