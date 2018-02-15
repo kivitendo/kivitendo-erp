@@ -29,7 +29,7 @@ sub url_for {
   my %params      = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
   my $controller  = delete($params{controller}) || $self->controller_name;
   my $action      = $params{action}             || 'dispatch';
-  my $fragment    = delete $params{hash} // delete $params{fragment} // '';
+  my $fragment    = delete $params{fragment};
 
   my $script;
   if ($controller =~ m/\.pl$/) {
@@ -42,7 +42,7 @@ sub url_for {
 
   my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten(\%params) };
 
-  return "${script}?${query}" . ($fragment ? "#$fragment" : '');
+  return "${script}?${query}" . (defined $fragment ? "#$fragment" : '');
 }
 
 sub redirect_to {
@@ -528,6 +528,9 @@ L</controller_name>.
 
 The action to call is given by C<$params{action}>. It defaults to
 C<dispatch>.
+
+If C<$params{fragment}> is present, it's used as the fragment of the resulting
+URL.
 
 All other key/value pairs in C<%params> are appended as GET parameters
 to the URL.
