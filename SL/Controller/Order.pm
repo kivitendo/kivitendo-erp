@@ -1395,24 +1395,24 @@ sub _setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
-          call      => [ 'kivi.Order.save', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.Order.save', 'save', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
         action => [
           t8('Save as new'),
-          call      => [ 'kivi.Order.save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.Order.save', 'save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
           disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Delivery Order'),
-          call      => [ 'kivi.Order.save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
           only_if   => (any { $self->type eq $_ } (_sales_order_type(), _purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
-          call      => [ 'kivi.Order.save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
       ], # end of combobox "Save"

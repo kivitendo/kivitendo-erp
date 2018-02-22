@@ -35,42 +35,12 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
-  ns.save = function(warn_on_duplicates) {
+  ns.save = function(action, warn_on_duplicates) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/save' });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
-  ns.save_as_new = function(warn_on_duplicates) {
-    if (!ns.check_cv()) return;
-    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
-
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/save_as_new' });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
-  ns.save_and_delivery_order = function(warn_on_duplicates) {
-    if (!ns.check_cv()) return;
-    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
-
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/save_and_delivery_order' });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
-  ns.save_and_invoice = function(warn_on_duplicates) {
-    if (!ns.check_cv()) return;
-    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
-
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/save_and_invoice' });
+    data.push({ name: 'action', value: 'Order/' + action });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
