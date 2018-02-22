@@ -10,7 +10,7 @@ use SL::SessionFile::Random;
 use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
-
+use SL::Util qw(trim);
 use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
@@ -42,10 +42,10 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('_check_auth');
 
 __PACKAGE__->run_before('_recalc',
-                        only => [ qw(save save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
 __PACKAGE__->run_before('_get_unalterable_data',
-                        only => [ qw(save save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
 #
 # actions
@@ -131,6 +131,41 @@ sub action_save {
   );
 
   $self->redirect_to(@redirect_params);
+}
+
+# save the order as new document an open it for edit
+sub action_save_as_new {
+  my ($self) = @_;
+
+  if (!$self->order->id) {
+    $self->js->flash('error', t8('This object has not been saved yet.'));
+    return $self->js->render();
+  }
+
+  delete $::form->{$_} for qw(closed delivered converted_from_oe_id converted_from_orderitems_ids);
+
+  my $src_order = SL::DB::Order->new(id => $self->order->id)->load;
+
+  # Lets assign a new number if the user hasn't changed the previous one.
+  # If it has been changed manually then use it as-is.
+  if (trim($self->order->number) eq $src_order->number) {
+    $self->order->number('');
+  }
+
+  # Clear reqdate and transdate unless changed
+  if ($self->order->transdate == $src_order->transdate) {
+    $self->order->transdate(DateTime->today_local)
+  }
+  if ($self->order->reqdate == $src_order->reqdate) {
+    my $extra_days = $self->type eq _sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+    $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days));
+  }
+
+  # Update employee
+  $self->order->employee(SL::DB::Manager::Employee->current);
+
+  # save
+  $self->action_save();
 }
 
 # print the order
@@ -1362,6 +1397,12 @@ sub _setup_edit_action_bar {
           t8('Save'),
           call      => [ 'kivi.Order.save', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+        ],
+        action => [
+          t8('Save as new'),
+          call      => [ 'kivi.Order.save_as_new', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Save and Delivery Order'),
