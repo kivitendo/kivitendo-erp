@@ -104,6 +104,27 @@ namespace("kivi.Validator", function(ns) {
         ns.annotate($e);
         return true;
       }
+    },
+    time: function($e) {
+      var time_string = $e.val();
+
+      var parsed_time = kivi.parse_time(time_string);
+      if (parsed_time === null) {
+        $e.val('');
+        ns.annotate($e);
+        return true;
+      } else
+      if (parsed_time === undefined) {
+        ns.annotate($e, kivi.t8('Wrong time format (#1)', [ kivi.myconfig.timeformat ]));
+        return false;
+      } else
+      {
+        var formatted_time = kivi.format_time(parsed_time);
+        if (formatted_time != time_string)
+          $e.val(formatted_time);
+        ns.annotate($e);
+        return true;
+      }
     }
   };
 

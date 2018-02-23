@@ -134,6 +134,7 @@ namespace("kivi").setupLocale({
 "Version actions":"Aktionen für Versionen",
 "Wrong date format (#1)":"Falsches Datumsformat (#1)",
 "Wrong number format (#1)":"Falsches Zahlenformat (#1)",
+"Wrong time format (#1)":"Falsches Zeitformat (#1)",
 "Yes":"Ja",
 "filename has not uploadable characters ":"Bitte Dateinamen ändern. Er hat für den Upload nicht verwendbare Sonderzeichen ",
 "filesize too big: ":"Datei zu groß: ",

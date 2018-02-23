@@ -8,6 +8,11 @@ namespace("kivi", function(ns) {
     m:   1,
     d:   0
   };
+  ns._time_format = {
+    sep: ':',
+    h: 0,
+    m: 1,
+  };
   ns._number_format = {
     decimalSep:  ',',
     thousandSep: '.'
@@ -20,6 +25,13 @@ namespace("kivi", function(ns) {
       ns._date_format[res[1].substr(0, 1)] = 0;
       ns._date_format[res[3].substr(0, 1)] = 1;
       ns._date_format[res[4].substr(0, 1)] = 2;
+    }
+
+    res = (params.times || "").match(/^([hm]+)([^a-z])([hm]+)$/);
+    if (res) {
+      ns._time_format                      = { sep: res[2] };
+      ns._time_format[res[1].substr(0, 1)] = 0;
+      ns._time_format[res[3].substr(0, 1)] = 1;
     }
 
     res = (params.numbers || "").match(/^\d*([^\d]?)\d+([^\d])\d+$/);
@@ -99,6 +111,47 @@ namespace("kivi", function(ns) {
     parts[ ns._date_format.m ] = (date.getMonth() <  9 ? "0" : "") + (date.getMonth() + 1); // Months are 0-based, but days are 1-based.
     parts[ ns._date_format.d ] = (date.getDate()  < 10 ? "0" : "") + date.getDate();
     return parts.join(ns._date_format.sep);
+  };
+
+  ns.parse_time = function(time) {
+    var now = new Date();
+
+    if (time === undefined)
+      return undefined;
+
+    if (time === '')
+      return null;
+
+    if (time === '0')
+      return now;
+
+    // special case 1: military time in fixed "hhmm" format
+    if (time.length == 4) {
+      var res = time.match(/(\d\d)(\d\d)/);
+      if (res) {
+        now.setHours(res[1], res[2]);
+        return now;
+      } else {
+        return undefined;
+      }
+    }
+
+    var parts = time.replace(/\s+/g, "").split(ns._time_format.sep);
+    if (parts.length == 2) {
+      now.setHours(parts[ns._time_format.h], parts[ns._time_format.m]);
+      return now;
+    } else
+      return undefined;
+  }
+
+  ns.format_time = function(date) {
+    if (isNaN(date.getTime()))
+      return undefined;
+
+    var parts = [ "", "" ]
+    parts[ ns._time_format.h ] = date.getHours().toString().padStart(2, '0');
+    parts[ ns._time_format.m ] = date.getMinutes().toString().padStart(2, '0');
+    return parts.join(ns._time_format.sep);
   };
 
   ns.parse_amount = function(amount) {

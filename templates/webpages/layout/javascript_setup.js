@@ -16,7 +16,8 @@ $(function() {
 
   kivi.setup_formats({
     numbers: kivi.myconfig.numberformat,
-    dates:   kivi.myconfig.dateformat
+    dates:   kivi.myconfig.dateformat,
+    times:   kivi.myconfig.timeformat
   });
 
   kivi.reinit_widgets();

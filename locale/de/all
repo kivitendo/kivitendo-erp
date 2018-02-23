@@ -3819,6 +3819,7 @@ $self->{texts} = {
   'Wrong number format (#1)'    => 'Falsches Zahlenformat (#1)',
   'Wrong tax keys recorded'     => 'Gespeicherte Steuerschlüssel sind falsch',
   'Wrong taxes recorded'        => 'Gespeicherte Steuern passen nicht zum Steuerschlüssel',
+  'Wrong time format (#1)'      => 'Falsches Zeitformat (#1)',
   'X'                           => 'X',
   'YYYY'                        => 'JJJJ',
   'Year'                        => 'Jahr',
