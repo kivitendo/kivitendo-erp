@@ -1423,13 +1423,15 @@ sub _setup_edit_action_bar {
         ],
         action => [
           t8('Sales Order'),
-          submit  => [ '#order_form', { action => "Order/sales_order" } ],
-          only_if => (any { $self->type eq $_ } (_sales_quotation_type())),
+          submit   => [ '#order_form', { action => "Order/sales_order" } ],
+          only_if  => (any { $self->type eq $_ } (_sales_quotation_type())),
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Purchase Order'),
-          submit  => [ '#order_form', { action => "Order/purchase_order" } ],
-          only_if   => (any { $self->type eq $_ } (_request_quotation_type())),
+          submit   => [ '#order_form', { action => "Order/purchase_order" } ],
+          only_if  => (any { $self->type eq $_ } (_request_quotation_type())),
+          disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Workflow"
 
