@@ -138,6 +138,10 @@ namespace("kivi", function(ns) {
 
     var parts = time.replace(/\s+/g, "").split(ns._time_format.sep);
     if (parts.length == 2) {
+      for (var idx in parts) {
+        if (Number.isNaN(Number.parseInt(parts[idx])))
+          return undefined;
+      }
       now.setHours(parts[ns._time_format.h], parts[ns._time_format.m]);
       return now;
     } else
