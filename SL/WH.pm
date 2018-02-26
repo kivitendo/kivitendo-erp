@@ -239,11 +239,12 @@ sub transfer_assembly {
 
     # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
     my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty,
-                             trans_id, id, trans_type_id, shippingdate)
-                             VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'), ?,
+                             trans_id, trans_type_id, shippingdate)
+                             VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, ?,
                              (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'),
                              (SELECT current_date))|;
     my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
+    my $trans_id;
 
     # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
 
@@ -280,13 +281,13 @@ sub transfer_assembly {
         my $temppart_chargenumber = "";
         my $temppart_bestbefore   = localtime();
         my $temppart_qty          = $partsQTY * -1;
+        ($trans_id) = selectrow_query($form, $dbh, qq|SELECT nextval('id')| ) unless $trans_id;
 
         my ($trans_id)     = selectrow_query($form, $dbh, $query_trans_id);
         push @trans_ids, $trans_id;
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $currentPart_WH_ID,
                        $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
-                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty,
-                       $trans_id);
+                       $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty, $trans_id);
         next;
       }
       # Überprüfen, ob diese Anzahl gefertigt werden kann
@@ -324,6 +325,7 @@ sub transfer_assembly {
         my $temppart_bestbefore   = conv_date($temphash_ref->{bestbefore});
         my $temppart_qty          = $temphash_ref->{sum};
 
+        ($trans_id) = selectrow_query($form, $dbh, qq|SELECT nextval('id')| ) unless $trans_id;
         if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen.
                                              # Wir buchen den kompletten Lagerplatzbestand und zählen die Hilfsvariable runter
           $tmpPartsQTY = $tmpPartsQTY - $temppart_qty;
@@ -357,25 +359,25 @@ sub transfer_assembly {
                                     # keine einzelteile definiert
         $kannNichtFertigen ="Für dieses Erzeugnis sind keine Einzelteile definiert.
                              Dementsprechend kann auch nichts hergestellt werden";
-   }
+    }
     # gibt die Fehlermeldung zurück. A.) Keine Teile definiert
     #                                B.) Artikel und Anzahl der fehlenden Teile/Dienstleistungen
     die "<br><br>" . $kannNichtFertigen if ($kannNichtFertigen);
 
     # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
+    ($trans_id) = selectrow_query($form, $dbh, qq|SELECT nextval('id')| ) unless $trans_id;
     my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore,
-                                                        comment, employee_id, qty, trans_id, id, trans_type_id, shippingdate)
-                                 VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'), ?,
+                                                        comment, employee_id, qty, trans_id, trans_type_id, shippingdate)
+                                 VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, ?,
                                  (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'assembled'),
                                  (select current_date))|;
     my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
-    my ($assembly_trans_id)      = selectrow_query($form, $dbh, $query_trans_id);
     do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id},
-                 $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty}, $assembly_trans_id);
+                 $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty}, $trans_id);
 
     # save inventory transactions for this assembly
     for my $part_id (@trans_ids) {
-      do_statement($form, $sth_query_trans_ids, $query_trans_ids, $assembly_trans_id, $part_id);
+      do_statement($form, $sth_query_trans_ids, $query_trans_ids, $trans_id, $part_id);
     }
 
     1;
@@ -587,7 +589,7 @@ sub get_warehouse_journal {
     LEFT JOIN project pr ON i1.project_id = pr.id
     LEFT JOIN employee e ON i1.employee_id = e.id
     WHERE $where_clause i1.qty < 0 AND
-          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 1 )
+          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
     GROUP BY $group_clause
 
     UNION
@@ -604,7 +606,7 @@ sub get_warehouse_journal {
     LEFT JOIN project pr ON i1.project_id = pr.id
     LEFT JOIN employee e ON i1.employee_id = e.id
     WHERE $where_clause i1.qty > 0 AND
-          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 1 )
+          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
     GROUP BY $group_clause
     ORDER BY r_${sort_spec}) AS lines WHERE r_qty>0|;
 
