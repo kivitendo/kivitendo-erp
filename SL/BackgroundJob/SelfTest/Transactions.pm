@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 24);
+  $self->tester->plan(tests => 25);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -41,6 +41,7 @@ sub run {
   $self->check_ar_paid_acc_trans;
   $self->check_ap_paid_acc_trans;
   $self->check_zero_amount_paid_but_datepaid_exists;
+  $self->check_orphaned_reconciliated_links;
 }
 
 sub _setup {
@@ -620,6 +621,29 @@ sub check_zero_amount_paid_but_datepaid_exists {
     $self->tester->ok(1, "Kein Bezahl-Datum ohne Bezahl-Wert und ohne wirkliche Zahlungen gefunden (arap.datepaid, arap.paid konsistent).");
   }
 }
+
+sub check_orphaned_reconciliated_links {
+  my ($self) = @_;
+
+  my $query = qq|
+          SELECT purpose from bank_transactions
+          WHERE cleared is true
+          AND id not in (SELECT bank_transaction_id from reconciliation_links)
+          AND transdate >= ? AND transdate <= ?|;
+
+  my $bt_cleared_no_link = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $bt_cleared_no_link } > 0 ) {
+    $self->tester->ok(0, "Verwaiste abgeglichene Bankbewegungen gefunden. Bei folgenden Bankbewegungen ist die abgleichende Verknüpfung gelöscht worden:");
+
+    for my $bt_orphaned (@{ $bt_cleared_no_link }) {
+      $self->tester->diag("Verwendungszweck: $bt_orphaned->{purpose}");
+    }
+  } else {
+    $self->tester->ok(1, "Keine verwaisten Einträge in abgeglichenen Bankbewegungen.");
+  }
+}
+
 
 1;
 
