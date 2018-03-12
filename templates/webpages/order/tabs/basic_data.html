@@ -111,7 +111,7 @@
           [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
           <tr>
             <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-            <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, size = 11) %]</td>
+            <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, size = 11, onchange='kivi.Order.set_number_in_title(this)') %]</td>
           </tr>
           [%- END -%]
 
@@ -122,7 +122,11 @@
           [%- END -%]
           <tr>
             <th width="70%" align="right" nowrap>[% quo_nr_txt | $T8 %]</th>
-            <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size = 11) %]</td>
+            [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+              <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size = 11) %]</td>
+            [%- ELSE -%]
+              <td>[% L.input_tag('order.quonumber', SELF.order.quonumber, size = 11, onchange='kivi.Order.set_number_in_title(this)') %]</td>
+            [%- END -%]
           </tr>
 
           [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]

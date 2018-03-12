@@ -150,6 +150,10 @@ namespace('kivi.Order', function(ns) {
     email_dialog.dialog("close");
   };
 
+  ns.set_number_in_title = function(elt) {
+    $('#nr_in_title').html($(elt).val());
+  };
+
   ns.reload_cv_dependant_selections = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/customer_vendor_changed' });
