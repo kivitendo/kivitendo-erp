@@ -276,6 +276,8 @@ sub new_from {
 sub number {
   my $self = shift;
 
+  return if !$self->type;
+
   my %number_method = (
     sales_order       => 'ordnumber',
     sales_quotation   => 'quonumber',
