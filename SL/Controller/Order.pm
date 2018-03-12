@@ -594,6 +594,7 @@ sub action_customer_vendor_changed {
   $self->js
     ->replaceWith('#order_cp_id',            $self->build_contact_select)
     ->replaceWith('#order_shipto_id',        $self->build_shipto_select)
+    ->replaceWith('#business_info_row',      $self->build_business_info_row)
     ->val(        '#order_taxzone_id',       $self->order->taxzone_id)
     ->val(        '#order_taxincluded',      $self->order->taxincluded)
     ->val(        '#order_payment_id',       $self->order->payment_id)
@@ -1014,6 +1015,14 @@ sub build_shipto_select {
     with_empty => 1,
     style      => 'width: 300px',
   );
+}
+
+# render the info line for business
+#
+# Needed, if customer/vendor changed.
+sub build_business_info_row
+{
+  $_[0]->p->render('order/tabs/_business_info_row', SELF => $_[0]);
 }
 
 # build the rows for displaying taxes
@@ -1694,6 +1703,10 @@ This is the only tab here for now. "linked records" and "webdav" tabs are
 reused from generic code.
 
 =over 4
+
+=item * C<template/webpages/order/tabs/_business_info_row.html>
+
+For displaying information on business type
 
 =item * C<template/webpages/order/tabs/_item_input.html>
 

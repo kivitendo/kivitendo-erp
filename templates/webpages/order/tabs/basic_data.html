@@ -39,6 +39,8 @@
                                 style='width: 300px') %]</td>
           </tr>
 
+          [%- PROCESS order/tabs/_business_info_row.html SELF=SELF %]
+
           <tr>
             <th align="right">[% 'Steuersatz' | $T8 %]</th>
             <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', style='width: 300px', class='recalc') %]</td>
