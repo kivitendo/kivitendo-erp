@@ -14,7 +14,10 @@
           <tr>
             <th align="right">[% SELF.cv | $T8 %]</th>
             [% SET cv_id = SELF.cv _ '_id' %]
-            <td>[% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, style='width: 300px') %]</td>
+            <td>
+              [% P.customer_vendor.picker("order.${SELF.cv}" _ '_id', SELF.order.$cv_id, type=SELF.cv, style='width: 300px') %]
+              [% P.button_tag("kivi.Order.show_vc_details_dialog()", LxERP.t8("Details (one letter abbreviation)")) %]
+            </td>
           </tr>
 
           <tr id='cp_row' [%- IF !SELF.order.${SELF.cv}.contacts.size %]style='display:none'[%- END %]>

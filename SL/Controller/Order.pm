@@ -619,6 +619,40 @@ sub action_customer_vendor_changed {
   $self->js->render();
 }
 
+# open the dialog for customer/vendor details
+sub action_show_customer_vendor_details_dialog {
+  my ($self) = @_;
+
+  my $is_customer = 'customer' eq $::form->{vc};
+  my $cv;
+  if ($is_customer) {
+    $cv = SL::DB::Customer->new(id => $::form->{vc_id})->load;
+  } else {
+    $cv = SL::DB::Vendor->new(id => $::form->{vc_id})->load;
+  }
+
+  my %details = map { $_ => $cv->$_ } @{$cv->meta->columns};
+  $details{discount_as_percent} = $cv->discount_as_percent;
+  $details{creditlimt}          = $cv->creditlimit_as_number;
+  $details{business}            = $cv->business->description      if $cv->business;
+  $details{language}            = $cv->language_obj->description  if $cv->language_obj;
+  $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
+  $details{payment_terms}       = $cv->payment->description       if $cv->payment;
+  $details{pricegroup}          = $cv->pricegroup->pricegroup     if $cv->pricegroup;
+
+  foreach my $entry (@{ $cv->shipto }) {
+    push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  }
+  foreach my $entry (@{ $cv->contacts }) {
+    push @{ $details{CONTACTS} }, { map { $_ => $entry->$_ } @{$entry->meta->columns} };
+  }
+
+  $_[0]->render('common/show_vc_details', { layout => 0 },
+                is_customer => $is_customer,
+                %details);
+
+}
+
 # called if a unit in an existing item row is changed
 sub action_unit_changed {
   my ($self) = @_;
@@ -1760,8 +1794,6 @@ java script functions
 =item * testing
 
 =item * currency
-
-=item * customer/vendor details ('D'-button)
 
 =item * credit limit
 
