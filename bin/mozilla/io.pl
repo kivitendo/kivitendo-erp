@@ -330,8 +330,18 @@ sub display_row {
                                        SL::Presenter::Part::classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
-                                : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))
-                                . $cgi->button(-value => $locale->text('L'), -onClick => "kivi.SalesPurchase.edit_longdescription($i)");
+                                : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30));
+    if ($myconfig{show_longdescription_always}) {
+      $column_data{description} .= '<br />'.$cgi->textarea(-name    => "longdescription_$i",
+                                                           -id      => "longdescription_$i",
+                                                           -default => $form->{"longdescription_$i"},
+                                                           -rows    => $rows,
+                                                           -columns => 70,
+                                                           -style   => 'width: 530px; height: 80px;',
+                                                           -class   => 'texteditor');
+    } else {
+      $column_data{description} .= $cgi->button(-value => $locale->text('L'), -onClick => "kivi.SalesPurchase.edit_longdescription($i)");
+    }
 
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
@@ -578,6 +588,10 @@ sub display_row {
       push @hidden_vars, grep { defined $form->{"${_}_${i}"} } qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
       push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id converted_from_delivery_order_items_id has_sernumber);
+    }
+
+    if (!$myconfig{show_longdescription_always}) {
+      push @hidden_vars, 'longdescription';
     }
 
     my @HIDDENS = map { value => $_}, (
