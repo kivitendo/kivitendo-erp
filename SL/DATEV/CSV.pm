@@ -3,7 +3,7 @@ package SL::DATEV::CSV;
 use strict;
 use Carp;
 use DateTime;
-use Encode qw(decode);
+use Encode qw(encode);
 use Scalar::Util qw(looks_like_number);
 
 use SL::DB::Datev;
@@ -260,7 +260,7 @@ sub check_encoding {
   my ($test) = @_;
   return undef unless $test;
   if (eval {
-    decode('Windows-1252', $test, Encode::FB_CROAK|Encode::LEAVE_SRC);
+    encode('Windows-1252', $test, Encode::FB_CROAK|Encode::LEAVE_SRC);
     1
   }) {
     return 1;
