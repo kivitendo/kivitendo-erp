@@ -335,6 +335,7 @@ sub setup_search_action_bar {
         t8('Update'),
         submit    => [ '#search_form', { action => 'PriceRule/list' } ],
         accesskey => 'enter',
+        checks    => [ [ 'kivi.validate_form', '#search_form' ] ],
       ],
 
       combobox => [
@@ -366,6 +367,7 @@ sub setup_form_action_bar {
           $is_new ? t8('Create') : t8('Save'),
           submit    => [ '#form', { action => 'PriceRule/' . ($is_new ? 'create' : 'update') } ],
           accesskey => 'enter',
+          checks    => [ 'kivi.validate_form' ],
         ],
         action => [
           t8('Use as new'),
