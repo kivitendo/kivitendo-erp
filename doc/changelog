@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2017-XX-XX - Release 3.5.X
+2018-XX-XX - Release 3.5.X
 
 Mittelgroße neue Features:
 
@@ -26,6 +26,8 @@ Mittelgroße neue Features:
     der Erfassungsmaske
   - Bericht über Inventurerfassungen
 
+Kleinere neue Features und Detailverbesserungen:
+  - Verknüpfte Belege um die Verknüpfung von Beleg nach E-Mail-Journal erweitert.
 
 
 2017-12-12 - Release 3.5.1
