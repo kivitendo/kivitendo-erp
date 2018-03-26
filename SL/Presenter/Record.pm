@@ -65,6 +65,7 @@ sub grouped_record_list {
   $output .= _sepa_transfer_list(          $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
 
   $output .= _letter_list(                 $groups{letters},                  %params) if $groups{letters};
+  $output .= _email_journal_list(          $groups{email_journals},           %params) if $groups{email_journals};
 
   $output  = SL::Presenter->get->render('presenter/record/grouped_record_list', %params, output => $output);
 
@@ -193,6 +194,7 @@ sub _group_records {
     gl_transactions          => sub { (ref($_[0]) eq 'SL::DB::GLTransaction')                                           },
     bank_transactions        => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
     letters                  => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
+    email_journals           => sub { (ref($_[0]) eq 'SL::DB::EmailJournal')    &&  $_[0]->id                           },
   );
 
   my %groups;
@@ -553,6 +555,25 @@ sub _letter_list {
     %params,
   );
 }
+
+sub _email_journal_list {
+  my ($list, %params) = @_;
+
+  return record_list(
+    $list,
+    title   => $::locale->text('Email'),
+    type    => 'email_journal',
+    columns => [
+      [ $::locale->text('Sent on'), sub { $_[0]->sent_on->to_kivitendo(precision => 'seconds') } ],
+      [ $::locale->text('Subject'), sub { $_[0]->presenter->email_journal(display => 'table-cell') } ],
+      [ $::locale->text('Status'),  'status'                                                     ],
+      [ $::locale->text('From'),    'from'                                                       ],
+      [ $::locale->text('To'),      'recipients'                                                 ],
+    ],
+    %params,
+  );
+}
+
 
 1;
 

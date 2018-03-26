@@ -246,7 +246,7 @@ sub action_print_letter {
                                 name => $params{email}->{attachment_filename} }];
       $mail->{message}    .=  "\n-- \n$signature";
       $mail->{message}     =~ s/\r//g;
-
+      $mail->{record_id}   =  $letter->id;
       $mail->send;
       unlink $result{file_name};
 

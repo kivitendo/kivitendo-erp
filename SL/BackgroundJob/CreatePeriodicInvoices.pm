@@ -404,6 +404,8 @@ sub _email_invoice {
 
     for my $recipient (@recipients) {
       my $mail             = Mailer->new;
+      $mail->{record_id}   = $data->{invoice}->id,
+      $mail->{record_type} = 'invoice',
       $mail->{from}        = $data->{config}->email_sender || $::lx_office_conf{periodic_invoices}->{email_from};
       $mail->{to}          = $recipient;
       $mail->{bcc}         = $global_bcc;

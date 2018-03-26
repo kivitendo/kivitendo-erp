@@ -210,7 +210,7 @@ sub _linked_records_implementation {
     }
 
     # don't use rose retrieval here. too slow.
-    # instead use recursive sql to get all the linked record_links entrys, and retrieve the objects from there
+    # instead use recursive sql to get all the linked record_links entries and retrieve the objects from there
     my $query = <<"";
       WITH RECURSIVE record_links_rec_${wanted}(id, from_table, from_id, to_table, to_id, depth, path, cycle) AS (
         SELECT id, from_table, from_id, to_table, to_id,
@@ -313,6 +313,7 @@ sub sort_linked_records {
                   'SL::DB::RequirementSpec' => sub { $_[0]->id },
                   'SL::DB::Letter'          => sub { $_[0]->letternumber },
                   'SL::DB::ShopOrder'       => sub { $_[0]->shop_ordernumber },
+                  'SL::DB::EmailJournal'    => sub { $_[0]->id },
                   UNKNOWN                   => '9999999999999999',
                 );
   my $number_xtor = sub {
@@ -343,6 +344,7 @@ sub sort_linked_records {
               'SL::DB::PurchaseInvoice' => 150,
               'SL::DB::Letter'          => 200,
               'SL::DB::ShopOrder'       => 250,
+              'SL::DB::EmailJournal'    => 300,
               UNKNOWN                   => 999,
             );
   my $score_xtor = sub {

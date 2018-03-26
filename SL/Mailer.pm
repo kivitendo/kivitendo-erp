@@ -45,6 +45,19 @@ my %mail_delivery_modules = (
   smtp     => 'SL::Mailer::SMTP',
 );
 
+my %type_to_table = (
+  sales_quotation         => 'oe',
+  request_quotation       => 'oe',
+  sales_order             => 'oe',
+  purchase_order          => 'oe',
+  invoice                 => 'ar',
+  credit_note             => 'ar',
+  purchase_invoice        => 'ap',
+  letter                  => 'letter',
+  purchase_delivery_order => 'delivery_orders',
+  sales_delivery_order    => 'delivery_orders',
+);
+
 sub new {
   my ($type, %params) = @_;
   my $self = { %params };
@@ -263,7 +276,9 @@ sub send {
 
   $error = $@ if !$ok;
 
+  # create journal and link to record
   $self->{journalentry} = $self->_store_in_journal;
+  $self->_create_record_link if $self->{journalentry};
 
   return $ok ? '' : ($error || "undefined error");
 }
@@ -303,4 +318,123 @@ sub _store_in_journal {
   return $jentry->id;
 }
 
+
+sub _create_record_link {
+  my ($self) = @_;
+
+  # check for custom/overloaded types and ids (form != controller)
+  my $record_type = $self->{record_type} || $::form->{type};
+  my $record_id   = $self->{record_id}   || $::form->{id};
+
+  # you may send mails for unsaved objects (no record_id => unlinkable case)
+  if ($self->{journalentry} && $record_id && exists($type_to_table{$record_type})) {
+    RecordLinks->create_links(
+      mode       => 'ids',
+      from_table => $type_to_table{$record_type},
+      from_ids   => $record_id,
+      to_table   => 'email_journal',
+      to_id      => $self->{journalentry},
+    );
+  }
+}
+
 1;
+
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Mailer - Base class for sending mails from kivitendo
+
+=head1 SYNOPSIS
+
+  package SL::BackgroundJob::CreatePeriodicInvoices;
+
+  use SL::Mailer;
+
+  my $mail              = Mailer->new;
+  $mail->{from}         = $config{periodic_invoices}->{email_from};
+  $mail->{to}           = $email;
+  $mail->{subject}      = $config{periodic_invoices}->{email_subject};
+  $mail->{content_type} = $filename =~ m/.html$/ ? 'text/html' : 'text/plain';
+  $mail->{message}      = $output;
+
+  $mail->send;
+
+=head1 OVERVIEW
+
+Mail can be send from kivitendo via the sendmail command or the smtp protocol.
+
+
+=head1 INTERNAL DATA TYPES
+
+
+=over 2
+
+=item C<%mail_delivery_modules>
+
+  Currently two modules are supported either smtp or sendmail.
+
+=item C<%type_to_table>
+
+  Due to the lack of a single global mapping for $form->{type},
+  type is mapped to the corresponding database table. All types which
+  implement a mail action are currently mapped and should be mapped.
+  Type is either the value of the old form or the newer controller
+  based object type.
+
+=back
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<new>
+
+=item C<_create_driver>
+
+=item C<_cleanup_addresses>
+
+=item C<_create_address_headers>
+
+=item C<_create_message_id>
+
+=item C<_create_attachment_part>
+
+=item C<_create_message>
+
+=item C<send>
+
+  If a mail was send successfully the internal functions _store_in_journal
+  is called if email journaling is enabled. If _store_in_journal was executed
+  successfully and the calling form is already persistent (database id) a
+  record_link will be created.
+
+=item C<_all_recipients>
+
+=item C<_store_in_journal>
+
+=item C<_create_record_link $self->{journalentry}, $::form->{id}, $self->{record_id}>
+
+
+  If $self->{journalentry} and either $self->{record_id} or $::form->{id} (checked in
+  this order) exists a record link from record to email journal is created.
+  Will fail silently if record_link creation wasn't successful (same behaviour as
+  _store_in_journal).
+
+=item C<validate>
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+=cut
