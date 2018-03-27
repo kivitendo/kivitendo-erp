@@ -42,7 +42,6 @@ use Carp;
 use Data::Dumper;
 
 use Carp;
-use Config;
 use CGI;
 use Cwd;
 use Encode;
@@ -88,6 +87,7 @@ use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
 use SL::DB::Tax;
 use SL::Helper::File qw(:all);
+use SL::Helper::Number;
 use SL::Helper::CreatePDF qw(merge_pdfs);
 
 use strict;
@@ -699,45 +699,8 @@ sub sort_columns {
   return @columns;
 }
 #
-sub format_amount {
-  $main::lxdebug->enter_sub(2);
 
-  my ($self, $myconfig, $amount, $places, $dash) = @_;
-  $amount ||= 0;
-  $dash   ||= '';
-  my $neg = $amount < 0;
-  my $force_places = defined $places && $places >= 0;
-
-  $amount = $self->round_amount($amount, abs $places) if $force_places;
-  $neg    = 0 if $amount == 0; # don't show negative zero
-  $amount = sprintf "%.*f", ($force_places ? $places : 10), abs $amount; # 6 is default for %fa
-
-  # before the sprintf amount was a number, afterwards it's a string. because of the dynamic nature of perl
-  # this is easy to confuse, so keep in mind: before this comment no s///, m//, concat or other strong ops on
-  # $amount. after this comment no +,-,*,/,abs. it will only introduce subtle bugs.
-
-  $amount =~ s/0*$// unless defined $places && $places == 0;             # cull trailing 0s
-
-  my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
-  my @p = split(/\./, $amount);                                          # split amount at decimal point
-
-  $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1];                             # add 1,000 delimiters
-  $amount = $p[0];
-  if ($places || $p[1]) {
-    $amount .= $d[0]
-            .  ( $p[1] || '' )
-            .  (0 x max(abs($places || 0) - length ($p[1]||''), 0));     # pad the fraction
-  }
-
-  $amount = do {
-    ($dash =~ /-/)    ? ($neg ? "($amount)"                            : "$amount" )                              :
-    ($dash =~ /DRCR/) ? ($neg ? "$amount " . $main::locale->text('DR') : "$amount " . $main::locale->text('CR') ) :
-                        ($neg ? "-$amount"                             : "$amount" )                              ;
-  };
-
-  $main::lxdebug->leave_sub(2);
-  return $amount;
-}
+sub format_amount { shift; goto &SL::Helper::Number::_number; }
 
 sub format_amount_units {
   $main::lxdebug->enter_sub();
@@ -824,83 +787,9 @@ sub format_string {
 
 #
 
-sub parse_amount {
-  $main::lxdebug->enter_sub(2);
+sub parse_amount { shift; goto &SL::Helper::Number::_parse_number; }
 
-  my ($self, $myconfig, $amount) = @_;
-
-  if (!defined($amount) || ($amount eq '')) {
-    $main::lxdebug->leave_sub(2);
-    return 0;
-  }
-
-  if (   ($myconfig->{numberformat} eq '1.000,00')
-      || ($myconfig->{numberformat} eq '1000,00')) {
-    $amount =~ s/\.//g;
-    $amount =~ s/,/\./g;
-  }
-
-  if ($myconfig->{numberformat} eq "1'000.00") {
-    $amount =~ s/\'//g;
-  }
-
-  $amount =~ s/,//g;
-
-  $main::lxdebug->leave_sub(2);
-
-  # Make sure no code wich is not a math expression ends up in eval().
-  return 0 unless $amount =~ /^ [\s \d \( \) \- \+ \* \/ \. ]* $/x;
-
-  # Prevent numbers from being parsed as octals;
-  $amount =~ s{ (?<! [\d.] ) 0+ (?= [1-9] ) }{}gx;
-
-  return scalar(eval($amount)) * 1 ;
-}
-
-sub round_amount {
-  my ($self, $amount, $places, $adjust) = @_;
-
-  return 0 if !defined $amount;
-
-  $places //= 0;
-
-  if ($adjust) {
-    my $precision = $::instance_conf->get_precision || 0.01;
-    return $self->round_amount( $self->round_amount($amount / $precision, 0) * $precision, $places);
-  }
-
-  # We use Perl's knowledge of string representation for
-  # rounding. First, convert the floating point number to a string
-  # with a high number of places. Then split the string on the decimal
-  # sign and use integer calculation for rounding the decimal places
-  # part. If an overflow occurs then apply that overflow to the part
-  # before the decimal sign as well using integer arithmetic again.
-
-  my $int_amount = int(abs $amount);
-  my $str_places = max(min(10, 16 - length("$int_amount") - $places), $places);
-  my $amount_str = sprintf '%.*f', $places + $str_places, abs($amount);
-
-  return $amount unless $amount_str =~ m{^(\d+)\.(\d+)$};
-
-  my ($pre, $post)      = ($1, $2);
-  my $decimals          = '1' . substr($post, 0, $places);
-
-  my $propagation_limit = $Config{i32size} == 4 ? 7 : 18;
-  my $add_for_rounding  = substr($post, $places, 1) >= 5 ? 1 : 0;
-
-  if ($places > $propagation_limit) {
-    $decimals = Math::BigInt->new($decimals)->badd($add_for_rounding);
-    $pre      = Math::BigInt->new($decimals)->badd(1) if substr($decimals, 0, 1) eq '2';
-
-  } else {
-    $decimals += $add_for_rounding;
-    $pre      += 1 if substr($decimals, 0, 1) eq '2';
-  }
-
-  $amount  = ("${pre}." . substr($decimals, 1)) * ($amount <=> 0);
-
-  return $amount;
-}
+sub round_amount { shift; goto &SL::Helper::Number::_round_number; }
 
 sub parse_template {
   $main::lxdebug->enter_sub();
