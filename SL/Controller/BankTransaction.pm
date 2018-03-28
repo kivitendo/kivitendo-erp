@@ -26,7 +26,9 @@ use SL::DB::RecordTemplate;
 use SL::DB::SepaExportItem;
 use SL::DBUtils qw(like);
 
+use List::UtilsBy qw(partition_by);
 use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
@@ -119,22 +121,21 @@ sub action_list {
   push @all_open_invoices, map { $_->{is_ar}=0 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
 
   my %sepa_exports;
+  my %sepa_export_items_by_id = partition_by { $_->ar_id || $_->ap_id } @$all_open_sepa_export_items;
+
   # first collect sepa export items to open invoices
   foreach my $open_invoice (@all_open_invoices){
     $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount,2);
     $open_invoice->{skonto_type} = 'without_skonto';
-    foreach ( @{$all_open_sepa_export_items}) {
-      if (($_->ap_id && $_->ap_id == $open_invoice->id) || ($_->ar_id && $_->ar_id == $open_invoice->id)) {
-        my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
-        #$main::lxdebug->message(LXDebug->DEBUG2(),"sepa_exitem=".$_->id." for invoice ".$open_invoice->id." factor=".$factor);
-        $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
-        $open_invoice->{skonto_type} = $_->payment_type;
-        $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
-        $sepa_exports{$_->sepa_export_id}->{count}++;
-        $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
-        $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount * $factor;
-        push @{ $sepa_exports{$_->sepa_export_id}->{invoices} }, $open_invoice;
-      }
+    foreach (@{ $sepa_export_items_by_id{ $open_invoice->id } || [] }) {
+      my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
+      $open_invoice->{realamount}  = $::form->format_sellprice($open_invoice->amount*$factor);
+      $open_invoice->{skonto_type} = $_->payment_type;
+      $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
+      $sepa_exports{$_->sepa_export_id}->{count}++;
+      $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
+      $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount * $factor;
+      push @{ $sepa_exports{$_->sepa_export_id}->{invoices} }, $open_invoice;
     }
   }
 
