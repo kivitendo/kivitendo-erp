@@ -26,7 +26,7 @@ sub convert_mt940_data {
 
   my $converted_data = '"empty";"local_bank_code";"local_account_number";"remote_bank_code";"remote_account_number";"transdate";"valutadate";"amount";'.
     '"currency";"remote_name";"remote_name_1";"purpose";"purpose1";"purpose2";"purpose3";"purpose4";"purpose5";"purpose6";"purpose7";"purpose8";"purpose9";'.
-    '"purpose10";"purpose11";"transactionKey";"customerReference";"bankReference";"transactionCode";"transactionText"'."\n";
+    '"purpose10";"purpose11";"transaction_key";"customer_reference";"bank_reference";"transaction_code";"transaction_text"'."\n";
 
   open my $mt, "-|", "$cmd" || die "Problem with executing aqbanking\n";
   my $headerline = <$mt>;  # discard original aqbanking header line
