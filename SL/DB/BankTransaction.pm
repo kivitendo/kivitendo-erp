@@ -53,7 +53,7 @@ sub is_batch_transaction {
 
 
 sub get_agreement_with_invoice {
-  my ($self, $invoice) = @_;
+  my ($self, $invoice, %params) = @_;
 
   carp "get_agreement_with_invoice needs an invoice object as its first argument"
     unless ref($invoice) eq 'SL::DB::Invoice' or ref($invoice) eq 'SL::DB::PurchaseInvoice';
@@ -221,7 +221,10 @@ sub get_agreement_with_invoice {
   }
 
   # if there is exactly one non-executed sepa_export_item for the invoice
-  if ( my $seis = $invoice->find_sepa_export_items({ executed => 0 }) ) {
+  my $seis = $params{sepa_export_items}
+           ? [ grep { $invoice->id == ($invoice->is_sales ? $_->ar_id : $_->ap_id) } @{ $params{sepa_export_items} } ]
+           : $invoice->find_sepa_export_items({ executed => 0 });
+  if ($seis) {
     if (scalar @$seis == 1) {
       my $sei = $seis->[0];
 
