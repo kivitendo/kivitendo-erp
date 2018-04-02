@@ -331,11 +331,13 @@
         </itemizedlist>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
-        hinzugekommen: <literal>Text::Unidecode, LWP::Authen::Digest,
-        LWP::UserAgent</literal></para>
+        hinzugekommen: <literal>Text::Unidecode</literal>,
+        <literal>LWP::Authen::Digest</literal>,
+        <literal>LWP::UserAgent</literal></para>
 
         <para>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
-        <literal>Algorithm::CheckDigits</literal><literal>PBKDF2::Tiny</literal></para>
+        <literal>Algorithm::CheckDigits</literal>,
+        <literal>PBKDF2::Tiny</literal></para>
 
         <para>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen:
         <literal>GD</literal>, <literal>HTML::Restrict</literal>,
@@ -450,7 +452,9 @@ cpan HTML::Restrict</programlisting>
         <para>Debian und Ubuntu: <programlisting>apt install aqbanking-tools
         </programlisting></para>
 
-        <para>OpenSuSE: <programlisting>zypper install aqbanking-tools</programlisting></para>
+        <para>Fedora: <programlisting>dnf install aqbanking</programlisting></para>
+
+        <para>openSUSE: <programlisting>zypper install aqbanking-tools</programlisting></para>
 
         <para>Seit Version v3.4.1 wird generell zum Feststellen der
         Seitenanzahl von PDF_Dokumenten 'pdfinfo' benötigt was im Paket
@@ -459,7 +463,9 @@ cpan HTML::Restrict</programlisting>
         <para>Debian und Ubuntu: <programlisting>apt install poppler-utils
         </programlisting></para>
 
-        <para>OpenSuSE: <programlisting>zypper install poppler-tools</programlisting></para>
+        <para>Fedora: <programlisting>dnf install poppler-utils</programlisting></para>
+
+        <para>openSUSE: <programlisting>zypper install poppler-tools</programlisting></para>
       </sect2>
     </sect1>
 
@@ -501,7 +507,7 @@ tar xvzf kivitendo-erp-3.4.1.tgz</programlisting>
       restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
       und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
       (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-      <constant>apache</constant> oder bei OpenSUSE
+      <constant>apache</constant> oder bei openSUSE
       <constant>wwwrun</constant>).</para>
 
       <para>Der folgende Befehl ändert den Besitzer für die oben genannten
@@ -1241,7 +1247,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
 
         <sect3>
           <title>SystemV-basierende Systeme (z.B. ältere Debian, ältere
-          OpenSUSE, ältere Fedora)</title>
+          openSUSE, ältere Fedora)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/system-v/kivitendo-task-server</filename>
@@ -1259,7 +1265,7 @@ insserv kivitendo-task-server</programlisting>
             </listitem>
 
             <listitem>
-              <para>Ältere OpenSUSE und ältere Fedora:</para>
+              <para>Ältere openSUSE und ältere Fedora:</para>
 
               <programlisting>chkconfig --add kivitendo-task-server</programlisting>
             </listitem>
