@@ -205,8 +205,12 @@ sub new_from {
   croak("A destination type must be given parameter")            unless $params{destination_type};
 
   my $destination_type  = delete $params{destination_type};
-  my $src_dst_allowed   = ('sales_quotation'   eq $source->type && 'sales_order'    eq $destination_type)
-                       || ('request_quotation' eq $source->type && 'purchase_order' eq $destination_type);
+  my $src_dst_allowed   = ('sales_quotation'   eq $source->type && 'sales_order'       eq $destination_type)
+                       || ('request_quotation' eq $source->type && 'purchase_order'    eq $destination_type)
+                       || ('sales_quotation'   eq $source->type && 'sales_quotation'   eq $destination_type)
+                       || ('sales_order'       eq $source->type && 'sales_order'       eq $destination_type)
+                       || ('request_quotation' eq $source->type && 'request_quotation' eq $destination_type)
+                       || ('purchase_order'    eq $source->type && 'purchase_order'    eq $destination_type);
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") unless $src_dst_allowed;
 
   my ($item_parent_id_column, $item_parent_column);
@@ -221,7 +225,7 @@ sub new_from {
                                                 ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded taxzone_id
                                                 transaction_description vendor_id
                                              )),
-               quotation => 0,
+               quotation => !!($destination_type =~ m{quotation$}),
                closed    => 0,
                delivered => 0,
                transdate => DateTime->today_local,
@@ -229,7 +233,7 @@ sub new_from {
 
   # Custom shipto addresses (the ones specific to the sales/purchase
   # record and not to the customer/vendor) are only linked from
-  # shipto → delivery_orders. Meaning delivery_orders.shipto_id
+  # shipto → order. Meaning order.shipto_id
   # will not be filled in that case.
   if (!$source->shipto_id && $source->id) {
     $args{custom_shipto} = $source->custom_shipto->clone($class) if $source->can('custom_shipto') && $source->custom_shipto;
@@ -372,7 +376,8 @@ At the moment only sales quotations and sales orders can be converted.
 =head2 C<new_from $source, %params>
 
 Creates a new C<SL::DB::Order> instance and copies as much
-information from C<$source> as possible. At the moment only sales orders from
+information from C<$source> as possible. At the moment only records with the
+same destination type as the source type and sales orders from
 sales quotations and purchase orders from requests for quotations can be
 created.
 
@@ -391,8 +396,8 @@ C<%params> can include the following options
 =item C<destination_type>
 
 (mandatory)
-The type of the newly created object. Can be C<sales_order> or
-C<purchase_order> for now.
+The type of the newly created object. Can be C<sales_quotation>,
+C<sales_order>, C<purchase_quotation> or C<purchase_order> for now.
 
 =item C<items>
 
