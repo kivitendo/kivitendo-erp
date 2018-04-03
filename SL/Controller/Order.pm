@@ -137,32 +137,44 @@ sub action_save {
 sub action_save_as_new {
   my ($self) = @_;
 
-  if (!$self->order->id) {
+  my $order = $self->order;
+
+  if (!$order->id) {
     $self->js->flash('error', t8('This object has not been saved yet.'));
     return $self->js->render();
   }
 
-  delete $::form->{$_} for qw(closed delivered converted_from_oe_id converted_from_orderitems_ids);
+  # load order from db to check if values changed
+  my $saved_order = SL::DB::Order->new(id => $order->id)->load;
 
-  my $src_order = SL::DB::Order->new(id => $self->order->id)->load;
-
+  my %new_attrs;
   # Lets assign a new number if the user hasn't changed the previous one.
   # If it has been changed manually then use it as-is.
-  if (trim($self->order->number) eq $src_order->number) {
-    $self->order->number('');
-  }
+  $new_attrs{number}    = (trim($order->number) eq $saved_order->number)
+                        ? ''
+                        : trim($order->number);
 
-  # Clear reqdate and transdate unless changed
-  if ($self->order->transdate == $src_order->transdate) {
-    $self->order->transdate(DateTime->today_local)
-  }
-  if ($self->order->reqdate == $src_order->reqdate) {
+  # Clear transdate unless changed
+  $new_attrs{transdate} = ($order->transdate == $saved_order->transdate)
+                        ? DateTime->today_local
+                        : $order->transdate;
+
+  # Set new reqdate unless changed
+  if ($order->reqdate == $saved_order->reqdate) {
     my $extra_days = $self->type eq _sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
-    $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days));
+    $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
+  } else {
+    $new_attrs{reqdate} = $order->reqdate;
   }
 
   # Update employee
-  $self->order->employee(SL::DB::Manager::Employee->current);
+  $new_attrs{employee}  = SL::DB::Manager::Employee->current;
+
+  # Create new record from current one
+  $self->order(SL::DB::Order->new_from($order, destination_type => $order->type, attributes => \%new_attrs));
+
+  # no linked records on save as new
+  delete $::form->{$_} for qw(converted_from_oe_id converted_from_orderitems_ids);
 
   # save
   $self->action_save();
