@@ -786,7 +786,7 @@ body .ui-tooltip {
 /* Component containers
 ----------------------------------*/
 .ui-widget {
-	font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+	font-family: sans-serif;
 	font-size: 1.1em;
 }
 .ui-widget .ui-widget {
@@ -796,7 +796,7 @@ body .ui-tooltip {
 .ui-widget select,
 .ui-widget textarea,
 .ui-widget button {
-	font-family: Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;
+	font-family: sans-serif;
 	font-size: 1em;
 }
 .ui-widget-content {

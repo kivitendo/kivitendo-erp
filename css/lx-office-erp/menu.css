@@ -1,6 +1,5 @@
 
 body.menu {
-  font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 80%;
   color: black;
 }
@@ -15,7 +14,6 @@ table.menunew {
 table.menunew td {
   padding: 0;
   color:black;
-  font-family: Verdana, Arial, sans-serif;
 }
 
 body.menunew {
