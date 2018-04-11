@@ -38,6 +38,58 @@ my $reset_state_counter = 0;
 
 my $purchase_invoice_counter = 0; # used for generating purchase invnumber
 
+Support::TestSetup::login();
+
+# test cases: without_skonto
+test_default_invoice_one_item_19_without_skonto();
+test_default_invoice_two_items_19_7_tax_with_skonto();
+test_default_invoice_two_items_19_7_without_skonto();
+test_default_invoice_two_items_19_7_without_skonto_incomplete_payment();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
+test_default_purchase_invoice_two_charts_19_7_without_skonto();
+test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
+test_default_invoice_one_item_19_without_skonto_overpaid();
+test_credit_note_two_items_19_7_tax_tax_not_included();
+
+# test cases: difference_as_skonto
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent();
+test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
+test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
+test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
+test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
+
+# test cases: with_skonto_pt
+test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
+test_default_purchase_invoice_two_charts_19_7_with_skonto();
+test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
+test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
+
+# test payment of ar and ap transactions with currency and tax included/not included
+# exchangerate = 1.33333
+test_ar_currency_tax_not_included_and_payment();
+test_ar_currency_tax_included();
+test_ap_currency_tax_not_included_and_payment();
+test_ap_currency_tax_included();
+
+test_ar_currency_tax_not_included_and_payment_2();              # exchangerate 0.8
+test_ar_currency_tax_not_included_and_payment_2_credit_note();  # exchangerate 0.8
+
+test_ap_currency_tax_not_included_and_payment_2();             # two exchangerates, with fx_gain_loss
+test_ap_currency_tax_not_included_and_payment_2_credit_note(); # two exchangerates, with fx_gain_loss
+
+{ local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
+  my ($acc_trans_sum)  = selectfirst_array_query($::form, $currency->db->dbh, 'SELECT SUM(amount) FROM acc_trans'); is($acc_trans_sum, '0.00000', "sum of all acc_trans is 0");
+}
+
+# remove all created data at end of test
+# clear_up();
+
+done_testing();
+
+
 sub clear_up {
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
@@ -1442,56 +1494,5 @@ sub test_credit_note_two_items_19_7_tax_tax_not_included() {
   is($number_of_payments,             1,   "${title}: 1 AR_paid bookings");
   is($total,                          0,   "${title}: even balance");
 }
-
-Support::TestSetup::login();
-
-# test cases: without_skonto
-test_default_invoice_one_item_19_without_skonto();
-test_default_invoice_two_items_19_7_tax_with_skonto();
-test_default_invoice_two_items_19_7_without_skonto();
-test_default_invoice_two_items_19_7_without_skonto_incomplete_payment();
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments();
-test_default_purchase_invoice_two_charts_19_7_without_skonto();
-test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto();
-test_default_invoice_one_item_19_without_skonto_overpaid();
-test_credit_note_two_items_19_7_tax_tax_not_included();
-
-# test cases: difference_as_skonto
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent();
-test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent();
-test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto();
-test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent();
-test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto();
-
-# test cases: with_skonto_pt
-test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
-test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
-test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
-test_default_purchase_invoice_two_charts_19_7_with_skonto();
-test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
-test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
-
-# test payment of ar and ap transactions with currency and tax included/not included
-# exchangerate = 1.33333
-test_ar_currency_tax_not_included_and_payment();
-test_ar_currency_tax_included();
-test_ap_currency_tax_not_included_and_payment();
-test_ap_currency_tax_included();
-
-test_ar_currency_tax_not_included_and_payment_2();              # exchangerate 0.8
-test_ar_currency_tax_not_included_and_payment_2_credit_note();  # exchangerate 0.8
-
-test_ap_currency_tax_not_included_and_payment_2();             # two exchangerates, with fx_gain_loss
-test_ap_currency_tax_not_included_and_payment_2_credit_note(); # two exchangerates, with fx_gain_loss
-
-{ local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
-  my ($acc_trans_sum)  = selectfirst_array_query($::form, $currency->db->dbh, 'SELECT SUM(amount) FROM acc_trans'); is($acc_trans_sum, '0.00000', "sum of all acc_trans is 0");
-}
-
-# remove all created data at end of test
-clear_up();
-
-done_testing();
 
 1;
