@@ -791,7 +791,7 @@ or in a certain currency:
                    transdate     => DateTime->now->to_kivitendo,
                    memo          => 'foobar',
                    source        => 'barfoo',
-                   payment_type  => 'with_skonto',
+                   payment_type  => 'with_skonto_pt',
                   );
 
 Allowed payment types are:
