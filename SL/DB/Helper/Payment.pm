@@ -107,7 +107,7 @@ sub pay_invoice {
 
   # account where money is paid to/from: bank account or cash
   my $account_bank = SL::DB::Manager::Chart->find_by(id => $params{chart_id});
-  croak "can't find bank account" unless ref $account_bank;
+  croak "can't find bank account with id " . $params{chart_id} unless ref $account_bank;
 
   my $reference_account = $self->reference_account;
   croak "can't find reference account (link = AR/AP) for invoice" unless ref $reference_account;
