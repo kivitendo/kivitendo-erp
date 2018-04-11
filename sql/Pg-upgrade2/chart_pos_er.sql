@@ -1,5 +1,5 @@
 -- @tag: chart_pos_er
--- @description: pos_er Feld in Konten für die Position ind er Erfolgsrechnung
+-- @description: pos_er Feld in Konten für die Position in der Erfolgsrechnung
 -- @depends: release_3_3_0
 -- @may_fail: 1
 
