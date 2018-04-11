@@ -34,7 +34,7 @@ sub create_sales_invoice {
 
   my $invoice = SL::DB::Invoice->new(
     invoice      => 1,
-    type         => 'sales_invoice',
+    type         => 'invoice',
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone->id,
     invnumber    => delete $params{invnumber}   // undef,
