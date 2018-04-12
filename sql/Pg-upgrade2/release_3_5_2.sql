@@ -1,0 +1,3 @@
+-- @tag: release_3_5_2
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.5.2 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: custom_data_export_default_values_for_parameters transfer_type_stocktaking add_stocktaking_preselects_client_config_default stocktakings create_part_customerprices

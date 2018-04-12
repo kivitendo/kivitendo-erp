@@ -1,0 +1,3 @@
+-- @tag: release_3_5_2
+-- @description: Abhängigkeitsscript für Release 3.5.2
+-- @depends: release_3_5_1 custom_data_export_rights
