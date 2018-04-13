@@ -96,7 +96,21 @@ sub _displayable_columns {
    { name => 'currency',              description => $::locale->text('Currency') },
    { name => 'currency_id',           description => $::locale->text('Currency (database ID)')          },
    { name => 'remote_name',           description => $::locale->text('Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")') },
-   { name => 'purpose',               description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') }
+   { name => 'remote_name_1',          description => $::locale->text('Name of the goal/source (if field names remote_name and remote_name_1 exist they will be combined into field "remote_name")') },
+   { name => 'purpose',               description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose1',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose2',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose3',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose4',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose5',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose6',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose7',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose8',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose9',              description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose10',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose11',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose12',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') },
+   { name => 'purpose13',             description => $::locale->text('Purpose (if field names purpose, purpose1, purpose2 ... exist they will all combined into the field "purpose")') }
  );
 }
 
@@ -160,7 +174,7 @@ sub join_purposes {
 
   my $object = $entry->{object};
 
-  my $purpose = join('', $entry->{raw_data}->{purpose},
+  my $purpose = join(' ', $entry->{raw_data}->{purpose},
                          $entry->{raw_data}->{purpose1},
                          $entry->{raw_data}->{purpose2},
                          $entry->{raw_data}->{purpose3},
@@ -171,7 +185,9 @@ sub join_purposes {
                          $entry->{raw_data}->{purpose8},
                          $entry->{raw_data}->{purpose9},
                          $entry->{raw_data}->{purpose10},
-                         $entry->{raw_data}->{purpose11} );
+                         $entry->{raw_data}->{purpose11},
+                         $entry->{raw_data}->{purpose12},
+                         $entry->{raw_data}->{purpose13} );
   $object->purpose($purpose);
 
 }
@@ -181,7 +197,7 @@ sub join_remote_names {
 
   my $object = $entry->{object};
 
-  my $remote_name = join('', $entry->{raw_data}->{remote_name},
+  my $remote_name = join(' ', $entry->{raw_data}->{remote_name},
                              $entry->{raw_data}->{remote_name_1} );
   $object->remote_name($remote_name);
 }
