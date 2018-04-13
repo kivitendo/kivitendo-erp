@@ -56,7 +56,8 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  $self->order->reqdate(DateTime->today_local->next_workday) if !$self->order->reqdate;
+  my $extra_days = $self->type eq _sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+  $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days)) if !$self->order->reqdate;
 
   $self->_pre_render();
   $self->render(
