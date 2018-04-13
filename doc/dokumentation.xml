@@ -375,7 +375,7 @@
           <title>Debian und Ubuntu</title>
 
           <para>Für Debian und Ubuntu stehen die meisten der benötigten
-          Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit
+          Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</para>
 
           <programlisting>apt install  apache2 libarchive-zip-perl libclone-perl \
@@ -388,11 +388,12 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
+  postgresql-contrib aqbanking-tools poppler-utils
 </programlisting>
 
-          <para>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
-          muß per CPAN installiert werden. Unter Ubuntu funktioniert das
+          <para>Für einige Perl Pakete gibt es kein Debian-Paket, dies
+          muß per CPAN installiert werden. Unter Ubuntu funktioniert das für das benötige Paket HTML::Restrict
           mit:</para>
 
           <programlisting>apt-get install build-essential

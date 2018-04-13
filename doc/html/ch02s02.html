@@ -92,11 +92,12 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
                   </p></li></ul></div><p>Seit Version größer v3.5.0 sind die folgenden Pakete
-        hinzugekommen: <code class="literal">Text::Unidecode, LWP::Authen::Digest,
-        LWP::UserAgent</code>
+        hinzugekommen: <code class="literal">Text::Unidecode</code>,
+        <code class="literal">LWP::Authen::Digest</code>,
+        <code class="literal">LWP::UserAgent</code>
             </p><p>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
-        <code class="literal">Algorithm::CheckDigits</code>
-               <code class="literal">PBKDF2::Tiny</code>
+        <code class="literal">Algorithm::CheckDigits</code>,
+        <code class="literal">PBKDF2::Tiny</code>
             </p><p>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen:
         <code class="literal">GD</code>, <code class="literal">HTML::Restrict</code>,
         <code class="literal">Image::Info</code>
@@ -117,8 +118,8 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e463"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
-          Perl-Pakete als Debian-Pakete zur Verfügung. Sie können mit
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e469"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+          Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
   libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
@@ -129,11 +130,12 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl
-</pre><p>Für das Paket HTML::Restrict gibt es kein Debian-Paket, dies
-          muß per CPAN installiert werden. Unter Ubuntu funktioniert das
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
+  postgresql-contrib aqbanking-tools poppler-utils
+</pre><p>Für einige Perl Pakete gibt es kein Debian-Paket, dies
+          muß per CPAN installiert werden. Unter Ubuntu funktioniert das für das benötige Paket HTML::Restrict
           mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e474"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e480"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -143,7 +145,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e485"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e491"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
@@ -152,13 +154,15 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
   perl-URI perl-XML-Writer perl-YAML perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e496"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e502"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
         'aqbanking-tools' benötigt.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools
         </pre><p>
-            </p><p>OpenSuSE: </p><pre class="programlisting">zypper install aqbanking-tools</pre><p>
+            </p><p>Fedora: </p><pre class="programlisting">dnf install aqbanking</pre><p>
+            </p><p>openSUSE: </p><pre class="programlisting">zypper install aqbanking-tools</pre><p>
             </p><p>Seit Version v3.4.1 wird generell zum Feststellen der
         Seitenanzahl von PDF_Dokumenten 'pdfinfo' benötigt was im Paket
         'poppler-utils' enthalten ist.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install poppler-utils
         </pre><p>
-            </p><p>OpenSuSE: </p><pre class="programlisting">zypper install poppler-tools</pre><p>
+            </p><p>Fedora: </p><pre class="programlisting">dnf install poppler-utils</pre><p>
+            </p><p>openSUSE: </p><pre class="programlisting">zypper install poppler-tools</pre><p>
             </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s03.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 2. Installation und Grundkonfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.3. Manuelle Installation des Programmpaketes</td></tr></table></div></body></html>
