@@ -221,6 +221,13 @@ sub setup_ir_action_bar {
   my $change_never            = $::instance_conf->get_ir_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_ir_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
 
+  my $has_sepa_exports;
+
+  if ($form->{id}) {
+    my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
+    $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -263,7 +270,9 @@ sub setup_ir_action_bar {
           submit   => [ '#form', { action => "storno" } ],
           checks   => [ 'kivi.validate_form' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
-          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$form->{id}          ? t8('This invoice has not been posted yet.')
+                      : $has_sepa_exports   ? t8('This invoice has been linked with a sepa export, undo this first.')
+                      : undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
@@ -273,6 +282,7 @@ sub setup_ir_action_bar {
                     : $form->{locked}          ? t8('The billing period has already been locked.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_sepa_exports        ? t8('This invoice has been linked with a sepa export, undo this first.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"

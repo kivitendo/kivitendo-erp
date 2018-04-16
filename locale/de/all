@@ -3474,6 +3474,7 @@ $self->{texts} = {
   'This has been changed in this version.' => 'Ab dieser Version ist dies nicht mehr so.',
   'This invoice has already been posted.' => 'Die Rechnung wurde bereits gebucht.',
   'This invoice has been canceled already.' => 'Die Rechnung wurde bereits storniert.',
+  'This invoice has been linked with a sepa export, undo this first.' => 'Diese Rechnung ist mit einem SEPA-Export verknüpft. Bitte diese Verknüpfung zuerst aufheben.',
   'This invoice has not been posted yet.' => 'Die Rechnung wurde noch nicht gebucht.',
   'This invoice\'s dunning level: #1' => 'Mahnstufe dieser Rechnung: #1',
   'This is a very critical problem.' => 'Dieses Problem ist sehr schwerwiegend.',
