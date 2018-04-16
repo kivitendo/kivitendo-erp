@@ -220,6 +220,8 @@ sub setup_ir_action_bar {
   my $form                    = $::form;
   my $change_never            = $::instance_conf->get_ir_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_ir_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
+  my $has_storno              = ($::form->{storno} && !$::form->{storno_id});
+  my $payments_balanced       = ($::form->{oldtotalpaid} == 0);
 
   my $has_sepa_exports;
 
@@ -272,6 +274,7 @@ sub setup_ir_action_bar {
           confirm  => t8('Do you really want to cancel this invoice?'),
           disabled => !$form->{id}          ? t8('This invoice has not been posted yet.')
                       : $has_sepa_exports   ? t8('This invoice has been linked with a sepa export, undo this first.')
+                      : !$payments_balanced ? t8('Cancelling is disallowed. Either undo or balance the current payments until the open amount matches the invoice amount')
                       : undef,
         ],
         action => [ t8('Delete'),
@@ -283,6 +286,7 @@ sub setup_ir_action_bar {
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $has_sepa_exports        ? t8('This invoice has been linked with a sepa export, undo this first.')
+                    : $has_storno              ? t8('Can only delete the "Storno zu" part of the cancellation pair.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"
