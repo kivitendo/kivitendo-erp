@@ -228,6 +228,7 @@ sub render_form {
   %assembly_vars   = %{ $self->prepare_assembly_render_vars   } if $self->part->is_assembly;
 
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'IC', trans_id => $self->part->id);
+  $_->{valid}                = 1 for @{ $params{CUSTOM_VARIABLES} };
 
   CVar->render_inputs('variables' => $params{CUSTOM_VARIABLES}, show_disabled_message => 1, partsgroup_id => $self->part->partsgroup_id)
     if (scalar @{ $params{CUSTOM_VARIABLES} });
