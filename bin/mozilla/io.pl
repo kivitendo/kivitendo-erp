@@ -319,8 +319,8 @@ sub display_row {
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
     $column_data{qty}  = $cgi->textfield(-name => "qty_$i", -size => 5, -class => "numeric", -value => $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec));
-    $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)", -value => $locale->text('*/'))
-                       . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"})
+    $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i', 'formel_$i')", -value => $locale->text('*/'))
+                       . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"})
       if $form->{"formel_$i"};
 
     $column_data{ship} = '';

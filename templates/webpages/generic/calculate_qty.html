@@ -5,7 +5,6 @@
  <form name="Form">
 
   <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
-  <input type="hidden" name="input_id" value="[% HTML.escape(input_id) %]">
 
   <table width="100%">
    <tr><td>[% 'Please insert object dimensions below.' | $T8 %]</td></tr>
@@ -82,4 +81,3 @@
      return arr_int[0] + sep + arr_int[1];
    }
  </script>
-
