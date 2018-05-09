@@ -1435,7 +1435,7 @@ sub _pre_render {
                                                 } } @all_objects;
   }
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery edit_periodic_invoices_config);
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery edit_periodic_invoices_config calculate_qty);
   $self->_setup_edit_action_bar;
 }
 

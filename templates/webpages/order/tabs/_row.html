@@ -48,11 +48,15 @@
       [%- END -%]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
-    <td>
+    <td nowrap>
       [%- L.input_tag("order.orderitems[].qty_as_number",
                       ITEM.qty_as_number,
                       size = 5,
                       class="recalc reformat_number numeric") %]
+      [%- IF ITEM.part.formel -%]
+        [%- L.button_tag("kivi.Order.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
+        [%- L.hidden_tag("formula", ITEM.part.formel) -%]
+      [%- END -%]
     </td>
     <td>
       [%- L.select_tag("order.orderitems[].price_factor_id",

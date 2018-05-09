@@ -623,6 +623,15 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
+  ns.show_calculate_qty_dialog = function(clicked) {
+    var row = $(clicked).parents("tbody").first();
+    var input_id = $(row).find('[name="order.orderitems[].qty_as_number"]').attr('id');
+    var formula_id = $(row).find('[name="formula"]').attr('id');
+
+    calculate_qty_selection_window("", input_id, "", formula_id);
+    return true;
+  }
+
 });
 
 $(function(){
