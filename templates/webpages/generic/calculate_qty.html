@@ -5,6 +5,7 @@
  <form name="Form">
 
   <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+  <input type="hidden" name="input_id"   value="[% HTML.escape(input_id) %]">
 
   <table width="100%">
    <tr><td>[% 'Please insert object dimensions below.' | $T8 %]</td></tr>
@@ -40,7 +41,11 @@
 [%- END %]
      var result = [% formel %];
      result = number_format(result, 2, '[% MYCONFIG.numberformat %]');
-     window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
+     if (document.Form.input_id.value) {
+       window.opener.document.getElementById(document.Form.input_id.value).value = result;
+     } else {
+       window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
+     }
      self.close();
    }
 
