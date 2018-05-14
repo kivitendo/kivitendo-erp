@@ -55,7 +55,7 @@
                       class="recalc reformat_number numeric") %]
       [%- IF ITEM.part.formel -%]
         [%- L.button_tag("kivi.Order.show_calculate_qty_dialog(this)", LxERP.t8("*/")) %]
-        [%- L.hidden_tag("formula", ITEM.part.formel) -%]
+        [%- L.hidden_tag("formula[+]", ITEM.part.formel) -%]
       [%- END -%]
     </td>
     <td>

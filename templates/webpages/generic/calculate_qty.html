@@ -1,8 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-<h1>[% title %]</h1>
-
- <form name="Form">
+ <form name="CalcQtyForm" id="calc_qty_form_id">
 
   <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
   <input type="hidden" name="input_id"   value="[% HTML.escape(input_id) %]">
@@ -37,16 +35,16 @@
  <script type="text/javascript">
    function calculate_qty() {
 [%- FOREACH row = VARIABLES %]
-     var [% row.name %] = parse_amount('[% MYCONFIG.numberformat %]', document.getElementsByName("[% row.name %]")[0].value);
+     var [% row.name %] = parse_amount('[% MYCONFIG.numberformat %]', $('#calc_qty_form_id #[% row.name %]').val());
 [%- END %]
      var result = [% formel %];
      result = number_format(result, 2, '[% MYCONFIG.numberformat %]');
-     if (document.Form.input_id.value) {
-       window.opener.document.getElementById(document.Form.input_id.value).value = result;
+     if (document.CalcQtyForm.input_id.value) {
+       document.getElementById(document.CalcQtyForm.input_id.value).value = result;
      } else {
-       window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
+       document.getElementsByName(document.CalcQtyForm.input_name.value)[0].value = result;
      }
-     self.close();
+     $('#calc_qty_dialog').dialog('close');
    }
 
    function parse_amount(numberformat, amount) {

@@ -181,10 +181,9 @@ sub calculate_qty {
   }, @header_sort;
 
   $form->{formel} = $formel;
-  $form->{title}  = $locale->text("Please enter values");
-  $form->header(no_layout => 1);
-  print $form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
-                                                              "VARIABLES" => \@variable, });
+  my $html = $form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
+                                                                   "VARIABLES" => \@variable, });
+  print $::form->ajax_response_header, $html;
 
   $main::lxdebug->leave_sub();
 }

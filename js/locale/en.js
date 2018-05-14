@@ -78,6 +78,7 @@ namespace("kivi").setupLocale({
 "Paste":"",
 "Paste template":"",
 "Please enter the new name:":"",
+"Please enter values":"",
 "Please select a customer.":"",
 "Please select a vendor.":"",
 "Price Types":"",
