@@ -576,6 +576,9 @@ sub action_purchase_order {
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
+  _setup_order_from_cv($self->order);
+  $self->_recalc();
+
   my $cv_method = $self->cv;
 
   if ($self->order->$cv_method->contacts && scalar @{ $self->order->$cv_method->contacts } > 0) {
@@ -590,19 +593,7 @@ sub action_customer_vendor_changed {
     $self->js->hide('#shipto_row');
   }
 
-  $self->order->taxzone_id($self->order->$cv_method->taxzone_id);
-
-  if ($self->order->is_sales) {
-    $self->order->taxincluded(defined($self->order->$cv_method->taxincluded_checked)
-                              ? $self->order->$cv_method->taxincluded_checked
-                              : $::myconfig{taxincluded_checked});
-    $self->js->val('#order_salesman_id', $self->order->$cv_method->salesman_id);
-  }
-
-  $self->order->payment_id($self->order->$cv_method->payment_id);
-  $self->order->delivery_term_id($self->order->$cv_method->delivery_term_id);
-
-  $self->_recalc();
+  $self->js->val( '#order_salesman_id',      $self->order->salesman_id)        if $self->order->is_sales;
 
   $self->js
     ->replaceWith('#order_cp_id',            $self->build_contact_select)
@@ -612,7 +603,7 @@ sub action_customer_vendor_changed {
     ->val(        '#order_taxincluded',      $self->order->taxincluded)
     ->val(        '#order_payment_id',       $self->order->payment_id)
     ->val(        '#order_delivery_term_id', $self->order->delivery_term_id)
-    ->val(        '#order_intnotes',         $self->order->$cv_method->notes)
+    ->val(        '#order_intnotes',         $self->order->intnotes)
     ->focus(      '#order_' . $self->cv . '_id');
 
   $self->_js_redisplay_amounts_and_taxes;
@@ -1132,6 +1123,12 @@ sub _make_order {
   $order ||= SL::DB::Order->new(orderitems => [],
                                 quotation  => (any { $self->type eq $_ } (_sales_quotation_type(), _request_quotation_type())));
 
+  my $cv_id_method = $self->cv . '_id';
+  if (!$::form->{id} && $::form->{$cv_id_method}) {
+    $order->$cv_id_method($::form->{$cv_id_method});
+    _setup_order_from_cv($order);
+  }
+
   my $form_orderitems               = delete $::form->{order}->{orderitems};
   my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
 
@@ -1249,6 +1246,22 @@ sub _new_item {
   $item->assign_attributes(%new_attr);
 
   return $item;
+}
+
+sub _setup_order_from_cv {
+  my ($order) = @_;
+
+  $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id));
+
+  $order->intnotes($order->customervendor->notes);
+
+  if ($order->is_sales) {
+    $order->salesman_id($order->customer->salesman_id);
+    $order->taxincluded(defined($order->customer->taxincluded_checked)
+                        ? $order->customer->taxincluded_checked
+                        : $::myconfig{taxincluded_checked});
+  }
+
 }
 
 # recalculate prices and taxes
