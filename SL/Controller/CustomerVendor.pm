@@ -272,10 +272,16 @@ sub _transaction {
 
   my $name = $::form->escape($self->{cv}->name, 1);
   my $db = $self->is_vendor() ? 'vendor' : 'customer';
+  my $action = 'add';
+
+  if ($::instance_conf->get_feature_experimental && 'oe.pl' eq $script) {
+    $script = 'controller.pl';
+    $action = 'Order/' . $action;
+  }
 
   my $url = $self->url_for(
     controller => $script,
-    action     => 'add',
+    action     => $action,
     vc         => $db,
     $db .'_id' => $self->{cv}->id,
     $db        => $name,
