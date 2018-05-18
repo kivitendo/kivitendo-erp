@@ -202,7 +202,7 @@ sub new_from {
   my ($class, $source, %params) = @_;
 
   croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) eq 'SL::DB::Order';
-  croak("A destination type must be given parameter")            unless $params{destination_type};
+  croak("A destination type must be given as parameter")         unless $params{destination_type};
 
   my $destination_type  = delete $params{destination_type};
   my $src_dst_allowed   = ('sales_quotation'   eq $source->type && 'sales_order'       eq $destination_type)
