@@ -78,6 +78,14 @@
                      style      => 'width: 200px') %]
    </td>
   </tr>
+  [%- IF SELF.all_departments.size %]
+    <tr>
+      <th align="right">[% 'Department' | $T8 %]</th>
+      <td>
+        [% L.select_tag('filter.order.department_id', SELF.all_departments, default=filter.order.department_id, title_key='description', with_empty=1, style='width:200px') %]
+      </td>
+    </tr>
+  [%- END %]
   <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>

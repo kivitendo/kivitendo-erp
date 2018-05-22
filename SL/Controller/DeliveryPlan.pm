@@ -16,7 +16,7 @@ use Carp;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
-  'scalar --get_set_init' => [ qw(models all_edit_right vc use_linked_items all_employees all_businesses) ],
+  'scalar --get_set_init' => [ qw(models all_edit_right vc use_linked_items all_employees all_businesses all_departments) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('delivery_plan'); });
@@ -116,13 +116,14 @@ sub calc_qtys {
 sub make_filter_summary {
   my ($self) = @_;
   my $vc     = $self->vc;
-  my ($business, $employee);
+  my ($business, $employee, $department);
 
   my $filter = $::form->{filter} || {};
   my @filter_strings;
 
   $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
   $employee = SL::DB::Employee->new(id => $filter->{order}{employee_id})->load->name if $filter->{order}{employee_id};
+  $department = SL::DB::Department->new(id => $filter->{order}{department_id})->load->description if $filter->{order}{department_id};
 
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
@@ -137,6 +138,7 @@ sub make_filter_summary {
     [ $filter->{order}{customer}{"name:substr::ilike"},               $::locale->text('Customer')                                           ],
     [ $filter->{order}{customer}{"customernumber:substr::ilike"},     $::locale->text('Customer Number')                                    ],
     [ $business,                                                      $::locale->text('Customer type')                                      ],
+    [ $department,                                                    $::locale->text('Department')                                         ],
     [ $employee,                                                      $::locale->text('Employee')                                           ],
   );
 
@@ -352,6 +354,9 @@ sub init_all_employees {
 }
 sub init_all_businesses {
   return SL::DB::Manager::Business->get_all_sorted;
+}
+sub init_all_departments {
+  return SL::DB::Manager::Department->get_all_sorted;
 }
 sub link_to {
   my ($self, $object, %params) = @_;
