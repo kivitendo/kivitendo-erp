@@ -6,6 +6,7 @@ use strict;
 use Carp;
 use DateTime;
 use List::Util qw(max);
+use List::MoreUtils qw(any);
 
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
@@ -205,13 +206,17 @@ sub new_from {
   croak("A destination type must be given as parameter")         unless $params{destination_type};
 
   my $destination_type  = delete $params{destination_type};
-  my $src_dst_allowed   = ('sales_quotation'   eq $source->type && 'sales_order'       eq $destination_type)
-                       || ('request_quotation' eq $source->type && 'purchase_order'    eq $destination_type)
-                       || ('sales_quotation'   eq $source->type && 'sales_quotation'   eq $destination_type)
-                       || ('sales_order'       eq $source->type && 'sales_order'       eq $destination_type)
-                       || ('request_quotation' eq $source->type && 'request_quotation' eq $destination_type)
-                       || ('purchase_order'    eq $source->type && 'purchase_order'    eq $destination_type);
-  croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") unless $src_dst_allowed;
+
+  my @from_tos = (
+    { from => 'sales_quotation',   to => 'sales_order',       abbr => 'sqso' },
+    { from => 'request_quotation', to => 'purchase_order',    abbr => 'rqpo' },
+    { from => 'sales_quotation',   to => 'sales_quotation',   abbr => 'sqsq' },
+    { from => 'sales_order',       to => 'sales_order',       abbr => 'soso' },
+    { from => 'request_quotation', to => 'request_quotation', abbr => 'rqrq' },
+    { from => 'purchase_order',    to => 'purchase_order',    abbr => 'popo' },
+  );
+  my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
+  croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
 
   my ($item_parent_id_column, $item_parent_column);
 
