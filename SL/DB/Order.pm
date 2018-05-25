@@ -214,9 +214,18 @@ sub new_from {
     { from => 'sales_order',       to => 'sales_order',       abbr => 'soso' },
     { from => 'request_quotation', to => 'request_quotation', abbr => 'rqrq' },
     { from => 'purchase_order',    to => 'purchase_order',    abbr => 'popo' },
+    { from => 'sales_order',       to => 'purchase_order',    abbr => 'sopo' },
+    { from => 'purchase_order',    to => 'sales_order',       abbr => 'poso' },
   );
   my $from_to = (grep { $_->{from} eq $source->type && $_->{to} eq $destination_type} @from_tos)[0];
   croak("Cannot convert from '" . $source->type . "' to '" . $destination_type . "'") if !$from_to;
+
+  my $is_abbr_any = sub {
+    # foreach my $abbr (@_) {
+    #   croak "no such abbreviation: '$abbr'" if !grep { $_->{abbr} eq $abbr } @from_tos;
+    # }
+    any { $from_to->{abbr} eq $_ } @_;
+  };
 
   my ($item_parent_id_column, $item_parent_column);
 
@@ -235,6 +244,21 @@ sub new_from {
                delivered => 0,
                transdate => DateTime->today_local,
             );
+
+  if ( $is_abbr_any->(qw(sopo poso)) ) {
+    $args{ordnumber} = undef;
+    $args{reqdate}   = DateTime->today_local->next_workday();
+    $args{employee}  = SL::DB::Manager::Employee->current;
+  }
+  if ( $is_abbr_any->(qw(sopo)) ) {
+    $args{customer_id}      = undef;
+    $args{salesman_id}      = undef;
+    $args{payment_id}       = undef;
+    $args{delivery_term_id} = undef;
+  }
+  if ( $is_abbr_any->(qw(poso)) ) {
+    $args{vendor_id} = undef;
+  }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
   # record and not to the customer/vendor) are only linked from
@@ -269,6 +293,13 @@ sub new_from {
                                                      )),
                                                  custom_variables => \@custom_variables,
     );
+    if ( $is_abbr_any->(qw(sopo)) ) {
+      $current_oe_item->sellprice($source_item->lastcost);
+      $current_oe_item->discount(0);
+    }
+    if ( $is_abbr_any->(qw(poso)) ) {
+      $current_oe_item->lastcost($source_item->sellprice);
+    }
     $current_oe_item->{"converted_from_orderitems_id"} = $_->{id} if ref($item_parent) eq 'SL::DB::Order';
     $current_oe_item;
   } @{ $items };

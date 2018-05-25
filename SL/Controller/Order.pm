@@ -1367,6 +1367,8 @@ sub _workflow_sales_or_purchase_order {
 
   my $destination_type = $::form->{type} eq _sales_quotation_type()   ? _sales_order_type()
                        : $::form->{type} eq _request_quotation_type() ? _purchase_order_type()
+                       : $::form->{type} eq _purchase_order_type()    ? _sales_order_type()
+                       : $::form->{type} eq _sales_order_type()       ? _purchase_order_type()
                        : '';
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
@@ -1379,7 +1381,8 @@ sub _workflow_sales_or_purchase_order {
 
   # change form type
   $::form->{type} = $destination_type;
-  $self->init_type;
+  $self->type($self->init_type);
+  $self->cv  ($self->init_cv);
   $self->_check_auth;
 
   $self->_recalc();
@@ -1498,13 +1501,13 @@ sub _setup_edit_action_bar {
         action => [
           t8('Sales Order'),
           submit   => [ '#order_form', { action => "Order/sales_order" } ],
-          only_if  => (any { $self->type eq $_ } (_sales_quotation_type())),
+          only_if  => (any { $self->type eq $_ } (_sales_quotation_type(), _purchase_order_type())),
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Purchase Order'),
           submit   => [ '#order_form', { action => "Order/purchase_order" } ],
-          only_if  => (any { $self->type eq $_ } (_request_quotation_type())),
+          only_if  => (any { $self->type eq $_ } (_sales_order_type(), _request_quotation_type())),
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -1822,6 +1825,8 @@ java script functions
 =item * select units in input row?
 
 =item * custom shipto address
+
+=item * check for direct delivery (workflow sales order -> purchase order)
 
 =item * language / part translations
 

@@ -450,6 +450,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.price_chooser_item_row = function(clicked) {
+    if (!ns.check_cv()) return;
     var row = $(clicked).parents("tbody").first();
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
 
