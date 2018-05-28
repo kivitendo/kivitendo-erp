@@ -1372,6 +1372,11 @@ sub _workflow_sales_or_purchase_order {
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
   $self->{converted_from_oe_id} = delete $::form->{id};
 
+  # set item ids to new fake id, to identify them as new items
+  foreach my $item (@{$self->order->items_sorted}) {
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  }
+
   # change form type
   $::form->{type} = $destination_type;
   $self->init_type;
