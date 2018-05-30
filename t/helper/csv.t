@@ -1,4 +1,4 @@
-use Test::More tests => 86;
+use Test::More tests => 91;
 
 use lib 't';
 use utf8;
@@ -382,6 +382,39 @@ $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'without profile and class works';
 
 #####
+
+$csv = SL::Helper::Csv->new(
+  file => \<<EOL,
+description;partnumber
+Kaffee;1
+
+;
+ ;
+Tee;3
+EOL
+# Note: The second last line is not empty. The description is a space character.
+);
+ok $csv->parse;
+is_deeply $csv->get_data, [ {partnumber => 1, description => 'Kaffee'}, {partnumber => '', description => ' '}, {partnumber => 3, description => 'Tee'} ], 'ignoring empty lines works (header in csv file)';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file => \<<EOL,
+Kaffee;1
+
+;
+ ;
+Tee;3
+EOL
+# Note: The second last line is not empty. The description is a space character.
+  header => ['description', 'partnumber'],
+);
+ok $csv->parse;
+is_deeply $csv->get_data, [ {partnumber => 1, description => 'Kaffee'}, {partnumber => '', description => ' '}, {partnumber => 3, description => 'Tee'} ], 'ignoring empty lines works';
+
+#####
+
 $csv = SL::Helper::Csv->new(
   file    => \"Kaffee;1,50\nSchoke;0,89\n",
   header  => [
@@ -723,6 +756,36 @@ is_deeply $csv->get_data,
     [ { datatype => 'P', Afoo => 'Kaffee', Abar => 'lecker' }, { datatype => 'C', Bfoo => 'Meier', Bbar => 'froh' } ],
     'multiplex: empty path still gets parsed into data (strict profile)';
 ok $csv->get_objects->[0], 'multiplex: empty path gets ignored in object creation (strict profile)';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file => \<<EOL,
+datatype;customernumber;name
+datatype;description;partnumber
+C;1000;Meier
+P;Kaffee;1
+
+;;
+C
+P; ;
+C;2000;Meister
+P;Tee;3
+EOL
+  ignore_unknown_columns => 1,
+  profile => [ { class => 'SL::DB::Customer', row_ident => 'C' },
+               { class => 'SL::DB::Part',     row_ident => 'P' },
+  ],
+);
+$csv->parse;
+is_deeply $csv->get_data, [
+  {datatype => 'C', customernumber => 1000, name => 'Meier'},
+  {datatype => 'P', partnumber => 1, description => 'Kaffee'},
+  {datatype => 'C', customernumber => undef, name => undef},
+  {datatype => 'P', partnumber => '', description => ' '},
+  {datatype => 'C', customernumber => 2000, name => 'Meister'},
+  {datatype => 'P', partnumber => '3', description => 'Tee'},
+], 'ignoring empty lines works (multiplex data)';
 
 #####
 

@@ -239,6 +239,10 @@ sub _check_multiplex_datatype_position {
   }
 }
 
+sub _is_empty_row {
+  return !!all { !$_ } @{$_[0]};
+}
+
 sub _parse_data {
   my ($self, %params) = @_;
   my (@data, @errors);
@@ -246,6 +250,7 @@ sub _parse_data {
   while (1) {
     my $row = $self->_csv->getline($self->_io);
     if ($row) {
+      next if _is_empty_row($row);
       my $header = $self->_header_by_row($row);
       if (!$header) {
         push @errors, [
