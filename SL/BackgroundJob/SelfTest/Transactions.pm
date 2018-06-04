@@ -479,7 +479,7 @@ sub check_ap_acc_trans_amount {
   my $query = qq|
           select sum(ac.amount) as amount, ap.invnumber,ap.netamount
           from acc_trans ac left join ap on (ac.trans_id = ap.id)
-          WHERE ac.chart_link like '%AP_amount%'
+          WHERE ac.chart_link like '%AP_amount%' OR ac.chart_link like '%IC_cogs%'
           AND ac.transdate >= ? AND ac.transdate <= ?
           group by invnumber,trans_id,netamount having sum(ac.amount) <> ap.netamount*-1|;
 
