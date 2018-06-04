@@ -63,8 +63,9 @@ sub run {
              $self->aggreg->failed,
              $self->aggreg->todo_passed,
   );
-
-  if (!$self->aggreg->all_passed || $self->config->{send_email_on_success}) {
+  # if (!$self->aggreg->all_passed || $self->config->{send_email_on_success}) {
+  # all_passed is not set or calculated (anymore). it is safe to check only for probs or errors
+  if ($self->aggreg->has_problems || $self->aggreg->has_errors || $self->config->{send_email_on_success}) {
     $self->_send_email;
   }
 
