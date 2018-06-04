@@ -461,7 +461,7 @@ sub check_skonto_configuration {
   # my $transactions = $self->transactions;
   foreach my $transaction (@{ $self->transactions }) {
     # find all transactions with an AR_amount or AP_amount link
-    my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->taxkey]);
+    my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->taxkey, id => $transaction->tax_id ]);
     croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
 
     $transaction->{chartlinks} = { map { $_ => 1 } split(m/:/, $transaction->chart_link) };
@@ -542,7 +542,8 @@ sub skonto_charts {
         # $reference_ARAP_amount += $transaction->{amount} * $mult;
 
         # quick hack that works around problem of non-unique tax keys in SKR04
-        my $tax = SL::DB::Manager::Tax->get_first( where => [taxkey => $transaction->{taxkey}]);
+        # ? use tax_id in acc_trans
+        my $tax = SL::DB::Manager::Tax->get_first( where => [id => $transaction->{tax_id}]);
         croak "no tax for taxkey " . $transaction->{taxkey} unless ref $tax;
 
         if ( $is_sales ) {
