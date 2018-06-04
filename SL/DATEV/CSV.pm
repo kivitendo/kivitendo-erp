@@ -56,7 +56,7 @@ my @kivitendo_to_datev = (
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
-                              sv_header_name => t8('Base Transaction Value'),
+                              csv_header_name => t8('Base Transaction Value'),
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
