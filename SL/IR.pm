@@ -60,18 +60,19 @@ use constant PCLASS_NOTFORSALE     =>   1;
 use constant PCLASS_NOTFORPURCHASE =>   2;
 
 sub post_invoice {
-  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
   $main::lxdebug->enter_sub();
 
-  my $rc = SL::DB->client->with_transaction(\&_post_invoice, $self, $myconfig, $form, $provided_dbh, $payments_only);
+  my $rc = SL::DB->client->with_transaction(\&_post_invoice, $self, $myconfig, $form, $provided_dbh, %params);
 
   $::lxdebug->leave_sub;
   return $rc;
 }
 
 sub _post_invoice {
-  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
 
+  my $payments_only = $params{payments_only};
   my $dbh = $provided_dbh || SL::DB->client->dbh;
   my $restricter = SL::HTML::Restrict->create;
 
@@ -591,6 +592,8 @@ SQL
 
   $form->{amount}{ $form->{id} }{ $form->{AP} } = $form->{paid} if $form->{amount}{$form->{id}}{$form->{AP}} == 0;
 
+  my %already_cleared = %{ $params{already_cleared} // {} };
+
   # record payments and offsetting AP
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{"acc_trans_id_$i"}
@@ -607,9 +610,16 @@ SQL
 
     $amount = $form->round_amount($form->{"paid_$i"} * $form->{exchangerate} + $paiddiff, 2) * -1;
 
+    my $new_cleared = !$form->{"acc_trans_id_$i"}                                                  ? 'f'
+                    : !$already_cleared{$form->{"acc_trans_id_$i"}}                                ? 'f'
+                    : $already_cleared{$form->{"acc_trans_id_$i"}}->{amount} != $form->{"paid_$i"} ? 'f'
+                    : $already_cleared{$form->{"acc_trans_id_$i"}}->{accno}  != $accno             ? 'f'
+                    : $already_cleared{$form->{"acc_trans_id_$i"}}->{cleared}                      ? 't'
+                    :                                                                                'f';
+
     # record AP
     if ($form->{amount}{ $form->{id} }{ $form->{AP} } != 0) {
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, cleared, tax_id, chart_link)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                           (SELECT taxkey_id
                            FROM taxkeys
@@ -618,7 +628,7 @@ SQL
                                             WHERE accno = ?)
                            AND startdate <= ?
                            ORDER BY startdate DESC LIMIT 1),
-                          ?,
+                          ?, ?,
                           (SELECT tax_id
                            FROM taxkeys
                            WHERE chart_id= (SELECT id
@@ -628,7 +638,7 @@ SQL
                            ORDER BY startdate DESC LIMIT 1),
                           (SELECT link FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{id}), $form->{AP}, $amount,
-                 $form->{"datepaid_$i"}, $form->{AP}, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AP}, conv_date($form->{"datepaid_$i"}), $form->{AP});
+                 $form->{"datepaid_$i"}, $form->{AP}, conv_date($form->{"datepaid_$i"}), $project_id, $new_cleared, $form->{AP}, conv_date($form->{"datepaid_$i"}), $form->{AP});
       do_query($form, $dbh, $query, @values);
     }
 
@@ -636,7 +646,7 @@ SQL
     my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->current_date($myconfig));
 
     $query =
-      qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, taxkey, project_id, tax_id, chart_link)
+      qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, taxkey, project_id, cleared, tax_id, chart_link)
                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?,
                 (SELECT taxkey_id
                  FROM taxkeys
@@ -644,7 +654,7 @@ SQL
                                   FROM chart WHERE accno = ?)
                  AND startdate <= ?
                  ORDER BY startdate DESC LIMIT 1),
-                ?,
+                ?, ?,
                 (SELECT tax_id
                  FROM taxkeys
                  WHERE chart_id= (SELECT id
@@ -653,7 +663,7 @@ SQL
                  ORDER BY startdate DESC LIMIT 1),
                 (SELECT link FROM chart WHERE accno = ?))|;
     @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"},
-               $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, conv_date($form->{"datepaid_$i"}), $project_id, $accno, conv_date($form->{"datepaid_$i"}), $accno);
+               $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, conv_date($form->{"datepaid_$i"}), $project_id, $new_cleared, $accno, conv_date($form->{"datepaid_$i"}), $accno);
     do_query($form, $dbh, $query, @values);
 
     $exchangerate = 0;
@@ -1548,6 +1558,15 @@ sub _post_payment {
 
   $old_form = save_form();
 
+  $query = <<SQL;
+    SELECT at.acc_trans_id, at.amount, at.cleared, c.accno
+    FROM acc_trans at
+    LEFT JOIN chart c ON (at.chart_id = c.id)
+    WHERE (at.trans_id = ?)
+SQL
+
+  my %already_cleared = selectall_as_map($form, $dbh, $query, 'acc_trans_id', [ qw(amount cleared accno) ], $form->{id});
+
   # Delete all entries in acc_trans from prior payments.
   if (SL::DB::Default->get->payments_changeable != 0) {
     $self->_delete_payments($form, $dbh);
@@ -1594,7 +1613,7 @@ sub _post_payment {
   ($form->{AP}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
 
   # Post the new payments.
-  $self->post_invoice($myconfig, $form, $dbh, 1);
+  $self->post_invoice($myconfig, $form, $dbh, payments_only => 1, already_cleared => \%already_cleared);
 
   restore_form($old_form);
 
