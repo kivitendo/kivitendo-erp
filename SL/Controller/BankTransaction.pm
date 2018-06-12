@@ -505,17 +505,22 @@ sub save_invoices {
       $count += scalar( @{$invoice_ids} );
     }
   }
+  my $max_count = $count;
   foreach (@{ $self->problems }) {
     $count-- if $_->{result} eq 'error';
   }
-  return $count;
+  return ($count, $max_count);
 }
 
 sub action_save_invoices {
   my ($self) = @_;
-  my $count = $self->save_invoices();
+  my ($success_count, $max_count) = $self->save_invoices();
 
-  flash('ok', t8('#1 invoice(s) saved.', $count));
+  if ($success_count == $max_count) {
+    flash('ok', t8('#1 invoice(s) saved.', $success_count));
+  } else {
+    flash('error', t8('At least #1 invoice(s) not saved', $max_count - $success_count));
+  }
 
   $self->action_list();
 }

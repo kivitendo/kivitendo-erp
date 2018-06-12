@@ -344,6 +344,7 @@ $self->{texts} = {
   'Assortment items'            => 'Sortimentsartikel',
   'Assume Tax Consultant Data in Tax Computation?' => 'Beraterdaten in UStVA übernehmen?',
   'At least'                    => 'Mindestens',
+  'At least #1 invoice(s) not saved' => 'Mindestens #1 Rechnung(en) nicht verarbeitet',
   'At least one Perl module that kivitendo ERP requires for running is not installed on your system.' => 'Mindestes ein Perl-Modul, das kivitendo ERP zur Ausführung benötigt, ist auf Ihrem System nicht installiert.',
   'At least one of the columns #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (depending on the target table) is required for matching the entry to an existing customer or vendor.' => 'Mindestens eine der Spalten #1, customer, customernumber, customer_gln, vendor, vendornumber, vendor_gln (von Zieltabelle abhängig) wird benötigt, um einen Eintrag einem bestehenden Kunden bzw. Lieferanten zuzuordnen.',
   'At most'                     => 'Höchstens',
