@@ -48,17 +48,19 @@ use Data::Dumper;
 use strict;
 
 sub post_transaction {
-  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
   $main::lxdebug->enter_sub();
 
-  my $rc = SL::DB->client->with_transaction(\&_post_transaction, $self, $myconfig, $form, $provided_dbh, $payments_only);
+  my $rc = SL::DB->client->with_transaction(\&_post_transaction, $self, $myconfig, $form, $provided_dbh, %params);
 
   $::lxdebug->leave_sub;
   return $rc;
 }
 
 sub _post_transaction {
-  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+
+  my $payments_only = $params{payments_only};
   my $dbh = $provided_dbh || SL::DB->client->dbh;
 
   my ($null, $taxrate, $amount);
@@ -210,6 +212,8 @@ sub _post_transaction {
     $form->{payables} = $form->{invpaid};
   }
 
+  my %already_cleared = %{ $params{already_cleared} // {} };
+
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
 
@@ -243,10 +247,18 @@ sub _post_transaction {
       $amount =
         $form->round_amount($form->{"paid_$i"} * $form->{exchangerate} * -1,
                             2);
+
+      my $new_cleared = !$form->{"acc_trans_id_$i"}                                                             ? 'f'
+                      : !$already_cleared{$form->{"acc_trans_id_$i"}}                                           ? 'f'
+                      : $already_cleared{$form->{"acc_trans_id_$i"}}->{amount} != $amount * -1                  ? 'f'
+                      : $already_cleared{$form->{"acc_trans_id_$i"}}->{accno}  != $form->{"AP_paid_account_$i"} ? 'f'
+                      : $already_cleared{$form->{"acc_trans_id_$i"}}->{cleared}                                 ? 't'
+                      :                                                                                           'f';
+
       if ($form->{payables}) {
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link) | .
-          qq|VALUES (?, ?, ?, ?, ?, | .
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, cleared, taxkey, tax_id, chart_link) | .
+          qq|VALUES (?, ?, ?, ?, ?, ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE id = ?),| .
           qq|        (SELECT tax_id| .
           qq|         FROM taxkeys| .
@@ -255,7 +267,7 @@ sub _post_transaction {
           qq|         ORDER BY startdate DESC LIMIT 1),| .
           qq|        (SELECT c.link FROM chart c WHERE c.id = ?))|;
         @values = ($form->{id}, $form->{AP_chart_id}, $amount,
-                   conv_date($form->{"datepaid_$i"}), $project_id,
+                   conv_date($form->{"datepaid_$i"}), $project_id, $new_cleared,
                    $form->{AP_chart_id}, $form->{AP_chart_id}, conv_date($form->{"datepaid_$i"}),
                    $form->{AP_chart_id});
         do_query($form, $dbh, $query, @values);
@@ -265,8 +277,8 @@ sub _post_transaction {
       # add payment
       my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->current_date($myconfig));
       $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey, tax_id, chart_link) | .
-        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, | .
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, cleared, taxkey, tax_id, chart_link) | .
+        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, ?, | .
         qq|        (SELECT taxkey_id FROM chart WHERE accno = ?), | .
         qq|        (SELECT tax_id| .
         qq|         FROM taxkeys| .
@@ -278,7 +290,7 @@ sub _post_transaction {
         qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
       @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $form->{"paid_$i"},
                  conv_date($form->{"datepaid_$i"}), $gldate, $form->{"source_$i"},
-                 $form->{"memo_$i"}, $project_id, $form->{"AP_paid_account_$i"},
+                 $form->{"memo_$i"}, $project_id, $new_cleared, $form->{"AP_paid_account_$i"},
                  $form->{"AP_paid_account_$i"}, conv_date($form->{"datepaid_$i"}),
                  $form->{"AP_paid_account_$i"});
       do_query($form, $dbh, $query, @values);
@@ -615,6 +627,15 @@ sub _post_payment {
 
   $old_form = save_form();
 
+  $query = <<SQL;
+    SELECT at.acc_trans_id, at.amount, at.cleared, c.accno
+    FROM acc_trans at
+    LEFT JOIN chart c ON (at.chart_id = c.id)
+    WHERE (at.trans_id = ?)
+SQL
+
+  my %already_cleared = selectall_as_map($form, $dbh, $query, 'acc_trans_id', [ qw(amount cleared accno) ], $form->{id});
+
   # Delete all entries in acc_trans from prior payments.
   if (SL::DB::Default->get->payments_changeable != 0) {
     $self->_delete_payments($form, $dbh);
@@ -654,7 +675,7 @@ sub _post_payment {
   ($form->{AP_chart_id}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
 
   # Post the new payments.
-  $self->post_transaction($myconfig, $form, $dbh, 1);
+  $self->post_transaction($myconfig, $form, $dbh, payments_only => 1, already_cleared => \%already_cleared);
 
   restore_form($old_form);
 
