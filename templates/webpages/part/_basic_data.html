@@ -151,7 +151,7 @@
           [% IF SELF.all_warehouses.size %]
           <tr>
            <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
-           <td>[% L.select_tag('part.warehouse_id', SELF.all_warehouses, default=SELF.part.warehouse.id, title_key='description', with_empty=>1) %]
+           <td>[% L.select_tag('part.warehouse_id', SELF.all_warehouses, default=SELF.part.warehouse.id, title_key='description', with_empty=1) %]
            </td>
           </tr>
           [% END %]
