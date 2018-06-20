@@ -1,4 +1,4 @@
-use Test::More tests => 138;
+use Test::More tests => 176;
 
 use strict;
 
@@ -10,6 +10,7 @@ use Support::TestSetup;
 use Test::Exception;
 use List::Util qw(sum);
 
+use SL::DB::AccTransaction;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Customer;
@@ -81,7 +82,8 @@ test_neg_ap_transaction(invoice => 1);
 test_ap_payment_transaction();
 test_ap_payment_part_transaction();
 test_neg_sales_invoice();
-
+test_two_neg_ap_transaction();
+test_one_inv_and_two_invoices_with_skonto_exact();
 test_bt_rule1();
 test_sepa_export();
 
@@ -316,7 +318,53 @@ sub test_two_invoices {
   is($ar_transaction_2->closed , 1           , "$testname: salesinv_2 is closed");
   is($bt->invoice_amount       , '238.00000' , "$testname: bt invoice amount was assigned");
 
-};
+}
+
+sub test_one_inv_and_two_invoices_with_skonto_exact {
+
+  my $testname = 'test_two_invoices_with_skonto_exact';
+
+  my $ar_transaction_1 = test_ar_transaction(invnumber => 'salesinv 1 skonto',
+                                             payment_id => $payment_terms->id,
+                                            );
+  my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv 2 skonto',
+                                             payment_id => $payment_terms->id,
+                                            );
+  my $ar_transaction_3 = test_ar_transaction(invnumber => 'salesinv 3 no skonto');
+
+
+
+  my $bt = create_bank_transaction(record        => $ar_transaction_1,
+                                   bank_chart_id => $bank->id,
+                                   amount        => $ar_transaction_1->amount_less_skonto * 2 + $ar_transaction_3->amount
+                                  ) or die "Couldn't create bank_transaction";
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction_1->id, $ar_transaction_3->id, $ar_transaction_2->id]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_skonto_pt', 'without_skonto', 'with_skonto_pt' ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction_1->load;
+  $ar_transaction_2->load;
+  $ar_transaction_3->load;
+  my $skonto_1 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ar_transaction_1->id, chart_id => 162);
+  my $skonto_2 = SL::DB::Manager::AccTransaction->find_by(trans_id => $ar_transaction_2->id, chart_id => 162);
+  $bt->load;
+  is($skonto_1->amount   , '-5.95000' , "$testname: salesinv 1 skonto was booked");
+  is($skonto_2->amount   , '-5.95000' , "$testname: salesinv 2 skonto was booked");
+  is($ar_transaction_1->paid   , '119.00000' , "$testname: salesinv 1 was paid");
+  is($ar_transaction_2->paid   , '119.00000' , "$testname: salesinv 2 was paid");
+  is($ar_transaction_3->paid   , '119.00000' , "$testname: salesinv 3 was paid");
+  is($ar_transaction_1->closed , 1           , "$testname: salesinv 1 skonto is closed");
+  is($ar_transaction_2->closed , 1           , "$testname: salesinv 2 skonto is closed");
+  is($ar_transaction_3->closed , 1           , "$testname: salesinv 2 skonto is closed");
+  is($bt->invoice_amount     , '345.10000' , "$testname: bt invoice amount was assigned");
+
+}
 
 sub test_overpayment {
 
@@ -500,6 +548,92 @@ sub test_neg_ap_transaction {
   is($bt->invoice_amount, '23.80000', "$testname: bt invoice amount for ap was assigned");
 
   return $invoice;
+};
+sub test_two_neg_ap_transaction {
+  my $testname='test_two_neg_ap_transaction';
+  my $netamount = -20;
+  my $amount    = $::form->round_amount($netamount * 1.19,2);
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+    invoice      =>  0,
+    invnumber    => 'test_neg_ap_transaction',
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_neg_ap_transaction',
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->netamount, -20  , "$testname: netamount ok");
+  is($invoice->amount   , -23.8, "$testname: amount ok");
+
+  my $netamount_two = -1.14;
+  my $amount_two    = $::form->round_amount($netamount_two * 1.19,2);
+  my $invoice_two   = SL::DB::PurchaseInvoice->new(
+    invoice      => 0,
+    invnumber    => 'test_neg_ap_transaction_two',
+    amount       => $amount_two,
+    netamount    => $netamount_two,
+    transdate    => $transdate1,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_neg_ap_transaction_two',
+  );
+  $invoice_two->add_ap_amount_row(
+    amount     => $invoice_two->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice_two->create_ap_row(chart => $ap_chart);
+  $invoice_two->save;
+
+  is($invoice_two->netamount, -1.14  , "$testname: netamount ok");
+  is($invoice_two->amount   , -1.36, "$testname: amount ok");
+
+
+  my $bt            = create_bank_transaction(record        => $invoice_two,
+                                              amount        => $invoice_two->amount + $invoice->amount,
+                                              bank_chart_id => $bank->id,
+                                              transdate     => DateTime->today->add(days => 10),
+                                                               );
+  # my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($invoice_two);
+  # is($agreement, 15, "points for negative ap transaction ok");
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id, $invoice_two->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $invoice->load;
+  $invoice_two->load;
+  $bt->load;
+
+  is($invoice->amount   , '-23.80000', "$testname: first inv amount ok");
+  is($invoice->netamount, '-20.00000', "$testname: first inv netamount ok");
+  is($invoice->paid     , '-23.80000', "$testname: first inv paid ok");
+  is($invoice_two->amount   , '-1.36000', "$testname: second inv amount ok");
+  is($invoice_two->netamount, '-1.14000', "$testname: second inv netamount ok");
+  is($invoice_two->paid     , '-1.36000', "$testname: second inv paid ok");
+  is($bt->invoice_amount, '25.16000', "$testname: bt invoice amount for both invoices were assigned");
+
+
+  return ($invoice, $invoice_two);
 };
 
 sub test_ap_payment_transaction {
