@@ -96,6 +96,10 @@ sub calculate_invoice_dates {
   $start_date    = max($start_date, $params{start_date}) if $params{start_date};
   $end_date      = min($end_date,   $params{end_date})   if $params{end_date};
 
+  if ($self->periodicity eq 'o') {
+    return ($cur_date >= $start_date) && ($cur_date <= $end_date) ? ($cur_date) : ();
+  }
+
   my @dates;
 
   while ($cur_date <= $end_date) {
