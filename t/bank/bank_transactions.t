@@ -27,7 +27,7 @@ use SL::Controller::BankTransaction;
 use SL::Dev::ALL qw(:ALL);
 use Data::Dumper;
 
-my ($customer, $vendor, $currency_id, $unit, $tax, $tax7, $tax_9, $payment_terms, $bank_account);
+my ($customer, $vendor, $currency_id, $unit, $tax, $tax0, $tax7, $tax_9, $payment_terms, $bank_account);
 my ($transdate1, $transdate2, $currency);
 my ($ar_chart,$bank,$ar_amount_chart, $ap_chart, $ap_amount_chart);
 my ($ar_transaction, $ap_transaction);
@@ -49,12 +49,14 @@ sub clear_up {
   SL::DB::Manager::Currency->delete_all(where => [ name => 'CUR' ]);
 };
 
+my $bt_controller;
+
 sub save_btcontroller_to_string {
   my $output;
   open(my $outputFH, '>', \$output) or die;
   my $oldFH = select $outputFH;
 
-  my $bt_controller = SL::Controller::BankTransaction->new;
+  $bt_controller = SL::Controller::BankTransaction->new;
   $bt_controller->action_save_invoices;
 
   select $oldFH;
@@ -72,6 +74,7 @@ test1();
 
 test_overpayment_with_partialpayment();
 test_overpayment();
+reset_state();
 test_skonto_exact();
 test_two_invoices();
 test_partial_payment();
@@ -84,9 +87,13 @@ test_ap_payment_part_transaction();
 test_neg_sales_invoice();
 test_two_neg_ap_transaction();
 test_one_inv_and_two_invoices_with_skonto_exact();
-test_bt_rule1();
+test_bt_error();
+
+reset_state();
 test_sepa_export();
 
+reset_state();
+test_bt_rule1();
 reset_state();
 test_two_banktransactions();
 # remove all created data at end of test
@@ -108,7 +115,8 @@ sub reset_state {
 
   $tax             = SL::DB::Manager::Tax->find_by(taxkey => 3, rate => 0.19, %{ $params{tax} }) || croak "No tax";
   $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 2, rate => 0.07)                    || croak "No tax for 7\%";
-  $tax_9           = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, %{ $params{tax} }) || croak "No tax";
+  $tax_9           = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19, %{ $params{tax} }) || croak "No tax for 19\%";
+  $tax0            = SL::DB::Manager::Tax->find_by(taxkey => 0, rate => 0.0)                     || croak "No tax for 0\%";
 
   $currency_id     = $::instance_conf->get_currency_id;
 
@@ -167,7 +175,7 @@ sub test_ar_transaction {
       amount       => $amount,
       netamount    => $netamount,
       transdate    => $transdate1,
-      taxincluded  => 0,
+      taxincluded  => $params{taxincluded } || 0,
       customer_id  => $customer->id,
       taxzone_id   => $customer->taxzone_id,
       currency_id  => $currency_id,
@@ -178,7 +186,7 @@ sub test_ar_transaction {
   $invoice->add_ar_amount_row(
     amount => $invoice->netamount,
     chart  => $ar_amount_chart,
-    tax_id => $tax->id,
+    tax_id => $params{tax_id} || $tax->id,
   );
 
   $invoice->create_ar_row(chart => $ar_chart);
@@ -218,7 +226,7 @@ sub test_ap_transaction {
   $invoice->add_ap_amount_row(
     amount     => $invoice->netamount,
     chart      => $ap_amount_chart,
-    tax_id     => $tax_9->id,
+    tax_id     => $params{tax_id} || $tax_9->id,
   );
 
   $invoice->create_ap_row(chart => $ap_chart);
@@ -286,6 +294,49 @@ sub test_skonto_exact {
   is($ar_transaction->paid   , '119.00000' , "$testname: salesinv skonto was paid");
   is($ar_transaction->closed , 1           , "$testname: salesinv skonto is closed");
   is($bt->invoice_amount     , '113.05000' , "$testname: bt invoice amount was assigned");
+
+};
+
+sub test_bt_error {
+
+  my $testname = 'test_free_skonto';
+
+  $ar_transaction = test_ar_transaction(invnumber   => 'salesinv skonto',
+                                        payment_id  => $payment_terms->id,
+                                        taxincluded => 0,
+                                        amount      => 168.58 / 1.19,
+                                       );
+
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   amount        => 158.58,
+                                  ) or die "Couldn't create bank_transaction";
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_free_skonto' ]
+  };
+
+  is($ar_transaction->paid   , '0' , "$testname: salesinv is not paid");
+
+  # generate an error for testing rollback mechanism
+  my $saved_skonto_sales_chart_id = $tax->skonto_sales_chart_id;
+  $tax->skonto_sales_chart_id(undef);
+  $tax->save;
+
+  save_btcontroller_to_string();
+  my @bt_errors = @{ $bt_controller->problems };
+  is(substr($bt_errors[0]->{message},0,38), 'Kein Skontokonto für Steuerschlüssel 3', "$testname: Fehlermeldung ok");
+  # set original value
+  $tax->skonto_sales_chart_id($saved_skonto_sales_chart_id);
+  $tax->save;
+
+  $ar_transaction->load;
+  $bt->load;
+  is($ar_transaction->paid   , '0.00000' , "$testname: salesinv was not paid");
+  is($bt->invoice_amount     , '0.00000' , "$testname: bt invoice amount was not assigned");
 
 };
 

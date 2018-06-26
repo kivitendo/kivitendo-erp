@@ -740,6 +740,9 @@ sub save_single_bank_transaction {
 
     # Rollback Fehler nicht weiterreichen
     # die if $error;
+    # aber einen rollback von hand
+    $::lxdebug->message(LXDebug->DEBUG2(),"finish worker with ". ($error ? $error->{result} : '-'));
+    $data{bank_transaction}->db->dbh->rollback if $error && $error->{result} eq 'error';
   });
 
   return grep { $_ } ($error, @warnings);
