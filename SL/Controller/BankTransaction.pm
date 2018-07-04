@@ -185,7 +185,8 @@ sub action_list {
       ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice,
         sepa_export_items => $all_open_sepa_export_items,
       );
-      $open_invoice->{realamount} = $::form->format_sellprice($open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1));
+      $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,
+                                      $open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1), 2);
     }
 
     my $agreement = 15;
