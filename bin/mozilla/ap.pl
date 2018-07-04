@@ -307,7 +307,6 @@ sub create_links {
 
   $form->{$_}        = $saved{$_} for keys %saved;
   $form->{rowcount}  = 1;
-  $form->{AP_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AP} ? $form->{acc_trans}->{AP}->[0]->{chart_id} : $form->{AP_links}->{AP}->[0]->{chart_id};
   $form->{AP_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AP} ? $form->{acc_trans}->{AP}->[0]->{chart_id} : $::instance_conf->get_ap_chart_id || $form->{AP_links}->{AP}->[0]->{chart_id};
 
   # build the popup menus
