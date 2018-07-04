@@ -344,6 +344,7 @@ sub handle_order {
     foreach (qw(payment_id delivery_term_id language_id taxzone_id currency_id)) {
       $object->$_($vc_obj->$_) unless $object->$_;
     }
+    $object->intnotes($vc_obj->notes) unless $object->intnotes;
   }
 
   $self->handle_salesman($entry);
