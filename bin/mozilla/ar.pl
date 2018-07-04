@@ -307,7 +307,7 @@ sub create_links {
 
   $form->{$_}          = $saved{$_} for keys %saved;
   $form->{rowcount}    = 1;
-  $form->{AR_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AR} ? $form->{acc_trans}->{AR}->[0]->{chart_id} : $form->{AR_links}->{AR}->[0]->{chart_id};
+  $form->{AR_chart_id} = $form->{acc_trans} && $form->{acc_trans}->{AR} ? $form->{acc_trans}->{AR}->[0]->{chart_id} : $::instance_conf->get_ar_chart_id || $form->{AR_links}->{AR}->[0]->{chart_id};
 
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
