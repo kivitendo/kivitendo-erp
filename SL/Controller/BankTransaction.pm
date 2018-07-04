@@ -28,7 +28,6 @@ use SL::DBUtils qw(like);
 
 use List::UtilsBy qw(partition_by);
 use List::MoreUtils qw(any);
-use List::MoreUtils qw(any none);
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic
@@ -129,7 +128,8 @@ sub action_list {
     $open_invoice->{skonto_type} = 'without_skonto';
     foreach (@{ $sepa_export_items_by_id{ $open_invoice->id } || [] }) {
       my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
-      $open_invoice->{realamount}  = $::form->format_sellprice($open_invoice->amount*$factor);
+      $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
+
       $open_invoice->{skonto_type} = $_->payment_type;
       $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
       $sepa_exports{$_->sepa_export_id}->{count}++;
