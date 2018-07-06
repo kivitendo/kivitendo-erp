@@ -629,7 +629,7 @@ sub action_show_customer_vendor_details_dialog {
   $details{language}            = $cv->language_obj->description  if $cv->language_obj;
   $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
-  $details{pricegroup}          = $cv->pricegroup->pricegroup     if $cv->pricegroup;
+  $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
 
   foreach my $entry (@{ $cv->shipto }) {
     push @{ $details{SHIPTO} },   { map { $_ => $entry->$_ } @{$entry->meta->columns} };
