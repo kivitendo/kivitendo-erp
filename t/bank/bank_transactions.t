@@ -946,7 +946,7 @@ sub test_two_banktransactions {
   # Jetzt gibt es zwei Kontobewegungen mit gleichen Punkten für eine Rechnung.
   # hier darf es auch keine Proposals geben
 
-  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  ( $bt_transactions, $proposals ) = $bt_controller->action_list;
 
   is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
   is(scalar(@$proposals)         , 0  , "$testname: no proposals");
@@ -956,7 +956,7 @@ sub test_two_banktransactions {
   # hier darf es auch keine Proposals geben
   $bt3->update_attributes( purpose => "fuer Rechnung salesinv10000");
 
-  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  ( $bt_transactions, $proposals ) = $bt_controller->action_list;
 
   is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
   is(scalar(@$proposals)         , 1  , "$testname: one proposal");
