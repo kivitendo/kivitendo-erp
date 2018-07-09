@@ -603,8 +603,10 @@ sub _save_history {
                  : $self->controller->{type} eq 'ar_transactions'   ? 'invnumber_' . $object->invnumber
                  : '';
 
-    my $what_done = $self->controller->{type} eq 'orders' ? 'sales_order'
-                  : '';
+    my $what_done = '';
+    if ($self->controller->{type} eq 'orders') {
+      $what_done = $object->customer_id ? 'sales_order' : 'purchase_order';
+    }
 
     SL::DB::History->new(
       trans_id    => $object->id,
