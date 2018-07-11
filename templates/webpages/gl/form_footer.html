@@ -20,6 +20,7 @@
 
 <hr size="3" noshade>
 <input name=callback type=hidden value="[% callback %]">
+<input name=bt_id    type=hidden value="[% bt_id %]">
 
 [%- IF id && follow_ups.size %]
   <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size , follow_ups_due) %]</p>

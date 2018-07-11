@@ -262,12 +262,6 @@ sub action_create_invoice {
 
   $self->transaction(SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id}));
 
-  # This was dead code: We compared vendor.account_name with bank_transaction.iban.
-  # This did never match (Kontonummer != IBAN). It's kivis 09/02 (2013) day
-  # If refactored/improved, also consider that vendor.iban should be normalized
-  # user may like to input strings like: 'AT 3333 3333 2222 1111' -> can be checked strictly
-  # at Vendor code because we need the correct data for all sepa exports.
-
   my $vendor_of_transaction = SL::DB::Manager::Vendor->find_by(iban => $self->transaction->{remote_account_number});
   my $use_vendor_filter     = $self->transaction->{remote_account_number} && $vendor_of_transaction;
 
@@ -299,6 +293,7 @@ sub action_create_invoice {
     TEMPLATES_GL => $use_vendor_filter && @{ $templates_ap } ? undef : $templates_gl,
     TEMPLATES_AP => $templates_ap,
     vendor_name  => $use_vendor_filter && @{ $templates_ap } ? $vendor_of_transaction->name : undef,
+    BT_ID        => $::form->{bt_id},
   );
 }
 
@@ -900,7 +895,7 @@ sub load_ap_record_template_url {
 }
 
 sub load_gl_record_template_url {
-  my ($self, $template) = @_;
+  my ($self, $template, $bt_id) = @_;
 
   return $self->url_for(
     controller                           => 'gl.pl',
@@ -909,6 +904,7 @@ sub load_gl_record_template_url {
     'form_defaults.amount_1'             => abs($self->transaction->amount), # always positive
     'form_defaults.transdate'            => $self->transaction->transdate_as_date,
     'form_defaults.callback'             => $self->callback,
+    'form_defaults.bt_id'                => $self->transaction->id,
   );
 }
 
