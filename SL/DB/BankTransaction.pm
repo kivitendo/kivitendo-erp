@@ -42,6 +42,7 @@ sub linked_invoices {
   foreach my $record_link (@{ $record_links }) {
     push @linked_invoices, SL::DB::Manager::Invoice->find_by(id => $record_link->to_id)->invnumber         if $record_link->to_table eq 'ar';
     push @linked_invoices, SL::DB::Manager::PurchaseInvoice->find_by(id => $record_link->to_id)->invnumber if $record_link->to_table eq 'ap';
+    push @linked_invoices, SL::DB::Manager::GLTransaction->find_by(id => $record_link->to_id)->reference   if $record_link->to_table eq 'gl';
   }
 
   return [ @linked_invoices ];
