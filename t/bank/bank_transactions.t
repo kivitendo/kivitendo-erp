@@ -1,4 +1,4 @@
-use Test::More tests => 197;
+use Test::More tests => 205;
 
 use strict;
 
@@ -299,7 +299,9 @@ sub test_skonto_exact {
 
 sub test_bt_error {
 
-  my $testname = 'test_free_skonto';
+  my $testname = 'test_rollback_error';
+  # without type with_free_skonto the helper function (Payment.pm) looks ugly but not
+  # breakable
 
   $ar_transaction = test_ar_transaction(invnumber   => 'salesinv skonto',
                                         payment_id  => $payment_terms->id,
@@ -309,14 +311,13 @@ sub test_bt_error {
 
   my $bt = create_bank_transaction(record        => $ar_transaction,
                                    bank_chart_id => $bank->id,
-                                   amount        => 158.58,
+                                   amount        => 160.15,
                                   ) or die "Couldn't create bank_transaction";
-
   $::form->{invoice_ids} = {
     $bt->id => [ $ar_transaction->id ]
   };
   $::form->{invoice_skontos} = {
-    $bt->id => [ 'with_free_skonto' ]
+    $bt->id => [ 'with_skonto_pt' ]
   };
 
   is($ar_transaction->paid   , '0' , "$testname: salesinv is not paid");
