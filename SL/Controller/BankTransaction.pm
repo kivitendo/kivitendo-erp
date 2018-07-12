@@ -555,11 +555,20 @@ sub save_single_bank_transaction {
     };
   }
 
+  my $bank_transaction = $data{bank_transaction};
+
+  # see pod
+  if (@{ $bank_transaction->linked_invoices } || $bank_transaction->invoice_amount != 0) {
+        return {
+          %data,
+          result  => 'error',
+          message => $::locale->text("Bank transaction with id #1 has already been linked to one or more record and/or some amount is already assigned.", $bank_transaction->id),
+        };
+      }
   my (@warnings);
 
   my $worker = sub {
     my $bt_id                 = $data{bank_transaction_id};
-    my $bank_transaction      = $data{bank_transaction};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
     my $payment_received      = $bank_transaction->amount > 0;
