@@ -42,7 +42,7 @@
   <tbody>
    [% FOREACH template = TEMPLATES_GL %]
     <tr class="listrow">
-     <td>[% P.link_tag(SELF.load_gl_record_template_url(template, BT_ID), template.template_name) %]</td>
+     <td>[% P.link_tag(SELF.load_gl_record_template_url(template), template.template_name) %]</td>
      <td>[% HTML.escape(template.reference) %]</td>
      <td>[% HTML.escape(template.employee.name || template.employee.login) %]</td>
      <td>[% HTML.escape(template.itime_as_date) %]</td>

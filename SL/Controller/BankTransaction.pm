@@ -293,7 +293,6 @@ sub action_create_invoice {
     TEMPLATES_GL => $use_vendor_filter && @{ $templates_ap } ? undef : $templates_gl,
     TEMPLATES_AP => $templates_ap,
     vendor_name  => $use_vendor_filter && @{ $templates_ap } ? $vendor_of_transaction->name : undef,
-    BT_ID        => $::form->{bt_id},
   );
 }
 
@@ -881,7 +880,7 @@ sub load_ap_record_template_url {
 }
 
 sub load_gl_record_template_url {
-  my ($self, $template, $bt_id) = @_;
+  my ($self, $template) = @_;
 
   return $self->url_for(
     controller                           => 'gl.pl',
