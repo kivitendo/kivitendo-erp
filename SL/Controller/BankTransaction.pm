@@ -618,15 +618,6 @@ sub save_single_bank_transaction {
 
       $n_invoices++ ;
 
-      # Check if bank_transaction already has a link to the invoice, may only be linked once per invoice
-      # This might be caused by the user reloading a page and resending the form
-      if (_existing_record_link($bank_transaction, $invoice)) {
-        return {
-          %data,
-          result  => 'error',
-          message => $::locale->text("Bank transaction with id #1 has already been linked to #2.", $bank_transaction->id, $invoice->displayable_name),
-        };
-      }
 
       if (!$amount_of_transaction && $invoice->open_amount) {
         return {
@@ -841,20 +832,6 @@ sub prepare_report {
     raw_bottom_info_text  => $self->render('bank_transactions/report_bottom', { output => 0 }),
   );
 }
-
-sub _existing_record_link {
-  my ($bt, $invoice) = @_;
-
-  # check whether a record link from banktransaction $bt already exists to
-  # invoice $invoice, returns 1 if that is the case
-
-  die unless $bt->isa("SL::DB::BankTransaction") && ( $invoice->isa("SL::DB::Invoice") || $invoice->isa("SL::DB::PurchaseInvoice") );
-
-  my $linked_record_to_table = $invoice->is_sales ? 'Invoice' : 'PurchaseInvoice';
-  my $linked_records = $bt->linked_records( direction => 'to', to => $linked_record_to_table, query => [ id => $invoice->id ]  );
-
-  return @$linked_records ? 1 : 0;
-};
 
 sub init_problems { [] }
 
