@@ -1311,56 +1311,66 @@ sub post_transaction {
     $form->error($locale->text('Empty transaction!'));
   }
 
-  if ((my $errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
-    $errno *= -1;
-    my @err;
-    $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
-    $err[2] = $locale->text('Debit and credit out of balance!');
-    $err[3] = $locale->text('Cannot post a transaction without a value!');
 
-    $form->error($err[$errno]);
-  }
-  # saving the history
-  if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|gltransaction_| . $form->{id};
-    $form->{addition} = "POSTED";
-    $form->{what_done} = "gl transaction";
-    $form->save_history;
-  }
-  # /saving the history
+  # start transaction (post + history + (optional) banktrans)
+  SL::DB->client->with_transaction(sub {
 
-  # called from BankTransaction - Assign RecordLink and update BankTransaction
+    if ((my $errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
+      $errno *= -1;
+      my @err;
+      $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
+      $err[2] = $locale->text('Debit and credit out of balance!');
+      $err[3] = $locale->text('Cannot post a transaction without a value!');
+
+      die $err[$errno];
+    }
+    # saving the history
+    if(!exists $form->{addition} && $form->{id} ne "") {
+      $form->{snumbers} = qq|gltransaction_| . $form->{id};
+      $form->{addition} = "POSTED";
+      $form->{what_done} = "gl transaction";
+      $form->save_history;
+    }
+
+    # Case BankTransaction: update RecordLink and BankTransaction
+    if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
+      # set invoice_amount - we only rely on bt_id in form, do all other stuff ui independent
+      # die if we have a unlogic or NYI case and abort the whole transaction
+      my ($bt, $chart_id, $payment);
+      require SL::DB::Manager::BankTransaction;
+
+      $bt = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
+      die "No bank transaction found" unless $bt;
+
+      $chart_id = SL::DB::Manager::BankAccount->find_by(id => $bt->local_bank_account_id)->chart_id;
+      die "no chart id:" unless $chart_id;
+
+      $payment = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $::form->{id},
+                                                                     chart_link => { like => '%AR_paid%' },
+                                                                     chart_id => $chart_id                  ]);
+      die "guru meditation error: Can only assign amount to one bank account booking" if scalar @{ $payment } > 1;
+
+      # credit/debit * -1 matches the sign for bt.amount and bt.invoice_amount
+      $bt->update_attributes(invoice_amount => $bt->invoice_amount + ($payment->[0]->amount * -1));
+
+      # create record_link
+      my @props = (
+        from_table => 'bank_transactions',
+        from_id    => $::form->{bt_id},
+        to_table   => 'gl',
+        to_id      => $::form->{id},
+      );
+      SL::DB::RecordLink->new(@props)->save;
+
+    }
+    1;
+  }) or do { die SL::DB->client->error };
+
   if ($form->{callback} =~ /BankTransaction/ && $form->{bt_id}) {
-    # set invoice_amount - we only rely on bt_id in form, do all other stuff ui independent
-    # die if we have a unlogic or NYI case and (TODO) chain this transaction safe (post_transaction + history_erp + this)
-    my ($bt, $chart_id, $payment);
-
-    $bt = SL::DB::Manager::BankTransaction->find_by(id => $::form->{bt_id});
-    die "No bank transaction found" unless $bt;
-
-    $chart_id = SL::DB::Manager::BankAccount->find_by(id => $bt->local_bank_account_id)->chart_id;
-    die "no chart id:" unless $chart_id;
-
-    $payment = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $::form->{id},
-                                                                   chart_link => { like => '%AR_paid%' },
-                                                                   chart_id => $chart_id                  ]);
-    die "guru meditation error: Can only assign amount to one bank account booking" if scalar @{ $payment } > 1;
-
-    # credit/debit * -1 matches the sign for bt.amount and bt.invoice_amount
-    $bt->update_attributes(invoice_amount => $bt->invoice_amount + ($payment->[0]->amount * -1));
-
-    # create record_link
-    my @props = (
-      from_table => 'bank_transactions',
-      from_id    => $::form->{bt_id},
-      to_table   => 'gl',
-      to_id      => $::form->{id},
-    );
-    SL::DB::RecordLink->new(@props)->save;
-
     print $form->redirect_header($form->{callback});
     $form->redirect($locale->text('GL transaction posted.') . ' ' . $locale->text('ID') . ': ' . $form->{id});
   }
+
   # remove or clarify
   undef($form->{callback});
   $main::lxdebug->leave_sub();
