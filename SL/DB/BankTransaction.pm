@@ -329,6 +329,16 @@ Example:
   my $invoice = SL::DB::Manager::Invoice->find_by(invnumber => '198');
   my ($agreement,rule_matches) = $bt->get_agreement_with_invoice($invoice);
 
+=item C<linked_invoices>
+
+Returns an array of record names (invoice number or gl reference)
+which are linked for this bank transaction.
+
+Returns an empty array ref if no links are found.
+Usage:
+ croak("No linked records at all") unless @{ $bt->linked_invoices() };
+
+
 =back
 
 =head1 AUTHOR
