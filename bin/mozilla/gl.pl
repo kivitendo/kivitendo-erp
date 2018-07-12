@@ -917,6 +917,12 @@ sub display_rows {
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
     my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
+    # if we have a bt_chart_id we disallow changing the amount of the bank account
+    if ($form->{bt_chart_id}) {
+      $debitreadonly = $creditreadonly = "readonly" if ($form->{"accno_id_$i"} eq $form->{bt_chart_id});
+      $copy2credit   = '' if $i == 1;   # and disallow copy2credit
+    }
+
     print qq|<tr valign=top>
     $accno
     <td id="chart_balance_$i" align="right">${balance}</td>
