@@ -1110,7 +1110,7 @@ sub send_email {
   my @attfiles;
   # if we send html or plain text inline
   if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-    $mail->{contenttype}    =  "text/html";
+    $mail->{content_type}   =  "text/html";
     $mail->{message}        =~ s/\r//g;
     $mail->{message}        =~ s/\n/<br>\n/g;
     $full_signature         =~ s/\n/<br>\n/g;
