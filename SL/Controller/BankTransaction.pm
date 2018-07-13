@@ -949,15 +949,9 @@ invoice objects).
 This method cannot handle already partly assigned bank transactions, i.e.
 a bank transaction that has a invoice_amount <> 0 but not the fully
 transaction amount (invoice_amount == amount).
-Currently this state is impossible from the point of the user interface,
-but for double safety and further reliance posting an bank_transaction
-where some invoice_amount is already assigned or a RecordLink from
-bank to document exists will not be accepted.
 
 If the amount of the bank transaction is higher than the sum of
 the assigned invoices (1 .. n) the last invoice will be overpayed.
-
-Therefore this function implements not all valid uses cases.
 
 The whole function is wrapped in a database transaction. If an
 exception occurs the bank transaction is not posted at all. The same
