@@ -574,7 +574,7 @@ my $session_id;
 sub restore_session {
   my $self = shift;
 
-  $session_id        =  $::request->cgi->cookie($self->get_session_cookie_name());
+  $session_id        =  $::request->cookies->{$self->get_session_cookie_name};
   $session_id        =~ s|[^0-9a-f]||g if $session_id;
 
   $self->{SESSION}   = { };
@@ -951,7 +951,7 @@ sub get_session_id {
 sub get_api_token_cookie {
   my ($self) = @_;
 
-  $::request->cgi->cookie($self->get_session_cookie_name(type => 'api_token'));
+  $::request->cookies->{$self->get_session_cookie_name(type => 'api_token')};
 }
 
 sub is_api_token_cookie_valid {
