@@ -655,22 +655,21 @@ sub save_single_bank_transaction {
                               memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
       } else {
-        # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
+      # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
 
-        # this catches credit_notes and negative sales invoices
-        if ( $invoice->is_sales && $invoice->amount < 0 ) {
-          # $invoice->open_amount     is negative for credit_notes
-          # $bank_transaction->amount is negative for outgoing transactions
-          # so $amount_of_transaction is negative but needs positive
-          $amount_of_transaction *= -1;
+        # $invoice->open_amount     is negative for credit_notes
+        # $bank_transaction->amount is negative for outgoing transactions
+        # so $amount_of_transaction is negative but needs positive
+        # $invoice->open_amount may be negative for ap_transaction but may be positiv for negative ap_transaction
+        # if $invoice->open_amount is negative $bank_transaction->amount is positve
+        # if $invoice->open_amount is positive $bank_transaction->amount is negative
+        # but amount of transaction is for both positive
 
-        } elsif (!$invoice->is_sales && $invoice->invoice_type =~ m/ap_transaction|purchase_invoice/) {
-          # $invoice->open_amount may be negative for ap_transaction but may be positiv for negativ ap_transaction
-          # if $invoice->open_amount is negative $bank_transaction->amount is positve
-          # if $invoice->open_amount is positive $bank_transaction->amount is negative
-          # but amount of transaction is for both positive
-          $amount_of_transaction *= -1 if $invoice->open_amount == - $amount_of_transaction;
-        }
+        $amount_of_transaction *= -1 if ($invoice->amount < 0);
+
+        # if we have a skonto case - the last invoice needs skonto
+        $amount_of_transaction = $invoice->amount_less_skonto if ($payment_type eq 'with_skonto_pt');
+
 
         my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
         $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
