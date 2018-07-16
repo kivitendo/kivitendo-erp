@@ -4,7 +4,6 @@ use strict;
 
 use parent qw(Rose::Object);
 
-use CGI qw(-no_xhtml);
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
 use Exporter qw(import);
@@ -14,6 +13,7 @@ use SL::JSON;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::Layout::None;
 use SL::Presenter;
+use SL::Response;
 use SL::Util qw(trim);
 
 our @EXPORT_OK = qw(flatten unflatten);
@@ -25,7 +25,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 sub init_cgi {
-  return CGI->new({});
+  return SL::Response->new;
 }
 
 sub init_layout {

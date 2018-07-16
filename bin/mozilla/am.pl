@@ -53,7 +53,6 @@ use SL::DB::Tax;
 use SL::DB::Language;
 use SL::DB::Default;
 use SL::DBUtils qw(selectall_array_query conv_dateq);
-use CGI;
 
 require "bin/mozilla/common.pl";
 

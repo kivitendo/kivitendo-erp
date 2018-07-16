@@ -598,9 +598,11 @@ sub bank_transfer_download_sepa_xml {
 
   my $xml = $sepa_xml->to_xml();
 
-  print $::request->cgi->header('-type'                => 'application/octet-stream',
-                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
-                     '-content-length'      => length $xml);
+  print $::request->cgi->header(
+    type           => 'application/octet-stream',
+    attachment     => "SEPA_${message_id}" . ($vc eq 'customer' ? '.cdd' : '.cct'),
+    content_length => length $xml,
+  );
   print $xml;
 
   $main::lxdebug->leave_sub();

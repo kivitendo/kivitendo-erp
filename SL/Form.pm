@@ -349,40 +349,27 @@ sub _add_to_request_uri {
 }
 
 sub create_http_response {
-  $main::lxdebug->enter_sub();
-
   my $self     = shift;
   my %params   = @_;
 
-  my $session_cookie;
-  if (defined $main::auth) {
+  if (defined $::auth) {
     my $uri      = $self->_get_request_uri;
     my @segments = $uri->path_segments;
     pop @segments;
     $uri->path_segments(@segments);
 
-    my $session_cookie_value = $main::auth->get_session_id();
-
-    if ($session_cookie_value) {
-      $session_cookie = $::request->cgi->cookie('-name'    => $main::auth->get_session_cookie_name(),
-                                     '-value'   => $session_cookie_value,
-                                     '-path'    => $uri->path,
-                                     '-expires' => '+' . $::auth->{session_timeout} . 'm',
-                                     '-secure'  => $::request->is_https);
+    if ($::auth->get_session_id) {
+      $::request->cgi->add_cookie(
+        $::auth->get_session_cookie_name,
+        $::auth->get_session_id,
+        path     => $uri->path,
+        secure   => $::request->is_https,
+        explires => '+' . $::auth->{session_timeout} . 'm',
+      );
     }
   }
 
-  my %cgi_params = ('-type' => $params{content_type});
-  $cgi_params{'-charset'} = $params{charset} if ($params{charset});
-  $cgi_params{'-cookie'}  = $session_cookie  if ($session_cookie);
-
-  map { $cgi_params{'-' . $_} = $params{$_} if exists $params{$_} } qw(content_disposition content_length status);
-
-  my $output = $::request->cgi->header(%cgi_params);
-
-  $main::lxdebug->leave_sub();
-
-  return $output;
+  $::request->cgi->header(%params);
 }
 
 sub header {
@@ -483,15 +470,7 @@ EOL
 }
 
 sub ajax_response_header {
-  $main::lxdebug->enter_sub();
-
-  my ($self) = @_;
-
-  my $output = $::request->cgi->header('-charset' => 'UTF-8');
-
-  $main::lxdebug->leave_sub();
-
-  return $output;
+  $::request->cgi->header(charset => 'UTF-8');
 }
 
 sub redirect_header {
@@ -504,7 +483,7 @@ sub redirect_header {
   die "Headers already sent" if $self->{header};
   $self->{header} = 1;
 
-  return $::request->cgi->redirect($new_uri);
+  $::request->cgi->redirect($new_uri);
 }
 
 sub set_standard_title {
@@ -1088,18 +1067,18 @@ sub output_file {
       seek  IN, 0, 0;
 
     } else {
-      my %headers = ('-type'       => $mimeType,
-                     '-connection' => 'close',
-                     '-charset'    => 'UTF-8');
+      my %headers = (content_type => $mimeType,
+                     connection   => 'close',
+                     charset      => 'UTF-8');
 
       $self->{attachment_filename} ||= $self->generate_attachment_filename;
 
       if ($self->{attachment_filename}) {
         %headers = (
           %headers,
-          '-attachment'     => $self->{attachment_filename},
-          '-content-length' => $numbytes,
-          '-charset'        => '',
+          attachment     => $self->{attachment_filename},
+          content_length => $numbytes,
+          charset        => '',
         );
       }
 
