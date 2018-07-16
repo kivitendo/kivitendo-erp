@@ -234,7 +234,7 @@ sub action_list {
 
   # for testing with t/bank/banktransaction.t :
   if ( $::form->{dont_render_for_test} ) {
-    return $bank_transactions;
+    return ( $bank_transactions , \@proposals );
   }
 
   $::request->layout->add_javascripts("kivi.BankTransaction.js");
