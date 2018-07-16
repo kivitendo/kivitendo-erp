@@ -14,13 +14,14 @@ use SL::JSON;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::Layout::None;
 use SL::Presenter;
+use SL::Util qw(trim);
 
 our @EXPORT_OK = qw(flatten unflatten);
 
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(applying_database_upgrades post_data) ],
-  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type) ],
+  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type cookies) ],
 );
 
 sub init_cgi {
@@ -45,6 +46,18 @@ sub init_type {
 
 sub is_https {
   $ENV{HTTPS} && 'on' eq lc $ENV{HTTPS};
+}
+
+sub init_cookies {
+  my $raw_cookie = $ENV{HTTP_COOKIE} || $ENV{COOKIE};
+  my @pairs      = split /[;,] ?/, $raw_cookie;
+  my %results;
+  for my $pair (@pairs) {
+    my ($key, $value) = split /=/, trim($pair);
+    $value //= '';
+    $results{$key} = $value;
+  }
+  \%results;
 }
 
 sub cache {
