@@ -57,7 +57,7 @@ sub redirect_to {
 
   return $self->render(SL::ClientJS->new->redirect_to($url)) if $::request->is_ajax;
 
-  print $::request->{cgi}->redirect($url);
+  print $::request->cgi->redirect($url);
 }
 
 sub render {

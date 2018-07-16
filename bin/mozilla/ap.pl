@@ -382,7 +382,6 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
 

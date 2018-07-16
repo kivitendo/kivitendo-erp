@@ -38,6 +38,7 @@ use SL::IS;
 use SL::DN;
 use SL::DB::Department;
 use SL::DB::Dunning;
+use SL::Presenter::Tag qw(hidden_tag checkbox_tag);
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -331,7 +332,6 @@ sub show_dunning {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   $main::auth->assert('dunning_edit');
 
@@ -431,15 +431,14 @@ sub show_dunning {
     }
 
     $row->{checkbox} = !$first_row_for_dunning ? { } : {
-      'raw_data' =>   $cgi->hidden('-name' => "dunning_id_$i", '-value' => $ref->{dunning_id})
-                    . $cgi->checkbox('-name' => "selected_$i", '-value' => 1, '-label' => ''),
+      'raw_data' =>   hidden_tag("dunning_id_$i", $ref->{dunning_id})
+                    . checkbox_tag("selected_$i", value => 1),
       'valign'   => 'center',
       'align'    => 'center',
     };
 
     if ($first_row_for_dunning) {
-      $row->{language} = {'raw_data' => $cgi->hidden('-name' => "language_id_$i", '-value' => $ref->{language_id})
-                                        . " $ref->{language}" };
+      $row->{language} = {'raw_data' => hidden_tag("language_id_$i", $ref->{language_id}) . " $ref->{language}" };
     } else {
       $row->{language} = { };
     }

@@ -3,6 +3,7 @@ use POSIX qw(strftime);
 use SL::FU;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
+use SL::Presenter::Tag qw(hidden_tag checkbox_tag);
 
 require "bin/mozilla/reportgenerator.pl";
 
@@ -250,7 +251,6 @@ sub report {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   my @report_params = qw(created_for subject body reference follow_up_date_from follow_up_date_to itime_from itime_to due_only all_users done not_done);
 
@@ -333,8 +333,8 @@ sub report {
     my $row = { map { $_ => { 'data' => $fu->{$_} } } keys %{ $fu } };
 
     $row->{selected} = {
-      'raw_data' =>   $cgi->hidden('-name' => "follow_up_id_${idx}", '-value' => $fu->{id})
-                    . $cgi->checkbox('-name' => "selected_${idx}",   '-value' => 1, '-label' => ''),
+      'raw_data' =>   hidden_tag("follow_up_id_${idx}", $fu->{id})
+                    . checkbox_tag("selected_${idx}", value => 1),
       'valign'   => 'center',
       'align'    => 'center',
     };

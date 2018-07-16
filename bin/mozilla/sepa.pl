@@ -14,6 +14,7 @@ use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::SEPA;
 use SL::SEPA::XML;
+use SL::Presenter::Tag qw(checkbox_tag);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -227,7 +228,6 @@ sub bank_transfer_list {
 
   my $form   = $main::form;
   my $locale = $main::locale;
-  my $cgi    = $::request->{cgi};
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   $form->{title}     = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
@@ -259,7 +259,7 @@ sub bank_transfer_list {
   my $href           = build_std_url('action=bank_transfer_list', @hidden_vars);
 
   my %column_defs = (
-    'selected'    => { 'text' => $cgi->checkbox(-name => 'select_all', -id => 'select_all', -label => ''), },
+    'selected'    => { 'text' => checkbox_tag('select_all', id => 'select_all'), },
     'id'          => { 'text' => $locale->text('Number'), },
     'export_date' => { 'text' => $locale->text('Export date'), },
     'employee'    => { 'text' => $locale->text('Employee'), },
@@ -324,7 +324,7 @@ sub bank_transfer_list {
     $row->{$_}->{data} = $::form->format_amount(\%::myconfig, $row->{$_}->{data}, 2) for qw(sum_amounts);
 
     if (!$export->{closed}) {
-      $row->{selected}->{raw_data} = $cgi->checkbox(-name => "ids[]", -value => $export->{id}, -label => '');
+      $row->{selected}->{raw_data} = checkbox_tag("ids[]", value => $export->{id});
     }
 
     $report->add_data($row);
@@ -510,7 +510,6 @@ sub bank_transfer_download_sepa_xml {
   my $form     =  $main::form;
   my $myconfig = \%main::myconfig;
   my $locale   =  $main::locale;
-  my $cgi      =  $::request->{cgi};
   my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
   my $defaults = SL::DB::Default->get;
 
@@ -599,7 +598,7 @@ sub bank_transfer_download_sepa_xml {
 
   my $xml = $sepa_xml->to_xml();
 
-  print $cgi->header('-type'                => 'application/octet-stream',
+  print $::request->cgi->header('-type'                => 'application/octet-stream',
                      '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
                      '-content-length'      => length $xml);
   print $xml;

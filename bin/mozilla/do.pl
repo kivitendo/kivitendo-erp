@@ -44,6 +44,7 @@ use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::WH;
 use SL::YAML;
+use SL::Presenter::Tag qw(hidden_tag checkbox_tag);
 use Sort::Naturally ();
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -678,7 +679,6 @@ sub orders {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
@@ -862,8 +862,8 @@ sub orders {
 
     my $ord_id = $dord->{id};
     $row->{ids}  = {
-      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $ord_id)
-                    . $cgi->checkbox('-name' => "multi_id_${idx}",' id' => "multi_id_id_".$ord_id, '-value' => 1, 'data-checkall' => 1, '-label' => ''),
+      'raw_data' =>   hidden_tag("trans_id_${idx}", $ord_id)
+                    . checkbox_tag("multi_id_${idx}", value => 1, id => "multi_id_id_".$ord_id, 'data-checkall' => 1),
       'valign'   => 'center',
       'align'    => 'center',
     };

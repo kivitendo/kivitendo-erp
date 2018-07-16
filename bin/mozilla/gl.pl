@@ -50,7 +50,7 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
-use SL::Presenter::Tag;
+use SL::Presenter::Tag qw(hidden_tag select_tag);
 use SL::Presenter::Chart;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -784,7 +784,6 @@ sub display_rows {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
-  my $cgi      = $::request->{cgi};
 
   my %balances = GL->get_chart_balances(map { $_->{id} } @{ $form->{ALL_CHARTS} });
 
@@ -811,7 +810,6 @@ sub display_rows {
       <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
     }
 
-    my %taxchart_labels = ();
     my @taxchart_values = ();
 
     my $accno_id = $::form->{"accno_id_$i"};
@@ -831,8 +829,7 @@ sub display_rows {
       $default_taxchart   = $item if $item->{is_default};
       $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
 
-      push(@taxchart_values, $key);
-      $taxchart_labels{$key} = $item->taxkey . " - " . $item->taxdescription . " " . $item->rate * 100 . ' %';
+      push @taxchart_values, [ $key, $item->taxkey . " - " . $item->taxdescription . " " . $item->rate * 100 . ' %' ];
     }
 
     $taxchart_to_use    //= $default_taxchart // $first_taxchart;
@@ -842,13 +839,8 @@ sub display_rows {
       SL::Presenter::Chart::picker("accno_id_$i", $accno_id, style => "width: 300px") .
       SL::Presenter::Tag::hidden_tag("previous_accno_id_$i", $accno_id)
       . qq|</td>|;
-    my $tax_ddbox = qq|<td>| .
-      NTI($cgi->popup_menu('-name' => "taxchart_$i",
-            '-id' => "taxchart_$i",
-            '-style' => 'width:200px',
-            '-values' => \@taxchart_values,
-            '-labels' => \%taxchart_labels,
-            '-default' => $selected_taxchart))
+    my $tax_ddbox = qq|<td>|
+      .  select_tag("taxchart_$i", \@taxchart_values, id => "taxchart_$i", style => 'width:200px', default => $selected_taxchart)
       . qq|</td>|;
 
     my ($fx_transaction, $checked);
@@ -887,7 +879,7 @@ sub display_rows {
       <td><input type=hidden name="fx_transaction_$i" value="$checked">$x</td>
     |;
         }
-        $form->hide_form("accno_$i");
+        print hidden_tag("accno_$i", $form->{"accno_$i"});
 
       } else {
         if ($form->{transfer}) {
@@ -946,7 +938,8 @@ sub display_rows {
 |;
   }
 
-  $form->hide_form(qw(rowcount selectaccno));
+  print hidden_tag('rowcount',    $form->{rowcount}),
+        hidden_tag('selectaccno', $form->{selectaccno});
 
   $main::lxdebug->leave_sub();
 

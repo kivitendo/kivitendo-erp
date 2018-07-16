@@ -55,6 +55,7 @@ use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
+use SL::Presenter::Tag qw(hidden_tag checkbox_tag);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -489,7 +490,6 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   check_oe_access();
 
@@ -1004,7 +1004,6 @@ sub orders {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   check_oe_access();
 
@@ -1269,8 +1268,8 @@ sub orders {
     }
 
     $row->{ids} = {
-      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $oe->{id})
-                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+      'raw_data' =>   hidden_tag("trans_id_${idx}", $oe->{id})
+                    . checkbox_tag("multi_id_${idx}", value => 1, label => ""),
       'valign'   => 'center',
       'align'    => 'center',
     };

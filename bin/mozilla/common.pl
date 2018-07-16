@@ -202,13 +202,6 @@ sub E {
   return $main::form->escape($_[0]);
 }
 
-sub NTI {
-  my ($element) = @_;
-
-  $element =~ s/tabindex\s*=\s*"\d+"//;
-  return $element;
-}
-
 sub format_dates {
   return $::form->format_dates(@_);
 }

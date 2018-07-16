@@ -52,7 +52,7 @@ use SL::DB::RecordTemplate;
 use SL::DB::Tax;
 use SL::Helper::Flash qw(flash);
 use SL::Locale::String qw(t8);
-use SL::Presenter::Tag;
+use SL::Presenter::Tag qw(checkbox_tag hidden_tag select_tag);
 use SL::Presenter::Chart;
 use SL::ReportGenerator;
 
@@ -354,7 +354,6 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   $form->{invoice_obj} = _retrieve_invoice_object();
 
@@ -395,7 +394,7 @@ sub form_header {
 
   my %project_labels = map { $_->{id} => $_->{projectnumber} } @{ $form->{"ALL_PROJECTS"} };
 
-  my (@AR_paid_values, %AR_paid_labels);
+  my @AR_paid_values;
   my $default_ar_amount_chart_id;
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
@@ -403,8 +402,7 @@ sub form_header {
       $default_ar_amount_chart_id //= $item->{id};
 
     } elsif ($item->{link_split}{AR_paid}) {
-      push(@AR_paid_values, $item->{accno});
-      $AR_paid_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
+      push @AR_paid_values, [ $item->{accno}, "$item->{accno}--$item->{description}" ];
     }
   }
 
@@ -427,7 +425,7 @@ sub form_header {
       project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
     };
 
-    my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
+    my (@taxchart_values, $default_taxchart, $taxchart_to_use);
     my $amount_chart_id = $form->{"AR_amount_chart_id_$i"} // $default_ar_amount_chart_id;
 
     my $used_tax_id;
@@ -440,8 +438,7 @@ sub form_header {
       $default_taxchart   = $item if $item->{is_default};
       $taxchart_to_use    = $item if $key eq $form->{"taxchart_$i"};
 
-      push(@taxchart_values, $key);
-      $taxchart_labels{$key} = $item->taxkey . " - " . $item->taxdescription . " " . $item->rate * 100 . ' %';
+      push @taxchart_values, [ $key, $item->taxkey . " - " . $item->taxdescription . " " . $item->rate * 100 . ' %' ];
     }
 
     $taxchart_to_use    //= $default_taxchart // $first_taxchart;
@@ -452,12 +449,7 @@ sub form_header {
       . SL::Presenter::Tag::hidden_tag("previous_AR_amount_chart_id_$i", $amount_chart_id);
 
     $transaction->{taxchart} =
-      NTI($cgi->popup_menu('-name' => "taxchart_$i",
-                           '-id' => "taxchart_$i",
-                           '-style' => 'width:200px',
-                           '-values' => \@taxchart_values,
-                           '-labels' => \%taxchart_labels,
-                           '-default' => $selected_taxchart));
+      select_tag("taxchart_$i", \@taxchart_values, id => "taxchart_$i", style => 'width:200px', default => $selected_taxchart);
 
     push @transactions, $transaction;
   }
@@ -488,11 +480,7 @@ sub form_header {
     $form->{accno_arap} = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
     $payment->{selectAR_paid} =
-      NTI($cgi->popup_menu('-name' => "AR_paid_$i",
-                           '-id' => "AR_paid_$i",
-                           '-values' => \@AR_paid_values,
-                           '-labels' => \%AR_paid_labels,
-                           '-default' => $payment->{AR_paid} || $form->{accno_arap}));
+      select_tag("AR_paid_$i", \@AR_paid_values, id => "AR_paid_$i", default => $payment->{AR_paid} || $form->{accno_arap});
 
 
 
@@ -556,7 +544,6 @@ sub form_footer {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   if ( $form->{id} ) {
     my $follow_ups = FU->follow_ups('trans_id' => $form->{id}, 'not_done' => 1);
@@ -944,7 +931,6 @@ sub search {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   $form->{title} = $locale->text('Invoices, Credit Notes & AR Transactions');
 

@@ -44,7 +44,7 @@ use SL::DB::Customer;
 use SL::RP;
 use SL::Iconv;
 use SL::Locale::String qw(t8);
-use SL::Presenter::Tag;
+use SL::Presenter::Tag qw(hidden_tag);
 use SL::ReportGenerator;
 use Data::Dumper;
 use List::MoreUtils qw(any);
@@ -1002,7 +1002,6 @@ sub aging {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
@@ -1095,8 +1094,8 @@ sub aging {
 
     if ($previous_ctid != $ref->{ctid}) {
       $row->{statement}->{raw_data} =
-          $cgi->hidden('-name' => "customer_id_" . ($row_idx + 1), '-value' => $ref->{ctid})
-        . $cgi->checkbox('-name' => "statement_" . ($row_idx + 1), '-value' => 1, '-label' => '', 'checked' => $ref->{checked});
+          hidden_tag("customer_id_" . ($row_idx + 1), $ref->{ctid}) .
+          checkbox_tag("statement_" . ($row_idx + 1), checked => $ref->{checked}, value => 1, label => '');
       $row->{ct}->{data} = $ref->{name};
 
       $row_idx++;

@@ -49,6 +49,7 @@ use SL::DB::Customer;
 use SL::DB::Department;
 use SL::DB::Invoice;
 use SL::DB::PaymentTerm;
+use SL::Presenter::Tag qw(select_tag);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -444,7 +445,6 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   my %TMPL_VAR = ();
   my @custom_hiddens;
@@ -502,14 +502,12 @@ sub form_header {
   ]);
 
   # currencies and exchangerate
-  my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
-  my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   $form->{show_exchangerate}   = $form->{currency} ne $form->{defaultcurrency};
-  $TMPL_VAR{currencies}        = NTI($::request->{cgi}->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                                                      '-values' => \@values, '-labels' => \%labels,
-                                                      '-onchange' => "document.getElementById('update_button').click();"
-                                     )) if scalar @values;
+  $TMPL_VAR{currencies}        = select_tag('currency', $form->{ALL_CURRENCIES},
+                                   id => 'currency', default => $form->{currency},
+                                   onchange => "document.getElementById('update_button').click();"
+                                 ) if @{ $form->{ALL_CURRENCIES} // [] };
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 

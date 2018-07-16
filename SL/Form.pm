@@ -42,7 +42,6 @@ use Carp;
 use Data::Dumper;
 
 use Carp;
-use CGI;
 use Cwd;
 use Encode;
 use File::Copy;
@@ -228,21 +227,6 @@ sub unquote {
   return $str;
 }
 
-sub hide_form {
-  $main::lxdebug->enter_sub();
-  my $self = shift;
-
-  if (@_) {
-    map({ print($::request->{cgi}->hidden("-name" => $_, "-default" => $self->{$_}) . "\n"); } @_);
-  } else {
-    for (sort keys %$self) {
-      next if (($_ eq "header") || (ref($self->{$_}) ne ""));
-      print($::request->{cgi}->hidden("-name" => $_, "-default" => $self->{$_}) . "\n");
-    }
-  }
-  $main::lxdebug->leave_sub();
-}
-
 sub throw_on_error {
   my ($self, $code) = @_;
   local $self->{__ERROR_HANDLER} = sub { SL::X::FormError->throw(error => $_[0]) };
@@ -370,8 +354,6 @@ sub create_http_response {
   my $self     = shift;
   my %params   = @_;
 
-  my $cgi      = $::request->{cgi};
-
   my $session_cookie;
   if (defined $main::auth) {
     my $uri      = $self->_get_request_uri;
@@ -382,7 +364,7 @@ sub create_http_response {
     my $session_cookie_value = $main::auth->get_session_id();
 
     if ($session_cookie_value) {
-      $session_cookie = $cgi->cookie('-name'    => $main::auth->get_session_cookie_name(),
+      $session_cookie = $::request->cgi->cookie('-name'    => $main::auth->get_session_cookie_name(),
                                      '-value'   => $session_cookie_value,
                                      '-path'    => $uri->path,
                                      '-expires' => '+' . $::auth->{session_timeout} . 'm',
@@ -396,7 +378,7 @@ sub create_http_response {
 
   map { $cgi_params{'-' . $_} = $params{$_} if exists $params{$_} } qw(content_disposition content_length status);
 
-  my $output = $cgi->header(%cgi_params);
+  my $output = $::request->cgi->header(%cgi_params);
 
   $main::lxdebug->leave_sub();
 
@@ -505,7 +487,7 @@ sub ajax_response_header {
 
   my ($self) = @_;
 
-  my $output = $::request->{cgi}->header('-charset' => 'UTF-8');
+  my $output = $::request->cgi->header('-charset' => 'UTF-8');
 
   $main::lxdebug->leave_sub();
 
@@ -522,7 +504,7 @@ sub redirect_header {
   die "Headers already sent" if $self->{header};
   $self->{header} = 1;
 
-  return $::request->{cgi}->redirect($new_uri);
+  return $::request->cgi->redirect($new_uri);
 }
 
 sub set_standard_title {

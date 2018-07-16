@@ -38,7 +38,6 @@
 #######################################################################
 
 use Carp;
-use CGI;
 use List::MoreUtils qw(any uniq apply);
 use List::Util qw(sum min max first);
 use List::UtilsBy qw(sort_by uniq_by);
@@ -54,6 +53,7 @@ use SL::IO;
 use SL::File;
 use SL::PriceSource;
 use SL::Presenter::Part;
+use SL::Presenter::Tag qw(select_tag input_tag hidden_tag button_tag textarea_tag html_tag);
 
 use SL::DB::Contact;
 use SL::DB::Currency;
@@ -62,6 +62,7 @@ use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
 use SL::DB::Vendor;
+use SL::Helper::Number qw(:ALL);
 use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
@@ -130,7 +131,6 @@ sub display_row {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
 
   my $numrows = shift;
 
@@ -224,13 +224,6 @@ sub display_row {
   $form->{sellprice_total}       = 0;
   $form->{lastcost_total}        = 0;
   $form->{totalweight}           = 0;
-  my %projectnumber_labels = ();
-  my @projectnumber_values = ("");
-
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@projectnumber_values, $item->{"id"});
-    $projectnumber_labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
 
   _update_part_information();
   _update_ship() if ($is_s_p_order);
@@ -273,15 +266,11 @@ sub display_row {
     $this_unit    = $form->{"selected_unit_$i"} if AM->convert_unit($this_unit, $form->{"selected_unit_$i"}, $all_units);
 
     if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
-      my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
-      my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
-
-      $column_data{price_factor} =
-        NTI($cgi->popup_menu('-name'    => "price_factor_id_$i",
-                             '-default' => $form->{"price_factor_id_$i"},
-                             '-values'  => \@values,
-                             '-labels'  => \%labels,
-                             '-style'   => 'width:90px'));
+      $column_data{price_factor} = select_tag("price_factor_id_$i", $form->{ALL_PRICE_FACTORS},
+        title_key => 'description',
+        default => $form->{"price_factor_id_$i"},
+        style   => 'width:90px',
+      );
     } else {
       $column_data{price_factor} = '&nbsp;';
     }
@@ -303,22 +292,22 @@ sub display_row {
     # quick delete single row
     $column_data{runningnumber}  = q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
                                    q|<img height="10px" width="10px" src="image/cross.png" alt="| . $locale->text('Remove') . q|"></a> |;
-    $column_data{runningnumber} .= $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
+    $column_data{runningnumber} .= input_tag("runningnumber_$i", $i, id => "runningnumber_$i", size => 4);
 
 
-    $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -id => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
+    $column_data{partnumber}    = input_tag("partnumber_$i", $form->{"partnumber_$i"}, id => "partnumber_$i", size => 12);
     $column_data{type_and_classific} = SL::Presenter::Part::type_abbreviation($form->{"part_type_$i"}).
                                        SL::Presenter::Part::classification_abbreviation($form->{"classification_id_$i"}) if $form->{"id_$i"};
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
-                                ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
-                                : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30))
-                                . $cgi->button(-value => $locale->text('L'), -onClick => "kivi.SalesPurchase.edit_longdescription($i)");
+                                ? textarea_tag("description_$i", $form->{"description_$i"}, id => "description_$i", rows => $rows, cols => 30)
+                                : input_tag("description_$i", $form->{"description_$i"}, id => "description_$i", size => 30))
+                                . button_tag("kivi.SalesPurchase.edit_longdescription($i)", t8('L'), type => "button", title => t8("Long Description"));
 
     my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
-    $column_data{qty}  = $cgi->textfield(-name => "qty_$i", -size => 5, -class => "numeric", -value => $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec));
-    $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_dialog('qty_$i', '', 'formel_$i', '')", -value => $locale->text('*/'))
-                       . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"})
+    $column_data{qty}  = input_tag("qty_$i", _format_number($::form->{"qty_$i"}, $qty_dec), size => 5, class => "numeric");
+    $column_data{qty} .= button_tag("calculate_qty_selection_dialog('qty_$i', '', 'formel_$i', '')", t8('*/'), onclick => )
+                       . hidden_tag("formel_$i", $form->{"formel_$i"})
       if $form->{"formel_$i"};
 
     $column_data{ship} = '';
@@ -328,7 +317,7 @@ sub display_row {
       $ship_qty          /= ( $all_units->{$form->{"unit_$i"}}->{factor} || 1 );
 
       $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"}
-      . $cgi->hidden(-name => "ship_$i", -value => $form->{"ship_$i"}, $qty_dec);
+        . hidden_tag("ship_$i", _format_number($form->{"ship_$i"}, $qty_dec));
 
       my $ship_missing_qty    = $form->{"qty_$i"} - $ship_qty;
       my $ship_missing_amount = $form->round_amount($ship_missing_qty * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
@@ -351,23 +340,23 @@ sub display_row {
       my $discount      = $price_source->discount_from_source($::form->{"active_discount_source_$i"});
       my $best_price    = $price_source->best_price;
       my $best_discount = $price_source->best_discount;
-      $column_data{price_source} .= $cgi->button(-value => $price->source_description, -onClick => "kivi.io.price_chooser($i)");
+      $column_data{price_source} .= button_tag("kivi.io.price_chooser($i)", $price->source_description);
       if ($price->source) {
-        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid }) if $price->invalid;
-        $column_data{price_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $price->missing, title => $price->missing }) if $price->missing;
+        $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/flag-red.png', alt => $price->invalid, title => $price->invalid ) if $price->invalid;
+        $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/flag-red.png', alt => $price->missing, title => $price->missing ) if $price->missing;
         if (!$price->missing && !$price->invalid) {
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     }) if $price->price - $record_item->sellprice > 0.01;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    }) if $price->price - $record_item->sellprice < -0.01;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') }) if $best_price && $price->source ne $price_source->best_price->source;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/up.png',   alt => t8('This price has since gone up'),      title => t8('This price has since gone up' )     ) if $price->price - $record_item->sellprice > 0.01;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/down.png', alt => t8('This price has since gone down'),    title => t8('This price has since gone down')    ) if $price->price - $record_item->sellprice < -0.01;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/ok.png',   alt => t8('There is a better price available'), title => t8('There is a better price available') ) if $best_price && $price->source ne $price_source->best_price->source;
         }
       }
       if ($discount->source) {
-        $column_data{discount_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $discount->invalid, title => $discount->invalid }) if $discount->invalid;
-        $column_data{discount_source} .= ' ' . $cgi->img({src => 'image/flag-red.png', alt => $discount->missing, title => $discount->missing }) if $discount->missing;
+        $column_data{discount_source} .= ' ' . html_tag("img", undef, src => 'image/flag-red.png', alt => $discount->invalid, title => $discount->invalid ) if $discount->invalid;
+        $column_data{discount_source} .= ' ' . html_tag("img", undef, src => 'image/flag-red.png', alt => $discount->missing, title => $discount->missing ) if $discount->missing;
         if (!$discount->missing && !$discount->invalid) {
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/up.png',   alt => t8('This discount has since gone up'),      title => t8('This discount has since gone up')      }) if $discount->discount * 100 - $record_item->discount > 0.01;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/down.png', alt => t8('This discount has since gone down'),    title => t8('This discount has since gone down')    }) if $discount->discount * 100 - $record_item->discount < -0.01;
-          $column_data{price_source} .= ' ' . $cgi->img({src => 'image/ok.png',   alt => t8('There is a better discount available'), title => t8('There is a better discount available') }) if $best_discount && $discount->source ne $price_source->best_discount->source;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/up.png',   alt => t8('This discount has since gone up'),      title => t8('This discount has since gone up')      ) if $discount->discount * 100 - $record_item->discount > 0.01;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/down.png', alt => t8('This discount has since gone down'),    title => t8('This discount has since gone down')    ) if $discount->discount * 100 - $record_item->discount < -0.01;
+          $column_data{price_source} .= ' ' . html_tag("img", undef, src => 'image/ok.png',   alt => t8('There is a better discount available'), title => t8('There is a better discount available') ) if $best_discount && $discount->source ne $price_source->best_discount->source;
         }
       }
     }
@@ -376,23 +365,18 @@ sub display_row {
     my $edit_prices           = $right_to_edit_prices && (!$::form->{"active_price_source_$i"} || !$price || $price->editable);
     my $edit_discounts        = $right_to_edit_prices && !$::form->{"active_discount_source_$i"};
     $column_data{sellprice}   = (!$edit_prices)
-                                ? $cgi->hidden(   -name => "sellprice_$i", -id => "sellprice_$i", -value => $sellprice_value) . $sellprice_value
-                                : $cgi->textfield(-name => "sellprice_$i", -id => "sellprice_$i", -size => 10, -class => "numeric", -value => $sellprice_value);
+                                ? hidden_tag("sellprice_$i", $sellprice_value, id => "sellprice_$i") . $sellprice_value
+                                : input_tag("sellprice_$i", $sellprice_value, id => "sellprice_$i", "data-validate" => "number", size => 10, class => "numeric");
     $column_data{discount}    = (!$edit_discounts)
-                                  ? $cgi->hidden(   -name => "discount_$i", -id => "discount_$i", -value => $discount_value) . $discount_value . ' %'
-                                  : $cgi->textfield(-name => "discount_$i", -id => "discount_$i", -size => 3, -"data-validate" => "number", -class => "numeric", -value => $discount_value);
+                                  ? hidden_tag("discount_$i", $discount_value, id => "discount_$i") . $discount_value . ' %'
+                                  : input_tag("discount_$i", $discount_value, id => "discount_$i", size => 3, "data-validate" => "number", class => "numeric");
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
     }
 
     $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">|;
-    $column_data{projectnr} = NTI($cgi->popup_menu(
-      '-name' => "project_id_$i",
-      '-values' => \@projectnumber_values,
-      '-labels' => \%projectnumber_labels,
-      '-default' => $form->{"project_id_$i"}
-    ));
+    $column_data{projectnr} = select_tag("project_id_$i", $form->{"ALL_PROJECTS"}, default => $form->{"project_id_$i"}, title_key => 'projectnumber', with_empty => 1);
     $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" data-validate="date" value="$form->{"reqdate_$i"}">|;
     $column_data{subtotal}  = sprintf qq|<input type="checkbox" name="subtotal_$i" value="1" %s>|, $form->{"subtotal_$i"} ? 'checked' : '';
 
@@ -475,9 +459,9 @@ sub display_row {
     }
 
     my @HIDDENS = map { value => $_}, (
-          $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
-          $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
-          map { ($cgi->hidden("-name" => $_, "-id" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
+          hidden_tag("unit_old_$i", => $form->{"selected_unit_$i"}),
+          hidden_tag("price_new_$i", _format_number($form->{"price_new_$i"})),
+          map { hidden_tag($_, $form->{$_}, id => $_) } map { $_."_$i" }
             (qw(bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
                 income_accno expense_accno listprice part_type taxaccounts ordnumber donumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
@@ -746,7 +730,7 @@ sub return_from_new_item {
   $::form->{"id_$::form->{rowcount}"} = $part->id;
 
   my $url = build_std_url("script=$::form->{script}", "RESTORE_FORM_FROM_SESSION_ID=" . $::auth->save_form_in_session);
-  print $::request->{cgi}->redirect($url);
+  print $::request->cgi->redirect($url);
 }
 
 sub check_form {

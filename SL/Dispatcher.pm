@@ -32,6 +32,7 @@ use SL::InstanceConfiguration;
 use SL::MoreCommon qw(uri_encode);
 use SL::Template::Plugin::HTMLFixes;
 use SL::User;
+use SL::Presenter::Tag qw(pre_tag);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(restart_after_request) ],
@@ -327,7 +328,7 @@ sub handle_request {
       if ($::request->is_ajax) {
         eval { render_error_ajax($error) };
       } else {
-        $::form->{label_error} = $::request->{cgi}->pre($error);
+        $::form->{label_error} = pre_tag($error);
         chdir SL::System::Process::exe_dir;
         eval { show_error('generic/error') };
       }
@@ -508,7 +509,7 @@ sub _route_dispatcher_request {
 
     1;
   } or do {
-    $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
+    $::form->{label_error} = pre_tag($EVAL_ERROR);
     show_error('generic/error');
   };
 
@@ -534,7 +535,7 @@ sub _route_controller_request {
 
     1;
   } or do {
-    $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
+    $::form->{label_error} = pre_ta($EVAL_ERROR);
     show_error('generic/error');
   };
 
