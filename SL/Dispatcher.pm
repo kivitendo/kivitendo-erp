@@ -91,10 +91,7 @@ sub pre_request_initialization {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = SL::Request->new(
-    cgi            => CGI->new({}),
-    layout         => SL::Layout::None->new,
-  );
+  $::request       = SL::Request->new;
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
