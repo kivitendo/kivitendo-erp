@@ -313,47 +313,12 @@ sub isblank {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_request_uri {
-  my $self = shift;
-
-  return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
-  return URI->new                                  if !$ENV{REQUEST_URI}; # for testing
-
-  my $scheme =  $::request->is_https ? 'https' : 'http';
-  my $port   =  $ENV{SERVER_PORT};
-  $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
-                      || (($scheme eq 'https') && ($port == 443));
-
-  my $uri    =  URI->new("${scheme}://");
-  $uri->scheme($scheme);
-  $uri->port($port);
-  $uri->host($ENV{HTTP_HOST} || $ENV{SERVER_ADDR});
-  $uri->path_query($ENV{REQUEST_URI});
-  $uri->query('');
-
-  return $uri;
-}
-
-sub _add_to_request_uri {
-  my $self              = shift;
-
-  my $relative_new_path = shift;
-  my $request_uri       = shift || $self->_get_request_uri;
-  my $relative_new_uri  = URI->new($relative_new_path);
-  my @request_segments  = $request_uri->path_segments;
-
-  my $new_uri           = $request_uri->clone;
-  $new_uri->path_segments(@request_segments[0..scalar(@request_segments) - 2], $relative_new_uri->path_segments);
-
-  return $new_uri;
-}
-
 sub create_http_response {
   my $self     = shift;
   my %params   = @_;
 
   if (defined $::auth) {
-    my $uri      = $self->_get_request_uri;
+    my $uri      = $::request->request_uri;
     my @segments = $uri->path_segments;
     pop @segments;
     $uri->path_segments(@segments);
@@ -477,7 +442,7 @@ sub redirect_header {
   my $self     = shift;
   my $new_url  = shift;
 
-  my $base_uri = $self->_get_request_uri;
+  my $base_uri = $::request->request_uri;
   my $new_uri  = URI->new_abs($new_url, $base_uri);
 
   die "Headers already sent" if $self->{header};

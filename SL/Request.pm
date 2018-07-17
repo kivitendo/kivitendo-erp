@@ -7,6 +7,7 @@ use parent qw(Rose::Object);
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
 use Exporter qw(import);
+use URI;
 
 use SL::Common;
 use SL::JSON;
@@ -21,7 +22,7 @@ our @EXPORT_OK = qw(flatten unflatten);
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(applying_database_upgrades post_data) ],
-  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type cookies) ],
+  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type cookies request_uri) ],
 );
 
 sub init_cgi {
@@ -397,6 +398,25 @@ sub unflatten {
   }
 
   return $target;
+}
+
+sub init_request_uri {
+  return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
+  return URI->new                                  if !$ENV{REQUEST_URI}; # for testing
+
+  my $scheme =  $::request->is_https ? 'https' : 'http';
+  my $port   =  $ENV{SERVER_PORT};
+  $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
+                      || (($scheme eq 'https') && ($port == 443));
+
+  my $uri    =  URI->new("${scheme}://");
+  $uri->scheme($scheme);
+  $uri->port($port);
+  $uri->host($ENV{HTTP_HOST} || $ENV{SERVER_ADDR});
+  $uri->path_query($ENV{REQUEST_URI});
+  $uri->query('');
+
+  return $uri;
 }
 
 1;
