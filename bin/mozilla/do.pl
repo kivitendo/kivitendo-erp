@@ -941,8 +941,8 @@ sub delete {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-
-  if (DO->delete()) {
+  my $ret;
+  if ($ret = DO->delete()) {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|donumber_| . $form->{donumber};
@@ -955,7 +955,7 @@ sub delete {
     $::dispatcher->end_request;
   }
 
-  $form->error($locale->text('Cannot delete delivery order!'));
+  $form->error($locale->text('Cannot delete delivery order!') . $ret);
 
   $main::lxdebug->leave_sub();
 }
