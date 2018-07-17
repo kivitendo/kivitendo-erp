@@ -314,25 +314,7 @@ sub isblank {
 }
 
 sub create_http_response {
-  my $self     = shift;
-  my %params   = @_;
-
-  if (defined $::auth) {
-    my $uri      = $::request->request_uri;
-    my @segments = $uri->path_segments;
-    pop @segments;
-    $uri->path_segments(@segments);
-
-    if ($::auth->get_session_id) {
-      $::request->cgi->add_cookie(
-        $::auth->get_session_cookie_name,
-        $::auth->get_session_id,
-        path     => $uri->path,
-        secure   => $::request->is_https,
-        explires => '+' . $::auth->{session_timeout} . 'm',
-      );
-    }
-  }
+  my ($self, %params) = @_;
 
   $::request->cgi->header(%params);
 }

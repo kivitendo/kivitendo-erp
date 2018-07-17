@@ -95,6 +95,14 @@ sub pre_request_initialization {
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
 
+  $::request->cgi->add_cookie(
+    $::auth->get_session_cookie_name,
+    $::auth->get_session_id,
+    path   => $::request->request_base_uri->path,
+    secure => $::request->is_https,
+    expires => '+' . $::auth->{session_timeout} . 'm',
+  );
+
   if ($params{client}) {
     $::auth->set_client($params{client}) || die("cannot find client " . $params{client});
 
