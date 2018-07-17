@@ -106,12 +106,14 @@ my @kivitendo_to_datev = (
                               formatter       => sub { my ($input) = @_; return substr($input, 0, 12) },
                             },
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'belegfeld2',
                               csv_header_name => t8('Invoice Field 2'),
                               max_length      => 12,
                               type            => 'Text',
                               default         => '',
-                              valid_check     => sub { my ($check) = @_; return ($check =~ m/[ -~]{1,12}/) },
+                              input_check     => sub { my ($check) = @_; return 1 unless $check; return (ref (DateTime->from_kivitendo($check)) eq 'DateTime') },
+                              formatter       => sub { my ($input) = @_; return DateTime->from_kivitendo($input)->strftime('%d%m%y') },
+                              valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{6}$/) },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
