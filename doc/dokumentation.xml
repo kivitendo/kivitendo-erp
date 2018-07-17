@@ -168,10 +168,6 @@
           </listitem>
 
           <listitem>
-            <para><literal>CGI</literal></para>
-          </listitem>
-
-          <listitem>
             <para><literal>Clone</literal></para>
           </listitem>
 
@@ -429,7 +425,7 @@
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
+  libcrypt-pbkdf2-perl git libtext-unidecode-perl libwww-perl\
   postgresql-contrib poppler-utils libhtml-restrict-perl\
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\

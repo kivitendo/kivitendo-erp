@@ -11,7 +11,6 @@ BEGIN {
   push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
 }
 
-use CGI qw( -no_xhtml);
 use Cwd;
 use Daemon::Generic;
 use Data::Dumper;
@@ -70,7 +69,6 @@ sub initialize_kivitendo {
 
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
-    cgi            => CGI->new({}),
     layout         => SL::Layout::None->new,
   );
 

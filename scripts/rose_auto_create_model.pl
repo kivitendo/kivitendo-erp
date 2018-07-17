@@ -9,7 +9,6 @@ BEGIN {
   push   (@INC, $FindBin::Bin . '/..');                  # '.' will be removed from @INC soon.
 }
 
-use CGI qw( -no_xhtml);
 use Config::Std;
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);

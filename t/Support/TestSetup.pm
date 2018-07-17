@@ -3,7 +3,6 @@ package Support::TestSetup;
 use strict;
 
 use Data::Dumper;
-use CGI qw( -no_xhtml);
 use IO::File;
 use SL::Auth;
 use SL::Form;
@@ -58,7 +57,6 @@ sub create_new_request {
   my $self = shift;
 
   my $request = SL::Request->new(
-    cgi    => CGI->new({}),
     layout => SL::Layout::None->new,
     @_,
   );

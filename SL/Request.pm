@@ -49,14 +49,17 @@ sub is_https {
 }
 
 sub init_cookies {
-  my $raw_cookie = $ENV{HTTP_COOKIE} || $ENV{COOKIE};
+  my $raw_cookie = $ENV{HTTP_COOKIE} // $ENV{COOKIE};
+
+  return {} unless $raw_cookie;
+
   my @pairs      = split /[;,] ?/, $raw_cookie;
   my %results;
   for my $pair (@pairs) {
     my ($key, $value) = split /=/, trim($pair);
-    $value //= '';
-    $results{$key} = $value;
+    $results{$key} = $value // '';
   }
+
   \%results;
 }
 

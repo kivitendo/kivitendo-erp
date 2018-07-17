@@ -20,7 +20,6 @@ BEGIN {
   { name => "Algorithm::CheckDigits",              url => "http://search.cpan.org/~mamawe/",    debian => 'libalgorithm-checkdigits-perl' },
   { name => "Archive::Zip",    version => '1.40',  url => "http://search.cpan.org/~phred/",     debian => 'libarchive-zip-perl' },
   { name => "CAM::PDF",                            url => "https://metacpan.org/pod/CAM::PDF",  debian => 'libcam-pdf-perl' },
-  { name => "CGI",             version => '3.43',  url => "http://search.cpan.org/~leejo/",     debian => 'libcgi-pm-perl' }, # 4.09 is not core anymore (perl 5.20)
   { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
   { name => "Daemon::Generic", version => '0.71',  url => "http://search.cpan.org/~muir/",      debian => 'libdaemon-generic-perl'},

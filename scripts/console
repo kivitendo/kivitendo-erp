@@ -77,7 +77,6 @@ $repl->run;
 package Devel::REPL;
 
 use utf8;
-use CGI qw( -no_xhtml);
 use DateTime;
 use SL::Auth;
 use SL::Form;
@@ -108,7 +107,6 @@ sub lxinit {
 
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
-    cgi    => CGI->new({}),
     layout => SL::Layout::None->new,
   );
 

@@ -59,7 +59,7 @@ sub header {
 
   # handle more than one cookie
   my @cookies = (listify(delete $header{cookie}), listify($self->cookie));
-  push @header, "Set-Cookie: $_" for @cookies;
+  push @header, "Set-Cookie: $_" for grep defined, @cookies;
 
   # content-disposition has some weird syntax from RFC1806
   my $attachment = delete $header{attachment};

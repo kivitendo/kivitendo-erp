@@ -8,7 +8,6 @@ use strict;
 #   parse_html_template('generic/error')
 
 use Carp;
-use CGI qw( -no_xhtml);
 use Config::Std;
 use DateTime;
 use Encode;
