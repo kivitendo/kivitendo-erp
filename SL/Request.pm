@@ -22,7 +22,7 @@ our @EXPORT_OK = qw(flatten unflatten);
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(applying_database_upgrades post_data) ],
-  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type cookies request_uri) ],
+  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type cookies request_uri request_base_uri) ],
 );
 
 sub init_cgi {
@@ -417,6 +417,15 @@ sub init_request_uri {
   $uri->query('');
 
   return $uri;
+}
+
+sub init_request_base_uri {
+  my $uri = $_[0]->request_uri;
+  my $base_uri = $uri->clone;
+  my @segments = $base_uri->path_segments;
+  pop @segments;
+  $base_uri->path_segments(@segments);
+  $base_uri;
 }
 
 1;
