@@ -1023,7 +1023,7 @@ sub init_all_buchungsgruppen {
   if ( $self->part->orphaned ) {
     return SL::DB::Manager::Buchungsgruppe->get_all_sorted;
   } else {
-    return SL::DB::Manager::Buchungsgruppe->get_all(where => [ id => $self->part->buchungsgruppen_id ]);
+    return SL::DB::Manager::Buchungsgruppe->get_all_sorted(where => [ id => $self->part->buchungsgruppen_id ]);
   }
 }
 
