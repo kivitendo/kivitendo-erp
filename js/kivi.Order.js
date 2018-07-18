@@ -35,9 +35,19 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
-  ns.save = function(action, warn_on_duplicates) {
+  ns.check_valid_reqdate = function() {
+    if ($('#order_reqdate').val() === '') {
+      alert(kivi.t8('Please select a delivery date.'));
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
+    if (warn_on_reqdate    && !ns.check_valid_reqdate()) return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/' + action });

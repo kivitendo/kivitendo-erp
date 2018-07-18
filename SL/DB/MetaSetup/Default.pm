@@ -99,6 +99,7 @@ __PACKAGE__->meta->columns(
   normalize_vc_names                        => { type => 'boolean', default => 'true' },
   order_always_project                      => { type => 'boolean', default => 'false' },
   order_warn_duplicate_parts                => { type => 'boolean', default => 'true' },
+  order_warn_no_deliverydate                => { type => 'boolean', default => 'true' },
   parts_image_css                           => { type => 'text', default => 'border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;' },
   parts_listing_image                       => { type => 'boolean', default => 'true' },
   parts_show_image                          => { type => 'boolean', default => 'true' },

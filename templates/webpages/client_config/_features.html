@@ -208,6 +208,11 @@
    <td>[% L.yes_no_tag("defaults.order_warn_duplicate_parts", SELF.defaults.order_warn_duplicate_parts) %]</td>
    <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there are two or more positions of the same part (new controller only).") %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Warn before saving orders without a delivery date") %]</td>
+   <td>[% L.yes_no_tag("defaults.order_warn_no_deliverydate", SELF.defaults.order_warn_no_deliverydate) %]</td>
+   <td>[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there the delivery date is empty.") %]</td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("E-mail") %]</td></tr>
 
