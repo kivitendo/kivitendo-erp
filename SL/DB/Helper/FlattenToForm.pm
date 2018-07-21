@@ -36,7 +36,7 @@ sub flatten_to_form {
   $form->{vc} = $vc if ref($self) =~ m{^SL::DB::(?:.*Invoice|.*Order)};
 
   my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit
-                               department_1 department_2 discount email fax gln homepage iban language name
+                               department_1 department_2 discount email fax gln greeting homepage iban language name
                                phone street taxnumber ustid zipcode),
                             "${vc}number",
                             ($vc eq 'customer')? 'c_vendor_id': 'v_customer_id');
