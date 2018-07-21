@@ -1,4 +1,4 @@
-Sehr geehrter Benutzer,
+Guten Tag
 
 die folgenden wiederkehrenden Rechnungen wurden automatisch erzeugt:
 
@@ -11,7 +11,7 @@ Davon wurden die folgenden Rechnungen automatisch ausgedruckt:
 [%- END %]
 
 [% IF EMAILED_INVOICES.size -%]
-Davon wurden die folgenden Rechnungen automatisch per E-Mail versand:
+Davon wurden die folgenden Rechnungen automatisch per E-Mail versandt:
 
 [% FOREACH inv = EMAILED_INVOICES %][% inv.invnumber %] [% END %]
 [%- END %]
