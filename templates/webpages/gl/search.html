@@ -43,12 +43,6 @@
     <td colspan=3>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
   </tr>
   <tr>
-    <th align=right style="color:red;">[% 'Attention!' | $T8 %]</th>
-    <td colspan=3 style="color:red;">
-    [% 'Since kivitendo version 3.5 new notations, see documentation 2.14' | $T8 %]
-    </td>
-  </tr>
-  <tr>
     <th align=right>[% 'Filter date by' | $T8 %]</th>
     <td colspan=3>
     <input name=datesort class=radio type=radio value=transdate checked> [% 'Transdate' | $T8 %]
