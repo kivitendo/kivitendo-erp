@@ -128,8 +128,8 @@ sub template_dirs {
 sub classes_from_latex {
   my ($path, $class) = @_;
   eval { require String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
-  $path  = shell_quote $path;
-  $class = shell_quote $class;
+  $path  = String::ShellQuote::shell_quote $path;
+  $class = String::ShellQuote::shell_quote $class;
 
   open my $pipe, q#egrep -rs '^[\ \t]*# . "$class' $path". q# | sed 's/ //g' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' |#;
   my @cls = <$pipe>;

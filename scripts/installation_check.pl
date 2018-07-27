@@ -180,9 +180,9 @@ sub kpsewhich {
   my $type_desc = $type eq 'cls' ? 'document class' : 'package';
 
   eval { require String::ShellQuote; 1 } or warn "can't load String::ShellQuote" && return;
-     $dw         = shell_quote $dw;
-  my $e_package  = shell_quote $package;
-  my $e_type     = shell_quote $type;
+     $dw         = String::ShellQuote::shell_quote $dw;
+  my $e_package  = String::ShellQuote::shell_quote $package;
+  my $e_type     = String::ShellQuote::shell_quote $type;
 
   my $exit = system(qq|TEXINPUTS=".:$dw:" kpsewhich $e_package.$e_type > /dev/null|);
   my $res  = $exit > 0 ? 0 : 1;
