@@ -364,7 +364,7 @@ sub action_send_email {
   $::form->{$_}     = $::form->{print_options}->{$_} for keys %{ $::form->{print_options} };
   $::form->{media}  = 'email';
 
-  if (($::form->{attachment_policy} // '') eq 'normal') {
+  if (($::form->{attachment_policy} // '') !~ m{^(?:old_file|no_file)$}) {
     my $language;
     $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
