@@ -361,6 +361,7 @@ sub action_send_email {
   $::form->{cwd}    = getcwd();
   $::form->{tmpdir} = $::lx_office_conf{paths}->{userspath};
 
+  $::form->{$_}     = $::form->{print_options}->{$_} for keys %{ $::form->{print_options} };
   $::form->{media}  = 'email';
 
   if (($::form->{attachment_policy} // '') eq 'normal') {
