@@ -1193,6 +1193,14 @@ sub _new_item {
   my ($record, $attr) = @_;
 
   my $item = SL::DB::OrderItem->new;
+
+  # Remove attributes where the user left or set the inputs empty.
+  # So these attributes will be undefined and we can distinguish them
+  # from zero later on.
+  for (qw(qty_as_number sellprice_as_number discount_as_percent)) {
+    delete $attr->{$_} if $attr->{$_} eq '';
+  }
+
   $item->assign_attributes(%$attr);
 
   my $part         = SL::DB::Part->new(id => $attr->{parts_id})->load;
@@ -1205,7 +1213,7 @@ sub _new_item {
     # add assortment items with price 0, as the components carry the price
     $price_src = $price_source->price_from_source("");
     $price_src->price(0);
-  } elsif ($item->sellprice) {
+  } elsif (defined $item->sellprice) {
     $price_src = $price_source->price_from_source("");
     $price_src->price($item->sellprice);
   } else {
@@ -1216,7 +1224,7 @@ sub _new_item {
   }
 
   my $discount_src;
-  if ($item->discount) {
+  if (defined $item->discount) {
     $discount_src = $price_source->discount_from_source("");
     $discount_src->discount($item->discount);
   } else {
