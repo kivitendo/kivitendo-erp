@@ -212,13 +212,13 @@ sub action_print {
   $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
   # create a form for generate_attachment_filename
-  my $form = Form->new;
-  $form->{ordnumber} = $self->order->ordnumber;
-  $form->{type}      = $self->type;
-  $form->{format}    = $format;
-  $form->{formname}  = $formname;
-  $form->{language}  = '_' . $language->template_code if $language;
-  my $pdf_filename   = $form->generate_attachment_filename();
+  my $form   = Form->new;
+  $form->{$self->_nr_key()} = $self->order->number;
+  $form->{type}             = $self->type;
+  $form->{format}           = $format;
+  $form->{formname}         = $formname;
+  $form->{language}         = '_' . $language->template_code if $language;
+  my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
   my @errors = _create_pdf($self->order, \$pdf, { format     => $format,
@@ -254,10 +254,10 @@ sub action_print {
   }
 
   # copy file to webdav folder
-  if ($self->order->ordnumber && $::instance_conf->get_webdav_documents) {
+  if ($self->order->number && $::instance_conf->get_webdav_documents) {
     my $webdav = SL::Webdav->new(
       type     => $self->type,
-      number   => $self->order->ordnumber,
+      number   => $self->order->number,
     );
     my $webdav_file = SL::Webdav::File->new(
       webdav   => $webdav,
@@ -270,7 +270,7 @@ sub action_print {
       $self->js->flash('error', t8('Storing PDF to webdav folder failed: #1', $@));
     }
   }
-  if ($self->order->ordnumber && $::instance_conf->get_doc_storage) {
+  if ($self->order->number && $::instance_conf->get_doc_storage) {
     eval {
       SL::File->save(object_id     => $self->order->id,
                      object_type   => $self->type,
@@ -321,11 +321,11 @@ sub action_show_email_dialog {
   # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
-  $form->{ordnumber} = $self->order->ordnumber;
-  $form->{formname}  = $self->type;
-  $form->{type}      = $self->type;
-  $form->{language} = 'de';
-  $form->{format}   = 'pdf';
+  $form->{$self->_nr_key()} = $self->order->number;
+  $form->{formname}         = $self->type;
+  $form->{type}             = $self->type;
+  $form->{language}         = 'de';
+  $form->{format}           = 'pdf';
 
   $email_form->{subject}             = $form->generate_email_subject();
   $email_form->{attachment_filename} = $form->generate_attachment_filename();
@@ -1445,10 +1445,10 @@ sub _pre_render {
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
   }
 
-  if ($self->order->ordnumber && $::instance_conf->get_webdav) {
+  if ($self->order->number && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
       type     => $self->type,
-      number   => $self->order->ordnumber,
+      number   => $self->order->number,
     );
     my @all_objects = $webdav->get_all_objects;
     @{ $self->{template_args}->{WEBDAV} } = map { { name => $_->filename,
@@ -1690,6 +1690,14 @@ sub _sales_quotation_type {
 
 sub _request_quotation_type {
   'request_quotation';
+}
+
+sub _nr_key {
+  return $_[0]->type eq _sales_order_type()       ? 'ordnumber'
+       : $_[0]->type eq _purchase_order_type()    ? 'ordnumber'
+       : $_[0]->type eq _sales_quotation_type()   ? 'quonumber'
+       : $_[0]->type eq _request_quotation_type() ? 'quonumber'
+       : '';
 }
 
 1;
