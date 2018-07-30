@@ -392,8 +392,8 @@ EOT
  <body>
 
 EOT
-  print $::request->{layout}->pre_content;
-  print $::request->{layout}->start_content;
+  print $::request->layout->pre_content;
+  print $::request->layout->start_content;
 
   $layout->header_done;
 
@@ -401,12 +401,12 @@ EOT
 }
 
 sub footer {
-  return unless $::request->{layout}->need_footer;
+  return unless $::request->layout->need_footer;
 
-  print $::request->{layout}->end_content;
-  print $::request->{layout}->post_content;
+  print $::request->layout->end_content;
+  print $::request->layout->post_content;
 
-  if (my @inline_scripts = $::request->{layout}->javascripts_inline) {
+  if (my @inline_scripts = $::request->layout->javascripts_inline) {
     print "<script type='text/javascript'>" . join("; ", @inline_scripts) . "</script>\n";
   }
 
