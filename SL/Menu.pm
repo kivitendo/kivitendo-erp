@@ -180,7 +180,7 @@ sub parse_access_string {
 
   my $access = $node->{access};
 
-  while ($access =~ m/^([a-z_\/]+|\||\&|\(|\)|\s+)/) {
+  while ($access =~ m/^([a-z_\/]+|\!|\||\&|\(|\)|\s+)/) {
     my $token = $1;
     substr($access, 0, length($1)) = "";
 
@@ -199,7 +199,7 @@ sub parse_access_string {
       }
       $cur_ary = $stack[-1];
 
-    } elsif (($token eq "|") || ($token eq "&")) {
+    } elsif (($token eq "|") || ($token eq "&") || ($token eq "!")) {
       push @{$cur_ary}, $token;
 
     } else {
@@ -273,4 +273,3 @@ sub set_access {
 }
 
 1;
-

@@ -57,6 +57,24 @@ ok(!$menu->parse_access_string(\%node), 'parenthesis 2');
 $node{access} = 'sales_quotation_edit & client/feature_experimental';
 ok($menu->parse_access_string(\%node), 'client');
 
+$node{access} = '!no_such_right';
+ok($menu->parse_access_string(\%node), 'simple negation 1');
+
+$node{access} = '!sales_order_edit';
+ok(!$menu->parse_access_string(\%node), 'simple negation 2');
+
+$node{access} = '!!sales_order_edit';
+ok($menu->parse_access_string(\%node), 'double negation');
+
+$node{access} = '(no_such_right & sales_order_edit | !(no_such_right & sales_order_edit))';
+ok($menu->parse_access_string(\%node), 'parenthesis with negation 1');
+
+$node{access} = '(no_such_right & sales_order_edit | (!no_such_right | !sales_order_edit))';
+ok($menu->parse_access_string(\%node), 'parenthesis with negation 2');
+
+$node{access} = 'sales_quotation_edit & !client/feature_experimental';
+ok(!$menu->parse_access_string(\%node), 'client negation');
+
 done_testing;
 
 1;

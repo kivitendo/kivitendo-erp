@@ -11,7 +11,9 @@
 #          ( ) & | are supported.  if binary operator is missing the last
 #          operator in same scope is repeated, or "|" if none used in scope
 #          yet. client config entries can be used as rights by prefixing them
-#          with "client/". If missing, access will be granted.
+#          with "client/".
+#          ! is supported to negate the subsequent expression.
+#          If missing, access will be granted.
 #
 #          Example:
 #            client/feature_default_enabled | ( feature & system )
