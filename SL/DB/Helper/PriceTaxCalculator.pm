@@ -83,7 +83,7 @@ sub _calculate_item {
   my ($self, $item, $idx, $data, %params) = @_;
 
   my $part       = SL::DB::Part->load_cached($item->parts_id);
-  return unless $item->part;
+  return unless $part;
 
   my $part_unit  = $data->{units_by_name}->{ $part->unit };
   my $item_unit  = $data->{units_by_name}->{ $item->unit };
