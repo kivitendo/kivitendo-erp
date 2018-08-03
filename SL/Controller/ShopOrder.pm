@@ -156,7 +156,8 @@ sub action_transfer {
       $self->shop_order->save;
       $self->shop_order->link_to_record($order);
     }) || die $order->db->error;
-    $self->redirect_to(controller => "oe.pl", action => 'edit', type => 'sales_order', vc => 'customer', id => $order->id);
+    my $order_controller = $::instance_conf->get_feature_experimental ? 'Order' :'oe.pl';
+    $self->redirect_to(controller => $order_controller, action => 'edit', type => 'sales_order', vc => 'customer', id => $order->id);
   }
 }
 

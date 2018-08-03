@@ -336,8 +336,14 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'sales_quotation') {
+    my $script = 'oe.pl';
+    my $action = 'edit';
+    if ($::instance_conf->get_feature_experimental) {
+      $script = 'controller.pl';
+      $action = 'Order/edit';
+    }
     $link = {
-      'url'   => 'oe.pl?action=edit&type=sales_quotation&id=' . $params{trans_id},
+      'url'   => $script . '?action=' . $action . '&type=sales_quotation&id=' . $params{trans_id},
       'title' => $locale->text('Sales quotation') . " $params{trans_info}",
     };
 
@@ -356,8 +362,14 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'sales_order') {
+    my $script = 'oe.pl';
+    my $action = 'edit';
+    if ($::instance_conf->get_feature_experimental) {
+      $script = 'controller.pl';
+      $action = 'Order/edit';
+    }
     $link = {
-      'url'   => 'oe.pl?action=edit&type=sales_order&id=' . $params{trans_id},
+      'url'   => $script . '?action=' . $action . '&type=sales_order&id=' . $params{trans_id},
       'title' => $locale->text('Sales Order') . " $params{trans_info}",
     };
 
@@ -386,14 +398,26 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'request_quotation') {
+    my $script = 'oe.pl';
+    my $action = 'edit';
+    if ($::instance_conf->get_feature_experimental) {
+      $script = 'controller.pl';
+      $action = 'Order/edit';
+    }
     $link = {
-      'url'   => 'oe.pl?action=edit&type=request_quotation&id=' . $params{trans_id},
+      'url'   => $script . '?action=' . $action . '&type=request_quotation&id=' . $params{trans_id},
       'title' => $locale->text('Request quotation') . " $params{trans_info}",
     };
 
   } elsif ($params{trans_type} eq 'purchase_order') {
+    my $script = 'oe.pl';
+    my $action = 'edit';
+    if ($::instance_conf->get_feature_experimental) {
+      $script = 'controller.pl';
+      $action = 'Order/edit';
+    }
     $link = {
-      'url'   => 'oe.pl?action=edit&type=purchase_order&id=' . $params{trans_id},
+      'url'   => $script . '?action=' . $action . '&type=purchase_order&id=' . $params{trans_id},
       'title' => $locale->text('Purchase Order') . " $params{trans_info}",
     };
 
