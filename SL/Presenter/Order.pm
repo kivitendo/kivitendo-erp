@@ -42,11 +42,17 @@ sub _oe_record {
 
   my $number_method = $order->quotation ? 'quonumber' : 'ordnumber';
 
-  my $text = join '', (
-    $params{no_link} ? '' : '<a href="oe.pl?action=edit&amp;type=' . $type . '&amp;id=' . escape($order->id) . '">',
-    escape($order->$number_method),
-    $params{no_link} ? '' : '</a>',
-  );
+  my $link_start = '';
+  my $link_end   = '';
+  unless ($params{no_link}) {
+    my $action  = $::instance_conf->get_feature_experimental
+                ? 'controller.pl?action=Order/edit'
+                : 'oe.pl?action=edit';
+    $link_start = '<a href="' . $action . '&amp;type=' . $type . '&amp;id=' . escape($order->id) . '">';
+    $link_end   = '</a>';
+  }
+
+  my $text = join '', ($link_start, escape($order->$number_method), $link_end);
 
   is_escaped($text);
 }

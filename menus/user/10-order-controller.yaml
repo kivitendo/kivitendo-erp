@@ -1,6 +1,19 @@
 - parent: ar
+  id: ar_add_quotation
+  access: sales_quotation_edit & (!client/feature_experimental)
+- parent: ar
+  id: ar_add_sales_order
+  access: sales_order_edit & (!client/feature_experimental)
+- parent: ap
+  id: ap_add_rfq
+  access: request_quotation_edit & (!client/feature_experimental)
+- parent: ap
+  id: ap_add_purchase_order
+  access: purchase_order_edit & (!client/feature_experimental)
+
+- parent: ar
   id: ar_add_quotation_experimental
-  name: Add Quotation (experimental)
+  name: Add Quotation
   icon: quotation_add
   order: 250
   access: sales_quotation_edit & client/feature_experimental
@@ -9,7 +22,7 @@
     type: sales_quotation
 - parent: ar
   id: ar_add_sales_order_experimental
-  name: Add Sales Order (experimental)
+  name: Add Sales Order
   icon: sales_order_add
   order: 350
   access: sales_order_edit & client/feature_experimental
@@ -19,7 +32,7 @@
 
 - parent: ap
   id: ap_add_rfq_experimental
-  name: Add RFQ (experimental)
+  name: Add RFQ
   icon: rfq_add
   order: 150
   access: request_quotation_edit & client/feature_experimental
@@ -28,7 +41,7 @@
     type: request_quotation
 - parent: ap
   id: ap_add_purchase_order_experimental
-  name: Add Purchase Order (experimental)
+  name: Add Purchase Order
   icon: purchase_order_add
   order: 250
   access: purchase_order_edit & client/feature_experimental

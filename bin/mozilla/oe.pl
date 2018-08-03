@@ -1008,7 +1008,7 @@ sub orders {
 
   my @columns = (
     "transdate",               "reqdate",
-    "id",                      $ordnumber,             "edit_exp",
+    "id",                      $ordnumber,
     "cusordnumber",            "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
@@ -1035,7 +1035,6 @@ sub orders {
   $form->{l_open}              = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered}         = "Y"                     if ($form->{delivered} && $form->{notdelivered});
   $form->{l_periodic_invoices} = "Y"                     if ($form->{periodic_invoices_active} && $form->{periodic_invoices_inactive});
-  $form->{l_edit_exp}          = "Y"                     if $::instance_conf->get_feature_experimental && (any { $form->{type} eq $_ } qw(sales_order purchase_order sales_quotation request_quotation));
   map { $form->{"l_${_}"} = 'Y' } qw(order_probability expected_billing_date expected_netamount) if $form->{l_order_probability_expected_billing_date};
 
   my $attachment_basename;
@@ -1117,7 +1116,6 @@ sub orders {
     'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
-    'edit_exp'                => { 'text' => $locale->text('Edit (experimental)'), },
     %column_defs_cvars,
   );
 
@@ -1225,7 +1223,9 @@ sub orders {
 
   my $idx = 1;
 
-  my $edit_url = build_std_url('action=edit', 'type', 'vc');
+  my $edit_url = ($::instance_conf->get_feature_experimental)
+               ? build_std_url('script=controller.pl', 'action=Order/edit', 'type')
+               : build_std_url('action=edit', 'type', 'vc');
 
   foreach my $oe (@{ $form->{OE} }) {
     map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
@@ -1249,7 +1249,6 @@ sub orders {
 
     foreach my $column (@columns) {
       next if ($column eq 'ids');
-      next if ($column eq 'edit_exp');
       $row->{$column} = {
         'data'  => $oe->{$column},
         'align' => $column_alignment{$column},
@@ -1264,9 +1263,6 @@ sub orders {
     };
 
     $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
-
-    $row->{edit_exp}->{data}   = $oe->{$ordnumber};
-    $row->{edit_exp}->{link}   = build_std_url('script=controller.pl', 'action=Order/edit', "type=$form->{type}", 'id=' . E($oe->{id}));
 
     my $row_set = [ $row ];
 
@@ -2137,7 +2133,9 @@ sub report_for_todo_list {
   my $content;
 
   if (@{ $quotations }) {
-    my $edit_url = build_std_url('script=oe.pl', 'action=edit');
+    my $edit_url = ($::instance_conf->get_feature_experimental)
+                 ? build_std_url('script=controller.pl', 'action=Order/edit')
+                 : build_std_url('script=oe.pl', 'action=edit');
 
     $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
                                                                            'edit_url'   => $edit_url });
