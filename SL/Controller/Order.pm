@@ -1423,9 +1423,6 @@ sub _pre_render {
   $self->{all_salesmen}             = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
                                                                                             deleted => 0 ] ],
                                                                          sort_by => 'name');
-  $self->{all_projects}             = SL::DB::Manager::Project->get_all(where => [ or => [ id => $self->order->globalproject_id,
-                                                                                           active => 1 ] ],
-                                                                        sort_by => 'projectnumber');
   $self->{all_payment_terms}        = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
                                                                                                       obsolete => 0 ] ]);
   $self->{all_delivery_terms}       = SL::DB::Manager::DeliveryTerm->get_all_sorted();
