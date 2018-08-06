@@ -1104,7 +1104,7 @@ sub _load_order {
 
   return if !$::form->{id};
 
-  $self->order(SL::DB::Manager::Order->find_by(id => $::form->{id}));
+  $self->order(SL::DB::Order->new(id => $::form->{id})->load);
 }
 
 # load or create a new order object
