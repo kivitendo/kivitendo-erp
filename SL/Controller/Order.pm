@@ -72,7 +72,23 @@ sub action_add {
 sub action_edit {
   my ($self) = @_;
 
-  $self->load_order;
+  if ($::form->{id}) {
+    $self->load_order;
+
+  } else {
+    # this is to edit an order from an unsaved order object
+
+    # set item ids to new fake id, to identify them as new items
+    foreach my $item (@{$self->order->items_sorted}) {
+      $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+    }
+    # trigger rendering values for second row/longdescription as hidden,
+    # because they are loaded only on demand. So we need to keep the values
+    # from the source.
+    $_->{render_second_row}      = 1 for @{ $self->order->items_sorted };
+    $_->{render_longdescription} = 1 for @{ $self->order->items_sorted };
+  }
+
   $self->recalc();
   $self->pre_render();
   $self->render(

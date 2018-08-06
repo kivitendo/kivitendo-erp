@@ -909,6 +909,46 @@ sub validate_items {
 sub order {
   $main::lxdebug->enter_sub();
 
+  _order();
+
+  if ($::instance_conf->get_feature_experimental) {
+    my $order = _make_record();
+    $order->globalproject_id(undef) if !$order->globalproject_id;
+    $order->payment_id(undef)       if !$order->payment_id;
+    my $row = 1;
+    foreach my $item (@{$order->items_sorted}) {
+      $item->custom_variables([]);
+
+      $item->price_factor_id(undef) if !$item->price_factor_id;
+      $item->project_id(undef)      if !$item->project_id;
+      $item->discount($item->discount/100.0);
+
+      # autovivify all cvars that are not in the form (cvars_by_config can do it).
+      # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+       foreach my $var (@{ $item->cvars_by_config }) {
+        my $key = 'ic_cvar_' . $var->config->name . '_' . $row;
+        $var->unparsed_value($::form->{$key});
+        $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+      }
+      $item->parse_custom_variable_values;
+
+      $row++;
+    }
+
+    require SL::Controller::Order;
+    my $c = SL::Controller::Order->new(order => $order);
+    $c->action_edit();
+
+    $main::lxdebug->leave_sub();
+    $::dispatcher->end_request;
+  }
+
+  &display_form;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _order {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -982,9 +1022,6 @@ sub order {
   }
 
   &prepare_order;
-  &display_form;
-
-  $main::lxdebug->leave_sub();
 }
 
 sub quotation {
