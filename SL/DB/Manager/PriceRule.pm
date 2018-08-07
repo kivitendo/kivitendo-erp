@@ -72,11 +72,12 @@ SQL
 sub get_all_matching {
   my ($self, %params) = @_;
 
-  my ($query, @values) = $self->get_matching_filter(%params);
-  my @ids = selectcol_array_query($::form, SL::DB->client->dbh, $query, @values);
-  return [] unless @ids;
+  my ($sub_query, @values) = $self->get_matching_filter(%params);
+  my $dbh = SL::DB->client->dbh;
 
-  $self->get_all(query => [ id => \@ids ]);
+  $sub_query =~ s/\?/ $dbh->quote(shift @values) /eg;
+
+  $self->get_all(query => [ id => [ \$sub_query ] ]);
 }
 
 sub all_price_types {
