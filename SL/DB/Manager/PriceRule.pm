@@ -58,8 +58,8 @@ sub get_matching_filter {
   # now union all NOT matching, invert ids, load these
   my $matching_rule_ids = <<SQL;
     SELECT id FROM price_rules
-    WHERE id NOT IN (
-      SELECT price_rules_id FROM price_rule_items WHERE $sub_where
+    WHERE NOT EXISTS (
+      SELECT * FROM price_rule_items WHERE price_rules.id = price_rules_id AND ($sub_where)
     )
     AND type = ? AND NOT obsolete
 SQL
