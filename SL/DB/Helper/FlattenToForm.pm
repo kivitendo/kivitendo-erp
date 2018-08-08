@@ -52,10 +52,8 @@ sub flatten_to_form {
   _copy($self->salesman,                $form, 'salesman_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'salesman_id');
   _copy($self->acceptance_confirmed_by, $form, 'acceptance_confirmed_by_', '', 0, map { $_->name } SL::DB::Employee->meta->columns)        if _has($self, 'acceptance_confirmed_by_id');
 
-  if (_has($self, 'employee_id')) {
-    my $user = User->new(login => $self->employee->login);
-    $form->{"employee_$_"} = $user->{$_} for qw(tel email fax);
-  }
+  _handle_user_data($self, $form);
+
   # company is employee and login independent
   $form->{"${_}_company"}  = $::instance_conf->get_company for qw (employee salesman);
 
@@ -168,6 +166,25 @@ sub _determine_cvar_validity {
     items => \%item_cvar_validity,
     vc    => \%vc_cvar_validity,
   );
+}
+
+sub  _handle_user_data {
+  my ($self, $form) = @_;
+
+  foreach my $type (qw(employee salesman)) {
+    next if !_has($self, "${type}_id");
+
+    my $user = User->new(login => $self->$type->login);
+    $form->{"${type}_$_"} = $user->{$_} for qw(tel email fax signature);
+
+    if ($self->$type->deleted) {
+      for my $key (grep { $_ =~ m{^deleted_} } SL::DB::Employee->meta->columns) {
+        $key =~ s{^deleted_}{};
+        $form->{"${type}_${key}"} = $form->{"${type}_deleted_${key}"}
+      }
+    }
+
+  }
 }
 
 1;
