@@ -245,6 +245,7 @@ namespace('kivi.Part', function(ns) {
 
     var data = $('#makemodel_table :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_makemodel_row' });
+    $('#add_makemodel').data('customer_vendor_picker').clear();
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -273,6 +274,7 @@ namespace('kivi.Part', function(ns) {
 
     var data = $('#customerprice_table :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_customerprice_row' });
+    $('#add_customerprice').data('customer_vendor_picker').clear();
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
