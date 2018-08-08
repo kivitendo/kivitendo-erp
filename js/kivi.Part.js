@@ -269,7 +269,7 @@ namespace('kivi.Part', function(ns) {
   };
 
   ns.add_customerprice_row = function() {
-    if ($('#add_customerpriceid').val() === '') return;
+    if ($('#add_customerprice').val() === '') return;
 
     var data = $('#customerprice_table :input').serializeArray();
     data.push({ name: 'action', value: 'Part/add_customerprice_row' });
