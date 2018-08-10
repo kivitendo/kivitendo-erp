@@ -1,6 +1,6 @@
 namespace('kivi.Order', function(ns) {
   ns.check_cv = function() {
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
+    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
       if ($('#order_customer_id').val() === '') {
         alert(kivi.t8('Please select a customer.'));
         return false;
@@ -15,7 +15,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.check_save_duplicate_parts = function() {
-    var id_arr = $('[name="order.orderitems[].parts_id"]').map(function() {return this.value;}).get();
+    var id_arr = $('[name="order.orderitems[].parts_id"]').map(function() { return this.value; }).get();
 
     var i, obj = {}, pos = [];
 
@@ -47,7 +47,7 @@ namespace('kivi.Order', function(ns) {
   ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
     if (!ns.check_cv()) return;
     if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
-    if (warn_on_reqdate    && !ns.check_valid_reqdate()) return;
+    if (warn_on_reqdate    && !ns.check_valid_reqdate())        return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/' + action });
@@ -86,11 +86,10 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.download_pdf = function(pdf_filename, key) {
-    var data = [];
-    data.push({ name: 'action', value: 'Order/download_pdf' });
-    data.push({ name: 'type', value: $('#type').val() });
-    data.push({ name: 'pdf_filename', value: pdf_filename });
-    data.push({ name: 'key', value: key });
+    var data = [{ name: 'action',       value: 'Order/download_pdf' },
+                { name: 'type',         value: $('#type').val()     },
+                { name: 'pdf_filename', value: pdf_filename         },
+                { name: 'key',          value: key                  }];
     $.download("controller.pl", data);
   };
 
@@ -183,25 +182,25 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.unit_change = function(event) {
-    var row = $(event.target).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
+    var row           = $(event.target).parents("tbody").first();
+    var item_id_dom   = $(row).find('[name="orderitem_ids[+]"]');
     var sellprice_dom = $(row).find('[name="order.orderitems[].sellprice_as_number"]');
-    var select_elt = $(row).find('[name="order.orderitems[].unit"]');
+    var select_elt    = $(row).find('[name="order.orderitems[].unit"]');
 
     var oldval = $(select_elt).data('oldval');
     $(select_elt).data('oldval', $(select_elt).val());
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/unit_changed' });
-    data.push({ name: 'item_id', value: item_id_dom.val() });
-    data.push({ name: 'old_unit', value: oldval });
-    data.push({ name: 'sellprice_dom_id', value: sellprice_dom.attr('id') });
+    data.push({ name: 'action',           value: 'Order/unit_changed'     },
+              { name: 'item_id',          value: item_id_dom.val()        },
+              { name: 'old_unit',         value: oldval                   },
+              { name: 'sellprice_dom_id', value: sellprice_dom.attr('id') });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.update_sellprice = function(item_id, price_str) {
-    var row = $('#item_' + item_id).parents("tbody").first();
+    var row       = $('#item_' + item_id).parents("tbody").first();
     var price_elt = $(row).find('[name="order.orderitems[].sellprice_as_number"]');
     var html_elt  = $(row).find('[name="sellprice_text"]');
     price_elt.val(price_str);
@@ -210,14 +209,14 @@ namespace('kivi.Order', function(ns) {
 
   ns.load_second_row = function(row) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
-    var div_elt = $(row).find('[name="second_row"]');
+    var div_elt     = $(row).find('[name="second_row"]');
 
     if ($(div_elt).data('loaded') == 1) {
       return;
     }
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/load_second_rows' });
-    data.push({ name: 'item_ids[]', value: item_id_dom.val() });
+    data.push({ name: 'action',     value: 'Order/load_second_rows' },
+              { name: 'item_ids[]', value: item_id_dom.val()        });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -285,7 +284,7 @@ namespace('kivi.Order', function(ns) {
 
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
-        if(event.keyCode == 40 && event.shiftKey === true) {
+        if (event.keyCode == 40 && event.shiftKey === true) {
           // shift arrow down
           event.preventDefault();
           var row = $(event.target).parents(".row_entry").first();
@@ -293,7 +292,7 @@ namespace('kivi.Order', function(ns) {
           ns.show_second_row(row);
           return false;
         }
-        if(event.keyCode == 38 && event.shiftKey === true) {
+        if (event.keyCode == 38 && event.shiftKey === true) {
           // shift arrow up
           event.preventDefault();
           var row = $(event.target).parents(".row_entry").first();
@@ -352,9 +351,9 @@ namespace('kivi.Order', function(ns) {
     $('#' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/reorder_items' });
-    data.push({ name: 'order_by', value: order_by });
-    data.push({ name: 'sort_dir', value: dir });
+    data.push({ name: 'action',   value: 'Order/reorder_items' },
+              { name: 'order_by', value: order_by              },
+              { name: 'sort_dir', value: dir                   });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -388,12 +387,12 @@ namespace('kivi.Order', function(ns) {
 
     kivi.popup_dialog({
       url: 'controller.pl?action=Order/show_multi_items_dialog',
-      data: { type: $('#type').val(),
-              callback: 'Order/add_multi_items',
+      data: { type:             $('#type').val(),
+              callback:         'Order/add_multi_items',
               callback_data_id: 'order_form' },
       id: 'jq_multi_items_dialog',
       dialog: {
-        title: kivi.t8('Add multiple items'),
+        title:  kivi.t8('Add multiple items'),
         width:  800,
         height: 500
       }
@@ -418,27 +417,29 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.show_longdescription_dialog = function(clicked) {
-    var row = $(clicked).parents("tbody").first();
-    var position = $(row).find('[name="position"]').html();
-    var partnumber = $(row).find('[name="partnumber"]').html();
-    var description_elt = $(row).find('[name="order.orderitems[].description"]');
-    var description = description_elt.val();
+    var row                 = $(clicked).parents("tbody").first();
+    var position            = $(row).find('[name="position"]').html();
+    var partnumber          = $(row).find('[name="partnumber"]').html();
+    var description_elt     = $(row).find('[name="order.orderitems[].description"]');
+    var description         = description_elt.val();
     var longdescription_elt = $(row).find('[name="order.orderitems[].longdescription"]');
     var longdescription;
 
     if (!longdescription_elt.length) {
-      var data = [];
-      data.push({ name: 'action', value: 'Order/get_item_longdescription' });
-      data.push({ name: 'type', value: $('#type').val() });
-      data.push({ name: 'item_id', value: $(row).find('[name="order.orderitems[+].id"]').val() });
-      data.push({ name: 'parts_id', value: $(row).find('[name="order.orderitems[].parts_id"]').val() });
+      var data = [
+        { name: 'action',   value: 'Order/get_item_longdescription'                          },
+        { name: 'type',     value: $('#type').val()                                          },
+        { name: 'item_id',  value: $(row).find('[name="order.orderitems[+].id"]').val()      },
+        { name: 'parts_id', value: $(row).find('[name="order.orderitems[].parts_id"]').val() }
+      ];
+
       $.ajax({
-        url: 'controller.pl',
-        data: data,
-        method: "GET",
-        async: false,
+        url:      'controller.pl',
+        data:     data,
+        method:   "GET",
+        async:    false,
         dataType: 'text',
-        success: function(val){
+        success:  function(val) {
           longdescription = val;
         }
       });
@@ -446,40 +447,41 @@ namespace('kivi.Order', function(ns) {
       longdescription = longdescription_elt.val();
     }
 
-    var params = { runningnumber: position,
-                   partnumber: partnumber,
-                   description: description,
-                   default_longdescription: longdescription,
-                   set_function: function(val){
-                     longdescription_elt.remove();
-                     $('<input type="hidden" name="order.orderitems[].longdescription">').insertAfter(description_elt).val(val);
-                   }
-                 };
+    var params = {
+      runningnumber:           position,
+      partnumber:              partnumber,
+      description:             description,
+      default_longdescription: longdescription,
+      set_function:            function(val) {
+        longdescription_elt.remove();
+        $('<input type="hidden" name="order.orderitems[].longdescription">').insertAfter(description_elt).val(val);
+      }
+    };
 
     kivi.SalesPurchase.edit_longdescription_with_params(params);
   };
 
   ns.price_chooser_item_row = function(clicked) {
     if (!ns.check_cv()) return;
-    var row = $(clicked).parents("tbody").first();
+    var row         = $(clicked).parents("tbody").first();
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
 
     var data = $('#order_form').serializeArray();
-    data.push({ name: 'action', value: 'Order/price_popup' });
-    data.push({ name: 'item_id', value: item_id_dom.val() });
+    data.push({ name: 'action',  value: 'Order/price_popup' },
+              { name: 'item_id', value: item_id_dom.val()   });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
-    var row = $('#item_' + item_id).parents("tbody").first();
+    var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="order.orderitems[].active_price_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
 
     button_elt.val(button_elt.val().replace(/.*\|/, descr + " |"));
     source_elt.val(source);
 
-    var editable_div_elt = $(row).find('[name="editable_price"]');
+    var editable_div_elt     = $(row).find('[name="editable_price"]');
     var not_editable_div_elt = $(row).find('[name="not_editable_price"]');
     if (price_editable == 1 && source === '') {
       // editable
@@ -507,14 +509,14 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
-    var row = $('#item_' + item_id).parents("tbody").first();
+    var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="order.orderitems[].active_discount_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
 
     button_elt.val(button_elt.val().replace(/\|.*/, "| " + descr));
     source_elt.val(source);
 
-    var editable_div_elt = $(row).find('[name="editable_discount"]');
+    var editable_div_elt     = $(row).find('[name="editable_discount"]');
     var not_editable_div_elt = $(row).find('[name="not_editable_discount"]');
     if (price_editable == 1 && source === '') {
       // editable
@@ -545,18 +547,18 @@ namespace('kivi.Order', function(ns) {
     if ($('#type').val() !== 'sales_order') return;
 
     kivi.popup_dialog({
-      url: 'controller.pl?action=Order/show_periodic_invoices_config_dialog',
-      data: { type       : $('#type').val(),
-              id         : $('#id').val(),
-              config     : $('#order_periodic_invoices_config').val(),
-              customer_id: $('#order_customer_id').val(),
-              transdate  : $('#order_transdate').val(),
-              language_id: $('#language_id').val()
-            },
-      id: 'jq_periodic_invoices_config_dialog',
-      load: kivi.reinit_widgets,
+      url:    'controller.pl?action=Order/show_periodic_invoices_config_dialog',
+      data:   { type:        $('#type').val(),
+                id:          $('#id').val(),
+                config:      $('#order_periodic_invoices_config').val(),
+                customer_id: $('#order_customer_id').val(),
+                transdate:   $('#order_transdate').val(),
+                language_id: $('#language_id').val()
+              },
+      id:     'jq_periodic_invoices_config_dialog',
+      load:   kivi.reinit_widgets,
       dialog: {
-        title: kivi.t8('Edit the configuration for periodic invoices'),
+        title:  kivi.t8('Edit the configuration for periodic invoices'),
         width:  800,
         height: 650
       }
@@ -570,8 +572,8 @@ namespace('kivi.Order', function(ns) {
 
   ns.assign_periodic_invoices_config = function() {
     var data = $('[name="Form"]').serializeArray();
-    data.push({ name: 'type',   value: $('#type').val() });
-    data.push({ name: 'action', value: 'Order/assign_periodic_invoices_config' });
+    data.push({ name: 'type',   value: $('#type').val() },
+              { name: 'action', value: 'Order/assign_periodic_invoices_config' });
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
@@ -581,16 +583,16 @@ namespace('kivi.Order', function(ns) {
 
     var active = false;
     $.ajax({
-      url: 'controller.pl',
-      data: { action: 'Order/get_has_active_periodic_invoices',
-              type  : type,
-              id    : $('#id').val(),
-              config: $('#order_periodic_invoices_config').val(),
-      },
-      method: "GET",
-      async: false,
+      url:      'controller.pl',
+      data:     { action: 'Order/get_has_active_periodic_invoices',
+                  type  : type,
+                  id    : $('#id').val(),
+                  config: $('#order_periodic_invoices_config').val(),
+                },
+      method:   "GET",
+      async:    false,
       dataType: 'text',
-      success: function(val){
+      success:  function(val) {
         active = val;
       }
     });
@@ -618,15 +620,15 @@ namespace('kivi.Order', function(ns) {
     }
 
     kivi.popup_dialog({
-      url: 'controller.pl',
-      data: { action: 'Order/show_customer_vendor_details_dialog',
-              type  : $('#type').val(),
-              vc    : vc,
-              vc_id : vc_id
-            },
-      id: 'jq_customer_vendor_details_dialog',
+      url:    'controller.pl',
+      data:   { action: 'Order/show_customer_vendor_details_dialog',
+                type  : $('#type').val(),
+                vc    : vc,
+                vc_id : vc_id
+              },
+      id:     'jq_customer_vendor_details_dialog',
       dialog: {
-        title: title,
+        title:  title,
         width:  800,
         height: 650
       }
@@ -635,17 +637,17 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.show_calculate_qty_dialog = function(clicked) {
-    var row = $(clicked).parents("tbody").first();
-    var input_id = $(row).find('[name="order.orderitems[].qty_as_number"]').attr('id');
+    var row        = $(clicked).parents("tbody").first();
+    var input_id   = $(row).find('[name="order.orderitems[].qty_as_number"]').attr('id');
     var formula_id = $(row).find('[name="formula[+]"]').attr('id');
 
     calculate_qty_selection_dialog("", input_id, "", formula_id);
     return true;
-  }
+  };
 
 });
 
-$(function(){
+$(function() {
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#order_customer_id').change(kivi.Order.reload_cv_dependant_selections);
   } else {
@@ -661,7 +663,7 @@ $(function(){
   $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
 
   $('.add_item_input').keydown(function(event) {
-    if(event.keyCode == 13) {
+    if (event.keyCode == 13) {
       event.preventDefault();
       kivi.Order.add_item();
       return false;
