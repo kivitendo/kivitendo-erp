@@ -39,12 +39,12 @@ use Rose::Object::MakeMethods::Generic
 
 
 # safety
-__PACKAGE__->run_before('_check_auth');
+__PACKAGE__->run_before('check_auth');
 
-__PACKAGE__->run_before('_recalc',
+__PACKAGE__->run_before('recalc',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
-__PACKAGE__->run_before('_get_unalterable_data',
+__PACKAGE__->run_before('get_unalterable_data',
                         only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
 
 #
@@ -56,13 +56,13 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  my $extra_days = $self->type eq _sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+  my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
   $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days)) if !$self->order->reqdate;
 
-  $self->_pre_render();
+  $self->pre_render();
   $self->render(
     'order/form',
-    title => $self->_get_title_for('add'),
+    title => $self->get_title_for('add'),
     %{$self->{template_args}}
   );
 }
@@ -71,12 +71,12 @@ sub action_add {
 sub action_edit {
   my ($self) = @_;
 
-  $self->_load_order;
-  $self->_recalc();
-  $self->_pre_render();
+  $self->load_order;
+  $self->recalc();
+  $self->pre_render();
   $self->render(
     'order/form',
-    title => $self->_get_title_for('edit'),
+    title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
 }
@@ -85,17 +85,17 @@ sub action_edit {
 sub action_delete {
   my ($self) = @_;
 
-  my $errors = $self->_delete();
+  my $errors = $self->delete();
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
 
-  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been deleted')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been deleted')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been deleted')
-           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been deleted')
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been deleted')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been deleted')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been deleted')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been deleted')
            : '';
   flash_later('info', $text);
 
@@ -111,17 +111,17 @@ sub action_delete {
 sub action_save {
   my ($self) = @_;
 
-  my $errors = $self->_save();
+  my $errors = $self->save();
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
 
-  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
            : '';
   flash_later('info', $text);
 
@@ -162,7 +162,7 @@ sub action_save_as_new {
 
   # Set new reqdate unless changed
   if ($order->reqdate == $saved_order->reqdate) {
-    my $extra_days = $self->type eq _sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+    my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
     $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
   } else {
     $new_attrs{reqdate} = $order->reqdate;
@@ -213,7 +213,7 @@ sub action_print {
 
   # create a form for generate_attachment_filename
   my $form   = Form->new;
-  $form->{$self->_nr_key()} = $self->order->number;
+  $form->{$self->nr_key()}  = $self->order->number;
   $form->{type}             = $self->type;
   $form->{format}           = $format;
   $form->{formname}         = $formname;
@@ -221,10 +221,10 @@ sub action_print {
   my $pdf_filename          = $form->generate_attachment_filename();
 
   my $pdf;
-  my @errors = _create_pdf($self->order, \$pdf, { format     => $format,
-                                                  formname   => $formname,
-                                                  language   => $language,
-                                                  groupitems => $groupitems });
+  my @errors = generate_pdf($self->order, \$pdf, { format     => $format,
+                                                   formname   => $formname,
+                                                   language   => $language,
+                                                   groupitems => $groupitems });
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
@@ -321,7 +321,7 @@ sub action_show_email_dialog {
   # Todo: get addresses from shipto, if any
 
   my $form = Form->new;
-  $form->{$self->_nr_key()} = $self->order->number;
+  $form->{$self->nr_key()}  = $self->order->number;
   $form->{formname}         = $self->type;
   $form->{type}             = $self->type;
   $form->{language}         = 'de';
@@ -332,7 +332,7 @@ sub action_show_email_dialog {
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.Order.send_email()';
 
-  my %files = $self->_get_files_for_email_dialog();
+  my %files = $self->get_files_for_email_dialog();
   my $dialog_html = $self->render('common/_send_email_dialog', { output => 0 },
                                   email_form  => $email_form,
                                   show_bcc    => $::auth->assert('email_bcc', 'may fail'),
@@ -369,11 +369,11 @@ sub action_send_email {
     $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
     my $pdf;
-    my @errors = _create_pdf($self->order, \$pdf, {media      => $::form->{media},
-                                                   format     => $::form->{print_options}->{format},
-                                                   formname   => $::form->{print_options}->{formname},
-                                                   language   => $language,
-                                                   groupitems => $::form->{print_options}->{groupitems}});
+    my @errors = genereate_pdf($self->order, \$pdf, {media      => $::form->{media},
+                                                     format     => $::form->{print_options}->{format},
+                                                     formname   => $::form->{print_options}->{formname},
+                                                     language   => $language,
+                                                     groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
     }
@@ -413,7 +413,7 @@ sub action_send_email {
 sub action_show_periodic_invoices_config_dialog {
   my ($self) = @_;
 
-  my $config = _make_periodic_invoices_config_from_yaml(delete $::form->{config});
+  my $config = make_periodic_invoices_config_from_yaml(delete $::form->{config});
   $config  ||= SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $::form->{id}) if $::form->{id};
   $config  ||= SL::DB::PeriodicInvoicesConfig->new(periodicity             => 'm',
                                                    order_value_periodicity => 'p', # = same as periodicity
@@ -478,7 +478,7 @@ sub action_assign_periodic_invoices_config {
 
   my $periodic_invoices_config = YAML::Dump($config);
 
-  my $status = $self->_get_periodic_invoices_status($config);
+  my $status = $self->get_periodic_invoices_status($config);
 
   $self->js
     ->remove('#order_periodic_invoices_config')
@@ -492,11 +492,11 @@ sub action_assign_periodic_invoices_config {
 sub action_get_has_active_periodic_invoices {
   my ($self) = @_;
 
-  my $config = _make_periodic_invoices_config_from_yaml(delete $::form->{config});
+  my $config = make_periodic_invoices_config_from_yaml(delete $::form->{config});
   $config  ||= SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $::form->{id}) if $::form->{id};
 
   my $has_active_periodic_invoices =
-       $self->type eq _sales_order_type()
+       $self->type eq sales_order_type()
     && $config
     && $config->active
     && (!$config->end_date || ($config->end_date > DateTime->today_local))
@@ -510,17 +510,17 @@ sub action_get_has_active_periodic_invoices {
 sub action_save_and_delivery_order {
   my ($self) = @_;
 
-  my $errors = $self->_save();
+  my $errors = $self->save();
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
 
-  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
            : '';
   flash_later('info', $text);
 
@@ -538,17 +538,17 @@ sub action_save_and_delivery_order {
 sub action_save_and_invoice {
   my ($self) = @_;
 
-  my $errors = $self->_save();
+  my $errors = $self->save();
 
   if (scalar @{ $errors }) {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
 
-  my $text = $self->type eq _sales_order_type()       ? $::locale->text('The order has been saved')
-           : $self->type eq _purchase_order_type()    ? $::locale->text('The order has been saved')
-           : $self->type eq _sales_quotation_type()   ? $::locale->text('The quotation has been saved')
-           : $self->type eq _request_quotation_type() ? $::locale->text('The rfq has been saved')
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
            : '';
   flash_later('info', $text);
 
@@ -563,12 +563,12 @@ sub action_save_and_invoice {
 
 # workflow from sales quotation to sales order
 sub action_sales_order {
-  $_[0]->_workflow_sales_or_purchase_order();
+  $_[0]->workflow_sales_or_purchase_order();
 }
 
 # workflow from rfq to purchase order
 sub action_purchase_order {
-  $_[0]->_workflow_sales_or_purchase_order();
+  $_[0]->workflow_sales_or_purchase_order();
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -577,8 +577,8 @@ sub action_purchase_order {
 sub action_customer_vendor_changed {
   my ($self) = @_;
 
-  _setup_order_from_cv($self->order);
-  $self->_recalc();
+  setup_order_from_cv($self->order);
+  $self->recalc();
 
   my $cv_method = $self->cv;
 
@@ -607,7 +607,7 @@ sub action_customer_vendor_changed {
     ->val(        '#order_intnotes',         $self->order->intnotes)
     ->focus(      '#order_' . $self->cv . '_id');
 
-  $self->_js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -655,12 +655,12 @@ sub action_unit_changed {
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
   $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
 
-  $self->_recalc();
+  $self->recalc();
 
   $self->js
     ->run('kivi.Order.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
-  $self->_js_redisplay_line_values;
-  $self->_js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_line_values;
+  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -672,11 +672,11 @@ sub action_add_item {
 
   return unless $form_attr->{parts_id};
 
-  my $item = _new_item($self->order, $form_attr);
+  my $item = new_item($self->order, $form_attr);
 
   $self->order->add_items($item);
 
-  $self->_recalc();
+  $self->recalc();
 
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   my $row_as_html = $self->p->render('order/tabs/_row',
@@ -697,13 +697,13 @@ sub action_add_item {
                    unit     => $assortment_item->unit,
                    description => $assortment_item->part->description,
                  };
-      my $item = _new_item($self->order, $attr);
+      my $item = new_item($self->order, $attr);
 
       # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
       $item->discount(1) unless $assortment_item->charge;
 
       $self->order->add_items( $item );
-      $self->_recalc();
+      $self->recalc();
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
       my $row_as_html = $self->p->render('order/tabs/_row',
                                          ITEM              => $item,
@@ -723,7 +723,7 @@ sub action_add_item {
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
-  $self->_js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -764,7 +764,7 @@ sub action_add_multi_items {
 
   my @items;
   foreach my $attr (@form_attr) {
-    my $item = _new_item($self->order, $attr);
+    my $item = new_item($self->order, $attr);
     push @items, $item;
     if ( $item->part->is_assortment ) {
       foreach my $assortment_item ( @{$item->part->assortment_items} ) {
@@ -773,7 +773,7 @@ sub action_add_multi_items {
                      unit     => $assortment_item->unit,
                      description => $assortment_item->part->description,
                    };
-        my $item = _new_item($self->order, $attr);
+        my $item = new_item($self->order, $attr);
 
         # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
         $item->discount(1) unless $assortment_item->charge;
@@ -783,7 +783,7 @@ sub action_add_multi_items {
   }
   $self->order->add_items(@items);
 
-  $self->_recalc();
+  $self->recalc();
 
   foreach my $item (@items) {
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
@@ -804,7 +804,7 @@ sub action_add_multi_items {
     ->run('kivi.Order.renumber_positions')
     ->focus('#add_item_parts_id_name');
 
-  $self->_js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -812,10 +812,10 @@ sub action_add_multi_items {
 sub action_recalc_amounts_and_taxes {
   my ($self) = @_;
 
-  $self->_recalc();
+  $self->recalc();
 
-  $self->_js_redisplay_line_values;
-  $self->_js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_line_values;
+  $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
 
@@ -876,13 +876,13 @@ sub action_get_item_longdescription {
 sub action_load_second_rows {
   my ($self) = @_;
 
-  $self->_recalc() if $self->order->is_sales; # for margin calculation
+  $self->recalc() if $self->order->is_sales; # for margin calculation
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
     my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
     my $item = $self->order->items_sorted->[$idx];
 
-    $self->_js_load_second_row($item, $item_id, 0);
+    $self->js_load_second_row($item, $item_id, 0);
   }
 
   $self->js->run('kivi.Order.init_row_handlers') if $self->order->is_sales; # for lastcosts change-callback
@@ -890,7 +890,7 @@ sub action_load_second_rows {
   $self->js->render();
 }
 
-sub _js_load_second_row {
+sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 
   if ($do_parse) {
@@ -910,7 +910,7 @@ sub _js_load_second_row {
     ->data('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', 'loaded', 1);
 }
 
-sub _js_redisplay_line_values {
+sub js_redisplay_line_values {
   my ($self) = @_;
 
   my $is_sales = $self->order->is_sales;
@@ -935,7 +935,7 @@ sub _js_redisplay_line_values {
     ->run('kivi.Order.redisplay_line_values', $is_sales, \@data);
 }
 
-sub _js_redisplay_amounts_and_taxes {
+sub js_redisplay_amounts_and_taxes {
   my ($self) = @_;
 
   if (scalar @{ $self->{taxes} }) {
@@ -962,7 +962,7 @@ sub _js_redisplay_amounts_and_taxes {
 #
 
 sub init_valid_types {
-  [ _sales_order_type(), _purchase_order_type(), _sales_quotation_type(), _request_quotation_type() ];
+  [ sales_order_type(), purchase_order_type(), sales_quotation_type(), request_quotation_type() ];
 }
 
 sub init_type {
@@ -978,8 +978,8 @@ sub init_type {
 sub init_cv {
   my ($self) = @_;
 
-  my $cv = (any { $self->type eq $_ } (_sales_order_type(),    _sales_quotation_type()))   ? 'customer'
-         : (any { $self->type eq $_ } (_purchase_order_type(), _request_quotation_type())) ? 'vendor'
+  my $cv = (any { $self->type eq $_ } (sales_order_type(),    sales_quotation_type()))   ? 'customer'
+         : (any { $self->type eq $_ } (purchase_order_type(), request_quotation_type())) ? 'vendor'
          : die "Not a valid type for order";
 
   return $cv;
@@ -990,7 +990,7 @@ sub init_p {
 }
 
 sub init_order {
-  $_[0]->_make_order;
+  $_[0]->make_order;
 }
 
 # model used to filter/display the parts in the multi-items dialog
@@ -1015,7 +1015,7 @@ sub init_all_price_factors {
   SL::DB::Manager::PriceFactor->get_all;
 }
 
-sub _check_auth {
+sub check_auth {
   my ($self) = @_;
 
   my $right_for = { map { $_ => $_.'_edit' } @{$self->valid_types} };
@@ -1099,7 +1099,7 @@ sub render_price_dialog {
   $self->js->render;
 }
 
-sub _load_order {
+sub load_order {
   my ($self) = @_;
 
   return if !$::form->{id};
@@ -1112,8 +1112,8 @@ sub _load_order {
 # And assign changes from the form to this object.
 # If the order is loaded from db, check if items are deleted in the form,
 # remove them form the object and collect them for removing from db on saving.
-# Then create/update items from form (via _make_item) and add them.
-sub _make_order {
+# Then create/update items from form (via make_item) and add them.
+sub make_order {
   my ($self) = @_;
 
   # add_items adds items to an order with no items for saving, but they cannot
@@ -1122,12 +1122,12 @@ sub _make_order {
   my $order;
   $order   = SL::DB::Manager::Order->find_by(id => $::form->{id}) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems => [],
-                                quotation  => (any { $self->type eq $_ } (_sales_quotation_type(), _request_quotation_type())));
+                                quotation  => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())));
 
   my $cv_id_method = $self->cv . '_id';
   if (!$::form->{id} && $::form->{$cv_id_method}) {
     $order->$cv_id_method($::form->{$cv_id_method});
-    _setup_order_from_cv($order);
+    setup_order_from_cv($order);
   }
 
   my $form_orderitems               = delete $::form->{order}->{orderitems};
@@ -1135,7 +1135,7 @@ sub _make_order {
 
   $order->assign_attributes(%{$::form->{order}});
 
-  my $periodic_invoices_config = _make_periodic_invoices_config_from_yaml($form_periodic_invoices_config);
+  my $periodic_invoices_config = make_periodic_invoices_config_from_yaml($form_periodic_invoices_config);
   $order->periodic_invoices_config($periodic_invoices_config) if $periodic_invoices_config;
 
   # remove deleted items
@@ -1151,7 +1151,7 @@ sub _make_order {
   my @items;
   my $pos = 1;
   foreach my $form_attr (@{$form_orderitems}) {
-    my $item = _make_item($order, $form_attr);
+    my $item = make_item($order, $form_attr);
     $item->position($pos);
     push @items, $item;
     $pos++;
@@ -1165,7 +1165,7 @@ sub _make_order {
 #
 # Make item objects from form values. For items already existing read from db.
 # Create a new item else. And assign attributes.
-sub _make_item {
+sub make_item {
   my ($record, $attr) = @_;
 
   my $item;
@@ -1189,7 +1189,7 @@ sub _make_item {
 # create a new item
 #
 # This is used to add one item
-sub _new_item {
+sub new_item {
   my ($record, $attr) = @_;
 
   my $item = SL::DB::OrderItem->new;
@@ -1257,7 +1257,7 @@ sub _new_item {
   return $item;
 }
 
-sub _setup_order_from_cv {
+sub setup_order_from_cv {
   my ($order) = @_;
 
   $order->$_($order->customervendor->$_) for (qw(taxzone_id payment_id delivery_term_id));
@@ -1276,7 +1276,7 @@ sub _setup_order_from_cv {
 # recalculate prices and taxes
 #
 # Using the PriceTaxCalculator. Store linetotals in the item objects.
-sub _recalc {
+sub recalc {
   my ($self) = @_;
 
   # bb: todo: currency later
@@ -1299,7 +1299,7 @@ sub _recalc {
 # get data for saving, printing, ..., that is not changed in the form
 #
 # Only cvars for now.
-sub _get_unalterable_data {
+sub get_unalterable_data {
   my ($self) = @_;
 
   foreach my $item (@{ $self->order->items }) {
@@ -1315,7 +1315,7 @@ sub _get_unalterable_data {
 # delete the order
 #
 # And remove related files in the spool directory
-sub _delete {
+sub delete {
   my ($self) = @_;
 
   my $errors = [];
@@ -1337,7 +1337,7 @@ sub _delete {
 # save the order
 #
 # And delete items that are deleted in the form.
-sub _save {
+sub save {
   my ($self) = @_;
 
   my $errors = [];
@@ -1371,13 +1371,13 @@ sub _save {
   return $errors;
 }
 
-sub _workflow_sales_or_purchase_order {
+sub workflow_sales_or_purchase_order {
   my ($self) = @_;
 
-  my $destination_type = $::form->{type} eq _sales_quotation_type()   ? _sales_order_type()
-                       : $::form->{type} eq _request_quotation_type() ? _purchase_order_type()
-                       : $::form->{type} eq _purchase_order_type()    ? _sales_order_type()
-                       : $::form->{type} eq _sales_order_type()       ? _purchase_order_type()
+  my $destination_type = $::form->{type} eq sales_quotation_type()   ? sales_order_type()
+                       : $::form->{type} eq request_quotation_type() ? purchase_order_type()
+                       : $::form->{type} eq purchase_order_type()    ? sales_order_type()
+                       : $::form->{type} eq sales_order_type()       ? purchase_order_type()
                        : '';
 
   $self->order(SL::DB::Order->new_from($self->order, destination_type => $destination_type));
@@ -1392,11 +1392,11 @@ sub _workflow_sales_or_purchase_order {
   $::form->{type} = $destination_type;
   $self->type($self->init_type);
   $self->cv  ($self->init_cv);
-  $self->_check_auth;
+  $self->check_auth;
 
-  $self->_recalc();
-  $self->_get_unalterable_data();
-  $self->_pre_render();
+  $self->recalc();
+  $self->get_unalterable_data();
+  $self->pre_render();
 
   # trigger rendering values for second row/longdescription as hidden,
   # because they are loaded only on demand. So we need to keep the values
@@ -1406,13 +1406,13 @@ sub _workflow_sales_or_purchase_order {
 
   $self->render(
     'order/form',
-    title => $self->_get_title_for('edit'),
+    title => $self->get_title_for('edit'),
     %{$self->{template_args}}
   );
 }
 
 
-sub _pre_render {
+sub pre_render {
   my ($self) = @_;
 
   $self->{all_taxzones}             = SL::DB::Manager::TaxZone->get_all_sorted();
@@ -1427,7 +1427,7 @@ sub _pre_render {
                                                                                                       obsolete => 0 ] ]);
   $self->{all_delivery_terms}       = SL::DB::Manager::DeliveryTerm->get_all_sorted();
   $self->{current_employee_id}      = SL::DB::Manager::Employee->current->id;
-  $self->{periodic_invoices_status} = $self->_get_periodic_invoices_status($self->order->periodic_invoices_config);
+  $self->{periodic_invoices_status} = $self->get_periodic_invoices_status($self->order->periodic_invoices_config);
   $self->{order_probabilities}      = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
 
   my $print_form = Form->new('');
@@ -1463,15 +1463,15 @@ sub _pre_render {
   }
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery edit_periodic_invoices_config calculate_qty);
-  $self->_setup_edit_action_bar;
+  $self->setup_edit_action_bar;
 }
 
-sub _setup_edit_action_bar {
+sub setup_edit_action_bar {
   my ($self, %params) = @_;
 
-  my $deletion_allowed = (any { $self->type eq $_ } (_sales_quotation_type(), _request_quotation_type()))
-                      || (($self->type eq _sales_order_type())    && $::instance_conf->get_sales_order_show_delete)
-                      || (($self->type eq _purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
+  my $deletion_allowed = (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type()))
+                      || (($self->type eq sales_order_type())    && $::instance_conf->get_sales_order_show_delete)
+                      || (($self->type eq purchase_order_type()) && $::instance_conf->get_purchase_order_show_delete);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1495,7 +1495,7 @@ sub _setup_edit_action_bar {
                                                                        $::instance_conf->get_order_warn_no_deliverydate,
                                                                                                                         ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
-          only_if   => (any { $self->type eq $_ } (_sales_order_type(), _purchase_order_type()))
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
         ],
         action => [
           t8('Save and Invoice'),
@@ -1511,13 +1511,13 @@ sub _setup_edit_action_bar {
         action => [
           t8('Sales Order'),
           submit   => [ '#order_form', { action => "Order/sales_order" } ],
-          only_if  => (any { $self->type eq $_ } (_sales_quotation_type(), _purchase_order_type())),
+          only_if  => (any { $self->type eq $_ } (sales_quotation_type(), purchase_order_type())),
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
         action => [
           t8('Purchase Order'),
           submit   => [ '#order_form', { action => "Order/purchase_order" } ],
-          only_if  => (any { $self->type eq $_ } (_sales_order_type(), _request_quotation_type())),
+          only_if  => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Workflow"
@@ -1553,7 +1553,7 @@ sub _setup_edit_action_bar {
   }
 }
 
-sub _create_pdf {
+sub generate_pdf {
   my ($order, $pdf_ref, $params) = @_;
 
   my @errors = ();
@@ -1603,7 +1603,7 @@ sub _create_pdf {
   return @errors;
 }
 
-sub _get_files_for_email_dialog {
+sub get_files_for_email_dialog {
   my ($self) = @_;
 
   my %files = map { ($_ => []) } qw(versions files vc_files part_files);
@@ -1635,7 +1635,7 @@ sub _get_files_for_email_dialog {
   return %files;
 }
 
-sub _make_periodic_invoices_config_from_yaml {
+sub make_periodic_invoices_config_from_yaml {
   my ($yaml_config) = @_;
 
   return if !$yaml_config;
@@ -1645,10 +1645,10 @@ sub _make_periodic_invoices_config_from_yaml {
 }
 
 
-sub _get_periodic_invoices_status {
+sub get_periodic_invoices_status {
   my ($self, $config) = @_;
 
-  return                      if $self->type ne _sales_order_type();
+  return                      if $self->type ne sales_order_type();
   return t8('not configured') if !$config;
 
   my $active = ('HASH' eq ref $config)                           ? $config->{active}
@@ -1658,7 +1658,7 @@ sub _get_periodic_invoices_status {
   return $active ? t8('active') : t8('inactive');
 }
 
-sub _get_title_for {
+sub get_title_for {
   my ($self, $action) = @_;
 
   return '' if none { lc($action)} qw(add edit);
@@ -1674,34 +1674,34 @@ sub _get_title_for {
   # $::locale->text("Edit Request for Quotation");
 
   $action = ucfirst(lc($action));
-  return $self->type eq _sales_order_type()       ? $::locale->text("$action Sales Order")
-       : $self->type eq _purchase_order_type()    ? $::locale->text("$action Purchase Order")
-       : $self->type eq _sales_quotation_type()   ? $::locale->text("$action Quotation")
-       : $self->type eq _request_quotation_type() ? $::locale->text("$action Request for Quotation")
+  return $self->type eq sales_order_type()       ? $::locale->text("$action Sales Order")
+       : $self->type eq purchase_order_type()    ? $::locale->text("$action Purchase Order")
+       : $self->type eq sales_quotation_type()   ? $::locale->text("$action Quotation")
+       : $self->type eq request_quotation_type() ? $::locale->text("$action Request for Quotation")
        : '';
 }
 
-sub _sales_order_type {
+sub sales_order_type {
   'sales_order';
 }
 
-sub _purchase_order_type {
+sub purchase_order_type {
   'purchase_order';
 }
 
-sub _sales_quotation_type {
+sub sales_quotation_type {
   'sales_quotation';
 }
 
-sub _request_quotation_type {
+sub request_quotation_type {
   'request_quotation';
 }
 
-sub _nr_key {
-  return $_[0]->type eq _sales_order_type()       ? 'ordnumber'
-       : $_[0]->type eq _purchase_order_type()    ? 'ordnumber'
-       : $_[0]->type eq _sales_quotation_type()   ? 'quonumber'
-       : $_[0]->type eq _request_quotation_type() ? 'quonumber'
+sub nr_key {
+  return $_[0]->type eq sales_order_type()       ? 'ordnumber'
+       : $_[0]->type eq purchase_order_type()    ? 'ordnumber'
+       : $_[0]->type eq sales_quotation_type()   ? 'quonumber'
+       : $_[0]->type eq request_quotation_type() ? 'quonumber'
        : '';
 }
 
