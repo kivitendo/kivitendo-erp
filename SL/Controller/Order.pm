@@ -15,6 +15,7 @@ use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
 use SL::DB::Part;
+use SL::DB::PartsGroup;
 use SL::DB::Printer;
 use SL::DB::Language;
 use SL::DB::RecordLink;
@@ -729,7 +730,6 @@ sub action_add_item {
 
 # open the dialog for entering multiple items at once
 sub action_show_multi_items_dialog {
-  require SL::DB::PartsGroup;
   $_[0]->render('order/tabs/_multi_items_dialog', { layout => 0 },
                 all_partsgroups => SL::DB::Manager::PartsGroup->get_all);
 }
