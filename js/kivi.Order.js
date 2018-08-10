@@ -381,17 +381,28 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.setup_multi_items_dialog = function() {
+    $('#multi_items_filter_table input, #multi_items_filter_table select').keydown(function(event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+        ns.multi_items_dialog_update_result();
+        return false;
+      }
+    });
+
+    $('#multi_items_filter_all_substr_multi_ilike').focus();
+  };
+
   ns.show_multi_items_dialog = function() {
     if (!ns.check_cv()) return;
 
     $('#row_table_id thead a img').remove();
 
     kivi.popup_dialog({
-      url: 'controller.pl?action=Order/show_multi_items_dialog',
-      data: { type:             $('#type').val(),
-              callback:         'Order/add_multi_items',
-              callback_data_id: 'order_form' },
-      id: 'jq_multi_items_dialog',
+      url:    'controller.pl?action=Order/show_multi_items_dialog',
+      data:   { type: $('#type').val() },
+      id:     'jq_multi_items_dialog',
+      load:   kivi.Order.setup_multi_items_dialog,
       dialog: {
         title:  kivi.t8('Add multiple items'),
         width:  800,
@@ -403,6 +414,73 @@ namespace('kivi.Order', function(ns) {
 
   ns.close_multi_items_dialog = function() {
     $('#jq_multi_items_dialog').dialog('close');
+  };
+
+  ns.multi_items_dialog_update_result = function() {
+    var data = $('#multi_items_form').serializeArray();
+    data.push({ name: 'type', value: $('#type').val() });
+    $.ajax({
+      url:     'controller.pl?action=Order/multi_items_update_result',
+      data:    data,
+      method:  'post',
+      success: function(data) {
+        $('#multi_items_result').html(data);
+        ns.multi_items_dialog_enable_continue();
+        ns.multi_items_result_setup_events();
+      }
+    });
+  };
+
+  ns.multi_items_dialog_disable_continue = function() {
+    // disable keydown-event and continue button to prevent
+    // impatient users to add parts multiple times
+    $('#multi_items_result input').off("keydown");
+    $('#multi_items_dialog_continue_button').prop('disabled', true);
+  };
+
+  ns.multi_items_dialog_enable_continue = function()  {
+    $('#multi_items_result input').keydown(function(event) {
+      if(event.keyCode == 13) {
+        event.preventDefault();
+        ns.add_multi_items();
+        return false;
+      }
+    });
+    $('#multi_items_dialog_continue_button').prop('disabled', false);
+  };
+
+  ns.multi_items_result_setup_events = function() {
+    $('#multi_items_all_qty').change(ns.reformat_number);
+    $('#multi_items_all_qty').change(function(event) {
+      $('.multi_items_qty').val($(event.target).val());
+    });
+    $('.multi_items_qty').change(ns.reformat_number);
+  }
+
+  ns.add_multi_items = function() {
+    // rows at all
+    var n_rows = $('.multi_items_qty').length;
+    if (n_rows == 0) return;
+
+    // filled rows
+    n_rows = $('.multi_items_qty').filter(function() {
+      return $(this).val().length > 0;
+    }).length;
+    if (n_rows == 0) return;
+
+    ns.multi_items_dialog_disable_continue();
+
+    var data = $('#order_form').serializeArray();
+    data = data.concat($('#multi_items_form').serializeArray());
+    data.push({ name: 'action', value: 'Order/add_multi_items' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.set_input_to_one = function(clicked) {
+    if ($(clicked).val() == '') {
+      $(clicked).val(kivi.format_amount(1.00, -2));
+    }
+    $(clicked).select();
   };
 
   ns.delete_order_item_row = function(clicked) {
