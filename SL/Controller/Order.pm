@@ -42,10 +42,10 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 
 __PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print send_email) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print create_pdf send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print send_email) ]);
 
 #
 # actions
@@ -236,7 +236,7 @@ sub action_print {
     $sfile->fh->close;
 
     my $key = join('_', Time::HiRes::gettimeofday(), int rand 1000000000000);
-    $::auth->set_session_value("Order::create_pdf-${key}" => $sfile->file_name);
+    $::auth->set_session_value("Order::print-${key}" => $sfile->file_name);
 
     $self->js
     ->run('kivi.Order.download_pdf', $pdf_filename, $key)
@@ -294,7 +294,7 @@ sub action_download_pdf {
   my ($self) = @_;
 
   my $key = $::form->{key};
-  my $tmp_filename = $::auth->get_session_value("Order::create_pdf-${key}");
+  my $tmp_filename = $::auth->get_session_value("Order::print-${key}");
   return $self->send_file(
     $tmp_filename,
     type => 'application/pdf',
