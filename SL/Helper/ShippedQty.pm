@@ -327,7 +327,7 @@ SL::Helper::ShippedQty - Algorithmic module for calculating shipped qty
   $helper->calculate($oe_id);
   $helper->calculate(\@oe_ids);
 
-  # if these are items set elivered and shipped_qty
+  # if these are items set delivered and shipped_qty
   # if these are orders, iterate through their items and set delivered on order
   $helper->write_to($objects);
 
