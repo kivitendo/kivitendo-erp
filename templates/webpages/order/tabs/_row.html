@@ -48,6 +48,11 @@
       [%- END -%]
       [%- L.button_tag("kivi.Order.show_longdescription_dialog(this)", LxERP.t8("L")) %]
     </td>
+    [%- IF (TYPE == "sales_order" || TYPE == "purchase_order") -%]
+    <td nowrap>
+      [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
+    </td>
+    [%- END -%]
     <td nowrap>
       [%- L.input_tag("order.orderitems[].qty_as_number",
                       ITEM.qty_as_number,

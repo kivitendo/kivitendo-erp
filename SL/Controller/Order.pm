@@ -22,6 +22,7 @@ use SL::DB::RecordLink;
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
+use SL::Helper::ShippedQty;
 
 use SL::Controller::Helper::GetModels;
 
@@ -1464,6 +1465,11 @@ sub pre_render {
     my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
     $item->active_price_source(   $price_source->price_from_source(   $item->active_price_source   ));
     $item->active_discount_source($price_source->discount_from_source($item->active_discount_source));
+  }
+
+  if (any { $self->type eq $_ } (sales_order_type(), purchase_order_type())) {
+    # calculate shipped qtys here to prevent calling calculate for every item via the items method
+    SL::Helper::ShippedQty->new->calculate($self->order)->write_to_objects;
   }
 
   if ($self->order->number && $::instance_conf->get_webdav) {
