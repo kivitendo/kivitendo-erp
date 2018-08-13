@@ -142,7 +142,6 @@ sub display_row {
   $form->{weightunit} = $defaults->{weightunit};
 
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
-  my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
   my $is_quotation       = $form->{type} =~ /_quotation$/;
   my $is_invoice         = $form->{type} =~ /invoice/;
