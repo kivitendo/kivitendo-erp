@@ -1352,7 +1352,7 @@ sub post_transaction {
       die "no chart id:" unless $chart_id;
 
       $payment = SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $::form->{id},
-                                                                     chart_link => { like => '%AR_paid%' },
+                                                                     chart_link => { like => '%_paid%' },
                                                                      chart_id => $chart_id                  ]);
       die "guru meditation error: Can only assign amount to one bank account booking" if scalar @{ $payment } > 1;
 
