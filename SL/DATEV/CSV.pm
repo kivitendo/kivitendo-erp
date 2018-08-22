@@ -10,6 +10,7 @@ use SL::DB::Datev;
 use SL::DB::Chart;
 use SL::Helper::DateTime;
 use SL::Locale::String qw(t8);
+use SL::Util qw(trim);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(datev_lines from to locked warnings) ],
@@ -112,7 +113,7 @@ my @kivitendo_to_datev = (
                               type            => 'Text',
                               default         => '',
                               input_check     => sub { my ($check) = @_; return 1 unless $check; return (ref (DateTime->from_kivitendo($check)) eq 'DateTime') },
-                              formatter       => sub { my ($input) = @_; my $date = DateTime->from_kivitendo($input)->strftime('%e%m%y'); $date =~ s/^\s+//; return $date },
+                              formatter       => sub { my ($input) = @_; return trim(DateTime->from_kivitendo($input)->strftime('%e%m%y')) },
                               valid_check     => sub { my ($check) = @_; return ($check =~ m/^[0-9]{5,6}$/) },
                             },
                             {
@@ -548,4 +549,3 @@ becaus warnings are generated after the call to lines:
   my $lines = $datev_csv->lines;
   die if @{ $datev_csv->warnings };
   somethin_with($lines);
-
