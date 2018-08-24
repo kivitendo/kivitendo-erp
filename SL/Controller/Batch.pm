@@ -6,11 +6,13 @@ use parent qw(SL::Controller::Base);
 use SL::DB::Batch;
 use SL::Helper::Flash;
 
+use Rose::DateTime::Util qw(:all);
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw( batch employee part vendor ) ],
 );
 
 my $may_edit = 1;
+Rose::DateTime::Util->european_dates( 1 );
 
 __PACKAGE__->run_before( '_create', except => [ 'search', 'list' ] );
 __PACKAGE__->run_before( '_load', only => [ 'delete', 'edit', 'save', 'save_and_close' ] );
@@ -38,8 +40,8 @@ sub action_add {
 sub action_delete {
   my( $self, $form, $locale ) = ( shift, $::form, $::locale );
   my( $action, @errors ) = ( '', () );
-  @errors = $self->batch->has_children
-         or $self->batch->delete || push( @errors, $self->batch->db->error );
+  $self->batch->has_children && push( @errors, 'This object has already been used.' )
+  || $self->batch->delete || push( @errors, $self->batch->db->error );
   if( scalar @errors ) {
     flash_later( 'error', @errors );
     $action = 'edit';
@@ -83,7 +85,7 @@ sub action_list {
   $self->{ filter } = join( '&',
     map {'filter_columns.' . $_ . '=' . $self->{ filter_columns }->{ $_ } } keys %{ $self->{ filter_columns } }
   );
-  my @filter = $self->_filter;
+  my @filter = map { $_ = 'itime' if $_ eq 'insertdate'; $_ = 'mtime' if $_ eq 'changedate'; $_ } $self->_filter;
   @{ $self->{ all_batches } } = @{ SL::DB::Manager::Batch->get_all( where => \@filter ) }
     and $self->_sort( $self->{ sort_column } );
 
@@ -98,7 +100,7 @@ sub action_list {
 sub action_save {
   my $self = shift;
   $self->_save;
-  $self->_redirect_to( $self->{ callback } ne 'add' ? 'edit' : 'add' );
+  $self->_redirect_to( 'edit' );
 }
 
 # saves a new or edited batch and closes the frame
@@ -142,19 +144,23 @@ sub _create {
 sub _filter {
   my( $self, $form ) = ( shift, $::form );
   my @filter = ( deleted => 'false' );
+  my $filter_row = '';
   foreach( keys %{ $self->{ filter_rows } } ) {
-    if( $self->{ filter_rows }->{ $_ } ) {
-      $_ =~ m/^.*?_from$/ and $_ =~ s/^(.*?)_from$/$1/
-        and push( @filter, ( $_ => { ge => $self->{ filter_rows }->{ $_ . '_from' } } ) )
-        and $self->{ filter } .= '&filter_rows.' . $_ . '_from' . '=' . $form->escape( $self->{ filter_rows }->{ $_ . '_from' } )
-      or $_ =~ m/^.*?_to$/ and $_ =~ s/^(.*?)_to$/$1/
-        and push( @filter, ( $_ => { le => $self->{ filter_rows }->{ $_ . '_to' } } ) )
+    $filter_row = $self->{ filter_rows }->{ $_ };
+    if( $filter_row ) {
+      $_ =~ /^.*?_from$/ and $_ =~ s/^(.*?)_from$/$1/
+        and ( $_ =~ /^.*?date$/ and $filter_row = parse_date( $filter_row ) or 1 )
+        and push( @filter, ( $_ => { ge => $filter_row } ) )
+        and $self->{ filter } .= '&filter_rows.' . $_ . '_from' . '=' . $form->escape( $self->{ filter_rows }->{ $_ . '_from' }  )
+      or $_ =~ /^.*?_to$/ and $_ =~ s/^(.*?)_to$/$1/
+        and ( $_ =~ /^.*?date$/ and $filter_row = parse_date( $filter_row )->add( days => 1 )->subtract( seconds => 1 ) or 1 )
+        and push( @filter, ( $_ => { le => $filter_row } ) )
         and $self->{ filter } .= '&filter_rows.' . $_ . '_to' . '=' . $form->escape( $self->{ filter_rows }->{ $_ . '_to' } )
-      or $_ =~ m/^.*?_id$/
-        and push( @filter, ( $_ => $self->{ filter_rows }->{ $_ } ) )
-        and $self->{ filter } .= '&filter_rows.' . $_ . '=' . $form->escape( $self->{ filter_rows }->{ $_ } )
-      or push( @filter, ( $_ => { like => $self->{ filter_rows }->{ $_ } } ) )
-        and $self->{ filter } .= '&filter_rows.' . $_ . '=' . $form->escape( $self->{ filter_rows }->{ $_ } )
+      or $_ =~ /^.*?_id$/
+        and push( @filter, ( $_ => $filter_row ) )
+        and $self->{ filter } .= '&filter_rows.' . $_ . '=' . $form->escape( $filter_row )
+      or push( @filter, ( $_ => { like => $filter_row } ) )
+        and $self->{ filter } .= '&filter_rows.' . $_ . '=' . $form->escape( $filter_row )
       ;
     }
   }
@@ -191,6 +197,7 @@ sub _pre_render {
     ] ],
     sort_by => 'name'
   );
+  $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 }
 
 sub _redirect_to {

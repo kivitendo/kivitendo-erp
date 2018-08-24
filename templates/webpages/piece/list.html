@@ -21,10 +21,10 @@
     [% IF SELF.filter_rows.part_id %][% 'Part' | $T8 %]: [% SELF.part.displayable_name %]<br>[% END %]
     [% IF SELF.filter_rows.batch_id %][% 'Batch' | $T8 %]: [% SELF.batch.batchnumber %]<br>[% END %]
     [% IF SELF.filter_rows.serialnumber %][% 'Serial Number' | $T8 %]: [% SELF.filter_rows.serialnumber %]<br>[% END %]
-    [% IF SELF.filter_rows.weight_from %][% 'Weight' | $T8 %]: [% 'From' | $T8 %] SELF.filter_rows.weight_from %]<br>
+    [% IF SELF.filter_rows.weight_from %][% 'Weight' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.weight_from %]
       [% IF SELF.filter_rows.weight_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.weight_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.weight_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.weight_to %]<br>[% END %]
+      [% IF SELF.filter_rows.weight_to %][% 'Weight' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.weight_to %]<br>[% END %]
     [% END %]
     [% IF SELF.filter_rows.delivery_in_id %][% 'Incoming Delivery Order' | $T8 %]: [% SELF.delivery_in.donumber %]<br>[% END %]
     [% IF SELF.filter_rows.bin_id %][% 'Bin' | $T8 %]: [% SELF.bin.full_description %]<br>[% END %]
@@ -32,12 +32,12 @@
     [% IF SELF.filter_rows.insertdate_from %][% 'Insert Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.insertdate_from %]
       [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
+      [% IF SELF.filter_rows.insertdate_to %][% 'Insert Date' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
     [% END %]
-    [% IF SELF.filter_rows.changedate_from %][% 'Update' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
+    [% IF SELF.filter_rows.changedate_from %][% 'Updated' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
       [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
+      [% IF SELF.filter_rows.changedate_to %][% 'Updated' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
     [% END %]
     [% IF SELF.filter_rows.employee_id %] [% 'Employee' | $T8 %]: [% SELF.employee.safe_name %]<br>[% END %]
 
@@ -71,9 +71,9 @@
           [% IF SELF.filter_columns.weight %]
             [% IF piece.weight %]<td align="left">[% LxERP.format_amount(piece.weight, 3) %] kg</td>[% END %]
           [% END %]
-          [% IF SELF.filter_columns.delivery_in %]<td align="left">[% piece.delivery.donumber %]</td>[% END %]
+          [% IF SELF.filter_columns.delivery_in %]<td align="left">[% piece.delivery_in.donumber %]</td>[% END %]
           [% IF SELF.filter_columns.bin %]<td align="left">[% piece.bin.full_description %]</td>[% END %]
-          [% IF SELF.filter_columns.delivery_out %]<td align="left">[% piece.delivery.donumber %]</td>[% END %]
+          [% IF SELF.filter_columns.delivery_out %]<td align="left">[% piece.delivery_out.donumber %]</td>[% END %]
           [% IF SELF.filter_columns.insertdate %]<td align="left">[% piece.itime_as_date %]</td>[% END %]
           [% IF SELF.filter_columns.changedate %]<td align="left">[% piece.mtime_as_date %]</td>[% END %]
           [% IF SELF.filter_columns.employee %]<td align="left">[% piece.employee.safe_name %]</td>[% END %]

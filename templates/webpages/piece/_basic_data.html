@@ -31,7 +31,7 @@
         </tr>
         <tr>
           <th align="left">[% 'Incoming Delivery Order' | $T8 %]</th>
-          <td>[% L.select_tag('piece.delivery_in_id', SELF.all_deliveries, default=SELF.piece.delivery_in_id, title_key='donumber', style='width: 300px') %]</td>
+          <td>[% L.select_tag('piece.delivery_in_id', SELF.all_deliveries_in, default=SELF.piece.delivery_in_id, title_key='donumber', style='width: 300px') %]</td>
         </tr>
         <tr>
           <th align="left">[% 'Bin' | $T8 %]</th>
@@ -39,7 +39,7 @@
         </tr>
         <tr>
           <th align="left">[% 'Outgoing Delivery Order' | $T8 %]</th>
-          <td>[% L.select_tag('piece.delivery_out_id', SELF.all_deliveries, default=SELF.piece.delivery_out_id, title_key='donumber', style='width: 300px') %]</td>
+          <td>[% L.select_tag('piece.delivery_out_id', SELF.all_deliveries_out, default=SELF.piece.delivery_out_id, title_key='donumber', style='width: 300px') %]</td>
         </tr>
         <tr>
           <th align="left" valign="top">[% 'Notes' | $T8 %]</th>

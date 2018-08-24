@@ -44,7 +44,7 @@
   <tr>
     <td align="right"><input id="filter_columns.delivery_in" name="filter_columns.delivery_in" class="checkbox" type="checkbox" value="1" checked></td>
     <th align="left">[% 'Incoming Delivery Order' | $T8 %]</th>
-    <td>[% L.select_tag('filter_rows.delivery_in_id', SELF.all_deliveries, title_key='donumber', with_empty=1, style=style) %]</td>
+    <td>[% L.select_tag('filter_rows.delivery_in_id', SELF.all_deliveries_in, title_key='donumber', with_empty=1, style=style) %]</td>
   </tr>
   <tr>
     <td align="right"><input id="filter_columns.bin" name="filter_columns.bin" class="checkbox" type="checkbox" value="1" checked></td>
@@ -53,8 +53,8 @@
   </tr>
   <tr>
     <td align="right"><input id="filter_columns.delivery_out" name="filter_columns.delivery_out" class="checkbox" type="checkbox" value="1" checked></td>
-    <th align="left">[% 'Delivery Order' | $T8 %]</th>
-    <td>[% L.select_tag('filter_rows.delivery_out_id', SELF.all_deliveries, title_key='donumber', with_empty=1, style=style) %]</td>
+    <th align="left">[% 'Outgoing Delivery Order' | $T8 %]</th>
+    <td>[% L.select_tag('filter_rows.delivery_out_id', SELF.all_deliveries_out, title_key='donumber', with_empty=1, style=style) %]</td>
   </tr>
   <tr>
     <td align="right"><input id="filter_columns.insertdate" name="filter_columns.insertdate" class="checkbox" type="checkbox" value="1"></td>

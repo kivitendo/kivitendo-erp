@@ -23,19 +23,19 @@
     [% IF SELF.filter_rows.batchdate_from %][% 'Batch Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.batchdate_from %]
       [% IF SELF.filter_rows.batchdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.batchdate_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.batchdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.batchdate_to %]<br>[% END %]
+      [% IF SELF.filter_rows.batchdate_to %][% 'Batch Date' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.batchdate_to %]<br>[% END %]
     [% END %]
     [% IF SELF.filter_rows.location %] [% 'Batch Location' | $T8 %]: [% SELF.filter_rows.location %]<br>[% END %]
     [% IF SELF.filter_rows.process %] [% 'Batch Process' | $T8 %]: [% SELF.filter_rows.process %]<br>[% END %]
     [% IF SELF.filter_rows.insertdate_from %][% 'Insert Date' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.insertdate_from %]
       [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.insertdate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
+      [% IF SELF.filter_rows.insertdate_to %][% 'Insert Date' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.insertdate_to %]<br>[% END %]
     [% END %]
-    [% IF SELF.filter_rows.changedate_from %][% 'Update' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
+    [% IF SELF.filter_rows.changedate_from %][% 'Updated' | $T8 %]: [% 'From' | $T8 %] [% SELF.filter_rows.changedate_from %]
       [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %][% END %]<br>
     [% ELSE %]
-      [% IF SELF.filter_rows.changedate_to %] [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
+      [% IF SELF.filter_rows.changedate_to %][% 'Updated' | $T8 %]: [% 'Until' | $T8 %] [% SELF.filter_rows.changedate_to %]<br>[% END %]
     [% END %]
     [% IF SELF.filter_rows.employee_id %] [% 'Employee' | $T8 %]: [% SELF.employee.safe_name %]<br>[% END %]
   </p>
