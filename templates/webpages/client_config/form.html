@@ -54,10 +54,6 @@ function checkavailable_filebackend(elem) {
   var selval = elem.value;
   if ( selval == 'Webdav' && $("#defaults_doc_webdav").val() == 0 ) {
      elem.value = 'Filesystem';
-  } else if ( selval == 'ExtDMS' ) {
-     elem.value = 'Filesystem';
-  } if ( selval == 'DB' && $("#defaults_doc_database").val() == 0 ) {
-     elem.value = 'Filesystem';
   }
   if ( elem.value == 'Filesystem' && $("#defaults_doc_files").val() == 0 ) {
      elem.value = 'None';

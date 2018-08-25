@@ -46,7 +46,6 @@ __PACKAGE__->meta->columns(
   datev_check_on_purchase_invoice           => { type => 'boolean', default => 'true' },
   datev_check_on_sales_invoice              => { type => 'boolean', default => 'true' },
   disabled_price_sources                    => { type => 'array' },
-  doc_database                              => { type => 'boolean', default => 'false' },
   doc_delete_printfiles                     => { type => 'boolean', default => 'false' },
   doc_files                                 => { type => 'boolean', default => 'false' },
   doc_files_rootpath                        => { type => 'text', default => './documents' },
