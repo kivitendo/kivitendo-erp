@@ -2,6 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 
 <table id="basic_data_table" width="50%">
   <tr valign="top">
@@ -9,11 +10,11 @@
       <table id="batch1">
         <tr>
           <th align="left">* [% 'Producer' | $T8 %]</th>
-          <td>[% L.customer_vendor_picker('batch.producer_id', SELF.batch.producer_id, type='vendor', fat_set_item=1, style='width: 300px', class="initial_focus") %]</td>
+          <td>[% P.customer_vendor.picker('batch.producer_id', SELF.batch.producer_id, type='vendor', fat_set_item=1, style='width: 300px', class="initial_focus") %]</td>
         </tr>
         <tr>
           <th align="left">* [% 'Part' | $T8 %]</th>
-          <td>[% L.part_picker('batch.part_id', SELF.batch.part_id, part_type='part,assembly', fat_set_item=1, style='width: 300px') %]</td>
+          <td>[% P.part.picker('batch.part_id', SELF.batch.part_id, part_type='part,assembly', fat_set_item=1, style='width: 300px') %]</td>
         </tr>
         <tr>
           <th align="left">* [% 'Batch Number' | $T8 %]</th>

@@ -2,6 +2,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 
 [% SET style='width: 300px' %]
 
@@ -13,12 +14,12 @@
   <tr valign="top">
     <td align="right"><input id="filter_columns.producer" name="filter_columns.producer" class="checkbox" type="checkbox" value="1" checked></td>
     <th align="left">[% 'Producer' | $T8 %]</th>
-    <td align="left">[% L.customer_vendor_picker('filter_rows.producer_id', SELF.filter_rows.producer_id, type='vendor', fat_set_item=1, style=style, class='initiacheck.focus') %]</td>
+    <td align="left">[% P.customer_vendor.picker('filter_rows.producer_id', SELF.filter_rows.producer_id, type='vendor', fat_set_item=1, style=style, class='initiacheck.focus') %]</td>
   </tr>
   <tr>
     <td align="right"><input id="filter_columns.part" name="filter_columns.part" class="checkbox" type="checkbox" value="1" checked></td>
     <th align="left">[% 'Part' | $T8 %]</th>
-    <td>[% L.part_picker('filter_rows.part_id', SELF.filter_rows.part_id, part_type='part,assembly', fat_set_item=1, style=style) %]</td>
+    <td>[% P.part.picker('filter_rows.part_id', SELF.filter_rows.part_id, part_type='part,assembly', fat_set_item=1, style=style) %]</td>
   </tr>
   <tr>
     <td align="right"><input id="filter_columns.batchnumber" name="filter_columns.batchnumber" class="checkbox" type="checkbox" value="1" checked></td>
