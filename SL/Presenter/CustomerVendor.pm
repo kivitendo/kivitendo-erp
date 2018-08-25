@@ -62,6 +62,9 @@ sub customer_vendor_picker {
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'customer_vendor_autocomplete';
 
+  # do not use reserved html attribute 'type' for cv type
+  $params{cv_type} = delete $params{type};
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-customer-vendor-picker-data' => JSON::to_json(\%params),

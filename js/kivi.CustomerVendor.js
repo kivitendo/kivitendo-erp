@@ -271,7 +271,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         'filter.all:substr:multi::ilike': term,
         'filter.obsolete': 0,
         current:  this.$real.val(),
-        type:     this.o.type,
+        type:     this.o.cv_type,
       };
     },
     set_item: function(item) {
