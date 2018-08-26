@@ -216,8 +216,8 @@ sub action_print {
   my $copies      = $::form->{print_options}->{copies};
   my $groupitems  = $::form->{print_options}->{groupitems};
 
-  # only pdf by now
-  if (none { $format eq $_ } qw(pdf)) {
+  # only pdf and opendocument by now
+  if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
     return $self->js->flash('error', t8('Format \'#1\' is not supported yet/anymore.', $format))->render;
   }
 
@@ -1457,7 +1457,7 @@ sub pre_render {
                 show_headers       => 1,
                 no_queue           => 1,
                 no_postscript      => 1,
-                no_opendocument    => 1,
+                no_opendocument    => 0,
                 no_html            => 1},
   );
 
@@ -1591,9 +1591,17 @@ sub generate_pdf {
   $order->language($params->{language});
   $order->flatten_to_form($print_form, format_amounts => 1);
 
+  my $template_ext;
+  my $template_type;
+  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
+    $template_ext  = 'odt';
+    $template_type = 'OpenDocument';
+  }
+
   # search for the template
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
     name        => $print_form->{formname},
+    extension   => $template_ext,
     email       => $print_form->{media} eq 'email',
     language    => $params->{language},
     printer_id  => $print_form->{printer_id},  # todo
@@ -1610,8 +1618,10 @@ sub generate_pdf {
       $print_form->prepare_for_printing;
 
       $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
-        template  => $template_file,
-        variables => $print_form,
+        format        => $print_form->{format},
+        template_type => $template_type,
+        template      => $template_file,
+        variables     => $print_form,
         variable_content_types => {
           longdescription => 'html',
           partnotes       => 'html',
