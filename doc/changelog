@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2018-XX-XX - Release 3.5.X
+2018-1X-XX - Release 3.5.3
 
 Mittelgroße neue Features:
 
@@ -29,6 +29,11 @@ Mittelgroße neue Features:
 Kleinere neue Features und Detailverbesserungen:
   - Verknüpfte Belege um die Verknüpfung von Beleg nach E-Mail-Journal erweitert.
   - Filter nach Abteilungen für Lieferplan
+
+Bugfixes:
+- Bugfix #336 Beim Drucken mehrerer Rechnung aus dem Bericht heraus mit aktiviertem DMS bricht mit Fehlermeldung ab
+
+
 
 2017-12-12 - Release 3.5.1
 
