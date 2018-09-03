@@ -37,6 +37,9 @@ sub create_massprint_pdf {
   # flatten_to_form sets payment_terms from customer/vendor - we do not want that here
   # really ??
   delete $form->{payment_terms} if !$form->{payment_id};
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_$i"} = $form->{"fxsellprice_$i"};
+  }
 
   $form->prepare_for_printing;
   $form->{attachment_filename} = $form->generate_attachment_filename;

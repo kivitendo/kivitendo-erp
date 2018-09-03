@@ -95,6 +95,7 @@ sub _calculate_item {
   $item->fxsellprice($item->sellprice) if $data->{is_invoice};
 
   my $num_dec   = max 2, _num_decimal_places($item->sellprice);
+  $num_dec   = 5;
   my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
   my $sellprice = _round($item->sellprice - $discount,              $num_dec);
 
