@@ -245,6 +245,8 @@ sub setup_ir_action_bar {
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
           checks   => [ 'kivi.validate_form' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
+
           disabled => $form->{locked}                           ? t8('The billing period has already been locked.')
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
@@ -325,7 +327,8 @@ sub setup_ir_action_bar {
       ], # end of combobox "more"
     );
   }
-  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->layout->add_javascripts('kivi.Validator.js', 'kivi.AP.js');
+
 }
 
 sub form_header {
@@ -392,6 +395,7 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  # TODO There is no credit_note for vendor invoices (remove template code)
   $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
   $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};

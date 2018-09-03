@@ -3503,6 +3503,7 @@ $self->{texts} = {
   'This update will change the nature the onhand of goods is tracked.' => 'Dieses update ändert die Art und Weise wie Lagermengen gezält werden.',
   'This user is a member in the following groups' => 'Dieser Benutzer ist Mitglied in den folgenden Gruppen',
   'This user will have access to the following clients' => 'Dieser Benutzer wird Zugriff auf die folgenden Mandanten haben',
+  'This vendor has already a booking with this invoice number, do you really want to add the same invoice number again?' => 'Es gibt für diesen Lieferant schon einen Beleg mit dieser Rechnungsnummer. Möchten Sie wirklich eine weitere Buchung mit derselben Rechnungsnummer hinzufügen?',
   'This vendor has already been added.' => 'Der Lieferant wurde bereits hinzugefügt.',
   'This vendor number is already in use.' => 'Diese Lieferantennummer wird bereits verwendet.',
   'This will apply a 3% reduction to the master data price before entering it into the record item.' => 'Diese Zeile zieht vom Stammdatenpreis 3% ab, und schlägt den resultierenden Preis vor.',

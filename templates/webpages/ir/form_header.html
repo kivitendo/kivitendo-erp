@@ -152,7 +152,7 @@
 [%- ELSE %]
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+          <td colspan="3">[% L.input_tag("invnumber", invnumber, size="11") %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>

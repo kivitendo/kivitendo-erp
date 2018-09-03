@@ -1221,7 +1221,7 @@ sub setup_ap_display_form_action_bar {
         action => [
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
-          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting' ],
+          checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
           disabled => $is_closed                                  ? t8('The billing period has already been locked.')
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
