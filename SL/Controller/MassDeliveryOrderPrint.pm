@@ -18,7 +18,7 @@ use SL::DB::Part;
 use SL::DB::Printer;
 use SL::Helper::MassPrintCreatePDF qw(:all);
 use SL::Helper::CreatePDF qw(:all);
-use SL::Helper::File qw(store_pdf append_general_pdf_attachments);
+use SL::Helper::File qw(store_pdf append_general_pdf_attachments doc_storage_enabled);
 use SL::Helper::PrintOptions;
 use SL::Helper::Flash;
 use SL::Locale::String;
