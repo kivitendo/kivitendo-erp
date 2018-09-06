@@ -4,19 +4,20 @@ use parent qw(SL::Controller::Base);
 use SL::DBUtils;
 use SL::DB::AccTransaction;
 use SL::DB::Invoice;
+use SL::DB;
 
 __PACKAGE__->run_before('check_auth');
 
 sub action_list_turnover {
   my ($self) = @_;
-  
+
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
   my $cv = $::form->{id} || {};
   my $open_invoices;
   $open_invoices = SL::DB::Manager::Invoice->get_all(
     query => [customer_id => $cv,
-              paid => {lt_sql => 'amount'},      
+              paid => {lt_sql => 'amount'},
     ],
     with_objects => ['dunnings'],
   );
@@ -38,7 +39,7 @@ sub action_count_open_items_by_year {
   my ($self) = @_;
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
-  my $dbh = $::form->get_standard_dbh();
+  my $dbh = SL::DB->client->dbh()
 
   my $cv = $::form->{id} || {};
 
@@ -55,14 +56,14 @@ sub action_count_open_items_by_year {
     ORDER BY date_part DESC";
 
    $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
-   $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 }); 
+   $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
 sub action_count_open_items_by_month {
 
   my ($self) = @_;
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
-  my $dbh = $::form->get_standard_dbh();
+  my $dbh = SL::DB->client->dbh()
 
   my $cv = $::form->{id} || {};
 
@@ -79,7 +80,7 @@ sub action_count_open_items_by_month {
     ORDER BY EXTRACT (YEAR FROM d.transdate) DESC";
 
    $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
-   $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 }); 
+   $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
 sub action_turnover_by_month {
 
@@ -87,7 +88,7 @@ sub action_turnover_by_month {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $dbh = $::form->get_standard_dbh();
+  my $dbh = SL::DB->client->dbh()
   my $cv = $::form->{id} || {};
   my $query = "SELECT CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate)) AS date_part,
     count(id) as count,
@@ -99,7 +100,7 @@ sub action_turnover_by_month {
     ORDER BY EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC";
 
    $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query);
-   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 }); 
+   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
 sub action_turnover_by_year {
 
@@ -107,7 +108,7 @@ sub action_turnover_by_year {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $dbh = $::form->get_standard_dbh();
+  my $dbh = SL::DB->client->dbh()
   my $cv = $::form->{id} || {};
   my $query = "SELECT EXTRACT (YEAR FROM transdate) as date_part,
     count(id) as count,
@@ -119,11 +120,11 @@ sub action_turnover_by_year {
     ORDER BY date_part DESC";
 
    $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query);
-   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 }); 
+   $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
 sub action_get_invoices {
   my ($self) = @_;
-  
+
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
   my $cv = $::form->{id} || {};
