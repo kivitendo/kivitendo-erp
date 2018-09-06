@@ -1,0 +1,23 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE HTML %]
+<script type="text/javascript">
+  $(function() {
+    $ ( "#statistic_tabs" ).tabs();
+  });
+  function get_invoices() {
+    var url = 'controller.pl?action=CustomerVendorTurnover/get_invoices&id=' + $('#cv_id').val();
+    $('#invoices').load(url);
+  }
+</script>
+<div class="tabwidget" id="statistic_tabs">
+  <ul>
+    <li><a href="#turnover_stat">[% 'Turnoverstatistic' | $T8 %]</a></li>
+    <li><a href="#dun_stat">[% 'Dunningstatistic' | $T8 %]</a></li>
+    <li><a href="#invoices" onclick="get_invoices();">[% 'Invoices' | $T8 %]</a></li>
+  </ul>
+  <div id="turnover_stat">[% PROCESS "customer_vendor_turnover/turnover_statistic.html" %]</div>
+  <div id="dun_stat">[% PROCESS "customer_vendor_turnover/dun_statistic.html" %]</div>
+  <div id="invoices"></div>
+</div>
