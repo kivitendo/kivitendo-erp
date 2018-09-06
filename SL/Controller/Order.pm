@@ -387,7 +387,7 @@ sub action_send_email {
     $language = SL::DB::Language->new(id => $::form->{print_options}->{language_id})->load if $::form->{print_options}->{language_id};
 
     my $pdf;
-    my @errors = genereate_pdf($self->order, \$pdf, {media      => $::form->{media},
+    my @errors = generate_pdf($self->order, \$pdf, {media      => $::form->{media},
                                                      format     => $::form->{print_options}->{format},
                                                      formname   => $::form->{print_options}->{formname},
                                                      language   => $language,
