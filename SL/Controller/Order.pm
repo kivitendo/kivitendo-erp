@@ -388,10 +388,10 @@ sub action_send_email {
 
     my $pdf;
     my @errors = generate_pdf($self->order, \$pdf, {media      => $::form->{media},
-                                                     format     => $::form->{print_options}->{format},
-                                                     formname   => $::form->{print_options}->{formname},
-                                                     language   => $language,
-                                                     groupitems => $::form->{print_options}->{groupitems}});
+                                                    format     => $::form->{print_options}->{format},
+                                                    formname   => $::form->{print_options}->{formname},
+                                                    language   => $language,
+                                                    groupitems => $::form->{print_options}->{groupitems}});
     if (scalar @errors) {
       return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render($self);
     }
