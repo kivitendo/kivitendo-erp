@@ -629,24 +629,17 @@ sub valid_skonto_amount {
 sub get_payment_select_options_for_bank_transaction {
   my ($self, $bt_id, %params) = @_;
 
-  my $bt = SL::DB::Manager::BankTransaction->find_by( id => $bt_id );
-  croak ("Need bt_id to get a valid bank transaction") unless $bt;
-
-  # user may overpay invoices and if not, this case should better be handled elsewhere
-  #my $open_amount = $self->open_amount;
-  #croak ("Need an open invoice") unless $open_amount;
+  my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
 
   my @options;
 
-    if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
-      push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
-      push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
-    } else {
-      push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
-      push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
-    }
+  if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
+    push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
+  } else {
+    push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
   }
-
   return @options;
 }
 
