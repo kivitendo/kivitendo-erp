@@ -630,28 +630,25 @@ sub get_payment_select_options_for_bank_transaction {
   my ($self, $bt_id, %params) = @_;
 
   my $bt = SL::DB::Manager::BankTransaction->find_by( id => $bt_id );
-  die unless $bt;
+  croak ("Need bt_id to get a valid bank transaction") unless $bt;
 
-  my $open_amount = $self->open_amount;
-  #$main::lxdebug->message(LXDebug->DEBUG2(),"skonto_date=".$self->skonto_date." open amount=".$open_amount);
+  # user may overpay invoices and if not, this case should better be handled elsewhere
+  #my $open_amount = $self->open_amount;
+  #croak ("Need an open invoice") unless $open_amount;
+
   my @options;
-  if ( $open_amount &&                   # invoice amount not 0
-       $self->skonto_date &&             # check whether skonto applies
-       ( abs(abs($self->amount_less_skonto) - abs($bt->amount)) < 0.01 ||
-        ( abs($self->amount_less_skonto) < abs($bt->amount) )) &&
-       $self->check_skonto_configuration) {
-         if ( $self->within_skonto_period($bt->transdate) ) {
-           push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
-           push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
-         } else {
-           push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
-           push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
-         };
-  };
+
+    if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
+      push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
+      push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
+    } else {
+      push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
+      push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
+    }
+  }
 
   return @options;
-
-};
+}
 
 sub exchangerate {
   my ($self) = @_;
