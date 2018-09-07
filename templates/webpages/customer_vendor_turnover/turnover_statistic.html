@@ -2,7 +2,7 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE HTML %]
-<p> 
+<p>
 [% L.radio_button_tag('period', value='year', label= LxERP.t8('Year'), onclick='show_turnover_stat("y");') %]
 
 [% L.radio_button_tag('period', value='month', label= LxERP.t8('Month'), onclick='show_turnover_stat("m");') %]
@@ -10,10 +10,10 @@
 <script type="text/javascript">
   function show_turnover_stat(period) {
     if (period === 'y') {
-      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_year&id=' + $('#cv_id').val();
+      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_year&id=' + $('#cv_id').val() + '&db=' + $('#db').val();
       $('#turnovers').load(url);
     } else {
-      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_month&id=' + $('#cv_id').val();
+      var url = 'controller.pl?action=CustomerVendorTurnover/turnover_by_month&id=' + $('#cv_id').val() + '&db=' + $('#db').val();
       $('#turnovers').load(url);
     }
   }

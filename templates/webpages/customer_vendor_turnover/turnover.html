@@ -8,4 +8,8 @@
 [% open_items %]
 [% END %]
 
+[%- IF open_orders %]
+[% open_orders %]
+[% END %]
+
 [% PROCESS "customer_vendor_turnover/_statistic_tabs.html" %]

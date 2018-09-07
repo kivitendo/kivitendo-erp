@@ -28,6 +28,8 @@ use SL::DB::FollowUpLink;
 use SL::DB::History;
 use SL::DB::Currency;
 use SL::DB::Invoice;
+use SL::DB::PurchaseInvoice;
+use SL::DB::Order;
 
 use Data::Dumper;
 
@@ -945,14 +947,38 @@ sub _pre_render {
     ],
     with_objects => ['follow_up'],
   );
-  
-  $self->{open_items} = SL::DB::Manager::Invoice->get_all_count(
-    query => [
-      customer_id => $self->{cv}->id,
-      paid => {lt_sql => 'amount'},      
-    ],
-  );
-  
+
+  if ( $self->is_vendor()) {
+    $self->{open_items} = SL::DB::Manager::PurchaseInvoice->get_all_count(
+      query => [
+        vendor_id => $self->{cv}->id,
+        paid => {lt_sql => 'amount'},
+      ],
+    );
+  } else {
+    $self->{open_items} = SL::DB::Manager::Invoice->get_all_count(
+      query => [
+        customer_id => $self->{cv}->id,
+        paid => {lt_sql => 'amount'},
+      ],
+    );
+  }
+
+  if ( $self->is_vendor() ) {
+    $self->{open_orders} = SL::DB::Manager::Order->get_all_count(
+      query => [
+        vendor_id => $self->{cv}->id,
+        closed => 'F',
+      ],
+    );
+  } else {
+    $self->{open_orders} = SL::DB::Manager::Order->get_all_count(
+      query => [
+        customer_id => $self->{cv}->id,
+        closed => 'F',
+      ],
+    );
+  }
   $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');

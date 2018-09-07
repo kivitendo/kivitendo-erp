@@ -2,10 +2,10 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- USE HTML %]
-<div class="listtop">[%- HTML.escape(title) %]</div>
 
 <div id="sales_report">
   <table width="100%">
+    <caption class="listtop">[%- HTML.escape(title) %]</caption>
     <tbody>
       <tr>
         <td class="listheading">[% 'Invoice Number' | $T8 %]</td>
@@ -36,4 +36,4 @@
       [% END %]
     </tbody>
   </table>
-</div> 
+</div>
