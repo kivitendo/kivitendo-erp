@@ -1207,6 +1207,13 @@ sub setup_ap_display_form_action_bar {
   my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ap', $::form->{id});
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ap');
 
+  my $has_sepa_exports;
+
+  if ($::form->{id}) {
+    my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{id});
+    $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+  }
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -1251,6 +1258,7 @@ sub setup_ap_display_form_action_bar {
                       : $has_storno          ? t8('This invoice has been canceled already.')
                       : $is_storno           ? t8('Reversal invoices cannot be canceled.')
                       : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
+                      : $has_sepa_exports    ? t8('This invoice has been linked with a sepa export, undo this first.')
                       :                        undef,
         ],
         action => [ t8('Delete'),
@@ -1261,6 +1269,7 @@ sub setup_ap_display_form_action_bar {
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $has_storno              ? t8('This invoice has been canceled already.')
                     : $is_closed               ? t8('The billing period has already been locked.')
+                    : $has_sepa_exports        ? t8('This invoice has been linked with a sepa export, undo this first.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"
