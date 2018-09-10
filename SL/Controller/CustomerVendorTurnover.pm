@@ -400,3 +400,85 @@ sub check_auth {
   $::auth->assert('general_ledger');
 }
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::CustomerVendorTurnover
+
+=head1 DESCRIPTION
+
+Gets all kinds of records like orders, request orders, quotations, invoices, emails, letters
+
+wich belong to customer/vendor and displays them in an extra tab "Records".
+
+=back
+
+=head1 URL ACTIONS
+
+=over 4
+
+=item C<action_list_turnover>
+
+Basic action wich displays open invoices and open orders if there are any and shows the tab menu for the other actions
+
+=item C<action_count_open_items_by_month>
+
+gets and shows a dunning statistic of the customer by month
+
+=item C<action_count_open_items_by_year>
+
+gets and shows a dunning statistic of the customer by year
+
+=item C<action_turnover_by_month>
+
+gets and shows an invoice statistic of customer/vendor by month
+
+=item C<action_turnover_by_year>
+
+gets and shows an invoice statistic of customer/vendor by year
+
+=item C<action_get_invoices>
+
+get and shows all invoices from the customer/vendor in an extra tab
+
+=item C<action_get_orders>
+
+get and shows all orders from the customer/vendor in an extra tab
+
+=item C<action_get_letters>
+
+get and shows all letters from the customer/vendor in an extra tab
+
+=item C<action_get_mails>
+
+get and shows all mails from the customer/vendor in an extra tab
+
+=back
+
+=head1 Functions
+
+=over 4
+
+=item C<_get_open_orders>
+
+retrieves the open orders for customer/vendor to display them
+
+=item C<_list_open_items>
+
+retrieves open invoices with their dunnings to display them
+
+=back
+
+=head1 BUGS
+
+None yet. :)
+
+=head1 AUTHOR
+
+W. Hahn E<lt>wh@futureworldsearch.netE<gt>
+
+=back
