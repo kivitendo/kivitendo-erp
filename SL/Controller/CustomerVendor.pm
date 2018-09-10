@@ -983,6 +983,7 @@ sub _pre_render {
 
   $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
   $::request->{layout}->add_javascripts('kivi.File.js');
+  $::request->{layout}->add_javascripts('kivi.CustomerVendorTurnover.js');
 
   $self->_setup_form_action_bar;
 }

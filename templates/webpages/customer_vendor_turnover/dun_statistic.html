@@ -3,20 +3,9 @@
 [%- USE L %]
 [%- USE HTML %]
 
-<p> 
-[% L.radio_button_tag('period', value='year', label= LxERP.t8('Year'), onclick='show_dun_stat("y");') %]
+<p>
+[% L.radio_button_tag('period', value='year', label= LxERP.t8('Year'), onclick='kivi.CustomerVendorTurnover.show_dun_stat("y");') %]
 
-[% L.radio_button_tag('period', value='month', label= LxERP.t8('Month'), onclick='show_dun_stat("m");') %]
+[% L.radio_button_tag('period', value='month', label= LxERP.t8('Month'), onclick='kivi.CustomerVendorTurnover.show_dun_stat("m");') %]
 </p>
-<script type="text/javascript">
-  function show_dun_stat(period) {
-    if (period === 'y') {
-      var url = 'controller.pl?action=CustomerVendorTurnover/count_open_items_by_year&id=' + $('#cv_id').val();
-      $('#duns').load(url);
-    } else {
-      var url = 'controller.pl?action=CustomerVendorTurnover/count_open_items_by_month&id=' + $('#cv_id').val();
-      $('#duns').load(url);
-    }
-  }
-</script>
 <div id="duns"></div>

@@ -6,36 +6,16 @@
   $(function() {
     $ ( "#statistic_tabs" ).tabs();
   });
-  function get_invoices() {
-    var url = 'controller.pl?action=CustomerVendorTurnover/get_invoices&id=' + $('#cv_id').val() + '&db=' + $('#db').val();
-    $('#invoices').load(url);
-  }
-  function get_sales_quotations() {
-    var url = 'controller.pl?action=CustomerVendorTurnover/get_orders&id=' + $('#cv_id').val() + '&db=' + $('#db').val() + '&type=quotation';
-    $('#quotations').load(url);
-  }
-  function get_orders() {
-    var url = 'controller.pl?action=CustomerVendorTurnover/get_orders&id=' + $('#cv_id').val() + '&db=' + $('#db').val() + '&type=order';
-    $('#orders').load(url);
-  }
-  function get_letters() {
-    var url = 'controller.pl?action=CustomerVendorTurnover/get_letters&id=' + $('#cv_id').val() + '&db=' + $('#db').val();;
-    $('#letters').load(url);
-  }
-  function get_mails() {
-    var url = 'controller.pl?action=CustomerVendorTurnover/get_mails&id=' + $('#cv_id').val() + '&db=' + $('#db').val();;
-    $('#mails').load(url);
-  }
 </script>
 <div class="tabwidget" id="statistic_tabs">
   <ul>
     <li><a href="#turnover_stat">[% 'Turnoverstatistic' | $T8 %]</a></li>
     [% IF FORM.db == "customer" %]<li><a href="#dun_stat">[% 'Dunningstatistic' | $T8 %]</a></li>[% END %]
-    <li><a href="#quotations" onclick="get_sales_quotations();">[% IF FORM.db == "customer" %][% 'Sales Quotations' | $T8 %][% ELSE %][% 'Request Quotations' | $T8 %][% END %]</a></li>
-    <li><a href="#orders" onclick="get_orders();">[% 'Orders' | $T8 %]</a></li>
-    <li><a href="#invoices" onclick="get_invoices();">[% 'Invoices' | $T8 %]</a></li>
-    <li><a href="#mails" onclick="get_mails();">[% 'Mails' | $T8 %]</a></li>
-    <li><a href="#letters" onclick="get_letters();">[% 'Letters' | $T8 %]</a></li>
+    <li><a href="#quotations" onclick="kivi.CustomerVendorTurnover.get_sales_quotations();">[% IF FORM.db == "customer" %][% 'Sales Quotations' | $T8 %][% ELSE %][% 'Request Quotations' | $T8 %][% END %]</a></li>
+    <li><a href="#orders" onclick="kivi.CustomerVendorTurnover.get_orders();">[% 'Orders' | $T8 %]</a></li>
+    <li><a href="#invoices" onclick="kivi.CustomerVendorTurnover.get_invoices();">[% 'Invoices' | $T8 %]</a></li>
+    <li><a href="#mails" onclick="kivi.CustomerVendorTurnover.get_mails();">[% 'Mails' | $T8 %]</a></li>
+    <li><a href="#letters" onclick="kivi.CustomerVendorTurnover.get_letters();">[% 'Letters' | $T8 %]</a></li>
   </ul>
   <div id="turnover_stat">[% PROCESS "customer_vendor_turnover/turnover_statistic.html" %]</div>
   <div id="dun_stat">[% PROCESS "customer_vendor_turnover/dun_statistic.html" %]</div>
