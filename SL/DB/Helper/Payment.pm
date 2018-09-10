@@ -629,6 +629,9 @@ sub valid_skonto_amount {
 sub get_payment_select_options_for_bank_transaction {
   my ($self, $bt_id, %params) = @_;
 
+  # no skonto date  -> no select option
+  return { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 } unless $self->skonto_date;
+
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
 
   my @options;
@@ -1055,9 +1058,13 @@ might always want to pay as late as possible.
 Make suggestion for a skonto payment type by returning an HTML blob of the options
 of a HTML drop-down select with the most likely option preselected.
 
-This is a helper function for BankTransaction/ajax_payment_suggestion.
+This is a helper function for BankTransaction/ajax_payment_suggestion and
+template/webpages/bank_transactions/invoices.html
 
 We are working with an existing payment, so difference_as_skonto never makes sense.
+
+If skonto is not possible (skonto_date does not exists) simply return
+the single 'no skonto' option as a visual hint.
 
 If skonto is possible (skonto_date exists), add two possibilities:
 without_skonto and with_skonto_pt if payment date is within skonto_date,
