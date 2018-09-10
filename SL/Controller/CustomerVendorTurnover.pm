@@ -5,6 +5,8 @@ use SL::DBUtils;
 use SL::DB::AccTransaction;
 use SL::DB::Invoice;
 use SL::DB::Order;
+use SL::DB::EmailJournal;
+use SL::DB::Letter;
 use SL::DB;
 
 __PACKAGE__->run_before('check_auth');
@@ -75,6 +77,7 @@ sub action_count_open_items_by_year {
    $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
    $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
+
 sub action_count_open_items_by_month {
 
   my ($self) = @_;
@@ -99,6 +102,7 @@ sub action_count_open_items_by_month {
    $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
    $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
+
 sub action_turnover_by_month {
 
   my ($self) = @_;
@@ -128,6 +132,7 @@ SQL
    $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query);
    $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
+
 sub action_turnover_by_year {
   my ($self) = @_;
 
@@ -231,6 +236,138 @@ sub _get_open_orders {
 
   return 0 unless scalar @{$open_orders};
   return $self->render('customer_vendor_turnover/_list_open_orders', { output => 0 }, orders => $open_orders, title => $::locale->text('Open Orders') );
+}
+
+sub action_get_mails {
+  my ( $self ) = @_;
+
+  my $dbh = SL::DB->client->dbh;
+  my $query;
+  my $cv = $::form->{id};
+
+  if ( $::form->{db} eq 'customer') {
+    $query = <<SQL;
+WITH oe_emails_customer AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id FROM
+record_links rc
+LEFT JOIN oe oe ON rc.from_id = oe.id
+LEFT JOIN customer c ON oe.customer_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table ='oe'),
+
+do_emails_customer AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id FROM
+record_links rc
+LEFT JOIN delivery_orders o ON rc.from_id = o.id
+LEFT JOIN customer c ON o.customer_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'delivery_orders'),
+
+inv_emails_customer AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id FROM
+record_links rc
+LEFT JOIN ar inv ON rc.from_id = inv.id
+LEFT JOIN customer c ON inv.customer_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'ar'),
+
+letter_emails_customer AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id FROM
+record_links rc
+LEFT JOIN letter l ON rc.from_id = l.id
+LEFT JOIN customer c ON l.customer_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'letter')
+
+SELECT ej.*, CASE
+  oec.quotation WHEN 'F' THEN 'Sales Order'
+                ELSE 'Quotation'
+             END AS type,
+             CASE
+  oec.quotation WHEN 'F' THEN oec.ordnumber
+                ELSE oec.quonumber
+             END AS recordnumber,
+oec.id AS record_id FROM email_journal ej
+LEFT JOIN oe_emails_customer oec ON ej.id = oec.to_id
+WHERE oec.id = ?
+
+UNION
+
+SELECT ej.*, 'Delivery Order' AS type, dec.donumber AS recordnumber,dec.id AS record_id FROM email_journal ej
+LEFT JOIN do_emails_customer dec ON ej.id = dec.to_id
+WHERE dec.id = ?
+
+UNION
+
+SELECT ej.*, CASE
+  iec.type WHEN 'credit_note' THEN 'Credit Note'
+           WHEN 'invoice' THEN 'Invoice'
+           ELSE 'N/A'
+        END AS type,
+iec.invnumber AS recordnumber,iec.id AS record_id FROM email_journal ej
+LEFT JOIN inv_emails_customer iec ON ej.id = iec.to_id
+WHERE iec.id = ?
+
+UNION
+
+SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber,lec.id AS record_id FROM email_journal ej
+LEFT JOIN letter_emails_customer lec ON ej.id = lec.to_id
+WHERE lec.id = ?
+ORDER BY sent_on DESC
+SQL
+  }
+  else {
+    $query = <<SQL;
+WITH oe_emails_vendor AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id FROM
+record_links rc
+LEFT JOIN oe oe ON rc.from_id = oe.id
+LEFT JOIN vendor c ON oe.vendor_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table ='oe'),
+
+do_emails_vendor AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id FROM
+record_links rc
+LEFT JOIN delivery_orders o ON rc.from_id = o.id
+LEFT JOIN vendor c ON o.vendor_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'delivery_orders'),
+
+inv_emails_vendor AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id FROM
+record_links rc
+LEFT JOIN ap inv ON rc.from_id = inv.id
+LEFT JOIN vendor c ON inv.vendor_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'ar'),
+
+letter_emails_vendor AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id FROM
+record_links rc
+LEFT JOIN letter l ON rc.from_id = l.id
+LEFT JOIN vendor c ON l.vendor_id = c.id
+WHERE rc.to_table = 'email_journal' AND rc.from_table = 'letter')
+
+SELECT ej.*, CASE
+  oec.quotation WHEN 'F' THEN 'Purchase Order'
+                ELSE 'Request quotation'
+             END AS type,
+             CASE
+  oec.quotation WHEN 'F' THEN oec.ordnumber
+                ELSE oec.quonumber
+             END AS recordnumber,
+oec.id AS record_id FROM email_journal ej
+LEFT JOIN oe_emails_vendor oec ON ej.id = oec.to_id
+WHERE oec.id = ?
+
+UNION
+
+SELECT ej.*, 'Purchase Delivery Order' AS type, dec.donumber AS recordnumber, dec.id AS record_id FROM email_journal ej
+LEFT JOIN do_emails_vendor dec ON ej.id = dec.to_id
+WHERE dec.id = ?
+
+UNION
+
+SELECT ej.*, iec.type AS type, iec.invnumber AS recordnumber, iec.id AS record_id FROM email_journal ej
+LEFT JOIN inv_emails_vendor iec ON ej.id = iec.to_id
+WHERE iec.id = ?
+
+UNION
+
+SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber, lec.id AS record_id FROM email_journal ej
+LEFT JOIN letter_emails_vendor lec ON ej.id = lec.to_id
+WHERE lec.id = ?
+ORDER BY sent_on DESC
+SQL
+  }
+  my $emails = selectall_hashref_query($::form, $dbh, $query, $cv, $cv, $cv, $cv);
+  $self->render('customer_vendor_turnover/email_statistic', { layout => 0 }, emails => $emails);
 }
 
 sub _list_articles_by_invoice {
