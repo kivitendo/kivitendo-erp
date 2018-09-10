@@ -370,6 +370,28 @@ SQL
   $self->render('customer_vendor_turnover/email_statistic', { layout => 0 }, emails => $emails);
 }
 
+sub action_get_letters {
+  my ($self) = @_;
+
+  return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
+
+  my $cv = $::form->{id} || {};
+  my $letters;
+  my $type = $::form->{type};
+  if ( $::form->{db} eq 'customer' ) {
+    $letters = SL::DB::Manager::Letter->get_all(
+      query => [ customer_id => $cv, ],
+      sort_by => 'date DESC',
+    );
+  } else {
+    $letters = SL::DB::Manager::Letter->get_all(
+      query => [ vendor_id => $cv, ],
+      sort_by => 'date DESC',
+    );
+  }
+    $self->render('customer_vendor_turnover/letter_statistic', { layout => 0 }, letters => $letters);
+}
+
 sub _list_articles_by_invoice {
 }
 sub _list_count_articles_by_year {
