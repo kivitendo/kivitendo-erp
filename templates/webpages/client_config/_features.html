@@ -302,7 +302,18 @@
    <td align="right">[% LxERP.t8('Add Customer/Vendor Number as a reference add-on for SEPA export.') %]</td>
    <td>[% L.yes_no_tag('defaults.sepa_reference_add_vc_vc_id', SELF.defaults.sepa_reference_add_vc_vc_id) %]</td>
   </tr>
-
+  <tr>
+   <td align="right">[% LxERP.t8('Set the invoice duedate as the default execution date for SEPA export.') %]</td>
+   <td>[% L.yes_no_tag('defaults.sepa_set_duedate_as_default_exec_date', SELF.defaults.sepa_set_duedate_as_default_exec_date) %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Set the invoice skonto date (if exists) as the default execution date for SEPA export.') %]</td>
+   <td>[% L.yes_no_tag('defaults.sepa_set_skonto_date_as_default_exec_date', SELF.defaults.sepa_set_skonto_date_as_default_exec_date) %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('In addition to the above date functions, subtract the following amount of days from the calculated date as a buffer.') %]</td>
+   <td>[% L.input_tag('defaults.sepa_set_skonto_date_buffer_in_days', LxERP.format_amount(SELF.defaults.sepa_set_skonto_date_buffer_in_days, 0), style=style) %]</td>
+  </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Enable experimental features') %]</td>

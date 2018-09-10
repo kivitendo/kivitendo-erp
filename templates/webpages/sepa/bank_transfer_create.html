@@ -124,7 +124,7 @@
       </td>
       <td align="left" [%- IF bank_transfer.within_skonto_period %]style="background-color: LightGreen"[%- END %]>[%- IF bank_transfer.skonto_amount %] [% LxERP.format_amount(bank_transfer.percent_skonto, 2) %] % = [% LxERP.format_amount(bank_transfer.skonto_amount, 2) %] € [% 'until' | $T8 %] [% bank_transfer.skonto_date %] [% END %]</td>
       <td nowrap>
-        [% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.requested_execution_date) %]
+        [% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.recommended_execution_date) %]
       </td>
      </tr>
     [%- END %]

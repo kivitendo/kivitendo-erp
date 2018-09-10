@@ -116,7 +116,21 @@ sub bank_transfer_create {
 
   # override default payment_type selection and set it to the one chosen by the user
   # in the previous step, so that we don't need the logic in the template
+  my $subtract_days   = $::instance_conf->get_sepa_set_skonto_date_buffer_in_days;
+  my $set_skonto_date = $::instance_conf->get_sepa_set_skonto_date_as_default_exec_date;
+  my $set_duedate     = $::instance_conf->get_sepa_set_duedate_as_default_exec_date;
   foreach my $bt (@bank_transfers) {
+    # add a good recommended exec date
+    # set to skonto date if exists or to duedate
+    # in both cases subtract the same buffer (if configured, default 0)
+    $bt->{recommended_execution_date} =
+      $set_skonto_date && $bt->{payment_type} eq 'with_skonto_pt' ?
+                   DateTime->from_kivitendo($bt->{skonto_date})->subtract(days => $subtract_days)->to_kivitendo
+   :  $set_duedate && $bt->{duedate}                              ?
+                   DateTime->from_kivitendo($bt->{duedate}    )->subtract(days => $subtract_days)->to_kivitendo
+   :  undef;
+
+
     foreach my $type ( @{$bt->{payment_select_options}} ) {
       if ( $type->{payment_type} eq $bt->{payment_type} ) {
         $type->{selected} = 1;

@@ -30,12 +30,16 @@ Kleinere neue Features und Detailverbesserungen:
   - Verknüpfte Belege um die Verknüpfung von Beleg nach E-Mail-Journal erweitert.
   - Filter nach Abteilungen für Lieferplan
   - Eindeutigkeit bei Rechnungsnummern von Kreditoren. (Es erfolgt eine  Warnung bei Duplikaten (Überprüfung auf Lieferant mit Rechnungsnummer))
-  - Mit SEPA-Export verknüpft Kreditorenbelege (Einkaufsrechnung oder Kreditorenbuchungen) können nicht mehr gelöscht oder storniert werden.
+  - Mit dem SEPA-Export verknüpfte Kreditorenbelege (Einkaufsrechnung oder Kreditorenbuchungen) können nicht mehr gelöscht oder storniert werden.
   - Tab "Belege" beim Kunden und Lieferanten. Offene Rechnungen, Aufträge
     werden angezeigt. Eine Umsatz und Mahnstatistik können in Tabs geöffnet
     werden. Belegtypen Angebote, Aufträge (Kunden), bzw Preisanfragen,
     Lieferantenaufträge (Lieferanten) sowie die Belege Rechnungen, Emails,
     Briefe können in weiteren Tabs angezeigt werden.
+  - SEPA-Export. Überweisungsdatum vorbelegen, entweder die Fälligkeit oder falls vorhanden das Skonto-Datum.
+    Das Skonto-Datum hat Priorität vor der letzten Fälligkeit.
+    Zusätzlich kann ein Puffer in Tagen vom Zahlungsziel abgezogen werden (Standard 0). Das Verhalten muss für jeden
+    Mandanten unter Mandantenkonfiguration -> Features -> SEPA aktiv eingeschaltet werden.
 
 Bugfixes:
 - Bugfix #336 Beim Drucken mehrerer Rechnung aus dem Bericht heraus mit aktiviertem DMS bricht mit Fehlermeldung ab
