@@ -36,7 +36,20 @@
       [% IF SELF.cv.id %]
         <li><a href="#price_rules">[% 'Price Rules' | $T8 %]</a></li>
       [% END %]
-      <li><a href="[% 'controller.pl?action=CustomerVendorTurnover/list_turnover&id=' _ SELF.cv.id _ '&db=' _ FORM.db %]">[% LxERP.t8('Records') %] [%- IF SELF.open_items > 0 %] <span style="color:red;">&nbsp;$</span>[% END %] [%- IF SELF.open_orders > 0 %] <span style="color:red;">&nbsp;!</span>[% END %]</a></li>
+
+      [% IF SELF.cv.id %]
+        [% IF ( FORM.db == 'customer' && AUTH.assert('show_extra_record_tab_customer',1) ) %]
+          <li><a href="[% 'controller.pl?action=CustomerVendorTurnover/list_turnover&id=' _ SELF.cv.id _ '&db=' _ FORM.db %]">[% LxERP.t8('Records') %]
+              [%- IF SELF.open_items > 0 %] <span style="color:red;">&nbsp;$</span>[% END %] [%- IF SELF.open_orders > 0 %] <span style="color:red;">&nbsp;!</span>[% END %]</a>
+          </li>
+        [% END %]
+        [% IF ( FORM.db == 'vendor' && AUTH.assert('show_extra_record_tab_vendor',1) ) %]
+          <li><a href="[% 'controller.pl?action=CustomerVendorTurnover/list_turnover&id=' _ SELF.cv.id _ '&db=' _ FORM.db %]">[% LxERP.t8('Records') %]
+              [%- IF SELF.open_items > 0 %] <span style="color:red;">&nbsp;$</span>[% END %] [%- IF SELF.open_orders > 0 %] <span style="color:red;">&nbsp;!</span>[% END %]</a>
+          </li>
+        [% END %]
+      [% END %]
+
     </ul>
 
     [% PROCESS "customer_vendor/tabs/billing.html" %]

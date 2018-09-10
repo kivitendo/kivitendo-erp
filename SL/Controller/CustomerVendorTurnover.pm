@@ -9,7 +9,6 @@ use SL::DB::EmailJournal;
 use SL::DB::Letter;
 use SL::DB;
 
-__PACKAGE__->run_before('check_auth');
 
 sub action_list_turnover {
   my ($self) = @_;
@@ -392,13 +391,6 @@ sub action_get_letters {
     $self->render('customer_vendor_turnover/letter_statistic', { layout => 0 }, letters => $letters);
 }
 
-sub _list_articles_by_invoice {
-}
-sub _list_count_articles_by_year {
-}
-sub check_auth {
-  $::auth->assert('general_ledger');
-}
 1;
 
 __END__
