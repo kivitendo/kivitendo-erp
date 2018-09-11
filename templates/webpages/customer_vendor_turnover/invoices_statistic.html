@@ -16,7 +16,7 @@
 
       [%- FOREACH row = invoices %]
       <tr class="listrow[% loop.count % 2 %]">
-        <td>[% row.invnumber | html %]</td>
+        <td><a href="[% IF row.type == 'invoice' || row.type == 'credit_note' %]is.pl[% ELSE %]ar.pl[% END %]?action=edit&id=[% row.id %]#ui-tabs-basic-data">[% row.invnumber | html %]</a></td>
         <td>[% row.transdate.to_kivitendo | html %]</td>
         <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
         <td>[% row.duedate.to_kivitendo | html %]</td>
@@ -27,7 +27,7 @@
     </tbody>
   </table>
 
-      
+
     </tbody>
   </table>
 </div>

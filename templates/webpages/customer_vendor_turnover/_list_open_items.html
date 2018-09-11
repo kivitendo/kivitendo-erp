@@ -14,12 +14,12 @@
         <td class="listheading">[% 'Inv. Duedate' | $T8 %]</td>
         <td class="listheading">[% 'Paid' | $T8 %]</td>
         <td class="listheading">[% 'Open Amount' | $T8 %]</td>
-        <td class="listheading">[% 'Dunnings' | $T8 %]</td>
+        <td class="listheading">[% 'Dunnings (Id -- Dunning Date --Dunning Level -- Dunning Fee)' | $T8 %]</td>
       </tr>
 
       [%- FOREACH row = OPEN_ITEMS %]
       <tr class="listrow[% loop.count % 2 %]">
-        <td>[% row.invnumber | html %]</td>
+        <td><a href="[% IF row.type == 'invoice' || row.type == 'credit_note' %]is.pl[% ELSE %]ar.pl[% END %]?action=edit&id=[% row.id %]#ui-tabs-basic-data">[% row.invnumber | html %]</a></td>
         <td>[% row.transdate.to_kivitendo | html %]</td>
         <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
         <td>[% row.duedate.to_kivitendo | html %]</td>
@@ -28,7 +28,7 @@
         <td>
         [%- IF row.dunning_config_id != '' %]
           [%- FOREACH dun = row.dunnings %]
-          [% dun.dunning_id | html %] -- [% dun.duedate.to_kivitendo | html %] -- [% dun.dunning_level | html %] -- [% dun.fee %]<br>
+          [% dun.dunning_id | html %] -- [% dun.transdate.to_kivitendo | html %] -- [% dun.dunning_level | html %] -- [%- LxERP.format_amount(dun.fee, 2) %]<br>
           [% END %]
         [% END %]
         </td>
