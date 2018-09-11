@@ -15,26 +15,28 @@ sub action_list_turnover {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my $open_invoices;
   if ( $::form->{db} eq 'customer' ) {
-  $open_invoices = SL::DB::Manager::Invoice->get_all(
-    query => [customer_id => $cv,
-                or => [
-                      amount => { gt => \'paid'},
-                      amount => { lt => \'paid'},
-                    ],
-    ],
-    with_objects => ['dunnings'],
-  );
+    $open_invoices = SL::DB::Manager::Invoice->get_all(
+      query        => [
+                        customer_id => $cv,
+                        or          => [
+                                         amount => { gt => \'paid'},
+                                         amount => { lt => \'paid'},
+                                       ],
+                      ],
+      with_objects => [ 'dunnings' ],
+    );
   } else {
     $open_invoices = SL::DB::Manager::PurchaseInvoice->get_all(
-      query   => [ vendor_id => $cv,
-                or => [
-                      amount => { gt => \'paid'},
-                      amount => { lt => \'paid'},
-                    ],
-               ],
+      query   => [
+                   vendor_id => $cv,
+                   or        => [
+                                  amount => { gt => \'paid'},
+                                  amount => { lt => \'paid'},
+                                ],
+                 ],
       sort_by => 'invnumber DESC',
     );
   }
@@ -43,14 +45,21 @@ sub action_list_turnover {
     return $self->render(\'', { type => 'json' }) unless scalar @{$open_invoices};
     $open_items = $self->_list_open_items($open_invoices);
   }
-  my $open_orders = $self->_get_open_orders();
-  return $self->render('customer_vendor_turnover/turnover', { header => 0 }, open_orders => $open_orders, open_items => $open_items, id => $cv);
+  my $open_orders = $self->_get_open_orders;
+  return $self->render('customer_vendor_turnover/turnover', { header => 0 },
+                       open_orders => $open_orders,
+                       open_items  => $open_items,
+                       id          => $cv,
+                      );
 }
 
 sub _list_open_items {
   my ($self, $open_items) = @_;
 
-  return $self->render('customer_vendor_turnover/_list_open_items', { output => 0 }, OPEN_ITEMS => $open_items, title => $::locale->text('Open Items') );
+  return $self->render('customer_vendor_turnover/_list_open_items', { output => 0 },
+                        OPEN_ITEMS => $open_items,
+                        title      => $::locale->text('Open Items'),
+                      );
 }
 
 sub action_count_open_items_by_year {
@@ -59,22 +68,22 @@ sub action_count_open_items_by_year {
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
   my $dbh = SL::DB->client->dbh;
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
 
-  my $query = "SELECT EXTRACT (YEAR FROM d.transdate),
-    count(d.id),
-    max(d.dunning_level)
-    FROM dunning d
-    LEFT JOIN ar a
-    ON a.id = d.trans_id
-    LEFT JOIN customer c
-    ON a.customer_id = c.id
-    WHERE c.id = $cv
-    GROUP BY EXTRACT (YEAR FROM d.transdate), c.id
-    ORDER BY date_part DESC";
+  my $query = <<SQL;
+   SELECT EXTRACT (YEAR FROM d.transdate),
+          count(d.id),
+          max(d.dunning_level)
+     FROM dunning d
+LEFT JOIN ar a ON a.id = d.trans_id
+LEFT JOIN customer c ON a.customer_id = c.id
+    WHERE c.id = ?
+ GROUP BY EXTRACT (YEAR FROM d.transdate), c.id
+ ORDER BY date_part DESC
+SQL
 
-   $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
-   $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
+  $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
+  $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
 
 sub action_count_open_items_by_month {
@@ -84,21 +93,21 @@ sub action_count_open_items_by_month {
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
   my $dbh = SL::DB->client->dbh;
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
 
-  my $query = "SELECT CONCAT(EXTRACT (MONTH FROM d.transdate),'/',EXTRACT (YEAR FROM d.transdate)) AS date_part,
-    count(d.id),
-    max(d.dunning_level)
-    FROM dunning d
-    LEFT JOIN ar a
-    ON a.id = d.trans_id
-    LEFT JOIN customer c
-    ON a.customer_id = c.id
-    WHERE c.id = $cv
-    GROUP BY EXTRACT (YEAR FROM d.transdate), EXTRACT (MONTH FROM d.transdate), c.id
-    ORDER BY EXTRACT (YEAR FROM d.transdate) DESC";
+  my $query = <<SQL
+   SELECT CONCAT(EXTRACT (MONTH FROM d.transdate),'/',EXTRACT (YEAR FROM d.transdate)) AS date_part,
+          count(d.id),
+          max(d.dunning_level)
+     FROM dunning d
+LEFT JOIN ar a ON a.id = d.trans_id
+LEFT JOIN customer c ON a.customer_id = c.id
+    WHERE c.id = ?
+ GROUP BY EXTRACT (YEAR FROM d.transdate), EXTRACT (MONTH FROM d.transdate), c.id
+ ORDER BY EXTRACT (YEAR FROM d.transdate) DESC
+SQL
 
-   $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query);
+   $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
    $self->render('customer_vendor_turnover/count_open_items_by_year', { layout => 0 });
 }
 
@@ -109,7 +118,7 @@ sub action_turnover_by_month {
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
   my $dbh = SL::DB->client->dbh;
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my ($db, $cv_type);
   if ($::form->{db} eq 'customer') {
     $db      = "ar";
@@ -119,16 +128,16 @@ sub action_turnover_by_month {
     $cv_type = "vendor_id";
   }
   my $query = <<SQL;
-SELECT CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate)) AS date_part,
-    count(id) as count,
-    sum(amount) as amount,
-    sum(netamount) as netamount,
-    sum(paid) as paid
-    FROM $db WHERE $cv_type = $cv
-    GROUP BY EXTRACT (YEAR FROM transdate), EXTRACT (MONTH FROM transdate)
-    ORDER BY EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC
+  SELECT CONCAT(EXTRACT (MONTH FROM transdate),'/',EXTRACT (YEAR FROM transdate)) as date_part,
+         count(id)                                                                as count,
+         sum(amount)                                                              as amount,
+         sum(netamount)                                                           as netamount,
+         sum(paid)                                                                as paid
+    FROM $db WHERE $cv_type = ?
+GROUP BY EXTRACT (YEAR FROM transdate), EXTRACT (MONTH FROM transdate)
+ORDER BY EXTRACT (YEAR FROM transdate) DESC, EXTRACT (MONTH FROM transdate) DESC
 SQL
-   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query);
+   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
    $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
 
@@ -138,7 +147,7 @@ sub action_turnover_by_year {
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
   my $dbh = SL::DB->client->dbh;
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my ($db, $cv_type);
   if ($::form->{db} eq 'customer') {
     $db      = "ar";
@@ -148,16 +157,16 @@ sub action_turnover_by_year {
     $cv_type = "vendor_id";
   }
   my $query = <<SQL;
-SELECT EXTRACT (YEAR FROM transdate) as date_part,
-    count(id) as count,
-    sum(amount) as amount,
-    sum(netamount) as netamount,
-    sum(paid) as paid
-    FROM $db WHERE $cv_type = $cv
-    GROUP BY date_part
-    ORDER BY date_part DESC
+  SELECT EXTRACT (YEAR FROM transdate) as date_part,
+         count(id)                     as count,
+         sum(amount)                   as amount,
+         sum(netamount)                as netamount,
+         sum(paid)                     as paid
+    FROM $db WHERE $cv_type = ?
+GROUP BY date_part
+ORDER BY date_part DESC
 SQL
-   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query);
+   $self->{turnover_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
    $self->render('customer_vendor_turnover/count_turnover', { layout => 0 });
 }
 
@@ -166,16 +175,16 @@ sub action_get_invoices {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my $invoices;
   if ( $::form->{db} eq 'customer' ) {
     $invoices = SL::DB::Manager::Invoice->get_all(
-      query => [ customer_id => $cv, ],
+      query   => [ customer_id => $cv, ],
       sort_by => 'invnumber DESC',
     );
   } else {
     $invoices = SL::DB::Manager::PurchaseInvoice->get_all(
-      query => [ vendor_id => $cv, ],
+      query   => [ vendor_id => $cv, ],
       sort_by => 'invnumber DESC',
     );
   }
@@ -187,19 +196,23 @@ sub action_get_orders {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my $orders;
   my $type = $::form->{type};
   if ( $::form->{db} eq 'customer' ) {
     $orders = SL::DB::Manager::Order->get_all(
-      query => [ customer_id => $cv,
-                 quotation   => ($type eq 'quotation' ? 'T' : 'F') ],
+      query   => [
+                   customer_id => $cv,
+                   quotation   => ($type eq 'quotation' ? 'T' : 'F')
+                 ],
       sort_by => ( $type eq 'order' ? 'ordnumber DESC' : 'quonumber DESC'),
     );
   } else {
     $orders = SL::DB::Manager::Order->get_all(
-      query => [ vendor_id => $cv,
-                 quotation   => ($type eq 'quotation' ? 'T' : 'F') ],
+      query   => [
+                   vendor_id => $cv,
+                   quotation => ($type eq 'quotation' ? 'T' : 'F')
+                 ],
       sort_by => ( $type eq 'order' ? 'ordnumber DESC' : 'quonumber DESC'),
     );
   }
@@ -215,154 +228,190 @@ sub _get_open_orders {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
   my $open_orders;
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
 
   if ( $::form->{db} eq 'customer' ) {
     $open_orders = SL::DB::Manager::Order->get_all(
-      query => [ customer_id => $cv,
-                   closed => 'F',
-               ],
-               sort_by => 'ordnumber DESC',
-               );
+      query   => [
+                   customer_id => $cv,
+                   closed      => 'F',
+                 ],
+      sort_by => 'ordnumber DESC',
+    );
   } else {
     $open_orders = SL::DB::Manager::Order->get_all(
-      query => [ vendor_id => $cv,
-                   closed => 'F',
-               ],
-               sort_by => 'ordnumber DESC',
-               );
+      query   => [
+                   vendor_id => $cv,
+                   closed    => 'F',
+                 ],
+      sort_by => 'ordnumber DESC',
+    );
   }
 
   return 0 unless scalar @{$open_orders};
-  return $self->render('customer_vendor_turnover/_list_open_orders', { output => 0 }, orders => $open_orders, title => $::locale->text('Open Orders') );
+  return $self->render('customer_vendor_turnover/_list_open_orders', { output => 0 },
+                        orders => $open_orders,
+                        title  => $::locale->text('Open Orders'),
+                      );
 }
 
 sub action_get_mails {
   my ( $self ) = @_;
 
+  return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
   my $dbh = SL::DB->client->dbh;
   my $query;
   my $cv = $::form->{id};
 
   if ( $::form->{db} eq 'customer') {
     $query = <<SQL;
-WITH oe_emails_customer AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id FROM
-record_links rc
-LEFT JOIN oe oe ON rc.from_id = oe.id
+WITH
+oe_emails_customer
+       AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id
+     FROM record_links rc
+LEFT JOIN oe oe      ON rc.from_id = oe.id
 LEFT JOIN customer c ON oe.customer_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table ='oe'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table ='oe'),
 
-do_emails_customer AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id FROM
-record_links rc
+do_emails_customer
+       AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id
+     FROM record_links rc
 LEFT JOIN delivery_orders o ON rc.from_id = o.id
 LEFT JOIN customer c ON o.customer_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'delivery_orders'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'delivery_orders'),
 
-inv_emails_customer AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id FROM
-record_links rc
+inv_emails_customer
+       AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id
+     FROM record_links rc
 LEFT JOIN ar inv ON rc.from_id = inv.id
 LEFT JOIN customer c ON inv.customer_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'ar'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'ar'),
 
-letter_emails_customer AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id FROM
-record_links rc
+letter_emails_customer
+       AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id
+     FROM record_links rc
 LEFT JOIN letter l ON rc.from_id = l.id
 LEFT JOIN customer c ON l.customer_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'letter')
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'letter')
 
-SELECT ej.*, CASE
+SELECT ej.*,
+ CASE
   oec.quotation WHEN 'F' THEN 'Sales Order'
                 ELSE 'Quotation'
-             END AS type,
-             CASE
+ END AS type,
+ CASE
   oec.quotation WHEN 'F' THEN oec.ordnumber
                 ELSE oec.quonumber
-             END AS recordnumber,
-oec.id AS record_id FROM email_journal ej
+ END    AS recordnumber,
+ oec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN oe_emails_customer oec ON ej.id = oec.to_id
-WHERE oec.id = ?
+    WHERE oec.id = ?
 
 UNION
 
-SELECT ej.*, 'Delivery Order' AS type, dec.donumber AS recordnumber,dec.id AS record_id FROM email_journal ej
+SELECT ej.*, 'Delivery Order' AS type, dec.donumber AS recordnumber,dec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN do_emails_customer dec ON ej.id = dec.to_id
-WHERE dec.id = ?
+    WHERE dec.id = ?
 
 UNION
 
-SELECT ej.*, CASE
+SELECT ej.*,
+ CASE
   iec.type WHEN 'credit_note' THEN 'Credit Note'
            WHEN 'invoice' THEN 'Invoice'
            ELSE 'N/A'
-        END AS type,
-iec.invnumber AS recordnumber,iec.id AS record_id FROM email_journal ej
+ END           AS type,
+ iec.invnumber AS recordnumber,
+        iec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN inv_emails_customer iec ON ej.id = iec.to_id
-WHERE iec.id = ?
+    WHERE iec.id = ?
 
 UNION
 
-SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber,lec.id AS record_id FROM email_journal ej
+SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber,lec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN letter_emails_customer lec ON ej.id = lec.to_id
-WHERE lec.id = ?
-ORDER BY sent_on DESC
+    WHERE lec.id = ?
+ ORDER BY sent_on DESC
 SQL
   }
   else {
     $query = <<SQL;
-WITH oe_emails_vendor AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id FROM
-record_links rc
+WITH
+oe_emails_vendor
+       AS (SELECT rc.to_id, rc.from_id, oe.quotation, oe.quonumber, oe.ordnumber, c.id
+     FROM record_links rc
 LEFT JOIN oe oe ON rc.from_id = oe.id
 LEFT JOIN vendor c ON oe.vendor_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table ='oe'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table ='oe'),
 
-do_emails_vendor AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id FROM
-record_links rc
+do_emails_vendor
+       AS (SELECT rc.to_id, rc.from_id, o.donumber, c.id
+     FROM record_links rc
 LEFT JOIN delivery_orders o ON rc.from_id = o.id
 LEFT JOIN vendor c ON o.vendor_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'delivery_orders'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'delivery_orders'),
 
-inv_emails_vendor AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id FROM
-record_links rc
+inv_emails_vendor
+       AS (SELECT rc.to_id, rc.from_id, inv.type, inv.invnumber, c.id
+     FROM record_links rc
 LEFT JOIN ap inv ON rc.from_id = inv.id
 LEFT JOIN vendor c ON inv.vendor_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'ar'),
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'ar'),
 
-letter_emails_vendor AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id FROM
-record_links rc
+letter_emails_vendor
+       AS (SELECT rc.to_id, rc.from_id, l.letternumber, c.id
+     FROM record_links rc
 LEFT JOIN letter l ON rc.from_id = l.id
 LEFT JOIN vendor c ON l.vendor_id = c.id
-WHERE rc.to_table = 'email_journal' AND rc.from_table = 'letter')
+    WHERE rc.to_table = 'email_journal'
+      AND rc.from_table = 'letter')
 
-SELECT ej.*, CASE
+SELECT ej.*,
+ CASE
   oec.quotation WHEN 'F' THEN 'Purchase Order'
                 ELSE 'Request quotation'
-             END AS type,
-             CASE
+ END AS type,
+ CASE
   oec.quotation WHEN 'F' THEN oec.ordnumber
                 ELSE oec.quonumber
-             END AS recordnumber,
-oec.id AS record_id FROM email_journal ej
+ END   AS recordnumber,
+oec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN oe_emails_vendor oec ON ej.id = oec.to_id
-WHERE oec.id = ?
+    WHERE oec.id = ?
 
 UNION
 
-SELECT ej.*, 'Purchase Delivery Order' AS type, dec.donumber AS recordnumber, dec.id AS record_id FROM email_journal ej
+SELECT ej.*, 'Purchase Delivery Order' AS type, dec.donumber AS recordnumber, dec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN do_emails_vendor dec ON ej.id = dec.to_id
-WHERE dec.id = ?
+    WHERE dec.id = ?
 
 UNION
 
-SELECT ej.*, iec.type AS type, iec.invnumber AS recordnumber, iec.id AS record_id FROM email_journal ej
+SELECT ej.*, iec.type AS type, iec.invnumber AS recordnumber, iec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN inv_emails_vendor iec ON ej.id = iec.to_id
-WHERE iec.id = ?
+    WHERE iec.id = ?
 
 UNION
 
-SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber, lec.id AS record_id FROM email_journal ej
+SELECT ej.*, 'Letter' AS type, lec.letternumber AS recordnumber, lec.id AS record_id
+     FROM email_journal ej
 LEFT JOIN letter_emails_vendor lec ON ej.id = lec.to_id
-WHERE lec.id = ?
-ORDER BY sent_on DESC
+    WHERE lec.id = ?
+ ORDER BY sent_on DESC
 SQL
   }
   my $emails = selectall_hashref_query($::form, $dbh, $query, $cv, $cv, $cv, $cv);
@@ -374,17 +423,17 @@ sub action_get_letters {
 
   return $self->render('generic/error', { layout => 0 }, label_error => "list_transactions needs a trans_id") unless $::form->{id};
 
-  my $cv = $::form->{id} || {};
+  my $cv = $::form->{id};
   my $letters;
   my $type = $::form->{type};
   if ( $::form->{db} eq 'customer' ) {
     $letters = SL::DB::Manager::Letter->get_all(
-      query => [ customer_id => $cv, ],
+      query   => [ customer_id => $cv, ],
       sort_by => 'date DESC',
     );
   } else {
     $letters = SL::DB::Manager::Letter->get_all(
-      query => [ vendor_id => $cv, ],
+      query   => [ vendor_id => $cv, ],
       sort_by => 'date DESC',
     );
   }
@@ -406,6 +455,8 @@ SL::Controller::CustomerVendorTurnover
 Gets all kinds of records like orders, request orders, quotations, invoices, emails, letters
 
 wich belong to customer/vendor and displays them in an extra tab "Records".
+
+=back
 
 =head1 URL ACTIONS
 
@@ -470,3 +521,5 @@ None yet. :)
 =head1 AUTHOR
 
 W. Hahn E<lt>wh@futureworldsearch.netE<gt>
+
+=back
