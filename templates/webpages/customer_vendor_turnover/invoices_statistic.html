@@ -6,6 +6,7 @@
   <table width="100%">
     <tbody>
       <tr>
+        <td class="listheading">[% 'Type' | $T8 %]</td>
         <td class="listheading">[% 'Invoice Number' | $T8 %]</td>
         <td class="listheading">[% 'Invoice Date' | $T8 %]</td>
         <td class="listheading">[% 'Amount' | $T8 %]</td>
@@ -15,14 +16,35 @@
       </tr>
 
       [%- FOREACH row = invoices %]
-      <tr class="listrow[% loop.count % 2 %]">
-        <td><a href="[% IF row.type == 'invoice' || row.type == 'credit_note' %]is.pl[% ELSE %]ar.pl[% END %]?action=edit&id=[% row.id %]#ui-tabs-basic-data">[% row.invnumber | html %]</a></td>
-        <td>[% row.transdate.to_kivitendo | html %]</td>
-        <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
-        <td>[% row.duedate.to_kivitendo | html %]</td>
-        <td>[%- LxERP.format_amount(row.paid, 2) %]</td>
-        <td>[%- LxERP.format_amount(row.amount - row.paid, 2) %]
-      </tr>
+        [% IF FORM.db == 'customer' %]
+          [% IF row.type == 'invoice' %]
+            [% SET type = 'Invoice (one letter abbreviation)' %]
+            [% SET link = 'is.pl' %]
+          [% ELSIF row.type == 'credit_note' %]
+            [% SET type = 'Credit note (one letter abbreviation)' %]
+            [% SET link = 'is.pl' %]
+          [% ELSE %]
+            [% SET type = 'AR Transaction (abbreviation)' %]
+            [% SET link = 'ar.pl' %]
+          [% END %]
+        [% ELSE %]
+          [% IF row.invoice %]
+            [% SET type = 'Invoice (one letter abbreviation)' %]
+            [% SET link = 'ir.pl' %]
+          [% ELSE %]
+            [% SET type = 'AP Transaction (abbreviation)' %]
+            [% SET link = 'ap.pl' %]
+          [% END %]
+        [% END %]
+        <tr class="listrow[% loop.count % 2 %]">
+          <td>[% type | $T8 %]</td>
+          <td><a href="[% link %]?action=edit&id=[% row.id %]">[% row.invnumber | html %]</a></td>
+          <td>[% row.transdate.to_kivitendo | html %]</td>
+          <td>[%- LxERP.format_amount(row.amount, 2) %]</td>
+          <td>[% row.duedate.to_kivitendo | html %]</td>
+          <td>[%- LxERP.format_amount(row.paid, 2) %]</td>
+          <td>[%- LxERP.format_amount(row.amount - row.paid, 2) %]
+        </tr>
       [% END %]
     </tbody>
   </table>
