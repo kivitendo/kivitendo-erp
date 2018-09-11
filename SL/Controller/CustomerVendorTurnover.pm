@@ -9,6 +9,7 @@ use SL::DB::EmailJournal;
 use SL::DB::Letter;
 use SL::DB;
 
+__PACKAGE__->run_before('check_auth');
 
 sub action_list_turnover {
   my ($self) = @_;
@@ -95,7 +96,7 @@ sub action_count_open_items_by_month {
 
   my $cv = $::form->{id};
 
-  my $query = <<SQL
+  my $query = <<SQL;
    SELECT CONCAT(EXTRACT (MONTH FROM d.transdate),'/',EXTRACT (YEAR FROM d.transdate)) AS date_part,
           count(d.id),
           max(d.dunning_level)
@@ -438,6 +439,10 @@ sub action_get_letters {
     );
   }
     $self->render('customer_vendor_turnover/letter_statistic', { layout => 0 }, letters => $letters);
+}
+
+sub check_auth {
+  $::auth->assert('show_extra_record_tab_customer | show_extra_record_tab_vendor');
 }
 
 1;
