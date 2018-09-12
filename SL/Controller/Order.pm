@@ -1511,19 +1511,6 @@ sub setup_edit_action_bar {
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
           disabled  => !$self->order->id ? t8('This object has not been saved yet.') : undef,
         ],
-        action => [
-          t8('Save and Delivery Order'),
-          call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
-                                                                       $::instance_conf->get_order_warn_no_deliverydate,
-                                                                                                                        ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
-          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
-        ],
-        action => [
-          t8('Save and Invoice'),
-          call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
-          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
-        ],
       ], # end of combobox "Save"
 
       combobox => [
@@ -1541,6 +1528,19 @@ sub setup_edit_action_bar {
           submit   => [ '#order_form', { action => "Order/purchase_order" } ],
           only_if  => (any { $self->type eq $_ } (sales_order_type(), request_quotation_type())),
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
+        ],
+        action => [
+          t8('Save and Delivery Order'),
+          call      => [ 'kivi.Order.save', 'save_and_delivery_order', $::instance_conf->get_order_warn_duplicate_parts,
+                                                                       $::instance_conf->get_order_warn_no_deliverydate,
+                                                                                                                        ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
+          only_if   => (any { $self->type eq $_ } (sales_order_type(), purchase_order_type()))
+        ],
+        action => [
+          t8('Save and Invoice'),
+          call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
+          checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
       ], # end of combobox "Workflow"
 
@@ -1868,7 +1868,7 @@ java script functions
 
 =item * credit limit
 
-=item * more workflows (save as new, quotation, purchase order)
+=item * more workflows (quotation, rfq)
 
 =item * price sources: little symbols showing better price / better discount
 
@@ -1972,12 +1972,6 @@ editor or on text processing application).
 =item *
 
 A warning when leaving the page without saveing unchanged inputs.
-
-=item *
-
-Workflows for delivery order and invoice are in the menu "Save", because the
-order is saved before opening the new document form. Nevertheless perhaps these
-workflow buttons should be put under "Workflows".
 
 
 =back
