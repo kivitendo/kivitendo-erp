@@ -169,7 +169,12 @@
         [% L.input_tag('cv.bcc', SELF.cv.bcc, size = 45) %]
       </td>
     </tr>
-
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th align="right">[% 'Email of the invoice recipient' | $T8 %]</th>
+      <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, size = 45) %]</td>
+    </tr>
+    [% END %]
     <tr>
       <th align="right" nowrap>
         [% IF SELF.cv.homepage %]
@@ -364,12 +369,19 @@
   <table>
     <tr>
       <th align="left" nowrap>[% 'Internal Notes' | $T8 %]</th>
+    [% IF ( SELF.is_customer() ) %]
+      <th align="left">[% 'Origin of personal data' | $T8 %]</th>
+    [% END %]
     </tr>
-
     <tr>
       <td>
         [% L.textarea_tag('cv.notes', SELF.cv.notes, rows = 3 cols = 60 wrap = soft) %]
       </td>
+    [% IF ( SELF.is_customer() ) %]
+      <td>
+        [% L.textarea_tag('cv.contact_origin', SELF.cv.contact_origin,  rows = 3 cols = 60 wrap = soft) %]
+      </td>
+    [% END %]
     </tr>
   </table>
 </div>
