@@ -2023,7 +2023,12 @@ sub show_sales_purchase_email_dialog {
   if ($::form->{cp_id}) {
     $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
   }
-
+  my $invoice_mail;
+  if ($::form->{type} eq 'invoice' && !$email) {
+    # check for invoice_mail
+    $email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
+    $invoice_mail = 1 if $email;
+  }
   if (!$email && $::form->{vc} && $::form->{vc_id}) {
     $email = SL::DB::Customer->load_cached($::form->{vc_id})->email if 'customer' eq $::form->{vc};
     $email = SL::DB::Vendor  ->load_cached($::form->{vc_id})->email if 'vendor'   eq $::form->{vc};
@@ -2045,6 +2050,7 @@ sub show_sales_purchase_email_dialog {
     show_bcc    => $::auth->assert('email_bcc', 'may fail'),
     FILES       => \%files,
     is_customer => $::form->{vc} eq 'customer',
+    is_invoice_mail => $invoice_mail,
   });
 
   print $::form->ajax_response_header, $html;

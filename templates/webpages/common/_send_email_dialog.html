@@ -23,10 +23,14 @@
  <tbody>
   <tr>
    <th align="right" nowrap>
-    [% LxERP.t8("Recipients") %]
+    [% IF is_invoice_mail  %]
+      [% LxERP.t8("Invoice to:") %]
+    [% ELSE %]
+      [% LxERP.t8("Recipients") %]
+    [% END %]
    </th>
    <td>
-    [% L.input_tag("email_form.to", email_form.to, size="80") %]
+    [% L.input_tag("email_form.to", email_form.to, size="80",readonly=is_invoice_mail ) %]
     <span class="interactive cursor-pointer"        onclick="$('[data-toggle-recipients=1]').toggle()" data-toggle-recipients="1">[+]</span>
     <span class="interactive cursor-pointer hidden" onclick="$('[data-toggle-recipients=1]').toggle()" data-toggle-recipients="1">[-]</span>
    </td>

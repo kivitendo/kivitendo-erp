@@ -1683,6 +1683,7 @@ $self->{texts} = {
   'Invoice for fees'            => 'Rechnung über Gebühren',
   'Invoice has already been storno\'d!' => 'Diese Rechnung wurde bereits storniert.',
   'Invoice number'              => 'Rechnungsnummer',
+  'Invoice to:'                 => 'Rechnung an:',
   'Invoice total'               => 'Die Rechnungssumme',
   'Invoice total less discount' => 'Rechnungssumme abzüglich Skonto',
   'Invoice with Storno (abbreviation)' => 'R(S)',
