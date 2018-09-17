@@ -967,6 +967,19 @@ sub js_redisplay_amounts_and_taxes {
     $self->js->show('#subtotal_row_id');
   }
 
+  if ($self->order->is_sales) {
+    my $is_neg = $self->order->marge_total < 0;
+    $self->js
+      ->html('#marge_total_id',   $::form->format_amount(\%::myconfig, $self->order->marge_total,   2))
+      ->html('#marge_percent_id', $::form->format_amount(\%::myconfig, $self->order->marge_percent, 2))
+      ->action_if( $is_neg, 'addClass',    '#marge_total_id',        'plus0')
+      ->action_if( $is_neg, 'addClass',    '#marge_percent_id',      'plus0')
+      ->action_if( $is_neg, 'addClass',    '#marge_percent_sign_id', 'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_total_id',        'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_percent_id',      'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_percent_sign_id', 'plus0');
+  }
+
   $self->js
     ->html('#netamount_id', $::form->format_amount(\%::myconfig, $self->order->netamount, -2))
     ->html('#amount_id',    $::form->format_amount(\%::myconfig, $self->order->amount,    -2))
