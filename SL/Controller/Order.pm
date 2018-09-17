@@ -1282,7 +1282,7 @@ sub setup_order_from_cv {
   $order->intnotes($order->customervendor->notes);
 
   if ($order->is_sales) {
-    $order->salesman_id($order->customer->salesman_id);
+    $order->salesman_id($order->customer->salesman_id || SL::DB::Manager::Employee->current->id);
     $order->taxincluded(defined($order->customer->taxincluded_checked)
                         ? $order->customer->taxincluded_checked
                         : $::myconfig{taxincluded_checked});
