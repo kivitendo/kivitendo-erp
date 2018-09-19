@@ -52,6 +52,7 @@ my @link_type_specifics = (
   { title => t8('Email'),                   type => 'email_journal',           model => 'EmailJournal',    number => 'id', description => 'subject', description_title => t8('Subject'), },
   { title => t8('AR Transaction'),          type => 'ar_transaction',          model => 'Invoice',         number => 'invnumber', },
   { title => t8('AP Transaction'),          type => 'ap_transaction',          model => 'PurchaseInvoice', number => 'invnumber', },
+  { title => t8('Dunning'),                 type => 'dunning',                 model => 'Dunning',         number => 'dunning_id', },
 );
 
 my @link_types = map { +{ %link_type_defaults, %{ $_ } } } @link_type_specifics;

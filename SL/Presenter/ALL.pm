@@ -5,6 +5,7 @@ use strict;
 use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DeliveryOrder;
+use SL::Presenter::Dunning;
 use SL::Presenter::EscapedText;
 use SL::Presenter::Invoice;
 use SL::Presenter::GL;
@@ -26,6 +27,7 @@ our %presenters = (
   chart                       => 'SL::Presenter::Chart',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
+  dunning                     => 'SL::Presenter::Dunning',
   escaped_text                => 'SL::Presenter::EscapedText',
   invoice                     => 'SL::Presenter::Invoice',
   gl                          => 'SL::Presenter::GL',

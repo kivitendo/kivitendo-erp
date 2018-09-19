@@ -67,6 +67,8 @@ sub grouped_record_list {
   $output .= _letter_list(                 $groups{letters},                  %params) if $groups{letters};
   $output .= _email_journal_list(          $groups{email_journals},           %params) if $groups{email_journals};
 
+  $output .= _dunning_list(                $groups{dunnings},                 %params) if $groups{dunnings};
+
   $output  = SL::Presenter->get->render('presenter/record/grouped_record_list', %params, output => $output);
 
   return $output;
@@ -195,6 +197,7 @@ sub _group_records {
     bank_transactions        => sub { (ref($_[0]) eq 'SL::DB::BankTransaction') &&  $_[0]->id                           },
     letters                  => sub { (ref($_[0]) eq 'SL::DB::Letter')          &&  $_[0]->id                           },
     email_journals           => sub { (ref($_[0]) eq 'SL::DB::EmailJournal')    &&  $_[0]->id                           },
+    dunnings                 => sub { (ref($_[0]) eq 'SL::DB::Dunning')                                                 },
   );
 
   my %groups;
@@ -573,7 +576,23 @@ sub _email_journal_list {
     %params,
   );
 }
+sub _dunning_list {
+  my ($list, %params) = @_;
 
+  return record_list(
+    $list,
+    title   => $::locale->text('Dunnings'),
+    type    => 'dunning',
+    columns => [
+      [ $::locale->text('Dunning Level'),   sub { $_[0]->presenter->dunning(display => 'table-cell') } ],
+      [ $::locale->text('Dunning Date'),    'transdate'                                                ],
+      [ $::locale->text('Dunning Duedate'), 'duedate'                                                  ],
+      [ $::locale->text('Total Fees'),      'fee'                                                      ],
+      [ $::locale->text('Interest'),        'interest'                                                 ],
+    ],
+    %params,
+  );
+}
 
 1;
 

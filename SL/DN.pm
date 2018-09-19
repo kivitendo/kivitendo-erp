@@ -192,7 +192,8 @@ sub create_invoice_for_fees {
              AND (d_interest.dunning_id <> ?)
              AND NOT (d_interest.fee_interest_ar_id ISNULL)
          ), 0)
-         AS max_previous_interest
+         AS max_previous_interest,
+         d.id AS link_id
        FROM dunning d
        WHERE dunning_id = ?|;
   @values = ($dunning_id, $dunning_id, $dunning_id);
@@ -201,6 +202,8 @@ sub create_invoice_for_fees {
   my ($fee_remaining, $interest_remaining) = (0, 0);
   my ($fee_total, $interest_total) = (0, 0);
 
+  my @link_ids;
+
   while (my $ref = $sth->fetchrow_hashref()) {
     $fee_remaining      += $form->round_amount($ref->{fee}, 2);
     $fee_remaining      -= $form->round_amount($ref->{max_previous_fee}, 2);
@@ -208,6 +211,7 @@ sub create_invoice_for_fees {
     $interest_remaining += $form->round_amount($ref->{interest}, 2);
     $interest_remaining -= $form->round_amount($ref->{max_previous_interest}, 2);
     $interest_total     += $form->round_amount($ref->{interest}, 2);
+    push @link_ids, $ref->{link_id};
   }
 
   $sth->finish();
@@ -271,6 +275,15 @@ sub create_invoice_for_fees {
              $::myconfig{login});   # employee_id
   do_query($form, $dbh, $query, @values);
 
+  RecordLinks->create_links(
+    'dbh'        => $dbh,
+    'mode'       => 'ids',
+    'from_table' => 'dunning',
+    'from_ids'   => \@link_ids,
+    'to_table'   => 'ar',
+    'to_id'      => $ar_id,
+  );
+
   $query =
     qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey, tax_id, chart_link)
        VALUES (?, ?, ?, current_date, current_date, 0,
@@ -326,9 +339,9 @@ sub _save_dunning {
   my $h_update_ar = prepare_query($form, $dbh, $q_update_ar);
 
   my $q_insert_dunning =
-    qq|INSERT INTO dunning (dunning_id, dunning_config_id, dunning_level, trans_id,
-                            fee,        interest,          transdate,     duedate)
-       VALUES (?, ?,
+    qq|INSERT INTO dunning (id,  dunning_id, dunning_config_id, dunning_level, trans_id,
+                            fee, interest,   transdate,         duedate)
+       VALUES (?, ?, ?,
                (SELECT dunning_level FROM dunning_config WHERE id = ?),
                ?,
                (SELECT SUM(fee)
@@ -366,13 +379,23 @@ sub _save_dunning {
     $send_email       |= $row->{email};
     $print_invoice    |= $row->{print_invoice};
 
+    my ($row_id)       = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
     my $next_config_id = conv_i($row->{next_dunning_config_id});
     my $invoice_id     = conv_i($row->{invoice_id});
 
-    @values = ($dunning_id,     $next_config_id, $next_config_id,
-               $invoice_id,     $next_config_id, $invoice_id,
-               $next_config_id, $next_config_id);
+    @values = ($row_id,         $dunning_id,     $next_config_id,
+               $next_config_id, $invoice_id,     $next_config_id,
+               $invoice_id,     $next_config_id, $next_config_id);
     do_statement($form, $h_insert_dunning, $q_insert_dunning, @values);
+
+    RecordLinks->create_links(
+      'dbh'        => $dbh,
+      'mode'       => 'ids',
+      'from_table' => 'ar',
+      'from_ids'   => $invoice_id,
+      'to_table'   => 'dunning',
+      'to_id'      => $row_id,
+    );
   }
   # die this transaction, because for this customer only credit notes are
   # selected ...

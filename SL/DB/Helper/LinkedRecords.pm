@@ -314,6 +314,7 @@ sub sort_linked_records {
                   'SL::DB::Letter'          => sub { $_[0]->letternumber },
                   'SL::DB::ShopOrder'       => sub { $_[0]->shop_ordernumber },
                   'SL::DB::EmailJournal'    => sub { $_[0]->id },
+                  'SL::DB::Dunning'         => sub { $_[0]->dunning_id },
                   UNKNOWN                   => '9999999999999999',
                 );
   my $number_xtor = sub {
@@ -345,6 +346,7 @@ sub sort_linked_records {
               'SL::DB::Letter'          => 200,
               'SL::DB::ShopOrder'       => 250,
               'SL::DB::EmailJournal'    => 300,
+              'SL::DB::Dunning'         => 350,
               UNKNOWN                   => 999,
             );
   my $score_xtor = sub {
