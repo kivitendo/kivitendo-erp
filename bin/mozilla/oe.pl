@@ -1006,14 +1006,13 @@ sub orders {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
+  my %params   = @_;
   check_oe_access();
 
   my $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
-
   report_generator_set_default_sort('transdate', 1);
-
   OE->transactions(\%myconfig, \%$form);
 
   $form->{rowcount} = scalar @{ $form->{OE} };
@@ -1090,7 +1089,7 @@ sub orders {
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
   push @keys_for_url, 'taxzone_id' if $form->{taxzone_id} ne ''; # taxzone_id could be 0
 
-  my $href = build_std_url('action=orders', @keys_for_url);
+  my $href = $params{want_binary_pdf} ? '' : build_std_url('action=orders', @keys_for_url);
 
   my %column_defs = (
     'ids'                     => { 'text' => '', },
@@ -1238,10 +1237,11 @@ sub orders {
 
   my $idx = 1;
 
-  my $edit_url = ($::instance_conf->get_feature_experimental_order)
+  my $edit_url = $params{want_binary_pdf}
+               ? ''
+               : ($::instance_conf->get_feature_experimental)
                ? build_std_url('script=controller.pl', 'action=Order/edit', 'type')
                : build_std_url('action=edit', 'type', 'vc');
-
   foreach my $oe (@{ $form->{OE} }) {
     map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
 
@@ -1277,7 +1277,7 @@ sub orders {
       'align'    => 'center',
     };
 
-    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
+    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
 
     my $row_set = [ $row ];
 
@@ -1294,7 +1294,10 @@ sub orders {
 
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
-
+  if ($params{want_binary_pdf}) {
+    $report->generate_with_headers();
+    return $report->generate_pdf_content(want_binary_pdf => 1);
+  }
   setup_oe_orders_action_bar();
   $report->generate_with_headers();
 
