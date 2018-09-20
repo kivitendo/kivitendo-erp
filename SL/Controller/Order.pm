@@ -509,6 +509,7 @@ sub action_show_periodic_invoices_config_dialog {
 
   if ($::form->{customer_id}) {
     $::form->{ALL_CONTACTS} = SL::DB::Manager::Contact->get_all_sorted(where => [ cp_cv_id => $::form->{customer_id} ]);
+    $::form->{email_recipient_invoice_address} = SL::DB::Manager::Customer->find_by(id => $::form->{customer_id})->invoice_mail;
   }
 
   $self->render('oe/edit_periodic_invoices_config', { layout => 0 },

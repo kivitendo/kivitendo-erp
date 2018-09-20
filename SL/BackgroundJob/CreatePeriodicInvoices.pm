@@ -376,7 +376,9 @@ sub _email_invoice {
     grep { $_       }
     map  { trim($_) }
     (split(m{,}, $data->{config}->email_recipient_address),
-     $data->{config}->email_recipient_contact ? ($data->{config}->email_recipient_contact->cp_email) : ());
+     $data->{config}->email_recipient_contact   ? ($data->{config}->email_recipient_contact->cp_email) : (),
+     $data->{invoice}->{customer}->invoice_mail ? ($data->{invoice}->{customer}->invoice_mail) : ()
+    );
 
   return unless @recipients;
 
