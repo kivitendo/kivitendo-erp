@@ -486,6 +486,7 @@ sub generate_pdf_content {
   };
 
   my $self       = shift;
+  my %params     = @_;
   my $variables  = $self->prepare_html_content();
   my $form       = $self->{form};
   my $myconfig   = $self->{myconfig};
@@ -718,13 +719,17 @@ sub generate_pdf_content {
     $content = $self->append_gl_pdf_attachments($form,$content);
   }
 
+  # 1. check if we return the report as binary pdf
+  if ($params{want_binary_pdf}) {
+    return $content;
+  }
+  # 2. check if we want and can directly print the report
   my $printer_command;
   if ($pdfopts->{print} && $pdfopts->{printer_id}) {
     $form->{printer_id} = $pdfopts->{printer_id};
     $form->get_printer_code($myconfig);
     $printer_command = $form->{printer_command};
   }
-
   if ($printer_command) {
     $self->_print_content('printer_command' => $printer_command,
                           'content'         => $content,
@@ -732,6 +737,7 @@ sub generate_pdf_content {
     $form->{report_generator_printed} = 1;
 
   } else {
+  # 3. default: redirect http with file attached
     my $filename = $self->get_attachment_basename();
 
     print qq|content-type: application/pdf\n|;
@@ -974,6 +980,11 @@ The html generation function. Is invoked by generate_with_headers.
 =item generate_pdf_content
 
 The PDF generation function. It is invoked by generate_with_headers and renders the PDF with the PDF::API2 library.
+
+If the param want_binary_pdf is set, the binary pdf stream will be returned.
+If $pdfopts->{print} && $pdfopts->{printer_id} are set, the pdf will be printed (output is directed to print command).
+
+Otherwise and the default a html form with a downloadable file is returned.
 
 =item generate_csv_content
 
