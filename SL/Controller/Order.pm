@@ -623,6 +623,7 @@ sub action_customer_vendor_changed {
     ->val(        '#order_payment_id',       $self->order->payment_id)
     ->val(        '#order_delivery_term_id', $self->order->delivery_term_id)
     ->val(        '#order_intnotes',         $self->order->intnotes)
+    ->val(        '#language_id',            $self->order->$cv_method->language_id)
     ->focus(      '#order_' . $self->cv . '_id');
 
   $self->js_redisplay_amounts_and_taxes;
