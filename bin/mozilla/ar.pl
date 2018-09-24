@@ -1001,6 +1001,7 @@ sub ar_transactions {
 
   my ($callback, $href, @columns);
 
+  my %params   = @_;
   report_generator_set_default_sort('transdate', 1);
 
   AR->ar_transactions(\%myconfig, \%$form);
@@ -1027,7 +1028,7 @@ sub ar_transactions {
                                            employee_id salesman_id business_id parts_partnumber parts_description department_id show_marked_as_closed show_not_mailed);
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
-  $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
+  $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
     'ids'                     => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
@@ -1207,7 +1208,7 @@ sub ar_transactions {
     }
 
     $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
-      . "&id=" . E($ar->{id}) . "&callback=${callback}";
+      . "&id=" . E($ar->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
 
     $row->{ids} = {
       raw_data =>  SL::Presenter::Tag::checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),
@@ -1230,6 +1231,11 @@ sub ar_transactions {
 
   $report->add_separator();
   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
+
+  if ($params{want_binary_pdf}) {
+    $report->generate_with_headers();
+    return $report->generate_pdf_content(want_binary_pdf => 1);
+  }
 
   $::request->layout->add_javascripts('kivi.MassInvoiceCreatePrint.js');
   setup_ar_transactions_action_bar(num_rows => scalar(@{ $form->{AR} }));
