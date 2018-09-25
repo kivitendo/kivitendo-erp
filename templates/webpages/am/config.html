@@ -169,12 +169,13 @@
         <div class="clearfix">
          [% L.select_tag("quick_search_modules[]",
            ENABLED_QUICK_SEARCHMODULES,
-           value_key = "name",
-           title_key = "description_config",
-           id        = "quick_searches",
-           multiple  = 1,
-           size      = ENABLED_QUICK_SEARCHMODULES.size,
-           default   = DEFAULT_QUICK_SEARCHMODULES) %]
+           value_key  = "name",
+           title_key  = "description_config",
+           id         = "quick_searches",
+           multiple   = 1,
+           with_empty = 1
+           size       = ENABLED_QUICK_SEARCHMODULES.size,
+           default    = DEFAULT_QUICK_SEARCHMODULES) %]
          [% # L.multiselect2side("quick_searches", labelsx=LxERP.t8("All modules"), labeldx=LxERP.t8("Enabled modules")) %]
         </div>
       </td>

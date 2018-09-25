@@ -71,8 +71,7 @@ sub enabled_modules {
   );
 
   my %enabled_names;
-  if ($user_prefs) {
-    my $prefs_val            = $user_prefs->get('quick_search_modules');
+  if (my $prefs_val = $user_prefs->get('quick_search_modules')) {
     my @quick_search_modules = split ',', $prefs_val;
 
     %enabled_names = map {
