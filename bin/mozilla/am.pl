@@ -656,13 +656,14 @@ sub config {
   }
 
   my $enabled_quick_search = [ SL::Controller::TopQuickSearch->new->available_modules ];
-  $form->{ENABLED_QUICK_SEARCHMODULES} = \@{$enabled_quick_search};
-  $form->{DEFAULT_QUICK_SEARCHMODULES} = \@quick_search_modules;
+  $form->{enabled_quick_searchmodules} = \@{$enabled_quick_search};
+  $form->{default_quick_searchmodules} = \@quick_search_modules;
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };
 
+  $::request->{layout}->use_javascript("jquery.multiselect2side.js");
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
 
   setup_am_config_action_bar();
@@ -686,12 +687,11 @@ sub save_preferences {
 
   TODO->save_user_config('login' => $::myconfig{login}, %{ $form->{todo_cfg} || { } });
 
-  my $user_prefs = SL::Helper::UserPreferences->new(
-    namespace         => 'TopQuickSearch',
-  );
-  my $quick_search_modules = join ',', @{$form->{quick_search_modules}};
-  $user_prefs->store('quick_search_modules', $quick_search_modules);
-
+  if ($form->{quick_search_modules}) {
+    my $user_prefs = SL::Helper::UserPreferences->new( namespace => 'TopQuickSearch',);
+    my $quick_search_modules = join ',', @{$form->{quick_search_modules}};
+    $user_prefs->store('quick_search_modules', $quick_search_modules);
+  }
   if (AM->save_preferences($form)) {
     if ($::auth->can_change_password()
         && defined $form->{new_password}

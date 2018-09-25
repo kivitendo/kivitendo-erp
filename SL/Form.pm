@@ -434,7 +434,6 @@ sub header {
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
     jquery/jquery.form jquery/fixes client_js
     jquery/jquery.tooltipster.min
-    jquery.multiselect2side
     common part_selection
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
