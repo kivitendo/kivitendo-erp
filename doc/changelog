@@ -40,6 +40,7 @@ Kleinere neue Features und Detailverbesserungen:
     Das Skonto-Datum hat Priorität vor der letzten Fälligkeit.
     Zusätzlich kann ein Puffer in Tagen vom Zahlungsziel abgezogen werden (Standard 0). Das Verhalten muss für jeden
     Mandanten unter Mandantenkonfiguration -> Features -> SEPA aktiv eingeschaltet werden.
+  - Schnellsuchen können auf Benutzerebene Programm->Benutzereinstellungen->Anzeigeoptionen konfiguriert werden.
 
 Bugfixes:
 - Bugfix #336 Beim Drucken mehrerer Rechnung aus dem Bericht heraus mit aktiviertem DMS bricht mit Fehlermeldung ab
