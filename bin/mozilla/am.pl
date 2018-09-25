@@ -42,6 +42,7 @@ use SL::AM;
 use SL::CA;
 use SL::Form;
 use SL::Helper::Flash;
+use SL::Helper::UserPreferences;
 use SL::User;
 use SL::USTVA;
 use SL::Iconv;
@@ -573,6 +574,7 @@ sub config {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $defaults = SL::DB::Default->get;
 
   _build_cfg_options('dateformat', qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
   _build_cfg_options('timeformat', qw(hh:mm hh:mm:ss));
@@ -643,6 +645,20 @@ sub config {
     };
   }
 
+  my $user_prefs = SL::Helper::UserPreferences->new(
+    namespace         => 'TopQuickSearch',
+  );
+  my $prefs_val;
+  my @quick_search_modules;
+  if ($user_prefs) {
+    $prefs_val            = $user_prefs->get('quick_search_modules');
+    @quick_search_modules = split ',', $prefs_val;
+  }
+
+  my $enabled_quick_search = [ SL::Controller::TopQuickSearch->new->available_modules ];
+  $form->{ENABLED_QUICK_SEARCHMODULES} = \@{$enabled_quick_search};
+  $form->{DEFAULT_QUICK_SEARCHMODULES} = \@quick_search_modules;
+
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };
@@ -650,7 +666,6 @@ sub config {
   $form->{title}               = $locale->text('Edit Preferences for #1', $::myconfig{login});
 
   setup_am_config_action_bar();
-
   $form->header();
 
   $form->{full_signature} = $form->create_email_signature();
@@ -670,6 +685,12 @@ sub save_preferences {
   $form->{stylesheet} = $form->{usestylesheet};
 
   TODO->save_user_config('login' => $::myconfig{login}, %{ $form->{todo_cfg} || { } });
+
+  my $user_prefs = SL::Helper::UserPreferences->new(
+    namespace         => 'TopQuickSearch',
+  );
+  my $quick_search_modules = join ',', @{$form->{quick_search_modules}};
+  $user_prefs->store('quick_search_modules', $quick_search_modules);
 
   if (AM->save_preferences($form)) {
     if ($::auth->can_change_password()

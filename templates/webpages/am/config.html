@@ -1,6 +1,8 @@
 [%- USE T8 %]
 [%- USE LxERP %]
-[%- USE HTML %][%- USE L %]
+[%- USE HTML %]
+[%- USE L %]
+[% USE Dumper %]
 <h1>[% title %]</h1>
 
  <form method="post" action="am.pl" name="Form" id="form">
@@ -161,7 +163,22 @@
         [% L.input_tag('form_cvars_nr_cols',  MYCONFIG.form_cvars_nr_cols || 3,  size = 5) %]
       </td>
      </tr>
-
+     <tr>
+      <th align="right">[% 'Quick Searches that will be shown in the header for this user' | $T8 %]</th>
+      <td colspan=2>
+        <div class="clearfix">
+         [% L.select_tag("quick_search_modules[]",
+           ENABLED_QUICK_SEARCHMODULES,
+           value_key = "name",
+           title_key = "description_config",
+           id        = "quick_searches",
+           multiple  = 1,
+           size      = ENABLED_QUICK_SEARCHMODULES.size,
+           default   = DEFAULT_QUICK_SEARCHMODULES) %]
+         [% # L.multiselect2side("quick_searches", labelsx=LxERP.t8("All modules"), labeldx=LxERP.t8("Enabled modules")) %]
+        </div>
+      </td>
+    </tr>
     </table>
    </div>
 

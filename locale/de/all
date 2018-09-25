@@ -2472,6 +2472,7 @@ $self->{texts} = {
   'Query parameters'            => 'Abfrageparameter',
   'Queue'                       => 'Warteschlange',
   'Quick Search'                => 'Schnellsuche',
+  'Quick Searches that will be shown in the header for this user' => 'Schnellsuchen, die in der Kopfzeile gezeigt werden sollen',
   'Quick Searches that will be shown in the header in this client' => 'Schnellsuchen, die in der Kopfzeile in diesem Mandanten gezeigt werden sollen',
   'Quotation'                   => 'Angebot',
   'Quotation Date'              => 'Angebotsdatum',
