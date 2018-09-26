@@ -395,8 +395,6 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  # TODO There is no credit_note for vendor invoices (remove template code)
-  $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
   $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
@@ -528,7 +526,6 @@ sub form_footer {
   $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('ir/form_footer', {
-    is_type_credit_note => ($form->{type} eq "credit_note"),
     totalpaid           => $totalpaid,
     paid_missing        => $form->{invtotal} - $totalpaid,
     show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && !$totalpaid,

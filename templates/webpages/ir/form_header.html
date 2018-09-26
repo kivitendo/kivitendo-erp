@@ -139,17 +139,6 @@
           <th align="right">[% 'Employee' | $T8 %]</th>
           <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name') %]</td>
         </tr>
-
-[%- IF is_type_credit_note %]
-        <tr>
-          <th align="right" nowrap>[% 'Credit Note Number' | $T8 %]</th>
-          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
-        </tr>
-        <tr>
-          <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate) %]</td>
-        </tr>
-[%- ELSE %]
         <tr>
           <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
           <td colspan="3">[% L.input_tag("invnumber", invnumber, size="11") %]</td>
@@ -165,8 +154,6 @@
            <span id="duedate_fixed"[% IF !payment_terms_obj.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate) %]</span>
           </td>
         </tr>
-[%- END %]
-
         <tr>
           <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
