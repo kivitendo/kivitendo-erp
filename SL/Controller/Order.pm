@@ -1166,8 +1166,10 @@ sub make_order {
 
   $order->assign_attributes(%{$::form->{order}});
 
-  my $periodic_invoices_config = make_periodic_invoices_config_from_yaml($form_periodic_invoices_config);
-  $order->periodic_invoices_config($periodic_invoices_config) if $periodic_invoices_config;
+  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? YAML::Load($form_periodic_invoices_config) : undef) {
+    my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
+    $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
+  }
 
   # remove deleted items
   $self->item_ids_to_delete([]);
