@@ -323,9 +323,6 @@ sub _display {
   $::form->{type}             = 'letter';   # needed for print_options
   $::form->{vc}               = $letter->is_sales ? 'customer' : 'vendor'; # needs to be for _get_contacts...
 
-  $::request->layout->add_javascripts('customer_or_vendor_selection.js');
-  $::request->layout->add_javascripts('edit_part_window.js');
-
   $::form->{language_id} ||= $params{language_id};
   $::form->{languages}   ||= SL::DB::Manager::Language->get_all_sorted;
   $::form->{printers}      = SL::DB::Manager::Printer->get_all_sorted;

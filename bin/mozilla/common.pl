@@ -332,62 +332,7 @@ sub retrieve_partunits {
 
 # -------------------------------------------------------------------------
 
-sub cov_selection_internal {
-  $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my $order_by = "name";
-  $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
-  my $order_dir = 1;
-  $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
-
-  my $type = $form->{"is_vendor"} ? $locale->text("vendor") : $locale->text("customer");
-
-  my $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, $order_by, $order_dir, $form->{"is_vendor"}, $form->{"allow_both"});
-  map({ $covs->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$covs}));
-
-  if (0 == scalar(@{$covs})) {
-    $form->show_generic_information(sprintf($locale->text("No %s was found matching the search parameters."), $type));
-  } elsif (1 == scalar(@{$covs})) {
-    $::request->{layout}->add_javascripts_inline("cov_selected('1')");
-  }
-
-  my $callback = "$form->{script}?action=cov_selection_internal&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(name input_name input_id is_vendor allow_both), grep({ /^[fl]_/ } keys %$form)));
-
-  my @header_sort = qw(name address contact);
-  my %header_title = ( "name" => $locale->text("Name"),
-                       "address" => $locale->text("Address"),
-                       "contact" => $locale->text("Contact"),
-                       );
-
-  my @header =
-    map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-           "callback" => $callback . "order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
-         },
-        @header_sort);
-
-  foreach my $cov (@{ $covs }) {
-    $cov->{address} = "$cov->{street}, $cov->{zipcode} $cov->{city}";
-    $cov->{address} =~ s{^,}{}x;
-    $cov->{address} =~ s{\ +}{\ }gx;
-
-    $cov->{contact} = join " ", map { $cov->{$_} } qw(cp_gender cp_title cp_givenname cp_name);
-    $cov->{contact} =~ s{\ +}{\ }gx;
-  }
-
-  $form->{"title"} = $form->{is_vendor} ? $locale->text("Select a vendor") : $locale->text("Select a customer");
-  $form->header();
-  print($form->parse_html_template("generic/cov_selection", { "HEADER" => \@header,
-                                                              "COVS" => $covs, }));
-
-  $main::lxdebug->leave_sub();
-}
 
 
 # Functions to call add routines beneath different reports
