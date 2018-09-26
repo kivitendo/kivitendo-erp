@@ -14,7 +14,7 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
-  ns.check_save_duplicate_parts = function() {
+  ns.check_duplicate_parts = function(question) {
     var id_arr = $('[name="order.orderitems[].parts_id"]').map(function() { return this.value; }).get();
 
     var i, obj = {}, pos = [];
@@ -28,9 +28,10 @@ namespace('kivi.Order', function(ns) {
     }
 
     if (pos.length > 0) {
+      question = question || kivi.t8("Do you really want to save?");
       return confirm(kivi.t8("There are duplicate parts at positions") + "\n"
                      + pos.join(', ') + "\n"
-                     + kivi.t8("Do you really want to save?"));
+                     + question);
     }
     return true;
   };
@@ -46,8 +47,8 @@ namespace('kivi.Order', function(ns) {
 
   ns.save = function(action, warn_on_duplicates, warn_on_reqdate) {
     if (!ns.check_cv()) return;
-    if (warn_on_duplicates && !ns.check_save_duplicate_parts()) return;
-    if (warn_on_reqdate    && !ns.check_valid_reqdate())        return;
+    if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
+    if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/' + action });
@@ -62,8 +63,9 @@ namespace('kivi.Order', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.show_print_options = function() {
+  ns.show_print_options = function(warn_on_duplicates) {
     if (!ns.check_cv()) return;
+    if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
 
     kivi.popup_dialog({
       id: 'print_options',
@@ -93,8 +95,10 @@ namespace('kivi.Order', function(ns) {
     $.download("controller.pl", data);
   };
 
-  ns.email = function() {
+  ns.email = function(warn_on_duplicates) {
+    if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to send by mail?"))) return;
     if (!ns.check_cv()) return;
+
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/show_email_dialog' });
 

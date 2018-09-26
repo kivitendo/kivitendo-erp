@@ -210,6 +210,16 @@ sub action_save_as_new {
 sub action_print {
   my ($self) = @_;
 
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  $self->js->val('#id', $self->order->id)
+           ->val('#order_' . $self->nr_key(), $self->order->number);
+
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
   my $formname    = $::form->{print_options}->{formname};
@@ -370,6 +380,17 @@ sub action_show_email_dialog {
 sub action_send_email {
   my ($self) = @_;
 
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->run('kivi.Order.close_email_dialog');
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  $self->js->val('#id', $self->order->id)
+           ->val('#order_' . $self->nr_key(), $self->order->number);
+
   my $email_form  = delete $::form->{email_form};
   my %field_names = (to => 'email');
 
@@ -416,6 +437,8 @@ sub action_send_email {
   $intnotes   .= t8('Bcc')        . ": " . $::form->{bcc}                                                             . "\n"    if $::form->{bcc};
   $intnotes   .= t8('Subject')    . ": " . $::form->{subject}                                                         . "\n\n";
   $intnotes   .= t8('Message')    . ": " . $::form->{message};
+
+  $self->order->update_attributes(intnotes => $intnotes);
 
   $self->js
       ->val('#order_intnotes', $intnotes)
@@ -1565,12 +1588,12 @@ sub setup_edit_action_bar {
           t8('Export'),
         ],
         action => [
-          t8('Print'),
-          call => [ 'kivi.Order.show_print_options' ],
+          t8('Save and print'),
+          call => [ 'kivi.Order.show_print_options', $::instance_conf->get_order_warn_duplicate_parts ],
         ],
         action => [
-          t8('E-mail'),
-          call => [ 'kivi.Order.email' ],
+          t8('Save and E-mail'),
+          call => [ 'kivi.Order.email', $::instance_conf->get_order_warn_duplicate_parts ],
         ],
         action => [
           t8('Download attachments of all parts'),
@@ -1787,11 +1810,6 @@ Use of pickers where possible.
 =item *
 
 Possibility to enter more than one item at once.
-
-=item *
-
-Save order only on "save" (and "save and delivery order"-workflow). No
-hidden save on "print" or "email".
 
 =item *
 
