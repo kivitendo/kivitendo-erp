@@ -134,7 +134,9 @@ sub _send_email {
   $mail->{content_type} = $content_type;
   $mail->{message}      = $$output;
 
-  $mail->send;
+  my $err = $mail->send;
+  $self->add_errors('Mailer error #1', $err) if $err;
+
 }
 
 sub _prepare_report {
