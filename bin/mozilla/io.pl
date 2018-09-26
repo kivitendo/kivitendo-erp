@@ -1040,7 +1040,7 @@ sub quotation {
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
- delete $form->{$_} foreach (qw(id printed emailed queued quonumber));
+  delete $form->{$_} foreach (qw(id printed emailed queued quonumber));
 
   my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {
