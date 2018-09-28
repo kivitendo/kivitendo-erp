@@ -180,6 +180,7 @@ my %kivitendo_package_names = (
   price_factors                  => 'price_factor',
   price_rules                    => 'price_rule',
   price_rule_items               => 'price_rule_item',
+  price_rule_macros              => 'price_rule_macro',
   pricegroup                     => 'pricegroup',
   printers                       => 'printer',
   project                        => 'project',

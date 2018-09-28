@@ -15,6 +15,16 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(object operator) ],
 );
 
+sub digest {
+  join $;,
+    $_[0]->type,
+    $_[0]->op // '',
+    ($_[0]->value_date ? $_[0]->value_date->ymd : '-'),
+    ($_[0]->value_int // '-'),
+    ($_[0]->value_num // '-'),
+    ($_[0]->value_text // '');
+}
+
 sub match {
   my ($self, %params) = @_;
 
@@ -177,3 +187,32 @@ sub validate {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::DB::PriceRuleItem - Rule element for price rules
+
+=head1 SYNOPSIS
+
+  my @errors      = $price_rule_item->validate;
+  my $is_match    = $price_rule_item->match(record => $record, record_item => $record_item);
+
+  # localized description of the rule
+  my $description = $price_rule_item->full_description;
+
+  # unique representation used to implement value equality between objects within a price_rule
+  my $digest      = $price_rule_item->digest;
+
+=head1 BUGS
+
+None yet :)
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>sven.schoeling@opendynamic.deE<gt>
+
+=cut

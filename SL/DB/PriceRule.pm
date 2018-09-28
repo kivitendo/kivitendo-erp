@@ -149,5 +149,12 @@ sub priority_as_text {
   t8('Normal');
 }
 
+sub digest {
+  join $;,
+    ($_[0]->price // '-'),
+    ($_[0]->discount // '-'),
+    ($_[0]->reduction // '-'),
+    sort map { $_->digest } $_[0]->items;
+}
 
 1;
