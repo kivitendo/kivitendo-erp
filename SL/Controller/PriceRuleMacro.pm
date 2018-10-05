@@ -82,7 +82,11 @@ sub action_save {
 }
 
 sub action_meta {
-
+  if ($::request->type eq 'json') {
+    return $_[0]->render(\SL::JSON::to_json(SL::DB::PriceRuleMacro->create_definition_meta), { process => 0, type => 'json' });
+  } else {
+    die "not supported";
+  }
 }
 
 ### internal
