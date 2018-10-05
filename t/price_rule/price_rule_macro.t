@@ -258,6 +258,34 @@ my @test_cases = (
   ],
   name => 'complex condition + price scale',
 },
+{ json =>
+   '{
+      "name": "SEV0815 Kundentyp-Rabatt",
+      "priority": 3,
+      "obsolete": 0,
+      "format_version": 1,
+      "condition": {
+        "type": "container_and",
+        "condition": [
+          {
+            "type": "business",
+            "id": [ 815, 918, 428, 843 ]
+          }
+        ]
+      },
+      "action": {
+        "type": "simple_action",
+        "discount": 4.00
+      }
+    }',
+  digest => [
+    '-4-business-428-',
+    '-4-business-815-',
+    '-4-business-843-',
+    '-4-business-918-'
+  ],
+  name => 'simple business with array of ids',
+},
 );
 
 use Data::Dumper;
