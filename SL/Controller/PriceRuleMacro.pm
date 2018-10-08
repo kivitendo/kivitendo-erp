@@ -74,7 +74,7 @@ sub action_save {
     if ($error) {
       return $self->render(\SL::JSON::to_json({ error => $error }), { process => 0, type => 'json' });
     } else {
-      return $self->render(\SL::JSON::to_json({ id => $new_macro->id }), { process => 0, type => 'json' });
+      return $self->render(\SL::JSON::to_json({ id => $macro->id }), { process => 0, type => 'json' });
     }
   } else {
     die "not supported";
