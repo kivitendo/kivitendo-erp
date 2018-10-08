@@ -4,9 +4,14 @@ use Test::More;
 use Test::Deep;
 
 use lib 't';
+use Data::Dumper;
 use Support::TestSetup;
 
+Support::TestSetup::login();
+
 use_ok 'SL::DB::PriceRuleMacro';
+use_ok 'SL::Controller::PriceRuleMacro';
+
 
 my @test_cases = (
 { json =>
@@ -288,13 +293,38 @@ my @test_cases = (
 },
 );
 
-use Data::Dumper;
+$::request->type('json');
+open my $stdout_fh, '>', \my $stdout or die;
+
 
 for my $case (@test_cases) {
   my $m = SL::DB::PriceRuleMacro->new(json_definition => $case->{json});
 
   is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip";
   cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests match";
+
+  {
+    $stdout = undef;
+    local *STDOUT = $stdout_fh;
+
+    my $c = SL::Controller::PriceRuleMacro->new;
+
+    $::form->{price_rule_macro} = {
+      json_definition => $case->{json},
+      name            => $case->{name},
+      type            => 'customer',
+    };
+
+    my $json_result = $c->action_save;
+    my $result      = SL::JSON::from_json("$json_result");
+    ok $result->{id}, "$case->{name}: save";
+
+    $m = SL::DB::PriceRuleMacro->new(id => $result->{id})->load;
+
+    isa_ok $m, 'SL::DB::PriceRuleMacro', "$case->{name}: load";
+
+    cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests still match";
+  }
 }
 
 done_testing();
