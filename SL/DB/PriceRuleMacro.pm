@@ -65,6 +65,7 @@ my %classes = (
   business              => 'SL::PriceRuleMacro::Condition::Business',
   part                  => 'SL::PriceRuleMacro::Condition::Part',
   partsgroup            => 'SL::PriceRuleMacro::Condition::Partsgroup',
+  pricegroup            => 'SL::PriceRuleMacro::Condition::Pricegroup',
   qty                   => 'SL::PriceRuleMacro::Condition::Qty',
   qty_range             => 'SL::PriceRuleMacro::Condition::QtyRange',
   reqdate               => 'SL::PriceRuleMacro::Condition::Reqdate',
@@ -342,6 +343,14 @@ package SL::PriceRuleMacro::Condition::Partsgroup {
 
   sub type {
     'partsgroup'
+  }
+}
+
+package SL::PriceRuleMacro::Condition::Pricegroup {
+  our @ISA = ('SL::PriceRuleMacro::IdCondition');
+
+  sub type {
+    'pricegroup'
   }
 }
 
