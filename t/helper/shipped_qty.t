@@ -94,7 +94,8 @@ note('converting purchase order to delivery order');
 # create purchase delivery order from purchase order
 my $purchase_delivery_order = $purchase_order->convert_to_delivery_order;
 is($purchase_order->closed,    0, 'purchase order is open');
-ok($purchase_order->delivered,    'purchase order is now delivered');
+note('purchase order is not general now delivered');
+ok(!$purchase_order->delivered,   'purchase order is not delivered');
 
 SL::Helper::ShippedQty
   ->new(require_stock_out => 0)
