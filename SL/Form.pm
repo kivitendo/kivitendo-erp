@@ -150,7 +150,7 @@ sub _flatten_variables_rec {
           $first_array_entry = 0;
         }
       } else {
-        @result = ({ 'key' => $prefix . $key . ($first_array_entry ? '[+]' : '[]'), 'value' => $element });
+        push @result, { 'key' => $prefix . $key . '[]', 'value' => $element };
       }
     }
   }
