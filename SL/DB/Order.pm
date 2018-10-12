@@ -259,6 +259,9 @@ sub new_from {
   if ( $is_abbr_any->(qw(poso)) ) {
     $args{vendor_id} = undef;
   }
+  if ( $is_abbr_any->(qw(soso)) ) {
+    $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
+  }
 
   # Custom shipto addresses (the ones specific to the sales/purchase
   # record and not to the customer/vendor) are only linked from
