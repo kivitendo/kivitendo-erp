@@ -150,7 +150,7 @@
           [%- END -%]
           <tr>
             <th width="70%" align="right" nowrap>[% transdate_txt | $T8 %]</th>
-            <td>[% L.date_tag('order.transdate', SELF.order.transdate) %]</td>
+            <td>[% L.date_tag('order.transdate_as_date', SELF.order.transdate_as_date) %]</td>
           </tr>
 
           [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
@@ -162,7 +162,7 @@
           [%- END -%]
           <tr>
             <th width="70%" align="right" nowrap>[% reqdate_txt | $T8 %]</th>
-            <td>[% L.date_tag('order.reqdate', SELF.order.reqdate) %]</td>
+            <td>[% L.date_tag('order.reqdate_as_date', SELF.order.reqdate_as_date) %]</td>
           </tr>
 
           [%- IF SELF.type == "sales_quotation" -%]
@@ -172,7 +172,7 @@
           </tr>
           <tr>
             <th width="70%" align="right" nowrap>[% 'Expected billing date' | $T8 %]</th>
-            <td>[%- L.date_tag('order.expected_billing_date', SELF.order.expected_billing_date) %]</td>
+            <td>[%- L.date_tag('order.expected_billing_date_as_date', SELF.order.expected_billing_date_sa_date) %]</td>
           </tr>
           [%- END %]
 

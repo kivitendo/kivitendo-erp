@@ -14,7 +14,7 @@
     [% P.project.picker("order.orderitems[].project_id", ITEM.project_id, size = 15) %]&nbsp;
     [%- IF (TYPE == "sales_order" || TYPE == "purchase_order") %]
       <b>[%- 'Reqdate' | $T8 %]</b>&nbsp;
-      [% L.date_tag("order.orderitems[].reqdate", ITEM.reqdate) %]&nbsp;
+      [% L.date_tag("order.orderitems[].reqdate_as_date", ITEM.reqdate_as_date) %]&nbsp;
     [%- END %]
     <b>[%- 'Subtotal' | $T8 %]</b>&nbsp;
     [% L.yes_no_tag("order.orderitems[].subtotal", ITEM.subtotal) %]&nbsp;
