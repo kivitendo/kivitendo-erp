@@ -1405,11 +1405,11 @@ sub save {
 
     # link records
     if ($::form->{converted_from_oe_id}) {
-      my $quo = SL::DB::Order->new(id => $::form->{converted_from_oe_id})->load;
+      my $src = SL::DB::Order->new(id => $::form->{converted_from_oe_id})->load;
       # implement OE::_close_quotations_rfqs - this a 1 : 1 connection
       # close only if workflow: quotation -> order. TODO test case
-      $quo->update_attributes(closed => 1) if $quo->type =~ /_quotation$/;
-      $quo->link_to_record($self->order);
+      $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
+      $src->link_to_record($self->order);
 
       if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
         my $idx = 0;
