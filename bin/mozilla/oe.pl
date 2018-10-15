@@ -48,6 +48,8 @@ use List::MoreUtils qw(uniq any none);
 use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
+use SL::Controller::Order;
+
 use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
@@ -184,6 +186,14 @@ sub edit {
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount} && !$form->{print_and_save}) {
+    if ($::instance_conf->get_feature_experimental_order) {
+      my $c = SL::Controller::Order->new;
+      $c->action_edit_collective();
+
+      $main::lxdebug->leave_sub();
+      $::dispatcher->end_request;
+    }
+
     my $id;
     map { $id++ if $form->{"multi_id_$_"} } (1 .. $form->{rowcount});
     if (!$id) {

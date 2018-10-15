@@ -99,6 +99,36 @@ sub action_edit {
   );
 }
 
+# edit a collective order (consisting of one or more existing orders)
+sub action_edit_collective {
+  my ($self) = @_;
+
+  # collect order ids
+  my @multi_ids = map {
+    $_ =~ m{^multi_id_(\d+)$} && $::form->{'multi_id_' . $1} && $::form->{'trans_id_' . $1} && $::form->{'trans_id_' . $1}
+  } grep { $_ =~ m{^multi_id_\d+$} } keys %$::form;
+
+  # fall back to add if no ids are given
+  if (scalar @multi_ids == 0) {
+    $self->action_add();
+    return;
+  }
+
+  # fall back to save as new if only one id is given
+  if (scalar @multi_ids == 1) {
+    $self->order(SL::DB::Order->new(id => $multi_ids[0])->load);
+    $self->action_save_as_new();
+    return;
+  }
+
+  # make new order from given orders
+  my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
+  $self->{converted_from_oe_id} = join ' ', map { $_->id } @multi_orders;
+  $self->order(SL::DB::Order->new_from_multi(\@multi_orders, sort_sources_by => 'transdate'));
+
+  $self->action_edit();
+}
+
 # delete the order
 sub action_delete {
   my ($self) = @_;
@@ -1400,17 +1430,17 @@ sub save {
   my $db     = $self->order->db;
 
   $db->with_transaction(sub {
-    SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete};
+    SL::DB::OrderItem->new(id => $_)->delete for @{$self->item_ids_to_delete || []};
     $self->order->save(cascade => 1);
 
     # link records
     if ($::form->{converted_from_oe_id}) {
-      my $src = SL::DB::Order->new(id => $::form->{converted_from_oe_id})->load;
-      # implement OE::_close_quotations_rfqs - this a 1 : 1 connection
-      # close only if workflow: quotation -> order. TODO test case
-      $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
-      $src->link_to_record($self->order);
-
+      my @converted_from_oe_ids = split ' ', $::form->{converted_from_oe_id};
+      foreach my $converted_from_oe_id (@converted_from_oe_ids) {
+        my $src = SL::DB::Order->new(id => $converted_from_oe_id)->load;
+        $src->update_attributes(closed => 1) if $src->type =~ /_quotation$/;
+        $src->link_to_record($self->order);
+      }
       if (scalar @{ $::form->{converted_from_orderitems_ids} || [] }) {
         my $idx = 0;
         foreach (@{ $self->order->items_sorted }) {
