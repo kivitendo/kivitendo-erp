@@ -461,8 +461,6 @@ Gets all kinds of records like orders, request orders, quotations, invoices, ema
 
 wich belong to customer/vendor and displays them in an extra tab "Records".
 
-=back
-
 =head1 URL ACTIONS
 
 =over 4
@@ -527,4 +525,4 @@ None yet. :)
 
 W. Hahn E<lt>wh@futureworldsearch.netE<gt>
 
-=back
+=cut
