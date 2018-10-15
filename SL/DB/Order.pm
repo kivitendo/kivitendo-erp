@@ -277,6 +277,7 @@ sub new_from {
   my $order = $class->new(%args);
   $order->assign_attributes(%{ $params{attributes} }) if $params{attributes};
   my $items = delete($params{items}) || $source->items_sorted;
+
   my %item_parents;
 
   my @items = map {
@@ -312,6 +313,75 @@ sub new_from {
   @items = grep { $_->qty >=0 } @items if $params{skip_items_negative_qty};
 
   $order->items(\@items);
+
+  return $order;
+}
+
+sub new_from_multi {
+  my ($class, $sources, %params) = @_;
+
+  croak("Unsupported object type in sources")                             if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
+  croak("Cannot create order for purchase records")                       if any { !$_->is_sales }                                 @$sources;
+  croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
+
+  # bb: todo: check shipto: is it enough to check the ids or do we have to compare the entries?
+  if (delete $params{check_same_shipto}) {
+    die "check same shipto address is not implemented yet";
+    die "Source records do not have the same shipto"        if 1;
+  }
+
+  # sort sources
+  if (defined $params{sort_sources_by}) {
+    my $sort_by = delete $params{sort_sources_by};
+    if ($sources->[0]->can($sort_by)) {
+      $sources = [ sort { $a->$sort_by cmp $b->$sort_by } @$sources ];
+    } else {
+      die "Cannot sort source records by $sort_by";
+    }
+  }
+
+  # set this entries to undef that yield different information
+  my %attributes;
+  foreach my $attr (qw(ordnumber transdate reqdate taxincluded shippingpoint
+                       shipvia notes closed delivered reqdate quonumber
+                       cusordnumber proforma transaction_description
+                       order_probability expected_billing_date)) {
+    $attributes{$attr} = undef if any { ($sources->[0]->$attr//'') ne ($_->$attr//'') } @$sources;
+  }
+  foreach my $attr (qw(cp_id currency_id employee_id salesman_id department_id
+                       delivery_customer_id delivery_vendor_id shipto_id
+                       globalproject_id)) {
+    $attributes{$attr} = undef if any { ($sources->[0]->$attr||0) != ($_->$attr||0) }   @$sources;
+  }
+
+  # set this entries from customer that yield different information
+  foreach my $attr (qw(language_id taxzone_id payment_id delivery_term_id)) {
+    $attributes{$attr}  = $sources->[0]->customervendor->$attr if any { ($sources->[0]->$attr||0)     != ($_->$attr||0) }      @$sources;
+  }
+  $attributes{intnotes} = $sources->[0]->customervendor->notes if any { ($sources->[0]->intnotes//'') ne ($_->intnotes//'')  } @$sources;
+
+  # no periodic invoice config for new order
+  $attributes{periodic_invoices_config} = undef;
+
+  # copy global ordnumber, transdate, cusordnumber into item scope
+  #   unless already present there
+  foreach my $attr (qw(ordnumber transdate cusordnumber)) {
+    foreach my $src (@$sources) {
+      foreach my $item (@{ $src->items_sorted }) {
+        $item->$attr($src->$attr) if !$item->$attr;
+      }
+    }
+  }
+
+  # collect items
+  my @items;
+  push @items, @{$_->items_sorted} for @$sources;
+  # make order from first source and all items
+  my $order = $class->new_from($sources->[0],
+                               destination_type => 'sales_order',
+                               attributes       => \%attributes,
+                               items            => \@items,
+                               %params);
 
   return $order;
 }
@@ -467,6 +537,25 @@ allowing the caller to set certain attributes for the new delivery
 order.
 
 =back
+
+=head2 C<new_from_multi $sources, %params>
+
+Creates a new C<SL::DB::Order> instance from multiple sources and copies as
+much information from C<$sources> as possible.
+At the moment only sales orders can be combined and they must be of the same
+customer.
+
+The new order is created from the first one using C<new_from> and the positions
+of all orders are added to the new order. The orders can be sorted with the
+parameter C<sort_sources_by>.
+
+The orders attributes are kept if they contain the same information for all
+source orders an will be set to empty if they contain different information.
+
+Returns the new order instance. The object returned is not
+saved.
+
+C<params> other then C<sort_sources_by> are passed to C<new_from>.
 
 =head1 BUGS
 
