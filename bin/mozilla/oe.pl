@@ -633,8 +633,6 @@ sub form_header {
       $form->{shipto_id} = $form->{CFDD_shipto_id};
   }
 
-  push @custom_hiddens, map { "shiptocvar_" . $_->name } @{ SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'ShipTo' ]) };
-
   $TMPL_VAR->{HIDDENS} = [ map { name => $_, value => $form->{$_} },
      qw(id type vc proforma queued printed emailed
         title creditlimit creditremaining tradediscount business
@@ -731,6 +729,12 @@ sub form_footer {
 
   my $print_options_html = setup_sales_purchase_print_options();
 
+  my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
+  foreach my $var (@{ $shipto_cvars }) {
+    my $name = "shiptocvar_" . $var->config->name;
+    $var->value($form->{$name}) if exists $form->{$name};
+  }
+
   print $form->parse_html_template("oe/form_footer", {
      %$TMPL_VAR,
      print_options   => $print_options_html,
@@ -740,6 +744,7 @@ sub form_footer {
      is_req_quo      => scalar ($form->{type} =~ /request_quotation$/),
      is_sales_ord    => scalar ($form->{type} =~ /sales_order$/),
      is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
+     shipto_cvars    => $shipto_cvars,
   });
 
   $main::lxdebug->leave_sub();
