@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# PROVIDE: kivitendo
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf to enable the Kivitendo task server:
+# kivitendo_enable (bool):      Set it to "YES" to enable the task server.
+#                               Default is "NO".
+# kivitendo_path (path):        Set full path to Kivitendo installation.
+#                               Default is "/usr/local/www/kivitendo".
+# kivitendo_conf (path):        Set full path to alternative config file.
+#                               Default is "${kivitendo_path}/config/kivitendo.conf".
+#
+
+. /etc/rc.subr
+
+name="kivitendo"
+rcvar=kivitendo_enable
+
+load_rc_config $name
+
+: ${kivitendo_enable:="NO"}
+: ${kivitendo_path:="/usr/local/www/kivitendo"}
+: ${kivitendo_conf:="${kivitendo_path}/config/kivitendo.conf"}
+
+pidfile=${kivitendo_pidfile}
+procname=${kivitendo_procname}
+pidfile="/var/run/${name}.pid"
+
+kivitendo_command="${kivitendo_path}/scripts/task_server.pl"
+kivitendo_args="-c $kivitendo_conf -f"
+
+command="/usr/sbin/daemon"
+command_args="-P ${pidfile} ${kivitendo_command} ${kivitendo_args} ${1}"
+
+run_rc_command "$1"
