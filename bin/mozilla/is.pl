@@ -615,6 +615,12 @@ sub form_footer {
 
   $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
+  my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
+  foreach my $var (@{ $shipto_cvars }) {
+    my $name = "shiptocvar_" . $var->config->name;
+    $var->value($form->{$name}) if exists $form->{$name};
+  }
+
   print $form->parse_html_template('is/form_footer', {
     is_type_credit_note => ($form->{type} eq "credit_note"),
     totalpaid           => $totalpaid,
@@ -626,6 +632,7 @@ sub form_footer {
                              : ($::instance_conf->get_is_changeable == 1),
     today               => DateTime->today,
     vc_obj              => $form->{customer_id} ? SL::DB::Customer->load_cached($form->{customer_id}) : undef,
+    shipto_cvars        => $shipto_cvars,
   });
 ##print $form->parse_html_template('is/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser
