@@ -335,8 +335,8 @@ Create a credit note (sales). Use positive quantities when adding items.
 
 Example including creation of parts and of credit_note:
 
-  my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
-  my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+  my $part1 = SL::Dev::Part::new_part(   partnumber => 'T4254')->save;
+  my $part2 = SL::Dev::Part::new_service(partnumber => 'Serv1')->save;
   my $credit_note = SL::Dev::Record::create_credit_note(
     invnumber    => '34',
     taxincluded  => 0,
@@ -361,8 +361,8 @@ Let create_sales_order run calculate_prices_and_taxes and save:
 
 Example including creation of part and of sales order:
 
-  my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
-  my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
+  my $part1 = SL::Dev::Part::new_part(   partnumber => 'T4254')->save;
+  my $part2 = SL::Dev::Part::new_service(partnumber => 'Serv1')->save;
   my $order = SL::Dev::Record::create_sales_order(
     save         => 1,
     taxincluded  => 0,
@@ -373,7 +373,7 @@ Example including creation of part and of sales order:
 
 Example: create 100 orders with the same part for 100 new customers:
 
-  my $part1 = SL::Dev::Part::create_part(partnumber => 'T6256')->save;
+  my $part1 = SL::Dev::Part::new_part(partnumber => 'T6256')->save;
   SL::Dev::Record::create_sales_order(
     save         => 1,
     taxincluded  => 0,
@@ -400,7 +400,7 @@ Required params:
 
 Example including creation of part and of invoice:
 
-  my $part    = SL::Dev::Part::create_part(  partnumber  => 'T4254')->save;
+  my $part    = SL::Dev::Part::new_part(  partnumber  => 'T4254')->save;
   my $item    = SL::Dev::Record::create_invoice_item(part => $part, qty => 2.5);
   my $invoice = SL::Dev::Record::create_sales_invoice(
     taxincluded  => 0,
