@@ -333,7 +333,8 @@ Example with params:
 
 Create a credit note (sales). Use positive quantities when adding items.
 
-Example including creation of parts and of credit_note
+Example including creation of parts and of credit_note:
+
   my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
   my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
   my $credit_note = SL::Dev::Record::create_credit_note(
@@ -351,14 +352,15 @@ Examples:
 Create a sales order and save it directly via rose, without running
 calculate_prices_and_taxes:
 
- my $order = SL::Dev::Record::create_sales_order()->save;
+  my $order = SL::Dev::Record::create_sales_order()->save;
 
 Let create_sales_order run calculate_prices_and_taxes and save:
 
- my $order = SL::Dev::Record::create_sales_order(save => 1);
+  my $order = SL::Dev::Record::create_sales_order(save => 1);
 
 
-Example including creation of part and of sales order.
+Example including creation of part and of sales order:
+
   my $part1 = SL::Dev::Part::create_part(   partnumber => 'T4254')->save;
   my $part2 = SL::Dev::Part::create_service(partnumber => 'Serv1')->save;
   my $order = SL::Dev::Record::create_sales_order(
@@ -383,17 +385,21 @@ Example: create 100 orders with the same part for 100 new customers:
 See comments for C<create_sales_order>.
 
 Example:
- my $purchase_order = SL::Dev::Record::create_purchase_order(save => 1);
+
+  my $purchase_order = SL::Dev::Record::create_purchase_order(save => 1);
 
 
 =head2 C<create_item %PARAMS>
 
 Creates an item from a part object that can be added to a record.
 
-Required params: record_type (sales_invoice, sales_order, sales_delivery_order)
-                 part        (an SL::DB::Part object)
+Required params:
+
+  record_type (sales_invoice, sales_order, sales_delivery_order)
+  part        (an SL::DB::Part object)
 
 Example including creation of part and of invoice:
+
   my $part    = SL::Dev::Part::create_part(  partnumber  => 'T4254')->save;
   my $item    = SL::Dev::Record::create_invoice_item(part => $part, qty => 2.5);
   my $invoice = SL::Dev::Record::create_sales_invoice(
@@ -406,6 +412,7 @@ Example including creation of part and of invoice:
 Creates a default project.
 
 Minimal example, creating a project with status "running" and type "Standard":
+
   my $project = SL::Dev::Record::create_project();
 
   $project = SL::Dev::Record::create_project(
@@ -423,6 +430,7 @@ C<%params> should only contain alterable keys from the object Project.
 Creates a default department.
 
 Minimal example:
+
   my $department = SL::Dev::Record::create_department();
 
   my $department = SL::Dev::Record::create_department(
@@ -434,8 +442,6 @@ default value 'Test Department'.
 
 C<%params> should only contain alterable keys from the object Department.
 
-
-=head1 TODO
 
 =head1 BUGS
 
