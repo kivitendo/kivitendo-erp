@@ -468,16 +468,6 @@ order.
 
 =back
 
-=head2 C<create_sales_process>
-
-Creates and saves a new sales process. Can only be called for sales
-orders.
-
-The newly created process will be linked bidirectionally to both
-C<$self> and to all sales quotations that are linked to C<$self>.
-
-Returns the newly created process instance.
-
 =head1 BUGS
 
 Nothing here yet.
