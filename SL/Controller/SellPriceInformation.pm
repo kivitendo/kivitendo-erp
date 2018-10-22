@@ -140,7 +140,7 @@ sub link_to {
     my $vc     = $object->is_sales ? 'customer' : 'vendor';
     my $id     = $object->id;
 
-    if ($::instance_conf->get_feature_experimental) {
+    if ($::instance_conf->get_feature_experimental_order) {
       return "controller.pl?action=Order/$action&type=$type&id=$id";
     } else {
       return "oe.pl?action=$action&type=$type&vc=$vc&id=$id";

@@ -45,7 +45,7 @@ sub _oe_record {
   my $link_start = '';
   my $link_end   = '';
   unless ($params{no_link}) {
-    my $action  = $::instance_conf->get_feature_experimental
+    my $action  = $::instance_conf->get_feature_experimental_order
                 ? 'controller.pl?action=Order/edit'
                 : 'oe.pl?action=edit';
     $link_start = '<a href="' . $action . '&amp;type=' . $type . '&amp;id=' . escape($order->id) . '">';

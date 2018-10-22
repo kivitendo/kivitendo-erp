@@ -910,7 +910,7 @@ sub order {
 
   _order();
 
-  if ($::instance_conf->get_feature_experimental) {
+  if ($::instance_conf->get_feature_experimental_order) {
     my $order = _make_record();
     $order->globalproject_id(undef) if !$order->globalproject_id;
     $order->payment_id(undef)       if !$order->payment_id;

@@ -316,9 +316,12 @@
   </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Experimental Features") %]</td></tr>
   <tr>
-   <td align="right">[% LxERP.t8('Enable experimental features') %]</td>
-   <td>[% L.yes_no_tag('defaults.feature_experimental', SELF.defaults.feature_experimental) %]</td>
-   <td>[% LxERP.t8('Experimental features are:') %] [% LxERP.t8('new order controller') %], [% LxERP.t8('Assortment') %]</td>
+   <td align="right">[% LxERP.t8('new order controller') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_experimental_order', SELF.defaults.feature_experimental_order) %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Assortment') %]</td>
+   <td>[% L.yes_no_tag('defaults.feature_experimental_assortment', SELF.defaults.feature_experimental_assortment) %]</td>
   </tr>
 
  <tr><td class="listheading" colspan="4">[% LxERP.t8("Shipped Quantity Algorithm") %]</td></tr>

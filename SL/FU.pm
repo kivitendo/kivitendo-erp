@@ -338,7 +338,7 @@ sub link_details {
   } elsif ($params{trans_type} eq 'sales_quotation') {
     my $script = 'oe.pl';
     my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental) {
+    if ($::instance_conf->get_feature_experimental_order) {
       $script = 'controller.pl';
       $action = 'Order/edit';
     }
@@ -364,7 +364,7 @@ sub link_details {
   } elsif ($params{trans_type} eq 'sales_order') {
     my $script = 'oe.pl';
     my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental) {
+    if ($::instance_conf->get_feature_experimental_order) {
       $script = 'controller.pl';
       $action = 'Order/edit';
     }
@@ -400,7 +400,7 @@ sub link_details {
   } elsif ($params{trans_type} eq 'request_quotation') {
     my $script = 'oe.pl';
     my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental) {
+    if ($::instance_conf->get_feature_experimental_order) {
       $script = 'controller.pl';
       $action = 'Order/edit';
     }
@@ -412,7 +412,7 @@ sub link_details {
   } elsif ($params{trans_type} eq 'purchase_order') {
     my $script = 'oe.pl';
     my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental) {
+    if ($::instance_conf->get_feature_experimental_order) {
       $script = 'controller.pl';
       $action = 'Order/edit';
     }

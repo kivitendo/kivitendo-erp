@@ -20,7 +20,7 @@
       <tr class="listrow[% loop.count % 2 %]">
         <td>[% IF row.quotation %]
           [% IF FORM.db == 'customer' %][% 'Sales quotation' | $T8 %][% ELSE %][% 'RFQ' | $T8 %][% END %]</td>
-              [%- IF INSTANCE_CONF.get_feature_experimental -%]
+              [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
                 <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.escape(row.id) %]'>
                     [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
               [%- ELSE -%]
@@ -29,7 +29,7 @@
               [%- END -%]
             [% ELSE %]
             [% IF FORM.db == 'customer' %][% 'Sales Order' | $T8 %][% ELSE %][% 'Purchase Order' | $T8 %][% END %]</td>
-              [%- IF INSTANCE_CONF.get_feature_experimental -%]
+              [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
                 <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.id) %]'>
                     [% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
               [%- ELSE -%]

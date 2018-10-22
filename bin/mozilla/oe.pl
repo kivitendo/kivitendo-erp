@@ -1228,7 +1228,7 @@ sub orders {
 
   my $idx = 1;
 
-  my $edit_url = ($::instance_conf->get_feature_experimental)
+  my $edit_url = ($::instance_conf->get_feature_experimental_order)
                ? build_std_url('script=controller.pl', 'action=Order/edit', 'type')
                : build_std_url('action=edit', 'type', 'vc');
 
@@ -2138,7 +2138,7 @@ sub report_for_todo_list {
   my $content;
 
   if (@{ $quotations }) {
-    my $edit_url = ($::instance_conf->get_feature_experimental)
+    my $edit_url = ($::instance_conf->get_feature_experimental_order)
                  ? build_std_url('script=controller.pl', 'action=Order/edit')
                  : build_std_url('script=oe.pl', 'action=edit');
 

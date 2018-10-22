@@ -64,7 +64,7 @@ sub redirect_to_search {
 }
 
 sub redirect_to_object {
-  if ($::instance_conf->get_feature_experimental) {
+  if ($::instance_conf->get_feature_experimental_order) {
     SL::Controller::Base->new->url_for(
       controller => 'Order',
       action     => 'edit',

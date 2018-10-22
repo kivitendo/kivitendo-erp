@@ -15,7 +15,7 @@
 
       [%- FOREACH row = orders %]
       <tr class="listrow[% loop.count % 2 %]">
-        [%- IF INSTANCE_CONF.get_feature_experimental -%]
+        [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
           <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.escape(row.id) %]'>
               [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
         [%- ELSE -%]

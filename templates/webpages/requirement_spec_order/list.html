@@ -79,7 +79,7 @@
       [% END %]
      </td>
      <td>
-      [%- IF INSTANCE_CONF.get_feature_experimental -%]
+      [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
         <a href="controller.pl?action=Order/edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
       [%- ELSE -%]
         <a href="oe.pl?action=edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
