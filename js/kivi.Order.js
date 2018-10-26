@@ -134,6 +134,9 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.send_email = function() {
+    // push button only once -> slow response from mail server
+    ns.email_dialog_disable_send();
+
     var data = $('#order_form').serializeArray();
     data = data.concat($('[name^="email_form."]').serializeArray());
     data = data.concat($('[name^="print_options."]').serializeArray());
@@ -464,6 +467,11 @@ namespace('kivi.Order', function(ns) {
     var pp = $("#add_item_parts_id").data("part_picker");
     pp.o.multiple=1;
     pp.open_dialog();
+  };
+ns.email_dialog_disable_send = function() {
+    // disable mail send event to prevent
+    // impatient users to send multiple times
+    $('#send_email').prop('disabled', true);
   };
 
   ns.add_multi_items = function(data) {
