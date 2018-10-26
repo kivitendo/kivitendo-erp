@@ -145,8 +145,6 @@ sub _calculate_item {
     die "tax_amount != 0 but no chart_id for taxkey " . $taxkey->id . " tax " . $taxkey->tax->id;
   }
 
-  $self->netamount($self->netamount + $sellprice * (1 - $item->discount) * $item->qty / $item->price_factor);
-
   my $chart = $part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
   $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, tax_id => $taxkey->tax_id, amount => 0 };
   $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
@@ -186,6 +184,8 @@ sub _calculate_amounts {
     $tax_diff                   += $data->{taxes}->{$chart_id} * $data->{exchangerate} - $rounded if $self->taxincluded;
     $data->{taxes}->{$chart_id}  = $rounded;
   }
+
+  $self->netamount(sum map { $_->{amount} } values %{ $data->{amounts} });
 
   my $amount    = _round(($self->netamount + $tax_diff) * $data->{exchangerate}, 2);
   my $diff      = $amount - ($self->netamount + $tax_diff) * $data->{exchangerate};
