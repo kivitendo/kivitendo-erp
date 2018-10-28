@@ -646,6 +646,8 @@ sub prepare_assortment_render_vars {
 sub prepare_assembly_render_vars {
   my ($self) = @_;
 
+  croak("Need assembly item(s) to create a 'save as new' assembly.") unless $self->part->items;
+
   my %vars = ( items_sellprice_sum => $self->part->items_sellprice_sum,
                items_lastcost_sum  => $self->part->items_lastcost_sum,
                assembly_html       => $self->render_assembly_items_to_html( \@{ $self->part->items } ),
