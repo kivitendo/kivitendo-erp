@@ -796,8 +796,9 @@ sub parse_form_makemodels {
     $position++;
     my $vendor = SL::DB::Manager::Vendor->find_by(id => $makemodel->{make}) || die "Can't find vendor from make";
 
+    my $id = $makemodels_map->{$makemodel->{id}} ? $makemodels_map->{$makemodel->{id}}->id : undef;
     my $mm = SL::DB::MakeModel->new( # parts_id   => $self->part->id, # will be assigned by row add_makemodels
-                                     id         => $makemodel->{id},
+                                     id         => $id,
                                      make       => $makemodel->{make},
                                      model      => $makemodel->{model} || '',
                                      lastcost   => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
@@ -836,8 +837,9 @@ sub parse_form_customerprices {
     $position++;
     my $customer = SL::DB::Manager::Customer->find_by(id => $customerprice->{customer_id}) || die "Can't find customer from id";
 
+    my $id = $customerprices_map->{$customerprice->{id}} ? $customerprices_map->{$customerprice->{id}}->id : undef;
     my $cu = SL::DB::PartCustomerPrice->new( # parts_id   => $self->part->id, # will be assigned by row add_customerprices
-                                     id                   => $customerprice->{id},
+                                     id                   => $id,
                                      customer_id          => $customerprice->{customer_id},
                                      customer_partnumber  => $customerprice->{customer_partnumber} || '',
                                      price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
