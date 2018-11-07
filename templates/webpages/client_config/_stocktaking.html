@@ -35,5 +35,14 @@
   </tr>
   <tr>
 
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('Threshold for warning on quantity difference') %]</td>
+   <td>[% L.input_tag('defaults.stocktaking_qty_threshold_as_number', SELF.defaults.stocktaking_qty_threshold_as_number, size=15, class="numeric") %]</td>
+   <td>
+    [% LxERP.t8('If the counted quantity differs more than this threshold from the quantity in the database, a warning will be shown. Set to 0 to switch of this feature.') %]<br>
+   </td>
+  </tr>
+  <tr>
+
  </table>
 </div>

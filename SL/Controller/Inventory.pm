@@ -30,13 +30,13 @@ use Rose::Object::MakeMethods::Generic (
 
 __PACKAGE__->run_before('_check_auth');
 __PACKAGE__->run_before('_check_warehouses');
-__PACKAGE__->run_before('load_part_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed save_stocktaking) ]);
-__PACKAGE__->run_before('load_unit_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed save_stocktaking) ]);
-__PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse_changed stock stocktaking save_stocktaking) ]);
-__PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock stocktaking save_stocktaking) ]);
+__PACKAGE__->run_before('load_part_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed stocktaking_get_warn_qty_threshold save_stocktaking) ]);
+__PACKAGE__->run_before('load_unit_from_form',   only => [ qw(stock_in part_changed mini_stock stock stocktaking_part_changed stocktaking_get_warn_qty_threshold save_stocktaking) ]);
+__PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse_changed stock stocktaking stocktaking_get_warn_qty_threshold save_stocktaking) ]);
+__PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock stocktaking stocktaking_get_warn_qty_threshold save_stocktaking) ]);
 __PACKAGE__->run_before('set_target_from_part',  only => [ qw(part_changed) ]);
 __PACKAGE__->run_before('mini_stock',            only => [ qw(stock_in mini_stock) ]);
-__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_usage stock_in warehouse_changed part_changed stocktaking stocktaking_part_changed save_stocktaking) ]);
+__PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_usage stock_in warehouse_changed part_changed stocktaking stocktaking_part_changed stocktaking_get_warn_qty_threshold save_stocktaking) ]);
 __PACKAGE__->run_before('set_layout');
 
 sub action_stock_in {
@@ -603,6 +603,34 @@ sub action_stocktaking_journal {
   $self->prepare_stocktaking_report(full => 1);
   $self->report_generator_list_objects(report => $self->{report}, objects => $self->stocktaking_models->get);
 }
+
+sub action_stocktaking_get_warn_qty_threshold {
+  my ($self) = @_;
+
+  return $_[0]->render(\ !!0, { type => 'text' }) if $::form->{target_qty} eq '';
+  return $_[0]->render(\ !!0, { type => 'text' }) if 0 == $::instance_conf->get_stocktaking_qty_threshold;
+
+  my $target_qty  = $::form->parse_amount(\%::myconfig, $::form->{target_qty});
+  my $stocked_qty = _get_stocked_qty($self->part,
+                                     warehouse_id => $self->warehouse->id,
+                                     bin_id       => $self->bin->id,
+                                     chargenumber => $::form->{chargenumber},
+                                     bestbefore   => $::form->{bestbefore},);
+  my $stocked_qty_in_form_units = $self->part->unit_obj->convert_to($stocked_qty, $self->unit);
+  my $qty        = $target_qty - $stocked_qty_in_form_units;
+  $qty           = abs($qty);
+
+  my $warn;
+  if ($qty > $::instance_conf->get_stocktaking_qty_threshold) {
+    $warn  = t8('The target quantity of #1 differs more than the threshold quantity of #2.',
+                $::form->{target_qty} . " " . $self->unit->name,
+                $::form->format_amount(\%::myconfig, $::instance_conf->get_stocktaking_qty_threshold, 2));
+    $warn .= "\n";
+    $warn .= t8('Choose "continue" if you want to use this value. Choose "cancel" otherwise.');
+  }
+  return $_[0]->render(\ $warn, { type => 'text' });
+}
+
 #================================================================
 
 sub _check_auth {
@@ -930,6 +958,7 @@ sub setup_stock_stocktaking_action_bar {
     $bar->add(
       action => [
         t8('Save'),
+        checks    => [ 'kivi.Inventory.check_stocktaking_qty_threshold' ],
         call      => [ 'kivi.Inventory.save_stocktaking' ],
         accesskey => 'enter',
       ],
@@ -1016,9 +1045,16 @@ and the current employee. The history is displayed via javascript.
 
 This action is called after the user selected or changed the part.
 
+=item C<action_stocktaking_get_warn_qty_threshold>
+
+This action checks if a warning should be shown and returns the warning text via
+ajax. The warning will be shown if the given target value is greater than the
+threshold given in the client configuration.
+
 =item C<is_stocktaking>
 
 This is a method to check if actions are called from stocktaking form.
+This actions should contain "stocktaking" in their name.
 
 =back
 

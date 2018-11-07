@@ -52,6 +52,28 @@ namespace('kivi.Inventory', function(ns) {
     $('#already_counted_dialog').dialog("close");
   };
 
+  ns.check_stocktaking_qty_threshold = function() {
+    var data = $('#stocktaking_form').serializeArray();
+    data.push({ name: 'action', value: 'Inventory/stocktaking_get_warn_qty_threshold' });
+
+    var warn = false;
+    $.ajax({
+      url:      'controller.pl',
+      data:     data,
+      method:   "GET",
+      async:    false,
+      dataType: 'text',
+      success:  function(val) {
+        warn = val;
+      }
+    });
+
+    if (warn) {
+      return confirm(warn);
+    } else {
+      return true;
+    }
+  };
 });
 
 $(function(){

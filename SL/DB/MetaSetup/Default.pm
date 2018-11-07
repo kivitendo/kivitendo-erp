@@ -142,6 +142,7 @@ __PACKAGE__->meta->columns(
   sqnumber                                  => { type => 'text' },
   stocktaking_bin_id                        => { type => 'integer' },
   stocktaking_cutoff_date                   => { type => 'date' },
+  stocktaking_qty_threshold                 => { type => 'numeric', default => '0', precision => 25, scale => 5 },
   stocktaking_warehouse_id                  => { type => 'integer' },
   taxnumber                                 => { type => 'text' },
   templates                                 => { type => 'text' },
