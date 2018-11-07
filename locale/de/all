@@ -2264,6 +2264,7 @@ $self->{texts} = {
   'Please Check the bank information for each vendor:' => 'Bitte überprüfen Sie die Kontoinformationen der Lieferanten:',
   'Please ask your administrator to create warehouses and bins.' => 'Bitten Sie Ihren Administrator, dass er Lager und Lagerplätze anlegt.',
   'Please change the partnumber of the following parts and run the update again:' => 'Bitte ändern Sie daher die Artikelnummer folgender Artikel:',
+  'Please choose a part.'       => 'Bitte wählen Sie einen Artikel aus.',
   'Please choose for which categories the taxes should be displayed (otherwise remove the ticks):' => 'Bitte wählen Sie für welche Kontoart die Steuer angezeigt werden soll (ansonsten einfach die Häkchen entfernen)',
   'Please choose the action to be processed for your target quantity:' => 'Bitte wählen Sie eine Aktion, die mit Ihrer gezählten Zielmenge durchgeführt werden soll:',
   'Please contact your administrator or a service provider.' => 'Bitte kontaktieren Sie Ihren Administrator oder einen Dienstleister.',

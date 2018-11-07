@@ -498,6 +498,9 @@ sub action_stocktaking {
 sub action_save_stocktaking {
   my ($self) = @_;
 
+  return $self->js->flash('error', t8('Please choose a part.'))->render()
+    if !$::form->{part_id};
+
   return $self->js->flash('error', t8('A target quantitiy has to be given'))->render()
     if $::form->{target_qty} eq '';
 
@@ -607,6 +610,7 @@ sub action_stocktaking_journal {
 sub action_stocktaking_get_warn_qty_threshold {
   my ($self) = @_;
 
+  return $_[0]->render(\ !!0, { type => 'text' }) if !$::form->{part_id};
   return $_[0]->render(\ !!0, { type => 'text' }) if $::form->{target_qty} eq '';
   return $_[0]->render(\ !!0, { type => 'text' }) if 0 == $::instance_conf->get_stocktaking_qty_threshold;
 
@@ -724,7 +728,7 @@ sub sanitize_target {
 }
 
 sub load_part_from_form {
-  $_[0]->part(SL::DB::Manager::Part->find_by_or_create(id => $::form->{part_id}));
+  $_[0]->part(SL::DB::Manager::Part->find_by_or_create(id => $::form->{part_id}||undef));
 }
 
 sub load_unit_from_form {
