@@ -37,7 +37,7 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.check_valid_reqdate = function() {
-    if ($('#order_reqdate').val() === '') {
+    if ($('#order_reqdate_as_date').val() === '') {
       alert(kivi.t8('Please select a delivery date.'));
       return false;
     } else {
@@ -631,12 +631,12 @@ namespace('kivi.Order', function(ns) {
 
     kivi.popup_dialog({
       url:    'controller.pl?action=Order/show_periodic_invoices_config_dialog',
-      data:   { type:        $('#type').val(),
-                id:          $('#id').val(),
-                config:      $('#order_periodic_invoices_config').val(),
-                customer_id: $('#order_customer_id').val(),
-                transdate:   $('#order_transdate').val(),
-                language_id: $('#language_id').val()
+      data:   { type:              $('#type').val(),
+                id:                $('#id').val(),
+                config:            $('#order_periodic_invoices_config').val(),
+                customer_id:       $('#order_customer_id').val(),
+                transdate_as_date: $('#order_transdate_as_date').val(),
+                language_id:       $('#language_id').val()
               },
       id:     'jq_periodic_invoices_config_dialog',
       load:   kivi.reinit_widgets,

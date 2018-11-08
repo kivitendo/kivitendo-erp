@@ -488,7 +488,7 @@ sub action_show_periodic_invoices_config_dialog {
   $config  ||= SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $::form->{id}) if $::form->{id};
   $config  ||= SL::DB::PeriodicInvoicesConfig->new(periodicity             => 'm',
                                                    order_value_periodicity => 'p', # = same as periodicity
-                                                   start_date_as_date      => $::form->{transdate} || $::form->current_date,
+                                                   start_date_as_date      => $::form->{transdate_as_date} || $::form->current_date,
                                                    extend_automatically_by => 12,
                                                    active                  => 1,
                                                    email_subject           => GenericTranslations->get(
