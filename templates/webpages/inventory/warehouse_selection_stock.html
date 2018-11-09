@@ -41,11 +41,6 @@
 [%- END %]
 
   <tr>
-   <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
-   <td>[% L.input_tag('ean', FORM.ean, size=30) %]</td>
-  </tr>
-
-  <tr>
    <th align="right" nowrap>[% 'Quantity' | $T8 %]</th>
    <td>
     [% L.input_tag('qty', LxERP.format_amount(FORM.qty), size=10) %]

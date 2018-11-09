@@ -413,7 +413,6 @@ sub action_stock {
           transfer_type_id => $::form->{transfer_type_id},
           chargenumber  => $::form->{chargenumber},
           bestbefore    => $::form->{bestbefore},
-          ean           => $::form->{ean},
           comment       => $::form->{comment},
         });
         1;
