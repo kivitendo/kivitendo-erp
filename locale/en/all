@@ -3502,6 +3502,7 @@ $self->{texts} = {
   'This module can help you identify and correct such entries by analyzing the general ledger and presenting you likely solutions but also allowing you to fix problems yourself.' => '',
   'This object has already been used.' => '',
   'This object has not been saved yet.' => '',
+  'This object is used in price rules.' => '',
   'This option controls the inventory system.' => '',
   'This option controls the method used for determining the startdate for the balance report.' => '',
   'This option controls the method used for profit determination.' => '',

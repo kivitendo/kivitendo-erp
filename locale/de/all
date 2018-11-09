@@ -3503,6 +3503,7 @@ $self->{texts} = {
   'This module can help you identify and correct such entries by analyzing the general ledger and presenting you likely solutions but also allowing you to fix problems yourself.' => 'Dieses Modul kann Ihnen helfen, problematische Einträge im Hauptbuch zu identifizieren und teilweise zu beheben. Dabei werden je nach Problem mögliche Lösungen aufgezeigt, wobei Sie die entscheiden können, welche Probleme automatisch gelöst werden sollen.',
   'This object has already been used.' => 'Dieses Objekt wird bereits verwendet.',
   'This object has not been saved yet.' => 'Das Objekt wurde noch nicht gespeichert.',
+  'This object is used in price rules.' => 'Dieses Objekt wird in Preisregeln verwendet.',
   'This option controls the inventory system.' => 'Dieser Parameter legt die Warenbuchungsmethode fest.',
   'This option controls the method used for determining the startdate for the balance report.' => 'Diese Option bestimmt, wie das Startdatum für den Bilanzbericht ermittelt wird',
   'This option controls the method used for profit determination.' => 'Dieser Parameter legt die Berechnungsmethode für die Gewinnermittlung fest.',

@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 use SL::DB::Part;
 use SL::DB::PartsGroup;
+use SL::DB::PriceRuleItem;
 use SL::DB::Shop;
 use SL::Controller::Helper::GetModels;
 use SL::Locale::String qw(t8);
@@ -1266,7 +1267,8 @@ sub parse_add_items_to_objects {
 sub _setup_form_action_bar {
   my ($self) = @_;
 
-  my $may_edit = $::auth->assert('part_service_assembly_edit', 'may fail');
+  my $may_edit           = $::auth->assert('part_service_assembly_edit', 'may fail');
+  my $used_in_pricerules = !!SL::DB::Manager::PriceRuleItem->get_all_count(where => [type => 'part', value_int => $self->part->id]);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1292,6 +1294,7 @@ sub _setup_form_action_bar {
         disabled => !$self->part->id       ? t8('This object has not been saved yet.')
                   : !$may_edit             ? t8('You do not have the permissions to access this function.')
                   : !$self->part->orphaned ? t8('This object has already been used.')
+                  : $used_in_pricerules    ? t8('This object is used in price rules.')
                   :                          undef,
       ],
 
