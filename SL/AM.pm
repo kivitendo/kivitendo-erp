@@ -114,7 +114,7 @@ sub get_account {
     }
 
     # get new accounts (Folgekonto). Find all charts with the same link
-    $form->{NEWACCOUNT} = $chart_obj->db->dbh->selectall_arrayref('select id, accno,description from chart where link = ? order by accno', {Slice => {}}, $chart_obj->link);
+    $form->{NEWACCOUNT} = $chart_obj->db->dbh->selectall_arrayref('select id, accno,description from chart where link = ? and id != ? order by accno', {Slice => {}}, $chart_obj->link, $form->{id});
 
   } else { # set to orphaned for new charts, so chart_type can be changed (needed by $AccountIsPosted)
     $form->{orphaned} = 1;
