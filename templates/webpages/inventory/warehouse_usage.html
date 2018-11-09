@@ -74,7 +74,7 @@
        <tr>
         <th align="right" nowrap>[% 'Warehouse' | $T8 %]:</th>
         <td>
-         <select name="warehouse_id" id="warehouse_id" onchange="kivi.PartsWarehouse.warehouseChanged(this.value, 0)">
+         <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(this.value, 0)">
           <option value="">---</option>
           [%- FOREACH warehouse = WAREHOUSES %]
           <option value="[% HTML.escape(warehouse.id) %]">[% warehouse.description %]</option>

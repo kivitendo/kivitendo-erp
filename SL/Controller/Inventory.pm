@@ -58,7 +58,6 @@ sub action_stock_usage {
 
   $::form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                        'bins'   => 'BINS', });
-  $::request->layout->use_javascript("${_}.js") for qw(kivi.PartsWarehouse);
 
   $self->setup_stock_usage_action_bar;
   $self->render('inventory/warehouse_usage',
