@@ -61,6 +61,8 @@ sub picker { goto &part_picker }
 #
 sub type_abbreviation {
   my ($part_type) = @_;
+
+  return ''                                               if !$part_type;
   return $::locale->text('Assembly (typeabbreviation)')   if $part_type eq 'assembly';
   return $::locale->text('Part (typeabbreviation)')       if $part_type eq 'part';
   return $::locale->text('Assortment (typeabbreviation)') if $part_type eq 'assortment';
@@ -87,6 +89,9 @@ sub type_abbreviation {
 #
 sub classification_abbreviation {
   my ($id) = @_;
+
+  return '' if !$id;
+
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation ? t8($obj->abbreviation) : '';
@@ -103,6 +108,9 @@ sub typeclass_abbreviation {
 #
 sub separate_abbreviation {
   my ($id) = @_;
+
+  return '' if !$id;
+
   SL::DB::Manager::PartClassification->cache_all();
   my $obj = SL::DB::PartClassification->load_cached($id);
   $obj && $obj->abbreviation && $obj->report_separate ? t8($obj->abbreviation) : '';
