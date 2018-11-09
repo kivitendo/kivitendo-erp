@@ -10,10 +10,13 @@
       warehouses[[% WAREHOUSES_it.count - 1 %]] = new Array();
       warehouses[[% WAREHOUSES_it.count - 1 %]]['id'] = [% warehouse.id %];
       warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0]['description'] = "---";
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0]['id'] = "";
       [% USE BINS_it = Iterator(warehouse.BINS) %][% FOREACH bin = BINS_it %]
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]] = new Array();
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['description'] = "[% JavaScript.escape(bin.description) %]";
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['id'] = [% bin.id %];
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]]['description'] = "[% JavaScript.escape(bin.description) %]";
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]]['id'] = [% bin.id %];
       [% END %]
       [% END %]
 
