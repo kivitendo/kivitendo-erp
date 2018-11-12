@@ -389,12 +389,11 @@
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib aqbanking-tools poppler-utils
+  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl
 </programlisting>
-
-          <para>Für einige Perl Pakete gibt es kein Debian-Paket, dies
-          muß per CPAN installiert werden. Unter Ubuntu funktioniert das für das benötige Paket HTML::Restrict
-          mit:</para>
+          <para>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</para>
+          <para>Für ältere Ubuntu/Debians müßen die Pakete per CPAN installiert werden.
+          Das geht bspw. für das benötige Paket HTML::Restrict mit:</para>
 
           <programlisting>apt-get install build-essential
 cpan HTML::Restrict</programlisting>
@@ -1917,8 +1916,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
       einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter
       debianoiden Betriebssystemen installiert man die Pakete mit:</para>
 
-      <para><programlisting>apt-get install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
-  texlive-latex-extra texlive-lang-german texlive-generic-extra</programlisting></para>
+      <para><programlisting>apt install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
+  texlive-latex-extra texlive-lang-german texlive-generic-extra texlive-xetex </programlisting></para>
 
       <para>Für Fedora benötigen Sie die folgenden Pakete:</para>
 

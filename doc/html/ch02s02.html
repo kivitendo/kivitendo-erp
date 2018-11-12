@@ -131,11 +131,10 @@
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib aqbanking-tools poppler-utils
-</pre><p>Für einige Perl Pakete gibt es kein Debian-Paket, dies
-          muß per CPAN installiert werden. Unter Ubuntu funktioniert das für das benötige Paket HTML::Restrict
-          mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e480"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl
+</pre><p>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</p><p>Für ältere Ubuntu/Debians müßen die Pakete per CPAN installiert werden.
+          Das geht bspw. für das benötige Paket HTML::Restrict mit:</p><pre class="programlisting">apt-get install build-essential
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e482"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -145,7 +144,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e491"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e493"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
@@ -154,7 +153,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
   perl-URI perl-XML-Writer perl-YAML perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e502"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e504"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
         'aqbanking-tools' benötigt.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools
         </pre><p>
             </p><p>Fedora: </p><pre class="programlisting">dnf install aqbanking</pre><p>
