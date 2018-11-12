@@ -235,7 +235,6 @@ my $datev2 = SL::DATEV->new(
 $datev2->from($startdate);
 $datev2->to($enddate);
 $datev2->generate_datev_data;
-$datev2->generate_datev_lines;
 
 my $datev_csv3  = SL::DATEV::CSV->new(datev_lines  => $datev2->generate_datev_lines,
                                       from         => $startdate,
