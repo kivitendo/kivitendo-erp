@@ -240,6 +240,11 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
     qw(condition)
   }
 
+  sub array_elements {
+    qw(condition)
+  }
+
+
   sub type {
     'container_and'
   }
