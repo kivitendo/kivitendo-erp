@@ -9,6 +9,9 @@ use SL::DB::MetaSetup::PriceRuleMacro;
 use SL::DB::Manager::PriceRuleMacro;
 use SL::MoreCommon;
 
+use SL::Presenter::CustomerVendor;
+use SL::Presenter::Part;
+
 __PACKAGE__->meta->add_relationship(
   price_rules => {
     type         => 'one to many',
@@ -94,6 +97,7 @@ sub create_definition_meta {
           grep { $classes{$_} ne $classes{$type} && $classes{$_}->isa($classes{$type}) } keys %classes
         ],
         abstract => $classes{$type}->abstract ? 1 : 0,
+        internal_class => $classes{$type},
       }
     } keys %classes
   }
@@ -317,6 +321,13 @@ package SL::PriceRuleMacro::Condition::Customer {
   sub type {
     'customer'
   }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::CustomerVendor::customer_vendor_picker($name, $value, type => 'customer');
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Vendor {
@@ -324,6 +335,13 @@ package SL::PriceRuleMacro::Condition::Vendor {
 
   sub type {
     'vendor'
+  }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::CustomerVendor::customer_vendor_picker($name, $value, type => 'vendor');
   }
 }
 
@@ -340,6 +358,13 @@ package SL::PriceRuleMacro::Condition::Part {
 
   sub type {
     'part'
+  }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::Part::part_picker($name, $value);
   }
 }
 
