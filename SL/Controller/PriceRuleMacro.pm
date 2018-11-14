@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::DB::PriceRuleMacro;
 use SL::Locale::String qw(t8);
+use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw() ],
@@ -82,10 +83,40 @@ sub action_save {
 }
 
 sub action_meta {
+  my ($self) = @_;
+
   if ($::request->type eq 'json') {
-    return $_[0]->render(\SL::JSON::to_json(SL::DB::PriceRuleMacro->create_definition_meta), { process => 0, type => 'json' });
+    my $meta_definition = SL::DB::PriceRuleMacro->create_definition_meta;
+
+    for (keys %$meta_definition) {
+      my $entry = $meta_definition->{$_};
+      my $request_suffix = $::request->type ne 'html' ? '.' . $::request->type : '';
+
+      if ($entry->{internal_class} && $entry->{internal_class}->can('picker')) {
+        $entry->{picker_url} = $self->url_for(action => 'render_picker' . $request_suffix , type => $_);
+      }
+    }
+
+    return $_[0]->render(\SL::JSON::to_json($meta_definition), { process => 0, type => 'json' });
   } else {
     die "not supported";
+  }
+}
+
+sub action_render_picker {
+  my ($self) = @_;
+
+  my $meta   = SL::DB::PriceRuleMacro->create_definition_meta;
+  my $type  = $meta->{$::form->{type}} or die "unknown type '$::form->{type}'";
+  die "type '$::form->{type}' does not support picker" unless $type->{internal_class}->can('picker');
+
+  my $picker_html = $type->{internal_class}->picker(%{$::form});
+
+  if ($::request->type eq 'json') {
+    my $response = { html => $picker_html, js => $::request->presenter->need_reinit_widgets ? 'kivi.reinit_widgets' : '' };
+    return $self->render(\SL::JSON::to_json($response), { process => 0, type => 'json' });
+  } else {
+    return $self->render(\$picker_html, { process => 0 });
   }
 }
 
