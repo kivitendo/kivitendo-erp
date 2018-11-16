@@ -203,6 +203,8 @@ sub generate_report {
     'projectdescription' => { 'text' => $locale->text('Project Description'), },
     'warehouse'          => { 'text' => $locale->text('Default Warehouse'), },
     'bin'                => { 'text' => $locale->text('Default Bin'), },
+    'make'               => { 'text' => $locale->text('Make'), },
+    'model'              => { 'text' => $locale->text('Model'), },
   );
 
   $revers     = $form->{revers};
@@ -381,7 +383,7 @@ sub generate_report {
 
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
-    onhand rop soldtotal unit listprice
+    make model onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
