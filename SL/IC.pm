@@ -954,24 +954,4 @@ sub prepare_parts_for_printing {
   return %template_arrays;
 }
 
-sub normalize_text_blocks {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my %params   = @_;
-
-  my $form     = $params{form}     || $main::form;
-
-  # check if feature is enabled (select normalize_part_descriptions from defaults)
-  return unless ($::instance_conf->get_normalize_part_descriptions);
-
-  foreach (qw(description notes)) {
-    $form->{$_} =~ s/\s+$//s;
-    $form->{$_} =~ s/^\s+//s;
-    $form->{$_} =~ s/ {2,}/ /g;
-  }
-   $main::lxdebug->leave_sub();
-}
-
-
 1;

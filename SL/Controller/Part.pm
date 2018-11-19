@@ -42,6 +42,8 @@ __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') },
 
 __PACKAGE__->run_before('check_part_id', only   => [ qw(edit delete) ]);
 
+__PACKAGE__->run_before('normalize_text_blocks');
+
 # actions for editing parts
 #
 sub action_add_part {
@@ -1191,6 +1193,25 @@ sub check_form {
 
 sub check_has_valid_part_type {
   die "invalid part_type" unless $_[0] =~ /^(part|service|assembly|assortment)$/;
+}
+
+
+sub normalize_text_blocks {
+  my ($self) = @_;
+
+  # check if feature is enabled (select normalize_part_descriptions from defaults)
+  return unless ($::instance_conf->get_normalize_part_descriptions);
+
+  # text block
+  foreach (qw(description)) {
+    $self->part->{$_} =~ s/\s+$//s;
+    $self->part->{$_} =~ s/^\s+//s;
+    $self->part->{$_} =~ s/ {2,}/ /g;
+  }
+  # html block (caveat: can be circumvented by using bold or italics)
+  $self->part->{notes} =~ s/^<p>(&nbsp;)+\s+/<p>/s;
+  $self->part->{notes} =~ s/(&nbsp;)+<\/p>$/<\/p>/s;
+
 }
 
 sub render_assortment_items_to_html {
