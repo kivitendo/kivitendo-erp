@@ -28,6 +28,8 @@ sub run {
   $self->{db_obj} = shift;
 
   $self->{job_errors} = [];
+  if (!$self->{db_obj}->db->with_transaction(sub {
+    1;                          # make Emacs happy
 
   my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
 
@@ -80,6 +82,12 @@ sub run {
     [ map { $_->{invoice} } @invoices_to_email ],
                              \@disabled_orders  ,
   );
+
+    1;
+  })) {
+    $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
+    return undef;
+  }
 
   if (@{ $self->{job_errors} }) {
     my $msg = join "\n", @{ $self->{job_errors} };
