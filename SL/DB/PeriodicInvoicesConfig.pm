@@ -144,7 +144,6 @@ sub disable_one_time_config {
       1;                          # make Emacs happy
       $self->active(0);
       $self->order->update_attributes(closed => 1);
-      die;
       $self->save;
       1;
     })) {
