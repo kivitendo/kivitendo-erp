@@ -140,9 +140,17 @@ sub disable_one_time_config {
   # A periodicity of one time was set. Deactivate this config now.
   if ($self->periodicity eq 'o') {
     _log_msg("setting inactive\n");
-    $self->active(0);
-    $self->order->update_attributes(closed => 1);
-    $self->save;
+    if (!$self->db->with_transaction(sub {
+      1;                          # make Emacs happy
+      $self->active(0);
+      $self->order->update_attributes(closed => 1);
+      die;
+      $self->save;
+      1;
+    })) {
+      $::lxdebug->message(LXDebug->WARN(), "disalbe_one_time config failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
+      return undef;
+    }
     return $self->order->ordnumber;
   }
   return undef;
