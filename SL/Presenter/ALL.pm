@@ -2,6 +2,7 @@ package SL::Presenter::ALL;
 
 use strict;
 
+use SL::Presenter::Business;
 use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
@@ -16,6 +17,7 @@ use SL::Presenter::Letter;
 use SL::Presenter::Order;
 use SL::Presenter::Part;
 use SL::Presenter::PartsGroup;
+use SL::Presenter::Pricegroup;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::RequirementSpec;
@@ -31,6 +33,7 @@ use SL::Presenter::BankTransaction;
 use SL::Presenter::MaterialComponents;
 
 our %presenters = (
+  business                    => 'SL::Presenter::Business',
   chart                       => 'SL::Presenter::Chart',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
@@ -45,6 +48,7 @@ our %presenters = (
   order                       => 'SL::Presenter::Order',
   part                        => 'SL::Presenter::Part',
   partsgroup                  => 'SL::Presenter::PartsGroup',
+  pricegroup                  => 'SL::Presenter::Pricegroup',
   project                     => 'SL::Presenter::Project',
   record                      => 'SL::Presenter::Record',
   requirement_spec            => 'SL::Presenter::RequirementSpec',
