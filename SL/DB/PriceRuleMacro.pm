@@ -12,6 +12,9 @@ use SL::Locale::String;
 
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::Part;
+use SL::Presenter::Business;
+use SL::Presenter::PartsGroup;
+use SL::Presenter::Pricegroup;
 
 __PACKAGE__->meta->add_relationship(
   price_rules => {
@@ -385,6 +388,13 @@ package SL::PriceRuleMacro::Condition::Business {
   sub description {
     SL::Locale::String::t8('Business')
   }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::Business::business_picker($name, $value);
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Part {
@@ -416,6 +426,13 @@ package SL::PriceRuleMacro::Condition::Partsgroup {
   sub description {
     SL::Locale::String::t8('Partsgroup')
   }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::PartsGroup::partsgroup_picker($name, $value);
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Pricegroup {
@@ -427,6 +444,13 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
 
   sub description {
     SL::Locale::String::t8('Pricegroup')
+  }
+
+  sub picker {
+    my ($class, %params) = @_;
+    my $name  = delete $params{name};
+    my $value = delete $params{id};
+    SL::Presenter::Pricegroup::pricegroup_picker($name, $value);
   }
 }
 
