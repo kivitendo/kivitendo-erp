@@ -31,69 +31,69 @@ sub run {
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
-  my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
+    my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
 
-  foreach my $config (@{ $configs }) {
-    my $new_end_date = $config->handle_automatic_extension;
-    _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
-  }
+    foreach my $config (@{ $configs }) {
+      my $new_end_date = $config->handle_automatic_extension;
+      _log_msg("Periodic invoice configuration ID " . $config->id . " extended through " . $new_end_date->strftime('%d.%m.%Y') . "\n") if $new_end_date;
+    }
 
-  my (@new_invoices, @invoices_to_print, @invoices_to_email, @disabled_orders);
+    my (@new_invoices, @invoices_to_print, @invoices_to_email, @disabled_orders);
 
-  _log_msg("Number of configs: " . scalar(@{ $configs}));
+    _log_msg("Number of configs: " . scalar(@{ $configs}));
 
-  foreach my $config (@{ $configs }) {
-    # A configuration can be set to inactive by
-    # $config->handle_automatic_extension. Therefore the check in
-    # ...->get_all() does not suffice.
-    _log_msg("Config " . $config->id . " active " . $config->active);
-    next unless $config->active;
+    foreach my $config (@{ $configs }) {
+      # A configuration can be set to inactive by
+      # $config->handle_automatic_extension. Therefore the check in
+      # ...->get_all() does not suffice.
+      _log_msg("Config " . $config->id . " active " . $config->active);
+      next unless $config->active;
 
-    my @dates = _calculate_dates($config);
+      my @dates = _calculate_dates($config);
 
-    _log_msg("Dates: " . join(' ', map { $_->to_lxoffice } @dates));
+      _log_msg("Dates: " . join(' ', map { $_->to_lxoffice } @dates));
 
-    foreach my $date (@dates) {
-      my $data = $self->_create_periodic_invoice($config, $date);
-      next unless $data;
+      foreach my $date (@dates) {
+        my $data = $self->_create_periodic_invoice($config, $date);
+        next unless $data;
 
-      _log_msg("Invoice " . $data->{invoice}->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
+        _log_msg("Invoice " . $data->{invoice}->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
 
-      push @new_invoices,      $data;
-      push @invoices_to_print, $data if $config->print;
-      push @invoices_to_email, $data if $config->send_email;
+        push @new_invoices,      $data;
+        push @invoices_to_print, $data if $config->print;
+        push @invoices_to_email, $data if $config->send_email;
 
-      my $inactive_ordnumber = $config->disable_one_time_config;
-      if ($inactive_ordnumber) {
-        # disable one time configs and skip eventual invoices
-        _log_msg("Order " . $inactive_ordnumber . " deavtivated \n");
-        push @disabled_orders, $inactive_ordnumber;
-        last;
+        my $inactive_ordnumber = $config->disable_one_time_config;
+        if ($inactive_ordnumber) {
+          # disable one time configs and skip eventual invoices
+          _log_msg("Order " . $inactive_ordnumber . " deavtivated \n");
+          push @disabled_orders, $inactive_ordnumber;
+          last;
+        }
       }
     }
-  }
 
-  foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
-  foreach my $inv ( @invoices_to_email ) { $self->_email_invoice($inv); }
+    foreach my $inv ( @invoices_to_print ) { $self->_print_invoice($inv); }
+    foreach my $inv ( @invoices_to_email ) { $self->_email_invoice($inv); }
 
-  $self->_send_summary_email(
-    [ map { $_->{invoice} } @new_invoices      ],
-    [ map { $_->{invoice} } @invoices_to_print ],
-    [ map { $_->{invoice} } @invoices_to_email ],
-                             \@disabled_orders  ,
-  );
+    $self->_send_summary_email(
+      [ map { $_->{invoice} } @new_invoices      ],
+      [ map { $_->{invoice} } @invoices_to_print ],
+      [ map { $_->{invoice} } @invoices_to_email ],
+                               \@disabled_orders  ,
+    );
 
-    1;
-  })) {
-    $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
-    return undef;
-  }
+      1;
+    })) {
+      $::lxdebug->message(LXDebug->WARN(), "_create_invoice failed: " . join("\n", (split(/\n/, $self->{db_obj}->db->error))[0..2]));
+      return undef;
+    }
 
-  if (@{ $self->{job_errors} }) {
-    my $msg = join "\n", @{ $self->{job_errors} };
-    _log_msg("Errors: $msg");
-    die $msg;
-  }
+    if (@{ $self->{job_errors} }) {
+      my $msg = join "\n", @{ $self->{job_errors} };
+      _log_msg("Errors: $msg");
+      die $msg;
+    }
 
   return 1;
 }
