@@ -1015,6 +1015,47 @@ sub action_load_second_rows {
   $self->js->render();
 }
 
+# update description, notes and sellprice from master data
+sub action_update_row_from_master_data {
+  my ($self) = @_;
+
+  foreach my $item_id (@{ $::form->{item_ids} }) {
+    my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
+    my $item = $self->order->items_sorted->[$idx];
+
+    $item->description($item->part->description);
+    $item->longdescription($item->part->notes);
+
+    my $price_source = SL::PriceSource->new(record_item => $item, record => $self->order);
+
+    my $price_src;
+    if ($item->part->is_assortment) {
+    # add assortment items with price 0, as the components carry the price
+      $price_src = $price_source->price_from_source("");
+      $price_src->price(0);
+    } else {
+      $price_src = $price_source->best_price
+                 ? $price_source->best_price
+                 : $price_source->price_from_source("");
+      $price_src->price(0) if !$price_source->best_price;
+    }
+
+    $item->sellprice($price_src->price);
+    $item->active_price_source($price_src);
+
+    $self->js
+      ->run('kivi.Order.update_sellprice', $item_id, $item->sellprice_as_number)
+      ->val('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
+      ->val('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
+  }
+
+  $self->recalc();
+  $self->js_redisplay_line_values;
+  $self->js_redisplay_amounts_and_taxes;
+
+  $self->js->render();
+}
+
 sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 

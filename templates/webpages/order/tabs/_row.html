@@ -32,6 +32,13 @@
                        LxERP.t8("X"),
                        confirm=LxERP.t8("Are you sure?")) %]
     </td>
+    <td align="center">
+      [%- L.img_tag(src="image/rotate_cw.svg",
+                    alt=LxERP.t8('Update from master data'),
+                    title= LxERP.t8('Update from master data'),
+                    onclick="if (!confirm('" _ LxERP.t8("Are you sure to update this position from master data?") _ "')) return false; kivi.Order.update_row_from_master_data(this);",
+                    id='update_from_master') %]
+    </td>
     <td>
       <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
     </td>

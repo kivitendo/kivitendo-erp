@@ -725,6 +725,34 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
+  ns.update_row_from_master_data = function(clicked) {
+    var row = $(clicked).parents("tbody").first();
+    var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/update_row_from_master_data' });
+    data.push({ name: 'item_ids[]', value: item_id_dom.val() });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.update_all_rows_from_master_data = function() {
+    var item_ids = $.map($('.row_entry'), function(elt) {
+      var item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
+      return { name: 'item_ids[]', value: item_id };
+    });
+
+    if (item_ids.length == 0) {
+      return;
+    }
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/update_row_from_master_data' });
+    data = data.concat(item_ids);
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.show_calculate_qty_dialog = function(clicked) {
     var row        = $(clicked).parents("tbody").first();
     var input_id   = $(row).find('[name="order.orderitems[].qty_as_number"]').attr('id');

@@ -531,6 +531,15 @@ span.toggle_selected {
     max-width: 16px;
     max-height: 16px;
 }
+#update_from_master {
+    cursor: pointer;
+    display: block;
+    max-width: 16px;
+    max-height: 16px;
+}
+#update_from_master:hover {
+    background: #ddd;
+}
 
 /* Bank transactions */
 #bank_transactions_proposals .invoice_number_highlight a,
