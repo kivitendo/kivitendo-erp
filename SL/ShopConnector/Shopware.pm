@@ -276,6 +276,7 @@ sub update_part {
                                                             customerGroupKey  => 'EK',
                                                             },
                                                           ],
+                                             active   => $shop_part->active,
                                              #attribute => { attr1  => $cvars->{CVARNAME}->{value}, } , #HowTo handle attributes
                                        },
                       supplier          => 'AR', # Is needed by shopware,
