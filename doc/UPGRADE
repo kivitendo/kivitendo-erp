@@ -11,7 +11,7 @@ Upgrade auf v3.x.x
 
 Einige Default-Module die als Fallback zu Verfügung standen, werden ab
 dieser Version nicht mehr mit ausgeliefert.
-Bitte vor dem Anmelden an der Weboberfläche 'scripts/installation_check.pl' ausführen
+Bitte vor dem Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen
 und die entsprechenden Module installieren.
 
 

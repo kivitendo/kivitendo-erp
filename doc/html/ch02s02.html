@@ -5,10 +5,10 @@
         diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
-        Distributionen läuft.</p><p>Anfang 2016 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>7.0 "Wheezy"</p></li><li class="listitem"><p>8.0 "Jessie"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 12.04 LTS "Precise Pangolin", 14.04 "Trusty Tahr"
-            LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS
-            Alpha</p></li><li class="listitem"><p>openSUSE LEAP 42.1</p></li><li class="listitem"><p>Fedora 22</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        Distributionen läuft.</p><p>Anfang 2019 sind das folgende Systeme, von denen bekannt ist,
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>7.0 "Wheezy"</p></li><li class="listitem"><p>8.0 "Jessie"</p></li><li class="listitem"><p>9.0 "Stretch"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf", 16.04 "Xenial Xerus" LTS
+                und 18.04 "Bionic Beaver" LTS
+          </p></li><li class="listitem"><p>openSUSE LEAP 42.1</p></li><li class="listitem"><p>Fedora 22</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
         Version (s.a. Liste der unterstützten Betriebssysteme)
         benötigt.</p><p>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
@@ -91,7 +91,13 @@
                      <code class="literal">XML::Writer</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit Version größer v3.5.0 sind die folgenden Pakete
+                  </p></li></ul></div><p>Seit Version größer v3.5.1 sind die folgenden Pakete
+        hinzugekommen:
+        <code class="literal">Set::Infinite</code>,
+        <code class="literal">List::UtilsBy</code>,
+        <code class="literal">DateTime::Set</code>,
+        <code class="literal">DateTime::Event::Cron</code>
+            </p><p>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <code class="literal">Text::Unidecode</code>,
         <code class="literal">LWP::Authen::Digest</code>,
         <code class="literal">LWP::UserAgent</code>
@@ -118,7 +124,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e469"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e486"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
           Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -131,10 +137,11 @@
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl
-</pre><p>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</p><p>Für ältere Ubuntu/Debians müßen die Pakete per CPAN installiert werden.
+  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl\
+  libdatetime-event-cron-perl libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl
+</pre><p>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</p><p>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e482"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e499"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -144,7 +151,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e493"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e510"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
@@ -153,7 +160,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
   perl-URI perl-XML-Writer perl-YAML perl-CPAN \
   perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e504"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e521"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
         'aqbanking-tools' benötigt.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools
         </pre><p>
             </p><p>Fedora: </p><pre class="programlisting">dnf install aqbanking</pre><p>

@@ -106,7 +106,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Anfang 2016 sind das folgende Systeme, von denen bekannt ist,
+        <para>Anfang 2019 sind das folgende Systeme, von denen bekannt ist,
         dass kivitendo auf ihnen läuft:</para>
 
         <itemizedlist>
@@ -121,13 +121,17 @@
               <listitem>
                 <para>8.0 "Jessie"</para>
               </listitem>
+              <listitem>
+                <para>9.0 "Stretch"</para>
+              </listitem>
+
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>Ubuntu 12.04 LTS "Precise Pangolin", 14.04 "Trusty Tahr"
-            LTS, 15.10 "Wily Werewolf" und 16.04 "Xenial Xerus" LTS
-            Alpha</para>
+            <para>Ubuntu 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf", 16.04 "Xenial Xerus" LTS
+                und 18.04 "Bionic Beaver" LTS
+          </para>
           </listitem>
 
           <listitem>
@@ -329,6 +333,12 @@
             <para><literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
+        <para>Seit Version größer v3.5.1 sind die folgenden Pakete
+        hinzugekommen:
+        <literal>Set::Infinite</literal>,
+        <literal>List::UtilsBy</literal>,
+        <literal>DateTime::Set</literal>,
+        <literal>DateTime::Event::Cron</literal></para>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <literal>Text::Unidecode</literal>,
@@ -389,10 +399,11 @@
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
-  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl
+  postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl\
+  libdatetime-event-cron-perl libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl
 </programlisting>
           <para>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</para>
-          <para>Für ältere Ubuntu/Debians müßen die Pakete per CPAN installiert werden.
+          <para>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</para>
 
           <programlisting>apt-get install build-essential
@@ -1001,21 +1012,15 @@ Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 
           <itemizedlist>
             <listitem>
-              <para>Apache 2.2.11 (Ubuntu) und mod_fcgid.</para>
-            </listitem>
-
-            <listitem>
-              <para>Apache 2.2.11 / 2.2.22 (Ubuntu) und mod_fastcgi.</para>
-            </listitem>
-
-            <listitem>
               <para>Apache 2.4.7 (Ubuntu 14.04.2 LTS) und mod_fcgid.</para>
             </listitem>
+            <listitem>
+              <para>Apache 2.4.18 (Ubuntu 16.04 LTS) und mod_fcgid</para>
+            </listitem>
+            <listitem>
+              <para>Apache 2.4.29 (Ubuntu 18.04 LTS) und mod_fcgid</para>
+            </listitem>
           </itemizedlist>
-
-          <para>Dabei wird mod_fcgid empfohlen, weil mod_fastcgi seit geraumer
-          Zeit nicht mehr weiter entwickelt wird. Im Folgenden wird auf
-          mod_fastcgi nicht mehr explizit eingegangen.</para>
 
           <para>Als Perl Backend wird das Modul <filename>FCGI.pm</filename>
           verwendet.</para>
