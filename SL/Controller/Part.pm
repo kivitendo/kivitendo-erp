@@ -42,8 +42,6 @@ __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') },
 
 __PACKAGE__->run_before('check_part_id', only   => [ qw(edit delete) ]);
 
-__PACKAGE__->run_before('normalize_text_blocks');
-
 # actions for editing parts
 #
 sub action_add_part {
@@ -734,6 +732,8 @@ sub parse_form {
   delete $params->{id};
   $self->part->assign_attributes(%{ $params});
   $self->part->bin_id(undef) unless $self->part->warehouse_id;
+
+  $self->normalize_text_blocks;
 
   # Only reset items ([]) and rewrite from form if $::form->{assortment_items} isn't empty. This
   # will be the case for used assortments when saving, or when a used assortment
