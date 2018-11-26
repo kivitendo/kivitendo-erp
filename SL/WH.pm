@@ -355,11 +355,11 @@ sub get_warehouse_journal {
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
   for my $i ('trans', 'out', 'in') {
     $select{$i} = join ', ', map { +/^l_/; ($select_tokens{$i}{"$'"} || $select_tokens{'trans'}{"$'"}) . " AS r_$'" }
-          ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
+          ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
   }
 
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
-        ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
+        ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
 

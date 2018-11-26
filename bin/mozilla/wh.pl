@@ -574,6 +574,12 @@ sub journal {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
+  my $cvar_configs                           = CVar->get_configs('module' => 'IC');
+  (undef,
+   $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $cvar_configs,
+                                                                           'include_prefix' => 'l_',
+                                                                           'include_value'  => 'Y');
+
   setup_wh_journal_action_bar();
 
   $form->header();
@@ -641,6 +647,10 @@ sub generate_journal {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
+  my $cvar_configs                 = CVar->get_configs('module' => 'IC');
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit unit partunit fromdate todate transtype_ids comment projectnumber);
   push @hidden_variables, qw(classification_id);
@@ -669,6 +679,9 @@ sub generate_journal {
     'oe_id'           => { 'text' => $locale->text('Document'), },
   );
 
+  my %column_defs_cvars = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+  %column_defs          = (%column_defs, %column_defs_cvars);
+
   if ($form->{transtype_ids} && 'ARRAY' eq ref $form->{transtype_ids}) {
     for (my $i = 0; $i < scalar(@{ $form->{transtype_ids} }); $i++) {
       delete $form->{transtype_ids}[$i] if $form->{transtype_ids}[$i] eq '';
@@ -679,7 +692,7 @@ sub generate_journal {
   my $href = build_std_url('action=generate_journal', grep { $form->{$_} } @hidden_variables);
   $href .= "&maxrows=".$form->{maxrows};
 
-  map { $column_defs{$_}->{link} = $href ."&page=".$page. "&sort=${_}&order=" . Q($_ eq $form->{sort} ? 1 - $form->{order} : $form->{order}) } @columns;
+  map { $column_defs{$_}->{link} = $href ."&page=".$page. "&sort=${_}&order=" . Q($_ eq $form->{sort} ? 1 - $form->{order} : $form->{order}) } grep {!/^cvar/} @columns;
 
   my %column_alignment = map { $_ => 'right' } qw(qty);
 
@@ -703,6 +716,13 @@ sub generate_journal {
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
+
+  CVar->add_custom_variables_to_report('module'         => 'IC',
+                                       'trans_id_field' => 'parts_id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => \@contents);
+
 
   my %doc_types = ( 'sales_quotation'         => { script => 'oe', title => $locale->text('Sales quotation') },
                     'sales_order'             => { script => 'oe', title => $locale->text('Sales Order') },
