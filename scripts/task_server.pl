@@ -21,7 +21,7 @@ use English qw(-no_match_vars);
 use File::Spec;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
-use POSIX qw(setuid setgid);
+use POSIX qw(setlocale setuid setgid);
 use SL::Auth;
 use SL::DBUpgrade2;
 use SL::DB::AuthClient;
@@ -185,6 +185,11 @@ sub notify_on_failure {
 
 sub gd_preconfig {
   my $self = shift;
+
+  # Initialize character type locale to be UTF-8 instead of C:
+  foreach my $locale (qw(de_DE.UTF-8 en_US.UTF-8)) {
+    last if setlocale('LC_CTYPE', $locale);
+  }
 
   SL::LxOfficeConf->read($self->{configfile});
 

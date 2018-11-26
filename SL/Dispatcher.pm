@@ -18,6 +18,7 @@ use File::Basename;
 use IO::File;
 use List::MoreUtils qw(all);
 use List::Util qw(first);
+use POSIX qw(setlocale);
 use SL::ArchiveZipFixes;
 use SL::Auth;
 use SL::Dispatcher::AuthHandler;
@@ -50,6 +51,11 @@ sub new {
   $self->{auth_handler} = SL::Dispatcher::AuthHandler->new;
 
   SL::ArchiveZipFixes->apply_fixes;
+
+  # Initialize character type locale to be UTF-8 instead of C:
+  foreach my $locale (qw(de_DE.UTF-8 en_US.UTF-8)) {
+    last if setlocale('LC_CTYPE', $locale);
+  }
 
   return $self;
 }
