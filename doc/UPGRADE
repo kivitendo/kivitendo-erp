@@ -5,7 +5,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
-Upgrade auf v3.x.x
+Upgrade auf v3.5.3
 
 * Fallback-Module entfernt
 
@@ -13,6 +13,7 @@ Einige Default-Module die als Fallback zu Verfügung standen, werden ab
 dieser Version nicht mehr mit ausgeliefert.
 Bitte vor dem Anmelden an der Weboberfläche 'scripts/installation_check.pl -v' ausführen
 und die entsprechenden Module installieren.
+S.a. weitere Details in der aktuellen kivitendo-Dokumentation.
 
 
 Upgrade auf v3.5.1

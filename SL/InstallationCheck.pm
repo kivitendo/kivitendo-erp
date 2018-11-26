@@ -35,8 +35,9 @@ BEGIN {
   { name => "Email::MIME",                         url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-mime-perl' },
   { name => "FCGI",            version => '0.72',  url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
   { name => "File::Copy::Recursive",               url => "http://search.cpan.org/~dmuey/",     debian => 'libfile-copy-recursive-perl' },
-  { name => "File::Flock",   version => '2008.01', url => "http://search.cpan.org/~muir/", }, # fallback version 98
+  { name => "File::Flock",   version => '2008.01', url => "http://search.cpan.org/~muir/",      debian => 'libfile-flock-perl' },
   { name => "File::MimeInfo",                      url => "http://search.cpan.org/~michielb/",  debian => 'libfile-mimeinfo-perl' },
+  { name => "File::Slurp",                         url => "https://metacpan.org/author/CAPOEIRAB", debian => 'libfile-slurp-perl' },
   { name => "GD",                                  url => "http://search.cpan.org/~lds/",       debian => 'libgd-gd2-perl', },
   { name => 'HTML::Parser',                        url => 'http://search.cpan.org/~gaas/',      debian => 'libhtml-parser-perl', },
   { name => 'HTML::Restrict',                      url => 'http://search.cpan.org/~oalders/',   debian => 'libhtml-restrict-perl'},
@@ -54,7 +55,7 @@ BEGIN {
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
   { name => "Rose::DB::Object", version => 0.788,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
   { name => "Set::Infinite",    version => '0.63', url => "http://search.cpan.org/~fglock/",    debian => 'libset-infinite-perl' },
-  { name => "Set::Crontab",     version => '1.03', url => "http://search.cpan.org/~ams/",  },
+  { name => "Set::Crontab",     version => '1.03', url => "http://search.cpan.org/~ams/",       debian => 'libset-crontab-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
   # Test::Harness is core, so no Debian packages. Test::Harness 3.00 was first packaged in 5.10.1

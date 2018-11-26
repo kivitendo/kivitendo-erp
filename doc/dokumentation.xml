@@ -338,7 +338,15 @@
         <literal>Set::Infinite</literal>,
         <literal>List::UtilsBy</literal>,
         <literal>DateTime::Set</literal>,
-        <literal>DateTime::Event::Cron</literal></para>
+        <literal>DateTime::Event::Cron</literal>
+        <literal>Daemon::Generic</literal>
+        <literal>DateTime::Event::Cron</literal>
+        <literal>File::Flock</literal>
+        <literal>File::Slurp</literal>
+        <literal>Set::Crontab</literal>
+        <literal>Exception::Lite</literal>
+</para>Für die letzten beiden Module liefert kivitendo fallback-Module aus, da
+diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand Anfang 2019).
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <literal>Text::Unidecode</literal>,
@@ -400,7 +408,9 @@
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
   postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl\
-  libdatetime-event-cron-perl libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl
+  libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
+  libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl
+
 </programlisting>
           <para>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</para>
           <para>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
