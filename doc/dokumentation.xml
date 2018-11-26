@@ -115,10 +115,6 @@
 
             <itemizedlist>
               <listitem>
-                <para>7.0 "Wheezy"</para>
-              </listitem>
-
-              <listitem>
                 <para>8.0 "Jessie"</para>
               </listitem>
               <listitem>
@@ -129,17 +125,16 @@
           </listitem>
 
           <listitem>
-            <para>Ubuntu 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf", 16.04 "Xenial Xerus" LTS
-                und 18.04 "Bionic Beaver" LTS
+            <para>16.04 "Xenial Xerus" LTS und 18.04 "Bionic Beaver" LTS
           </para>
           </listitem>
 
           <listitem>
-            <para>openSUSE LEAP 42.1</para>
+            <para>openSUSE 15.0</para>
           </listitem>
 
           <listitem>
-            <para>Fedora 22</para>
+            <para>Fedora 29</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -163,15 +158,11 @@
 
         <itemizedlist>
           <listitem>
-            <para><literal>parent</literal> (nur bei Perl vor 5.10.1)</para>
+            <para><literal>Algorithm::CheckDigits</literal></para>
           </listitem>
 
           <listitem>
             <para><literal>Archive::Zip</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>Algorithm::CheckDigits</literal></para>
           </listitem>
 
           <listitem>
@@ -187,11 +178,23 @@
           </listitem>
 
           <listitem>
+            <para><literal>Daemon::Generic</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>DateTime</literal></para>
           </listitem>
 
           <listitem>
+            <para><literal>DateTime::Event::Cron</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>DateTime::Format::Strptime</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>DateTime::Set</literal></para>
           </listitem>
 
           <listitem>
@@ -221,7 +224,15 @@
           </listitem>
 
           <listitem>
+            <para><literal>File::Flock</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>File::MimeInfo</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>File::Slurp</literal></para>
           </listitem>
 
           <listitem>
@@ -285,6 +296,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>Regexp::IPv6</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>Rose::Object</literal></para>
           </listitem>
 
@@ -295,6 +310,14 @@
           <listitem>
             <para><literal>Rose::DB::Object</literal> Version 0.788 oder
             neuer</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Set::Infinite</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Set::Crontab</literal></para>
           </listitem>
 
           <listitem>
@@ -333,20 +356,13 @@
             <para><literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
-        <para>Seit Version größer v3.5.1 sind die folgenden Pakete
-        hinzugekommen:
-        <literal>Set::Infinite</literal>,
-        <literal>List::UtilsBy</literal>,
-        <literal>DateTime::Set</literal>,
-        <literal>DateTime::Event::Cron</literal>
-        <literal>Daemon::Generic</literal>
-        <literal>DateTime::Event::Cron</literal>
-        <literal>File::Flock</literal>
-        <literal>File::Slurp</literal>
-        <literal>Set::Crontab</literal>
-        <literal>Exception::Lite</literal>
-</para>Für die letzten beiden Module liefert kivitendo fallback-Module aus, da
-diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand Anfang 2019).
+
+        <para>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <literal>Set::Infinite</literal>,
+        <literal>List::UtilsBy</literal>, <literal>DateTime::Set</literal>, <literal>DateTime::Event::Cron</literal>
+        <literal>Daemon::Generic</literal> <literal>DateTime::Event::Cron</literal> <literal>File::Flock</literal>
+        <literal>File::Slurp</literal> <literal>Set::Crontab</literal> <literal>Exception::Lite</literal>. Für die letzten beiden Module
+        liefert kivitendo fallback-Module aus, da diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand
+        Anfang 2019).</para>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <literal>Text::Unidecode</literal>,
@@ -427,19 +443,17 @@ cpan HTML::Restrict</programlisting>
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</para>
 
-          <programlisting>dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
-  perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
-  perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
-  perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
+          <programlisting>dnf install httpd mod_fcgid postgresql-server \
+  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
+  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
+  perl-DateTime perl-DateTime-Set perl-Email-Address perl-Email-MIME perl-FCGI \
+  perl-File-Copy-Recursive perl-File-Flock perl-File-MimeInfo perl-File-Slurp \
+  perl-GD perl-HTML-Restrict perl-JSON perl-List-MoreUtils perl-List-UtilsBy \
+  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PBKDF2-Tiny perl-PDF-API2 \
+  perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
-  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</programlisting>
-
-          <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</para>
-
-          <programlisting>cpan Config::Std HTML::Restrict</programlisting>
+  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
+  perl-YAML perl-libwww-perl</programlisting>
         </sect3>
 
         <sect3>
@@ -449,18 +463,24 @@ cpan HTML::Restrict</programlisting>
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</para>
 
-          <programlisting>zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
-  perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
-  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \
-  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
-  perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</programlisting>
+          <programlisting>zypper install apache2 apache2-mod_fcgid postgresql-server \
+  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CGI perl-Class-XSAccessor \
+  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
+  perl-DateTime perl-DateTime-Format-Strptime perl-Email-Address \
+  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-File-Flock \
+  perl-File-MimeInfo perl-File-Slurp perl-GD perl-Image-Info perl-JSON \
+  perl-List-MoreUtils perl-List-UtilsBy perl-Net-SMTP-SSL perl-Net-SSLGlue \
+  perl-PDF-API2 perl-Params-Validate perl-Regexp-IPv6 perl-Set-Crontab \
+  perl-Sort-Naturally perl-String-ShellQuote perl-Template-Toolkit \
+  perl-Text-CSV_XS perl-Text-Iconv perl-Text-Unidecode perl-URI \
+  perl-XML-Writer perl-YAML perl-libwww-perl
+          </programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle nutzen:</para>
 
-          <programlisting>cpan Rose::Db::Object</programlisting>
+          <programlisting>cpan DateTime::event::Cron DateTime::Set FCGI \
+  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</programlisting>
         </sect3>
       </sect2>
 
