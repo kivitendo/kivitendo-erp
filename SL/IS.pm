@@ -562,20 +562,6 @@ sub invoice_details {
   $main::lxdebug->leave_sub();
 }
 
-sub project_description {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $id) = @_;
-  my $form = \%main::form;
-
-  my $query = qq|SELECT description FROM project WHERE id = ?|;
-  my ($description) = selectrow_query($form, $dbh, $query, conv_i($id));
-
-  $main::lxdebug->leave_sub();
-
-  return $_;
-}
-
 sub customer_details {
   $main::lxdebug->enter_sub();
 

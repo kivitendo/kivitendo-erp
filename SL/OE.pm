@@ -1616,19 +1616,6 @@ sub order_details {
   $main::lxdebug->leave_sub();
 }
 
-sub project_description {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $id) = @_;
-
-  my $query = qq|SELECT description FROM project WHERE id = ?|;
-  my ($value) = selectrow_query($main::form, $dbh, $query, $id);
-
-  $main::lxdebug->leave_sub();
-
-  return $value;
-}
-
 1;
 
 __END__

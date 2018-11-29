@@ -1073,21 +1073,6 @@ sub order_details {
   $main::lxdebug->leave_sub();
 }
 
-sub project_description {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $id) = @_;
-
-  my $form     =  $main::form;
-
-  my $query = qq|SELECT description FROM project WHERE id = ?|;
-  my ($value) = selectrow_query($form, $dbh, $query, $id);
-
-  $main::lxdebug->leave_sub();
-
-  return $value;
-}
-
 sub unpack_stock_information {
   $main::lxdebug->enter_sub();
 
