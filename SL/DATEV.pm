@@ -35,6 +35,7 @@ use SL::DATEV::KNEFile;
 use SL::DATEV::CSV;
 use SL::DB;
 use SL::HTML::Util ();
+use SL::Iconv;
 use SL::Locale::String qw(t8);
 
 use Data::Dumper;
@@ -393,11 +394,31 @@ sub csv_export {
                 eol          => "\r\n",
               }) or die "Cannot use CSV: ".Text::CSV_XS->error_diag();
 
-    my $csv_file = IO::File->new($self->export_path . '/' . $filename, '>:encoding(cp1252)') or die "Can't open: $!";
+    # get encoding from defaults - use cp1252 if DATEV strict export is used
+    my $enc = ($::instance_conf->get_datev_export_format eq 'cp1252') ? 'cp1252' : 'utf-8';
+    my $csv_file = IO::File->new($self->export_path . '/' . $filename, ">:encoding($enc)") or die "Can't open: $!";
+
     $csv->print($csv_file, $_) for @{ $datev_csv->header };
     $csv->print($csv_file, $_) for @{ $datev_csv->lines  };
     $csv_file->close;
     $self->{warnings} = $datev_csv->warnings;
+
+    # convert utf-8 to cp1252//translit if set
+    if ($::instance_conf->get_datev_export_format eq 'cp1252-translit') {
+
+      my $filename_translit = "EXTF_DATEV_kivitendo_translit" . $self->from->ymd() . '-' . $self->to->ymd() . ".csv";
+      open my $fh_in,  '<:encoding(UTF-8)',  $self->export_path . '/' . $filename or die "could not open $filename for reading: $!";
+      open my $fh_out, '>', $self->export_path . '/' . $filename_translit         or die "could not open $filename_translit for writing: $!";
+
+      my $converter = SL::Iconv->new("utf-8", "cp1252//translit");
+
+      print $fh_out $converter->convert($_) while <$fh_in>;
+      close $fh_in;
+      close $fh_out;
+
+      unlink $self->export_path . '/' . $filename or warn "Could not unlink $filename: $!";
+      $filename = $filename_translit;
+    }
 
     return { download_token => $self->download_token, filenames => $filename };
 

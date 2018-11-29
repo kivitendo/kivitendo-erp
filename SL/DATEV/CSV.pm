@@ -103,7 +103,10 @@ my @kivitendo_to_datev = (
                               max_length      => 12,
                               type            => 'Text',
                               default         => '',
-                              input_check     => sub { my ($text) = @_; check_encoding($text); },
+                              input_check     => sub { return 1 unless $::instance_conf->get_datev_export_format eq 'cp1252';
+                                                       my ($text) = @_; check_encoding($text); },
+                              valid_check     => sub { return 1 if     $::instance_conf->get_datev_export_format eq 'cp1252';
+                                                       my ($text) = @_; check_encoding($text); },
                               formatter       => sub { my ($input) = @_; return substr($input, 0, 12) },
                             },
                             {
@@ -127,8 +130,10 @@ my @kivitendo_to_datev = (
                               max_length      => 60,
                               type            => 'Text',
                               default         => '',
-                              input_check     => sub { my ($text) = @_; return 1 unless $text; check_encoding($text);  },
-                              formatter       => sub { my ($input) = @_; return substr($input, 0, 60) },
+                              input_check     => sub { return 1 unless $::instance_conf->get_datev_export_format eq 'cp1252';
+                                                       my ($text) = @_; check_encoding($text); },
+                              valid_check     => sub { return 1 if     $::instance_conf->get_datev_export_format eq 'cp1252';
+                                                       my ($text) = @_; check_encoding($text); },
                             },  # pos 14
                             {
                               kivi_datev_name => 'not yet implemented',
