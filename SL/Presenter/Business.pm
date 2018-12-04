@@ -42,7 +42,7 @@ sub business_picker {
   my $all = SL::DB::Manager::Business->get_all;
   $value  = SL::DB::Manager::Business->find_by(id => $value) if $value && !ref $value;
 
-  select_tag($name, $all, selected => $value, title_key => 'description', %params);
+  select_tag($name, $all, default => $value && $value->id, title_key => 'description', %params);
 }
 
 sub picker { goto &business_picker };
