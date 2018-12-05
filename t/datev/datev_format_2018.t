@@ -19,6 +19,10 @@ Support::TestSetup::login();
 my $dbh = SL::DB->client->dbh;
 
 clear_up();
+
+my $d = SL::DB::Default->get;
+$d->update_attributes(datev_export_format => 'cp1252');
+
 my $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%') || die "No accounting group for 7\%";
 my $date            = DateTime->new(year => 2017, month =>  7, day => 19);
 my $department      = create_department(description => 'Kästchenweiße heiße Preise');
