@@ -6,19 +6,17 @@
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</p><p>Anfang 2019 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>7.0 "Wheezy"</p></li><li class="listitem"><p>8.0 "Jessie"</p></li><li class="listitem"><p>9.0 "Stretch"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 14.04 "Trusty Tahr" LTS, 15.10 "Wily Werewolf", 16.04 "Xenial Xerus" LTS
-                und 18.04 "Bionic Beaver" LTS
-          </p></li><li class="listitem"><p>openSUSE LEAP 42.1</p></li><li class="listitem"><p>Fedora 22</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>8.0 "Jessie"</p></li><li class="listitem"><p>9.0 "Stretch"</p></li></ul></div></li><li class="listitem"><p>16.04 "Xenial Xerus" LTS und 18.04 "Bionic Beaver" LTS
+          </p></li><li class="listitem"><p>openSUSE 15.0</p></li><li class="listitem"><p>Fedora 29</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
         Version (s.a. Liste der unterstützten Betriebssysteme)
         benötigt.</p><p>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
         Bestandteil einer Standard-Perl-Installation sind. Um zu überprüfen,
         ob die erforderlichen Pakete installiert und aktuell genug sind, wird
         ein Script mitgeliefert, das wie folgt aufgerufen wird:</p><pre class="programlisting">./scripts/installation_check.pl</pre><p>Die vollständige Liste der benötigten Perl-Module lautet:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="literal">parent</code> (nur bei Perl vor 5.10.1)</p></li><li class="listitem"><p>
-                     <code class="literal">Archive::Zip</code>
-                  </p></li><li class="listitem"><p>
                      <code class="literal">Algorithm::CheckDigits</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Archive::Zip</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">CGI</code>
                   </p></li><li class="listitem"><p>
@@ -26,9 +24,15 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">Config::Std</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">Daemon::Generic</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">DateTime</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">DateTime::Event::Cron</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">DateTime::Format::Strptime</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DateTime::Set</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">DBI</code>
                   </p></li><li class="listitem"><p>
@@ -42,7 +46,11 @@
             inklusive; siehe <a class="xref" href="ch02s06.html#Apache-Konfiguration.FCGI.WebserverUndPlugin" title="2.6.2.3. Getestete Kombinationen aus Webservern und Plugin">Abschnitt&nbsp;2.6.2.3, „Getestete Kombinationen aus Webservern und Plugin“</a>)</p></li><li class="listitem"><p>
                      <code class="literal">File::Copy::Recursive</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">File::Flock</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">File::MimeInfo</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">File::Slurp</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">GD</code>
                   </p></li><li class="listitem"><p>
@@ -68,12 +76,18 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">PDF::API2</code>
                   </p></li><li class="listitem"><p>
+                     <code class="literal">Regexp::IPv6</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">Rose::Object</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Rose::DB</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Rose::DB::Object</code> Version 0.788 oder
             neuer</p></li><li class="listitem"><p>
+                     <code class="literal">Set::Infinite</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Set::Crontab</code>
+                  </p></li><li class="listitem"><p>
                      <code class="literal">String::ShellQuote</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Sort::Naturally</code>
@@ -91,29 +105,18 @@
                      <code class="literal">XML::Writer</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit Version größer v3.5.1 sind die folgenden Pakete
-        hinzugekommen:
-        <code class="literal">Set::Infinite</code>,
-        <code class="literal">List::UtilsBy</code>,
-        <code class="literal">DateTime::Set</code>,
-        <code class="literal">DateTime::Event::Cron</code>
+                  </p></li></ul></div><p>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <code class="literal">Set::Infinite</code>,
+        <code class="literal">List::UtilsBy</code>, <code class="literal">DateTime::Set</code>, <code class="literal">DateTime::Event::Cron</code>
         
-               <code class="literal">Daemon::Generic</code>
-        
-               <code class="literal">DateTime::Event::Cron</code>
-        
+               <code class="literal">Daemon::Generic</code> 
+               <code class="literal">DateTime::Event::Cron</code> 
                <code class="literal">File::Flock</code>
         
-               <code class="literal">File::Slurp</code>
-        
-               <code class="literal">Set::Crontab</code>
-        
-               <code class="literal">Exception::Lite</code>
-
-            </p>Für die letzten beiden Module liefert kivitendo fallback-Module aus, da
-diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand Anfang 2019).
-
-        <p>Seit Version größer v3.5.0 sind die folgenden Pakete
+               <code class="literal">File::Slurp</code> 
+               <code class="literal">Set::Crontab</code> 
+               <code class="literal">Exception::Lite</code>. Für die letzten beiden Module
+        liefert kivitendo fallback-Module aus, da diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand
+        Anfang 2019).</p><p>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <code class="literal">Text::Unidecode</code>,
         <code class="literal">LWP::Authen::Digest</code>,
         <code class="literal">LWP::UserAgent</code>
@@ -140,7 +143,7 @@ diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung s
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e505"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e543"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Für Debian und Ubuntu stehen die meisten der benötigten
           Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</p><pre class="programlisting">apt install  apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
@@ -159,26 +162,34 @@ diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung s
 
 </pre><p>Ab Ubuntu Version 18.04 LTS sind alle benötigten Pakete in der Distributions verfügbar.</p><p>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e518"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e556"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid perl-Archive-Zip perl-Clone perl-DBD-Pg \
-  perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
-  perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
-  perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
+          installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid postgresql-server \
+  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
+  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
+  perl-DateTime perl-DateTime-Set perl-Email-Address perl-Email-MIME perl-FCGI \
+  perl-File-Copy-Recursive perl-File-Flock perl-File-MimeInfo perl-File-Slurp \
+  perl-GD perl-HTML-Restrict perl-JSON perl-List-MoreUtils perl-List-UtilsBy \
+  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PBKDF2-Tiny perl-PDF-API2 \
+  perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
-  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-parent postgresql-server perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor perl-Text-Balanced perl-libwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Config::Std HTML::Restrict</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e529"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
+  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e563"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid perl-Archive-Zip perl-Clone \
-  perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
-  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \
-  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
-  perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML perl-CPAN \
-  perl-Algorithm-CheckDigits perl-GD perl-Class-XSAccessor postgresql-server perl-libwwww-perl</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
-          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan Rose::Db::Object</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e540"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+          installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid postgresql-server \
+  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CGI perl-Class-XSAccessor \
+  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
+  perl-DateTime perl-DateTime-Format-Strptime perl-Email-Address \
+  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-File-Flock \
+  perl-File-MimeInfo perl-File-Slurp perl-GD perl-Image-Info perl-JSON \
+  perl-List-MoreUtils perl-List-UtilsBy perl-Net-SMTP-SSL perl-Net-SSLGlue \
+  perl-PDF-API2 perl-Params-Validate perl-Regexp-IPv6 perl-Set-Crontab \
+  perl-Sort-Naturally perl-String-ShellQuote perl-Template-Toolkit \
+  perl-Text-CSV_XS perl-Text-Iconv perl-Text-Unidecode perl-URI \
+  perl-XML-Writer perl-YAML perl-libwww-perl
+          </pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
+          werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan DateTime::event::Cron DateTime::Set FCGI \
+  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e574"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
         'aqbanking-tools' benötigt.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools
         </pre><p>
             </p><p>Fedora: </p><pre class="programlisting">dnf install aqbanking</pre><p>
