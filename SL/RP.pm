@@ -311,7 +311,8 @@ sub get_accounts {
          FROM invoice ac
          JOIN ar a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
-         JOIN chart c on (p.income_accno_id = c.id)
+         JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+         JOIN chart c on (t.income_accno_id = c.id)
          -- use transdate from subwhere
          WHERE (c.category = 'I')
            $subwhere
@@ -332,7 +333,8 @@ sub get_accounts {
          FROM invoice ac
          JOIN ap a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
-         JOIN chart c on (p.expense_accno_id = c.id)
+         JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+         JOIN chart c on (t.expense_accno_id = c.id)
          WHERE (c.category = 'E')
            $subwhere
            $dpt_where
@@ -374,7 +376,8 @@ sub get_accounts {
       FROM invoice ac
       JOIN ar a ON (a.id = ac.trans_id)
       JOIN parts p ON (ac.parts_id = p.id)
-      JOIN chart c on (p.income_accno_id = c.id)
+      JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+      JOIN chart c on (t.income_accno_id = c.id)
       -- use transdate from subwhere
       WHERE (c.category = 'I')
         $subwhere
@@ -388,7 +391,8 @@ sub get_accounts {
       FROM invoice ac
       JOIN ap a ON (a.id = ac.trans_id)
       JOIN parts p ON (ac.parts_id = p.id)
-      JOIN chart c on (p.expense_accno_id = c.id)
+      JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+      JOIN chart c on (t.expense_accno_id = c.id)
       WHERE (c.category = 'E')
         $subwhere
         $dpt_where
@@ -572,7 +576,8 @@ sub get_accounts_g {
          FROM invoice ac
          JOIN ar a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
-         JOIN chart c on (p.income_accno_id = c.id)
+         JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+         JOIN chart c on (t.income_accno_id = c.id)
          WHERE (c.category = 'I') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a WHERE (a.chart_link LIKE '%AR_paid%') $subwhere)
            $project
@@ -584,7 +589,8 @@ sub get_accounts_g {
          FROM invoice ac
          JOIN ap a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
-         JOIN chart c on (p.expense_accno_id = c.id)
+         JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+         JOIN chart c on (t.expense_accno_id = c.id)
          WHERE (c.category = 'E') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a WHERE (a.chart_link LIKE '%AP_paid%') $subwhere)
          $project
@@ -617,7 +623,8 @@ sub get_accounts_g {
         FROM invoice ac
         JOIN ar a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
-        JOIN chart c on (p.income_accno_id = c.id)
+        JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+        JOIN chart c on (t.income_accno_id = c.id)
         WHERE (c.category = 'I')
           $prwhere
           $dpt_where
@@ -630,7 +637,8 @@ sub get_accounts_g {
         FROM invoice ac
         JOIN ap a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
-        JOIN chart c on (p.expense_accno_id = c.id)
+        JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+        JOIN chart c on (t.expense_accno_id = c.id)
         WHERE (c.category = 'E')
           $prwhere
           $dpt_where
@@ -891,7 +899,8 @@ sub trial_balance {
       FROM invoice ac
       JOIN ar a ON (ac.trans_id = a.id)
       JOIN parts p ON (ac.parts_id = p.id)
-      JOIN chart c ON (p.income_accno_id = c.id)
+      JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+      JOIN chart c ON (t.income_accno_id = c.id)
       WHERE $invwhere
         $dpt_where
         $customer_where
@@ -904,7 +913,8 @@ sub trial_balance {
       FROM invoice ac
       JOIN ap a ON (ac.trans_id = a.id)
       JOIN parts p ON (ac.parts_id = p.id)
-      JOIN chart c ON (p.expense_accno_id = c.id)
+      JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+      JOIN chart c ON (t.expense_accno_id = c.id)
       WHERE $invwhere
         $dpt_where
         $customer_no_union
@@ -1017,7 +1027,8 @@ sub trial_balance {
            FROM invoice ac
            JOIN parts p ON (ac.parts_id = p.id)
            JOIN ap a ON (ac.trans_id = a.id)
-           JOIN chart c ON (p.expense_accno_id = c.id)
+           JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+           JOIN chart c ON (t.expense_accno_id = c.id)
            WHERE $invwhere
              $dpt_where
              $customer_no_union
@@ -1028,7 +1039,8 @@ sub trial_balance {
            FROM invoice ac
            JOIN parts p ON (ac.parts_id = p.id)
            JOIN ar a ON (ac.trans_id = a.id)
-           JOIN chart c ON (p.income_accno_id = c.id)
+           JOIN taxzone_charts t ON (p.buchungsgruppen_id = t.id)
+           JOIN chart c ON (t.income_accno_id = c.id)
            WHERE $invwhere
              $dpt_where
              $customer_where
