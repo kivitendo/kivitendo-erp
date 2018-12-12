@@ -96,7 +96,8 @@ sub _calculate_item {
 
   my $num_dec   = max 2, _num_decimal_places($item->sellprice);
 
-  # don't include rounded discount into sellprice
+
+  # don't include rounded discount into sellprice for calculation
   # any time the sellprice is multiplied with qty discount has to be considered as part of the multiplication
   my $sellprice = $item->sellprice;
 
@@ -161,10 +162,12 @@ sub _calculate_item {
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
 
+  my $item_sellprice = _round($sellprice * (1 - $item->discount), $num_dec);
+
   push @{ $data->{items} }, {
     linetotal      => $linetotal,
     linetotal_cost => $linetotal_cost,
-    sellprice      => $sellprice,
+    sellprice      => $item_sellprice,
     tax_amount     => $tax_amount,
     taxkey_id      => $taxkey->id,
   };
