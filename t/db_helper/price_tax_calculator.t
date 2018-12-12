@@ -269,45 +269,35 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
 
   my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item1, $item2, $item3);
 
-  # this is how price_tax_calculator is implemented. It differs from
-  # the way sales_order / invoice - forms are calculating:
-  # linetotal = sellprice 5.55 * qty 1 * (1 - 0.05) = 5.2725; rounded 5.27
-  # linetotal = sellprice 5.50 * qty 1 * (1 - 0.05) = 5.225 rounded 5.23
-  # linetotal = sellprice 5.00 * qty 1 * (1 - 0.05) = 4.75; rounded 4.75
-  # ...
-
   # item 1:
   # discount = sellprice 5.55 * discount (0.05) = 0.2775; rounded 0.28
-  # sellprice = sellprice 5.55 - discount 0.28 = 5.27; rounded 5.27
-  # linetotal = sellprice 5.27 * qty 1 = 5.27; rounded 5.27
+  # linetotal = sellprice 5.55 * (1 - discount 0.05) * qty 1 = 5.2725; rounded 5.27
   # 19%(5.27) = 1.0013; rounded = 1.00
   # total rounded = 6.27
 
   # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
-  # line marge_total = 3.34
+  # line marge_total = 5.27 - 1.93 = 3.34
   # line marge_percent = 63.3776091081594
 
   # item 2:
   # discount = sellprice 5.50 * discount 0.05 = 0.275; rounded 0.28
-  # sellprice = sellprice 5.50 - discount 0.28 = 5.22; rounded 5.22
-  # linetotal = sellprice 5.22 * qty 1 = 5.22; rounded 5.22
-  # 19%(5.22) = 0.9918; rounded = 0.99
-  # total rounded = 6.21
+  # linetotal = sellprice 5.50 * (1 - discount 0.05) * qty 1 = 5.225; rounded 5.23
+  # 19%(5.23) = .99370; rounded = 0.99
+  # total rounded = 6.22
 
   # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
-  # line marge_total = 5.22 - 1.93 = 3.29
-  # line marge_percent = 3.29/5.22 = 0.630268199233716
+  # line marge_total = 5.23 - 1.93 = 3.30
+  # line marge_percent = 3.30/5.23 = 0.630975143403442
 
   # item 3:
-  # discount = sellprice 5.00 * discount 0.25 = 0.25; rounded 0.25
-  # sellprice = sellprice 5.00 - discount 0.25 = 4.75; rounded 4.75
-  # linetotal = sellprice 4.75 * qty 1 = 4.75; rounded 4.75
+  # discount = sellprice 5.00 * discount 0.05 = 0.05 = 0.25; rounded 0.25
+  # linetotal = sellprice 5.00 (1 - discount 0.05) * qty 1 = 4.75; rounded 4.75
   # 19%(4.75) = 0.9025; rounded = 0.90
   # total rounded = 5.65
 
   # lastcost 1.93 * qty 1 = 1.93; rounded 1.93
-  # line marge_total = 2.82
-  # line marge_percent = 59.3684210526316
+  # line marge_total = 4.75 - 1.93 = 2.82
+  # line marge_percent = 2.82/4.75 = 59.3684210526316
 
   my $title = 'default invoice, three items, sellprice, rounding, discount';
   my %data  = $invoice->calculate_prices_and_taxes;
@@ -316,29 +306,29 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
   is($item1->marge_percent,      63.3776091081594,   "${title}: item1 marge_percent");
   is($item1->marge_price_factor, 1,                  "${title}: item1 marge_price_factor");
 
-  is($item2->marge_total,        3.29,               "${title}: item2 marge_total");
-  is($item2->marge_percent,      63.0268199233716,  "${title}: item2 marge_percent");
+  is($item2->marge_total,        3.30,               "${title}: item2 marge_total");
+  is($item2->marge_percent,      63.0975143403442,   "${title}: item2 marge_percent");
   is($item2->marge_price_factor, 1,                  "${title}: item2 marge_price_factor");
 
   is($item3->marge_total,        2.82,               "${title}: item3 marge_total");
   is($item3->marge_percent,      59.3684210526316,   "${title}: item3 marge_percent");
   is($item3->marge_price_factor, 1,                  "${title}: item3 marge_price_factor");
 
-  is($invoice->netamount,        5.27 + 5.22 + 4.75, "${title}: netamount");
+  is($invoice->netamount,        5.27 + 5.23 + 4.75, "${title}: netamount");
 
-  # 6.27 + 6.21 + 5.65 = 18.13
-  # 1.19*(5.27 + 5.22 + 4.75) = 18.1356; rounded 18.14
-  #is($invoice->amount,           6.27 + 6.21 + 5.65, "${title}: amount");
-  is($invoice->amount,           18.14,              "${title}: amount");
+  # 6.27 + 6.22 + 5.65 = 18.14
+  # 1.19*(5.27 + 5.23 + 4.75) = 18.1475; rounded 18.15
+  #is($invoice->amount,           6.27 + 6.22 + 5.65, "${title}: amount");
+  is($invoice->amount,           18.15,              "${title}: amount");
 
-  is($invoice->marge_total,      3.34 + 3.29 + 2.82, "${title}: marge_total");
-  is($invoice->marge_percent,    62.007874015748,    "${title}: marge_percent");
+  is($invoice->marge_total,      3.34 + 3.30 + 2.82, "${title}: marge_total");
+  is($invoice->marge_percent,    62.0327868852459,   "${title}: marge_percent");
 
   is_deeply(\%data, {
     allocated                                    => {},
     amounts                                      => {
       $buchungsgruppe->income_accno_id($taxzone) => {
-        amount                                   => 15.24,
+        amount                                   => 15.25,
         tax_id                                   => $tax->id,
         taxkey                                   => 3,
       },
@@ -358,10 +348,10 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
         tax_amount                               => 1.0013,
         taxkey_id                                => $taxkeys{$item1->parts_id}->id,
       },
-      { linetotal                                => 5.22,
+      { linetotal                                => 5.23,
         linetotal_cost                           => 1.93,
-        sellprice                                => 5.22,
-        tax_amount                               => 0.9918,
+        sellprice                                => 5.23,
+        tax_amount                               => 0.9937,
         taxkey_id                                => $taxkeys{$item2->parts_id}->id,
       },
       { linetotal                                => 4.75,
@@ -386,19 +376,11 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
 
   my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
 
-  # PTC and ar form calculate linetotal differently:
   # 6 parts for 0.60 with 3% discount
   #
-  # ar form:
   # linetotal = sellprice 0.60 * qty 6 * discount (1 - 0.03) = 3.492 rounded 3.49
   # total = 3.49 + 0.66 = 4.15
   #
-  # PTC:
-  # discount = sellprice 0.60 * discount (0.03) = 0.018; rounded 0.02
-  # sellprice = sellprice 0.60 - discount 0.02  = 0.58
-  # linetotal = sellprice 0.58 * qty 6 = 3.48
-  # 19%(3.48) = 0.6612; rounded = 0.66
-  # total rounded = 3.48 + 0.66 = 4.14
 
   my $title = 'default invoice, one item, sellprice, rounding, discount';
   my %data  = $invoice->calculate_prices_and_taxes;
@@ -435,6 +417,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
         taxkey_id                                => $taxkeys{$item->parts_id}->id,
       },
     ],
+    rounding                                     =>  0,
   }, "${title}: calculated data");
 }
 
@@ -449,21 +432,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
 
   my %taxkeys = map { ($_->id => $_->get_taxkey(date => DateTime->today_local, is_sales => 1, taxzone => $invoice->taxzone_id)) } uniq map { $_->part } ($item);
 
-  # PTC and ar form calculate linetotal differently:
-  # 6 parts for 0.60 with 3% discount
-  #
-  # ar form:
-  # linetotal = sellprice 0.60 * qty 6 * discount (1 - 0.03) = 3.492 rounded 3.49
-  # total = 3.49 + 0.66 = 4.15
-  #
-  # PTC:
-  # discount = sellprice 0.60 * discount (0.03) = 0.018; rounded 0.02
-  # sellprice = sellprice 0.60 - discount 0.02  = 0.58
-  # linetotal = sellprice 0.58 * qty 6 = 3.48
-  # 19%(3.48) = 0.6612; rounded = 0.66
-  # total rounded = 3.48 + 0.66 = 4.14
-
-  my $title = 'default invoice, one item, sellprice, rounding, discount';
+  my $title = 'default invoice, one item, 19% tax not included, rounding, discount, huge qty';
   my %data  = $invoice->calculate_prices_and_taxes;
 
   is($invoice->netamount,         9700,              "${title}: netamount");
@@ -512,3 +481,9 @@ test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty();
 
 clear_up();
 done_testing();
+
+# vim: ft=perl
+# set emacs to perl mode
+# Local Variables:
+# mode: perl
+# End:
