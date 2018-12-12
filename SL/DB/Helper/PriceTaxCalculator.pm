@@ -96,6 +96,7 @@ sub _calculate_item {
 
   my $num_dec   = max 2, _num_decimal_places($item->sellprice);
 
+  $item->discount(0) if !$item->discount;
 
   # don't include rounded discount into sellprice for calculation
   # any time the sellprice is multiplied with qty discount has to be considered as part of the multiplication
