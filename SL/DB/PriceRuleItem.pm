@@ -58,6 +58,15 @@ sub match_qty {
     return $_[0]->value_num >  $_[1]{record_item}->qty;
   }
 }
+sub match_ve {
+  if ($_[0]->op eq 'eq') {
+    return $_[0]->value_num == $_[1]{record_item}->part->ve;
+  } elsif ($_[0]->op eq 'le') {
+    return $_[0]->value_num <  $_[1]{record_item}->part->ve;
+  } elsif ($_[0]->op eq 'ge') {
+    return $_[0]->value_num >  $_[1]{record_item}->part->ve;
+  }
+}
 sub match_reqdate {
   if ($_[0]->op eq 'eq') {
     return $_[0]->value_date == $_[1]{record}->reqdate;
@@ -132,6 +141,13 @@ sub full_description {
      : $op eq 'gt' ? t8('Qty more than #1',          $self->value_num_as_number)
      : $op eq 'le' ? t8('Qty equal or less than #1', $self->value_num_as_number)
      : $op eq 'ge' ? t8('Qty equal or more than #1', $self->value_num_as_number)
+     : do { die "unknown op $op for type $type" } )
+  : $type eq 've' ? (
+       $op eq 'eq' ? t8('Ve equals #1',             $self->value_num_as_number)
+     : $op eq 'lt' ? t8('Ve less than #1',          $self->value_num_as_number)
+     : $op eq 'gt' ? t8('Ve more than #1',          $self->value_num_as_number)
+     : $op eq 'le' ? t8('Ve equal or less than #1', $self->value_num_as_number)
+     : $op eq 'ge' ? t8('Ve equal or more than #1', $self->value_num_as_number)
      : do { die "unknown op $op for type $type" } )
   : $type eq 'reqdate' ? (
        $op eq 'eq' ? t8('Reqdate is #1',        $self->value_date_as_date)
