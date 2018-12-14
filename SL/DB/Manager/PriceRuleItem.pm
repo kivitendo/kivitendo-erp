@@ -22,6 +22,7 @@ my %ops = (
   'date' => { eq => '=', lt => '<', gt => '>' },
 );
 
+<<<<<<< HEAD
 my @types = (
   { type => 'customer',   description => t8('Customer'),           customer => 1, vendor => 0, data_type => 'int',  data => sub { $_[0]->customer->id }, },
   { type => 'vendor',     description => t8('Vendor'),             customer => 0, vendor => 1, data_type => 'int',  data => sub { $_[0]->vendor->id }, },
@@ -32,6 +33,7 @@ my @types = (
   { type => 'pricegroup', description => t8('Pricegroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->pricegroup_id }, exclude_nulls => 1 },
   { type => 'partsgroup', description => t8('Partsgroup'),         customer => 1, vendor => 1, data_type => 'int',  data => sub { $_[1]->part->partsgroup_id }, exclude_nulls => 1 },
   { type => 'qty',        description => t8('Qty'),                customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->qty }, ops => 'num' },
+  { type => 've',         description => t8('Ve'),                 customer => 1, vendor => 1, data_type => 'num',  data => sub { $_[1]->part->ve }, ops => 'num' },
 );
 
 # text, textfield, htmlfield, bool are not supported
