@@ -14,6 +14,7 @@ __PACKAGE__->meta->columns(
   itime               => { type => 'timestamp' },
   mtime               => { type => 'timestamp' },
   name                => { type => 'text' },
+  notes               => { type => 'text', default => '' },
   obsolete            => { type => 'boolean', default => 'false', not_null => 1 },
   price               => { type => 'numeric', precision => 15, scale => 5 },
   price_rule_macro_id => { type => 'integer' },
