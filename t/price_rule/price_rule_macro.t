@@ -203,6 +203,7 @@ my @test_cases = (
 	"name": "SRV0815 Warengruppen -> Kundengruppen",
 	"priority": 3,
 	"obsolete": 0,
+    "type": "customer",
 	"format_version": 1,
 	"condition": {
 	  "type": "container_or",
