@@ -155,7 +155,7 @@ sub from_json_definition {
   my ($self) = @_;
 
   my $obj = SL::DB::PriceRuleMacro->new(%{ $::form->{price_rule_macro} });
-  $obj->$_($obj->definition->{$_}) for qw(name priority obsolete);
+  $obj->$_($obj->definition->{$_}) for qw(name priority obsolete type);
   $obj;
 }
 
