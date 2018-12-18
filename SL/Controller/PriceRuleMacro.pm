@@ -66,7 +66,9 @@ sub action_save {
         $_->save(cascade => 1);
       }
       1;
-    });
+    }) or do {
+      die $macro->db->error;
+    }
   } or do {
     $error = $@ // $macro->db->error;
   };
