@@ -123,11 +123,16 @@ package SL::PriceRuleMacro::Element {
     }
 
     my $self = bless {}, $class;
+    $self->init(@_);
+    $self;
+  }
 
+  sub init {
+    my ($self) = shift;
     while (@_) {
       my $method = shift;
       my $value  = shift;
-      if ($class->can($method)) {
+      if ($self->can($method)) {
         my $type = $classes{$method};
         if ($type) {
           if ('ARRAY' eq ref $value) {
@@ -139,10 +144,9 @@ package SL::PriceRuleMacro::Element {
           $self->$method($value);
         }
       } else {
-        die "format error: $method is not accepted in $class";
+        die "format error: $method is not accepted in @{[ ref $self ]}";
       }
     }
-    $self;
   }
 
   sub elements {
@@ -207,8 +211,15 @@ package SL::PriceRuleMacro::Definition {
   our @ISA      = ('SL::PriceRuleMacro::Element');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
+  sub new {
+    my $class = shift;
+    my $self = bless {}, $class;
+    $self->init(@_);
+    $self;
+  }
+
   sub elements {
-    qw(condition action name priority obsolete format_version)
+    qw(condition action name priority obsolete format_version type)
   }
 
   sub array_elements {
