@@ -16,6 +16,8 @@ use SL::Presenter::Business;
 use SL::Presenter::PartsGroup;
 use SL::Presenter::Pricegroup;
 
+use SL::DB::Helper::Attr;
+
 __PACKAGE__->meta->add_relationship(
   price_rules => {
     type         => 'one to many',
@@ -468,9 +470,10 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
 package SL::PriceRuleMacro::Condition::Qty {
   our @ISA = ('SL::PriceRuleMacro::Condition');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, 'num', 'numeric');
 
   sub elements {
-    qw(qty op)
+    qw(num op)
   }
 
   sub type {
@@ -482,13 +485,14 @@ package SL::PriceRuleMacro::Condition::Qty {
   }
 
   sub price_rule_items {
-    [ SL::DB::PriceRuleItem->new(value_num => $_[0]->qty, op => $_[0]->op, type => $_[0]->type) ];
+    [ SL::DB::PriceRuleItem->new(value_num => $_[0]->num, op => $_[0]->op, type => $_[0]->type) ];
   }
 }
 
 package SL::PriceRuleMacro::Condition::QtyRange {
   our @ISA = ('SL::PriceRuleMacro::Condition');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(min max);
 
   sub elements {
     qw(min max)
@@ -510,13 +514,23 @@ package SL::PriceRuleMacro::Condition::QtyRange {
   }
 }
 
-package SL::PriceRuleMacro::Condition::Reqdate {
+package SL::PriceRuleMacro::DateCondition {
   our @ISA = ('SL::PriceRuleMacro::Condition');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, 'date', 'date');
+
 
   sub elements {
-    qw(reqdate op)
+    qw(date op)
   }
+
+  sub price_rule_items {
+    [ SL::DB::PriceRuleItem->new(value_date => $_[0]->date, op => $_[0]->op, type => $_[0]->type) ];
+  }
+}
+
+package SL::PriceRuleMacro::Condition::Reqdate {
+  our @ISA = ('SL::PriceRuleMacro::DateCondition');
 
   sub type {
     'reqdate'
@@ -525,19 +539,10 @@ package SL::PriceRuleMacro::Condition::Reqdate {
   sub description {
     SL::Locale::String::t8('Reqdate')
   }
-
-  sub price_rule_items {
-    [ SL::DB::PriceRuleItem->new(value_date => $_[0]->reqdate, op => $_[0]->op, type => $_[0]->type) ];
-  }
 }
 
 package SL::PriceRuleMacro::Condition::Transdate {
-  our @ISA = ('SL::PriceRuleMacro::Condition');
-  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
-
-  sub elements {
-    qw(transdate)
-  }
+  our @ISA = ('SL::PriceRuleMacro::DateCondition');
 
   sub type {
     'transdate'
@@ -545,10 +550,6 @@ package SL::PriceRuleMacro::Condition::Transdate {
 
   sub description {
     SL::Locale::String::t8('Transdate')
-  }
-
-  sub price_rule_items {
-    [ SL::DB::PriceRuleItem->new(value_date => $_[0]->transdate, op => $_[0]->op, type => $_[0]->type) ];
   }
 }
 
@@ -607,6 +608,7 @@ package SL::PriceRuleMacro::ConditionalAction {
 package SL::PriceRuleMacro::Action::Simple {
   our @ISA = ('SL::PriceRuleMacro::Action');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
 
   sub elements {
     qw(price discount reduction)
