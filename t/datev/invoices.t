@@ -321,7 +321,7 @@ $datev->generate_datev_data(from_to => $datev->fromto);
 cmp_deeply $datev->generate_datev_lines, [], "no bookings for January made after May 1st: ok";
 
 done_testing();
-# clear_up();
+clear_up();
 
 sub new_purchase_invoice {
   # manually create a Kreditorenbuchung from scratch, ap + acc_trans bookings, as no helper exists yet, like $invoice->post.
