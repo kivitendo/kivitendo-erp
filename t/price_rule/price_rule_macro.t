@@ -20,6 +20,7 @@ my @test_cases = (
       "priority": 3,
       "obsolete": 0,
       "format_version": 1,
+      "type": "customer",
       "condition": {
         "type": "container_and",
         "condition": [
@@ -49,6 +50,7 @@ my @test_cases = (
   "priority": 3,
   "obsolete": 1,
   "format_version": 1,
+  "type": "vendor",
   "condition": {
     "type": "container_and",
     "condition": [
@@ -93,6 +95,7 @@ my @test_cases = (
 	"priority": 3,
 	"obsolete": 1,
 	"format_version": 1,
+    "type": "customer",
 	"condition": {
 	  "type": "container_and",
 	  "condition": [
@@ -149,6 +152,7 @@ my @test_cases = (
 	"priority": 3,
 	"obsolete": 0,
 	"format_version": 1,
+    "type": "vendor",
 	"condition": {
 	  "type": "part",
 	  "id": 815
@@ -270,6 +274,7 @@ my @test_cases = (
       "priority": 3,
       "obsolete": 0,
       "format_version": 1,
+      "type": "customer",
       "condition": {
         "type": "container_and",
         "condition": [
@@ -292,6 +297,39 @@ my @test_cases = (
   ],
   name => 'simple business with array of ids',
 },
+{ json =>
+   '{
+      "name": "Test simple parsed attrs",
+      "priority": 3,
+      "obsolete": 0,
+      "format_version": 1,
+      "type": "customer",
+      "condition": {
+        "type": "container_and",
+        "condition": [
+          {
+            "type": "qty",
+            "op": "eq",
+            "num_as_number": "23,14"
+          },
+          {
+            "type": "reqdate",
+            "date_as_date": "07.12.2018",
+            "op": "lt"
+          }
+        ]
+      },
+      "action": {
+        "type": "simple_action",
+        "discount_as_number": "4,00"
+      }
+    }',
+  digest => [
+     "-4-qtyeq--23.14reqdatelt2018-12-07--",
+  ],
+  no_roundtrip => 1,
+  name => 'simple business discount',
+},
 );
 
 $::request->type('json');
@@ -301,7 +339,8 @@ open my $stdout_fh, '>', \my $stdout or die;
 for my $case (@test_cases) {
   my $m = SL::DB::PriceRuleMacro->new(json_definition => $case->{json});
 
-  is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip";
+  is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip"
+    unless $case->{no_roundtrip};
   cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests match";
 
   {
@@ -316,9 +355,15 @@ for my $case (@test_cases) {
       type            => 'customer',
     };
 
-    my $json_result = $c->action_save;
-    my $result      = SL::JSON::from_json("$json_result");
-    ok $result->{id}, "$case->{name}: save";
+    my $result;
+    eval {
+      my $json_result = $c->action_save;
+      $result      = SL::JSON::from_json("$json_result");
+      ok $result->{id}, "$case->{name}: save";
+      1;
+    } or do {
+      ok 0, "$case->{name} - exception: $@";
+    };
 
     $m = SL::DB::PriceRuleMacro->new(id => $result->{id})->load;
 
