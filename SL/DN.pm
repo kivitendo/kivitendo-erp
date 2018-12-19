@@ -37,6 +37,7 @@ package DN;
 
 use SL::Common;
 use SL::DBUtils;
+use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
 use SL::GenericTranslations;
@@ -386,8 +387,8 @@ sub send_email {
   my $query =
     qq|SELECT
          dcfg.email_body,     dcfg.email_subject, dcfg.email_attachment,
-         c.email AS recipient
-
+         COALESCE (NULLIF(c.invoice_mail, ''), c.email) AS recipient, c.name,
+         (SELECT login from employee where id = ar.employee_id) as invoice_employee_login
        FROM dunning d
        LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
        LEFT JOIN ar                  ON (d.trans_id          = ar.id)
@@ -396,15 +397,29 @@ sub send_email {
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
 
-  if (!$ref || !$ref->{recipient} || !$myconfig->{email}) {
+  # without a recipient, we cannot send a mail
+  if (!$ref || !$ref->{recipient}) {
     $main::lxdebug->leave_sub();
-    return;
+    $form->error($main::locale->text("No email recipient for customer #1 defined.", $ref->{name}));
+  }
+
+  # without a sender we cannot send a mail
+  # two cases: check mail from 1. current user OR  2. employee who created the invoice
+  my $from;
+  if ($::instance_conf->get_dunning_creator eq 'current_employee') {
+    $from = $myconfig->{email};
+    $form->error($main::locale->text('No email for current user #1 defined.', $myconfig->{name})) unless $from;
+  } else {
+    eval {
+      $from = SL::DB::Manager::AuthUser->find_by(login =>  $ref->{invoice_employee_login})->get_config_value("email");
+      1;
+    } or do { $form->error($main::locale->text('No email for user with login #1 defined.', $ref->{invoice_employee_login})) };
   }
 
   my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
   my $mail         = Mailer->new();
   $mail->{bcc}     = $form->get_bcc_defaults($myconfig, $form->{bcc});
-  $mail->{from}    = $myconfig->{email};
+  $mail->{from}    = $from;
   $mail->{to}      = $ref->{recipient};
   $mail->{subject} = $template->parse_block($ref->{email_subject});
   $mail->{message} = $template->parse_block($ref->{email_body});
