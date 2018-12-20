@@ -330,6 +330,44 @@ my @test_cases = (
   no_roundtrip => 1,
   name => 'simple business discount',
 },
+{ json =>
+  '{
+    "action": {
+        "price": "321",
+        "discount": null,
+        "reduction": null,
+        "type": "simple_action"
+    },
+    "condition": {
+        "type": "container_and",
+        "condition": [{
+            "type": "container_and",
+            "condition": [
+              {
+                "type": "vendor",
+                "id": 126564
+              },
+              {
+                "type": "ve",
+                "op": "gt",
+                "num_as_number": 14
+              }
+            ]
+        }]
+    },
+    "format_version": "1",
+    "name": "Test",
+    "notes": "Dies ist ein Kommentar",
+    "obsolete": "0",
+    "priority": "3",
+    "type": "customer"
+  }',
+  digest => [
+    '321--vegt--14vendor-126564-',
+  ],
+  name => 'null in discount',
+  no_roundtrip => 1,
+},
 );
 
 $::request->type('json');
