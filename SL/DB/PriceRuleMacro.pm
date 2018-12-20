@@ -75,6 +75,7 @@ my %classes = (
   part                  => 'SL::PriceRuleMacro::Condition::Part',
   partsgroup            => 'SL::PriceRuleMacro::Condition::Partsgroup',
   pricegroup            => 'SL::PriceRuleMacro::Condition::Pricegroup',
+  ve                    => 'SL::PriceRuleMacro::Condition::Ve',
   qty                   => 'SL::PriceRuleMacro::Condition::Qty',
   qty_range             => 'SL::PriceRuleMacro::Condition::QtyRange',
   reqdate               => 'SL::PriceRuleMacro::Condition::Reqdate',
@@ -221,7 +222,7 @@ package SL::PriceRuleMacro::Definition {
   }
 
   sub elements {
-    qw(condition action name priority obsolete format_version type)
+    qw(condition action name notes priority obsolete format_version type)
   }
 
   sub array_elements {
@@ -464,6 +465,28 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
     my $name  = delete $params{name};
     my $value = delete $params{id};
     SL::Presenter::Pricegroup::pricegroup_picker($name, $value);
+  }
+}
+
+package SL::PriceRuleMacro::Condition::Ve {
+  our @ISA = ('SL::PriceRuleMacro::Condition');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, 'num', 'numeric');
+
+  sub elements {
+    qw(num op)
+  }
+
+  sub type {
+    've'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Ve')
+  }
+
+  sub price_rule_items {
+    [ SL::DB::PriceRuleItem->new(value_num => $_[0]->num, op => $_[0]->op, type => $_[0]->type) ];
   }
 }
 
