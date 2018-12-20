@@ -443,7 +443,7 @@ cpan HTML::Restrict</programlisting>
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</para>
 
-          <programlisting>dnf install httpd mod_fcgid postgresql-server \
+          <programlisting>dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
   perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
   perl-DateTime perl-DateTime-Set perl-Email-Address perl-Email-MIME perl-FCGI \
@@ -463,7 +463,7 @@ cpan HTML::Restrict</programlisting>
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</para>
 
-          <programlisting>zypper install apache2 apache2-mod_fcgid postgresql-server \
+          <programlisting>zypper install apache2 apache2-mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CGI perl-Class-XSAccessor \
   perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
   perl-DateTime perl-DateTime-Format-Strptime perl-Email-Address \
@@ -816,7 +816,19 @@ default_manager = german</programlisting>
       <title>Anpassung der PostgreSQL-Konfiguration</title>
 
       <para>PostgreSQL muss auf verschiedene Weisen angepasst werden.</para>
-
+      <para>Dies variert je nach eingesetzter Distribution, da distributionsabhängig unterschiedliche Strategien beim Upgrade der Postgres Version eingesetzt werden.
+            Als Hinweis einige Links zu den drei Distribution (Stand Dezember 2018):</para>
+          <itemizedlist>
+            <listitem>
+            <ulink url="https://fedoraproject.org/wiki/PostgreSQL">Fedora (Postgres-Installation unter Fedora)</ulink>
+            </listitem>
+            <listitem>
+            <ulink url="https://help.ubuntu.com/lts/serverguide/postgresql.html">Ubuntu (Infos für Postgres für die aktuelle LTS Version)</ulink>
+            </listitem>
+            <listitem>
+            <ulink url="https://de.opensuse.org/PostgreSQL">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</ulink>
+            </listitem>
+          </itemizedlist>
       <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
         <title>Zeichensätze/die Verwendung von Unicode/UTF-8</title>
 
