@@ -28,6 +28,10 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+# attributes that are both in price_rule_macros, the json definition and the
+# price_rules and need to be copied between them
+my @dual_attributes = qw(name priority obsolete type notes);
+
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parsed_definition) ],
 );
@@ -35,25 +39,25 @@ use Rose::Object::MakeMethods::Generic (
 sub definition {
   my ($self, $data) = @_;
   $self->json_definition(SL::JSON::to_json($data)) if $data;
-  SL::JSON::from_json($self->json_definition);
+  SL::JSON::from_json($self->json_definition) if defined wantarray;
 }
 
 sub update_definition {
-  my ($self, $data) = @_;
-  $self->definition->{$_} = $self->$_ for qw(name priority obsolete type);
+  my ($self) = @_;
+  $self->definition->{$_} = $self->$_ for @dual_attributes;
   $self->definition($self->definition);
+}
+
+sub update_from_definition {
+  my ($self) = @_;
+  $self->$_($self->definition->{$_}) for @dual_attributes;
 }
 
 sub copy_attributes_to_price_rules {
   my ($self, @price_rules) = @_;
 
-  for (@price_rules) {
-    $_->assign_attributes(
-      name     => $self->name,
-      obsolete => $self->obsolete,
-      priority => $self->priority,
-      type     => $self->type,
-    );
+  for my $price_rule (@price_rules) {
+    $price_rule->assign_attributes($_ => $self->$_) for @dual_attributes;
   }
 }
 
