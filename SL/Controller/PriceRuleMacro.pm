@@ -45,7 +45,8 @@ sub action_save {
       # set removes rules to obsolete
       $_->assign_attributes(obsolete => 1, price_rule_macro_id => undef) for @$remove;
 
-      $macro->$_($new_macro->$_) for qw(name type priority obsolete definition);
+      $macro->definition($new_macro->definition);
+      $macro->update_from_definition;
     } else {
       $macro = $new_macro;
       ($keep, $add, $remove) = ([], [ $macro->parsed_definition->price_rules ], []);
@@ -155,7 +156,7 @@ sub from_json_definition {
   my ($self) = @_;
 
   my $obj = SL::DB::PriceRuleMacro->new(%{ $::form->{price_rule_macro} });
-  $obj->$_($obj->definition->{$_}) for qw(name priority obsolete type);
+  $obj->update_from_definition;
   $obj;
 }
 
