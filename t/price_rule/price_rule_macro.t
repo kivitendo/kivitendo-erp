@@ -368,6 +368,47 @@ my @test_cases = (
   name => 'null in discount',
   no_roundtrip => 1,
 },
+{ json =>
+  '{
+    "action": {
+        "price": "321",
+        "discount": null,
+        "reduction": null,
+        "type": "simple_action"
+    },
+    "condition": {
+        "type": "container_and",
+        "condition": [{
+            "type": "container_and",
+            "condition": [
+              {
+                "type": "vendor",
+                "id": 126564
+              },
+              {
+                "type": "ve",
+                "op": "gt",
+                "num_as_number": 14
+              }
+            ]
+        }]
+    },
+    "format_version": "1",
+    "name": "Test",
+    "notes": "Dies ist ein Kommentar",
+    "obsolete": "0",
+    "priority": "3",
+    "type": "customer"
+  }',
+  form => {
+    'price_rule_macro.id' => '',
+  },
+  digest => [
+    '321--vegt--14vendor-126564-',
+  ],
+  name => 'null in discount',
+  no_roundtrip => 1,
+},
 );
 
 $::request->type('json');
@@ -392,6 +433,12 @@ for my $case (@test_cases) {
       name            => $case->{name},
       type            => 'customer',
     };
+
+    if ($case->{form}) {
+      SL::Request::_store_value($::form, $_, $case->{$_}) for keys %{ $case->{form} };
+    }
+
+    $::lxdebug->dump(0,  "form", $::form);
 
     my $result;
     eval {
