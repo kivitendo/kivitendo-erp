@@ -141,7 +141,7 @@ package SL::PriceRuleMacro::Element {
   }
 
   sub init {
-    my ($self) = shift;
+    my $self = shift;
     while (@_) {
       my $method = shift;
       my $value  = shift;
