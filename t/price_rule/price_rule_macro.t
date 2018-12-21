@@ -406,8 +406,111 @@ my @test_cases = (
   digest => [
     '321--vegt--14vendor-126564-',
   ],
-  name => 'null in discount',
+  name => 'empty string in id',
   no_roundtrip => 1,
+},
+{ json =>
+  '{
+    "action": {
+        "price": "321",
+        "discount": null,
+        "reduction": null,
+        "type": "simple_action"
+    },
+    "condition": {
+        "type": "container_and",
+        "condition": [{
+            "type": "container_and",
+            "condition": [
+              {
+                "type": "vendor"
+              },
+              {
+                "type": "ve",
+                "op": "gt",
+                "num_as_number": 14
+              }
+            ]
+        }]
+    },
+    "format_version": "1",
+    "name": "Test",
+    "notes": "Dies ist ein Kommentar",
+    "obsolete": "0",
+    "priority": "3",
+    "type": "customer"
+  }',
+  dies_ok => qr/condition of type 'vendor' needs an id/,
+  name => 'missing id in vendor condition',
+},
+{ json =>
+  '{
+    "action": {
+        "price": "321",
+        "discount": null,
+        "reduction": null,
+        "type": "simple_action"
+    },
+    "condition": {
+        "type": "container_and",
+        "condition": [{
+            "type": "container_and",
+            "condition": [
+              {
+                "type": "vendor",
+                "id": 14
+              },
+              {
+                "type": "ve",
+                "num_as_number": 14
+              }
+            ]
+        }]
+    },
+    "format_version": "1",
+    "name": "Test",
+    "notes": "Dies ist ein Kommentar",
+    "obsolete": "0",
+    "priority": "3",
+    "type": "customer"
+  }',
+  dies_ok => qr/condition of type 've' needs an op/,
+  name => 'missing op in ve condition',
+},
+{ json =>
+  '{
+    "action": {
+        "price": null,
+        "discount": null,
+        "reduction": null,
+        "type": "simple_action"
+    },
+    "condition": {
+        "type": "container_and",
+        "condition": [{
+            "type": "container_and",
+            "condition": [
+              {
+                "type": "vendor",
+                "id": 14
+              },
+              {
+                "type": "ve",
+                "op": "ge",
+                "num_as_number": 14
+              }
+            ]
+        }]
+    },
+    "format_version": "1",
+    "name": "Test",
+    "notes": "Dies ist ein Kommentar",
+    "obsolete": "0",
+    "priority": "3",
+    "type": "customer"
+  }',
+  dies_ok => qr/action of type 'simple_action' needs at least/,
+  name => 'missing price/discount/reduction in action',
 },
 );
 
@@ -418,43 +521,46 @@ open my $stdout_fh, '>', \my $stdout or die;
 for my $case (@test_cases) {
   my $m = SL::DB::PriceRuleMacro->new(json_definition => $case->{json});
 
-  is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip"
-    unless $case->{no_roundtrip};
-  cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests match";
+  if ($case->{dies_ok}) {
+    throws_ok { $m->validate } $case->{dies_ok}, "$case->{name}: expect exeption";
+  } else {
+    is_deeply $m->definition, $m->parsed_definition->as_tree, "$case->{name}: parse_definition and as_tree roundtrip"
+      unless $case->{no_roundtrip};
+    cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests match";
 
-  {
-    $stdout = undef;
-    local *STDOUT = $stdout_fh;
+    {
+      $stdout = undef;
+      local *STDOUT = $stdout_fh;
 
-    my $c = SL::Controller::PriceRuleMacro->new;
+      my $c = SL::Controller::PriceRuleMacro->new;
 
-    $::form->{price_rule_macro} = {
-      json_definition => $case->{json},
-      name            => $case->{name},
-      type            => 'customer',
-    };
+      $::form->{price_rule_macro} = {
+        json_definition => $case->{json},
+        name            => $case->{name},
+        type            => 'customer',
+      };
 
-    if ($case->{form}) {
-      SL::Request::_store_value($::form, $_, $case->{$_}) for keys %{ $case->{form} };
+      if ($case->{form}) {
+        SL::Request::_store_value($::form, $_, $case->{$_}) for keys %{ $case->{form} };
+      }
+
+      my $result;
+      eval {
+        my $json_result = $c->action_save;
+        $result         = SL::JSON::from_json("$json_result");
+        ok $result->{id}, "$case->{name}: save (got id: $result->{id})";
+        diag("error: $json_result") unless $result->{id};
+        1;
+      } or do {
+        ok 0, "$case->{name} - exception: $@";
+      };
+
+      $m = SL::DB::PriceRuleMacro->new(id => $result->{id})->load;
+
+      isa_ok $m, 'SL::DB::PriceRuleMacro', "$case->{name}: load";
+
+      cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests still match";
     }
-
-    $::lxdebug->dump(0,  "form", $::form);
-
-    my $result;
-    eval {
-      my $json_result = $c->action_save;
-      $result      = SL::JSON::from_json("$json_result");
-      ok $result->{id}, "$case->{name}: save";
-      1;
-    } or do {
-      ok 0, "$case->{name} - exception: $@";
-    };
-
-    $m = SL::DB::PriceRuleMacro->new(id => $result->{id})->load;
-
-    isa_ok $m, 'SL::DB::PriceRuleMacro', "$case->{name}: load";
-
-    cmp_deeply [ map { $_->digest } $m->parsed_definition->price_rules ], bag(@{ $case->{digest} }), "$case->{name}: digests still match";
   }
 }
 
