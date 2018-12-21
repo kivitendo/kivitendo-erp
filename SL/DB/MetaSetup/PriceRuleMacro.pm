@@ -14,6 +14,7 @@ __PACKAGE__->meta->columns(
   json_definition => { type => 'scalar', not_null => 1 },
   mtime           => { type => 'timestamp' },
   name            => { type => 'text', not_null => 1 },
+  notes           => { type => 'text', default => '' },
   obsolete        => { type => 'boolean', default => 'false', not_null => 1 },
   priority        => { type => 'integer', default => 3, not_null => 1 },
   type            => { type => 'text', not_null => 1 },
