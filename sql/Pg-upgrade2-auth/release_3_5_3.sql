@@ -1,0 +1,3 @@
+-- @tag: release_3_5_3
+-- @description: Abhängigkeitsscript für Release 3.5.3
+-- @depends: release_3_5_2 customer_vendor_record_extra_tab_rights
