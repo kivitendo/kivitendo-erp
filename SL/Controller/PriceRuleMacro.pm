@@ -157,6 +157,7 @@ sub from_json_definition {
 
   my $obj = SL::DB::PriceRuleMacro->new(%{ $::form->{price_rule_macro} });
   $obj->update_from_definition;
+  $obj->validate;
   $obj;
 }
 

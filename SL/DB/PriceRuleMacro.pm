@@ -36,6 +36,12 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parsed_definition) ],
 );
 
+sub validate {
+  my ($self) = @_;
+
+  $self->parsed_definition->validate;
+}
+
 sub definition {
   my ($self, $data) = @_;
   $self->json_definition(SL::JSON::to_json($data)) if $data;
@@ -175,6 +181,16 @@ package SL::PriceRuleMacro::Element {
       return 1 if $_ eq $_[1]
     }
     return 0
+  }
+
+  sub validate {
+    my ($self) = @_;
+
+    for ($self->elements) {
+      if ($classes{$_} && $self->$_) {
+        $_->validate for SL::MoreCommon::listify($self->$_);
+      }
+    }
   }
 
   sub as_tree {
@@ -349,6 +365,10 @@ package SL::PriceRuleMacro::IdCondition {
     qw(id)
   }
 
+  sub validate {
+    die "condition of type '@{[ $_[0]->type ]}' needs an id" unless $_[0]->id;
+  }
+
   sub array_elements {
     qw(id)
   }
@@ -489,6 +509,11 @@ package SL::PriceRuleMacro::Condition::Ve {
     SL::Locale::String::t8('Ve')
   }
 
+  sub validate {
+    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
+    die "condition of type '@{[ $_[0]->type ]}' needs a num" unless defined $_[0]->num;
+  }
+
   sub price_rule_items {
     [ SL::DB::PriceRuleItem->new(value_num => $_[0]->num, op => $_[0]->op, type => $_[0]->type) ];
   }
@@ -509,6 +534,11 @@ package SL::PriceRuleMacro::Condition::Qty {
 
   sub description {
     SL::Locale::String::t8('Qty')
+  }
+
+  sub validate {
+    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
+    die "condition of type '@{[ $_[0]->type ]}' needs a num" unless defined $_[0]->num;
   }
 
   sub price_rule_items {
@@ -533,6 +563,11 @@ package SL::PriceRuleMacro::Condition::QtyRange {
     SL::Locale::String::t8('Qty Range')
   }
 
+  sub validate {
+    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
+    die "condition of type '@{[ $_[0]->type ]}' needs at least min or max" if !defined $_[0]->min && !defined $_[0]->max;
+  }
+
   sub price_rule_items {
     [
       SL::DB::PriceRuleItem->new(value_num => $_[0]->min, op => 'ge', type => 'qty'),
@@ -549,6 +584,11 @@ package SL::PriceRuleMacro::DateCondition {
 
   sub elements {
     qw(date op)
+  }
+
+  sub validate {
+    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
+    die "condition of type '@{[ $_[0]->type ]}' needs a date" unless defined $_[0]->date;
   }
 
   sub price_rule_items {
@@ -612,6 +652,11 @@ package SL::PriceRuleMacro::ConditionalAction {
     SL::Locale::String::t8('Conditional Action (PriceRules)')
   }
 
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least one condition" unless SL::MoreCommon::listify($_[0]->condition);
+    die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+  }
+
   sub price_rules {
     my ($self) = @_;
     my @price_rules = map { $_->price_rules }      SL::MoreCommon::listify($_[0]->action);
@@ -647,6 +692,11 @@ package SL::PriceRuleMacro::Action::Simple {
 
   sub description {
     SL::Locale::String::t8('Simple Action (PriceRules)')
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least price, discount or reduction"
+      if !defined $_[0]->price && !defined $_[0]->discount && !defined $_[0]->reduction;
   }
 
   sub price_rules {
