@@ -26,20 +26,14 @@
 } % Ende USD
 
 % Briefkopf, Logo oder Briefpapier
-%% \IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
-  % Grafik als Briefkopf
-  %%\setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
+%%\IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
+  % Nur ein Logo oben rechts
   \setlength{\wpYoffset}{130mm} % Verschiebung von der Mitte nach oben
-  \CenterWallPaper{0.885}{\identpath/briefkopf.png} % mit Skalierung
-
-  % oder nur ein Logo oben rechts
-  %% \setlength{\wpXoffset}{180pt} % Verschiebung von der Mitte nach rechts
-  %% \setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
-  %% \CenterWallPaper{0.1}{\identpath/logo.png} % mit Skalierung
-
+  \setlength{\wpXoffset}{-68mm} % Verschiebung von der Mitte nach rechts
+  \CenterWallPaper{0.2}{\identpath/briefkopf.png} % mit Skalierung
   % oder ganzer Briefbogen als Hintergrund
   %% \CenterWallPaper{1}{\identpath/briefbogen.pdf}
-%% }
+%%} % Mail-Ende
 
 
 % keine Absätze nach rechts einrücken
