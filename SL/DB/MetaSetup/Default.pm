@@ -60,6 +60,7 @@ __PACKAGE__->meta->columns(
   dunning_ar                                => { type => 'integer' },
   dunning_ar_amount_fee                     => { type => 'integer' },
   dunning_ar_amount_interest                => { type => 'integer' },
+  dunning_creator                           => { type => 'enum', check_in => [ 'current_employee', 'invoice_employee' ], db_type => 'dunning_creator', default => 'current_employee' },
   duns                                      => { type => 'text' },
   email_journal                             => { type => 'integer', default => 2 },
   expense_accno_id                          => { type => 'integer' },

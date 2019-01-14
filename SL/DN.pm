@@ -38,6 +38,7 @@ package DN;
 use SL::Common;
 use SL::DBUtils;
 use SL::DB::Default;
+use SL::DB::Employee;
 use SL::GenericTranslations;
 use SL::IS;
 use SL::Mailer;
@@ -71,9 +72,10 @@ sub get_config {
   }
 
   $query =
-    qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar
+    qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar, dunning_creator
        FROM defaults|;
-  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}) = selectrow_query($form, $dbh, $query);
+  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}, $form->{dunning_creator})
+    = selectrow_query($form, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 }
@@ -135,8 +137,10 @@ sub _save_config {
     }
   }
 
-  $query  = qq|UPDATE defaults SET dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?|;
-  @values = (conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR}));
+  $query  = qq|UPDATE defaults SET dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?,
+               dunning_creator = ?|;
+  @values = (conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR}),
+             $form->{dunning_creator});
   do_query($form, $dbh, $query, @values);
 
   return 1;
@@ -907,7 +911,11 @@ sub print_dunning {
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'path' => "${spool}/$filename",
                                            'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
-  $form->get_employee_data('prefix' => 'employee', 'id' => $form->{employee_id});
+  my $employee_id = ($::instance_conf->get_dunning_creator eq 'invoice_employee') ?
+                      $form->{employee_id}                                        :
+                      SL::DB::Manager::Employee->current->id;
+
+  $form->get_employee_data('prefix' => 'employee', 'id' => $employee_id);
   $form->get_employee_data('prefix' => 'salesman', 'id' => $form->{salesman_id});
 
   $form->{attachment_type}    = "dunning";

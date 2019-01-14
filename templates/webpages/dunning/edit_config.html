@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
+[%- USE LxERP -%][%- USE L -%]
 <h1>[% title %]</h1>
 
  <script type="text/javascript" src="js/common.js"></script>
@@ -117,6 +118,11 @@
       [% FOREACH row = SELECT_AR %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
       [% END %]
      </select>
+    </td>
+   </tr>
+   <tr>
+    <th align="right">[% 'Dunning Creator' | $T8 %]</th>
+    <td>[% L.select_tag('dunning_creator', [ [ 'current_employee', LxERP.t8('Current Employee') ],[ 'invoice_employee', LxERP.t8('Employee from the original invoice') ]  ], default=dunning_creator) %]
     </td>
    </tr>
   </table>
