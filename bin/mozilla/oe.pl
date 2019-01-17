@@ -1779,7 +1779,8 @@ sub save_as_new {
   if ( $form->{reqdate} && $form->{id} ) {
     my $saved_order = OE->retrieve_simple(id => $form->{id});
     if ( $saved_order && $saved_order->{reqdate} eq $form->{reqdate} && $saved_order->{transdate} eq $form->{transdate} ) {
-      my $extra_days     = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval : 1;
+      my $extra_days = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
+                       $form->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
       $form->{reqdate}   = DateTime->today_local->next_workday(extra_days => $extra_days)->to_kivitendo;
       $form->{transdate} = DateTime->today_local->to_kivitendo;
     }

@@ -91,5 +91,10 @@
    <td>[% L.input_tag('defaults.reqdate_interval', LxERP.format_amount(SELF.defaults.reqdate_interval, 0), style=style) %]</td>
    <td>[% LxERP.t8('Usually the sales quotation is valid until the next working day. If a value is set here then the quotation will be valid for at least that many days. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Sales Order delivery date interval') %]</td>
+   <td>[% L.input_tag('defaults.delivery_date_interval', LxERP.format_amount(SELF.defaults.delivery_date_interval, 0), style=style) %]</td>
+   <td>[% LxERP.t8('Usually the delivery date of an order is the next working day. If a value is set here this value will be added to the delivery date of the sales order. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
+  </tr>
  </table>
 </div>

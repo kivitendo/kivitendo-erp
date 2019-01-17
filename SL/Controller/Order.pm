@@ -58,8 +58,10 @@ sub action_add {
   my ($self) = @_;
 
   $self->order->transdate(DateTime->now_local());
-  my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+  my $extra_days = $self->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
+                   $self->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
   $self->order->reqdate(DateTime->today_local->next_workday(extra_days => $extra_days)) if !$self->order->reqdate;
+
 
   $self->pre_render();
   $self->render(
@@ -210,7 +212,8 @@ sub action_save_as_new {
 
   # Set new reqdate unless changed
   if ($order->reqdate == $saved_order->reqdate) {
-    my $extra_days = $self->type eq sales_quotation_type() ? $::instance_conf->get_reqdate_interval : 1;
+    my $extra_days = $self->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
+                     $self->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
     $new_attrs{reqdate} = DateTime->today_local->next_workday(extra_days => $extra_days);
   } else {
     $new_attrs{reqdate} = $order->reqdate;

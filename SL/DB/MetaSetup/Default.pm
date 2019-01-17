@@ -46,6 +46,7 @@ __PACKAGE__->meta->columns(
   datev_check_on_purchase_invoice           => { type => 'boolean', default => 'true' },
   datev_check_on_sales_invoice              => { type => 'boolean', default => 'true' },
   datev_export_format                       => { type => 'enum', check_in => [ 'cp1252', 'cp1252-translit', 'utf-8' ], db_type => 'datev_export_format_enum', default => 'cp1252-translit' },
+  delivery_date_interval                    => { type => 'integer', default => '0' },
   disabled_price_sources                    => { type => 'array' },
   doc_delete_printfiles                     => { type => 'boolean', default => 'false' },
   doc_files                                 => { type => 'boolean', default => 'false' },

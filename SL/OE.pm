@@ -958,7 +958,8 @@ sub _retrieve {
   $form->{useasnew} = 1 if $is_collective_order == 1;
 
   if (!$form->{id}) {
-    my $extra_days     = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval : 1;
+    my $extra_days = $form->{type} eq 'sales_quotation' ? $::instance_conf->get_reqdate_interval       :
+                     $form->{type} eq 'sales_order'     ? $::instance_conf->get_delivery_date_interval : 1;
     $form->{reqdate}   = DateTime->today_local->next_workday(extra_days => $extra_days)->to_kivitendo;
     $form->{transdate} = DateTime->today_local->to_kivitendo;
   }
