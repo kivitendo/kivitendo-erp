@@ -50,7 +50,7 @@ sub action_ajax_edit {
 sub action_ajax_add {
   my ($self)  = @_;
 
-  my $part      = SL::DB::Part->new(id => $::form->{part_id})->load(with_objects => [ qw(unit_obj) ]);
+  my $part      = SL::DB::Part->new(id => $::form->{part_id})->load(with => [ qw(unit_obj) ]);
   my $rs_part   = SL::DB::RequirementSpecPart->new(
     part        => $part,
     qty         => 1,
