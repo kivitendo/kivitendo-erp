@@ -141,7 +141,7 @@ EOL
   profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
-is $csv->get_objects->[0]->lastcost, '1221.52', 'ignore_unkown_columns works';
+is $csv->get_objects->[0]->lastcost, '1221.52', 'ignore_unknown_columns works';
 
 #####
 

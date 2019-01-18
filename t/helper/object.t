@@ -163,6 +163,6 @@ eval { package T::Helper::Object::Test6;
   $dies = 0;
   1;
 };
-ok $dies, 'unkown parameter dies';
+ok $dies, 'unknown parameter dies';
 
 1;

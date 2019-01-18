@@ -321,9 +321,9 @@ sub check_object_params {
   } elsif ( $::form->{object_type} ) {
     $type = $::form->{object_type};
   }
-  die "No object type"     unless $type;
-  die "No file type"       unless $::form->{file_type};
-  die "Unkown object type" unless $file_types{$type};
+  die "No object type"      unless $type;
+  die "No file type"        unless $::form->{file_type};
+  die "Unknown object type" unless $file_types{$type};
 
   $self->is_global($gldoc);
   $self->file_type($::form->{file_type});

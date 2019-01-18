@@ -502,7 +502,7 @@ See section L</PROFILE> for information on this topic.
 
 =item C<ignore_unknown_columns>
 
-If set, the import will ignore unkown header columns. Useful for lazy imports,
+If set, the import will ignore unknown header columns. Useful for lazy imports,
 but deactivated by default.
 
 =item C<case_insensitive_header>
