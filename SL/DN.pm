@@ -400,20 +400,22 @@ sub send_email {
   # without a recipient, we cannot send a mail
   if (!$ref || !$ref->{recipient}) {
     $main::lxdebug->leave_sub();
-    $form->error($main::locale->text("No email recipient for customer #1 defined.", $ref->{name}));
+    die $main::locale->text("No email recipient for customer #1 defined.", $ref->{name});
   }
 
   # without a sender we cannot send a mail
   # two cases: check mail from 1. current user OR  2. employee who created the invoice
-  my $from;
+  my ($from, $sign);
   if ($::instance_conf->get_dunning_creator eq 'current_employee') {
     $from = $myconfig->{email};
-    $form->error($main::locale->text('No email for current user #1 defined.', $myconfig->{name})) unless $from;
+    die $main::locale->text('No email for current user #1 defined.', $myconfig->{name}) unless $from;
   } else {
     eval {
       $from = SL::DB::Manager::AuthUser->find_by(login =>  $ref->{invoice_employee_login})->get_config_value("email");
+      $sign = SL::DB::Manager::AuthUser->find_by(login =>  $ref->{invoice_employee_login})->get_config_value("signature");
+      die unless ($from);
       1;
-    } or do { $form->error($main::locale->text('No email for user with login #1 defined.', $ref->{invoice_employee_login})) };
+    } or die $main::locale->text('No email for user with login #1 defined.', $ref->{invoice_employee_login});
   }
 
   my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
@@ -423,8 +425,10 @@ sub send_email {
   $mail->{to}      = $ref->{recipient};
   $mail->{subject} = $template->parse_block($ref->{email_subject});
   $mail->{message} = $template->parse_block($ref->{email_body});
-
+  my $sign_backup  = $::myconfig{signature};
+  $::myconfig{signature} = $sign if $sign;
   $mail->{message} .= $form->create_email_signature();
+  $::myconfig{signature} = $sign_backup if $sign;
 
   $mail->{message} =~ s/\r\n/\n/g;
 
