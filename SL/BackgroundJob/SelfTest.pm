@@ -142,7 +142,6 @@ sub _send_email {
 sub _prepare_report {
   my ($self) = @_;
 
-  my $user = $self->_email_user;
   my $template = Template->new({ 'INTERPOLATE' => 0,
                                  'EVAL_PERL'   => 0,
                                  'ABSOLUTE'    => 1,
