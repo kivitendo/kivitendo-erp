@@ -2,6 +2,24 @@
 # Veränderungen von kivitendo #
 ###############################
 
+20xx-xx-xx - Release X.X
+
+
+Kleinere neue Features und Detailverbesserungen:
+
+- Bearbeiter der Mahnungen konfigurierbar gemacht (#345)
+  Entsprechend wird beim Mahnungen erzeugen auch der E-Mail-Absender inkl. Signatur gesetzt
+- Kundenstammdaten um Feld Herkunft personenbezogener Daten erweitert
+  Entsprechend der DSGVO kann hier der Erstkontakt mit dem Kunden protokolliert werden (Messe, etc)
+  Das Feld wird beim Bericht mitexportiert
+- Kundenstammdaten um Feld E-Mail Rechnungsempfänger erweitert
+  Viele Kunden besitzen für den Rechnungseingang eine generische E-Mail-Adresse, die nicht
+  mit der allgemeine E-Mail-Adresse identisch ist. Falls dieses Feld gesetzt ist, so hat dieser
+  Wert beim E-Mail Versand der Rechnung Priorität. Für die wiederkehrende Rechnung wird die
+  Mail-Adresse zusätzlich bedient. In den entsprechenden vorgelagerten Masken, wird dies auch
+  visuell angezeigt.
+
+
 2019-01-03 - Release 3.5.3
 
 Mittelgroße neue Features:
