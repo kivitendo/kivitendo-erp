@@ -343,6 +343,40 @@
   <td>[% LxERP.t8('Only applies if the previous is set to true. When filling up unlinked positions, consider them matches if ALL of these fields match. For example, in a business with variants that are defined by a special description, description needs to be part of the identity. If delivering several similar order positions by delivery date is common, reqdate should be included in the identity. Serialnumber is useful when the serialnumber in the order and delivery order has to match.') %]</td>
  </tr>
 
+ <tr><td class="listheading" colspan="4">[% 'Displayable Name Preferences' | $T8 %]</td></tr>
+ [% FOREACH module=SELF.displayable_name_specs_by_module.keys.sort %]
+ [%- SET spec=SELF.displayable_name_specs_by_module.$module -%]
+  <tr>
+    <td align="right">[% spec.specs.title %]</td>
+    <td>
+      <table>
+        <tr>
+          <th align="left" class="listheading">[% 'Option' | $T8 %]</th>
+          <th align="left" class="listheading">[% 'Name'   | $T8 %]</th>
+        </tr>
+        [% FOREACH option=spec.specs.options %]
+        <tr>
+          <td>[% option.title %]</td>
+          <td>[% option.name  %]</td>
+        </tr>
+        [% END %]
+        <tr>
+          <th align="left">[% 'Display' | $T8 %]:</th>
+          <td>
+            [% L.hidden_tag("displayable_name_specs[+].module", module) %]
+            [% L.input_tag("displayable_name_specs[].default", spec.prefs.get_default, size=50) %]
+          </td>
+        </tr>
+      </table>
+    </td>
+    [% IF loop.first %]
+    <td>[% 'The display of (mainly) picker results can be configured. To insert the value of one option use <%Name%>.' | $T8 %]<br>
+        [% 'E.g. "<%customernumber%> <%name%>"' | $T8 %]
+    </td>
+    [% END %]
+  </tr>
+  [% END %]
+
 
 </table>
 </div>

@@ -12,6 +12,7 @@ use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Part;
 use SL::DB::Unit;
+use SL::DB::Customer;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::PriceSource::ALL;
@@ -24,7 +25,8 @@ __PACKAGE__->run_before('check_auth');
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules available_shipped_qty_item_identity_fields
                                   all_project_statuses all_project_types
-                                  posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options) ],
+                                  posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options
+                                  displayable_name_specs_by_module) ],
 );
 
 sub action_edit {
@@ -131,6 +133,11 @@ sub action_save {
     $self->defaults->templates('templates/' . $::form->{new_templates});
   }
 
+  # Displayable name preferences
+  foreach my $specs (@{ $::form->{displayable_name_specs} }) {
+    $self->displayable_name_specs_by_module->{$specs->{module}}->{prefs}->store_default($specs->{default});
+  }
+
   # Finally save defaults.
   $self->defaults->save;
 
@@ -200,6 +207,23 @@ sub init_available_quick_search_modules {
 
 sub init_available_shipped_qty_item_identity_fields {
   [ SL::Helper::ShippedQty->new->available_item_identity_fields ];
+}
+
+sub init_displayable_name_specs_by_module {
+  +{
+     'SL::DB::Customer' => {
+       specs => SL::DB::Customer->displayable_name_specs,
+       prefs => SL::DB::Customer->displayable_name_prefs,
+     },
+     'SL::DB::Vendor' => {
+       specs => SL::DB::Vendor->displayable_name_specs,
+       prefs => SL::DB::Vendor->displayable_name_prefs,
+     },
+     'SL::DB::Part' => {
+       specs => SL::DB::Part->displayable_name_specs,
+       prefs => SL::DB::Part->displayable_name_prefs,
+     },
+  };
 }
 
 #
