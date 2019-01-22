@@ -4,6 +4,7 @@ use strict;
 
 use Rose::DB::Object::Helpers qw(as_tree);
 
+use SL::Locale::String qw(t8);
 use SL::DBUtils ();
 use SL::DB::MetaSetup::Vendor;
 use SL::DB::Manager::Vendor;
@@ -12,6 +13,16 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
   cvars_alias => 1,
+);
+use SL::DB::Helper::DisplayableNamePreferences (
+  title   => t8('Vendor'),
+  options => [ {name => 'vendornumber', title => t8('Vendor Number') },
+               {name => 'name',         title => t8('Name')   },
+               {name => 'street',         title => t8('Street') },
+               {name => 'city',           title => t8('City') },
+               {name => 'zipcode',        title => t8('Zipcode')},
+               {name => 'email',          title => t8('E-Mail') },
+               {name => 'phone',          title => t8('Phone')  }, ]
 );
 
 use SL::DB::VC;
@@ -51,12 +62,6 @@ sub validate {
   push @errors, $self->validate_ibans;
 
   return @errors;
-}
-
-sub displayable_name {
-  my $self = shift;
-
-  return join ' ', grep $_, $self->vendornumber, $self->name;
 }
 
 sub is_customer { 0 };

@@ -4,6 +4,7 @@ use strict;
 
 use Rose::DB::Object::Helpers qw(as_tree);
 
+use SL::Locale::String qw(t8);
 use SL::DBUtils ();
 use SL::DB::MetaSetup::Customer;
 use SL::DB::Manager::Customer;
@@ -12,6 +13,16 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
   cvars_alias => 1,
+);
+use SL::DB::Helper::DisplayableNamePreferences (
+  title   => t8('Customer'),
+  options => [ {name => 'customernumber', title => t8('Customer Number') },
+               {name => 'name',           title => t8('Name')   },
+               {name => 'street',         title => t8('Street') },
+               {name => 'city',           title => t8('City') },
+               {name => 'zipcode',        title => t8('Zipcode')},
+               {name => 'email',          title => t8('E-Mail') },
+               {name => 'phone',          title => t8('Phone')  }, ]
 );
 
 use SL::DB::VC;
@@ -36,6 +47,7 @@ __PACKAGE__->meta->initialize;
 
 __PACKAGE__->before_save('_before_save_set_customernumber');
 
+
 sub _before_save_set_customernumber {
   my ($self) = @_;
 
@@ -57,12 +69,6 @@ sub short_address {
   my ($self) = @_;
 
   return join ', ', grep { $_ } $self->street, $self->zipcode, $self->city;
-}
-
-sub displayable_name {
-  my $self = shift;
-
-  return join ' ', grep $_, $self->customernumber, $self->name;
 }
 
 sub last_used_ar_chart {

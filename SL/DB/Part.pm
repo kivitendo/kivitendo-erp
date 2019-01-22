@@ -6,6 +6,7 @@ use Carp;
 use List::MoreUtils qw(any);
 use Rose::DB::Object::Helpers qw(as_tree);
 
+use SL::Locale::String qw(t8);
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
@@ -17,6 +18,14 @@ use SL::DB::Helper::CustomVariables (
   module      => 'IC',
   cvars_alias => 1,
 );
+use SL::DB::Helper::DisplayableNamePreferences (
+  title   => t8('Article'),
+  options => [ {name => 'partnumber',  title => t8('Part Number')     },
+               {name => 'description', title => t8('Description')    },
+               {name => 'notes',       title => t8('Notes')},
+               {name => 'ean',         title => t8('EAN')            }, ],
+);
+
 use List::Util qw(sum);
 
 __PACKAGE__->meta->add_relationships(
@@ -341,10 +350,6 @@ sub get_simple_stock {
 { package SL::DB::Part::SimpleStock;
   sub warehouse { require SL::DB::Warehouse; SL::DB::Manager::Warehouse->find_by_or_create(id => $_[0]->{warehouse_id}) }
   sub bin       { require SL::DB::Bin;       SL::DB::Manager::Bin      ->find_by_or_create(id => $_[0]->{bin_id}) }
-}
-
-sub displayable_name {
-  join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
 }
 
 sub clone_and_reset_deep {
