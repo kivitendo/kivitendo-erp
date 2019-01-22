@@ -260,16 +260,20 @@
       [%- END %]
     </tr>
 
-  [% IF ( SELF.all_currencies.size ) %]
     <tr>
+      [% IF ( SELF.is_customer() ) %]
+        <th align="right">[% 'Commercial court' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.commercial_court', SELF.cv.commercial_court, size = 20) %]
+        </td>
+      [% END %]
+      [% IF ( SELF.all_currencies.size ) %]
         <th align="right">[% 'Currency' | $T8 %]</th>
-
         <td>
           [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
         </td>
+      [% END %]
     </tr>
-  [% END %]
-
     <tr>
       [% IF ( !INSTANCE_CONF.get_vertreter ) %]
         <th align="right">

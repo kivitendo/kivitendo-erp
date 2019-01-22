@@ -18,6 +18,7 @@ __PACKAGE__->meta->columns(
   c_vendor_id               => { type => 'text' },
   cc                        => { type => 'text' },
   city                      => { type => 'text' },
+  commercial_court          => { type => 'text' },
   contact                   => { type => 'text' },
   country                   => { type => 'text' },
   creditlimit               => { type => 'numeric', default => '0', precision => 15, scale => 5 },

@@ -215,6 +215,23 @@
         <label for="l_invoice_mail">[% 'Email of the invoice recipient' | $T8 %]</label>
        </td>
       </tr>
+      <tr>
+       <td>
+        <input name="l_ustid" id="l_ustid" type="checkbox" class="checkbox" value="Y">
+        <label for="l_ustid">[% 'VAT ID' | $T8 %]</label>
+       </td>
+       <td>
+        <input name="l_creditlimit" id="l_creditlimit" type="checkbox" class="checkbox" value="Y">
+        <label for="l_creditlimit">[% 'Credit Limit' | $T8 %]</label>
+       </td>
+       <td>
+        <input name="l_commercial_court" id="l_commercial_court" type="checkbox" class="checkbox" value="Y">
+        <label for="l_commercial_court">[% 'Commercial court' | $T8 %]</label>
+       </td>
+
+       <td>
+      </tr>
+
       [% END %]
 
       [% CUSTOM_VARIABLES_INCLUSION_CODE %]

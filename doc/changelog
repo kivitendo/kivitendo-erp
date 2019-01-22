@@ -18,6 +18,9 @@ Kleinere neue Features und Detailverbesserungen:
   Wert beim E-Mail Versand der Rechnung Priorität. Für die wiederkehrende Rechnung wird die
   Mail-Adresse zusätzlich bedient. In den entsprechenden vorgelagerten Masken, wird dies auch
   visuell angezeigt.
+- Kundenstammdaten um Feld Amtsgericht erweitert
+  Falls das Feld Steuernummer mit dem Wert der Hr-Nr gefüllt wurde, wird auch das zuständige
+  Registierungs-Gericht benötigt.
 
 
 2019-01-03 - Release 3.5.3

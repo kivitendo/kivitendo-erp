@@ -634,6 +634,7 @@ $self->{texts} = {
   'Column name'                 => 'Spaltenname',
   'Comma'                       => 'Komma',
   'Comment'                     => 'Kommentar',
+  'Commercial court'            => 'Amtsgericht',
   'Company'                     => 'Firma',
   'Company Name'                => 'Firmenname',
   'Company name'                => 'Firmenname',

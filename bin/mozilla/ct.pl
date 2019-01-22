@@ -177,7 +177,8 @@ sub list_names {
     'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
-    'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail'
+    'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
+    'creditlimit', 'ustid', 'commercial_court'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -212,6 +213,9 @@ sub list_names {
     'pricegroup'        => { 'text' => $locale->text('Pricegroup'), },
     'invoice_mail'      => { 'text' => $locale->text('Email of the invoice recipient'), },
     'contact_origin'    => { 'text' => $locale->text('Origin of personal data'), },
+    'creditlimit'       => { 'text' => $locale->text('Credit Limit'), },
+    'ustid'             => { 'text' => $locale->text('VAT ID'), },
+    'commercial_court'  => { 'text' => $locale->text('Commercial court'), },
     %column_defs_cvars,
   );
 
@@ -281,6 +285,7 @@ sub list_names {
     if ($ref->{id} ne $previous_id) {
       $previous_id = $ref->{id};
       $ref->{discount} = $form->format_amount(\%myconfig, $ref->{discount} * 100.0, 2);
+      $ref->{creditlimit} = $form->format_amount(\%myconfig, $ref->{creditlimit}, 2);
       map { $row->{$_}->{data} = $ref->{$_} } @columns;
 
       $row->{name}->{link}  = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
