@@ -1024,13 +1024,16 @@ sub taxes {
                    t.taxkey,
                    t.taxdescription,
                    round(t.rate * 100, 2) AS rate,
-                   (SELECT accno FROM chart WHERE id = chart_id) AS taxnumber,
-                   (SELECT description FROM chart WHERE id = chart_id) AS account_description,
-                   (SELECT accno FROM chart WHERE id = skonto_sales_chart_id) AS skonto_chart_accno,
-                   (SELECT description FROM chart WHERE id = skonto_sales_chart_id) AS skonto_chart_description,
-                   (SELECT accno FROM chart WHERE id = skonto_purchase_chart_id) AS skonto_chart_purchase_accno,
-                   (SELECT description FROM chart WHERE id = skonto_purchase_chart_id) AS skonto_chart_purchase_description
+                   tc.accno               AS taxnumber,
+                   tc.description         AS account_description,
+                   ssc.accno              AS skonto_chart_accno,
+                   ssc.description        AS skonto_chart_description,
+                   spc.accno              AS skonto_chart_purchase_accno,
+                   spc.description        AS skonto_chart_purchase_description
                  FROM tax t
+                 LEFT JOIN chart tc  ON (tc.id = t.chart_id)
+                 LEFT JOIN chart ssc ON (ssc.id = t.skonto_sales_chart_id)
+                 LEFT JOIN chart spc ON (spc.id = t.skonto_purchase_chart_id)
                  ORDER BY taxkey, rate|;
 
   my $sth = $dbh->prepare($query);
