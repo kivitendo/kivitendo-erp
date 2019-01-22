@@ -19,7 +19,6 @@ __PACKAGE__->meta->columns(
   skonto_sales_chart_id    => { type => 'integer' },
   taxdescription           => { type => 'text', not_null => 1 },
   taxkey                   => { type => 'integer', not_null => 1 },
-  taxnumber                => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

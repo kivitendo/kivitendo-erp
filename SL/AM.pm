@@ -1181,7 +1181,6 @@ sub _save_tax {
                   taxdescription           = ?,
                   rate                     = ?,
                   chart_id                 = ?,
-                  taxnumber                = (SELECT accno FROM chart WHERE id = ? ),
                   skonto_sales_chart_id    = ?,
                   skonto_purchase_chart_id = ?,
                   chart_categories         = ?
@@ -1195,7 +1194,6 @@ sub _save_tax {
                   taxdescription,
                   rate,
                   chart_id,
-                  taxnumber,
                   skonto_sales_chart_id,
                   skonto_purchase_chart_id,
                   chart_categories,

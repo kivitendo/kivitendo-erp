@@ -506,7 +506,25 @@ sub invoice_details {
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
 
-    my $tax_obj     = SL::DB::Manager::Tax->find_by(taxnumber => $form->{"${item}_taxnumber"});
+    # taxnumber is used for grouping the amount of the various taxes
+
+    # this code assumes that at most one tax entry can point to the same
+    # chart_id, even though chart_id does not have a unique constraint!
+
+    # this chart_id is then looked up via its accno, which is the key that is
+    # used to group the different taxes by for a record
+
+    # not every tax has a taxnumber (e.g. tax-free), but that is ok, because
+    # then there would be no tax amount to assign it to
+
+    my $tax_objs = SL::DB::Manager::Tax->get_objects_from_sql(
+      sql  => 'SELECT * FROM tax WHERE chart_id = (SELECT id FROM chart WHERE accno = ?)',
+      args => [ $form->{"${item}_taxnumber"} ]
+    );
+    my $tax_obj;
+    if ( $tax_objs ) {
+      $tax_obj     = $tax_objs->[0];
+    }
     my $description = $tax_obj ? $tax_obj->translated_attribute('taxdescription',  $form->{language_id}, 0) : '';
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $description . q{ } . 100 * $form->{"${item}_rate"} . q{%});
   }
@@ -2069,7 +2087,8 @@ sub _retrieve_invoice {
       # get tax rates and description
       my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query =
-        qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber FROM tax t
+        qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber
+           FROM tax t
            LEFT JOIN chart c ON (c.id = t.chart_id)
            WHERE t.id IN
              (SELECT tk.tax_id FROM taxkeys tk
@@ -2393,7 +2412,7 @@ sub retrieve_item {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
+      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber
          FROM tax t
          LEFT JOIN chart c ON (c.id = t.chart_id)
          WHERE t.id in

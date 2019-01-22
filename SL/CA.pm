@@ -104,7 +104,7 @@ sub all_accounts {
       comma(tk.startdate::text) AS startdate,
       comma(tk.taxkey_id::text) AS taxkey,
       comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
-      comma(tx.taxnumber::text) AS taxaccount,
+      comma(taxchart.accno::text) AS taxaccount,
       comma(tk.pos_ustva::text) AS tk_ustva,
       ( SELECT accno
       FROM chart c2
@@ -113,6 +113,7 @@ sub all_accounts {
     FROM chart c
     LEFT JOIN taxkeys tk ON (c.id = tk.chart_id)
     LEFT JOIN tax tx ON (tk.tax_id = tx.id)
+    LEFT JOIN chart taxchart ON (taxchart.id = tx.chart_id)
     WHERE 1=1
     $where
     GROUP BY c.accno, c.id, c.description, c.charttype,

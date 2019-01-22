@@ -60,7 +60,7 @@ sub get_tax_info {
 
   if (!$self->{handles}->{get_tax_info}) {
     $self->{queries}->{get_tax_info} = qq|
-      SELECT t.rate AS taxrate, t.taxnumber, t.taxdescription, t.chart_id AS taxchart_id,
+      SELECT t.rate AS taxrate, c.accno as taxnumber, t.taxdescription, t.chart_id AS taxchart_id,
         c.accno AS taxaccno, c.description AS taxaccount
       FROM taxkeys tk
       LEFT JOIN tax t   ON (tk.tax_id  = t.id)

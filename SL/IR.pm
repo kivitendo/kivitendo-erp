@@ -1071,7 +1071,9 @@ sub retrieve_invoice {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber FROM tax t
+      qq|SELECT c.accno, t.taxdescription, t.rate,
+                c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
+         FROM tax t
          LEFT JOIN chart c ON (c.id = t.chart_id)
          WHERE t.id in
            (SELECT tk.tax_id FROM taxkeys tk
@@ -1339,7 +1341,7 @@ sub retrieve_item {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
+      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber
          FROM tax t
          LEFT JOIN chart c on (c.id = t.chart_id)
          WHERE t.id IN

@@ -790,7 +790,8 @@ sub retrieve_accounts {
 SQL
 
   my $query_tax = <<SQL;
-    SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber
+    SELECT c.accno, t.taxdescription AS description, t.rate,
+           c.accno as taxnumber
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
     WHERE t.id IN

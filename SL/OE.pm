@@ -1177,8 +1177,9 @@ sub _retrieve {
       # get tax rates and description
       my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query =
-        qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber | .
-        qq|FROM tax t LEFT JOIN chart c on (c.id = t.chart_id) | .
+        qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber | .
+        qq|FROM tax t | .
+        qq|LEFT JOIN chart c on (c.id = t.chart_id) | .
         qq|WHERE t.id IN (SELECT tk.tax_id FROM taxkeys tk | .
         qq|               WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?) | .
         qq|                 AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1) | .
@@ -1574,7 +1575,14 @@ sub order_details {
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
 
-    my $tax_obj     = SL::DB::Manager::Tax->find_by(taxnumber => $form->{"${item}_taxnumber"});
+    my $tax_objs     = SL::DB::Manager::Tax->get_objects_from_sql(
+      sql  => 'SELECT * from tax where chart_id = (SELECT id FROM chart WHERE accno = ?)',
+      args => [ $form->{"${item}_taxnumber"} ]
+    );
+    my $tax_obj;
+    if ( $tax_objs ) {
+      $tax_obj     = $tax_objs->[0];
+    }
     my $description = $tax_obj ? $tax_obj->translated_attribute('taxdescription',  $form->{language_id}, 0) : '';
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $description . q{ } . 100 * $form->{"${item}_rate"} . q{%});
   }
