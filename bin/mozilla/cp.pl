@@ -255,8 +255,6 @@ sub update {
       $form->{"amount_$i"} = $ref->{amount} / $ref->{exchangerate};
       $form->{"due_$i"}    =
         ($ref->{amount} - $ref->{paid}) / $ref->{exchangerate};
-      $form->{"checked_$i"} = "";
-      $form->{"paid_$i"}    = "";
 
       # need to format
       map {
