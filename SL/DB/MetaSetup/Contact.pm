@@ -18,6 +18,7 @@ __PACKAGE__->meta->columns(
   cp_gender      => { type => 'character', length => 1 },
   cp_givenname   => { type => 'text' },
   cp_id          => { type => 'integer', not_null => 1, sequence => 'id' },
+  cp_main        => { type => 'boolean' },
   cp_mobile1     => { type => 'text' },
   cp_mobile2     => { type => 'text' },
   cp_name        => { type => 'text' },

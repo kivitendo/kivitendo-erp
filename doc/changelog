@@ -21,7 +21,7 @@ Kleinere neue Features und Detailverbesserungen:
 - Kundenstammdaten um Feld Amtsgericht erweitert
   Falls das Feld Steuernummer mit dem Wert der Hr-Nr gefüllt wurde, wird auch das zuständige
   Registierungs-Gericht benötigt.
-
+- Ansprechpartner um Feld 'Hauptansprechpartner' erweitert und exportierbar im Kundenbericht gemacht
 
 2019-01-03 - Release 3.5.3
 

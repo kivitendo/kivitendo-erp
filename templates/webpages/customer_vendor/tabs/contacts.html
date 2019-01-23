@@ -23,7 +23,10 @@
         %]
       </td>
     </tr>
-
+    <tr>
+      <th align="right" nowrap>[% 'Main Contact Person' | $T8 %]</th>
+      <td>[% L.yes_no_tag('contact.cp_main', SELF.contact.cp_main) %]</td>
+    </tr>
     <tr>
       <th align="right" nowrap>[% 'Gender' | $T8 %]</th>
 

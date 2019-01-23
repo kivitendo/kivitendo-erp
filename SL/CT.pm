@@ -254,10 +254,18 @@ sub search {
 
   my $pg_select = $form->{l_pricegroup} ? qq|, pg.pricegroup as pricegroup | : '';
   my $pg_join   = $form->{l_pricegroup} ? qq|LEFT JOIN pricegroup pg ON (ct.pricegroup_id = pg.id) | : '';
+
+  my $main_cp_select = '';
+  if ($form->{l_main_contact_person}) {
+    $main_cp_select =  qq/, (SELECT concat(cp.cp_givenname, ' ', cp.cp_name, ' | ', cp.cp_email, ' | ', cp.cp_phone1)
+                              FROM contacts cp WHERE ct.id=cp.cp_cv_id AND cp.cp_main LIMIT 1)
+                              AS main_contact_person /;
+  }
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
     qq|  pt.description as payment | .
     $pg_select .
+    $main_cp_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .

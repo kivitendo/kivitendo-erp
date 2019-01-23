@@ -174,7 +174,8 @@ sub list_names {
   };
 
   my @columns = (
-    'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
+    'id',        'name',    "$form->{db}number",   'contact', 'main_contact_person',
+    'phone',    'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
@@ -192,6 +193,7 @@ sub list_names {
     "$form->{db}number" => { 'text' => $locale->text('Number'), },
     'name'              => { 'text' => $form->{IS_CUSTOMER} ? $::locale->text('Customer Name') : $::locale->text('Vendor Name'), },
     'contact'           => { 'text' => $locale->text('Contact'), },
+    'main_contact_person'  => { 'text' => $locale->text('Main Contact Person'), },
     'phone'             => { 'text' => $locale->text('Phone'), },
     'fax'               => { 'text' => $locale->text('Fax'), },
     'email'             => { 'text' => $locale->text('E-mail'), },

@@ -585,12 +585,16 @@ sub action_ajaj_get_contact {
       }
       qw(
         id gender abteilung title position givenname name email phone1 phone2 fax mobile1 mobile2
-        satphone satfax project street zipcode city privatphone privatemail birthday
+        satphone satfax project street zipcode city privatphone privatemail birthday main
       )
     )
   };
 
   $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
+
+  # avoid two or more main_cp
+  my $has_main_cp = grep { $_->cp_main == 1 } @{ $self->{cv}->contacts };
+  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}->{cp_main});
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }

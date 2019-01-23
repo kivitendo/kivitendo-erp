@@ -1836,6 +1836,7 @@ $self->{texts} = {
   'MIME type'                   => 'MIME-Typ',
   'MT940 import'                => 'MT940 Import',
   'Mails'                       => 'E-Mails',
+  'Main Contact Person'         => 'Hauptansprechpartner',
   'Main Preferences'            => 'Grundeinstellungen',
   'Main sorting'                => 'Hauptsortierung',
   'Make'                        => 'Lieferant',

@@ -71,7 +71,10 @@ namespace('kivi.CustomerVendor', function(ns) {
         $('#action_delete_contact').show();
       else
         $('#action_delete_contact').hide();
-
+      if (data.contact.disable_cp_main === 1)
+        $("#contact_cp_main").prop("disabled", true);
+      else
+        $("#contact_cp_main").prop("disabled", false);
       if ( params.onFormSet )
         params.onFormSet();
     });
