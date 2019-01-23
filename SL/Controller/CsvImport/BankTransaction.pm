@@ -74,8 +74,9 @@ sub check_existing {
     # * transdate
     # * remote_account_number  (may be empty for records of our own bank)
     # * amount
+    # * local_bank_account_id (case flatrate bank charges for two accounts in one bank: same purpose, transdate, remote_account_number(empty), amount. Just different local_bank_account_id)
     my $num;
-    if ( $num = SL::DB::Manager::BankTransaction->get_all_count(query =>[ remote_account_number => $object->remote_account_number, transdate => $object->transdate, purpose => $object->purpose, amount => $object->amount] ) ) {
+    if ( $num = SL::DB::Manager::BankTransaction->get_all_count(query =>[ remote_account_number => $object->remote_account_number, transdate => $object->transdate, purpose => $object->purpose, amount => $object->amount, local_bank_account_id => $object->local_bank_account_id] ) ) {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing bank transaction in database'));
     };
   } else {
