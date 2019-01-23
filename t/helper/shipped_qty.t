@@ -49,10 +49,10 @@ for my $i ( 1 .. 4 ) {
   new_part( %part_defaults, partnumber => $i, description => "part $i test" )->save;
 };
 
-my $part1 = SL::DB::Manager::Part->find_by( partnumber => '1' );
-my $part2 = SL::DB::Manager::Part->find_by( partnumber => '2' );
-my $part3 = SL::DB::Manager::Part->find_by( partnumber => '3' );
-my $part4 = SL::DB::Manager::Part->find_by( partnumber => '4' );
+my $part1 = SL::DB::Manager::Part->find_by( partnumber => '1' ) or die;
+my $part2 = SL::DB::Manager::Part->find_by( partnumber => '2' ) or die;
+my $part3 = SL::DB::Manager::Part->find_by( partnumber => '3' ) or die;
+my $part4 = SL::DB::Manager::Part->find_by( partnumber => '4' ) or die;
 
 my @part_ids; # list of all part_ids to run checks against
 push( @part_ids, $_->id ) foreach ( $part1, $part2, $part3, $part4 );
@@ -305,6 +305,36 @@ clear_up();
 
   is $order->items_sorted->[0]->{shipped_qty}, 5, 'unlinked legacy position test 1';
   is $order->items_sorted->[1]->{shipped_qty}, 3, 'unlinked legacy position test 2';
+
+}
+
+{
+# edge case:
+#
+# suppose an order was delivered, and someone removes one item from the delivery order.
+# make sure the order is then shown as not delivered.
+#
+  my $sales_order = create_sales_order(
+    save       => 1,
+    orderitems => [ create_order_item(part => new_part()->save, qty => 5),
+                    create_order_item(part => new_part()->save, qty => 6),
+                    create_order_item(part => new_part()->save, qty => 7),
+                  ]
+  );
+  $sales_order->load;
+
+  my $delivery_order = SL::DB::DeliveryOrder->new_from($sales_order);
+  $delivery_order->save;
+
+  $delivery_order->items(@{ $delivery_order->items_sorted }[0..1]);
+  $delivery_order->save;
+
+  SL::Helper::ShippedQty
+    ->new(fill_up => 0, require_stock_out => 0)
+    ->calculate($sales_order)
+    ->write_to_objects;
+
+  ok !$sales_order->delivered, 'after deleting a position from a delivery order, the order is undelivered again';
 }
 
 clear_up();

@@ -270,6 +270,22 @@ sub normalize_input {
   $self->shipped_qty({});
 }
 
+# some of the invocations never need to load all orderitems to copute their answers
+# delivered however needs oi_qty to be set for each orderitem to decide whether
+# delivered should be set or not.
+sub ensure_all_orderitems_for_orders {
+  my ($self) = @_;
+
+  return if $self->fill_up;
+
+  my $oi_query  = sprintf $fill_up_oi_query,   join (', ', ('?')x@{ $self->oe_ids });
+  my $oi  = selectall_hashref_query($::form, $self->dbh, $oi_query, @{ $self->oe_ids });
+  for (@$oi) {
+    $self->{oi_qty}{ $_->{id} } //= $_->{qty};
+    $self->{oi2oe}{ $_->{id} }  //= $_->{trans_id};
+  }
+}
+
 sub available_item_identity_fields {
   map { [ $_ => $item_identity_fields{$_} ] } @known_item_identity_fields;
 }
@@ -291,6 +307,9 @@ sub init_oi_qty { {} }
 sub init_matches { [] }
 sub init_delivered {
   my ($self) = @_;
+
+  $self->ensure_all_orderitems_for_orders;
+
   my $d = { };
   for (keys %{ $self->oi_qty }) {
     my $oe_id = $self->oi2oe->{$_};
