@@ -163,6 +163,7 @@
         [% L.input_tag('form_cvars_nr_cols',  MYCONFIG.form_cvars_nr_cols || 3,  size = 5) %]
       </td>
      </tr>
+
      <tr>
       <th align="right">[% 'Quick Searches that will be shown in the header for this user' | $T8 %]</th>
       <td colspan=2>
@@ -179,6 +180,41 @@
         </div>
       </td>
     </tr>
+
+     <tr>
+       <th align="right">[% 'Displayable Name Preferences' | $T8 %]</th>
+       <td>
+         <table>
+           [% FOREACH module=displayable_name_specs_by_module.keys.sort %]
+           [%- SET spec=displayable_name_specs_by_module.$module -%]
+           <tr>
+             <td align="right">[% spec.specs.title %]</td>
+             <td>
+               <table>
+                 <tr>
+                   <th align="left" class="listheading">[% 'Option' | $T8 %]</th>
+                   <th align="left" class="listheading">[% 'Name'   | $T8 %]</th>
+                 </tr>
+                 [% FOREACH option=spec.specs.options %]
+                 <tr>
+                   <td>[% option.title %]</td>
+                   <td>[% option.name  %]</td>
+                 </tr>
+                 [% END %]
+                 <tr>
+                   <th align="left">[% 'Display' | $T8 %]:</th>
+                   <td>
+                     [% L.hidden_tag("displayable_name_specs[+].module", module) %]
+                     [% L.input_tag("displayable_name_specs[].value", spec.prefs.get, size=50) %]
+                   </td>
+                 </tr>
+               </table>
+             </td>
+           </tr>
+           [% END %]
+         </table>
+       </td>
+
     </table>
    </div>
 

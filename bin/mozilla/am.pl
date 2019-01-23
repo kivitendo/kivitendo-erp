@@ -659,6 +659,8 @@ sub config {
   $form->{enabled_quick_searchmodules} = \@{$enabled_quick_search};
   $form->{default_quick_searchmodules} = \@quick_search_modules;
 
+  $form->{displayable_name_specs_by_module} = AM->displayable_name_specs_by_module();
+
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $::myconfig{login}) };

@@ -47,6 +47,9 @@ use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
 use SL::DB::Chart;
+use SL::DB::Customer;
+use SL::DB::Part;
+use SL::DB::Vendor;
 use SL::DB;
 use SL::GenericTranslations;
 
@@ -507,6 +510,23 @@ sub save_template {
   return $error;
 }
 
+sub displayable_name_specs_by_module {
+  +{
+     'SL::DB::Customer' => {
+       specs => SL::DB::Customer->displayable_name_specs,
+       prefs => SL::DB::Customer->displayable_name_prefs,
+     },
+     'SL::DB::Vendor' => {
+       specs => SL::DB::Vendor->displayable_name_specs,
+       prefs => SL::DB::Vendor->displayable_name_prefs,
+     },
+     'SL::DB::Part' => {
+       specs => SL::DB::Part->displayable_name_specs,
+       prefs => SL::DB::Part->displayable_name_prefs,
+     },
+  };
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -521,6 +541,16 @@ sub save_preferences {
       %{ $user->config_values },
       map { ($_ => $form->{$_}) } SL::DB::AuthUser::CONFIG_VARS(),
     });
+
+  # Displayable name preferences
+  my $displayable_name_specs_by_module = displayable_name_specs_by_module();
+  foreach my $specs (@{ $form->{displayable_name_specs} }) {
+    if (!$specs->{value} || $specs->{value} eq $displayable_name_specs_by_module->{$specs->{module}}->{prefs}->get_default()) {
+      $displayable_name_specs_by_module->{$specs->{module}}->{prefs}->delete($specs->{value});
+    } else {
+      $displayable_name_specs_by_module->{$specs->{module}}->{prefs}->store_value($specs->{value});
+    }
+  }
 
   $main::lxdebug->leave_sub();
 
