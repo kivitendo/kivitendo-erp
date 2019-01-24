@@ -65,7 +65,7 @@ sub not_matching_sql_and_values {
         push @values, $value;
       }
 
-      push @tokens, "type = '$type' AND " . join ' OR ', map "($_)", @sub_tokens;
+      push @tokens, "type = '$type' AND (@{[ join(' OR ', map qq|($_)|, @sub_tokens) ]})";
     }
   }
 
