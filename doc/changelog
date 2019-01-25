@@ -5,6 +5,15 @@
 20xx-xx-xx - Release X.X
 
 
+Mittelgroße neue Features:
+
+- Anzeigename (Picker-Ergenisse) konfigurierbar gemacht
+  Im Moment können Kunden-, Lieferanten und Waren-Anzeige konfiguriert werden.
+  Dies kann mandantenweit in der Mandantenkonfiguration passieren und vom
+  Benutzer in den Benutzereinstellungen überschrieben werden.
+  Konfiguriert wird intern "displayable_name". Es kann sein, dass dieser auch
+  an anderen Stellen außer Picker-Ergebnissen verwendet wird.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Bearbeiter der Mahnungen konfigurierbar gemacht (#345)
