@@ -1206,19 +1206,6 @@ sub trial_balance {
   $main::lxdebug->leave_sub();
 }
 
-sub get_storno {
-  $main::lxdebug->enter_sub();
-  my ($self, $dbh, $form) = @_;
-  my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
-  my $query = qq|SELECT invnumber FROM $arap WHERE invnumber LIKE "Storno zu "|;
-  my $sth =  $dbh->prepare($query);
-  while(my $ref = $sth->fetchrow_hashref()) {
-    $ref->{invnumer} =~ s/Storno zu //g;
-    $form->{storno}{$ref->{invnumber}} = 1;
-  }
-  $main::lxdebug->leave_sub();
-}
-
 sub aging {
   $main::lxdebug->enter_sub();
 
