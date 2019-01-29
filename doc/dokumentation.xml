@@ -520,15 +520,15 @@ cpan HTML::Restrict</programlisting>
       url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
       heruntergeladen werden.</para>
 
-      <para>Die kivitendo ERP Installationsdatei
-      (<filename>kivitendo-erp-3.4.1.tgz</filename>) wird im
+      <para>Diese aktuelleste kivitendo ERP-Archiv
+      (<filename>kivitendo-erp-*.tgz</filename>) wird dann im
       Dokumentenverzeichnis des Webservers (z.B.
       <filename>/var/www/html/</filename>,
       <filename>/srv/www/htdocs</filename> oder
       <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www
-tar xvzf kivitendo-erp-3.4.1.tgz</programlisting>
+tar xvzf kivitendo-erp-*.tgz</programlisting>
 
       <para>Wechseln Sie in das entpackte Verzeichnis:</para>
 
