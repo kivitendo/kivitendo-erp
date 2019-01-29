@@ -981,8 +981,8 @@ sub js_load_second_row {
   my $row_as_html = $self->p->render('order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
 
   $self->js
-    ->html('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', $row_as_html)
-    ->data('.row_entry:has(#item_' . $item_id . ') [name = "second_row"]', 'loaded', 1);
+    ->html('#second_row_' . $item_id, $row_as_html)
+    ->data('#second_row_' . $item_id, 'loaded', 1);
 }
 
 sub js_redisplay_line_values {
