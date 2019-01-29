@@ -620,6 +620,18 @@ SQL
     push @values, like($form->{parts_description});
   }
 
+  if ($form->{show_not_mailed}) {
+    $where .= <<SQL;
+      AND NOT EXISTS (
+        SELECT rl.to_id
+        FROM record_links rl
+        WHERE (rl.from_id = a.id)
+          AND (rl.to_table = 'email_journal')
+        LIMIT 1
+      )
+SQL
+  }
+
   if ($form->{show_marked_as_closed}) {
     $query .= '
       LEFT JOIN (

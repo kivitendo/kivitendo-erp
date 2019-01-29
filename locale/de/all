@@ -2911,6 +2911,7 @@ $self->{texts} = {
   'Show mappings (csv_import)'  => 'Spaltenzuordnungen anzeigen',
   'Show old dunnings'           => 'Alte Mahnungen anzeigen',
   'Show only marked as paid invoices' => 'Nur "als geschlossen markiert" zeigen',
+  'Show only not mailed invoices' => 'Nur "nicht per E-Mail versendete" anzeigen',
   'Show order'                  => 'Bestellung anzeigen',
   'Show overdue sales quotations and requests for quotations...' => 'Überfällige Angebote und Preisanfragen anzeigen...',
   'Show parts'                  => 'Artikel anzeigen',

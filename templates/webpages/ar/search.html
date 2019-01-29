@@ -68,6 +68,12 @@
       <th>[% 'Show only marked as paid invoices' | $T8 %]</th>
       <td>[% L.checkbox_tag('show_marked_as_closed') %]</td>
      </tr>
+    [% IF INSTANCE_CONF.get_email_journal %]
+     <tr>
+      <th>[% 'Show only not mailed invoices' | $T8 %]</th>
+      <td>[% L.checkbox_tag('show_not_mailed') %]</td>
+     </tr>
+    [% END %]
      <tr>
       <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
       <td>
