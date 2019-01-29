@@ -1208,7 +1208,7 @@ sub make_order {
   # be retrieved via items until the order is saved. Adding empty items to new
   # order here solves this problem.
   my $order;
-  $order   = SL::DB::Manager::Order->find_by(id => $::form->{id}) if $::form->{id};
+  $order   = SL::DB::Order->new(id => $::form->{id})->load(with => [ 'orderitems', 'orderitems.part' ]) if $::form->{id};
   $order ||= SL::DB::Order->new(orderitems => [],
                                 quotation  => (any { $self->type eq $_ } (sales_quotation_type(), request_quotation_type())));
 
