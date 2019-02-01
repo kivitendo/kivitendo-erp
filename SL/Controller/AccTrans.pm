@@ -91,7 +91,7 @@ SL::Controller::AccTrans - module to list all transactions and balances of an in
   SL::Controller::AccTrans->action_list_transactions();
 
   The HTML blob can also be opened directly as a url:
-  controller.pl?action=AccTrans/print_table&trans_id=7
+  controller.pl?action=AccTrans/list_transactions&trans_id=7
 
 =head1 TODO
 
