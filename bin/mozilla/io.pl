@@ -2046,7 +2046,7 @@ sub show_sales_purchase_email_dialog {
     to                  => $email,
     cc                  => $email_cc,
     subject             => $::form->generate_email_subject,
-    message             => $::form->generate_email_body,
+    message             => $::form->generate_email_body('inv_email' => $inv_email),
     attachment_filename => $::form->generate_attachment_filename,
     js_send_function    => 'kivi.SalesPurchase.send_email()',
   };
