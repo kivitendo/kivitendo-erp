@@ -2020,15 +2020,21 @@ sub _get_files_for_email_dialog {
 
 sub show_sales_purchase_email_dialog {
   my $email = '';
+  my $email_cc = '';
+  my $inv_email;
   if ($::form->{cp_id}) {
     $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
   }
-  my $invoice_mail;
-  if ($::form->{type} eq 'invoice' && !$email) {
-    # check for invoice_mail
-    $email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
-    $invoice_mail = 1 if $email;
+  if ($::form->{type} eq 'invoice' && (!$email || $::instance_conf->get_invoice_mail_settings ne 'cp')) {
+    # check for invoice_mail if defined (vc.invoice_email)
+    $inv_email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
+    if ($inv_email) {
+      # check if cc for contact is also wanted
+      $email_cc = $email if ($::instance_conf->get_invoice_mail_settings eq 'invoice_mail_cc_cp');
+      $email    = $inv_email;
+    }
   }
+  # still no email? use general mail (vc.email)
   if (!$email && $::form->{vc} && $::form->{vc_id}) {
     $email = SL::DB::Customer->load_cached($::form->{vc_id})->email if 'customer' eq $::form->{vc};
     $email = SL::DB::Vendor  ->load_cached($::form->{vc_id})->email if 'vendor'   eq $::form->{vc};
@@ -2038,6 +2044,7 @@ sub show_sales_purchase_email_dialog {
 
   my $email_form = {
     to                  => $email,
+    cc                  => $email_cc,
     subject             => $::form->generate_email_subject,
     message             => $::form->generate_email_body,
     attachment_filename => $::form->generate_attachment_filename,
@@ -2050,7 +2057,7 @@ sub show_sales_purchase_email_dialog {
     show_bcc    => $::auth->assert('email_bcc', 'may fail'),
     FILES       => \%files,
     is_customer => $::form->{vc} eq 'customer',
-    is_invoice_mail => $invoice_mail,
+    is_invoice_mail => $inv_email,
   });
 
   print $::form->ajax_response_header, $html;

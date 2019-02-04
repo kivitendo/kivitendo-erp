@@ -236,9 +236,15 @@
    </td>
    <td>[% 'Sent emails can be optionally stored in the database with or without their attachments.' | $T8 %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Invoice email settings') %]</td>
+   <td>
+     [% L.select_tag('defaults.invoice_mail_settings', [ [ 'cp', LxERP.t8('Contact Person') ],[ 'invoice_mail', LxERP.t8('Invoice email') ],[ 'invoice_mail_cc_cp', LxERP.t8('Invoice email and Contact Person') ]  ], default=SELF.defaults.invoice_mail_settings) %]
+   </td>
+   <td>[% 'The invoice recipient can either be a selected contact person (default) or the email adress set in the master data of the customer. Additionally a contact persons mail and the company\'s invoicing mail can be combined.' | $T8 %]</td>
+  </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
-
   <tr>
    <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>
    <td>
