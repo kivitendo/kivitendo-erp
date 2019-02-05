@@ -34,6 +34,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Verkauf-Rechnungsbericht -> Nicht per E-Mail verschickte Belege anzeigen lassen
 
+- Vorauswahl bei Dateianhängen für den E-Mail-Versand von Belegen konfigurierbar gemacht (Standardmäßig angehakt)
+
 2019-01-03 - Release 3.5.3
 
 Mittelgroße neue Features:

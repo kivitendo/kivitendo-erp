@@ -77,6 +77,21 @@
        [% L.hidden_tag('defaults.doc_max_filesize',SELF.defaults.doc_max_filesize) %] MB</td>
    <td>[% LxERP.t8('The maximum of uploadable filesize in Megabyte') %]</td>
   </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Preselect Customer/Vendor documents as email attachments') %]</td>
+   <td>[% L.yes_no_tag('defaults.email_attachment_vc_files_checked', SELF.defaults.email_attachment_vc_files_checked) %]</td>
+   <td>[% LxERP.t8('Preselect all documents saved for the current customer/vendor as a mail attachment.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Preselect part documents as email attachments') %]</td>
+   <td>[% L.yes_no_tag('defaults.email_attachment_part_files_checked', SELF.defaults.email_attachment_part_files_checked) %]</td>
+   <td>[% LxERP.t8('Preselect all documents for the current selected parts in a record as a mail attachment.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Preselect record documents as email attachments') %]</td>
+   <td>[% L.yes_no_tag('defaults.email_attachment_record_files_checked', SELF.defaults.email_attachment_record_files_checked) %]</td>
+   <td>[% LxERP.t8('Preselect all documents saved for the current record as a mail attachment.') %]</td>
+  </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Storage Backends") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Files') %]</td>
