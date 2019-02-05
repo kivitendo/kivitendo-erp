@@ -15,6 +15,7 @@ use SL::Presenter::GL;
 use SL::Presenter::Letter;
 use SL::Presenter::Order;
 use SL::Presenter::Part;
+use SL::Presenter::PartsGroup;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::RequirementSpec;
@@ -43,6 +44,7 @@ our %presenters = (
   letter                      => 'SL::Presenter::Letter',
   order                       => 'SL::Presenter::Order',
   part                        => 'SL::Presenter::Part',
+  partsgroup                  => 'SL::Presenter::PartsGroup',
   project                     => 'SL::Presenter::Project',
   record                      => 'SL::Presenter::Record',
   requirement_spec            => 'SL::Presenter::RequirementSpec',
