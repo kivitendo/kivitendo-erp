@@ -45,6 +45,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Dialogbuchungen aus Kontoauszugs-Import erstellen, der Verwendungszweck wird in die Beschreibung übernommen
 
+- ungenutzte Spalte "ranking" aus Tabelle "payment_terms" entfernt
+
 2019-01-03 - Release 3.5.3
 
 Mittelgroße neue Features:

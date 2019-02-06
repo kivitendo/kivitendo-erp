@@ -18,7 +18,6 @@ __PACKAGE__->meta->columns(
   mtime                    => { type => 'timestamp' },
   obsolete                 => { type => 'boolean', default => 'false' },
   percent_skonto           => { type => 'float', scale => 4 },
-  ranking                  => { type => 'integer' },
   sortkey                  => { type => 'integer', not_null => 1 },
   terms_netto              => { type => 'integer' },
   terms_skonto             => { type => 'integer' },
