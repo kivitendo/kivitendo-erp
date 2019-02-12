@@ -3,13 +3,14 @@ package SL::Locale::String;
 use strict;
 
 use parent qw(Rose::Object Exporter);
+use SL::X;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(untranslated) ],
   array  => [ qw(args) ],
 );
 
-our @EXPORT = qw(t8);
+our @EXPORT = qw(t8 t8x);
 
 use overload
   '""' => \&translated,
@@ -26,6 +27,14 @@ sub t8 {
 
   my $string = shift;
   return SL::Locale::String->new(untranslated => $string, args => [ @_ ]);
+}
+
+sub t8x {
+  my ($string, @args) = @_;
+
+  SL::X::String->new(
+    msg => SL::Locale::String->new(untranslated => $string, args => [ @args ]),
+  )
 }
 
 sub my_eq {

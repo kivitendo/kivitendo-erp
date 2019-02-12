@@ -32,6 +32,7 @@ use SL::InstanceConfiguration;
 use SL::MoreCommon qw(uri_encode);
 use SL::Template::Plugin::HTMLFixes;
 use SL::User;
+use SL::X qw(user_message stacktrace);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(restart_after_request) ],
@@ -321,8 +322,11 @@ sub handle_request {
     1;
   } or do {
     if (substr($EVAL_ERROR, 0, length(END_OF_REQUEST())) ne END_OF_REQUEST()) {
-      my $error = $EVAL_ERROR;
-      print STDERR $error;
+      my $e          = $EVAL_ERROR;
+      my $error      = user_message($e) // "$e";
+      my $stacktrace = stacktrace($e);
+
+      print STDERR $stacktrace;
 
       if ($::request->is_ajax) {
         eval { render_error_ajax($error) };
