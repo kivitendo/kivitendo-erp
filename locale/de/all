@@ -1226,6 +1226,7 @@ $self->{texts} = {
   'Element disabled'            => 'Element deaktiviert',
   'Email'                       => 'E-Mail',
   'Email journal'               => 'E-Mail-Journal',
+  'Email of the delivery order recipient' => 'E-Mail des Lieferscheinempfängers',
   'Email of the invoice recipient' => 'E-Mail des Rechnungsempfängers',
   'Employee'                    => 'Bearbeiter',
   'Employee #1 saved!'          => 'Benutzer #1 gespeichert!',

@@ -179,7 +179,7 @@ sub list_names {
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
-    'creditlimit', 'ustid', 'commercial_court'
+    'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -214,6 +214,7 @@ sub list_names {
     'insertdate'        => { 'text' => $locale->text('Insert Date'), },
     'pricegroup'        => { 'text' => $locale->text('Pricegroup'), },
     'invoice_mail'      => { 'text' => $locale->text('Email of the invoice recipient'), },
+    'delivery_order_mail' => { 'text' => $locale->text('Email of the delivery order recipient'), },
     'contact_origin'    => { 'text' => $locale->text('Origin of personal data'), },
     'creditlimit'       => { 'text' => $locale->text('Credit Limit'), },
     'ustid'             => { 'text' => $locale->text('VAT ID'), },
