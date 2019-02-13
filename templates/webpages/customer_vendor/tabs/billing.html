@@ -174,6 +174,10 @@
       <th align="right">[% 'Email of the invoice recipient' | $T8 %]</th>
       <td>[% L.input_tag('cv.invoice_mail', SELF.cv.invoice_mail, size = 45) %]</td>
     </tr>
+    <tr>
+      <th align="right">[% 'Email of the delivery order recipient' | $T8 %]</th>
+      <td>[% L.input_tag('cv.delivery_order_mail', SELF.cv.delivery_order_mail, size = 45) %]</td>
+    </tr>
     [% END %]
     <tr>
       <th align="right" nowrap>
