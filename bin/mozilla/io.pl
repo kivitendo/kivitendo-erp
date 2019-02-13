@@ -2021,17 +2021,29 @@ sub _get_files_for_email_dialog {
 sub show_sales_purchase_email_dialog {
   my $email = '';
   my $email_cc = '';
-  my $inv_email;
+  my $record_email;
   if ($::form->{cp_id}) {
     $email = SL::DB::Contact->load_cached($::form->{cp_id})->cp_email;
   }
+  # write a dispatch table if a third type enters
+  # check record mail for sales_invoice
   if ($::form->{type} eq 'invoice' && (!$email || $::instance_conf->get_invoice_mail_settings ne 'cp')) {
     # check for invoice_mail if defined (vc.invoice_email)
-    $inv_email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
-    if ($inv_email) {
+    $record_email = SL::DB::Customer->load_cached($::form->{vc_id})->invoice_mail;
+    if ($record_email) {
       # check if cc for contact is also wanted
       $email_cc = $email if ($::instance_conf->get_invoice_mail_settings eq 'invoice_mail_cc_cp');
-      $email    = $inv_email;
+      $email    = $record_email;
+    }
+  }
+  # check record mail for sales_delivery_order
+  if ($::form->{type} eq 'sales_delivery_order') {
+    # check for deliver_order_mail if defined (vc.delivery_order_mail)
+    $record_email = SL::DB::Customer->load_cached($::form->{vc_id})->delivery_order_mail;
+    if ($record_email) {
+      # check if cc for contact is also wanted
+      $email_cc = $email; # always cc to cp
+      $email    = $record_email;
     }
   }
   # still no email? use general mail (vc.email)
@@ -2046,7 +2058,7 @@ sub show_sales_purchase_email_dialog {
     to                  => $email,
     cc                  => $email_cc,
     subject             => $::form->generate_email_subject,
-    message             => $::form->generate_email_body('inv_email' => $inv_email),
+    message             => $::form->generate_email_body('record_email' => $record_email),
     attachment_filename => $::form->generate_attachment_filename,
     js_send_function    => 'kivi.SalesPurchase.send_email()',
   };
@@ -2057,7 +2069,7 @@ sub show_sales_purchase_email_dialog {
     show_bcc    => $::auth->assert('email_bcc', 'may fail'),
     FILES       => \%files,
     is_customer => $::form->{vc} eq 'customer',
-    is_invoice_mail => $inv_email,
+    is_invoice_mail => ($record_email && $::form->{type} eq 'invoice'),
   });
 
   print $::form->ajax_response_header, $html;

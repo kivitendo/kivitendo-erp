@@ -1352,7 +1352,7 @@ sub generate_email_body {
   # Gentile Signora Ferrari,
   my $body = '';
 
-  if ($self->{cp_id} && !$params{inv_email}) {
+  if ($self->{cp_id} && !$params{record_email}) {
     my $givenname = SL::DB::Contact->load_cached($self->{cp_id})->cp_givenname; # for qw(gender givename name);
     my $name      = SL::DB::Contact->load_cached($self->{cp_id})->cp_name; # for qw(gender givename name);
     my $gender    = SL::DB::Contact->load_cached($self->{cp_id})->cp_gender; # for qw(gender givename name);
