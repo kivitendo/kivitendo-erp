@@ -516,9 +516,46 @@ sub ar_transactions {
 
   my $where = "1 = 1";
 
-  unless ( $::auth->assert('show_ar_transactions', 1) ) {
-    $where .= " AND NOT invoice = 'f' ";  # remove ar transactions from Sales -> Reports -> Invoices
-  };
+  # Permissions:
+  # - Always return invoices & AR transactions for projects the employee has "view invoices" permissions for, no matter what the other rules say.
+  # - Exclude AR transactions if no permissions for them exist.
+  # - Limit to own invoices unless may edit all invoices.
+  # - If may edit all, allow filtering by employee/salesman.
+  my (@permission_where, @permission_values);
+
+  if ($::auth->assert('invoice_edit', 1)) {
+    if (!$::auth->assert('show_ar_transactions', 1) ) {
+      push @permission_where, "NOT invoice = 'f'";  # remove ar transactions from Sales -> Reports -> Invoices
+    }
+
+    if (!$::auth->assert('sales_all_edit', 1)) {
+      # only show own invoices
+      push @permission_where,  "a.employee_id = ?";
+      push @permission_values, SL::DB::Manager::Employee->current->id;
+
+    } else {
+      if ($form->{employee_id}) {
+        push @permission_where,  "a.employee_id = ?";
+        push @permission_values, conv_i($form->{employee_id});
+      }
+      if ($form->{salesman_id}) {
+        push @permission_where,  "a.salesman_id = ?";
+        push @permission_values, conv_i($form->{salesman_id});
+      }
+    }
+  }
+
+  if (@permission_where || !$::auth->assert('invoice_edit', 1)) {
+    my $permission_where_str = @permission_where ? "OR (" . join(" AND ", map { "($_)" } @permission_where) . ")" : "";
+    $where .= qq|
+      AND (   (a.globalproject_id IN (
+               SELECT epi.project_id
+               FROM employee_project_invoices epi
+               WHERE epi.employee_id = ?))
+           $permission_where_str)
+    |;
+    push @values, SL::DB::Manager::Employee->current->id, @permission_values;
+  }
 
   if ($form->{customer}) {
     $where .= " AND c.name ILIKE ?";
@@ -577,21 +614,6 @@ sub ar_transactions {
       $where .= " AND a.amount = a.paid"  if ($form->{closed});
     }
   }
-
-  if (!$main::auth->assert('sales_all_edit', 1)) {
-    # only show own invoices
-    $where .= " AND a.employee_id = (select id from employee where login= ?)";
-    push (@values, $::myconfig{login});
-  } else {
-    if ($form->{employee_id}) {
-      $where .= " AND a.employee_id = ?";
-      push @values, conv_i($form->{employee_id});
-    }
-    if ($form->{salesman_id}) {
-      $where .= " AND a.salesman_id = ?";
-      push @values, conv_i($form->{salesman_id});
-    }
-  };
 
   if ($form->{parts_partnumber}) {
     $where .= <<SQL;

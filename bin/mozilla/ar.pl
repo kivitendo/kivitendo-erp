@@ -89,6 +89,20 @@ use strict;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
+sub _may_view_or_edit_this_invoice {
+  return 1 if  $::auth->assert('ar_transactions', 1); # may edit all invoices
+  return 0 if !$::form->{id};                         # creating new invoices isn't allowed without invoice_edit
+  return 0 if !$::form->{globalproject_id};           # existing records without a project ID are not allowed
+  return SL::DB::Project->new(id => $::form->{globalproject_id})->load->may_employee_view_project_invoices(SL::DB::Manager::Employee->current);
+}
+
+sub _assert_access {
+  my $cache = $::request->cache('ar.pl::_assert_access');
+
+  $cache->{_may_view_or_edit_this_invoice} = _may_view_or_edit_this_invoice()                              if !exists $cache->{_may_view_or_edit_this_invoice};
+  $::form->show_generic_error($::locale->text("You do not have the permissions to access this function.")) if !       $cache->{_may_view_or_edit_this_invoice};
+}
+
 sub load_record_template {
   $::auth->assert('ar_transactions');
 
@@ -249,7 +263,9 @@ sub add {
 sub edit {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('ar_transactions');
+  # Delay access check to after the invoice's been loaded in
+  # "create_links" so that project-specific invoice rights can be
+  # evaluated.
 
   my $form     = $main::form;
 
@@ -268,7 +284,7 @@ sub edit {
 sub display_form {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('ar_transactions');
+  _assert_access();
 
   my $form     = $main::form;
 
@@ -287,7 +303,8 @@ sub _retrieve_invoice_object {
 sub create_links {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('ar_transactions');
+  # Delay access check to after the invoice's been loaded so that
+  # project-specific invoice rights can be evaluated.
 
   my %params   = @_;
   my $form     = $main::form;
@@ -295,6 +312,8 @@ sub create_links {
 
   $form->create_links("AR", \%myconfig, "customer");
   $form->{invoice_obj} = _retrieve_invoice_object();
+
+  _assert_access();
 
   my %saved;
   if (!$params{dont_save}) {
@@ -329,7 +348,7 @@ sub create_links {
 sub form_header {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('ar_transactions');
+  _assert_access();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -528,7 +547,7 @@ sub form_header {
 sub form_footer {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('ar_transactions');
+  _assert_access();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -885,25 +904,30 @@ sub setup_ar_search_action_bar {
 }
 
 sub setup_ar_transactions_action_bar {
-  my %params = @_;
+  my %params          = @_;
+  my $may_edit_create = $::auth->assert('invoice_edit', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
         $::locale->text('Print'),
         call     => [ 'kivi.MassInvoiceCreatePrint.showMassPrintOptionsOrDownloadDirectly' ],
-        disabled => !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.') : undef,
+        disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
+                  : !$params{num_rows} ? $::locale->text('The report doesn\'t contain entries.')
+                  :                      undef,
       ],
 
       combobox => [
         action => [ $::locale->text('Create new') ],
         action => [
           $::locale->text('AR Transaction'),
-          submit => [ '#create_new_form', { action => 'ar_transaction' } ],
+          submit   => [ '#create_new_form', { action => 'ar_transaction' } ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
         action => [
           $::locale->text('Sales Invoice'),
-          submit => [ '#create_new_form', { action => 'sales_invoice' } ],
+          submit   => [ '#create_new_form', { action => 'sales_invoice' } ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
       ], # end of combobox "Create new"
     );
@@ -912,8 +936,6 @@ sub setup_ar_transactions_action_bar {
 
 sub search {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -968,8 +990,6 @@ sub create_subtotal_row {
 
 sub ar_transactions {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1254,6 +1274,7 @@ sub setup_ar_form_header_action_bar {
 
   my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ar', $::form->{id});
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ar');
+  my $may_edit_create         = $::auth->assert('ar_transactions', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1262,6 +1283,7 @@ sub setup_ar_form_header_action_bar {
         submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
         checks    => [ 'kivi.validate_form' ],
+        disabled  => !$may_edit_create ? t8('You must not change this AR transaction.') : undef,
         accesskey => 'enter',
       ],
 
@@ -1270,7 +1292,8 @@ sub setup_ar_form_header_action_bar {
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
-          disabled => $is_closed                                  ? t8('The billing period has already been locked.')
+          disabled => !$may_edit_create                           ? t8('You must not change this AR transaction.')
+                    : $is_closed                                  ? t8('The billing period has already been locked.')
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
@@ -1279,12 +1302,16 @@ sub setup_ar_form_header_action_bar {
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AR transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AR transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
           only_if  => $::instance_conf->get_is_show_mark_as_paid,
         ],
       ], # end of combobox "Post"
@@ -1294,16 +1321,18 @@ sub setup_ar_form_header_action_bar {
           submit   => [ '#form', { action => "storno" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AR.check_fields_before_posting' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
-          disabled => !$::form->{id}         ? t8('This invoice has not been posted yet.')
-                      : $has_storno          ? t8('This invoice has been canceled already.')
-                      : $is_storno           ? t8('Reversal invoices cannot be canceled.')
-                      : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
-                      :                        undef,
+          disabled => !$may_edit_create    ? t8('You must not change this AR transaction.')
+                    : !$::form->{id}       ? t8('This invoice has not been posted yet.')
+                    : $has_storno          ? t8('This invoice has been canceled already.')
+                    : $is_storno           ? t8('Reversal invoices cannot be canceled.')
+                    : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
+                    :                        undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
-          disabled => !$::form->{id}           ? t8('This invoice has not been posted yet.')
+          disabled => !$may_edit_create        ? t8('You must not change this AR transaction.')
+                    : !$::form->{id}           ? t8('This invoice has not been posted yet.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $is_closed               ? t8('The billing period has already been locked.')
@@ -1319,7 +1348,9 @@ sub setup_ar_form_header_action_bar {
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AR transaction.')
+                    : !$::form->{id} ? t8('This invoice has not been posted yet.')
+                    :                  undef,
         ],
       ], # end of combobox "Workflow"
 
@@ -1337,14 +1368,16 @@ sub setup_ar_form_header_action_bar {
         ],
         action => [
           t8('Record templates'),
-          call => [ 'kivi.RecordTemplate.popup', 'ar_transaction' ],
+          call     => [ 'kivi.RecordTemplate.popup', 'ar_transaction' ],
+          disabled => !$may_edit_create ? t8('You must not change this AR transaction.') : undef,
         ],
         action => [
           t8('Drafts'),
           call     => [ 'kivi.Draft.popup', 'ar', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
-          disabled => $::form->{id} ? t8('This invoice has already been posted.')
-                    : $is_closed    ? t8('The billing period has already been locked.')
-                    :                 undef,
+          disabled => !$may_edit_create ? t8('You must not change this AR transaction.')
+                    : $::form->{id}     ? t8('This invoice has already been posted.')
+                    : $is_closed        ? t8('The billing period has already been locked.')
+                    :                     undef,
         ],
       ], # end of combobox "more"
     );

@@ -12,6 +12,7 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::CVar;
 use SL::DB::Customer;
 use SL::DB::DeliveryOrder;
+use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::Project;
@@ -29,11 +30,12 @@ use Rose::DB::Object::Helpers qw(as_tree);
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project) ],
- 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects linked_records) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects linked_records employees may_edit_invoice_permissions) ],
 );
 
 __PACKAGE__->run_before('check_auth',   except => [ qw(ajax_autocomplete) ]);
 __PACKAGE__->run_before('load_project', only   => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('use_multiselect_js', only => [ qw(new create edit update) ]);
 
 #
 # actions
@@ -166,6 +168,8 @@ sub check_auth {
 
 sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
 sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
+sub init_employees        { SL::DB::Manager::Employee->get_all_sorted   }
+sub init_may_edit_invoice_permissions { $::auth->assert('project_edit_view_invoices_permission', 1) }
 
 sub init_linked_records {
   my ($self) = @_;
@@ -223,6 +227,10 @@ sub init_customers {
   return SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, @customer_id ]]);
 }
 
+sub use_multiselect_js {
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
+}
+
 sub display_form {
   my ($self, %params) = @_;
 
@@ -245,6 +253,12 @@ sub create_or_update {
   my $self   = shift;
   my $is_new = !$self->project->id;
   my $params = delete($::form->{project}) || { };
+
+  if (!$self->may_edit_invoice_permissions) {
+    delete $params->{employee_invoice_permissions};
+  } elsif (!$params->{employee_invoice_permissions}) {
+    $params->{employee_invoice_permissions} = [];
+  }
 
   delete $params->{id};
   $self->project->assign_attributes(%{ $params });

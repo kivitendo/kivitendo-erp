@@ -12,6 +12,13 @@ use SL::DB::Helper::CustomVariables(
   cvars_alias => 1,
 );
 
+__PACKAGE__->meta->add_relationship(
+  employee_invoice_permissions  => {
+    type       => 'many to many',
+    map_class  => 'SL::DB::EmployeeProjectInvoices',
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 sub validate {
@@ -82,6 +89,23 @@ sub full_description {
   }
 
   return $description;
+}
+
+sub may_employee_view_project_invoices {
+  my ($self, $employee) = @_;
+
+  return undef if !$self->id;
+
+  my $employee_id = ref($employee) ? $employee->id : $employee * 1;
+  my $query       = <<EOSQL;
+    SELECT project_id
+    FROM employee_project_invoices
+    WHERE (employee_id = ?)
+      AND (project_id  = ?)
+    LIMIT 1
+EOSQL
+
+  return !!$self->db->dbh->selectrow_arrayref($query, undef, $employee_id, $self->id)->[0];
 }
 
 1;

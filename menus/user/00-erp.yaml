@@ -308,7 +308,6 @@
   name: Invoices, Credit Notes & AR Transactions
   icon: invoices_report
   order: 500
-  access: invoice_edit
   module: ar.pl
   params:
     action: search

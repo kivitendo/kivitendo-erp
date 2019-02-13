@@ -126,8 +126,6 @@ sub _check_io_auth {
 sub display_row {
   $main::lxdebug->enter_sub();
 
-  _check_io_auth();
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -1654,8 +1652,6 @@ sub relink_accounts {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
-
-  _check_io_auth();
 
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;
