@@ -22,7 +22,7 @@ sub _sort_spec {
 
 sub current {
   return undef unless $::myconfig{login};
-  return shift->find_by(login => $::myconfig{login});
+  return $::request->cache('current')->{object} //= shift->find_by(login => $::myconfig{login});
 }
 
 sub update_entries_for_authorized_users {
