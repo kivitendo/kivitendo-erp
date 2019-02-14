@@ -35,6 +35,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Pflichtenhefte: wenn in einem Auftrag, das mit einem Pflichtenheft
   verknüpft ist, ein Projekt ausgewählt, so wird dieses Projekt auch
   automatisch beim verknüpften Pflichtenheft eingetragen.
+- Druckvorlagen: die in Positionen verwendeten Variablen können nun
+  Platzhalter enthalten, die vom Beleg selber stammen. So könnte
+  z.B. in der Artikelbeschreibung automatisch die Rechnungsnummer
+  ersetzt werden. Beispiel: »Abrechnungszeitraum bis <%invnumber%>«
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 

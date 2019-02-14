@@ -3214,6 +3214,32 @@ sub prepare_for_printing {
     today     => DateTime->today,
   };
 
+  if ($defaults->print_interpolate_variables_in_positions) {
+    $self->substitute_placeholders_in_template_arrays({ field => 'description', type => 'text' }, { field => 'longdescription', type => 'html' });
+  }
+
+  return $self;
+}
+
+sub substitute_placeholders_in_template_arrays {
+  my ($self, @fields) = @_;
+
+  foreach my $spec (@fields) {
+    $spec     = { field => $spec, type => 'text' } if !ref($spec);
+    my $field = $spec->{field};
+
+    next unless exists $self->{TEMPLATE_ARRAYS} && exists $self->{TEMPLATE_ARRAYS}->{$field};
+
+    my $tag_start = $spec->{type} eq 'html' ? '&lt;%' : '<%';
+    my $tag_end   = $spec->{type} eq 'html' ? '%&gt;' : '%>';
+    my $formatter = $spec->{type} eq 'html' ? sub { $::locale->quote_special_chars('html', $_[0] // '') } : sub { $_[0] };
+
+    $self->{TEMPLATE_ARRAYS}->{$field} = [
+      apply { s{${tag_start}(.+?)${tag_end}}{ $formatter->($self->{$1}) }eg }
+        @{ $self->{TEMPLATE_ARRAYS}->{$field} }
+    ];
+  }
+
   return $self;
 }
 

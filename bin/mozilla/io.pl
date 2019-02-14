@@ -1570,6 +1570,10 @@ sub print_form {
     today     => DateTime->today,
   };
 
+  if ($defaults->print_interpolate_variables_in_positions) {
+    $form->substitute_placeholders_in_template_arrays({ field => 'description', type => 'text' }, { field => 'longdescription', type => 'html' });
+  }
+
   $form->parse_template(\%myconfig);
 
   $form->{callback} = "";

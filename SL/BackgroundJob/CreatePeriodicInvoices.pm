@@ -143,8 +143,10 @@ sub _replace_vars {
   my $sub_fmt  = lc($params{attribute_format} // 'text');
 
   my ($start_tag, $end_tag) = $sub_fmt eq 'html' ? ('&lt;%', '%&gt;') : ('<%', '%>');
+  my @invoice_keys          = $params{invoice} ? (map { $_->name } $params{invoice}->meta->columns) : ();
+  my $key_name_re           = join '|', map { quotemeta } (@invoice_keys, keys %{ $params{vars} });
 
-  $str =~ s{ ${start_tag} ([a-z0-9_]+) ( \s+ format \s*=\s* (.*?) \s* )? ${end_tag} }{
+  $str =~ s{ ${start_tag} ($key_name_re) ( \s+ format \s*=\s* (.*?) \s* )? ${end_tag} }{
     my ($key, $format) = ($1, $3);
     $key               = $::locale->unquote_special_chars('html', $key) if $sub_fmt eq 'html';
     my $new_value;
