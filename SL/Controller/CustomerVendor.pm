@@ -41,7 +41,8 @@ use Rose::Object::MakeMethods::Generic (
 __PACKAGE__->run_before(
   sub {
     $::auth->assert('customer_vendor_edit');
-  }
+  },
+  except => [ qw(ajaj_autocomplete) ],
 );
 __PACKAGE__->run_before(
   '_instantiate_args',
