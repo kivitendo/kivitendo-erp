@@ -444,11 +444,36 @@ sub ap_transactions {
 
   my $where = '';
 
-  unless ( $::auth->assert('show_ap_transactions', 1) ) {
-    $where .= " AND NOT invoice = 'f' ";  # remove ap transactions from Sales -> Reports -> Invoices
-  };
-
   my @values;
+
+  # Permissions:
+  # - Always return invoices & AP transactions for projects the employee has "view invoices" permissions for, no matter what the other rules say.
+  # - Exclude AP transactions if no permissions for them exist.
+  # - Filter by employee if requested.
+  my (@permission_where, @permission_values);
+
+  if ($::auth->assert('vendor_invoice_edit', 1)) {
+    if (!$::auth->assert('show_ap_transactions', 1)) {
+      push @permission_where, "NOT invoice = 'f'"; # remove ap transactions from Purchase -> Reports -> Invoices
+    }
+
+    if ($form->{employee_id}) {
+      push @permission_where,  "a.employee_id = ?";
+      push @permission_values, conv_i($form->{employee_id});
+    }
+  }
+
+  if (@permission_where || !$::auth->assert('vendor_invoice_edit', 1)) {
+    my $permission_where_str = @permission_where ? "OR (" . join(" AND ", map { "($_)" } @permission_where) . ")" : "";
+    $where .= qq|
+      AND (   (a.globalproject_id IN (
+               SELECT epi.project_id
+               FROM employee_project_invoices epi
+               WHERE epi.employee_id = ?))
+           $permission_where_str)
+    |;
+    push @values, SL::DB::Manager::Employee->current->id, @permission_values;
+  }
 
   if ($form->{vendor}) {
     $where .= " AND v.name ILIKE ?";
@@ -529,7 +554,7 @@ SQL
   }
 
   if ($where) {
-    substr($where, 0, 4, " WHERE ");
+    $where  =~ s{\s*AND\s*}{ WHERE };
     $query .= $where;
   }
 

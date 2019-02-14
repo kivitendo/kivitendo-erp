@@ -477,7 +477,6 @@
   id: ap_reports_vendor_invoices_ap_transactions
   name: Vendor Invoices & AP Transactions
   order: 400
-  access: vendor_invoice_edit
   module: ap.pl
   params:
     action: search

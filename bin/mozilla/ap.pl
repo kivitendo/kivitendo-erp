@@ -88,6 +88,20 @@ use strict;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
+sub _may_view_or_edit_this_invoice {
+  return 1 if  $::auth->assert('ap_transactions', 1); # may edit all invoices
+  return 0 if !$::form->{id};                         # creating new invoices isn't allowed without invoice_edit
+  return 0 if !$::form->{globalproject_id};           # existing records without a project ID are not allowed
+  return SL::DB::Project->new(id => $::form->{globalproject_id})->load->may_employee_view_project_invoices(SL::DB::Manager::Employee->current);
+}
+
+sub _assert_access {
+  my $cache = $::request->cache('ap.pl::_assert_access');
+
+  $cache->{_may_view_or_edit_this_invoice} = _may_view_or_edit_this_invoice()                              if !exists $cache->{_may_view_or_edit_this_invoice};
+  $::form->show_generic_error($::locale->text("You do not have the permissions to access this function.")) if !       $cache->{_may_view_or_edit_this_invoice};
+}
+
 sub load_record_template {
   $::auth->assert('ap_transactions');
 
@@ -247,9 +261,11 @@ sub add {
 sub edit {
   $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
+  # Delay access check to after the invoice's been loaded in
+  # "create_links" so that project-specific invoice rights can be
+  # evaluated.
 
-  $main::auth->assert('ap_transactions');
+  my $form     = $main::form;
 
   $form->{title} = "Edit";
 
@@ -262,9 +278,9 @@ sub edit {
 sub display_form {
   $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
+  _assert_access();
 
-  $main::auth->assert('ap_transactions');
+  my $form     = $main::form;
 
   # get all files stored in the webdav folder
   if ($form->{invnumber} && $::instance_conf->get_webdav) {
@@ -287,14 +303,18 @@ sub display_form {
 sub create_links {
   $main::lxdebug->enter_sub();
 
+  # Delay access check to after the invoice's been loaded so that
+  # project-specific invoice rights can be evaluated.
+
   my %params   = @_;
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('ap_transactions');
-
   $form->create_links("AP", \%myconfig, "vendor");
+
+  _assert_access();
+
   my %saved;
   if (!$params{dont_save}) {
     %saved = map { ($_ => $form->{$_}) } qw(direct_debit taxincluded);
@@ -346,12 +366,12 @@ sub _sort_payments {
 sub form_header {
   $main::lxdebug->enter_sub();
 
+  _assert_access();
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
-
-  $main::auth->assert('ap_transactions');
 
   $::form->{invoice_obj} = SL::DB::PurchaseInvoice->new(id => $::form->{id})->load if $::form->{id};
 
@@ -546,7 +566,8 @@ sub form_header {
 
 sub form_footer {
   $::lxdebug->enter_sub;
-  $::auth->assert('ap_transactions');
+
+  _assert_access();
 
   my $num_due;
   my $num_follow_ups;
@@ -914,8 +935,6 @@ sub delete {
 sub search {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('vendor_invoice_edit');
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -965,8 +984,6 @@ sub ap_transactions {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-
-  $main::auth->assert('vendor_invoice_edit');
 
   report_generator_set_default_sort('transdate', 1);
 
@@ -1177,7 +1194,8 @@ sub setup_ap_search_action_bar {
 }
 
 sub setup_ap_transactions_action_bar {
-  my %params = @_;
+  my %params          = @_;
+  my $may_edit_create = $::auth->assert('vendor_invoice_edit', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1185,11 +1203,14 @@ sub setup_ap_transactions_action_bar {
         action => [ t8('Add') ],
         link => [
           t8('Purchase Invoice'),
-          link => [ 'ir.pl?action=add' ],
+          link     => [ 'ir.pl?action=add' ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
+
         ],
         link => [
           t8('AP Transaction'),
-          link => [ 'ap.pl?action=add' ],
+          link     => [ 'ap.pl?action=add' ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
       ], # end of combobox "Add"
     );
@@ -1207,6 +1228,8 @@ sub setup_ap_display_form_action_bar {
   my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ap', $::form->{id});
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ap');
 
+  my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
+
   my $has_sepa_exports;
 
   if ($::form->{id}) {
@@ -1222,6 +1245,7 @@ sub setup_ap_display_form_action_bar {
         id        => 'update_button',
         checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
+        disabled  => !$may_edit_create ? t8('You must not change this AP transaction.') : undef,
       ],
 
       combobox => [
@@ -1229,7 +1253,8 @@ sub setup_ap_display_form_action_bar {
           t8('Post'),
           submit   => [ '#form', { action => "post" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting', 'kivi.AP.check_duplicate_invnumber' ],
-          disabled => $is_closed                                  ? t8('The billing period has already been locked.')
+          disabled => !$may_edit_create                           ? t8('You must not change this AP transaction.')
+                    : $is_closed                                  ? t8('The billing period has already been locked.')
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
@@ -1239,12 +1264,16 @@ sub setup_ap_display_form_action_bar {
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
           only_if  => $::instance_conf->get_is_show_mark_as_paid,
         ],
       ], # end of combobox "Post"
@@ -1254,17 +1283,19 @@ sub setup_ap_display_form_action_bar {
           submit   => [ '#form', { action => "storno" } ],
           checks   => [ 'kivi.validate_form', 'kivi.AP.check_fields_before_posting' ],
           confirm  => t8('Do you really want to cancel this invoice?'),
-          disabled => !$::form->{id}         ? t8('This invoice has not been posted yet.')
-                      : $has_storno          ? t8('This invoice has been canceled already.')
-                      : $is_storno           ? t8('Reversal invoices cannot be canceled.')
-                      : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
-                      : $has_sepa_exports    ? t8('This invoice has been linked with a sepa export, undo this first.')
-                      :                        undef,
+          disabled => !$may_edit_create    ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}       ? t8('This invoice has not been posted yet.')
+                    : $has_storno          ? t8('This invoice has been canceled already.')
+                    : $is_storno           ? t8('Reversal invoices cannot be canceled.')
+                    : $::form->{totalpaid} ? t8('Invoices with payments cannot be canceled.')
+                    : $has_sepa_exports    ? t8('This invoice has been linked with a sepa export, undo this first.')
+                    :                        undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
-          disabled => !$::form->{id}           ? t8('This invoice has not been posted yet.')
+          disabled => !$may_edit_create        ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}           ? t8('This invoice has not been posted yet.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $has_storno              ? t8('This invoice has been canceled already.')
@@ -1282,7 +1313,9 @@ sub setup_ap_display_form_action_bar {
           t8('Use As New'),
           submit   => [ '#form', { action => "use_as_new" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$::form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
         ],
       ], # end of combobox "Workflow"
 
@@ -1300,14 +1333,16 @@ sub setup_ap_display_form_action_bar {
         ],
         action => [
           t8('Record templates'),
-          call => [ 'kivi.RecordTemplate.popup', 'ap_transaction' ],
+          call     => [ 'kivi.RecordTemplate.popup', 'ap_transaction' ],
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.') : undef,
         ],
         action => [
           t8('Drafts'),
           call     => [ 'kivi.Draft.popup', 'ap', 'invoice', $::form->{draft_id}, $::form->{draft_description} ],
-          disabled => $::form->{id} ? t8('This invoice has already been posted.')
-                    : $is_closed    ? t8('The billing period has already been locked.')
-                    :                 undef,
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : $::form->{id}     ? t8('This invoice has already been posted.')
+                    : $is_closed        ? t8('The billing period has already been locked.')
+                    :                     undef,
         ],
       ], # end of combobox "more"
     );
