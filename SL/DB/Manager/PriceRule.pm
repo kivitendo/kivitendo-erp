@@ -73,8 +73,7 @@ sub get_all_matching {
   my ($self, %params) = @_;
 
   my ($query, @values) = $self->get_matching_filter(%params);
-  my @ids = selectall_ids($::form, $::form->get_standard_dbh, $query, 0, @values);
-
+  my @ids = selectcol_array_query($::form, SL::DB->client->dbh, $query, @values);
   return [] unless @ids;
 
   $self->get_all(query => [ id => \@ids ]);
