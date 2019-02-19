@@ -40,8 +40,8 @@ sub _format_text {
 
 my %html_replace = (
   '</p>'      => "\n\n",
-  '<ul>'      => "\\begin{itemize} ",
-  '</ul>'     => "\\end{itemize} ",
+  '<ul>'      => "\\begin{compactitem} ",
+  '</ul>'     => "\\end{compactitem} ",
   '<ol>'      => "\\begin{enumerate} ",
   '</ol>'     => "\\end{enumerate} ",
   '<li>'      => "\\item ",
