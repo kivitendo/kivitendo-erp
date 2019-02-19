@@ -408,7 +408,7 @@ __END__
 
 =head1 NAME
 
-SL::DBUTils.pm: All about database connections in kivitendo
+SL::DBUtils.pm: All about database connections in kivitendo
 
 =head1 SYNOPSIS
 
@@ -419,6 +419,8 @@ SL::DBUTils.pm: All about database connections in kivitendo
   conv_dateq($str)
   quote_db_date($date)
 
+  my $dbh = SL::DB->client->dbh;
+
   do_query($form, $dbh, $query)
   do_statement($form, $sth, $query)
 
@@ -428,7 +430,7 @@ SL::DBUTils.pm: All about database connections in kivitendo
   my $all_results_ref       = selectall_hashref_query($form, $dbh, $query)
   my $first_result_hash_ref = selectfirst_hashref_query($form, $dbh, $query);
 
-  my @first_result =  selectfirst_array_query($form, $dbh, $query);  # ==
+  my @first_result =  selectfirst_array_query($form, $dbh, $query);
   my @first_result =  selectrow_query($form, $dbh, $query);
 
   my %sort_spec = create_sort_spec(%params);
@@ -454,10 +456,8 @@ not. In most cases you will call it with C<$::form>.
 
 C<DBH> is a handle to the database, as returned by the C<DBI::connect> routine.
 If you don't have an active connection, you can use
-C<<$::form->get_standard_dbh>> to get a generic no_auto connection or get a
-C<Rose::DB::Object> handle from any RDBO class with
-C<<SL::DB::Part->new->db->dbh>>. The former will be without autocommit, the
-latter with autocommit.
+C<SL::DB->client->dbh> or get a C<Rose::DB::Object> handle from any RDBO class with
+C<<SL::DB::Part->new->db->dbh>>. In both cases the handle will have AutoCommit set.
 
 See C<PITFALLS AND CAVEATS> for common errors.
 
@@ -514,7 +514,7 @@ or export only what you need:
   selectall_hashref_query(...)
 
 
-=head2 Peformance
+=head2 Performance
 
 Since it is really easy to write something like
 
@@ -522,7 +522,7 @@ Since it is really easy to write something like
 
 people do so from time to time. When writing code, consider this a ticking
 timebomb. Someone out there has a database with 1mio parts in it, and this
-statement just shovelled ate 2GB of memory and timeouted the request.
+statement just gobbled up 2GB of memory and timeouted the request.
 
 Parts may be the obvious example, but the same applies to customer, vendors,
 records, projects or custom variables.
