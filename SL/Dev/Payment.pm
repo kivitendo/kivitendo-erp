@@ -82,6 +82,7 @@ sub create_bank_transaction {
    $bank_chart = SL::DB::Manager::Chart->find_by(description => 'Bank') or die "Can't find bank chart";
  }
  my $bank_account = SL::DB::Manager::BankAccount->find_by( chart_id => $bank_chart->id );
+ die "bank account missing" unless $bank_account;
 
  my $bt = SL::DB::BankTransaction->new(
    local_bank_account_id => $bank_account->id,
