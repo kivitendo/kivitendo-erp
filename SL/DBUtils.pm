@@ -8,7 +8,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
              dump_query quote_db_date like
              selectfirst_hashref_query selectfirst_array_query
-             selectall_hashref_query selectall_array_query
+             selectall_hashref_query selectall_array_query selectcol_array_query
              selectall_as_map
              selectall_ids
              prepare_execute_query prepare_query
@@ -171,16 +171,15 @@ sub selectall_hashref_query {
   return wantarray ? @{ $result } : $result;
 }
 
-sub selectall_array_query {
+sub selectall_array_query { goto &selectcol_array_query; }
+
+sub selectcol_array_query {
   $main::lxdebug->enter_sub(2);
 
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
-  my @result;
-  while (my ($value) = $sth->fetchrow_array()) {
-    push(@result, $value);
-  }
+  my @result = @{ $dbh->selectcol_arrayref($sth) };
   $sth->finish();
 
   $main::lxdebug->leave_sub(2);
@@ -433,6 +432,8 @@ SL::DBUtils.pm: All about database connections in kivitendo
   my @first_result =  selectfirst_array_query($form, $dbh, $query);
   my @first_result =  selectrow_query($form, $dbh, $query);
 
+  my @values = selectcol_array_query($form, $dbh, $query);
+
   my %sort_spec = create_sort_spec(%params);
 
 =head1 DESCRIPTION
@@ -615,6 +616,16 @@ the database, and returns it in hashref mode. This is slightly confusing, as
 the data structure will actually be a reference to an array, containing
 hashrefs for each row.
 
+
+=item selectall_array_query FORM,DBH,QUERY,ARRAY
+
+Deprecated, see C<selectcol_array_query>
+
+=item selectcol_array_query FORM,DBH,QUERY,ARRAY
+
+Prepares and executes a query using DBUtils functions, retrieves the values of
+the first result column and returns the values as an array.
+
 =item selectall_as_map FORM,DBH,QUERY,KEY_COL,VALUE_COL,ARRAY
 
 Prepares and executes a query using DBUtils functions, retrieves all data from
@@ -703,6 +714,11 @@ general little need to invoke it manually.
 
   $query = qq|SELECT nextval('glid')|;
   ($new_id) = selectrow_query($form, $dbh, $query);
+
+=item Retrieving all values from a column:
+
+  $query = qq|SELECT id FROM units|;
+  @units = selectcol_array_query($form, $dbh, $query);
 
 =item Using binding values:
 
