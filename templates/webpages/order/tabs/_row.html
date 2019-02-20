@@ -131,7 +131,7 @@
           [%- PROCESS order/tabs/_second_row.html ITEM=ITEM TYPE=TYPE %]
         </div>
       [%- ELSE %]
-        <div name="second_row" id="second_row_[% ITEM.id %]">
+        <div name="second_row" id="second_row_[% ID %]">
           [%- LxERP.t8("Loading...") %]
         </div>
       [%- END %]
