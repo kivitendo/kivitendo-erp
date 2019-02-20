@@ -35,11 +35,11 @@
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
-  <td class="coa_detail_emph">[% IF row.taxkey         %][% HTML.escape(row.taxkey).replace(',', '<br>')         %][% ELSE %]-[% END %]</td>
-  <td class="coa_detail_emph">[% IF row.taxaccount     %][% HTML.escape(row.taxaccount).replace(',', '<br>')     %][% ELSE %]-[% END %]</td>
-  <td class="coa_detail_emph">[% IF row.taxdescription %][% HTML.escape(row.taxdescription).replace(',', '<br>') %][% ELSE %]-[% END %]</td>
-  <td class="coa_detail_emph">[% IF row.tk_ustva       %][% HTML.escape(row.tk_ustva).replace(',', '<br>')       %][% ELSE %]-[% END %]</td>
-  <td class="coa_detail_emph">[% IF row.startdate      %][% HTML.escape(row.startdate).replace(',', '<br>')      %][% ELSE %]-[% END %]</td>
+  <td class = "coa_detail_emph">[% IF row.taxkeys.size         %][% FOR taxkey         = row.taxkeys         %][% HTML.escape(taxkey)         %]<br>[% END %][% ELSE %]-[% END %]</td>
+  <td class = "coa_detail_emph">[% IF row.taxaccounts.size     %][% FOR taxaccount     = row.taxaccounts     %][% HTML.escape(taxaccount)     %]<br>[% END %][% ELSE %]-[% END %]</td>
+  <td class = "coa_detail_emph">[% IF row.taxdescriptions.size %][% FOR taxdescription = row.taxdescriptions %][% HTML.escape(taxdescription) %]<br>[% END %][% ELSE %]-[% END %]</td>
+  <td class = "coa_detail_emph">[% IF row.pos_ustvas.size      %][% FOR pos_ustva      = row.pos_ustvas      %][% HTML.escape(pos_ustva)      %]<br>[% END %][% ELSE %]-[% END %]</td>
+  <td class = "coa_detail_emph">[% IF row.startdates.size      %][% FOR startdate      = row.startdates      %][% HTML.escape(startdate)      %]<br>[% END %][% ELSE %]-[% END %]</td>
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">

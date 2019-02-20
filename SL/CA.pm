@@ -101,11 +101,11 @@ sub all_accounts {
       c.pos_eur,
       c.valid_from,
       c.datevautomatik,
-      comma(tk.startdate::text) AS startdate,
-      comma(tk.taxkey_id::text) AS taxkey,
-      comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
-      comma(taxchart.accno::text) AS taxaccount,
-      comma(tk.pos_ustva::text) AS tk_ustva,
+      array_agg(tk.startdate) AS startdates,
+      array_agg(tk.taxkey_id) AS taxkeys,
+      array_agg(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescriptions,
+      array_agg(taxchart.accno) AS taxaccounts,
+      array_agg(tk.pos_ustva) AS pos_ustvas,
       ( SELECT accno
       FROM chart c2
       WHERE c2.id = c.id
