@@ -797,7 +797,8 @@ sub prepare_report {
                                align => 'right' },
     invoice_amount        => { sub   => sub { $_[0]->invoice_amount_as_number },
                                align => 'right' },
-    invoices              => { sub   => sub { $_[0]->linked_invoices } },
+    invoices              => { sub   => sub { my @invnumbers; for my $obj (@{ $_[0]->linked_invoices }) {
+                                                                next unless $obj; push @invnumbers, $obj->invnumber } return \@invnumbers } },
     currency              => { sub   => sub { $_[0]->currency->name } },
     purpose               => { },
     local_account_number  => { sub   => sub { $_[0]->local_bank_account->account_number } },

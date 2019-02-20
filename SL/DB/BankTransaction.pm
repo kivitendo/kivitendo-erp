@@ -40,9 +40,9 @@ sub linked_invoices {
   my $record_links = SL::DB::Manager::RecordLink->get_all(where => [ from_table => 'bank_transactions', from_id => $self->id ]);
 
   foreach my $record_link (@{ $record_links }) {
-    push @linked_invoices, SL::DB::Manager::Invoice->find_by(id => $record_link->to_id)->invnumber         if $record_link->to_table eq 'ar';
-    push @linked_invoices, SL::DB::Manager::PurchaseInvoice->find_by(id => $record_link->to_id)->invnumber if $record_link->to_table eq 'ap';
-    push @linked_invoices, SL::DB::Manager::GLTransaction->find_by(id => $record_link->to_id)->reference   if $record_link->to_table eq 'gl';
+    push @linked_invoices, SL::DB::Manager::Invoice->find_by(id => $record_link->to_id)         if $record_link->to_table eq 'ar';
+    push @linked_invoices, SL::DB::Manager::PurchaseInvoice->find_by(id => $record_link->to_id) if $record_link->to_table eq 'ap';
+    push @linked_invoices, SL::DB::Manager::GLTransaction->find_by(id => $record_link->to_id)   if $record_link->to_table eq 'gl';
   }
 
   return [ @linked_invoices ];
@@ -331,7 +331,7 @@ Example:
 
 =item C<linked_invoices>
 
-Returns an array of record names (invoice number or gl reference)
+Returns an array of record objects (invoices, debit, credit or gl objects)
 which are linked for this bank transaction.
 
 Returns an empty array ref if no links are found.
