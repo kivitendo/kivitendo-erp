@@ -55,7 +55,7 @@ sub create_parsed_file {
     'kivitendo-printXXXXXX',
     SUFFIX => ".${suffix}",
     DIR    => $form->{tmpdir},
-    UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
+    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
 
   $form->{tmpfile} = $tmpfile;
@@ -144,7 +144,7 @@ sub merge_pdfs {
     'kivitendo-printXXXXXX',
     SUFFIX => '.pdf',
     DIR    => $::lx_office_conf{paths}->{userspath},
-    UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
+    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
   close $temp_fh;
 
@@ -163,7 +163,7 @@ sub merge_pdfs {
       'kivitendo-contentXXXXXX',
       SUFFIX => '.pdf',
       DIR    => $::lx_office_conf{paths}->{userspath},
-      UNLINK => $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files},
+      UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
     );
     binmode $temp_fh;
     print $temp_fh $params{inp_content};
