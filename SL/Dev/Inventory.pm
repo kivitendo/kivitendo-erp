@@ -35,7 +35,9 @@ sub create_warehouse_and_bins {
 sub set_stock {
   my (%params) = @_;
 
-  die "param part is missing or not an SL::DB::Part object" unless ref($params{part}) eq 'SL::DB::Part';
+  die "param part is missing or not an SL::DB::Part object"
+    unless ref($params{part}) eq 'SL::DB::Part';
+
   my $part = delete $params{part};
   die "qty is missing" unless $params{qty} or $params{abs_qty};
   die "need a bin or default bin" unless $part->warehouse_id or $part->bin_id or $params{bin} or $params{bin_id};
@@ -196,7 +198,8 @@ sub _transfer {
 
   my $transfer_type = delete $params{transfer_type};
 
-  die "param transfer_type is not a SL::DB::TransferType object: " . Dumper($transfer_type) unless ref($transfer_type) eq 'SL::DB::TransferType';
+  die "param transfer_type is not a SL::DB::TransferType object: " . Dumper($transfer_type)
+    unless ref($transfer_type) eq 'SL::DB::TransferType';
 
   my $shippingdate  = delete $params{shippingdate}  // DateTime->today;
 
@@ -229,7 +232,10 @@ sub transfer_in {
 
   my $transfer_type = delete $params{transfer_type} // 'stock';
 
-  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by( direction => 'in', description => $transfer_type ) or die "Can't find transfer_type with direction in and descriptin " . $params{transfer_type};
+  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by(
+    direction   => 'in',
+    description => $transfer_type,
+  ) or die "Can't find transfer_type with direction in and description " . $params{transfer_type};
 
   $params{transfer_type} = $transfer_type_obj;
 
@@ -241,7 +247,10 @@ sub transfer_out {
 
   my $transfer_type = delete $params{transfer_type} // 'shipped';
 
-  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by( direction => 'out', description => $transfer_type ) or die "Can't find transfer_type with direction in and descriptin " . $params{transfer_type};
+  my $transfer_type_obj = SL::DB::Manager::TransferType->find_by(
+    direction   => 'out',
+    description => $transfer_type,
+  ) or die "Can't find transfer_type with direction in and description " . $params{transfer_type};
 
   $params{transfer_type} = $transfer_type_obj;
 
@@ -250,7 +259,9 @@ sub transfer_out {
 
 sub transfer_sales_delivery_order {
   my ($sales_delivery_order) = @_;
-  die "first argument must be a sales delivery order Rose DB object" unless ref($sales_delivery_order) eq 'SL::DB::DeliveryOrder' and $sales_delivery_order->is_sales;
+  die "first argument must be a sales delivery order Rose DB object"
+    unless ref($sales_delivery_order) eq 'SL::DB::DeliveryOrder'
+           and $sales_delivery_order->is_sales;
 
   die "the delivery order has already been delivered" if $sales_delivery_order->delivered;
 
@@ -271,7 +282,9 @@ sub transfer_sales_delivery_order {
 
 sub transfer_purchase_delivery_order {
   my ($purchase_delivery_order) = @_;
-  die "first argument must be a purchase delivery order Rose DB object" unless ref($purchase_delivery_order) eq 'SL::DB::DeliveryOrder' and not $purchase_delivery_order->is_sales;
+  die "first argument must be a purchase delivery order Rose DB object"
+   unless ref($purchase_delivery_order) eq 'SL::DB::DeliveryOrder'
+          and not $purchase_delivery_order->is_sales;
 
   my ($wh, $bin, $trans_type);
 
