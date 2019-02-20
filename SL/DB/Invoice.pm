@@ -720,7 +720,7 @@ See L<SL::DB::Object::basic_info>.
 =item C<closed>
 
 Returns 1 or 0, depending on whether the invoice is closed or not. Currently
-invoices that are overpaid also count as closed.
+invoices that are overpaid also count as closed and credit notes in general.
 
 =item C<recalculate_amounts %params>
 
