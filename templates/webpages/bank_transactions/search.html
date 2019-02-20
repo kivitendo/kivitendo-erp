@@ -8,8 +8,10 @@
  <form method="post" action="controller.pl" id="search_form">
 
   <div class="listtop">[% 'Search bank transactions' | $T8 %]</div>
-
   <p>
+    [%- IF INSTANCE_CONF.get_payments_changeable != '0' -%]
+      [% 'Cannot safely book imported bank transactions due to lax posting settings for payments' | $T8 %]
+    [%- ELSE -%]
    <table>
 
     <tr>
@@ -27,5 +29,6 @@
      <td>[% L.date_tag('filter.todate', filter.todate) %]</td>
     </tr>
    </table>
+  [%- END -%]
   </p>
  </form>

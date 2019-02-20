@@ -548,6 +548,7 @@ $self->{texts} = {
   'Cannot process payment for a closed period!' => 'Es kann keine Zahlung in einem abgeschlossenen Zeitraum verbucht werden!',
   'Cannot remove files!'        => 'Dateien können nicht gelöscht werden!',
   'Cannot revert a versioned copy.' => 'Eine versionierte Kopie selber kann nicht zurückgesetzt werden.',
+  'Cannot safely book imported bank transactions due to lax posting settings for payments' => 'Kann in diesem Mandanten die importierten Bankbewegungen nicht ordnungsgemäß verbuchen, da die Veränderbarkeit von Zahlungen nicht restriktiv genug gesetzt ist. Bitte wie gewohnt manuell ausbuchen oder die Veränderbarkeit von Zahlungen auf unveränderbar setzen.',
   'Cannot save account!'        => 'Konto kann nicht gespeichert werden!',
   'Cannot save order!'          => 'Auftrag kann nicht gespeichert werden!',
   'Cannot save preferences!'    => 'Einstellungen können nicht gespeichert werden!',
