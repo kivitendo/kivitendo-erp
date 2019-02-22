@@ -691,14 +691,13 @@ sub save_single_bank_transaction {
         }
       }
       # Record a record link from the bank transaction to the invoice
-      my @props = (
+      my %props = (
         from_table => 'bank_transactions',
         from_id    => $bt_id,
         to_table   => $invoice->is_sales ? 'ar' : 'ap',
         to_id      => $invoice->id,
       );
-
-      SL::DB::RecordLink->new(@props)->save;
+      SL::DB::RecordLink->new(%props)->save;
 
       # "close" a sepa_export_item if it exists
       # code duplicated in action_save_proposals!

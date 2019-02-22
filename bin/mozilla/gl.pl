@@ -1369,13 +1369,13 @@ sub post_transaction {
       $bt->update_attributes(invoice_amount => $bt->invoice_amount + ($payment->[0]->amount * -1));
 
       # create record_link
-      my @props = (
+      my %props = (
         from_table => 'bank_transactions',
         from_id    => $::form->{bt_id},
         to_table   => 'gl',
         to_id      => $::form->{id},
       );
-      SL::DB::RecordLink->new(@props)->save;
+      SL::DB::RecordLink->new(%props)->save;
       # and tighten holy acc_trans_id for this bank_transaction
       my  %props_acc = (
         acc_trans_id        => $payment->[0]->acc_trans_id,
