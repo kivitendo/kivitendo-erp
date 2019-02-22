@@ -39,6 +39,7 @@ use POSIX qw(strftime);
 use List::Util qw(first sum);
 
 use SL::DB::RecordTemplate;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::FU;
 use SL::GL;
@@ -965,6 +966,11 @@ sub setup_gl_action_bar {
   my $form   = $::form;
   my $change_never            = $::instance_conf->get_gl_changeable == 0;
   my $change_on_same_day_only = $::instance_conf->get_gl_changeable == 2 && ($form->current_date(\%::myconfig) ne $form->{gldate});
+  my $is_linked_bank_transaction;
+
+  if ($form->{id} && SL::DB::Manager::BankTransactionAccTrans->find_by(gl_id => $form->{id})) {
+    $is_linked_bank_transaction = 1;
+  }
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -981,6 +987,7 @@ sub setup_gl_action_bar {
                   : $form->{storno}                           ? t8('A canceled general ledger transaction cannot be posted.')
                   : ($form->{id} && $change_never)            ? t8('Changing general ledger transaction has been disabled in the configuration.')
                   : ($form->{id} && $change_on_same_day_only) ? t8('General ledger transactions can only be changed on the day they are posted.')
+                  : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                   :                                             undef,
         ],
       combobox => [
@@ -996,6 +1003,7 @@ sub setup_gl_action_bar {
                     : $form->{locked}          ? t8('The billing period has already been locked.')
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"
@@ -1368,6 +1376,14 @@ sub post_transaction {
         to_id      => $::form->{id},
       );
       SL::DB::RecordLink->new(@props)->save;
+      # and tighten holy acc_trans_id for this bank_transaction
+      my  %props_acc = (
+        acc_trans_id        => $payment->[0]->acc_trans_id,
+        bank_transaction_id => $bt->id,
+        gl_id               => $payment->[0]->trans_id,
+      );
+      my $bta = SL::DB::BankTransactionAccTrans->new(%props_acc);
+      $bta->save;
 
     }
     1;
