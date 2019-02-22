@@ -105,6 +105,7 @@ my %kivitendo_package_names = (
   ap                             => 'purchase_invoice',
   bank_accounts                  => 'bank_account',
   bank_transactions              => 'bank_transaction',
+  bank_transaction_acc_trans     => 'bank_transaction_acc_trans',
   buchungsgruppen                => 'buchungsgruppe',
   bin                            => 'bin',
   business                       => 'business',
