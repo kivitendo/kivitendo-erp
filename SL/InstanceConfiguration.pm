@@ -176,7 +176,7 @@ Returns the default behavior for showing best before date, true or false
 
 =item C<get_ap_show_mark_as_paid>
 
-Returns the default behavior for showing the mark as paid button for the
+Returns the default behavior for showing the "mark as paid" button for the
 corresponding record type (true or false).
 
 =item C<get_sales_order_show_delete>
@@ -205,10 +205,8 @@ current stock quantity
 
 =item C<get_bin_id_ignore_onhand>
 
-Returns the default bin_id for transfers without checking the.
+Returns the default bin_id for transfers without checking the
 current stock quantity
-
-
 
 =item C<get_transfer_default>
 
@@ -240,7 +238,7 @@ Returns the configuration for experimental feature "assortment"
 
 =item C<get_feature_experimental_order>
 
-Returns the configuration for experimental feature "order"
+Returns the configuration for the experimental feature "order"
 
 =item C<get_parts_show_image>
 
@@ -252,7 +250,7 @@ Returns the css format string for images shown in parts
 
 =item C<get_parts_listing_image>
 
-Returns the configuartion for showing the picture in the results when you search for parts
+Returns the configuration for showing the picture in the results when you search for parts
 
 =back
 
