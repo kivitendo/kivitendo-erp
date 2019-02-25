@@ -45,6 +45,12 @@ sub action_stock_in {
 
   $::form->{title}   = t8('Stock');
 
+  # Sometimes we want to open stock_in with a part already selected, but only
+  # the parts_id is passed in the url (and not also warehouse, bin and unit).
+  # Setting select_default_bin in the form will make sure the default warehouse
+  # and bin of that part will already be preselected, as normally
+  # set_target_from_part is only called when a part is changed.
+  $self->set_target_from_part if $::form->{select_default_bin};
   $::request->layout->focus('#part_id_name');
   my $transfer_types = WH->retrieve_transfer_types('in');
   map { $_->{description} = $main::locale->text($_->{description}) } @{ $transfer_types };
