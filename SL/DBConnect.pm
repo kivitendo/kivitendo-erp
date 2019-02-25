@@ -119,7 +119,7 @@ optionally routing through DBIx::Log4perl
 
 Connects to the database. If the configuration parameter
 C<debug.dbix_log4perl> is set then the call is made through
-L<DBIx::Log4per/connect>. Otherwise L<DBI/connect> is called directly.
+L<DBIx::Log4perl/connect>. Otherwise L<DBI/connect> is called directly.
 
 In each case C<@dbi_args> is passed through as-is.
 
