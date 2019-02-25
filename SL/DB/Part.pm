@@ -373,7 +373,7 @@ sub get_simple_stock_sql {
             LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
             LEFT JOIN bin b       ON (i.bin_id       = b.id)
       WHERE parts_id = ?
-   GROUP BY w.description, b.description, p.unit, i.parts_id
+   GROUP BY w.description, w.sortkey, b.description, p.unit, i.parts_id
      HAVING SUM(qty) != 0
      WINDOW pt AS (PARTITION BY i.parts_id    ORDER BY w.sortkey, b.description, p.unit),
             wh AS (PARTITION by w.description ORDER BY w.sortkey, b.description, p.unit)
