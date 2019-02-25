@@ -1916,9 +1916,8 @@ SL::Controller::Order - controller for orders
 This is a new form to enter orders, completely rewritten with the use
 of controller and java script techniques.
 
-The aim is to provide the user a better expirience and a faster flow
-of work. Also the code should be more readable, more reliable and
-better to maintain.
+The aim is to provide the user a better experience and a faster workflow. Also
+the code should be more readable, more reliable and better to maintain.
 
 =head2 Key Features
 
@@ -1949,7 +1948,7 @@ possible (by partnumber, description, qty, sellprice and discount for now).
 =item *
 
 No C<update> is necessary. All entries and calculations are managed
-with ajax-calls and the page does only reload on C<save>.
+with ajax-calls and the page only reloads on C<save>.
 
 =item *
 
