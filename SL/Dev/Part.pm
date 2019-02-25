@@ -50,8 +50,8 @@ sub new_assembly {
   } else {
     for my $i ( 1 .. delete $params{number_of_parts} || 3) {
       my $part = new_part(partnumber  => "$base_partnumber $i",
-                             description => "Testpart $i",
-                            )->save;
+                          description => "Testpart $i",
+                         )->save;
       push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part->id,
                                                       qty      => 1,
                                                       position => $i,
@@ -85,8 +85,8 @@ sub new_assortment {
   } else {
     for my $i ( 1 .. delete $params{number_of_parts} || 3) {
       my $part = new_part(partnumber  => "$base_partnumber $i",
-                             description => "Testpart $i",
-                            )->save;
+                          description => "Testpart $i",
+                         )->save;
       push( @{$assortment_items}, SL::DB::AssortmentItem->new(parts_id => $part->id,
                                                               qty      => 1,
                                                               position => $i,
