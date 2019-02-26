@@ -30,7 +30,7 @@ sub pay_invoice {
 
   my $is_sales = ref($self) eq 'SL::DB::Invoice';
   my $mult = $is_sales ? 1 : -1;  # multiplier for getting the right sign depending on ar/ap
-
+  my @new_acc_ids;
   my $paid_amount = 0; # the amount that will be later added to $self->paid, should be in default currency
 
   # default values if not set
@@ -306,12 +306,12 @@ sub pay_invoice {
       }
     }
 
+    push @new_acc_ids, ($new_acc_trans->acc_trans_id, $arap_booking->acc_trans_id);
     1;
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
-
-  return 1;
-};
+  return wantarray ? @new_acc_ids : 1;
+}
 
 sub skonto_date {
 
@@ -844,6 +844,8 @@ If no amount is given the whole open amout is paid.
 If neither currency or currency_id are given as params, the currency of the
 invoice is assumed to be the payment currency.
 
+If successful the return value will be 1 in scalar context or in list context
+the two ids (acc_trans_id) of the newly created bookings.
 =item C<reference_account>
 
 Returns a chart object which is the chart of the invoice with link AR or AP.
