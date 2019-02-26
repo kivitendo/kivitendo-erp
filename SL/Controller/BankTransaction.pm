@@ -20,6 +20,7 @@ use SL::DB::RecordLink;
 use SL::JSON;
 use SL::DB::Chart;
 use SL::DB::AccTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::DB::BankAccount;
 use SL::DB::RecordTemplate;
@@ -647,13 +648,32 @@ sub save_single_bank_transaction {
           $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $open_amount);
         }
         # ... and then pay the invoice
-        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
+        my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
                               trans_id     => $invoice->id,
                               amount       => $open_amount,
                               payment_type => $payment_type,
                               source       => $source,
                               memo         => $memo,
                               transdate    => $bank_transaction->transdate->to_kivitendo);
+        # ... and record the origin via BankTransactionAccTrans
+        if (scalar(@acc_ids) != 2) {
+          return {
+            %data,
+            result  => 'error',
+            message => $::locale->text("Unable to book transactions for bank purpose #1", $bank_transaction->purpose),
+          };
+        }
+        foreach my $acc_trans_id (@acc_ids) {
+            my $id_type = $invoice->is_sales ? 'ar' : 'ap';
+            my  %props_acc = (
+              acc_trans_id        => $acc_trans_id,
+              bank_transaction_id => $bank_transaction->id,
+              $id_type            => $invoice->id,
+            );
+            SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+        }
+
+
       } else {
       # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
 
