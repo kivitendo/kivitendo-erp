@@ -1,4 +1,4 @@
-use Test::More tests => 208;
+use Test::More tests => 211;
 
 use strict;
 
@@ -11,6 +11,7 @@ use Test::Exception;
 use List::Util qw(sum);
 
 use SL::DB::AccTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Customer;
@@ -34,6 +35,7 @@ my ($ar_transaction, $ap_transaction);
 
 sub clear_up {
 
+  SL::DB::Manager::BankTransactionAccTrans->delete_all(all => 1);
   SL::DB::Manager::BankTransaction->delete_all(all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
@@ -442,18 +444,19 @@ sub test_overpayment {
   $ar_transaction->load;
   $bt->load;
 
-  is($ar_transaction->paid                     , '135.00000' , "$testname: 'salesinv overpaid' was overpaid");
-  is($bt->invoice_amount                       , '135.00000' , "$testname: bt invoice amount was assigned overpaid amount");
+  is($ar_transaction->paid                     , '119.00000' , "$testname: 'salesinv overpaid' was not overpaid");
+  is($bt->invoice_amount                       , '119.00000' , "$testname: bt invoice amount was not fully assigned with the overpaid amount");
 { local $TODO = 'this currently fails because closed ignores over-payments, see commit d90966c7';
   is($ar_transaction->closed                   , 0           , "$testname: 'salesinv overpaid' is open (via 'closed' method')");
 }
-  is($ar_transaction->open_amount == 0 ? 1 : 0 , 0           , "$testname: 'salesinv overpaid is open (via amount-paid)");
+  is($ar_transaction->open_amount == 0 ? 1 : 0 , 1           , "$testname: 'salesinv overpaid is closed (via amount-paid)");
 
 };
 
 sub test_overpayment_with_partialpayment {
 
-  # two payments on different days, 10 and 119. If there is only one invoice we want it be overpaid.
+  # two payments on different days, 10 and 119. If there is only one invoice we
+  # don't want it to be overpaid.
   my $testname = 'test_overpayment_with_partialpayment';
 
   $ar_transaction = test_ar_transaction(invnumber => 'salesinv overpaid partial');
@@ -473,18 +476,19 @@ sub test_overpayment_with_partialpayment {
   };
   save_btcontroller_to_string();
 
+  $bt_1->load;
+  is($bt_1->invoice_amount ,  '10.00000' , "$testname: bt_1 invoice amount was fully assigned");
   $::form->{invoice_ids} = {
     $bt_2->id => [ $ar_transaction->id ]
   };
   save_btcontroller_to_string();
 
   $ar_transaction->load;
-  $bt_1->load;
   $bt_2->load;
 
-  is($ar_transaction->paid , '129.00000' , "$testname: 'salesinv overpaid partial' was overpaid");
-  is($bt_1->invoice_amount ,  '10.00000' , "$testname: bt_1 invoice amount was assigned overpaid amount");
-  is($bt_2->invoice_amount , '119.00000' , "$testname: bt_2 invoice amount was assigned overpaid amount");
+  is($bt_1->invoice_amount ,  '10.00000' , "$testname: bt_1 invoice amount was fully assigned");
+  is($ar_transaction->paid , '119.00000' , "$testname: 'salesinv overpaid partial' was not overpaid");
+  is($bt_2->invoice_amount , '109.00000' , "$testname: bt_2 invoice amount was partly assigned");
 
 };
 
@@ -585,6 +589,7 @@ sub test_neg_ap_transaction {
                                               bank_chart_id => $bank->id,
                                               transdate     => DateTime->today->add(days => 10),
                                                                );
+
   my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($invoice);
   is($agreement, 15, "points for negative ap transaction ok");
 
@@ -601,6 +606,7 @@ sub test_neg_ap_transaction {
   is($invoice->netamount, '-20.00000', "$testname: netamount ok");
   is($invoice->paid     , '-23.80000', "$testname: paid ok");
   is($bt->invoice_amount, '23.80000', "$testname: bt invoice amount for ap was assigned");
+  is($bt->amount,         '23.80000', "$testname: bt  amount for ap was assigned");
 
   return $invoice;
 };

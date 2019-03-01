@@ -558,23 +558,18 @@ sub save_single_bank_transaction {
 
   my $bank_transaction = $data{bank_transaction};
 
-  # see pod
-  if (@{ $bank_transaction->linked_invoices } || $bank_transaction->invoice_amount != 0) {
-        return {
-          %data,
-          result  => 'error',
-          message => $::locale->text("Bank transaction with id #1 has already been linked to one or more record and/or some amount is already assigned.", $bank_transaction->id),
-        };
-      }
   my (@warnings);
 
   my $worker = sub {
     my $bt_id                 = $data{bank_transaction_id};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
     my $amount_of_transaction = $sign * $bank_transaction->amount;
+    my $assigned_amount       = $sign * $bank_transaction->invoice_amount;
+    my $not_assigned_amount   = $amount_of_transaction - $assigned_amount;
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
 
+    croak("No amount left to assign") if ($not_assigned_amount <= 0);
 
     foreach my $invoice_id (@{ $params{invoice_ids} }) {
       my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
@@ -634,82 +629,41 @@ sub save_single_bank_transaction {
       } else {
         $payment_type = 'without_skonto';
       };
+    # pay invoice
+    # TODO rewrite this: really booked amount should be a return value of Payment.pm
+    # also this controller shouldnt care about how to calc skonto. we simply delegate the
+    # payment_type to the helper and get the corresponding bank_transaction values back
 
+    my $open_amount = ($payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount);
+    my $amount_for_booking = abs(($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount);
+    $amount_for_booking *= $sign;
+    $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
 
-      # pay invoice or go to the next bank transaction if the amount is not sufficiently high
-      if ($invoice->open_amount <= $amount_of_transaction && $n_invoices < $max_invoices) {
-        my $open_amount = ($payment_type eq 'with_skonto_pt'?$invoice->amount_less_skonto:$invoice->open_amount);
-        # first calculate new bank transaction amount ...
-        if ($invoice->is_sales) {
-          $amount_of_transaction -= $sign * $open_amount;
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $open_amount);
-        } else {
-          $amount_of_transaction += $sign * $open_amount;
-          $bank_transaction->invoice_amount($bank_transaction->invoice_amount - $open_amount);
-        }
-        # ... and then pay the invoice
-        my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
-                              trans_id     => $invoice->id,
-                              amount       => $open_amount,
-                              payment_type => $payment_type,
-                              source       => $source,
-                              memo         => $memo,
-                              transdate    => $bank_transaction->transdate->to_kivitendo);
-        # ... and record the origin via BankTransactionAccTrans
-        if (scalar(@acc_ids) != 2) {
-          return {
-            %data,
-            result  => 'error',
-            message => $::locale->text("Unable to book transactions for bank purpose #1", $bank_transaction->purpose),
-          };
-        }
-        foreach my $acc_trans_id (@acc_ids) {
-            my $id_type = $invoice->is_sales ? 'ar' : 'ap';
-            my  %props_acc = (
-              acc_trans_id        => $acc_trans_id,
-              bank_transaction_id => $bank_transaction->id,
-              $id_type            => $invoice->id,
-            );
-            SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
-        }
-
-
-      } else {
-      # use the whole amount of the bank transaction for the invoice, overpay the invoice if necessary
-
-        # $invoice->open_amount     is negative for credit_notes
-        # $bank_transaction->amount is negative for outgoing transactions
-        # so $amount_of_transaction is negative but needs positive
-        # $invoice->open_amount may be negative for ap_transaction but may be positiv for negative ap_transaction
-        # if $invoice->open_amount is negative $bank_transaction->amount is positve
-        # if $invoice->open_amount is positive $bank_transaction->amount is negative
-        # but amount of transaction is for both positive
-
-        $amount_of_transaction *= -1 if ($invoice->amount < 0);
-
-        # if we have a skonto case - the last invoice needs skonto
-        $amount_of_transaction = $invoice->amount_less_skonto if ($payment_type eq 'with_skonto_pt');
-
-
-        my $overpaid_amount = $amount_of_transaction - $invoice->open_amount;
-        $invoice->pay_invoice(chart_id     => $bank_transaction->local_bank_account->chart_id,
-                              trans_id     => $invoice->id,
-                              amount       => $amount_of_transaction,
-                              payment_type => $payment_type,
-                              source       => $source,
-                              memo         => $memo,
-                              transdate    => $bank_transaction->transdate->to_kivitendo);
-        $bank_transaction->invoice_amount($bank_transaction->amount);
-        $amount_of_transaction = 0;
-
-        if ($overpaid_amount >= 0.01) {
-          push @warnings, {
-            %data,
-            result  => 'warning',
-            message => $::locale->text('Invoice #1 was overpaid by #2.', $invoice->invnumber, $::form->format_amount(\%::myconfig, $overpaid_amount, 2)),
-          };
-        }
-      }
+    # ... and then pay the invoice
+    my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
+                          trans_id     => $invoice->id,
+                          amount       => ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount,
+                          payment_type => $payment_type,
+                          source       => $source,
+                          memo         => $memo,
+                          transdate    => $bank_transaction->transdate->to_kivitendo);
+    # ... and record the origin via BankTransactionAccTrans
+    if (scalar(@acc_ids) != 2) {
+      return {
+        %data,
+        result  => 'error',
+        message => $::locale->text("Unable to book transactions for bank purpose #1", $bank_transaction->purpose),
+      };
+    }
+    foreach my $acc_trans_id (@acc_ids) {
+        my $id_type = $invoice->is_sales ? 'ar' : 'ap';
+        my  %props_acc = (
+          acc_trans_id        => $acc_trans_id,
+          bank_transaction_id => $bank_transaction->id,
+          $id_type            => $invoice->id,
+        );
+        SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+    }
       # Record a record link from the bank transaction to the invoice
       my %props = (
         from_table => 'bank_transactions',
@@ -965,12 +919,15 @@ tries to post its amount to a certain number of invoices (parameter
 C<invoice_ids>, an array ref of database IDs to purchase or sales
 invoice objects).
 
+This method handles already partly assigned bank transactions.
+
 This method cannot handle already partly assigned bank transactions, i.e.
 a bank transaction that has a invoice_amount <> 0 but not the fully
 transaction amount (invoice_amount == amount).
 
 If the amount of the bank transaction is higher than the sum of
-the assigned invoices (1 .. n) the last invoice will be overpayed.
+the assigned invoices (1 .. n) the bank transaction will only be
+partly assigned.
 
 The whole function is wrapped in a database transaction. If an
 exception occurs the bank transaction is not posted at all. The same
