@@ -287,6 +287,16 @@ sub _check_string {
     return $match;
 };
 
+
+sub not_assigned_amount {
+  my ($self) = @_;
+
+  my $not_assigned_amount = $self->amount - $self->invoice_amount;
+  die ("undefined state") if (abs($not_assigned_amount) > abs($self->amount));
+
+  return $not_assigned_amount;
+
+}
 1;
 
 __END__
@@ -338,6 +348,11 @@ Returns an empty array ref if no links are found.
 Usage:
  croak("No linked records at all") unless @{ $bt->linked_invoices() };
 
+
+=item C<not_assigned_amount>
+
+Returns the not open amount of this bank transaction.
+Dies if the return amount is higher than the original amount.
 
 =back
 
