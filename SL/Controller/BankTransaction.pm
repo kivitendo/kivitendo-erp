@@ -563,9 +563,7 @@ sub save_single_bank_transaction {
   my $worker = sub {
     my $bt_id                 = $data{bank_transaction_id};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
-    my $amount_of_transaction = $sign * $bank_transaction->amount;
-    my $assigned_amount       = $sign * $bank_transaction->invoice_amount;
-    my $not_assigned_amount   = $amount_of_transaction - $assigned_amount;
+    my $not_assigned_amount   = $bank_transaction->not_assigned_amount;
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
 
@@ -614,7 +612,7 @@ sub save_single_bank_transaction {
       $n_invoices++ ;
 
 
-      if (!$amount_of_transaction && $invoice->open_amount) {
+      if (!$not_assigned_amount && $invoice->open_amount) {
         return {
           %data,
           result  => 'error',
