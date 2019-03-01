@@ -36,6 +36,10 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Vorauswahl bei Dateianhängen für den E-Mail-Versand von Belegen konfigurierbar gemacht (Standardmäßig angehakt)
 
+- Verbuchte Kontoauszüge können wieder rückgängig gemacht werden (Neuverbuchen ist möglich)
+
+- Verbuchen von Kontoauszügen, es können jetzt teilweise Verbuchungen gemacht werden (Belege werden nicht mehr überbucht)
+
 2019-01-03 - Release 3.5.3
 
 Mittelgroße neue Features:
