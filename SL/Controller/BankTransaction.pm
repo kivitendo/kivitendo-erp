@@ -569,7 +569,6 @@ sub save_single_bank_transaction {
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
 
-    croak("No amount left to assign") if ($not_assigned_amount <= 0);
 
     foreach my $invoice_id (@{ $params{invoice_ids} }) {
       my $invoice = SL::DB::Manager::Invoice->find_by(id => $invoice_id) || SL::DB::Manager::PurchaseInvoice->find_by(id => $invoice_id);
@@ -860,7 +859,7 @@ sub load_gl_record_template_url {
     controller                           => 'gl.pl',
     action                               => 'load_record_template',
     id                                   => $template->id,
-    'form_defaults.amount_1'             => abs($self->transaction->amount), # always positive
+    'form_defaults.amount_1'             => abs($self->transaction->not_assigned_amount), # always positive
     'form_defaults.transdate'            => $self->transaction->transdate_as_date,
     'form_defaults.callback'             => $self->callback,
     'form_defaults.bt_id'                => $self->transaction->id,

@@ -1365,7 +1365,9 @@ sub post_transaction {
       die "guru meditation error: Can only assign amount to one bank account booking" if scalar @{ $payment } > 1;
 
       # credit/debit * -1 matches the sign for bt.amount and bt.invoice_amount
-      die "Can only assign the full bank amount to a single general ledger booking" unless $bt->amount == $payment->[0]->amount * -1;
+      die "Can only assign the full (partial) bank amount to a single general ledger booking"
+        unless $bt->not_assigned_amount == $payment->[0]->amount * -1;
+
       $bt->update_attributes(invoice_amount => $bt->invoice_amount + ($payment->[0]->amount * -1));
 
       # create record_link
