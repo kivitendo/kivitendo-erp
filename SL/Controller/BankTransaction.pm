@@ -17,6 +17,7 @@ use SL::SEPA;
 use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
+use SL::DB::ReconciliationLink;
 use SL::JSON;
 use SL::DB::Chart;
 use SL::DB::AccTransaction;
@@ -25,8 +26,10 @@ use SL::DB::Tax;
 use SL::DB::BankAccount;
 use SL::DB::RecordTemplate;
 use SL::DB::SepaExportItem;
-use SL::DBUtils qw(like);
+use SL::DBUtils qw(like do_query);
 
+use SL::Presenter::Tag qw(checkbox_tag);
+use Carp;
 use List::UtilsBy qw(partition_by);
 use List::MoreUtils qw(any);
 use List::Util qw(max);
@@ -711,7 +714,73 @@ sub save_single_bank_transaction {
 
   return grep { $_ } ($error, @warnings);
 }
+sub action_unlink_bank_transaction {
+  my ($self) = @_;
 
+  croak("No bank transaction ids") unless scalar @{ $::form->{ids}} > 0;
+
+  my $closedto = $::locale->parse_date_to_object($::instance_conf->get_closedto);
+  my $success_count;
+
+  foreach my $bt_id (@{ $::form->{ids}} )  {
+
+    my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
+    croak("No valid bank transaction found") unless (ref($bank_transaction)  eq 'SL::DB::BankTransaction');
+
+    # everything in one transaction
+    my $rez = $bank_transaction->db->with_transaction(sub {
+      # 1. remove all reconciliations (due to underlying trigger, this has to be the first step)
+      my $rec_links = SL::DB::Manager::ReconciliationLink->get_all(where => [ bank_transaction_id => $bt_id ]);
+      $_->delete for @{ $rec_links };
+
+      my %trans_ids;
+      foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt_id ] )}) {
+
+        my $acc_trans = SL::DB::Manager::AccTransaction->get_all(where => [acc_trans_id => $acc_trans_id_entry->acc_trans_id]);
+        # check closedto for acc trans entries
+        croak t8('Cannot unlink payment for a closed period!') if (ref $closedto && grep { $_->transdate < $closedto } @{ $acc_trans } );
+
+        # save trans_id and type
+        die "no type" unless ($acc_trans_id_entry->ar_id || $acc_trans_id_entry->ap_id || $acc_trans_id_entry->gl_id);
+        $trans_ids{$acc_trans_id_entry->ar_id} = 'ar' if $acc_trans_id_entry->ar_id;
+        $trans_ids{$acc_trans_id_entry->ap_id} = 'ap' if $acc_trans_id_entry->ap_id;
+        $trans_ids{$acc_trans_id_entry->gl_id} = 'gl' if $acc_trans_id_entry->gl_id;
+
+        # 2. all good -> ready to delete acc_trans and bt_acc link
+        $acc_trans_id_entry->delete;
+        $_->delete for @{ $acc_trans };
+      }
+      # 3. update arap.paid (may not be 0, yet)
+      while (my ($trans_id, $type) = each %trans_ids) {
+        next if $type eq 'gl';
+        die ("invalid type") unless $type =~ m/^(ar|ap)$/;
+
+        # recalc and set paid via database query
+        my $query = qq|UPDATE $type SET paid =
+                        (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
+                         WHERE trans_id = ?
+                         AND chart_link ilike '%paid%')|;
+
+        die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id) == -1);
+      }
+      # 4. and delete all (if any) record links
+      my $rl = SL::DB::Manager::RecordLink->delete_all(where => [ from_id => $bt_id, from_table => 'bank_transactions' ]);
+
+      # 5. finally reset  this bank transaction
+      $bank_transaction->invoice_amount(0);
+      $bank_transaction->cleared(0);
+      $bank_transaction->save;
+
+      1;
+
+    }) || die t8('error while unlinking payment #1 : ', $bank_transaction->purpose) . $bank_transaction->db->error . "\n";
+
+    $success_count++;
+  }
+
+  flash('ok', t8('#1 bank transaction bookings undone.', $success_count));
+  $self->action_list_all();
+}
 #
 # filters
 #
@@ -754,10 +823,14 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
+  my @columns     = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
   my @sortable    = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
   my %column_defs = (
+    ids                 => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
+                             'align'         => 'center',
+                             raw_data        => sub { if (@{ $_[0]->linked_invoices } && !(grep {ref ($_) eq 'SL::DB::GLTransaction' } @{ $_[0]->linked_invoices })) {
+                                                         checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1); } } },
     transdate             => { sub   => sub { $_[0]->transdate_as_date } },
     valutadate            => { sub   => sub { $_[0]->valutadate_as_date } },
     remote_name           => { },
@@ -815,6 +888,7 @@ sub init_models {
         by  => 'transdate',
         dir => 0,   # 1 = ASC, 0 = DESC : default sort is newest at top
       },
+      id                    => t8('ID'),
       transdate             => t8('Transdate'),
       remote_name           => t8('Remote name'),
       amount                => t8('Amount'),
@@ -884,9 +958,18 @@ sub setup_list_all_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('Filter'),
-        submit    => [ '#filter_form', { action => 'BankTransaction/list_all' } ],
+      combobox => [
+        action => [ t8('Actions') ],
+        action => [
+          t8('Unlink bank transactions'),
+            submit => [ '#form', { action => 'BankTransaction/unlink_bank_transaction' } ],
+            checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+            disabled  => $::instance_conf->get_payments_changeable ? t8('Cannot safely unlink bank transactions, please set the posting configuration for payments to unchangeable.') : undef,
+          ],
+        ],
+        action => [
+          t8('Filter'),
+          submit    => [ '#filter_form', { action => 'BankTransaction/list_all' } ],
         accesskey => 'enter',
       ],
     );
@@ -960,6 +1043,18 @@ C<SL::DB::Invoice> or C<SL::DB::PurchaseInvoice>) corresponding to
 C<invoice_ids>
 
 =back
+
+=item C<action_unlink_bank_transaction>
+
+Takes one or more bank transaction ID (as parameter C<form::ids>) and
+tries to revert all payment bookings including already cleared bookings.
+
+This method won't undo payments that are in a closed period and assumes
+that payments are not manually changed, i.e. only imported payments.
+
+GL-records will be deleted completely if a bank transaction was the source.
+
+TODO: we still rely on linked_records for the check boxes
 
 =back
 
