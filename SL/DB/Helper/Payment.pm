@@ -158,6 +158,7 @@ sub pay_invoice {
                                                    tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
       $new_acc_trans->save;
 
+      push @new_acc_ids, $new_acc_trans->acc_trans_id;
       # deal with fxtransaction
       if ( $self->currency_id != $::instance_conf->get_currency_id ) {
         my $fxamount = _round($amount - ($amount * $exchangerate));
@@ -172,6 +173,7 @@ sub pay_invoice {
                                                      fx_transaction => 1,
                                                      tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
         $new_acc_trans->save;
+        push @new_acc_ids, $new_acc_trans->acc_trans_id;
         # if invoice exchangerate differs from exchangerate of payment
         # deal with fxloss and fxamount
         if ($self->exchangerate and $self->exchangerate != 1 and $self->exchangerate != $exchangerate) {
@@ -192,6 +194,7 @@ sub pay_invoice {
                                                        fx_transaction => 0,
                                                        tax_id         => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
           $new_acc_trans->save;
+          push @new_acc_ids, $new_acc_trans->acc_trans_id;
 
         };
       };
@@ -232,6 +235,7 @@ sub pay_invoice {
 
         # the acc_trans entries are saved individually, not added to $self and then saved all at once
         $new_acc_trans->save;
+        push @new_acc_ids, $new_acc_trans->acc_trans_id;
 
         $reference_amount -= abs($amount);
         $paid_amount      += -1 * $amount * $exchangerate;
@@ -267,6 +271,7 @@ sub pay_invoice {
                                                   taxkey     => 0,
                                                   tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
     $arap_booking->save;
+    push @new_acc_ids, $arap_booking->acc_trans_id;
 
     $fx_gain_loss_amount *= -1 if $self->is_sales;
     $self->paid($self->paid + _round($paid_amount) + $fx_gain_loss_amount) if $paid_amount;
@@ -306,7 +311,6 @@ sub pay_invoice {
       }
     }
 
-    push @new_acc_ids, ($new_acc_trans->acc_trans_id, $arap_booking->acc_trans_id);
     1;
 
   }) || die t8('error while paying invoice #1 : ', $self->invnumber) . $db->error . "\n";
