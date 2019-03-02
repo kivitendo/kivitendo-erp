@@ -633,22 +633,32 @@ sub save_single_bank_transaction {
     # TODO rewrite this: really booked amount should be a return value of Payment.pm
     # also this controller shouldnt care about how to calc skonto. we simply delegate the
     # payment_type to the helper and get the corresponding bank_transaction values back
+    # hotfix to get the signs right - compare absolute values and later set the signs
+    # should be better done elsewhere - changing not_assigned_amount to abs feels seriously bogus
 
-    my $open_amount = ($payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount);
-    my $amount_for_booking = abs(($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount);
+    my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
+    $open_amount         = abs($open_amount);
+    $not_assigned_amount = abs($not_assigned_amount);
+    my $amount_for_booking = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
+    my $amount_for_payment = $amount_for_booking;
+
+    # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
+    $amount_for_payment *= -1 if $invoice->amount < 0;
+    # get the right direction for the bank transaction
     $amount_for_booking *= $sign;
+
     $bank_transaction->invoice_amount($bank_transaction->invoice_amount + $amount_for_booking);
 
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
                           trans_id     => $invoice->id,
-                          amount       => ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount,
+                          amount       => $amount_for_payment,
                           payment_type => $payment_type,
                           source       => $source,
                           memo         => $memo,
                           transdate    => $bank_transaction->transdate->to_kivitendo);
     # ... and record the origin via BankTransactionAccTrans
-    if (scalar(@acc_ids) != 2) {
+    if (scalar(@acc_ids) < 2) {
       return {
         %data,
         result  => 'error',
