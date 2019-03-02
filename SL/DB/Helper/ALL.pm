@@ -21,6 +21,7 @@ use SL::DB::BackgroundJob;
 use SL::DB::BackgroundJobHistory;
 use SL::DB::BankAccount;
 use SL::DB::BankTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Bin;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Business;
