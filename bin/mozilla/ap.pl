@@ -43,6 +43,7 @@ use SL::Helper::Flash qw(flash);
 use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
@@ -1231,10 +1232,17 @@ sub setup_ap_display_form_action_bar {
   my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
 
   my $has_sepa_exports;
-
   if ($::form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+  }
+
+  my $is_linked_bank_transaction;
+  if ($::form->{id}
+      && SL::DB::Default->get->payments_changeable != 0
+      && SL::DB::Manager::BankTransactionAccTrans->find_by(ap_id => $::form->{id})) {
+
+    $is_linked_bank_transaction = 1;
   }
 
   for my $bar ($::request->layout->get('actionbar')) {
@@ -1258,15 +1266,17 @@ sub setup_ap_display_form_action_bar {
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                                               undef,
         ],
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
-                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
-                    :                     undef,
+          disabled => !$may_edit_create           ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}              ? t8('This invoice has not been posted yet.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
@@ -1294,14 +1304,15 @@ sub setup_ap_display_form_action_bar {
         action => [ t8('Delete'),
           submit   => [ '#form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
-          disabled => !$may_edit_create        ? t8('You must not change this AP transaction.')
-                    : !$::form->{id}           ? t8('This invoice has not been posted yet.')
-                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
-                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
-                    : $has_storno              ? t8('This invoice has been canceled already.')
-                    : $is_closed               ? t8('The billing period has already been locked.')
-                    : $has_sepa_exports        ? t8('This invoice has been linked with a sepa export, undo this first.')
-                    :                            undef,
+          disabled => !$may_edit_create           ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}              ? t8('This invoice has not been posted yet.')
+                    : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_storno                 ? t8('This invoice has been canceled already.')
+                    : $is_closed                  ? t8('The billing period has already been locked.')
+                    : $has_sepa_exports           ? t8('This invoice has been linked with a sepa export, undo this first.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
         ],
       ], # end of combobox "Storno"
 

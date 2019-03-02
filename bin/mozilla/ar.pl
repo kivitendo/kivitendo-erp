@@ -41,6 +41,7 @@ use SL::Controller::Base;
 use SL::FU;
 use SL::GL;
 use SL::IS;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Business;
 use SL::DB::Chart;
 use SL::DB::Currency;
@@ -1276,6 +1277,13 @@ sub setup_ar_form_header_action_bar {
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ar');
   my $may_edit_create         = $::auth->assert('ar_transactions', 1);
 
+  my $is_linked_bank_transaction;
+  if ($::form->{id}
+      && SL::DB::Default->get->payments_changeable != 0
+      && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $::form->{id})) {
+
+    $is_linked_bank_transaction = 1;
+  }
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -1297,14 +1305,16 @@ sub setup_ar_form_header_action_bar {
                     : $is_storno                                  ? t8('A canceled invoice cannot be posted.')
                     : ($::form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($::form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction                 ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                                               undef,
         ],
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
-          disabled => !$may_edit_create ? t8('You must not change this AR transaction.')
-                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
-                    :                     undef,
+          disabled => !$may_edit_create           ? t8('You must not change this AR transaction.')
+                    : !$::form->{id}              ? t8('This invoice has not been posted yet.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],

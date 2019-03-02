@@ -35,6 +35,7 @@
 use SL::FU;
 use SL::IR;
 use SL::IS;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
 use SL::DB::Department;
 use SL::DB::PurchaseInvoice;
@@ -244,12 +245,18 @@ sub setup_ir_action_bar {
   my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
 
   my $has_sepa_exports;
-
   if ($form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
   }
 
+  my $is_linked_bank_transaction;
+  if ($::form->{id}
+      && SL::DB::Default->get->payments_changeable != 0
+      && SL::DB::Manager::BankTransactionAccTrans->find_by(ap_id => $::form->{id})) {
+
+    $is_linked_bank_transaction = 1;
+  }
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -272,15 +279,17 @@ sub setup_ir_action_bar {
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                                             undef,
         ],
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not change this invoice.')
-                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
-                    :                     undef,
+          disabled => !$may_edit_create           ? t8('You must not change this invoice.')
+                    : !$form->{id}                ? t8('This invoice has not been posted yet.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
         ],
         action => [
           t8('Mark as paid'),
@@ -309,13 +318,14 @@ sub setup_ir_action_bar {
           submit   => [ '#form', { action => "delete" } ],
           checks   => [ 'kivi.validate_form' ],
           confirm  => t8('Do you really want to delete this object?'),
-          disabled => !$may_edit_create        ? t8('You must not change this invoice.')
-                    : !$form->{id}             ? t8('This invoice has not been posted yet.')
-                    : $form->{locked}          ? t8('The billing period has already been locked.')
-                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
-                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
-                    : $has_sepa_exports        ? t8('This invoice has been linked with a sepa export, undo this first.')
-                    : $has_storno              ? t8('Can only delete the "Storno zu" part of the cancellation pair.')
+          disabled => !$may_edit_create           ? t8('You must not change this invoice.')
+                    : !$form->{id}                ? t8('This invoice has not been posted yet.')
+                    : $form->{locked}             ? t8('The billing period has already been locked.')
+                    : $change_never               ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only    ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_sepa_exports           ? t8('This invoice has been linked with a sepa export, undo this first.')
+                    : $has_storno                 ? t8('Can only delete the "Storno zu" part of the cancellation pair.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"

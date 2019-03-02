@@ -43,6 +43,7 @@ use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 use English qw(-no_match_vars);
 
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
 use SL::DB::Customer;
 use SL::DB::Department;
@@ -278,6 +279,13 @@ sub setup_is_action_bar {
   my $payments_balanced       = ($::form->{oldtotalpaid} == 0);
   my $has_storno              = ($::form->{storno} && !$::form->{storno_id});
   my $may_edit_create         = $::auth->assert('invoice_edit', 1);
+  my $is_linked_bank_transaction;
+    if ($::form->{id}
+        && SL::DB::Default->get->payments_changeable != 0
+        && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $::form->{id})) {
+
+      $is_linked_bank_transaction = 1;
+    }
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -302,15 +310,17 @@ sub setup_is_action_bar {
                     : $form->{storno}                           ? t8('A canceled invoice cannot be posted.')
                     : ($form->{id} && $change_never)            ? t8('Changing invoices has been disabled in the configuration.')
                     : ($form->{id} && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     :                                             undef,
         ],
         action => [
           t8('Post Payment'),
           submit   => [ '#form', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
-          disabled => !$may_edit_create ? t8('You must not change this invoice.')
-                    : !$form->{id}      ? t8('This invoice has not been posted yet.')
-                    :                     undef,
+          disabled => !$may_edit_create           ? t8('You must not change this invoice.')
+                    : !$form->{id}                ? t8('This invoice has not been posted yet.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
         ],
         action => [ t8('Mark as paid'),
           submit   => [ '#form', { action => "mark_as_paid" } ],
