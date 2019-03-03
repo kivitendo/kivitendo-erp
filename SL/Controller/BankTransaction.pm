@@ -725,7 +725,7 @@ sub save_single_bank_transaction {
   return grep { $_ } ($error, @warnings);
 }
 sub action_unlink_bank_transaction {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
   croak("No bank transaction ids") unless scalar @{ $::form->{ids}} > 0;
 
@@ -789,7 +789,7 @@ sub action_unlink_bank_transaction {
   }
 
   flash('ok', t8('#1 bank transaction bookings undone.', $success_count));
-  $self->action_list_all();
+  $self->action_list_all() unless $params{testcase};
 }
 #
 # filters
