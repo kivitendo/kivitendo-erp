@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 26);
+  $self->tester->plan(tests => 29);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -681,6 +681,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
           SELECT purpose from bank_transactions
           WHERE invoice_amount <> 0
           AND id not in (SELECT bank_transaction_id from bank_transaction_acc_trans)
+          AND itime > (SELECT min(itime) from bank_transaction_acc_trans)
           AND transdate >= ? AND transdate <= ?|;
 
   my $bt_assigned_no_link = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
