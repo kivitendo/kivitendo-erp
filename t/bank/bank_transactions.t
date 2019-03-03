@@ -1,4 +1,4 @@
-use Test::More tests => 211;
+use Test::More tests => 282;
 
 use strict;
 
@@ -25,6 +25,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::PurchaseInvoice;
 use SL::DB::BankTransaction;
 use SL::Controller::BankTransaction;
+use SL::Controller::Reconciliation;
 use SL::Dev::ALL qw(:ALL);
 use Data::Dumper;
 
@@ -90,6 +91,7 @@ test_neg_sales_invoice();
 test_two_neg_ap_transaction();
 test_one_inv_and_two_invoices_with_skonto_exact();
 test_bt_error();
+test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo();
 
 reset_state();
 test_sepa_export();
@@ -518,6 +520,153 @@ sub test_partial_payment {
 
 };
 
+sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
+
+  my $testname = 'test_partial_payment';
+
+  $ar_transaction = test_ar_transaction(invnumber => 'salesinv partial payment two');
+  my $ar_transaction_2 = test_ar_transaction(invnumber => 'salesinv 2 22d2', amount => 22);
+
+  # amount 299.29 > 119
+  my $bt = create_bank_transaction(record        => $ar_transaction,
+                                   bank_chart_id => $bank->id,
+                                   amount        => 299.29
+                                  ) or die "Couldn't create bank_transaction";
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction->load;
+  $bt->load;
+
+  is($ar_transaction->paid , '119.00000' , "$testname: 'salesinv partial payment' was fully paid");
+  is($bt->invoice_amount   , '119.00000' , "$testname: bt invoice amount was assigned partially paid amount");
+  is($bt->amount           , '299.29000' , "$testname: bt amount is stil there");
+  # next invoice, same bank transaction
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction_2->id ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction_2->load;
+  $bt->load;
+  is($ar_transaction_2->paid , '26.18000' , "$testname: 'salesinv partial payment' was fully paid");
+  is($bt->invoice_amount   , '145.18000' , "$testname: bt invoice amount was assigned partially paid amount");
+  is($bt->amount           , '299.29000' , "$testname: bt amount is stil there");
+  is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )}, 4, "$testname 4 acc_trans entries created");
+
+  #  now check all 4 entries done so far and save paid acc_trans_ids for later use with reconcile
+  foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )}) {
+    isnt($acc_trans_id_entry->ar_id, undef, "$testname: bt linked with acc_trans and trans_id set");
+    my $rl = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $bt->id, from_table => 'bank_transactions', to_id => $acc_trans_id_entry->ar_id ]);
+    is (ref $rl->[0], 'SL::DB::RecordLink', "$testname record link created");
+    my $acc_trans = SL::DB::Manager::AccTransaction->get_all(where => [acc_trans_id => $acc_trans_id_entry->acc_trans_id]);
+    foreach my $entry (@{ $acc_trans }) {
+      like(abs($entry->amount), qr/(119|26.18)/, "$testname: abs amount correct");
+      like($entry->chart_link, qr/(paid|AR)/, "$testname chart_link correct");
+      push @{ $::form->{bb_ids} }, $entry->acc_trans_id if $entry->chart_link =~ m/paid/;
+    }
+  }
+  # great we need one last booking to clear the whole bank transaction - we include skonto
+  my $ar_transaction_skonto = test_ar_transaction(invnumber  => 'salesinv skonto last case',
+                                                  payment_id => $payment_terms->id,
+                                                  amount     => 136.32,
+                                                 );
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $ar_transaction_skonto->id ]
+  };
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_skonto_pt' ]
+  };
+
+  save_btcontroller_to_string();
+
+  $ar_transaction_skonto->load;
+  $bt->load;
+  is($ar_transaction_skonto->paid , '162.22000' , "$testname: 'salesinv skonto fully paid");
+  is($bt->invoice_amount   , '299.29000' , "$testname: bt invoice amount was assigned partially paid amount");
+  is($bt->amount           , '299.29000' , "$testname: bt amount is stil there");
+  is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
+       7, "$testname 7 acc_trans entries created");
+
+  # same loop as above, but only for the 3rd ar_id
+  foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [ar_id => $ar_transaction_skonto->id ] )}) {
+    isnt($acc_trans_id_entry->ar_id, '', "$testname: bt linked with acc_trans and trans_id set");
+    my $rl = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $bt->id, from_table => 'bank_transactions', to_id => $acc_trans_id_entry->ar_id ]);
+    is (ref $rl->[0], 'SL::DB::RecordLink', "$testname record link created");
+    my $acc_trans = SL::DB::Manager::AccTransaction->get_all(where => [acc_trans_id => $acc_trans_id_entry->acc_trans_id]);
+    foreach my $entry (@{ $acc_trans }) {
+      like($entry->chart_link, qr/(paid|AR)/, "$testname chart_link correct");
+      is ($entry->amount, '162.22000', "$testname full amont") if $entry->chart_link eq 'AR'; # full amount
+      like(abs($entry->amount), qr/(154.11|8.11)/, "$testname: abs amount correct") if $entry->chart_link =~ m/paid/;
+      push @{ $::form->{bb_ids} }, $entry->acc_trans_id if ($entry->chart_link =~ m/paid/ && $entry->amount == -154.11);
+    }
+  }
+  # done, now reconciliate all bookings
+  $::form->{bt_ids} = [ $bt->id ];
+  my $rec_controller = SL::Controller::Reconciliation->new;
+  my @errors = $rec_controller->_get_elements_and_validate;
+
+  is (scalar @errors, 0, "$testname unsuccesfull reconciliation with error: " . Dumper(@errors));
+  $rec_controller->_reconcile;
+  $bt->load;
+
+  # and check the cleared state of bt and the acc_transactions
+  is($bt->cleared, '1' , "$testname: bt cleared");
+  foreach (@{ $::form->{bb_ids} }) {
+    my $acc_trans = SL::DB::Manager::AccTransaction->find_by(acc_trans_id => $_);
+    is($acc_trans->cleared, '1' , "$testname: acc_trans entry cleared");
+  }
+  # now, this was a really bad idea and in general a major mistake. better undo and redo the whole bank transactions
+
+  $::form->{ids} = [ $bt->id ];
+  $bt_controller = SL::Controller::BankTransaction->new;
+  $bt_controller->action_unlink_bank_transaction('testcase' => 1);
+
+  $bt->load;
+
+  # and check the cleared state of bt and the acc_transactions
+  is($bt->cleared, '0' , "$testname: bt undo cleared");
+  is($bt->invoice_amount, '0.00000' , "$testname: bt undo invoice amount");
+  foreach (@{ $::form->{bb_ids} }) {
+    my $acc_trans = SL::DB::Manager::AccTransaction->find_by(acc_trans_id => $_);
+    is($acc_trans, undef , "$testname: cleared acc_trans entry completely removed");
+  }
+  # this was for data integrity for reconcile, now all the other options
+  is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
+       0, "$testname 7 acc_trans entries deleted");
+  my $rl = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $bt->id, from_table => 'bank_transactions' ]);
+  is (ref $rl->[0], '', "$testname record link removed");
+  # double safety and check ar.paid
+  # load all three invoices and check for paid-link via acc_trans and paid in general
+
+  $ar_transaction->load;
+  $ar_transaction_2->load;
+  $ar_transaction_skonto->load;
+
+  is(scalar @{ SL::DB::Manager::AccTransaction->get_all(
+     where => [ trans_id => $ar_transaction->id, chart_link => { like => '%paid%' } ])},
+     0, "$testname no more paid entries in acc_trans for ar_transaction");
+  is(scalar @{ SL::DB::Manager::AccTransaction->get_all(
+     where => [ trans_id => $ar_transaction_2->id, chart_link => { like => '%paid%' } ])},
+     0, "$testname no more paid entries in acc_trans for ar_transaction_2");
+  is(scalar @{ SL::DB::Manager::AccTransaction->get_all(
+     where => [ trans_id => $ar_transaction_skonto->id, chart_link => { like => '%paid%' } ])},
+     0, "$testname no more paid entries in acc_trans for ar_transaction_skonto");
+
+  is($ar_transaction->paid , '0.00000' , "$testname: 'salesinv fully unpaid");
+  is($ar_transaction_2->paid , '0.00000' , "$testname: 'salesinv 2 fully unpaid");
+  is($ar_transaction_skonto->paid , '0.00000' , "$testname: 'salesinv skonto fully unpaid");
+
+  # whew. w(h)a(n)t a whole lotta test
+}
+
+
 sub test_credit_note {
 
   my $testname = 'test_credit_note';
@@ -743,7 +892,7 @@ sub test_ap_payment_transaction {
 
   is($invoice->amount   , '136.85000', "$testname: amount ok");
   is($invoice->netamount, '115.00000', "$testname: netamount ok");
-  is($bt->amount, '-136.85000', "$testname: bt amount ok");
+  is($bt->amount,         '-136.85000', "$testname: bt amount ok");
   is($invoice->paid     , '136.85000', "$testname: paid ok");
   is($bt->invoice_amount, '-136.85000', "$testname: bt invoice amount for ap was assigned");
 

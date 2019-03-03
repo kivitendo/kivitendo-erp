@@ -43,6 +43,7 @@ sub run {
   $self->check_zero_amount_paid_but_datepaid_exists;
   $self->check_orphaned_reconciliated_links;
   $self->check_recommended_client_settings;
+  $self->check_orphaned_bank_transaction_acc_trans_links;
 }
 
 sub _setup {
@@ -672,6 +673,48 @@ sub check_recommended_client_settings {
 
   $self->tester->ok(1, "Mandantenkonfiguration optimal eingestellt.") if ($payments_ok && $all_ok);
 }
+
+sub check_orphaned_bank_transaction_acc_trans_links {
+  my ($self) = @_;
+
+  my $query = qq|
+          SELECT purpose from bank_transactions
+          WHERE invoice_amount <> 0
+          AND id not in (SELECT bank_transaction_id from bank_transaction_acc_trans)
+          AND transdate >= ? AND transdate <= ?|;
+
+  my $bt_assigned_no_link = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $bt_assigned_no_link } > 0 ) {
+    $self->tester->ok(0, "Verwaiste Verknüpfungen zu Bankbewegungen gefunden. Bei folgenden Bankbewegungen ist eine interne Verknüpfung gelöscht worden:");
+
+    for my $bt_orphaned (@{ $bt_assigned_no_link }) {
+      $self->tester->diag("Verwendungszweck: $bt_orphaned->{purpose}");
+    }
+  } else {
+    $self->tester->ok(1, "Keine verwaisten Einträge in verknüpften Bankbewegungen (Richtung Bank).");
+  }
+  # check for deleted acc_trans_ids
+  my $query = qq|
+          SELECT purpose from bank_transactions
+          WHERE id in
+          (SELECT bank_transaction_id from bank_transaction_acc_trans
+           where acc_trans_id NOT IN (select acc_trans_id from acc_trans)
+           AND transdate >= ? AND transdate <= ?)|;
+
+  my $bt_assigned_no_acc_trans = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $bt_assigned_no_acc_trans } > 0 ) {
+    $self->tester->ok(0, "Verwaiste Verknüpfungen zu Bankbewegungen gefunden. Bei folgenden Bankbewegungen ist eine interne Verknüpfung gelöscht worden:");
+
+    for my $bt_orphaned (@{ $bt_assigned_no_acc_trans }) {
+      $self->tester->diag("Verwendungszweck: $bt_orphaned->{purpose}");
+    }
+  } else {
+    $self->tester->ok(1, "Keine verwaisten Einträge in verknüpften Bankbewegungen (Richtung Buchung (Richtung Buchung)).");
+  }
+}
+
 1;
 
 __END__
