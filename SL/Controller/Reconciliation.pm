@@ -344,7 +344,7 @@ sub _get_elements_and_validate {
   }
 
   if ($::form->round_amount($bt_sum + $bb_sum, 2) != 0) {
-    push @errors, t8('Out of balance!');
+    push @errors, t8('Out of balance!'), t8('Sum of bank #1 and sum of bookings #2',$bt_sum, $bb_sum);
   }
 
   $self->{ELEMENTS} = \@elements;
@@ -360,7 +360,9 @@ sub _reconcile {
   # 1. step: set AccTrans and BankTransactions to 'cleared'
   foreach my $element (@{ $self->{ELEMENTS} }) {
     $element->cleared('1');
-    $element->invoice_amount($element->amount) if $element->isa('SL::DB::BankTransaction');
+    # veto either invoice_amount is fully assigned or not! No state tricks in later workflow!
+    # invoice_amount should be a distinct sign, that some bookings were really made from a bank transaction
+    # $element->invoice_amount($element->amount) if $element->isa('SL::DB::BankTransaction');
     $element->save;
   }
 

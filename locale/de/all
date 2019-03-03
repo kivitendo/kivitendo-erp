@@ -3050,6 +3050,7 @@ $self->{texts} = {
   'Sum for #1'                  => 'Summe für #1',
   'Sum for section'             => 'Summe für Abschnitt',
   'Sum of all amounts'          => 'Summe aller Beträge',
+  'Sum of bank #1 and sum of bookings #2' => 'Summe der Bank #1 und Summe der Buchungen #2',
   'Sum open amount'             => 'Summierter offener Betrag',
   'Sum per'                     => 'Summe per',
   'Summen- und Saldenliste'     => 'Summen- und Saldenliste',
