@@ -25,6 +25,7 @@ use SL::Auth;
 use SL::DBUpgrade2;
 use SL::DB::AuthClient;
 use SL::DB::BackgroundJob;
+use SL::Dispatcher;
 use SL::BackgroundJob::ALL;
 use SL::Form;
 use SL::Helper::DateTime;
@@ -330,6 +331,10 @@ sub gd_run {
     debug("Sleeping");
 
     clean_before_sleeping();
+
+    if (SL::Dispatcher::_memory_usage_is_too_high()) {
+      return;
+    }
 
     my $seconds = 60 - (localtime)[0];
     if (!eval {

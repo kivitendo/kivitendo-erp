@@ -80,8 +80,14 @@ default_manager = german
 # processes). If either limit is reached at the end of the request
 # then the kivitendo process will exit.
 #
-# This only makes sense when running under FCGI. The FCGI manager will
-# then automatically start a new process.
+# This only applies for processes under FCGI and the task manager.
+# For CGI configurations the process will be terminated after each request
+# regardless of this setting.
+#
+# Note: this will only terminate processes with too high memory consumption. It
+# is assumed that an external managing service will start new instances. For
+# FCGI this will usually be apache or the wrapper scripts for nginx, for the
+# task server this will have to be the system manager.
 #
 # Numbers can be postfixed with KB, MB, GB. If no number is given or
 # the number is 0 then no checking will be performed.
