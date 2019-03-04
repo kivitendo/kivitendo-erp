@@ -25,7 +25,7 @@ use SL::Auth;
 use SL::DBUpgrade2;
 use SL::DB::AuthClient;
 use SL::DB::BackgroundJob;
-use SL::Dispatcher;
+use SL::System::Process;
 use SL::BackgroundJob::ALL;
 use SL::Form;
 use SL::Helper::DateTime;
@@ -332,7 +332,7 @@ sub gd_run {
 
     clean_before_sleeping();
 
-    if (SL::Dispatcher::_memory_usage_is_too_high()) {
+    if (SL::System::Process::memory_usage_is_too_high()) {
       return;
     }
 

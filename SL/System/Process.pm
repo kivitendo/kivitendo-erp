@@ -25,6 +25,57 @@ sub exe_dir {
   return $cached_exe_dir;
 }
 
+sub _parse_number_with_unit {
+  my ($number) = @_;
+
+  return undef   unless defined $number;
+  return $number unless $number =~ m{^ \s* (\d+) \s* ([kmg])b \s* $}xi;
+
+  my %factors = (K => 1024, M => 1024 * 1024, G => 1024 * 1024 * 1024);
+
+  return $1 * $factors{uc $2};
+}
+
+sub memory_usage_is_too_high {
+  return undef unless $::lx_office_conf{system};
+
+  my %limits = (
+    rss  => _parse_number_with_unit($::lx_office_conf{system}->{memory_limit_rss}),
+    size => _parse_number_with_unit($::lx_office_conf{system}->{memory_limit_vsz}),
+  );
+
+  # $::lxdebug->dump(0, "limits", \%limits);
+
+  return undef unless $limits{rss} || $limits{vsz};
+
+  my %usage;
+
+  my $in = IO::File->new("/proc/$$/status", "r") or return undef;
+
+  while (<$in>) {
+    chomp;
+    $usage{lc $1} = _parse_number_with_unit($2) if m{^ vm(rss|size): \s* (\d+ \s* [kmg]b) \s* $}ix;
+  }
+
+  $in->close;
+
+  # $::lxdebug->dump(0, "usage", \%usage);
+
+  foreach my $type (keys %limits) {
+    next if !$limits{$type};
+    next if $limits{$type} >= ($usage{$type} // 0);
+
+    {
+      no warnings 'once';
+      $::lxdebug->message(LXDebug::WARN(), "Exiting due to memory size limit reached for type '${type}': limit " . $limits{$type} . " bytes, usage " . $usage{$type} . " bytes");
+    }
+
+    return 1;
+  }
+
+  return 0;
+}
+
 1;
 __END__
 
@@ -50,6 +101,11 @@ SL::System::Process - assorted system-relevant functions
 Returns the absolute path to the directory the kivitendo executables
 (C<login.pl> etc.) and modules (sub-directory C<SL/> etc.) are located
 in.
+
+=item C<memory_usage_is_too_high>
+
+Returns true if the current process uses more memory than the configured
+limits.
 
 =back
 
