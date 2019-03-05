@@ -663,7 +663,7 @@ sub save_single_bank_transaction {
                           payment_type => $payment_type,
                           source       => $source,
                           memo         => $memo,
-                          transdate    => $bank_transaction->transdate->to_kivitendo);
+                          transdate    => $bank_transaction->valutadate->to_kivitendo);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {
