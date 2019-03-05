@@ -24,11 +24,12 @@ use SL::DB::AccTransaction;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Tax;
 use SL::DB::BankAccount;
+use SL::DB::GLTransaction;
 use SL::DB::RecordTemplate;
 use SL::DB::SepaExportItem;
 use SL::DBUtils qw(like do_query);
 
-use SL::Presenter::Tag qw(checkbox_tag);
+use SL::Presenter::Tag qw(checkbox_tag html_tag);
 use Carp;
 use List::UtilsBy qw(partition_by);
 use List::MoreUtils qw(any);
@@ -765,8 +766,12 @@ sub action_unlink_bank_transaction {
         $_->delete for @{ $acc_trans };
       }
       # 3. update arap.paid (may not be 0, yet)
+      #    or in case of gl, delete whole entry
       while (my ($trans_id, $type) = each %trans_ids) {
-        next if $type eq 'gl';
+        if ($type eq 'gl') {
+          SL::DB::Manager::GLTransaction->delete_all(where => [ id => $trans_id ]);
+          next;
+        }
         die ("invalid type") unless $type =~ m/^(ar|ap)$/;
 
         # recalc and set paid via database query
@@ -843,8 +848,13 @@ sub prepare_report {
   my %column_defs = (
     ids                 => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]"),
                              'align'         => 'center',
-                             raw_data        => sub { if (@{ $_[0]->linked_invoices } && !(grep {ref ($_) eq 'SL::DB::GLTransaction' } @{ $_[0]->linked_invoices })) {
-                                                         checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1); } } },
+                             raw_data        => sub { if (@{ $_[0]->linked_invoices }) {
+                                                        if ($_[0]->closed_period) {
+                                                          html_tag('text', "X"); #, tooltip => t8('Bank Transaction is in a closed period.')),
+                                                        } else {
+                                                          checkbox_tag("ids[]", value => $_[0]->id, "data-checkall" => 1);
+                                                        }
+                                                } } },
     transdate             => { sub   => sub { $_[0]->transdate_as_date } },
     valutadate            => { sub   => sub { $_[0]->valutadate_as_date } },
     remote_name           => { },
