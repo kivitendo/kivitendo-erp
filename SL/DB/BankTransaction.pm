@@ -297,6 +297,20 @@ sub not_assigned_amount {
   return $not_assigned_amount;
 
 }
+sub closed_period {
+  my ($self) = @_;
+
+  # check for closed period
+  croak t8('Illegal date') unless ref $self->valutadate eq 'DateTime';
+
+
+  my $closedto = $::locale->parse_date_to_object($::instance_conf->get_closedto);
+  if ( ref $closedto && $self->valutadate < $closedto ) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 1;
 
 __END__
@@ -353,6 +367,11 @@ Usage:
 
 Returns the not open amount of this bank transaction.
 Dies if the return amount is higher than the original amount.
+
+=item C<closed_period>
+
+Returns 1 if the bank transaction valutadate is in a closed period, 0 if the
+valutadate of the bank transaction is not in a closed period.
 
 =back
 

@@ -1,4 +1,4 @@
-use Test::More tests => 282;
+use Test::More tests => 290;
 
 use strict;
 
@@ -15,6 +15,7 @@ use SL::DB::BankTransactionAccTrans;
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Customer;
+use SL::DB::Default;
 use SL::DB::Vendor;
 use SL::DB::Invoice;
 use SL::DB::Unit;
@@ -92,7 +93,6 @@ test_two_neg_ap_transaction();
 test_one_inv_and_two_invoices_with_skonto_exact();
 test_bt_error();
 test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo();
-
 reset_state();
 test_sepa_export();
 
@@ -101,6 +101,7 @@ test_bt_rule1();
 reset_state();
 test_two_banktransactions();
 # remove all created data at end of test
+test_closedto();
 clear_up();
 
 done_testing();
@@ -1171,6 +1172,36 @@ sub test_two_banktransactions {
   # is(scalar(@$proposals)         , 1  , "$testname: one proposal");
 
 };
+sub test_closedto {
 
+  my $testname = 'closedto';
+
+  my $ar_transaction_1 = test_ar_transaction(invnumber => 'salesinv10000' , amount => 2912.00 );
+  my $bt1 = create_bank_transaction(record        => $ar_transaction_1,
+                                    amount        => $ar_transaction_1->amount,
+                                    purpose       => "Rechnung10000 beinahe",
+                                    bank_chart_id => $bank->id,
+                                  ) or die "Couldn't create bank_transaction";
+
+  $bt1->valutadate(DateTime->new(year => 2019, month => 12, day => 30));
+  $bt1->save();
+
+  is($bt1->closed_period, 0, "$testname undefined closedto");
+
+  my $defaults = SL::DB::Manager::Default->get_all(limit => 1)->[0];
+  $defaults->closedto(DateTime->new(year => 2019, month => 12, day => 30));
+  $defaults->save();
+  $::instance_conf->reload->data;
+  $bt1->load();
+
+  is($bt1->closed_period, 1, "$testname defined and same date closedto");
+
+  $bt1->valutadate(DateTime->new(year => 2019, month => 12, day => 31));
+  $bt1->save();
+  $bt1->load();
+
+  is($bt1->closed_period, 0, "$testname defined closedto and next date valuta");
+
+}
 
 1;

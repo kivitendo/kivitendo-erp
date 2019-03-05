@@ -561,6 +561,13 @@ sub save_single_bank_transaction {
 
   my $bank_transaction = $data{bank_transaction};
 
+  if ($bank_transaction->closed_period) {
+    return {
+      %data,
+      result => 'error',
+      message => $::locale->text('Cannot post payment for a closed period!'),
+    };
+  }
   my (@warnings);
 
   my $worker = sub {
@@ -729,13 +736,13 @@ sub action_unlink_bank_transaction {
 
   croak("No bank transaction ids") unless scalar @{ $::form->{ids}} > 0;
 
-  my $closedto = $::locale->parse_date_to_object($::instance_conf->get_closedto);
   my $success_count;
 
   foreach my $bt_id (@{ $::form->{ids}} )  {
 
     my $bank_transaction = SL::DB::Manager::BankTransaction->find_by(id => $bt_id);
     croak("No valid bank transaction found") unless (ref($bank_transaction)  eq 'SL::DB::BankTransaction');
+    croak t8('Cannot unlink payment for a closed period!') if $bank_transaction->closed_period;
 
     # everything in one transaction
     my $rez = $bank_transaction->db->with_transaction(sub {
@@ -747,15 +754,12 @@ sub action_unlink_bank_transaction {
       foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt_id ] )}) {
 
         my $acc_trans = SL::DB::Manager::AccTransaction->get_all(where => [acc_trans_id => $acc_trans_id_entry->acc_trans_id]);
-        # check closedto for acc trans entries
-        croak t8('Cannot unlink payment for a closed period!') if (ref $closedto && grep { $_->transdate < $closedto } @{ $acc_trans } );
 
         # save trans_id and type
         die "no type" unless ($acc_trans_id_entry->ar_id || $acc_trans_id_entry->ap_id || $acc_trans_id_entry->gl_id);
         $trans_ids{$acc_trans_id_entry->ar_id} = 'ar' if $acc_trans_id_entry->ar_id;
         $trans_ids{$acc_trans_id_entry->ap_id} = 'ap' if $acc_trans_id_entry->ap_id;
         $trans_ids{$acc_trans_id_entry->gl_id} = 'gl' if $acc_trans_id_entry->gl_id;
-
         # 2. all good -> ready to delete acc_trans and bt_acc link
         $acc_trans_id_entry->delete;
         $_->delete for @{ $acc_trans };
