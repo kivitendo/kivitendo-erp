@@ -123,8 +123,8 @@ sub pay_invoice {
     my $new_acc_trans;
 
     # all three payment type create 1 AR/AP booking (the paid part)
-    # difference_as_skonto creates n skonto bookings (1 for each tax type)
-    # with_skonto_pt creates 1 bank booking and n skonto bookings (1 for each tax type)
+    # difference_as_skonto creates n skonto bookings (1 for each buchungsgruppe type)
+    # with_skonto_pt creates 1 bank booking and n skonto bookings (1 for each buchungsgruppe type)
     # without_skonto creates 1 bank booking
 
     # as long as there is no automatic tax, payments are always booked with
@@ -196,9 +196,9 @@ sub pay_invoice {
           $new_acc_trans->save;
           push @new_acc_ids, $new_acc_trans->acc_trans_id;
 
-        };
-      };
-    };
+        }
+      }
+    }
 
     if ( $params{payment_type} eq 'difference_as_skonto' or $params{payment_type} eq 'with_skonto_pt' ) {
 
@@ -244,8 +244,7 @@ sub pay_invoice {
       if ( $params{payment_type} eq 'difference_as_skonto' ) {
           die "difference_as_skonto calculated incorrectly, sum of calculated payments doesn't add up to open amount $total_open_amount, reference_amount = $reference_amount\n" unless _round($reference_amount) == 0;
       }
-
-    };
+    }
 
     my $arap_amount = 0;
 
@@ -258,7 +257,7 @@ sub pay_invoice {
       # with_skonto_pt for completely unpaid invoices we just use the value
       # from the invoice
       $arap_amount = $total_open_amount;
-    };
+    }
 
     # regardless of payment_type there is always only exactly one arap booking
     # TODO: compare $arap_amount to running total
@@ -446,8 +445,6 @@ sub amount_less_skonto {
   # amount that has to be paid if skonto applies, always return positive rounded values
   # the result is rounded so we can directly compare it with the user input
   my $self = shift;
-
-  my $is_sales = ref($self) eq 'SL::DB::Invoice';
 
   my $percent_skonto = $self->percent_skonto || 0;
 
