@@ -39,6 +39,10 @@ sub pay_invoice {
 
   # check for required parameters
   Common::check_params(\%params, qw(chart_id transdate));
+  if ( $params{'payment_type'} eq 'without_skonto' && abs($params{'amount'}) < 0) {
+    croak "invalid amount for payment_type 'without_skonto': $params{'amount'}\n";
+  }
+
 
   my $transdate_obj;
   if (ref($params{transdate} eq 'DateTime')) {
@@ -82,11 +86,6 @@ sub pay_invoice {
     };
   } else { # no currency param given or currency is the same as default_currency
     $exchangerate = 1;
-  };
-
-  # input checks:
-  if ( $params{'payment_type'} eq 'without_skonto' ) {
-    croak "invalid amount for payment_type 'without_skonto': $params{'amount'}\n" unless abs($params{'amount'}) > 0;
   };
 
   # options with_skonto_pt and difference_as_skonto don't require the parameter
@@ -756,6 +755,14 @@ Create a payment booking for an existing invoice object (type ar/ap/is/ir) via
 a configured bank account.
 
 This function deals with all the acc_trans entries and also updates paid and datepaid.
+The params C<transdate> and C<chart_id> are mandantory.
+If the default payment ('without_skonto') is used the param amount is also
+mandantory.
+
+Transdate can either be a date object or a date string.
+Chart_id is the id of the payment booking chart.
+Amount is either a postive or negative number, but never 0.
+
 
 Example:
 
