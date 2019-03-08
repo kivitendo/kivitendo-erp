@@ -44,6 +44,7 @@ use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::DB::BankTransactionAccTrans;
+use SL::DB::Chart;
 use SL::DB::Currency;
 use SL::DB::Default;
 use SL::DB::PurchaseInvoice;
@@ -553,6 +554,10 @@ sub form_header {
     $form->{'paidaccount_changeable_'. $i} = $changeable;
 
     $form->{'labelpaid_project_id_'. $i} = $project_labels{$form->{'paid_project_id_'. $i}};
+    # accno and description as info text
+    $form->{'AP_paid_readonly_desc_' . $i} =  $form->{'AP_paid_' . $i} ?
+       $form->{'AP_paid_' . $i} . " " . SL::DB::Manager::Chart->find_by(accno => $form->{'AP_paid_' . $i})->description
+     : '';
   }
 
   $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};

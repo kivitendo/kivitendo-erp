@@ -331,12 +331,13 @@
               </td>
             [% END %]
 
-            [% temp = "AP_paid_"_ i %]
+            [% temp     = "AP_paid_"_ i %]
+            [% readonly = "AP_paid_readonly_desc_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
                 [% L.select_tag(temp, ALL_CHARTS_AP_paid, value_title_sub = \AP_paid_value_title_sub, default = ($temp || accno_arap))  %]
               [% ELSE %]
-                [% $temp | html %]
+                [% $readonly | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
