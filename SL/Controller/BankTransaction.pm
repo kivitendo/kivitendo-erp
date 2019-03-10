@@ -309,20 +309,16 @@ sub action_ajax_payment_suggestion {
   # create an HTML blob to be used by the js function add_invoices in templates/webpages/bank_transactions/list.html
   # and return encoded as JSON
 
-  my $bt      = SL::DB::Manager::BankTransaction->find_by( id => $::form->{bt_id} );
+  croak("Need bt_id") unless $::form->{bt_id};
+
   my $invoice = SL::DB::Manager::Invoice->find_by( id => $::form->{prop_id} ) || SL::DB::Manager::PurchaseInvoice->find_by( id => $::form->{prop_id} );
 
-  die unless $bt and $invoice;
+  croak("No valid invoice found") unless $invoice;
 
-  my @select_options = $invoice->get_payment_select_options_for_bank_transaction($::form->{bt_id});
-
-  my $html;
-  $html = $self->render(
+  my $html = $self->render(
     'bank_transactions/_payment_suggestion', { output => 0 },
     bt_id          => $::form->{bt_id},
-    prop_id        => $::form->{prop_id},
     invoice        => $invoice,
-    SELECT_OPTIONS => \@select_options,
   );
 
   $self->render(\ SL::JSON::to_json( { 'html' => "$html" } ), { layout => 0, type => 'json', process => 0 });

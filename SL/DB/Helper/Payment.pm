@@ -629,13 +629,17 @@ sub valid_skonto_amount {
 sub get_payment_select_options_for_bank_transaction {
   my ($self, $bt_id, %params) = @_;
 
-  # no skonto date  -> no select option
-  return { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 } unless $self->skonto_date;
 
-  my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
-
+  # CAVEAT template code expects with_skonto_pt at position 1 for visual help
   my @options;
-
+  if(!$self->skonto_date) {
+    push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
+    # wrong call to presenter or not implemented? disabled option is ignored
+    # push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), disabled => 1 });
+    return @options;
+  }
+  # valid skonto date, check if skonto is preferred
+  my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
   if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });

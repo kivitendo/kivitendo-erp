@@ -5,13 +5,7 @@
   <td></td>
   <td></td>
   <td id="assigned_invoices_[% bt.id %]_[% invoice.id %]">
-   <span id="[% bt_id %].[% invoice.id %]" data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]">
-    [% P.hidden_tag("invoice_ids." _ bt_id _"[]", invoice.id) %]
-    [% LxERP.t8("Invno.") %]: [% HTML.escape(invoice.invnumber) %]
-    [% LxERP.t8("Open amount") %]: [% LxERP.format_amount(invoice.open_amount, 2) %]
-    [% P.select_tag("invoice_skontos." _ bt_id _ "[]", invoice.get_payment_select_options_for_bank_transaction(bt_id), value_key="payment_type", title_key="display") %]
-    [% P.link_tag("#", "x", onclick="kivi.BankTransaction.delete_invoice(" _ bt_id _ "," _ invoice.id _ ")") %]
-   </span>
+    [% PROCESS "bank_transactions/_payment_suggestion.html" %]
   </td>
   <td>[% P.input_tag("sources_" _ bt_id _ "_" _ invoice.id, "") %]</td>
   <td>[% P.input_tag("memos_" _ bt_id _ "_" _ invoice.id, "") %]</td>
