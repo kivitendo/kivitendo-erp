@@ -37,12 +37,25 @@ sub pay_invoice {
   $params{payment_type} = 'without_skonto' unless $params{payment_type};
   validate_payment_type($params{payment_type});
 
-  # check for required parameters
+  # check for required parameters and optional params depending on payment_type
   Common::check_params(\%params, qw(chart_id transdate));
   if ( $params{'payment_type'} eq 'without_skonto' && abs($params{'amount'}) < 0) {
     croak "invalid amount for payment_type 'without_skonto': $params{'amount'}\n";
   }
-
+  if ($params{'payment_type'} eq 'free_skonto') {
+    # we dont like too much automagic for this payment type.
+    # we force caller input for amount and skonto amount
+    Common::check_params(\%params, qw(amount skonto_amount));
+    # secondly we dont want to handle credit notes and purchase credit notes
+    croak("Cannot use 'free skonto' for credit or debit notes") if ($params{amount} <= 0 || $params{skonto_amount} <= 0);
+    # both amount have to be rounded
+    $params{skonto_amount} = _round($params{skonto_amount});
+    $params{amount}        = _round($params{amount});
+    # lastly skonto_amount has to be smaller than the open invoice amount or payment amount ;-)
+    if ($params{skonto_amount} > abs($self->open_amount) || $params{skonto_amount} > $params{amount}) {
+      croak("Skonto amount higher than the payment or invoice amount");
+    }
+  }
 
   my $transdate_obj;
   if (ref($params{transdate} eq 'DateTime')) {
@@ -130,7 +143,7 @@ sub pay_invoice {
     # taxkey 0
 
     unless ( $params{payment_type} eq 'difference_as_skonto' ) {
-      # cases with_skonto_pt and without_skonto
+      # cases with_skonto_pt, free_skonto and without_skonto
 
       # for case with_skonto_pt we need to know the corrected amount at this
       # stage if we are going to use $params{amount}
@@ -198,16 +211,18 @@ sub pay_invoice {
         }
       }
     }
-
-    if ( $params{payment_type} eq 'difference_as_skonto' or $params{payment_type} eq 'with_skonto_pt' ) {
+    # better everything except without_skonto
+    if ($params{payment_type} eq 'difference_as_skonto' or $params{payment_type} eq 'with_skonto_pt'
+        or $params{payment_type} eq 'free_skonto' ) {
 
       my $total_skonto_amount;
       if ( $params{payment_type} eq 'with_skonto_pt' ) {
         $total_skonto_amount = $self->skonto_amount;
       } elsif ( $params{payment_type} eq 'difference_as_skonto' ) {
         $total_skonto_amount = $self->open_amount;
-      };
-
+      } elsif ( $params{payment_type} eq 'free_skonto') {
+        $total_skonto_amount = $params{skonto_amount};
+      }
       my @skonto_bookings = $self->skonto_charts($total_skonto_amount);
 
       # error checking:
@@ -256,6 +271,10 @@ sub pay_invoice {
       # with_skonto_pt for completely unpaid invoices we just use the value
       # from the invoice
       $arap_amount = $total_open_amount;
+    } elsif ( $params{payment_type} eq 'free_skonto' ) {
+      # we forced positive values and forced rounding at the beginning
+      # therefore the above comment can be safely applied for this payment type
+      $arap_amount = $params{amount} + $params{skonto_amount};
     }
 
     # regardless of payment_type there is always only exactly one arap booking
@@ -636,6 +655,7 @@ sub get_payment_select_options_for_bank_transaction {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
     # wrong call to presenter or not implemented? disabled option is ignored
     # push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), disabled => 1 });
+    push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
     return @options;
   }
   # valid skonto date, check if skonto is preferred
@@ -647,6 +667,7 @@ sub get_payment_select_options_for_bank_transaction {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
   }
+  push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
   return @options;
 }
 
@@ -712,7 +733,7 @@ sub get_payment_suggestions {
 sub validate_payment_type {
   my $payment_type = shift;
 
-  my %allowed_payment_types = map { $_ => 1 } qw(without_skonto with_skonto_pt difference_as_skonto);
+  my %allowed_payment_types = map { $_ => 1 } qw(without_skonto with_skonto_pt difference_as_skonto free_skonto);
   croak "illegal payment type: $payment_type, must be one of: " . join(' ', keys %allowed_payment_types) unless $allowed_payment_types{ $payment_type };
 
   return 1;
@@ -762,6 +783,8 @@ This function deals with all the acc_trans entries and also updates paid and dat
 The params C<transdate> and C<chart_id> are mandantory.
 If the default payment ('without_skonto') is used the param amount is also
 mandantory.
+If the payment type ('free_skonto') is used the number param skonto_amount
+is as well mandantory and has to be lower than the currently open invoice amount.
 
 Transdate can either be a date object or a date string.
 Chart_id is the id of the payment booking chart.
