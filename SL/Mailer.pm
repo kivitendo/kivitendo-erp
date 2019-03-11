@@ -375,7 +375,7 @@ SL::Mailer - Base class for sending mails from kivitendo
 
 =head1 OVERVIEW
 
-Mail can be send from kivitendo via the sendmail command or the smtp protocol.
+Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
 
 =head1 INTERNAL DATA TYPES
@@ -385,7 +385,7 @@ Mail can be send from kivitendo via the sendmail command or the smtp protocol.
 
 =item C<%mail_delivery_modules>
 
-  Currently two modules are supported either smtp or sendmail.
+  Currently two modules are supported: smtp or sendmail.
 
 =item C<%type_to_table>
 
@@ -417,7 +417,7 @@ Mail can be send from kivitendo via the sendmail command or the smtp protocol.
 
 =item C<send>
 
-  If a mail was send successfully the internal functions _store_in_journal
+  If a mail was sent successfully the internal function _store_in_journal
   is called if email journaling is enabled. If _store_in_journal was executed
   successfully and the calling form is already persistent (database id) a
   record_link will be created.
@@ -430,7 +430,7 @@ Mail can be send from kivitendo via the sendmail command or the smtp protocol.
 
 
   If $self->{journalentry} and either $self->{record_id} or $::form->{id} (checked in
-  this order) exists a record link from record to email journal is created.
+  this order) exist a record link from record to email journal is created.
   Will fail silently if record_link creation wasn't successful (same behaviour as
   _store_in_journal).
 
