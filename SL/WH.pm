@@ -1334,7 +1334,7 @@ as the specific reason.
 The method is transaction safe, in case of errors not a single entry will be made
 in inventory.
 
-Two prerequisites can be changed with this global parameters
+Two prerequisites can be changed with these global parameters
 
 =over 2
 
