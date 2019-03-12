@@ -210,6 +210,15 @@ sub convert_to_invoice {
   return $invoice;
 }
 
+sub digest {
+  my ($self) = @_;
+
+  sprintf "%s %s (%s)",
+    $self->donumber,
+    $self->customervendor->name,
+    $self->date->to_kivitendo;
+}
+
 1;
 __END__
 

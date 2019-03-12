@@ -706,7 +706,7 @@ sub orders {
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
-                                          insertdatefrom insertdateto business_id);
+                                          insertdatefrom insertdateto business_id all);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -808,6 +808,7 @@ sub orders {
   if ($form->{notdelivered}) {
     push @options, $locale->text('Not delivered');
   }
+  push @options, $locale->text('Quick Search') . " : $form->{all}" if $form->{all};
 
   my $pr = SL::DB::Manager::Printer->find_by(
       printer_description => $::locale->text("sales_delivery_order_printer"));

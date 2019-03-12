@@ -6,10 +6,22 @@ use parent qw(SL::DB::Helper::Manager);
 
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
+use SL::DB::Helper::Filtered;
 
 sub object_class { 'SL::DB::DeliveryOrder' }
 
 __PACKAGE__->make_manager_methods;
+
+__PACKAGE__->add_filter_specs(
+  type => sub {
+    my ($key, $value, $prefix) = @_;
+    return __PACKAGE__->type_filter($value, $prefix);
+  },
+  all => sub {
+    my ($key, $value, $prefix) = @_;
+    return or => [ map { $prefix . $_ => $value } qw(donumber customer.name vendor.name transaction_description orderitems.serialnumber) ]
+  }
+);
 
 sub type_filter {
   my $class = shift;

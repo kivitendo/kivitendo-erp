@@ -36,6 +36,7 @@ package DO;
 
 use Carp;
 use List::Util qw(max);
+use Text::ParseWords;
 use YAML;
 
 use SL::AM;
@@ -209,6 +210,17 @@ SQL
       )
 SQL
     push @values, like($form->{parts_description});
+  }
+
+  if ($form->{all}) {
+    my @tokens = parse_line('\s+', 0, $form->{all});
+    # ordnumber quonumber customer.name vendor.name transaction_description
+    push @where, <<SQL for @tokens;
+      (   (dord.donumber                ILIKE ?)
+       OR (ct.name                      ILIKE ?)
+       OR (dord.transaction_description ILIKE ?))
+SQL
+    push @values, (like($_))x3 for @tokens;
   }
 
   if (@where) {
