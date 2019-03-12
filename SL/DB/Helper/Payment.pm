@@ -461,6 +461,8 @@ sub percent_skonto {
 
 sub amount_less_skonto {
   # amount that has to be paid if skonto applies, always return positive rounded values
+  # no, rare case, but credit_notes and negative ap have negative amounts
+  # and therefore this comment may be misguiding
   # the result is rounded so we can directly compare it with the user input
   my $self = shift;
 
@@ -650,24 +652,26 @@ sub get_payment_select_options_for_bank_transaction {
 
 
   # CAVEAT template code expects with_skonto_pt at position 1 for visual help
+  # due to skonto_charts, we cannot offer skonto for credit notes and neg ap
+  my $skontoable = $self->amount > 0 ? 1 : 0;
   my @options;
   if(!$self->skonto_date) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto'), selected => 1 });
     # wrong call to presenter or not implemented? disabled option is ignored
     # push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), disabled => 1 });
-    push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
+    push(@options, { payment_type => 'free_skonto', display => t8('free skonto') }) if $skontoable;
     return @options;
   }
   # valid skonto date, check if skonto is preferred
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
   if ($self->skonto_date && $self->within_skonto_period($bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
-    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 }) if $skontoable;
   } else {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') , selected => 1 });
-    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')});
+    push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt')}) if $skontoable;
   }
-  push(@options, { payment_type => 'free_skonto', display => t8('free skonto') });
+  push(@options, { payment_type => 'free_skonto', display => t8('free skonto') }) if $skontoable;
   return @options;
 }
 
@@ -783,8 +787,9 @@ This function deals with all the acc_trans entries and also updates paid and dat
 The params C<transdate> and C<chart_id> are mandantory.
 If the default payment ('without_skonto') is used the param amount is also
 mandantory.
-If the payment type ('free_skonto') is used the number param skonto_amount
-is as well mandantory and has to be lower than the currently open invoice amount.
+If the payment type ('free_skonto') is used the number params skonto_amount and amount
+are as well mandantory and need to be positive. Furthermore the skonto amount has
+to be lower than the payment or open invoice amount.
 
 Transdate can either be a date object or a date string.
 Chart_id is the id of the payment booking chart.
@@ -1130,6 +1135,12 @@ Returns 1 if record uses a different currency, 0 if the default currency is used
 
 when looking at open amount, maybe consider that there may already be queued
 amounts in SEPA Export
+
+=item * C<skonto_charts>
+
+Cannot handle negative skonto amounts, will always calculate the skonto amount
+for credit notes or negative ap transactions with a positive sign.
+
 
 =back
 

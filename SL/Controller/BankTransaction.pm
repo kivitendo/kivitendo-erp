@@ -627,12 +627,25 @@ sub save_single_bank_transaction {
         };
       }
 
-      my $payment_type;
+      my ($payment_type, $free_skonto_amount);
       if ( defined $::form->{invoice_skontos}->{"$bt_id"} ) {
         $payment_type = shift(@{ $::form->{invoice_skontos}->{"$bt_id"} });
       } else {
         $payment_type = 'without_skonto';
-      };
+      }
+
+      if ($payment_type eq 'free_skonto') {
+        # parse user input > 0
+        if ($::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id}) > 0) {
+          $free_skonto_amount = $::form->parse_amount(\%::myconfig, $::form->{"free_skonto_amount"}->{"$bt_id"}{$invoice->id});
+        } else {
+          return {
+            %data,
+            result  => 'error',
+            message => $::locale->text("Free skonto amount has to be a positive number."),
+          };
+        }
+      }
     # pay invoice
     # TODO rewrite this: really booked amount should be a return value of Payment.pm
     # also this controller shouldnt care about how to calc skonto. we simply delegate the
@@ -648,6 +661,7 @@ sub save_single_bank_transaction {
 
     # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
     $amount_for_payment *= -1 if $invoice->amount < 0;
+    $free_skonto_amount *= -1 if ($free_skonto_amount && $invoice->amount < 0);
     # get the right direction for the bank transaction
     $amount_for_booking *= $sign;
 
@@ -655,12 +669,13 @@ sub save_single_bank_transaction {
 
     # ... and then pay the invoice
     my @acc_ids = $invoice->pay_invoice(chart_id => $bank_transaction->local_bank_account->chart_id,
-                          trans_id     => $invoice->id,
-                          amount       => $amount_for_payment,
-                          payment_type => $payment_type,
-                          source       => $source,
-                          memo         => $memo,
-                          transdate    => $bank_transaction->valutadate->to_kivitendo);
+                          trans_id      => $invoice->id,
+                          amount        => $amount_for_payment,
+                          payment_type  => $payment_type,
+                          source        => $source,
+                          memo          => $memo,
+                          skonto_amount => $free_skonto_amount,
+                          transdate     => $bank_transaction->valutadate->to_kivitendo);
     # ... and record the origin via BankTransactionAccTrans
     if (scalar(@acc_ids) < 2) {
       return {

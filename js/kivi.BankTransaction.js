@@ -140,4 +140,20 @@ namespace('kivi.BankTransaction', function(ns) {
       }
     });
   };
+  ns.update_skonto = function(caller, bt_id, prop_id, formatted_amount_with_skonto_pt) {
+    if (caller.value === 'free_skonto') {
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).val("");
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', false);
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).focus();
+    }
+    if (caller.value === 'without_skonto') {
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).val(kivi.format_amount(0,2));
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', true);
+    }
+    if (caller.value === 'with_skonto_pt') {
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).val(formatted_amount_with_skonto_pt);
+      $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', true);
+    }
+  };
+
 });
