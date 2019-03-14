@@ -82,7 +82,17 @@ namespace('kivi.BankTransaction', function(ns) {
     var amount     = $container.data('invoice-amount') * 1;
 
     $('[id^="' + bank_transaction_id + '."]').each(function(idx, elt) {
-      amount += $(elt).data('invoice-amount');
+      if ($("input[name='skonto_pt." + elt.id + "']").val() == 1) {
+        // skonto payment term
+        amount += $(elt).data('invoice-amount-less-skonto');
+      } else {
+        // normal amount
+        amount += $(elt).data('invoice-amount');
+        //subtract free skonto if checked (no check for number!)
+        if ($("input[name='skonto_pt." + elt.id + "']").val() == 'free_skonto') {
+          amount -= $("input[name='free_skonto_amount." + elt.id + "']").val();
+        }
+      }
     });
 
     $container.html(kivi.format_amount(amount, 2));
@@ -141,19 +151,25 @@ namespace('kivi.BankTransaction', function(ns) {
     });
   };
   ns.update_skonto = function(caller, bt_id, prop_id, formatted_amount_with_skonto_pt) {
+
     if (caller.value === 'free_skonto') {
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).val("");
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', false);
+      $("input[name='skonto_pt." + bt_id + '.' + prop_id + "']").val('free_skonto');
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).focus();
     }
     if (caller.value === 'without_skonto') {
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).val(kivi.format_amount(0,2));
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', true);
+      $("input[name='skonto_pt." + bt_id + '.' + prop_id + "']").val(0);
     }
     if (caller.value === 'with_skonto_pt') {
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).val(formatted_amount_with_skonto_pt);
       $('#free_skonto_amount_' + bt_id + '_' + prop_id).prop('disabled', true);
+      $("input[name='skonto_pt." + bt_id + '.' + prop_id + "']").val(1);
     }
+    // recalc assigned amount
+    ns.update_invoice_amount(bt_id);
   };
 
 });
