@@ -1,4 +1,4 @@
-use Test::More tests => 290;
+use Test::More tests => 289;
 
 use strict;
 
@@ -51,6 +51,7 @@ sub clear_up {
   SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::PaymentTerm->delete_all(all => 1);
   SL::DB::Manager::Currency->delete_all(where => [ name => 'CUR' ]);
+  # SL::DB::Manager::Default->delete_all(all => 1);
 };
 
 my $bt_controller;
@@ -1189,18 +1190,19 @@ sub test_closedto {
   is($bt1->closed_period, 0, "$testname undefined closedto");
 
   my $defaults = SL::DB::Manager::Default->get_all(limit => 1)->[0];
-  $defaults->closedto(DateTime->new(year => 2019, month => 12, day => 30));
+  $defaults->closedto(DateTime->new(year => 2019, month => 12, day => 31));
   $defaults->save();
   $::instance_conf->reload->data;
   $bt1->load();
+  is($bt1->closed_period, 1, "$testname defined and next date closedto");
 
-  is($bt1->closed_period, 1, "$testname defined and same date closedto");
-
-  $bt1->valutadate(DateTime->new(year => 2019, month => 12, day => 31));
+  $bt1->valutadate(DateTime->new(year => 2020, month => 1, day => 1));
   $bt1->save();
   $bt1->load();
 
   is($bt1->closed_period, 0, "$testname defined closedto and next date valuta");
+  $defaults->closedto(undef);
+  $defaults->save();
 
 }
 
