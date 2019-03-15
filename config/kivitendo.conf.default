@@ -370,3 +370,5 @@ dial_command =
 external_prefix = 0
 # The prefix for international calls (numbers starting with +).
 international_dialing_prefix = 00
+# Our own country code
+our_country_code = 49
