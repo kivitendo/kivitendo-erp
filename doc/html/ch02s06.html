@@ -106,7 +106,13 @@ AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispat
 Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</pre><p>Dann ist unter <code class="filename">/url/for/kivitendo-erp/</code>
           die normale Version erreichbar, und unter
           <code class="constant">/url/for/kivitendo-erp-fcgid/</code> die
-          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1193"></a>2.6.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
+          FastCGI-Version.</p></div></div><div class="sect2" title="2.6.3. Authentifizierung mittels HTTP Basic Authentication"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1193"></a>2.6.3. Authentifizierung mittels HTTP Basic Authentication</h3></div></div></div><p>
+        Kivitendo unterstützt, dass Benutzerauthentifizierung über den Webserver mittels des »Basic«-HTTP-Authentifizierungs-Schema erfolgt
+        (siehe <a class="ulink" href="https://tools.ietf.org/html/rfc7617" target="_top">RFC 7617</a>). Dazu ist es aber nötig, dass der dabei vom Client
+        mitgeschickte Header <code class="constant">Authorization</code> vom Webserver an Kivitendo über die Umgebungsvariable
+        <code class="constant">HTTP_AUTHORIZATION</code> weitergegeben wird, was standardmäßig nicht der Fall ist. Für Apache kann dies über die
+        folgende Konfigurationsoption aktiviert werden:
+       </p><pre class="programlisting">SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1</pre></div><div class="sect2" title="2.6.4. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1209"></a>2.6.4. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
         von kivitendo nur über https-verschlüsselten Verbindungen, sowie
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser

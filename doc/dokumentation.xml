@@ -1193,6 +1193,20 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
       </sect2>
 
       <sect2>
+       <title>Authentifizierung mittels HTTP Basic Authentication</title>
+
+       <para>
+        Kivitendo unterstützt, dass Benutzerauthentifizierung über den Webserver mittels des »Basic«-HTTP-Authentifizierungs-Schema erfolgt
+        (siehe <ulink url="https://tools.ietf.org/html/rfc7617">RFC 7617</ulink>). Dazu ist es aber nötig, dass der dabei vom Client
+        mitgeschickte Header <constant>Authorization</constant> vom Webserver an Kivitendo über die Umgebungsvariable
+        <constant>HTTP_AUTHORIZATION</constant> weitergegeben wird, was standardmäßig nicht der Fall ist. Für Apache kann dies über die
+        folgende Konfigurationsoption aktiviert werden:
+       </para>
+
+       <programlisting>SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1</programlisting>
+      </sect2>
+
+      <sect2>
         <title>Weitergehende Konfiguration</title>
 
         <para>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
