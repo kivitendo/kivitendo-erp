@@ -347,7 +347,7 @@ sub total_amount {
 
 
 # test 1
-sub test_default_invoice_one_item_19_without_skonto() {
+sub test_default_invoice_one_item_19_without_skonto {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
   my $invoice = create_sales_invoice(
@@ -380,7 +380,7 @@ sub test_default_invoice_one_item_19_without_skonto() {
 
 }
 
-sub test_default_invoice_one_item_19_without_skonto_overpaid() {
+sub test_default_invoice_one_item_19_without_skonto_overpaid {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -419,7 +419,7 @@ sub test_default_invoice_one_item_19_without_skonto_overpaid() {
 
 
 # test 2
-sub test_default_invoice_two_items_19_7_tax_with_skonto() {
+sub test_default_invoice_two_items_19_7_tax_with_skonto {
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -451,7 +451,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto() {
   is($total,                          0,   "${title}: even balance");
 }
 
-sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included() {
+sub test_default_invoice_two_items_19_7_tax_with_skonto_tax_included {
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -488,7 +488,7 @@ TODO: {
 }
 
 # test 3 : two items, without skonto
-sub test_default_invoice_two_items_19_7_without_skonto() {
+sub test_default_invoice_two_items_19_7_without_skonto {
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -521,7 +521,7 @@ sub test_default_invoice_two_items_19_7_without_skonto() {
 }
 
 # test 4
-sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment() {
+sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment {
   my $title = 'default invoice, two items, 19/7% tax without skonto incomplete payment';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -550,7 +550,7 @@ sub test_default_invoice_two_items_19_7_without_skonto_incomplete_payment() {
 }
 
 # test 5
-sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments() {
+sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -584,7 +584,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments() {
 }
 
 # test 6
-sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto() {
+sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -623,7 +623,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
 
 }
 
-sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent() {
+sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_1cent {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   # if there is only one cent left there can only be one skonto booking, the
@@ -662,7 +662,7 @@ sub  test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fi
 
 }
 
-sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent() {
+sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto_2cent {
   my $title = 'default invoice, two items, 19/7% tax not included';
 
   # if there are two cents left there will be two skonto bookings, 1 cent each
@@ -697,7 +697,7 @@ sub test_default_invoice_two_items_19_7_tax_without_skonto_multiple_payments_fin
 
 }
 
-sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto() {
+sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -736,7 +736,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
 
 }
 
-sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent() {
+sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto_1cent {
   my $title = 'default invoice, one item, 19% tax, without_skonto';
 
   my $item    = create_invoice_item(part => $parts[0], qty => 2.5);
@@ -772,7 +772,7 @@ sub test_default_invoice_one_item_19_multiple_payment_final_difference_as_skonto
 }
 
 # test 3 : two items, without skonto
-sub test_default_purchase_invoice_two_charts_19_7_without_skonto() {
+sub test_default_purchase_invoice_two_charts_19_7_without_skonto {
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
   my $purchase_invoice = new_purchase_invoice();
@@ -795,7 +795,7 @@ sub test_default_purchase_invoice_two_charts_19_7_without_skonto() {
 
 }
 
-sub test_default_purchase_invoice_two_charts_19_7_with_skonto() {
+sub test_default_purchase_invoice_two_charts_19_7_with_skonto {
   my $title = 'default invoice, two items, 19/7% tax without skonto';
 
   my $purchase_invoice = new_purchase_invoice();
@@ -818,7 +818,7 @@ sub test_default_purchase_invoice_two_charts_19_7_with_skonto() {
 
 }
 
-sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto() {
+sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_without_skonto {
   my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
 
   # check whether unrounded amounts passed via $params{amount} are rounded for without_skonto case
@@ -838,7 +838,7 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_partial_unrounded_payment_
 };
 
 
-sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto() {
+sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_payments_final_difference_as_skonto {
   my $title = 'default purchase_invoice, two charts, 19/7% tax multiple payments with final difference as skonto';
 
   my $purchase_invoice = new_purchase_invoice();
@@ -872,7 +872,7 @@ sub test_default_purchase_invoice_two_charts_19_7_tax_without_skonto_multiple_pa
 }
 
 # test
-sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50() {
+sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50 {
   my $title = 'default invoice, two items, 19/7% tax with_skonto_pt 50/50';
 
   my $item1   = create_invoice_item(part => $parts[2], qty => 1);
@@ -905,7 +905,7 @@ sub test_default_invoice_two_items_19_7_tax_with_skonto_50_50() {
 }
 
 # test
-sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25() {
+sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25 {
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
   my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
@@ -939,7 +939,7 @@ sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25() {
   is($total              , 0    , "${title}: even balance");
 }
 
-sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included() {
+sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included {
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
   my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
@@ -976,7 +976,7 @@ TODO: {
   }
 }
 
-sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple() {
+sub test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple {
   my $title = 'default invoice, four items, 19/7% tax with_skonto_pt 4x25';
 
   my $item1   = create_invoice_item(part => $parts[2], qty => 0.5);
