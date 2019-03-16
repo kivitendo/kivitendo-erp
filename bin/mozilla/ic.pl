@@ -420,6 +420,8 @@ sub generate_report {
     @itemstatus_keys,
     @callback_keys,
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
+    map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),
+    map({'cvar_'. $_->{name} .'_to'}   grep({$_->{type} eq 'date'} @searchable_custom_variables)),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),
     map({ "l_$_" } @columns),
   );

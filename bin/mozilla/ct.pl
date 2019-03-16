@@ -229,6 +229,8 @@ sub list_names {
       addr_city addr_country addr_gln business_id salesman_id insertdateto insertdatefrom all
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
+    map({'cvar_'. $_->{name} .'_from'} grep({$_->{type} eq 'date'} @searchable_custom_variables)),
+    map({'cvar_'. $_->{name} .'_to'}   grep({$_->{type} eq 'date'} @searchable_custom_variables)),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),
     map({ "l_$_" } @columns),
   );
