@@ -1383,7 +1383,7 @@ sub recalc {
                                 tax       => $tax });
   }
 
-  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items}, @{$pat{items}};
+  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items_sorted}, @{$pat{items}};
 }
 
 # get data for saving, printing, ..., that is not changed in the form
