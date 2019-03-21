@@ -174,6 +174,42 @@ namespace('kivi.Order', function(ns) {
     $(event.target).val(kivi.format_amount(kivi.parse_amount($(event.target).val()), -2));
   };
 
+  ns.update_exchangerate = function(event) {
+    var rate_input = $('#order_exchangerate_as_number');
+    rate_input.attr('name', '');
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'Order/update_exchangerate' });
+
+    $.ajax({
+      url: 'controller.pl',
+      data: data,
+      method: 'POST',
+      dataType: 'json',
+      success: function(data){
+        if (data.currency_name) {
+          $('#currency_name').text(data.currency_name);
+          var rate_text = $('#exchangerate_text');
+          if (data.exchangerate) {
+            rate_text.text(data.exchangerate);
+            rate_input.hide();
+          } else {
+            rate_text.text('');
+            rate_input.show().attr('name', rate_input.data('name')).val(0);
+          }
+          $('#exchangerate_settings').show();
+        } else {
+          $('#exchangerate_settings').hide();
+        }
+        if ($('#order_currency_id').val() != $('#old_currency_id').val() || data.exchangerate != $('#old_exchangerate').val()) {
+          kivi.display_flash('warning', kivi.t8('You have changed the currency. Please update prices.'));
+        }
+        $('#old_currency_id').val($('#order_currency_id').val());
+        $('#old_exchangerate').val(data.exchangerate);
+      }
+    });
+  };
+
   ns.recalc_amounts_and_taxes = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/recalc_amounts_and_taxes' });
@@ -791,6 +827,9 @@ $(function() {
   } else {
     $('#order_vendor_id').change(kivi.Order.reload_cv_dependent_selections);
   }
+
+  $('#order_currency_id').change(kivi.Order.update_exchangerate);
+  $('#order_transdate').change(kivi.Order.update_exchangerate);
 
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });

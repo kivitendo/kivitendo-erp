@@ -10,6 +10,7 @@ use List::MoreUtils qw(any);
 
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
+use SL::DB::Helper::Attr;
 use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
 use SL::DB::Helper::FlattenToForm;
@@ -40,7 +41,14 @@ __PACKAGE__->meta->add_relationship(
     column_map             => { id => 'trans_id' },
     query_args             => [ module => 'OE' ],
   },
+  exchangerate_obj         => {
+    type                   => 'one to one',
+    class                  => 'SL::DB::Exchangerate',
+    column_map             => { currency_id => 'currency_id', transdate => 'transdate' },
+  },
 );
+
+SL::DB::Helper::Attr::make(__PACKAGE__, exchangerate => 'numeric');
 
 __PACKAGE__->meta->initialize;
 
@@ -109,6 +117,30 @@ sub displayable_name {
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
   return !!shift->customer_id;
+}
+
+sub exchangerate {
+  my ($self, $val) = @_;
+
+  return 1 if $self->currency_id == $::instance_conf->get_currency_id;
+
+  my $rate = $self->is_sales ? 'buy' : 'sell';
+
+  if (defined $val) {
+    croak 'exchange rate has to be positive' if $val <= 0;
+    if (!$self->exchangerate_obj) {
+      $self->exchangerate_obj(SL::DB::Exchangerate->new(
+        currency_id => $self->currency_id,
+        transdate   => $self->transdate,
+        $rate       => $val,
+      ));
+    } elsif (!defined $self->exchangerate_obj->$rate) {
+      $self->exchangerate_obj->$rate($val);
+    } else {
+      croak 'exchange rate already exists, no update allowed';
+    }
+  }
+  return $self->exchangerate_obj->$rate if $self->exchangerate_obj;
 }
 
 sub invoices {

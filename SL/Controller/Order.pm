@@ -926,6 +926,18 @@ sub action_recalc_amounts_and_taxes {
   $self->js->render();
 }
 
+sub action_update_exchangerate {
+  my ($self) = @_;
+  my $data = {};
+  if ($self->order->currency_id != $::instance_conf->get_currency_id) {
+    $data = {
+      currency_name => $self->order->currency->name,
+      exchangerate  => $self->order->exchangerate_as_number,
+    };
+  }
+  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
+}
+
 # redisplay item rows if they are sorted by an attribute
 sub action_reorder_items {
   my ($self) = @_;
@@ -1509,8 +1521,7 @@ sub setup_order_from_cv {
 sub recalc {
   my ($self) = @_;
 
-  # bb: todo: currency later
-  $self->order->currency_id($::instance_conf->get_currency_id());
+  $self->order->currency_id($::instance_conf->get_currency_id()) unless $self->order->currency_id;
 
   my %pat = $self->order->calculate_prices_and_taxes();
 
@@ -1657,6 +1668,7 @@ sub pre_render {
   my ($self) = @_;
 
   $self->{all_taxzones}               = SL::DB::Manager::TaxZone->get_all_sorted();
+  $self->{all_currencies}             = SL::DB::Manager::Currency->get_all_sorted();
   $self->{all_departments}            = SL::DB::Manager::Department->get_all_sorted();
   $self->{all_employees}              = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
                                                                                               deleted => 0 ] ],

@@ -143,6 +143,7 @@ namespace("kivi").setupLocale({
 "Wrong number format (#1)":"",
 "Wrong time format (#1)":"",
 "Yes":"",
+"You have changed the currency. Please update prices.":"",
 "filename has not uploadable characters ":"",
 "filesize too big: ":"",
 "flat-rate position":"",
