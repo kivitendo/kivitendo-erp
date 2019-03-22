@@ -1,140 +1,37 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.3: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Datenbankupgrades werden über einzelne Upgrade-Scripte
-        gesteuert, die sich im Verzeichnis
-        <code class="filename">sql/Pg-upgrade2</code> befinden. In diesem Verzeichnis
-        muss pro Datenbankupgrade eine Datei existieren, die neben den
-        eigentlich auszuführenden SQL- oder Perl-Befehlen einige
-        Kontrollinformationen enthält.</p><p>Kontrollinformationen definieren Abhängigkeiten und Prioritäten,
-        sodass Datenbankscripte zwar in einer sicheren Reihenfolge ausgeführt
-        werden (z.B. darf ein <code class="literal">ALTER TABLE</code> erst ausgeführt
-        werden, wenn die Tabelle mit <code class="literal">CREATE TABLE</code> angelegt
-        wurde), diese Reihenfolge aber so flexibel ist, dass man keine
-        Versionsnummern braucht.</p><p>kivitendo merkt sich dabei, welches der Upgradescripte in
-        <code class="filename">sql/Pg-upgrade2</code> bereits durchgeführt wurde und
-        führt diese nicht erneut aus. Dazu dient die Tabelle
-        "<code class="literal">schema_info</code>", die bei der Anmeldung automatisch
-        angelegt wird.</p></div><div class="sect2" title="4.3.2. Format der Kontrollinformationen"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format"></a>4.3.2. Format der Kontrollinformationen</h3></div></div></div><p>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
-        Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
-        hat dabei das folgende Format:</p><p>Für SQL-Upgradedateien:</p><pre class="programlisting">-- @key: value</pre><p>Für Perl-Upgradedateien:</p><pre class="programlisting"># @key: value</pre><p>Leerzeichen vor "<code class="varname">value</code>" werden
-        entfernt.</p><p>Die folgenden Schlüsselworte werden verarbeitet:</p><div class="variablelist"><dl><dt><span class="term">
-                     <code class="varname">tag</code>
-                  </span></dt><dd><p>Wird zwingend benötigt. Dies ist der "Name" des Upgrades.
-              Dieser "tag" kann von anderen Kontrolldateien in ihren
-              Abhängigkeiten verwendet werden (Schlüsselwort
-              "<code class="varname">depends</code>"). Der "tag" ist auch der Name, der
-              in der Datenbank eingetragen wird.</p><p>Normalerweise sollte die Kontrolldatei genau so heißen wie
-              der "tag", nur mit der Endung ".sql" bzw. "pl".</p><p>Ein Tag darf nur aus alphanumerischen Zeichen sowie den
-              Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht
-              erlaubt und sollten stattdessen mit Unterstrichen ersetzt
-              werden.</p></dd><dt><span class="term">
-                     <code class="varname">charset</code>
-                  </span></dt><dd><p>Empfohlen. Gibt den Zeichensatz an, in dem das Script
-              geschrieben wurde, z.B. "<code class="literal">UTF-8</code>". Aus
-              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
-              Abwesenheit des Tags für SQL-Upgradedateien der Zeichensatz
-              "<code class="literal">ISO-8859-15</code>" angenommen. Perl-Upgradescripte
-              hingegen müssen immer in UTF-8 encodiert sein und sollten
-              demnach auch ein "<code class="literal">use utf8;</code>"
-              enthalten.</p></dd><dt><span class="term">
-                     <code class="varname">description</code>
-                  </span></dt><dd><p>Benötigt. Eine Beschreibung, was in diesem Update
-              passiert. Diese wird dem Benutzer beim eigentlichen
-              Datenbankupdate angezeigt. Während der Tag in Englisch gehalten
-              sein sollte, sollte die Beschreibung auf Deutsch
-              erfolgen.</p></dd><dt><span class="term">
-                     <code class="varname">depends</code>
-                  </span></dt><dd><p>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
-              von denen dieses Upgradescript abhängt. kivitendo stellt sicher,
-              dass die in dieser Liste aufgeführten Scripte bereits
-              durchgeführt wurden, bevor dieses Script ausgeführt wird.</p><p>Abhängigkeiten werden rekursiv betrachtet. Wenn also ein
-              Script "b" existiert, das von Änderungen in "a" abhängt, und
-              eine neue Kontrolldatei für "c" erstellt wird, die von
-              Änderungen in "a" und "b" abhängt, so genügt es, in "c" nur den
-              Tag "b" als Abhängigkeit zu definieren.</p><p>Es ist nicht erlaubt, sich selbst referenzierende
-              Abhängigkeiten zu definieren (z.B. "a" -&gt; "b", "b" -&gt; "c"
-              und "c" -&gt; "a").</p></dd><dt><span class="term">
-                     <code class="varname">priority</code>
-                  </span></dt><dd><p>Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in
-              der Scripte ausgeführt werden, die die gleichen
-              Abhängigkeitstiefen besitzen. Fehlt dieser Parameter, so wird
-              der Wert 1000 benutzt.</p><p>Dies ist reine Kosmetik. Für echte Reihenfolgen muss
-              "depends" benutzt werden. kivitendo sortiert die auszuführenden
-              Scripte zuerst nach der Abhängigkeitstiefe (wenn "z" von "y"
-              abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
-              2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
-              dann "y", dann "z"), dann nach der Priorität und bei gleicher
-              Priorität alphabetisch nach dem "tag".</p></dd><dt><span class="term">
-                     <code class="varname">ignore</code>
-                  </span></dt><dd><p>Optional. Falls der Wert auf 1 (true) steht, wird das
-              Skript bei der Anmeldung ignoriert und entsprechend nicht
-              ausgeführt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Format von in Perl geschriebenen Datenbankupgradescripten"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format-perl-files"></a>4.3.3. Format von in Perl geschriebenen
-        Datenbankupgradescripten</h3></div></div></div><p>In Perl geschriebene Datenbankscripte werden nicht einfach so
-        ausgeführt sondern müssen sich an gewisse Konventionen halten. Dafür
-        bekommen sie aber auch einige Komfortfunktionen bereitgestellt.</p><p>Ein Upgradescript stellt dabei eine vollständige Objektklasse
-        dar, die vom Elternobjekt "<code class="literal">SL::DBUpgrade2::Base</code>"
-        erben und eine Funktion namens "<code class="literal">run</code>" zur Verfügung
-        stellen muss. Das Script wird ausgeführt, indem eine Instanz dieser
-        Klasse erzeugt und darauf die erwähnte "<code class="literal">run</code>"
-        aufgerufen wird.</p><p>Zu beachten ist, dass sich der Paketname der Datei aus dem Wert
-        für "<code class="literal">@tag</code>" ableitet. Dabei werden alle Zeichen, die
-        in Paketnamen ungültig wären (gerade Bindestriche), durch Unterstriche
-        ersetzt. Insgesamt sieht der Paketname wie folgt aus:
-        "<code class="literal">SL::DBUpgrade2::tag</code>".</p><p>Welche Komfortfunktionen zur Verfügung stehen, erfahren Sie in
-        der Perl-Dokumentation zum oben genannten Modul; aufzurufen mit
-        "<span class="command"><strong>perldoc SL/DBUpgrade2/Base.pm</strong></span>".</p><p>Ein Mindestgerüst eines gültigen Perl-Upgradescriptes sieht wie
-        folgt aus:</p><pre class="programlisting"># @tag: beispiel-upgrade-file42
-# @description: Ein schönes Beispielscript
-# @depends: release_3_1_0
-package SL::DBUpgrade2::beispiel_upgrade_file42;
-
-use strict;
-use utf8;
-
-use parent qw(SL::DBUpgrade2::Base);
-
-sub run {
-  my ($self) = @_;
-
-  # hier Aktionen ausführen
-
-  return 1;
-}
-
-1;
-</pre></div><div class="sect2" title="4.3.4. Hilfsscript dbupgrade2_tool.pl"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.dbupgrade-tool"></a>4.3.4. Hilfsscript dbupgrade2_tool.pl</h3></div></div></div><p>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
-        existiert ein Hilfsscript namens
-        "<code class="filename">scripts/dbupgrade2_tool.pl</code>". Es muss aus dem
-        kivitendo-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
-        liest alle Datenbankupgradescripte aus dem Verzeichnis
-        <code class="filename">sql/Pg-upgrade2</code> aus. Es benutzt dafür die
-        gleichen Methoden wie kivitendo selber, sodass alle Fehlersituationen
-        von der Kommandozeile überprüft werden können.</p><p>Wird dem Script kein weiterer Parameter übergeben, so wird nur
-        eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
-        sich aber auch Informationen auf verschiedene Art ausgeben
-        lassen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Listenform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
-            --list</strong></span>"</p><p>Gibt eine Liste aller Scripte aus. Die Liste ist in der
-            Reihenfolge sortiert, in der kivitendo die Scripte ausführen
-            würde. Es werden neben der Listenposition der Tag, die
-            Abhängigkeitstiefe und die Priorität ausgegeben.</p></li><li class="listitem"><p>Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
-            --tree</strong></span>"</p><p>Listet alle Tags in Baumform basierend auf den
-            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von
-            denen keine anderen abhängen. Die Unterknoten sind Scripte, die
-            beim übergeordneten Script als Abhängigkeit eingetragen
-            sind.</p></li><li class="listitem"><p><a name="db-upgrade-files.dbupgrade-tool.reverse-tree"></a>Umgekehrte Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
-            --rtree</strong></span>"</p><p>Listet alle Tags in Baumform basierend auf den
-            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte mit
-            der geringsten Abhängigkeitstiefe. Die Unterknoten sind Scripte,
-            die das übergeordnete Script als Abhängigkeit eingetragen
-            haben.</p></li><li class="listitem"><p>Baumform mit Postscriptausgabe:
-            "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
-            --graphviz</strong></span>"</p><p>Benötigt das Tool "<span class="command"><strong>graphviz</strong></span>", um mit
-            seiner Hilfe die <a class="link" href="ch04s03.html#db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte
-            Baumform</a> in eine Postscriptdatei namens
-            "<code class="filename">db_dependencies.ps</code>" auszugeben. Dies ist
-            vermutlich die übersichtlichste Form, weil hierbei jeder Knoten
-            nur einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen
-            können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben
-            werden.</p></li><li class="listitem"><p>Scripte, von denen kein anderes Script abhängt:
-            "<span class="command"><strong>./scripts/dbupgrade2_tool.pl --nodeps</strong></span>"</p><p>Listet die Tags aller Scripte auf, von denen keine anderen
-            Scripte abhängen.</p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. Entwicklung unter FastCGI&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.4. Translations and languages</td></tr></table></div></body></html>
+   <title>4.3. Programmatische API-Aufrufe</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.3: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. SQL-Upgradedateien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. Programmatische API-Aufrufe</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. Programmatische API-Aufrufe"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dev-programmatic-api-calls"></a>4.3. Programmatische API-Aufrufe</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>
+         Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
+         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
+         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
+         übergeben werden.
+        </p></div><div class="sect2" title="4.3.2. Wahl des Mandanten"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.client_selection"></a>4.3.2. Wahl des Mandanten</h3></div></div></div><p>
+         Der zu verwendende Mandant kann als Parameter <code class="varname">{AUTH}client_id</code> mit jedem Request mitgeschickt werden. Der Wert
+         muss dabei die Datenbank-ID des Mandanten sein. kivitendo prüft, ob der Account, der über die Authentifizierungsinformationen
+         übergeben wurde, Zugriff auf den angegebenen Mandanten hat.
+        </p><p>
+         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
+         keinen solchen, kommt es zu einer Fehlermeldung.
+        </p></div><div class="sect2" title="4.3.3. HTTP-»Basic«-Authentifizierung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.http_basic_authentication"></a>4.3.3. HTTP-»Basic«-Authentifizierung</h3></div></div></div><p>
+         Für diese Methode muss jedem Request der bekannte HTTP-Header <code class="constant">Authorization</code> mitgeschickt werden (siehe <a class="ulink" href="https://tools.ietf.org/html/rfc7617" target="_top">RFC 7617</a>). Unterstützt wird ausschließlich die »Basic«-Methode. Loginname und
+         Passwort werden bei dieser Methode durch einen Doppelpunkt getrennt und Base64-encodiert im genannten HTTP-Header übertragen.
+        </p><p>
+         Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei Benutzung über den Webbrowser, ob
+         dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
+        </p><p>
+         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
+         erfolgen.
+        </p></div><div class="sect2" title="4.3.4. Authentifizierung mit Parametern"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.authentication_via_parameters"></a>4.3.4. Authentifizierung mit Parametern</h3></div></div></div><p>
+         Für diese Methode müssen jedem Request zwei Parameter mitgegeben werden: <code class="varname">{AUTH}login</code> und
+         <code class="varname">{AUTH}password</code>. Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei
+         Benutzung über den Webbrowser, ob dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
+        </p><p>
+         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
+         erfolgen.
+        </p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
+          Die Verwendung dieser Methode ist veraltet. Statt dessen sollte die oben erwähnte HTTP-»Basic«-Authentifizierung verwendet werden.
+         </p></td></tr></table></div></div><div class="sect2" title="4.3.5. Beispiele"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.examples"></a>4.3.5. Beispiele</h3></div></div></div><p>
+         Das folgende Beispiel nutzt das Kommandozeilenprogramm »curl« und ruft die Funktion auf, die eine vorhandene Telefonnummer in den
+         Ansprechpersonen sucht und dazu Informationen zurückliefert. Dabei wird die HTTP-»Basic«-Authentifizierung genutzt.
+        </p><pre class="programlisting">$ curl --silent --user 'jdoe:SecretPassword!' \
+  'https://…/controller.pl?action=PhoneNumber/look_up&amp;number=053147110815'</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. Entwicklung unter FastCGI&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.4. SQL-Upgradedateien</td></tr></table></div></body></html>

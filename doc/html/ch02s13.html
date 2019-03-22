@@ -63,14 +63,14 @@
       Verzeichnis umbenannt werden.</p><p>Dieses Verzeichnis, wie auch das komplette
       <code class="literal">users</code>-Verzeichnis, muss vom Webserver beschreibbar
       sein. Dieses wurde bereits erledigt (siehe <a class="xref" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), kann aber erneut
-      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2374"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
+      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</p><div class="sect2" title="2.13.1. OpenDocument (odt) Druckvorlagen mit Makros"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2383"></a>2.13.1. OpenDocument (odt) Druckvorlagen mit Makros</h3></div></div></div><p>OpenDocument Vorlagen können Makros enthalten, welche komplexere
         Aufgaben erfüllen.</p><p>Der Vorlagensatz "rev-odt" enthält solche Vorlagen mit <span class="bold"><strong>Schweizer Bank-Einzahlungsscheinen (BESR)</strong></span>.
         Diese Makros haben die Aufgabe, die in den Einzahlungsscheinen
         benötigte Referenznummer und Kodierzeile zu erzeugen. Hier eine kurze
         Beschreibung, wie die Makros aufgebaut sind, und was bei ihrer Nutzung
         zu beachten ist (<span class="bold"><strong>in fett sind nötige einmalige
-        Anpassungen aufgeführt</strong></span>):</p><div class="sect3" title="2.13.1.1. Bezeichnung der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2387"></a>2.13.1.1. Bezeichnung der Vorlagen</h4></div></div></div><p>Rechnung: invoice_besr.odt, Auftrag:
-          sales_order_besr.odt</p></div><div class="sect3" title="2.13.1.2. Vorbereitungen im Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2392"></a>2.13.1.2. Vorbereitungen im Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
+        Anpassungen aufgeführt</strong></span>):</p><div class="sect3" title="2.13.1.1. Bezeichnung der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2396"></a>2.13.1.1. Bezeichnung der Vorlagen</h4></div></div></div><p>Rechnung: invoice_besr.odt, Auftrag:
+          sales_order_besr.odt</p></div><div class="sect3" title="2.13.1.2. Vorbereitungen im Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2401"></a>2.13.1.2. Vorbereitungen im Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
           Standardvorlage ohne Einzahlungsschein weitere Vorlagen (z.B. mit
           Einzahlungsschein) auswählbar sind, muss für jedes Vorlagen-Suffix
           ein Drucker eingerichtet werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Druckeradministration → Drucker hinzufügen</p></li><li class="listitem"><p>Mandant wählen</p></li><li class="listitem"><p>Druckerbeschreibung → aussagekräftiger Text: wird in der
@@ -79,11 +79,11 @@
               Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
               aber nicht leer sein)</p></li><li class="listitem"><p>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
               (muss genau der Zeichenfolge entsprechen, die zwischen
-              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2416"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
+              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.3. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2425"></a>2.13.1.3. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
           im Rechnungs- bzw. Auftragsformular angezeigt haben möchte, kann
           dies persönlich für sich bei den Benutzereinstellungen
           konfigurieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Programm → Benutzereinstellungen → Druckoptionen</p></li><li class="listitem"><p>Standardvorlagenformat → OpenDocument/OASIS</p></li><li class="listitem"><p>Standardausgabekanal → Bildschirm</p></li><li class="listitem"><p>Standarddrucker → gewünschte Druckerbeschreibung auswählen
-              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2440"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
+              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2449"></a>2.13.1.4. Aufbau und nötige Anpassungen der Vorlagen</h4></div></div></div><p>In der Vorlage sind als Modul "BESR" 4 Makros gespeichert, die
           aus dem von kivitendo erzeugten odt-Dokument die korrekte
           Referenznummer inklusive Prüfziffer sowie die Kodierzeile in
           OCRB-Schrift erzeugen und am richtigen Ort ins Dokument
@@ -112,12 +112,12 @@
               angepasst werden.</strong></span> Dabei ist darauf zu achten, dass
               sich die Positionen der Postkonto-Nummern der Bank, sowie der
               Zeichenfolgen dddfr, DDDREF1, DDDREF2, 609, DDDKODIERZEILE nicht
-              verschieben.</p></li></ul></div><div class="screenshot"><div class="mediaobject"><img src="images/Einzahlungsschein_Makro.png"></div></div></div><div class="sect3" title="2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2504"></a>2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
+              verschieben.</p></li></ul></div><div class="screenshot"><div class="mediaobject"><img src="images/Einzahlungsschein_Makro.png"></div></div></div><div class="sect3" title="2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2513"></a>2.13.1.5. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
           odt-Rechnung (analog bei Auftrag)</h4></div></div></div><p>Im Fussbereich der Rechnungsmaske muss neben Rechnung,
           OpenDocument/OASIS und Bildschirm die im Adminbereich erstellte
           Druckerbeschreibung ausgewählt werden, falls diese nicht bereits bei
           den Benutzereinstellungen als persönlicher Standard gewählt
-          wurde.</p></div><div class="sect3" title="2.13.1.6. Makroeinstellungen in LibreOffice anpassen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2509"></a>2.13.1.6. Makroeinstellungen in LibreOffice anpassen</h4></div></div></div><p>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
+          wurde.</p></div><div class="sect3" title="2.13.1.6. Makroeinstellungen in LibreOffice anpassen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e2518"></a>2.13.1.6. Makroeinstellungen in LibreOffice anpassen</h4></div></div></div><p>Falls beim Öffnen einer von kivitendo erzeugten odt-Rechnung
           die Meldung kommt, dass Makros aus Sicherheitsgründen nicht
           ausgeführt werden, so müssen folgende Einstellungen in LibreOffice
           angepasst werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Extras → Optionen → Sicherheit → Makrosicherheit</p></li><li class="listitem"><p>Sicherheitslevel auf "Mittel" einstellen (Diese
