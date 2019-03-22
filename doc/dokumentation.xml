@@ -821,13 +821,13 @@ default_manager = german</programlisting>
             Als Hinweis einige Links zu den drei Distribution (Stand Dezember 2018):</para>
           <itemizedlist>
             <listitem>
-            <ulink url="https://fedoraproject.org/wiki/PostgreSQL">Fedora (Postgres-Installation unter Fedora)</ulink>
+              <para><ulink url="https://fedoraproject.org/wiki/PostgreSQL">Fedora (Postgres-Installation unter Fedora)</ulink></para>
             </listitem>
             <listitem>
-            <ulink url="https://help.ubuntu.com/lts/serverguide/postgresql.html">Ubuntu (Infos für Postgres für die aktuelle LTS Version)</ulink>
+              <para><ulink url="https://help.ubuntu.com/lts/serverguide/postgresql.html">Ubuntu (Infos für Postgres für die aktuelle LTS Version)</ulink></para>
             </listitem>
             <listitem>
-            <ulink url="https://de.opensuse.org/PostgreSQL">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</ulink>
+              <para><ulink url="https://de.opensuse.org/PostgreSQL">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</ulink></para>
             </listitem>
           </itemizedlist>
       <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
