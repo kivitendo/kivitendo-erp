@@ -570,7 +570,6 @@ sub save_single_bank_transaction {
   my $worker = sub {
     my $bt_id                 = $data{bank_transaction_id};
     my $sign                  = $bank_transaction->amount < 0 ? -1 : 1;
-    my $not_assigned_amount   = $bank_transaction->not_assigned_amount;
     my $payment_received      = $bank_transaction->amount > 0;
     my $payment_sent          = $bank_transaction->amount < 0;
 
@@ -617,9 +616,8 @@ sub save_single_bank_transaction {
       my $memo   = ($data{memos}   // [])->[$n_invoices];
 
       $n_invoices++ ;
-
-
-      if (!$not_assigned_amount && $invoice->open_amount) {
+      if (   ($payment_sent     && $bank_transaction->not_assigned_amount >= 0)
+          || ($payment_received && $bank_transaction->not_assigned_amount <= 0)) {
         return {
           %data,
           result  => 'error',
@@ -654,10 +652,11 @@ sub save_single_bank_transaction {
     # should be better done elsewhere - changing not_assigned_amount to abs feels seriously bogus
 
     my $open_amount = $payment_type eq 'with_skonto_pt' ? $invoice->amount_less_skonto : $invoice->open_amount;
-    $open_amount         = abs($open_amount);
-    $not_assigned_amount = abs($not_assigned_amount);
-    my $amount_for_booking = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
-    my $amount_for_payment = $amount_for_booking;
+    $open_amount            = abs($open_amount);
+    $open_amount           -= $free_skonto_amount if ($payment_type eq 'free_skonto');
+    my $not_assigned_amount = abs($bank_transaction->not_assigned_amount);
+    my $amount_for_booking  = ($open_amount < $not_assigned_amount) ? $open_amount : $not_assigned_amount;
+    my $amount_for_payment  = $amount_for_booking;
 
     # get the right direction for the payment bookings (all amounts < 0 are stornos, credit notes or negative ap)
     $amount_for_payment *= -1 if $invoice->amount < 0;
