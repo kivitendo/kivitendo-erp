@@ -74,6 +74,8 @@ sub find_contact_for_number {
 
   return {
     full_name => join(' ', grep { $_ ne '' } map { $_ // '' } ($chosen->cp_title, $chosen->cp_givenname, $chosen->cp_name)),
+    id        => $chosen->cp_id,
+    type      => 'contact',
     map({ my $method = "cp_$_"; ($_ => $chosen->$method // '') } qw(title givenname name phone1 phone2 mobile1 mobile2 fax)),
   };
 }
@@ -111,6 +113,8 @@ sub find_customer_vendor_for_number {
     full_name => $chosen->name  // '',
     phone1    => $chosen->phone // '',
     fax       => $chosen->fax   // '',
+    id        => $chosen->id,
+    type      => ref($chosen) eq 'SL::DB::Customer' ? 'customer' : 'vendor',
     map({ ($_ => '') } qw(title givenname name phone2 mobile1 mobile2)),
   };
 }
@@ -177,6 +181,11 @@ for the number, an empty object is returned. Otherwise the following
 fields are present:
 
 =over 4
+
+=item C<id> — the database ID of the corresponding record
+
+=item C<type> — describes the type of record returned; can be either
+C<contact>, C<customer> or C<vendor>
 
 =item C<full_name> — for contacts this is the concatenation of the
 title, given name and family name; for customers/vendors it's the
