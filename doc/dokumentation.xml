@@ -7825,6 +7825,89 @@ file_name = /tmp/kivitendo-debug.log</programlisting>
       </sect2>
     </sect1>
 
+    <sect1 id="dev-programmatic-api-calls" xreflabel="Programmatische API-Aufrufe">
+      <title>Programmatische API-Aufrufe</title>
+
+      <sect2 id="dev-programmatic-api-calls.introduction" xreflabel="Einführung in programmatische API-Aufrufe">
+        <title>Einführung</title>
+
+        <para>
+         Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
+         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
+         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
+         übergeben werden.
+        </para>
+      </sect2>
+
+      <sect2 id="dev-programmatic-api-calls.client_selection" xreflabel="Mandantenauswahl bei programmatischen API-Aufrufen">
+        <title>Wahl des Mandanten</title>
+
+        <para>
+         Der zu verwendende Mandant kann als Parameter <varname>{AUTH}client_id</varname> mit jedem Request mitgeschickt werden. Der Wert
+         muss dabei die Datenbank-ID des Mandanten sein. kivitendo prüft, ob der Account, der über die Authentifizierungsinformationen
+         übergeben wurde, Zugriff auf den angegebenen Mandanten hat.
+        </para>
+
+        <para>
+         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
+         keinen solchen, kommt es zu einer Fehlermeldung.
+        </para>
+      </sect2>
+
+      <sect2 id="dev-programmatic-api-calls.http_basic_authentication" xreflabel="Programmatische API-Aufrufe mit HTTP-»Basic« authentifizieren">
+        <title>HTTP-»Basic«-Authentifizierung</title>
+
+        <para>
+         Für diese Methode muss jedem Request der bekannte HTTP-Header <constant>Authorization</constant> mitgeschickt werden (siehe <ulink
+         url="https://tools.ietf.org/html/rfc7617">RFC 7617</ulink>). Unterstützt wird ausschließlich die »Basic«-Methode. Loginname und
+         Passwort werden bei dieser Methode durch einen Doppelpunkt getrennt und Base64-encodiert im genannten HTTP-Header übertragen.
+        </para>
+
+        <para>
+         Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei Benutzung über den Webbrowser, ob
+         dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
+        </para>
+
+        <para>
+         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
+         erfolgen.
+        </para>
+      </sect2>
+
+      <sect2 id="dev-programmatic-api-calls.authentication_via_parameters" xreflabel="Programmatische API-Aufrufe mit Parametern authentifizieren">
+        <title>Authentifizierung mit Parametern</title>
+
+        <para>
+         Für diese Methode müssen jedem Request zwei Parameter mitgegeben werden: <varname>{AUTH}login</varname> und
+         <varname>{AUTH}password</varname>. Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei
+         Benutzung über den Webbrowser, ob dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
+        </para>
+
+        <para>
+         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
+         erfolgen.
+        </para>
+
+        <note>
+         <para>
+          Die Verwendung dieser Methode ist veraltet. Statt dessen sollte die oben erwähnte HTTP-»Basic«-Authentifizierung verwendet werden.
+         </para>
+        </note>
+      </sect2>
+
+      <sect2 id="dev-programmatic-api-calls.examples">
+        <title>Beispiele</title>
+
+        <para>
+         Das folgende Beispiel nutzt das Kommandozeilenprogramm »curl« und ruft die Funktion auf, die eine vorhandene Telefonnummer in den
+         Ansprechpersonen sucht und dazu Informationen zurückliefert. Dabei wird die HTTP-»Basic«-Authentifizierung genutzt.
+        </para>
+
+        <programlisting>$ curl --silent --user 'jdoe:SecretPassword!' \
+  'https://…/controller.pl?action=PhoneNumber/look_up&amp;number=053147110815'</programlisting>
+      </sect2>
+    </sect1>
+
     <sect1 id="db-upgrade-files" xreflabel="Datenbank-Upgradedateien">
       <title>SQL-Upgradedateien</title>
 
