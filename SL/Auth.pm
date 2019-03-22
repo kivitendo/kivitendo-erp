@@ -94,6 +94,18 @@ sub set_client {
   return $self->client;
 }
 
+sub get_default_client_id {
+  my ($self) = @_;
+
+  my $dbh    = $self->dbconnect;
+
+  return unless $dbh;
+
+  my $row = $dbh->selectrow_hashref(qq|SELECT id FROM auth.clients WHERE is_default = TRUE LIMIT 1|);
+
+  return $row->{id} if $row;
+}
+
 sub DESTROY {
   my $self = shift;
 

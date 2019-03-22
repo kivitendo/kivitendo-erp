@@ -1,38 +1,120 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.7. Dokumentation erstellen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.3: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s06.html" title="4.6. Stil-Richtlinien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.7. Dokumentation erstellen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s06.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;</td></tr></table><hr></div><div class="sect1" title="4.7. Dokumentation erstellen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.build-doc"></a>4.7. Dokumentation erstellen</h2></div></div></div><div class="sect2" title="4.7.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.introduction"></a>4.7.1. Einführung</h3></div></div></div><p>Diese Dokumentation ist in <span class="productname">DocBook</span>™
-        XML geschrieben. Zum Bearbeiten reicht grundsätzlich ein Text-Editor.
-        Mehr Komfort bekommt man, wenn man einen dedizierten XML-fähigen
-        Editor nutzt, der spezielle Unterstützung für
-        <span class="productname">DocBook</span>™ mitbringt. Wir empfehlen dafür den
-        <a class="ulink" href="http://www.xmlmind.com/xmleditor/" target="_top">XMLmind XML
-        Editor</a>, der bei nicht kommerzieller Nutzung kostenlos
-        ist.</p></div><div class="sect2" title="4.7.2. Benötigte Software"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.required-software"></a>4.7.2. Benötigte Software</h3></div></div></div><p>Bei <span class="productname">DocBook</span>™ ist Prinzip, dass
-        ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden
-        dann mit entsprechenden Stylesheets andere Formate wie PDF oder HTML
-        erzeugt. Bei kivitendo übernimmt diese Aufgabe das Shell-Script
-        <span class="command"><strong>scripts/build_doc.sh</strong></span>.</p><p>Das Script benötigt zur Konvertierung verschiedene
-        Softwarekomponenten, die im normalen kivitendo-Betrieb nicht benötigt
-        werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <a class="ulink" href="http://www.oracle.com/technetwork/java/index.html" target="_top">Java</a>
-            in einer halbwegs aktuellen Version</p></li><li class="listitem"><p>Das Java-Build-System <a class="ulink" href="http://ant.apache.org/" target="_top">Apache Ant</a>
-                  </p></li><li class="listitem"><p>Das Dokumentations-System Dobudish für
-            <span class="productname">DocBook</span>™ 4.5, eine Zusammenstellung
-            diverser Stylesheets und Grafiken zur Konvertierung von
-            <span class="productname">DocBook</span>™ XML in andere Formate. Das
-            Paket, das benötigt wird, ist zum Zeitpunkt der
-            Dokumentationserstellung
-            <code class="filename">dobudish-nojre-1.1.4.zip</code>, aus auf <a class="ulink" href="http://code.google.com/p/dobudish/downloads/list" target="_top">code.google.com</a>
-            bereitsteht.</p></li></ul></div><p>Apache Ant sowie ein dazu passendes Java Runtime Environment
-        sind auf allen gängigen Plattformen verfügbar. Beispiel für
-        Debian/Ubuntu:</p><pre class="programlisting">apt-get install ant openjdk-7-jre</pre><p>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
-        <code class="filename">doc/build</code> entpackt werden. Beispiel unter der
-        Annahme, das <span class="productname">Dobudish</span>™ in
-        <code class="filename">$HOME/Downloads</code> heruntergeladen wurde:</p><pre class="programlisting">cd doc/build
-unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</pre></div><div class="sect2" title="4.7.3. PDFs und HTML-Seiten erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.build"></a>4.7.3. PDFs und HTML-Seiten erstellen</h3></div></div></div><p>Die eigentliche Konvertierung erfolgt nach Installation der
-        benötigten Software mit einem einfachen Aufruf direkt aus dem
-        kivitendo-Installationsverzeichnis heraus:</p><pre class="programlisting">./scripts/build_doc.sh</pre></div><div class="sect2" title="4.7.4. Einchecken in das Git-Repository"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.repository"></a>4.7.4. Einchecken in das Git-Repository</h3></div></div></div><p>Sowohl die XML-Datei als auch die erzeugten PDF- und
-        HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass
-        nach Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut
-        und alles zusammen in einem Commit eingecheckt werden sollten.</p><p>Die "<code class="filename">dobudish</code>"-Verzeichnisse bzw.
-        symbolischen Links gehören hingegen nicht in das Repository.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;</td></tr><tr><td width="40%" align="left" valign="top">4.6. Stil-Richtlinien&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;</td></tr></table></div></body></html>
+   <title>4.7. Stil-Richtlinien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.3: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s06.html" title="4.6. Die kivitendo-Test-Suite"><link rel="next" href="ch04s08.html" title="4.8. Dokumentation erstellen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.7. Stil-Richtlinien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s06.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s08.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.7. Stil-Richtlinien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.style-guide"></a>4.7. Stil-Richtlinien</h2></div></div></div><p>Die folgenden Regeln haben das Ziel, den Code möglichst gut les-
+      und wartbar zu machen. Dazu gehört zum Einen, dass der Code einheitlich
+      eingerückt ist, aber auch, dass Mehrdeutigkeit so weit es geht vermieden
+      wird (Stichworte "Klammern" oder "Hash-Keys").</p><p>Diese Regeln sind keine Schikane sondern erleichtern allen das
+      Leben!</p><p>Jeder, der einen Patch schickt, sollte seinen Code vorher
+      überprüfen. Einige der Regeln lassen sich automatisch überprüfen, andere
+      nicht.</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>Es werden keine echten Tabs sondern Leerzeichen
+          verwendet.</p></li><li class="listitem"><p>Die Einrückung beträgt zwei Leerzeichen. Beispiel:</p><pre class="programlisting">foreach my $row (@data) {
+  if ($flag) {
+    # do something with $row
+  }
+
+  if ($use_modules) {
+    $row-&gt;{modules} = MODULE-&gt;retrieve(
+      id   =&gt; $row-&gt;{id},
+      date =&gt; $use_now ? localtime() : $row-&gt;{time},
+    );
+  }
+
+  $report-&gt;add($row);
+}</pre></li><li class="listitem"><p>Öffnende geschweifte Klammern befinden sich auf der gleichen
+          Zeile wie der letzte Befehl. Beispiele:</p><pre class="programlisting">sub debug {
+  ...
+}</pre><p>oder</p><pre class="programlisting">if ($form-&gt;{item_rows} &gt; 0) {
+  ...
+}</pre></li><li class="listitem"><p>Schließende geschweifte Klammern sind so weit eingerückt wie
+          der Befehl / die öffnende schließende Klammer, die den Block
+          gestartet hat, und nicht auf der Ebene des Inhalts. Die gleichen
+          Beispiele wie bei 3. gelten.</p></li><li class="listitem"><p>Die Wörter "<code class="function">else</code>",
+          "<code class="function">elsif</code>", "<code class="function">while</code>" befinden
+          sich auf der gleichen Zeile wie schließende geschweifte Klammern.
+          Beispiele:</p><pre class="programlisting">if ($form-&gt;{sum} &gt; 1000) {
+  ...
+} elsif ($form-&gt;{sum} &gt; 0) {
+  ...
+} else {
+  ...
+}
+
+do {
+  ...
+} until ($a &gt; 0);</pre></li><li class="listitem"><p>Parameter von Funktionsaufrufen müssen mit runden Klammern
+          versehen werden. Davon nicht betroffen sind interne Perl-Funktionen,
+          und grep-ähnliche Operatoren. Beispiel:</p><pre class="programlisting">$main::lxdebug-&gt;message("Could not find file.");
+%options = map { $_ =&gt; 1 } grep { !/^#/ } @config_file;</pre></li><li class="listitem"><p>Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:</p><p>Generell gilt: Hashkeys und Arrayindices sollten nicht durch
+          Leerzeichen abgesetzt werden. Logische Klammerungen ebensowenig,
+          Blöcke schon. Beispiel:</p><pre class="programlisting">if (($form-&gt;{debug} == 1) &amp;&amp; ($form-&gt;{sum} - 100 &lt; 0)) {
+  ...
+}
+
+$array[$i + 1]             = 4;
+$form-&gt;{sum}              += $form-&gt;{"row_$i"};
+$form-&gt;{ $form-&gt;{index} } += 1;
+
+map { $form-&gt;{sum} += $form-&gt;{"row_$_"} } 1..$rowcount;</pre></li><li class="listitem"><p>Mehrzeilige Befehle</p><div class="orderedlist"><ol class="orderedlist" type="a"><li class="listitem"><p>Werden die Parameter eines Funktionsaufrufes auf mehrere
+              Zeilen aufgeteilt, so sollten diese bis zu der Spalte eingerückt
+              werden, in der die ersten Funktionsparameter in der ersten Zeile
+              stehen. Beispiel:</p><pre class="programlisting">$sth = $dbh-&gt;prepare("SELECT * FROM some_table WHERE col = ?",
+                    $form-&gt;{some_col_value});</pre></li><li class="listitem"><p>Ein Spezialfall ist der ternäre Operator "?:", der am
+              besten in einer übersichtlichen Tabellenstruktur organisiert
+              wird. Beispiel:</p><pre class="programlisting">my $rowcount = $form-&gt;{"row_$i"} ? $i
+             : $form-&gt;{oldcount} ? $form-&gt;{oldcount} + 1
+             :                     $form-&gt;{rowcount} - $form-&gt;{rowbase};</pre></li></ol></div></li><li class="listitem"><p>Kommentare</p><div class="orderedlist"><ol class="orderedlist" type="a"><li class="listitem"><p>Kommentare, die alleine in einer Zeile stehen, sollten
+              soweit wie der Code eingerückt sein.</p></li><li class="listitem"><p>Seitliche hängende Kommentare sollten einheitlich
+              formatiert werden.</p></li><li class="listitem"><p>Sämtliche Kommentare und Sonstiges im Quellcode ist bitte
+              auf Englisch zu verfassen. So wie ich keine Lust habe,
+              französischen Quelltext zu lesen, sollte auch der kivitendo
+              Quelltext für nicht-Deutschsprachige lesbar sein.
+              Beispiel:</p><pre class="programlisting">my $found = 0;
+while (1) {
+  last if $found;
+
+  # complicated check
+  $found = 1 if //
+}
+
+$i  = 0        # initialize $i
+$n  = $i;      # save $i
+$i *= $const;  # do something crazy
+$i  = $n;      # recover $i</pre></li></ol></div></li><li class="listitem"><p>Hashkeys sollten nur in Anführungszeichen stehen, wenn die
+          Interpolation gewünscht ist. Beispiel:</p><pre class="programlisting">$form-&gt;{sum}      = 0;
+$form-&gt;{"row_$i"} = $form-&gt;{"row_$i"} - 5;
+$some_hash{42}    = 54;</pre></li><li class="listitem"><p>Die maximale Zeilenlänge ist nicht beschränkt. Zeilenlängen
+          unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
+          wenn die Lesbarkeit unter kurzen Zeilen leidet (wie zum Biespiel in
+          grossen Tabellen), dann ist Lesbarkeit vorzuziehen.</p><p>Als Beispiel sei die Funktion
+          <code class="function">print_options</code> aus
+          <code class="filename">bin/mozilla/io.pl</code> angeführt.</p></li><li class="listitem"><p>Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind
+          unerwünscht. Sie führen zu unnötigen Whitespaceänderungen, die diffs
+          verfälschen.</p><p>Emacs und vim haben beide recht einfache Methoden zur
+          Entfernung von trailing whitespace. Emacs kennt das Kommande
+          <span class="command"><strong>nuke-trailing-whitespace</strong></span>, vim macht das gleiche
+          manuell über <code class="literal">:%s/\s\+$//e</code> Mit <code class="literal">:au
+          BufWritePre * :%s/\s\+$//e</code> wird das an Speichern
+          gebunden.</p></li><li class="listitem"><p>Es wird kein <span class="command"><strong>perltidy</strong></span> verwendet.</p><p>In der Vergangenheit wurde versucht,
+          <span class="command"><strong>perltidy</strong></span> zu verwenden, um einen einheitlichen
+          Stil zu erlangen. Es hat sich aber gezeigt, dass
+          <span class="command"><strong>perltidy</strong></span>s sehr eigenwilliges Verhalten, was
+          Zeilenumbrüche angeht, oftmals gut formatierten Code zerstört. Für
+          den Interessierten sind hier die
+          <span class="command"><strong>perltidy</strong></span>-Optionen, die grob den beschriebenen
+          Richtlinien entsprechen:</p><pre class="programlisting">-syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
+-aws -bbc -bbs -bbb -mbl=1 -nsob -ce -nbl -nsbl -cti=0 -bbt=0 -bar -l=79
+-lp -vt=1 -vtc=1</pre></li><li class="listitem"><p>
+                  <code class="varname">STDERR</code> ist tabu. Unkonditionale
+          Debugmeldungen auch.</p><p>kivitendo bietet mit dem Modul <code class="classname">LXDebug</code>
+          einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
+          Grund, nach <code class="varname">STDERR</code> zu schreiben.</p><p>Die <code class="classname">LXDebug</code>-Methode
+          "<code class="function">message</code>" nimmt als ersten Paramter außerdem
+          eine Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer
+          angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden
+          und werden in den meisten Fällen auch vom Repository
+          zurückgewiesen.</p></li><li class="listitem"><p>Alle neuen Module müssen use strict verwenden.</p><p>
+                  <code class="varname">$form</code>, <code class="varname">$auth</code>,
+          <code class="varname">$locale</code>, <code class="varname">$lxdebug</code> und
+          <code class="varname">%myconfig</code> werden derzeit aus dem main package
+          importiert (siehe <a class="xref" href="ch04.html#devel.globals" title="4.1. Globale Variablen">Globale Variablen</a>. Alle anderen
+          Konstrukte sollten lexikalisch lokal gehalten werden.</p></li></ol></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.6. Die kivitendo-Test-Suite&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.8. Dokumentation erstellen</td></tr></table></div></body></html>

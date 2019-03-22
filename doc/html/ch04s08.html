@@ -1,0 +1,38 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>4.8. Dokumentation erstellen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.5.3: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s07.html" title="4.7. Stil-Richtlinien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.8. Dokumentation erstellen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s07.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;</td></tr></table><hr></div><div class="sect1" title="4.8. Dokumentation erstellen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.build-doc"></a>4.8. Dokumentation erstellen</h2></div></div></div><div class="sect2" title="4.8.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.introduction"></a>4.8.1. Einführung</h3></div></div></div><p>Diese Dokumentation ist in <span class="productname">DocBook</span>™
+        XML geschrieben. Zum Bearbeiten reicht grundsätzlich ein Text-Editor.
+        Mehr Komfort bekommt man, wenn man einen dedizierten XML-fähigen
+        Editor nutzt, der spezielle Unterstützung für
+        <span class="productname">DocBook</span>™ mitbringt. Wir empfehlen dafür den
+        <a class="ulink" href="http://www.xmlmind.com/xmleditor/" target="_top">XMLmind XML
+        Editor</a>, der bei nicht kommerzieller Nutzung kostenlos
+        ist.</p></div><div class="sect2" title="4.8.2. Benötigte Software"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.required-software"></a>4.8.2. Benötigte Software</h3></div></div></div><p>Bei <span class="productname">DocBook</span>™ ist Prinzip, dass
+        ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden
+        dann mit entsprechenden Stylesheets andere Formate wie PDF oder HTML
+        erzeugt. Bei kivitendo übernimmt diese Aufgabe das Shell-Script
+        <span class="command"><strong>scripts/build_doc.sh</strong></span>.</p><p>Das Script benötigt zur Konvertierung verschiedene
+        Softwarekomponenten, die im normalen kivitendo-Betrieb nicht benötigt
+        werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <a class="ulink" href="http://www.oracle.com/technetwork/java/index.html" target="_top">Java</a>
+            in einer halbwegs aktuellen Version</p></li><li class="listitem"><p>Das Java-Build-System <a class="ulink" href="http://ant.apache.org/" target="_top">Apache Ant</a>
+                  </p></li><li class="listitem"><p>Das Dokumentations-System Dobudish für
+            <span class="productname">DocBook</span>™ 4.5, eine Zusammenstellung
+            diverser Stylesheets und Grafiken zur Konvertierung von
+            <span class="productname">DocBook</span>™ XML in andere Formate. Das
+            Paket, das benötigt wird, ist zum Zeitpunkt der
+            Dokumentationserstellung
+            <code class="filename">dobudish-nojre-1.1.4.zip</code>, aus auf <a class="ulink" href="http://code.google.com/p/dobudish/downloads/list" target="_top">code.google.com</a>
+            bereitsteht.</p></li></ul></div><p>Apache Ant sowie ein dazu passendes Java Runtime Environment
+        sind auf allen gängigen Plattformen verfügbar. Beispiel für
+        Debian/Ubuntu:</p><pre class="programlisting">apt-get install ant openjdk-7-jre</pre><p>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
+        <code class="filename">doc/build</code> entpackt werden. Beispiel unter der
+        Annahme, das <span class="productname">Dobudish</span>™ in
+        <code class="filename">$HOME/Downloads</code> heruntergeladen wurde:</p><pre class="programlisting">cd doc/build
+unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</pre></div><div class="sect2" title="4.8.3. PDFs und HTML-Seiten erstellen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.build"></a>4.8.3. PDFs und HTML-Seiten erstellen</h3></div></div></div><p>Die eigentliche Konvertierung erfolgt nach Installation der
+        benötigten Software mit einem einfachen Aufruf direkt aus dem
+        kivitendo-Installationsverzeichnis heraus:</p><pre class="programlisting">./scripts/build_doc.sh</pre></div><div class="sect2" title="4.8.4. Einchecken in das Git-Repository"><div class="titlepage"><div><div><h3 class="title"><a name="devel.build-doc.repository"></a>4.8.4. Einchecken in das Git-Repository</h3></div></div></div><p>Sowohl die XML-Datei als auch die erzeugten PDF- und
+        HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass
+        nach Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut
+        und alles zusammen in einem Commit eingecheckt werden sollten.</p><p>Die "<code class="filename">dobudish</code>"-Verzeichnisse bzw.
+        symbolischen Links gehören hingegen nicht in das Repository.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s07.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;</td></tr><tr><td width="40%" align="left" valign="top">4.7. Stil-Richtlinien&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;</td></tr></table></div></body></html>
