@@ -616,6 +616,9 @@ sub save_single_bank_transaction {
       my $memo   = ($data{memos}   // [])->[$n_invoices];
 
       $n_invoices++ ;
+      # safety check invoice open
+      croak("Invoice closed. Cannot proceed.") unless ($invoice->open_amount);
+
       if (   ($payment_sent     && $bank_transaction->not_assigned_amount >= 0)
           || ($payment_received && $bank_transaction->not_assigned_amount <= 0)) {
         return {
