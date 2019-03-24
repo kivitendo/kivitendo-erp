@@ -2,7 +2,7 @@
 [% SELECT_OPTIONS = invoice.get_payment_select_options_for_bank_transaction(bt_id) %]
 [% is_skonto_pt   = SELECT_OPTIONS.1.selected %]
 [% formatted_skonto_amount          = LxERP.format_amount(invoice.skonto_amount, 2) %]
-[% formatted_skonto_amount_selected = is_skonto_pt ? $formatted_skonto_amount : LxERP.format_amount(0, 2) %]
+[% formatted_skonto_amount_selected = is_skonto_pt ? formatted_skonto_amount : LxERP.format_amount(0, 2) %]
 <span id="[% HTML.escape(bt_id) %].[% HTML.escape(invoice.id) %]"
   data-invoice-amount="[% HTML.escape(invoice.open_amount * 1) %]"
   data-invoice-amount-less-skonto="[% HTML.escape(invoice.amount_less_skonto * 1) %]">
