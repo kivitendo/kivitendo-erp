@@ -32,6 +32,7 @@ use List::MoreUtils qw(any none pairwise first_index);
 use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
+use Sort::Naturally;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -909,9 +910,9 @@ sub action_reorder_items {
   my $method = $sort_keys{$::form->{order_by}};
   my @to_sort = map { { old_pos => $_->position, order_by => $method->($_) } } @{ $self->order->items_sorted };
   if ($::form->{sort_dir}) {
-    @to_sort = sort { $a->{order_by} cmp $b->{order_by} } @to_sort;
+    @to_sort = sort { Sort::Naturally::ncmp($a->{order_by}, $b->{order_by} ) } @to_sort;
   } else {
-    @to_sort = sort { $b->{order_by} cmp $a->{order_by} } @to_sort;
+    @to_sort = sort { Sort::Naturally::ncmp($b->{order_by}, $a->{order_by} ) } @to_sort;
   }
   $self->js
     ->run('kivi.Order.redisplay_items', \@to_sort)
