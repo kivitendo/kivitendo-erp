@@ -34,7 +34,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← | − ≤ ≥ ‐ ​ Ω μ Δ ~
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad \xa0 ➔ → ← ↔ ↕ | − ≤ ≥ ‐ ​ Ω μ Δ ~
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -65,6 +65,8 @@ _=\\_
 ➔=$\\rightarrow$
 →=$\\rightarrow$
 ←=$\\leftarrow$
+↔=$\\leftrightarrow$
+↕=$\\updownarrow$
 \xa0=~
 |={\\textbar}
 −={\\textemdash}
