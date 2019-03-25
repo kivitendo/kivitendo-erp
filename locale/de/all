@@ -2772,7 +2772,6 @@ $self->{texts} = {
   'Search AR Aging'             => 'Offene Forderungen',
   'Search bank transactions'    => 'Filter für Bankbuchungen',
   'Search contacts'             => 'Personensuche',
-  'Search projects'             => 'Projektsuche',
   'Search term'                 => 'Suchbegriff',
   'Searchable'                  => 'Durchsuchbar',
   'Secondary sorting'           => 'Untersortierung',

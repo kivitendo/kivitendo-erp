@@ -41,27 +41,10 @@ __PACKAGE__->run_before('use_multiselect_js', only => [ qw(new create edit updat
 # actions
 #
 
-sub action_search {
-  my ($self) = @_;
-
-  my %params;
-
-  $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
-
-  ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
-    = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
-                                  include_prefix => 'l_',
-                                  include_value  => 'Y');
-
-  $self->setup_search_action_bar;
-
-  $self->render('project/search', %params);
-}
-
 sub action_list {
   my ($self) = @_;
 
-  $self->setup_search_action_bar;
+  $self->setup_list_action_bar;
 
   $self->make_filter_summary;
 
@@ -430,7 +413,7 @@ sub setup_edit_action_bar {
   }
 }
 
-sub setup_search_action_bar {
+sub setup_list_action_bar {
   my ($self, %params) = @_;
 
   for my $bar ($::request->layout->get('actionbar')) {
