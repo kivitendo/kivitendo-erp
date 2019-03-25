@@ -374,7 +374,7 @@ sub init_includeable_cvar_configs {
 
 sub init_include_cvars {
   my ($self) = @_;
-  return $::form->{include_cvars} if $::form->{include_cvars} && (ref($::form->{include_cvars}) eq 'HASH');
+  return { map { ($_->name => $::form->{"include_cvars_" . $_->name}) }       @{ $self->cvar_configs } } if $::form->{_include_cvars_from_form};
   return { map { ($_->name => ($_->includeable && $_->included_by_default)) } @{ $self->cvar_configs } };
 }
 
@@ -516,6 +516,8 @@ sub prepare_report {
     %column_defs = (%column_defs, %cvar_column_defs);
   }
 
+  my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
+
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'RequirementSpec',
@@ -528,7 +530,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list filter), @cvar_column_form_names);
   $report->set_options_from_form;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 }
