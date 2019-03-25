@@ -1201,7 +1201,7 @@ sub setup_ap_search_action_bar {
 
 sub setup_ap_transactions_action_bar {
   my %params          = @_;
-  my $may_edit_create = $::auth->assert('vendor_invoice_edit', 1);
+  my $may_edit_create = $::auth->assert('ap_transactions', 1);
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -1234,7 +1234,7 @@ sub setup_ap_display_form_action_bar {
   my $is_storno               = IS->is_storno(\%::myconfig, $::form, 'ap', $::form->{id});
   my $has_storno              = IS->has_storno(\%::myconfig, $::form, 'ap');
 
-  my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
+  my $may_edit_create         = $::auth->assert('ap_transactions', 1);
 
   my $has_sepa_exports;
   if ($::form->{id}) {
