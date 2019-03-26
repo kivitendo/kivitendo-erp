@@ -58,8 +58,6 @@ BEGIN {
   { name => "Set::Crontab",     version => '1.03', url => "http://search.cpan.org/~ams/",       debian => 'libset-crontab-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
-  # Test::Harness is core, so no Debian packages. Test::Harness 3.00 was first packaged in 5.10.1
-  { name => "Test::Harness",   version => '3.00',  url => "http://search.cpan.org/~petdance/",  },
   { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/",       debian => 'libtemplate-perl' },
   { name => "Text::CSV_XS",    version => '0.23',  url => "http://search.cpan.org/~hmbrand/",   debian => 'libtext-csv-xs-perl' },
   { name => "Text::Iconv",     version => '1.2',   url => "http://search.cpan.org/~mpiotr/",    debian => 'libtext-iconv-perl' },
