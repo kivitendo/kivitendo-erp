@@ -3,6 +3,8 @@
 [%- USE L %]
 [%- USE LxERP %]
 
+[% L.hidden_tag("_include_cvars_from_form", 1) %]
+
 <table id="filter_table">
  <tr>
   <th align="right">[% 'Number' | $T8 %]</th>
@@ -29,7 +31,14 @@
   <td>[% L.select_tag('filter.project_status_id', SELF.project_statuses, default=filter.project_status_id, title_key='description', with_empty=1, style="width: 200px") %]</td>
  </tr>
 
- [% CUSTOM_VARIABLES_FILTER_CODE %]
+ [% FOREACH cvar_cfg = SELF.cvar_configs %]
+  [%- IF cvar_cfg.searchable %]
+   <tr>
+    <th align="right">[% HTML.escape(cvar_cfg.description) %]</th>
+    <td>[% INCLUDE 'common/render_cvar_filter_input.html' cvar_cfg=cvar_cfg cvar_class="rs_input_field" %]</td>
+   </tr>
+  [% END %]
+ [% END %]
 
  <tr>
   <th>[% 'Include in Report' | $T8 %]</th>
@@ -47,7 +56,14 @@
      <td>[% L.select_tag('filter.status', [ [ 'all', LxERP.t8('All') ], [ 'orphaned', LxERP.t8('Orphaned') ] ], default=filter.status, style="width: 200px") %]</td>
     </tr>
 
-    [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+    [% FOREACH cvar_cfg = SELF.includeable_cvar_configs %]
+     <tr>
+      <td>
+       [% name__ = cvar_cfg.name;
+          L.checkbox_tag("include_cvars_" _ name__, value="1", checked=(SELF.include_cvars.$name__ ? 1 : ''), label=cvar_cfg.description) %]
+      </td>
+     </tr>
+    [% END %]
 
    </table>
   </td>

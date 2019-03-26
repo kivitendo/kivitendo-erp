@@ -30,7 +30,8 @@ use Rose::DB::Object::Helpers qw(as_tree);
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project) ],
- 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects linked_records employees may_edit_invoice_permissions) ],
+ 'scalar --get_set_init' => [ qw(models customers project_types project_statuses projects linked_records employees may_edit_invoice_permissions
+                                 cvar_configs includeable_cvar_configs include_cvars) ],
 );
 
 __PACKAGE__->run_before('check_auth',   except => [ qw(ajax_autocomplete) ]);
@@ -41,27 +42,10 @@ __PACKAGE__->run_before('use_multiselect_js', only => [ qw(new create edit updat
 # actions
 #
 
-sub action_search {
-  my ($self) = @_;
-
-  my %params;
-
-  $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
-
-  ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
-    = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
-                                  include_prefix => 'l_',
-                                  include_value  => 'Y');
-
-  $self->setup_search_action_bar;
-
-  $self->render('project/search', %params);
-}
-
 sub action_list {
   my ($self) = @_;
 
-  $self->setup_search_action_bar;
+  $self->setup_list_action_bar;
 
   $self->make_filter_summary;
 
@@ -170,6 +154,14 @@ sub init_project_statuses { SL::DB::Manager::ProjectStatus->get_all_sorted }
 sub init_project_types    { SL::DB::Manager::ProjectType->get_all_sorted   }
 sub init_employees        { SL::DB::Manager::Employee->get_all_sorted   }
 sub init_may_edit_invoice_permissions { $::auth->assert('project_edit_view_invoices_permission', 1) }
+sub init_cvar_configs                 { SL::DB::Manager::CustomVariableConfig->get_all_sorted(where => [ module => 'Projects' ]) }
+sub init_includeable_cvar_configs     { [ grep { $_->includeable } @{ $_[0]->cvar_configs } ] };
+
+sub init_include_cvars {
+  my ($self) = @_;
+  return { map { ($_->name => $::form->{"include_cvars_" . $_->name}) }       @{ $self->cvar_configs } } if $::form->{_include_cvars_from_form};
+  return { map { ($_->name => ($_->includeable && $_->included_by_default)) } @{ $self->cvar_configs } };
+}
 
 sub init_linked_records {
   my ($self) = @_;
@@ -320,6 +312,21 @@ sub prepare_report {
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
+  # Custom variables
+  my %cvar_column_defs = map {
+    my $cfg = $_;
+    (('cvar_' . $cfg->name) => {
+      sub     => sub { my $var = $_[0]->cvar_by_name($cfg->name); $var ? $var->value_as_text : '' },
+      text    => $cfg->description,
+      visible => $self->include_cvars->{ $cfg->name } ? 1 : 0,
+    })
+  } @{ $self->includeable_cvar_configs };
+
+  push @columns, map { 'cvar_' . $_->name } @{ $self->includeable_cvar_configs };
+  %column_defs = (%column_defs, %cvar_column_defs);
+
+  my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
+
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'Project',
@@ -330,7 +337,7 @@ sub prepare_report {
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter));
+  $report->set_export_options(qw(list filter), @cvar_column_form_names);
   $report->set_options_from_form;
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
@@ -430,7 +437,7 @@ sub setup_edit_action_bar {
   }
 }
 
-sub setup_search_action_bar {
+sub setup_list_action_bar {
   my ($self, %params) = @_;
 
   for my $bar ($::request->layout->get('actionbar')) {
