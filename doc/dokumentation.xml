@@ -353,15 +353,15 @@
           </listitem>
 
           <listitem>
-            <para><literal>YAML</literal></para>
+            <para><literal>YAML::XS</literal> oder <literal>YAML</literal></para>
           </listitem>
         </itemizedlist>
 
         <para>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <literal>Set::Infinite</literal>,
         <literal>List::UtilsBy</literal>, <literal>DateTime::Set</literal>, <literal>DateTime::Event::Cron</literal>
         <literal>Daemon::Generic</literal> <literal>DateTime::Event::Cron</literal> <literal>File::Flock</literal>
-        <literal>File::Slurp</literal> <literal>Set::Crontab</literal> <literal>Exception::Lite</literal>. Für die letzten beiden Module
-        liefert kivitendo fallback-Module aus, da diese überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand
+        <literal>File::Slurp</literal> <literal>Set::Crontab</literal> <literal>Exception::Lite</literal>. Für das letzte Modul
+        liefert kivitendo ein fallback-Modul aus, da es überhaupt nicht in debian oder in der benötigten Version zu Verfügung stehen (Stand
         Anfang 2019).</para>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
@@ -419,14 +419,15 @@
   libparams-validate-perl libpdf-api2-perl librose-db-object-perl \
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
-  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
+  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
   postgresql-contrib aqbanking-tools poppler-utils libhtml-restrict-perl\
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
-  libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl
+  libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
+  libset-crontab-perl libdatetime-event-perl
 
 </programlisting>
           <para>Ab Ubuntu Version 18.04 LTS, bzw. Debian Buster sind alle benötigten Pakete in der Distribution verfügbar.</para>
