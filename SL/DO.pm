@@ -37,7 +37,6 @@ package DO;
 use Carp;
 use List::Util qw(max);
 use Text::ParseWords;
-use YAML;
 
 use SL::AM;
 use SL::Common;
@@ -52,6 +51,7 @@ use SL::IC;
 use SL::TransNumber;
 use SL::DB;
 use SL::Util qw(trim);
+use SL::YAML;
 
 use strict;
 
@@ -450,7 +450,7 @@ SQL
                   conv_i($sinfo->{bin_id}));
         $h_item_stock_id->finish();
         # write back the id to the form (important if only transfer was clicked (id fk for invoice)
-        $form->{"stock_${in_out}_$i"} = YAML::Dump($stock_info);
+        $form->{"stock_${in_out}_$i"} = SL::YAML::Dump($stock_info);
       }
       @values = ($form->{"delivery_order_items_id_$i"}, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
                  conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}),
@@ -833,7 +833,7 @@ sub retrieve {
         push @{ $requests }, $ref;
       }
 
-      $doi->{"stock_${in_out}"} = YAML::Dump($requests);
+      $doi->{"stock_${in_out}"} = SL::YAML::Dump($requests);
     }
 
     $sth->finish();
@@ -1095,7 +1095,7 @@ sub unpack_stock_information {
 
   my $unpacked;
 
-  eval { $unpacked = $params{packed} ? YAML::Load($params{packed}) : []; };
+  eval { $unpacked = $params{packed} ? SL::YAML::Load($params{packed}) : []; };
 
   $unpacked = [] if (!$unpacked || ('ARRAY' ne ref $unpacked));
 

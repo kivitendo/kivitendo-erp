@@ -11,6 +11,7 @@ use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
 use SL::Util qw(trim);
+use SL::YAML;
 use SL::DB::Order;
 use SL::DB::Default;
 use SL::DB::Unit;
@@ -552,7 +553,7 @@ sub action_assign_periodic_invoices_config {
                  email_body                 => $::form->{email_body},
                };
 
-  my $periodic_invoices_config = YAML::Dump($config);
+  my $periodic_invoices_config = SL::YAML::Dump($config);
 
   my $status = $self->get_periodic_invoices_status($config);
 
@@ -1232,7 +1233,7 @@ sub make_order {
 
   $order->assign_attributes(%{$::form->{order}});
 
-  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? YAML::Load($form_periodic_invoices_config) : undef) {
+  if (my $periodic_invoices_config_attrs = $form_periodic_invoices_config ? SL::YAML::Load($form_periodic_invoices_config) : undef) {
     my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
     $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
   }
@@ -1765,7 +1766,7 @@ sub make_periodic_invoices_config_from_yaml {
   my ($yaml_config) = @_;
 
   return if !$yaml_config;
-  my $attr = YAML::Load($yaml_config);
+  my $attr = SL::YAML::Load($yaml_config);
   return if 'HASH' ne ref $attr;
   return SL::DB::PeriodicInvoicesConfig->new(%$attr);
 }

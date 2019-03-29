@@ -7,9 +7,9 @@ use strict;
 use SL::Locale::String ();
 
 use Scalar::Util qw(weaken);
-use YAML;
 
 use SL::DBUtils;
+use SL::YAML;
 
 sub new {
   my ($class, %params) = @_;
@@ -39,7 +39,7 @@ sub get_dumped {
   my ($self) = @_;
   no warnings 'once';
   local $YAML::Stringify = 1;
-  return YAML::Dump($self->get);
+  return SL::YAML::Dump($self->get);
 }
 
 sub _fetch {
@@ -58,7 +58,7 @@ sub _fetch {
 sub _parse {
   my ($self) = @_;
 
-  $self->{value}  = YAML::Load($self->{value}) unless $self->{parsed};
+  $self->{value}  = SL::YAML::Load($self->{value}) unless $self->{parsed};
   $self->{parsed} = 1;
 
   return $self;
@@ -71,7 +71,7 @@ sub _load_value {
 
   my %params = ( simple => 1 );
   eval {
-    my $data = YAML::Load($value);
+    my $data = SL::YAML::Load($value);
 
     if (ref $data eq 'HASH') {
       map { $params{$_} = $data->{$_} } keys %{ $data };

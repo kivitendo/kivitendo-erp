@@ -44,6 +44,7 @@ use SL::IR;
 use SL::IS;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
+use SL::YAML;
 use List::MoreUtils qw(uniq any none);
 use List::Util qw(min max reduce sum);
 use Data::Dumper;
@@ -614,7 +615,7 @@ sub form_header {
       $form->{periodic_invoices_status} = $locale->text('not configured');
 
     } else {
-      my $config                        = YAML::Load($form->{periodic_invoices_config});
+      my $config                        = SL::YAML::Load($form->{periodic_invoices_config});
       $form->{periodic_invoices_status} = $config->{active} ? $locale->text('active') : $locale->text('inactive');
     }
   }
@@ -2171,7 +2172,7 @@ sub edit_periodic_invoices_config {
   check_oe_access();
 
   my $config;
-  $config = YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
+  $config = SL::YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
 
   if ('HASH' ne ref $config) {
     my $lang_id = $::form->{language_id};
@@ -2237,7 +2238,7 @@ sub save_periodic_invoices_config {
                  email_body                 => $::form->{email_body},
                };
 
-  $::form->{periodic_invoices_config} = YAML::Dump($config);
+  $::form->{periodic_invoices_config} = SL::YAML::Dump($config);
 
   $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
   $::form->header;

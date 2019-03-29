@@ -6,11 +6,10 @@ package SL::DBUpgrade2::convert_drafts_to_record_templates;
 use strict;
 use utf8;
 
-use YAML;
-
 use parent qw(SL::DBUpgrade2::Base);
 
 use SL::DBUtils;
+use SL::YAML;
 
 sub prepare_statements {
   my ($self) = @_;
@@ -77,7 +76,7 @@ sub migrate_ar_drafts {
   $self->{h_draft}->execute('ar') || die $self->{h_draft}->errstr;
 
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
-    my $draft       = YAML::Load($draft_record->{form});
+    my $draft       = SL::YAML::Load($draft_record->{form});
     my $currency_id = $self->{currency_ids_by_name}->{$draft->{currency}};
     my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
@@ -152,7 +151,7 @@ sub migrate_ap_drafts {
   $self->{h_draft}->execute('ap') || die $self->{h_draft}->errstr;
 
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
-    my $draft       = YAML::Load($draft_record->{form});
+    my $draft       = SL::YAML::Load($draft_record->{form});
     my $currency_id = $self->{currency_ids_by_name}->{$draft->{currency}};
     my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
@@ -227,7 +226,7 @@ sub migrate_gl_drafts {
   $self->{h_draft}->execute('gl') || die $self->{h_draft}->errstr;
 
   while (my $draft_record = $self->{h_draft}->fetchrow_hashref) {
-    my $draft       = YAML::Load($draft_record->{form});
+    my $draft       = SL::YAML::Load($draft_record->{form});
     my $employee_id = $draft_record->{employee_id} || $draft->{employee_id} || (split m{--}, $draft->{employee})[1] || undef;
 
     my @values = (

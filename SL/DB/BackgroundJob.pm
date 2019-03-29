@@ -11,6 +11,7 @@ use SL::DB::MetaSetup::BackgroundJob;
 use SL::DB::Manager::BackgroundJob;
 
 use SL::System::Process;
+use SL::YAML;
 
 __PACKAGE__->meta->initialize;
 
@@ -76,18 +77,18 @@ sub run {
 sub data_as_hash {
   my $self = shift;
 
-  $self->data(YAML::Dump($_[0])) if @_;
+  $self->data(SL::YAML::Dump($_[0])) if @_;
 
   return {}                        if !$self->data;
   return $self->data               if ref($self->{data}) eq 'HASH';
-  return YAML::Load($self->{data}) if !ref($self->{data});
+  return SL::YAML::Load($self->{data}) if !ref($self->{data});
   return {};
 }
 
 sub set_data {
   my ($self, %data) = @_;
 
-  $self->data(YAML::Dump({
+  $self->data(SL::YAML::Dump({
     %{ $self->data_as_hash },
     %data,
   }));
