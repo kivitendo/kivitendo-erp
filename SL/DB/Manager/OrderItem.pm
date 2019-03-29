@@ -34,7 +34,7 @@ sub _sort_spec {
                         qty           => [ 'qty'                  ],
                         ordnumber     => [ 'order.ordnumber'      ],
                         customer      => [ 'lower(customer.name)', ],
-                        position      => [ 'trans_id', 'runningnumber' ],
+                        position      => [ 'trans_id', 'position' ],
                         reqdate       => [ 'COALESCE(orderitems.reqdate, order.reqdate)' ],
                         orddate       => [ 'order.orddate' ],
                         sellprice     => [ 'orderitems.sellprice' ],
