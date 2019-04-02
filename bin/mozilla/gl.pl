@@ -994,7 +994,9 @@ sub setup_gl_action_bar {
         action => [ t8('Storno'),
           submit   => [ '#form', { action => 'storno' } ],
           confirm  => t8('Do you really want to cancel this general ledger transaction?'),
-          disabled => !$form->{id} ? t8('This general ledger transaction has not been posted yet.') : undef,
+          disabled => !$form->{id}    ? t8('This general ledger transaction has not been posted yet.')
+                    : $form->{storno} ? t8('A canceled general ledger transaction cannot be canceled again.')
+                    : undef,
         ],
         action => [ t8('Delete'),
           submit   => [ '#form', { action => 'delete' } ],
@@ -1004,6 +1006,7 @@ sub setup_gl_action_bar {
                     : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
                     : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
                     : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    : $form->{storno}             ? t8('A canceled general ledger transaction cannot be deleted.')
                     :                            undef,
         ],
       ], # end of combobox "Storno"
