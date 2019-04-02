@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 29);
+  $self->tester->plan(tests => 32);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -44,6 +44,7 @@ sub run {
   $self->check_orphaned_reconciliated_links;
   $self->check_recommended_client_settings;
   $self->check_orphaned_bank_transaction_acc_trans_links;
+  $self->check_consistent_itimes;
 }
 
 sub _setup {
@@ -713,6 +714,76 @@ sub check_orphaned_bank_transaction_acc_trans_links {
     }
   } else {
     $self->tester->ok(1, "Keine verwaisten Einträge in verknüpften Bankbewegungen (Richtung Buchung (Richtung Buchung)).");
+  }
+}
+
+sub check_consistent_itimes {
+  my ($self) = @_;
+  my $query;
+
+  $query = qq|
+    SELECT mtime, itime,gldate, acc_trans_id, trans_id
+    FROM  acc_trans a
+    WHERE itime::date <> gldate::date
+    AND a.transdate >= ? and a.transdate <= ?|;
+
+  my $itimes_ac = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $itimes_ac } > 0 ) {
+    $self->tester->ok(0, "Inkonsistente Zeitstempel in der acc_trans gefunden. Bei folgenden ids:");
+    for my $bogus_time (@{ $itimes_ac }) {
+      $self->tester->diag("ID: $bogus_time->{trans_id} acc_trans_id: $bogus_time->{acc_trans_id} ");
+    }
+  } else {
+    $self->tester->ok(1, "Keine inkonsistenten Zeitstempel in der acc_trans.");
+  }
+  $query = qq|
+    SELECT amount, itime, gldate, id
+    FROM ap a
+    WHERE itime::date <> gldate::date
+    AND a.transdate >= ? and a.transdate <= ?|;
+
+  my $itimes_ap = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $itimes_ap } > 0 ) {
+    $self->tester->ok(0, "Inkonsistente Zeitstempel in ap gefunden. Bei folgenden ids:");
+    for my $bogus_time (@{ $itimes_ap }) {
+      $self->tester->diag("ID: $bogus_time->{id} itime: $bogus_time->{itime} mtime: $bogus_time->{mtime} ");
+    }
+  } else {
+    $self->tester->ok(1, "Keine inkonsistenten Zeitstempel in ap.");
+  }
+  $query = qq|
+    SELECT amount, itime, gldate, id
+    FROM ar a
+    WHERE itime::date <> gldate::date
+    AND a.transdate >= ? and a.transdate <= ?|;
+
+  my $itimes_ar = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $itimes_ap } > 0 ) {
+    $self->tester->ok(0, "Inkonsistente Zeitstempel in ar gefunden. Bei folgenden ids:");
+    for my $bogus_time (@{ $itimes_ar }) {
+      $self->tester->diag("ID: $bogus_time->{id} itime: $bogus_time->{itime} mtime: $bogus_time->{mtime} ");
+    }
+  } else {
+    $self->tester->ok(1, "Keine inkonsistenten Zeitstempel in ar.");
+  }
+  $query = qq|
+    SELECT itime, gldate, id, mtime
+    FROM gl a
+    WHERE itime::date <> gldate::date
+    AND a.transdate >= ? and a.transdate <= ?|;
+
+  my $itimes_gl = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
+
+  if ( scalar @{ $itimes_gl } > 0 ) {
+    $self->tester->ok(0, "Inkonsistente Zeitstempel in gl gefunden. Bei folgenden ids:");
+    for my $bogus_time (@{ $itimes_ar }) {
+      $self->tester->diag("ID: $bogus_time->{id} itime: $bogus_time->{itime} mtime: $bogus_time->{mtime} ");
+    }
+  } else {
+    $self->tester->ok(1, "Keine inkonsistenten Zeitstempel in gl.");
   }
 }
 
