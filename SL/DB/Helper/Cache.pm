@@ -1,4 +1,4 @@
-package SL::DB::Cache;
+package SL::DB::Helper::Cache;
 
 use strict;
 use warnings;
@@ -30,7 +30,7 @@ __END__
 
 =head1 NAME
 
-SL::DB::Cache - database handle caching for kivitendo
+SL::DB::Helper::Cache - database handle caching for kivitendo
 
 =head1 DESCRIPTION
 
