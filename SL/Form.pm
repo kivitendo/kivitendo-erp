@@ -249,7 +249,7 @@ sub hide_form {
 
 sub throw_on_error {
   my ($self, $code) = @_;
-  local $self->{__ERROR_HANDLER} = sub { die SL::X::FormError->new($_[0]) };
+  local $self->{__ERROR_HANDLER} = sub { SL::X::FormError->throw(error => $_[0]) };
   $code->();
 }
 
@@ -311,9 +311,9 @@ sub numtextrows {
 sub dberror {
   my ($self, $msg) = @_;
 
-  die SL::X::DBError->new(
-    msg   => $msg,
-    error => $DBI::errstr,
+  SL::X::DBError->throw(
+    msg      => $msg,
+    db_error => $DBI::errstr,
   );
 }
 

@@ -38,8 +38,8 @@ sub handle_error {
   # these are used as Rose internal canaries, don't wrap them
   die $object->error if UNIVERSAL::isa($object->error, 'Rose::DB::Object::Exception');
 
-  die SL::X::DBRoseError->new(
-    error      => $object->error,
+  SL::X::DBRoseError->throw(
+    db_error   => $object->error,
     class      => ref($object),
     metaobject => $self,
     object     => $object,
