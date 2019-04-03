@@ -1,13 +1,15 @@
 #!/usr/bin/perl
 
 BEGIN {
+  use FindBin;
+
   if (! -d "bin" || ! -d "SL") {
     print("This tool must be run from the kivitendo ERP base directory.\n");
     exit(1);
   }
 
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+  unshift @INC, $FindBin::Bin . '/../modules/override'; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, $FindBin::Bin . '/..';
 }
 
 
