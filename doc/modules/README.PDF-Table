@@ -1,39 +1,36 @@
-PDF-Table version 0.9.3
-=====================
-SOME NOTES
+# PDF::Table
 
-This module is intended for table generation using PDF::API2
-The current version is RC1 and I will apreciate any feedback.
-Developed and tested on i586 Linux SuSE 10.0 and perl, v5.8.7 built for i586-linux-thread-multi
+This module creates text blocks and tables into PDF documents using PDF::API2 Perl module.
 
-CHANGES
+The official repository for PDF::Table module collaboration:
+https://github.com/kamenov/PDF-Table.git
 
-Since version 0.02 there are many changes. 
-See the ChangeLog file or make a diff from the tools menu in CPAN
+Any patches, pull requests, issues and feedback are more than welcome.
 
-CONTACTS 
+## Installation
 
-See http://search.cpan.org/~omega/
+To install the module from CPAN, please type the following command:
 
-INSTALLATION
+```cpanm PDF::Table```
 
-To install this module type the following:
+To test or add features to this module, please type the following command:
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+```cpanm .```
 
-DEPENDENCIES
+## Changes
+To see a list of changes, please do one or more of the following:
+- Read the [Changes](Changes) file
+- Review commits history on GitHub
+- Make a diff from the tools menu at CPAN
 
-This module requires these other modules and libraries:
+## Contacts 
+@deskata on Twitter 
 
-  PDF::API2
+- Use the issue tracker on GitHub
+- See http://search.cpan.org/~omega/
+- See http://search.cpan.org/~jbazik/
 
-COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
-
+## License
 Copyright (C) 2006 by Daemmon Hughes
 
 Extended by Desislav Kamenov since version 0.02
@@ -41,5 +38,3 @@ Extended by Desislav Kamenov since version 0.02
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.7 or,
 at your option, any later version of Perl 5 you may have available.
-
-

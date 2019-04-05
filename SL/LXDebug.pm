@@ -22,8 +22,8 @@ use Data::Dumper;
 use POSIX qw(strftime getpid);
 use Scalar::Util qw(blessed refaddr weaken);
 use Time::HiRes qw(gettimeofday tv_interval);
-use YAML;
 use SL::Request ();
+use SL::YAML;
 
 use strict;
 use utf8;
@@ -213,7 +213,7 @@ sub dump {
 sub dump_yaml {
   my ($self, $level, $name, $variable) = @_;
 
-  $self->message($level, "dumping ${name}:\n" . YAML::Dump($variable));
+  $self->message($level, "dumping ${name}:\n" . SL::YAML::Dump($variable));
 }
 
 sub dump_sql_result {
@@ -252,7 +252,7 @@ sub show_diff {
     return;
   }
 
-  my @texts = map { ref $_ ? YAML::Dump($_) : $_ } ($item1, $item2);
+  my @texts = map { ref $_ ? SL::YAML::Dump($_) : $_ } ($item1, $item2);
 
   $self->message($level, Text::Diff::diff(\$texts[0], \$texts[1], \%params));
 }

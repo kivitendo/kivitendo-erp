@@ -9,7 +9,7 @@ use SL::Locale::String qw(t8);
 use SL::Request;
 use SL::DB::Draft;
 use SL::DBUtils qw(selectall_hashref_query);
-use YAML;
+use SL::YAML;
 use List::Util qw(max);
 
 use Rose::Object::MakeMethods::Generic (
@@ -53,7 +53,7 @@ sub action_save {
     module      => $self->module,
     submodule   => $self->submodule,
     description => $description,
-    form        => YAML::Dump($form),
+    form        => SL::YAML::Dump($form),
     employee_id => SL::DB::Manager::Employee->current->id,
   );
 
@@ -83,7 +83,7 @@ sub action_load {
     require $allowed_modules{ $self->draft->module };
   }
   my $params = delete $::form->{form};
-  my $new_form = YAML::Load($self->draft->form);
+  my $new_form = SL::YAML::Load($self->draft->form);
   $::form->{$_} = $new_form->{$_} for keys %$new_form;
   $::form->{"draft_$_"} = $self->draft->$_ for qw(id description);
 

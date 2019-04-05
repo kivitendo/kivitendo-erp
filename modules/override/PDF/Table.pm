@@ -1,11 +1,16 @@
-package PDF::Table;
+#!/usr/bin/env perl
+# vim: softtabstop=4 tabstop=4 shiftwidth=4 ft=perl expandtab smarttab
 
 use 5.006;
 use strict;
 use warnings;
+
+package PDF::Table;
+
 use Carp;
 use List::Util qw(sum);
-our $VERSION = '0.9.10';
+
+our $VERSION = '0.10.1';
 
 print __PACKAGE__.' is version: '.$VERSION.$/ if($ENV{'PDF_TABLE_DEBUG'});
 
@@ -36,7 +41,7 @@ sub _init
 {
     my ($self, $pdf, $page, $data, %options ) = @_;
 
-    # Check and set default values 
+    # Check and set default values
     $self->set_defaults();
 
     # Check and set mandatory params
@@ -49,9 +54,9 @@ sub _init
 }
 
 sub set_defaults{
-	my $self = shift;
-	
-	$self->{'font_size'} = 12;
+    my $self = shift;
+
+    $self->{'font_size'} = 12;
 }
 
 sub set_pdf{
@@ -98,9 +103,9 @@ sub text_block
     my $text        = shift;    # The text to be displayed
     my %arg         = @_;       # Additional Arguments
 
-    my  ( $align, $xpos, $ypos, $xbase, $ybase, $line_width, $wordspace, $endw , $width, $height) = 
+    my  ( $align, $xpos, $ypos, $xbase, $ybase, $line_width, $wordspace, $endw , $width, $height) =
         ( undef , undef, undef, undef , undef , undef      , undef     , undef , undef , undef  );
-    my @line        = ();       # Temp data array with words on one line 
+    my @line        = ();       # Temp data array with words on one line
     my %width       = ();       # The width of every unique word in the givven text
 
     # Try to provide backward compatibility
@@ -143,7 +148,7 @@ sub text_block
     # Calculate width of all words
     my $space_width = $text_object->advancewidth("\x20");
     my @words = split(/\s+/, $text);
-    foreach (@words) 
+    foreach (@words)
     {
         next if exists $width{$_};
         $width{$_} = $text_object->advancewidth($_);
@@ -157,12 +162,12 @@ sub text_block
     $xpos = $xbase;
     $ypos = $ybase;
     $ypos = $ybase + $line_space;
-    my $bottom_border = $ypos - $height; 
+    my $bottom_border = $ypos - $height;
     # While we can add another line
-    while ( $ypos >= $bottom_border + $line_space ) 
+    while ( $ypos >= $bottom_border + $line_space )
     {
         # Is there any text to render ?
-        unless (@paragraph) 
+        unless (@paragraph)
         {
             # Finish if nothing left
             last unless scalar @paragraphs;
@@ -178,34 +183,34 @@ sub text_block
         # While there's room on the line, add another word
         @line = ();
         $line_width = 0;
-        if( $first_line && exists $arg{'hang'} ) 
+        if( $first_line && exists $arg{'hang'} )
         {
             my $hang_width = $text_object->advancewidth($arg{'hang'});
-    
+
             $text_object->translate( $xpos, $ypos );
             $text_object->text( $arg{'hang'} );
-    
+
             $xpos         += $hang_width;
             $line_width   += $hang_width;
             $arg{'indent'} += $hang_width if $first_paragraph;
         }
-        elsif( $first_line && exists $arg{'flindent'} && $arg{'flindent'} > 0 ) 
+        elsif( $first_line && exists $arg{'flindent'} && $arg{'flindent'} > 0 )
         {
             $xpos += $arg{'flindent'};
             $line_width += $arg{'flindent'};
         }
-        elsif( $first_paragraph && exists $arg{'fpindent'} && $arg{'fpindent'} > 0 ) 
+        elsif( $first_paragraph && exists $arg{'fpindent'} && $arg{'fpindent'} > 0 )
         {
             $xpos += $arg{'fpindent'};
             $line_width += $arg{'fpindent'};
         }
-        elsif (exists $arg{'indent'} && $arg{'indent'} > 0 ) 
+        elsif (exists $arg{'indent'} && $arg{'indent'} > 0 )
         {
             $xpos += $arg{'indent'};
             $line_width += $arg{'indent'};
         }
-    
-        # Lets take from paragraph as many words as we can put into $width - $indent; 
+
+        # Lets take from paragraph as many words as we can put into $width - $indent;
         # Always take at least one word; otherwise we'd end up in an infinite loop.
         while ( !scalar(@line) || (
           @paragraph && (
@@ -216,43 +221,43 @@ sub text_block
             push(@line, shift(@paragraph));
         }
         $line_width += $text_object->advancewidth(join('', @line));
-            
+
         # calculate the space width
-        if( $arg{'align'} eq 'fulljustify' or ($arg{'align'} eq 'justify' and @paragraph)) 
+        if( $arg{'align'} eq 'fulljustify' or ($arg{'align'} eq 'justify' and @paragraph))
         {
             @line = split(//,$line[0]) if (scalar(@line) == 1) ;
             $wordspace = ($width - $line_width) / (scalar(@line) - 1);
             $align='justify';
-        } 
-        else 
+        }
+        else
         {
             $align=($arg{'align'} eq 'justify') ? 'left' : $arg{'align'};
             $wordspace = $space_width;
         }
         $line_width += $wordspace * (scalar(@line) - 1);
-    
-        if( $align eq 'justify') 
+
+        if( $align eq 'justify')
         {
-            foreach my $word (@line) 
+            foreach my $word (@line)
             {
                 $text_object->translate( $xpos, $ypos );
                 $text_object->text( $word );
                 $xpos += ($width{$word} + $wordspace) if (@line);
             }
             $endw = $width;
-        } 
-        else 
+        }
+        else
         {
             # calculate the left hand position of the line
-            if( $align eq 'right' ) 
+            if( $align eq 'right' )
             {
                 $xpos += $width - $line_width;
-            } 
-            elsif( $align eq 'center' ) 
+            }
+            elsif( $align eq 'center' )
             {
                 $xpos += ( $width / 2 ) - ( $line_width / 2 );
             }
-    
+
             # render the line
             $text_object->translate( $xpos, $ypos );
             $endw = $text_object->text( join("\x20", @line));
@@ -292,7 +297,7 @@ sub table
 
     # Validate settings key
     my %valid_settings_key = (
-	x                     => 1,
+        x                     => 1,
         w                     => 1,
         start_y               => 1,
         start_h               => 1,
@@ -313,8 +318,10 @@ sub table
         vertical_borders      => 1,
         font                  => 1,
         font_size             => 1,
+        font_underline        => 1,
         font_color            => 1,
         font_color_even       => 1,
+        font_color_odd        => 1,
         background_color_odd  => 1,
         background_color_even => 1,
         row_height            => 1,
@@ -323,35 +330,31 @@ sub table
         column_props          => 1,
         cell_props            => 1,
         max_word_length       => 1,
+        cell_render_hook      => 1,
+        default_text          => 1,
         num_header_rows       => 1,
     );
-    foreach my $key (keys %arg) {
-	croak "Error: Invalid setting key '$key' received." 
-            unless (exists $valid_settings_key{$key});
-    }
-
-    # Try to provide backward compatibility
     foreach my $key (keys %arg)
     {
-        my $newkey = $key;
-        if($newkey =~ s#^-##)
-        {
-            $arg{$newkey} = $arg{$key};
-            delete $arg{$key};
-        }
+        # Provide backward compatibility
+        $arg{$key} = delete $arg{"-$key"} if $key =~ s/^-//;
+
+        croak "Error: Invalid setting key '$key' received."
+            unless exists $valid_settings_key{$key};
     }
-    
+
+
     ######
     #TODO: Add code for header props compatibility and col_props comp....
     ######
     my ( $xbase, $ybase, $width, $height ) = ( undef, undef, undef, undef );
     # Could be 'int' or 'real' values
-    $xbase  = $arg{'x'      } || -1;    
+    $xbase  = $arg{'x'      } || -1;
     $ybase  = $arg{'start_y'} || -1;
     $width  = $arg{'w'      } || -1;
     $height = $arg{'start_h'} || -1;
 
-    # Global geometry parameters are also mandatory. 
+    # Global geometry parameters are also mandatory.
     unless( $xbase  > 0 ){ carp "Error: Left Edge of Table is NOT defined!\n";  return; }
     unless( $ybase  > 0 ){ carp "Error: Base Line of Table is NOT defined!\n"; return; }
     unless( $width  > 0 ){ carp "Error: Width of Table is NOT defined!\n";  return; }
@@ -365,9 +368,10 @@ sub table
     my $txt     = $page->text;
 
     # Set Default Properties
-    my $fnt_name    = $arg{'font'            } || $pdf->corefont('Times',-encode => 'utf8');
-    my $fnt_size    = $arg{'font_size'       } || 12;
-    my $max_word_len= $arg{'max_word_length' } || 20;
+    my $fnt_name       = $arg{'font'            } || $pdf->corefont('Times',-encode => 'utf8');
+    my $fnt_size       = $arg{'font_size'       } || 12;
+    my $fnt_underline  = $arg{'font_underline'  } || undef; # merely stating undef is the intended default
+    my $max_word_len   = $arg{'max_word_length' } || 20;
 
     #=====================================
     # Table Header Section
@@ -386,6 +390,7 @@ sub table
         $header_props->{'font'          } = $header_props->{'font'          } || $fnt_name;
         $header_props->{'font_color'    } = $header_props->{'font_color'    } || '#000066';
         $header_props->{'font_size'     } = $header_props->{'font_size'     } || $fnt_size + 2;
+        $header_props->{'font_underline'} = $header_props->{'font_underline'} || $fnt_underline;
         $header_props->{'bg_color'      } = $header_props->{'bg_color'      } || '#FFFFAA';
         $header_props->{'justify'       } = $header_props->{'justify'       };
         $header_props->{num_header_rows } = $arg{num_header_rows } || 1;
@@ -398,6 +403,7 @@ sub table
     my $pad_right     = $arg{'padding_right' } || $arg{'padding'} || 0;
     my $pad_top       = $arg{'padding_top'   } || $arg{'padding'} || 0;
     my $pad_bot       = $arg{'padding_bottom'} || $arg{'padding'} || 0;
+    my $default_text  = $arg{'default_text'  } // '-';
     my $line_w        = defined $arg{'border'} ? $arg{'border'} : 1 ;
     my $horiz_borders = defined $arg{'horizontal_borders'}
         ? $arg{'horizontal_borders'}
@@ -405,7 +411,7 @@ sub table
     my $vert_borders  = defined $arg{'vertical_borders'}
         ? $arg{'vertical_borders'}
         : $line_w;
-    
+
     my $background_color_even   = $arg{'background_color_even'  } || $arg{'background_color'} || undef;
     my $background_color_odd    = $arg{'background_color_odd'   } || $arg{'background_color'} || undef;
     my $font_color_even         = $arg{'font_color_even'        } || $arg{'font_color'      } || 'black';
@@ -413,10 +419,10 @@ sub table
     my $border_color            = $arg{'border_color'           } || 'black';
 
     my $min_row_h   = $fnt_size + $pad_top + $pad_bot;
-    my $row_h       = defined ($arg{'row_height'}) 
-                                && 
-                    ($arg{'row_height'} > $min_row_h) 
-                                ? 
+    my $row_h       = defined ($arg{'row_height'})
+                                &&
+                    ($arg{'row_height'} > $min_row_h)
+                                ?
                      $arg{'row_height'} : $min_row_h;
 
     my $pg_cnt      = 1;
@@ -437,22 +443,23 @@ sub table
     }
     # Determine column widths based on content
 
-    #  an arrayref whose values are a hashref holding 
+    #  an arrayref whose values are a hashref holding
     #  the minimum and maximum width of that column
     my $col_props =  $arg{'column_props'} || [];
 
-    # An array ref of arrayrefs whose values are 
+    # An array ref of arrayrefs whose values are
     #  the actual widths of the column/row intersection
     my $row_col_widths = [];
-    # An array ref with the widths of the header row 
+    # An array ref with the widths of the header row
     my @header_row_widths;
- 
-    # Scalars that hold sum of the maximum and minimum widths of all columns 
+
+    # Scalars that hold sum of the maximum and minimum widths of all columns
     my ( $max_col_w  , $min_col_w   ) = ( 0,0 );
-    my ( $row, $col_name, $col_fnt_size, $space_w );
+    my ( $row, $col_name, $col_fnt_size, $col_fnt_underline, $space_w );
 
     my $word_widths  = {};
     my $rows_height  = [];
+    my $first_row    = 1;
 
     for( my $row_idx = 0; $row_idx < scalar(@$data) ; $row_idx++ )
     {
@@ -461,33 +468,40 @@ sub table
         my $column_widths = []; #holds the width of each column
         # Init the height for this row
         $rows_height->[$row_idx] = 0;
-        
+
         for( my $column_idx = 0; $column_idx < scalar(@{$data->[$row_idx]}) ; $column_idx++ )
         {
             # look for font information for this column
-            my ($cell_font, $cell_font_size);
-            
+            my ($cell_font, $cell_font_size, $cell_font_underline);
+
             if( !$row_idx and ref $header_props )
-            {   
-                $cell_font      = $header_props->{'font'};
-                $cell_font_size = $header_props->{'font_size'};
+            {
+                $cell_font           = $header_props->{'font'};
+                $cell_font_size      = $header_props->{'font_size'};
+                $cell_font_underline = $header_props->{'font_underline'};
             }
-            
+
             # Get the most specific value if none was already set from header_props
-            $cell_font      ||= $cell_props->[$row_idx][$column_idx]->{'font'} 
+            $cell_font      ||= $cell_props->[$row_idx][$column_idx]->{'font'}
                             ||  $col_props->[$column_idx]->{'font'}
                             ||  $fnt_name;
-                              
+
             $cell_font_size ||= $cell_props->[$row_idx][$column_idx]->{'font_size'}
                             ||  $col_props->[$column_idx]->{'font_size'}
                             ||  $fnt_size;
-                              
+
+            $cell_font_underline ||= $cell_props->[$row_idx][$column_idx]->{'font_underline'}
+                                 ||  $col_props->[$column_idx]->{'font_underline'}
+                                 ||  $fnt_underline;
+
             # Set Font
-            $txt->font( $cell_font, $cell_font_size ); 
-            
+
+            # Set Font
+            $txt->font( $cell_font, $cell_font_size );
+
             # Set row height to biggest font size from row's cells
             if( $cell_font_size  > $rows_height->[$row_idx] )
-            {   
+            {
                 $rows_height->[$row_idx] = $cell_font_size;
             }
 
@@ -509,18 +523,18 @@ sub table
 
             my @words = split( /\s+/, $data->[$row_idx][$column_idx] );
 
-            foreach( @words ) 
+            foreach( @words )
             {
                 unless( exists $word_widths->{$_} )
                 {   # Calculate the width of every word and add the space width to it
                     $word_widths->{$_} = $txt->advancewidth( $_ ) + $space_w;
                 }
-                
+
                 $column_widths->[$column_idx] += $word_widths->{$_};
                 $min_col_w                     = $word_widths->{$_} if( $word_widths->{$_} > $min_col_w );
                 $max_col_w                    += $word_widths->{$_};
             }
-            
+
             $min_col_w                    += $pad_left + $pad_right;
             $max_col_w                    += $pad_left + $pad_right;
             $column_widths->[$column_idx] += $pad_left + $pad_right;
@@ -533,23 +547,23 @@ sub table
             {   # Calculated Minimum Column Width is more than user-defined
                 $col_props->[$column_idx]->{'min_w'} = $min_col_w ;
             }
-            
+
             if( $max_col_w > $col_props->[$column_idx]->{'max_w'} )
             {   # Calculated Maximum Column Width is more than user-defined
                 $col_props->[$column_idx]->{'max_w'} = $max_col_w ;
             }
         }#End of for(my $column_idx....
-        
+
         $row_col_widths->[$row_idx] = $column_widths;
-        
-        # Copy the calculated row properties of header row. 
+
+        # Copy the calculated row properties of header row.
         if (ref $header_props && $row_idx < $header_props->{num_header_rows}) {
           push @header_row_widths, [ @{ $column_widths } ];
         }
     }
 
     # Calc real column widths and expand table width if needed.
-    my $calc_column_widths; 
+    my $calc_column_widths;
     ($calc_column_widths, $width) = CalcColumnWidths( $col_props, $width );
     my $num_cols = scalar @{ $calc_column_widths };
 
@@ -565,26 +579,42 @@ sub table
     # Each iteration adds a new page as neccessary
     while(scalar(@{$data}))
     {
-        my ($page_header, $columns_number);
+        my ($page_header);
+        my $columns_number = 0;
 
         if($pg_cnt == 1)
         {
             $table_top_y = $ybase;
             $bot_marg = $table_top_y - $height;
+
+            # Check for safety reasons
+            if( $bot_marg < 0 )
+            {   # This warning should remain i think
+                #carp "!!! Warning: !!! Incorrect Table Geometry! start_h (${height}) is above start_y (${table_top_y}). Setting bottom margin to end of sheet!\n";
+                $bot_marg = 0;
+            }
+
         }
         else
         {
             if(ref $arg{'new_page_func'})
-            {   
-                $page = &{$arg{'new_page_func'}};   
+            {
+                $page = &{$arg{'new_page_func'}};
             }
             else
-            {   
-                $page = $pdf->page; 
+            {
+                $page = $pdf->page;
             }
-    
+
             $table_top_y = $next_y;
             $bot_marg = $table_top_y - $next_h;
+
+            # Check for safety reasons
+            if( $bot_marg < 0 )
+            {   # This warning should remain i think
+                #carp "!!! Warning: !!! Incorrect Table Geometry! next_y or start_y (${next_y}) is above next_h or start_h (${next_h}). Setting bottom margin to end of sheet!\n";
+                $bot_marg = 0;
+            }
 
             if( ref $header_props and $header_props->{'repeat'})
             {
@@ -592,19 +622,13 @@ sub table
                 unshift @$row_col_widths, @header_row_widths;
                 unshift @$rows_height,    @header_row_heights;
                 $remaining_header_rows = $header_props->{num_header_rows};
+                $first_row = 1;
             }
-        }
-
-        # Check for safety reasons
-        if( $bot_marg < 0 )
-        {   # This warning should remain i think
-#            carp "!!! Warning: !!! Incorrect Table Geometry! Setting bottom margin to end of sheet!\n";
-            $bot_marg = 0;
         }
 
         $gfx_bg = $page->gfx;
         $txt = $page->text;
-        $txt->font($fnt_name, $fnt_size); 
+        $txt->font($fnt_name, $fnt_size);
 
         $cur_y = $table_top_y;
 
@@ -615,7 +639,7 @@ sub table
             $gfx->linewidth($line_w);
 
             # Draw the top line
-            if ($horiz_borders) 
+            if ($horiz_borders)
             {
                 $gfx->move( $xbase , $cur_y );
                 $gfx->hline($xbase + $width );
@@ -626,17 +650,17 @@ sub table
             $gfx = undef;
         }
 
-        # Each iteration adds a row to the current page until the page is full 
+        # Each iteration adds a row to the current page until the page is full
         #  or there are no more rows to add
         # Row_Loop
         while(scalar(@{$data}) and $cur_y-$row_h > $bot_marg)
         {
             # Remove the next item from $data
             my $record = shift @{$data};
-            
-            # Get columns number to know later how many vertical lines to draw
-            # TODO: get the max number of columns per page as currently last row's columns overrides
-            $columns_number = scalar(@$record);
+
+            # Get max columns number to know later how many vertical lines to draw
+            $columns_number = scalar(@$record)
+                if scalar(@$record) > $columns_number;
 
             # Get the next set of row related settings
             # Row Height
@@ -651,7 +675,7 @@ sub table
 
             # Added to resolve infite loop bug with returned undef values
             for(my $d = 0; $d < scalar(@{$record}) ; $d++)
-            { 
+            {
                 $record->[$d] = ' ' unless( defined $record->[$d]);
             }
 
@@ -678,44 +702,55 @@ sub table
             my ($colspan, @vertical_lines);
 
             # Process every cell(column) from current row
-            for( my $column_idx = 0; $column_idx < scalar( @$record); $column_idx++ ) 
+            for( my $column_idx = 0; $column_idx < scalar( @$record); $column_idx++ )
             {
                 next unless $col_props->[$column_idx]->{'max_w'};
-                next unless $col_props->[$column_idx]->{'min_w'};  
+                next unless $col_props->[$column_idx]->{'min_w'};
                 $leftovers->[$column_idx] = undef;
 
                 # look for font information for this cell
-                my ($cell_font, $cell_font_size, $cell_font_color, $justify);
-                                    
+                my ($cell_font, $cell_font_size, $cell_font_color, $cell_font_underline, $justify);
+
                 if( $remaining_header_rows and ref $header_props)
-                {   
-                    $cell_font       = $header_props->{'font'};
-                    $cell_font_size  = $header_props->{'font_size'};
-                    $cell_font_color = $header_props->{'font_color'};
-                    $justify         = $header_props->{'justify'};
+                {
+                    $cell_font           = $header_props->{'font'};
+                    $cell_font_size      = $header_props->{'font_size'};
+                    $cell_font_color     = $header_props->{'font_color'};
+                    $cell_font_underline = $header_props->{'font_underline'};
+                    $justify             = $header_props->{'justify'};
                 }
-                
+
                 # Get the most specific value if none was already set from header_props
-                $cell_font       ||= $cell_props->[$row_index][$column_idx]->{'font'} 
+                $cell_font       ||= $cell_props->[$row_index][$column_idx]->{'font'}
                                  ||  $col_props->[$column_idx]->{'font'}
                                  ||  $fnt_name;
-                                  
+
                 $cell_font_size  ||= $cell_props->[$row_index][$column_idx]->{'font_size'}
                                  ||  $col_props->[$column_idx]->{'font_size'}
                                  ||  $fnt_size;
-                                  
+
                 $cell_font_color ||= $cell_props->[$row_index][$column_idx]->{'font_color'}
                                  ||  $col_props->[$column_idx]->{'font_color'}
                                  ||  $font_color;
-                                
+
+                $cell_font_underline ||= $cell_props->[$row_index][$column_idx]->{'font_underline'}
+                                     ||  $col_props->[$column_idx]->{'font_underline'}
+                                     ||  $fnt_underline;
+
+
                 $justify         ||= $cell_props->[$row_index][$column_idx]->{'justify'}
                                  ||  $col_props->[$column_idx]->{'justify'}
                                  ||  $arg{'justify'}
-                                 ||  'left';                                    
-                
+                                 ||  'left';
+
                 # Init cell font object
                 $txt->font( $cell_font, $cell_font_size );
                 $txt->fillcolor($cell_font_color);
+
+                # Added to resolve infite loop bug with returned undef values
+                $record->[$column_idx] //= $cell_props->[$row_index][$column_idx]->{'default_text'}
+                                       //  $col_props->[$column_idx]->{'default_text'}
+                                       //  $default_text;
 
                 my $this_width;
                 if (!$remaining_header_rows && $cell_props->[$row_index + $header_props->{num_header_rows}][$column_idx]->{colspan}) {
@@ -731,10 +766,10 @@ sub table
                 } else {
                     $this_width = $calc_column_widths->[$column_idx];
                 }
- 
+
                 # If the content is wider than the specified width, we need to add the text as a text block
                 if( $record->[$column_idx] !~ m/(.\n.)/ and
-                    $record_widths->[$column_idx] and 
+                    $record_widths->[$column_idx] and
                     $record_widths->[$column_idx] <= $this_width
                 ){
                     my $space = $pad_left;
@@ -747,7 +782,9 @@ sub table
                         $space = ($this_width - $txt->advancewidth($record->[$column_idx])) / 2;
                     }
                     $txt->translate( $cur_x + $space, $text_start );
-                    $txt->text( $record->[$column_idx] );
+                    my %text_options;
+                    $text_options{'-underline'} = $cell_font_underline if $cell_font_underline;
+                    $txt->text( $record->[$column_idx], %text_options );
                 }
                 # Otherwise just use the $page->text() method
                 else
@@ -768,13 +805,28 @@ sub table
                     {
                         $current_row_height = $current_cell_height;
                     }
-                    
+
                     if( $left_over_text )
                     {
                         $leftovers->[$column_idx] = $left_over_text;
                         $do_leftovers = 1;
                     }
                 }
+
+                # Hook to pass coordinates back - http://www.perlmonks.org/?node_id=754777
+                if (ref $arg{cell_render_hook} eq 'CODE') {
+                   $arg{cell_render_hook}->(
+                                            $page,
+                                            $first_row,
+                                            $row_index,
+                                            $column_idx,
+                                            $cur_x,
+                                            $cur_y-$row_h,
+                                            $calc_column_widths->[$column_idx],
+                                            $row_h
+                                           );
+                }
+
                 $cur_x += $calc_column_widths->[$column_idx];
 
                 push @vertical_lines, (!$colspan || (1 >= $colspan)) ? 1 : 0;
@@ -786,20 +838,20 @@ sub table
                 unshift @$row_col_widths, $record_widths;
                 unshift @$rows_height, $pre_calculated_row_height;
             }
-            
+
             # Draw cell bgcolor
-            # This has to be separately from the text loop 
+            # This has to be separately from the text loop
             #  because we do not know the final height of the cell until all text has been drawn
             $cur_x = $xbase;
             for(my $column_idx = 0 ; $column_idx < scalar(@$record) ; $column_idx++)
             {
                 my $cell_bg_color;
-                                    
+
                 if( $remaining_header_rows and ref $header_props)
-                {                                  #Compatibility                 Consistency with other props    
+                {                                  #Compatibility                 Consistency with other props
                     $cell_bg_color = $header_props->{'bg_color'} || $header_props->{'background_color'};
                 }
-                
+
                 # Get the most specific value if none was already set from header_props
                 $cell_bg_color ||= $cell_props->[$row_index + $header_props->{num_header_rows}][$column_idx]->{'background_color'}
                                ||  $col_props->[$column_idx]->{'background_color'}
@@ -827,6 +879,7 @@ sub table
                 $gfx->hline( $xbase + $width );
             }
 
+            $first_row = 0;
             if ($remaining_header_rows) {
               $remaining_header_rows--;
             } else {
@@ -837,7 +890,7 @@ sub table
         if ($gfx)
         {
             # Draw vertical lines
-            if ($vert_borders) 
+            if ($vert_borders)
             {
                 $gfx->move(  $xbase, $table_top_y);
                 $gfx->vline( $cur_y );
@@ -963,12 +1016,12 @@ For a complete working example or initial script look into distribution`s 'examp
 
 =head1 DESCRIPTION
 
-This class is a utility for use with the PDF::API2 module from CPAN. 
-It can be used to display text data in a table layout within a PDF. 
-The text data must be in a 2D array (such as returned by a DBI statement handle fetchall_arrayref() call). 
-The PDF::Table will automatically add as many new pages as necessary to display all of the data. 
-Various layout properties, such as font, font size, and cell padding and background color can be specified for each column and/or for even/odd rows. 
-Also a (non)repeated header row with different layout properties can be specified. 
+This class is a utility for use with the PDF::API2 module from CPAN.
+It can be used to display text data in a table layout within a PDF.
+The text data must be in a 2D array (such as returned by a DBI statement handle fetchall_arrayref() call).
+The PDF::Table will automatically add as many new pages as necessary to display all of the data.
+Various layout properties, such as font, font size, and cell padding and background color can be specified for each column and/or for even/odd rows.
+Also a (non)repeated header row with different layout properties can be specified.
 
 See the L</METHODS> section for complete documentation of every parameter.
 
@@ -986,7 +1039,7 @@ Creates a new instance of the class. (to be improved)
 
 =item Parameters
 
-There are no parameters. 
+There are no parameters.
 
 =item Returns
 
@@ -997,7 +1050,7 @@ Reference to the new instance
 =head2 table()
 
     my ($final_page, $number_of_pages, $final_y) = table($pdf, $page, $data, %settings)
-    
+
 =over
 
 =item Description
@@ -1009,15 +1062,15 @@ Generates a multi-row, multi-column table into an existing PDF document based on
     $pdf      - a PDF::API2 instance representing the document being created
     $page     - a PDF::API2::Page instance representing the current page of the document
     $data     - an ARRAY reference to a 2D data structure that will be used to build the table
-    %settings - HASH with geometry and formatting parameters. 
+    %settings - HASH with geometry and formatting parameters.
 
 For full %settings description see section L</Table settings> below.
 
 This method will add more pages to the pdf instance as required based on the formatting options and the amount of data.
 
-=item Reuturns
+=item Returns
 
-The return value is a 3 items list where 
+The return value is a 3 items list where
 
     $final_page - The first item is a PDF::API2::Page instance that the table ends on
     $number_of_pages - The second item is the count of pages that the table spans on
@@ -1037,7 +1090,7 @@ The return value is a 3 items list where
         start_y => 220,
         start_h => 180,
     );
-    
+
     my ($final_page, $number_of_pages, $final_y) = $pdftable->table( $pdf, $page, $data, %options );
 
 =back
@@ -1048,12 +1101,12 @@ The return value is a 3 items list where
 
 There are some mandatory parameteres for setting table geometry and position across page(s)
 
-=over 
+=over
 
 =item B<x> - X coordinate of upper left corner of the table. Left edge of the sheet is 0.
 
 B<Value:> can be any whole number satisfying 0 =< X < PageWidth
-B<Default:> No default value 
+B<Default:> No default value
 
     x => 10
 
@@ -1077,7 +1130,7 @@ B<Value:> can be any whole number satisfying 0 < start_h < PageHeight - Current 
 B<Default:> No default value
 
     start_h => 250
-    
+
 =back
 
 =head4 Optional
@@ -1098,14 +1151,14 @@ B<Default:> Value of param B<'start_y'>
 
     next_y  => 750
 
-=item B<max_word_length> - Breaks long words (like serial numbers hashes etc.) by adding a space after every Nth symbol 
+=item B<max_word_length> - Breaks long words (like serial numbers hashes etc.) by adding a space after every Nth symbol
 
 B<Value:> can be any whole positive number
 B<Default:> 20
 
     max_word_length => 20    # Will add a space after every 20 symbols
 
-=item B<padding> - Padding applied to every cell 
+=item B<padding> - Padding applied to every cell
 
 =item B<padding_top>    - top cell padding, overrides 'padding'
 
@@ -1120,14 +1173,14 @@ B<Value:> can be any whole positive number
 B<Default padding:> 0
 
 B<Default padding_*> $padding
-    
+
     padding        => 5      # all sides cell padding
     padding_top    => 8,     # top cell padding, overrides 'padding'
     padding_right  => 6,     # right cell padding, overrides 'padding'
     padding_left   => 2,     # left cell padding, overrides 'padding'
     padding_bottom => undef  # bottom padding will be 5 as it will fallback to 'padding'
 
-=item B<border> - Width of table border lines. 
+=item B<border> - Width of table border lines.
 
 =item B<horizontal_borders> - Width of horizontal border lines. Overrides 'border' value.
 
@@ -1135,7 +1188,7 @@ B<Default padding_*> $padding
 
 B<Value:> can be any whole positive number. When set to 0 will disable border lines.
 B<Default:> 1
-      
+
     border             => 3     # border width is 3
     horizontal_borders => 1     # horizontal borders will be 1 overriding 3
     vertical_borders   => undef # vertical borders will be 3 as it will fallback to 'border'
@@ -1158,14 +1211,19 @@ B<Default:> 'Times' with UTF8 encoding
 
 B<Value:> can be any positive number
 B<Default:> 12
-    
+
     font_size => 16
 
 =item B<font_color> - Font color for all rows
 
 =item B<font_color_odd> - Font color for odd rows
 
-=item B<font_color_even> - Font color for even rows 
+=item B<font_color_even> - Font color for even rows
+
+=item B<font_underline> - Font underline of the header row
+
+B<Value:> 'auto', integer of distance, or arrayref of distance & thickness (more than one pair will provide mlultiple underlines. Negative distance gives strike-through.
+B<Default:> none
 
 =item B<background_color_odd> - Background color for odd rows
 
@@ -1177,16 +1235,16 @@ B<Default:> 'black' font on 'white' background
     font_color            => '#333333'
     font_color_odd        => 'purple'
     font_color_even       => '#00FF00'
-    background_color_odd  => 'gray'     
+    background_color_odd  => 'gray'
     background_color_even => 'lightblue'
 
 =item B<row_height> - Desired row height but it will be honored only if row_height > font_size + padding_top + padding_bottom
 
 B<Value:> can be any whole positive number
 B<Default:> font_size + padding_top + padding_bottom
-    
+
     row_height => 24
- 
+
 =item B<new_page_func> - CODE reference to a function that returns a PDF::API2::Page instance.
 
 If used the parameter 'new_page_func' must be a function reference which when executed will create a new page and will return the object back to the module.
@@ -1195,9 +1253,9 @@ Also if you need some different type of paper size and orientation than the defa
 Don't forget that your function must return a page object created with PDF::API2 page() method.
 
     new_page_func  => $code_ref
-    
+
 =item B<header_props> - HASH reference to specific settings for the Header row of the table. See section L</Header Row Properties> below
-    
+
     header_props => $hdr_props
 
 =item B<column_props> - HASH reference to specific settings for each column of the table. See section L</Column Properties> below
@@ -1205,8 +1263,25 @@ Don't forget that your function must return a page object created with PDF::API2
     column_props => $col_props
 
 =item B<cell_props> - HASH reference to specific settings for each column of the table. See section L</Cell Properties> below
-    
+
     cell_props => $cel_props
+
+=item B<cell_render_hook> - CODE reference to a function called with the current cell coordinates.  If used the parameter 'cell_render_hook' must be a function reference. It is most useful for creating a url link inside of a cell. The following example adds a link in the first column of each non-header row:
+
+    cell_render_hook  => sub {
+        my ($page, $first_row, $row, $col, $x, $y, $w, $h) = @_;
+
+        # Do nothing except for first column (and not a header row)
+        return unless ($col == 0);
+        return if ($first_row);
+
+        # Create link
+        my $value = $list_of_vals[$row-1];
+        my $url = "https://${hostname}/app/${value}";
+
+        my $annot = $page->annotation();
+        $annot->url( $url, -rect => [$x, $y, $x+$w, $y+$h] );
+    },
 
 =back
 
@@ -1225,12 +1300,17 @@ B<Default:> 'font' of the table. See table parameter 'font' for more details.
 =item B<font_size> - Font size of the header row
 
 B<Value:> can be any positive number
-B<Default:> 'font_size' of the table + 2  
+B<Default:> 'font_size' of the table + 2
 
 =item B<font_color> - Font color of the header row
 
 B<Value:> Color specifier as 'name' or 'HEX'
 B<Default:> '#000066'
+
+=item B<font_underline> - Font underline of the header row
+
+B<Value:> 'auto', integer of distance, or arrayref of distance & thickness (more than one pair will provide mlultiple underlines. Negative distance gives strike-through.
+B<Default:> none
 
 =item B<bg_color> - Background color of the header row
 
@@ -1239,7 +1319,7 @@ B<Default:> #FFFFAA
 
 =item B<repeat> - Flag showing if header row should be repeated on every new page
 
-B<Value:> 0,1   1-Yes/True, 0-No/False 
+B<Value:> 0,1   1-Yes/True, 0-No/False
 B<Default:> 0
 
 =item B<justify> - Alignment of text in the header row.
@@ -1247,13 +1327,13 @@ B<Default:> 0
 B<Value:> One of 'left', 'right', 'center'
 B<Default:> Same as column alignment (or 'left' if undefined)
 
-    my $hdr_props = 
+    my $hdr_props =
     {
         font       => $pdf->corefont("Helvetica", -encoding => "utf8"),
         font_size  => 18,
         font_color => '#004444',
-        bg_color   => 'yellow', 
-        repeat     => 1,    
+        bg_color   => 'yellow',
+        repeat     => 1,
         justify    => 'center'
     };
 
@@ -1261,8 +1341,8 @@ B<Default:> Same as column alignment (or 'left' if undefined)
 
 =head4 Column Properties
 
-If the 'column_props' parameter is used, it should be an arrayref of hashrefs, 
-with one hashref for each column of the table. The columns are counted from left to right so the hash reference at $col_props[0] will hold properties for the first column from left to right. 
+If the 'column_props' parameter is used, it should be an arrayref of hashrefs,
+with one hashref for each column of the table. The columns are counted from left to right so the hash reference at $col_props[0] will hold properties for the first column from left to right.
 If you DO NOT want to give properties for a column but to give for another just insert and empty hash reference into the array for the column that you want to skip. This will cause the counting to proceed as expected and the properties to be applyed at the right columns.
 
 Each hashref can contain any of the keys shown below:
@@ -1294,6 +1374,11 @@ B<Default:> 'font_size' of the table.
 B<Value:> Color specifier as 'name' or 'HEX'
 B<Default:> 'font_color' of the table.
 
+=item B<font_underline> - Font underline of this cell
+
+B<Value:> 'auto', integer of distance, or arrayref of distance & thickness (more than one pair will provide mlultiple underlines. Negative distance gives strike-through.
+B<Default:> none
+
 =item B<background_color> - Background color of this column
 
 B<Value:> Color specifier as 'name' or 'HEX'
@@ -1322,7 +1407,7 @@ Example:
 
 =back
 
-NOTE: If 'min_w' and/or 'max_w' parameter is used in 'col_props', have in mind that it may be overriden by the calculated minimum/maximum cell witdh so that table can be created.
+NOTE: If 'min_w' and/or 'max_w' parameter is used in 'col_props', have in mind that it may be overridden by the calculated minimum/maximum cell witdh so that table can be created.
 When this happens a warning will be issued with some advises what can be done.
 In cases of a conflict between column formatting and odd/even row formatting, 'col_props' will override odd/even.
 
@@ -1350,6 +1435,11 @@ B<Default:> 'font_size' of the table.
 B<Value:> Color specifier as 'name' or 'HEX'
 B<Default:> 'font_color' of the table.
 
+=item B<font_underline> - Font underline of this cell
+
+B<Value:> 'auto', integer of distance, or arrayref of distance & thickness (more than one pair will provide mlultiple underlines. Negative distance gives strike-through.
+B<Default:> none
+
 =item B<background_color> - Background color of this cell
 
 B<Value:> Color specifier as 'name' or 'HEX'
@@ -1367,6 +1457,7 @@ Example:
             {    #Row 1 cell 1
                 background_color => '#AAAA00',
                 font_color       => 'yellow',
+                font_underline   => [ 2, 2 ],
             },
 
             # etc.
@@ -1386,7 +1477,7 @@ Example:
     ];
 
     OR
-    
+
     my $cell_props = [];
     $cell_props->[1][0] = {
         #Row 2 cell 1
@@ -1395,9 +1486,9 @@ Example:
     };
 
 =back
-    
-NOTE: In case of a conflict between column, odd/even and cell formating, cell formating will overwrite the other two.
-In case of a conflict between header row and cell formating, header formating will override cell.
+
+NOTE: In case of a conflict between column, odd/even and cell formatting, cell formatting will overwrite the other two.
+In case of a conflict between header row and cell formatting, header formatting will override cell.
 
 =head2 text_block()
 
@@ -1408,7 +1499,7 @@ In case of a conflict between header row and cell formating, header formating wi
 =item Description
 
 Utility method to create a block of text. The block may contain multiple paragraphs.
-It is mainly used internaly but you can use it from outside for placing formated text anywhere on the sheet.
+It is mainly used internaly but you can use it from outside for placing formatted text anywhere on the sheet.
 
 NOTE: This method will NOT add more pages to the pdf instance if the space is not enough to place the string inside the block.
 Leftover text will be returned and has to be handled by the caller - i.e. add a new page and a new block with the leftover.
@@ -1418,15 +1509,15 @@ Leftover text will be returned and has to be handled by the caller - i.e. add a 
     $txt  - a PDF::API2::Page::Text instance representing the text tool
     $data - a string that will be placed inside the block
     %settings - HASH with geometry and formatting parameters.
-     
+
 =item Reuturns
 
-The return value is a 3 items list where 
+The return value is a 3 items list where
 
     $width_of_last_line - Width of last line in the block
     $final_y - The Y coordinate of the block bottom so that additional content can be added after it
     $left_over_text - Text that was did not fit in the provided box geometry.
-    
+
 =item Example
 
     # PDF::API2 objects
@@ -1438,21 +1529,21 @@ The return value is a 3 items list where
         y => 570,
         w => 220,
         h => 180
-        
+
         #OPTIONAL PARAMS
         lead     => $font_size | $distance_between_lines,
         align    => "left|right|center|justify|fulljustify",
         hang     => $optional_hanging_indent,
-        Only one of the subsequent 3params can be given. 
+        Only one of the subsequent 3params can be given.
         They override each other.-parspace is the weightest
         parspace => $optional_vertical_space_before_first_paragraph,
         flindent => $optional_indent_of_first_line,
         fpindent => $optional_indent_of_first_paragraph,
         indent   => $optional_indent_of_text_to_every_non_first_line,
     );
-    
+
     my ( $width_of_last_line, $final_y, $left_over_text ) = $pdftable->text_block( $txt, $data, %settings );
- 
+
 =back
 
 =head1 VERSION
@@ -1478,7 +1569,7 @@ at your option, any later version of Perl 5 you may have available.
 
 =head1 PLUGS
 
-=over 
+=over
 
 =item by Daemmon Hughes
 
@@ -1486,7 +1577,8 @@ Much of the work on this module was sponsered by
 Stone Environmental Inc. (www.stone-env.com).
 
 The text_block() method is a slightly modified copy of the one from
-Rick Measham's PDF::API2 L<tutorial|http://rick.measham.id.au/pdf-api2>.
+Rick Measham's PDF::API2 tutorial at
+http://pdfapi2.sourceforge.net/cgi-bin/view/Main/YourFirstDocument
 
 =item by Desislav Kamenov (@deskata on Twitter)
 

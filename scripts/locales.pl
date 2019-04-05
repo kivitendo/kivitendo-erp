@@ -14,7 +14,6 @@ BEGIN {
 
   unshift(@INC, $FindBin::Bin . '/../modules/override'); # Use our own versions of various modules (e.g. YAML).
   push   (@INC, $FindBin::Bin . '/..');
-  push   (@INC, $FindBin::Bin . '/../modules/fallback'); # Only use our own versions of modules if there's no system version.
 }
 
 use Carp;
@@ -28,10 +27,9 @@ use IO::Dir;
 use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Pod::Usage;
-use YAML ();
-use YAML::Loader (); # YAML tries to load Y:L at runtime, but can't find it after we chdir'ed
 use SL::DBUpgrade2;
 use SL::System::Process;
+use SL::YAML;
 
 $OUTPUT_AUTOFLUSH = 1;
 
@@ -534,7 +532,7 @@ sub scanfile {
 sub scanmenu {
   my $file = shift;
 
-  my $menu = YAML::LoadFile($file);
+  my $menu = SL::YAML::LoadFile($file);
 
   for my $node (@$menu) {
     # possible for override files

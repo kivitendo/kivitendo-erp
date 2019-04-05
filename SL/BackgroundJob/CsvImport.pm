@@ -4,8 +4,8 @@ use strict;
 
 use parent qw(SL::BackgroundJob::Base);
 
-use YAML ();
 use SL::JSON;
+use SL::YAML;
 use SL::DB::CsvImportProfile;
 
 sub create_job {
@@ -23,7 +23,7 @@ sub create_job {
     type         => 'once',
     active       => 1,
     package_name => $package,
-    data         => YAML::Dump(\%data),
+    data         => SL::YAML::Dump(\%data),
   );
 
   return $job;
@@ -33,7 +33,7 @@ sub profile {
   my ($self) = @_;
 
   if (!$self->{profile}) {
-    my $data = YAML::Load($self->{db_obj}->data);
+    my $data = SL::YAML::Load($self->{db_obj}->data);
     $self->{profile} = SL::DB::Manager::CsvImportProfile->find_by(id => $data->{profile_id});
   }
 

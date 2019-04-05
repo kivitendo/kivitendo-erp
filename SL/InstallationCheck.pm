@@ -30,7 +30,7 @@ BEGIN {
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/",     debian => 'libdbd-pg-perl' },
   { name => "Digest::SHA",                         url => "http://search.cpan.org/~mshelor/",   debian => 'libdigest-sha-perl' },
-  { name => "Exception::Lite",                     url => "http://search.cpan.org/~elisheva/", }, # fallback latest version 2011
+  { name => "Exception::Class",                    url => "https://metacpan.org/pod/Exception::Class", debian => 'libexception-class-perl' },
   { name => "Email::Address",  version => '1.888', url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
   { name => "Email::MIME",                         url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-mime-perl' },
   { name => "FCGI",            version => '0.72',  url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
@@ -55,11 +55,8 @@ BEGIN {
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
   { name => "Rose::DB::Object", version => 0.788,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
   { name => "Set::Infinite",    version => '0.63', url => "http://search.cpan.org/~fglock/",    debian => 'libset-infinite-perl' },
-  { name => "Set::Crontab",     version => '1.03', url => "http://search.cpan.org/~ams/",       debian => 'libset-crontab-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
-  # Test::Harness is core, so no Debian packages. Test::Harness 3.00 was first packaged in 5.10.1
-  { name => "Test::Harness",   version => '3.00',  url => "http://search.cpan.org/~petdance/",  },
   { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/",       debian => 'libtemplate-perl' },
   { name => "Text::CSV_XS",    version => '0.23',  url => "http://search.cpan.org/~hmbrand/",   debian => 'libtext-csv-xs-perl' },
   { name => "Text::Iconv",     version => '1.2',   url => "http://search.cpan.org/~mpiotr/",    debian => 'libtext-iconv-perl' },
@@ -75,6 +72,7 @@ BEGIN {
   # Net::SMTP is core since 5.7.3
   { name => "Net::SMTP::SSL",                      url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
   { name => "Net::SSLGlue",                        url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
+  { name => "YAML::XS",                            url => "https://metacpan.org/pod/distribution/YAML-LibYAML/lib/YAML/LibYAML.pod", debian => 'libyaml-libyaml-perl' },
 );
 
 @developer_modules = (

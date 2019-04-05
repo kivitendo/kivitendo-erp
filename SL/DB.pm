@@ -6,12 +6,12 @@ use Carp;
 use Data::Dumper;
 use English qw(-no_match_vars);
 use Rose::DB;
-use Rose::DBx::Cache::Anywhere;
+use SL::DB::Helper::Cache;
 use Scalar::Util qw(blessed);
 
 use base qw(Rose::DB);
 
-__PACKAGE__->db_cache_class('Rose::DBx::Cache::Anywhere');
+__PACKAGE__->db_cache_class('SL::DB::Helper::Cache');
 __PACKAGE__->use_private_registry;
 
 my (%_db_registered);

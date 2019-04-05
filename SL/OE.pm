@@ -36,7 +36,6 @@
 package OE;
 
 use List::Util qw(max first);
-use YAML;
 
 use SL::AM;
 use SL::Common;
@@ -53,6 +52,7 @@ use SL::IC;
 use SL::TransNumber;
 use SL::Util qw(trim);
 use SL::DB;
+use SL::YAML;
 use Text::ParseWords;
 
 use strict;
@@ -816,7 +816,7 @@ sub save_periodic_invoices_config {
 
   return if !$params{oe_id};
 
-  my $config = $params{config_yaml} ? YAML::Load($params{config_yaml}) : undef;
+  my $config = $params{config_yaml} ? SL::YAML::Load($params{config_yaml}) : undef;
   return if 'HASH' ne ref $config;
 
   my $obj  = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $params{oe_id})
@@ -836,7 +836,7 @@ sub load_periodic_invoice_config {
     if ($config_obj) {
       my $config = { map { $_ => $config_obj->$_ } qw(active terminated periodicity order_value_periodicity start_date_as_date end_date_as_date first_billing_date_as_date extend_automatically_by ar_chart_id
                                                       print printer_id copies direct_debit send_email email_recipient_contact_id email_recipient_address email_sender email_subject email_body) };
-      $form->{periodic_invoices_config} = YAML::Dump($config);
+      $form->{periodic_invoices_config} = SL::YAML::Dump($config);
     }
   }
 }

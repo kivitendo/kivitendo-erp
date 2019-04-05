@@ -35,7 +35,6 @@ use Carp;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use POSIX qw(strftime);
-use YAML;
 
 use SL::DB::DeliveryOrder;
 use SL::DO;
@@ -44,6 +43,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
 use SL::ReportGenerator;
 use SL::WH;
+use SL::YAML;
 use Sort::Naturally ();
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -1390,7 +1390,7 @@ sub set_stock_in {
     push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(delivery_order_items_stock_id warehouse_id bin_id chargenumber bestbefore qty unit) };
   }
 
-  $form->{stock} = YAML::Dump($stock_info);
+  $form->{stock} = SL::YAML::Dump($stock_info);
 
   _stock_in_out_set_qty_display($stock_info);
 
@@ -1485,7 +1485,7 @@ sub set_stock_out {
   my @errors     = DO->check_stock_availability('requests' => $stock_info,
                                                 'parts_id' => $form->{parts_id});
 
-  $form->{stock} = YAML::Dump($stock_info);
+  $form->{stock} = SL::YAML::Dump($stock_info);
 
   if (@errors) {
     $form->{ERRORS} = [];
@@ -1917,7 +1917,7 @@ sub transfer_in_out_default {
   foreach (@all_requests){
     $i++;
     next unless scalar(%{ $_ });
-    $form->{"stock_${prefix}_$i"} = YAML::Dump([$_]);
+    $form->{"stock_${prefix}_$i"} = SL::YAML::Dump([$_]);
   }
 
   save(no_redirect => 1); # Wir können auslagern, deshalb beleg speichern

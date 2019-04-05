@@ -37,7 +37,6 @@ package IC;
 
 use Data::Dumper;
 use List::MoreUtils qw(all any uniq);
-use YAML;
 
 use SL::CVar;
 use SL::DBUtils;

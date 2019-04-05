@@ -697,7 +697,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
     $self->tester->ok(1, "Keine verwaisten Einträge in verknüpften Bankbewegungen (Richtung Bank).");
   }
   # check for deleted acc_trans_ids
-  my $query = qq|
+  $query = qq|
           SELECT purpose from bank_transactions
           WHERE id in
           (SELECT bank_transaction_id from bank_transaction_acc_trans

@@ -8,7 +8,7 @@ our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_enc
 
 use Encode ();
 use List::MoreUtils qw(zip);
-use YAML;
+use SL::YAML;
 
 use strict;
 
@@ -23,7 +23,7 @@ sub save_form {
     delete $main::form->{$key};
   }
 
-  my $old_form = YAML::Dump($main::form);
+  my $old_form = SL::YAML::Dump($main::form);
   $old_form =~ s|!|!:|g;
   $old_form =~ s|\n|!n|g;
   $old_form =~ s|\r|!r|g;
@@ -49,7 +49,7 @@ sub restore_form {
   $old_form =~ s|!n|\n|g;
   $old_form =~ s|![!:]|!|g;
 
-  my $new_form = YAML::Load($old_form);
+  my $new_form = SL::YAML::Load($old_form);
   map { $form->{$_} = $new_form->{$_} if (!$keep_vars_map{$_}) } keys %{ $new_form };
 
   $main::lxdebug->leave_sub();

@@ -143,10 +143,10 @@ sub reorder_list {
   my $column = column_name($self);
   my $result = $self->db->with_transaction(sub {
     my $query = qq|UPDATE | . $self->meta->table . qq| SET ${column} = ? WHERE id = ?|;
-    my $sth   = $self->db->dbh->prepare($query) || die $self->db->dbh->errstr;
+    my $sth   = $self->db->dbh->prepare($query) || SL::X::DBUtilsError->throw(msg => 'reorder_list error', db_error => $self->db->dbh->errstr);
 
     foreach my $new_position (1 .. scalar(@ids)) {
-      $sth->execute($new_position, $ids[$new_position - 1]) || die SL::X::DBUtilsError->new(error => $sth->errstr);
+      $sth->execute($new_position, $ids[$new_position - 1]) || SL::X::DBUtilsError->throw(msg => 'reorder_list error', db_error => $sth->errstr);
     }
 
     $sth->finish;

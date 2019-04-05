@@ -2,7 +2,6 @@ use strict;
 use utf8;
 
 use lib 't';
-use lib 'modules/fallback';
 BEGIN {
   unshift @INC, 'modules/override';
 }
@@ -104,4 +103,3 @@ is_deeply $tt,
           'action' => 'CsvImport/dispatch',
           'FILENAME' => 'from_wikipedia.csv'
         };
-

@@ -3,14 +3,9 @@ package SL::Menu;
 use strict;
 
 use SL::Auth;
-use YAML ();
 use File::Spec;
 use SL::MoreCommon qw(uri_encode);
-
-our $yaml_xs;
-BEGIN {
-   $yaml_xs =  eval { require YAML::XS };
-}
+use SL::YAML;
 
 our %menu_cache;
 
@@ -29,11 +24,7 @@ sub new {
     for my $file (@files) {
       my $data;
       eval {
-        if ($yaml_xs) {
-          $data = YAML::XS::LoadFile(File::Spec->catfile($path, $file));
-        } else {
-          $data = YAML::LoadFile(File::Spec->catfile($path, $file));
-        }
+        $data = SL::YAML::LoadFile(File::Spec->catfile($path, $file));
         1;
       } or do {
         die "Error while parsing $file: $@";

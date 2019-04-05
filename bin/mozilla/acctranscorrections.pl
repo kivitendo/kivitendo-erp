@@ -3,7 +3,6 @@ use SL::Form;
 use SL::Locale::String qw(t8);
 use SL::User;
 use Data::Dumper;
-use YAML;
 
 require "bin/mozilla/common.pl";
 
