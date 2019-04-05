@@ -321,10 +321,6 @@
           </listitem>
 
           <listitem>
-            <para><literal>Set::Crontab</literal></para>
-          </listitem>
-
-          <listitem>
             <para><literal>String::ShellQuote</literal></para>
           </listitem>
 
@@ -366,7 +362,7 @@
         <para>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <literal>Set::Infinite</literal>,
         <literal>List::UtilsBy</literal>, <literal>DateTime::Set</literal>, <literal>DateTime::Event::Cron</literal>
         <literal>Daemon::Generic</literal>, <literal>DateTime::Event::Cron</literal>, <literal>File::Flock</literal>,
-        <literal>File::Slurp</literal>, <literal>Set::Crontab</literal></para>
+        <literal>File::Slurp</literal></para>
 
         <para>Seit Version größer v3.5.0 sind die folgenden Pakete
         hinzugekommen: <literal>Text::Unidecode</literal>,
@@ -431,7 +427,7 @@
   libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl\
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
-  libset-crontab-perl libdatetime-event-perl libexception-class-perl
+  libdatetime-event-perl libexception-class-perl
 </programlisting>
           <para>Ab Ubuntu Version 18.04 LTS, bzw. Debian Buster sind alle benötigten Pakete in der Distribution verfügbar.</para>
           <para>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
@@ -475,7 +471,7 @@ cpan HTML::Restrict</programlisting>
   perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-File-Flock \
   perl-File-MimeInfo perl-File-Slurp perl-GD perl-Image-Info perl-JSON \
   perl-List-MoreUtils perl-List-UtilsBy perl-Net-SMTP-SSL perl-Net-SSLGlue \
-  perl-PDF-API2 perl-Params-Validate perl-Regexp-IPv6 perl-Set-Crontab \
+  perl-PDF-API2 perl-Params-Validate perl-Regexp-IPv6 \
   perl-Sort-Naturally perl-String-ShellQuote perl-Template-Toolkit \
   perl-Text-CSV_XS perl-Text-Iconv perl-Text-Unidecode perl-URI \
   perl-XML-Writer perl-YAML perl-libwww-perl
