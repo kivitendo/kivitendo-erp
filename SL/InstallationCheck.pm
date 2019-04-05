@@ -55,7 +55,6 @@ BEGIN {
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
   { name => "Rose::DB::Object", version => 0.788,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
   { name => "Set::Infinite",    version => '0.63', url => "http://search.cpan.org/~fglock/",    debian => 'libset-infinite-perl' },
-  { name => "Set::Crontab",     version => '1.03', url => "http://search.cpan.org/~ams/",       debian => 'libset-crontab-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
   { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/",       debian => 'libtemplate-perl' },
