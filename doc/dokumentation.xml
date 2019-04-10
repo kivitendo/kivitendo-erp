@@ -419,7 +419,7 @@
   libparams-validate-perl libpdf-api2-perl librose-db-object-perl \
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
-  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-libyaml-perl \
+  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
   libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
   libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
   libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl\
