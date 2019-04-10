@@ -156,9 +156,11 @@
   libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl\
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl
-</pre><p>Ab Ubuntu Version 18.04 LTS, bzw. Debian Buster sind alle benötigten Pakete in der Distribution verfügbar.</p><p>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
+</pre><p>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left"><a name="ubuntu-universe"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
+</p><pre class="programlisting">add-apt-repository universe</pre><p>
+                  </p></td></tr></table></div><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left"><a name="build-essential"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</p><pre class="programlisting">apt-get install build-essential
-cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e561"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+cpan HTML::Restrict</pre></td></tr></table></div></div><div class="sect3" title="2.2.2.2. Fedora"><div class="titlepage"><div><div><h4 class="title"><a name="d0e568"></a>2.2.2.2. Fedora</h4></div></div></div><p>Für Fedora stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
@@ -170,7 +172,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
-  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e568"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
+  perl-YAML perl-libwww-perl</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e575"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
           RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 apache2-mod_fcgid postgresql-server postgresql-contrib\
   perl-Algorithm-CheckDigits perl-Archive-Zip perl-CGI perl-Class-XSAccessor \
@@ -185,7 +187,7 @@ cpan HTML::Restrict</pre></div><div class="sect3" title="2.2.2.2. Fedora"><div c
   perl-XML-Writer perl-YAML perl-libwww-perl
           </pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert
           werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">cpan DateTime::event::Cron DateTime::Set FCGI \
-  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e579"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
+  HTML::Restrict PBKDF2::Tiny Rose::Db::Object Set::Infinite</pre></div></div><div class="sect2" title="2.2.3. Andere Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="d0e586"></a>2.2.3. Andere Pakete installieren</h3></div></div></div><p>Seit Version v3.4.0 wird für den Bankimport optional das Paket
         'aqbanking-tools' benötigt.</p><p>Debian und Ubuntu: </p><pre class="programlisting">apt install aqbanking-tools
         </pre><p>
             </p><p>Fedora: </p><pre class="programlisting">dnf install aqbanking</pre><p>

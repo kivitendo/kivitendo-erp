@@ -409,7 +409,6 @@
 
         <sect3>
           <title>Debian und Ubuntu</title>
-
           <para>Für Debian und Ubuntu stehen die meisten der benötigten
           Pakete als Debian-Pakete zur Verfügung. Sie können mit
           folgendem Befehl installiert werden:</para>
@@ -431,12 +430,17 @@
   libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
   libdatetime-event-cron-perl libexception-class-perl
 </programlisting>
-          <para>Ab Ubuntu Version 18.04 LTS, bzw. Debian Buster sind alle benötigten Pakete in der Distribution verfügbar.</para>
+<para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
+          <note id="ubuntu-universe">
+            <para>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
+<programlisting>add-apt-repository universe</programlisting></para>
+          </note>
+          <note id="build-essential">
           <para>Für ältere Ubuntu/Debians müßen einige Pakete per CPAN installiert werden.
           Das geht bspw. für das benötige Paket HTML::Restrict mit:</para>
-
           <programlisting>apt-get install build-essential
 cpan HTML::Restrict</programlisting>
+          </note>
         </sect3>
 
         <sect3>
