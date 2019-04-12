@@ -7,6 +7,7 @@ use parent qw(Rose::Object);
 use Carp;
 use IO::File;
 use List::Util qw(first);
+use MIME::Base64;
 use SL::Request qw(flatten);
 use SL::MoreCommon qw(uri_encode);
 use SL::Presenter;
@@ -156,16 +157,21 @@ sub send_file {
   my $attachment_name =  $params{name} || (!ref($file_name_or_content) ? $file_name_or_content : '');
   $attachment_name    =~ s:.*//::g;
 
-  print $::form->create_http_response(content_type        => $content_type,
-                                      content_disposition => 'attachment; filename="' . $attachment_name . '"',
-                                      content_length      => $size);
-
-  if (!ref $file_name_or_content) {
-    $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
-    $file->close;
-    unlink $file_name_or_content if $params{unlink};
+  if ($::request->is_ajax || $params{ajax}) {
+    my $octets = ref $file_name_or_content ? $file_name_or_content : \ do { local $/ = undef; <$file> };
+    $self->js->save_file(MIME::Base64::encode_base64($$octets), $content_type, $size, $attachment_name)->render;
   } else {
-    $::locale->with_raw_io(\*STDOUT, sub { print $$file_name_or_content });
+    print $::form->create_http_response(content_type        => $content_type,
+                                        content_disposition => 'attachment; filename="' . $attachment_name . '"',
+                                        content_length      => $size);
+
+    if (!ref $file_name_or_content) {
+      $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
+      $file->close;
+      unlink $file_name_or_content if $params{unlink};
+    } else {
+      $::locale->with_raw_io(\*STDOUT, sub { print $$file_name_or_content });
+    }
   }
 
   return 1;
