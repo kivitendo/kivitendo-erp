@@ -151,6 +151,7 @@ ns.eval_json_result = function(data) {
 
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
+      else if (action[0] == 'save_file')            kivi.save_file(action[1], action[2], action[3], action[4]);
       else if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
       else if (action[0] == 'flash_detail')         kivi.display_flash_detail(action[1], action[2]);
       else if (action[0] == 'clear_flash')          kivi.clear_flash(action[1], action[2]);

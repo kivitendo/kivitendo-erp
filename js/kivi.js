@@ -558,6 +558,39 @@ namespace("kivi", function(ns) {
     return undefined;
   };
 
+  ns.save_file = function(base64_data, content_type, size, attachment_name) {
+    // atob returns a unicode string with one codepoint per octet. revert this
+    const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, {type: contentType});
+      return blob;
+    }
+
+    var blob = b64toBlob(base64_data, content_type);
+    var a = $("<a style='display: none;'/>");
+    var url = window.URL.createObjectURL(blob);
+    a.attr("href", url);
+    a.attr("download", attachment_name);
+    $("body").append(a);
+    a[0].click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
+
   ns.detect_duplicate_ids_in_dom = function() {
     var ids   = {},
         found = false;

@@ -113,6 +113,7 @@ my %supported_methods = (
 
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>
+  save_file              => 4,  # kivi.save_file(<TARGET>, <ARGS>)
 
   flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
   flash_detail           => 2,  # kivi.display_flash_detail(<TARGET>, <ARGS>)
