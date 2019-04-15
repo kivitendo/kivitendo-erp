@@ -83,6 +83,7 @@ sub input_number_tag         { return _call_presenter('input_number_tag',       
 sub textarea_tag             { return _call_presenter('textarea_tag',             @_); }
 sub date_tag                 { return _call_presenter('date_tag',                 @_); }
 sub div_tag                  { return _call_presenter('div_tag',                  @_); }
+sub radio_button_tag         { return _call_presenter('radio_button_tag',         @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name, $unique) = @_;
@@ -95,28 +96,6 @@ sub img_tag {
   $options{alt} ||= '';
 
   return $self->html_tag('img', undef, %options);
-}
-
-sub radio_button_tag {
-  my ($self, $name, %attributes) = _hashify(2, @_);
-
-  $attributes{value}   = 1 unless exists $attributes{value};
-
-  _set_id_attribute(\%attributes, $name, 1);
-  my $label            = delete $attributes{label};
-
-  _set_id_attribute(\%attributes, $name . '_' . $attributes{value});
-
-  if ($attributes{checked}) {
-    $attributes{checked} = 'checked';
-  } else {
-    delete $attributes{checked};
-  }
-
-  my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'radio');
-  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
-
-  return $code;
 }
 
 sub ul_tag {
@@ -483,16 +462,6 @@ tag's C<id> defaults to C<name_to_id($name)>.
 
 Creates a date input field, with an attached javascript that will open a
 calendar on click.
-
-=item C<radio_button_tag $name, %attributes>
-
-Creates a HTML 'input type=radio' tag named C<$name> with arbitrary
-HTML attributes from C<%attributes>. The tag's C<value> defaults to
-C<1>. The tag's C<id> defaults to C<name_to_id($name . "_" . $value)>.
-
-If C<%attributes> contains a key C<label> then a HTML 'label' tag is
-created with said C<label>. No attribute named C<label> is created in
-that case.
 
 =item C<javascript_tag $file1, $file2, $file3...>
 

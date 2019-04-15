@@ -11,7 +11,7 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes restricted_html textarea_tag link_tag date_tag
-  div_tag);
+  div_tag radio_button_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -255,6 +255,28 @@ sub checkbox_tag {
   $code    .= html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
   $code    .= html_tag('label', $label, for => $attributes{id}) if $label;
   $code    .= javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
+
+  return $code;
+}
+
+sub radio_button_tag {
+  my ($name, %attributes) = @_;
+
+  $attributes{value}   = 1 unless exists $attributes{value};
+
+  _set_id_attribute(\%attributes, $name, 1);
+  my $label            = delete $attributes{label};
+
+  _set_id_attribute(\%attributes, $name . '_' . $attributes{value});
+
+  if ($attributes{checked}) {
+    $attributes{checked} = 'checked';
+  } else {
+    delete $attributes{checked};
+  }
+
+  my $code  = html_tag('input', undef,  %attributes, name => $name, type => 'radio');
+  $code    .= html_tag('label', $label, for => $attributes{id}) if $label;
 
   return $code;
 }
@@ -539,6 +561,16 @@ that case.
 If C<%attributes> contains a key C<checkall> then the value is taken as a
 JQuery selector and clicking this checkbox will also toggle all checkboxes
 matching the selector.
+
+=item C<radio_button_tag $name, %attributes>
+
+Creates a HTML 'input type=radio' tag named C<$name> with arbitrary
+HTML attributes from C<%attributes>. The tag's C<value> defaults to
+C<1>. The tag's C<id> defaults to C<name_to_id($name . "_" . $value)>.
+
+If C<%attributes> contains a key C<label> then a HTML 'label' tag is
+created with said C<label>. No attribute named C<label> is created in
+that case.
 
 =item C<select_tag $name, \@collection, %attributes>
 
