@@ -1372,6 +1372,7 @@ sub make_order {
 
   my $form_orderitems               = delete $::form->{order}->{orderitems};
   my $form_periodic_invoices_config = delete $::form->{order}->{periodic_invoices_config};
+  my $exchangerate                  = delete $::form->{order}->{exchangerate};
 
   $order->assign_attributes(%{$::form->{order}});
 
@@ -1379,6 +1380,9 @@ sub make_order {
     my $periodic_invoices_config = $order->periodic_invoices_config || $order->periodic_invoices_config(SL::DB::PeriodicInvoicesConfig->new);
     $periodic_invoices_config->assign_attributes(%$periodic_invoices_config_attrs);
   }
+
+  # set exchangerate after transdate and currency_id
+  $order->assign_attributes(exchangerate => $exchangerate);
 
   # remove deleted items
   $self->item_ids_to_delete([]);
