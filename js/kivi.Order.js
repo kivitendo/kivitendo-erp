@@ -210,6 +210,13 @@ namespace('kivi.Order', function(ns) {
     });
   };
 
+  ns.exchangerate_changed = function(event) {
+    if (kivi.parse_amount($('#order_exchangerate_as_number').val()) != kivi.parse_amount($('#old_exchangerate').val())) {
+      kivi.display_flash('warning', kivi.t8('You have changed the currency or exchange rate. Please update prices.'));
+      $('#old_exchangerate').val($('#order_exchangerate_as_number').val());
+    }
+  };
+
   ns.recalc_amounts_and_taxes = function() {
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/recalc_amounts_and_taxes' });
@@ -830,6 +837,7 @@ $(function() {
 
   $('#order_currency_id').change(kivi.Order.update_exchangerate);
   $('#order_transdate_as_date').change(kivi.Order.update_exchangerate);
+  $('#order_exchangerate_as_number').change(kivi.Order.exchangerate_changed);
 
   if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation' ) {
     $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
