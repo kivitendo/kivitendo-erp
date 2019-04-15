@@ -4017,6 +4017,7 @@ $self->{texts} = {
   'You do not have permission to access this entry.' => 'Sie verfügen nicht über die Berechtigung, auf diesen Eintrag zuzugreifen.',
   'You do not have the permissions to access this function.' => 'Sie verfügen nicht über die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
   'You don\'t have the rights to edit this customer.' => 'Sie verfügen nicht über die erforderlichen Rechte, um diesen Kunden zu bearbeiten.',
+  'You have changed the currency or exchange rate. Please update prices.' => 'Währungswechsel/Kurswechsel haben Einfluss auf den Preis der Position. Überprüfen Sie diesen oder aktualisieren Sie den Preis über "Artikel aktualisieren".',
   'You have entered or selected the following shipping address for this customer:' => 'Sie haben die folgende Lieferadresse eingegeben oder ausgewählt:',
   'You have never worked with currencies.' => 'Sie haben noch nie  mit Währungen gearbeitet.',
   'You have not added bank accounts yet.' => 'Sie haben noch keine Bankkonten angelegt.',
