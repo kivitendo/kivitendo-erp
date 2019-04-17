@@ -20,7 +20,7 @@ use SL::SessionFile;
 use SL::User;
 use SL::DBConnect;
 use SL::DBUpgrade2;
-use SL::DBUtils qw(do_query do_statement prepare_execute_query prepare_query selectall_array_query selectrow_query);
+use SL::DBUtils qw(do_query do_statement prepare_execute_query prepare_query selectall_array_query selectrow_query selectall_ids);
 
 use strict;
 
@@ -635,31 +635,31 @@ sub _load_with_auto_restore_column {
   my $query = <<SQL;
     SELECT sess_key, sess_value, auto_restore
     FROM auth.session_content
-    WHERE (session_id = ?)
+    WHERE (auto_restore AND session_id = ? OR sess_key IN (@{[ join ',', ("?") x keys %auto_restore_keys ]}))
 SQL
-  my $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
+  my $sth = prepare_execute_query($::form, $dbh, $query, $session_id, keys %auto_restore_keys);
 
+  my $need_delete;
   while (my $ref = $sth->fetchrow_hashref) {
-    if ($ref->{auto_restore} || $auto_restore_keys{$ref->{sess_key}}) {
-      my $value = SL::Auth::SessionValue->new(auth         => $self,
-                                              key          => $ref->{sess_key},
-                                              value        => $ref->{sess_value},
-                                              auto_restore => $ref->{auto_restore},
-                                              raw          => 1);
-      $self->{SESSION}->{ $ref->{sess_key} } = $value;
+    $need_delete = 1 if $ref->{auto_restore};
+    my $value = SL::Auth::SessionValue->new(auth         => $self,
+                                            key          => $ref->{sess_key},
+                                            value        => $ref->{sess_value},
+                                            auto_restore => $ref->{auto_restore},
+                                            raw          => 1);
+    $self->{SESSION}->{ $ref->{sess_key} } = $value;
 
-      next if defined $::form->{$ref->{sess_key}};
+    next if defined $::form->{$ref->{sess_key}};
 
-      my $data                    = $value->get;
-      $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
-    } else {
-      my $value = SL::Auth::SessionValue->new(auth => $self,
-                                              key  => $ref->{sess_key});
-      $self->{SESSION}->{ $ref->{sess_key} } = $value;
-    }
+    my $data                    = $value->get;
+    $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
   }
 
   $sth->finish;
+
+  if ($need_delete) {
+    do_query($::form, $dbh, 'DELETE FROM auth.session_content WHERE auto_restore AND session_id = ?', $session_id);
+  }
 }
 
 sub destroy_session {
@@ -753,16 +753,6 @@ sub save_session {
     return;
   }
 
-  my @unfetched_keys = map     { $_->{key}        }
-                       grep    { ! $_->{fetched}  }
-                       values %{ $self->{SESSION} };
-  # $::lxdebug->dump(0, "unfetched_keys", [ sort @unfetched_keys ]);
-  # $::lxdebug->dump(0, "all keys", [ sort map { $_->{key} } values %{ $self->{SESSION} } ]);
-  my $query          = qq|DELETE FROM auth.session_content WHERE (session_id = ?)|;
-  $query            .= qq| AND (sess_key NOT IN (| . join(', ', ('?') x scalar @unfetched_keys) . qq|))| if @unfetched_keys;
-
-  do_query($::form, $dbh, $query, $session_id, @unfetched_keys);
-
   my ($id) = selectrow_query($::form, $dbh, qq|SELECT id FROM auth.session WHERE id = ?|, $session_id);
 
   if ($id) {
@@ -776,28 +766,40 @@ sub save_session {
     do_query($::form, $dbh, qq|UPDATE auth.session SET api_token = ? WHERE id = ?|, $self->_create_session_id, $session_id) unless $stored_api_token;
   }
 
-  my @values_to_save = grep    { $_->{fetched} }
+  my @values_to_save = grep    { $_->{modified} }
                        values %{ $self->{SESSION} };
   if (@values_to_save) {
-    my ($columns, $placeholders) = ('', '');
+    my %known_keys = map { $_ => 1 }
+      selectall_ids($::form, $dbh, qq|SELECT sess_key FROM auth.session_content WHERE session_id = ?|, 'sess_key', $session_id);
     my $auto_restore             = $self->{column_information}->has('auto_restore');
 
-    if ($auto_restore) {
-      $columns      .= ', auto_restore';
-      $placeholders .= ', ?';
-    }
+    my $insert_query  = $auto_restore
+      ? "INSERT INTO auth.session_content (session_id, sess_key, sess_value, auto_restore) VALUES (?, ?, ?, ?)"
+      : "INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)";
+    my $insert_sth = prepare_query($::form, $dbh, $insert_query);
 
-    $query  = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value ${columns}) VALUES (?, ?, ? ${placeholders})|;
-    my $sth = prepare_query($::form, $dbh, $query);
+    my $update_query  = $auto_restore
+      ? "UPDATE auth.session_content SET sess_value = ?, auto_restore = ? WHERE session_id = ? AND sess_key = ?"
+      : "UPDATE auth.session_content SET sess_value = ? WHERE session_id = ? AND sess_key = ?";
+    my $update_sth = prepare_query($::form, $dbh, $update_query);
 
     foreach my $value (@values_to_save) {
       my @values = ($value->{key}, $value->get_dumped);
       push @values, $value->{auto_restore} if $auto_restore;
 
-      do_statement($::form, $sth, $query, $session_id, @values);
+      if ($known_keys{$value->{key}}) {
+        do_statement($::form, $update_sth, $update_query,
+          $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore, $session_id, $value->{key}
+        );
+      } else {
+        do_statement($::form, $insert_sth, $insert_query,
+          $session_id, $value->{key}, $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore
+        );
+      }
     }
 
-    $sth->finish();
+    $insert_sth->finish;
+    $update_sth->finish;
   }
 
   $dbh->commit() unless $provided_dbh;
@@ -815,12 +817,14 @@ sub set_session_value {
     if (ref $key eq 'HASH') {
       $self->{SESSION}->{ $key->{key} } = SL::Auth::SessionValue->new(key          => $key->{key},
                                                                       value        => $key->{value},
+                                                                      modified     => 1,
                                                                       auto_restore => $key->{auto_restore});
 
     } else {
       my $value = shift @params;
       $self->{SESSION}->{ $key } = SL::Auth::SessionValue->new(key   => $key,
-                                                               value => $value);
+                                                               value => $value,
+                                                               modified => 1);
     }
   }
 
@@ -837,10 +841,11 @@ sub delete_session_value {
 }
 
 sub get_session_value {
-  my $self = shift;
-  my $data = $self->{SESSION} && $self->{SESSION}->{ $_[0] } ? $self->{SESSION}->{ $_[0] }->get : undef;
+  my ($self, $key) = @_;
 
-  return $data;
+  return if !$self->{SESSION};
+
+  ($self->{SESSION}{$key} //= SL::Auth::SessionValue->new(auth => $self, key => $key))->get
 }
 
 sub create_unique_sesion_value {

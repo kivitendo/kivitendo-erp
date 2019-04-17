@@ -16,7 +16,7 @@ sub new {
 
   my $self = bless {}, $class;
 
-  map { $self->{$_} = $params{$_} } qw(auth key value auto_restore);
+  map { $self->{$_} = $params{$_} } qw(auth key value auto_restore modified);
 
   $self->{fetched} =                  exists $params{value};
   $self->{parsed}  = !$params{raw} && exists $params{value};
