@@ -8,8 +8,6 @@ use SL::Auth::Constants qw(:all);
 use strict;
 
 sub new {
-  $main::lxdebug->enter_sub();
-
   if (!defined eval "require Net::LDAP;") {
     die 'The module "Net::LDAP" is not installed.';
   }
@@ -22,8 +20,6 @@ sub new {
 
   bless $self, $type;
 
-  $main::lxdebug->leave_sub();
-
   return $self;
 }
 
@@ -34,16 +30,10 @@ sub reset {
 }
 
 sub _connect {
-  $main::lxdebug->enter_sub();
-
   my $self = shift;
   my $cfg  = $self->{auth}->{LDAP_config};
 
-  if ($self->{ldap}) {
-    $main::lxdebug->leave_sub();
-
-    return $self->{ldap};
-  }
+  return $self->{ldap} if $self->{ldap};
 
   my $port      = $cfg->{port} || 389;
   $self->{ldap} = Net::LDAP->new($cfg->{host}, 'port' => $port);
@@ -66,14 +56,10 @@ sub _connect {
     }
   }
 
-  $main::lxdebug->leave_sub();
-
   return $self->{ldap};
 }
 
 sub _get_filter {
-  $main::lxdebug->enter_sub();
-
   my $self   = shift;
   my $login  = shift;
 
@@ -106,24 +92,17 @@ sub _get_filter {
 
   }
 
-  $main::lxdebug->leave_sub();
-
   return $filter;
 }
 
 sub _get_user_dn {
-  $main::lxdebug->enter_sub();
-
   my $self   = shift;
   my $ldap   = shift;
   my $login  = shift;
 
   $self->{dn_cache} ||= { };
 
-  if ($self->{dn_cache}->{$login}) {
-    $main::lxdebug->leave_sub();
-    return $self->{dn_cache}->{$login};
-  }
+  return $self->{dn_cache}->{$login} if $self->{dn_cache}->{$login};
 
   my $cfg    = $self->{auth}->{LDAP_config};
 
@@ -131,53 +110,35 @@ sub _get_user_dn {
 
   my $mesg   = $ldap->search('base' => $cfg->{base_dn}, 'scope' => 'sub', 'filter' => $filter);
 
-  if ($mesg->is_error() || (0 == $mesg->count())) {
-    $main::lxdebug->leave_sub();
-    return undef;
-  }
+  return undef if $mesg->is_error || !$mesg->count();
 
   my $entry                   = $mesg->entry(0);
   $self->{dn_cache}->{$login} = $entry->dn();
-
-  $main::lxdebug->leave_sub();
 
   return $self->{dn_cache}->{$login};
 }
 
 sub authenticate {
-  $main::lxdebug->enter_sub();
-
   my $self       = shift;
   my $login      = shift;
   my $password   = shift;
   my $is_crypted = shift;
 
-  if ($is_crypted) {
-    $main::lxdebug->leave_sub();
-    return ERR_BACKEND;
-  }
+  return ERR_BACKEND if $is_crypted;
 
   my $ldap = $self->_connect();
 
-  if (!$ldap) {
-    $main::lxdebug->leave_sub();
-    return ERR_BACKEND;
-  }
+  return ERR_BACKEND if !$ldap;
 
   my $dn = $self->_get_user_dn($ldap, $login);
 
   $main::lxdebug->message(LXDebug->DEBUG2(), "LDAP authenticate: dn $dn");
 
-  if (!$dn) {
-    $main::lxdebug->leave_sub();
-    return ERR_BACKEND;
-  }
+  return ERR_BACKEND if !$dn;
 
   my $mesg = $ldap->bind($dn, 'password' => $password);
 
   $main::lxdebug->message(LXDebug->DEBUG2(), "LDAP authenticate: bind mesg " . $mesg->error());
-
-  $main::lxdebug->leave_sub();
 
   return $mesg->is_error() ? ERR_PASSWORD : OK;
 }
@@ -195,8 +156,6 @@ sub change_password {
 }
 
 sub verify_config {
-  $main::lxdebug->enter_sub();
-
   my $form   = $main::form;
   my $locale = $main::locale;
 
@@ -210,8 +169,6 @@ sub verify_config {
   if (!$cfg->{host} || !$cfg->{attribute} || !$cfg->{base_dn}) {
     $form->error($locale->text('config/kivitendo.conf: Missing parameters in "authentication/ldap". Required parameters are "host", "attribute" and "base_dn".'));
   }
-
-  $main::lxdebug->leave_sub();
 }
 
 1;
