@@ -32,26 +32,31 @@ sub _connect {
 
   return $self->{ldap} if $self->{ldap};
 
-  my $port      = $cfg->{port} || 389;
-  $self->{ldap} = Net::LDAP->new($cfg->{host}, 'port' => $port);
+  my $port = $cfg->{port} || 389;
+  my $ldap = Net::LDAP->new($cfg->{host}, port => $port, timeout => $cfg->{timeout} || 10);
 
-  if (!$self->{ldap}) {
-    $main::form->error($main::locale->text('The LDAP server "#1:#2" is unreachable. Please check config/kivitendo.conf.', $cfg->{host}, $port));
+  if (!$ldap) {
+    $::lxdebug->warn($main::locale->text('The LDAP server "#1:#2" is unreachable. Please check config/kivitendo.conf.', $cfg->{host}, $port));
+    return undef;
   }
 
   if ($cfg->{tls}) {
-    my $mesg = $self->{ldap}->start_tls('verify' => 'none');
+    my $mesg = $ldap->start_tls(verify => $cfg->{verify} // 'require');
     if ($mesg->is_error()) {
-      $main::form->error($main::locale->text('The connection to the LDAP server cannot be encrypted (SSL/TLS startup failure). Please check config/kivitendo.conf.'));
+      $::lxdebug->warn($main::locale->text('The connection to the LDAP server cannot be encrypted (SSL/TLS startup failure). Please check config/kivitendo.conf.'));
+      return undef;
     }
   }
 
   if ($cfg->{bind_dn}) {
-    my $mesg = $self->{ldap}->bind($cfg->{bind_dn}, 'password' => $cfg->{bind_password});
+    my $mesg = $ldap->bind($cfg->{bind_dn}, 'password' => $cfg->{bind_password});
     if ($mesg->is_error()) {
-      $main::form->error($main::locale->text('Binding to the LDAP server as "#1" failed. Please check config/kivitendo.conf.', $cfg->{bind_dn}));
+      $::lxdebug->warn($main::locale->text('Binding to the LDAP server as "#1" failed. Please check config/kivitendo.conf.', $cfg->{bind_dn}));
+      return undef;
     }
   }
+
+  $self->{ldap} = $ldap;
 
   return $self->{ldap};
 }

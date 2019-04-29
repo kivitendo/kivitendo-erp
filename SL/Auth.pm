@@ -5,7 +5,7 @@ use DBI;
 use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(any uniq);
 use YAML;
 use Regexp::IPv6 qw($IPv6_re);
 
@@ -72,7 +72,7 @@ sub reset {
     delete $self->{column_information};
   }
 
-  $self->{authenticator}->reset;
+  $_->reset for @{ $self->{authenticators} };
 
   $self->client(undef);
 }
@@ -145,16 +145,31 @@ sub _read_auth_config {
     $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
   }
 
-  if ($self->{module} eq 'DB') {
-    $self->{authenticator} = SL::Auth::DB->new($self);
+  $self->{authenticators} =  [];
+  $self->{module}       ||=  'DB';
+  $self->{module}         =~ s{^ +| +$}{}g;
 
-  } elsif ($self->{module} eq 'LDAP') {
-    $self->{authenticator} = SL::Auth::LDAP->new($::lx_office_conf{'authentication/ldap'});
-  }
+  foreach my $module (split m{ +}, $self->{module}) {
+    my $config_name;
+    ($module, $config_name) = split m{:}, $module, 2;
+    $config_name          ||= $module eq 'DB' ? 'database' : lc($module);
+    my $config              = $::lx_office_conf{'authentication/' . $config_name};
 
-  if (!$self->{authenticator}) {
-    my $locale = Locale->new('en');
-    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/kivitendo.conf".'));
+    if (!$config) {
+      my $locale = Locale->new('en');
+      $self->mini_error($locale->text('Missing configuration section "authentication/#1" in "config/kivitendo.conf".', $config_name));
+    }
+
+    if ($module eq 'DB') {
+      push @{ $self->{authenticators} }, SL::Auth::DB->new($self);
+
+    } elsif ($module eq 'LDAP') {
+      push @{ $self->{authenticators} }, SL::Auth::LDAP->new($config);
+
+    } else {
+      my $locale = Locale->new('en');
+      $self->mini_error($locale->text('Unknown authenticantion module #1 specified in "config/kivitendo.conf".', $module));
+    }
   }
 
   my $cfg = $self->{DB_config};
@@ -169,7 +184,7 @@ sub _read_auth_config {
     $self->mini_error($locale->text('config/kivitendo.conf: Missing parameters in "authentication/database". Required parameters are "host", "db" and "user".'));
   }
 
-  $self->{authenticator}->verify_config();
+  $_->verify_config for @{ $self->{authenticators} };
 
   $self->{session_timeout} *= 1;
   $self->{session_timeout}  = 8 * 60 if (!$self->{session_timeout});
@@ -229,7 +244,14 @@ sub authenticate {
     return ERR_PASSWORD;
   }
 
-  my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
+  my $result = ERR_USER;
+  if ($login) {
+    foreach my $authenticator (@{ $self->{authenticators} }) {
+      $result = $authenticator->authenticate($login, $password);
+      last if $result == OK;
+    }
+  }
+
   $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
   return $result;
 }
@@ -414,15 +436,22 @@ sub save_user {
 sub can_change_password {
   my $self = shift;
 
-  return $self->{authenticator}->can_change_password();
+  return any { $_->can_change_password } @{ $self->{authenticators} };
 }
 
 sub change_password {
   my ($self, $login, $new_password) = @_;
 
-  my $result = $self->{authenticator}->change_password($login, $new_password);
+  my $overall_result = OK;
 
-  return $result;
+  foreach my $authenticator (@{ $self->{authenticators} }) {
+    next unless $authenticator->can_change_password;
+
+    my $result = $authenticator->change_password($login, $new_password);
+    $overall_result = $result if $result != OK;
+  }
+
+  return $overall_result;
 }
 
 sub read_all_users {

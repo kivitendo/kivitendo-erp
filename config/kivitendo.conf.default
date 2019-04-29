@@ -4,9 +4,16 @@
 # interface.
 admin_password = admin123
 
-# Which module to use for authentication. Valid values are 'DB' and
-# 'LDAP'.  If 'LDAP' is used then users cannot change their password
-# via kivitendo.
+# Which modules to use for authentication. Valid values are 'DB' and
+# 'LDAP'. You can use multiple modules separated by spaces.
+#
+# Multiple LDAP modules with different configurations can be used by
+# postfixing 'LDAP' with the name of the configuration section to use:
+# 'LDAP:ldap_fallback' would use the data from
+# '[authentication/ldap_fallback]'. The name defaults to 'ldap' if it
+# isn't given.
+#
+# Note that the LDAP module doesn't support changing the password.
 module = DB
 
 # The cookie name can be changed if desired.
@@ -43,6 +50,8 @@ password =
 # specified.
 #
 # tls:       Activate encryption via TLS
+# verify:    If 'tls' is used, how to verify the server's certificate.
+#            Can be one of 'require' or 'none'.
 # attribute: Name of the LDAP attribute containing the user's login name
 # base_dn:   Base DN the LDAP searches start from
 # filter:    An optional LDAP filter specification. The string '<%login%>'
@@ -51,6 +60,12 @@ password =
 #            If searching the LDAP tree requires user credentials
 #            (e.g. ActiveDirectory) then these two parameters specify
 #            the user name and password to use.
+# timeout:   Timeout when connecting to the server in seconds.
+#
+# You can specify a fallback LDAP server to use in case the main one
+# isn't reachable by duplicating this whole section as
+# "[authentication/ldap_fallback]".
+#
 host          = localhost
 port          = 389
 tls           = 0
@@ -59,6 +74,8 @@ base_dn       =
 filter        =
 bind_dn       =
 bind_password =
+timeout       = 10
+verify        = require
 
 [system]
 # Set language for login and admin forms. Currently "de" (German)
