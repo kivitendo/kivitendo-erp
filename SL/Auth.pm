@@ -140,14 +140,13 @@ sub _read_auth_config {
 
   } else {
     $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
-    $self->{LDAP_config} = $::lx_office_conf{'authentication/ldap'};
   }
 
   if ($self->{module} eq 'DB') {
     $self->{authenticator} = SL::Auth::DB->new($self);
 
   } elsif ($self->{module} eq 'LDAP') {
-    $self->{authenticator} = SL::Auth::LDAP->new($self);
+    $self->{authenticator} = SL::Auth::LDAP->new($::lx_office_conf{'authentication/ldap'});
   }
 
   if (!$self->{authenticator}) {

@@ -2,7 +2,6 @@ package SL::Auth::LDAP;
 
 use English '-no_match_vars';
 
-use Scalar::Util qw(weaken);
 use SL::Auth::Constants qw(:all);
 
 use strict;
@@ -12,11 +11,9 @@ sub new {
     die 'The module "Net::LDAP" is not installed.';
   }
 
-  my $type = shift;
-  my $self = {};
-
-  $self->{auth} = shift;
-  weaken $self->{auth};
+  my $type        = shift;
+  my $self        = {};
+  $self->{config} = shift;
 
   bless $self, $type;
 
@@ -31,7 +28,7 @@ sub reset {
 
 sub _connect {
   my $self = shift;
-  my $cfg  = $self->{auth}->{LDAP_config};
+  my $cfg  = $self->{config};
 
   return $self->{ldap} if $self->{ldap};
 
@@ -65,7 +62,7 @@ sub _get_filter {
 
   my ($cfg, $filter);
 
-  $cfg    =  $self->{auth}->{LDAP_config};
+  $cfg    =  $self->{config};
 
   $filter =  "$cfg->{filter}";
   $filter =~ s|^\s+||;
@@ -104,7 +101,7 @@ sub _get_user_dn {
 
   return $self->{dn_cache}->{$login} if $self->{dn_cache}->{$login};
 
-  my $cfg    = $self->{auth}->{LDAP_config};
+  my $cfg    = $self->{config};
 
   my $filter = $self->_get_filter($login);
 
@@ -160,7 +157,7 @@ sub verify_config {
   my $locale = $main::locale;
 
   my $self = shift;
-  my $cfg  = $self->{auth}->{LDAP_config};
+  my $cfg  = $self->{config};
 
   if (!$cfg) {
     $form->error($locale->text('config/kivitendo.conf: Key "authentication/ldap" is missing.'));
