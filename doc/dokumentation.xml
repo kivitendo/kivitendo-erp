@@ -1514,9 +1514,8 @@ systemctl enable kivitendo-task-server.service</programlisting>
         Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
         abgelegt werden.</para>
 
-        <para>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter
-        entweder gegen die Authentifizierungsdatenbank oder gegen einen
-        LDAP-Server überprüft werden.</para>
+        <para>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter gegen die Authentifizierungsdatenbank oder gegen einen oder
+        mehrere LDAP-Server überprüft werden.</para>
 
         <para>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
         kivitendo die Authentifizierungsdatenbank erreichen kann, wird in der
@@ -1599,22 +1598,28 @@ systemctl enable kivitendo-task-server.service</programlisting>
         <title>Passwortüberprüfung</title>
 
         <para>kivitendo unterstützt Passwortüberprüfung auf zwei Arten: gegen
-        die Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+        die Authentifizierungsdatenbank und gegen externe LDAP- oder
         Active-Directory-Server. Welche davon benutzt wird, regelt der
         Parameter <varname>module</varname> im Abschnitt
         <varname>[authentication]</varname>.</para>
 
-        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
-        gespeichert werden, so muss der Parameter <varname>module</varname>
-        den Wert <literal>DB</literal> enthalten. In diesem Fall können sowohl
-        der Administrator als auch die Benutzer selber ihre Passwörter in
-        kivitendo ändern.</para>
+        <para>Dieser Parameter listet die zu verwendenden Authentifizierungsmodule auf. Es muss mindestens ein Modul angegeben werden, es
+        können aber auch mehrere angegeben werden. Weiterhin ist es möglich, das LDAP-Modul mehrfach zu verwenden und für jede Verwendung
+        eine unterschiedliche Konfiguration zu nutzen, z.B. um einen Fallback-Server anzugeben, der benutzt wird, sofern der Hauptserver
+        nicht erreichbar ist.</para>
 
-        <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server
-        benutzt werden, so muss der Parameter <varname>module</varname> auf
-        <literal>LDAP</literal> gesetzt werden. In diesem Fall müssen
-        zusätzliche Informationen über den LDAP-Server im Abschnitt
-        <literal>[authentication/ldap]</literal> angegeben werden:</para>
+        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank geprüft werden, so muss der Parameter
+        <varname>module</varname> das Modul <literal>DB</literal> enthalten. Sofern das Modul in der Liste enthalten ist, egal an welcher
+        Position, können sowohl der Administrator als auch die Benutzer selber ihre Passwörter in kivitendo ändern.</para>
+
+        <para>Wenn Passwörter gegen einen oder mehrere externe LDAP- oder Active-Directory-Server geprüft werden, so muss der Parameter
+        <varname>module</varname> den Wert <literal>LDAP</literal> enthalten. In diesem Fall müssen zusätzliche Informationen über den
+        LDAP-Server im Abschnitt <literal>[authentication/ldap]</literal> angegeben werden. Das Modul kann auch mehrfach angegeben werden,
+        wobei jedes Modul eine eigene Konfiguration bekommen sollte. Der Name der Konfiguration wird dabei mit einem Doppelpunkt getrennt an
+        den Modulnamen angehängt (<literal>LDAP:Name-der-Konfiguration</literal>). Der entsprechende Abschnitt in der Konfigurationsdatei
+        lautet dann <literal>[authentication/Name-der-Konfiguration]</literal>.</para>
+
+        <para>Die verfügbaren Parameter für die LDAP-Konfiguration lauten:</para>
 
         <variablelist>
           <varlistentry>
@@ -1642,6 +1647,17 @@ systemctl enable kivitendo-task-server.service</programlisting>
               <para>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
               Wert auf ‘<literal>1</literal>’ setzen, andernfalls auf
               ‘<literal>0</literal>’ belassen</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>verify</literal></term>
+
+            <listitem>
+              <para>Wenn Verbindungsverschlüsselung gewünscht und der Parameter <parameter>tls</parameter> gesetzt ist, so gibt dieser
+              Parameter an, ob das Serverzertifikat auf Gültigkeit geprüft wird. Mögliche Werte sind <literal>require</literal> (Zertifikat
+              wird überprüft und muss gültig sei; dies ist der Standard) und <literal>none</literal> (Zertifikat wird nicht
+              überpfüft).</para>
             </listitem>
           </varlistentry>
 
@@ -1692,6 +1708,14 @@ systemctl enable kivitendo-task-server.service</programlisting>
               Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der
               volle Name des Benutzers eingegeben werden; in diesem Beispiel
               also ‘<literal>Martin Mustermann</literal>’.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>timeout</literal></term>
+
+            <listitem>
+              <para>Timeout beim Verbindungsversuch, bevor der Server als nicht erreichbar gilt; Standardwert: 10</para>
             </listitem>
           </varlistentry>
         </variablelist>
