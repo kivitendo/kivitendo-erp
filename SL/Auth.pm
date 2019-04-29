@@ -118,7 +118,10 @@ sub mini_error {
 
   my ($self, @msg) = @_;
   if ($ENV{HTTP_USER_AGENT}) {
-    print Form->create_http_response(content_type => 'text/html');
+    # $::form might not be initialized yet at this point — therefore
+    # we cannot use "create_http_response" yet.
+    my $cgi = CGI->new('');
+    print $cgi->header('-type' => 'text/html', '-charset' => 'UTF-8');
     print "<pre>", join ('<br>', @msg), "</pre>";
   } else {
     print STDERR "Error: @msg\n";
