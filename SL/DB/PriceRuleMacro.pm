@@ -18,6 +18,8 @@ use SL::Presenter::Pricegroup;
 
 use SL::DB::Helper::Attr;
 
+use List::Util ();
+
 __PACKAGE__->meta->add_relationship(
   price_rules => {
     type         => 'one to many',
@@ -181,6 +183,12 @@ package SL::PriceRuleMacro::Element {
       return 1 if $_ eq $_[1]
     }
     return 0
+  }
+
+  sub is_array {
+    return if List::Util::none { $_ eq $_[1] } $_->[0]->array_elements;
+    return unless $_[0]->{ $_[1] };
+    return 'ARRAY' eq ref $_[0]->{ $_[1] };
   }
 
   sub validate {
