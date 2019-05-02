@@ -512,6 +512,89 @@ my @test_cases = (
   dies_ok => qr/action of type 'simple_action' needs at least/,
   name => 'missing price/discount/reduction in action',
 },
+{ json =>
+  '{
+    "name": "SEV0815 Kundentyp-Rabatt",
+        "priority": 3,
+        "obsolete": 0,
+        "format_version": 1,
+        "type": "customer",
+        "condition": {
+          "type": "container_and",
+          "condition": [
+            {
+              "type": "part",
+              "id": 815
+            },
+            {
+              "type": "business",
+              "id": 3234
+            },
+            {
+              "type": "container_or",
+              "condition": [
+                {
+                  "type": "vendor",
+                  "id": [ 12, 35, 892, 344, 124 ]
+                },
+                {
+                  "type": "partsgroup",
+                  "id": 534
+                },
+                {
+                  "type": "pricegroup",
+                  "id": 472
+                },
+                {
+                  "type": "ve",
+                  "num": 34.23,
+                  "op": "eq"
+                },
+                {
+                  "type": "qty",
+                  "num": 827.2,
+                  "op": "ge"
+                },
+                {
+                  "type": "qty_range",
+                  "min": 1,
+                  "max": 10
+                },
+                {
+                  "type": "reqdate",
+                  "date": "2009-12-05",
+                  "op": "gt"
+                },
+                {
+                  "type": "transdate",
+                  "date": "2009-12-05",
+                  "op": "lt"
+                }
+              ]
+            }
+          ]
+        },
+        "action": {
+          "type": "simple_action",
+          "discount": 4.00
+        }
+      }',
+  name => 'very complex condition',
+  digest => [
+    '-4-business-3234-part-815-partsgroup-534-',
+    '-4-business-3234-part-815-pricegroup-472-',
+    '-4-business-3234-part-815-qtyge--1qtyle--10',
+    '-4-business-3234-part-815-qtyge--827.2',
+    '-4-business-3234-part-815-reqdategt2009-12-05--',
+    '-4-business-3234-part-815-transdatelt2009-12-05--',
+    '-4-business-3234-part-815-veeq--34.23',
+    '-4-business-3234-part-815-vendor-12-',
+    '-4-business-3234-part-815-vendor-124-',
+    '-4-business-3234-part-815-vendor-344-',
+    '-4-business-3234-part-815-vendor-35-',
+    '-4-business-3234-part-815-vendor-892-',
+  ],
+}
 );
 
 $::request->type('json');

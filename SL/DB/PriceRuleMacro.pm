@@ -564,7 +564,6 @@ package SL::PriceRuleMacro::Condition::QtyRange {
   }
 
   sub validate {
-    die "condition of type '@{[ $_[0]->type ]}' needs an op" unless $_[0]->op;
     die "condition of type '@{[ $_[0]->type ]}' needs at least min or max" if !defined $_[0]->min && !defined $_[0]->max;
   }
 
