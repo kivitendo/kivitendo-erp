@@ -250,7 +250,7 @@ package SL::PriceRuleMacro::Definition {
   }
 
   sub elements {
-    qw(condition action name notes priority obsolete format_version type)
+    qw(condition action name notes priority obsolete format_version type itime mtime)
   }
 
   sub array_elements {
