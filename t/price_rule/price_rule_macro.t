@@ -594,7 +594,69 @@ my @test_cases = (
     '-4-business-3234-part-815-vendor-35-',
     '-4-business-3234-part-815-vendor-892-',
   ],
-}
+},
+{ json => '
+  {
+	"name": "SRV0815 Warengruppen -> Kundengruppen",
+	"priority": 3,
+	"obsolete": 0,
+    "type": "customer",
+	"format_version": 1,
+	"condition": {
+	  "type": "container_or",
+	  "condition": [
+		{
+		  "type": "partsgroup",
+		  "id": [ 428, 8437 ]
+		}
+	  ]
+	},
+	"action": {
+	  "type": "parts_price_list_action",
+	  "conditional_action": [
+		{
+		  "condition": {
+			"type": "part",
+			"id": 42
+		  },
+		  "action": {
+			"type": "simple_action",
+			"discount": 2.00
+		  }
+		},
+		{
+		  "condition": {
+			"type": "part",
+			"id": 6345
+		  },
+		  "action": {
+			"type": "simple_action",
+			"discount": 3.00
+		  }
+		},
+		{
+		  "condition": {
+			"type": "part",
+			"id": 2344
+		  },
+		  "action": {
+			"type": "simple_action",
+			"discount": 4.00
+		  }
+		}
+	  ]
+	}
+  }',
+  digest => [
+    '-2-part-42-partsgroup-428-',
+    '-2-part-42-partsgroup-8437-',
+    '-3-part-6345-partsgroup-428-',
+    '-3-part-6345-partsgroup-8437-',
+    '-4-part-2344-partsgroup-428-',
+    '-4-part-2344-partsgroup-8437-'
+  ],
+  name => 'condition + parts price list',
+},
 );
 
 $::request->type('json');

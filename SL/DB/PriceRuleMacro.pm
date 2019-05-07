@@ -95,7 +95,9 @@ my %classes = (
   action                => 'SL::PriceRuleMacro::Action',
   conditional_action    => 'SL::PriceRuleMacro::ConditionalAction',
   simple_action         => 'SL::PriceRuleMacro::Action::Simple',
+  bulk_action           => 'SL::PriceRuleMacro::Action::BulkAction',
   price_scale_action    => 'SL::PriceRuleMacro::Action::PriceScale',
+  parts_price_list_action => 'SL::PriceRuleMacro::Action::PartsPriceList',
 );
 my %r_classes = reverse %classes;
 
@@ -728,9 +730,8 @@ package SL::PriceRuleMacro::Action::Simple {
   }
 }
 
-package SL::PriceRuleMacro::Action::PriceScale {
+package SL::PriceRuleMacro::Action::BulkAction {
   our @ISA = ('SL::PriceRuleMacro::Action');
-  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
   sub elements {
     qw(conditional_action)
@@ -740,6 +741,15 @@ package SL::PriceRuleMacro::Action::PriceScale {
     qw(conditional_action)
   }
 
+  sub price_rules {
+    map { $_->price_rules } SL::MoreCommon::listify($_[0]->conditional_action);
+  }
+}
+
+package SL::PriceRuleMacro::Action::PriceScale {
+  our @ISA = ('SL::PriceRuleMacro::Action::BulkAction');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+
   sub type {
     'price_scale_action'
   }
@@ -747,9 +757,18 @@ package SL::PriceRuleMacro::Action::PriceScale {
   sub description {
     SL::Locale::String::t8('Price Scale Action (PriceRules)')
   }
+}
 
-  sub price_rules {
-    map { $_->price_rules } SL::MoreCommon::listify($_[0]->conditional_action);
+package SL::PriceRuleMacro::Action::PartsPriceList {
+  our @ISA = ('SL::PriceRuleMacro::Action::BulkAction');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+
+  sub type {
+    'parts_price_list_action'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Parts Price List Action (PriceRules)')
   }
 }
 
