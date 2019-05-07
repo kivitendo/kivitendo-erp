@@ -135,20 +135,7 @@ sub action_render_picker {
 sub allowed_elements_for {
   my ($self, $element) = @_;
 
-  # todo: make this work fr condition
-  return [] unless my $meta = $self->meta->{$element->type};
-
-  my @elements;
-
-  for (keys %{ $meta->{has_elements} }) {
-    if ($self->meta->{$_}{abstract}) {
-      push @elements, @{ $self->meta->{$_}{can_be} };
-    } else {
-      push @elements, $_;
-    }
-  }
-
-  [ map [ $_, $self->meta->{$_}{name} ], @elements ]
+  [ map [ $_, $self->meta->{$_}{name} ], $element->allowed_elements ]
 }
 
 sub reconcile_generated_price_sources {
