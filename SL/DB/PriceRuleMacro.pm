@@ -99,8 +99,9 @@ my %classes = (
 );
 my %r_classes = reverse %classes;
 
+my $meta_cache;
 sub create_definition_meta {
-  +{
+  $meta_cache //= +{
     map {
       my $type = $_;
       $type => {
@@ -231,6 +232,23 @@ package SL::PriceRuleMacro::Element {
     }
 
     $obj;
+  }
+
+  sub allowed_elements {
+    my ($element) = @_;
+
+    my $all_meta = SL::DB::PriceRuleMacro->create_definition_meta;
+
+    # todo: make this work for condition
+    return [] unless my $meta = $all_meta->{$element->type};
+
+    my @elements = map {
+      $all_meta->{$_}{abstract}
+        ? @{ $all_meta->{$_}{can_be} }
+        : $_
+    } keys %{ $meta->{has_elements} };
+
+    @elements
   }
 
   sub description {
