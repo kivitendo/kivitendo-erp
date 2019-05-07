@@ -4,12 +4,18 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::DB::PriceRuleMacro;
+use SL::DB::Business;
+use SL::DB::PartsGroup;
+use SL::DB::Pricegroup;
 use SL::Locale::String qw(t8);
 use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw() ],
-  'scalar --get_set_init' => [ qw(price_rule_macro meta all_price_types) ],
+  'scalar --get_set_init' => [ qw(
+    price_rule_macro meta
+    all_price_types all_businesses all_partsgroups all_pricegroups
+  ) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -129,7 +135,8 @@ sub action_render_picker {
 sub allowed_elements_for {
   my ($self, $element) = @_;
 
-  die unless my $meta = $self->meta->{$element->{type}};
+  # todo: make this work fr condition
+  return [] unless my $meta = $self->meta->{$element->type};
 
   my @elements;
 
@@ -179,6 +186,18 @@ sub init_all_price_types {
   SL::DB::Manager::PriceRule->all_price_types;
 }
 
+sub init_all_businesses {
+  SL::DB::Manager::Business->get_all
+}
+
+sub init_all_partsgroups {
+  SL::DB::Manager::PartsGroup->get_all
+}
+
+sub init_all_pricegroups {
+  SL::DB::Manager::Pricegroup->get_all
+}
+
 sub from_json_definition {
   my ($self) = @_;
 
@@ -217,6 +236,17 @@ SL::Controller::PriceRuleMacro - controller for price rule macros
 =head1 BUGS
 
 None yet :)
+
+=head1 TODO
+
+- all inputs to presenter
+- all inputs to fieldsets
+- save/roundtrip
+- fieldset styling, interactive styling
+- spacing
+- actions
+- safety to not remove last elements in array_elements and in condition/action
+- multiple actions
 
 =head1 AUTHOR
 

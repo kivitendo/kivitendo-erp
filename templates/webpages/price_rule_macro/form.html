@@ -33,7 +33,7 @@
       </tr>
       <tr>
         <td>[% 'Conditions' | $T8 %]</td>
-        <td>[% PROCESS condition_input item=SELF.price_rule_macro.definition.condition prefix='price_rule_macro.conditions.' %]</td>
+        <td>[% PROCESS condition_input item=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro.conditions.' %]</td>
       </tr>
       <tr>
         <td>[% 'Actions' | $T8 %]</td>
