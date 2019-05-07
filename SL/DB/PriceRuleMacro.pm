@@ -186,7 +186,7 @@ package SL::PriceRuleMacro::Element {
   }
 
   sub is_array {
-    return if List::Util::none { $_ eq $_[1] } $_->[0]->array_elements;
+    return if List::Util::none { $_ eq $_[1] } $_[0]->array_elements;
     return unless $_[0]->{ $_[1] };
     return 'ARRAY' eq ref $_[0]->{ $_[1] };
   }

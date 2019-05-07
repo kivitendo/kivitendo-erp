@@ -62,47 +62,125 @@
 [%- END %]
 
 [%- BLOCK condition_vendor_input %]
-  [%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].value_int', item.vendor, type='vendor') %]
+  <fieldset>
+   <legend>[%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %]</legend>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].id', id, type='vendor') %]</div>
+       [% END %]
+      [% ELSE %]
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].id', item.id, type='vendor') %]</div>
+      [% END %]
+      <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_business_input %]
-  [%- PROCESS remove_control %] [% 'Type of Business' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.businesses, title_key='description', default=item.value_int) %]
+  <fieldset>
+    <legend>
+     [%- PROCESS remove_control %]
+     [% 'Type of Business' | $T8 %]
+     [% 'is' | $T8 %]
+    </legend>
+    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_businesses, title_key='description', default=item.value_int) %]</div>
+    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
 
 [%- BLOCK condition_part_input %]
- [%- PROCESS remove_control %] [% 'Part' | $T8 %] [% 'is' | $T8 %] [% P.part.picker('price_rule.items[].value_int', item.part) %]
+  <fieldset>
+    <legend>
+     [%- PROCESS remove_control %]
+     [% 'Part' | $T8 %] [% 'is' | $T8 %]
+    </legend>
+    <div>[% P.part.picker('price_rule.items[].value_int', item.part) %]</div>
+    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_partsgroup_input %]
-  [%- PROCESS remove_control %] [% 'Partsgroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.partsgroups, title_key='partsgroup', default=item.value_int) %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Partsgroup' | $T8 %]
+      [% 'is' | $T8 %]
+    </legend>
+    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=item.value_int) %]</div>
+    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
 
 [%- BLOCK condition_pricegroup_input %]
-  [%- PROCESS remove_control %] [% 'Pricegroup' | $T8 %] [% 'is' | $T8 %] [% L.select_tag(prefix _ 'value_int', SELF.pricegroups, title_key='pricegroup', default=item.value_int) %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Pricegroup' | $T8 %]
+      [% 'is' | $T8 %]
+    </legend>
+    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_pricegroups, title_key='pricegroup', default=item.value_int) %]</div>
+    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
 
 [%- BLOCK condition_ve_input %]
-  [%- PROCESS remove_control %] [% 'Ve' | $T8 %] [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %] [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+  <fieldset>
+    <legend>
+     [%- PROCESS remove_control %]
+     [% 'Ve' | $T8 %]
+    </legend>
+    <div>
+      [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+    </div>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_qty_input %]
-  [%- PROCESS remove_control %] [% 'Quantity' | $T8 %] [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %] [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Quantity' | $T8 %]
+    </legend>
+    <div>
+      [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+    </div>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_qty_range_input %]
-  [%- PROCESS remove_control %]
-  [% 'Quantity Range' | $T8 %]
+  <fieldset>
+   <legend>
+     [%- PROCESS remove_control %]
+     [% 'Quantity Range' | $T8 %]
+   </legend>
   [% L.input_tag(prefix _ 'min_as_number', item.min_as_number) %]
   [% 'To (range)' | $T8 %]
   [% L.input_tag(prefix _ 'max_as_number', item.max_as_number) %]
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_reqdate_input %]
-  [%- PROCESS remove_control %] [% 'Reqdate' | $T8 %] [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %] [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Reqdate' | $T8 %]
+    </legend>
+    <div>
+      [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+    </div>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_transdate_input %]
-  [%- PROCESS remove_control %] [% 'Transdate Record' | $T8 %] [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %] [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Transdate Record' | $T8 %]
+    </legend>
+    <div>
+      [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+    </div>
+  </fieldset>
 [%- END %]
 
 
