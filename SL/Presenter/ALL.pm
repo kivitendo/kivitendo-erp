@@ -18,6 +18,7 @@ use SL::Presenter::Order;
 use SL::Presenter::Part;
 use SL::Presenter::PartsGroup;
 use SL::Presenter::Pricegroup;
+use SL::Presenter::PriceRuleMacro;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::RequirementSpec;
@@ -49,6 +50,7 @@ our %presenters = (
   part                        => 'SL::Presenter::Part',
   partsgroup                  => 'SL::Presenter::PartsGroup',
   pricegroup                  => 'SL::Presenter::Pricegroup',
+  price_rule_macro            => 'SL::Presenter::PriceRuleMacro',
   project                     => 'SL::Presenter::Project',
   record                      => 'SL::Presenter::Record',
   requirement_spec            => 'SL::Presenter::RequirementSpec',

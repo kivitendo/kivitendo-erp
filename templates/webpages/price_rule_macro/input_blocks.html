@@ -36,11 +36,9 @@
 [%- BLOCK condition_container_and_input %]
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
-    <div>
       [% FOREACH row IN item.condition %]
         <div>[% INCLUDE condition_input item=row %]</div>
       [% END %]
-    </div>
     [%- PROCESS add_element_control %]
   </fieldset>
 [%- END %]
@@ -48,11 +46,9 @@
 [%- BLOCK condition_container_or_input %]
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
-    <div>
       [% FOREACH row IN item.condition %]
         <div>[% INCLUDE condition_input item=row %]</div>
       [% END %]
-    </div>
     [%- PROCESS add_element_control %]
   </fieldset>
 [%- END %]
@@ -71,7 +67,7 @@
       [% ELSE %]
         <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].id', item.id, type='vendor') %]</div>
       [% END %]
-      <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+      <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
 [%- END %]
 
@@ -83,7 +79,8 @@
      [% 'is' | $T8 %]
     </legend>
     <div>[% L.select_tag(prefix _ 'value_int', SELF.all_businesses, title_key='description', default=item.value_int) %]</div>
-    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_part_input %]
@@ -93,7 +90,7 @@
      [% 'Part' | $T8 %] [% 'is' | $T8 %]
     </legend>
     <div>[% P.part.picker('price_rule.items[].value_int', item.part) %]</div>
-    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+    <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
 [%- END %]
 
@@ -104,8 +101,17 @@
       [% 'Partsgroup' | $T8 %]
       [% 'is' | $T8 %]
     </legend>
-    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=item.value_int) %]</div>
-    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+    <div>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
+       [%- END %]
+      [%- ELSE %]
+       <div>[%- L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=item.id) %]</div>
+      [%- END %]
+    </div>
+    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_pricegroup_input %]
@@ -116,7 +122,7 @@
       [% 'is' | $T8 %]
     </legend>
     <div>[% L.select_tag(prefix _ 'value_int', SELF.all_pricegroups, title_key='pricegroup', default=item.value_int) %]</div>
-    <span class='interactive cursor-pointer'>Wert hinzufügen</span>
+    <span class='interact cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
 
 [%- BLOCK condition_ve_input %]
@@ -189,7 +195,9 @@
   [%- SWITCH item.type %]
     [%- CASE 'conditional_action' %][% PROCESS condition_action_input_input %]
     [%- CASE 'simple_action' %][% PROCESS simple_action_input %]
-    [%- CASE 'price_scale_action_input' %][% PROCESS price_scale_action_input %]
+    [%- CASE 'price_scale_action' %][% PROCESS price_scale_action_input %]
+    [%- CASE 'parts_price_list_action' %][% PROCESS parts_price_list_action_input %]
+    [%- CASE '' %][% PROCESS add_element_control %]
   [% END %]
 [%- END %]
 
@@ -199,16 +207,64 @@
 [%- BLOCK simple_action_input %]
 <div>
   [% 'Set (set to)' | $T8 %]
-  [%# L.select_tag('price_rule.price_type', SELF.all_price_types, default=SELF.price_rule.price_type) %]
+  [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=item.price_type) %]
   [% 'to (set to)' | $T8 %]
-  [%# L.input_tag('price_rule.price_or_discount_as_number', SELF.price_rule.price_or_discount_as_number) %]
+  [% L.input_tag('price_rule.price_or_discount_as_number', item.price_or_discount_as_number) %]
   <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
 </div>
 [%- END %]
 
-[%- BLOCK action_price_scale_input %]
+[%- BLOCK conditional_action %]
+  <div>
+    [% INCLUDE condition_input item=item.condition %]
+    [% INCLUDE action_input item=item.action %]
+  <div>
 [%- END %]
 
+[%- BLOCK parts_price_action %]
+  <div>
+    [%- PROCESS remove_control %]
+    [% 'Part' | $T8 %] [% 'is' | $T8 %]
+    [% P.part.picker('price_rule.items[].value_int', item.condition.id) %]
+    <span>&nbsp;</span>
+    [% 'set (set to)' | $T8 %]
+    [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=item.price_type) %]
+    [% 'to (set to)' | $T8 %]
+    [% L.input_tag('price_rule.action.price_as_number', item.action.price_as_number) %]
+  <div>
+[%- END %]
+
+[%- BLOCK price_scale_action_input %]
+<fieldset>
+  <legend>[% 'Price Scale' | $T8 %]</legend>
+  <div>
+    [% IF item.is_array('conditional_action') %]
+      [% FOREACH row = item.conditional_action %]
+        [% INCLUDE conditional_action item=row %]
+      [% END %]
+    [% ELSE %]
+      [% INCLUDE conditional_action item=item.conditional_action %]
+    [% END %]
+  </div>
+  <span class='interact cursor-pointer'>Preis hinzufügen</span>
+</fieldset>
+[%- END %]
+
+[%- BLOCK parts_price_list_action_input %]
+<fieldset>
+  <legend>[% 'Parts Price List' | $T8 %]</legend>
+  <div>
+    [% IF item.is_array('conditional_action') %]
+      [% FOREACH row = item.conditional_action %]
+        [% INCLUDE parts_price_action item=row %]
+      [% END %]
+    [% ELSE %]
+      [% INCLUDE parts_price_action item=item.conditional_action %]
+    [% END %]
+  </div>
+  <span class='interact cursor-pointer'>Preis hinzufügen</span>
+</fieldset>
+[%- END %]
 
 [%- BLOCK add_element_control %]
   [% L.select_tag('', SELF.allowed_elements_for(item)) %] [% P.link_tag('', LxERP.t8('Add element'), class='price_rule_macro_add_element') %]

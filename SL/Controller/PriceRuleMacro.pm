@@ -170,7 +170,7 @@ sub init_meta {
 }
 
 sub init_all_price_types {
-  SL::DB::Manager::PriceRule->all_price_types;
+  [ SL::DB::Manager::PriceRule->all_price_types ]
 }
 
 sub init_all_businesses {
@@ -226,14 +226,24 @@ None yet :)
 
 =head1 TODO
 
+- typeless container add
+- mtime/itime
 - all inputs to presenter
-- all inputs to fieldsets
+- all inputs to fieldsets (mostly done)
 - save/roundtrip
 - fieldset styling, interactive styling
 - spacing
 - actions
 - safety to not remove last elements in array_elements and in condition/action
-- multiple actions
+- multiple actions/ action-macros / typed actions
+- keyboard shortcuts for table-like controls and to extend multiples
+- optional: controles to convert IdCondition to conditionalaction (ex.: convert parts list to partspriceaction)
+- distinguish fieldset rendering from inline rendering
+- alternative naming convention to mask that actions contain conditions
+- automatic naming
+- cloning
+- deduplication
+- can't put container in container? yes, can. fuck.
 
 =head1 AUTHOR
 
