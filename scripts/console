@@ -186,6 +186,12 @@ sub pp {
   Data::Dumper::Dumper(@_);
 }
 
+sub ppa {
+  local $Data::Dumper::Indent   = 2;
+  local $Data::Dumper::Sortkeys = 1;
+  Data::Dumper::Dumper(@_);
+}
+
 sub ptab {
   my @rows = ref($_[0]) eq 'ARRAY' ? @{ $_[0] } : @_;
   return '<empty result set>' unless @rows;

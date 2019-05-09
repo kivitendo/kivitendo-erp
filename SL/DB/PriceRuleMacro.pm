@@ -309,6 +309,10 @@ package SL::PriceRuleMacro::Definition {
 package SL::PriceRuleMacro::Condition {
   our @ISA      = ('SL::PriceRuleMacro::Element');
 
+  sub type {
+    'condition'
+  }
+
   sub description {
     SL::Locale::String::t8('Condition')
   }
@@ -649,6 +653,10 @@ package SL::PriceRuleMacro::Condition::Transdate {
 package SL::PriceRuleMacro::Action {
   our @ISA = ('SL::PriceRuleMacro::Element');
 
+  sub type {
+    'action'
+  }
+
   sub price_rules {
     die 'needs to be implemented';
   }
@@ -784,7 +792,7 @@ SL::DB::PriceRuleMacro - wrapper for primitive price rules
 
 =head1 SYNOPSIS
 
-  use SL::;
+  use SL::DB::PriceRuleMacro;
 
 =head1 DESCRIPTION
 
