@@ -577,12 +577,10 @@ sub restore_session {
   #  1. session ID exists in the database
   #  2. hasn't expired yet
   #  3. if cookie for the API token is given: the cookie's value equal database column 'auth.session.api_token' for the session ID
-  #  4. if cookie for the API token is NOT given then: the requestee's IP address must match the stored IP address
   $self->{api_token}   = $cookie->{api_token} if $cookie;
   my $api_token_cookie = $self->get_api_token_cookie;
   my $cookie_is_bad    = !$cookie || $cookie->{is_expired};
   $cookie_is_bad     ||= $api_token_cookie && ($api_token_cookie ne $cookie->{api_token}) if  $api_token_cookie;
-  $cookie_is_bad     ||= $cookie->{ip_address} ne $ENV{REMOTE_ADDR}                       if !$api_token_cookie && $ENV{REMOTE_ADDR} !~ /^$IPv6_re$/;
   if ($cookie_is_bad) {
     $self->destroy_session();
     return $self->session_restore_result($cookie ? SESSION_EXPIRED() : SESSION_NONE());
