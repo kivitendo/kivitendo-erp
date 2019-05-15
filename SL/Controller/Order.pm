@@ -1477,6 +1477,7 @@ sub save {
 
 sub workflow_sales_or_purchase_order {
   my ($self) = @_;
+
   # always save
   my $errors = $self->save();
 
@@ -1484,7 +1485,6 @@ sub workflow_sales_or_purchase_order {
     $self->js->flash('error', $_) foreach @{ $errors };
     return $self->js->render();
   }
-
 
   my $destination_type = $::form->{type} eq sales_quotation_type()   ? sales_order_type()
                        : $::form->{type} eq request_quotation_type() ? purchase_order_type()
