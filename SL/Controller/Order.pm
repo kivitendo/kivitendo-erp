@@ -252,8 +252,7 @@ sub action_print {
     return $self->js->render();
   }
 
-  $self->js->val('#id', $self->order->id)
-           ->val('#order_' . $self->nr_key(), $self->order->number);
+  $self->js_reset_order_and_item_ids_after_save;
 
   my $format      = $::form->{print_options}->{format};
   my $media       = $::form->{print_options}->{media};
@@ -423,8 +422,7 @@ sub action_send_email {
     return $self->js->render();
   }
 
-  $self->js->val('#id', $self->order->id)
-           ->val('#order_' . $self->nr_key(), $self->order->number);
+  $self->js_reset_order_and_item_ids_after_save;
 
   my $email_form  = delete $::form->{email_form};
   my %field_names = (to => 'email');
@@ -1053,6 +1051,27 @@ sub js_redisplay_amounts_and_taxes {
     ->html('#amount_id',    $::form->format_amount(\%::myconfig, $self->order->amount,    -2))
     ->remove('.tax_row')
     ->insertBefore($self->build_tax_rows, '#amount_row_id');
+}
+
+sub js_reset_order_and_item_ids_after_save {
+  my ($self) = @_;
+
+  $self->js
+    ->val('#id', $self->order->id)
+    ->val('#converted_from_oe_id', '')
+    ->val('#order_' . $self->nr_key(), $self->order->number);
+
+  my $idx = 0;
+  foreach my $form_item_id (@{ $::form->{orderitem_ids} }) {
+    next if !$self->order->items_sorted->[$idx]->id;
+    next if $form_item_id !~ m{^new};
+    $self->js
+      ->val ('[name="orderitem_ids[+]"][value="' . $form_item_id . '"]', $self->order->items_sorted->[$idx]->id)
+      ->val ('#item_' . $form_item_id, $self->order->items_sorted->[$idx]->id)
+      ->attr('#item_' . $form_item_id, "id", 'item_' . $self->order->items_sorted->[$idx]->id);
+    $idx++;
+  }
+  $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
 }
 
 #
