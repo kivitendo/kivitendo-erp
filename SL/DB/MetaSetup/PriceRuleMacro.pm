@@ -10,7 +10,7 @@ __PACKAGE__->meta->table('price_rule_macros');
 
 __PACKAGE__->meta->columns(
   id              => { type => 'serial', not_null => 1 },
-  itime           => { type => 'timestamp' },
+  itime           => { type => 'timestamp', default => 'now()' },
   json_definition => { type => 'scalar', not_null => 1 },
   mtime           => { type => 'timestamp' },
   name            => { type => 'text', not_null => 1 },
@@ -21,6 +21,8 @@ __PACKAGE__->meta->columns(
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
 ;
