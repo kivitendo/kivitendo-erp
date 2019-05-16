@@ -82,8 +82,6 @@ sub _store_value {
     $curr = \ $$curr->[++$#$$curr], next if $sep eq '[+]';
     $curr = \ $$curr->[max 0, $#$$curr]  if $sep eq '[].';
     $curr = \ $$curr->[++$#$$curr]       if $sep eq '[+].';
-    $curr = \ $$curr->[$#$$curr = $1], next if $sep =~ /^\[(\d+)\]$/;
-    $curr = \ $$curr->[$#$$curr = $1]       if $sep =~ /^\[(\d+)\]\.$/;
     $curr = \ $$curr->{$key}
   }
 
