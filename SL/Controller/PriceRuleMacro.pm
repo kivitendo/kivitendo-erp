@@ -19,6 +19,7 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 __PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('add_javascript');
 
 sub action_load {
   my ($self) = @_;
@@ -245,6 +246,10 @@ sub setup_form_action_bar {
 
 sub check_auth {
   $::auth->assert('price_rules');
+}
+
+sub add_javascript {
+  $::request->layout->add_javascripts('kivi.PriceRuleMacro.js');
 }
 
 1;
