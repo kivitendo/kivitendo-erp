@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('price_rules');
 __PACKAGE__->meta->columns(
   discount            => { type => 'numeric', precision => 15, scale => 5 },
   id                  => { type => 'serial', not_null => 1 },
-  itime               => { type => 'timestamp' },
+  itime               => { type => 'timestamp', default => 'now()' },
   mtime               => { type => 'timestamp' },
   name                => { type => 'text' },
   notes               => { type => 'text', default => '' },
@@ -24,6 +24,8 @@ __PACKAGE__->meta->columns(
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
   price_rule_macro => {
