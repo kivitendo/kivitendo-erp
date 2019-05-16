@@ -17,8 +17,8 @@
         <td>[% L.input_tag('price_rule_macro.name', SELF.price_rule_macro.name) %]
       </tr>
       <tr>
-        <td>[% 'Type' | $T8 %]</td>
-        <td>[% L.select_tag('price_rule_macro.type', [[ 'customer', LxERP.t8('Customer') ],[ 'vendor', LxERP.t8('Vendor')] ]  default=SELF.price_rule_macro.type) %]</td>
+        <td>[% 'Valid for' | $T8 %]</td>
+        <td>[% L.select_tag('price_rule_macro.type', [[ 'customer', LxERP.t8('Sales') ],[ 'vendor', LxERP.t8('Purchase')] ]  default=SELF.price_rule_macro.type) %]</td>
       </tr>
 
       <tr>
@@ -50,5 +50,3 @@
   </div>
   [% L.hidden_tag('price_rule_macro.id', SELF.price_rule_macro.id) %]
 </form>
-
-[%# L.dump(SELF.price_rule_macro.definition.condition) %]

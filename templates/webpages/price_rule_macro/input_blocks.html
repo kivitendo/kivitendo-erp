@@ -34,11 +34,13 @@
 [%- END %]
 
 [%- BLOCK condition_container_and_input %]
-  <fieldset class='price_rule_container'>
+  <fieldset class='price_rule_container price_rule_element'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
-        <div>[% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]</div>
+        <div class='price_rule_element'>
+          [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
+          [% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]
+        </div>
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
@@ -48,8 +50,10 @@
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
-        <div>[% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]</div>
+        <div class='price_rule_element'>
+          [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
+          [% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]
+        </div>
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
@@ -60,10 +64,10 @@
    <legend>[%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %]</legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]</div>
        [% END %]
       [% ELSE %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='customer') %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='customer') %]</div>
       [% END %]
       <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
@@ -74,10 +78,10 @@
    <legend>[%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %]</legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]</div>
        [% END %]
       [% ELSE %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='vendor') %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='vendor') %]</div>
       [% END %]
       <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
@@ -92,10 +96,10 @@
     </legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', id) %]</div>
        [% END %]
       [% ELSE %]
-        <div>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', item.id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', item.id) %]</div>
       [% END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
@@ -109,10 +113,10 @@
     </legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', id) %]</div>
        [% END %]
       [% ELSE %]
-        <div>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', item.id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', item.id) %]</div>
       [% END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
@@ -128,10 +132,10 @@
     <div>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
        [%- END %]
       [%- ELSE %]
-       <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=item.id) %]</div>
+       <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=item.id) %]</div>
       [%- END %]
     </div>
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
@@ -147,10 +151,10 @@
     </legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=id) %]</div>
+        <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=id) %]</div>
        [%- END %]
       [%- ELSE %]
-       <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=item.id) %]</div>
+       <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=item.id) %]</div>
       [%- END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
@@ -235,11 +239,45 @@
 [%- END %]
 
 [%- BLOCK simple_action_input %]
+  [% PROCESS simple_discount_action_input %]
+[%- END %]
+
+[%- BLOCK old_simple_action_input %]
 <div>
   [% 'Set (set to)' | $T8 %]
-  [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=item.price_type) %]
+  [% L.select_tag(prefix _ '.price_type', SELF.all_price_types, default=item.price_type) %]
   [% 'to (set to)' | $T8 %]
-  [% L.input_tag('price_rule.price_or_discount_as_number', item.price_or_discount_as_number) %]
+  [% L.input_tag(prefix _ '.price_or_discount_as_number', item.price_or_discount_as_number) %]
+  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+</div>
+[%- END %]
+
+[%- BLOCK simple_price_action_input %]
+<div>
+  [% 'Set (set to)' | $T8 %]
+  [% 'Price' | $T8 %]
+  [% 'to (set to)' | $T8 %]
+  [% L.input_tag(prefix _ '.price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
+  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+</div>
+[%- END %]
+
+[%- BLOCK simple_discount_action_input %]
+<div>
+  [% 'Set (set to)' | $T8 %]
+  [% 'Discount' | $T8 %]
+  [% 'to (set to)' | $T8 %]
+  [% L.input_tag(prefix _ '.discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
+  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+</div>
+[%- END %]
+
+[%- BLOCK simple_reduction_action_input %]
+<div>
+  [% 'Set (set to)' | $T8 %]
+  [% 'Reduced Master Data' | $T8 %]
+  [% 'to (set to)' | $T8 %]
+  [% L.input_tag(prefix _ '.reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
   <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
 </div>
 [%- END %]
