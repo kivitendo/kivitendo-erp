@@ -28,6 +28,7 @@ sub action_load {
   if ($::request->type eq 'json') {
     return $self->render(\$self->price_rule_macro->json_definition, { process => 0, type => 'json'});
   } else {
+    $self->setup_form_action_bar;
     return $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
   }
 }
@@ -192,6 +193,45 @@ sub from_json_definition {
   $obj->update_from_definition;
   $obj->validate;
   $obj;
+}
+
+sub setup_form_action_bar {
+  my ($self) = @_;
+
+  my $is_new = !$self->price_rule_macro->id;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      combobox => [
+        action => [
+          t8('Save'),
+          submit         => [ 'form', { action => 'PriceRuleMacro/save' } ],
+          checks         => [ 'kivi.validate_form' ],
+          accesskey      => 'alt+S',
+          accesskey_body => 1,
+        ],
+        action => [
+          t8('Use as new'),
+          submit   => [ '#form', { action => 'PriceRule/clone' } ],
+          disabled => $is_new ? t8('The object has not been saved yet.') : undef,
+        ],
+      ], # end of combobox "Save"
+
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => 'PriceRuleMacro/delete' } ],
+        confirm  => t8('Do you really want to delete this object?'),
+        disabled => $is_new                   ? t8('The object has not been saved yet.')
+                  : $self->price_rule_macro->in_use ? t8('This object has already been used.')
+                  :                             undef,
+      ],
+
+      link => [
+        t8('Abort'),
+        link => $self->url_for(action => 'list', 'filter.type' => $self->price_rule_macro->type),
+      ],
+    );
+  }
 }
 
 sub check_auth {
