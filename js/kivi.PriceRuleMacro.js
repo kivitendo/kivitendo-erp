@@ -2,7 +2,7 @@ namespace('kivi.PriceRuleMacro', function(ns) {
   "use strict";
 
   ns.reinit_widgets = function() {
-    $('a.price_rule_macro_remove_line').click(function() {
+    $('span.price_rule_macro_remove_line').click(function() {
       $(this).closest('.price_rule_element').remove();
     });
   };
