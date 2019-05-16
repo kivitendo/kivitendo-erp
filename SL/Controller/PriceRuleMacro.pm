@@ -41,7 +41,7 @@ sub action_save {
 
   eval {
     $macro     = $self->price_rule_macro;
-    $new_macro = $self->from_json_definition;
+    $new_macro = $self->from_form;
 
     my @price_sources;
     my ($keep, $add, $remove);
@@ -88,7 +88,7 @@ sub action_save {
       return $self->render(\SL::JSON::to_json({ id => $macro->id }), { process => 0, type => 'json' });
     }
   } else {
-    die "not supported";
+    $self->redirect_to(action => 'load', price_rule_macro => { id => $macro->id });
   }
 }
 
@@ -190,6 +190,15 @@ sub from_json_definition {
   my ($self) = @_;
 
   my $obj = SL::DB::PriceRuleMacro->new(%{ $::form->{price_rule_macro} });
+  $obj->update_from_definition;
+  $obj->validate;
+  $obj;
+}
+
+sub from_form {
+  my ($self) = @_;
+
+  my $obj = SL::DB::PriceRuleMacro->new(definition => $::form->{price_rule_macro});
   $obj->update_from_definition;
   $obj->validate;
   $obj;
