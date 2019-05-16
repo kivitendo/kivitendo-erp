@@ -9,8 +9,8 @@
 [% PROCESS 'common/flash.html' %]
 [% PROCESS 'price_rule_macro/input_blocks.html' %]
 
-<form action='controller.pl' method='post'>
-  <div id='price_rule'>
+<form id='#form' action='controller.pl' method='post'>
+  <div id='price_rule_macro'>
     <table>
       <tr>
         <td>[% 'Name' | $T8 %]</td>
@@ -33,14 +33,16 @@
       </tr>
       <tr>
         <td>[% 'Conditions' | $T8 %]</td>
-        <td>[% PROCESS condition_input item=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro.conditions.' %]</td>
+        [% L.hidden_tag('price_rule_macro.condition.type', 'container_and') %]
+        <td>[% PROCESS condition_input item=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro.condition' %]</td>
       </tr>
       <tr>
         <td>[% 'Actions' | $T8 %]</td>
-        <td>[% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.actions.' %]
+        <td>[% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.action' %]
       </tr>
     </table>
   </div>
+  [% L.hidden_tag('price_rule_macro.id', SELF.price_rule_macro.id) %]
 </form>
 
 [%# L.dump(SELF.price_rule_macro.definition.condition) %]
