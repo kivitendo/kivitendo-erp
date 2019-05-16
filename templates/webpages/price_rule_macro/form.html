@@ -19,25 +19,31 @@
       <tr>
         <td>[% 'Type' | $T8 %]</td>
         <td>[% L.select_tag('price_rule_macro.type', [[ 'customer', LxERP.t8('Customer') ],[ 'vendor', LxERP.t8('Vendor')] ]  default=SELF.price_rule_macro.type) %]</td>
-
       </tr>
+
       <tr>
         <td>[% 'Priority' | $T8 %]</td>
         <td>[% L.input_tag('price_rule_macro.priority', SELF.price_rule_macro.priority, "data-validate"="numeric,0") %]</td>
-
       </tr>
+
       <tr>
         <td>[% 'Obsolete' | $T8 %]</td>
         <td>[% L.checkbox_tag('price_rule_macro.obsolete', checked=SELF.price_rule_macro.obsolete, for_submit=1) %]</td>
-
       </tr>
+
+      <tr>
+       <th align="right">[% 'Notes' | $T8 %]</th>
+       <td>[% L.textarea_tag('price_rule_macro.notes', SELF.price_rule_macro.notes, style='width: 300px') %]</td>
+      </tr>
+
       <tr>
         <td>[% 'Conditions' | $T8 %]</td>
-        [% L.hidden_tag('price_rule_macro.condition.type', 'container_and') %]
+        [% L.hidden_tag('price_rule_macro.condition.type', SELF.price_rule_macro.parsed_definition.condition.type) %]
         <td>[% PROCESS condition_input item=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro.condition' %]</td>
       </tr>
       <tr>
         <td>[% 'Actions' | $T8 %]</td>
+        [% L.hidden_tag('price_rule_macro.action.type', SELF.price_rule_macro.parsed_definition.action.type) %]
         <td>[% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.action' %]
       </tr>
     </table>
