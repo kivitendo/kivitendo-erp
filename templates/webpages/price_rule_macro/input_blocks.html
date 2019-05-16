@@ -37,7 +37,8 @@
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        <div>[% INCLUDE condition_input item=row %]</div>
+        [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
+        <div>[% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]</div>
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
@@ -47,14 +48,25 @@
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        <div>[% INCLUDE condition_input item=row %]</div>
+        [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
+        <div>[% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]</div>
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
 [%- END %]
 
 [%- BLOCK condition_customer_input %]
-  [%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %] [% P.customer_vendor.picker(prefix _ 'value_int', item.customer, type='customer') %]
+  <fieldset>
+   <legend>[%- PROCESS remove_control %] [% 'Customer' | $T8 %] [% 'is' | $T8 %]</legend>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]</div>
+       [% END %]
+      [% ELSE %]
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='customer') %]</div>
+      [% END %]
+      <span class='interact cursor-pointer'>Wert hinzufügen</span>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_vendor_input %]
@@ -62,10 +74,10 @@
    <legend>[%- PROCESS remove_control %] [% 'Vendor' | $T8 %] [% 'is' | $T8 %]</legend>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].id', id, type='vendor') %]</div>
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]</div>
        [% END %]
       [% ELSE %]
-        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ 'price_rule.items[].id', item.id, type='vendor') %]</div>
+        <div>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', item.id, type='vendor') %]</div>
       [% END %]
       <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
@@ -78,7 +90,13 @@
      [% 'Type of Business' | $T8 %]
      [% 'is' | $T8 %]
     </legend>
-    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_businesses, title_key='description', default=item.value_int) %]</div>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', id) %]</div>
+       [% END %]
+      [% ELSE %]
+        <div>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', item.id) %]</div>
+      [% END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
 [%- END %]
@@ -89,7 +107,13 @@
      [%- PROCESS remove_control %]
      [% 'Part' | $T8 %] [% 'is' | $T8 %]
     </legend>
-    <div>[% P.part.picker('price_rule.items[].value_int', item.part) %]</div>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', id) %]</div>
+       [% END %]
+      [% ELSE %]
+        <div>[%- PROCESS remove_control %] [% P.part.picker(prefix _ '.id[]', item.id) %]</div>
+      [% END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
   </fieldset>
 [%- END %]
@@ -104,10 +128,10 @@
     <div>
       [% IF item.is_array('id') %]
        [% FOREACH id = item.id %]
-        <div>[%- L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
+        <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
        [%- END %]
       [%- ELSE %]
-       <div>[%- L.select_tag(prefix _ 'value_int', SELF.all_partsgroups, title_key='partsgroup', default=item.id) %]</div>
+       <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=item.id) %]</div>
       [%- END %]
     </div>
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
@@ -121,7 +145,13 @@
       [% 'Pricegroup' | $T8 %]
       [% 'is' | $T8 %]
     </legend>
-    <div>[% L.select_tag(prefix _ 'value_int', SELF.all_pricegroups, title_key='pricegroup', default=item.value_int) %]</div>
+      [% IF item.is_array('id') %]
+       [% FOREACH id = item.id %]
+        <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=id) %]</div>
+       [%- END %]
+      [%- ELSE %]
+       <div>[%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=item.id) %]</div>
+      [%- END %]
     <span class='interact cursor-pointer'>Wert hinzufügen</span>
 [%- END %]
 
@@ -132,8 +162,8 @@
      [% 'Ve' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+      [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number) %]
     </div>
   </fieldset>
 [%- END %]
@@ -145,8 +175,8 @@
       [% 'Quantity' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ 'op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ 'value_num_as_number', item.value_num_as_number) %]
+      [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
+      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number) %]
     </div>
   </fieldset>
 [%- END %]
@@ -157,9 +187,9 @@
      [%- PROCESS remove_control %]
      [% 'Quantity Range' | $T8 %]
    </legend>
-  [% L.input_tag(prefix _ 'min_as_number', item.min_as_number) %]
+  [% L.input_tag(prefix _ '.min_as_number', item.min_as_number) %]
   [% 'To (range)' | $T8 %]
-  [% L.input_tag(prefix _ 'max_as_number', item.max_as_number) %]
+  [% L.input_tag(prefix _ '.max_as_number', item.max_as_number) %]
   </fieldset>
 [%- END %]
 
@@ -170,8 +200,8 @@
       [% 'Reqdate' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+      [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ '.date', item.date) %]
     </div>
   </fieldset>
 [%- END %]
@@ -183,8 +213,8 @@
       [% 'Transdate Record' | $T8 %]
     </legend>
     <div>
-      [% L.select_tag(prefix _ 'op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ 'value_date', item.value_date) %]
+      [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
+      [% L.date_tag(prefix _ '.date', item.date) %]
     </div>
   </fieldset>
 [%- END %]
@@ -225,7 +255,7 @@
   <div>
     [%- PROCESS remove_control %]
     [% 'Part' | $T8 %] [% 'is' | $T8 %]
-    [% P.part.picker('price_rule.items[].value_int', item.condition.id) %]
+    [% P.part.picker('price_rule.items[].int', item.condition.id) %]
     <span>&nbsp;</span>
     [% 'set (set to)' | $T8 %]
     [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=item.price_type) %]
