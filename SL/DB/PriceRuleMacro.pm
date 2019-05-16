@@ -74,6 +74,10 @@ sub init_parsed_definition {
   SL::PriceRuleMacro::Definition->new(%{ $_[0]->definition });
 }
 
+sub in_use {
+  List::Util::any { $_->in_use } $_[0]->price_rules
+}
+
 
 # some helper classes, maybe put them into their own files later
 my %classes = (
@@ -270,7 +274,7 @@ package SL::PriceRuleMacro::Definition {
   }
 
   sub elements {
-    qw(condition action name notes priority obsolete format_version type itime mtime)
+    qw(id condition action name notes priority obsolete format_version type itime mtime)
   }
 
   sub array_elements {
