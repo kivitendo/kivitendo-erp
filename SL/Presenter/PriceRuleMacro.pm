@@ -6,8 +6,8 @@ use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
 use SL::Presenter::CustomerVendor qw(customer_vendor_picker);
 use SL::Presenter::Business qw(business_picker);
-use SL::Presenter::PartsGroup qw(parts_group_picker);
-use SL::Presenter::Ppricegroup qw(price_group_picker);
+use SL::Presenter::PartsGroup qw(partsgroup_picker);
+use SL::Presenter::Pricegroup qw(pricegroup_picker);
 
 use SL::Locale::String qw(t8);
 
@@ -86,7 +86,7 @@ sub condition_container_or_input {
 }
 
 sub condition_id_input {
-  my ($item, $prefix, $picker) = @_;
+  my ($item, $prefix, $picker_sub) = @_;
 
   typed_fieldset(
     $item->type,
