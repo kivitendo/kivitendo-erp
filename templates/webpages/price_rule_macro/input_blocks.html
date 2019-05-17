@@ -65,7 +65,7 @@
      [% FOREACH id = item.id %]
        [% PROCESS condition_customer_value_input %]
      [% END %]
-     <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
   </fieldset>
 [%- END %]
 
@@ -79,7 +79,7 @@
      [% FOREACH id = item.id %]
        [% PROCESS condition_vendor_value_input %]
      [% END %]
-     <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
   </fieldset>
 [%- END %]
 
@@ -97,7 +97,7 @@
      [% FOREACH id = item.id %]
        [% PROCESS condition_business_value_input %]
      [% END %]
-    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
   </fieldset>
 [%- END %]
 
@@ -114,7 +114,7 @@
      [% FOREACH id = item.id %]
        [% PROCESS condition_part_value_input %]
      [% END %]
-    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
   </fieldset>
 [%- END %]
 
@@ -134,7 +134,7 @@
        [% PROCESS condition_partsgroup_value_input %]
      [%- END %]
     </div>
-    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
   </fieldset>
 [%- END %]
 
@@ -152,7 +152,8 @@
      [% FOREACH id = item.id %]
        [% PROCESS condition_pricegroup_value_input %]
      [%- END %]
-    <span class='interact cursor-pointer'>Wert hinzufügen</span>
+     [% PROCESS add_value %]
+  </fieldset>
 [%- END %]
 
 [%- BLOCK condition_pricegroup_value_input %]
@@ -343,4 +344,5 @@
 [%- END %]
 
 [%- BLOCK add_value %]
+  <span class='interact cursor-pointer price_rule_macro_add_value' data-element-type='[% item.type | html %]' data-prefix='[% prefix %]'>[% 'Add value' | $T8 %]</span>
 [%- END %]
