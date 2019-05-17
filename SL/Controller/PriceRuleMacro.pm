@@ -131,6 +131,26 @@ sub action_render_picker {
   }
 }
 
+sub action_add_value {
+  my ($self) = @_;
+
+  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
+  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
+  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+
+  my $html = $self->render(
+    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS condition_$::form->{type}_value_input %]",
+    { output => 0 },
+    prefix => $::form->{prefix},
+  );
+
+  $self
+    ->js
+    ->insertBefore($html, '#' . $::form->{container})
+    ->reinit_widgets
+    ->render;
+}
+
 ### internal
 
 # todo: make this clean and in model

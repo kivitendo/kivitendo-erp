@@ -1,14 +1,28 @@
 namespace('kivi.PriceRuleMacro', function(ns) {
   "use strict";
 
-  ns.reinit_widgets = function() {
-    $('span.price_rule_macro_remove_line').click(function() {
-      $(this).closest('.price_rule_element').remove();
-    });
+  ns.add_new_element = function() {
+    $(this).uniqueId();
+
   };
 
-  ns.add_new_element = function() {
+  ns.add_value = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
 
+    let elem = $(e.target);
+    elem.uniqueId();
+
+    $.post(
+      'controller.pl',
+      {
+        action: 'PriceRuleMacro/add_value',
+        type: elem.data('element-type'),
+        prefix: elem.data('prefix'),
+        container: elem.prop('id')
+      },
+      kivi.eval_json_result
+    );
   };
 
   ns.open_price_type_help_popup = function() {
@@ -18,12 +32,21 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     });
   };
 
+
+  ns.reinit_widgets = function() {
+    kivi.run_once_for('span.price_rule_macro_remove_line', 'remove_line', function(elt) {
+      $(elt).click(function() {
+        $(this).closest('.price_rule_element').remove();
+      });
+    });
+    kivi.run_once_for('span.price_rule_macro_add_value', 'add_value', function(elt) {
+      $(elt).click(ns.add_value);
+    });
+    $('span.price_rule_macro_add_element').click(ns.add_element);
+    $('span.price_rule_price_type_help').click(ns.open_price_type_help_popup);
+  };
+
   $(function() {
     ns.reinit_widgets();
-
-    $('#price_rule_item_add').click(function() {
-      ns.add_new_row($('#price_rules_empty_item_select').val());
-    });
-    $('#price_rule_price_type_help').click(ns.open_price_type_help_popup);
   });
 });
