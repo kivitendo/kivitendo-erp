@@ -7,9 +7,6 @@ namespace('kivi.PriceRuleMacro', function(ns) {
   };
 
   ns.add_value = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
     let elem = $(e.target);
     elem.uniqueId();
 
@@ -18,6 +15,25 @@ namespace('kivi.PriceRuleMacro', function(ns) {
       {
         action: 'PriceRuleMacro/add_value',
         type: elem.data('element-type'),
+        prefix: elem.data('prefix'),
+        container: elem.prop('id')
+      },
+      kivi.eval_json_result
+    );
+  };
+
+  ns.add_element = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    let elem = $(e.target.closest('.add-element-control'));
+    elem.uniqueId();
+
+    $.post(
+      'controller.pl',
+      {
+        action: 'PriceRuleMacro/add_element',
+        type: elem.find('.element-type-select').val(),
         prefix: elem.data('prefix'),
         container: elem.prop('id')
       },
@@ -42,7 +58,9 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     kivi.run_once_for('span.price_rule_macro_add_value', 'add_value', function(elt) {
       $(elt).click(ns.add_value);
     });
-    $('span.price_rule_macro_add_element').click(ns.add_element);
+    kivi.run_once_for('span.price_rule_macro_add_element', 'add_element', function(elt) {
+      $(elt).click(ns.add_element);
+    });
     $('span.price_rule_price_type_help').click(ns.open_price_type_help_popup);
   };
 

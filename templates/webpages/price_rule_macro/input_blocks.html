@@ -37,10 +37,7 @@
   <fieldset class='price_rule_container price_rule_element'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        <div class='price_rule_element'>
-          [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
-          [% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]
-        </div>
+        [% INCLUDE condition_element item=row %]
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
@@ -50,13 +47,17 @@
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
       [% FOREACH row IN item.condition %]
-        <div class='price_rule_element'>
-          [% L.hidden_tag(prefix _ '.condition[+].type', row.type) %]
-          [% INCLUDE condition_input item=row, prefix=prefix _ '.condition[]' %]
-        </div>
+        [% INCLUDE condition_element item=row %]
       [% END %]
     [%- PROCESS add_element_control %]
   </fieldset>
+[%- END %]
+
+[%- BLOCK condition_element %]
+  <div class='price_rule_element'>
+    [% L.hidden_tag(prefix _ '.condition[+].type', item.type) %]
+    [% INCLUDE condition_input prefix=prefix _ '.condition[]' %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_customer_input %]
@@ -335,14 +336,17 @@
 </fieldset>
 [%- END %]
 
-[%- BLOCK add_element_control %]
-  [% L.select_tag('', SELF.allowed_elements_for(item)) %] <span class='price_rule_macro_add_element interact cursor-pointer'>[% 'Add element' | $T8 %]</span>
-[%- END %]
-
 [%- BLOCK remove_control %]
   <span class='price_rule_macro_remove_line interact cursor-pointer'>✘</span>
 [%- END %]
 
+[%- BLOCK add_element_control %]
+  <span class='add-element-control' data-prefix='[% prefix | html %]'>
+    [% L.select_tag('', SELF.allowed_elements_for(item), class='element-type-select') %]
+    <span class='price_rule_macro_add_element interact cursor-pointer'>[% 'Add element' | $T8 %]</span>
+  </span>
+[%- END %]
+
 [%- BLOCK add_value %]
-  <span class='interact cursor-pointer price_rule_macro_add_value' data-element-type='[% item.type | html %]' data-prefix='[% prefix %]'>[% 'Add value' | $T8 %]</span>
+  <span class='interact cursor-pointer price_rule_macro_add_value' data-element-type='[% item.type | html %]' data-prefix='[% prefix | html %]'>[% 'Add value' | $T8 %]</span>
 [%- END %]
