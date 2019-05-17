@@ -402,6 +402,11 @@ package SL::PriceRuleMacro::IdCondition {
 
   sub validate {
     die "condition of type '@{[ $_[0]->type ]}' needs an id" unless $_[0]->id;
+
+    # automatically purge invalid ids
+    if ('ARRAY' eq ref $_[0]->id) {
+      $_[0]->id([ grep { $_ * 1 > 0 } @{ $_[0]->id } ])
+    }
   }
 
   sub array_elements {
