@@ -151,6 +151,27 @@ sub action_add_value {
     ->render;
 }
 
+sub action_add_element {
+  my ($self) = @_;
+
+  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
+  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
+  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+
+  my $html = $self->render(
+    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS condition_element %]",
+    { output => 0 },
+    prefix => $::form->{prefix},
+    item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),
+  );
+
+  $self
+    ->js
+    ->insertBefore($html, '#' . $::form->{container})
+    ->reinit_widgets
+    ->render;
+}
+
 ### internal
 
 # todo: make this clean and in model
