@@ -187,19 +187,15 @@ sub init_all_pricegroups {
   SL::DB::Manager::Pricegroup->get_all
 }
 
-sub from_json_definition {
-  my ($self) = @_;
-
-  my $obj = SL::DB::PriceRuleMacro->new(%{ $::form->{price_rule_macro} });
-  $obj->update_from_definition;
-  $obj->validate;
-  $obj;
-}
-
 sub from_form {
   my ($self) = @_;
 
+  # backwards compatibility
+  my $json_definition = delete $::form->{price_rule_macro}{json_definition};
+
   my $obj = SL::DB::PriceRuleMacro->new(definition => $::form->{price_rule_macro});
+  $obj->json_definition($json_definition) if $json_definition;
+
   $obj->update_from_definition;
   $obj->validate;
   $obj;
