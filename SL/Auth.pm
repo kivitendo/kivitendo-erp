@@ -635,7 +635,7 @@ sub _load_with_auto_restore_column {
   my $query = <<SQL;
     SELECT sess_key, sess_value, auto_restore
     FROM auth.session_content
-    WHERE (auto_restore AND session_id = ? OR sess_key IN (@{[ join ',', ("?") x keys %auto_restore_keys ]}))
+    WHERE (session_id = ?) AND (auto_restore OR sess_key IN (@{[ join ',', ("?") x keys %auto_restore_keys ]}))
 SQL
   my $sth = prepare_execute_query($::form, $dbh, $query, $session_id, keys %auto_restore_keys);
 
