@@ -38,6 +38,13 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parsed_definition) ],
 );
 
+sub priority_as_text {
+  my ($self) = @_;
+
+  return t8('Override') if $self->priority == 4;
+  t8('Normal');
+}
+
 sub validate {
   my ($self) = @_;
 
