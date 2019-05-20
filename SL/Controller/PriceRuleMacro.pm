@@ -25,6 +25,30 @@ use Rose::Object::MakeMethods::Generic (
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('add_javascript');
 
+sub action_new {
+  my ($self) = @_;
+
+  # stub definition for new rules
+  my $rule = SL::DB::PriceRuleMacro->new(
+    definition => {
+      priority => 3,
+      condition => {
+        type => 'container_and',
+        condition => [],
+      },
+      action => {
+        type => 'simple_action',
+        price => 0
+      }
+    }
+  );
+
+  $self->price_rule_macro($rule);
+
+  $self->setup_form_action_bar;
+  $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
+}
+
 sub action_load {
   my ($self) = @_;
 
