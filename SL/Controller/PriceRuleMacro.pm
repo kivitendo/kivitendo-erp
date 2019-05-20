@@ -443,6 +443,28 @@ SL::Controller::PriceRuleMacro - controller for price rule macros
 
 =back
 
+=head1 HOW TO ADD NEW PROPERTIES
+
+If you want to extend this with new elements, here's a list to do:
+
+* If it's a totally new condition or action, make first sure the underlying price rules can handle that. See there
+
+* Add a class for it in SL::DB::PriceRuleMacro. Make sure it has:
+  - the right base class
+  - a type
+  - elements
+  - a rule to generate price_rules or price_rule_items
+  - array_elements
+  - validate
+  - a description
+
+* Register the class with their type also in SL::DB::PriceRuleMacro
+
+* Add a block for it in input_blocks. Make sure to get right:
+  - the remove controls (by having it sit in a element div)
+  - prefixes (for round trips)
+
+
 =head1 BUGS
 
 None yet :)
