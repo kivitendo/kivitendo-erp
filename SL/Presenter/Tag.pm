@@ -77,7 +77,8 @@ sub html_tag {
   my $attributes = stringify_attributes(%params);
 
   return "<${tag}${attributes}>" if !defined($content) && $_singleton_tags{$tag};
-  return "<${tag}${attributes}>${content}</${tag}>";
+  return "<${tag}${attributes}>${content}</${tag}>" if 'ARRAY' ne ref $content;
+  return "<${tag}${attributes}>@${content}</${tag}>";
 }
 
 sub input_tag {
