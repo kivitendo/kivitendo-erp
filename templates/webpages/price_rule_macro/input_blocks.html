@@ -244,59 +244,95 @@
 
 [%- BLOCK action_input %]
   [%- SWITCH item.type %]
+    [%- CASE 'action_container_and' %][% PROCESS action_container_and_input %]
+    [%- CASE 'action_container_or' %][% PROCESS action_container_or_input %]
     [%- CASE 'conditional_action' %][% PROCESS condition_action_input_input %]
     [%- CASE 'simple_action' %][% PROCESS simple_action_input %]
+    [%- CASE 'price_action' %][% PROCESS price_action_input %]
+    [%- CASE 'discount_action' %][% PROCESS discount_action_input %]
+    [%- CASE 'reduction_action' %][% PROCESS reduction_action_input %]
     [%- CASE 'price_scale_action' %][% PROCESS price_scale_action_input %]
     [%- CASE 'parts_price_list_action' %][% PROCESS parts_price_list_action_input %]
     [%- CASE '' %][% PROCESS add_element_control %]
   [% END %]
 [%- END %]
 
+[%- BLOCK action_container_and_input %]
+  <fieldset class='price_rule_container price_rule_element'>
+    <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
+      [% FOREACH row IN item.condition %]
+        [% INCLUDE action_element item=row %]
+      [% END %]
+    [%- PROCESS add_element_control %]
+  </fieldset>
+[%- END %]
+
+[%- BLOCK action_container_or_input %]
+  <fieldset class='price_rule_container'>
+    <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
+      [% FOREACH row IN item.condition %]
+        [% INCLUDE action_element item=row %]
+      [% END %]
+    [%- PROCESS add_element_control %]
+  </fieldset>
+[%- END %]
+
 [%- BLOCK action_conditional_action_input %]
 [%- END %]
 
+[%#- BLOCK simple_action_input %]
+  [%# PROCESS simple_discount_action_input %]
+[%#- END %]
+
 [%- BLOCK simple_action_input %]
-  [% PROCESS simple_discount_action_input %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Simple Action' | $T8 %]
+    </legend>
+    <div>
+      [% 'Set (set to)' | $T8 %]
+      [% L.select_tag(prefix _ '.price_type', SELF.all_price_types, default=item.price_type) %]
+      [% 'to (set to)' | $T8 %]
+      [% L.input_tag(prefix _ '.price_or_discount_as_number', item.price_or_discount_as_number) %]
+    </div>
+  </fieldset>
 [%- END %]
 
-[%- BLOCK old_simple_action_input %]
-<div>
-  [% 'Set (set to)' | $T8 %]
-  [% L.select_tag(prefix _ '.price_type', SELF.all_price_types, default=item.price_type) %]
-  [% 'to (set to)' | $T8 %]
-  [% L.input_tag(prefix _ '.price_or_discount_as_number', item.price_or_discount_as_number) %]
-  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
-</div>
+[%- BLOCK price_action_input %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Set price to' | $T8 %]
+    </legend>
+    <div>
+      [% L.input_tag(prefix _ '.price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
+    </div>
+  </fieldset>
 [%- END %]
 
-[%- BLOCK simple_price_action_input %]
-<div>
-  [% 'Set (set to)' | $T8 %]
-  [% 'Price' | $T8 %]
-  [% 'to (set to)' | $T8 %]
-  [% L.input_tag(prefix _ '.price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
-  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
-</div>
+[%- BLOCK discount_action_input %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Set discount to' | $T8 %]
+    </legend>
+    <div>
+      [% L.input_tag(prefix _ '.discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
+    </div>
+  </fieldset>
 [%- END %]
 
-[%- BLOCK simple_discount_action_input %]
-<div>
-  [% 'Set (set to)' | $T8 %]
-  [% 'Discount' | $T8 %]
-  [% 'to (set to)' | $T8 %]
-  [% L.input_tag(prefix _ '.discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
-  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
-</div>
-[%- END %]
-
-[%- BLOCK simple_reduction_action_input %]
-<div>
-  [% 'Set (set to)' | $T8 %]
-  [% 'Reduced Master Data' | $T8 %]
-  [% 'to (set to)' | $T8 %]
-  [% L.input_tag(prefix _ '.reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
-  <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
-</div>
+[%- BLOCK reduction_action_input %]
+  <fieldset>
+    <legend>
+      [%- PROCESS remove_control %]
+      [% 'Reduce price by' | $T8 %]
+    </legend>
+    <div>
+      [% L.input_tag(prefix _ '.reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
+    </div>
+  </fieldset>
 [%- END %]
 
 [%- BLOCK conditional_action %]

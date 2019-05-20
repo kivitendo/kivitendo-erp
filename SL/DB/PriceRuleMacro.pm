@@ -85,7 +85,6 @@ sub in_use {
   List::Util::any { $_->in_use } $_[0]->price_rules
 }
 
-
 # some helper classes, maybe put them into their own files later
 my %classes = (
   definition            => 'SL::PriceRuleMacro::Definition',
@@ -106,6 +105,9 @@ my %classes = (
   action                => 'SL::PriceRuleMacro::Action',
   conditional_action    => 'SL::PriceRuleMacro::ConditionalAction',
   simple_action         => 'SL::PriceRuleMacro::Action::Simple',
+  price_action          => 'SL::PriceRuleMacro::Action::Price',
+  discount_action       => 'SL::PriceRuleMacro::Action::Discount',
+  reduction_action      => 'SL::PriceRuleMacro::Action::Reduction',
   bulk_action           => 'SL::PriceRuleMacro::Action::BulkAction',
   price_scale_action    => 'SL::PriceRuleMacro::Action::PriceScale',
   parts_price_list_action => 'SL::PriceRuleMacro::Action::PartsPriceList',
@@ -751,6 +753,87 @@ package SL::PriceRuleMacro::Action::Simple {
 
   sub price_rules {
     SL::DB::PriceRule->new(price => $_[0]->price, discount => $_[0]->discount, reduction => $_[0]->reduction);
+  }
+}
+
+package SL::PriceRuleMacro::Action::Price {
+  our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
+
+  sub elements {
+    qw(price)
+  }
+
+  sub type {
+    'price_action'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Price Action (PriceRules)')
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least price"
+      if !defined $_[0]->price;
+  }
+
+  sub price_rules {
+    SL::DB::PriceRule->new(price => $_[0]->price);
+  }
+}
+
+package SL::PriceRuleMacro::Action::Discount {
+  our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
+
+  sub elements {
+    qw(discount)
+  }
+
+  sub type {
+    'discount_action'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Discount Action (PriceRules)')
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least discount"
+      if !defined $_[0]->discount;
+  }
+
+  sub price_rules {
+    SL::DB::PriceRule->new(discount => $_[0]->discount);
+  }
+}
+
+package SL::PriceRuleMacro::Action::Reduction {
+  our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
+
+  sub elements {
+    qw(reduction)
+  }
+
+  sub type {
+    'reduction_action'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Reduction Action (PriceRules)')
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least reduction"
+      if !defined $_[0]->reduction;
+  }
+
+  sub price_rules {
+    SL::DB::PriceRule->new(reduction => $_[0]->reduction);
   }
 }
 
