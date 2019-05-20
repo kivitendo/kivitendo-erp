@@ -41,7 +41,10 @@
         <td>[% PROCESS condition_element item=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro' %]</td>
       </tr>
       <tr>
-        <td>[% 'Actions' | $T8 %]</td>
+        <td>
+          [% 'Actions' | $T8 %]
+          <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+        </td>
         [% L.hidden_tag('price_rule_macro.action.type', SELF.price_rule_macro.parsed_definition.action.type) %]
         <td>[% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.action' %]
       </tr>
