@@ -444,14 +444,14 @@ None yet :)
 =head1 TODO
 
 - typeless container add
-- mtime/itime
+- fix itime/mtime crap
 - all inputs to presenter
 - all inputs to fieldsets (mostly done)
 - save/roundtrip
 - fieldset styling, interactive styling
 - spacing
 - actions
-- safety to not remove last elements in array_elements and in condition/action
+- safety to not remove last elements in array_elements and in condition/action?
 - multiple actions/ action-macros / typed actions
 - keyboard shortcuts for table-like controls and to extend multiples
 - optional: controles to convert IdCondition to conditionalaction (ex.: convert parts list to partspriceaction)
@@ -461,6 +461,12 @@ None yet :)
 - cloning
 - deduplication
 - can't put container in container? yes, can. fuck.
+- fix top level condition form shit
+- make all number inputs numeric/validate
+- fix help popups
+- add hover effects
+- fix compile warning in ubuntu 14.04, perl 5.18.2
+- make item_summary
 
 =head1 AUTHOR
 
