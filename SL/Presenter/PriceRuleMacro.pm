@@ -1,6 +1,7 @@
 package SL::Presenter::PriceRuleMacro;
 
 use strict;
+use utf8;
 
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag qw(input_tag html_tag name_to_id select_tag link_tag);
@@ -9,6 +10,7 @@ use SL::Presenter::Business qw(business_picker);
 use SL::Presenter::PartsGroup qw(partsgroup_picker);
 use SL::Presenter::Pricegroup qw(pricegroup_picker);
 
+use SL::MoreCommon qw(listify);
 use SL::Locale::String qw(t8);
 
 use Exporter qw(import);
@@ -86,38 +88,71 @@ sub condition_container_or_input {
 }
 
 sub condition_id_input {
-  my ($item, $prefix, $picker_sub) = @_;
+  my ($item, $picker_sub, %params) = @_;
 
   typed_fieldset(
     $item->type,
     $item->description . ' ' . t8('is'),
     join '',
       map({
-        remove_control(),
-        $picker_sub->($_),
+        $picker_sub->($_, %params),
       } listify($item->id)),
-      add_element($item)
+      add_value($item, %params)
   );
 }
 
 sub condition_customer_input {
-  my ($item, $prefix) = @_;
+  my ($item, %params) = @_;
+  condition_id_input($item, \&condition_customer_value_input, %params);
+}
 
-  condition_id_input( $item, $prefix, sub { customer_vendor_picker($prefix, $_, type => 'customer') });
+sub condition_customer_value_input {
+  my ($id, %params) = @_;
+
+  html_tag('div', [
+      remove_control(),
+      customer_vendor_picker("$params{prefix}.id[]", $id, type => 'customer'),
+    ], class => 'price_rule_element');
 }
 
 sub condition_vendor_input {
-  my ($item, $prefix) = @_;
-
-  condition_id_input( $item, $prefix, sub { customer_vendor_picker($prefix, $_, type => 'vendor') });
+  my ($item, %params) = @_;
+  condition_id_input($item, \&condition_vendor_value_input, %params);
 }
 
-sub condition_business_input {
+sub condition_vendor_value_input {
+  my ($id, %params) = @_;
 
+  html_tag('div', [
+      remove_control(),
+      customer_vendor_picker("$params{prefix}.id[]", $id, type => 'vendor'),
+    ], class => 'price_rule_element')
 }
 
-sub add_element {
-  html_tag('span', t8('Add value'), class => 'interact cursor-pointer');
+
+sub add_element_control {
+  my ($item) = @_;
+
+  html_tag('span', [
+    select_tag('', $item->allowed_elements, class => 'element-type-select'),
+    html_tag('span', t8('Add element'), class => 'interact cursor-pointer price_rule_macro_add_element'),
+  ], class => 'add-element-control')
+}
+
+sub add_value {
+  my ($item, %params) = @_;
+
+  html_tag(
+    'span',
+    t8('Add value'),
+    class               => 'interact cursor-pointer price_rule_macro_add_value',
+    'data-element-type' => $item->type,
+    %params
+  )
+}
+
+sub remove_control {
+  html_tag('span', '✘', class => 'price_rule_macro_remove_line interact cursor-pointer')
 }
 
 1;
