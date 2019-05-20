@@ -59,8 +59,8 @@ sub definition {
 
 sub update_definition {
   my ($self) = @_;
+  $self->definition($self->parsed_definition->as_tree);
   $self->definition->{$_} = $self->$_ for @dual_attributes;
-  $self->definition($self->definition);
 }
 
 sub update_from_definition {
