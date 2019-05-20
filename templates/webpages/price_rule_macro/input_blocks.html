@@ -71,7 +71,10 @@
 [%- END %]
 
 [% BLOCK condition_customer_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]</div>
+  <div class='price_rule_element'>
+    [%- PROCESS remove_control %]
+    [% P.customer_vendor.picker(prefix _ '.id[]', id, type='customer') %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_vendor_input %]
@@ -85,7 +88,10 @@
 [%- END %]
 
 [% BLOCK condition_vendor_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]</div>
+  <div class='price_rule_element'>
+    [%- PROCESS remove_control %]
+    [% P.customer_vendor.picker(prefix _ '.id[]', id, type='vendor') %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_business_input %]
@@ -103,7 +109,10 @@
 [%- END %]
 
 [%- BLOCK condition_business_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [% P.business.picker(prefix _ '.id[]', id) %]</div>
+  <div class='price_rule_element'>
+    [%- PROCESS remove_control %]
+    [% P.business.picker(prefix _ '.id[]', id) %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_part_input %]
@@ -140,7 +149,10 @@
 [%- END %]
 
 [%- BLOCK condition_partsgroup_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_partsgroups, title_key='partsgroup', default=id) %]</div>
+  <div class='price_rule_element'>
+    [%- PROCESS remove_control %]
+    [% P.partsgroup.picker(prefix _ '.id[]', id) %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_pricegroup_input %]
@@ -158,7 +170,10 @@
 [%- END %]
 
 [%- BLOCK condition_pricegroup_value_input %]
-  <div class='price_rule_element'>[%- PROCESS remove_control %] [%- L.select_tag(prefix _ '.id[]', SELF.all_pricegroups, title_key='pricegroup', default=id) %]</div>
+  <div class='price_rule_element'>
+    [%- PROCESS remove_control %]
+    [% P.pricegroup.picker(prefix _ '.id[]', id) %]
+  </div>
 [%- END %]
 
 [%- BLOCK condition_ve_input %]
