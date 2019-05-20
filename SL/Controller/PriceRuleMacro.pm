@@ -8,6 +8,7 @@ use SL::DB::Business;
 use SL::DB::PartsGroup;
 use SL::DB::Pricegroup;
 use SL::Locale::String qw(t8);
+use SL::Helper::Flash qw(flash_later);
 use SL::Presenter;
 use SL::ReportGenerator;
 use SL::Controller::Helper::GetModels;
@@ -92,6 +93,11 @@ sub action_save {
       return $self->render(\SL::JSON::to_json({ id => $macro->id }), { process => 0, type => 'json' });
     }
   } else {
+    if ($error) {
+      flash_later('error', $error);
+    } else {
+      flash_later('info', t8('Price Rule saved.'));
+    }
     $self->redirect_to(action => 'load', price_rule_macro => { id => $macro->id });
   }
 }
