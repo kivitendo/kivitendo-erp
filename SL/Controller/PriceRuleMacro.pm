@@ -117,22 +117,22 @@ sub action_meta {
   }
 }
 
-sub action_render_picker {
-  my ($self) = @_;
-
-  my $meta   = SL::DB::PriceRuleMacro->create_definition_meta;
-  my $type  = $meta->{$::form->{type}} or die "unknown type '$::form->{type}'";
-  die "type '$::form->{type}' does not support picker" unless $type->{internal_class}->can('picker');
-
-  my $picker_html = $type->{internal_class}->picker(%{$::form});
-
-  if ($::request->type eq 'json') {
-    my $response = { html => $picker_html, js => $::request->presenter->need_reinit_widgets ? 'kivi.reinit_widgets' : '' };
-    return $self->render(\SL::JSON::to_json($response), { process => 0, type => 'json' });
-  } else {
-    return $self->render(\$picker_html, { process => 0 });
-  }
-}
+# sub action_render_picker {
+#   my ($self) = @_;
+#
+#   my $meta   = SL::DB::PriceRuleMacro->create_definition_meta;
+#   my $type  = $meta->{$::form->{type}} or die "unknown type '$::form->{type}'";
+#   die "type '$::form->{type}' does not support picker" unless $type->{internal_class}->can('picker');
+#
+#   my $picker_html = $type->{internal_class}->picker(%{$::form});
+#
+#   if ($::request->type eq 'json') {
+#     my $response = { html => $picker_html, js => $::request->presenter->need_reinit_widgets ? 'kivi.reinit_widgets' : '' };
+#     return $self->render(\SL::JSON::to_json($response), { process => 0, type => 'json' });
+#   } else {
+#     return $self->render(\$picker_html, { process => 0 });
+#   }
+# }
 
 sub action_add_value {
   my ($self) = @_;
