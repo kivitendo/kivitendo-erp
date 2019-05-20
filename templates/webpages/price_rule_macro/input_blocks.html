@@ -36,9 +36,7 @@
 [%- BLOCK condition_container_and_input %]
   <fieldset class='price_rule_container price_rule_element'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
-      [% FOREACH row IN item.condition %]
-        [% INCLUDE condition_element item=row %]
-      [% END %]
+    [%- INCLUDE condition_elements items=item.condition %]
     [%- PROCESS add_element_control %]
   </fieldset>
 [%- END %]
@@ -46,11 +44,15 @@
 [%- BLOCK condition_container_or_input %]
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
-      [% FOREACH row IN item.condition %]
-        [% INCLUDE condition_element item=row %]
-      [% END %]
+    [%- INCLUDE condition_elements items=item.condition %]
     [%- PROCESS add_element_control %]
   </fieldset>
+[%- END %]
+
+[%- BLOCK condition_elements %]
+  [% FOREACH item IN items %]
+    [% INCLUDE condition_element %]
+  [% END %]
 [%- END %]
 
 [%- BLOCK condition_element %]
