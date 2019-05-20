@@ -23,7 +23,7 @@
 
       <tr>
         <td>[% 'Priority' | $T8 %]</td>
-        <td>[% L.input_tag('price_rule_macro.priority', SELF.price_rule_macro.priority, "data-validate"="numeric,0") %]</td>
+        <td>[% L.select_tag('price_rule_macro.priority', [ [ '', LxERP.t8('All') ], [ 3, LxERP.t8('Normal') ], [ 4 , LxERP.t8('Override')]], default=SELF.price_rule_macro.priority) %]</td>
       </tr>
 
       <tr>
