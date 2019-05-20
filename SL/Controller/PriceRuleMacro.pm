@@ -443,30 +443,36 @@ None yet :)
 
 =head1 TODO
 
-- typeless container add
-- fix itime/mtime crap
-- all inputs to presenter
-- all inputs to fieldsets (mostly done)
-- save/roundtrip
-- fieldset styling, interactive styling
-- spacing
-- actions
-- safety to not remove last elements in array_elements and in condition/action?
-- multiple actions/ action-macros / typed actions
-- keyboard shortcuts for table-like controls and to extend multiples
-- optional: controles to convert IdCondition to conditionalaction (ex.: convert parts list to partspriceaction)
-- distinguish fieldset rendering from inline rendering
-- alternative naming convention to mask that actions contain conditions
-- automatic naming
-- cloning
-- deduplication
-- can't put container in container? yes, can. fuck.
-- fix top level condition form shit
-- make all number inputs numeric/validate
-- fix help popups
-- add hover effects
-- fix compile warning in ubuntu 14.04, perl 5.18.2
-- make item_summary
+- functionality:
+   actions
+   save/roundtrip
+   new/create
+   cloning
+   doc for adding rule types, macro blocks
+   fix help popups
+   menu entries
+
+- styling:
+    fieldset styling, interactive styling
+    add hover effects
+    spacing
+
+- robustness:
+   id not in json
+   fix itime/mtime crap
+   all inputs to presenter
+   safety to not remove last elements in array_elements and in condition/action?
+   deduplication
+   make all number inputs numeric/validate
+   fix compile warning in ubuntu 14.04, perl 5.18.2
+
+- polish:
+   multiple actions/ action-macros / typed actions
+   typeless container add
+   keyboard shortcuts for table-like controls and to extend multiples
+   optional: controles to convert IdCondition to conditionalaction (ex.: convert parts list to partspriceaction)
+   item_summary for automated description
+   generated price rules in second tab
 
 =head1 AUTHOR
 
