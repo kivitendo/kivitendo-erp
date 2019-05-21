@@ -437,13 +437,6 @@ package SL::PriceRuleMacro::Condition::Customer {
   sub description {
     SL::Locale::String::t8('Customer')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::CustomerVendor::customer_vendor_picker($name, $value, type => 'customer');
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Vendor {
@@ -456,13 +449,6 @@ package SL::PriceRuleMacro::Condition::Vendor {
   sub description {
     SL::Locale::String::t8('Vendor')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::CustomerVendor::customer_vendor_picker($name, $value, type => 'vendor');
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Business {
@@ -475,13 +461,6 @@ package SL::PriceRuleMacro::Condition::Business {
   sub description {
     SL::Locale::String::t8('Business')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::Business::business_picker($name, $value);
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Part {
@@ -494,13 +473,6 @@ package SL::PriceRuleMacro::Condition::Part {
   sub description {
     SL::Locale::String::t8('Part')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::Part::part_picker($name, $value);
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Partsgroup {
@@ -513,13 +485,6 @@ package SL::PriceRuleMacro::Condition::Partsgroup {
   sub description {
     SL::Locale::String::t8('Partsgroup')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::PartsGroup::partsgroup_picker($name, $value);
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Pricegroup {
@@ -532,13 +497,6 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
   sub description {
     SL::Locale::String::t8('Pricegroup')
   }
-
-#   sub picker {
-#     my ($class, %params) = @_;
-#     my $name  = delete $params{name};
-#     my $value = delete $params{id};
-#     SL::Presenter::Pricegroup::pricegroup_picker($name, $value);
-#   }
 }
 
 package SL::PriceRuleMacro::Condition::Ve {
