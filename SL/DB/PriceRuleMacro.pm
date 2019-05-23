@@ -54,7 +54,13 @@ sub validate {
 sub definition {
   my ($self, $data) = @_;
   $self->json_definition(SL::JSON::to_json($data)) if $data;
-  SL::JSON::from_json($self->json_definition) if defined wantarray;
+  if (defined wantarray) {
+    eval {
+      SL::JSON::from_json($self->json_definition);
+    } or do {
+      die "json error: $@ in @{[ $self->json_definition ]}";
+    }
+  }
 }
 
 sub update_definition {
@@ -104,12 +110,13 @@ my %classes = (
   transdate             => 'SL::PriceRuleMacro::Condition::Transdate',
   action                => 'SL::PriceRuleMacro::Action',
   conditional_action    => 'SL::PriceRuleMacro::ConditionalAction',
+  action_container_and  => 'SL::PriceRuleMacro::Action::ContainerAnd',
   simple_action         => 'SL::PriceRuleMacro::Action::Simple',
   price_action          => 'SL::PriceRuleMacro::Action::Price',
   discount_action       => 'SL::PriceRuleMacro::Action::Discount',
   reduction_action      => 'SL::PriceRuleMacro::Action::Reduction',
-  bulk_action           => 'SL::PriceRuleMacro::Action::BulkAction',
   price_scale_action    => 'SL::PriceRuleMacro::Action::PriceScale',
+  price_scale_action_line => 'SL::PriceRuleMacro::Action::PriceScaleLine',
   parts_price_list_action => 'SL::PriceRuleMacro::Action::PartsPriceList',
 );
 my %r_classes = reverse %classes;
@@ -642,8 +649,38 @@ package SL::PriceRuleMacro::Action {
   }
 }
 
+
+package SL::PriceRuleMacro::Action::ContainerAnd {
+  our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+
+  sub elements {
+    qw(action)
+  }
+
+  sub array_elements {
+    qw(action)
+  }
+
+  sub type {
+    'action_container_and'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Action Container And (PriceRules)')
+  }
+
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least one action"    unless SL::MoreCommon::listify($_[0]->action);
+  }
+
+  sub price_rules {
+    map { $_->price_rules } SL::MoreCommon::listify($_[0]->action)
+  }
+}
+
 package SL::PriceRuleMacro::ConditionalAction {
-  our @ISA = ('SL::PriceRuleMacro::Element');
+  our @ISA = ('SL::PriceRuleMacro::Action');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
   sub elements {
@@ -795,25 +832,38 @@ package SL::PriceRuleMacro::Action::Reduction {
   }
 }
 
-package SL::PriceRuleMacro::Action::BulkAction {
+package SL::PriceRuleMacro::Action::PriceScale {
   our @ISA = ('SL::PriceRuleMacro::Action');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
   sub elements {
-    qw(conditional_action)
+    qw(price_scale_line)
   }
 
   sub array_elements {
-    qw(conditional_action)
+    qw(price_scale_line)
   }
 
   sub price_rules {
-    map { $_->price_rules } SL::MoreCommon::listify($_[0]->conditional_action);
-  }
-}
+    my ($self) = @_;
 
-package SL::PriceRuleMacro::Action::PriceScale {
-  our @ISA = ('SL::PriceRuleMacro::Action::BulkAction');
-  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+    my @scales = nsort_by { $_->min } $self->price_scale_lines;
+
+    my $last_min = undef;
+    map {
+      my @items = grep { defined $_->value_num }
+        SL::DB::PriceRuleItem->new(type => 'qty', op => 'ge', value_num => $_->min),
+        SL::DB::PriceRuleItem->new(type => 'qty', op => 'lt', value_num => $last_min);
+
+      $last_min = $_->min;
+
+      my @rules;
+      push @rules, SL::DB::PriceRule->new(price    => $_->price)    if $_->price;
+      push @rules, SL::DB::PriceRule->new(discount => $_->discount) if $_->discount;
+
+      @rules
+    } @scales;
+  }
 
   sub type {
     'price_scale_action'
@@ -824,12 +874,33 @@ package SL::PriceRuleMacro::Action::PriceScale {
   }
 }
 
+package SL::PriceRuleMacro::Action::PriceScaleLine {
+  our @ISA = ('SL::PriceRuleMacro::Element');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
+
+  sub elements {
+    qw(min price discount)
+  }
+
+  sub type {
+    'price_scale_action_line'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Price Scale Action Line (PriceRules)')
+  }
+}
+
 package SL::PriceRuleMacro::Action::PartsPriceList {
-  our @ISA = ('SL::PriceRuleMacro::Action::BulkAction');
+  our @ISA = ('SL::PriceRuleMacro::Action');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
   sub type {
     'parts_price_list_action'
+  }
+
+  sub elements {
   }
 
   sub description {

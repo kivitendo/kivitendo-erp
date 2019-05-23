@@ -37,8 +37,8 @@ sub action_new {
         condition => [],
       },
       action => {
-        type => 'simple_action',
-        price => 0
+        type => 'action_container_and',
+        action => [],,
       }
     }
   );
@@ -170,12 +170,18 @@ sub action_add_value {
 sub action_add_element {
   my ($self) = @_;
 
-  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
-  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
-  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+  my %known_element_classes = (
+    condition => 1,
+    action    => 1,
+  );
+
+  die 'invalid container id'  unless $::form->{container} =~ /^[-\w]+$/;
+  die 'invalid type'          unless $::form->{type}      =~ /^\w+$/;
+  die 'invalid prefix'        unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+  die 'invalid element_class' unless $known_element_classes{$::form->{element_class}};
 
   my $html = $self->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS condition_element %]",
+    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
     { output => 0 },
     prefix => $::form->{prefix},
     item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),

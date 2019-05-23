@@ -37,7 +37,7 @@
   <fieldset class='price_rule_container price_rule_element'>
     <legend>[%- PROCESS remove_control %] [% 'And' | $T8 %]:</legend>
     [%- INCLUDE condition_elements items=item.condition %]
-    [%- PROCESS add_element_control %]
+    [%- PROCESS add_condition_element_control %]
   </fieldset>
 [%- END %]
 
@@ -45,7 +45,7 @@
   <fieldset class='price_rule_container'>
     <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
     [%- INCLUDE condition_elements items=item.condition %]
-    [%- PROCESS add_element_control %]
+    [%- PROCESS add_condition_element_control %]
   </fieldset>
 [%- END %]
 
@@ -247,16 +247,21 @@
 [%- BLOCK action_input %]
   [%- SWITCH item.type %]
     [%- CASE 'action_container_and' %][% PROCESS action_container_and_input %]
-    [%- CASE 'action_container_or' %][% PROCESS action_container_or_input %]
-    [%- CASE 'conditional_action' %][% PROCESS condition_action_input_input %]
+    [%- CASE 'conditional_action' %][% PROCESS action_conditional_action_input %]
     [%- CASE 'simple_action' %][% PROCESS simple_action_input %]
     [%- CASE 'price_action' %][% PROCESS price_action_input %]
     [%- CASE 'discount_action' %][% PROCESS discount_action_input %]
     [%- CASE 'reduction_action' %][% PROCESS reduction_action_input %]
     [%- CASE 'price_scale_action' %][% PROCESS price_scale_action_input %]
     [%- CASE 'parts_price_list_action' %][% PROCESS parts_price_list_action_input %]
-    [%- CASE '' %][% PROCESS add_element_control %]
   [% END %]
+[%- END %]
+
+[%- BLOCK action_element %]
+  <div class='price_rule_element'>
+    [% L.hidden_tag(prefix _ '.action[+].type', item.type) %]
+    [% INCLUDE action_input prefix=prefix _ '.action[]' %]
+  </div>
 [%- END %]
 
 [%- BLOCK action_container_and_input %]
@@ -265,17 +270,7 @@
       [% FOREACH row IN item.condition %]
         [% INCLUDE action_element item=row %]
       [% END %]
-    [%- PROCESS add_element_control %]
-  </fieldset>
-[%- END %]
-
-[%- BLOCK action_container_or_input %]
-  <fieldset class='price_rule_container'>
-    <legend>[%- PROCESS remove_control %] [% 'Or' | $T8 %]:</legend>
-      [% FOREACH row IN item.condition %]
-        [% INCLUDE action_element item=row %]
-      [% END %]
-    [%- PROCESS add_element_control %]
+    [%- PROCESS add_action_element_control %]
   </fieldset>
 [%- END %]
 
@@ -393,8 +388,16 @@
   <span class='price_rule_macro_remove_line interact cursor-pointer'>✘</span>
 [%- END %]
 
+[% BLOCK add_condition_element_control %]
+[%- PROCESS add_element_control element_class='condition' %]
+[% END %]
+
+[% BLOCK add_action_element_control %]
+[%- PROCESS add_element_control element_class='action' %]
+[% END %]
+
 [%- BLOCK add_element_control %]
-  <span class='add-element-control' data-prefix='[% prefix | html %]'>
+  <span class='add-element-control' data-prefix='[% prefix | html %]' data-element-class='[% element_class | html %]'>
     [% L.select_tag('', SELF.allowed_elements_for(item), class='element-type-select') %]
     <span class='price_rule_macro_add_element interact cursor-pointer'>[% 'Add element' | $T8 %]</span>
   </span>

@@ -35,6 +35,7 @@ namespace('kivi.PriceRuleMacro', function(ns) {
         action: 'PriceRuleMacro/add_element',
         type: elem.find('.element-type-select').val(),
         prefix: elem.data('prefix'),
+        element_class: elem.data('element-class'),
         container: elem.prop('id')
       },
       kivi.eval_json_result
