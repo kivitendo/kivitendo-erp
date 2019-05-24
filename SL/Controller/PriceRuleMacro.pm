@@ -8,7 +8,7 @@ use SL::DB::Business;
 use SL::DB::PartsGroup;
 use SL::DB::Pricegroup;
 use SL::Locale::String qw(t8);
-use SL::Helper::Flash qw(flash_later);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::Presenter;
 use SL::ReportGenerator;
 use SL::Controller::Helper::GetModels;
@@ -118,11 +118,13 @@ sub action_save {
     }
   } else {
     if ($error) {
-      flash_later('error', $error);
+      flash('error', $error);
+      $self->price_rule_macro($macro);
+      $self->action_load;
     } else {
       flash_later('info', t8('Price Rule saved.'));
+      $self->redirect_to(action => 'load', price_rule_macro => { id => $macro->id });
     }
-    $self->redirect_to(action => 'load', price_rule_macro => { id => $macro->id });
   }
 }
 
