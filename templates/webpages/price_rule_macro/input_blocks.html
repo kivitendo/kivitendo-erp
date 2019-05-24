@@ -293,9 +293,9 @@
     </legend>
     <div>
       [% 'Set (set to)' | $T8 %]
-      [% L.select_tag(prefix _ '.price_type', SELF.all_price_types, default=item.price_type) %]
+      [% L.select_tag(prefix _ '[].price_type', SELF.all_price_types, default=item.price_type) %]
       [% 'to (set to)' | $T8 %]
-      [% L.input_tag(prefix _ '.price_or_discount_as_number', item.price_or_discount_as_number) %]
+      [% L.input_tag(prefix _ '[].price_or_discount_as_number', item.price_or_discount_as_number) %]
     </div>
   </fieldset>
 [%- END %]
@@ -307,7 +307,7 @@
       [% 'Set price to' | $T8 %]
     </legend>
     <div>
-      [% L.input_tag(prefix _ '.price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
+      [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', "data-validate"='number') %]
     </div>
   </fieldset>
 [%- END %]
@@ -319,7 +319,7 @@
       [% 'Set discount to' | $T8 %]
     </legend>
     <div>
-      [% L.input_tag(prefix _ '.discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
+      [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', "data-validate"='number') %] %
     </div>
   </fieldset>
 [%- END %]
@@ -331,7 +331,7 @@
       [% 'Reduce price by' | $T8 %]
     </legend>
     <div>
-      [% L.input_tag(prefix _ '.reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
+      [% L.input_tag(prefix _ '[].reduction_as_number', item.reduction_as_number, class='numeric', "data-validate"='number') %]
     </div>
   </fieldset>
 [%- END %]
