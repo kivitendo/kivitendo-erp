@@ -286,6 +286,7 @@
 [%- END %]
 
 [%- BLOCK simple_action_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -299,8 +300,10 @@
     </div>
   </fieldset>
 [%- END %]
+[%- END %]
 
 [%- BLOCK price_action_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -311,8 +314,10 @@
     </div>
   </fieldset>
 [%- END %]
+[%- END %]
 
 [%- BLOCK discount_action_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -323,8 +328,10 @@
     </div>
   </fieldset>
 [%- END %]
+[%- END %]
 
 [%- BLOCK reduction_action_input %]
+  [% WRAPPER element %]
   <fieldset>
     <legend>
       [%- PROCESS remove_control %]
@@ -335,12 +342,15 @@
     </div>
   </fieldset>
 [%- END %]
+[%- END %]
 
 [%- BLOCK conditional_action %]
+  [% WRAPPER element %]
   <div>
     [% INCLUDE condition_input item=item.condition %]
     [% INCLUDE action_input item=item.action %]
   <div>
+[%- END %]
 [%- END %]
 
 [%- BLOCK price_scale_action_input %]
