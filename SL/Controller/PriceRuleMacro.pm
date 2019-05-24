@@ -314,7 +314,7 @@ sub reconcile_generated_price_sources {
 sub init_price_rule_macro {
   my ($self) = @_;
 
-  my $price_rule_macro = SL::DB::Manager::PriceRuleMacro->find_by_or_create(id => $::form->{price_rule_macro}{id});
+  my $price_rule_macro = SL::DB::Manager::PriceRuleMacro->find_by_or_create(id => $::form->{price_rule_macro}{id} * 1);
 }
 
 sub init_meta {
