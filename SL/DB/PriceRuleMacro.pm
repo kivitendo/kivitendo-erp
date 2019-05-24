@@ -267,7 +267,9 @@ package SL::PriceRuleMacro::Element {
     # todo: make this work for condition
     return [] unless my $meta = $all_meta->{$element->type};
 
-    my @elements = map {
+    my @elements = List::UtilsBy::nsort_by {
+      $all_meta->{$_}{internal_class}->order
+    } map {
       $all_meta->{$_}{abstract}
         ? @{ $all_meta->{$_}{can_be} }
         : $_
@@ -278,6 +280,10 @@ package SL::PriceRuleMacro::Element {
 
   sub description {
     SL::Locale::String::t8('Element')
+  }
+
+  sub order {
+    0
   }
 }
 
@@ -384,6 +390,10 @@ package SL::PriceRuleMacro::Condition::ContainerAnd {
     } @{ $_[0]->condition // [] };
     @$reduced;
   }
+
+  sub order {
+    100
+  }
 }
 
 package SL::PriceRuleMacro::Condition::ContainerOr {
@@ -408,6 +418,10 @@ package SL::PriceRuleMacro::Condition::ContainerOr {
 
   sub price_rule_items {
     map { $_->price_rule_items } @{ $_[0]->condition // [] }
+  }
+
+  sub order {
+    101
   }
 }
 
@@ -447,6 +461,10 @@ package SL::PriceRuleMacro::Condition::Customer {
   sub description {
     SL::Locale::String::t8('Customer')
   }
+
+  sub order {
+    200
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Vendor {
@@ -458,6 +476,10 @@ package SL::PriceRuleMacro::Condition::Vendor {
 
   sub description {
     SL::Locale::String::t8('Vendor')
+  }
+
+  sub order {
+    201
   }
 }
 
@@ -471,6 +493,10 @@ package SL::PriceRuleMacro::Condition::Business {
   sub description {
     SL::Locale::String::t8('Business')
   }
+
+  sub order {
+    202
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Part {
@@ -482,6 +508,10 @@ package SL::PriceRuleMacro::Condition::Part {
 
   sub description {
     SL::Locale::String::t8('Part')
+  }
+
+  sub order {
+    210
   }
 }
 
@@ -495,6 +525,10 @@ package SL::PriceRuleMacro::Condition::Partsgroup {
   sub description {
     SL::Locale::String::t8('Partsgroup')
   }
+
+  sub order {
+    211
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Pricegroup {
@@ -506,6 +540,10 @@ package SL::PriceRuleMacro::Condition::Pricegroup {
 
   sub description {
     SL::Locale::String::t8('Pricegroup')
+  }
+
+  sub order {
+    212
   }
 }
 
@@ -534,6 +572,10 @@ package SL::PriceRuleMacro::Condition::Ve {
   sub price_rule_items {
     [ SL::DB::PriceRuleItem->new(value_num => $_[0]->num, op => $_[0]->op, type => $_[0]->type) ];
   }
+
+  sub order {
+    213
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Qty {
@@ -560,6 +602,10 @@ package SL::PriceRuleMacro::Condition::Qty {
 
   sub price_rule_items {
     [ SL::DB::PriceRuleItem->new(value_num => $_[0]->num, op => $_[0]->op, type => $_[0]->type) ];
+  }
+
+  sub order {
+    220
   }
 }
 
@@ -589,6 +635,10 @@ package SL::PriceRuleMacro::Condition::QtyRange {
       SL::DB::PriceRuleItem->new(value_num => $_[0]->min, op => 'ge', type => 'qty'),
       SL::DB::PriceRuleItem->new(value_num => $_[0]->max, op => 'le', type => 'qty'),
     ];
+  }
+
+  sub order {
+    221
   }
 }
 
@@ -622,6 +672,10 @@ package SL::PriceRuleMacro::Condition::Reqdate {
   sub description {
     SL::Locale::String::t8('Reqdate')
   }
+
+  sub order {
+    231
+  }
 }
 
 package SL::PriceRuleMacro::Condition::Transdate {
@@ -633,6 +687,10 @@ package SL::PriceRuleMacro::Condition::Transdate {
 
   sub description {
     SL::Locale::String::t8('Transdate')
+  }
+
+  sub order {
+    232
   }
 }
 
@@ -680,6 +738,10 @@ package SL::PriceRuleMacro::Action::ContainerAnd {
   sub price_rules {
     map { $_->price_rules } SL::MoreCommon::listify($_[0]->action)
   }
+
+  sub order {
+    400
+  }
 }
 
 package SL::PriceRuleMacro::ConditionalAction {
@@ -725,6 +787,10 @@ package SL::PriceRuleMacro::ConditionalAction {
 
     @rules;
   }
+
+  sub order {
+    500
+  }
 }
 
 package SL::PriceRuleMacro::Action::Simple {
@@ -751,6 +817,10 @@ package SL::PriceRuleMacro::Action::Simple {
 
   sub price_rules {
     SL::DB::PriceRule->new(price => $_[0]->price, discount => $_[0]->discount, reduction => $_[0]->reduction);
+  }
+
+  sub order {
+    104
   }
 }
 
@@ -779,6 +849,10 @@ package SL::PriceRuleMacro::Action::Price {
   sub price_rules {
     SL::DB::PriceRule->new(price => $_[0]->price);
   }
+
+  sub order {
+    100
+  }
 }
 
 package SL::PriceRuleMacro::Action::Discount {
@@ -806,6 +880,10 @@ package SL::PriceRuleMacro::Action::Discount {
   sub price_rules {
     SL::DB::PriceRule->new(discount => $_[0]->discount);
   }
+
+  sub order {
+    101
+  }
 }
 
 package SL::PriceRuleMacro::Action::Reduction {
@@ -832,6 +910,10 @@ package SL::PriceRuleMacro::Action::Reduction {
 
   sub price_rules {
     SL::DB::PriceRule->new(reduction => $_[0]->reduction);
+  }
+
+  sub order {
+    102
   }
 }
 
@@ -876,6 +958,10 @@ package SL::PriceRuleMacro::Action::PriceScale {
 
   sub description {
     SL::Locale::String::t8('Price Scale Action (PriceRules)')
+  }
+
+  sub order {
+    200
   }
 }
 
@@ -931,6 +1017,10 @@ package SL::PriceRuleMacro::Action::PartsPriceList {
 
       @rules
     } SL::MoreCommon::listify($self->parts_price_list_action_line);
+  }
+
+  sub order {
+    300
   }
 }
 
