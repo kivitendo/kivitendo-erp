@@ -19,6 +19,7 @@ use SL::Locale::String;
 use SL::DB::Helper::Attr;
 
 use List::Util ();
+use List::UtilsBy ();
 
 __PACKAGE__->meta->add_relationship(
   price_rules => {
@@ -53,7 +54,8 @@ sub validate {
 
 sub definition {
   my ($self, $data) = @_;
-  $self->json_definition(SL::JSON::to_json($data)) if $data;
+
+  $self->json_definition(SL::JSON::to_json($data)) if defined $data;
   if (defined wantarray) {
     eval {
       SL::JSON::from_json($self->json_definition);
@@ -837,29 +839,31 @@ package SL::PriceRuleMacro::Action::PriceScale {
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
 
   sub elements {
-    qw(price_scale_line)
+    qw(price_scale_action_line)
   }
 
   sub array_elements {
-    qw(price_scale_line)
+    qw(price_scale_action_line)
   }
 
   sub price_rules {
     my ($self) = @_;
 
-    my @scales = nsort_by { $_->min } $self->price_scale_lines;
+    my @scales = reverse List::UtilsBy::nsort_by { $_->min } SL::MoreCommon::listify($self->price_scale_action_line);
 
-    my $last_min = undef;
+    my $last_max = undef;
     map {
       my @items = grep { defined $_->value_num }
         SL::DB::PriceRuleItem->new(type => 'qty', op => 'ge', value_num => $_->min),
-        SL::DB::PriceRuleItem->new(type => 'qty', op => 'lt', value_num => $last_min);
+        SL::DB::PriceRuleItem->new(type => 'qty', op => 'lt', value_num => $last_max);
 
-      $last_min = $_->min;
+      $last_max = $_->min;
 
       my @rules;
       push @rules, SL::DB::PriceRule->new(price    => $_->price)    if $_->price;
       push @rules, SL::DB::PriceRule->new(discount => $_->discount) if $_->discount;
+
+      $_->{items} = \@items for @rules;
 
       @rules
     } @scales;

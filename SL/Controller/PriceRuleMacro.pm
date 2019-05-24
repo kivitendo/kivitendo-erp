@@ -149,6 +149,34 @@ sub action_meta {
   }
 }
 
+# for multi value elements with exactly one sub element. just name the block like their only accessible field
+sub action_add_line {
+  my ($self) = @_;
+
+  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
+  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
+  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
+
+  my $meta = $self->meta->{$::form->{type}} or die "unknown type $::form->{type}";
+
+  my @array_elements = $meta->{internal_class}->array_elements;
+
+  die "type $::form->{type} does not have exactly one array element" unless 1 == scalar @array_elements;
+
+  my $html = $self->render(
+    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS @{array_elements}_input %]",
+    { output => 0 },
+    prefix => $::form->{prefix},
+    item => SL::PriceRuleMacro::Element->new(type => @array_elements),
+  );
+
+  $self
+    ->js
+    ->insertBefore($html, '#' . $::form->{container})
+    ->reinit_widgets
+    ->render;
+}
+
 sub action_add_value {
   my ($self) = @_;
 

@@ -6,6 +6,22 @@ namespace('kivi.PriceRuleMacro', function(ns) {
 
   };
 
+  ns.add_line = function(e) {
+    let elem = $(e.target);
+    elem.uniqueId();
+
+    $.post(
+      'controller.pl',
+      {
+        action: 'PriceRuleMacro/add_line',
+        type: elem.data('element-type'),
+        prefix: elem.data('prefix'),
+        container: elem.prop('id')
+      },
+      kivi.eval_json_result
+    );
+  };
+
   ns.add_value = function(e) {
     let elem = $(e.target);
     elem.uniqueId();
@@ -58,6 +74,9 @@ namespace('kivi.PriceRuleMacro', function(ns) {
     });
     kivi.run_once_for('span.price_rule_macro_add_value', 'add_value', function(elt) {
       $(elt).click(ns.add_value);
+    });
+    kivi.run_once_for('span.price_rule_macro_add_line', 'add_line', function(elt) {
+      $(elt).click(ns.add_line);
     });
     kivi.run_once_for('span.price_rule_macro_add_element', 'add_element', function(elt) {
       $(elt).click(ns.add_element);
