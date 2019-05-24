@@ -505,7 +505,7 @@ If you want to extend this with new elements, here's a list to do:
 
 * Add a block for it in input_blocks. Make sure to get right:
   - the remove controls (by having it sit in a element div)
-  - prefixes (for round trips)
+  - prefixes (for round trips) - ATTENTION, format differs between conditions and actions, be careful
 
 
 =head1 BUGS
@@ -515,13 +515,9 @@ None yet :)
 =head1 TODO
 
 - functionality:
-   actions
-   save/roundtrip
-   new/create
    cloning
-   doc for adding rule types, macro blocks
    fix help popups
-   menu entries
+   conditional action
 
 - styling:
     fieldset styling, interactive styling
@@ -530,15 +526,18 @@ None yet :)
 
 - robustness:
    id not in json
+   sorting of elements
    fix itime/mtime crap
    all inputs to presenter
    safety to not remove last elements in array_elements and in condition/action?
+   safety to not submit/save without condition/action
    deduplication
    make all number inputs numeric/validate
    fix compile warning in ubuntu 14.04, perl 5.18.2
+   make new_empty accessor to fill container initially
 
 - polish:
-   multiple actions/ action-macros / typed actions
+   typed actions
    typeless container add
    keyboard shortcuts for table-like controls and to extend multiples
    optional: controles to convert IdCondition to conditionalaction (ex.: convert parts list to partspriceaction)
