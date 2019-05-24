@@ -374,30 +374,35 @@
   [% END %]
 [%- END %]
 
-[%- BLOCK parts_price_action %]
-  <div>
-    [%- PROCESS remove_control %]
-    [% 'Part' | $T8 %] [% 'is' | $T8 %]
-    [% P.part.picker('price_rule.items[].int', item.condition.id) %]
-    <span>&nbsp;</span>
-    [% 'set (set to)' | $T8 %]
-    [% L.select_tag('price_rule.price_type', SELF.all_price_types, default=item.price_type) %]
-    [% 'to (set to)' | $T8 %]
-    [% L.input_tag('price_rule.action.price_as_number', item.action.price_as_number) %]
-  <div>
-[%- END %]
-
 [%- BLOCK parts_price_list_action_input %]
+[% WRAPPER element %]
 <fieldset>
   <legend>[%- PROCESS remove_control %] [% 'Parts Price List' | $T8 %]</legend>
   <div>
-    [% FOREACH row = item.conditional_action %]
-      [% INCLUDE parts_price_action item=row %]
+    [% FOREACH row = item.parts_price_list_action_line %]
+      [% INCLUDE parts_price_list_action_line_input item=row prefix=prefix _ '[].parts_price_list_action_line' %]
     [% END %]
   </div>
-  <span class='interact cursor-pointer'>Preis hinzufügen</span>
+  [% INCLUDE add_action_line prefix=prefix _ '[].parts_price_list_action_line' %]
 </fieldset>
 [%- END %]
+[%- END %]
+
+[%- BLOCK parts_price_list_action_line_input %]
+  [% WRAPPER element %]
+  <div>
+    [%- PROCESS remove_control %]
+    [% 'Part' | $T8 %] [% 'is' | $T8 %]
+    [% P.part.picker(prefix _ '[].id', item.id) %]
+    <span>&nbsp;</span>
+    [% 'Price' | $T8 %]
+    [% L.input_tag(prefix _ '[].price_as_number', item.price_as_number, class='numeric', 'data-validate'='number') %]
+    [% 'Discount' | $T8 %]
+    [% L.input_tag(prefix _ '[].discount_as_number', item.discount_as_number, class='numeric', 'data-validate'='number') %] %
+  <div>
+[%- END %]
+[%- END %]
+
 
 [%- BLOCK remove_control %]
   <span class='price_rule_macro_remove_line interact cursor-pointer'>✘</span>

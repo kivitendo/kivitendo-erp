@@ -120,6 +120,7 @@ my %classes = (
   price_scale_action    => 'SL::PriceRuleMacro::Action::PriceScale',
   price_scale_action_line => 'SL::PriceRuleMacro::Action::PriceScaleLine',
   parts_price_list_action => 'SL::PriceRuleMacro::Action::PartsPriceList',
+  parts_price_list_action_line => 'SL::PriceRuleMacro::Action::PartsPriceListLine',
 );
 my %r_classes = reverse %classes;
 
@@ -905,10 +906,49 @@ package SL::PriceRuleMacro::Action::PartsPriceList {
   }
 
   sub elements {
+    qw(parts_price_list_action_line)
+  }
+
+  sub array_elements {
+    qw(parts_price_list_action_line)
   }
 
   sub description {
     SL::Locale::String::t8('Parts Price List Action (PriceRules)')
+  }
+
+  sub price_rules {
+    my ($self) = @_;
+
+    map {
+      my $item = SL::DB::PriceRuleItem->new(type => 'part', value_int => $_->id),
+
+      my @rules;
+      push @rules, SL::DB::PriceRule->new(price    => $_->price)    if $_->price;
+      push @rules, SL::DB::PriceRule->new(discount => $_->discount) if $_->discount;
+
+      $_->{items} = [ $item ] for @rules;
+
+      @rules
+    } SL::MoreCommon::listify($self->parts_price_list_action_line);
+  }
+}
+
+package SL::PriceRuleMacro::Action::PartsPriceListLine {
+  our @ISA = ('SL::PriceRuleMacro::Element');
+  Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(price discount);
+
+  sub elements {
+    qw(id price discount)
+  }
+
+  sub type {
+    'parts_price_list_action_line'
+  }
+
+  sub description {
+    SL::Locale::String::t8('Parts Price List Action Line (PriceRules)')
   }
 }
 
