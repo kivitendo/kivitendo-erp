@@ -404,6 +404,7 @@ package SL::PriceRuleMacro::Definition {
   }
 
   sub cross (&\@\@) {
+    no warnings 'once';
     my ($code, $x, $y) = @_;
     map {
       my $s = $_;
