@@ -12,14 +12,16 @@ Support::TestSetup::login();
 use_ok 'SL::DB::PriceRuleMacro';
 use_ok 'SL::Controller::PriceRuleMacro';
 
+my $format_version = SL::DB::PriceRuleMacro->latest_version;
+
 
 my @test_cases = (
 { json =>
-   '{
+   qq'{
       "name": "SEV0815 Kundentyp-Rabatt",
       "priority": 3,
       "obsolete": 0,
-      "format_version": 1,
+      "format_version": $format_version,
       "type": "customer",
       "condition": {
         "type": "container_and",
@@ -44,12 +46,12 @@ my @test_cases = (
   ],
   name => 'simple business discount',
 },
-{ json => '
+{ json => qq'
 {
   "name": "SEV0815 Kundentyp-Rabatt",
   "priority": 3,
   "obsolete": 1,
-  "format_version": 1,
+  "format_version": $format_version,
   "type": "vendor",
   "condition": {
     "type": "container_and",
@@ -89,174 +91,157 @@ my @test_cases = (
   ],
   name => 'complex business discount',
 },
-{ json => '
+{ json => qq'
   {
-	"name": "SEV0815 Kundentyp-Rabatt",
-	"priority": 3,
-	"obsolete": 1,
-	"format_version": 1,
+  "name": "SEV0815 Kundentyp-Rabatt",
+  "priority": 3,
+  "obsolete": 1,
+  "format_version": $format_version,
     "type": "customer",
-	"condition": {
-	  "type": "container_and",
-	  "condition": [
-		{
-		  "type": "container_or",
-		  "condition": [
-			{
-			  "type": "part",
-			  "id": 815
-			},
-			{
-			  "type": "part",
-			  "id": 376
-			}
-		  ]
-		},
-		{
-		  "type": "container_or",
-		  "condition": [
-			{
-			  "type": "business",
-			  "id": 3234
-			},
-			{
-			  "type": "business",
-			  "id": 2573
-			},
-			{
-			  "type": "business",
-			  "id": 472
-			}
-		  ]
-		}
-	  ]
-	},
-	"action": {
-	  "type": "simple_action",
-	  "discount": 4.00
-	}
+  "condition": {
+    "type": "container_and",
+    "condition": [
+  	{
+  	  "type": "container_or",
+  	  "condition": [
+  		{
+  		  "type": "part",
+  		  "id": 815
+  		},
+  		{
+  		  "type": "part",
+  		  "id": 376
+  		}
+  	  ]
+  	},
+  	{
+  	  "type": "container_or",
+  	  "condition": [
+  		{
+  		  "type": "business",
+  		  "id": 3234
+  		},
+  		{
+  		  "type": "business",
+  		  "id": 2573
+  		},
+  		{
+  		  "type": "business",
+  		  "id": 472
+  		}
+  	  ]
+  	}
+    ]
+  },
+  "action": {
+    "type": "simple_action",
+    "discount": 4.00
+  }
   }',
   digest => [
-	'-4-business-2573-part-376-',
-	'-4-business-2573-part-815-',
-	'-4-business-3234-part-376-',
-	'-4-business-3234-part-815-',
-	'-4-business-472-part-376-',
-	'-4-business-472-part-815-'
+  '-4-business-2573-part-376-',
+  '-4-business-2573-part-815-',
+  '-4-business-3234-part-376-',
+  '-4-business-3234-part-815-',
+  '-4-business-472-part-376-',
+  '-4-business-472-part-815-'
   ],
   name => 'very complex business discount',
 },
-{ json => '
+{ json => qq'
   {
-	"name": "SEV0815 Kundentyp-Rabatt",
-	"priority": 3,
-	"obsolete": 0,
-	"format_version": 1,
+  "name": "SEV0815 Kundentyp-Rabatt",
+  "priority": 3,
+  "obsolete": 0,
+  "format_version": $format_version,
     "type": "vendor",
-	"condition": {
-	  "type": "part",
-	  "id": 815
-	},
-	"action": {
-	  "type": "price_scale_action",
-	  "conditional_action": [
-		{
-		  "condition": {
-            "type": "qty_range",
-			"min": 0.00,
-			"max": 9.00
-		  },
-		  "action": {
-			"type": "simple_action",
-			"price": 1100.00
-		  }
-		},
-		{
-		  "condition": {
-            "type": "qty_range",
-			"min": 10.00,
-			"max": 99.00
-		  },
-		  "action": {
-			"type": "simple_action",
-			"price": 1000.00
-		  }
-		},
-		{
-		  "condition": {
-            "type": "qty_range",
-			"min": 100
-		  },
-		  "action": {
-			"type": "simple_action",
-			"price": 900.00
-		  }
-		}
-	  ]
-	}
+  "condition": {
+    "type": "part",
+    "id": 815
+  },
+  "action": {
+    "type": "price_scale_action",
+    "price_scale_action_line": [
+        {
+          "min": 0.00,
+          "price": 1100.00
+        },
+        {
+          "min": 10.00,
+          "price": 1000.00
+        },
+        {
+          "min": 100,
+          "price": 900.00
+        }
+      ]
+    }
   }',
   digest => [
-     '1000--part-815-qtyge--10qtyle--99',
-     '1100--part-815-qtyge--0qtyle--9',
-     '900--part-815-qtyge--100qtyle---'
+     '1000--part-815-qtyge--10qtylt--100',
+     '1100--part-815-qtyge--0qtylt--10',
+     '900--part-815-qtyge--100'
   ],
   name => 'qty range action',
 },
-{ json => '
+{ json => qq'
   {
-	"name": "SRV0815 Warengruppen -> Kundengruppen",
-	"priority": 3,
-	"obsolete": 0,
+  "name": "SRV0815 Warengruppen -> Kundengruppen",
+  "priority": 3,
+  "obsolete": 0,
     "type": "customer",
-	"format_version": 1,
-	"condition": {
-	  "type": "container_or",
-	  "condition": [
-		{
-		  "type": "partsgroup",
-		  "id": 428
-		},
-		{
-		  "type": "partsgroup",
-		  "id": 8437
-		}
-	  ]
-	},
-	"action": {
-	  "type": "price_scale_action",
-	  "conditional_action": [
-		{
-		  "condition": {
-			"type": "business",
-			"id": 42
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 2.00
-		  }
-		},
-		{
-		  "condition": {
-			"type": "business",
-			"id": 6345
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 3.00
-		  }
-		},
-		{
-		  "condition": {
-			"type": "business",
-			"id": 2344
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 4.00
-		  }
-		}
-	  ]
-	}
+  "format_version": $format_version,
+  "condition": {
+    "type": "container_or",
+    "condition": [
+  	{
+  	  "type": "partsgroup",
+  	  "id": 428
+  	},
+  	{
+  	  "type": "partsgroup",
+  	  "id": 8437
+  	}
+    ]
+  },
+  "action": {
+    "type": "action_container_and",
+    "action": [
+      {
+        "type": "conditional_action",
+        "condition": {
+          "type": "business",
+          "id": 42
+        },
+        "action": {
+          "type": "simple_action",
+          "discount": 2.00
+        }
+      },
+      {
+        "type": "conditional_action",
+        "condition": {
+          "type": "business",
+          "id": 6345
+        },
+        "action": {
+          "type": "simple_action",
+          "discount": 3.00
+        }
+      },
+      {
+        "type": "conditional_action",
+        "condition": {
+          "type": "business",
+          "id": 2344
+        },
+        "action": {
+          "type": "simple_action",
+          "discount": 4.00
+        }
+      }
+      ]
+    }
   }',
   digest => [
     '-2-business-42-partsgroup-428-',
@@ -269,11 +254,11 @@ my @test_cases = (
   name => 'complex condition + price scale',
 },
 { json =>
-   '{
+   qq'{
       "name": "SEV0815 Kundentyp-Rabatt",
       "priority": 3,
       "obsolete": 0,
-      "format_version": 1,
+      "format_version": $format_version,
       "type": "customer",
       "condition": {
         "type": "container_and",
@@ -298,11 +283,11 @@ my @test_cases = (
   name => 'simple business with array of ids',
 },
 { json =>
-   '{
+   qq'{
       "name": "Test simple parsed attrs",
       "priority": 3,
       "obsolete": 0,
-      "format_version": 1,
+      "format_version": $format_version,
       "type": "customer",
       "condition": {
         "type": "container_and",
@@ -314,7 +299,7 @@ my @test_cases = (
           },
           {
             "type": "reqdate",
-            "date_as_date": "07.12.2018",
+            "date_as_epoch": 1544140800,
             "op": "lt"
           }
         ]
@@ -331,7 +316,7 @@ my @test_cases = (
   name => 'simple business discount',
 },
 { json =>
-  '{
+  qq'{
     "action": {
         "price": "321",
         "discount": null,
@@ -355,7 +340,7 @@ my @test_cases = (
             ]
         }]
     },
-    "format_version": "1",
+    "format_version": "$format_version",
     "name": "Test",
     "notes": "Dies ist ein Kommentar",
     "obsolete": "0",
@@ -369,7 +354,7 @@ my @test_cases = (
   no_roundtrip => 1,
 },
 { json =>
-  '{
+  qq'{
     "action": {
         "price": "321",
         "discount": null,
@@ -393,7 +378,7 @@ my @test_cases = (
             ]
         }]
     },
-    "format_version": "1",
+    "format_version": "$format_version",
     "name": "Test",
     "notes": "Dies ist ein Kommentar",
     "obsolete": "0",
@@ -410,7 +395,7 @@ my @test_cases = (
   no_roundtrip => 1,
 },
 { json =>
-  '{
+  qq'{
     "action": {
         "price": "321",
         "discount": null,
@@ -433,7 +418,7 @@ my @test_cases = (
             ]
         }]
     },
-    "format_version": "1",
+    "format_version": "$format_version",
     "name": "Test",
     "notes": "Dies ist ein Kommentar",
     "obsolete": "0",
@@ -444,7 +429,7 @@ my @test_cases = (
   name => 'missing id in vendor condition',
 },
 { json =>
-  '{
+  qq'{
     "action": {
         "price": "321",
         "discount": null,
@@ -467,7 +452,7 @@ my @test_cases = (
             ]
         }]
     },
-    "format_version": "1",
+    "format_version": "$format_version",
     "name": "Test",
     "notes": "Dies ist ein Kommentar",
     "obsolete": "0",
@@ -478,7 +463,7 @@ my @test_cases = (
   name => 'missing op in ve condition',
 },
 { json =>
-  '{
+  qq'{
     "action": {
         "price": null,
         "discount": null,
@@ -502,7 +487,7 @@ my @test_cases = (
             ]
         }]
     },
-    "format_version": "1",
+    "format_version": "$format_version",
     "name": "Test",
     "notes": "Dies ist ein Kommentar",
     "obsolete": "0",
@@ -513,11 +498,11 @@ my @test_cases = (
   name => 'missing price/discount/reduction in action',
 },
 { json =>
-  '{
+  qq'{
     "name": "SEV0815 Kundentyp-Rabatt",
         "priority": 3,
         "obsolete": 0,
-        "format_version": 1,
+        "format_version": $format_version,
         "type": "customer",
         "condition": {
           "type": "container_and",
@@ -562,12 +547,12 @@ my @test_cases = (
                 },
                 {
                   "type": "reqdate",
-                  "date": "2009-12-05",
+                  "date_as_epoch": 1259971200,
                   "op": "gt"
                 },
                 {
                   "type": "transdate",
-                  "date": "2009-12-05",
+                  "date_as_epoch": 1259971200,
                   "op": "lt"
                 }
               ]
@@ -595,57 +580,39 @@ my @test_cases = (
     '-4-business-3234-part-815-vendor-892-',
   ],
 },
-{ json => '
+{ json => qq'
   {
-	"name": "SRV0815 Warengruppen -> Kundengruppen",
-	"priority": 3,
-	"obsolete": 0,
+  "name": "SRV0815 Warengruppen -> Kundengruppen",
+  "priority": 3,
+  "obsolete": 0,
     "type": "customer",
-	"format_version": 1,
-	"condition": {
-	  "type": "container_or",
-	  "condition": [
-		{
-		  "type": "partsgroup",
-		  "id": [ 428, 8437 ]
-		}
-	  ]
-	},
-	"action": {
-	  "type": "parts_price_list_action",
-	  "conditional_action": [
-		{
-		  "condition": {
-			"type": "part",
-			"id": 42
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 2.00
-		  }
-		},
-		{
-		  "condition": {
-			"type": "part",
-			"id": 6345
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 3.00
-		  }
-		},
-		{
-		  "condition": {
-			"type": "part",
-			"id": 2344
-		  },
-		  "action": {
-			"type": "simple_action",
-			"discount": 4.00
-		  }
-		}
-	  ]
-	}
+  "format_version": $format_version,
+  "condition": {
+    "type": "container_or",
+    "condition": [
+      {
+        "type": "partsgroup",
+        "id": [ 428, 8437 ]
+      }
+    ]
+  },
+  "action": {
+    "type": "parts_price_list_action",
+    "parts_price_list_action_line": [
+      {
+        "id": 42,
+        "discount": 2.00
+      },
+      {
+        "id": 6345,
+        "discount": 3.00
+      },
+      {
+        "id": 2344,
+        "discount": 4.00
+      }
+    ]
+  }
   }',
   digest => [
     '-2-part-42-partsgroup-428-',
