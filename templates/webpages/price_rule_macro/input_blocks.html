@@ -224,7 +224,7 @@
     </legend>
     <div>
       [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ '.date', item.date) %]
+      [% L.date_tag(prefix _ '.date_as_date', item.date) %]
     </div>
   </fieldset>
 [%- END %]
@@ -237,7 +237,7 @@
     </legend>
     <div>
       [% L.select_tag(prefix _ '.op', date_compare_ops, default=item.op) %]
-      [% L.date_tag(prefix _ '.date', item.date) %]
+      [% L.date_tag(prefix _ '.date_as_date', item.date) %]
     </div>
   </fieldset>
 [%- END %]

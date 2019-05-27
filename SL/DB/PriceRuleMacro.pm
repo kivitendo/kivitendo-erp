@@ -70,7 +70,15 @@ my @version_upgrades = (
          delete $node->{discount};
        }
      });
-  }
+  },
+  sub {
+    # 3: date conditions changed to use epoch as internal representation
+    _upgrade_node($_[0],
+      sub { $_[0]->{type} =~ /date/ },
+      sub {
+        $_[0]->{date_as_date} = delete $_[0]->{date} if $_[0]->{date};
+      });
+  },
 );
 
 sub priority_as_text {
@@ -739,6 +747,15 @@ package SL::PriceRuleMacro::DateCondition {
 
   sub elements {
     qw(date op)
+  }
+
+  sub as_tree {
+    my ($self) = @_;
+    {
+      type          => $self->type,
+      date_as_epoch => $self->date->epoch,
+      op            => $self->op,
+    }
   }
 
   sub validate {
