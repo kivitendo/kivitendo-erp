@@ -35,6 +35,7 @@ sub _make_by_type {
   _as_number     ($package, $name, places =>  0) if $type =~ /int/xi;
   _as_null_number($package, $name, places =>  0) if $type =~ /int/xi;
   _as_date       ($package, $name)               if $type =~ /date | timestamp/xi;
+  _as_epoch  ($package, $name)                   if $type =~ /date | timestamp/xi;
   _as_timestamp  ($package, $name)             if $type =~ /timestamp/xi;
   _as_bool_yn    ($package, $name)               if $type =~ /bool/xi;
 }
@@ -119,6 +120,31 @@ sub _as_date {
           )->ymd,
           $::myconfig{dateformat}
         )
+      : undef;
+  };
+
+  return 1;
+}
+
+sub _as_epoch {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_epoch' } = sub {
+    my ($self, $string) = @_;
+
+    if (@_ > 1) {
+      if ($string) {
+        $self->$attribute(DateTime->from_epoch(epoch => $string));
+      } else {
+        $self->$attribute(undef);
+      }
+    }
+
+    return $self->$attribute
+      ? $self->$attribute->epoch
       : undef;
   };
 
