@@ -31,12 +31,46 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+__PACKAGE__->before_save('_before_save_set_format_version');
+
 # attributes that are both in price_rule_macros, the json definition and the
 # price_rules and need to be copied between them
 my @dual_attributes = qw(name priority obsolete type notes);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parsed_definition) ],
+);
+
+my @version_upgrades = (
+  sub { }, # 0: ensure that v1 is always set
+  sub {
+    # 1: "qty" in condition qty was changed to "num" sometime during development.
+     _upgrade_node($_[0], sub { $_[0]->{type} eq 'qty' }, sub { $_[0]->{num} = delete $_[0]->{qty} if $_[0]->{qty} });
+  },
+  sub {
+    # 2: "simple action" is currently not roundtrip safe. change those to typed inputs
+     _upgrade_node($_[0], sub {
+       $_[0]->{type} eq 'simple_action'
+     },
+     sub {
+       my ($node) = @_;
+       if ($node->{price}) {
+         $node->{type} = 'price_action';
+         delete $node->{discount};
+         delete $node->{reduction};
+       }
+       if ($node->{discount}) {
+         $node->{type} = 'discount_action';
+         delete $node->{price};
+         delete $node->{reduction};
+       }
+       if ($node->{reduction}) {
+         $node->{type} = 'reduction_action';
+         delete $node->{price};
+         delete $node->{discount};
+       }
+     });
+  }
 );
 
 sub priority_as_text {
@@ -86,11 +120,66 @@ sub copy_attributes_to_price_rules {
 
 sub init_parsed_definition {
   die 'definition does not seem to be a json object' unless 'HASH' eq ref($_[0]->definition);
+  $_[0]->upgrade_version;
+
   SL::PriceRuleMacro::Definition->new(%{ $_[0]->definition });
 }
 
 sub in_use {
   List::Util::any { $_->in_use } $_[0]->price_rules
+}
+
+sub upgrade_version {
+  my ($self) = @_;
+
+  my $definition = $self->definition;
+
+  for ($definition->{format_version} .. $#version_upgrades) {
+    $version_upgrades[$_]->($definition);
+  }
+
+  # save upgraded back to json
+  $definition->{format_version} = $self->latest_version;
+  $self->definition($definition);
+  $self;
+}
+
+sub latest_version {
+  $#version_upgrades + 1;
+}
+
+
+sub _before_save_set_format_version {
+  my ($self) = @_;
+  if ($self->definition->{format_version} != $self->latest_version) {
+    $self->definition->{format_version} = $self->latest_version;
+    $self->definition($self->definition);
+  }
+
+  1;
+}
+
+# used for version_upgrades
+sub _upgrade_node {
+  my ($definition, $search_code, $apply_code) = @_;
+
+  die "not a hashref" unless 'HASH' eq ref $definition;
+
+  if ($search_code->($definition)) {
+    $apply_code->($definition);
+  }
+
+  for my $key (keys %$definition) {
+    if ('HASH' eq ref $definition->{$key}) {
+      _upgrade_node($definition->{$key}, $search_code, $apply_code);
+    }
+
+    if ('ARRAY' eq ref $definition->{$key}) {
+      for (@{ $definition->{$key} }) {
+        _upgrade_node($_, $search_code, $apply_code) if 'HASH' eq ref $_;
+      }
+    }
+  }
 }
 
 # some helper classes, maybe put them into their own files later

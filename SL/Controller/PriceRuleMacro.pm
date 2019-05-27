@@ -38,8 +38,9 @@ sub action_new {
       },
       action => {
         type => 'action_container_and',
-        action => [],,
-      }
+        action => [],
+      },
+      format_version => SL::DB::PriceRuleMacro->latest_version,
     }
   );
 
@@ -507,6 +508,8 @@ If you want to extend this with new elements, here's a list to do:
   - the remove controls (by having it sit in a element div)
   - prefixes (for round trips) - ATTENTION, format differs between conditions and actions, be careful
 
+* If the internal format of existing definitions changes, make sure that the
+  old ones still work by adding an upgrade hook in SL::DB::PriceRuleMacro
 
 =head1 BUGS
 
