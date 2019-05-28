@@ -76,7 +76,7 @@ my @version_upgrades = (
     _upgrade_node($_[0],
       sub { $_[0]->{type} =~ /date/ },
       sub {
-        $_[0]->{date_as_date} = delete $_[0]->{date} if $_[0]->{date};
+        $_[0]->{date_as_iso} = delete $_[0]->{date} if $_[0]->{date};
       });
   },
 );
