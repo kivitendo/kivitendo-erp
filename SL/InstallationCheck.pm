@@ -25,6 +25,7 @@ BEGIN {
   { name => "Daemon::Generic", version => '0.71',  url => "http://search.cpan.org/~muir/",      debian => 'libdaemon-generic-perl'},
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DateTime::Event::Cron", version => '0.08', url => "http://search.cpan.org/~msisk/", debian => 'libdatetime-event-cron-perl' },
+  { name => "DateTime::Format::ISO8601",           url => "http://search.cpan.org/~jhoblitt/",   debian => 'libdatetime-format-iso8601-perl' },
   { name => "DateTime::Format::Strptime",          url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-format-strptime-perl' },
   { name => "DateTime::Set",   version => '0.12',  url => "http://search.cpan.org/~fglock/",    debian => 'libdatetime-set-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },

@@ -1,6 +1,8 @@
 package SL::DB::Helper::Attr;
 
 use strict;
+use SL::Helper::Number;
+use DateTime::Format::ISO8601;
 
 sub auto_make {
   my ($package, %params) = @_;
@@ -36,6 +38,7 @@ sub _make_by_type {
   _as_null_number($package, $name, places =>  0) if $type =~ /int/xi;
   _as_date       ($package, $name)               if $type =~ /date | timestamp/xi;
   _as_epoch  ($package, $name)                   if $type =~ /date | timestamp/xi;
+  _as_iso    ($package, $name)                   if $type =~ /date | timestamp/xi;
   _as_timestamp  ($package, $name)             if $type =~ /timestamp/xi;
   _as_bool_yn    ($package, $name)               if $type =~ /bool/xi;
 }
@@ -145,6 +148,31 @@ sub _as_epoch {
 
     return $self->$attribute
       ? $self->$attribute->epoch
+      : undef;
+  };
+
+  return 1;
+}
+
+sub _as_iso {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_iso' } = sub {
+    my ($self, $string) = @_;
+
+    if (@_ > 1) {
+      if ($string) {
+        $self->$attribute(DateTime::Format::ISO8601->parse_datetime($string));
+      } else {
+        $self->$attribute(undef);
+      }
+    }
+
+    return $self->$attribute
+      ? $self->$attribute->iso8601
       : undef;
   };
 
