@@ -129,6 +129,25 @@ sub action_save {
   }
 }
 
+sub action_clone {
+  my ($self) = @_;
+
+  $self->price_rule_macro;
+  $self->price_rule_macro->id(undef);
+
+  $self->setup_form_action_bar;
+  $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
+}
+
+sub action_delete {
+  my ($self) = @_;
+
+  $self->price_rule_macro->delete;
+  flash_later('info',  t8('The price rule has been deleted.'));
+
+  $self->redirect_to($::form->{callback} || (action => 'list'));
+}
+
 sub action_meta {
   my ($self) = @_;
 
@@ -400,14 +419,14 @@ sub setup_form_action_bar {
         ],
         action => [
           t8('Use as new'),
-          submit   => [ '#form', { action => 'PriceRuleMacro/clone' } ],
+          submit   => [ 'form', { action => 'PriceRuleMacro/clone' } ],
           disabled => $is_new ? t8('The object has not been saved yet.') : undef,
         ],
       ], # end of combobox "Save"
 
       action => [
         t8('Delete'),
-        submit   => [ '#form', { action => 'PriceRuleMacro/delete' } ],
+        submit   => [ 'form', { action => 'PriceRuleMacro/delete' } ],
         confirm  => t8('Do you really want to delete this object?'),
         disabled => $is_new                   ? t8('The object has not been saved yet.')
                   : $self->price_rule_macro->in_use ? t8('This object has already been used.')
