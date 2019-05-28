@@ -86,13 +86,11 @@ FcgidMaxRequestLen 10485760
 &lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
   Options ExecCGI Includes FollowSymlinks
-  Order Allow,Deny
-  Allow from All
+  Require all granted
 &lt;/Directory&gt;
 
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-  Order Deny,Allow
-  Deny from All
+Require all denied
 &lt;/DirectoryMatch&gt;</pre><p>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
           Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
           Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
