@@ -923,6 +923,11 @@ package SL::PriceRuleMacro::Action::Simple {
     SL::Locale::String::t8('Simple Action (PriceRules)')
   }
 
+  sub validate {
+    die "action of type '@{[ $_[0]->type ]}' needs at least price"
+      if !defined $_[0]->price_or_discount;
+  }
+
   sub price_rules {
     my ($self) = @_;
     require SL::DB::PriceRule;

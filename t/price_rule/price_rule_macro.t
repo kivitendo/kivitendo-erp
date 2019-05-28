@@ -37,7 +37,7 @@ my @test_cases = (
         ]
       },
       "action": {
-        "type": "simple_action",
+        "type": "discount_action",
         "discount": 4.00
       }
     }',
@@ -80,7 +80,7 @@ my @test_cases = (
     ]
   },
   "action": {
-    "type": "simple_action",
+    "type": "discount_action",
     "discount": 4.00
   }
 }',
@@ -134,7 +134,7 @@ my @test_cases = (
     ]
   },
   "action": {
-    "type": "simple_action",
+    "type": "discount_action",
     "discount": 4.00
   }
   }',
@@ -214,7 +214,7 @@ my @test_cases = (
           "id": 42
         },
         "action": {
-          "type": "simple_action",
+          "type": "discount_action",
           "discount": 2.00
         }
       },
@@ -225,7 +225,7 @@ my @test_cases = (
           "id": 6345
         },
         "action": {
-          "type": "simple_action",
+          "type": "discount_action",
           "discount": 3.00
         }
       },
@@ -236,7 +236,7 @@ my @test_cases = (
           "id": 2344
         },
         "action": {
-          "type": "simple_action",
+          "type": "discount_action",
           "discount": 4.00
         }
       }
@@ -270,7 +270,7 @@ my @test_cases = (
         ]
       },
       "action": {
-        "type": "simple_action",
+        "type": "discount_action",
         "discount": 4.00
       }
     }',
@@ -305,7 +305,7 @@ my @test_cases = (
         ]
       },
       "action": {
-        "type": "simple_action",
+        "type": "discount_action",
         "discount_as_number": "4,00"
       }
     }',
@@ -319,9 +319,7 @@ my @test_cases = (
   qq'{
     "action": {
         "price": "321",
-        "discount": null,
-        "reduction": null,
-        "type": "simple_action"
+        "type": "price_action"
     },
     "condition": {
         "type": "container_and",
@@ -357,9 +355,7 @@ my @test_cases = (
   qq'{
     "action": {
         "price": "321",
-        "discount": null,
-        "reduction": null,
-        "type": "simple_action"
+        "type": "price_action"
     },
     "condition": {
         "type": "container_and",
@@ -398,9 +394,7 @@ my @test_cases = (
   qq'{
     "action": {
         "price": "321",
-        "discount": null,
-        "reduction": null,
-        "type": "simple_action"
+        "type": "price_action"
     },
     "condition": {
         "type": "container_and",
@@ -432,9 +426,7 @@ my @test_cases = (
   qq'{
     "action": {
         "price": "321",
-        "discount": null,
-        "reduction": null,
-        "type": "simple_action"
+        "type": "price_action"
     },
     "condition": {
         "type": "container_and",
@@ -465,9 +457,8 @@ my @test_cases = (
 { json =>
   qq'{
     "action": {
-        "price": null,
-        "discount": null,
-        "reduction": null,
+        "price_type": 0,
+        "price_or_discount": null,
         "type": "simple_action"
     },
     "condition": {
@@ -560,7 +551,7 @@ my @test_cases = (
           ]
         },
         "action": {
-          "type": "simple_action",
+          "type": "discount_action",
           "discount": 4.00
         }
       }',
