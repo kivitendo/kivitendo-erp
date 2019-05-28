@@ -48,9 +48,10 @@ my @version_upgrades = (
      _upgrade_node($_[0], sub { $_[0]->{type} eq 'qty' }, sub { $_[0]->{num} = delete $_[0]->{qty} if $_[0]->{qty} });
   },
   sub {
-    # 2: "simple action" is currently not roundtrip safe. change those to typed inputs
+    # 2: "simple action" was not roundtrip safe and changed later
+    #    change the early versions to typed inputs
      _upgrade_node($_[0], sub {
-       $_[0]->{type} eq 'simple_action'
+       $_[0]->{type} eq 'simple_action' && !$_[0]->{price_or_discount}
      },
      sub {
        my ($node) = @_;
@@ -908,10 +909,10 @@ package SL::PriceRuleMacro::ConditionalAction {
 package SL::PriceRuleMacro::Action::Simple {
   our @ISA = ('SL::PriceRuleMacro::Action');
   Rose::Object::MakeMethods::Generic->make_methods(scalar => [__PACKAGE__->elements]);
-  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for __PACKAGE__->elements;
+  SL::DB::Helper::Attr::_make_by_type(__PACKAGE__, $_, 'numeric') for qw(price_or_discount);
 
   sub elements {
-    qw(price discount reduction)
+    qw(price_type price_or_discount)
   }
 
   sub type {
@@ -922,13 +923,17 @@ package SL::PriceRuleMacro::Action::Simple {
     SL::Locale::String::t8('Simple Action (PriceRules)')
   }
 
-  sub validate {
-    die "action of type '@{[ $_[0]->type ]}' needs at least price, discount or reduction"
-      if !defined $_[0]->price && !defined $_[0]->discount && !defined $_[0]->reduction;
-  }
-
   sub price_rules {
-    SL::DB::PriceRule->new(price => $_[0]->price, discount => $_[0]->discount, reduction => $_[0]->reduction);
+    my ($self) = @_;
+    require SL::DB::PriceRule;
+
+    my %slots = (
+      SL::DB::Manager::PriceRule::PRICE_NEW()                 => 'price',
+      SL::DB::Manager::PriceRule::PRICE_DISCOUNT()            => 'discount',
+      SL::DB::Manager::PriceRule::PRICE_REDUCED_MASTER_DATA() => 'reduction',
+    );
+
+    SL::DB::PriceRule->new($slots{ $self->price_type } => $_[0]->price_or_discount);
   }
 
   sub order {

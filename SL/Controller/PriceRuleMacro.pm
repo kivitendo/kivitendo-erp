@@ -537,10 +537,8 @@ None yet :)
 =head1 TODO
 
 - functionality:
-   cloning
    fix help popups
    conditional action
-   roundtrip simple action
 
 - styling:
     fieldset styling, interactive styling
