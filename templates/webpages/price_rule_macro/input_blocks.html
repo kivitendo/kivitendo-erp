@@ -186,7 +186,7 @@
     </legend>
     <div>
       [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number) %]
+      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
   </fieldset>
 [%- END %]
@@ -199,7 +199,7 @@
     </legend>
     <div>
       [% L.select_tag(prefix _ '.op', num_compare_ops, default=item.op) %]
-      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number) %]
+      [% L.input_tag(prefix _ '.num_as_number', item.num_as_number, "data-validate"='number') %]
     </div>
   </fieldset>
 [%- END %]
@@ -210,9 +210,9 @@
      [%- PROCESS remove_control %]
      [% 'Quantity Range' | $T8 %]
    </legend>
-  [% L.input_tag(prefix _ '.min_as_number', item.min_as_number) %]
+  [% L.input_tag(prefix _ '.min_as_number', item.min_as_number, "data-validate"='number') %]
   [% 'To (range)' | $T8 %]
-  [% L.input_tag(prefix _ '.max_as_number', item.max_as_number) %]
+  [% L.input_tag(prefix _ '.max_as_number', item.max_as_number, "data-validate"='number') %]
   </fieldset>
 [%- END %]
 
@@ -296,7 +296,7 @@
       [% 'Set (set to)' | $T8 %]
       [% L.select_tag(prefix _ '[].price_type', SELF.all_price_types, default=item.price_type) %]
       [% 'to (set to)' | $T8 %]
-      [% L.input_tag(prefix _ '[].price_or_discount_as_number', item.price_or_discount_as_number) %]
+      [% L.input_tag(prefix _ '[].price_or_discount_as_number', item.price_or_discount_as_number, "data-validate"='number') %]
     </div>
   </fieldset>
 [%- END %]
