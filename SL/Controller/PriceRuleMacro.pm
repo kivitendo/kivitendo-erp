@@ -550,7 +550,6 @@ None yet :)
    safety to not remove last elements in array_elements and in condition/action?
    safety to not submit/save without condition/action
    deduplication
-   make all number inputs numeric/validate
    make new_empty accessor to fill container initially
 
 - polish:
