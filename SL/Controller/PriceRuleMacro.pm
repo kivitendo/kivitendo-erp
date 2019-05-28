@@ -521,6 +521,7 @@ None yet :)
    cloning
    fix help popups
    conditional action
+   roundtrip simple action
 
 - styling:
     fieldset styling, interactive styling
@@ -529,14 +530,11 @@ None yet :)
 
 - robustness:
    id not in json
-   sorting of elements
-   fix itime/mtime crap
    all inputs to presenter
    safety to not remove last elements in array_elements and in condition/action?
    safety to not submit/save without condition/action
    deduplication
    make all number inputs numeric/validate
-   fix compile warning in ubuntu 14.04, perl 5.18.2
    make new_empty accessor to fill container initially
 
 - polish:
