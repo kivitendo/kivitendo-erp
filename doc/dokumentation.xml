@@ -1985,7 +1985,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
       debianoiden Betriebssystemen installiert man die Pakete mit:</para>
 
       <para><programlisting>apt install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
-  texlive-latex-extra texlive-lang-german texlive-generic-extra texlive-xetex </programlisting></para>
+  texlive-latex-extra texlive-lang-german texlive-generic-extra texlive-xetex ghostscript</programlisting></para>
 
       <para>Für Fedora benötigen Sie die folgenden Pakete:</para>
 
