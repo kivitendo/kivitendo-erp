@@ -529,7 +529,6 @@ None yet :)
     spacing
 
 - robustness:
-   id not in json
    all inputs to presenter
    safety to not remove last elements in array_elements and in condition/action?
    safety to not submit/save without condition/action

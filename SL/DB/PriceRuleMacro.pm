@@ -130,7 +130,12 @@ sub init_parsed_definition {
   die 'definition does not seem to be a json object' unless 'HASH' eq ref($_[0]->definition);
   $_[0]->upgrade_version;
 
-  SL::PriceRuleMacro::Definition->new(%{ $_[0]->definition });
+  my %params = %{ $_[0]->definition };
+
+  # do not save id in definition, makes it easier to clone
+  delete $params{id};
+
+  SL::PriceRuleMacro::Definition->new(%params);
 }
 
 sub in_use {
@@ -396,7 +401,7 @@ package SL::PriceRuleMacro::Definition {
   }
 
   sub elements {
-    qw(id condition action name notes priority obsolete format_version type itime mtime)
+    qw(condition action name notes priority obsolete format_version type itime mtime)
   }
 
   sub array_elements {
