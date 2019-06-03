@@ -250,7 +250,7 @@ sub handle_request {
 
   my $session_result = $self->pre_request_initialization;
 
-  $::form->read_cgi_input;
+  $::request->read_cgi_input($::form);
 
   my %routing;
   eval { %routing = $self->_route_request($ENV{SCRIPT_NAME}); 1; } or return;

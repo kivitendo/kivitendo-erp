@@ -115,11 +115,6 @@ sub new {
   return $self;
 }
 
-sub read_cgi_input {
-  my ($self) = @_;
-  SL::Request::read_cgi_input($self);
-}
-
 sub _flatten_variables_rec {
   $main::lxdebug->enter_sub(2);
 

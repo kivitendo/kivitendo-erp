@@ -10,15 +10,16 @@ use List::MoreUtils qw(all any apply);
 use Exporter qw(import);
 
 use SL::Common;
+use SL::JSON;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::Layout::None;
 use SL::Presenter;
 
-our @EXPORT_OK = qw(flatten unflatten read_cgi_input);
+our @EXPORT_OK = qw(flatten unflatten);
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(applying_database_upgrades) ],
+  scalar                  => [ qw(applying_database_upgrades post_data) ],
   'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type) ],
 );
 
@@ -232,6 +233,12 @@ sub _parse_multipart_formdata {
   $::lxdebug->leave_sub(2);
 }
 
+sub _parse_json_formdata {
+  my ($content) = @_;
+
+  return $content ? SL::JSON::decode_json($content) : undef;
+}
+
 sub _recode_recursively {
   $::lxdebug->enter_sub;
   my ($iconv, $from, $to) = @_;
@@ -270,7 +277,7 @@ sub _recode_recursively {
 sub read_cgi_input {
   $::lxdebug->enter_sub;
 
-  my ($target) = @_;
+  my ($self, $target) = @_;
 
   # yes i know, copying all those values around isn't terribly efficient, but
   # the old version of dumping everything into form and then launching a
@@ -279,29 +286,38 @@ sub read_cgi_input {
   # this way the data can at least be recoded on the fly as soon as we get to
   # know the source encoding and only in the cases where encoding may be hidden
   # among the payload we take the hit of copying the request around
-  my $temp_target = { };
+  $self->post_data(undef);
+  my $data_to_decode = { };
+  my $iconv          = SL::Iconv->new('UTF-8', 'UTF-8');
 
-  # since both of these can potentially bring their encoding in INPUT_ENCODING
-  # they get dumped into temp_target
-  _input_to_hash($temp_target, $ENV{QUERY_STRING}, 1) if $ENV{QUERY_STRING};
-  _input_to_hash($temp_target, $ARGV[0],           1) if @ARGV && $ARGV[0];
+  _input_to_hash($data_to_decode, $ENV{QUERY_STRING}, 1) if $ENV{QUERY_STRING};
+  _input_to_hash($data_to_decode, $ARGV[0],           1) if @ARGV && $ARGV[0];
 
   if ($ENV{CONTENT_LENGTH}) {
     my $content;
     read STDIN, $content, $ENV{CONTENT_LENGTH};
+
     if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
+      $self->post_data({});
+      my $post_data_to_decode = { };
+
       # multipart formdata can bring it's own encoding, so give it both
       # and let it decide on it's own
-      _parse_multipart_formdata($target, $temp_target, $content, 1);
+      _parse_multipart_formdata($self->post_data, $post_data_to_decode, $content, 1);
+      _recode_recursively($iconv, $post_data_to_decode, $self->post_data) if keys %$post_data_to_decode;
+
+      $target->{$_} = $self->post_data->{$_} for keys %{ $self->post_data };
+
+    } elsif (($ENV{CONTENT_TYPE} // '') eq 'application/json') {
+      $self->post_data(_parse_json_formdata($content));
+
     } else {
       # normal encoding must be recoded
-      _input_to_hash($temp_target, $content, 1);
+      _input_to_hash($data_to_decode, $content, 1);
     }
   }
 
-  my $encoding     = delete $temp_target->{INPUT_ENCODING} || 'UTF-8';
-
-  _recode_recursively(SL::Iconv->new($encoding, 'UTF-8'), $temp_target => $target) if keys %$temp_target;
+  _recode_recursively($iconv, $data_to_decode, $target) if keys %$data_to_decode;
 
   if ($target->{RESTORE_FORM_FROM_SESSION_ID}) {
     my %temp_form;
@@ -381,10 +397,10 @@ This module handles unpacking of CGI parameters. It also gives
 information about the request, such as whether or not it was done via AJAX,
 or the requested content type.
 
-  use SL::Request qw(read_cgi_input);
+  use SL::Request;
 
   # read cgi input depending on request type, unflatten and recode
-  read_cgi_input($target_hash_ref);
+  $::request->read_cgi_input($target_hash_ref);
 
   # $hashref and $new_hashref should be identical
   my $new_arrayref = flatten($hashref);
@@ -563,6 +579,26 @@ its initial value is set to C<$default>. If C<$default> is not given
 (undefined) then a new, empty hash reference is created.
 
 Returns the cached item.
+
+=item C<post_data>
+
+If the client sends data in the request body with the content type of
+either C<application/json> or C<multipart/form-data>, the content will
+be stored in the global request object, too. It can be retrieved via
+the C<post_data> function.
+
+For content type C<multipart/form-data> the same data is additionally
+stored in the global C<$::form> instance, potentially overwriting
+parameters given in the URL. This is done primarily for compatibility
+purposes with existing code that expects all parameters to be present
+in C<$::form>.
+
+For content type C<application/json> the data is only available in
+C<$::request>. The reason is that the top-level data in a JSON
+documents doesn't have to be an object which could be mapped to the
+hash C<$::form>. Instead, the top-level data can also be an
+array. Additionally keeping the namespaces of URL and POST parameters
+separate is cleaner and allows for fewer accidental conflicts.
 
 =back
 
