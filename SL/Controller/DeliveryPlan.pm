@@ -15,7 +15,6 @@ use SL::DBUtils ();
 use Carp;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(db_args flat_filter) ],
   'scalar --get_set_init' => [ qw(models all_edit_right vc use_linked_items all_employees all_businesses all_departments) ],
 );
 

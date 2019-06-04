@@ -17,7 +17,6 @@ use Carp;
 use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(db_args flat_filter) ],
   'scalar --get_set_init' => [ qw(models vc all_employees all_businesses) ],
 );
 
