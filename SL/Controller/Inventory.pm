@@ -416,7 +416,7 @@ sub action_stock {
           comment       => $::form->{comment},
         });
         1;
-      } or do { $transfer_error = $EVAL_ERROR->getMessage; }
+      } or do { $transfer_error = $EVAL_ERROR->error; }
     });
 
     if (!$transfer_error) {
@@ -567,7 +567,7 @@ sub action_save_stocktaking {
         stocktaking_cutoff_date => $::form->{cutoff_date_as_date},
       });
       1;
-    } or do { $transfer_error = $EVAL_ERROR->getMessage; }
+    } or do { $transfer_error = $EVAL_ERROR->error; }
   });
 
   return $self->js->flash('error', $transfer_error)->render()

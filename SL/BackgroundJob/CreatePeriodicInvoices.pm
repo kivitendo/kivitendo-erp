@@ -358,7 +358,7 @@ sub _print_invoice {
       $form->parse_template(\%::myconfig);
       1;
     } or do {
-      push @{ $self->{job_errors} }, $EVAL_ERROR->getMessage;
+      push @{ $self->{job_errors} }, $EVAL_ERROR->error;
     };
   });
 }
