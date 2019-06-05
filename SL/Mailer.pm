@@ -25,6 +25,7 @@ package Mailer;
 
 use Email::Address;
 use Email::MIME::Creator;
+use Encode;
 use File::MimeInfo::Magic;
 use File::Slurp;
 use List::UtilsBy qw(bundle_by);
@@ -181,13 +182,19 @@ sub _create_attachment_part {
   my $ent;
   if ( $attributes{content_type} eq 'message/rfc822' ) {
     $ent = Email::MIME->new($attachment_content);
-    $ent->header_str_set('Content-disposition' => 'attachment; filename='.$attributes{filename});
   } else {
     $ent = Email::MIME->create(
       attributes => \%attributes,
       body       => $attachment_content,
     );
   }
+
+  # Due to a bug in Email::MIME it's not enough to hand over the encoded file name in the "attributes" hash in the
+  # "create" call. Email::MIME iterates over the keys in the hash, and depending on which key it has already seen during
+  # the iteration it might revert the encoding. As Perl's hash key order is randomized for each Perl run, this means
+  # that the file name stays unencoded sometimes.
+  # Setting the header manually after the "create" call circumvents this problem.
+  $ent->header_set('Content-disposition' => 'attachment; filename="' . encode('MIME-Q', $attributes{filename}) . '"');
 
   push @{ $self->{mail_attachments}} , SL::DB::EmailJournalAttachment->new(
     name      => $attributes{filename},
