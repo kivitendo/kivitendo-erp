@@ -383,7 +383,7 @@ sub _email_invoice {
   return unless @recipients;
 
   my %create_params = (
-    template               => $self->find_template(name => 'invoice'),
+    template               => scalar($self->find_template(name => 'invoice')),
     variables              => Form->new(''),
     return                 => 'file_name',
     variable_content_types => {
