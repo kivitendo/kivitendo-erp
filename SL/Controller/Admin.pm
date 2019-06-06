@@ -31,7 +31,7 @@ __PACKAGE__->run_before(\&setup_layout);
 __PACKAGE__->run_before(\&setup_client, only => [ qw(list_printers new_printer edit_printer save_printer delete_printer) ]);
 
 sub get_auth_level { "admin" };
-sub keep_auth_vars {
+sub keep_auth_vars_in_form {
   my ($class, %params) = @_;
   return $params{action} eq 'login';
 }
