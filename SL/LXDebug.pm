@@ -325,7 +325,7 @@ sub _write_raw {
 sub level2string {
   no warnings;
   # use $_[0] as a bit mask and return levelstrings separated by /
-  join '/', qw(info debug1 debug2 query trace error_call_trace request_timer WARNING)[ grep { (reverse split //, sprintf "%08b", $_[0])[$_] } 0..7 ]
+  join '/', qw(info debug1 debug2 query trace error_call_trace request_timer request WARNING trace2 show_caller)[ grep { (reverse split //, sprintf "%011b", $_[0])[$_] } 0..11 ]
 }
 
 sub begin_request {
