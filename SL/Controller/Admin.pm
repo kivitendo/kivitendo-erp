@@ -84,10 +84,9 @@ sub action_create_auth_tables {
   $::auth->set_session_value('admin_password', $::lx_office_conf{authentication}->{admin_password});
   $::auth->create_or_refresh_session;
 
-  return if $self->apply_dbupgrade_scripts;
+  my $scripts_applied = $self->apply_dbupgrade_scripts;
 
-  my $group = (SL::DB::Manager::AuthGroup->get_all(limit => 1))[0];
-  if (!$group) {
+  if (! SL::DB::Manager::AuthGroup->get_all_count) {
     SL::DB::AuthGroup->new(
       name        => t8('Full Access'),
       description => t8('Full access to all functions'),
@@ -95,7 +94,7 @@ sub action_create_auth_tables {
     )->save;
   }
 
-  $self->action_login;
+  $self->action_login unless $scripts_applied;
 }
 
 #
