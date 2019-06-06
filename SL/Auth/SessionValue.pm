@@ -46,6 +46,7 @@ sub _fetch {
   my ($self) = @_;
 
   return $self if $self->{fetched};
+  return $self if !$self->{auth}->session_tables_present;
 
   my $dbh          = $self->{auth}->dbconnect;
   my $query        = qq|SELECT sess_value FROM auth.session_content WHERE (session_id = ?) AND (sess_key = ?)|;
