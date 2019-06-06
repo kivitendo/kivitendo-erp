@@ -382,8 +382,9 @@ sub _email_invoice {
 
   return unless @recipients;
 
+  my $language      = $data->{invoice}->language ? $data->{invoice}->language->template_code : undef;
   my %create_params = (
-    template               => scalar($self->find_template(name => 'invoice')),
+    template               => scalar($self->find_template(name => 'invoice', language => $language)),
     variables              => Form->new(''),
     return                 => 'file_name',
     variable_content_types => {
@@ -397,6 +398,7 @@ sub _email_invoice {
   $create_params{variables}->prepare_for_printing;
 
   my $pdf_file_name;
+  my $label = $language && Locale::is_supported($language) ? Locale->new($language)->text('Invoice') : $::locale->text('Invoice');
 
   eval {
     $pdf_file_name = $self->create_pdf(%create_params);
@@ -423,7 +425,7 @@ sub _email_invoice {
       $mail->{message}     = $data->{config}->email_body;
       $mail->{attachments} = [{
         path     => $pdf_file_name,
-        name     => sprintf('%s %s.pdf', $::locale->text('Invoice'), $data->{invoice}->invnumber),
+        name     => sprintf('%s %s.pdf', $label, $data->{invoice}->invnumber),
       }];
 
       my $error        = $mail->send;

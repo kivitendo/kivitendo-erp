@@ -74,6 +74,12 @@ sub new {
   return $locales_by_country{$country}
 }
 
+sub is_supported {
+  my ($country) = @_;
+
+  return -f "locale/$country/all";
+}
+
 sub _init {
   my $self     = shift;
   my $country  = shift;
