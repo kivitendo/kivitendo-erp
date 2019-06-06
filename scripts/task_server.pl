@@ -38,6 +38,7 @@ use SL::System::TaskServer;
 use Template;
 
 our %lx_office_conf;
+our $run_single_job;
 
 sub debug {
   return if !$lx_office_conf{task_server}->{debug};
@@ -224,6 +225,51 @@ EOT
   return ();
 }
 
+sub run_single_job_for_all_clients {
+  initialize_kivitendo();
+
+  my $clients = enabled_clients();
+
+  foreach my $client (@{ $clients }) {
+    debug("Running single job ID $run_single_job for client ID " . $client->id . " (" . $client->name . ")");
+
+    my $ok = eval {
+      initialize_kivitendo($client);
+
+      my $job = SL::DB::Manager::BackgroundJob->find_by(id => $run_single_job);
+
+      if ($job) {
+        debug(" Executing the following job: " . $job->package_name);
+      } else {
+        debug(" No jobs to execute found");
+        next;
+      }
+
+      # Provide fresh global variables in case legacy code modifies
+      # them somehow.
+      initialize_kivitendo($client);
+
+      my $history = $job->run;
+
+      debug("   Executed job " . $job->package_name .
+            "; result: " . (!$history ? "no return value" : $history->has_failed ? "failed" : "succeeded") .
+            ($history && $history->has_failed ? "; error: " . $history->error_col : ""));
+
+      notify_on_failure(history => $history) if $history && $history->has_failed;
+
+      1;
+    };
+
+    if (!$ok) {
+      my $error = $EVAL_ERROR;
+      debug("Exception during execution: ${error}");
+      notify_on_failure(exception => $error);
+    }
+
+    cleanup_kivitendo();
+  }
+}
+
 sub run_once_for_all_clients {
   initialize_kivitendo();
 
@@ -271,6 +317,11 @@ sub run_once_for_all_clients {
 }
 
 sub gd_run {
+  if ($run_single_job) {
+    run_single_job_for_all_clients();
+    return;
+  }
+
   while (1) {
     $SIG{'ALRM'} = 'IGNORE';
 
@@ -295,6 +346,12 @@ sub gd_run {
   }
 }
 
+sub gd_flags_more {
+  return (
+    '--run-job=<id>' => 'Run the single job with the database ID <id> no matter if it is active or when its next execution is supposed to be; the daemon will exit afterwards',
+  );
+}
+
 $exe_dir = SL::System::Process->exe_dir;
 chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
 
@@ -309,6 +366,9 @@ $file = File::Spec->abs2rel(Cwd::abs_path($file), Cwd::abs_path($exe_dir));
 newdaemon(configfile => $file,
           progname   => 'kivitendo-background-jobs',
           pidbase    => SL::System::TaskServer::PID_BASE() . '/',
+          options    => {
+            'run-job=i' => \$run_single_job,
+          },
           );
 
 1;
