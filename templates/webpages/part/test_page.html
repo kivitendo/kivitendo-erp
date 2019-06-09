@@ -24,6 +24,15 @@ Artikel-Klassifizierung: Produktion <br>
 [% P.part.picker('part_id13', undef, classification_id='4') %]<br>
 Artikel-Klassifizierung: Eink.,Verk.,Prod. <br>
 [% P.part.picker('part_id14', undef, classification_id='1,2,4') %]<br>
+Artikel-Status: Aktiv (default)<br>
+[% P.part.picker('part_id15') %]<br>
+Artikel-Status: Aktiv< (explizit)<br>
+[% P.part.picker('part_id16', undef, status="active") %]<br>
+Artikel-Status: Ungültig<br>
+[% P.part.picker('part_id17', undef, status="obsolete") %]<br>
+Artikel-Status: Alle<br>
+[% P.part.picker('part_id18', undef, status="all") %]<br>
+
 Pre-filled:<br>
 [% P.part.picker('part_id6', pre_filled_part) %]<br>
 Convertible unit 'Std': (only select parts with unit Tag/Std/Min)<br>

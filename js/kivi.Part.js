@@ -335,12 +335,17 @@ namespace('kivi.Part', function(ns) {
     ajax_data: function(term) {
       var data = {
         'filter.all:substr:multi::ilike': term,
-        'filter.obsolete': 0,
         current:  this.$real.val(),
       };
 
       if (this.o.part_type)
         data['filter.part_type'] = this.o.part_type.split(',');
+
+      if (this.o.status) {
+        if (this.o.status == 'active')   data['filter.obsolete'] = 0;
+        if (this.o.status == 'obsolete') data['filter.obsolete'] = 1;
+      } else
+        data['filter.obsolete'] = 0;
 
       if (this.o.classification_id)
         data['filter.classification_id'] = this.o.classification_id.split(',');

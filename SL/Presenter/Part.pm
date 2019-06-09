@@ -229,6 +229,11 @@ If C<%params> contains C<part_type> only parts of this type will be used
 for autocompletion. You may comma separate multiple types as in
 C<part,assembly>.
 
+If C<%params> contains C<status> only parts of this status will be used
+for autocompletion. C<status> can be one of the following strings:
+C<active>, C<obsolete> or C<all>. C<active> is the default if C<status> is
+not given.
+
 If C<%params> contains C<unit> only parts with this unit will be used
 for autocompletion. You may comma separate multiple units as in
 C<h,min>.
