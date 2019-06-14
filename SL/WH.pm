@@ -306,6 +306,18 @@ sub get_warehouse_journal {
 
   my $where_clause = @filter_ary ? join(" AND ", @filter_ary) . " AND " : '';
 
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query(
+    module         => 'IC',
+    trans_id_field => 'p.id',
+    filter         => $form,
+    sub_module     => undef,
+  );
+
+  if ($cvar_where) {
+    $where_clause .= qq| ($cvar_where) AND |;
+    push @filter_vars, @cvar_values;
+  }
+
   $select_tokens{'trans'} = {
      "parts_id"             => "i1.parts_id",
      "qty"                  => "ABS(SUM(i1.qty))",
@@ -641,6 +653,18 @@ sub get_warehouse_report {
   my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_qty l_partunit) );
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query(
+    module         => 'IC',
+    trans_id_field => 'p.id',
+    filter         => $form,
+    sub_module     => undef,
+  );
+
+  if ($cvar_where) {
+    $where_clause .= qq| AND ($cvar_where)|;
+    push @filter_vars, @cvar_values;
+  }
 
   my $query =
     qq|SELECT * FROM ( SELECT $select_clause

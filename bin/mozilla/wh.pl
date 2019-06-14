@@ -575,7 +575,7 @@ sub journal {
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
   my $cvar_configs                           = CVar->get_configs('module' => 'IC');
-  (undef,
+  ($form->{CUSTOM_VARIABLES_FILTER_CODE},
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $cvar_configs,
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
@@ -649,11 +649,16 @@ sub generate_journal {
 
   my $cvar_configs                 = CVar->get_configs('module' => 'IC');
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit unit partunit fromdate todate transtype_ids comment projectnumber);
   push @hidden_variables, qw(classification_id);
+  push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_from'}  grep({$_->{type} eq  'date'}  @searchable_custom_variables));
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_to'}    grep({$_->{type} eq  'date'}  @searchable_custom_variables));
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables));
 
   my %column_defs = (
     'ids'             => { raw_header_data => checkbox_tag("", id => "check_all", checkall  => "[data-checkall=1]") },
@@ -811,7 +816,7 @@ sub report {
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
   my $cvar_configs                           = CVar->get_configs('module' => 'IC');
-  (undef,
+  ($form->{CUSTOM_VARIABLES_FILTER_CODE},
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $cvar_configs,
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
@@ -915,12 +920,17 @@ sub generate_report {
 
   my $cvar_configs                 = CVar->get_configs('module' => 'IC');
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
   push @hidden_variables, qw(classification_id stock_value_basis allrows);
+  push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_from'}  grep({$_->{type} eq 'date'}   @searchable_custom_variables));
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_to'}    grep({$_->{type} eq 'date'}   @searchable_custom_variables));
+  push @hidden_variables, map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables));
 
   my %column_defs = (
     'warehousedescription' => { 'text' => $locale->text('Warehouse'), },
