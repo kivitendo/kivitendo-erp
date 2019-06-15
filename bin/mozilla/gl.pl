@@ -994,8 +994,9 @@ sub setup_gl_action_bar {
         action => [ t8('Storno'),
           submit   => [ '#form', { action => 'storno' } ],
           confirm  => t8('Do you really want to cancel this general ledger transaction?'),
-          disabled => !$form->{id}    ? t8('This general ledger transaction has not been posted yet.')
-                    : $form->{storno} ? t8('A canceled general ledger transaction cannot be canceled again.')
+          disabled => !$form->{id}                ? t8('This general ledger transaction has not been posted yet.')
+                    : $form->{storno}             ? t8('A canceled general ledger transaction cannot be canceled again.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
                     : undef,
         ],
         action => [ t8('Delete'),
