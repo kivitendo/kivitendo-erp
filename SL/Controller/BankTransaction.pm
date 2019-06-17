@@ -973,6 +973,7 @@ sub load_gl_record_template_url {
     'form_defaults.callback'             => $self->callback,
     'form_defaults.bt_id'                => $self->transaction->id,
     'form_defaults.bt_chart_id'          => $self->transaction->local_bank_account->chart->id,
+    'form_defaults.description'          => $self->transaction->purpose,
   );
 }
 
