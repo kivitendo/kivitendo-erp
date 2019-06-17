@@ -40,6 +40,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Verbuchen von Kontoauszügen, es können jetzt teilweise Verbuchungen gemacht werden (Belege werden nicht mehr überbucht)
 
+- Dialogbuchungen aus Kontoauszugs-Import erstellen, der Verwendungszweck wird in die Beschreibung übernommen
+
 2019-01-03 - Release 3.5.3
 
 Mittelgroße neue Features:
