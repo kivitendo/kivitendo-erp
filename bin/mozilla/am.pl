@@ -660,6 +660,7 @@ sub config {
   $form->{default_quick_searchmodules} = \@quick_search_modules;
 
   $form->{displayable_name_specs_by_module} = AM->displayable_name_specs_by_module();
+  $form->{positions_scrollbar_height}       = AM->positions_scrollbar_height();
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();

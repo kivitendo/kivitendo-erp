@@ -2730,6 +2730,7 @@ $self->{texts} = {
   'Saving the record template \'#1\' failed.' => '',
   'Score'                       => '',
   'Screen'                      => '',
+  'Scrollbar height percentage for form postion area (0 means no scrollbar)' => '',
   'Search'                      => '',
   'Search AP Aging'             => '',
   'Search AR Aging'             => '',

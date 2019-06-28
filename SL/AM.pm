@@ -52,6 +52,7 @@ use SL::DB::Part;
 use SL::DB::Vendor;
 use SL::DB;
 use SL::GenericTranslations;
+use SL::Helper::UserPreferences::PositionsScrollbar;
 
 use strict;
 
@@ -527,6 +528,10 @@ sub displayable_name_specs_by_module {
   };
 }
 
+sub positions_scrollbar_height {
+  SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -550,6 +555,10 @@ sub save_preferences {
     } else {
       $displayable_name_specs_by_module->{$specs->{module}}->{prefs}->store_value($specs->{value});
     }
+  }
+
+  if (exists $form->{positions_scrollbar_height}) {
+    SL::Helper::UserPreferences::PositionsScrollbar->new()->store_height($form->{positions_scrollbar_height})
   }
 
   $main::lxdebug->leave_sub();

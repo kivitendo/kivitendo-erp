@@ -147,6 +147,15 @@
       </td>
      </tr>
 
+     [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
+     <tr>
+      <th align="right">[% 'Scrollbar height percentage for form postion area (0 means no scrollbar)' | $T8 %]</th>
+      <td>
+        [% L.input_tag('positions_scrollbar_height',  positions_scrollbar_height, size = 5) %]
+      </td>
+     </tr>
+     [%- END -%]
+
      <tr>
       <th align="right">[% 'Show custom variable search inputs' | $T8 %]</th>
       <td>
