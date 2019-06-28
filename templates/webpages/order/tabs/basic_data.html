@@ -194,8 +194,12 @@
   <table width="100%">
     <tr>
       <td>
-
-        <div id="row_table_scroll_id" style="overflow-y: auto; height: 25vh">
+        [%- IF SELF.positions_scrollbar_height -%]
+          [%- SET scroll_style = 'style="overflow-y: auto; height:' _ SELF.positions_scrollbar_height _ 'vh;"' -%]
+        [%- ELSE -%]
+          [%- SET scroll_style = '' -%]
+        [%- END -%]
+        <div id="row_table_scroll_id" [%- scroll_style -%]>
           <table id="row_table_id" width="100%">
             <thead>
               <tr class="listheading">

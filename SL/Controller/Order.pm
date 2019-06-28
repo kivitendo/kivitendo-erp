@@ -24,6 +24,7 @@ use SL::DB::RecordLink;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::UserPreferences::PositionsScrollbar;
 
 use SL::Controller::Helper::GetModels;
 
@@ -1546,20 +1547,21 @@ sub workflow_sales_or_purchase_order {
 sub pre_render {
   my ($self) = @_;
 
-  $self->{all_taxzones}             = SL::DB::Manager::TaxZone->get_all_sorted();
-  $self->{all_departments}          = SL::DB::Manager::Department->get_all_sorted();
-  $self->{all_employees}            = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
-                                                                                            deleted => 0 ] ],
-                                                                         sort_by => 'name');
-  $self->{all_salesmen}             = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
-                                                                                            deleted => 0 ] ],
-                                                                         sort_by => 'name');
-  $self->{all_payment_terms}        = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
-                                                                                                      obsolete => 0 ] ]);
-  $self->{all_delivery_terms}       = SL::DB::Manager::DeliveryTerm->get_all_sorted();
-  $self->{current_employee_id}      = SL::DB::Manager::Employee->current->id;
-  $self->{periodic_invoices_status} = $self->get_periodic_invoices_status($self->order->periodic_invoices_config);
-  $self->{order_probabilities}      = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+  $self->{all_taxzones}               = SL::DB::Manager::TaxZone->get_all_sorted();
+  $self->{all_departments}            = SL::DB::Manager::Department->get_all_sorted();
+  $self->{all_employees}              = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->employee_id,
+                                                                                              deleted => 0 ] ],
+                                                                           sort_by => 'name');
+  $self->{all_salesmen}               = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->order->salesman_id,
+                                                                                              deleted => 0 ] ],
+                                                                           sort_by => 'name');
+  $self->{all_payment_terms}          = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->order->payment_id,
+                                                                                                        obsolete => 0 ] ]);
+  $self->{all_delivery_terms}         = SL::DB::Manager::DeliveryTerm->get_all_sorted();
+  $self->{current_employee_id}        = SL::DB::Manager::Employee->current->id;
+  $self->{periodic_invoices_status}   = $self->get_periodic_invoices_status($self->order->periodic_invoices_config);
+  $self->{order_probabilities}        = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
+  $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
   my $print_form = Form->new('');
   $print_form->{type}      = $self->type;
