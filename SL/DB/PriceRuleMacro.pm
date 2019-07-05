@@ -80,6 +80,18 @@ my @version_upgrades = (
         $_[0]->{date_as_iso} = delete $_[0]->{date} if $_[0]->{date};
       });
   },
+  sub {
+    # 4: migration script mistakenly uses transdate/reqdate in those conditions
+    _upgrade_node($_[0],
+      sub { $_[0]->{type} =~ /reqdate/ },
+      sub { $_[0]->{date} = delete $_[0]->{reqdate} if $_[0]->{reqdate}; },
+    );
+    _upgrade_node($_[0],
+      sub { $_[0]->{type} =~ /transdate/ },
+      sub { $_[0]->{date} = delete $_[0]->{transdate} if $_[0]->{transdate}; },
+    );
+
+  },
 );
 
 sub priority_as_text {
