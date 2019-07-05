@@ -1070,6 +1070,7 @@ sub js_reset_order_and_item_ids_after_save {
       ->val ('[name="orderitem_ids[+]"][value="' . $form_item_id . '"]', $self->order->items_sorted->[$idx]->id)
       ->val ('#item_' . $form_item_id, $self->order->items_sorted->[$idx]->id)
       ->attr('#item_' . $form_item_id, "id", 'item_' . $self->order->items_sorted->[$idx]->id);
+  } continue {
     $idx++;
   }
   $self->js->val('[name="converted_from_orderitems_ids[+]"]', '');
