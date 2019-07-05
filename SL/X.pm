@@ -30,6 +30,16 @@ use Exception::Class (
   'SL::X::ZUGFeRDValidation' => {
     isa                 => 'SL::X::Base',
   },
+  'SL::X::Inventory' => {
+    isa                 => 'SL::X::Base',
+    fields              => [ qw(msg error) ],
+    defaults            => { error_template => [ '%s: %s', qw(msg error) ] },
+  },
+  'SL::X::Inventory::Allocation' => {
+    isa                 => 'SL::X::Base',
+    fields              => [ qw(msg error) ],
+    defaults            => { error_template => [ '%s: %s', qw(msg error) ] },
+  },
 );
 
 1;
