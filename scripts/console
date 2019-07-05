@@ -2,6 +2,8 @@
 
 use warnings;
 use strict;
+use utf8;
+use open qw(:std :utf8);
 use 5.008;                          # too much magic in here to include perl 5.6
 
 BEGIN {
@@ -64,6 +66,10 @@ sub execute_code {
 my $repl = Devel::REPL->new;
 $repl->load_plugin($_) for @plugins;
 $repl->load_history($history_file);
+
+binmode($repl->out_fh, 'utf8');
+
+$repl->eval('use utf8;');
 $repl->eval('help');
 $repl->print("trying to auto login into client '$client' with login '$login'...\n");
 execute_code($repl, "lxinit '$client', '$login'");
