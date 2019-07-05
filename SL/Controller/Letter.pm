@@ -592,11 +592,13 @@ sub init_is_sales {
 }
 
 sub check_auth_edit {
-  $::auth->assert('sales_letter_edit');
+  $::form->{is_sales} ? $::auth->assert('sales_letter_edit')
+                      : $::auth->assert('purchase_letter_edit');
 }
 
 sub check_auth_report {
-  $::auth->assert('sales_letter_report');
+  $::form->{is_sales} ? $::auth->assert('sales_letter_report')
+                      : $::auth->assert('purchase_letter_report');
 }
 
 sub setup_load_letter_draft_action_bar {
