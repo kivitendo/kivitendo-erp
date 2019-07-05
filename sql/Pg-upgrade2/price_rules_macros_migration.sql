@@ -22,11 +22,8 @@ FROM (
       SELECT price_rules_id, row_to_json((SELECT r FROM (SELECT type, value_int as id) r))
       FROM price_rule_items WHERE type IN ('customer', 'vendor', 'business', 'partsgroup', 'part', 'pricegroup')
       UNION ALL
-      SELECT price_rules_id, row_to_json((SELECT r FROM (SELECT type, op, value_date as reqdate) r))
-      FROM price_rule_items WHERE type = 'reqdate'
-      UNION ALL
-      SELECT price_rules_id, row_to_json((SELECT r FROM (SELECT type, op, value_date as transdate) r))
-      FROM price_rule_items WHERE type = 'transdate'
+      SELECT price_rules_id, row_to_json((SELECT r FROM (SELECT type, op, value_date as date) r))
+      FROM price_rule_items WHERE type IN ('reqdate', 'transdate')
     ) items GROUP BY price_rules_id
   ) agg_items
   LEFT JOIN price_rules ON price_rules.id = price_rules_id
