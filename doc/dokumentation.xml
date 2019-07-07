@@ -466,21 +466,49 @@ cpan HTML::Restrict</programlisting>
         <sect3>
           <title>openSUSE</title>
 
-          <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als
-          RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</para>
+          <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
+          <para>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt sind.</para>
+          <para>Liste wird noch angegeben.</para>
+          <para>Das überprüfen wir mit YaST. Sollte openSUSE bis zur Version 15.0 zum Einsatz kommen und der Administrator bei der Installation der Distribution die KDE Oberfläche aktiviert hat, loggen wir uns am Server direkt an, starten das Verwaltungsprogram in einer Konsole wie folgt:</para>
+          <para>yast2 return.</para>
+          <para>Oder über die Menuführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste dann die Maus Verfahren auf System und YaST.</para>
+          <para>Sie können mit folgendem Befehl installiert werden:</para>
+          <para>zypper install Paketname</para>
+          <para>Es wird empholen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakte mit Yast verwaltet werden, also wieder deinstalliert werden können. Oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
 
-          <programlisting>zypper install apache2 apache2-mod_fcgid postgresql-server postgresql-contrib\
-  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CGI perl-Class-XSAccessor \
-  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
-  perl-DateTime perl-DateTime-Format-Strptime perl-Email-Address \
-  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-File-Flock \
-  perl-File-MimeInfo perl-File-Slurp perl-GD perl-Image-Info perl-JSON \
-  perl-List-MoreUtils perl-List-UtilsBy perl-Net-SMTP-SSL perl-Net-SSLGlue \
-  perl-PDF-API2 perl-Params-Validate perl-Regexp-IPv6 \
-  perl-Sort-Naturally perl-String-ShellQuote perl-Template-Toolkit \
-  perl-Text-CSV_XS perl-Text-Iconv perl-Text-Unidecode perl-URI \
-  perl-XML-Writer perl-YAML perl-libwww-perl
+          <programlisting>zypper install perl-threads-shared ghc-pdfinfo apache2-mod_fcgid \
+  yast2-http-server \
+  postgresql-server postgresql-contrib perl-Algorithm-CheckDigits perl-Archive-Zip \
+  perl-CGI perl-CGI-Ajax perl-Clone perl-Config-Std \
+  perl-Class-XSAccessor perl-Daemon-Generic perl-DateTime perl-DateTime-Event-Cron \
+  perl-DateTime-Format-Strptime perl-DateTime-Set perl-DBI perl-DBD-Pg \
+  perl-Devel-REPL perl-FastCGI perl-Email-Address perl-Email-MIME \
+  perl-Email-MIME-ContentType perl-Email-MIME-Encodings perl-FCGI \
+  perl-File-Copy-Recursive \
+  perl-File-Flock perl-File-MimeInfo perl-File-Slurp perl-GD \
+  perl-HTML-Restrict perl-Image-Info perl-JSON perl-List-MoreUtils \
+  perl-List-UtilsBy perl-Log-Log4perl perl-Net-LDAP-Server perl-Net-SSLGlue \
+  perl-Net-SMTP-SSL perl-PBKDF2-Tiny perl-PDF-API2 perl-Params-Validate \
+  perl-Regexp-IPv6 perl-Rose-DB perl-Rose-Object perl-Rose-DB-Object \
+  perl-MooseX-Role-Cmd perl-Set-Crontab perl-Set-Infinite perl-Sort-Naturally \
+  perl-String-ShellQuote perl-Sys-CPU perl-Template-Toolkit perl-Text-CSV_XS \
+  perl-Test-Deep perl-Test-Output perl-Text-Iconv perl-Text-Unidecode \
+  perl-URI perl-URI-Find perl-XML-Writer perl-YAML \
+  perl-libwww-perl
+          </programlisting>
+
+          <para>Zusätzlich müssen einige Pakete für den Umgang mit Latex installiert werden. Die Latex Module barcodes sind nützliche Helfer um auch Barcodes im Dokument zu plazieren, der Vollständigkeit halber hier für die Installation mit angegeben.
+              Dazu können Sie die folgenden Befehle nutzen:</para>
+
+          <programlisting>zypper install texlive-wallpaper texlive-colortbl \
+  texlive-scrlttr2copy texlive-eurosym \
+  texlive-geometry texlive-german texlive-graphbox texlive-hyperref \
+  texlive-xifthen texlive-luainputenc texlive-lastpage texlive-ltabptch \
+  texlive-nomentbl texlive-threeparttablex texlive-substr texlive-tabulary \
+  texlive-ulem texlive-wallpaper texlive-xcolor texlive-xstring \
+  texlive-xypic texlive-mwe texlive-mweights texlive-barcodes \
+  texlive-GS1 texlive-ean texlive-makebarcode texlive-pst-barcode \
+  texlive-upca
           </programlisting>
 
           <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert
@@ -526,7 +554,7 @@ cpan HTML::Restrict</programlisting>
       url="https://github.com/kivitendo/kivitendo-erp/releases">hier</ulink>
       heruntergeladen werden.</para>
 
-      <para>Diese aktuelleste kivitendo ERP-Archiv
+      <para>Das aktuelleste kivitendo ERP-Archiv
       (<filename>kivitendo-erp-*.tgz</filename>) wird dann im
       Dokumentenverzeichnis des Webservers (z.B.
       <filename>/var/www/html/</filename>,
