@@ -253,14 +253,16 @@ sub allocate_for_assembly {
 sub produce_assembly {
   my (%params) = @_;
 
-  my $part = $params{part} or Carp::croak('allocate needs a part');
-  my $qty  = $params{qty}  or Carp::croak('allocate needs a qty');
+  my $part = $params{part} or Carp::croak('produce_assembly needs a part');
+  my $qty  = $params{qty}  or Carp::croak('produce_assembly needs a qty');
 
   my $allocations = $params{allocations};
-  if (!$allocations && $params{auto_allocate}) {
+  if ($params{auto_allocate}) {
+    Carp::croak("produce_assembly: can't have both allocations and auto_allocate") if $params{allocations};
     $allocations = [ allocate_for_assembly(part => $part, qty => $qty) ];
   } else {
-    Carp::croak("need allocations or auto_allocate to produce something") unless $allocations;
+    Carp::croak("produce_assembly: need allocations or auto_allocate to produce something") if !$params{allocations};
+    $allocations = $params{allocations};
   }
 
   my $bin          = $params{bin} or Carp::croak("need target bin");
