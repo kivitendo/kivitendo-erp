@@ -341,7 +341,7 @@ package SL::Helper::Inventory::Allocation {
 
   for my $name (@attributes) {
     no strict 'refs';
-    *{"WH::Allocation::$name"} = sub { $_[0]{$name} };
+    *{"SL::Helper::Inventory::Allocation::$name"} = sub { $_[0]{$name} };
   }
 
   sub new {
