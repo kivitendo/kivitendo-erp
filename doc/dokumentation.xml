@@ -552,26 +552,20 @@ cpan HTML::Restrict</programlisting>
       <sect2>
         <title>Andere Pakete installieren</title>
 
-        <para>Seit Version v3.4.0 wird für den Bankimport optional das Paket
-        'aqbanking-tools' benötigt.</para>
-
-        <para>Debian und Ubuntu: <programlisting>apt install aqbanking-tools
-        </programlisting></para>
-
-        <para>Fedora: <programlisting>dnf install aqbanking</programlisting></para>
-
-        <para>openSUSE: <programlisting>zypper install aqbanking-tools</programlisting></para>
-
-        <para>Seit Version v3.4.1 wird generell zum Feststellen der
-        Seitenanzahl von PDF_Dokumenten 'pdfinfo' benötigt was im Paket
-        'poppler-utils' enthalten ist.</para>
-
-        <para>Debian und Ubuntu: <programlisting>apt install poppler-utils
-        </programlisting></para>
-
-        <para>Fedora: <programlisting>dnf install poppler-utils</programlisting></para>
-
-        <para>openSUSE: <programlisting>zypper install poppler-tools</programlisting></para>
+        <itemizedlist>
+      <listitem>
+            <para><literal>aqbanking-tools</literal> Für das Parsen des MT940 Bankformats</para>
+          </listitem>
+          <listitem>
+            <para><literal>poppler-utils</literal> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</para>
+          </listitem>
+          <listitem>
+            <para><literal>Postgres Trigram-Index</literal> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <literal>postgresql-contrib</literal> enthalten</para>
+          </listitem>
+        </itemizedlist>
+        <para>Debian und Ubuntu: <programlisting>apt install aqbanking-tools postgresql-contrib poppler-utils</programlisting></para>
+        <para>Fedora: <programlisting>dnf install aqbanking poppler-utils postgresql-contrib</programlisting></para>
+        <para>openSUSE: <programlisting>zypper install aqbanking-tools poppler-tools</programlisting></para>
       </sect2>
     </sect1>
 
