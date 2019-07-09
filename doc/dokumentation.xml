@@ -467,34 +467,64 @@ cpan HTML::Restrict</programlisting>
           <title>openSUSE</title>
 
           <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
-          <para>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt sind.</para>
-          <para>Liste wird noch angegeben.</para>
-          <para>Das überprüfen wir mit YaST. Sollte openSUSE bis zur Version 15.0 zum Einsatz kommen und der Administrator bei der Installation der Distribution die KDE Oberfläche aktiviert hat, loggen wir uns am Server direkt an, starten das Verwaltungsprogram in einer Konsole wie folgt:</para>
+          <para>Dies setzt voraus, das eben die erforderlichen Repositories dem System bekannt gemacht worden sind.</para>
+          <para>Um zusätzliche Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. Da wahrscheinlich für die Administration eine SSH-Verbindung zum Server benutzt wird.</para>
+          <para>Dazu geben wir folgenden Befehl ein:</para>
+          <programlisting>zypper addrepo -f \
+  http://download.opensuse.org/repositories/devel:languages:perl/openSUSE_Leap_15.0/ \
+  "devel:languages:perl"
+          </programlisting>
+          <programlisting>zypper addrepo -f \
+  https://download.opensuse.org/repositories/devel:languages:haskell:lts:13/\
+  openSUSE_Leap_15.0/ "devel:languages:haskell:lts:13"
+          </programlisting>
+          <programlisting>zypper addrepo -f \
+  https://download.opensuse.org/repositories/devel:languages:haskell:lts:13/\
+  openSUSE_Leap_15.0/ "devel:languages:haskell:lts:13"
+          </programlisting>
+          <para>Danach geben wir noch die beiden folgenden Befehle ein:</para>
+          <programlisting>zypper clean</programlisting>
+          <programlisting>zypper refresh</programlisting>
+          <para>Sollte zypper eine Meldung ausgeben, ob der Repositorie Key abgelehnt, nicht vertraut oder für immer akzeptiert werden soll, ist die Beantwortung durch drücken der "i" Taste am besten geeignet. Wer noch mehr über zypper erfahren möchte, kann sich einmal die zypper Hilfe anschauen.</para>
+          <programlisting>zypper --help</programlisting>
+          <note>
+          <para>Offiziell wird von openSUSE nur noch Versionen ab 15.0 unterstützt. Die SuSE Macher haben ab Version 15.0 einen größen Umbau in der Verwaltung der Pakete vorgenommen, das heißt, der Paketumfang ist der SLES 15 als kleinsten Nenner angepasst. Dies gilt besonders der openSUE Distribution. Es gibt ja einmal die openSUSE Distri und die Professionelle SLES Version. Dadurch sind viele Pakete aus dem Repositorie enfernt worden, aber auch viele auf aktuellen Stand gehalten.</para>
+          </note>
+          <para>Das überprüfen wir mit YaST. Sollte openSUSE bis zur Version 15.0 zum Einsatz kommen und der Administrator bei der Installation der Distribution die KDE Oberfläche aktiviert hat, loggen wir uns am Server direkt ein, starten das Verwaltungsprogram in einer Konsole wie folgt:</para>
           <para>yast2 return.</para>
-          <para>Oder über die Menuführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste dann die Maus Verfahren auf System und YaST.</para>
+          <para>Oder über die Menüführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste dann die Maus Verfahren auf System und YaST.</para>
           <para>Sie können mit folgendem Befehl installiert werden:</para>
           <para>zypper install Paketname</para>
-          <para>Es wird empholen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakte mit Yast verwaltet werden, also wieder deinstalliert werden können. Oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
+          <para>Es wird empfohlen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakete mit YaST verwaltet werden, also wieder deinstalliert oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
 
           <programlisting>zypper install perl-threads-shared ghc-pdfinfo apache2-mod_fcgid \
-  yast2-http-server \
-  postgresql-server postgresql-contrib perl-Algorithm-CheckDigits perl-Archive-Zip \
-  perl-CGI perl-CGI-Ajax perl-Clone perl-Config-Std \
-  perl-Class-XSAccessor perl-Daemon-Generic perl-DateTime perl-DateTime-Event-Cron \
-  perl-DateTime-Format-Strptime perl-DateTime-Set perl-DBI perl-DBD-Pg \
-  perl-Devel-REPL perl-FastCGI perl-Email-Address perl-Email-MIME \
-  perl-Email-MIME-ContentType perl-Email-MIME-Encodings perl-FCGI \
-  perl-File-Copy-Recursive \
-  perl-File-Flock perl-File-MimeInfo perl-File-Slurp perl-GD \
-  perl-HTML-Restrict perl-Image-Info perl-JSON perl-List-MoreUtils \
-  perl-List-UtilsBy perl-Log-Log4perl perl-Net-LDAP-Server perl-Net-SSLGlue \
-  perl-Net-SMTP-SSL perl-PBKDF2-Tiny perl-PDF-API2 perl-Params-Validate \
-  perl-Regexp-IPv6 perl-Rose-DB perl-Rose-Object perl-Rose-DB-Object \
-  perl-MooseX-Role-Cmd perl-Set-Crontab perl-Set-Infinite perl-Sort-Naturally \
-  perl-String-ShellQuote perl-Sys-CPU perl-Template-Toolkit perl-Text-CSV_XS \
-  perl-Test-Deep perl-Test-Output perl-Text-Iconv perl-Text-Unidecode \
-  perl-URI perl-URI-Find perl-XML-Writer perl-YAML \
-  perl-libwww-perl
+  yast2-http-server postgresql-server postgresql-contrib perl-Algorithm-CheckDigits \
+  perl-Archive-Zip perl-CGI perl-CGI-Ajax perl-Clone \
+  perl-Config-Std perl-Class-XSAccessor perl-Daemon-Generic perl-DateTime \
+  perl-DateTime-Event-Cron perl-DateTime-Format-Strptime perl-DateTime-Set \
+  perl-DBI perl-DBD-Pg perl-Devel-REPL perl-FastCGI perl-Email-Address \
+  perl-Email-MIME perl-Email-MIME-ContentType perl-Email-MIME-Encodings \
+  perl-FCGI perl-File-Copy-Recursive perl-File-Flock perl-File-MimeInfo \
+  perl-File-Slurp perl-GD perl-HTML-Restrict perl-Image-Info \
+  perl-JSON perl-List-MoreUtils perl-List-UtilsBy perl-Log-Log4perl perl-Net-LDAP-Server \
+  perl-Net-SSLGlue perl-Net-SMTP-SSL perl-PBKDF2-Tiny perl-PDF-API2 \
+  perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-Object \
+  perl-Rose-DB-Object perl-MooseX-Role-Cmd perl-Set-Crontab perl-Set-Infinite \
+  perl-Sort-Naturally perl-String-ShellQuote perl-Sys-CPU perl-Template-Toolkit \
+  perl-Text-CSV_XS perl-Test-Deep perl-Test-Output perl-Text-Iconv \
+  perl-Text-Unidecode perl-URI perl-URI-Find perl-XML-Writer \
+  perl-YAML perl-libwww-perl
+          </programlisting>
+
+          <para>Für die Entwickler installiert man noch die folgenden Pakete:</para>
+
+          <programlisting>zypper install ghc-mtl-devel ghc-old-locale-devel \
+  ghc-process-extras-devel ghc-rpm-macros ghc-text-devel ghc-time-devel \
+  ghc-Cabal-devel ghc-time-locale-compat-devel perl-Log-Log4perl ghc-pdfinfo \
+  ghc-pdfinfo-devel perl-Devel-REPL perl-URI-Find perl-Class-Utils \
+  perl-Error-Pure perl-File-Object perl-Readonly perl-Test-Warnings \
+  perl-Test-NoWarnings perl-Test-Deep perl-Test-Output perl-Test-Strict \
+  perl-Test-LongString perl-File-Find-Rule
           </programlisting>
 
           <para>Zusätzlich müssen einige Pakete für den Umgang mit Latex installiert werden. Die Latex Module barcodes sind nützliche Helfer um auch Barcodes im Dokument zu plazieren, der Vollständigkeit halber hier für die Installation mit angegeben.
