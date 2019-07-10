@@ -16,6 +16,9 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Memory-Limits für FCGI-Prozesse werden nun auch vom Task-Server berücksichtigt.
+  Zu beachten ist, dass für einen Neustart des Task-Servers gesorgt werden muss.
+  Ist der Task-Server als systemd-Service eingerichtet, geschieht dies automatisch.
 - Bearbeiter der Mahnungen konfigurierbar gemacht (#345)
   Entsprechend wird beim Mahnungen erzeugen auch der E-Mail-Absender inkl. Signatur gesetzt
 - Kundenstammdaten um Feld Herkunft personenbezogener Daten erweitert
