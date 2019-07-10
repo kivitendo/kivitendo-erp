@@ -8,12 +8,17 @@
       konfiguriert werden. Danach wird er für jeden Mandanten, für den er
       laufen soll, in der Adminsitrationsmaske eingeschaltet.</p><p>Beachten Sie, dass der Task-Server in den Boot-Vorgang Ihres
       Servers integriert werden muss, damit er automatisch gestartet wird.
-      Dies kann kivitendo nicht für Sie erledigen.</p><p>Da der Taskserver als Perlscript läuft, wird Arbeitsspeicher, der
+      Dies kann kivitendo nicht für Sie erledigen.</p><p>Da der Task-Server als Perlscript läuft, wird Arbeitsspeicher, der
       einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
-      solange der Taskserver läuft. Dies kann dazu führen, dass ein länger
-      laufender Taskserver mit der Zeit immer mehr Arbeitsspeicher für sich
-      beansprucht. Es ist deshalb sinnvoll, dass der Taskserver in
-      regelmässigen Abständen neu gestartet wird.</p><div class="sect2" title="2.7.1. Verfügbare und notwendige Konfigurationsoptionen"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-des-Task-Servers"></a>2.7.1. Verfügbare und notwendige Konfigurationsoptionen</h3></div></div></div><p>Die Konfiguration erfolgt über den Abschnitt
+      solange der Task-Server läuft. Dies kann dazu führen, dass ein länger
+      laufender Task-Server mit der Zeit immer mehr Arbeitsspeicher für sich
+      beansprucht. Es ist deshalb sinnvoll, dass der Task-Server in
+      regelmässigen Abständen neu gestartet wird. Allerdings berücksichtigt der
+      Task-Server ein Memory-Limit, wenn dieses in der Konfigurationsdatei
+      angegeben ist. Bei Überschreiten dieses Limits beendet sich der
+      Task-Server. Sofern der Task-Server als systemd-Service mit dem
+      mitgelieferten Skript eingerichtet wurde, startet dieser danach
+      automatisch erneut.</p><div class="sect2" title="2.7.1. Verfügbare und notwendige Konfigurationsoptionen"><div class="titlepage"><div><div><h3 class="title"><a name="Konfiguration-des-Task-Servers"></a>2.7.1. Verfügbare und notwendige Konfigurationsoptionen</h3></div></div></div><p>Die Konfiguration erfolgt über den Abschnitt
         <code class="literal">[task_server]</code> in der Datei
         <code class="filename">config/kivitendo.conf</code>. Die dort verfügbaren
         Optionen sind:</p><div class="variablelist"><dl><dt><span class="term">
@@ -63,7 +68,11 @@ insserv kivitendo-task-server</pre></li><li class="listitem"><p>Ältere openSUSE
           aus:</p><pre class="programlisting">systemctl daemon-reload
 systemctl enable kivitendo-task-server.service</pre><p>Wenn Sie den Task-Server jetzt sofort starten möchten, anstatt
           den Server neu zu starten, so können Sie das mit dem folgenden
-          Befehl tun:</p><pre class="programlisting">systemctl start kivitendo-task-server.service</pre></div></div><div class="sect2" title="2.7.4. Wie der Task-Server gestartet und beendet wird"><div class="titlepage"><div><div><h3 class="title"><a name="Prozesskontrolle"></a>2.7.4. Wie der Task-Server gestartet und beendet wird</h3></div></div></div><p>Der Task-Server wird wie folgt kontrolliert:</p><pre class="programlisting">./scripts/task_server.pl Befehl</pre><p>
+          Befehl tun:</p><pre class="programlisting">systemctl start kivitendo-task-server.service</pre><p>Ein so eingerichteter Task-Server startet nach Beendigung
+          automatisch erneut. Das betrifft eine Beendigung über die Oberfläche,
+          eine Beendingung über die Prozesskontrolle und eine Beendigung bei
+          Überschreiten des Memory-Limits. Soll der Task-Server nicht erneut
+          starten, so können Sie ihn mit folgendem Befehl stoppen:</p><pre class="programlisting">systemctl stop kivitendo-task-server.service</pre></div></div><div class="sect2" title="2.7.4. Wie der Task-Server gestartet und beendet wird"><div class="titlepage"><div><div><h3 class="title"><a name="Prozesskontrolle"></a>2.7.4. Wie der Task-Server gestartet und beendet wird</h3></div></div></div><p>Der Task-Server wird wie folgt kontrolliert:</p><pre class="programlisting">./scripts/task_server.pl Befehl</pre><p>
                <code class="literal">Befehl</code> ist dabei eine der folgenden
         Optionen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
                      <code class="literal">start</code> startet eine neue Instanz des
@@ -76,4 +85,5 @@ systemctl enable kivitendo-task-server.service</pre><p>Wenn Sie den Task-Server 
                      <code class="literal">status</code> berichtet, ob der Task-Server
             läuft.</p></li></ul></div><p>Der Task-Server wechselt beim Starten automatisch in das
         kivitendo-Installationsverzeichnis.</p><p>Dieselben Optionen können auch für die SystemV-basierenden
-        Runlevel-Scripte benutzt werden (siehe oben).</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.6. Webserver-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.8. Benutzerauthentifizierung und Administratorpasswort</td></tr></table></div></body></html>
+        Runlevel-Scripte benutzt werden (siehe oben).</p><p>Wurde der Task-Server als systemd-Service eingerichtet (s.o.),
+        so startet dieser nach Beendigung automatisch erneut.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s06.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s08.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.6. Webserver-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.8. Benutzerauthentifizierung und Administratorpasswort</td></tr></table></div></body></html>

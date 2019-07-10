@@ -840,7 +840,7 @@ default_manager = german</programlisting>
 
         <para>kivitendo bringt eine eigene Komponente zur zeitgesteuerten
         Ausführung bestimmter Aufgaben mit, den <link
-        linkend="config.task-server">Taskserver</link>. Er wird u.a. für
+        linkend="config.task-server">Task-Server</link>. Er wird u.a. für
         Features wie die <link
         linkend="features.periodic-invoices">wiederkehrenden Rechnungen</link>
         benötigt, erledigt aber auch andere erforderliche Aufgaben und muss
@@ -1294,12 +1294,17 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
       Servers integriert werden muss, damit er automatisch gestartet wird.
       Dies kann kivitendo nicht für Sie erledigen.</para>
 
-      <para>Da der Taskserver als Perlscript läuft, wird Arbeitsspeicher, der
+      <para>Da der Task-Server als Perlscript läuft, wird Arbeitsspeicher, der
       einmal benötigt wurde, nicht mehr an das Betriebssystem zurückgegeben,
-      solange der Taskserver läuft. Dies kann dazu führen, dass ein länger
-      laufender Taskserver mit der Zeit immer mehr Arbeitsspeicher für sich
-      beansprucht. Es ist deshalb sinnvoll, dass der Taskserver in
-      regelmässigen Abständen neu gestartet wird.</para>
+      solange der Task-Server läuft. Dies kann dazu führen, dass ein länger
+      laufender Task-Server mit der Zeit immer mehr Arbeitsspeicher für sich
+      beansprucht. Es ist deshalb sinnvoll, dass der Task-Server in
+      regelmässigen Abständen neu gestartet wird. Allerdings berücksichtigt der
+      Task-Server ein Memory-Limit, wenn dieses in der Konfigurationsdatei
+      angegeben ist. Bei Überschreiten dieses Limits beendet sich der
+      Task-Server. Sofern der Task-Server als systemd-Service mit dem
+      mitgelieferten Skript eingerichtet wurde, startet dieser danach
+      automatisch erneut.</para>
 
       <sect2 id="Konfiguration-des-Task-Servers">
         <title>Verfügbare und notwendige Konfigurationsoptionen</title>
@@ -1433,6 +1438,15 @@ systemctl enable kivitendo-task-server.service</programlisting>
           Befehl tun:</para>
 
           <programlisting>systemctl start kivitendo-task-server.service</programlisting>
+
+          <para>Ein so eingerichteter Task-Server startet nach Beendigung
+          automatisch erneut. Das betrifft eine Beendigung über die Oberfläche,
+          eine Beendingung über die Prozesskontrolle und eine Beendigung bei
+          Überschreiten des Memory-Limits. Soll der Task-Server nicht erneut
+          starten, so können Sie ihn mit folgendem Befehl stoppen:</para>
+
+          <programlisting>systemctl stop kivitendo-task-server.service</programlisting>
+
         </sect3>
       </sect2>
 
@@ -1474,6 +1488,10 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</para>
+
+        <para>Wurde der Task-Server als systemd-Service eingerichtet (s.o.),
+        so startet dieser nach Beendigung automatisch erneut.</para>
+
       </sect2>
     </sect1>
 
@@ -3787,7 +3805,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Die zeitliche und periodische Überprüfung, ob eine
         wiederkehrende Rechnung automatisch erstellt werden soll, geschieht
-        durch den <link linkend="config.task-server">Taskserver</link>, einen
+        durch den <link linkend="config.task-server">Task-Server</link>, einen
         externen Dienst, der automatisch beim Start des Servers gestartet
         werden sollte.</para>
       </sect2>
@@ -3797,7 +3815,7 @@ systemctl enable kivitendo-task-server.service</programlisting>
 
         <para>Will man im laufenden Monat eine monatlich wiederkehrende
         Rechnung inkl. des laufenden Monats starten, stellt man das Startdatum
-        auf den Monatsanfang und wartet ein paar Minuten, bis der Taskserver
+        auf den Monatsanfang und wartet ein paar Minuten, bis der Task-Server
         den neu konfigurieren Auftrag erkennt und daraus eine Rechnung
         generiert hat. Alternativ setzt man das Startdatum auf den
         Monatsersten des Folgemonats und erstellt die erste Rechnung direkt
