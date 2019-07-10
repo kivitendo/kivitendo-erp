@@ -333,6 +333,7 @@ sub gd_run {
     clean_before_sleeping();
 
     if (SL::System::Process::memory_usage_is_too_high()) {
+      debug("Memory usage too high - exiting.");
       return;
     }
 
