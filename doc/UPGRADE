@@ -5,6 +5,17 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
+Upgrade auf v3.5.4
+
+* Task-Server berücksichtigt Memory-Limit
+
+Falls für fgci-Prozesse ein Memory-Limit in der Konfigurationsdatei eingerichtet
+ist, wird dies nun auch vom Task-Server berücksichtigt. Dieser beendet sich bei
+Überschreitung des Limits. Deshalb muss dafür gesorgt werden, dass der
+Task-Server in diesem Fall neu gestartet wird (z.B. über den systemd-Service).
+Siehe auch aktuelle kivitendo-Dokumentation.
+
+
 Upgrade auf v3.5.3
 
 * Fallback-Module entfernt
