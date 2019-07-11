@@ -140,11 +140,11 @@ sub action_save {
     )->save();
 
     CVar->save_custom_variables(
-        dbh          => $self->part->db->dbh,
-        module       => 'IC',
-        trans_id     => $self->part->id,
-        variables    => $::form, # $::form->{cvar} would be nicer
-        save_validity => 1,
+      dbh           => $self->part->db->dbh,
+      module        => 'IC',
+      trans_id      => $self->part->id,
+      variables     => $::form, # $::form->{cvar} would be nicer
+      save_validity => 1,
     );
 
     1;
