@@ -144,7 +144,7 @@ sub action_save {
         module       => 'IC',
         trans_id     => $self->part->id,
         variables    => $::form, # $::form->{cvar} would be nicer
-        always_valid => 1,
+        save_validity => 1,
     );
 
     1;
