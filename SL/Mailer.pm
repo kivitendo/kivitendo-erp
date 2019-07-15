@@ -29,11 +29,13 @@ use Encode;
 use File::MimeInfo::Magic;
 use File::Slurp;
 use List::UtilsBy qw(bundle_by);
+use List::Util qw(sum);
 
 use SL::Common;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;
+use SL::Locale::String qw(t8);
 use SL::Template;
 use SL::Version;
 
@@ -121,8 +123,21 @@ sub _create_address_headers {
     next if !$self->{$item};
 
     my @header_addresses;
+    my @addresses = Email::Address->parse($self->{$item});
 
-    foreach my $addr_obj (Email::Address->parse($self->{$item})) {
+    # if either no address was parsed or
+    # there are more than 3 characters per parsed email extra, assume the the user has entered bunk
+    if (!@addresses) {
+       die t8('"#1" seems to be a faulty list of email addresses. No addresses could be extracted.',
+         $self->{$item},
+       );
+    } elsif ((length($self->{$item}) - sum map { length $_->original } @addresses) / @addresses > 3) {
+       die t8('"#1" seems to be a faulty list of email addresses. After extracing addresses (#2) too many characters are left.',
+         $self->{$item}, join ', ', map { $_->original } @addresses,
+       );
+    }
+
+    foreach my $addr_obj (@addresses) {
       push @{ $self->{addresses}->{$item} }, $addr_obj->address;
       next if $self->{driver}->keep_from_header($item);
 
