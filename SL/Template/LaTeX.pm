@@ -495,7 +495,7 @@ sub convert_to_postscript {
   my $old_home = $ENV{HOME};
   my $old_openin_any = $ENV{openin_any};
   $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
-  $ENV{openin_any} = "p";
+  $ENV{openin_any} = "r";
 
   for (my $run = 1; $run <= 2; $run++) {
     if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
@@ -549,7 +549,7 @@ sub convert_to_pdf {
   my $old_home = $ENV{HOME};
   my $old_openin_any = $ENV{openin_any};
   $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
-  $ENV{openin_any} = "p";
+  $ENV{openin_any} = "r";
 
   for (my $run = 1; $run <= 2; $run++) {
     if (system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
