@@ -296,7 +296,6 @@ sub setup_is_action_bar {
                    : $form->{locked}   ? t8('The billing period has already been locked.')
                    :                     undef,
         id        => 'update_button',
-        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 

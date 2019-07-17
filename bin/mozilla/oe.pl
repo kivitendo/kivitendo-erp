@@ -331,7 +331,6 @@ sub setup_oe_action_bar {
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
         id        => 'update_button',
-        checks   => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
 

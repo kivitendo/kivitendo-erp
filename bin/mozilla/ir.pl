@@ -262,7 +262,6 @@ sub setup_ir_action_bar {
       action => [
         t8('Update'),
         submit    => [ '#form', { action => "update" } ],
-        checks    => [ 'kivi.validate_form' ],
         id        => 'update_button',
         accesskey => 'enter',
         disabled  => !$may_edit_create ? t8('You must not change this invoice.') : undef,
