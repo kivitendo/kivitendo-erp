@@ -680,12 +680,7 @@ sub form_footer {
 
   $form->{invtotal} = $form->{invsubtotal};
 
-  my $introws = max 5, $form->numtextrows($form->{intnotes}, 35, 8);
-
   my $TMPL_VAR = $::request->cache('tmpl_var', {});
-
-  $TMPL_VAR->{notes}    = qq|<textarea name="notes" class="texteditor" wrap="soft" style="width: 350px; height: 150px">| . H($form->{notes}) . qq|</textarea>|;
-  $TMPL_VAR->{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
   if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
     my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();

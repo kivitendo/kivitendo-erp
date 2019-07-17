@@ -22,8 +22,8 @@
                 <th align="left">[% 'Internal Notes' | $T8 %]</th>
               </tr>
               <tr valign="top">
-                <td>[% notes %]</td>
-                <td>[% intnotes %]</td>
+                <td>[% L.textarea_tag('notes',    notes,    style="width: 350px; height: 150px", class="texteditor") %]</td>
+                <td>[% L.textarea_tag('intnotes', intnotes, style="width: 350px; height: 150px") %]</td>
               </tr>
               <tr>
                 <th align="right">[% 'Payment Terms' | $T8 %]</th>

@@ -498,12 +498,6 @@ sub form_footer {
   $form->{invtotal}    = $form->{invsubtotal};
   $form->{oldinvtotal} = $form->{invtotal};
 
-  # note rows
-  $form->{rows} = max 2,
-    $form->numtextrows($form->{notes},    26, 8),
-    $form->numtextrows($form->{intnotes}, 35, 8);
-
-
   # tax, total and subtotal calculations
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];

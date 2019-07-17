@@ -21,7 +21,7 @@
           [% L.textarea_tag("notes", notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor") %]
          [% END %]
         </td>
-        <td><textarea name="intnotes" rows="[% LxERP.numtextrows(intnotes, 35, 8, 2) %]" cols="35" wrap="soft"[% RO %]>[% HTML.escape(intnotes) %]</textarea></td>
+        <td>[% L.textarea_tag("intnotes", intnotes, wrap="soft", style="width: 350px; height: 150px") %]</td>
        </tr>
 
        <tr>
