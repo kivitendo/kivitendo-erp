@@ -38,8 +38,10 @@ use SL::IS;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
 use SL::DB::Department;
+use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
 use SL::DB::Vendor;
+use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
 
@@ -393,8 +395,10 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  my @old_project_ids = ($form->{"globalproject_id"});
-  map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
+  my @old_project_ids     = uniq grep { $_ } map { $_ * 1 } ($form->{"globalproject_id"}, map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
+  my @conditions          = @old_project_ids ? (id => \@old_project_ids) : ();
+  $TMPL_VAR{ALL_PROJECTS} = SL::DB::Manager::Project->get_all_sorted(query => [ or => [ active => 1, @conditions ]]);
+  $form->{ALL_PROJECTS}   = $TMPL_VAR{ALL_PROJECTS}; # make projects available for second row drop-down in io.pl
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
