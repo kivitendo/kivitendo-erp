@@ -244,6 +244,29 @@ sub _save_custom_variables {
   my $sth = prepare_query($form, $dbh, $query);
 
   foreach my $config (@configs) {
+    if ($params{save_validity}) {
+      my $valid_index = "$params{name_prefix}cvar_$config->{name}$params{name_postfix}_valid";
+      my $new_valid   = $params{variables}{$valid_index} || $params{always_valid} ? 1 : 0;
+      my $old_valid   = $self->get_custom_variables_validity(trans_id => $params{trans_id}, config_id => $config->{id});
+
+      $self->save_custom_variables_validity(trans_id  => $params{trans_id},
+                                            config_id => $config->{id},
+                                            validity  => $new_valid,
+                                           );
+
+      if (!$new_valid || !$old_valid) {
+        # When activating a cvar (old_valid == 0 && new_valid == 1)
+        # the input to hold the variable's value wasn't actually
+        # rendered, meaning saving the value now would only save an
+        # empty value/the value 0. This means that the next time the
+        # form is rendered, an existing value is found and used
+        # instead of the variable's default value from the
+        # configuration. Therefore don't save the values in such
+        # cases.
+        next;
+      }
+    }
+
     my @values = (conv_i($config->{id}), "$params{sub_module}", conv_i($params{trans_id}));
 
     my $value  = $params{variables}->{"$params{name_prefix}cvar_$config->{name}$params{name_postfix}"};
@@ -264,14 +287,6 @@ sub _save_custom_variables {
     }
 
     do_statement($form, $sth, $query, @values);
-
-    if ($params{save_validity}) {
-      my $valid_index = "$params{name_prefix}cvar_$config->{name}$params{name_postfix}_valid";
-      $self->save_custom_variables_validity(trans_id  => $params{trans_id},
-                                            config_id => $config->{id},
-                                            validity  => ($params{variables}{$valid_index} || $params{always_valid} ? 1 : 0)
-                                           );
-    }
   }
 
   $sth->finish();
