@@ -407,8 +407,6 @@ sub action_show_multi_items_dialog {
 sub action_multi_items_update_result {
   my $max_count = 100;
 
-  $::form->{multi_items}->{filter}->{obsolete} = 0;
-
   my $count = $_[0]->multi_items_models->count;
 
   if ($count == 0) {
