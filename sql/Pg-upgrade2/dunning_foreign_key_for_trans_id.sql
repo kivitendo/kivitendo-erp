@@ -6,6 +6,7 @@ WHERE NOT EXISTS (
   SELECT ar.id
   FROM ar
   WHERE ar.id = dunning.trans_id
+  LIMIT 1
 );
 
 ALTER TABLE dunning
