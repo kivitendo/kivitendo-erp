@@ -1564,6 +1564,10 @@ sub pre_render {
   $self->{order_probabilities}        = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
   $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
+  my $user_prefs = SL::Helper::UserPreferences::PartPickerSearch->new();
+  $self->{search_cvpartnumber} = !!$user_prefs->get_sales_search_customer_partnumber() if $self->cv eq 'customer';
+  $self->{search_cvpartnumber} = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
+
   my $print_form = Form->new('');
   $print_form->{type}      = $self->type;
   $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;

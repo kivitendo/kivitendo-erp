@@ -187,7 +187,7 @@
     </tr>
   </table>
 
-  [%- PROCESS order/tabs/_item_input.html %]
+  [%- PROCESS order/tabs/_item_input.html SELF=SELF %]
 
   [% L.button_tag('kivi.Order.show_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
 
