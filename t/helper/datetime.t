@@ -1,4 +1,4 @@
-use Test::More tests => 50;
+use Test::More tests => 60;
 
 use lib 't';
 
@@ -6,6 +6,9 @@ use Data::Dumper;
 
 use DateTime;
 use_ok 'SL::Helper::DateTime';
+
+my $local_tz   = DateTime::TimeZone->new(name => 'local');
+my $mon_012345 = DateTime->new(year => 2014, month => 6, day => 23, hour => 1, minute => 23, second => 45, time_zone => $local_tz);
 
 sub mon { DateTime->new(year => 2014, month => 6, day => 23) }
 sub tue { DateTime->new(year => 2014, month => 6, day => 24) }
@@ -87,3 +90,17 @@ is sun->add_businessdays(days => 1), sun->add(days => 1), "1 day after sun is mo
 is sat->add_businessdays(days => 1), sat->add(days => 2), "1 day after sut is mon";
 is sun->add_businessdays(days => -1), sun->add(days => -2), "1 day before sun is fri";
 is sat->add_businessdays(days => -1), sat->add(days => -1), "1 day before sut is fri";
+
+# parsing YYYY-MM-DD formatted strings
+is(DateTime->from_ymd(),                                 undef,                                     "no argument results in undef");
+is(DateTime->from_ymd(''),                               undef,                                     "empty argument results in undef");
+is(DateTime->from_ymd('chunky bacon'),                   undef,                                     "invalid argument results in undef");
+is(DateTime->from_ymd('2014-06-23'),                     $mon_012345->clone->truncate(to => 'day'), "2014-06-23 is parsed correctly");
+is(DateTime->from_ymd('2014-06-23')->strftime('%H%M%S'), '000000',                                  "2014-06-23 is parsed correctly");
+
+# parsing YYYY-MM-DDTHH:MM:SS formatted strings
+is(DateTime->from_ymdhms(),                      undef,       "no argument results in undef");
+is(DateTime->from_ymdhms(''),                    undef,       "empty argument results in undef");
+is(DateTime->from_ymdhms('chunky bacon'),        undef,       "invalid argument results in undef");
+is(DateTime->from_ymdhms('2014-06-23T01:23:45'), $mon_012345, "2014-06-23T01:23:45 is parsed correctly");
+is(DateTime->from_ymdhms('2014-06-23 01:23:45'), $mon_012345, "2014-06-23 01:23:45 is parsed correctly");

@@ -2,7 +2,11 @@ package DateTime;
 
 use strict;
 
+use DateTime::Format::Strptime;
+
 use SL::Util qw(_hashify);
+
+my ($ymd_parser, $ymdhms_parser);
 
 sub new_local {
   my ($class, %params) = @_;
@@ -94,6 +98,37 @@ sub next_workday {
   return $self;
 }
 
+sub from_ymd {
+  my ($class, $ymd_string) = @_;
+
+  if (!$ymd_parser) {
+    $ymd_parser = DateTime::Format::Strptime->new(
+      pattern   => '%Y-%m-%d',
+      locale    => 'de_DE',
+      time_zone => 'local'
+    );
+  }
+
+  return $ymd_parser->parse_datetime($ymd_string // '');
+}
+
+sub from_ymdhms {
+  my ($class, $ymdhms_string) = @_;
+
+  if (!$ymdhms_parser) {
+    $ymdhms_parser = DateTime::Format::Strptime->new(
+      pattern   => '%Y-%m-%dT%H:%M:%S',
+      locale    => 'de_DE',
+      time_zone => 'local'
+    );
+  }
+
+  $ymdhms_string //= '';
+  $ymdhms_string   =~ s{ }{T};
+
+  return $ymdhms_parser->parse_datetime($ymdhms_string);
+}
+
 1;
 
 __END__
@@ -137,6 +172,17 @@ Note that only dates can be parsed at the moment, not the time
 component (as opposed to L<to_kivitendo>).
 
 The legacy name C<from_lxoffice> is still supported.
+
+=item C<from_ymd $string>
+
+Parses a date string in the ISO 8601 format C<YYYY-MM-DD> and returns
+an instance of L<DateTime>. The time is set to midnight (00:00:00).
+
+=item C<from_ymdhms $string>
+
+Parses a date/time string in the ISO 8601 format
+C<YYYY-MM-DDTHH:MM:SS> (a space instead of C<T> is also supported) and
+returns an instance of L<DateTime>.
 
 =item C<end_of_month>
 
