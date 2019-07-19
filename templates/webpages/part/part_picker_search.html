@@ -5,7 +5,7 @@
 
 <div style='overflow:hidden'>
 
-[% LxERP.t8("Filter") %]: [% L.input_tag('part_picker_filter', SELF.models.filtered.laundered.all_substr_multi__ilike, class='part_picker_filter') %]
+[% LxERP.t8("Filter") %]: [% L.input_tag('part_picker_filter', search_term, class='part_picker_filter') %]
 
 <div class='float-right'>
   [% L.checkbox_tag('no_paginate', checked=FORM.no_paginate, id='no_paginate', for_submit=1, label=LxERP.t8('All as list')) %]

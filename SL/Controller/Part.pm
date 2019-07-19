@@ -399,8 +399,15 @@ sub action_add_assembly_item {
 }
 
 sub action_show_multi_items_dialog {
+  my ($self) = @_;
+
+  my $search_term = $self->models->filtered->laundered->{all_substr_multi__ilike};
+  $search_term  ||= $self->models->filtered->laundered->{all_with_makemodel_substr_multi__ilike};
+  $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
+
   $_[0]->render('part/_multi_items_dialog', { layout => 0 },
-    all_partsgroups => SL::DB::Manager::PartsGroup->get_all
+                all_partsgroups => SL::DB::Manager::PartsGroup->get_all,
+                search_term     => $search_term
   );
 }
 
@@ -562,7 +569,9 @@ sub action_ajax_autocomplete {
   # since we need a second get models instance with different filters for that,
   # we only modify the original filter temporarily in place
   if ($::form->{prefer_exact}) {
-    local $::form->{filter}{'all::ilike'} = delete local $::form->{filter}{'all:substr:multi::ilike'};
+    local $::form->{filter}{'all::ilike'}                          = delete local $::form->{filter}{'all:substr:multi::ilike'};
+    local $::form->{filter}{'all_with_makemodel::ilike'}           = delete local $::form->{filter}{'all_with_makemodel:substr:multi::ilike'};
+    local $::form->{filter}{'all_with_customer_partnumber::ilike'} = delete local $::form->{filter}{'all_with_customer_partnumber:substr:multi::ilike'};
 
     my $exact_models = SL::Controller::Helper::GetModels->new(
       controller   => $self,
@@ -598,7 +607,13 @@ sub action_test_page {
 }
 
 sub action_part_picker_search {
-  $_[0]->render('part/part_picker_search', { layout => 0 });
+  my ($self) = @_;
+
+  my $search_term = $self->models->filtered->laundered->{all_substr_multi__ilike};
+  $search_term  ||= $self->models->filtered->laundered->{all_with_makemodel_substr_multi__ilike};
+  $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
+
+  $_[0]->render('part/part_picker_search', { layout => 0 }, search_term => $search_term);
 }
 
 sub action_part_picker_result {

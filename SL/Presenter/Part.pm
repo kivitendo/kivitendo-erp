@@ -241,6 +241,10 @@ C<h,min>.
 If C<%params> contains C<convertible_unit> only parts with a unit
 that's convertible to unit will be used for autocompletion.
 
+If C<%params> contains C<with_makemodel> or C<with_customer_partnumber> even
+parts will be used for autocompletion which partnumber is a vendor partnumber
+(makemodel) or a customer partnumber.
+
 Obsolete parts will by default not be displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
 selectors though, they are not selectable once overridden.

@@ -32,14 +32,23 @@ Artikel-Status: Ungültig<br>
 [% P.part.picker('part_id17', undef, status="obsolete") %]<br>
 Artikel-Status: Alle<br>
 [% P.part.picker('part_id18', undef, status="all") %]<br>
-
+<br>
 Pre-filled:<br>
 [% P.part.picker('part_id6', pre_filled_part) %]<br>
 Convertible unit 'Std': (only select parts with unit Tag/Std/Min)<br>
 [% P.part.picker('part_id7', undef, convertible_unit='Std') %]<br>
-
+<br>
 With multi select popup<br>
 [% P.part.picker('part_id8', undef, multiple=1) %]<br>
+With multi select popup (only obsolete)<br>
+[% P.part.picker('part_id8', undef, multiple=1, status='obsolete') %]<br>
+<br>
+All parts including make models of all vendors: <br>
+[% P.part.picker('part_id', undef, with_makemodel=1) %]<br>
+All parts including make models of all vendors with multi select popup: <br>
+[% P.part.picker('part_id', undef, with_makemodel=1, multiple=1) %]<br>
+All parts including customer partnumbers of all customers: <br>
+[% P.part.picker('part_id', undef, with_customer_partnumber=1) %]<br>
 
 <h2>Styling</h2>
 

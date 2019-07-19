@@ -334,7 +334,6 @@ namespace('kivi.Part', function(ns) {
     },
     ajax_data: function(term) {
       var data = {
-        'filter.all:substr:multi::ilike': term,
         current:  this.$real.val(),
       };
 
@@ -355,6 +354,15 @@ namespace('kivi.Part', function(ns) {
 
       if (this.o.convertible_unit)
         data['filter.unit_obj.convertible_to'] = this.o.convertible_unit;
+
+      var filter_name = 'all';
+      if (this.o.with_makemodel) {
+        filter_name = 'all_with_makemodel';
+      }
+      if (this.o.with_customer_partnumber) {
+        filter_name = 'all_with_customer_partnumber';
+      }
+      data['filter.' + filter_name + ':substr:multi::ilike'] = term;
 
       return data;
     },
