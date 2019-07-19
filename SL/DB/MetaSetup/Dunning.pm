@@ -33,9 +33,14 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { dunning_config_id => 'id' },
   },
 
-  fee_interest_ar => {
+  fee_interest_invoice => {
     class       => 'SL::DB::Invoice',
     key_columns => { fee_interest_ar_id => 'id' },
+  },
+
+  invoice => {
+    class       => 'SL::DB::Invoice',
+    key_columns => { trans_id => 'id' },
   },
 );
 

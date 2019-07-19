@@ -82,6 +82,8 @@ our %foreign_key_name_map     = (
 
     assembly                  => { parts_id => 'part', id => 'assembly_part' },
     assortment_items          => { parts_id => 'part' },
+
+    dunning                   => { trans_id => 'invoice', fee_interest_ar_id => 'fee_interest_invoice' },
   },
 );
 
