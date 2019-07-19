@@ -154,6 +154,18 @@
         [% L.input_tag('positions_scrollbar_height',  positions_scrollbar_height, size = 5) %]
       </td>
      </tr>
+     <tr>
+      <th align="right">[% 'Search parts by vendor partnumber (model) in purchase order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('purchase_search_makemodel', purchase_search_makemodel) %]
+      </td>
+     </tr>
+     <tr>
+      <th align="right">[% 'Search parts by customer partnumber in sales order forms' | $T8 %]</th>
+      <td>
+        [% L.yes_no_tag('sales_search_customer_partnumber', sales_search_customer_partnumber) %]
+      </td>
+     </tr>
      [%- END -%]
 
      <tr>

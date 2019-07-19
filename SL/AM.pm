@@ -53,6 +53,7 @@ use SL::DB::Vendor;
 use SL::DB;
 use SL::GenericTranslations;
 use SL::Helper::UserPreferences::PositionsScrollbar;
+use SL::Helper::UserPreferences::PartPickerSearch;
 
 use strict;
 
@@ -532,6 +533,14 @@ sub positions_scrollbar_height {
   SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 }
 
+sub purchase_search_makemodel {
+  SL::Helper::UserPreferences::PartPickerSearch->new()->get_purchase_search_makemodel();
+}
+
+sub sales_search_customer_partnumber {
+  SL::Helper::UserPreferences::PartPickerSearch->new()->get_sales_search_customer_partnumber();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -559,6 +568,12 @@ sub save_preferences {
 
   if (exists $form->{positions_scrollbar_height}) {
     SL::Helper::UserPreferences::PositionsScrollbar->new()->store_height($form->{positions_scrollbar_height})
+  }
+  if (exists $form->{purchase_search_makemodel}) {
+    SL::Helper::UserPreferences::PartPickerSearch->new()->store_purchase_search_makemodel($form->{purchase_search_makemodel})
+  }
+  if (exists $form->{sales_search_customer_partnumber}) {
+    SL::Helper::UserPreferences::PartPickerSearch->new()->store_sales_search_customer_partnumber($form->{sales_search_customer_partnumber})
   }
 
   $main::lxdebug->leave_sub();
