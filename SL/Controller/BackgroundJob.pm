@@ -131,7 +131,9 @@ sub action_execute_class {
     my $package = "SL::BackgroundJob::" . $::form->{class};
 
     eval "require $package" or die $@;
-    $result = $package->new->run(SL::DB::BackgroundJob->new);
+    my $job = SL::DB::BackgroundJob->new(data => $::form->{data});
+    $job->data(decode_json($::form->{json_data})) if $::form->{json_data};
+    $result = $package->new->run($job);
 
     1;
   };
