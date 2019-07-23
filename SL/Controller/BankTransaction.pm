@@ -791,9 +791,10 @@ sub action_unlink_bank_transaction {
         my $query = qq|UPDATE $type SET paid =
                         (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
                          WHERE trans_id = ?
-                         AND chart_link ilike '%paid%')|;
+                         AND chart_link ilike '%paid%')
+                       WHERE id = ?|;
 
-        die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id) == -1);
+        die if (do_query($::form, $bank_transaction->db->dbh, $query, $trans_id, $trans_id) == -1);
       }
       # 4. and delete all (if any) record links
       my $rl = SL::DB::Manager::RecordLink->delete_all(where => [ from_id => $bt_id, from_table => 'bank_transactions' ]);
