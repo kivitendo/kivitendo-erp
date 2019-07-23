@@ -803,6 +803,14 @@ sub action_unlink_bank_transaction {
       $bank_transaction->invoice_amount(0);
       $bank_transaction->cleared(0);
       $bank_transaction->save;
+      # 6. and add a log entry in history_erp
+      SL::DB::History->new(
+        trans_id    => $bank_transaction->id,
+        snumbers    => 'bank_transaction_unlink_' . $bank_transaction->id,
+        employee_id => SL::DB::Manager::Employee->current->id,
+        what_done   => 'bank_transaction',
+        addition    => 'UNLINKED',
+      )->save();
 
       1;
 
