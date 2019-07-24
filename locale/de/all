@@ -494,6 +494,7 @@ $self->{texts} = {
   'CANCELED'                    => 'Storniert',
   'CB Transaction'              => 'SB-Buchung',
   'CB Transactions'             => 'SB-Buchungen',
+  'CB date #1 is higher than OB date #2. Please select again.' => 'SB-Datum #1 ist größer als EB-Datum #2. Bitte sinnvollere Werte auswählen.',
   'CB/OB Transactions'          => 'SB/EB buchen',
   'CN'                          => 'Kd-Nr.',
   'CR'                          => 'H',

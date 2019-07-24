@@ -65,10 +65,12 @@ sub action_list {
 sub action_generate {
   my ($self) = @_;
 
-  my $cnt = $self->make_booking();
-
-  flash('info', $::locale->text('#1 CB transactions and #1 OB transactions generated.',$cnt)) if $cnt > 0;
-
+  if ($self->cb_date > $self->ob_date) {
+    flash ('error', $::locale->text('CB date #1 is higher than OB date #2. Please select again.', $self->cb_date, $self->ob_date));
+  } else {
+    my $cnt = $self->make_booking();
+    flash('info', $::locale->text('#1 CB transactions and #1 OB transactions generated.',$cnt)) if $cnt > 0;
+  }
   $self->action_list;
 }
 
