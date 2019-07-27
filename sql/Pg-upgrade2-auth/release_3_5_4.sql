@@ -1,0 +1,3 @@
+-- @tag: release_3_5_4
+-- @description: Abhängigkeitsscript für Release 3.5.4
+-- @depends: release_3_5_2 rights_for_viewing_project_specific_invoices
