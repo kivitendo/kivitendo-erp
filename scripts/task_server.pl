@@ -263,7 +263,7 @@ sub run_single_job_for_all_clients {
 
     if (!$ok) {
       my $error = $EVAL_ERROR;
-      debug("Exception during execution: ${error}");
+      $::lxdebug->message(LXDebug::WARN(), "Exception during execution: ${error}");
       notify_on_failure(exception => $error);
     }
 
@@ -309,7 +309,7 @@ sub run_once_for_all_clients {
 
     if (!$ok) {
       my $error = $EVAL_ERROR;
-      debug("Exception during execution: ${error}");
+      $::lxdebug->message(LXDebug::WARN(), "Exception during execution: ${error}");
       notify_on_failure(exception => $error);
     }
 
