@@ -109,23 +109,6 @@ sub _calculate_item {
 
   $data->{invoicediff} += $sellprice * (1 - $item->discount) * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
 
-  my $linetotal_cost = 0;
-
-  if (!$linetotal) {
-    $item->marge_total(  0);
-    $item->marge_percent(0);
-
-  } else {
-    my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
-    $linetotal_cost    = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
-
-    $item->marge_total(  $linetotal - $linetotal_cost);
-    $item->marge_percent($item->marge_total * 100 / $linetotal);
-
-    $self->marge_total(  $self->marge_total + $item->marge_total);
-    $data->{lastcost_total} += $linetotal_cost;
-  }
-
   my $taxkey     = $part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
   my $tax_rate   = $taxkey->tax->rate;
   my $tax_amount = undef;
@@ -149,6 +132,24 @@ sub _calculate_item {
   $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, tax_id => $taxkey->tax_id, amount => 0 };
   $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
   $data->{amounts}->{ $chart->id }->{amount}  -= $tax_amount if $self->taxincluded;
+
+  my $linetotal_cost = 0;
+
+  if (!$linetotal) {
+    $item->marge_total(  0);
+    $item->marge_percent(0);
+
+  } else {
+    my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
+    $linetotal_cost    = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
+    my $linetotal_net  = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
+
+    $item->marge_total(  $linetotal_net - $linetotal_cost);
+    $item->marge_percent($item->marge_total * 100 / $linetotal_net);
+
+    $self->marge_total(  $self->marge_total + $item->marge_total);
+    $data->{lastcost_total} += $linetotal_cost;
+  }
 
   push @{ $data->{assembly_items} }, [];
   if ($part->is_assembly) {
