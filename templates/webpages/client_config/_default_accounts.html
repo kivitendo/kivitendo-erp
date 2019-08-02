@@ -55,5 +55,10 @@
    <td>[% P.chart.picker('defaults.ar_chart_id', SELF.defaults.ar_chart_id, type='AR', choose=1, style=style) %]<td>
   </tr>
 
- </table>
+  <tr>
+   <td align="right">[% LxERP.t8("Account for workflow from purchase order to ap transaction") %]</td>
+   <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]<td>
+  </tr>
+
+</table>
 </div>

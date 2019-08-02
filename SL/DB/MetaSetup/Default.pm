@@ -167,6 +167,7 @@ __PACKAGE__->meta->columns(
   webdav                                    => { type => 'boolean', default => 'false' },
   webdav_documents                          => { type => 'boolean', default => 'false' },
   weightunit                                => { type => 'varchar', length => 5 },
+  workflow_po_ap_chart_id                   => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

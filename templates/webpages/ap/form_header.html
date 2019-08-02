@@ -42,6 +42,8 @@
 
 <input type="hidden" name="paidaccounts" value="[% paidaccounts | html %]">
 
+[%- P.hidden_tag('convert_from_oe_id', convert_from_oe_id) -%]
+
 [% FOREACH i IN [1..paidaccounts] %]
   [% temp = "acc_trans_id_"_ i %]
   <input type="hidden" name="[% temp %]" value="[% $temp | html %]">

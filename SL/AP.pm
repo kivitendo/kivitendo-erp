@@ -41,10 +41,12 @@ use SL::IO;
 use SL::MoreCommon;
 use SL::DB::Default;
 use SL::DB::Draft;
+use SL::DB::Order;
+use SL::DB::PurchaseInvoice;
 use SL::Util qw(trim);
 use SL::DB;
 use Data::Dumper;
-
+use List::Util qw(sum0);
 use strict;
 
 sub post_transaction {
@@ -154,6 +156,31 @@ sub _post_transaction {
     do_query($form, $dbh, $query, @values);
 
     $form->new_lastmtime('ap');
+
+    # Link this record to the record it was created from.
+    my $convert_from_oe_id = delete $form->{convert_from_oe_id};
+    if (!$form->{postasnew} && $convert_from_oe_id) {
+      RecordLinks->create_links('dbh'        => $dbh,
+                                'mode'       => 'ids',
+                                'from_table' => 'oe',
+                                'from_ids'   => $convert_from_oe_id,
+                                'to_table'   => 'ap',
+                                'to_id'      => $form->{id},
+      );
+
+      # Close the record it was created from if the amount of
+      # all APs create from this record equals the records amount.
+      my @links = RecordLinks->get_links('dbh'        => $dbh,
+                                         'from_table' => 'oe',
+                                         'from_id'    => $convert_from_oe_id,
+                                         'to_table'   => 'ap',
+      );
+
+      my $amount_sum = sum0 map { SL::DB::PurchaseInvoice->new(id => $_->{to_id})->load->amount } @links;
+      my $order      = SL::DB::Order->new(id => $convert_from_oe_id)->load;
+
+      $order->update_attributes(closed => 1) if ($amount_sum - $order->amount) == 0;
+    }
 
     # add individual transactions
     for my $i (1 .. $form->{rowcount}) {

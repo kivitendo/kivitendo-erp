@@ -48,10 +48,12 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 
 __PACKAGE__->run_before('recalc',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
+                                     print send_email) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
-                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice print send_email) ]);
+                        only => [ qw(save save_as_new save_and_delivery_order save_and_invoice save_and_ap_transaction
+                                     print send_email) ]);
 
 #
 # actions
@@ -646,6 +648,33 @@ sub action_sales_order {
 # workflow from rfq to purchase order
 sub action_purchase_order {
   $_[0]->workflow_sales_or_purchase_order();
+}
+
+# workflow from purchase order to ap transaction
+sub action_save_and_ap_transaction {
+  my ($self) = @_;
+
+  my $errors = $self->save();
+
+  if (scalar @{ $errors }) {
+    $self->js->flash('error', $_) foreach @{ $errors };
+    return $self->js->render();
+  }
+
+  my $text = $self->type eq sales_order_type()       ? $::locale->text('The order has been saved')
+           : $self->type eq purchase_order_type()    ? $::locale->text('The order has been saved')
+           : $self->type eq sales_quotation_type()   ? $::locale->text('The quotation has been saved')
+           : $self->type eq request_quotation_type() ? $::locale->text('The rfq has been saved')
+           : '';
+  flash_later('info', $text);
+
+  my @redirect_params = (
+    controller => 'ap.pl',
+    action     => 'add_from_purchase_order',
+    id         => $self->order->id,
+  );
+
+  $self->redirect_to(@redirect_params);
 }
 
 # set form elements in respect to a changed customer or vendor
@@ -1695,6 +1724,12 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', 'save_and_invoice', $::instance_conf->get_order_warn_duplicate_parts ],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices' ],
         ],
+        action => [
+          t8('Save and AP Transaction'),
+          call      => [ 'kivi.Order.save', 'save_and_ap_transaction', $::instance_conf->get_order_warn_duplicate_parts ],
+          only_if   => (any { $self->type eq $_ } (purchase_order_type()))
+        ],
+
       ], # end of combobox "Workflow"
 
       combobox => [

@@ -14,6 +14,17 @@ Mittelgroße neue Features:
 
 - Part Controller - neuer Tab mit Lagerinformationen - was ist wo gelagert
 
+- Neuer Workflow Lieferantenauftrag->Kreditorenbuchung: Für jedes Aufwandskonto
+  der Positionen im Lieferantenauftrag wird eine Zeile in der Kreditorenbuchung
+  erstellt. Gebucht wird standardmäßig auf des entsprechende Aufwandskonto. In
+  der Mandantenkonfiguration kann unter Standardkonten ein Konto ausgewählt
+  werden, auf das dann alle Zeilen gebucht werden.
+  Die Steuern werden übernommen, sofern diese für das ausgewählte Aufwandskonto
+  gültig sind. Ansonsten wird die Default-Steuer für das Aufwandskonto gesetzt.
+  Der Quellauftrag wird geschlossen, wenn der Betrag aller Kreditorenbuchungen,
+  die aus Workflows aus dem Quellauftrag entstanden sind, gleich dem Betrag
+  des Quellauftrags ist.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Mahnungen nach Abteilung filtern

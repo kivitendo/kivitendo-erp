@@ -137,6 +137,7 @@ $self->{texts} = {
   'Account deleted!'            => '',
   'Account for fees'            => '',
   'Account for interest'        => '',
+  'Account for workflow from purchase order to ap transaction' => '',
   'Account number'              => '',
   'Account number not unique!'  => '',
   'Account number of the goal/source' => '',
