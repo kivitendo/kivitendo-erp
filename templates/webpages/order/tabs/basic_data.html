@@ -213,13 +213,16 @@
                 <th class="listheading" nowrap width="3" >[%- 'position'     | $T8 %] </th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
                 <th class="listheading" style='text-align:center' nowrap width="1"><img src="image/close.png" alt="[%- LxERP.t8('delete item') %]"></th>
-                <th id="partnumber_header_id"  class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
-                <th id="partclass_header_id"   class="listheading" nowrap width="2">[%- 'Type'  | $T8 %]</th>
-                <th id="description_header_id" class="listheading" nowrap           ><a href='#' onClick='javascript:kivi.Order.reorder_items("description")'>[%- 'Description' | $T8 %]</a></th>
-                [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
-                <th id="shipped_qty_header_id" class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Order.reorder_items("shipped_qty")'>[%- 'Delivered'   | $T8 %]</a></th>
+                <th id="partnumber_header_id"   class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'> [%- 'Partnumber'  | $T8 %]</a></th>
+                [%- IF SELF.search_cvpartnumber -%]
+                <th id="cvpartnumber_header_id" class="listheading" nowrap width="15"><a href='#' onClick='javascript:kivi.Order.reorder_items("cvpartnumber")' > [%- SELF.cv == "customer" ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</a></th>
                 [%- END -%]
-                <th id="qty_header_id"         class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>        [%- 'Qty'         | $T8 %]</a></th>
+                <th id="partclass_header_id"    class="listheading" nowrap width="2">[%- 'Type'  | $T8 %]</th>
+                <th id="description_header_id"  class="listheading" nowrap           ><a href='#' onClick='javascript:kivi.Order.reorder_items("description")'>[%- 'Description' | $T8 %]</a></th>
+                [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
+                <th id="shipped_qty_header_id"  class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Order.reorder_items("shipped_qty")'>[%- 'Delivered'   | $T8 %]</a></th>
+                [%- END -%]
+                <th id="qty_header_id"          class="listheading" nowrap width="5" ><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>        [%- 'Qty'         | $T8 %]</a></th>
                 <th class="listheading" nowrap width="5" >[%- 'Price Factor' | $T8 %] </th>
                 <th class="listheading" nowrap width="5" >[%- 'Unit'         | $T8 %] </th>
                 <th class="listheading" nowrap width="5" >[%- 'Price Source' | $T8 %] </th>
@@ -230,7 +233,7 @@
             </thead>
 
             [%- FOREACH item = SELF.order.items_sorted %]
-              [%- PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) TYPE=SELF.type ALL_PRICE_FACTORS=SELF.all_price_factors %]
+              [%- PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) TYPE=SELF.type ALL_PRICE_FACTORS=SELF.all_price_factors SEARCH_CVPARTNUMBER=SELF.search_cvpartnumber %]
             [%- END %]
 
           </table>

@@ -334,6 +334,12 @@ namespace('kivi.Order', function(ns) {
     });
   };
 
+  ns.redisplay_cvpartnumbers = function(data) {
+    $('.row_entry').each(function(idx, elt) {
+      $(elt).find('[name="cvpartnumber"]').html(data[idx][0]);
+    });
+  };
+
   ns.renumber_positions = function() {
     $('.row_entry [name="position"]').each(function(idx, elt) {
       $(elt).html(idx+1);

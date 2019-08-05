@@ -35,6 +35,11 @@
     <td>
       <div name="partnumber">[% HTML.escape(ITEM.part.partnumber) %]</div>
     </td>
+    [%- IF SEARCH_CVPARTNUMBER -%]
+    <td>
+      <div name="cvpartnumber">[% HTML.escape(ITEM.cvpartnumber) %]</div>
+    </td>
+    [%- END -%]
     <td>
       <div name="partclassification">[% ITEM.part.presenter.typeclass_abbreviation %]</div>
     </td>

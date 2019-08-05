@@ -39,7 +39,7 @@ use Sort::Naturally;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(item_ids_to_delete) ],
- 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors) ],
+ 'scalar --get_set_init' => [ qw(order valid_types type cv p multi_items_models all_price_factors search_cvpartnumber) ],
 );
 
 
@@ -685,6 +685,7 @@ sub action_customer_vendor_changed {
     ->focus(      '#order_' . $self->cv . '_id');
 
   $self->js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_cvpartnumbers;
   $self->js->render();
 }
 
@@ -755,12 +756,15 @@ sub action_add_item {
 
   $self->recalc();
 
+  $self->get_item_cvpartnumber($item);
+
   my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
   my $row_as_html = $self->p->render('order/tabs/_row',
-                                     ITEM              => $item,
-                                     ID                => $item_id,
-                                     TYPE              => $self->type,
-                                     ALL_PRICE_FACTORS => $self->all_price_factors
+                                     ITEM                => $item,
+                                     ID                  => $item_id,
+                                     TYPE                => $self->type,
+                                     ALL_PRICE_FACTORS   => $self->all_price_factors,
+                                     SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
   );
 
   $self->js
@@ -781,12 +785,14 @@ sub action_add_item {
 
       $self->order->add_items( $item );
       $self->recalc();
+      $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
       my $row_as_html = $self->p->render('order/tabs/_row',
-                                         ITEM              => $item,
-                                         ID                => $item_id,
-                                         TYPE              => $self->type,
-                                         ALL_PRICE_FACTORS => $self->all_price_factors
+                                         ITEM                => $item,
+                                         ID                  => $item_id,
+                                         TYPE                => $self->type,
+                                         ALL_PRICE_FACTORS   => $self->all_price_factors,
+                                         SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
       );
       $self->js
         ->append('#row_table_id', $row_as_html);
@@ -862,12 +868,14 @@ sub action_add_multi_items {
   $self->recalc();
 
   foreach my $item (@items) {
+    $self->get_item_cvpartnumber($item);
     my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
     my $row_as_html = $self->p->render('order/tabs/_row',
-                                       ITEM              => $item,
-                                       ID                => $item_id,
-                                       TYPE              => $self->type,
-                                       ALL_PRICE_FACTORS => $self->all_price_factors
+                                       ITEM                => $item,
+                                       ID                  => $item_id,
+                                       TYPE                => $self->type,
+                                       ALL_PRICE_FACTORS   => $self->all_price_factors,
+                                       SEARCH_CVPARTNUMBER => $self->search_cvpartnumber,
     );
 
     $self->js->append('#row_table_id', $row_as_html);
@@ -900,12 +908,15 @@ sub action_reorder_items {
   my ($self) = @_;
 
   my %sort_keys = (
-    partnumber  => sub { $_[0]->part->partnumber },
-    description => sub { $_[0]->description },
-    qty         => sub { $_[0]->qty },
-    sellprice   => sub { $_[0]->sellprice },
-    discount    => sub { $_[0]->discount },
+    partnumber   => sub { $_[0]->part->partnumber },
+    description  => sub { $_[0]->description },
+    qty          => sub { $_[0]->qty },
+    sellprice    => sub { $_[0]->sellprice },
+    discount     => sub { $_[0]->discount },
+    cvpartnumber => sub { $_[0]->{cvpartnumber} },
   );
+
+  $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   my $method = $sort_keys{$::form->{order_by}};
   my @to_sort = map { { old_pos => $_->position, order_by => $method->($_) } } @{ $self->order->items_sorted };
@@ -1054,6 +1065,17 @@ sub js_redisplay_amounts_and_taxes {
     ->insertBefore($self->build_tax_rows, '#amount_row_id');
 }
 
+sub js_redisplay_cvpartnumbers {
+  my ($self) = @_;
+
+  $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
+
+  my @data = map {[$_->{cvpartnumber}]} @{ $self->order->items_sorted };
+
+  $self->js
+    ->run('kivi.Order.redisplay_cvpartnumbers', \@data);
+}
+
 sub js_reset_order_and_item_ids_after_save {
   my ($self) = @_;
 
@@ -1102,6 +1124,17 @@ sub init_cv {
          : die "Not a valid type for order";
 
   return $cv;
+}
+
+sub init_search_cvpartnumber {
+  my ($self) = @_;
+
+  my $user_prefs = SL::Helper::UserPreferences::PartPickerSearch->new();
+  my $search_cvpartnumber;
+  $search_cvpartnumber = !!$user_prefs->get_sales_search_customer_partnumber() if $self->cv eq 'customer';
+  $search_cvpartnumber = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
+
+  return $search_cvpartnumber;
 }
 
 sub init_p {
@@ -1564,10 +1597,6 @@ sub pre_render {
   $self->{order_probabilities}        = [ map { { title => ($_ * 10) . '%', id => $_ * 10 } } (0..10) ];
   $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
-  my $user_prefs = SL::Helper::UserPreferences::PartPickerSearch->new();
-  $self->{search_cvpartnumber} = !!$user_prefs->get_sales_search_customer_partnumber() if $self->cv eq 'customer';
-  $self->{search_cvpartnumber} = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
-
   my $print_form = Form->new('');
   $print_form->{type}      = $self->type;
   $print_form->{printers}  = SL::DB::Manager::Printer->get_all_sorted;
@@ -1604,6 +1633,8 @@ sub pre_render {
                                                     link => File::Spec->catfile($_->full_filedescriptor),
                                                 } } @all_objects;
   }
+
+  $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 
   $::request->{layout}->use_javascript("${_}.js") for qw(kivi.SalesPurchase kivi.Order kivi.File ckeditor/ckeditor ckeditor/adapters/jquery edit_periodic_invoices_config calculate_qty);
   $self->setup_edit_action_bar;
@@ -1832,6 +1863,18 @@ sub get_title_for {
        : $self->type eq sales_quotation_type()   ? $::locale->text("$action Quotation")
        : $self->type eq request_quotation_type() ? $::locale->text("$action Request for Quotation")
        : '';
+}
+
+sub get_item_cvpartnumber {
+  my ($self, $item) = @_;
+
+  if ($self->cv eq 'vendor') {
+    my @mms = grep { $_->make eq $self->order->customervendor->id } @{$item->part->makemodels};
+    $item->{cvpartnumber} = $mms[0]->model if scalar @mms;
+  } elsif ($self->cv eq 'customer') {
+    my @cps = grep { $_->customer_id eq $self->order->customervendor->id } @{$item->part->customerprices};
+    $item->{cvpartnumber} = $cps[0]->customer_partnumber if scalar @cps;
+  }
 }
 
 sub sales_order_type {
