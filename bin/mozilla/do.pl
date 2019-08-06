@@ -1,4 +1,3 @@
-
 #=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
@@ -706,7 +705,7 @@ sub orders {
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
-                                          insertdatefrom insertdateto business_id all);
+                                          insertdatefrom insertdateto business_id all department_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
