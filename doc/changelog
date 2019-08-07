@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2019-07-27 - Release 3.5.4-beta
+2019-08-07 - Release 3.5.4
 
 
 Mittelgroße neue Features:
@@ -46,6 +46,18 @@ Kleinere neue Features und Detailverbesserungen:
 - Dialogbuchungen aus Kontoauszugs-Import erstellen, der Verwendungszweck wird in die Beschreibung übernommen
 
 - ungenutzte Spalte "ranking" aus Tabelle "payment_terms" entfernt
+
+
+Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+378 Lieferantenauftrag Darstellung für Besteller optimieren
+376 Aktuelle unstable kann keine kivitendo_auth Datenbank anlegen
+371 Benutzerdefinierte Variablen nicht im Bericht Projekt enthalten, kann nicht danach gefiltert werden.
+367 Kontoauszugsimport: 2 Konten bei einer Bank. Bankgebührenbuchung wird als schon importiert makiert
+366 Zahlungsverkehr->Zahlungs-(ein/aus)gang. Bezahlen/Abgleichen mehrerer Rechnungen geht nicht mehr wie vorher.
+345 Bearbeiter bei Mahnungen
+215 Kunden als csv exportieren
+
 
 2019-01-03 - Release 3.5.3
 
