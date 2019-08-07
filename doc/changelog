@@ -2,6 +2,17 @@
 # Veränderungen von kivitendo #
 ###############################
 
+xxxx-xx-xx - Release x.x.x
+
+Mittelgroße neue Features:
+
+- In den Benutzreinstellungen kann ausgewählt werden, ob der Part-Picker in
+  der neuen Angebots-/Auftragsmaske (neuer Auftrags-Controller) auch nach
+  Kunden-Artikelnummern (Verkauf) und Lieferanten-Artikelnummern (Einkauf)
+  suchen soll. Ist dieses Feature eingeschaltet, so werden auch die Kunden-
+  bzw. Lieferanten-Artikelnummern als Spalte in den Positionen angezeigt.
+
+
 2019-08-07 - Release 3.5.4
 
 
