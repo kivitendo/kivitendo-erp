@@ -38,6 +38,9 @@
     [%- IF SELF.part.id  %]
     <li><a href="#price_rules">[% 'Price Rules' | $T8 %]</a></li>
     [% END %]
+    [%- IF (AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service) %]
+    <li><a href="#inventory">[% 'Inventories' | $T8 %]</a></li>
+    [%- END %]
     [%- IF CUSTOM_VARIABLES.size %]
     <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
     [%- END %]
@@ -75,6 +78,13 @@
      [% PROCESS 'part/_shop.html' %]
    </div>
    [%- END %]
+
+   [%- IF AUTH.assert('warehouse_contents', 1) AND SELF.part.id AND NOT SELF.part.is_service %]
+   <div id="inventory">
+    [% PROCESS 'part/_inventory.html' %]
+   </div>
+   [%- END %]
+
    [%- END %]
 
    [%- IF CUSTOM_VARIABLES.size %]

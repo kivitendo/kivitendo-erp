@@ -3,7 +3,7 @@ package SL::DB::Part;
 use strict;
 
 use Carp;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use Rose::DB::Object::Helpers qw(as_tree);
 
 use SL::Locale::String qw(t8);
@@ -363,25 +363,79 @@ sub get_simple_stock_sql {
             SUM(i.qty)                            AS qty,
             SUM(i.qty * p.lastcost)               AS stock_value,
             p.unit                                AS unit,
-            LEAD(w.description)           OVER pt AS wh_lead,            -- to detect warehouse changes for subtotals
+            LEAD(w.description)           OVER pt AS wh_lead,            -- to detect warehouse changes for subtotals in template
             SUM( SUM(i.qty) )             OVER pt AS run_qty,            -- running total of total qty
             SUM( SUM(i.qty) )             OVER wh AS wh_run_qty,         -- running total of warehouse qty
             SUM( SUM(i.qty * p.lastcost)) OVER pt AS run_stock_value,    -- running total of total stock_value
             SUM( SUM(i.qty * p.lastcost)) OVER wh AS wh_run_stock_value  -- running total of warehouse stock_value
        FROM inventory i
-  LEFT JOIN parts p     ON (p.id           = i.parts_id)
-  LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
-  LEFT JOIN bin b       ON (i.bin_id       = b.id)
+            LEFT JOIN parts p     ON (p.id           = i.parts_id)
+            LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
+            LEFT JOIN bin b       ON (i.bin_id       = b.id)
       WHERE parts_id = ?
    GROUP BY w.description, b.description, p.unit, i.parts_id
      HAVING SUM(qty) != 0
-     WINDOW pt AS (PARTITION BY i.parts_id    ORDER BY w.description, b.description, p.unit),
-            wh AS (PARTITION by w.description ORDER BY w.description, b.description, p.unit)
-   ORDER BY w.description, b.description
+     WINDOW pt AS (PARTITION BY i.parts_id    ORDER BY w.sortkey, b.description, p.unit),
+            wh AS (PARTITION by w.description ORDER BY w.sortkey, b.description, p.unit)
+   ORDER BY w.sortkey, b.description, p.unit
 SQL
 
   my $stock_info = selectall_hashref_query($::form, $self->db->dbh, $query, $self->id);
   return $stock_info;
+}
+
+sub get_mini_journal {
+  my ($self) = @_;
+
+  # inventory ids of the most recent 10 inventory trans_ids
+
+  # duplicate code copied from SL::Controller::Inventory mini_journal, except
+  # for the added filter on parts_id
+
+  my $parts_id = $self->id;
+  my $query = <<"SQL";
+with last_inventories as (
+   select id,
+          trans_id,
+          itime
+     from inventory
+    where parts_id = $parts_id
+ order by itime desc
+    limit 20
+),
+grouped_ids as (
+   select trans_id,
+          array_agg(id) as ids
+     from last_inventories
+ group by trans_id
+ order by max(itime)
+     desc limit 10
+)
+select unnest(ids)
+  from grouped_ids
+ limit 20  -- so the planner knows how many ids to expect, the cte is an optimisation fence
+SQL
+
+  my $objs  = SL::DB::Manager::Inventory->get_all(
+    query        => [ id => [ \"$query" ] ],
+    with_objects => [ 'parts', 'trans_type', 'bin', 'bin.warehouse' ], # prevent lazy loading in template
+    sort_by      => 'itime DESC',
+  );
+  # remember order of trans_ids from query, for ordering hash later
+  my @sorted_trans_ids = uniq map { $_->trans_id } @$objs;
+
+  # at most 2 of them belong to a transaction and the qty determines in or out.
+  my %transactions;
+  for (@$objs) {
+    $transactions{ $_->trans_id }{ $_->qty > 0 ? 'in' : 'out' } = $_;
+    $transactions{ $_->trans_id }{base} = $_;
+  }
+
+  # because the inventory transactions were built in a hash, we need to sort the
+  # hash by using the original sort order of the trans_ids
+  my @sorted = map { $transactions{$_} } @sorted_trans_ids;
+
+  return \@sorted;
 }
 
 sub clone_and_reset_deep {
@@ -612,8 +666,9 @@ Using the LEAD(w.description) the template can check if the warehouse
 description is about to change, i.e. the next line will contain numbers from a
 different warehouse, so that a subtotal line can be added.
 
-The last line will contain the qty total and the total stock value over all
-warehouses/bins and can be used to add a line for the grand totals.
+The last row will contain the running qty total (run_qty) and the running total
+stock value (run_stock_value) over all warehouses/bins and can be used to add a
+line for the grand totals.
 
 =item C<items_lastcost_sum>
 

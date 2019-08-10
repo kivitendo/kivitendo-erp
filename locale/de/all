@@ -3016,6 +3016,7 @@ $self->{texts} = {
   'Stock Local/Shop'            => 'Bestand Lokal/Online',
   'Stock Qty for Date'          => 'Lagerbestand am',
   'Stock for part #1'           => 'Bestand für Artikel #1',
+  'Stock levels'                => 'Lagerbestände',
   'Stock value'                 => 'Bestandswert',
   'Stocked Qty'                 => 'Lagermenge',
   'Stocktaking'                 => 'Inventur',

@@ -33,7 +33,7 @@ use Rose::Object::MakeMethods::Generic (
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
                                   all_languages all_units all_price_factors) ],
-  'scalar'                => [ qw(warehouse bin) ],
+  'scalar'                => [ qw(warehouse bin stock_amounts journal) ],
 );
 
 # safety
@@ -262,6 +262,17 @@ sub action_history {
   $_[0]->render('part/history', { layout => 0 },
                                   history_entries => $history_entries);
 }
+
+sub action_inventory {
+  my ($self) = @_;
+
+  $::auth->assert('warehouse_contents');
+
+  $self->stock_amounts($self->part->get_simple_stock_sql);
+  $self->journal($self->part->get_mini_journal);
+
+  $_[0]->render('part/_inventory_data', { layout => 0 });
+};
 
 sub action_update_item_totals {
   my ($self) = @_;
@@ -903,6 +914,8 @@ sub init_part {
 
   if ( $::form->{part}{id} ) {
     return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
+  } elsif ( $::form->{id} ) {
+    return SL::DB::Part->new(id => $::form->{id})->load; # used by inventory tab
   } else {
     die "part_type missing" unless $::form->{part}{part_type};
     return SL::DB::Part->new(part_type => $::form->{part}{part_type});
