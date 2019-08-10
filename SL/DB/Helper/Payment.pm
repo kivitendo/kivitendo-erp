@@ -886,6 +886,7 @@ invoice is assumed to be the payment currency.
 
 If successful the return value will be 1 in scalar context or in list context
 the two ids (acc_trans_id) of the newly created bookings.
+
 =item C<reference_account>
 
 Returns a chart object which is the chart of the invoice with link AR or AP.
