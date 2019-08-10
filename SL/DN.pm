@@ -534,6 +534,11 @@ sub get_invoices {
     push(@values, like($form->{customer}));
   }
 
+  if ($form->{department_id}) {
+    $where .= qq| AND (a.department_id = ?)|;
+    push(@values, $form->{department_id});
+  }
+
   my %columns = (
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",
@@ -573,6 +578,7 @@ sub get_invoices {
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
          a.direct_debit,
+         dep.description as departmentname,
 
          cfg.dunning_description, cfg.dunning_level,
 
@@ -590,6 +596,7 @@ sub get_invoices {
        FROM ar a
 
        LEFT JOIN customer ct ON (a.customer_id = ct.id)
+       LEFT JOIN department dep ON (a.department_id = dep.id)
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
        LEFT JOIN dunning_config nextcfg ON
          (nextcfg.id =

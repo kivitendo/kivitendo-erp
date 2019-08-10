@@ -103,8 +103,10 @@ sub add {
 
   DN->get_config(\%myconfig, \%$form);
 
+  $form->get_lists("departments" => "ALL_DEPARTMENTS");
+
   $form->{SHOW_DUNNING_LEVEL_SELECTION} = $form->{DUNNING}         && scalar @{ $form->{DUNNING} };
-  $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{all_departments} && scalar @{ $form->{all_departments} || [] };
+  $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{ALL_DEPARTMENTS} && scalar @{ $form->{ALL_DEPARTMENTS} || [] };
 
   $form->{title}    = $locale->text('Start Dunning Process');
 
@@ -362,6 +364,7 @@ sub show_dunning {
     'checkbox'            => { 'text' => '', 'visible' => 'HTML' },
     'dunning_description' => { 'text' => $locale->text('Dunning Level') },
     'customername'        => { 'text' => $locale->text('Customername') },
+    'departmentname'      => { 'text' => $locale->text('Department') },
     'language'            => { 'text' => $locale->text('Language') },
     'invnumber'           => { 'text' => $locale->text('Invnumber') },
     'transdate'           => { 'text' => $locale->text('Invdate') },

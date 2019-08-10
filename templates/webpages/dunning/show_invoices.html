@@ -30,6 +30,7 @@
    </th>
 
    <th class="listheading">[% 'Customername' | $T8 %]</th>
+   <th class="listheading">[% 'Department' | $T8 %]</th>
    <th class="listheading">[% 'Language' | $T8 %]</th>
    <th class="listheading">[% 'Invno.' | $T8 %]</th>
    <th class="listheading">[% 'Invdate' | $T8 %]</th>
@@ -63,6 +64,7 @@
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
      <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
+     <td><input type="hidden" name="department_[% loop.count %]" size="6" value="[% HTML.escape(row.departmentname) %]">[% HTML.escape(row.departmentname) %]</td>
      <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
      <td>
       <input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">
