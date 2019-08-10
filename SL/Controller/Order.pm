@@ -10,6 +10,7 @@ use SL::SessionFile::Random;
 use SL::PriceSource;
 use SL::Webdav;
 use SL::File;
+use SL::MIME;
 use SL::Util qw(trim);
 use SL::YAML;
 use SL::DB::Order;
@@ -360,7 +361,7 @@ sub action_download_pdf {
   my $tmp_filename = $::auth->get_session_value("Order::print-${key}");
   return $self->send_file(
     $tmp_filename,
-    type => 'application/pdf',
+    type => SL::MIME->mime_type_from_ext($::form->{pdf_filename}),
     name => $::form->{pdf_filename},
   );
 }
