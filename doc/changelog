@@ -42,10 +42,12 @@ Kleinere neue Features und Detailverbesserungen:
   Das Feld wird beim Bericht mitexportiert
 - Kundenstammdaten um Feld E-Mail Rechnungsempfänger erweitert
   Viele Kunden besitzen für den Rechnungseingang eine generische E-Mail-Adresse, die nicht
-  mit der allgemeine E-Mail-Adresse identisch ist. Falls dieses Feld gesetzt ist, so hat dieser
+  mit der allgemeinen E-Mail-Adresse identisch ist. Falls dieses Feld gesetzt ist, so hat dieser
   Wert beim manuellen E-Mail Versand der Rechnung Priorität (mandantenweit konfigurierbar).
   Für die wiederkehrende Rechnung wird diese E-Mail-Adresse zusätzlich gesetzt.
-   In den entsprechenden vorgelagerten Masken, wird dies auch visuell angezeigt (nicht bei alter Auftragsmaske!).
+  In den entsprechenden vorgelagerten Masken, wird dies auch visuell angezeigt (nicht bei alter Auftragsmaske!).
+- Kundenstammdaten um Feld "Herkunft der personenbezogenen Daten" erweitert
+  Um Details zum Erstkontakt des Kunden zu erfassen.
 - Kundenstammdaten um Feld Amtsgericht erweitert
   Falls das Feld Steuernummer mit dem Wert der Hr-Nr gefüllt wurde, wird auch das zuständige
   Registierungs-Gericht benötigt.
