@@ -33,12 +33,12 @@ use Exception::Class (
   'SL::X::Inventory' => {
     isa                 => 'SL::X::Base',
     fields              => [ qw(msg error) ],
-    defaults            => { error_template => [ '%s: %s', qw(msg error) ] },
+    defaults            => { error_template => [ '%s: %s', qw(msg) ] },
   },
   'SL::X::Inventory::Allocation' => {
     isa                 => 'SL::X::Base',
     fields              => [ qw(msg error) ],
-    defaults            => { error_template => [ '%s: %s', qw(msg error) ] },
+    defaults            => { error_template => [ '%s: %s', qw(msg) ] },
   },
 );
 

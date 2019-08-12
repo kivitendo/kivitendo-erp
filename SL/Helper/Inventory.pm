@@ -214,10 +214,9 @@ sub allocate {
 
     last if $rest_qty == 0;
   }
-
   if ($rest_qty > 0) {
     die SL::X::Inventory::Allocation->new(
-      error => 'not enough to allocate',
+      error => t8('not enough to allocate'),
       msg => t8("can not allocate #1 units of #2, missing #3 units", $qty, $part->displayable_name, $rest_qty),
     );
   } else {
@@ -243,7 +242,7 @@ sub allocate_for_assembly {
   my @allocations;
 
   for my $part_id (keys %parts_to_allocate) {
-    my $part = SL::DB::Part->new(id => $part_id);
+    my $part = SL::DB::Part->load_cached($part_id);
     push @allocations, allocate(%params, part => $part, qty => $parts_to_allocate{$part_id});
   }
 
