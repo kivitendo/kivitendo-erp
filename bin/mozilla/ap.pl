@@ -1206,8 +1206,7 @@ sub add_from_purchase_order {
   $::form->{taxincluded}        = 1; # we use amount below, so tax is included
   $::form->{transdate}          = $today->to_kivitendo;
   $::form->{duedate}            = $today->to_kivitendo;
-  $::form->{duedate}            = $order->vendor->payment->calc_date(reference_date => $today)->to_kivitendo if $order->vendor->payment;
-
+  $::form->{duedate}            = $order->payment_terms->calc_date(reference_date => $today)->to_kivitendo if $order->payment_terms;
   create_links();
 
   my $config_po_ap_workflow_chart_id = $::instance_conf->get_workflow_po_ap_chart_id;
