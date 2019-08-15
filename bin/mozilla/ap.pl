@@ -1189,7 +1189,7 @@ sub add_from_purchase_order {
   return if !$::form->{id};
 
   my $order_id = delete $::form->{id};
-  my $order    = SL::DB::Order->new(id => $order_id)->load;
+  my $order    = SL::DB::Order->new(id => $order_id)->load(with => [ 'vendor', 'currency', 'payment_terms' ]);
 
   return if $order->type ne 'purchase_order';
 
