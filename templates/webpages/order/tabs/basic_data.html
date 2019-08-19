@@ -49,26 +49,30 @@
             <td>[% L.select_tag('order.taxzone_id', SELF.all_taxzones, default=SELF.order.taxzone_id, title_key='description', style='width: 300px', class='recalc') %]</td>
           </tr>
 
+          [% SET currency_id = SELF.order.currency_id || INSTANCE_CONF.get_currency_id  # use default currency for new order %]
+          [% IF SELF.order.exchangerate %]
+            [% SET exchangerate = SELF.order.exchangerate_as_null_number %]
+          [% END %]
           <tr id="currency_settings">
             <th align="right">[% 'Currency' | $T8 %]</th>
-            <td>[% L.select_tag('order.currency_id', SELF.all_currencies, default=SELF.order.currency_id, value_key='id', title_key='name') %]</td>
+            <td>[% L.select_tag('order.currency_id', SELF.all_currencies, default=currency_id, value_key='id', title_key='name') %]</td>
           </tr>
-          <tr id="exchangerate_settings" [%- IF !SELF.order.currency_id || SELF.order.currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
+          <tr id="exchangerate_settings" [%- IF currency_id==INSTANCE_CONF.get_currency_id %]style='display:none'[%- END %]>
             <th align="right">[% 'Exchangerate' | $T8 %]</th>
             <td> 1 <span id="currency_name">[% SELF.order.currency.name %]</span> =
               <span id="exchangerate_text">
-              [% IF SELF.order.exchangerate %]
-                [% HTML.escape(SELF.order.exchangerate_as_number) %]
+              [% IF exchangerate %]
+                [% HTML.escape(exchangerate) %]
               [% END %]
               </span>
-              [% IF !SELF.order.currency_id || SELF.order.currency_id==INSTANCE_CONF.get_currency_id || SELF.order.exchangerate %]
-                [% L.input_tag('', '', size="15", id='order_exchangerate_as_number', 'data-name'='order.exchangerate_as_number', style='display:none') %]
+              [% IF currency_id==INSTANCE_CONF.get_currency_id || SELF.order.exchangerate %]
+                [% L.input_tag('order.exchangerate_as_null_number', '', size="15", style='display:none', disabled=1) %]
               [% ELSE %]
-                [% L.input_tag('order.exchangerate_as_number', 0, size="15") %]
+                [% L.input_tag('order.exchangerate_as_null_number', 0, size="15") %]
               [% END %]
               [% INSTANCE_CONF.default_currency %]
-              [% L.hidden_tag('old_currency_id', SELF.order.currency_id) %]
-              [% L.hidden_tag('old_exchangerate', SELF.order.exchangerate_as_number) %]
+              [% L.hidden_tag('old_currency_id', currency_id) %]
+              [% L.hidden_tag('old_exchangerate', exchangerate) %]
             </td>
           </tr>
 

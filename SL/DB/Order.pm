@@ -18,6 +18,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree);
 
@@ -124,10 +125,13 @@ sub exchangerate {
 
   return 1 if $self->currency_id == $::instance_conf->get_currency_id;
 
+  # unable to determine if sales or purchase
+  return undef if !$self->has_customervendor;
+
   my $rate = $self->is_sales ? 'buy' : 'sell';
 
   if (defined $val) {
-    croak 'exchange rate has to be positive' if $val <= 0;
+    croak t8('exchange rate has to be positive') if $val <= 0;
     if (!$self->exchangerate_obj) {
       $self->exchangerate_obj(SL::DB::Exchangerate->new(
         currency_id => $self->currency_id,
@@ -137,7 +141,7 @@ sub exchangerate {
     } elsif (!defined $self->exchangerate_obj->$rate) {
       $self->exchangerate_obj->$rate($val);
     } else {
-      croak 'exchange rate already exists, no update allowed';
+      croak t8('exchange rate already exists, no update allowed');
     }
   }
   return $self->exchangerate_obj->$rate if $self->exchangerate_obj;
