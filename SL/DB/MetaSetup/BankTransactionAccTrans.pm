@@ -19,7 +19,7 @@ __PACKAGE__->meta->columns(
   mtime               => { type => 'timestamp' },
 );
 
-__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+__PACKAGE__->meta->primary_key_columns([ 'bank_transaction_id', 'acc_trans_id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
