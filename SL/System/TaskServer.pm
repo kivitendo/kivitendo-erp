@@ -11,6 +11,7 @@ use Rose::Object::MakeMethods::Generic (
 use File::Slurp;
 use File::Spec::Functions qw(:ALL);
 use File::Temp;
+use Sys::Hostname ();
 
 use SL::System::Process;
 
@@ -21,6 +22,8 @@ use constant {
 };
 
 use constant PID_BASE => "users/pid";
+
+my $node_id;
 
 sub status {
   my ($self) = @_;
@@ -61,6 +64,14 @@ sub wake_up {
   my $pid = $self->_read_pid;
   return undef unless $pid;
   return kill('ALRM', $pid) ? 1 : undef;
+}
+
+sub node_id {
+  return $node_id if $node_id;
+
+  $node_id = ($::lx_office_conf{task_server} // {})->{node_id} || Sys::Hostname::hostname();
+
+  return $node_id;
 }
 
 #

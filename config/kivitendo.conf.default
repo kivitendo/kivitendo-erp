@@ -189,6 +189,11 @@ openofficeorg_daemon_port = 2002
 debug = 0
 # Chose a system user the daemon should run under when started as root.
 run_as =
+# Task servers can run on multiple machines. Each needs its own unique
+# ID. If unset, it defaults to the host name. All but one task server
+# must have 'only_run_tasks_for_this_node' set to 1.
+node_id =
+only_run_tasks_for_this_node = 0
 
 [task_server/notify_on_failure]
 # If you want email notifications for failed jobs then set this to a

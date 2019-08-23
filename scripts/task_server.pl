@@ -322,6 +322,7 @@ sub gd_run {
     run_single_job_for_all_clients();
     return;
   }
+  $::lxdebug->message(LXDebug::INFO(), "The task server for node " . SL::System::TaskServer::node_id() . " is up and running.");
 
   while (1) {
     $SIG{'ALRM'} = 'IGNORE';

@@ -15,6 +15,7 @@ __PACKAGE__->meta->columns(
   id           => { type => 'serial', not_null => 1 },
   last_run_at  => { type => 'timestamp' },
   next_run_at  => { type => 'timestamp' },
+  node_id      => { type => 'text' },
   package_name => { type => 'varchar', length => 255 },
   type         => { type => 'varchar', length => 255 },
 );

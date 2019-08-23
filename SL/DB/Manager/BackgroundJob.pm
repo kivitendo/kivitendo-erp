@@ -8,6 +8,8 @@ use base qw(SL::DB::Helper::Manager);
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
 
+use SL::System::TaskServer;
+
 sub object_class { 'SL::DB::BackgroundJob' }
 
 __PACKAGE__->make_manager_methods;
@@ -36,8 +38,21 @@ sub get_all_need_to_run {
                                                  cron_spec   => '',
                                                  next_run_at => undef,
                                                  next_run_at => { le => $now } ] ]);
+  my @node_filter;
 
-  return $class->get_all(query => [ or => [ @interval_args, @once_args ] ]);
+  my $node_id = SL::System::TaskServer->node_id;
+  if ($::lx_office_conf{task_server}->{only_run_tasks_for_this_node}) {
+    @node_filter = (node_id => $node_id);
+  } else {
+    @node_filter = (
+      or => [
+        node_id => undef,
+        node_id => '',
+        node_id => $node_id,
+      ]);
+  }
+
+  return $class->get_all(query => [ or => [ @interval_args, @once_args ], @node_filter ]);
 }
 
 1;
