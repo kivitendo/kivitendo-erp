@@ -631,7 +631,7 @@ sub check_orphaned_reconciliated_links {
   my $query = qq|
           SELECT purpose from bank_transactions
           WHERE cleared is true
-          AND id not in (SELECT bank_transaction_id from reconciliation_links)
+          AND NOT EXISTS (SELECT bank_transaction_id from reconciliation_links WHERE bank_transaction_id = bank_transactions.id)
           AND transdate >= ? AND transdate <= ?|;
 
   my $bt_cleared_no_link = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
@@ -681,7 +681,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
   my $query = qq|
           SELECT purpose from bank_transactions
           WHERE invoice_amount <> 0
-          AND id not in (SELECT bank_transaction_id from bank_transaction_acc_trans)
+          AND NOT EXISTS (SELECT bank_transaction_id FROM bank_transaction_acc_trans WHERE bank_transaction_id = bank_transactions.id)
           AND itime > (SELECT min(itime) from bank_transaction_acc_trans)
           AND transdate >= ? AND transdate <= ?|;
 
@@ -701,7 +701,7 @@ sub check_orphaned_bank_transaction_acc_trans_links {
           SELECT purpose from bank_transactions
           WHERE id in
           (SELECT bank_transaction_id from bank_transaction_acc_trans
-           where acc_trans_id NOT IN (select acc_trans_id from acc_trans)
+           WHERE NOT EXISTS (SELECT acc_trans.acc_trans_id FROM acc_trans WHERE acc_trans.acc_trans_id = bank_transaction_acc_trans.acc_trans_id)
            AND transdate >= ? AND transdate <= ?)|;
 
   my $bt_assigned_no_acc_trans = selectall_hashref_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
