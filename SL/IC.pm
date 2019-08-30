@@ -906,6 +906,25 @@ sub prepare_parts_for_printing {
 
   $sth->finish();
 
+  $query           = qq|SELECT
+                        cp.parts_id,
+                        cp.customer_partnumber AS customer_model,
+                        c.name                 AS customer_make
+                        FROM part_customer_prices cp
+                        LEFT JOIN customer c ON (cp.customer_id = c.id)
+                        WHERE cp.parts_id IN ($placeholders)|;
+
+  my %customermodel = ();
+
+  $sth              = prepare_execute_query($form, $dbh, $query, @part_ids);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $customermodel{$ref->{parts_id}} ||= [];
+    push @{ $customermodel{$ref->{parts_id}} }, $ref;
+  }
+
+  $sth->finish();
+
   my @columns = qw(ean image microfiche drawing);
 
   $query      = qq|SELECT id, | . join(', ', @columns) . qq|
@@ -915,7 +934,7 @@ sub prepare_parts_for_printing {
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
   my %template_arrays;
-  map { $template_arrays{$_} = [] } (qw(make model), @columns);
+  map { $template_arrays{$_} = [] } (qw(make model customer_make customer_model), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -929,11 +948,21 @@ sub prepare_parts_for_printing {
     push @{ $template_arrays{make} },  [];
     push @{ $template_arrays{model} }, [];
 
-    next if (!$makemodel{$id});
-
-    foreach my $ref (@{ $makemodel{$id} }) {
-      map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model);
+    if ($makemodel{$id}) {
+      foreach my $ref (@{ $makemodel{$id} }) {
+        map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model);
+      }
     }
+
+    push @{ $template_arrays{customer_make} },  [];
+    push @{ $template_arrays{customer_model} }, [];
+
+    if ($customermodel{$id}) {
+      foreach my $ref (@{ $customermodel{$id} }) {
+        push @{ $template_arrays{$_}->[-1] }, $ref->{$_} for qw(customer_make customer_model);
+      }
+    }
+
   }
 
   my $parts = SL::DB::Manager::Part->get_all(query => [ id => \@part_ids ]);

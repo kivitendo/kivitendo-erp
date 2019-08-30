@@ -126,6 +126,11 @@
           <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
           <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
           <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
+          <%if customer_make%>
+            <%foreach customer_make%>
+              \ifthenelse{\equal{<%customer_make%>}{<%name%>}}{&& \kundenartnr: <%customer_model%>\\}{}
+            <%end foreach%>
+          <%end if%>
           <%foreach si_number%><%if si_chargenumber%> && \scriptsize \charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%><%end si_chargenumber%>\\<%end si_number%>
 
           \\[-0.8em]

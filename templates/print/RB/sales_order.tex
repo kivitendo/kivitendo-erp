@@ -149,6 +149,11 @@
           <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
           <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
           <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
+          <%if customer_make%>
+            <%foreach customer_make%>
+              \ifthenelse{\equal{<%customer_make%>}{<%name%>}}{&& \kundenartnr: <%customer_model%>\\}{}
+            <%end foreach%>
+          <%end if%>
           \\[-0.8em]
 <%end number%>
 
