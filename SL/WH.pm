@@ -807,7 +807,7 @@ sub get_warehouse_report {
      "chargeid"             => "c.id",
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
-     "stock_value"          => "p.lastcost / COALESCE(pfac.factor, 1)",
+     "stock_value"          => $form->{stock_value_basis} eq 'list_price' ? "p.listprice / COALESCE(pfac.factor, 1)" : "p.lastcost / COALESCE(pfac.factor, 1)",
      "purchase_price"       => "p.lastcost",
      "list_price"           => "p.listprice",
   );

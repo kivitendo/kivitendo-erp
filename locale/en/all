@@ -3988,6 +3988,7 @@ $self->{texts} = {
   'bank_collection_payment_list_#1' => '',
   'bank_transfer_payment_list_#1' => '',
   'banktransfers'               => '',
+  'basis for stock value'       => '',
   'bestbefore #1'               => '',
   'bin_list'                    => '',
   'bis'                         => '',

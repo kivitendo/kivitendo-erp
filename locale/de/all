@@ -3991,6 +3991,7 @@ $self->{texts} = {
   'bank_collection_payment_list_#1' => 'bankeinzugszahlungsliste_#1',
   'bank_transfer_payment_list_#1' => 'ueberweisungszahlungsliste_#1',
   'banktransfers'               => 'ueberweisungen',
+  'basis for stock value'       => 'Grundlage für Bestandswert',
   'bestbefore #1'               => 'Mindesthaltbarkeit #1',
   'bin_list'                    => 'Lagerliste',
   'bis'                         => 'bis',
