@@ -57,7 +57,7 @@ sub convert_to {
   my $my_base_factor    = $self->base_factor       || 1;
   my $other_base_factor = $other_unit->base_factor || 1;
 
-  return $qty * $my_base_factor / $other_base_factor;
+  return ($qty // 0) * $my_base_factor / $other_base_factor;
 }
 
 sub is_time_based {
