@@ -29,7 +29,7 @@ sub _make_sorted {
 
     croak 'not an accessor' if @_ > 1;
 
-    my $next_position = (max map { $_->$position_sub // 0 } @{ $self->$unsorted_sub }) + 1;
+    my $next_position = ((max map { $_->$position_sub // 0 } @{ $self->$unsorted_sub }) // 0) + 1;
     return [
       map  { $_->[1] }
       sort { $a->[0] <=> $b->[0] }
