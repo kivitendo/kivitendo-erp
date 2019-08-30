@@ -809,6 +809,7 @@ sub get_warehouse_report {
      "partunit"             => "p.unit",
      "stock_value"          => "p.lastcost / COALESCE(pfac.factor, 1)",
      "purchase_price"       => "p.lastcost",
+     "list_price"           => "p.listprice",
   );
   $form->{l_classification_id}  = 'Y';
   $form->{l_part_type}          = 'Y';

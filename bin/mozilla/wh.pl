@@ -791,7 +791,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit purchase_price stock_value);
+  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
@@ -878,6 +878,7 @@ sub generate_report {
     'partunit'             => { 'text' => $locale->text('Unit'), },
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
     'purchase_price'       => { 'text' => $locale->text('Purchase price'), },
+    'list_price'           => { 'text' => $locale->text('List Price'), },
   );
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
@@ -885,7 +886,7 @@ sub generate_report {
 
   map { $column_defs{$_}->{link} = $href . "&page=".$page."&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(qty purchase_price stock_value);
+  my %column_alignment = map { $_ => 'right' } qw(qty list_price purchase_price stock_value);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
@@ -927,6 +928,7 @@ sub generate_report {
 #                                                       'conv_units' => 'convertible');
     $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
     $entry->{purchase_price} = $form->format_amount(\%myconfig, $entry->{purchase_price} * 1, 2);
+    $entry->{list_price}     = $form->format_amount(\%myconfig, $entry->{list_price}     * 1, 2);
 
     my $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
 
@@ -941,6 +943,7 @@ sub generate_report {
 #                                                               'conv_units' => 'convertible');
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
       $row->{purchase_price}->{data} = $form->format_amount(\%myconfig, $subtotals{purchase_price} * 1, 2);
+      $row->{list_price}->{data}     = $form->format_amount(\%myconfig, $subtotals{list_price}     * 1, 2);
 
       %subtotals                  = map { $_ => 0 } @subtotals_columns;
 
