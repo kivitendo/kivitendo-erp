@@ -791,7 +791,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit  purchase_price stock_value);
+  my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit purchase_price stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
