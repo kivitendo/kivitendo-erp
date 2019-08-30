@@ -1126,6 +1126,8 @@ sub evaluate_rights_ary {
   my $negate = 0;
 
   foreach my $el (@{$ary}) {
+    next unless defined $el;
+
     if (ref $el eq "ARRAY") {
       my $val = evaluate_rights_ary($el);
       $val    = !$val if $negate;
