@@ -2050,6 +2050,9 @@ sub show_sales_purchase_email_dialog {
 
   $email = '' if $::form->{type} eq 'purchase_delivery_order';
 
+  $::form->{language} = $::form->get_template_language(\%::myconfig);
+  $::form->{language} = "_" . $::form->{language};
+
   my $email_form = {
     to                  => $email,
     cc                  => $email_cc,
