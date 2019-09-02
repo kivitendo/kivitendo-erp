@@ -26,7 +26,7 @@ __PACKAGE__->meta->columns(
   department_2     => { type => 'text' },
   depositor        => { type => 'text' },
   direct_debit     => { type => 'boolean', default => 'false' },
-  discount         => { type => 'float', scale => 4 },
+  discount         => { type => 'float', precision => 4, scale => 4 },
   email            => { type => 'text' },
   fax              => { type => 'text' },
   gln              => { type => 'text' },

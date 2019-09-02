@@ -15,7 +15,7 @@ __PACKAGE__->meta->columns(
   mtime         => { type => 'timestamp' },
   parts_id      => { type => 'integer', not_null => 1 },
   position      => { type => 'integer', not_null => 1 },
-  qty           => { type => 'float', not_null => 1, scale => 4 },
+  qty           => { type => 'float', not_null => 1, precision => 4, scale => 4 },
   unit          => { type => 'varchar', length => 20, not_null => 1 },
 );
 
