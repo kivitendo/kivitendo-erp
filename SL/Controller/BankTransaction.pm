@@ -230,11 +230,8 @@ sub action_list {
 
   # sort bank transaction proposals by quality (score) of proposal
   if ($::form->{sort_by} && $::form->{sort_by} eq 'proposal') {
-    if ($::form->{sort_dir}) {
-      $bank_transactions = [ sort { $a->{agreement} <=> $b->{agreement} } @{ $bank_transactions } ];
-    } else {
-      $bank_transactions = [ sort { $b->{agreement} <=> $a->{agreement} } @{ $bank_transactions } ];
-    }
+    my $dir = $::form->{sort_dir} ? 1 : -1;
+    $bank_transactions = [ sort { ($a->{agreement} <=> $b->{agreement}) * $dir } @{ $bank_transactions } ];
   }
 
   # for testing with t/bank/banktransaction.t :
