@@ -175,20 +175,12 @@ sub join_purposes {
 
   my $object = $entry->{object};
 
-  my $purpose = join(' ', $entry->{raw_data}->{purpose},
-                         $entry->{raw_data}->{purpose1},
-                         $entry->{raw_data}->{purpose2},
-                         $entry->{raw_data}->{purpose3},
-                         $entry->{raw_data}->{purpose4},
-                         $entry->{raw_data}->{purpose5},
-                         $entry->{raw_data}->{purpose6},
-                         $entry->{raw_data}->{purpose7},
-                         $entry->{raw_data}->{purpose8},
-                         $entry->{raw_data}->{purpose9},
-                         $entry->{raw_data}->{purpose10},
-                         $entry->{raw_data}->{purpose11},
-                         $entry->{raw_data}->{purpose12},
-                         $entry->{raw_data}->{purpose13} );
+  my $purpose =
+    join ' ',
+    grep { ($_ // '') !~ m{^ *$} }
+    map  { $entry->{raw_data}->{"purpose$_"} }
+    ('', 1..13);
+
   $object->purpose($purpose);
 
 }
