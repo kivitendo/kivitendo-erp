@@ -68,32 +68,21 @@ sub action_list_all {
   $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
-sub action_list {
-  my ($self) = @_;
+sub gather_bank_transactions_and_proposals {
+  my ($self, %params) = @_;
 
-  if (!$::form->{filter}{bank_account}) {
-    flash('error', t8('No bank account chosen!'));
-    $self->action_search;
-    return;
-  }
-
-  my $sort_by = $::form->{sort_by} || 'transdate';
+  my $sort_by = $params{sort_by} || 'transdate';
   $sort_by = 'transdate' if $sort_by eq 'proposal';
-  $sort_by .= $::form->{sort_dir} ? ' DESC' : ' ASC';
-
-  my $fromdate = $::locale->parse_date_to_object($::form->{filter}->{fromdate});
-  my $todate   = $::locale->parse_date_to_object($::form->{filter}->{todate});
-  $todate->add( days => 1 ) if $todate;
+  $sort_by .= $params{sort_dir} ? ' DESC' : ' ASC';
 
   my @where = ();
-  push @where, (transdate => { ge => $fromdate }) if ($fromdate);
-  push @where, (transdate => { lt => $todate })   if ($todate);
-  my $bank_account = SL::DB::Manager::BankAccount->find_by( id => $::form->{filter}{bank_account} );
+  push @where, (transdate => { ge => $params{fromdate} }) if $params{fromdate};
+  push @where, (transdate => { lt => $params{todate} })   if $params{todate};
   # bank_transactions no younger than starting date,
   # including starting date (same search behaviour as fromdate)
   # but OPEN invoices to be matched may be from before
-  if ( $bank_account->reconciliation_starting_date ) {
-    push @where, (transdate => { ge => $bank_account->reconciliation_starting_date });
+  if ( $params{bank_account}->reconciliation_starting_date ) {
+    push @where, (transdate => { ge => $params{bank_account}->reconciliation_starting_date });
   };
 
   my $bank_transactions = SL::DB::Manager::BankTransaction->get_all(
@@ -102,7 +91,7 @@ sub action_list {
     limit        => 10000,
     where        => [
       amount                => {ne => \'invoice_amount'},
-      local_bank_account_id => $::form->{filter}{bank_account},
+      local_bank_account_id => $params{bank_account}->id,
       cleared               => 0,
       @where
     ],
@@ -117,7 +106,7 @@ sub action_list {
                                                                        with_objects => ['customer','payment_terms']);
 
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where => [amount => { ne => \'paid' }], with_objects => ['vendor'  ,'payment_terms']);
-  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $bank_account->chart_id ,
+  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where => [chart_id => $params{bank_account}->chart_id ,
                                                                              'sepa_export.executed' => 0, 'sepa_export.closed' => 0 ], with_objects => ['sepa_export']);
 
   my @all_open_invoices;
@@ -229,23 +218,43 @@ sub action_list {
   push @proposals, @otherproposals;
 
   # sort bank transaction proposals by quality (score) of proposal
-  if ($::form->{sort_by} && $::form->{sort_by} eq 'proposal') {
-    my $dir = $::form->{sort_dir} ? 1 : -1;
+  if ($params{sort_by} && $params{sort_by} eq 'proposal') {
+    my $dir = $params{sort_dir} ? 1 : -1;
     $bank_transactions = [ sort { ($a->{agreement} <=> $b->{agreement}) * $dir } @{ $bank_transactions } ];
   }
 
-  # for testing with t/bank/banktransaction.t :
-  if ( $::form->{dont_render_for_test} ) {
-    return ( $bank_transactions , \@proposals );
+  return ( $bank_transactions , \@proposals );
+}
+
+sub action_list {
+  my ($self) = @_;
+
+  if (!$::form->{filter}{bank_account}) {
+    flash('error', t8('No bank account chosen!'));
+    $self->action_search;
+    return;
   }
+
+  my $bank_account = SL::DB::BankAccount->load_cached($::form->{filter}->{bank_account});
+  my $fromdate     = $::locale->parse_date_to_object($::form->{filter}->{fromdate});
+  my $todate       = $::locale->parse_date_to_object($::form->{filter}->{todate});
+  $todate->add( days => 1 ) if $todate;
+
+  my ($bank_transactions, $proposals) = $self->gather_bank_transactions_and_proposals(
+    bank_account => $bank_account,
+    fromdate     => $fromdate,
+    todate       => $todate,
+    sort_by      => $::form->{sort_by},
+    sort_dir     => $::form->{sort_dir},
+  );
 
   $::request->layout->add_javascripts("kivi.BankTransaction.js");
   $self->render('bank_transactions/list',
                 title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
-                PROPOSALS         => \@proposals,
+                PROPOSALS         => $proposals,
                 bank_account      => $bank_account,
-                ui_tab            => scalar(@proposals) > 0?1:0,
+                ui_tab            => scalar(@{ $proposals }) > 0 ? 1 : 0,
               );
 }
 

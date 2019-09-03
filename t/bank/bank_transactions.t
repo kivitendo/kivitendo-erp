@@ -1022,9 +1022,7 @@ sub test_bt_rule1 {
   is($bt->invoice_amount     , '0.00000' , "$testname: bt invoice amount was not assigned");
 
   my $bt_controller = SL::Controller::BankTransaction->new;
-  $::form->{dont_render_for_test} = 1;
-  $::form->{filter}{bank_account} = $bank_account->id;
-  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  my ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
 
   is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
   is($bt_transactions->[0]->{agreement}, 20 , "$testname: agreement == 20");
@@ -1075,9 +1073,7 @@ sub test_sepa_export {
   is($sei->amount            , '119.00000' , "$testname: sepa export amount ok");
 
   my $bt_controller = SL::Controller::BankTransaction->new;
-  $::form->{dont_render_for_test} = 1;
-  $::form->{filter}{bank_account} = $bank_account->id;
-  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  my ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
 
   is(scalar(@$bt_transactions)         , 1  , "$testname: one bank_transaction");
   is($bt_transactions->[0]->{agreement}, 25 , "$testname: agreement == 25");
@@ -1143,9 +1139,7 @@ sub test_two_banktransactions {
   #nun sollten zwei gleichwertige Rechnungen $ar_transaction_1 und $ar_transaction_3 für $bt1 gefunden werden
   #aber es darf keine Proposals geben mit mehreren Rechnungen
   my $bt_controller = SL::Controller::BankTransaction->new;
-  $::form->{dont_render_for_test} = 1;
-  $::form->{filter}{bank_account} = $bank_account->id;
-  my ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  my ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
 
   is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
   is(scalar(@$proposals)         , 0  , "$testname: no proposals");
@@ -1155,7 +1149,7 @@ sub test_two_banktransactions {
   # Jetzt gibt es zwei Kontobewegungen mit gleichen Punkten für eine Rechnung.
   # hier darf es auch keine Proposals geben
 
-  ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
 
   is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
   # odyn testfall - anforderungen so (noch) nicht in kivi
@@ -1166,7 +1160,7 @@ sub test_two_banktransactions {
   # hier darf es auch keine Proposals geben
   $bt3->update_attributes( purpose => "fuer Rechnung salesinv10000");
 
-  ( $bt_transactions, $proposals ) = $bt_controller->action_list;
+  ( $bt_transactions, $proposals ) = $bt_controller->gather_bank_transactions_and_proposals(bank_account => $bank_account);
 
   is(scalar(@$bt_transactions)   , 2  , "$testname: two bank_transaction");
   # odyn testfall - anforderungen so (noch) nicht in kivi
