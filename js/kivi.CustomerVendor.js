@@ -58,7 +58,7 @@ namespace('kivi.CustomerVendor', function(ns) {
   this.selectContact = function(params) {
     var contactId = $('#contact_cp_id').val();
 
-	  var url = 'controller.pl?action=CustomerVendor/ajaj_get_contact&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&contact_id='+ contactId;
+    var url = 'controller.pl?action=CustomerVendor/ajaj_get_contact&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&contact_id='+ contactId;
 
     $.getJSON(url, function(data) {
       var contact = data.contact;
