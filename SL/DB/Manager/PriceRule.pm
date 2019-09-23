@@ -36,14 +36,39 @@ __PACKAGE__->add_filter_specs(
     return unless 'HASH' eq ref $values->[0];
     return unless grep $_, values %{ $values->[0] };
 
-    my $each_type = "SELECT DISTINCT price_rules_id FROM price_rule_items WHERE type = %s AND (%s)";
-    my $sub_query = join ' INTERSECT ', map {
-      m/^ ( \w+? ) (?: _as_ ( \w+ ) )? $/x or die "can not identify accessor in $_";
-      my ($type, $format) = ($1, $2);
+    my %params = %{ $values->[0] };
+    my @keys   = keys %params;
 
-      sprintf $each_type, $::form->get_standard_dbh->quote($type), SL::DB::Manager::PriceRuleItem->filter_match($type, $values->[0]{$_}, $format)
-    } grep { $values->[0]{$_} } keys %{ $values->[0] };
-    return or => [ ${prefix} . 'id' => [ \$sub_query ] ];
+    # support some basic formatting and remove empty filters
+    for (@keys) {
+      if ($params{$_} eq '') {
+        delete $params{$_};
+        next;
+      }
+
+      /^(.*)_as_date$/ && do {
+        my $slot = $1;
+        $params{$slot} = DateTime->from_kivitendo(delete $params{$_});
+      };
+      /^(.*)_as_number$/ && do {
+        my $slot = $1;
+        $params{$slot} = $::form->parse_amount(\%::myconfig, delete $params{$_});
+      };
+    }
+
+    my ($sub_where, @values) = SL::DB::Manager::PriceRuleItem->not_matching_sql_and_values(raw_data => \%params);
+
+    # now union all NOT matching, invert ids, load these
+    my $matching_rule_ids = <<"";
+      SELECT id FROM price_rules
+      WHERE NOT EXISTS (
+        SELECT * FROM price_rule_items WHERE price_rules.id = price_rules_id AND ($sub_where)
+      )
+
+    my $dbh = SL::DB->client->dbh;
+    $matching_rule_ids =~ s/\?/ $dbh->quote(shift @values) /eg;
+
+    return (id => [ \$matching_rule_ids ]);
   },
 );
 
