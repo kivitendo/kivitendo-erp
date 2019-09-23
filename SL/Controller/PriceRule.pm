@@ -230,12 +230,29 @@ sub make_filter_summary {
 
   my @filters = (
     [ $filter->{"name:substr::ilike"}, t8('Name')  ],
+    [ $filter->{"type"},               t8('Type') ],
+
+    [ $filter->{item_type_matches}[0]{part}, t8('Part'), sub { SL::DB::Manager::Part->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{customer}, t8('Customer'), sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{vendor}, t8('Vendor'), sub { SL::DB::Manager::Vendor->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{business}, t8('Business'), sub { SL::DB::Manager::Business->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{partsgroup}, t8('PartsGroup'), sub { SL::DB::Manager::PartsGroup->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{qty_as_number}, t8('Qty'), ],
+    [ $filter->{item_type_matches}[0]{reqdate_as_date}, t8('Reqdate') ],
+    [ $filter->{item_type_matches}[0]{transdate_as_date}, t8('Transdate') ],
+    [ $filter->{item_type_matches}[0]{pricegroup}, t8('Pricegroup'), sub { SL::DB::Manager::Pricegroup->find_by_or_create(id => $_[0])->displayable_name } ],
+
     [ $filter->{"price:number"},       t8('Price') ],
+    [ $filter->{"reduction:number"},   t8('Reduction') ],
     [ $filter->{"discount:number"},    t8('Discount') ],
+
+    [ $filter->{"priority"},           t8('Priority'),  sub { $filter->{"priority"} ? t8('Yes') : t8('No') }],
+    [ $filter->{"obsolete"},           t8('Obsolete'),  sub { $filter->{"obsolete"} ? t8('Yes') : t8('No') } ],
   );
 
   for (@filters) {
-    push @filter_strings, "$_->[1]: $_->[0]" if $_->[0];
+    next unless $_->[0];
+    push @filter_strings, "$_->[1]: " . ($_->[2] ? $_->[2]->($_->[0]) : $_->[0]);
   }
 
   if ($filter->{has_item_type}) {
