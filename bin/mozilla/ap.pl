@@ -1054,10 +1054,13 @@ sub ap_transactions {
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
+  my $department_description;
+  $department_description = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
+
   my @options;
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
   push @options, $locale->text('Contact Person')          . " : $form->{cp_name}"                        if ($form->{cp_name});
-  push @options, $locale->text('Department')              . " : $form->{department}"                     if ($form->{department});
+  push @options, $locale->text('Department')              . " : $department_description"                 if ($form->{department_id});
   push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
