@@ -1026,7 +1026,7 @@ sub orders {
     "curr",                    "employee",
     "salesman",
     "shipvia",                 "globalprojectnumber",
-    "transaction_description", "open",
+    "transaction_description", "department",            "open",
     "delivered",               "periodic_invoices",
     "marge_total",             "marge_percent",
     "vcnumber",                "ustid",
@@ -1111,6 +1111,7 @@ sub orders {
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
+    'department'              => { 'text' => $locale->text('Department'), },
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivery Order created'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
@@ -1129,7 +1130,7 @@ sub orders {
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate payment_terms department)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
