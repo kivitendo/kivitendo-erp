@@ -123,18 +123,41 @@ sub cvar_config {
   &custom_variable_configs
 }
 
+sub value_object {
+  my ($self) = @_;
+
+  my $type = $self->type;
+  my $op   = $self->op;
+
+    $type eq 'customer'   ? $self->customer
+  : $type eq 'vendor'     ? $self->vendor
+  : $type eq 'business'   ? $self->business
+  : $type eq 'partsgroup' ? $self->partsgroup
+  : $type eq 'pricegroup' ? $self->pricegroup
+  : $type eq 'part'       ? $self->part
+  :                         undef;
+}
+
+sub safe_value_object_description {
+  my ($self) = @_;
+
+  my $object = $self->value_object;
+
+  $object ? $object->displayable_name : t8('will never match');
+}
+
 sub full_description {
   my ($self) = @_;
 
   my $type = $self->type;
   my $op   = $self->op;
 
-    $type eq 'customer'   ? t8('Customer')         . ' ' . $self->customer->displayable_name
-  : $type eq 'vendor'     ? t8('Vendor')           . ' ' . $self->vendor->displayable_name
-  : $type eq 'business'   ? t8('Type of Business') . ' ' . $self->business->displayable_name
-  : $type eq 'partsgroup' ? t8('Partsgroup')       . ' ' . $self->partsgroup->displayable_name
-  : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->pricegroup->displayable_name
-  : $type eq 'part'       ? t8('Part')             . ' ' . $self->part->displayable_name
+    $type eq 'customer'   ? t8('Customer')         . ' ' . $self->safe_value_object_description
+  : $type eq 'vendor'     ? t8('Vendor')           . ' ' . $self->safe_value_object_description
+  : $type eq 'business'   ? t8('Type of Business') . ' ' . $self->safe_value_object_description
+  : $type eq 'partsgroup' ? t8('Partsgroup')       . ' ' . $self->safe_value_object_description
+  : $type eq 'pricegroup' ? t8('Pricegroup')       . ' ' . $self->safe_value_object_description
+  : $type eq 'part'       ? t8('Part')             . ' ' . $self->safe_value_object_description
   : $type eq 'qty' ? (
        $op eq 'eq' ? t8('Qty equals #1',             $self->value_num_as_number)
      : $op eq 'lt' ? t8('Qty less than #1',          $self->value_num_as_number)
