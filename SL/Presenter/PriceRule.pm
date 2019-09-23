@@ -14,7 +14,7 @@ use SL::MoreCommon qw(listify);
 use SL::Locale::String qw(t8);
 
 use List::UtilsBy qw(sort_by nsort_by);
-use List::Util qw(first);
+use List::Util qw(first uniq);
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(price_rule_type_summary);
@@ -88,7 +88,9 @@ sub price_rule_type_summary {
     };
 
     # id-like terms can only have one of them anyway
-    die "found more than one rule item of type $type in price rule @{[ $price_rule->id ]}" if @items > 1;
+    if (@items > 1 && 1 < uniq map { $_->value_int } @items) {
+      return t8('will never match');
+    }
     my $obj = $items[0]->value_object;
     return '' if !$obj;
     return $obj->full_description if $obj->can('full_description');
