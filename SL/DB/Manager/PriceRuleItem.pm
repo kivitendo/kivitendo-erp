@@ -19,7 +19,7 @@ use SL::DBUtils qw();
 use SL::DB::CustomVariableConfig;
 
 my %ops = (
-  'num'  => { eq => '=', le => '<=', ge => '>=' },
+  'num'  => { eq => '=', le => '<=', ge => '>=', gt => '>', lt => '<' },
   'date' => { eq => '=', lt => '<', gt => '>' },
 );
 
@@ -56,16 +56,26 @@ our %price_rule_type_by_cvar_type = (
 sub not_matching_sql_and_values {
   my ($class, %params) = @_;
 
-  die 'must be called with a customer/vendor type' unless $params{type};
-  my @args = @params{'record', 'record_item'};
+  if (!$params{raw_data}) {
+    die 'must be called with a customer/vendor type, record and record_item'
+      unless $params{type} && $params{record} && $params{record_item};
+  }
+
+  my $raw_data = $params{raw_data};
 
   my (@tokens, @values);
 
   for my $def (@types, cached_cvar_types()) {
     my $type = $def->{type};
-    next unless $def->{$params{type}};
+    if ($raw_data) {
+      # raw mode: ignore filters not present, but don't care about customer/vendor split
+      next if !exists $raw_data->{$type};
+    } else {
+      # record mode filter for everything, pay attention to customer/vendor split
+      next unless $def->{$params{type}};
+    }
 
-    my $value = $def->{data}->(@args);
+    my $value = $raw_data ? $raw_data->{$type} : $def->{data}->(@params{'record', 'record_item'});
 
     my $type_token = $def->{cvar_config} ? "custom_variable_configs_id = '$def->{cvar_config}'" : "type = '$type'";
 
@@ -209,35 +219,5 @@ sub get_all_used_types {
 sub get_type {
   grep { $_->{type} eq $_[1] } @types
 }
-
-sub filter_match {
-  my ($self, $type, $value, $format) = @_;
-
-  my $type_def = first { $_->{type} eq $type } @types;
-
-  for ($format) {
-    /date/   && do { $value = DateTime->from_kivitendo($value); };
-    /number/ && do { $value = $::form->parse_amount(\%::myconfig, $value); };
-  }
-
-  my $evalue   = $::form->get_standard_dbh->quote($value);
-
-  if (!$type_def->{ops}) {
-    return "value_$type_def->{data_type} = $evalue";
-  } elsif ($type_def->{ops} eq 'date') {
-    return "
-      (value_$type_def->{data_type} > $evalue AND op = 'lt') OR
-      (value_$type_def->{data_type} < $evalue AND op = 'gt') OR
-      (value_$type_def->{data_type} = $evalue AND op = 'eq')
-    ";
-  } elsif ($type_def->{ops} eq 'num') {
-    return "
-      (value_$type_def->{data_type} >= $evalue AND op = 'le') OR
-      (value_$type_def->{data_type} <= $evalue AND op = 'ge') OR
-      (value_$type_def->{data_type} =  $evalue AND op = 'eq')
-    ";
-  }
-}
-
 
 1;
