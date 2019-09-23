@@ -1001,7 +1001,7 @@ sub ap_transactions {
 
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
-       due duedate transaction_description notes employee globalprojectnumber
+       due duedate transaction_description notes employee globalprojectnumber department
        vendornumber country ustid taxzone payment_terms charts direct_debit);
 
   my @hidden_variables = map { "l_${_}" } @columns;
@@ -1028,6 +1028,7 @@ sub ap_transactions {
     'notes'                   => { 'text' => $locale->text('Notes'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
+    'department'              => { 'text' => $locale->text('Department'), },
     'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
@@ -1037,7 +1038,7 @@ sub ap_transactions {
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description direct_debit department)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

@@ -454,6 +454,7 @@ sub ap_transactions {
     qq|  v.vendornumber, v.country, v.ustid, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
+    qq|  department.description AS department, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
@@ -467,7 +468,8 @@ sub ap_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
+    qq|LEFT JOIN department ON (department.id = a.department_id)|;
 
   my $where = '';
 
@@ -590,7 +592,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit))) {
+  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 
