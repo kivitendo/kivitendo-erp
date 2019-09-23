@@ -211,26 +211,30 @@ sub get_type {
 }
 
 sub filter_match {
-  my ($self, $type, $value) = @_;
+  my ($self, $type, $value, $format) = @_;
 
   my $type_def = first { $_->{type} eq $type } @types;
 
+  for ($format) {
+    /date/   && do { $value = DateTime->from_kivitendo($value); };
+    /number/ && do { $value = $::form->parse_amount(\%::myconfig, $value); };
+  }
+
+  my $evalue   = $::form->get_standard_dbh->quote($value);
+
   if (!$type_def->{ops}) {
-    my $evalue   = $::form->get_standard_dbh->quote($value);
     return "value_$type_def->{data_type} = $evalue";
   } elsif ($type_def->{ops} eq 'date') {
-    my $date_value   = $::form->get_standard_dbh->quote(DateTime->from_kivitendo($value));
     return "
-      (value_$type_def->{data_type} > $date_value AND op = 'lt') OR
-      (value_$type_def->{data_type} < $date_value AND op = 'gt') OR
-      (value_$type_def->{data_type} = $date_value AND op = 'eq')
+      (value_$type_def->{data_type} > $evalue AND op = 'lt') OR
+      (value_$type_def->{data_type} < $evalue AND op = 'gt') OR
+      (value_$type_def->{data_type} = $evalue AND op = 'eq')
     ";
   } elsif ($type_def->{ops} eq 'num') {
-    my $num_value   = $::form->get_standard_dbh->quote($::form->parse_amount(\%::myconfig, $value));
     return "
-      (value_$type_def->{data_type} >= $num_value AND op = 'le') OR
-      (value_$type_def->{data_type} <= $num_value AND op = 'ge') OR
-      (value_$type_def->{data_type} =  $num_value AND op = 'eq')
+      (value_$type_def->{data_type} >= $evalue AND op = 'le') OR
+      (value_$type_def->{data_type} <= $evalue AND op = 'ge') OR
+      (value_$type_def->{data_type} =  $evalue AND op = 'eq')
     ";
   }
 }

@@ -38,7 +38,10 @@ __PACKAGE__->add_filter_specs(
 
     my $each_type = "SELECT DISTINCT price_rules_id FROM price_rule_items WHERE type = %s AND (%s)";
     my $sub_query = join ' INTERSECT ', map {
-      sprintf $each_type, $::form->get_standard_dbh->quote($_), SL::DB::Manager::PriceRuleItem->filter_match($_, $values->[0]{$_})
+      m/^ ( \w+? ) (?: _as_ ( \w+ ) )? $/x or die "can not identify accessor in $_";
+      my ($type, $format) = ($1, $2);
+
+      sprintf $each_type, $::form->get_standard_dbh->quote($type), SL::DB::Manager::PriceRuleItem->filter_match($type, $values->[0]{$_}, $format)
     } grep { $values->[0]{$_} } keys %{ $values->[0] };
     return or => [ ${prefix} . 'id' => [ \$sub_query ] ];
   },
