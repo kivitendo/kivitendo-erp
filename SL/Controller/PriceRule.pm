@@ -178,7 +178,7 @@ sub prepare_report {
 
   my @type_columns = map { $_->{type} } $self->get_all_used_types($self->models->finalize);
 
-  my @columns     = (qw(name type priority customer vendor business part partsgroup qty reqdate transdate pricegroup price reduction discount)); # items, obsolete
+  my @columns     = (qw(name type priority customer vendor business part partsgroup qty ve reqdate transdate pricegroup price reduction discount)); # items, obsolete
   my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
