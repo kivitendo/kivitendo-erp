@@ -12,8 +12,10 @@ use SL::DB::PriceRuleItem;
 use SL::DB::Pricegroup;
 use SL::DB::PartsGroup;
 use SL::DB::Business;
+use SL::DBUtils qw();
 use SL::Helper::Flash;
 use SL::Locale::String;
+use Rose::DB::Object::QueryBuilder ();
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -174,9 +176,9 @@ sub prepare_report {
   $self->{report} = $report;
 
 
-  my @type_columns = map { $_->{type} } SL::DB::Manager::PriceRuleItem->get_all_used_types;
+  my @type_columns = map { $_->{type} } $self->get_all_used_types($self->models->finalize);
 
-  my @columns     = (qw(name type priority), @type_columns, qw(price reduction discount)); # items, obsolete
+  my @columns     = (qw(name type priority customer vendor business part partsgroup qty reqdate transdate pricegroup price reduction discount)); # items, obsolete
   my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
@@ -189,11 +191,12 @@ sub prepare_report {
     items         => { sub  => sub { $_[0]->item_summary }, visible => 0 },
     (map {
       my $type = $_;
-      $type->[0]     => { sub  => sub { $_[0]->presenter->type_summary($type->[0]) }, text => $type->[1] },
+      $type->[0]     => { sub  => sub { $_[0]->presenter->type_summary($type->[0]) }, text => $type->[1], visible => 0 },
     } @{ SL::DB::Manager::PriceRuleItem->get_all_types }),
   );
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  $column_defs{$_}{visible} = 1 for @type_columns;
+  $column_defs{$_}{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) for keys %column_defs;
 
   if ( $report->{options}{output_format} =~ /^(pdf|csv)$/i ) {
     $self->models->disable_plugin('paginated');
@@ -328,6 +331,38 @@ sub init_cvar_configs {
 
 sub all_price_types {
   SL::DB::Manager::PriceRule->all_price_types;
+}
+
+sub get_all_used_types {
+  my ($self, %params) = @_;
+
+  my $price_rules = Rose::DB::Object::QueryBuilder::build_select(
+    select       => 'id',
+    tables       => [ 'price_rules' ],
+    columns      => {
+      price_rules => [ qw(id obsolete) ],
+    },
+    query        => $params{query},
+    query_is_sql => 1,
+    with_objects => $params{with_objects},
+    dbh          => SL::DB->client->dbh,
+    db           => SL::DB->client,
+  );
+
+  my $items = Rose::DB::Object::QueryBuilder::build_select(
+    select       => 'DISTINCT type, array_agg(DISTINCT op)',
+    tables       => [ 'price_rule_items' ],
+    columns      => {
+      price_rule_items => [ qw(type op price_rules_id) ],
+    },
+    query        => [ price_rules_id => [ \$price_rules ] ],
+    query_is_sql => 1,
+    group_by     => [ 'type' ],
+    dbh          => SL::DB->client->dbh,
+    db           => SL::DB->client,
+  );
+
+  SL::DBUtils::selectall_hashref_query($::form, SL::DB->client->dbh, $items);
 }
 
 sub init_models {
