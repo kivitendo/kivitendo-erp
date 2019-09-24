@@ -184,7 +184,11 @@ sub prepare_report {
   my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
-    name          => { obj_link => sub { $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback) } },
+    name          => { obj_link => sub {
+      $_[0]->price_rule_macro_id
+        ? $self->url_for(controller => 'PriceRuleMacro', action => 'load', 'price_rule_macro.id' => $_[0]->price_rule_macro_id, callback => $callback)
+        : $self->url_for(action => 'edit', 'price_rule.id' => $_[0]->id, callback => $callback)
+    } },
     priority      => { sub  => sub { $_[0]->priority_as_text } },
     price         => { sub  => sub { $_[0]->price_as_number } },
     reduction     => { sub  => sub { $_[0]->reduction_as_number } },
