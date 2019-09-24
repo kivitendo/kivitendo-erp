@@ -340,7 +340,7 @@ sub get_all_used_types {
     select       => 'id',
     tables       => [ 'price_rules' ],
     columns      => {
-      price_rules => [ qw(id obsolete) ],
+      price_rules => [ qw(id name obsolete price reduction discount priority type) ],
     },
     query        => $params{query},
     query_is_sql => 1,
