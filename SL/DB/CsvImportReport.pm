@@ -65,8 +65,17 @@ sub destroy {
     do_query($::form, $dbh, 'DELETE FROM csv_import_reports WHERE id = ?', $self->id);
 
     if ($self->profile_id) {
-      do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
-      do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
+      my ($is_profile_used_elsewhere) = selectfirst_array_query($::form, $dbh, <<SQL, $self->profile_id);
+        SELECT id
+        FROM csv_import_reports
+        WHERE profile_id = ?
+        LIMIT 1
+SQL
+
+      if (!$is_profile_used_elsewhere) {
+        do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
+        do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
+      }
     }
     1;
   }) or do { die SL::DB->client->error };
