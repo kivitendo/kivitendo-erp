@@ -16,6 +16,7 @@ use SL::DBUtils qw();
 use SL::Helper::Flash;
 use SL::Locale::String;
 use Rose::DB::Object::QueryBuilder ();
+use List::Util qw(uniq);
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -177,8 +178,9 @@ sub prepare_report {
 
 
   my @type_columns = map { $_->{type} } $self->get_all_used_types($self->models->finalize);
+  my @item_types  = map { $_->[0] } @{ $self->all_price_rule_item_types };
 
-  my @columns     = (qw(name type priority customer vendor business part partsgroup qty ve reqdate transdate pricegroup price reduction discount)); # items, obsolete
+  my @columns     = (qw(name type priority), @item_types, qw(price reduction discount));
   my @sortable    = qw(name type priority price reduction discount);
 
   my %column_defs = (
@@ -239,15 +241,15 @@ sub make_filter_summary {
     [ $filter->{item_type_matches}[0]{customer}, t8('Customer'), sub { SL::DB::Manager::Customer->find_by_or_create(id => $_[0])->displayable_name } ],
     [ $filter->{item_type_matches}[0]{vendor}, t8('Vendor'), sub { SL::DB::Manager::Vendor->find_by_or_create(id => $_[0])->displayable_name } ],
     [ $filter->{item_type_matches}[0]{business}, t8('Business'), sub { SL::DB::Manager::Business->find_by_or_create(id => $_[0])->displayable_name } ],
-    [ $filter->{item_type_matches}[0]{partsgroup}, t8('PartsGroup'), sub { SL::DB::Manager::PartsGroup->find_by_or_create(id => $_[0])->displayable_name } ],
+    [ $filter->{item_type_matches}[0]{partsgroup}, t8('Partsgroup'), sub { SL::DB::Manager::PartsGroup->find_by_or_create(id => $_[0])->displayable_name } ],
     [ $filter->{item_type_matches}[0]{qty_as_number}, t8('Qty'), ],
     [ $filter->{item_type_matches}[0]{reqdate_as_date}, t8('Reqdate') ],
     [ $filter->{item_type_matches}[0]{transdate_as_date}, t8('Transdate') ],
     [ $filter->{item_type_matches}[0]{pricegroup}, t8('Pricegroup'), sub { SL::DB::Manager::Pricegroup->find_by_or_create(id => $_[0])->displayable_name } ],
 
-    [ $filter->{"price:number"},       t8('Price') ],
-    [ $filter->{"reduction:number"},   t8('Reduction') ],
-    [ $filter->{"discount:number"},    t8('Discount') ],
+    [ $filter->{"price:number"},       t8('Price Action (PriceRules)') ],
+    [ $filter->{"reduction:number"},   t8('Reduction Action (PriceRules)') ],
+    [ $filter->{"discount:number"},    t8('Discount Action (PriceRules)') ],
 
     [ $filter->{"priority"},           t8('Priority'),  sub { $filter->{"priority"} ? t8('Yes') : t8('No') }],
     [ $filter->{"obsolete"},           t8('Obsolete'),  sub { $filter->{"obsolete"} ? t8('Yes') : t8('No') } ],

@@ -30,6 +30,7 @@ __PACKAGE__->run_before('check_auth');
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules
                                   all_project_statuses all_project_types zugferd_settings
+                                  all_price_rule_types
                                   posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options yearend_options
                                   displayable_name_specs_by_module available_documents_with_no_positions) ],
 );
@@ -217,6 +218,10 @@ sub init_all_price_sources {
   my @classes = SL::PriceSource::ALL->all_price_sources;
 
   [ map { [ $_->name, $_->description ] } @classes ];
+}
+
+sub init_all_price_rule_types {
+  SL::DB::Manager::PriceRuleItem->get_all_types;
 }
 
 sub init_available_quick_search_modules {

@@ -13,6 +13,7 @@ sub object_class { 'SL::DB::PriceRuleItem' }
 __PACKAGE__->make_manager_methods;
 
 use SL::Locale::String qw(t8);
+use List::Util qw();
 
 use SL::DB::CustomVariableConfig;
 
@@ -201,10 +202,23 @@ sub raw_value {
 
 sub get_all_types {
   my ($class, $vc) = @_;
+  my @types = $class->ordered_types;
 
   $vc
   ? [ map { [ $_->{type}, $_->{description} ] } grep { $_->{$vc} } @types ]
   : [ map { [ $_->{type}, $_->{description} ] } @types ]
+}
+
+sub ordered_types {
+  List::Util::uniq(grep({ $types{$_} } @{ $::instance_conf->get_price_rule_type_order }), @types);
+}
+
+sub get_types {
+  @types;
+}
+
+sub get_type_definitions {
+  \%types;
 }
 
 sub get_type {

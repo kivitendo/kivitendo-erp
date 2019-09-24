@@ -524,6 +524,28 @@
    </td>
  </tr>
 
+ <tr><td class="listheading" colspan="4">[% LxERP.t8("Price Rule Type Order") %]</td></tr>
+ <tr>
+   <td align="right">[% 'Types will be ordered like this for reports, drag/drop to change order' | $T8 %]</td>
+   <td colspan=2>
+     <table id='order_types'>
+       <tbody>
+       [% FOREACH type=SELF.all_price_rule_types %]
+        <tr class='listrow'>
+          <td align="center" class="dragdrop">[% L.img_tag(src="image/updown.png", alt=LxERP.t8("reorder item")) %]</td>
+          <td>
+          [% L.hidden_tag('defaults.price_rule_type_order[]', type.0) %]
+          [% type.1 | html %]
+          </td>
+        </tr>
+       [% END %]
+       [% L.sortable_element('#order_types tbody') %]
+       </tbody>
+     </table>
+   </td>
+ </tr>
+
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Projects") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Always save orders with a projectnumber (create new projects)') %]</td>
