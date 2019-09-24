@@ -155,6 +155,7 @@ __PACKAGE__->meta->columns(
   ponumber                                  => { type => 'text' },
   pqinumber                                 => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
+  price_rule_type_order                     => { type => 'array' },
   print_interpolate_variables_in_positions  => { type => 'boolean', default => 'true', not_null => 1 },
   produce_assembly_same_warehouse           => { type => 'boolean', default => 'true' },
   produce_assembly_transfer_service         => { type => 'boolean', default => 'false' },
