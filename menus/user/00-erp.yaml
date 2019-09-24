@@ -109,7 +109,7 @@
   order: 900
   access: part_service_assembly_edit
   params:
-    action: PriceRuleMacro/list
+    action: PriceRule/list
     filter.obsolete: 0
 - parent: master_data
   id: master_data_reports
