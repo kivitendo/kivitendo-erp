@@ -4,13 +4,10 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::DB::PriceRuleMacro;
-use SL::DB::Business;
-use SL::DB::PartsGroup;
-use SL::DB::Pricegroup;
 use SL::Locale::String qw(t8);
 use SL::Helper::Flash qw(flash flash_later);
-use SL::Presenter;
 use SL::Controller::PriceRuleMacro::Report;
+use SL::Controller::PriceRuleMacro::FullEditor;
 use SL::Controller::Helper::ReportGenerator ();
 
 use Rose::Object::MakeMethods::Generic (
@@ -18,7 +15,7 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(
     price_rule_macro meta
     all_price_types
-    report
+    report editor
   ) ],
 );
 
@@ -28,32 +25,16 @@ __PACKAGE__->run_before('add_javascript');
 use SL::Helper::Object (
   delegate => [
     report => [ qw(action_list), @SL::Controller::Helper::ReportGenerator::EXPORT ],
+    editor => [ qw(empty_price_rule_macro render_form action_add_line action_add_value action_add_element) ],
   ],
 );
 
 sub action_new {
   my ($self) = @_;
 
-  # stub definition for new rules
-  my $rule = SL::DB::PriceRuleMacro->new(
-    definition => {
-      priority => 3,
-      condition => {
-        type => 'container_and',
-        condition => [],
-      },
-      action => {
-        type => 'action_container_and',
-        action => [],
-      },
-      format_version => SL::DB::PriceRuleMacro->latest_version,
-    }
-  );
-
-  $self->price_rule_macro($rule);
-
+  $self->price_rule_macro($self->empty_price_rule_macro);
   $self->setup_form_action_bar;
-  $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
+  $self->render_form;
 }
 
 sub action_load {
@@ -62,10 +43,10 @@ sub action_load {
   $self->price_rule_macro->update_definition;
 
   if ($::request->type eq 'json') {
-    return $self->render(\$self->price_rule_macro->json_definition, { process => 0, type => 'json'});
+    $self->render(\$self->price_rule_macro->json_definition, { process => 0, type => 'json'});
   } else {
     $self->setup_form_action_bar;
-    return $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
+    $self->render_form
   }
 }
 
@@ -142,7 +123,7 @@ sub action_clone {
   $self->price_rule_macro->id(undef);
 
   $self->setup_form_action_bar;
-  $self->render('price_rule_macro/form', price_rule_macro => $self->price_rule_macro);
+  $self->render_form;
 }
 
 sub action_delete {
@@ -175,84 +156,9 @@ sub action_meta {
   }
 }
 
-# for multi value elements with exactly one sub element. just name the block like their only accessible field
-sub action_add_line {
-  my ($self) = @_;
-
-  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
-  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
-  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
-
-  my $meta = $self->meta->{$::form->{type}} or die "unknown type $::form->{type}";
-
-  my @array_elements = $meta->{internal_class}->array_elements;
-
-  die "type $::form->{type} does not have exactly one array element" unless 1 == scalar @array_elements;
-
-  my $html = $self->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS @{array_elements}_input %]",
-    { output => 0 },
-    prefix => $::form->{prefix},
-    item => SL::PriceRuleMacro::Element->new(type => @array_elements),
-  );
-
-  $self
-    ->js
-    ->insertBefore($html, '#' . $::form->{container})
-    ->reinit_widgets
-    ->render;
-}
-
-sub action_add_value {
-  my ($self) = @_;
-
-  die 'invalid container id' unless $::form->{container} =~ /^[-\w]+$/;
-  die 'invalid type'         unless $::form->{type}      =~ /^\w+$/;
-  die 'invalid prefix'       unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
-
-  my $html = $self->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS condition_$::form->{type}_value_input %]",
-    { output => 0 },
-    prefix => $::form->{prefix},
-  );
-
-  $self
-    ->js
-    ->insertBefore($html, '#' . $::form->{container})
-    ->reinit_widgets
-    ->render;
-}
-
-sub action_add_element {
-  my ($self) = @_;
-
-  my %known_element_classes = (
-    condition => 1,
-    action    => 1,
-  );
-
-  die 'invalid container id'  unless $::form->{container} =~ /^[-\w]+$/;
-  die 'invalid type'          unless $::form->{type}      =~ /^\w+$/;
-  die 'invalid prefix'        unless $::form->{prefix}    =~ /^[_\w\[\]\.]+$/;
-  die 'invalid element_class' unless $known_element_classes{$::form->{element_class}};
-
-  my $html = $self->render(
-    \"[% PROCESS 'price_rule_macro/input_blocks.html' %][% PROCESS $::form->{element_class}_element %]",
-    { output => 0 },
-    prefix => $::form->{prefix},
-    item   => SL::PriceRuleMacro::Element->new(type => $::form->{type}),
-  );
-
-  $self
-    ->js
-    ->insertBefore($html, '#' . $::form->{container})
-    ->reinit_widgets
-    ->render;
-}
-
 ### internal
 
-# todo: make this clean and in model
+# todo: make this clean and in model/presenter
 sub allowed_elements_for {
   my ($self, $element) = @_;
 
@@ -288,6 +194,10 @@ sub init_price_rule_macro {
 
 sub init_report {
   SL::Controller::PriceRuleMacro::Report->new(controller => $_[0]);
+}
+
+sub init_editor {
+  SL::Controller::PriceRuleMacro::FullEditor->new(controller => $_[0]);
 }
 
 sub init_meta {

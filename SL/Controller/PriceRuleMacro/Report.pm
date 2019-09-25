@@ -9,6 +9,7 @@ use SL::ReportGenerator;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
+use SL::DB::PriceRuleMacro;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(filter_summary) ],
